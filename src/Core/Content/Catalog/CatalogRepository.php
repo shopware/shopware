@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Content\Catalog;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Content\Catalog\Collection\CatalogBasicCollection;
 use Shopware\Core\Content\Catalog\Event\CatalogAggregationResultLoadedEvent;
 use Shopware\Core\Content\Catalog\Event\CatalogBasicLoadedEvent;
 use Shopware\Core\Content\Catalog\Event\CatalogIdSearchResultLoadedEvent;
 use Shopware\Core\Content\Catalog\Event\CatalogSearchResultLoadedEvent;
 use Shopware\Core\Content\Catalog\Struct\CatalogSearchResult;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\AggregatorResult;

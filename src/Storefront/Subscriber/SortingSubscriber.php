@@ -4,12 +4,12 @@ namespace Shopware\Storefront\Subscriber;
 
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\System\Listing\ListingSortingRepository;
+use Shopware\Core\System\Listing\Struct\ListingSortingBasicStruct;
 use Shopware\Storefront\Event\ListingEvents;
 use Shopware\Storefront\Event\ListingPageLoadedEvent;
 use Shopware\Storefront\Event\ListingPageRequestEvent;
 use Shopware\Storefront\Event\PageCriteriaCreatedEvent;
-use Shopware\Core\System\Listing\ListingSortingRepository;
-use Shopware\Core\System\Listing\Struct\ListingSortingBasicStruct;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class SortingSubscriber implements EventSubscriberInterface

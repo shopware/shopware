@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\System\User\Event;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Content\Media\Event\MediaBasicLoadedEvent;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\System\Locale\Event\LocaleBasicLoadedEvent;

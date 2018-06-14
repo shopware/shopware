@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\System\Touchpoint\Collection;
 
-use Shopware\Core\System\Touchpoint\Struct\TouchpointBasicStruct;
-use Shopware\Core\System\Language\Collection\LanguageBasicCollection;
 use Shopware\Core\Framework\ORM\EntityCollection;
 use Shopware\Core\System\Currency\Collection\CurrencyBasicCollection;
+use Shopware\Core\System\Language\Collection\LanguageBasicCollection;
+use Shopware\Core\System\Touchpoint\Struct\TouchpointBasicStruct;
 
 class TouchpointBasicCollection extends EntityCollection
 {

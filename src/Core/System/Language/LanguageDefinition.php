@@ -2,12 +2,6 @@
 
 namespace Shopware\Core\System\Language;
 
-use Shopware\Core\System\Language\Collection\LanguageBasicCollection;
-use Shopware\Core\System\Language\Collection\LanguageDetailCollection;
-use Shopware\Core\System\Language\Event\LanguageDeletedEvent;
-use Shopware\Core\System\Language\Event\LanguageWrittenEvent;
-use Shopware\Core\System\Language\Struct\LanguageBasicStruct;
-use Shopware\Core\System\Language\Struct\LanguageDetailStruct;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationDefinition;
 use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationDefinition;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationDefinition;
@@ -31,6 +25,12 @@ use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
 use Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\CountryAreaTranslationDefinition;
 use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationDefinition;
+use Shopware\Core\System\Language\Collection\LanguageBasicCollection;
+use Shopware\Core\System\Language\Collection\LanguageDetailCollection;
+use Shopware\Core\System\Language\Event\LanguageDeletedEvent;
+use Shopware\Core\System\Language\Event\LanguageWrittenEvent;
+use Shopware\Core\System\Language\Struct\LanguageBasicStruct;
+use Shopware\Core\System\Language\Struct\LanguageDetailStruct;
 use Shopware\Core\System\Listing\Definition\ListingFacetTranslationDefinition;
 use Shopware\Core\System\Listing\Definition\ListingSortingTranslationDefinition;
 use Shopware\Core\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationDefinition;

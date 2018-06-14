@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\Event;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Storefront\Page\Listing\ListingPageRequest;
 use Symfony\Component\HttpFoundation\Request;

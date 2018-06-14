@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Checkout\DiscountSurcharge;
 
+use Shopware\Core\Checkout\DiscountSurcharge\Aggregate\DiscountSurchargeTranslation\DiscountSurchargeTranslationDefinition;
 use Shopware\Core\Checkout\DiscountSurcharge\Collection\DiscountSurchargeBasicCollection;
 use Shopware\Core\Checkout\DiscountSurcharge\Collection\DiscountSurchargeDetailCollection;
-use Shopware\Core\Checkout\DiscountSurcharge\Aggregate\DiscountSurchargeTranslation\DiscountSurchargeTranslationDefinition;
 use Shopware\Core\Checkout\DiscountSurcharge\Event\DiscountSurchargeDeletedEvent;
 use Shopware\Core\Checkout\DiscountSurcharge\Event\DiscountSurchargeWrittenEvent;
 use Shopware\Core\Checkout\DiscountSurcharge\Struct\DiscountSurchargeBasicStruct;

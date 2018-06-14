@@ -24,10 +24,10 @@
 
 namespace Shopware\Core\Framework\ORM\Field;
 
-use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\Framework\ORM\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\ORM\Write\EntityExistence;
 use Shopware\Core\Framework\ORM\Write\FieldAware\StorageAware;
+use Shopware\Core\System\Language\LanguageDefinition;
 
 class TranslatedField extends Field
 {

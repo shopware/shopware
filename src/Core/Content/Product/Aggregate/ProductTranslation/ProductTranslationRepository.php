@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductTranslation;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Collection\ProductTranslationBasicCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Collection\ProductTranslationDetailCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Event\ProductTranslationAggregationResultLoadedEvent;
@@ -11,6 +10,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Event\ProductTran
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Event\ProductTranslationIdSearchResultLoadedEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Event\ProductTranslationSearchResultLoadedEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Struct\ProductTranslationSearchResult;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\AggregatorResult;

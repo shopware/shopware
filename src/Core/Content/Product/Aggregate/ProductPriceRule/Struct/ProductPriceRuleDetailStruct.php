@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Struct;
 
-use Shopware\Core\Content\Rule\Struct\RuleBasicStruct;
 use Shopware\Core\Content\Product\Struct\ProductBasicStruct;
+use Shopware\Core\Content\Rule\Struct\RuleBasicStruct;
 use Shopware\Core\System\Currency\Struct\CurrencyBasicStruct;
 
 class ProductPriceRuleDetailStruct extends ProductPriceRuleBasicStruct

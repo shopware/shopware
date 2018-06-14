@@ -2,12 +2,12 @@
 
 namespace Shopware\Core\Content\Configuration\Event;
 
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\NestedEvent;
-use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Event\ConfigurationGroupOptionBasicLoadedEvent;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\Event\ConfigurationGroupTranslationBasicLoadedEvent;
 use Shopware\Core\Content\Configuration\Collection\ConfigurationGroupDetailCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
 
 class ConfigurationGroupDetailLoadedEvent extends NestedEvent
 {

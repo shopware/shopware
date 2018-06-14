@@ -71,7 +71,7 @@ EOF;
 
         $data = [
             'id' => $id->getHex(),
-            'data' => []
+            'data' => [],
         ];
 
         $this->getWriter()->insert(ListDefinition::class, [$data], $context);
@@ -90,7 +90,7 @@ EOF;
 
         $data = [
             'id' => $id->getHex(),
-            'data' => ['foo', 'bar', 'loo']
+            'data' => ['foo', 'bar', 'loo'],
         ];
 
         $this->getWriter()->insert(ListDefinition::class, [$data], $context);
@@ -109,7 +109,7 @@ EOF;
 
         $data = [
             'id' => $id->getHex(),
-            'data' => [false, 10, 'string', 10.123]
+            'data' => [false, 10, 'string', 10.123],
         ];
 
         $ex = null;

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductPriceRule;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Collection\ProductPriceRuleBasicCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Collection\ProductPriceRuleDetailCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Event\ProductPriceRuleAggregationResultLoadedEvent;
@@ -11,6 +10,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Event\ProductPriceR
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Event\ProductPriceRuleIdSearchResultLoadedEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Event\ProductPriceRuleSearchResultLoadedEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Struct\ProductPriceRuleSearchResult;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\AggregatorResult;

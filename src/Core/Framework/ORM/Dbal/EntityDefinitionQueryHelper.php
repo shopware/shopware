@@ -3,8 +3,8 @@
 namespace Shopware\Core\Framework\ORM\Dbal;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Dbal\FieldAccessorBuilder\FieldAccessorBuilderRegistry;
 use Shopware\Core\Framework\ORM\Dbal\FieldResolver\FieldResolverRegistry;
 use Shopware\Core\Framework\ORM\EntityDefinition;

@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Aggregate\MediaTranslation;
 
-use Shopware\Core\System\Language\LanguageDefinition;
+use Shopware\Core\Content\Catalog\ORM\CatalogField;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\Collection\MediaTranslationBasicCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\Collection\MediaTranslationDetailCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\Event\MediaTranslationDeletedEvent;
@@ -12,7 +12,6 @@ use Shopware\Core\Content\Media\Aggregate\MediaTranslation\Struct\MediaTranslati
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
-use Shopware\Core\Content\Catalog\ORM\CatalogField;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\LongTextField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
@@ -21,6 +20,7 @@ use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\System\Language\LanguageDefinition;
 
 class MediaTranslationDefinition extends EntityDefinition
 {

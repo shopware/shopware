@@ -39,19 +39,19 @@ class AddressPageStruct extends Struct implements PageStructInterface
     /** @var string|null */
     protected $company;
 
-    /** @var string|null  */
+    /** @var string|null */
     protected $department;
 
-    /** @var string|null  */
+    /** @var string|null */
     protected $title;
 
-    /** @var string|null  */
+    /** @var string|null */
     protected $vatId;
 
-    /** @var string|null  */
+    /** @var string|null */
     protected $additionalAddressLine1;
 
-    /** @var string|null  */
+    /** @var string|null */
     protected $additionalAddressLine2;
 
     public function fromRequest(Request $request): self

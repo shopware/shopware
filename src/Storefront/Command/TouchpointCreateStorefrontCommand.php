@@ -3,12 +3,12 @@
 namespace Shopware\Storefront\Command;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\System\Touchpoint\TouchpointRepository;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Util\Random;
+use Shopware\Core\System\Touchpoint\TouchpointRepository;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;

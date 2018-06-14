@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Payment;
 
-use Shopware\Core\System\Touchpoint\TouchpointDefinition;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
@@ -37,6 +36,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
 use Shopware\Core\Framework\Plugin\PluginDefinition;
+use Shopware\Core\System\Touchpoint\TouchpointDefinition;
 
 class PaymentMethodDefinition extends EntityDefinition
 {

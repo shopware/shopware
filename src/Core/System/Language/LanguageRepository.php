@@ -3,14 +3,6 @@
 namespace Shopware\Core\System\Language;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\System\Language\Collection\LanguageBasicCollection;
-use Shopware\Core\System\Language\Collection\LanguageDetailCollection;
-use Shopware\Core\System\Language\Event\LanguageAggregationResultLoadedEvent;
-use Shopware\Core\System\Language\Event\LanguageBasicLoadedEvent;
-use Shopware\Core\System\Language\Event\LanguageDetailLoadedEvent;
-use Shopware\Core\System\Language\Event\LanguageIdSearchResultLoadedEvent;
-use Shopware\Core\System\Language\Event\LanguageSearchResultLoadedEvent;
-use Shopware\Core\System\Language\Struct\LanguageSearchResult;
 use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\AggregatorResult;
@@ -21,6 +13,14 @@ use Shopware\Core\Framework\ORM\Search\IdSearchResult;
 use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
 use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Core\Framework\ORM\Write\WriteContext;
+use Shopware\Core\System\Language\Collection\LanguageBasicCollection;
+use Shopware\Core\System\Language\Collection\LanguageDetailCollection;
+use Shopware\Core\System\Language\Event\LanguageAggregationResultLoadedEvent;
+use Shopware\Core\System\Language\Event\LanguageBasicLoadedEvent;
+use Shopware\Core\System\Language\Event\LanguageDetailLoadedEvent;
+use Shopware\Core\System\Language\Event\LanguageIdSearchResultLoadedEvent;
+use Shopware\Core\System\Language\Event\LanguageSearchResultLoadedEvent;
+use Shopware\Core\System\Language\Struct\LanguageSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class LanguageRepository implements RepositoryInterface

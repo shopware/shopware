@@ -25,9 +25,9 @@
 namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\CalculatedCart;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Cart\Rule\LineItemsInCartRule;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
+use Shopware\Core\Checkout\Cart\Rule\LineItemsInCartRule;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 
 class LineItemsInCartRuleTest extends TestCase

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\Currency\Aggregate\CurrencyTranslation;
 
-use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\FkField;
@@ -19,6 +18,7 @@ use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\Event\CurrencyTr
 use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\Struct\CurrencyTranslationBasicStruct;
 use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\Struct\CurrencyTranslationDetailStruct;
 use Shopware\Core\System\Currency\CurrencyDefinition;
+use Shopware\Core\System\Language\LanguageDefinition;
 
 class CurrencyTranslationDefinition extends EntityDefinition
 {

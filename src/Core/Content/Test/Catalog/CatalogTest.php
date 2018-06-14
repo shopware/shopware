@@ -3,12 +3,12 @@
 namespace Shopware\Core\Content\Test\Catalog;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Content\Catalog\CatalogRepository;
 use Shopware\Core\Content\Category\CategoryRepository;
 use Shopware\Core\Content\Category\Struct\CategoryBasicStruct;
 use Shopware\Core\Content\Product\ProductRepository;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\ORM\Write\FieldException\WriteStackException;

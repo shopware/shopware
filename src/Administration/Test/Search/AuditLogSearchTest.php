@@ -4,11 +4,11 @@ namespace Shopware\Administration\Test\Search;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Administration\Search\AdministrationSearch;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductRepository;
 use Shopware\Core\Content\Product\Struct\ProductBasicStruct;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\System\User\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;

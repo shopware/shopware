@@ -2,12 +2,12 @@
 
 namespace Shopware\Core\Content\Product\Cart;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\CartProcessorInterface;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
-use Shopware\Core\Content\Product\Cart\Struct\CalculatedProduct;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Content\Product\Cart\Struct\CalculatedProduct;
 use Shopware\Core\Framework\Struct\StructCollection;
 
 class ProductPostValidator implements CartProcessorInterface

@@ -5,8 +5,8 @@ namespace Shopware\Storefront\Page\Listing;
 use Shopware\Core\Content\Product\Struct\ProductSearchResult;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Storefront\Page\Listing\AggregationView\AggregationViewCollection;
 use Shopware\Core\System\Listing\Collection\ListingSortingBasicCollection;
+use Shopware\Storefront\Page\Listing\AggregationView\AggregationViewCollection;
 
 class ListingPageStruct extends Struct
 {

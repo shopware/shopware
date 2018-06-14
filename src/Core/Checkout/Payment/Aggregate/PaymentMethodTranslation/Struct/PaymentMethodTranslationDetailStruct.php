@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\Struct;
 
-use Shopware\Core\System\Language\Struct\LanguageBasicStruct;
 use Shopware\Core\Checkout\Payment\Struct\PaymentMethodBasicStruct;
+use Shopware\Core\System\Language\Struct\LanguageBasicStruct;
 
 class PaymentMethodTranslationDetailStruct extends PaymentMethodTranslationBasicStruct
 {

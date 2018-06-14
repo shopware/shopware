@@ -3,9 +3,9 @@
 namespace Shopware\Core\System\Locale\Aggregate\LocaleTranslation\Event;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\System\Language\Event\LanguageBasicLoadedEvent;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\System\Language\Event\LanguageBasicLoadedEvent;
 use Shopware\Core\System\Locale\Aggregate\LocaleTranslation\Collection\LocaleTranslationDetailCollection;
 use Shopware\Core\System\Locale\Event\LocaleBasicLoadedEvent;
 

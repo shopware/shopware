@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\Struct;
 
-use Shopware\Core\System\Language\Struct\LanguageBasicStruct;
 use Shopware\Core\Content\Media\Aggregate\MediaAlbum\Struct\MediaAlbumBasicStruct;
+use Shopware\Core\System\Language\Struct\LanguageBasicStruct;
 
 class MediaAlbumTranslationDetailStruct extends MediaAlbumTranslationBasicStruct
 {

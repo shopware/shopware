@@ -2,12 +2,12 @@
 
 namespace Shopware\Core\System\Touchpoint\Event;
 
-use Shopware\Core\System\Touchpoint\Collection\TouchpointBasicCollection;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\System\Language\Event\LanguageBasicLoadedEvent;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\System\Currency\Event\CurrencyBasicLoadedEvent;
+use Shopware\Core\System\Language\Event\LanguageBasicLoadedEvent;
+use Shopware\Core\System\Touchpoint\Collection\TouchpointBasicCollection;
 
 class TouchpointBasicLoadedEvent extends NestedEvent
 {

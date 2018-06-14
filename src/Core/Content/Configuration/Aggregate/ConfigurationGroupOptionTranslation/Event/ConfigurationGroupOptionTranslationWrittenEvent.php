@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOptionTranslation\Event;
 
-use Shopware\Core\Framework\ORM\Write\WrittenEvent;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOptionTranslation\ConfigurationGroupOptionTranslationDefinition;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
 
 class ConfigurationGroupOptionTranslationWrittenEvent extends WrittenEvent
 {

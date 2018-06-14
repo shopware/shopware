@@ -7,7 +7,6 @@ use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaAlbum\Struct\MediaAlbumBasicStruct;
 use Shopware\Core\Content\Media\Aggregate\MediaAlbum\Struct\MediaAlbumDetailStruct;
 use Shopware\Core\Content\Media\MediaDefinition;
-use Shopware\Core\Content\Media\Util\UrlGeneratorInterface;
 use Shopware\Core\Framework\Api\Serializer\JsonApiEncoder;
 use Shopware\Core\Framework\Struct\Serializer\StructDecoder;
 use Shopware\Core\Framework\Struct\Serializer\StructNormalizer;
@@ -123,26 +122,25 @@ class JsonApiEncoderTest extends TestCase
                     'parent' => [
                         'data' => null,
                         'links' => [
-                            'related' => '/api/media-album/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/parent'
-                        ]
+                            'related' => '/api/media-album/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/parent',
+                        ],
                     ],
                     'media' => [
                         'data' => [],
                         'links' => [
-                            'related' => '/api/media-album/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/media'
-                        ]
+                            'related' => '/api/media-album/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/media',
+                        ],
                     ],
                     'children' => [
                         'data' => [],
                         'links' => [
-                            'related' => '/api/media-album/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/children'
-                        ]
+                            'related' => '/api/media-album/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/children',
+                        ],
                     ],
-                ]
+                ],
             ],
             'included' => [],
         ];
-
 
         $this->assertEquals(
             $expected,

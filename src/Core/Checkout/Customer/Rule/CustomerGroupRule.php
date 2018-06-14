@@ -49,7 +49,7 @@ class CustomerGroupRule extends \Shopware\Core\Framework\Rule\Rule
             return new Match(false, ['Wrong scope']);
         }
 
-        /** @var CheckoutRuleScope $scope */
+        /* @var CheckoutRuleScope $scope */
         return new Match(
             in_array($scope->getCheckoutContext()->getCurrentCustomerGroup()->getId(), $this->customerGroupIds, true),
             ['Current customer group not matched']

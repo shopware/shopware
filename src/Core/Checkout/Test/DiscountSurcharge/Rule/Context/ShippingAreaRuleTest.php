@@ -25,14 +25,14 @@
 namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\Context;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Core\System\Country\Aggregate\CountryArea\Struct\CountryAreaBasicStruct;
-use Shopware\Core\System\Country\Struct\CountryBasicStruct;
+use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Rule\ShippingAreaRule;
 use Shopware\Core\Framework\Rule\Rule;
-use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
+use Shopware\Core\System\Country\Aggregate\CountryArea\Struct\CountryAreaBasicStruct;
+use Shopware\Core\System\Country\Struct\CountryBasicStruct;
 
 class ShippingAreaRuleTest extends TestCase
 {

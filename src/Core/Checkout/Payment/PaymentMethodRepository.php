@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Payment;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Payment\Collection\PaymentMethodBasicCollection;
 use Shopware\Core\Checkout\Payment\Collection\PaymentMethodDetailCollection;
 use Shopware\Core\Checkout\Payment\Event\PaymentMethodAggregationResultLoadedEvent;
@@ -11,6 +10,7 @@ use Shopware\Core\Checkout\Payment\Event\PaymentMethodDetailLoadedEvent;
 use Shopware\Core\Checkout\Payment\Event\PaymentMethodIdSearchResultLoadedEvent;
 use Shopware\Core\Checkout\Payment\Event\PaymentMethodSearchResultLoadedEvent;
 use Shopware\Core\Checkout\Payment\Struct\PaymentMethodSearchResult;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\AggregatorResult;

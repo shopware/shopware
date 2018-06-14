@@ -25,13 +25,9 @@
 namespace Shopware\Core\Checkout\Context;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\System\Touchpoint\TouchpointRepository;
-use Shopware\Core\System\Touchpoint\Struct\TouchpointBasicStruct;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\System\Language\LanguageRepository;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupRepository;
 use Shopware\Core\Checkout\Customer\CustomerRepository;
@@ -41,13 +37,17 @@ use Shopware\Core\Checkout\Payment\Struct\PaymentMethodBasicStruct;
 use Shopware\Core\Checkout\Shipping\ShippingMethodRepository;
 use Shopware\Core\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateRepository;
 use Shopware\Core\System\Country\CountryRepository;
 use Shopware\Core\System\Currency\CurrencyRepository;
+use Shopware\Core\System\Language\LanguageRepository;
 use Shopware\Core\System\Tax\Collection\TaxBasicCollection;
 use Shopware\Core\System\Tax\TaxRepository;
+use Shopware\Core\System\Touchpoint\Struct\TouchpointBasicStruct;
+use Shopware\Core\System\Touchpoint\TouchpointRepository;
 
 class CheckoutContextFactory implements CheckoutContextFactoryInterface
 {

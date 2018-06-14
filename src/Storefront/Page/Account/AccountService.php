@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\Page\Account;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Application\Context\Util\StorefrontContextPersister;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
 use Shopware\Core\Checkout\Customer\CustomerRepository;
@@ -11,14 +11,12 @@ use Shopware\Core\Checkout\Customer\Struct\CustomerBasicStruct;
 use Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Framework\Routing\Firewall\CustomerUser;
 use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\System\Country\CountryRepository;
 use Shopware\Storefront\Exception\AddressNotFoundHttpException;
 use Shopware\Storefront\Exception\CustomerNotFoundException;
-use Shopware\Core\System\Country\CountryRepository;
 use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 
 class AccountService

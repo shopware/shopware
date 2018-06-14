@@ -3,8 +3,8 @@
 namespace Shopware\Core\Framework\ORM\Dbal;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Field\AssociationInterface;
 use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
@@ -95,7 +95,7 @@ class EntityForeignKeyResolver
      * @param EntityDefinition|string $definition
      * @param array                   $ids
      * @param string                  $class
-     * @param Context      $context
+     * @param Context                 $context
      *
      * @return array
      */

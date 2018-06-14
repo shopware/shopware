@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Shipping;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Shipping\Collection\ShippingMethodBasicCollection;
 use Shopware\Core\Checkout\Shipping\Collection\ShippingMethodDetailCollection;
 use Shopware\Core\Checkout\Shipping\Event\ShippingMethodAggregationResultLoadedEvent;
@@ -11,6 +10,7 @@ use Shopware\Core\Checkout\Shipping\Event\ShippingMethodDetailLoadedEvent;
 use Shopware\Core\Checkout\Shipping\Event\ShippingMethodIdSearchResultLoadedEvent;
 use Shopware\Core\Checkout\Shipping\Event\ShippingMethodSearchResultLoadedEvent;
 use Shopware\Core\Checkout\Shipping\Struct\ShippingMethodSearchResult;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\AggregatorResult;

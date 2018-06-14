@@ -25,11 +25,11 @@
 namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\CalculatedLineItem;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Cart\Rule\LineItemWithQuantityRule;
-use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Checkout\Cart\Rule\CalculatedLineItemScope;
+use Shopware\Core\Checkout\Cart\Rule\LineItemWithQuantityRule;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
+use Shopware\Core\Framework\Rule\Rule;
 
 class LineItemWithQuantityRuleTest extends TestCase
 {

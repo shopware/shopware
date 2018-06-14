@@ -4,21 +4,21 @@ namespace Shopware\Storefront\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
-use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Cart\Storefront\CartService;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
-use Shopware\Core\Checkout\Cart\Storefront\CartService;
 use Shopware\Core\Checkout\Order\OrderRepository;
 use Shopware\Core\Checkout\Order\Struct\OrderBasicStruct;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerInterface;
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor;
 use Shopware\Core\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactory;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidTransactionException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentMethodRepository;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -156,7 +156,7 @@ class CheckoutController extends StorefrontController
     /**
      * @Route("/checkout/confirm", name="checkout_confirm", options={"seo"="false"})
      *
-     * @param Request           $request
+     * @param Request         $request
      * @param CheckoutContext $context
      *
      * @return RedirectResponse|Response
@@ -178,7 +178,7 @@ class CheckoutController extends StorefrontController
     /**
      * @Route("/checkout/pay", name="checkout_pay", options={"seo"="false"})
      *
-     * @param Request           $request
+     * @param Request         $request
      * @param CheckoutContext $context
      *
      * @throws InvalidOrderException
@@ -216,7 +216,7 @@ class CheckoutController extends StorefrontController
     /**
      * @Route("/checkout/finalize-transaction", name="checkout_finalize_transaction", options={"seo"="false"})
      *
-     * @param Request           $request
+     * @param Request         $request
      * @param CheckoutContext $context
      *
      * @throws UnknownPaymentMethodException

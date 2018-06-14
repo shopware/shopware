@@ -2,12 +2,12 @@
 
 namespace Shopware\Core\Checkout\Customer\Collection;
 
-use Shopware\Core\System\Touchpoint\Collection\TouchpointBasicCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Collection\CustomerAddressBasicCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Collection\CustomerGroupBasicCollection;
 use Shopware\Core\Checkout\Customer\Struct\CustomerBasicStruct;
 use Shopware\Core\Checkout\Payment\Collection\PaymentMethodBasicCollection;
 use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\System\Touchpoint\Collection\TouchpointBasicCollection;
 
 class CustomerBasicCollection extends EntityCollection
 {

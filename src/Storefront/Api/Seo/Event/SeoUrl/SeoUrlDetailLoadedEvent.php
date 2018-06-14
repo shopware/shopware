@@ -2,10 +2,10 @@
 
 namespace Shopware\Storefront\Api\Seo\Event\SeoUrl;
 
-use Shopware\Core\System\Touchpoint\Event\TouchpointBasicLoadedEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\System\Touchpoint\Event\TouchpointBasicLoadedEvent;
 use Shopware\Storefront\Api\Seo\Collection\SeoUrlDetailCollection;
 
 class SeoUrlDetailLoadedEvent extends NestedEvent

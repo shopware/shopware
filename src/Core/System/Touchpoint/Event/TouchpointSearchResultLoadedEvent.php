@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\System\Touchpoint\Event;
 
-use Shopware\Core\System\Touchpoint\Struct\TouchpointSearchResult;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\System\Touchpoint\Struct\TouchpointSearchResult;
 
 class TouchpointSearchResultLoadedEvent extends NestedEvent
 {

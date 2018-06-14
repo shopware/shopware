@@ -2,13 +2,6 @@
 
 namespace Shopware\Core\System\Touchpoint;
 
-use Shopware\Core\System\Touchpoint\Collection\TouchpointBasicCollection;
-use Shopware\Core\System\Touchpoint\Collection\TouchpointDetailCollection;
-use Shopware\Core\System\Touchpoint\Event\TouchpointDeletedEvent;
-use Shopware\Core\System\Touchpoint\Event\TouchpointWrittenEvent;
-use Shopware\Core\System\Touchpoint\Struct\TouchpointBasicStruct;
-use Shopware\Core\System\Touchpoint\Struct\TouchpointDetailStruct;
-use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
@@ -26,6 +19,13 @@ use Shopware\Core\Framework\ORM\Field\TenantIdField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\System\Language\LanguageDefinition;
+use Shopware\Core\System\Touchpoint\Collection\TouchpointBasicCollection;
+use Shopware\Core\System\Touchpoint\Collection\TouchpointDetailCollection;
+use Shopware\Core\System\Touchpoint\Event\TouchpointDeletedEvent;
+use Shopware\Core\System\Touchpoint\Event\TouchpointWrittenEvent;
+use Shopware\Core\System\Touchpoint\Struct\TouchpointBasicStruct;
+use Shopware\Core\System\Touchpoint\Struct\TouchpointDetailStruct;
 
 class TouchpointDefinition extends EntityDefinition
 {

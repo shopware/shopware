@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Checkout\Shipping\Event;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\Event\ShippingMethodPriceBasicLoadedEvent;
 use Shopware\Core\Checkout\Shipping\Collection\ShippingMethodBasicCollection;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 

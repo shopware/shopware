@@ -40,7 +40,7 @@ class OptimizerService implements OptimizerServiceInterface
     private $filesystem;
 
     /**
-     * @param OptimizerInterface[]|iterable                            $optimizers
+     * @param OptimizerInterface[]|iterable                                 $optimizers
      * @param \Shopware\Core\Content\Media\Util\Strategy\StrategyFilesystem $filesystem
      */
     public function __construct(iterable $optimizers, StrategyFilesystem $filesystem)

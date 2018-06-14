@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\ORM\Dbal\FieldResolver;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\ORM\Dbal\QueryBuilder;
 use Shopware\Core\Framework\ORM\EntityDefinition;

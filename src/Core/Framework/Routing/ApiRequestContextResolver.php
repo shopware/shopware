@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\Routing;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Firewall\User;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderStateTranslation;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Order\Aggregate\OrderStateTranslation\Collection\OrderStateTranslationBasicCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderStateTranslation\Collection\OrderStateTranslationDetailCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderStateTranslation\Event\OrderStateTranslationAggregationResultLoadedEvent;
@@ -11,6 +10,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderStateTranslation\Event\OrderStat
 use Shopware\Core\Checkout\Order\Aggregate\OrderStateTranslation\Event\OrderStateTranslationIdSearchResultLoadedEvent;
 use Shopware\Core\Checkout\Order\Aggregate\OrderStateTranslation\Event\OrderStateTranslationSearchResultLoadedEvent;
 use Shopware\Core\Checkout\Order\Aggregate\OrderStateTranslation\Struct\OrderStateTranslationSearchResult;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\AggregatorResult;

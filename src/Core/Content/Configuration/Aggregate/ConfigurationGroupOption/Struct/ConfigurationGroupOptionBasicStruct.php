@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Struct;
 
-use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Content\Configuration\Struct\ConfigurationGroupBasicStruct;
+use Shopware\Core\Framework\ORM\Entity;
 
 class ConfigurationGroupOptionBasicStruct extends Entity
 {

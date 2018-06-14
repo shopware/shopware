@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Category;
 
+use Shopware\Core\Content\Catalog\ORM\CatalogField;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\Core\Content\Category\Collection\CategoryBasicCollection;
 use Shopware\Core\Content\Category\Collection\CategoryDetailCollection;
@@ -17,7 +18,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\BoolField;
-use Shopware\Core\Content\Catalog\ORM\CatalogField;
+use Shopware\Core\Framework\ORM\Field\ChildCountField;
 use Shopware\Core\Framework\ORM\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\FkField;
@@ -40,7 +41,6 @@ use Shopware\Core\Framework\ORM\Write\Flag\ReadOnly;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
-use Shopware\Core\Framework\ORM\Field\ChildCountField;
 
 class CategoryDefinition extends EntityDefinition
 {

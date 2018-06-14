@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\Currency;
 
-use Shopware\Core\System\Touchpoint\TouchpointDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
@@ -31,6 +30,7 @@ use Shopware\Core\System\Currency\Event\CurrencyDeletedEvent;
 use Shopware\Core\System\Currency\Event\CurrencyWrittenEvent;
 use Shopware\Core\System\Currency\Struct\CurrencyBasicStruct;
 use Shopware\Core\System\Currency\Struct\CurrencyDetailStruct;
+use Shopware\Core\System\Touchpoint\TouchpointDefinition;
 
 class CurrencyDefinition extends EntityDefinition
 {

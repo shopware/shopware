@@ -2,7 +2,13 @@
 
 namespace Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation;
 
-use Shopware\Core\System\Language\LanguageDefinition;
+use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\Collection\ConfigurationGroupTranslationBasicCollection;
+use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\Collection\ConfigurationGroupTranslationDetailCollection;
+use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\Event\ConfigurationGroupTranslationDeletedEvent;
+use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\Event\ConfigurationGroupTranslationWrittenEvent;
+use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\Struct\ConfigurationGroupTranslationBasicStruct;
+use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\Struct\ConfigurationGroupTranslationDetailStruct;
+use Shopware\Core\Content\Configuration\ConfigurationGroupDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\FkField;
@@ -12,13 +18,7 @@ use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\Collection\ConfigurationGroupTranslationBasicCollection;
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\Collection\ConfigurationGroupTranslationDetailCollection;
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\Event\ConfigurationGroupTranslationDeletedEvent;
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\Event\ConfigurationGroupTranslationWrittenEvent;
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\Struct\ConfigurationGroupTranslationBasicStruct;
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\Struct\ConfigurationGroupTranslationDetailStruct;
-use Shopware\Core\Content\Configuration\ConfigurationGroupDefinition;
+use Shopware\Core\System\Language\LanguageDefinition;
 
 class ConfigurationGroupTranslationDefinition extends EntityDefinition
 {

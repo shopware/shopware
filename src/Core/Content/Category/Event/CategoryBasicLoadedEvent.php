@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Content\Category\Event;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Content\Category\Collection\CategoryBasicCollection;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 

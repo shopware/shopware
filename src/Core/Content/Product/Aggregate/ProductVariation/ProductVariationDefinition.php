@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductVariation;
 
+use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVariation\Event\ProductVariationDeletedEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductVariation\Event\ProductVariationWrittenEvent;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -12,7 +13,6 @@ use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\MappingEntityDefinition;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
 
 class ProductVariationDefinition extends MappingEntityDefinition
 {

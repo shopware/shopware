@@ -26,11 +26,11 @@ namespace Shopware\Core\Checkout\Test\Cart\Validator\Container;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Framework\Rule\Container\NotRule;
-use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Test\Cart\Common\FalseRule;
 use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
+use Shopware\Core\Framework\Rule\Container\NotRule;
+use Shopware\Core\Framework\Rule\Match;
 
 class NotRuleTest extends TestCase
 {

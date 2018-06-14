@@ -3,9 +3,9 @@
 namespace Shopware\Core\System\Language\Event;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\System\Language\Collection\LanguageDetailCollection;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\System\Language\Collection\LanguageDetailCollection;
 
 class LanguageDetailLoadedEvent extends NestedEvent
 {

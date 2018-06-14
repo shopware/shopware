@@ -34,15 +34,15 @@ class ObjectField extends JsonField
     {
         return new Callback([
            'callback' => function ($object, ExecutionContextInterface $context, $payload) {
-                if ($object === null || $object instanceof Struct) {
-                    return;
-                }
+               if ($object === null || $object instanceof Struct) {
+                   return;
+               }
 
-                $context->buildViolation('The object must be of type "\Shopware\Core\Framework\Struct\Struct" to be persisted in a ObjectField.')
+               $context->buildViolation('The object must be of type "\Shopware\Core\Framework\Struct\Struct" to be persisted in a ObjectField.')
                     ->atPath($this->path)
                     ->addViolation()
                 ;
-           }
+           },
         ]);
     }
 }

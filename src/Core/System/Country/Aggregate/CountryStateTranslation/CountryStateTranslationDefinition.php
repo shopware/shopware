@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\Country\Aggregate\CountryStateTranslation;
 
-use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\FkField;
@@ -19,6 +18,7 @@ use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\Event\Country
 use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\Event\CountryStateTranslationWrittenEvent;
 use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\Struct\CountryStateTranslationBasicStruct;
 use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\Struct\CountryStateTranslationDetailStruct;
+use Shopware\Core\System\Language\LanguageDefinition;
 
 class CountryStateTranslationDefinition extends EntityDefinition
 {

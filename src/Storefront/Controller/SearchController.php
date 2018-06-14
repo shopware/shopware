@@ -43,7 +43,7 @@ class SearchController extends StorefrontController
     /**
      * @Route("/suggestSearch", name="search_ajax")
      *
-     * @param CheckoutContext $context
+     * @param CheckoutContext   $context
      * @param SearchPageRequest $searchPageRequest
      *
      * @return Response

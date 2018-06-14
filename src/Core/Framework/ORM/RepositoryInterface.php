@@ -11,7 +11,7 @@ use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
 interface RepositoryInterface
 {
     /**
-     * @param Criteria           $criteria
+     * @param Criteria                         $criteria
      * @param \Shopware\Core\Framework\Context $context
      *
      * @return AggregationResult
@@ -19,7 +19,7 @@ interface RepositoryInterface
     public function aggregate(Criteria $criteria, Context $context);
 
     /**
-     * @param Criteria           $criteria
+     * @param Criteria                         $criteria
      * @param \Shopware\Core\Framework\Context $context
      *
      * @return IdSearchResult
@@ -27,7 +27,7 @@ interface RepositoryInterface
     public function searchIds(Criteria $criteria, Context $context);
 
     /**
-     * @param Criteria           $criteria
+     * @param Criteria                         $criteria
      * @param \Shopware\Core\Framework\Context $context
      *
      * @return SearchResultInterface
@@ -35,7 +35,7 @@ interface RepositoryInterface
     public function search(Criteria $criteria, Context $context);
 
     /**
-     * @param array              $ids
+     * @param array                            $ids
      * @param \Shopware\Core\Framework\Context $context
      *
      * @return EntityCollection
@@ -43,7 +43,7 @@ interface RepositoryInterface
     public function readBasic(array $ids, Context $context);
 
     /**
-     * @param array              $ids
+     * @param array   $ids
      * @param Context $context
      *
      * @return EntityCollection

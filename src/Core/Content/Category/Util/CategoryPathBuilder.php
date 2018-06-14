@@ -3,11 +3,11 @@
 namespace Shopware\Core\Content\Category\Util;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Content\Category\CategoryRepository;
 use Shopware\Core\Content\Category\Collection\CategoryBasicCollection;
 use Shopware\Core\Content\Category\Event\CategoryWrittenEvent;
 use Shopware\Core\Content\Category\Struct\CategoryBasicStruct;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\Struct\Uuid;

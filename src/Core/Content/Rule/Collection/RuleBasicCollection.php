@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Content\Rule\Collection;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Rule\Struct\RuleBasicStruct;
 use Shopware\Core\Framework\ORM\EntityCollection;
 

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Media;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Content\Media\Collection\MediaBasicCollection;
 use Shopware\Core\Content\Media\Collection\MediaDetailCollection;
 use Shopware\Core\Content\Media\Event\MediaAggregationResultLoadedEvent;
@@ -11,6 +10,7 @@ use Shopware\Core\Content\Media\Event\MediaDetailLoadedEvent;
 use Shopware\Core\Content\Media\Event\MediaIdSearchResultLoadedEvent;
 use Shopware\Core\Content\Media\Event\MediaSearchResultLoadedEvent;
 use Shopware\Core\Content\Media\Struct\MediaSearchResult;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\AggregatorResult;

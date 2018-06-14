@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Checkout\DiscountSurcharge\Cart;
 
-
-use Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeRepository;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\CartCollectorInterface;
 use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeRepository;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
 use Shopware\Core\Framework\Struct\StructCollection;

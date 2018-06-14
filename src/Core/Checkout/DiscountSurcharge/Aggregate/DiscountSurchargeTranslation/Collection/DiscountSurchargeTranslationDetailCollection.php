@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\DiscountSurcharge\Aggregate\DiscountSurchargeTranslation\Collection;
 
-
 use Shopware\Core\Checkout\DiscountSurcharge\Collection\DiscountSurchargeBasicCollection;
 use Shopware\Core\Checkout\DiscountSurcharge\Struct\DiscountSurchargeTranslationDetailStruct;
 use Shopware\Core\System\Language\Collection\LanguageBasicCollection;

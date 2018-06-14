@@ -2,11 +2,11 @@
 
 namespace Shopware\Core\Checkout\Customer\Struct;
 
-use Shopware\Core\System\Touchpoint\Struct\TouchpointBasicStruct;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupBasicStruct;
 use Shopware\Core\Checkout\Payment\Struct\PaymentMethodBasicStruct;
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\System\Touchpoint\Struct\TouchpointBasicStruct;
 
 class CustomerBasicStruct extends Entity
 {

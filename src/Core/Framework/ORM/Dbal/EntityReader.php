@@ -295,10 +295,10 @@ class EntityReader implements EntityReaderInterface
     }
 
     /**
-     * @param array                   $ids
-     * @param string|EntityDefinition $definition
-     * @param \Shopware\Core\Framework\Context      $context
-     * @param FieldCollection         $fields
+     * @param array                            $ids
+     * @param string|EntityDefinition          $definition
+     * @param \Shopware\Core\Framework\Context $context
+     * @param FieldCollection                  $fields
      *
      * @return array
      */
@@ -321,10 +321,10 @@ class EntityReader implements EntityReaderInterface
     }
 
     /**
-     * @param string|EntityDefinition   $definition
-     * @param ManyToOneAssociationField $association
-     * @param \Shopware\Core\Framework\Context        $context
-     * @param EntityCollection          $collection
+     * @param string|EntityDefinition          $definition
+     * @param ManyToOneAssociationField        $association
+     * @param \Shopware\Core\Framework\Context $context
+     * @param EntityCollection                 $collection
      */
     private function loadManyToOne(string $definition, ManyToOneAssociationField $association, Context $context, EntityCollection $collection)
     {

@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\System\Mail\Event;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Order\Aggregate\OrderState\Event\OrderStateBasicLoadedEvent;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\System\Mail\Aggregate\MailAttachment\Event\MailAttachmentBasicLoadedEvent;

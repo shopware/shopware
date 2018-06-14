@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Test\Customer;
 
 use Ramsey\Uuid\Uuid;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
 use Shopware\Core\Checkout\Customer\CustomerRepository;
@@ -11,6 +10,7 @@ use Shopware\Core\Checkout\Customer\Struct\CustomerBasicStruct;
 use Shopware\Core\Content\Product\ProductRepository;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Response\Type\JsonType;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\Api\ApiTestCase;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateRepository;
 use Shopware\Core\System\Country\CountryRepository;

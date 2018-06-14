@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Checkout\DiscountSurcharge\Aggregate\DiscountSurchargeTranslation\Event;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\DiscountSurcharge\Struct\DiscountSurchargeTranslationSearchResult;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 
 class DiscountSurchargeTranslationSearchResultLoadedEvent extends NestedEvent

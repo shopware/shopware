@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Content\Category\Aggregate\CategoryTranslation\Event;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\Struct\CategoryTranslationSearchResult;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 
 class CategoryTranslationSearchResultLoadedEvent extends NestedEvent

@@ -25,9 +25,9 @@
 namespace Shopware\Core\Checkout\Test\Cart\Validator\Container;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Checkout\Test\Cart\Common\FalseRule;
 use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
+use Shopware\Core\Framework\Rule\Container\AndRule;
 
 class ContainerTest extends TestCase
 {

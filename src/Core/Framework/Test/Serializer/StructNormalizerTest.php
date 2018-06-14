@@ -3,8 +3,8 @@
 namespace Shopware\Core\Framework\Test\Serializer;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Struct\Serializer\StructNormalizer;
 use Shopware\Core\Framework\Struct\Collection;
+use Shopware\Core\Framework\Struct\Serializer\StructNormalizer;
 use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 

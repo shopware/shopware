@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Content\Rule\Event;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Content\Rule\Struct\RuleSearchResult;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 
 class RuleSearchResultLoadedEvent extends NestedEvent

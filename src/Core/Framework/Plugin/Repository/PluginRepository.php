@@ -15,12 +15,12 @@ use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Core\Framework\ORM\Write\WriteContext;
 use Shopware\Core\Framework\Plugin\Collection\PluginBasicCollection;
 use Shopware\Core\Framework\Plugin\Collection\PluginDetailCollection;
-use Shopware\Core\Framework\Plugin\PluginDefinition;
 use Shopware\Core\Framework\Plugin\Event\PluginAggregationResultLoadedEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginBasicLoadedEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginDetailLoadedEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginIdSearchResultLoadedEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginSearchResultLoadedEvent;
+use Shopware\Core\Framework\Plugin\PluginDefinition;
 use Shopware\Core\Framework\Plugin\Struct\PluginSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

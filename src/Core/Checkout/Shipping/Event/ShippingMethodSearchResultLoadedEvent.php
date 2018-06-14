@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Checkout\Shipping\Event;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Shipping\Struct\ShippingMethodSearchResult;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 
 class ShippingMethodSearchResultLoadedEvent extends NestedEvent

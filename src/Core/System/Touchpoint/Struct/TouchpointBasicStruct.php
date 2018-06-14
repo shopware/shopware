@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\System\Touchpoint\Struct;
 
-use Shopware\Core\System\Language\Struct\LanguageBasicStruct;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\System\Currency\Struct\CurrencyBasicStruct;
+use Shopware\Core\System\Language\Struct\LanguageBasicStruct;
 
 class TouchpointBasicStruct extends Entity
 {

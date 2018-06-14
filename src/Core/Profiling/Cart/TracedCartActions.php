@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Profiling\Cart;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
+use Shopware\Core\Checkout\CheckoutContext;
 
 class TracedCartActions
 {

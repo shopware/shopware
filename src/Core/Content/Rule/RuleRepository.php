@@ -2,15 +2,13 @@
 
 namespace Shopware\Core\Content\Rule;
 
-use Shopware\Core\Checkout\DiscountSurcharge\Collection\RuleDetailCollection;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Content\Rule\Collection\RuleBasicCollection;
 use Shopware\Core\Content\Rule\Event\RuleAggregationResultLoadedEvent;
 use Shopware\Core\Content\Rule\Event\RuleBasicLoadedEvent;
-use Shopware\Core\Content\Rule\Event\RuleDetailLoadedEvent;
 use Shopware\Core\Content\Rule\Event\RuleIdSearchResultLoadedEvent;
 use Shopware\Core\Content\Rule\Event\RuleSearchResultLoadedEvent;
 use Shopware\Core\Content\Rule\Struct\RuleSearchResult;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\AggregatorResult;

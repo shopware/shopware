@@ -26,8 +26,8 @@ namespace Shopware\Storefront\Twig;
 
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\PlatformRequest;
-use Shopware\Storefront\Theme\ThemeConfigReader;
 use Shopware\Core\System\Config\Util\ConfigServiceInterface;
+use Shopware\Storefront\Theme\ThemeConfigReader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Translation\TranslatorInterface;

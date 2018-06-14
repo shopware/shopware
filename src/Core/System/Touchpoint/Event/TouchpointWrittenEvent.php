@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\System\Touchpoint\Event;
 
-use Shopware\Core\System\Touchpoint\TouchpointDefinition;
 use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\System\Touchpoint\TouchpointDefinition;
 
 class TouchpointWrittenEvent extends WrittenEvent
 {

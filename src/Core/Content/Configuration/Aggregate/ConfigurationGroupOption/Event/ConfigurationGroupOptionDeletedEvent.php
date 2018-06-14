@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Event;
 
+use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
 use Shopware\Core\Framework\ORM\Write\DeletedEvent;
 use Shopware\Core\Framework\ORM\Write\WrittenEvent;
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
 
 class ConfigurationGroupOptionDeletedEvent extends WrittenEvent implements DeletedEvent
 {

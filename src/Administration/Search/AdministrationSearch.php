@@ -2,10 +2,10 @@
 
 namespace Shopware\Administration\Search;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
@@ -97,9 +97,9 @@ class AdministrationSearch
     }
 
     /**
-     * @param string|EntityDefinition $definition
-     * @param string                  $term
-     * @param \Shopware\Core\Framework\Context      $context
+     * @param string|EntityDefinition          $definition
+     * @param string                           $term
+     * @param \Shopware\Core\Framework\Context $context
      *
      * @return SearchResultInterface
      */

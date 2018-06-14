@@ -78,12 +78,12 @@ class AdministrationDumpPluginsCommand extends ContainerAwareCommand
                 // If we haven't found a javascript file, try to find a TypeScript file
                 try {
                     $indexFile = $this->kernel->locateResource('@' . $pluginName . '/Resources/views/administration/main.ts');
-                } catch(\Exception $e) {
+                } catch (\Exception $e) {
                     continue;
                 }
             }
 
-            $baseDirectory =  $this->kernel->locateResource('@' . $pluginName);
+            $baseDirectory = $this->kernel->locateResource('@' . $pluginName);
 
             try {
                 $customWebPackConfig = $this->kernel->locateResource('@' . $pluginName . '/Resources/views/administration/build/webpack.config.js');
@@ -95,7 +95,7 @@ class AdministrationDumpPluginsCommand extends ContainerAwareCommand
             $plugins[$pluginName] = [
                 'base' => $baseDirectory,
                 'entry' => $this->getPathRelativeToProjectDir($indexFile),
-                'webpackConfig' => $customWebPackConfig === false ? $customWebPackConfig : $this->getPathRelativeToProjectDir($customWebPackConfig)
+                'webpackConfig' => $customWebPackConfig === false ? $customWebPackConfig : $this->getPathRelativeToProjectDir($customWebPackConfig),
             ];
         }
 

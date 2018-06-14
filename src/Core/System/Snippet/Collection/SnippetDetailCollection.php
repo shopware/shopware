@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\System\Snippet\Collection;
 
-use Shopware\Core\System\Touchpoint\Collection\TouchpointBasicCollection;
 use Shopware\Core\System\Snippet\Struct\SnippetDetailStruct;
+use Shopware\Core\System\Touchpoint\Collection\TouchpointBasicCollection;
 
 class SnippetDetailCollection extends SnippetBasicCollection
 {

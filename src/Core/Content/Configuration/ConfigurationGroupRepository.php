@@ -2,6 +2,14 @@
 
 namespace Shopware\Core\Content\Configuration;
 
+use Shopware\Core\Content\Configuration\Collection\ConfigurationGroupBasicCollection;
+use Shopware\Core\Content\Configuration\Collection\ConfigurationGroupDetailCollection;
+use Shopware\Core\Content\Configuration\Event\ConfigurationGroupAggregationResultLoadedEvent;
+use Shopware\Core\Content\Configuration\Event\ConfigurationGroupBasicLoadedEvent;
+use Shopware\Core\Content\Configuration\Event\ConfigurationGroupDetailLoadedEvent;
+use Shopware\Core\Content\Configuration\Event\ConfigurationGroupIdSearchResultLoadedEvent;
+use Shopware\Core\Content\Configuration\Event\ConfigurationGroupSearchResultLoadedEvent;
+use Shopware\Core\Content\Configuration\Struct\ConfigurationGroupSearchResult;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
@@ -13,14 +21,6 @@ use Shopware\Core\Framework\ORM\Search\IdSearchResult;
 use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
 use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Core\Framework\ORM\Write\WriteContext;
-use Shopware\Core\Content\Configuration\Collection\ConfigurationGroupBasicCollection;
-use Shopware\Core\Content\Configuration\Collection\ConfigurationGroupDetailCollection;
-use Shopware\Core\Content\Configuration\Event\ConfigurationGroupAggregationResultLoadedEvent;
-use Shopware\Core\Content\Configuration\Event\ConfigurationGroupBasicLoadedEvent;
-use Shopware\Core\Content\Configuration\Event\ConfigurationGroupDetailLoadedEvent;
-use Shopware\Core\Content\Configuration\Event\ConfigurationGroupIdSearchResultLoadedEvent;
-use Shopware\Core\Content\Configuration\Event\ConfigurationGroupSearchResultLoadedEvent;
-use Shopware\Core\Content\Configuration\Struct\ConfigurationGroupSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ConfigurationGroupRepository implements RepositoryInterface

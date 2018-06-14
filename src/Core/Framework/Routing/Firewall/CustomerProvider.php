@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\Framework\Routing\Firewall;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Customer\CustomerRepository;
 use Shopware\Core\Checkout\Customer\Struct\CustomerBasicStruct;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;

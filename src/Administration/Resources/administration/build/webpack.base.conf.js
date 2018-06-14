@@ -1,7 +1,7 @@
-var path = require('path');
-var utils = require('./utils');
-var config = require('../config');
-var vueLoaderConfig = require('./vue-loader.conf');
+const path = require('path');
+const utils = require('./utils');
+const config = require('../config');
+const vueLoaderConfig = require('./vue-loader.conf');
 
 function resolve(dir) {
     return path.join(__dirname, '..', dir)
@@ -11,7 +11,7 @@ const eslintDisable = (process.env.ESLINT_DISABLE === 'true');
 
 module.exports = {
     entry: {
-        commons: resolve('src') + '/core/common.js',
+        commons: [ resolve('src') + '/core/common.js', resolve('src') + '/core/shopware.js' ],
         app: resolve('src') + '/app/main.js'
     },
     output: {
@@ -34,7 +34,7 @@ module.exports = {
     module: {
         rules: [
             (eslintDisable === true ? {} : {
-                test: /\.(js|vue)$/,
+                test: /\.(js|tsx?|vue)$/,
                 loader: 'eslint-loader',
                 enforce: "pre",
                 include: [ resolve('src'), resolve('test') ],
@@ -49,11 +49,10 @@ module.exports = {
             },
             {
                 test: /\.(html|twig)$/,
-                // include: [ resolve('src'), resolve('test') ],
                 loader: 'html-loader'
             },
             {
-                test: /\.js$/,
+                test: /\.(js|tsx?|vue)$/,
                 loader: 'babel-loader',
                 include: [resolve('src'), resolve('test')],
                 options: {

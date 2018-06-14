@@ -7,7 +7,8 @@ export const Component = {
     extend: Shopware.Component.extend,
     override: Shopware.Component.override,
     build: Shopware.Component.build,
-    getTemplate: Shopware.Component.getTemplate
+    getTemplate: Shopware.Component.getTemplate,
+    getComponentRegistry: Shopware.Component.getComponentRegistry
 };
 
 export const Template = {

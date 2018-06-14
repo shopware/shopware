@@ -67,14 +67,36 @@ class AdministrationDumpPluginsCommand extends ContainerAwareCommand
         $plugins = [];
 
         foreach ($this->kernel::getPlugins()->getActivePlugins() as $pluginName => $plugin) {
+            // First try to load the main.js
             try {
-                $indexFile = $this->kernel->locateResource('@' . $pluginName . '/Resources/views/administration/src/index.js');
+                $indexFile = $this->kernel->locateResource('@' . $pluginName . '/Resources/views/administration/main.js');
             } catch (\Exception $e) {
-                continue;
+                $indexFile = null;
+            }
+
+            if (empty($indexFile)) {
+                // If we haven't found a javascript file, try to find a TypeScript file
+                try {
+                    $indexFile = $this->kernel->locateResource('@' . $pluginName . '/Resources/views/administration/main.ts');
+                } catch(\Exception $e) {
+                    continue;
+                }
+            }
+
+            $baseDirectory =  $this->kernel->locateResource('@' . $pluginName);
+
+            try {
+                $customWebPackConfig = $this->kernel->locateResource('@' . $pluginName . '/Resources/views/administration/build/webpack.config.js');
+            } catch (\Exception $e) {
+                $customWebPackConfig = false;
             }
 
             // return the path relative to the projectdir
-            $plugins[$pluginName] = $this->getPathRelativeToProjectDir($indexFile);
+            $plugins[$pluginName] = [
+                'base' => $baseDirectory,
+                'entry' => $this->getPathRelativeToProjectDir($indexFile),
+                'webpackConfig' => $customWebPackConfig === false ? $customWebPackConfig : $this->getPathRelativeToProjectDir($customWebPackConfig)
+            ];
         }
 
         file_put_contents(

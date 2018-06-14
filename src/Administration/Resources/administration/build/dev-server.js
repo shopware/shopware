@@ -1,86 +1,98 @@
-require('./check-versions')()
+require('./check-versions')();
 
-var config = require('../config')
+const config = require('../config');
 if (!process.env.NODE_ENV) {
-  process.env.NODE_ENV = JSON.parse(config.dev.env.NODE_ENV)
+    process.env.NODE_ENV = JSON.parse(config.dev.env.NODE_ENV)
 }
 
-var opn = require('opn')
-var path = require('path')
-var express = require('express')
-var webpack = require('webpack')
-var proxyMiddleware = require('http-proxy-middleware')
-var openInEditor = require('launch-editor-middleware')
-var webpackConfig = process.env.NODE_ENV === 'testing'
-  ? require('./webpack.prod.conf')
-  : require('./webpack.dev.conf')
+const opn = require('opn');
+const path = require('path');
+const express = require('express');
+const webpack = require('webpack');
+const proxyMiddleware = require('http-proxy-middleware');
+const openInEditor = require('launch-editor-middleware');
+const webpackConfig = process.env.NODE_ENV === 'testing'
+    ? require('./webpack.prod.conf')
+    : require('./webpack.dev.conf');
 
 // default port where dev server listens for incoming traffic
-var port = process.env.PORT || config.dev.port
+const port = process.env.PORT || config.dev.port;
+
 // automatically open browser, if not set will be false
-var autoOpenBrowser = !!config.dev.autoOpenBrowser
+const autoOpenBrowser = !!config.dev.autoOpenBrowser;
+
 // Define HTTP proxies to your custom API backend
 // https://github.com/chimurai/http-proxy-middleware
-var proxyTable = config.dev.proxyTable
+const proxyTable = config.dev.proxyTable;
 
-var app = express()
-var compiler = webpack(webpackConfig)
+const app = express();
+const compiler = webpack(webpackConfig);
 
-app.use('/__open-in-editor', openInEditor('phpstorm'))
+// Open files in phpstorm while using the dev mode, the sw-devmode-loader needs to be in place
+app.use('/__open-in-editor', openInEditor('phpstorm'));
 
-var devMiddleware = require('webpack-dev-middleware')(compiler, {
+const devMiddleware = require('webpack-dev-middleware')(compiler, {
   publicPath: webpackConfig.output.publicPath,
-  quiet: true
-})
+});
 
-var hotMiddleware = require('webpack-hot-middleware')(compiler, {
-  log: () => {}
-})
+const hotMiddleware = require('webpack-hot-middleware')(compiler, {
+    log: () => {}
+});
+
 // force page reload when html-webpack-plugin template changes
 compiler.plugin('compilation', function (compilation) {
-  compilation.plugin('html-webpack-plugin-after-emit', function (data, cb) {
-    hotMiddleware.publish({ action: 'reload' })
-    cb()
-  })
-})
+    compilation.plugin('html-webpack-plugin-after-emit', function (data, cb) {
+        hotMiddleware.publish({ action: 'reload' });
+        cb();
+    })
+});
 
 // proxy api requests
 Object.keys(proxyTable).forEach(function (context) {
-  var options = proxyTable[context]
-  if (typeof options === 'string') {
-    options = { target: options }
-  }
-  app.use(proxyMiddleware(options.filter || context, options))
-})
+    let options = proxyTable[context];
+    if (typeof options === 'string') {
+        options = { target: options };
+    }
+    app.use(proxyMiddleware(options.filter || context, options));
+});
 
 // handle fallback for HTML5 history API
-app.use(require('connect-history-api-fallback')())
+app.use(require('connect-history-api-fallback')());
 
 // serve webpack bundle output
-app.use(devMiddleware)
+app.use(devMiddleware);
 
 // enable hot-reload and state-preserving
 // compilation error display
-app.use(hotMiddleware)
+app.use(hotMiddleware);
 
 // serve pure static assets
-var staticPath = path.posix.join(config.dev.assetsPublicPath, config.dev.assetsSubDirectory)
-app.use(staticPath, express.static('./static'))
+const staticPath = path.posix.join(config.dev.assetsPublicPath, config.dev.assetsSubDirectory);
+app.use(staticPath, express.static('./static'));
 
-var uri = 'http://localhost:' + port
+const uri = 'http://localhost:' + port;
+
+console.log('# Compiling Webpack configuration');
+console.log(`Environment: ${process.env.NODE_ENV}`);
+console.log(`Dev server URI: ${uri}`);
+console.log(`Assets static path: ${staticPath}`);
+console.log(`Automatically open browser: ${autoOpenBrowser}`);
+console.log();
+
+console.log('# Starting hot module reloading dev server');
 
 devMiddleware.waitUntilValid(function () {
-  console.log('> Listening at ' + uri + '\n')
-})
+    console.log('Dev server listening at ' + uri + '\n');
+});
 
 module.exports = app.listen(port, function (err) {
-  if (err) {
-    console.log(err)
-    return
-  }
+    if (err) {
+        console.log(err);
+        return
+    }
 
-  // when env is testing, don't need open it
-  if (autoOpenBrowser && process.env.NODE_ENV !== 'testing') {
-    opn(uri)
-  }
-})
+    // when env is testing, don't need open it
+    if (autoOpenBrowser && process.env.NODE_ENV !== 'testing') {
+        opn(uri)
+    }
+});

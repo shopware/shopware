@@ -68,7 +68,7 @@ Component.register('sw-login', {
                 return;
             }
 
-            if (previousRoute.name && previousRoute.fullPath) {
+            if (previousRoute && previousRoute.name && previousRoute.fullPath) {
                 this.$router.push(previousRoute.fullPath);
                 return;
             }

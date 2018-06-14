@@ -10,16 +10,6 @@ Component.register('sw-order-detail-base', {
             type: Object,
             required: true,
             default: {}
-        },
-        isLoading: {
-            type: Boolean,
-            required: true,
-            default: false
-        },
-        isLoaded: {
-            type: Boolean,
-            required: false,
-            default: false
         }
     },
 

@@ -3,7 +3,7 @@
 
         {% block sw_order_detail_base_info_card %}
             <sw-card :title="$tc('sw-order.detailBase.cardTitleDetails')"
-                     :isLoading="isLoading">
+                     :isLoading="order.isLoading">
 
                 {% block sw_order_detail_base_info_card_rows %}
                     <sw-container slot="grid" type="row">
@@ -13,7 +13,7 @@
                                 <sw-avatar :color="moduleColor"
                                            size="80px"
                                            :user="order.customer"
-                                           :isLoading="isLoading">
+                                           :isLoading="order.isLoading">
                                 </sw-avatar>
                             </sw-card-section>
                         {% endblock %}
@@ -28,7 +28,7 @@
                                         <dt>{{ $tc('sw-order.detailBase.labelOrderDate') }}</dt>
                                         <dd>{{ order.date | date }}</dd>
                                         <dt>{{ $tc('sw-order.detailBase.labelSalesChanel') }}</dt>
-                                        <dd>{{ order.application.name }}</dd>
+                                        <dd>{{ order.touchpoint.name }}</dd>
                                     </sw-description-list>
 
                                     <sw-address :headline="$tc('sw-order.detailBase.headlineBillingAddress')"
@@ -47,7 +47,7 @@
 
         {% block sw_order_detail_base_line_items_card %}
             <sw-card :title="$tc('sw-order.detailBase.cardTitleLineItems')"
-                     :isLoading="isLoading">
+                     :isLoading="order.isLoading">
 
                 {% block sw_order_detail_base_line_items_card_rows %}
                     <sw-container slot="grid" type="row">

@@ -91,11 +91,6 @@ Component.register('sw-customer-detail', {
                 criteria.push(CriteriaFactory.term('customer_address.customerId', this.customerId));
                 params.criteria = CriteriaFactory.nested('AND', ...criteria);
 
-                // todo: this has to be done after the customer has been loaded
-                // this.customerAddressStore.getList(params).then((response) => {
-                //     this.customer.addresses = response.items;
-                // });
-
                 this.touchpointStore.getList({ offset: 0, limit: 100 }).then((response) => {
                     this.touchpoints = response.items;
                 });

@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Page\Account;
 
 use JsonSerializable;
-use Shopware\Framework\Struct\Struct;
+use Shopware\Core\Framework\Struct\Struct;
 
 class RegistrationRequest extends Struct implements JsonSerializable
 {
@@ -48,6 +48,15 @@ class RegistrationRequest extends Struct implements JsonSerializable
 
     /** @var bool */
     protected $differentShippingAddress = false;
+
+    /** @var string|null */
+    protected $billingSalutation;
+
+    /** @var string|null */
+    protected $billingFirstName;
+
+    /** @var string|null */
+    protected $billingLastName;
 
     /** @var string|null */
     protected $billingCompany;
@@ -111,6 +120,9 @@ class RegistrationRequest extends Struct implements JsonSerializable
 
     /** @var string|null */
     protected $shippingCity;
+
+    /** @var string|null */
+    protected $shippingPhone;
 
     /** @var string|null */
     protected $shippingCountry;
@@ -256,6 +268,36 @@ class RegistrationRequest extends Struct implements JsonSerializable
     public function setDifferentShippingAddress(bool $differentShippingAddress): void
     {
         $this->differentShippingAddress = $differentShippingAddress;
+    }
+
+    public function getBillingSalutation(): ?string
+    {
+        return $this->billingSalutation;
+    }
+
+    public function setBillingSalutation(?string $billingSalutation): void
+    {
+        $this->billingSalutation = $billingSalutation;
+    }
+
+    public function getBillingFirstName(): ?string
+    {
+        return $this->billingFirstName;
+    }
+
+    public function setBillingFirstName(?string $billingFirstName): void
+    {
+        $this->billingFirstName = $billingFirstName;
+    }
+
+    public function getBillingLastName(): ?string
+    {
+        return $this->billingLastName;
+    }
+
+    public function setBillingLastName(?string $billingLastName): void
+    {
+        $this->billingLastName = $billingLastName;
     }
 
     public function getBillingCompany(): ?string
@@ -466,6 +508,16 @@ class RegistrationRequest extends Struct implements JsonSerializable
     public function setShippingCity(?string $shippingCity): void
     {
         $this->shippingCity = $shippingCity;
+    }
+
+    public function getShippingPhone(): ?string
+    {
+        return $this->shippingPhone;
+    }
+
+    public function setShippingPhone(?string $shippingPhone): void
+    {
+        $this->shippingPhone = $shippingPhone;
     }
 
     public function getShippingCountry(): ?string

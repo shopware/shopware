@@ -4,15 +4,22 @@ namespace Shopware\Storefront\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Checkout\Payment\Exception\PaymentMethodNotFoundHttpException;
-use Shopware\Checkout\Payment\Exception\UnknownPaymentMethodException;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Context\CheckoutContextPersister;
+use Shopware\Core\Checkout\Context\CheckoutContextService;
+use Shopware\Core\Checkout\Payment\Exception\PaymentMethodNotFoundHttpException;
+use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Storefront\Exception\CustomerNotFoundException;
 use Shopware\Storefront\Page\Account\AccountService;
+use Shopware\Storefront\Page\Account\AddressSaveRequest;
 use Shopware\Storefront\Page\Account\CustomerAddressPageLoader;
 use Shopware\Storefront\Page\Account\CustomerPageLoader;
+use Shopware\Storefront\Page\Account\EmailSaveRequest;
+use Shopware\Storefront\Page\Account\LoginRequest;
 use Shopware\Storefront\Page\Account\OrderPageLoader;
+use Shopware\Storefront\Page\Account\PasswordSaveRequest;
+use Shopware\Storefront\Page\Account\ProfileSaveRequest;
+use Shopware\Storefront\Page\Account\RegistrationRequest;
 use Shopware\Storefront\Page\Checkout\PaymentMethodLoader;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -44,7 +51,7 @@ class AccountController extends StorefrontController
     /**
      * @var CheckoutContextService
      */
-    private $storefrontContextService;
+    private $checkoutContextService;
 
     /**
      * @var PaymentMethodLoader
@@ -78,7 +85,7 @@ class AccountController extends StorefrontController
         AccountService $accountService,
         CustomerAddressPageLoader $customerAddressPageLoader,
         CustomerPageLoader $customerPageLoader,
-        CheckoutContextService $storefrontContextService,
+        CheckoutContextService $checkoutContextService,
         PaymentMethodLoader $paymentMethodLoader,
         OrderPageLoader $orderPageLoader
     ) {
@@ -88,7 +95,7 @@ class AccountController extends StorefrontController
         $this->accountService = $accountService;
         $this->customerAddressPageLoader = $customerAddressPageLoader;
         $this->customerPageLoader = $customerPageLoader;
-        $this->storefrontContextService = $storefrontContextService;
+        $this->checkoutContextService = $checkoutContextService;
         $this->paymentMethodLoader = $paymentMethodLoader;
         $this->orderPageLoader = $orderPageLoader;
     }
@@ -142,7 +149,7 @@ class AccountController extends StorefrontController
             $context->getTenantId()
         );
 
-        $this->storefrontContextService->refresh($context->getTenantId(), $context->getTouchpoint()->getId(), $context->getToken());
+        $this->checkoutContextService->refresh($context->getTenantId(), $context->getTouchpoint()->getId(), $context->getToken());
 
         if ($url = $request->query->get('redirectTo')) {
             return $this->handleRedirectTo($url);
@@ -183,7 +190,7 @@ class AccountController extends StorefrontController
                 $context->getTenantId()
             );
 
-            $this->storefrontContextService->refresh($context->getTenantId(), $context->getTouchpoint()->getId(), $context->getToken());
+            $this->checkoutContextService->refresh($context->getTenantId(), $context->getTouchpoint()->getId(), $context->getToken());
         } catch (BadCredentialsException $exception) {
             return $this->redirectToRoute('account_login');
         }
@@ -211,8 +218,6 @@ class AccountController extends StorefrontController
     /**
      * @Route("/account/savePayment", name="account_save_payment", options={"seo"="false"})
      * @Method({"POST"})
-     *
-     * @throws UnknownPaymentMethodException
      */
     public function savePayment(Request $request, CheckoutContext $context): Response
     {
@@ -285,9 +290,9 @@ class AccountController extends StorefrontController
 
         $this->accountService->saveProfile($profileSaveRequest, $context);
 
-        $this->storefrontContextService->refresh(
+        $this->checkoutContextService->refresh(
             $context->getTenantId(),
-            $context->getApplication()->getId(),
+            $context->getTouchpoint()->getId(),
             $context->getToken()
         );
 
@@ -305,8 +310,8 @@ class AccountController extends StorefrontController
         $this->denyAccessUnlessLoggedIn();
 
         // todo validate user input
-        $this->accountService->changePassword($passwordSaveRequest, $context);
-        $this->storefrontContextService->refresh($context->getTenantId(), $context->getTouchpoint()->getId(), $context->getToken());
+        $this->accountService->savePassword($passwordSaveRequest, $context);
+        $this->checkoutContextService->refresh($context->getTenantId(), $context->getTouchpoint()->getId(), $context->getToken());
 
         return $this->redirectToRoute('account_profile', [
             'success' => true,
@@ -322,8 +327,8 @@ class AccountController extends StorefrontController
         $this->denyAccessUnlessLoggedIn();
 
         // todo validate user input
-        $this->accountService->changeEmail($emailSaveRequest, $context);
-        $this->storefrontContextService->refresh($context->getTenantId(), $context->getTouchpoint()->getId(), $context->getToken());
+        $this->accountService->saveEmail($emailSaveRequest, $context);
+        $this->checkoutContextService->refresh($context->getTenantId(), $context->getTouchpoint()->getId(), $context->getToken());
 
         return $this->redirectToRoute('account_profile', [
             'success' => true,
@@ -347,7 +352,7 @@ class AccountController extends StorefrontController
     /**
      * @Route("/account/address/create", name="address_create", options={"seo"="false"})
      */
-    public function createAddress(StorefrontContext $context): Response
+    public function createAddress(CheckoutContext $context): Response
     {
         return $this->renderStorefront('@Storefront/frontend/address/create.html.twig', [
             'countryList' => $this->accountService->getCountryList($context),
@@ -373,7 +378,7 @@ class AccountController extends StorefrontController
             $this->accountService->setDefaultBillingAddress($request->getId(), $context);
         }
 
-        $this->storefrontContextService->refresh($context->getTenantId(), $context->getTouchpoint()->getId(), $context->getToken());
+        $this->checkoutContextService->refresh($context->getTenantId(), $context->getTouchpoint()->getId(), $context->getToken());
 
         if ($url = $httpRequest->query->get('redirectTo')) {
             return $this->handleRedirectTo($url);
@@ -441,7 +446,7 @@ class AccountController extends StorefrontController
 
         $addressId = $request->request->get('addressId');
         $this->accountService->setDefaultBillingAddress($addressId, $context);
-        $this->storefrontContextService->refresh($context->getTenantId(), $context->getTouchpoint()->getId(), $context->getToken());
+        $this->checkoutContextService->refresh($context->getTenantId(), $context->getTouchpoint()->getId(), $context->getToken());
 
         return $this->redirectToRoute('address_index', ['success' => 'default_billing']);
     }
@@ -458,7 +463,7 @@ class AccountController extends StorefrontController
 
         $addressId = $request->request->get('addressId');
         $this->accountService->setDefaultShippingAddress($addressId, $context);
-        $this->storefrontContextService->refresh($context->getTenantId(), $context->getTouchpoint()->getId(), $context->getToken());
+        $this->checkoutContextService->refresh($context->getTenantId(), $context->getTouchpoint()->getId(), $context->getToken());
 
         return $this->redirectToRoute('address_index', ['success' => 'default_shipping']);
     }
@@ -535,7 +540,7 @@ class AccountController extends StorefrontController
             $this->accountService->setDefaultBillingAddress($addressId, $context);
         }
 
-        $this->storefrontContextService->refresh($context->getTenantId(), $context->getTouchpoint()->getId(), $context->getToken());
+        $this->checkoutContextService->refresh($context->getTenantId(), $context->getTouchpoint()->getId(), $context->getToken());
 
         return new JsonResponse([
             'success' => true,

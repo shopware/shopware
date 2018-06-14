@@ -21,6 +21,6 @@ class PasswordSaveSubscriber implements EventSubscriberInterface
         $request = $event->getRequest();
         $transformed = $event->getPasswordSaveRequest();
 
-        $transformed->assign($request->request->get(self::PREFIX));
+        $transformed->assign($request->request->get(self::PREFIX) ?? $request->request->all());
     }
 }

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Test\Customer;
 
-use Ramsey\Uuid\Uuid;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
 use Shopware\Core\Checkout\Customer\CustomerRepository;
@@ -11,6 +10,7 @@ use Shopware\Core\Content\Product\ProductRepository;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Response\Type\JsonType;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\Api\ApiTestCase;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateRepository;
 use Shopware\Core\System\Country\CountryRepository;
@@ -201,12 +201,12 @@ class StorefrontCustomerControllerTest extends ApiTestCase
 
         $address = [
             'salutation' => 'Mister',
-            'firstname' => 'Example',
-            'lastname' => 'Test',
+            'firstName' => 'Example',
+            'lastName' => 'Test',
             'street' => 'Coastal Highway 72',
             'city' => 'New York',
             'zipcode' => '12749',
-            'country' => Defaults::COUNTRY,
+            'countryId' => Defaults::COUNTRY,
             'company' => 'Shopware AG',
         ];
 
@@ -214,7 +214,7 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         $response = $this->storefrontApiClient->getResponse();
         $content = json_decode($response->getContent(), true);
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $this->assertNotEmpty($content);
         $this->assertArrayHasKey('data', $content);
 
@@ -223,10 +223,10 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         $customerAddress = $this->readCustomerAddress($content['data']);
 
         $this->assertEquals($customerId, $customerAddress->getCustomerId());
-        $this->assertEquals($address['country'], $customerAddress->getCountryId());
+        $this->assertEquals($address['countryId'], $customerAddress->getCountryId());
         $this->assertEquals($address['salutation'], $customerAddress->getSalutation());
-        $this->assertEquals($address['firstname'], $customerAddress->getFirstName());
-        $this->assertEquals($address['lastname'], $customerAddress->getLastName());
+        $this->assertEquals($address['firstName'], $customerAddress->getFirstName());
+        $this->assertEquals($address['lastName'], $customerAddress->getLastName());
         $this->assertEquals($address['street'], $customerAddress->getStreet());
         $this->assertEquals($address['zipcode'], $customerAddress->getZipcode());
         $this->assertEquals($address['city'], $customerAddress->getCity());
@@ -287,60 +287,59 @@ class StorefrontCustomerControllerTest extends ApiTestCase
 
         $personal = [
             'salutation' => 'Mr.',
-            'firstname' => 'Max',
-            'lastname' => 'Mustermann',
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
             'password' => 'test',
-            'email' => 'test@example.com',
+            'email' => Uuid::uuid4()->getHex() . '@example.com',
             'title' => 'Phd',
             'active' => true,
-            'birthday' => [
-                'year' => 2000,
-                'month' => 1,
-                'day' => 22,
-            ],
+            'birthdayYear' => 2000,
+            'birthdayMonth' => 1,
+            'birthdayDay' => 22,
         ];
 
         $billing = [
-            'country' => Defaults::COUNTRY,
-            'salutation' => 'Mrs.',
-            'firstname' => 'Test',
-            'lastname' => 'Example',
-            'street' => 'Examplestreet 11',
-            'zipcode' => '48441',
-            'city' => 'Cologne',
-            'phone' => '0123456789',
-            'vatId' => 'DE999999999',
-            'additionalAddressLine1' => 'Additional address line 1',
-            'additionalAddressLine2' => 'Additional address line 2',
-            'country_state' => $countryStateId,
+            'billingCountry' => Defaults::COUNTRY,
+            'billingSalutation' => 'Mrs.',
+            'billingFirstName' => 'Test',
+            'billingLastName' => 'Example',
+            'billingStreet' => 'Examplestreet 11',
+            'billingZipcode' => '48441',
+            'billingCity' => 'Cologne',
+            'billingPhone' => '0123456789',
+            'billingVatId' => 'DE999999999',
+            'billingAdditionalAddressLine1' => 'Additional address line 1',
+            'billingAdditionalAddressLine2' => 'Additional address line 2',
+            'billingCountryState' => $countryStateId,
         ];
 
         $shipping = [
-            'country' => Defaults::COUNTRY,
-            'salutation' => 'Miss',
-            'firstname' => 'Test 2',
-            'lastname' => 'Example 2',
-            'street' => 'Examplestreet 111',
-            'zipcode' => '12341',
-            'city' => 'Berlin',
-            'phone' => '987654321',
-            'vatId' => 'DE88888888',
-            'additionalAddressLine1' => 'Additional address line 01',
-            'additionalAddressLine2' => 'Additional address line 02',
-            'country_state' => $countryStateId,
+            'differentShippingAddress' => true,
+            'shippingCountry' => Defaults::COUNTRY,
+            'shippingSalutation' => 'Miss',
+            'shippingFirstName' => 'Test 2',
+            'shippingLastName' => 'Example 2',
+            'shippingStreet' => 'Examplestreet 111',
+            'shippingZipcode' => '12341',
+            'shippingCity' => 'Berlin',
+            'shippingPhone' => '987654321',
+            'shippingAdditionalAddressLine1' => 'Additional address line 01',
+            'shippingAdditionalAddressLine2' => 'Additional address line 02',
+            'shippingCountryState' => $countryStateId,
         ];
 
         $this->storefrontApiClient->request('POST', '/storefront-api/customer', [], [], [],
-            json_encode([
-                'personal' => $personal,
-                'billing' => $billing,
-                'shipping' => $shipping,
-            ]));
+            json_encode(
+                array_merge($personal, $billing, $shipping)
+            )
+        );
+
         $response = $this->storefrontApiClient->getResponse();
         $content = json_decode($response->getContent(), true);
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $this->assertNotEmpty($content);
+
         $uuid = $content['data'];
         $this->assertTrue(Uuid::isValid($uuid));
 
@@ -348,45 +347,51 @@ class StorefrontCustomerControllerTest extends ApiTestCase
 
         // verify personal data
         $this->assertEquals($personal['salutation'], $customer->getSalutation());
-        $this->assertEquals($personal['firstname'], $customer->getFirstName());
-        $this->assertEquals($personal['lastname'], $customer->getLastName());
+        $this->assertEquals($personal['firstName'], $customer->getFirstName());
+        $this->assertEquals($personal['lastName'], $customer->getLastName());
         $this->assertTrue(password_verify($personal['password'], $customer->getPassword()));
         $this->assertEquals($personal['email'], $customer->getEmail());
         $this->assertEquals($personal['title'], $customer->getTitle());
         $this->assertEquals($personal['active'], $customer->getActive());
-        $this->assertEquals(new \DateTime($this->formatBirthday($personal['birthday'])), $customer->getBirthday());
+        $this->assertEquals(
+            $this->formatBirthday(
+                $personal['birthdayDay'],
+                $personal['birthdayMonth'],
+                $personal['birthdayYear']
+            ),
+            $customer->getBirthday()
+        );
 
         // verify billing address
         $billingAddress = $customer->getDefaultBillingAddress();
 
-        $this->assertEquals($billing['country'], $billingAddress->getCountryId());
-        $this->assertEquals($billing['salutation'], $billingAddress->getSalutation());
-        $this->assertEquals($billing['firstname'], $billingAddress->getFirstName());
-        $this->assertEquals($billing['lastname'], $billingAddress->getLastName());
-        $this->assertEquals($billing['street'], $billingAddress->getStreet());
-        $this->assertEquals($billing['zipcode'], $billingAddress->getZipcode());
-        $this->assertEquals($billing['city'], $billingAddress->getCity());
-        $this->assertEquals($billing['phone'], $billingAddress->getPhoneNumber());
-        $this->assertEquals($billing['vatId'], $billingAddress->getVatId());
-        $this->assertEquals($billing['additionalAddressLine1'], $billingAddress->getAdditionalAddressLine1());
-        $this->assertEquals($billing['additionalAddressLine2'], $billingAddress->getAdditionalAddressLine2());
-        $this->assertEquals($billing['country_state'], $billingAddress->getCountryStateId());
+        $this->assertEquals($billing['billingCountry'], $billingAddress->getCountryId());
+        $this->assertEquals($billing['billingSalutation'], $billingAddress->getSalutation());
+        $this->assertEquals($billing['billingFirstName'], $billingAddress->getFirstName());
+        $this->assertEquals($billing['billingLastName'], $billingAddress->getLastName());
+        $this->assertEquals($billing['billingStreet'], $billingAddress->getStreet());
+        $this->assertEquals($billing['billingZipcode'], $billingAddress->getZipcode());
+        $this->assertEquals($billing['billingCity'], $billingAddress->getCity());
+        $this->assertEquals($billing['billingPhone'], $billingAddress->getPhoneNumber());
+        $this->assertEquals($billing['billingVatId'], $billingAddress->getVatId());
+        $this->assertEquals($billing['billingAdditionalAddressLine1'], $billingAddress->getAdditionalAddressLine1());
+        $this->assertEquals($billing['billingAdditionalAddressLine2'], $billingAddress->getAdditionalAddressLine2());
+        $this->assertEquals($billing['billingCountryState'], $billingAddress->getCountryStateId());
 
         // verify shipping address
         $shippingAddress = $customer->getDefaultShippingAddress();
 
-        $this->assertEquals($shipping['country'], $shippingAddress->getCountryId());
-        $this->assertEquals($shipping['salutation'], $shippingAddress->getSalutation());
-        $this->assertEquals($shipping['firstname'], $shippingAddress->getFirstName());
-        $this->assertEquals($shipping['lastname'], $shippingAddress->getLastName());
-        $this->assertEquals($shipping['street'], $shippingAddress->getStreet());
-        $this->assertEquals($shipping['zipcode'], $shippingAddress->getZipcode());
-        $this->assertEquals($shipping['city'], $shippingAddress->getCity());
-        $this->assertEquals($shipping['phone'], $shippingAddress->getPhoneNumber());
-        $this->assertEquals($shipping['vatId'], $shippingAddress->getVatId());
-        $this->assertEquals($shipping['additionalAddressLine1'], $shippingAddress->getAdditionalAddressLine1());
-        $this->assertEquals($shipping['additionalAddressLine2'], $shippingAddress->getAdditionalAddressLine2());
-        $this->assertEquals($shipping['country_state'], $shippingAddress->getCountryStateId());
+        $this->assertEquals($shipping['shippingCountry'], $shippingAddress->getCountryId());
+        $this->assertEquals($shipping['shippingSalutation'], $shippingAddress->getSalutation());
+        $this->assertEquals($shipping['shippingFirstName'], $shippingAddress->getFirstName());
+        $this->assertEquals($shipping['shippingLastName'], $shippingAddress->getLastName());
+        $this->assertEquals($shipping['shippingStreet'], $shippingAddress->getStreet());
+        $this->assertEquals($shipping['shippingZipcode'], $shippingAddress->getZipcode());
+        $this->assertEquals($shipping['shippingCity'], $shippingAddress->getCity());
+        $this->assertEquals($shipping['shippingPhone'], $shippingAddress->getPhoneNumber());
+        $this->assertEquals($shipping['shippingAdditionalAddressLine1'], $shippingAddress->getAdditionalAddressLine1());
+        $this->assertEquals($shipping['shippingAdditionalAddressLine2'], $shippingAddress->getAdditionalAddressLine2());
+        $this->assertEquals($shipping['shippingCountryState'], $shippingAddress->getCountryStateId());
     }
 
     public function testChangeEmail()
@@ -432,15 +437,13 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         $customerId = $this->createCustomerAndLogin();
 
         $data = [
-            'firstname' => 'Test',
-            'lastname' => 'User',
+            'firstName' => 'Test',
+            'lastName' => 'User',
             'title' => 'PHD',
             'salutation' => 'Mrs.',
-            'birthday' => [
-                'year' => 1900,
-                'month' => 5,
-                'day' => 3,
-            ],
+            'birthdayYear' => 1900,
+            'birthdayMonth' => 5,
+            'birthdayDay' => 3,
         ];
         $this->storefrontApiClient->request('PUT', '/storefront-api/customer/profile', [], [], [], json_encode($data));
         $response = $this->storefrontApiClient->getResponse();
@@ -450,11 +453,17 @@ class StorefrontCustomerControllerTest extends ApiTestCase
 
         $this->assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
         $this->assertNull($content);
-        $this->assertEquals($data['firstname'], $customer->getFirstName());
-        $this->assertEquals($data['lastname'], $customer->getLastName());
+        $this->assertEquals($data['firstName'], $customer->getFirstName());
+        $this->assertEquals($data['lastName'], $customer->getLastName());
         $this->assertEquals($data['title'], $customer->getTitle());
         $this->assertEquals($data['salutation'], $customer->getSalutation());
-        $this->assertEquals(new \DateTime($this->formatBirthday($data['birthday'])), $customer->getBirthday());
+        $this->assertEquals(
+            $this->formatBirthday(
+                $data['birthdayDay'],
+                $data['birthdayMonth'],
+                $data['birthdayYear']
+            ), $customer->getBirthday()
+        );
     }
 
     private function createCustomerAndLogin(?string $email = null, string $password = 'shopware'): string
@@ -532,7 +541,7 @@ class StorefrontCustomerControllerTest extends ApiTestCase
     {
         return $this->customerRepository->readBasic(
             [$userID],
-            Context:: createDefaultContext(\Shopware\Core\Defaults::TENANT_ID)
+            Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID)
         )->get($userID);
     }
 
@@ -540,7 +549,7 @@ class StorefrontCustomerControllerTest extends ApiTestCase
     {
         return $this->customerAddressRepository->readBasic(
             [$addressId],
-            Context:: createDefaultContext(\Shopware\Core\Defaults::TENANT_ID)
+            Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID)
         )->get($addressId);
     }
 
@@ -553,19 +562,13 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         ];
     }
 
-    private function formatBirthday(array $data): ?string
+    private function formatBirthday($day, $month, $year): \DateTime
     {
-        if (!array_key_exists('year', $data) or
-            !array_key_exists('month', $data) or
-            !array_key_exists('day', $data)) {
-            return null;
-        }
-
-        return sprintf(
+        return new \DateTime(sprintf(
             '%s-%s-%s',
-            (int) $data['year'],
-            (int) $data['month'],
-            (int) $data['day']
-        );
+            (int) $year,
+            (int) $month,
+            (int) $day
+        ));
     }
 }

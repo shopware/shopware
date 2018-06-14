@@ -21,6 +21,6 @@ class AddressSaveSubscriber implements EventSubscriberInterface
         $request = $event->getRequest();
         $transformed = $event->getAddressSaveRequest();
 
-        $transformed->assign($request->request->get(self::PREFIX));
+        $transformed->assign($request->request->get(self::PREFIX) ?? $request->request->all());
     }
 }

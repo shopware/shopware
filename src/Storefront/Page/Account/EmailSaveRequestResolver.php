@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Page\Account;
 
-use Shopware\PlatformRequest;
+use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Event\EmailSaveRequestEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;

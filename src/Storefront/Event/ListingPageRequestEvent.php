@@ -44,7 +44,7 @@ class ListingPageRequestEvent extends NestedEvent
         return $this->context->getContext();
     }
 
-    public function getStorefrontContext(): CheckoutContext
+    public function getCheckoutContext(): CheckoutContext
     {
         return $this->context;
     }

@@ -69,8 +69,8 @@ class OrderPersisterTest extends TestCase
 
         $persister = new OrderPersister($repository, $taxDetector);
 
-        $storefrontContext = $this->createMock(CheckoutContext::class);
-        $storefrontContext->expects($this->any())->method('getCustomer')->willReturn($customer);
+        $checkoutContext = $this->createMock(CheckoutContext::class);
+        $checkoutContext->expects($this->any())->method('getCustomer')->willReturn($customer);
 
         $cart = new CalculatedCart(
             new Cart('A', 'a-b-c', new LineItemCollection(), new ErrorCollection()),
@@ -87,6 +87,6 @@ class OrderPersisterTest extends TestCase
             new DeliveryCollection()
         );
 
-        $persister->persist($cart, $storefrontContext);
+        $persister->persist($cart, $checkoutContext);
     }
 }

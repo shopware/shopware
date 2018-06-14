@@ -2,9 +2,9 @@
 
 namespace Shopware\Storefront\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Framework\Event\NestedEvent;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Storefront\Page\Account\RegistrationRequest;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -18,7 +18,7 @@ class RegistrationRequestEvent extends NestedEvent
     private $request;
 
     /**
-     * @var StorefrontContext
+     * @var CheckoutContext
      */
     private $context;
 
@@ -27,7 +27,7 @@ class RegistrationRequestEvent extends NestedEvent
      */
     private $registrationRequest;
 
-    public function __construct(Request $request, StorefrontContext $context, RegistrationRequest $registrationRequest)
+    public function __construct(Request $request, CheckoutContext $context, RegistrationRequest $registrationRequest)
     {
         $this->request = $request;
         $this->context = $context;
@@ -39,12 +39,12 @@ class RegistrationRequestEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
-        return $this->context->getApplicationContext();
+        return $this->context->getContext();
     }
 
-    public function getStorefrontContext(): StorefrontContext
+    public function getCheckoutContext(): CheckoutContext
     {
         return $this->context;
     }

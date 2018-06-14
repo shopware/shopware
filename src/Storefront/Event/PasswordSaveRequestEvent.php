@@ -2,9 +2,9 @@
 
 namespace Shopware\Storefront\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Framework\Event\NestedEvent;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Storefront\Page\Account\PasswordSaveRequest;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -18,7 +18,7 @@ class PasswordSaveRequestEvent extends NestedEvent
     private $request;
 
     /**
-     * @var StorefrontContext
+     * @var CheckoutContext
      */
     private $context;
 
@@ -27,7 +27,7 @@ class PasswordSaveRequestEvent extends NestedEvent
      */
     private $passwordSaveRequest;
 
-    public function __construct(Request $request, StorefrontContext $context, PasswordSaveRequest $passwordSaveRequest)
+    public function __construct(Request $request, CheckoutContext $context, PasswordSaveRequest $passwordSaveRequest)
     {
         $this->request = $request;
         $this->context = $context;
@@ -39,12 +39,12 @@ class PasswordSaveRequestEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
-        return $this->context->getApplicationContext();
+        return $this->context->getContext();
     }
 
-    public function getStorefrontContext(): StorefrontContext
+    public function getCheckoutContext(): CheckoutContext
     {
         return $this->context;
     }

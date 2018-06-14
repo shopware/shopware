@@ -70,7 +70,7 @@ class AuditLogSearchTest extends KernelTestCase
                 'localeId' => '7b52d9dd-2b06-40ec-90be-9f57edf29be7',
                 'name' => 'test-user',
                 'username' => 'test-user',
-                'email' => 'test@example.com',
+                'email' => Uuid::uuid4()->getHex() . '@example.com',
                 'password' => 'shopware',
             ],
         ], $context);

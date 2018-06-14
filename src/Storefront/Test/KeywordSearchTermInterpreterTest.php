@@ -49,7 +49,7 @@ class KeywordSearchTermInterpreterTest extends KernelTestCase
      */
     public function testMatching(string $term, array $expected)
     {
-        $context = Context:: createDefaultContext(\Shopware\Core\Defaults::TENANT_ID);
+        $context = Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID);
 
         $matches = $this->interpreter->interpret($term, $context);
 

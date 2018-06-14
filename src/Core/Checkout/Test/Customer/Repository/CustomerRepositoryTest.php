@@ -12,6 +12,7 @@ use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\ORM\Search\Term\SearchTermInterpreter;
 use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Util\Random;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class CustomerRepositoryTest extends KernelTestCase
@@ -59,6 +60,8 @@ class CustomerRepositoryTest extends KernelTestCase
             'country' => ['name' => 'not'],
         ];
 
+        $matchTerm = Random::getAlphanumericString(20);
+
         $records = [
             [
                 'id' => $recordA,
@@ -66,10 +69,10 @@ class CustomerRepositoryTest extends KernelTestCase
                 'defaultShippingAddress' => $address,
                 'defaultPaymentMethodId' => 'e84976ac-e9ab-4928-a3dc-c387b66dbaa6',
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-                'email' => 'not',
+                'email' => Uuid::uuid4()->getHex() . '@example.com',
                 'password' => 'not',
                 'lastName' => 'not',
-                'firstName' => 'match',
+                'firstName' => $matchTerm,
                 'salutation' => 'not',
                 'number' => 'not',
             ],
@@ -79,9 +82,9 @@ class CustomerRepositoryTest extends KernelTestCase
                 'defaultShippingAddress' => $address,
                 'defaultPaymentMethodId' => 'e84976ac-e9ab-4928-a3dc-c387b66dbaa6',
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-                'email' => 'not',
+                'email' => Uuid::uuid4()->getHex() . '@example.com',
                 'password' => 'not',
-                'lastName' => 'match',
+                'lastName' => $matchTerm,
                 'firstName' => 'not',
                 'salutation' => 'not',
                 'number' => 'not',
@@ -92,12 +95,12 @@ class CustomerRepositoryTest extends KernelTestCase
                 'defaultShippingAddress' => $address,
                 'defaultPaymentMethodId' => 'e84976ac-e9ab-4928-a3dc-c387b66dbaa6',
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-                'email' => 'not',
+                'email' => Uuid::uuid4()->getHex() . '@example.com',
                 'password' => 'not',
                 'lastName' => 'not',
                 'firstName' => 'not',
                 'salutation' => 'not',
-                'number' => 'match',
+                'number' => $matchTerm,
             ],
             [
                 'id' => $recordD,
@@ -105,7 +108,7 @@ class CustomerRepositoryTest extends KernelTestCase
                 'defaultShippingAddress' => $address,
                 'defaultPaymentMethodId' => 'e84976ac-e9ab-4928-a3dc-c387b66dbaa6',
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-                'email' => 'match',
+                'email' => $matchTerm,
                 'password' => 'not',
                 'lastName' => 'not',
                 'firstName' => 'not',
@@ -119,7 +122,7 @@ class CustomerRepositoryTest extends KernelTestCase
         $criteria = new Criteria();
 
         $builder = self::$container->get(EntityScoreQueryBuilder::class);
-        $pattern = self::$container->get(SearchTermInterpreter::class)->interpret('match', Context::createDefaultContext(Defaults::TENANT_ID));
+        $pattern = self::$container->get(SearchTermInterpreter::class)->interpret($matchTerm, Context::createDefaultContext(Defaults::TENANT_ID));
         $queries = $builder->buildScoreQueries($pattern, CustomerDefinition::class, CustomerDefinition::getEntityName());
         $criteria->addQueries($queries);
 

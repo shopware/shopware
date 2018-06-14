@@ -20,7 +20,7 @@
         <service id="Doctrine\DBAL\Connection" alias="doctrine.dbal.default_connection" public="true" />
 
         <service id="PDO" class="PDO" public="true" >
-            <factory class="Shopware\Kernel" method="getConnection" />
+            <factory class="Shopware\Core\Kernel" method="getConnection" />
         </service>
 
         <!-- Plugins -->

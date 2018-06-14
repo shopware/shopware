@@ -25,7 +25,7 @@ class ContextController extends StorefrontController
     /**
      * @var CheckoutContextService
      */
-    private $storefrontContextService;
+    private $checkoutContextService;
 
     /**
      * @var CurrencyRepository
@@ -39,12 +39,12 @@ class ContextController extends StorefrontController
 
     public function __construct(
         CheckoutContextPersister $contextPersister,
-        CheckoutContextService $storefrontContextService,
+        CheckoutContextService $checkoutContextService,
         CurrencyRepository $currencyRepository,
         LanguageRepository $languageRepository
     ) {
         $this->contextPersister = $contextPersister;
-        $this->storefrontContextService = $storefrontContextService;
+        $this->checkoutContextService = $checkoutContextService;
         $this->currencyRepository = $currencyRepository;
         $this->languageRepository = $languageRepository;
     }
@@ -64,7 +64,7 @@ class ContextController extends StorefrontController
 
         if (!empty($payload)) {
             $this->contextPersister->save($context->getToken(), $payload, $context->getTenantId());
-            $this->storefrontContextService->refresh($context->getTenantId(), $context->getContext()->getTouchpointId(), $context->getToken());
+            $this->checkoutContextService->refresh($context->getTenantId(), $context->getContext()->getTouchpointId(), $context->getToken());
         }
 
         $target = $request->request->get('target') ?? $request->headers->get('referer');

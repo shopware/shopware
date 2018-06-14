@@ -92,7 +92,7 @@
             <argument id="Shopware\Core\Checkout\Customer\CustomerRepository" type="service"/>
             <argument type="service" id="security.authentication.manager"/>
             <argument type="service" id="security.token_storage"/>
-            <argument type="service" id="Shopware\Application\Context\Util\StorefrontContextPersister"/>
+            <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>
         </service>
 
         <service class="Shopware\Storefront\Controller\AccountController" public="true" id="Shopware\Storefront\Controller\AccountController">
@@ -229,10 +229,6 @@
             <tag name="controller.argument_value_resolver" priority="1000"/>
         </service>
 
-        <service class="Shopware\Storefront\Routing\PageStructValueResolver" id="Shopware\Storefront\Routing\PageStructValueResolver">
-            <tag name="controller.argument_value_resolver" priority="150"/>
-        </service>
-
         <service class="Shopware\Storefront\Page\Account\EmailSaveRequestResolver" id="Shopware\Storefront\Page\Account\EmailSaveRequestResolver">
             <argument id="event_dispatcher" type="service"/>
             <argument id="request_stack" type="service"/>
@@ -269,7 +265,7 @@
             <tag name="controller.argument_value_resolver" priority="1000"/>
         </service>
 
-        <service class="Shopware\Framework\Routing\StorefrontContextValueResolver" id="Shopware\Framework\Routing\StorefrontContextValueResolver">
+        <service class="Shopware\Core\Checkout\Context\CheckoutContextValueResolver" id="Shopware\Core\Framework\Routing\CheckoutContextValueResolver">
             <argument id="request_stack" type="service"/>
             <tag name="controller.argument_value_resolver" priority="1000"/>
         </service>

@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Page\Account;
 
 use JsonSerializable;
-use Shopware\Framework\Struct\Struct;
+use Shopware\Core\Framework\Struct\Struct;
 
 class LoginRequest extends Struct implements JsonSerializable
 {

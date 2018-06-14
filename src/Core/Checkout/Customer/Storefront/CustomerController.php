@@ -19,6 +19,11 @@ use Shopware\Core\Framework\ORM\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Routing\Firewall\CustomerProvider;
 use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Page\Account\AccountService;
+use Shopware\Storefront\Page\Account\AddressSaveRequest;
+use Shopware\Storefront\Page\Account\EmailSaveRequest;
+use Shopware\Storefront\Page\Account\PasswordSaveRequest;
+use Shopware\Storefront\Page\Account\ProfileSaveRequest;
+use Shopware\Storefront\Page\Account\RegistrationRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -51,7 +56,7 @@ class CustomerController extends Controller
     /**
      * @var CheckoutContextService
      */
-    private $storefrontContextService;
+    private $checkoutContextService;
 
     /**
      * @var ResponseFactory
@@ -68,7 +73,7 @@ class CustomerController extends Controller
         CheckoutContextPersister $contextPersister,
         CustomerProvider $customerProvider,
         AccountService $accountService,
-        CheckoutContextService $storefrontContextService,
+        CheckoutContextService $checkoutContextService,
         ResponseFactory $responseFactory,
         OrderRepository $orderRepository
     ) {
@@ -76,7 +81,7 @@ class CustomerController extends Controller
         $this->contextPersister = $contextPersister;
         $this->customerProvider = $customerProvider;
         $this->accountService = $accountService;
-        $this->storefrontContextService = $storefrontContextService;
+        $this->checkoutContextService = $checkoutContextService;
         $this->responseFactory = $responseFactory;
         $this->orderRepository = $orderRepository;
     }
@@ -173,8 +178,11 @@ class CustomerController extends Controller
      */
     public function register(Request $request, CheckoutContext $context): JsonResponse
     {
-        $content = $this->decodedContent($request);
-        $customerId = $this->accountService->createNewCustomer($content, $context);
+        $registrationRequest = new RegistrationRequest();
+
+        $registrationRequest->assign($this->decodedContent($request));
+
+        $customerId = $this->accountService->createNewCustomer($registrationRequest, $context);
 
         return new JsonResponse($this->serialize($customerId));
     }
@@ -183,12 +191,13 @@ class CustomerController extends Controller
      * @Route("/storefront-api/customer/email", name="storefront.api.customer.email.update")
      * @Method({"PUT"})
      */
-    public function changeEmail(Request $request, CheckoutContext $context): JsonResponse
+    public function saveEmail(Request $request, CheckoutContext $context): JsonResponse
     {
-        $content = $this->decodedContent($request);
+        $emailSaveRequest = new EmailSaveRequest();
+        $emailSaveRequest->assign($this->decodedContent($request));
 
-        $this->accountService->changeEmail($content['email'], $context);
-        $this->storefrontContextService->refresh(
+        $this->accountService->saveEmail($emailSaveRequest, $context);
+        $this->checkoutContextService->refresh(
             $context->getTenantId(),
             $context->getTouchpoint()->getId(),
             $context->getToken()
@@ -201,14 +210,17 @@ class CustomerController extends Controller
      * @Route("/storefront-api/customer/password", name="storefront.api.customer.password.update")
      * @Method({"PUT"})
      */
-    public function changePassword(Request $request, CheckoutContext $context): JsonResponse
+    public function savePassword(Request $request, CheckoutContext $context): JsonResponse
     {
-        $content = $this->decodedContent($request);
-        if (!array_key_exists('password', $content) || empty($content['password'])) {
+        $passwordSaveRequest = new PasswordSaveRequest();
+        $passwordSaveRequest->assign($this->decodedContent($request));
+
+        if (empty($passwordSaveRequest->getPassword())) {
             return new JsonResponse($this->serialize('Invalid password'));
         }
-        $this->accountService->changePassword($content['password'], $context);
-        $this->storefrontContextService->refresh(
+
+        $this->accountService->savePassword($passwordSaveRequest, $context);
+        $this->checkoutContextService->refresh(
             $context->getTenantId(),
             $context->getTouchpoint()->getId(),
             $context->getToken()
@@ -221,11 +233,13 @@ class CustomerController extends Controller
      * @Route("/storefront-api/customer/profile", name="storefront.api.customer.profile.update")
      * @Method({"PUT"})
      */
-    public function changeProfile(Request $request, CheckoutContext $context): JsonResponse
+    public function saveProfile(Request $request, CheckoutContext $context): JsonResponse
     {
-        $profile = $this->decodedContent($request);
-        $this->accountService->saveProfile($profile, $context);
-        $this->storefrontContextService->refresh(
+        $profileSaveRequest = new ProfileSaveRequest();
+        $profileSaveRequest->assign($this->decodedContent($request));
+
+        $this->accountService->saveProfile($profileSaveRequest, $context);
+        $this->checkoutContextService->refresh(
             $context->getTenantId(),
             $context->getTouchpoint()->getId(),
             $context->getToken()
@@ -283,10 +297,12 @@ class CustomerController extends Controller
      */
     public function createAddress(Request $request, CheckoutContext $context): JsonResponse
     {
-        $content = $this->decodedContent($request);
-        $addressId = $this->accountService->saveAddress($content, $context);
+        $addressSaveRequest = new AddressSaveRequest();
+        $addressSaveRequest->assign($this->decodedContent($request));
 
-        $this->storefrontContextService->refresh($context->getTenantId(), $context->getTouchpoint()->getId(), $context->getToken());
+        $addressId = $this->accountService->saveAddress($addressSaveRequest, $context);
+
+        $this->checkoutContextService->refresh($context->getTenantId(), $context->getTouchpoint()->getId(), $context->getToken());
 
         return new JsonResponse($this->serialize($addressId));
     }

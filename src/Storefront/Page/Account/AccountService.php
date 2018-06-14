@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Page\Account;
 
-use Shopware\Application\Context\Util\StorefrontContextPersister;
+use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
@@ -47,7 +47,7 @@ class AccountService
     private $tokenStorage;
 
     /**
-     * @var StorefrontContextPersister
+     * @var CheckoutContextPersister
      */
     private $contextPersister;
 
@@ -57,7 +57,7 @@ class AccountService
         CustomerRepository $customerRepository,
         AuthenticationManagerInterface $authenticationManager,
         TokenStorageInterface $tokenStorage,
-        StorefrontContextPersister $contextPersister
+        CheckoutContextPersister $contextPersister
     ) {
         $this->countryRepository = $countryRepository;
         $this->customerAddressRepository = $customerAddressRepository;
@@ -71,6 +71,8 @@ class AccountService
     {
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('customer.email', $email));
+        // TODO NEXT-389 we have to check an option like "bind customer to touchpoint"
+        // todo in this case we have to filter "customer.touchpointId is null or touchpointId = :current"
 
         $customers = $this->customerRepository->search($criteria, $context->getContext());
 
@@ -117,7 +119,7 @@ class AccountService
         $this->customerRepository->update([$data], $context->getContext());
     }
 
-    public function changePassword(PasswordSaveRequest $passwordSaveRequest, CheckoutContext $context)
+    public function savePassword(PasswordSaveRequest $passwordSaveRequest, CheckoutContext $context)
     {
         $data = [
             'id' => $context->getCustomer()->getId(),
@@ -133,7 +135,7 @@ class AccountService
         $this->customerRepository->update([$data], $context->getContext());
     }
 
-    public function changeEmail(EmailSaveRequest $emailSaveRequest, CheckoutContext $context)
+    public function saveEmail(EmailSaveRequest $emailSaveRequest, CheckoutContext $context)
     {
         $data = [
             'id' => $context->getCustomer()->getId(),
@@ -277,9 +279,9 @@ class AccountService
             'id' => $billingAddressId,
             'customerId' => $customerId,
             'countryId' => $registrationRequest->getBillingCountry(),
-            'salutation' => $registrationRequest->getSalutation(),
-            'firstName' => $registrationRequest->getFirstName(),
-            'lastName' => $registrationRequest->getLastName(),
+            'salutation' => $registrationRequest->getBillingSalutation(),
+            'firstName' => $registrationRequest->getBillingFirstName(),
+            'lastName' => $registrationRequest->getBillingLastName(),
             'street' => $registrationRequest->getBillingStreet(),
             'zipcode' => $registrationRequest->getBillingZipcode(),
             'city' => $registrationRequest->getBillingCity(),
@@ -302,6 +304,7 @@ class AccountService
                 'street' => $registrationRequest->getShippingStreet(),
                 'zipcode' => $registrationRequest->getShippingZipcode(),
                 'city' => $registrationRequest->getShippingCity(),
+                'phoneNumber' => $registrationRequest->getShippingPhone(),
                 'additionalAddressLine1' => $registrationRequest->getShippingAdditionalAddressLine1(),
                 'additionalAddressLine2' => $registrationRequest->getShippingAdditionalAddressLine2(),
                 'countryStateId' => $registrationRequest->getShippingCountryState(),
@@ -312,9 +315,8 @@ class AccountService
         $data = [
             'id' => $customerId,
             'touchpointId' => $context->getTouchpoint()->getId(),
-            'customerGroupId' => $context->getCurrentCustomerGroup()->getId(),
+            'groupId' => $context->getCurrentCustomerGroup()->getId(),
             'defaultPaymentMethodId' => $context->getPaymentMethod()->getId(),
-            'applicationId' => $context->getApplication()->getId(),
             'number' => '123',
             'salutation' => $registrationRequest->getSalutation(),
             'firstName' => $registrationRequest->getFirstName(),

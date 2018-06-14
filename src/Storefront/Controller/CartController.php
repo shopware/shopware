@@ -70,12 +70,35 @@ class CartController extends StorefrontController
 
         $this->addProductToCart($context, $identifier, $quantity, $services);
 
-        if ($this->acceptsHTML($request)) {
+        if ($request->isXmlHttpRequest() && $this->acceptsHTML($request)) {
             return $this->renderStorefront(
                 '@Storefront/frontend/checkout/ajax_cart.html.twig',
                 ['cart' => $this->cartService->getCalculatedCart($context)]
             );
         }
+
+        return $this->conditionalResponse($request, $target);
+    }
+
+    /**
+     * @Route("/cart/addLineItem", name="cart_add_line_item", options={"seo"="false"})
+     * @Method({"POST"})
+     */
+    public function addLineItem(Request $request, CheckoutContext $context): Response
+    {
+        $identifier = $request->request->get('identifier');
+        $quantity = $request->request->getInt('quantity');
+        $target = $request->request->get('target');
+        $type = $request->request->get('type');
+
+        if (!($identifier && $quantity && $type)) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Invalid identifier or quantity or type',
+            ]);
+        }
+
+        $this->addLineItemToCart($identifier, $quantity, $type, $context);
 
         return $this->conditionalResponse($request, $target);
     }
@@ -98,7 +121,7 @@ class CartController extends StorefrontController
 
         $this->cartService->remove($identifier, $context);
 
-        if ($this->acceptsHTML($request)) {
+        if ($request->isXmlHttpRequest() && $this->acceptsHTML($request)) {
             return $this->renderStorefront(
                 '@Storefront/frontend/checkout/ajax_cart.html.twig',
                 ['cart' => $this->cartService->getCalculatedCart($context)]
@@ -133,30 +156,6 @@ class CartController extends StorefrontController
                 'message' => 'LineItem not found',
             ]);
         }
-
-        return $this->conditionalResponse($request, $target);
-    }
-
-    /**
-     * @Route("/cart/addVoucher", name="cart_add_voucher", options={"seo"="false"})
-     * @Method({"POST"})
-     */
-    public function addVoucher(Request $request, CheckoutContext $context): Response
-    {
-        $identifier = $request->request->get('identifier', false);
-        $target = $request->request->get('target');
-
-        if (!$identifier) {
-            return new JsonResponse([
-                'success' => false,
-                'message' => 'Invalid identifier',
-            ]);
-        }
-
-        $this->cartService->add(
-            new LineItem($identifier, 'voucher', 1, ['code' => $identifier]),
-            $context
-        );
 
         return $this->conditionalResponse($request, $target);
     }
@@ -214,6 +213,19 @@ class CartController extends StorefrontController
         }
 
         return $this->redirectToRoute(self::ROUTE_CHECKOUT_CART);
+    }
+
+    private function addLineItemToCart(string $identifier, int $quantity, string $type, CheckoutContext $context)
+    {
+        $this->cartService->add(
+            new LineItem(
+                $identifier,
+                $type,
+                $quantity,
+                ['id' => $identifier]
+            ),
+            $context
+        );
     }
 
     private function addProductToCart(CheckoutContext $context, string $identifier, int $quantity, array $services = []): void

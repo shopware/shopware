@@ -25,8 +25,8 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Cart\Tax;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\CheckoutContext;
 
 class TaxDetector
 {

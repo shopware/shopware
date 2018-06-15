@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\Country;
 
-use Shopware\Core\System\Touchpoint\TouchpointDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
@@ -37,6 +36,7 @@ use Shopware\Core\System\Country\Event\CountryWrittenEvent;
 use Shopware\Core\System\Country\Struct\CountryBasicStruct;
 use Shopware\Core\System\Country\Struct\CountryDetailStruct;
 use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition;
+use Shopware\Core\System\Touchpoint\TouchpointDefinition;
 
 class CountryDefinition extends EntityDefinition
 {

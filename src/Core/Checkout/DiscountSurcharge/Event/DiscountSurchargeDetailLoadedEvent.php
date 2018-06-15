@@ -3,8 +3,8 @@
 namespace Shopware\Core\Checkout\DiscountSurcharge\Event;
 
 use Shopware\Core\Checkout\DiscountSurcharge\Collection\DiscountSurchargeDetailCollection;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Content\Rule\Event\RuleBasicLoadedEvent;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 

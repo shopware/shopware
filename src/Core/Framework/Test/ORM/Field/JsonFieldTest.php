@@ -14,8 +14,8 @@ use Shopware\Core\Framework\ORM\Write\FieldException\UnexpectedFieldException;
 use Shopware\Core\Framework\ORM\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\ORM\Write\WriteContext;
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Core\Framework\Test\ORM\Field\TestDefinition\NestedDefinition;
 use Shopware\Core\Framework\Test\ORM\Field\TestDefinition\JsonDefinition;
+use Shopware\Core\Framework\Test\ORM\Field\TestDefinition\NestedDefinition;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class JsonFieldTest extends KernelTestCase

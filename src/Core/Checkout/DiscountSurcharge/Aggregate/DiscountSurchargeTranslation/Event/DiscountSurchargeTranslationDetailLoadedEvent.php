@@ -5,9 +5,9 @@ namespace Shopware\Core\Checkout\DiscountSurcharge\Aggregate\DiscountSurchargeTr
 use Shopware\Core\Checkout\DiscountSurcharge\Aggregate\DiscountSurchargeTranslation\Collection\DiscountSurchargeTranslationDetailCollection;
 use Shopware\Core\Checkout\DiscountSurcharge\Event\DiscountSurchargeBasicLoadedEvent;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\System\Language\Event\LanguageBasicLoadedEvent;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\System\Language\Event\LanguageBasicLoadedEvent;
 
 class DiscountSurchargeTranslationDetailLoadedEvent extends NestedEvent
 {

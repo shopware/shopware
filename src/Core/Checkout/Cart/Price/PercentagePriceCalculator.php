@@ -25,11 +25,11 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Cart\Price;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\DerivedCalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
+use Shopware\Core\Checkout\CheckoutContext;
 
 class PercentagePriceCalculator
 {
@@ -63,7 +63,7 @@ class PercentagePriceCalculator
      *
      * @param float                     $percentage 10.00 for 10%, -10.0 for -10%
      * @param CalculatedPriceCollection $prices
-     * @param CheckoutContext         $context
+     * @param CheckoutContext           $context
      *
      * @return DerivedCalculatedPrice
      */

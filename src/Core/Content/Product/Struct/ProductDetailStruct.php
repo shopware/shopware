@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Product\Struct;
 
 use Shopware\Core\Content\Category\Collection\CategoryBasicCollection;
+use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Collection\ProductConfiguratorBasicCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\Collection\ProductMediaBasicCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\Collection\ProductSearchKeywordBasicCollection;
@@ -10,7 +11,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductService\Collection\ProductSer
 use Shopware\Core\Content\Product\Aggregate\ProductStream\Collection\ProductStreamBasicCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Collection\ProductTranslationBasicCollection;
 use Shopware\Core\Content\Product\Collection\ProductBasicCollection;
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection;
 
 class ProductDetailStruct extends ProductBasicStruct
 {

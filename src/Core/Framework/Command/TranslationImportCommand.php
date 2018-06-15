@@ -2,11 +2,11 @@
 
 namespace Shopware\Core\Framework\Command;
 
-use Shopware\Core\Framework\Plugin\PluginCollection;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Event\ImportAdvanceEvent;
 use Shopware\Core\Framework\Event\ImportFinishEvent;
 use Shopware\Core\Framework\Event\ImportStartEvent;
+use Shopware\Core\Framework\Plugin\PluginCollection;
+use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Translation\ImportService;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;

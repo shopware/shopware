@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransaction;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\Collection\OrderTransactionBasicCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\Collection\OrderTransactionDetailCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\Event\OrderTransactionAggregationResultLoadedEvent;
@@ -11,6 +10,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\Event\OrderTransacti
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\Event\OrderTransactionIdSearchResultLoadedEvent;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\Event\OrderTransactionSearchResultLoadedEvent;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\Struct\OrderTransactionSearchResult;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\AggregatorResult;

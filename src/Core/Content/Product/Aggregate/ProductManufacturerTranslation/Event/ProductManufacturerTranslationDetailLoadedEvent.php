@@ -2,12 +2,12 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\Event;
 
-use Shopware\Core\Framework\Context;
-use Shopware\Core\System\Language\Event\LanguageBasicLoadedEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\Event\ProductManufacturerBasicLoadedEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\Collection\ProductManufacturerTranslationDetailCollection;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\System\Language\Event\LanguageBasicLoadedEvent;
 
 class ProductManufacturerTranslationDetailLoadedEvent extends NestedEvent
 {

@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\Struct;
 
-use Shopware\Core\System\Language\Struct\LanguageBasicStruct;
 use Shopware\Core\System\Currency\Struct\CurrencyBasicStruct;
+use Shopware\Core\System\Language\Struct\LanguageBasicStruct;
 
 class CurrencyTranslationDetailStruct extends CurrencyTranslationBasicStruct
 {

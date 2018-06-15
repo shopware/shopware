@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Content\Product\Collection\ProductBasicCollection;
 use Shopware\Core\Content\Product\Collection\ProductDetailCollection;
 use Shopware\Core\Content\Product\Event\ProductAggregationResultLoadedEvent;
@@ -11,6 +10,7 @@ use Shopware\Core\Content\Product\Event\ProductDetailLoadedEvent;
 use Shopware\Core\Content\Product\Event\ProductIdSearchResultLoadedEvent;
 use Shopware\Core\Content\Product\Event\ProductSearchResultLoadedEvent;
 use Shopware\Core\Content\Product\Struct\ProductSearchResult;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\AggregatorResult;

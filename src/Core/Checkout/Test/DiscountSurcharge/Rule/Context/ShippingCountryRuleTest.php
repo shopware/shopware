@@ -25,12 +25,12 @@
 namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\Context;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Core\Content\Rule\Exception\UnsupportedOperatorException;
-use Shopware\Core\Checkout\Customer\Rule\ShippingCountryRule;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Customer\Rule\ShippingCountryRule;
+use Shopware\Core\Content\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\System\Country\Struct\CountryBasicStruct;
 
 class ShippingCountryRuleTest extends TestCase

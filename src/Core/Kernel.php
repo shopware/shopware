@@ -3,7 +3,6 @@
 namespace Shopware\Core;
 
 use Shopware\Core\Framework\Api\Controller\ApiController;
-use Shopware\Core\Framework\DependencyInjection\CompilerPass\TestingCompilerPass;
 use Shopware\Core\Framework\Doctrine\DatabaseConnector;
 use Shopware\Core\Framework\Framework;
 use Shopware\Core\Framework\Plugin\Plugin;
@@ -59,7 +58,7 @@ class Kernel extends HttpKernel
 
     public function boot($withPlugins = true)
     {
-        if (true === $this->booted) {
+        if ($this->booted === true) {
             if ($this->debug) {
                 $this->startTime = microtime(true);
             }

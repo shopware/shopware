@@ -25,9 +25,9 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Content\Product\Cart;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\CartCollectorInterface;
 use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Product\Aggregate\ProductService\Collection\ProductServiceBasicCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceRepository;
 use Shopware\Core\Content\Product\Cart\Struct\ProductFetchDefinition;

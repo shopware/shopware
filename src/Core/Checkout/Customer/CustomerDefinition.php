@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer;
 
-use Shopware\Core\System\Touchpoint\TouchpointDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
 use Shopware\Core\Checkout\Customer\Collection\CustomerBasicCollection;
@@ -33,6 +32,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
+use Shopware\Core\System\Touchpoint\TouchpointDefinition;
 
 class CustomerDefinition extends EntityDefinition
 {

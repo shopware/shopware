@@ -72,7 +72,7 @@ EOF;
 
         $data = [
             'id' => $id->getHex(),
-            'data' => new \stdClass()
+            'data' => new \stdClass(),
         ];
 
         $ex = null;
@@ -101,7 +101,7 @@ EOF;
 
         $data = [
             'id' => $id->getHex(),
-            'data' => $struct
+            'data' => $struct,
         ];
 
         $this->getWriter()->insert(ObjectDefinition::class, [$data], $context);

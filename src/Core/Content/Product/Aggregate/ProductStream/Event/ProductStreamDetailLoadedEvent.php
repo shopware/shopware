@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductStream\Event;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Content\Product\Aggregate\ProductStream\Collection\ProductStreamDetailCollection;
 use Shopware\Core\Content\Product\Event\ProductBasicLoadedEvent;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\System\Listing\Event\ListingSortingBasicLoadedEvent;

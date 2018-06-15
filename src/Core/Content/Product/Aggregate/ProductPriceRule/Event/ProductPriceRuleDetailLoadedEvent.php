@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Event;
 
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Content\Rule\Event\RuleBasicLoadedEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Collection\ProductPriceRuleDetailCollection;
 use Shopware\Core\Content\Product\Event\ProductBasicLoadedEvent;
+use Shopware\Core\Content\Rule\Event\RuleBasicLoadedEvent;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\System\Currency\Event\CurrencyBasicLoadedEvent;

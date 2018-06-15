@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\System\Touchpoint\Collection;
 
-use Shopware\Core\System\Touchpoint\Struct\TouchpointDetailStruct;
 use Shopware\Core\Checkout\Payment\Collection\PaymentMethodBasicCollection;
 use Shopware\Core\Checkout\Shipping\Collection\ShippingMethodBasicCollection;
 use Shopware\Core\System\Country\Collection\CountryBasicCollection;
+use Shopware\Core\System\Touchpoint\Struct\TouchpointDetailStruct;
 
 class TouchpointDetailCollection extends TouchpointBasicCollection
 {

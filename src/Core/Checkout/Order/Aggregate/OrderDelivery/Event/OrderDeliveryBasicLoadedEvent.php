@@ -2,11 +2,11 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\Event;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\Event\OrderAddressBasicLoadedEvent;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\Collection\OrderDeliveryBasicCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderState\Event\OrderStateBasicLoadedEvent;
 use Shopware\Core\Checkout\Shipping\Event\ShippingMethodBasicLoadedEvent;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 

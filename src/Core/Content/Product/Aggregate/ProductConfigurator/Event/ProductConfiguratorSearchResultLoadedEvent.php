@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Event;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Struct\ProductConfiguratorSearchResult;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 
 class ProductConfiguratorSearchResultLoadedEvent extends NestedEvent

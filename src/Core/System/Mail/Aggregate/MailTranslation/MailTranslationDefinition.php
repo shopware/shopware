@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\Mail\Aggregate\MailTranslation;
 
-use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\FkField;
@@ -13,6 +12,7 @@ use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\Mail\Aggregate\MailTranslation\Collection\MailTranslationBasicCollection;
 use Shopware\Core\System\Mail\Aggregate\MailTranslation\Collection\MailTranslationDetailCollection;
 use Shopware\Core\System\Mail\Aggregate\MailTranslation\Event\MailTranslationDeletedEvent;

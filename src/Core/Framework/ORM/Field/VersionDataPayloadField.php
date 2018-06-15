@@ -15,7 +15,7 @@ class VersionDataPayloadField extends JsonField
      * to the storage as we don't want magic to happen here.
      *
      * @param EntityExistence $existence
-     * @param KeyValuePair $data
+     * @param KeyValuePair    $data
      *
      * @return \Generator
      */

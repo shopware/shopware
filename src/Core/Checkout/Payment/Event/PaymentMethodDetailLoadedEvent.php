@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Checkout\Payment\Event;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\Event\PaymentMethodTranslationBasicLoadedEvent;
 use Shopware\Core\Checkout\Payment\Collection\PaymentMethodDetailCollection;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Plugin\Event\PluginBasicLoadedEvent;

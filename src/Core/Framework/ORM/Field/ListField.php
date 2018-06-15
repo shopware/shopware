@@ -62,11 +62,6 @@ class ListField extends JsonField
         $this->fieldType = $fieldType;
     }
 
-    public function getFieldType(): ?string
-    {
-        return $this->fieldType;
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -81,7 +76,6 @@ class ListField extends JsonField
             $this->validate($this->getInsertConstraints(), $key, $value);
         }
 
-
         if ($value !== null) {
             $value = array_values($value);
 
@@ -93,6 +87,11 @@ class ListField extends JsonField
         }
 
         yield $this->storageName => $value;
+    }
+
+    public function getFieldType(): ?string
+    {
+        return $this->fieldType;
     }
 
     public function getInsertConstraints(): array

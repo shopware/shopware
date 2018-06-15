@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Event;
 
+use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionSearchResult;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionSearchResult;
 
 class ConfigurationGroupOptionSearchResultLoadedEvent extends NestedEvent
 {

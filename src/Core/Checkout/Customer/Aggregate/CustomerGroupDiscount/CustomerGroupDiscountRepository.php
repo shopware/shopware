@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\Collection\CustomerGroupDiscountBasicCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\Collection\CustomerGroupDiscountDetailCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\Event\CustomerGroupDiscountAggregationResultLoadedEvent;
@@ -11,6 +10,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\Event\Custom
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\Event\CustomerGroupDiscountIdSearchResultLoadedEvent;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\Event\CustomerGroupDiscountSearchResultLoadedEvent;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\Struct\CustomerGroupDiscountSearchResult;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\AggregatorResult;

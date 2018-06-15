@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\Event;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\Struct\MediaAlbumTranslationSearchResult;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 
 class MediaAlbumTranslationSearchResultLoadedEvent extends NestedEvent

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Collection\CustomerAddressBasicCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Collection\CustomerAddressDetailCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Event\CustomerAddressAggregationResultLoadedEvent;
@@ -11,6 +10,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Event\CustomerAddr
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Event\CustomerAddressIdSearchResultLoadedEvent;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Event\CustomerAddressSearchResultLoadedEvent;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressSearchResult;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\AggregatorResult;

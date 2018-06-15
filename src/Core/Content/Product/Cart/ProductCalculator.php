@@ -25,13 +25,13 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Content\Product\Cart;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItem;
 use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemInterface;
 use Shopware\Core\Checkout\Cart\Price\PriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Product\Cart\Struct\CalculatedProduct;
 use Shopware\Core\Content\Product\Struct\ProductBasicStruct;
 use Shopware\Core\Framework\Struct\StructCollection;

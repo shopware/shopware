@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductStream\Event;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Content\Product\Aggregate\ProductStream\Struct\ProductStreamSearchResult;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 
 class ProductStreamSearchResultLoadedEvent extends NestedEvent

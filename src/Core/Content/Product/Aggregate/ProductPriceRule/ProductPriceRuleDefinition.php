@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductPriceRule;
 
-use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Collection\ProductPriceRuleBasicCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Collection\ProductPriceRuleDetailCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Event\ProductPriceRuleDeletedEvent;
@@ -10,6 +9,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Event\ProductPriceR
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Struct\ProductPriceRuleBasicStruct;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Struct\ProductPriceRuleDetailStruct;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\DateField;

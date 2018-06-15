@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Shipping;
 
-use Shopware\Core\System\Touchpoint\TouchpointDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceDefinition;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationDefinition;
@@ -33,6 +32,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
+use Shopware\Core\System\Touchpoint\TouchpointDefinition;
 
 class ShippingMethodDefinition extends EntityDefinition
 {

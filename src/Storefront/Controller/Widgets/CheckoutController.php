@@ -26,8 +26,8 @@ namespace Shopware\Storefront\Controller\Widgets;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Storefront\CartService;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Storefront\Controller\StorefrontController;
 
 class CheckoutController extends StorefrontController

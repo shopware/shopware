@@ -8,8 +8,8 @@ use Shopware\Core\Framework\ORM\Search\Query\NestedQuery;
 use Shopware\Core\Framework\ORM\Search\Query\RangeQuery;
 use Shopware\Storefront\Event\ListingEvents;
 use Shopware\Storefront\Event\ListingPageLoadedEvent;
+use Shopware\Storefront\Event\ListingPageRequestEvent;
 use Shopware\Storefront\Event\PageCriteriaCreatedEvent;
-use Shopware\Storefront\Event\TransformListingPageRequestEvent;
 use Shopware\Storefront\Page\Listing\AggregationView\SliderAggregation;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -26,13 +26,13 @@ class PriceAggregationSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            ListingEvents::PAGE_CRITERIA_CREATED_EVENT => 'buildCriteria',
-            ListingEvents::LISTING_PAGE_LOADED_EVENT => 'buildPage',
-            ListingEvents::TRANSFORM_LISTING_PAGE_REQUEST => 'transformRequest',
+            ListingEvents::CRITERIA_CREATED => 'buildCriteria',
+            ListingEvents::LOADED => 'buildPage',
+            ListingEvents::REQUEST => 'transformRequest',
         ];
     }
 
-    public function transformRequest(TransformListingPageRequestEvent $event)
+    public function transformRequest(ListingPageRequestEvent $event)
     {
         $request = $event->getRequest();
         if (!$request->query->get(self::MIN_PRICE_PARAMETER) && !$request->query->has(self::MAX_PRICE_PARAMETER)) {

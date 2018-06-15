@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOptionTranslation\Struct;
 
-use Shopware\Core\System\Language\Struct\LanguageBasicStruct;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct;
+use Shopware\Core\System\Language\Struct\LanguageBasicStruct;
 
 class ConfigurationGroupOptionTranslationDetailStruct extends ConfigurationGroupOptionTranslationBasicStruct
 {

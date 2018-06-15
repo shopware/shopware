@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\Struct;
 
-use Shopware\Core\System\Language\Struct\LanguageBasicStruct;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupBasicStruct;
+use Shopware\Core\System\Language\Struct\LanguageBasicStruct;
 
 class CustomerGroupTranslationDetailStruct extends CustomerGroupTranslationBasicStruct
 {

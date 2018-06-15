@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\Event;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\Struct\OrderDeliveryPositionSearchResult;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 
 class OrderDeliveryPositionSearchResultLoadedEvent extends NestedEvent

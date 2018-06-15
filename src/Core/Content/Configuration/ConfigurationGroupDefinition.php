@@ -2,6 +2,13 @@
 
 namespace Shopware\Core\Content\Configuration;
 
+use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\ConfigurationGroupTranslationDefinition;
+use Shopware\Core\Content\Configuration\Collection\ConfigurationGroupBasicCollection;
+use Shopware\Core\Content\Configuration\Collection\ConfigurationGroupDetailCollection;
+use Shopware\Core\Content\Configuration\Event\ConfigurationGroupDeletedEvent;
+use Shopware\Core\Content\Configuration\Event\ConfigurationGroupWrittenEvent;
+use Shopware\Core\Content\Configuration\Struct\ConfigurationGroupBasicStruct;
+use Shopware\Core\Content\Configuration\Struct\ConfigurationGroupDetailStruct;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\BoolField;
@@ -17,13 +24,6 @@ use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\ConfigurationGroupTranslationDefinition;
-use Shopware\Core\Content\Configuration\Collection\ConfigurationGroupBasicCollection;
-use Shopware\Core\Content\Configuration\Collection\ConfigurationGroupDetailCollection;
-use Shopware\Core\Content\Configuration\Event\ConfigurationGroupDeletedEvent;
-use Shopware\Core\Content\Configuration\Event\ConfigurationGroupWrittenEvent;
-use Shopware\Core\Content\Configuration\Struct\ConfigurationGroupBasicStruct;
-use Shopware\Core\Content\Configuration\Struct\ConfigurationGroupDetailStruct;
 
 class ConfigurationGroupDefinition extends EntityDefinition
 {

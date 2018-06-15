@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Checkout\Cart\Cart;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Core\Checkout\CheckoutContext;
 
 class CartValidator
 {

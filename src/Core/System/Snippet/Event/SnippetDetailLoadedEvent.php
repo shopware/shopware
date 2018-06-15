@@ -2,11 +2,11 @@
 
 namespace Shopware\Core\System\Snippet\Event;
 
-use Shopware\Core\System\Touchpoint\Event\TouchpointBasicLoadedEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\System\Snippet\Collection\SnippetDetailCollection;
+use Shopware\Core\System\Touchpoint\Event\TouchpointBasicLoadedEvent;
 
 class SnippetDetailLoadedEvent extends NestedEvent
 {

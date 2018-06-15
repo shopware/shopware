@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\Event;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\Collection\PaymentMethodTranslationBasicCollection;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 
 class PaymentMethodTranslationBasicLoadedEvent extends NestedEvent

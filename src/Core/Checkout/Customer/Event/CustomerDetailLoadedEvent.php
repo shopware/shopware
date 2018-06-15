@@ -2,15 +2,15 @@
 
 namespace Shopware\Core\Checkout\Customer\Event;
 
-use Shopware\Core\System\Touchpoint\Event\TouchpointBasicLoadedEvent;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Event\CustomerAddressBasicLoadedEvent;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Event\CustomerGroupBasicLoadedEvent;
 use Shopware\Core\Checkout\Customer\Collection\CustomerDetailCollection;
 use Shopware\Core\Checkout\Order\Event\OrderBasicLoadedEvent;
 use Shopware\Core\Checkout\Payment\Event\PaymentMethodBasicLoadedEvent;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\System\Touchpoint\Event\TouchpointBasicLoadedEvent;
 
 class CustomerDetailLoadedEvent extends NestedEvent
 {

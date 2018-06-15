@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Search\Aggregation\AvgAggregation;
 use Shopware\Core\Framework\ORM\Search\Aggregation\CardinalityAggregation;
+use Shopware\Core\Framework\ORM\Search\Aggregation\CountAggregation;
 use Shopware\Core\Framework\ORM\Search\Aggregation\MaxAggregation;
 use Shopware\Core\Framework\ORM\Search\Aggregation\MinAggregation;
 use Shopware\Core\Framework\ORM\Search\Aggregation\StatsAggregation;
@@ -18,7 +19,6 @@ use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\ORM\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\ORM\Search\Term\SearchTermInterpreter;
-use Shopware\Core\Framework\ORM\Search\Aggregation\CountAggregation;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 

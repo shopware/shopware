@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\Event;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\Struct\OrderLineItemSearchResult;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 
 class OrderLineItemSearchResultLoadedEvent extends NestedEvent

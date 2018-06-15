@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductSeoCategory;
 
-use Shopware\Core\System\Touchpoint\TouchpointDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductSeoCategory\Event\ProductSeoCategoryDeletedEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductSeoCategory\Event\ProductSeoCategoryWrittenEvent;
@@ -15,6 +14,7 @@ use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\MappingEntityDefinition;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\System\Touchpoint\TouchpointDefinition;
 
 class ProductSeoCategoryDefinition extends MappingEntityDefinition
 {

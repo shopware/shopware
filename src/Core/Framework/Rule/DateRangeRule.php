@@ -25,9 +25,6 @@
 namespace Shopware\Core\Framework\Rule;
 
 use DateTime;
-use Shopware\Core\Framework\Rule\Match;
-use Shopware\Core\Framework\Rule\Rule;
-use Shopware\Core\Framework\Rule\RuleScope;
 
 class DateRangeRule extends Rule
 {

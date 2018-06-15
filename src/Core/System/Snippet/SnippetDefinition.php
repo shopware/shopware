@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\Snippet;
 
-use Shopware\Core\System\Touchpoint\TouchpointDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\BoolField;
@@ -23,6 +22,7 @@ use Shopware\Core\System\Snippet\Event\SnippetDeletedEvent;
 use Shopware\Core\System\Snippet\Event\SnippetWrittenEvent;
 use Shopware\Core\System\Snippet\Struct\SnippetBasicStruct;
 use Shopware\Core\System\Snippet\Struct\SnippetDetailStruct;
+use Shopware\Core\System\Touchpoint\TouchpointDefinition;
 
 class SnippetDefinition extends EntityDefinition
 {

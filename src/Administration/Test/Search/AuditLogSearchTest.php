@@ -4,11 +4,11 @@ namespace Shopware\Administration\Test\Search;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Administration\Search\AdministrationSearch;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductRepository;
 use Shopware\Core\Content\Product\Struct\ProductBasicStruct;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\System\User\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -70,7 +70,7 @@ class AuditLogSearchTest extends KernelTestCase
                 'localeId' => '7b52d9dd-2b06-40ec-90be-9f57edf29be7',
                 'name' => 'test-user',
                 'username' => 'test-user',
-                'email' => 'test@example.com',
+                'email' => Uuid::uuid4()->getHex() . '@example.com',
                 'password' => 'shopware',
             ],
         ], $context);

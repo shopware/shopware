@@ -7,10 +7,10 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
-use Shopware\Core\System\Language\LanguageRepository;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\System\Currency\CurrencyRepository;
+use Shopware\Core\System\Language\LanguageRepository;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -25,7 +25,7 @@ class ContextController extends StorefrontController
     /**
      * @var CheckoutContextService
      */
-    private $storefrontContextService;
+    private $checkoutContextService;
 
     /**
      * @var CurrencyRepository
@@ -39,12 +39,12 @@ class ContextController extends StorefrontController
 
     public function __construct(
         CheckoutContextPersister $contextPersister,
-        CheckoutContextService $storefrontContextService,
+        CheckoutContextService $checkoutContextService,
         CurrencyRepository $currencyRepository,
         LanguageRepository $languageRepository
     ) {
         $this->contextPersister = $contextPersister;
-        $this->storefrontContextService = $storefrontContextService;
+        $this->checkoutContextService = $checkoutContextService;
         $this->currencyRepository = $currencyRepository;
         $this->languageRepository = $languageRepository;
     }
@@ -64,7 +64,7 @@ class ContextController extends StorefrontController
 
         if (!empty($payload)) {
             $this->contextPersister->save($context->getToken(), $payload, $context->getTenantId());
-            $this->storefrontContextService->refresh($context->getTenantId(), $context->getContext()->getTouchpointId(), $context->getToken());
+            $this->checkoutContextService->refresh($context->getTenantId(), $context->getContext()->getTouchpointId(), $context->getToken());
         }
 
         $target = $request->request->get('target') ?? $request->headers->get('referer');

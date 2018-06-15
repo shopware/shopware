@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Content\Product\Event;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Content\Category\Event\CategoryBasicLoadedEvent;
+use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Event\ConfigurationGroupOptionBasicLoadedEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Event\ProductConfiguratorBasicLoadedEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\Event\ProductManufacturerBasicLoadedEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\Collection\ProductMediaBasicCollection;
@@ -13,9 +13,9 @@ use Shopware\Core\Content\Product\Aggregate\ProductService\Event\ProductServiceB
 use Shopware\Core\Content\Product\Aggregate\ProductStream\Event\ProductStreamBasicLoadedEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Event\ProductTranslationBasicLoadedEvent;
 use Shopware\Core\Content\Product\Collection\ProductDetailCollection;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Event\ConfigurationGroupOptionBasicLoadedEvent;
 use Shopware\Core\System\Tax\Event\TaxBasicLoadedEvent;
 use Shopware\Core\System\Unit\Event\UnitBasicLoadedEvent;
 

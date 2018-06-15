@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\System\Tax\Aggregate\TaxAreaRule\Event;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Event\CustomerGroupBasicLoadedEvent;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\System\Country\Aggregate\CountryArea\Event\CountryAreaBasicLoadedEvent;

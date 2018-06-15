@@ -25,11 +25,11 @@
 namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\CalculatedCart;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Cart\Rule\GoodsCountRule;
-use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
+use Shopware\Core\Checkout\Cart\Rule\GoodsCountRule;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
+use Shopware\Core\Framework\Rule\Rule;
 
 class GoodsCountRuleTest extends TestCase
 {

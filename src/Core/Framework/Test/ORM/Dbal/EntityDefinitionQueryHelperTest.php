@@ -3,8 +3,8 @@
 namespace Shopware\Core\Framework\Test\ORM\Dbal;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\ORM\Dbal\FieldAccessorBuilder\FieldAccessorBuilderRegistry;
 use Shopware\Core\Framework\ORM\Dbal\FieldAccessorBuilder\ObjectFieldAccessorBuilder;

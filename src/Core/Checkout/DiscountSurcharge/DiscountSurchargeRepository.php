@@ -9,8 +9,8 @@ use Shopware\Core\Checkout\DiscountSurcharge\Event\DiscountSurchargeBasicLoadedE
 use Shopware\Core\Checkout\DiscountSurcharge\Event\DiscountSurchargeDetailLoadedEvent;
 use Shopware\Core\Checkout\DiscountSurcharge\Event\DiscountSurchargeIdSearchResultLoadedEvent;
 use Shopware\Core\Checkout\DiscountSurcharge\Event\DiscountSurchargeSearchResultLoadedEvent;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\DiscountSurcharge\Struct\DiscountSurchargeSearchResult;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\AggregatorResult;

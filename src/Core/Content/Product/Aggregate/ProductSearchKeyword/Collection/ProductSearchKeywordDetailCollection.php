@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\Collection;
 
-use Shopware\Core\System\Language\Collection\LanguageBasicCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\Struct\ProductSearchKeywordDetailStruct;
 use Shopware\Core\Content\Product\Collection\ProductBasicCollection;
+use Shopware\Core\System\Language\Collection\LanguageBasicCollection;
 
 class ProductSearchKeywordDetailCollection extends ProductSearchKeywordBasicCollection
 {

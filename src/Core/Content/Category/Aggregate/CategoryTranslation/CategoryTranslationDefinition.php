@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Category\Aggregate\CategoryTranslation;
 
-use Shopware\Core\System\Language\LanguageDefinition;
+use Shopware\Core\Content\Catalog\ORM\CatalogField;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\Collection\CategoryTranslationBasicCollection;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\Collection\CategoryTranslationDetailCollection;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\Event\CategoryTranslationDeletedEvent;
@@ -12,7 +12,6 @@ use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\Struct\Category
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
-use Shopware\Core\Content\Catalog\ORM\CatalogField;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\LongTextField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
@@ -21,6 +20,7 @@ use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\System\Language\LanguageDefinition;
 
 class CategoryTranslationDefinition extends EntityDefinition
 {

@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Content\Category\Aggregate\CategoryTranslation\Struct;
 
-use Shopware\Core\System\Language\Struct\LanguageBasicStruct;
 use Shopware\Core\Content\Category\Struct\CategoryBasicStruct;
+use Shopware\Core\System\Language\Struct\LanguageBasicStruct;
 
 class CategoryTranslationDetailStruct extends CategoryTranslationBasicStruct
 {

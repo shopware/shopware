@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\Collection;
 
-use Shopware\Core\System\Language\Collection\LanguageBasicCollection;
 use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\Struct\CurrencyTranslationDetailStruct;
 use Shopware\Core\System\Currency\Collection\CurrencyBasicCollection;
+use Shopware\Core\System\Language\Collection\LanguageBasicCollection;
 
 class CurrencyTranslationDetailCollection extends CurrencyTranslationBasicCollection
 {

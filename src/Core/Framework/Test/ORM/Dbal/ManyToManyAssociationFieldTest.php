@@ -11,8 +11,8 @@ use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\Event
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Event\ProductTranslationWrittenEvent;
 use Shopware\Core\Content\Product\Event\ProductWrittenEvent;
 use Shopware\Core\Content\Product\ProductRepository;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\System\Tax\Event\TaxWrittenEvent;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;

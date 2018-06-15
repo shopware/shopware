@@ -24,9 +24,9 @@
 
 namespace Shopware\Core\Checkout\Context;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
+use Shopware\Core\Checkout\CheckoutContext;
 
 /**
  * @category  Shopware\Core
@@ -140,7 +140,7 @@ class CheckoutContextService implements CheckoutContextServiceInterface
     {
         $cacheContext = unserialize($item->get(), [Struct::class]);
 
-        /** @var CheckoutContext $cacheContext */
+        /* @var CheckoutContext $cacheContext */
         return new CheckoutContext(
             $cacheContext->getTenantId(),
             $token,

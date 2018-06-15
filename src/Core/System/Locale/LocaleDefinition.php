@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\Locale;
 
-use Shopware\Core\System\Touchpoint\TouchpointDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\DateField;
@@ -27,6 +26,7 @@ use Shopware\Core\System\Locale\Event\LocaleDeletedEvent;
 use Shopware\Core\System\Locale\Event\LocaleWrittenEvent;
 use Shopware\Core\System\Locale\Struct\LocaleBasicStruct;
 use Shopware\Core\System\Locale\Struct\LocaleDetailStruct;
+use Shopware\Core\System\Touchpoint\TouchpointDefinition;
 use Shopware\Core\System\User\UserDefinition;
 
 class LocaleDefinition extends EntityDefinition

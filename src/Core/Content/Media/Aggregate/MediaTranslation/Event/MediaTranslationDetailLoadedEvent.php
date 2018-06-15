@@ -2,12 +2,12 @@
 
 namespace Shopware\Core\Content\Media\Aggregate\MediaTranslation\Event;
 
-use Shopware\Core\Framework\Context;
-use Shopware\Core\System\Language\Event\LanguageBasicLoadedEvent;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\Collection\MediaTranslationDetailCollection;
 use Shopware\Core\Content\Media\Event\MediaBasicLoadedEvent;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\System\Language\Event\LanguageBasicLoadedEvent;
 
 class MediaTranslationDetailLoadedEvent extends NestedEvent
 {

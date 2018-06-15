@@ -3,10 +3,6 @@
 namespace Shopware\Core\Content\Test\Product\Repository;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Pricing\PriceRuleStruct;
-use Shopware\Core\Content\Rule\RuleRepository;
-use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Content\Category\CategoryRepository;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\Event\ProductManufacturerBasicLoadedEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\Event\ProductManufacturerWrittenEvent;
@@ -14,16 +10,20 @@ use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\Struct\ProductMa
 use Shopware\Core\Content\Product\Collection\ProductBasicCollection;
 use Shopware\Core\Content\Product\Event\ProductBasicLoadedEvent;
 use Shopware\Core\Content\Product\Event\ProductWrittenEvent;
-use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\Content\Product\Struct\ProductBasicStruct;
 use Shopware\Core\Content\Product\Struct\ProductDetailStruct;
+use Shopware\Core\Content\Rule\RuleRepository;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\IdSearchResult;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\ORM\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\ORM\Write\FieldException\WriteStackException;
+use Shopware\Core\Framework\Pricing\PriceRuleStruct;
+use Shopware\Core\Framework\Pricing\PriceStruct;
+use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\System\Tax\Event\TaxWrittenEvent;
 use Shopware\Core\System\Tax\Struct\TaxBasicStruct;

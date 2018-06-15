@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductTranslation;
 
-use Shopware\Core\System\Language\LanguageDefinition;
+use Shopware\Core\Content\Catalog\ORM\CatalogField;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Collection\ProductTranslationBasicCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Collection\ProductTranslationDetailCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Event\ProductTranslationDeletedEvent;
@@ -12,7 +12,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Struct\ProductTra
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
-use Shopware\Core\Content\Catalog\ORM\CatalogField;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\LongTextField;
 use Shopware\Core\Framework\ORM\Field\LongTextWithHtmlField;
@@ -22,6 +21,7 @@ use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\System\Language\LanguageDefinition;
 
 class ProductTranslationDefinition extends EntityDefinition
 {

@@ -25,13 +25,13 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Cart\Price;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxAmountCalculatorInterface;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
+use Shopware\Core\Checkout\CheckoutContext;
 
 class AmountCalculator
 {
@@ -103,8 +103,8 @@ class AmountCalculator
      * `CalculatedPrice::price` contains the summed gross prices
      * Calculated taxes are based on the gross prices
      *
-     * @param CalculatedPriceCollection                              $prices
-     * @param CalculatedPriceCollection                              $shippingCosts
+     * @param CalculatedPriceCollection               $prices
+     * @param CalculatedPriceCollection               $shippingCosts
      * @param \Shopware\Core\Checkout\CheckoutContext $context
      *
      * @return CartPrice
@@ -138,8 +138,8 @@ class AmountCalculator
      * `CalculatedPrice::price` contains the summed net prices plus amount of calculated taxes
      * Calculated taxes are based on the net prices
      *
-     * @param CalculatedPriceCollection                              $prices
-     * @param CalculatedPriceCollection                              $shippingCosts
+     * @param CalculatedPriceCollection               $prices
+     * @param CalculatedPriceCollection               $shippingCosts
      * @param \Shopware\Core\Checkout\CheckoutContext $context
      *
      * @return CartPrice

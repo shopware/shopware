@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Order\Collection;
 
-use Shopware\Core\System\Touchpoint\Collection\TouchpointBasicCollection;
 use Shopware\Core\Checkout\Customer\Collection\CustomerBasicCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\Collection\OrderAddressBasicCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderState\Collection\OrderStateBasicCollection;
@@ -10,6 +9,7 @@ use Shopware\Core\Checkout\Order\Struct\OrderBasicStruct;
 use Shopware\Core\Checkout\Payment\Collection\PaymentMethodBasicCollection;
 use Shopware\Core\Framework\ORM\EntityCollection;
 use Shopware\Core\System\Currency\Collection\CurrencyBasicCollection;
+use Shopware\Core\System\Touchpoint\Collection\TouchpointBasicCollection;
 
 class OrderBasicCollection extends EntityCollection
 {

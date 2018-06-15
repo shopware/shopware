@@ -540,7 +540,7 @@ CREATE TABLE `customer` (
   `created_at` datetime,
   `updated_at` datetime,
   PRIMARY KEY (`id`, `version_id`, `tenant_id`),
-  KEY `email` (`email`),
+  UNIQUE `email` (`email`, `tenant_id`, `version_id`),
   KEY `sessionID` (`session_id`),
   KEY `firstlogin` (`first_login`),
   KEY `lastlogin` (`last_login`),

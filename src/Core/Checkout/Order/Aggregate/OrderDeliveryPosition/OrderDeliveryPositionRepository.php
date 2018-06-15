@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\Collection\OrderDeliveryPositionBasicCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\Collection\OrderDeliveryPositionDetailCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\Event\OrderDeliveryPositionAggregationResultLoadedEvent;
@@ -11,6 +10,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\Event\OrderDeli
 use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\Event\OrderDeliveryPositionIdSearchResultLoadedEvent;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\Event\OrderDeliveryPositionSearchResultLoadedEvent;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\Struct\OrderDeliveryPositionSearchResult;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\AggregatorResult;

@@ -26,15 +26,15 @@ declare(strict_types=1);
 namespace Shopware\Core\Checkout\Cart\Delivery;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\PriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\Uuid;
 
 class DeliveryCalculator
@@ -145,7 +145,7 @@ class DeliveryCalculator
         $query->andWhere('costs.`quantity_from` <= :value');
         $query->andWhere('costs.shipping_method_id = :id');
         $query->andWhere('costs.tenant_id = :tenant');
-        $query->setParameter('id', $shippingMethod->getId());
+        $query->setParameter('id', Uuid::fromHexToBytes($shippingMethod->getId()));
         $query->setParameter('value', $value);
         $query->setParameter('tenant', Uuid::fromHexToBytes($context->getTenantId()));
         $query->addOrderBy('price', 'DESC');

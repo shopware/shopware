@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Checkout\Payment\Cart\PaymentHandler;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
+use Shopware\Core\Framework\Context;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -14,7 +14,7 @@ interface PaymentHandlerInterface
      * Allows to process the order and store additional information.
      *
      * @param \Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct $transaction
-     * @param \Shopware\Core\Framework\Context                                       $context
+     * @param \Shopware\Core\Framework\Context                              $context
      *
      * @return null|RedirectResponse if a RedirectResponse is provided, a redirect to the url will be performed
      */
@@ -27,8 +27,8 @@ interface PaymentHandlerInterface
      * The finalize function will be called when the user is redirected
      * back to shop from the payment gateway.
      *
-     * @param string             $transactionId
-     * @param Request            $request
+     * @param string                           $transactionId
+     * @param Request                          $request
      * @param \Shopware\Core\Framework\Context $context
      */
     public function finalize(

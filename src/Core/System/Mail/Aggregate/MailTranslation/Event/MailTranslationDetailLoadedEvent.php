@@ -3,9 +3,9 @@
 namespace Shopware\Core\System\Mail\Aggregate\MailTranslation\Event;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\System\Language\Event\LanguageBasicLoadedEvent;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\System\Language\Event\LanguageBasicLoadedEvent;
 use Shopware\Core\System\Mail\Aggregate\MailTranslation\Collection\MailTranslationDetailCollection;
 use Shopware\Core\System\Mail\Event\MailBasicLoadedEvent;
 

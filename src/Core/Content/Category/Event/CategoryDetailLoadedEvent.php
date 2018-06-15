@@ -2,11 +2,11 @@
 
 namespace Shopware\Core\Content\Category\Event;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\Event\CategoryTranslationBasicLoadedEvent;
 use Shopware\Core\Content\Category\Collection\CategoryDetailCollection;
 use Shopware\Core\Content\Media\Event\MediaBasicLoadedEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductStream\Event\ProductStreamBasicLoadedEvent;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 

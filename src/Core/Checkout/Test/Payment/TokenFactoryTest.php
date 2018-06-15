@@ -3,8 +3,6 @@
 namespace Shopware\Core\Checkout\Test\Payment;
 
 use Doctrine\DBAL\Connection;
-use Psr\Container\ContainerInterface;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
@@ -13,6 +11,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionRepo
 use Shopware\Core\Checkout\Order\OrderRepository;
 use Shopware\Core\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactory;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -74,7 +73,7 @@ class TokenFactoryTest extends KernelTestCase
     {
         $transactionId = $this->prepare();
 
-        $transactions = $this->orderTransactionRepository->readBasic([$transactionId], Context:: createDefaultContext(
+        $transactions = $this->orderTransactionRepository->readBasic([$transactionId], Context::createDefaultContext(
             \Shopware\Core\Defaults::TENANT_ID));
 
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
@@ -98,7 +97,7 @@ class TokenFactoryTest extends KernelTestCase
     {
         $transactionId = $this->prepare();
 
-        $transactions = $this->orderTransactionRepository->readBasic([$transactionId], Context:: createDefaultContext(
+        $transactions = $this->orderTransactionRepository->readBasic([$transactionId], Context::createDefaultContext(
             \Shopware\Core\Defaults::TENANT_ID));
 
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
@@ -123,7 +122,7 @@ class TokenFactoryTest extends KernelTestCase
     {
         $transactionId = $this->prepare();
 
-        $transactions = $this->orderTransactionRepository->readBasic([$transactionId], Context:: createDefaultContext(
+        $transactions = $this->orderTransactionRepository->readBasic([$transactionId], Context::createDefaultContext(
             \Shopware\Core\Defaults::TENANT_ID));
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
 
@@ -219,7 +218,7 @@ class TokenFactoryTest extends KernelTestCase
             'salutation' => 'Herr',
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
-            'email' => 'test@example.com',
+            'email' => Uuid::uuid4()->getHex() . '@example.com',
             'password' => password_hash('shopware', PASSWORD_BCRYPT, ['cost' => 13]),
             'defaultPaymentMethodId' => self::PAYMENT_METHOD_INVOICE,
             'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,

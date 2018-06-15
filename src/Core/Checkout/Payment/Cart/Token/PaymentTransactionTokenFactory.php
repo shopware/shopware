@@ -4,10 +4,10 @@ namespace Shopware\Core\Checkout\Payment\Cart\Token;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\Struct\OrderTransactionBasicStruct;
 use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
 use Shopware\Core\Checkout\Payment\Exception\TokenExpiredException;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Util\Random;
 

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Payment\Cart;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\Collection\OrderTransactionBasicCollection;
 use Shopware\Core\Checkout\Order\OrderRepository;
 use Shopware\Core\Checkout\Order\Struct\OrderDetailStruct;
@@ -14,6 +13,7 @@ use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentMethodRepository;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
@@ -60,7 +60,7 @@ class PaymentTransactionChainProcessor
     }
 
     /**
-     * @param string             $orderId
+     * @param string  $orderId
      * @param Context $context
      *
      * @throws InvalidOrderException

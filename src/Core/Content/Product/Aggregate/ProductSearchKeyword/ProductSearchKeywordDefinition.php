@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword;
 
-use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\Collection\ProductSearchKeywordBasicCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\Collection\ProductSearchKeywordDetailCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\Event\ProductSearchKeywordDeletedEvent;
@@ -23,6 +22,7 @@ use Shopware\Core\Framework\ORM\Field\VersionField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\System\Language\LanguageDefinition;
 
 class ProductSearchKeywordDefinition extends EntityDefinition
 {

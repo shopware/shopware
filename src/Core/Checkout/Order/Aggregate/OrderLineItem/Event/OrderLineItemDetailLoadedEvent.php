@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\Event;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\Event\OrderDeliveryPositionBasicLoadedEvent;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\Collection\OrderLineItemDetailCollection;
 use Shopware\Core\Checkout\Order\Event\OrderBasicLoadedEvent;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 

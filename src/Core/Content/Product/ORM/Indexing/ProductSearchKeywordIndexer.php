@@ -3,24 +3,23 @@
 namespace Shopware\Core\Content\Product\ORM\Indexing;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\ORM\Dbal\Indexing\IndexerInterface;
-use Shopware\Core\System\Language\LanguageRepository;
 use Shopware\Core\Content\Catalog\CatalogRepository;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductRepository;
 use Shopware\Core\Content\Product\Struct\ProductSearchResult;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\ORM\Dbal\Common\IndexTableOperator;
 use Shopware\Core\Framework\ORM\Dbal\Common\LastIdQuery;
-use Shopware\Core\Content\Product\ORM\Indexing\ProductSearchAnalyzerRegistry;
+use Shopware\Core\Framework\ORM\Dbal\Indexing\IndexerInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\System\Language\LanguageRepository;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductSearchKeywordIndexer implements IndexerInterface

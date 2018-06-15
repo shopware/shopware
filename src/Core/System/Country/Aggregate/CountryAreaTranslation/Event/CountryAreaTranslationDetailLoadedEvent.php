@@ -3,11 +3,11 @@
 namespace Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\Event;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\System\Language\Event\LanguageBasicLoadedEvent;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\System\Country\Aggregate\CountryArea\Event\CountryAreaBasicLoadedEvent;
 use Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\Collection\CountryAreaTranslationDetailCollection;
+use Shopware\Core\System\Language\Event\LanguageBasicLoadedEvent;
 
 class CountryAreaTranslationDetailLoadedEvent extends NestedEvent
 {

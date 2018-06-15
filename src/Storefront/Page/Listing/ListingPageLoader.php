@@ -38,7 +38,7 @@ class ListingPageLoader
         $criteria->addFilter(new TermQuery('product.categoriesRo.id', $request->getNavigationId()));
 
         $this->eventDispatcher->dispatch(
-            ListingEvents::PAGE_CRITERIA_CREATED_EVENT,
+            ListingEvents::CRITERIA_CREATED,
             new PageCriteriaCreatedEvent($criteria, $context, $request)
         );
 
@@ -54,7 +54,7 @@ class ListingPageLoader
         $page->setProductBoxLayout('basic');
 
         $this->eventDispatcher->dispatch(
-            ListingEvents::LISTING_PAGE_LOADED_EVENT,
+            ListingEvents::LOADED,
             new ListingPageLoadedEvent($page, $context, $request)
         );
 

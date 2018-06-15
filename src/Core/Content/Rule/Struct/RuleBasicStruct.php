@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Content\Rule\Struct;
 
-use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\Rule\Rule;
 
 class RuleBasicStruct extends Entity
 {

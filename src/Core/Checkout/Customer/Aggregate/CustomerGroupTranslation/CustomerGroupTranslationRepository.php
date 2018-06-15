@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\Collection\CustomerGroupTranslationBasicCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\Collection\CustomerGroupTranslationDetailCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\Event\CustomerGroupTranslationAggregationResultLoadedEvent;
@@ -11,6 +10,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\Event\Cus
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\Event\CustomerGroupTranslationIdSearchResultLoadedEvent;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\Event\CustomerGroupTranslationSearchResultLoadedEvent;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\Struct\CustomerGroupTranslationSearchResult;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\AggregatorResult;

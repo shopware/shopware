@@ -25,9 +25,6 @@
 namespace Shopware\Core\Checkout\Test\Cart\Common;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\System\Touchpoint\Struct\TouchpointBasicStruct;
-use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\System\Language\Struct\LanguageBasicStruct;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator;
@@ -44,6 +41,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxAmountCalculator;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupBasicStruct;
 use Shopware\Core\Checkout\Customer\Struct\CustomerBasicStruct;
@@ -58,9 +56,11 @@ use Shopware\Core\System\Country\Aggregate\CountryArea\Struct\CountryAreaBasicSt
 use Shopware\Core\System\Country\Aggregate\CountryState\Struct\CountryStateBasicStruct;
 use Shopware\Core\System\Country\Struct\CountryBasicStruct;
 use Shopware\Core\System\Currency\Struct\CurrencyBasicStruct;
+use Shopware\Core\System\Language\Struct\LanguageBasicStruct;
 use Shopware\Core\System\Locale\Struct\LocaleBasicStruct;
 use Shopware\Core\System\Tax\Collection\TaxBasicCollection;
 use Shopware\Core\System\Tax\Struct\TaxBasicStruct;
+use Shopware\Core\System\Touchpoint\Struct\TouchpointBasicStruct;
 
 class Generator extends TestCase
 {

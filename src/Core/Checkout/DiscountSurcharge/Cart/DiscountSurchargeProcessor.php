@@ -2,11 +2,6 @@
 
 namespace Shopware\Core\Checkout\DiscountSurcharge\Cart;
 
-use Shopware\Core\Checkout\DiscountSurcharge\Exception\UnsupportedModifierTypeException;
-
-use Shopware\Core\Checkout\DiscountSurcharge\Struct\DiscountSurchargeBasicStruct;
-use Shopware\Core\Checkout\DiscountSurcharge\Struct\DiscountSurchargeSearchResult;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\CartProcessorInterface;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
@@ -16,6 +11,10 @@ use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
 use Shopware\Core\Checkout\Cart\Rule\CalculatedLineItemScope;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\DiscountSurcharge\Exception\UnsupportedModifierTypeException;
+use Shopware\Core\Checkout\DiscountSurcharge\Struct\DiscountSurchargeBasicStruct;
+use Shopware\Core\Checkout\DiscountSurcharge\Struct\DiscountSurchargeSearchResult;
 use Shopware\Core\Framework\Struct\StructCollection;
 
 class DiscountSurchargeProcessor implements CartProcessorInterface

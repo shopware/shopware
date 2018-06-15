@@ -25,10 +25,10 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Cart\Cart;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
 use Shopware\Core\Checkout\Cart\Exception\CircularCartCalculationException;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Struct\StructCollection;
 
 class CircularCartCalculation

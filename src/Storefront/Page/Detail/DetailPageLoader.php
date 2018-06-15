@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Collection\ProductConfiguratorBasicCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorRepository;
 use Shopware\Core\Content\Product\Storefront\StorefrontProductRepository;
+use Shopware\Core\Content\Product\Struct\ProductDetailStruct;
 use Shopware\Core\Content\Product\Struct\StorefrontProductDetailStruct;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\NestedQuery;
@@ -44,7 +45,7 @@ class DetailPageLoader
             throw new \RuntimeException('Product was not found.');
         }
 
-        /** @var \Shopware\Core\Content\Product\Struct\StorefrontProductBasicStruct $product */
+        /** @var ProductDetailStruct $product */
         $product = $collection->get($productId);
 
         $page = new DetailPageStruct($product);

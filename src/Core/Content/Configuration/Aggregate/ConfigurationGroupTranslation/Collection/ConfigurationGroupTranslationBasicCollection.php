@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\Collection;
 
-use Shopware\Core\Framework\ORM\EntityCollection;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\Struct\ConfigurationGroupTranslationBasicStruct;
+use Shopware\Core\Framework\ORM\EntityCollection;
 
 class ConfigurationGroupTranslationBasicCollection extends EntityCollection
 {

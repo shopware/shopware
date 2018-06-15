@@ -3,9 +3,9 @@
 namespace Shopware\Core\System\Unit\Aggregate\UnitTranslation\Event;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\System\Language\Event\LanguageBasicLoadedEvent;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\System\Language\Event\LanguageBasicLoadedEvent;
 use Shopware\Core\System\Unit\Aggregate\UnitTranslation\Collection\UnitTranslationDetailCollection;
 use Shopware\Core\System\Unit\Event\UnitBasicLoadedEvent;
 

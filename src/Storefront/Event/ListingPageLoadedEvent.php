@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\Event;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Storefront\Page\Listing\ListingPageRequest;
 use Shopware\Storefront\Page\Listing\ListingPageStruct;
@@ -44,7 +44,7 @@ class ListingPageLoadedEvent extends NestedEvent
         return $this->context->getContext();
     }
 
-    public function getStorefrontContext(): CheckoutContext
+    public function getCheckoutContext(): CheckoutContext
     {
         return $this->context;
     }

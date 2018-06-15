@@ -8,8 +8,8 @@ use Shopware\Core\Framework\ORM\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
 use Shopware\Storefront\Event\ListingEvents;
+use Shopware\Storefront\Event\ListingPageRequestEvent;
 use Shopware\Storefront\Event\PageCriteriaCreatedEvent;
-use Shopware\Storefront\Event\TransformListingPageRequestEvent;
 use Shopware\Storefront\Page\Search\SearchPageRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -33,12 +33,12 @@ class SearchTermSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            ListingEvents::PAGE_CRITERIA_CREATED_EVENT => 'buildCriteria',
-            ListingEvents::TRANSFORM_LISTING_PAGE_REQUEST => 'transformRequest',
+            ListingEvents::CRITERIA_CREATED => 'buildCriteria',
+            ListingEvents::REQUEST => 'transformRequest',
         ];
     }
 
-    public function transformRequest(TransformListingPageRequestEvent $event)
+    public function transformRequest(ListingPageRequestEvent $event)
     {
         $request = $event->getRequest();
 

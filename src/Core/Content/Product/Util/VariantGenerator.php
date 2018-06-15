@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product\Util;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Collection\ProductConfiguratorBasicCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorRepository;
 use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Struct\ProductConfiguratorBasicStruct;
@@ -10,6 +9,7 @@ use Shopware\Core\Content\Product\Exception\NoConfiguratorFoundException;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductRepository;
 use Shopware\Core\Content\Product\Struct\ProductBasicStruct;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;

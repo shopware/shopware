@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\ORM\Version\Service;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\DefinitionRegistry;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\ORM\EntityDefinition;
@@ -23,11 +23,11 @@ use Shopware\Core\Framework\ORM\Version\Definition\VersionCommitDefinition;
 use Shopware\Core\Framework\ORM\Version\Definition\VersionDefinition;
 use Shopware\Core\Framework\ORM\Version\Struct\VersionCommitDataBasicStruct;
 use Shopware\Core\Framework\ORM\Write\Command\InsertCommand;
+use Shopware\Core\Framework\ORM\Write\EntityExistence;
 use Shopware\Core\Framework\ORM\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\ORM\Write\EntityWriterInterface;
 use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\ORM\Write\WriteContext;
-use Shopware\Core\Framework\ORM\Write\EntityExistence;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Struct\Uuid;

@@ -2,9 +2,8 @@
 
 namespace Shopware\Core\Content\Product\ORM\Indexing;
 
-use Shopware\Core\Content\Product\ORM\Indexing\ProductSearchAnalyzerInterface;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Content\Product\Struct\ProductBasicStruct;
+use Shopware\Core\Framework\Context;
 
 class ProductSearchAnalyzerRegistry
 {

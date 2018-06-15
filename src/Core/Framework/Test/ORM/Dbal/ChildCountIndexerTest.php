@@ -4,8 +4,8 @@ namespace Shopware\Core\Framework\Test\ORM\Dbal;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryRepository;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Dbal\Indexing\ChildCountIndexer;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;

@@ -3,8 +3,8 @@
 namespace Shopware\Core\Framework\Test\ORM\Search\Term;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Search\Term\StopWordFilter;
 use Shopware\Core\Framework\ORM\Search\Term\Tokenizer;
 

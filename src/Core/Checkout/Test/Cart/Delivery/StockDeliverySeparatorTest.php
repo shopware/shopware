@@ -47,11 +47,11 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
-use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Content\Product\Cart\ProductProcessor;
 use Shopware\Core\Content\Product\Cart\Struct\CalculatedProduct;
 use Shopware\Core\Content\Product\Struct\ProductBasicStruct;
+use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\System\Country\Aggregate\CountryState\Struct\CountryStateBasicStruct;
 use Shopware\Core\System\Country\Struct\CountryBasicStruct;
 

@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\Collection;
 
-use Shopware\Core\System\Language\Collection\LanguageBasicCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\Collection\ProductManufacturerBasicCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\Struct\ProductManufacturerTranslationDetailStruct;
+use Shopware\Core\System\Language\Collection\LanguageBasicCollection;
 
 class ProductManufacturerTranslationDetailCollection extends ProductManufacturerTranslationBasicCollection
 {

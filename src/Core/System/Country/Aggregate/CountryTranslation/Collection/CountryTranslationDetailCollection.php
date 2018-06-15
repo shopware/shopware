@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\System\Country\Aggregate\CountryTranslation\Collection;
 
-use Shopware\Core\System\Language\Collection\LanguageBasicCollection;
 use Shopware\Core\System\Country\Aggregate\CountryTranslation\Struct\CountryTranslationDetailStruct;
 use Shopware\Core\System\Country\Collection\CountryBasicCollection;
+use Shopware\Core\System\Language\Collection\LanguageBasicCollection;
 
 class CountryTranslationDetailCollection extends CountryTranslationBasicCollection
 {

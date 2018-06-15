@@ -9,19 +9,19 @@ class ListingEvents
      *
      * @Event("Shopware\Storefront\Event\ListingPageLoadedEvent")
      */
-    public const LISTING_PAGE_LOADED_EVENT = ListingPageLoadedEvent::NAME;
+    public const LOADED = ListingPageLoadedEvent::NAME;
 
     /**
      * Fired when a Criteria object is created for a product list in the storefront.
      *
      * @Event("Shopware\Storefront\Event\PageCriteriaCreatedEvent")
      */
-    public const PAGE_CRITERIA_CREATED_EVENT = PageCriteriaCreatedEvent::NAME;
+    public const CRITERIA_CREATED = PageCriteriaCreatedEvent::NAME;
 
     /**
      * Fired when a listing page request comes in and transformed to the ListingRequest object
      *
      * @Event("Shopware\Storefront\Event\TransformListingPageRequestEvent")
      */
-    public const TRANSFORM_LISTING_PAGE_REQUEST = TransformListingPageRequestEvent::NAME;
+    public const REQUEST = ListingPageRequestEvent::NAME;
 }

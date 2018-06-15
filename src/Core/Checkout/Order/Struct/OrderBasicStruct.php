@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Checkout\Order\Struct;
 
-use Shopware\Core\System\Touchpoint\Struct\TouchpointBasicStruct;
 use Shopware\Core\Checkout\Customer\Struct\CustomerBasicStruct;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\Struct\OrderAddressBasicStruct;
 use Shopware\Core\Checkout\Order\Aggregate\OrderState\Struct\OrderStateBasicStruct;
 use Shopware\Core\Checkout\Payment\Struct\PaymentMethodBasicStruct;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\System\Currency\Struct\CurrencyBasicStruct;
+use Shopware\Core\System\Touchpoint\Struct\TouchpointBasicStruct;
 
 class OrderBasicStruct extends Entity
 {

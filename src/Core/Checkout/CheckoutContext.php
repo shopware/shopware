@@ -24,20 +24,20 @@
 
 namespace Shopware\Core\Checkout;
 
-use Shopware\Core\System\Touchpoint\Struct\TouchpointBasicStruct;
-use Shopware\Core\Checkout\DiscountSurcharge\Exception\RulesLockedException;
-use Shopware\Core\System\Language\Struct\LanguageBasicStruct;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupBasicStruct;
 use Shopware\Core\Checkout\Customer\Struct\CustomerBasicStruct;
+use Shopware\Core\Checkout\DiscountSurcharge\Exception\RulesLockedException;
 use Shopware\Core\Checkout\Payment\Struct\PaymentMethodBasicStruct;
 use Shopware\Core\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Currency\Struct\CurrencyBasicStruct;
+use Shopware\Core\System\Language\Struct\LanguageBasicStruct;
 use Shopware\Core\System\Tax\Collection\TaxBasicCollection;
+use Shopware\Core\System\Touchpoint\Struct\TouchpointBasicStruct;
 
 /**
  * @category  Shopware\Core

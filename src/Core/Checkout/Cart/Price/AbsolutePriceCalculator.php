@@ -25,11 +25,11 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Cart\Price;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\DerivedCalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
+use Shopware\Core\Checkout\CheckoutContext;
 
 class AbsolutePriceCalculator
 {
@@ -52,9 +52,9 @@ class AbsolutePriceCalculator
     }
 
     /**
-     * @param float                     $price
-     * @param CalculatedPriceCollection $prices
-     * @param \Shopware\Core\Checkout\CheckoutContext         $context
+     * @param float                                   $price
+     * @param CalculatedPriceCollection               $prices
+     * @param \Shopware\Core\Checkout\CheckoutContext $context
      *
      * @return DerivedCalculatedPrice
      */

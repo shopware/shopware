@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\Collection;
 
-use Shopware\Core\System\Language\Collection\LanguageBasicCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Collection\CustomerGroupBasicCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\Struct\CustomerGroupTranslationDetailStruct;
+use Shopware\Core\System\Language\Collection\LanguageBasicCollection;
 
 class CustomerGroupTranslationDetailCollection extends CustomerGroupTranslationBasicCollection
 {

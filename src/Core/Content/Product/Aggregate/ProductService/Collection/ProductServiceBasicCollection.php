@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductService\Collection;
 
+use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductService\Struct\ProductServiceBasicStruct;
 use Shopware\Core\Framework\ORM\EntityCollection;
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection;
 use Shopware\Core\System\Tax\Collection\TaxBasicCollection;
 
 class ProductServiceBasicCollection extends EntityCollection

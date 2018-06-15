@@ -304,6 +304,8 @@ class CheckoutControllerTest extends ApiTestCase
     public function testOrderProcess()
     {
         $productId = Uuid::uuid4()->getHex();
+        $context = Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID);
+
         $this->repository->create([
             [
                 'id' => $productId,
@@ -313,7 +315,7 @@ class CheckoutControllerTest extends ApiTestCase
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'rate' => 17, 'name' => 'with id'],
             ],
-        ], Context:: createDefaultContext(Defaults::TENANT_ID));
+        ], $context);
 
         $addressId = Uuid::uuid4()->getHex();
 
@@ -326,7 +328,7 @@ class CheckoutControllerTest extends ApiTestCase
 
         $this->customerRepository->create([
             [
-                'touchpointId' => Defaults::TOUCHPOINT,
+                'touchpointId' => $context->getTouchpointId(),
                 'defaultShippingAddress' => [
                     'id' => $addressId,
                     'firstName' => 'not',
@@ -351,7 +353,7 @@ class CheckoutControllerTest extends ApiTestCase
                 'salutation' => 'not',
                 'number' => 'not',
             ],
-        ], Context:: createDefaultContext(Defaults::TENANT_ID));
+        ], $context);
 
         $client = $this->createCart();
 

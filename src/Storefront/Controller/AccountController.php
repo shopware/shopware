@@ -26,24 +26,12 @@ use Shopware\Storefront\Page\Checkout\PaymentMethodLoader;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
-use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
 
 class AccountController extends StorefrontController
 {
     use TargetPathTrait;
-
-    /**
-     * @var AuthenticationUtils
-     */
-    private $authUtils;
-
-    /**
-     * @var TokenStorageInterface
-     */
-    private $tokenStorage;
 
     /**
      * @var CheckoutContextPersister
@@ -81,8 +69,6 @@ class AccountController extends StorefrontController
     private $customerPageLoader;
 
     public function __construct(
-        AuthenticationUtils $authUtils,
-        TokenStorageInterface $tokenStorage,
         CheckoutContextPersister $contextPersister,
         AccountService $accountService,
         CustomerAddressPageLoader $customerAddressPageLoader,
@@ -91,8 +77,6 @@ class AccountController extends StorefrontController
         PaymentMethodLoader $paymentMethodLoader,
         OrderPageLoader $orderPageLoader
     ) {
-        $this->authUtils = $authUtils;
-        $this->tokenStorage = $tokenStorage;
         $this->contextPersister = $contextPersister;
         $this->accountService = $accountService;
         $this->customerAddressPageLoader = $customerAddressPageLoader;

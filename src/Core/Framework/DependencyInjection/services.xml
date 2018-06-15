@@ -127,7 +127,7 @@
 
         <service class="Shopware\Core\Framework\Routing\TouchpointSubscriber" id="Shopware\Core\Framework\Routing\TouchpointSubscriber">
             <argument type="service" id="request_stack"/>
-            <argument type="service" id="Shopware\Core\Framework\Routing\RequestContextResolverInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\Routing\ApiRequestContextResolver"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -170,25 +170,16 @@
         </service>
 
 
-        <service class="Shopware\Core\Framework\Routing\ApiRequestContextResolver" id="Shopware\Core\Framework\Routing\RequestContextResolverInterface">
-            <argument id="security.token_storage" type="service"/>
+        <service class="Shopware\Core\Framework\Routing\ApiRequestContextResolver" id="Shopware\Core\Framework\Routing\ApiRequestContextResolver" >
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service class="Shopware\Core\Framework\Routing\TouchpointRequestContextResolver"
-                 decorates="Shopware\Core\Framework\Routing\RequestContextResolverInterface"
+                 decorates="Shopware\Core\Framework\Routing\ApiRequestContextResolver"
                  id="Shopware\Core\Framework\Routing\TouchpointRequestContextResolver">
 
             <argument id="Shopware\Core\Framework\Routing\TouchpointRequestContextResolver.inner" type="service"/>
             <argument id="Shopware\Core\Checkout\Context\CheckoutContextService" type="service"/>
-            <argument type="service" id="security.token_storage"/>
-        </service>
-
-        <service class="Shopware\Core\Framework\Routing\Firewall\CustomerProvider" id="Shopware\Core\Framework\Routing\Firewall\CustomerProvider">
-            <argument type="service" id="customer.repository"/>
-        </service>
-
-        <service class="Shopware\Core\Framework\Routing\Firewall\TouchpointAuthenticator" id="Shopware\Core\Framework\Routing\Firewall\TouchpointAuthenticator">
-            <argument id="Doctrine\DBAL\Connection" type="service"/>
         </service>
 
     </services>

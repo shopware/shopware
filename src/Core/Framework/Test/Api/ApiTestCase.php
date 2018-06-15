@@ -27,6 +27,11 @@ class ApiTestCase extends WebTestCase
      */
     protected $storefrontApiClient;
 
+    /**
+     * @var array
+     */
+    protected $touchpoints = [];
+
     protected function setUp()
     {
         parent::setUp();
@@ -45,10 +50,10 @@ class ApiTestCase extends WebTestCase
         $storefrontApiClient->setServerParameters([
             'HTTP_X-Requested-With' => 'XMLHttpRequest',
             'HTTP_Accept' => 'application/json',
-            'HTTP_X_SW_TOUCHPOINT_TOKEN' => 'TzhovH7sgws8n9UjgEdDEzNkA6xURua8',
             'HTTP_X_SW_CONTEXT_TOKEN' => Uuid::uuid4()->getHex(),
             'HTTP_X_SW_TENANT_ID' => Defaults::TENANT_ID,
         ]);
+        $this->authorizeStorefrontClient($storefrontApiClient);
 
         $this->apiClient = $apiClient;
         $this->storefrontApiClient = $storefrontApiClient;
@@ -56,7 +61,11 @@ class ApiTestCase extends WebTestCase
 
     public function tearDown()
     {
-        self::$container->get(Connection::class)->executeQuery('DELETE FROM user WHERE username IN (:usernames)', ['usernames' => $this->apiUsernames], ['usernames' => Connection::PARAM_STR_ARRAY]);
+        try {
+            self::$container->get(Connection::class)->executeQuery('DELETE FROM user WHERE username IN (:usernames)', ['usernames' => $this->apiUsernames], ['usernames' => Connection::PARAM_STR_ARRAY]);
+            self::$container->get(Connection::class)->executeQuery('DELETE FROM touchpoint WHERE access_key IN (:accessKeys)', ['accessKeys' => $this->touchpoints], ['accessKeys' => Connection::PARAM_STR_ARRAY]);
+        } catch (\Exception $ex) {
+        }
 
         parent::tearDown();
     }
@@ -103,24 +112,75 @@ class ApiTestCase extends WebTestCase
             'name' => $username,
             'email' => 'admin@example.com',
             'username' => $username,
-            'password' => password_hash($password, PASSWORD_BCRYPT, ['cost' => 13]),
-            'locale_id' => Uuid::fromStringToBytes('7b52d9dd-2b06-40ec-90be-9f57edf29be7'),
+            'password' => password_hash($password, PASSWORD_BCRYPT),
+            'locale_id' => Uuid::fromStringToBytes(Defaults::LOCALE),
             'locale_tenant_id' => Uuid::fromHexToBytes(Defaults::TENANT_ID),
             'active' => 1,
-            'version_id' => Uuid::fromStringToBytes(Defaults::LIVE_VERSION),
-            'locale_version_id' => Uuid::fromStringToBytes(Defaults::LIVE_VERSION),
         ]);
 
         $this->apiUsernames[] = $username;
 
-        $authPayload = json_encode(['username' => $username, 'password' => $password]);
+        $authPayload = [
+            'grant_type' => 'password',
+            'client_id' => 'administration',
+            'username' => $username,
+            'password' => $password,
+        ];
 
-        $client->request('POST', '/api/v1/auth', [], [], [], $authPayload);
+        $client->request('POST', '/api/oauth/token', $authPayload);
 
         $data = json_decode($client->getResponse()->getContent(), true);
 
-        self::assertArrayHasKey('token', $data, 'No token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error'));
+        $this->assertArrayHasKey('access_token', $data, 'No token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error' . print_r($data, true)));
+        $this->assertArrayHasKey('refresh_token', $data, 'No refresh_token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error'));
 
-        $client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['token']));
+        $client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['access_token']));
+    }
+
+    protected function authorizeStorefrontClient(Client $storefrontApiClient): void
+    {
+        $touchpoint = Uuid::uuid4();
+
+        self::$container->get(Connection::class)->insert('touchpoint', [
+            'id' => $touchpoint->getBytes(),
+            'tenant_id' => Uuid::fromHexToBytes(Defaults::TENANT_ID),
+            'name' => $touchpoint->getHex(),
+            'type' => 'storefront_api',
+            'access_key' => $touchpoint->getHex(),
+            'secret_access_key' => password_hash(hash('sha512', $touchpoint->getHex()), PASSWORD_ARGON2I),
+            'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE),
+            'language_tenant_id' => Uuid::fromHexToBytes(Defaults::TENANT_ID),
+            'currency_id' => Uuid::fromHexToBytes(Defaults::CURRENCY),
+            'currency_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+            'currency_tenant_id' => Uuid::fromHexToBytes(Defaults::TENANT_ID),
+            'payment_method_id' => Uuid::fromHexToBytes(Defaults::PAYMENT_METHOD_DEBIT),
+            'payment_method_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+            'payment_method_tenant_id' => Uuid::fromHexToBytes(Defaults::TENANT_ID),
+            'shipping_method_id' => Uuid::fromHexToBytes(Defaults::SHIPPING_METHOD),
+            'shipping_method_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+            'shipping_method_tenant_id' => Uuid::fromHexToBytes(Defaults::TENANT_ID),
+            'country_id' => Uuid::fromHexToBytes(Defaults::COUNTRY),
+            'country_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+            'country_tenant_id' => Uuid::fromHexToBytes(Defaults::TENANT_ID),
+            'catalog_ids' => json_encode([Defaults::CATALOG]),
+            'currency_ids' => json_encode([Defaults::CURRENCY]),
+            'language_ids' => json_encode([Defaults::LANGUAGE]),
+        ]);
+
+        $this->touchpoints[] = $touchpoint->getHex();
+
+        $authPayload = [
+            'grant_type' => 'client_credentials',
+            'client_id' => $touchpoint->getHex(),
+            'client_secret' => $touchpoint->getHex(),
+        ];
+
+        $storefrontApiClient->request('POST', '/storefront-api/oauth/token', $authPayload);
+
+        $data = json_decode($storefrontApiClient->getResponse()->getContent(), true);
+
+        $this->assertArrayHasKey('access_token', $data, 'No token returned from API: ' . (($data['errors'][0]['detail'] ?? 'unknown error') . print_r($data, true)));
+
+        $storefrontApiClient->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['access_token']));
     }
 }

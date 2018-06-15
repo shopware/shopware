@@ -16,8 +16,8 @@ use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\ORM\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Routing\Firewall\CustomerProvider;
 use Shopware\Core\PlatformRequest;
+use Shopware\Storefront\Exception\CustomerNotFoundException;
 use Shopware\Storefront\Page\Account\AccountService;
 use Shopware\Storefront\Page\Account\AddressSaveRequest;
 use Shopware\Storefront\Page\Account\EmailSaveRequest;
@@ -28,6 +28,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Serializer\Serializer;
 
@@ -42,11 +43,6 @@ class CustomerController extends Controller
      * @var CheckoutContextPersister
      */
     private $contextPersister;
-
-    /**
-     * @var CustomerProvider
-     */
-    private $customerProvider;
 
     /**
      * @var AccountService
@@ -71,7 +67,6 @@ class CustomerController extends Controller
     public function __construct(
         Serializer $serializer,
         CheckoutContextPersister $contextPersister,
-        CustomerProvider $customerProvider,
         AccountService $accountService,
         CheckoutContextService $checkoutContextService,
         ResponseFactory $responseFactory,
@@ -79,7 +74,6 @@ class CustomerController extends Controller
     ) {
         $this->serializer = $serializer;
         $this->contextPersister = $contextPersister;
-        $this->customerProvider = $customerProvider;
         $this->accountService = $accountService;
         $this->checkoutContextService = $checkoutContextService;
         $this->responseFactory = $responseFactory;
@@ -99,8 +93,13 @@ class CustomerController extends Controller
         }
 
         $username = $post['username'];
+        $password = $post['password'];
 
-        $user = $this->customerProvider->loadUserByUsername($username);
+        try {
+            $user = $this->accountService->getCustomerByLogin($username, $password, $context);
+        } catch (CustomerNotFoundException | BadCredentialsException $exception) {
+            throw new UnauthorizedHttpException('json', $exception->getMessage());
+        }
 
         $this->contextPersister->save(
             $context->getToken(),
@@ -349,6 +348,10 @@ class CustomerController extends Controller
 
     private function decodedContent(Request $request): array
     {
+        if (!empty($request->request->all())) {
+            return $request->request->all();
+        }
+
         if (empty($request->getContent())) {
             return [];
         }

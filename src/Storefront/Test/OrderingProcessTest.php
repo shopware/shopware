@@ -44,8 +44,12 @@ class OrderingProcessTest extends ApiTestCase
 
     public function testOrderingProcess(): void
     {
+        $this->markTestSkipped('Storefront not fully implemented yet.');
+
         $email = Uuid::uuid4()->toString() . '@shopware.com';
         $customerId = $this->createCustomer($email, 'test1234');
+        $this->assertNotEmpty($customerId, 'Customer was not created.');
+
         $this->loginUser($email, 'test1234');
 
         $product1 = $this->createProduct('Shopware stickers', 10, 11.9, 19);

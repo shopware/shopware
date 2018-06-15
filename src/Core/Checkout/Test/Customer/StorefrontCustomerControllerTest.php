@@ -99,10 +99,10 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         $email = Uuid::uuid4()->getHex() . '@example.com';
         $password = 'shopware';
 
-        $this->storefrontApiClient->request('POST', '/storefront-api/customer/login', [], [], [], json_encode([
+        $this->storefrontApiClient->request('POST', '/storefront-api/customer/login', [
             'username' => $email,
             'password' => $password,
-        ]));
+        ]);
         $response = $this->storefrontApiClient->getResponse();
         $content = json_decode($response->getContent(), true);
 

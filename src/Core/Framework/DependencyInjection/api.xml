@@ -18,8 +18,6 @@
 
         <service class="Shopware\Core\Framework\Api\Context\RestContextValueResolver" id="Shopware\Core\Framework\Api\Context\RestContextValueResolver">
             <tag name="controller.argument_value_resolver" priority="1000"/>
-            <argument type="service" id="security.token_storage"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntitySearcherInterface"/>
         </service>
 
         <service class="Shopware\Core\Framework\Api\Controller\ApiController" id="Shopware\Core\Framework\Api\Controller\ApiController" public="true">
@@ -78,18 +76,117 @@
         </service>
 
         <service class="Shopware\Core\Framework\Api\Controller\AuthController" id="Shopware\Core\Framework\Api\Controller\AuthController" public="true">
-            <argument id="Shopware\Core\Framework\Api\Firewall\JWTAuthenticator" type="service"/>
+            <argument id="shopware.api.authorization_server" type="service"/>
         </service>
 
-        <service class="Shopware\Core\Framework\Api\Firewall\TokenAuthenticator" id="Shopware\Core\Framework\Api\Firewall\TokenAuthenticator">
-            <argument id="Doctrine\DBAL\Connection" type="service"/>
+        <service class="Shopware\Core\Framework\Api\Controller\StorefrontAuthController" id="Shopware\Core\Framework\Api\Controller\StorefrontAuthController" public="true">
+            <argument id="shopware.storefront_api.authorization_server" type="service"/>
         </service>
 
-        <service class="Shopware\Core\Framework\Api\Firewall\JWTAuthenticator" id="Shopware\Core\Framework\Api\Firewall\JWTAuthenticator">
-            <argument id="Doctrine\DBAL\Connection" type="service"/>
-            <argument>%kernel.project_dir%</argument>
+        <!-- API OAuth Repositories -->
+        <service class="Shopware\Core\Framework\Api\OAuth\Api\AccessTokenRepository" id="shopware.api.access_token_repository"/>
+        <service class="Shopware\Core\Framework\Api\OAuth\Api\ClientRepository" id="shopware.api.client_repository">
+            <argument type="service" id="Doctrine\DBAL\Connection" />
+        </service>
+        <service class="Shopware\Core\Framework\Api\OAuth\Api\RefreshTokenRepository" id="shopware.api.refresh_token_repository"/>
+
+        <service class="Shopware\Core\Framework\Api\OAuth\Api\ScopeRepository" id="shopware.api.scope_repository">
+            <argument type="tagged" tag="shopware.oauth.scope" />
         </service>
 
-        <service class="Shopware\Core\Framework\Api\Firewall\RestUserProvider" id="Shopware\Core\Framework\Api\Firewall\RestUserProvider" />
+        <service class="Shopware\Core\Framework\Api\OAuth\Api\UserRepository" id="shopware.api.user_repository">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <!-- StorefrontApi OAuth Repositories -->
+        <service class="Shopware\Core\Framework\Api\OAuth\StorefrontApi\AccessTokenRepository" id="shopware.storefront_api.access_token_repository"/>
+        <service class="Shopware\Core\Framework\Api\OAuth\StorefrontApi\ClientRepository" id="shopware.storefront_api.client_repository">
+            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="request_stack"/>
+        </service>
+
+        <service class="Shopware\Core\Framework\Api\OAuth\StorefrontApi\ScopeRepository" id="shopware.storefront_api.scope_repository">
+            <argument type="tagged" tag="shopware.oauth.scope" />
+        </service>
+
+        <!-- Scopes -->
+        <service class="Shopware\Core\Framework\Api\OAuth\Api\Scope\WriteScope" id="Shopware\Core\Framework\Api\OAuth\Api\Scope\WriteScope">
+            <tag name="shopware.oauth.scope" />
+        </service>
+
+        <!-- API -->
+        <service class="League\OAuth2\Server\CryptKey" id="shopware.private_key">
+            <argument>file://%kernel.project_dir%/config/jwt/private.pem</argument>
+            <argument>shopware</argument>
+        </service>
+        <service class="League\OAuth2\Server\CryptKey" id="shopware.public_key">
+            <argument>file://%kernel.project_dir%/config/jwt/public.pem</argument>
+        </service>
+
+        <service class="League\OAuth2\Server\AuthorizationServer" id="shopware.api.authorization_server">
+            <argument type="service" id="shopware.api.client_repository" />
+            <argument type="service" id="shopware.api.access_token_repository" />
+            <argument type="service" id="shopware.api.scope_repository" />
+            <argument type="service" id="shopware.private_key" />
+            <argument>wDTnGpRDScEiY/6F+nfMyKnQFyMHwWPm+K7uMuOFU88=</argument>
+        </service>
+
+        <service class="League\OAuth2\Server\AuthorizationServer" id="shopware.storefront_api.authorization_server">
+            <argument type="service" id="shopware.storefront_api.client_repository" />
+            <argument type="service" id="shopware.storefront_api.access_token_repository" />
+            <argument type="service" id="shopware.storefront_api.scope_repository" />
+            <argument type="service" id="shopware.private_key" />
+            <argument>XnLW765r4sso1d8OMIh0r1mie0ERCD3DX89Y1JuDxR4=</argument>
+        </service>
+
+        <service class="League\OAuth2\Server\ResourceServer" id="shopware.api.resource_server">
+            <argument type="service" id="shopware.api.access_token_repository" />
+            <argument type="service" id="shopware.public_key" />
+            <argument type="service" id="shopware.api.bearer_token_validator" />
+        </service>
+
+        <service class="League\OAuth2\Server\ResourceServer" id="shopware.storefront_api.resource_server">
+            <argument type="service" id="shopware.storefront_api.access_token_repository" />
+            <argument type="service" id="shopware.public_key" />
+            <argument type="service" id="shopware.storefront_api.bearer_token_validator" />
+        </service>
+
+        <service class="Shopware\Core\Framework\Api\OAuth\Api\AuthenticationListener" id="Shopware\Core\Framework\Api\EventListener\AuthenticationListener">
+            <tag name="kernel.event_subscriber"/>
+            <argument type="service" id="shopware.api.resource_server"/>
+        </service>
+
+        <service class="Shopware\Core\Framework\Api\OAuth\StorefrontApi\AuthenticationListener" id="Shopware\Core\Framework\Api\EventListener\StorefrontApiAuthenticationListener">
+            <tag name="kernel.event_subscriber"/>
+            <argument id="shopware.storefront_api.resource_server" type="service"/>
+        </service>
+
+        <service class="League\OAuth2\Server\AuthorizationValidators\BearerTokenValidator" id="shopware.api.bearer_token_validator">
+            <argument id="shopware.api.access_token_repository" type="service"/>
+            <call method="setPublicKey">
+                <argument id="shopware.public_key" type="service"/>
+            </call>
+        </service>
+
+        <service class="League\OAuth2\Server\AuthorizationValidators\BearerTokenValidator" id="shopware.storefront_api.bearer_token_validator">
+            <argument id="shopware.storefront_api.access_token_repository" type="service"/>
+            <call method="setPublicKey">
+                <argument id="shopware.public_key" type="service"/>
+            </call>
+        </service>
+
+        <!-- Events -->
+        <service class="Shopware\Core\Framework\Api\EventListener\OAuthConfigurationListener" id="Shopware\Core\Framework\Api\EventListener\OAuthConfigurationListener">
+            <tag name="kernel.event_subscriber"/>
+            <argument type="service" id="shopware.api.authorization_server"/>
+            <argument type="service" id="shopware.storefront_api.authorization_server"/>
+            <argument type="service" id="shopware.api.user_repository"/>
+            <argument type="service" id="shopware.api.refresh_token_repository"/>
+        </service>
+
+        <service class="Shopware\Core\Framework\Api\EventListener\JsonRequestTransformerListener" id="Shopware\Core\Framework\Api\EventListener\JsonRequestTransformerListener">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
     </services>
 </container>

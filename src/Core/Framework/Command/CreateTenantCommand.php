@@ -3,8 +3,10 @@
 namespace Shopware\Core\Framework\Command;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -44,7 +46,6 @@ class CreateTenantCommand extends ContainerAwareCommand
         $this->connection->executeUpdate('SET NAMES utf8mb4;');
         $this->connection->executeUpdate('SET FOREIGN_KEY_CHECKS=0;');
 
-        $this->importTouchpoint($bytes);
         $this->importCatalog($bytes);
         $this->importLanguage($bytes);
         $this->importCountry($bytes);
@@ -80,19 +81,6 @@ class CreateTenantCommand extends ContainerAwareCommand
 
             $this->connection->insert($table, $combined);
         }
-    }
-
-    private function importTouchpoint(string $tenantId)
-    {
-        $this->importTable(
-            $tenantId,
-            'touchpoint',
-            ['id', 'type', 'name', 'configuration', 'access_key', 'secret_access_key', 'catalog_ids', 'currency_ids', 'language_ids', 'tax_calculation_type', 'language_id', 'currency_id', 'payment_method_id', 'shipping_method_id', 'country_id', 'currency_version_id', 'payment_method_version_id', 'shipping_method_version_id', 'country_version_id'],
-            ['tenant_id', 'language_tenant_id', 'currency_tenant_id', 'payment_method_tenant_id', 'shipping_method_tenant_id', 'country_tenant_id'],
-            [
-                [hex2bin('ffffffffffffffffffffffffffffffff'), 'api', 'Default endpoint', null, 'TzhovH7sgws8n9UjgEdDEzNkA6xURua8', 'eZvM4Mumq/h1#88q6U4wvCi-AkTY', '["ffffffffffffffffffffffffffffffff"]', '["4c8eba11bd3546d786afbed481a6e665","2824ea63db6741109e2378ddcc9cec84"]', '["ffffffffffffffffffffffffffffffff"]', 'vertical', hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('4c8eba11bd3546d786afbed481a6e665'), hex2bin('77573b9cf7914cb5a9519945bff1d95b'), hex2bin('417beeb2dddf45d1b90188fd211343c3'), hex2bin('bd5e2dcf547e4df6bb1ff58a554bc69e'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff')],
-            ]
-        );
     }
 
     private function importCatalog(string $tenantId)

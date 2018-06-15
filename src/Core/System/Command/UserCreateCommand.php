@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Command;
 
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
@@ -15,26 +16,19 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
 
 class UserCreateCommand extends Command
 {
-    /**
-     * @var EncoderFactoryInterface
-     */
-    private $encoderFactory;
-
     /**
      * @var RepositoryInterface
      */
     private $userRepository;
 
-    public function __construct(RepositoryInterface $userRepository, EncoderFactoryInterface $encoderFactory)
+    public function __construct(RepositoryInterface $userRepository)
     {
         parent::__construct(null);
 
         $this->userRepository = $userRepository;
-        $this->encoderFactory = $encoderFactory;
     }
 
     /**
@@ -81,7 +75,7 @@ class UserCreateCommand extends Command
             exit(1);
         }
 
-        $accessKey = $this->createUser($username, $password, $tenantId);
+        list($accessKey, $secretAccessKey) = $this->createUser($username, $password, $tenantId);
 
         $io->success(sprintf('User "%s" successfully created.', $username));
         $io->table(
@@ -89,6 +83,7 @@ class UserCreateCommand extends Command
             [
                 ['Username', $username],
                 ['Access key', $accessKey],
+                ['Secret Access key', $secretAccessKey],
             ]
         );
     }
@@ -103,10 +98,13 @@ class UserCreateCommand extends Command
         return $result->getTotal() > 0;
     }
 
-    private function createUser(string $username, string $password, string $tenantId): string
+    private function createUser(string $username, string $password, string $tenantId): array
     {
         $password = password_hash($password, PASSWORD_BCRYPT);
-        $accessKey = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode(Random::getAlphanumericString(32)));
+        $accessKey = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode(Random::getAlphanumericString(16)));
+        $secretAccessKey = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode(Random::getAlphanumericString(32)));
+        $secretAccessKeyHash = hash('sha512', $secretAccessKey);
+        $secretAccessKeyHash = password_hash($secretAccessKeyHash, PASSWORD_ARGON2I);
 
         $context = Context::createDefaultContext($tenantId);
 
@@ -117,13 +115,18 @@ class UserCreateCommand extends Command
                 'email' => 'admin@example.com',
                 'username' => $username,
                 'password' => $password,
-                'localeId' => '7b52d9dd2b0640ec90be9f57edf29be7',
-                'roleId' => '7b52d9dd2b0640ec90be9f57edf29be7',
+                'localeId' => Defaults::LOCALE,
                 'active' => true,
-                'apiKey' => $accessKey,
+                'accessKeys' => [
+                    [
+                        'accessKey' => $accessKey,
+                        'secretAccessKey' => $secretAccessKeyHash,
+                        'writeAccess' => true,
+                    ],
+                ],
             ],
         ], $context);
 
-        return $accessKey;
+        return [$accessKey, $secretAccessKey];
     }
 }

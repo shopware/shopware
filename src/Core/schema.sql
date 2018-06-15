@@ -33,6 +33,7 @@ CREATE TABLE `touchpoint` (
   `created_at` datetime,
   `updated_at` datetime,
   PRIMARY KEY (`id`, `tenant_id`),
+  INDEX `access_key` (`access_key`),
   CHECK (JSON_VALID(`catalog_ids`)),
   CHECK (JSON_VALID(`currency_ids`)),
   CHECK (JSON_VALID(`language_ids`)),
@@ -714,7 +715,8 @@ CREATE TABLE `locale` (
   `created_at` datetime,
   `updated_at` datetime,
   PRIMARY KEY (`id`, `version_id`, `tenant_id`),
-  UNIQUE KEY `locale` (`code`, `version_id`, `tenant_id`)
+  UNIQUE KEY `locale` (`code`, `version_id`, `tenant_id`),
+  INDEX (`id`, `tenant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -1945,28 +1947,38 @@ DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user` (
   `id` binary(16) NOT NULL,
   `tenant_id` binary(16) NOT NULL,
-  `version_id` binary(16) NOT NULL,
   `username` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `encoder` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'LegacyBackendMd5',
-  `api_key` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `session_id` varchar(128) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `last_login` datetime DEFAULT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `email` varchar(120) COLLATE utf8mb4_unicode_ci NOT NULL,
   `active` tinyint(1) NOT NULL DEFAULT '0',
   `failed_logins` int(11) NOT NULL DEFAULT '0',
   `locked_until` datetime DEFAULT NULL,
-  `extended_editor` tinyint(1) unsigned NOT NULL DEFAULT '0',
-  `disabled_cache` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `locale_id` binary(16) NOT NULL,
   `locale_tenant_id` binary(16) NOT NULL,
-  `locale_version_id` binary(16) NOT NULL,
   `created_at` datetime,
   `updated_at` datetime,
-  PRIMARY KEY (`id`, `version_id`, `tenant_id`),
-  UNIQUE KEY `username` (`username`, `version_id`, `tenant_id`),
-  CONSTRAINT `fk_user.locale_id` FOREIGN KEY (`locale_id`, `locale_version_id`, `locale_tenant_id`) REFERENCES `locale` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE
+  PRIMARY KEY (`id`, `tenant_id`),
+  UNIQUE KEY `username` (`username`, `tenant_id`),
+  CONSTRAINT `fk_user.locale_id` FOREIGN KEY (`locale_id`, `locale_tenant_id`) REFERENCES `locale` (`id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `user_access_key`;
+CREATE TABLE `user_access_key` (
+  `id` binary(16) NOT NULL,
+  `tenant_id` binary(16) NOT NULL,
+  `user_id` binary(16) NOT NULL,
+  `user_tenant_id` binary(16) NOT NULL,
+  `write_access` tinyint(1) NOT NULL,
+  `access_key` varchar(255) NOT NULL,
+  `secret_access_key` varchar(255) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `last_usage_at` datetime NULL,
+  PRIMARY KEY (`id`, `tenant_id`),
+  INDEX `user_id_user_tenant_id` (`user_id`, `user_tenant_id`),
+  INDEX `access_key` (`access_key`),
+  CONSTRAINT `fk_user_access_key.user_id` FOREIGN KEY (`user_id`, `user_tenant_id`) REFERENCES `user` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `rule`;

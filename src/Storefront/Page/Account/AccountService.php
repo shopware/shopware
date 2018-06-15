@@ -14,8 +14,6 @@ use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Storefront\Exception\AddressNotFoundHttpException;
 use Shopware\Storefront\Exception\CustomerNotFoundException;
-use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterface;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 
 class AccountService
@@ -35,35 +33,14 @@ class AccountService
      */
     private $customerRepository;
 
-    /**
-     * @var AuthenticationManagerInterface
-     */
-    private $authenticationManager;
-
-    /**
-     * @var TokenStorageInterface
-     */
-    private $tokenStorage;
-
-    /**
-     * @var CheckoutContextPersister
-     */
-    private $contextPersister;
-
     public function __construct(
         RepositoryInterface $countryRepository,
         RepositoryInterface $customerAddressRepository,
-        RepositoryInterface $customerRepository,
-        AuthenticationManagerInterface $authenticationManager,
-        TokenStorageInterface $tokenStorage,
-        CheckoutContextPersister $contextPersister
+        RepositoryInterface $customerRepository
     ) {
         $this->countryRepository = $countryRepository;
         $this->customerAddressRepository = $customerAddressRepository;
         $this->customerRepository = $customerRepository;
-        $this->authenticationManager = $authenticationManager;
-        $this->tokenStorage = $tokenStorage;
-        $this->contextPersister = $contextPersister;
     }
 
     public function getCustomerByLogin(string $email, string $password, CheckoutContext $context): CustomerStruct

@@ -17,6 +17,7 @@ use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
 use Shopware\Core\Framework\ORM\Write\WriteContext;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class EntityRepository implements RepositoryInterface
@@ -75,10 +76,22 @@ class EntityRepository implements RepositoryInterface
 
         $aggregations = null;
         if ($criteria->getAggregations()) {
-            $aggregations = $this->aggregate($criteria, $context);
+            $aggregations = $this->aggregate($criteria, $context)->getAggregations();
         }
 
-        $result = new EntitySearchResult($ids, $entities, $aggregations, $criteria, $context);
+        $search = $ids->getData();
+
+        /** @var Entity $element */
+        foreach ($entities as $element) {
+            if (!array_key_exists($element->getId(), $search)) {
+                continue;
+            }
+            $data = $search[$element->getId()];
+
+            $element->addExtension('search', new ArrayStruct($data));
+        }
+
+        $result = new EntitySearchResult($ids->getTotal(), $entities, $aggregations, $criteria, $context);
 
         $event = new EntitySearchResultLoadedEvent($this->definition, $result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
@@ -161,8 +174,6 @@ class EntityRepository implements RepositoryInterface
 
     public function read(ReadCriteria $criteria, Context $context)
     {
-        $criteria->addFilter(new TermsQuery($this->definition::getEntityName() . 'id', $criteria->getIds()));
-
         /** @var EntityCollection $entities */
         $entities = $this->reader->read($this->definition, $criteria, $context);
 

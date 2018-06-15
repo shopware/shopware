@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\ORM\Search;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\Framework\ORM\Search\Aggregation\AggregationResultCollection;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 
 class EntitySearchResult extends EntityCollection
@@ -20,7 +21,7 @@ class EntitySearchResult extends EntityCollection
     protected $entities;
 
     /**
-     * @var AggregatorResult|null
+     * @var AggregationResultCollection|null
      */
     protected $aggregations;
 
@@ -34,37 +35,36 @@ class EntitySearchResult extends EntityCollection
      */
     protected $context;
 
-    /**
-     * @var IdSearchResult
-     */
-    protected $idSearchResult;
-
-    public function __construct(
-        IdSearchResult $idSearchResult,
-        EntityCollection $entities,
-        ?AggregatorResult $aggregations,
-        Criteria $criteria,
-        Context $context
-    ) {
+    public function __construct(int $total, EntityCollection $entities, ?AggregationResultCollection $aggregations, Criteria $criteria, Context $context)
+    {
         parent::__construct($entities->getElements());
         $this->entities = $entities;
-        $this->total = $idSearchResult->getTotal();
-        $this->aggregations = $aggregations;
-        $this->idSearchResult = $idSearchResult;
+        $this->total = $total;
+        $this->aggregations = $aggregations ?? new AggregationResultCollection();
         $this->criteria = $criteria;
         $this->context = $context;
+    }
 
-        $search = $this->idSearchResult->getData();
+    public function filter(\Closure $closure)
+    {
+        return new static(
+            $this->total,
+            $this->entities->filter($closure),
+            $this->aggregations,
+            $this->criteria,
+            $this->context
+        );
+    }
 
-        /** @var Entity $element */
-        foreach ($this->entities->getElements() as $element) {
-            if (!array_key_exists($element->getId(), $search)) {
-                continue;
-            }
-            $data = $search[$element->getId()];
-
-            $element->addExtension('search', new ArrayStruct($data));
-        }
+    public function slice(int $offset, ?int $length = null)
+    {
+        return new static(
+            $this->total,
+            $this->entities->slice($offset, $length),
+            $this->aggregations,
+            $this->criteria,
+            $this->context
+        );
     }
 
     public function getTotal(): int
@@ -77,7 +77,7 @@ class EntitySearchResult extends EntityCollection
         return $this->entities;
     }
 
-    public function getAggregations(): ?AggregatorResult
+    public function getAggregations(): AggregationResultCollection
     {
         return $this->aggregations;
     }
@@ -90,10 +90,5 @@ class EntitySearchResult extends EntityCollection
     public function getContext(): Context
     {
         return $this->context;
-    }
-
-    public function getIdSearchResult(): IdSearchResult
-    {
-        return $this->idSearchResult;
     }
 }

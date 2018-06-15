@@ -28,11 +28,7 @@ class Entity extends Struct
 
     public function get(string $property)
     {
-        try {
-            return $this->$property;
-        } catch (\Throwable $e) {
-            return null;
-        }
+        return $this->$property ?? null;
     }
 
     public function getTenantId(): string

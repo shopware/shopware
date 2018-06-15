@@ -108,4 +108,11 @@ class EntityWrittenContainerEvent extends NestedEvent
     {
         return $this->errors;
     }
+
+    public function getWrittenDefinitions(): array
+    {
+        return $this->events->map(function(EntityWrittenEvent $event) {
+            return $event->getDefinition();
+        });
+    }
 }

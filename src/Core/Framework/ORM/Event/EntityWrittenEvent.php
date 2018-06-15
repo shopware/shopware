@@ -11,6 +11,16 @@ use Shopware\Core\Framework\ORM\Write\EntityExistence;
 class EntityWrittenEvent extends NestedEvent
 {
     /**
+     * @var string
+     */
+    protected $definition;
+
+    /**
+     * @var array
+     */
+    protected $ids;
+
+    /**
      * @var NestedEventCollection
      */
     protected $events;
@@ -28,22 +38,12 @@ class EntityWrittenEvent extends NestedEvent
     /**
      * @var array
      */
-    protected $ids;
-
-    /**
-     * @var array
-     */
     protected $payload;
 
     /**
      * @var EntityExistence[]
      */
     protected $existences;
-
-    /**
-     * @var string
-     */
-    protected $definition;
 
     /**
      * @var string

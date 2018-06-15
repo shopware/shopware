@@ -3,11 +3,18 @@
 namespace Shopware\Core\Framework\Test\ORM\Reader;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Customer\CustomerStruct;
+use Shopware\Core\Content\Category\CategoryStruct;
 use Shopware\Core\Content\Product\ProductStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
+use Shopware\Core\Framework\ORM\Search\PaginationCriteria;
+use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\Framework\ORM\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -31,15 +38,15 @@ class EntityReaderTest extends KernelTestCase
         parent::setUp();
 
         $this->connection = self::$container->get(Connection::class);
-        $this->connection->beginTransaction();
-        $this->connection->executeUpdate('DELETE FROM product');
+//        $this->connection->beginTransaction();
+//        $this->connection->executeUpdate('DELETE FROM product');
 
         $this->repository = self::$container->get('product.repository');
     }
 
     protected function tearDown()
     {
-        $this->connection->rollBack();
+//        $this->connection->rollBack();
         parent::tearDown();
     }
 
@@ -237,5 +244,807 @@ class EntityReaderTest extends KernelTestCase
 
         $this->assertFalse($translated->get('description'));
         $this->assertTrue($inheritance->get('description'));
+    }
+
+    public function testLoadOneToManyNotLoadedAutomatically()
+    {
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+
+        $id = Uuid::uuid4()->getHex();
+        $defaultAddressId = Uuid::uuid4()->getHex();
+
+        $repository = self::$container->get('customer.repository');
+
+        $address = [
+            'street' => 'A',
+            'zipcode' => 'A',
+            'city' => 'A',
+            'salutation' => 'A',
+            'firstName' => 'A',
+            'lastName' => 'a',
+            'countryId' => Defaults::COUNTRY,
+        ];
+
+        $repository->upsert([
+            [
+                'id' => $id,
+                'firstName' => 'Test',
+                'lastName' => 'Test',
+                'number' => 'A',
+                'salutation' => 'A',
+                'password' => 'A',
+                'email' => 'test@test.com',
+                'defaultShippingAddressId' => $defaultAddressId,
+                'defaultBillingAddressId' => $defaultAddressId,
+                'touchpointId' => Defaults::TOUCHPOINT,
+                'defaultPaymentMethodId' => Defaults::PAYMENT_METHOD_INVOICE,
+                'group' => ['name' => 'test'],
+                'addresses' => [
+                    array_merge(['id' => $defaultAddressId], $address),
+                    $address,
+                    $address,
+                    $address,
+                    $address
+                ]
+            ]
+        ], $context);
+
+        /** @var CustomerStruct $customer */
+        $criteria = new ReadCriteria([$id]);
+        $customer = $repository->read($criteria, $context)->get($id);
+        $this->assertNull($customer->getAddresses());
+    }
+
+    public function testLoadOneToMany()
+    {
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+
+        $id = Uuid::uuid4()->getHex();
+        $defaultAddressId = Uuid::uuid4()->getHex();
+
+        $repository = self::$container->get('customer.repository');
+
+        $address = [
+            'street' => 'A',
+            'zipcode' => 'A',
+            'city' => 'A',
+            'salutation' => 'A',
+            'firstName' => 'A',
+            'lastName' => 'a',
+            'countryId' => Defaults::COUNTRY,
+        ];
+
+        $repository->upsert([
+            [
+                'id' => $id,
+                'firstName' => 'Test',
+                'lastName' => 'Test',
+                'number' => 'A',
+                'salutation' => 'A',
+                'password' => 'A',
+                'email' => 'test@test.com',
+                'defaultShippingAddressId' => $defaultAddressId,
+                'defaultBillingAddressId' => $defaultAddressId,
+                'touchpointId' => Defaults::TOUCHPOINT,
+                'defaultPaymentMethodId' => Defaults::PAYMENT_METHOD_INVOICE,
+                'group' => ['name' => 'test'],
+                'addresses' => [
+                    array_merge(['id' => $defaultAddressId], $address),
+                    $address,
+                    $address,
+                    $address,
+                    $address
+                ]
+            ]
+        ], $context);
+
+
+        $addresses = $this->connection->fetchColumn('SELECT COUNT(id) FROM customer_address WHERE customer_id = :id', ['id' => Uuid::fromHexToBytes($id)]);
+        $this->assertEquals(5, $addresses);
+
+        /** @var CustomerStruct $customer */
+        $criteria = new ReadCriteria([$id]);
+        $criteria->addAssociation('customer.addresses');
+        $customer = $repository->read($criteria, $context)->get($id);
+        $this->assertInstanceOf(EntitySearchResult::class, $customer->getAddresses());
+        $this->assertCount(5, $customer->getAddresses());
+    }
+
+    public function testLoadOneToManySupportsFilter()
+    {
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+
+        $id1 = Uuid::uuid4()->getHex();
+        $id2 = Uuid::uuid4()->getHex();
+        $defaultAddressId1 = Uuid::uuid4()->getHex();
+        $defaultAddressId2 = Uuid::uuid4()->getHex();
+
+        $repository = self::$container->get('customer.repository');
+
+        $address = [
+            'street' => 'A',
+            'zipcode' => 'A',
+            'city' => 'A',
+            'salutation' => 'A',
+            'firstName' => 'A',
+            'lastName' => 'a',
+            'countryId' => Defaults::COUNTRY,
+        ];
+        $customer = [
+            'firstName' => 'Test',
+            'lastName' => 'Test',
+            'number' => 'A',
+            'salutation' => 'A',
+            'password' => 'A',
+            'email' => 'test@test.com',
+            'touchpointId' => Defaults::TOUCHPOINT,
+            'defaultPaymentMethodId' => Defaults::PAYMENT_METHOD_INVOICE,
+            'group' => ['name' => 'test'],
+        ];
+
+        $repository->upsert([
+            array_merge(
+                [
+                    'id' => $id1,
+                    'defaultShippingAddressId' => $defaultAddressId1,
+                    'defaultBillingAddressId' => $defaultAddressId1,
+                    'addresses' => [
+                        array_merge(['id' => $defaultAddressId1], $address),
+                        array_merge($address, ['zipcode' => 'B']),
+                        array_merge($address, ['zipcode' => 'B']),
+                        array_merge($address, ['zipcode' => 'X']),
+                    ]
+                ],
+                $customer
+            ),
+            array_merge(
+                [
+                    'id' => $id2,
+                    'defaultShippingAddressId' => $defaultAddressId2,
+                    'defaultBillingAddressId' => $defaultAddressId2,
+                    'addresses' => [
+                        array_merge(['id' => $defaultAddressId2], $address),
+                        array_merge($address, ['zipcode' => 'B']),
+                        array_merge($address, ['zipcode' => 'C']),
+                        array_merge($address, ['zipcode' => 'X']),
+                    ]
+                ],
+                $customer
+            )
+        ], $context);
+
+
+        $bytes = [Uuid::fromHexToBytes($id1), Uuid::fromHexToBytes($id2)];
+
+        $mapping = $this->connection->fetchAll('SELECT * FROM customer WHERE id IN (:ids)', ['ids' => $bytes], ['ids' => Connection::PARAM_STR_ARRAY]);
+        $this->assertCount(2, $mapping);
+
+        $mapping = $this->connection->fetchAll('SELECT * FROM customer_address WHERE customer_id IN (:ids)', ['ids' => $bytes], ['ids' => Connection::PARAM_STR_ARRAY]);
+        $this->assertCount(8, $mapping);
+
+        /** @var CustomerStruct $customer1 */
+        /** @var CustomerStruct $customer2 */
+        $criteria = new ReadCriteria([$id1, $id2]);
+        $addressCriteria = new Criteria();
+        $addressCriteria->addFilter(new TermQuery('customer_address.zipcode', 'B'));
+        $criteria->addAssociation('customer.addresses', $addressCriteria);
+
+        $customers = $repository->read($criteria, $context);
+
+        $customer1 = $customers->get($id1);
+        $customer2 = $customers->get($id2);
+
+        $this->assertInstanceOf(EntitySearchResult::class, $customer1->getAddresses());
+        $this->assertCount(2, $customer1->getAddresses());
+
+        $this->assertInstanceOf(EntitySearchResult::class, $customer1->getAddresses());
+        $this->assertCount(1, $customer2->getAddresses());
+    }
+
+    public function testLoadOneToManySupportsSorting()
+    {
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+
+        $id1 = Uuid::uuid4()->getHex();
+        $id2 = Uuid::uuid4()->getHex();
+
+        $addressId1 = Uuid::uuid4()->getHex();
+        $addressId2 = Uuid::uuid4()->getHex();
+        $addressId3 = Uuid::uuid4()->getHex();
+        $addressId4 = Uuid::uuid4()->getHex();
+        $addressId5 = Uuid::uuid4()->getHex();
+        $addressId6 = Uuid::uuid4()->getHex();
+
+        $repository = self::$container->get('customer.repository');
+
+        $address = [
+            'street' => 'A',
+            'zipcode' => 'A',
+            'city' => 'A',
+            'salutation' => 'A',
+            'firstName' => 'A',
+            'lastName' => 'a',
+            'countryId' => Defaults::COUNTRY,
+        ];
+        $customer = [
+            'firstName' => 'Test',
+            'lastName' => 'Test',
+            'number' => 'A',
+            'salutation' => 'A',
+            'password' => 'A',
+            'email' => 'test@test.com',
+            'touchpointId' => Defaults::TOUCHPOINT,
+            'defaultPaymentMethodId' => Defaults::PAYMENT_METHOD_INVOICE,
+            'group' => ['name' => 'test'],
+        ];
+
+        $repository->upsert([
+            array_merge(
+                [
+                    'id' => $id1,
+                    'email' => 'test@test.com' . $id1,
+                    'defaultShippingAddressId' => $addressId1,
+                    'defaultBillingAddressId' => $addressId1,
+                    'addresses' => [
+                        array_merge($address, ['id' => $addressId1, 'zipcode' => 'C']),
+                        array_merge($address, ['id' => $addressId2, 'zipcode' => 'B']),
+                        array_merge($address, ['id' => $addressId3, 'zipcode' => 'X']),
+                    ]
+                ],
+                $customer
+            ),
+            array_merge(
+                [
+                    'id' => $id2,
+                    'email' => 'test@test.com' . $id2,
+                    'defaultShippingAddressId' => $addressId4,
+                    'defaultBillingAddressId' => $addressId4,
+                    'addresses' => [
+                        array_merge($address, ['id' => $addressId4, 'zipcode' => 'X']),
+                        array_merge($address, ['id' => $addressId5, 'zipcode' => 'B']),
+                        array_merge($address, ['id' => $addressId6, 'zipcode' => 'A']),
+                    ]
+                ],
+                $customer
+            )
+        ], $context);
+
+
+        $bytes = [Uuid::fromHexToBytes($id1), Uuid::fromHexToBytes($id2)];
+
+        $mapping = $this->connection->fetchAll('SELECT * FROM customer WHERE id IN (:ids)', ['ids' => $bytes], ['ids' => Connection::PARAM_STR_ARRAY]);
+        $this->assertCount(2, $mapping);
+
+        $mapping = $this->connection->fetchAll('SELECT * FROM customer_address WHERE customer_id IN (:ids)', ['ids' => $bytes], ['ids' => Connection::PARAM_STR_ARRAY]);
+        $this->assertCount(6, $mapping);
+
+        /** @var CustomerStruct $customer1 */
+        /** @var CustomerStruct $customer2 */
+        $criteria = new ReadCriteria([$id1, $id2]);
+        $addressCriteria = new Criteria();
+        $addressCriteria->addSorting(new FieldSorting('customer_address.zipcode', FieldSorting::ASCENDING));
+        $criteria->addAssociation('customer.addresses', $addressCriteria);
+
+        $customers = $repository->read($criteria, $context);
+
+        $customer1 = $customers->get($id1);
+        $customer2 = $customers->get($id2);
+
+        $this->assertInstanceOf(EntitySearchResult::class, $customer1->getAddresses());
+        $this->assertCount(3, $customer1->getAddresses());
+        $this->assertEquals(
+            [$addressId2, $addressId1, $addressId3],
+            array_values($customer1->getAddresses()->getIds())
+        );
+
+        $this->assertInstanceOf(EntitySearchResult::class, $customer1->getAddresses());
+        $this->assertCount(3, $customer2->getAddresses());
+        $this->assertEquals(
+            [$addressId6, $addressId5, $addressId4],
+            array_values($customer2->getAddresses()->getIds())
+        );
+
+
+        /** @var CustomerStruct $customer1 */
+        /** @var CustomerStruct $customer2 */
+        $criteria = new ReadCriteria([$id1, $id2]);
+        $addressCriteria = new Criteria();
+        $addressCriteria->addSorting(new FieldSorting('customer_address.zipcode', FieldSorting::DESCENDING));
+        $criteria->addAssociation('customer.addresses', $addressCriteria);
+
+        $customers = $repository->read($criteria, $context);
+
+        $customer1 = $customers->get($id1);
+        $customer2 = $customers->get($id2);
+
+        $this->assertEquals(
+            [$addressId3, $addressId1, $addressId2],
+            array_values($customer1->getAddresses()->getIds())
+        );
+
+        $this->assertEquals(
+            [$addressId4, $addressId5, $addressId6],
+            array_values($customer2->getAddresses()->getIds())
+        );
+
+    }
+
+    public function testLoadOneToManySupportsPagination()
+    {
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+
+        $id = Uuid::uuid4()->getHex();
+        $defaultAddressId = Uuid::uuid4()->getHex();
+
+        $repository = self::$container->get('customer.repository');
+
+        $address = [
+            'street' => 'A',
+            'zipcode' => 'A',
+            'city' => 'A',
+            'salutation' => 'A',
+            'firstName' => 'A',
+            'lastName' => 'a',
+            'countryId' => Defaults::COUNTRY,
+        ];
+
+        $repository->upsert([
+            [
+                'id' => $id,
+                'firstName' => 'Test',
+                'lastName' => 'Test',
+                'number' => 'A',
+                'salutation' => 'A',
+                'password' => 'A',
+                'email' => 'test@test.com',
+                'defaultShippingAddressId' => $defaultAddressId,
+                'defaultBillingAddressId' => $defaultAddressId,
+                'touchpointId' => Defaults::TOUCHPOINT,
+                'defaultPaymentMethodId' => Defaults::PAYMENT_METHOD_INVOICE,
+                'group' => ['name' => 'test'],
+                'addresses' => [
+                    array_merge(['id' => $defaultAddressId], $address),
+                    $address,
+                    $address,
+                    $address,
+                    $address
+                ]
+            ]
+        ], $context);
+
+        /** @var CustomerStruct $customer */
+        $criteria = new ReadCriteria([$id]);
+        $criteria->addAssociation('customer.addresses', new PaginationCriteria(1));
+        $customer = $repository->read($criteria, $context)->get($id);
+        $this->assertNotNull($customer->getAddresses());
+        $this->assertCount(1, $customer->getAddresses());
+
+        $criteria = new ReadCriteria([$id]);
+        $criteria->addAssociation('customer.addresses', new PaginationCriteria(3));
+        $customer = $repository->read($criteria, $context)->get($id);
+        $this->assertNotNull($customer->getAddresses());
+        $this->assertCount(3, $customer->getAddresses());
+    }
+
+    public function testLoadOneToManyConsidersInheritance()
+    {
+
+    }
+
+    public function testLoadManyToManyNotLoadedAutomatically()
+    {
+        $id1 = Uuid::uuid4()->getHex();
+        $id2 = Uuid::uuid4()->getHex();
+        $id3 = Uuid::uuid4()->getHex();
+
+        $product1 = [
+            'id' => $id1,
+            'price' => ['gross' => 10, 'net' => 9],
+            'active' => true,
+            'manufacturer' => ['name' => 'test'],
+            'name' => 'test',
+            'tax' => ['rate' => 13, 'name' => 'green'],
+        ];
+
+        $product2 = [
+            'id' => $id2,
+            'price' => ['gross' => 10, 'net' => 9],
+            'active' => false,
+            'manufacturer' => ['name' => 'test'],
+            'name' => 'test',
+            'tax' => ['rate' => 13, 'name' => 'green'],
+        ];
+
+        $product3 = [
+            'id' => $id3,
+            'price' => ['gross' => 10, 'net' => 9],
+            'active' => false,
+            'manufacturer' => ['name' => 'test'],
+            'name' => 'test',
+            'tax' => ['rate' => 13, 'name' => 'green'],
+        ];
+
+        $repository = self::$container->get('category.repository');
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+
+        $repository->upsert(
+            [
+                ['id' => $id1, 'name' => 'test', 'products' => [$product1, $product3]],
+                ['id' => $id2, 'name' => 'test', 'products' => [$product3, $product2]]
+            ],
+            $context
+        );
+
+        $bytes = [Uuid::fromHexToBytes($id1), Uuid::fromHexToBytes($id2)];
+        $mapping = $this->connection->fetchAll('SELECT * FROM product_category WHERE category_id IN (:ids)', ['ids' => $bytes], ['ids' => Connection::PARAM_STR_ARRAY]);
+        $this->assertCount(4, $mapping);
+
+        //test many to many not loaded automatically
+        $categories = $repository->read(new ReadCriteria([$id1, $id2]), $context);
+
+        $category1 = $categories->get($id1);
+        $category2 = $categories->get($id2);
+
+        $this->assertInstanceOf(CategoryStruct::class, $category1);
+        /** @var CategoryStruct $category1 */
+        $this->assertNull($category1->getProducts());
+
+        $this->assertInstanceOf(CategoryStruct::class, $category2);
+        /** @var CategoryStruct $category2 */
+        $this->assertNull($category2->getProducts());
+    }
+
+    public function testLoadManyToMany()
+    {
+        $id1 = Uuid::uuid4()->getHex();
+        $id2 = Uuid::uuid4()->getHex();
+        $id3 = Uuid::uuid4()->getHex();
+
+        $product1 = [
+            'id' => $id1,
+            'price' => ['gross' => 10, 'net' => 9],
+            'active' => true,
+            'manufacturer' => ['name' => 'test'],
+            'name' => 'test',
+            'tax' => ['rate' => 13, 'name' => 'green'],
+        ];
+
+        $product2 = [
+            'id' => $id2,
+            'price' => ['gross' => 10, 'net' => 9],
+            'active' => false,
+            'manufacturer' => ['name' => 'test'],
+            'name' => 'test',
+            'tax' => ['rate' => 13, 'name' => 'green'],
+        ];
+
+        $product3 = [
+            'id' => $id3,
+            'price' => ['gross' => 10, 'net' => 9],
+            'active' => false,
+            'manufacturer' => ['name' => 'test'],
+            'name' => 'test',
+            'tax' => ['rate' => 13, 'name' => 'green'],
+        ];
+
+        $repository = self::$container->get('category.repository');
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+
+        $repository->upsert(
+            [
+                ['id' => $id1, 'name' => 'test', 'products' => [$product1, $product3]],
+                ['id' => $id2, 'name' => 'test', 'products' => [$product3, $product2]]
+            ],
+            $context
+        );
+
+        $bytes = [Uuid::fromHexToBytes($id1), Uuid::fromHexToBytes($id2)];
+        $mapping = $this->connection->fetchAll('SELECT * FROM product_category WHERE category_id IN (:ids)', ['ids' => $bytes], ['ids' => Connection::PARAM_STR_ARRAY]);
+        $this->assertCount(4, $mapping);
+
+
+        //test that we can add the association and all products are fetched
+        $criteria = new ReadCriteria([$id1, $id2]);
+
+        $criteria->addAssociation('category.products');
+        $categories = $repository->read($criteria, $context);
+
+        $category1 = $categories->get($id1);
+        $category2 = $categories->get($id2);
+
+        $this->assertInstanceOf(CategoryStruct::class, $category1);
+        /** @var CategoryStruct $category1 */
+        $this->assertInstanceOf(EntitySearchResult::class, $category1->getProducts());
+        $this->assertCount(2, $category1->getProducts());
+
+        $this->assertContains($id1, $category1->getProducts()->getIds());
+        $this->assertContains($id3, $category1->getProducts()->getIds());
+
+        $this->assertInstanceOf(CategoryStruct::class, $category2);
+        /** @var CategoryStruct $category2 */
+        $this->assertInstanceOf(EntitySearchResult::class, $category2->getProducts());
+        $this->assertCount(2, $category2->getProducts());
+
+        $this->assertContains($id2, $category2->getProducts()->getIds());
+        $this->assertContains($id3, $category2->getProducts()->getIds());
+    }
+
+    public function testLoadManyToManySupportsFilter()
+    {
+        $id1 = Uuid::uuid4()->getHex();
+        $id2 = Uuid::uuid4()->getHex();
+        $id3 = Uuid::uuid4()->getHex();
+
+        $product1 = [
+            'id' => $id1,
+            'price' => ['gross' => 10, 'net' => 9],
+            'active' => true,
+            'manufacturer' => ['name' => 'test'],
+            'name' => 'test',
+            'tax' => ['rate' => 13, 'name' => 'green'],
+        ];
+
+        $product2 = [
+            'id' => $id2,
+            'price' => ['gross' => 10, 'net' => 9],
+            'active' => false,
+            'manufacturer' => ['name' => 'test'],
+            'name' => 'test',
+            'tax' => ['rate' => 13, 'name' => 'green'],
+        ];
+
+        $product3 = [
+            'id' => $id3,
+            'price' => ['gross' => 10, 'net' => 9],
+            'active' => false,
+            'manufacturer' => ['name' => 'test'],
+            'name' => 'test',
+            'tax' => ['rate' => 13, 'name' => 'green'],
+        ];
+
+        $repository = self::$container->get('category.repository');
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+
+        $repository->upsert(
+            [
+                ['id' => $id1, 'name' => 'test', 'products' => [$product1, $product3]],
+                ['id' => $id2, 'name' => 'test', 'products' => [$product3, $product2]]
+            ],
+            $context
+        );
+
+        $bytes = [Uuid::fromHexToBytes($id1), Uuid::fromHexToBytes($id2)];
+        $mapping = $this->connection->fetchAll('SELECT * FROM product_category WHERE category_id IN (:ids)', ['ids' => $bytes], ['ids' => Connection::PARAM_STR_ARRAY]);
+        $this->assertCount(4, $mapping);
+
+        $criteria = new ReadCriteria([$id1, $id2]);
+
+        $productCriteria = new Criteria();
+        $productCriteria->addFilter(new TermQuery('product.active', true));
+
+        $criteria->addAssociation('category.products', $productCriteria);
+        $categories = $repository->read($criteria, $context);
+
+        /** @var CategoryStruct $category1 */
+        /** @var CategoryStruct $category2 */
+        $category1 = $categories->get($id1);
+        $category2 = $categories->get($id2);
+
+        $this->assertInstanceOf(CategoryStruct::class, $category1);
+        $this->assertInstanceOf(EntitySearchResult::class, $category1->getProducts());
+        $this->assertCount(1, $category1->getProducts());
+
+        $this->assertInstanceOf(CategoryStruct::class, $category2);
+        $this->assertInstanceOf(EntitySearchResult::class, $category2->getProducts());
+        $this->assertCount(0, $category2->getProducts());
+    }
+
+    public function testLoadManyToManySupportsSorting()
+    {
+        $id1 = Uuid::uuid4()->getHex();
+        $id2 = Uuid::uuid4()->getHex();
+        $id3 = Uuid::uuid4()->getHex();
+
+        $product1 = [
+            'id' => $id1,
+            'price' => ['gross' => 10, 'net' => 9],
+            'active' => true,
+            'manufacturer' => ['name' => 'test'],
+            'name' => 'A',
+            'tax' => ['rate' => 13, 'name' => 'green'],
+        ];
+
+        $product2 = [
+            'id' => $id2,
+            'price' => ['gross' => 10, 'net' => 9],
+            'active' => false,
+            'manufacturer' => ['name' => 'test'],
+            'name' => 'B',
+            'tax' => ['rate' => 13, 'name' => 'green'],
+        ];
+
+        $product3 = [
+            'id' => $id3,
+            'price' => ['gross' => 10, 'net' => 9],
+            'active' => false,
+            'manufacturer' => ['name' => 'test'],
+            'name' => 'C',
+            'tax' => ['rate' => 13, 'name' => 'green'],
+        ];
+
+        echo $id1 . PHP_EOL;
+        echo $id2 . PHP_EOL;
+        echo $id3 . PHP_EOL;
+
+        $repository = self::$container->get('category.repository');
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+
+        $repository->upsert(
+            [
+                ['id' => $id1, 'name' => 'test', 'products' => [$product1, $product3]],
+                ['id' => $id2, 'name' => 'test', 'products' => [$product3, $product2]]
+            ],
+            $context
+        );
+
+        $bytes = [Uuid::fromHexToBytes($id1), Uuid::fromHexToBytes($id2)];
+        $mapping = $this->connection->fetchAll('SELECT * FROM product_category WHERE category_id IN (:ids)', ['ids' => $bytes], ['ids' => Connection::PARAM_STR_ARRAY]);
+        $this->assertCount(4, $mapping);
+
+        $criteria = new ReadCriteria([$id1, $id2]);
+
+        $productCriteria = new Criteria();
+        $productCriteria->addSorting(new FieldSorting('product.name', FieldSorting::ASCENDING));
+
+        $criteria->addAssociation('category.products', $productCriteria);
+        $categories = $repository->read($criteria, $context);
+
+        /** @var CategoryStruct $category1 */
+        /** @var CategoryStruct $category2 */
+        $category1 = $categories->get($id1);
+        $category2 = $categories->get($id2);
+
+        $this->assertInstanceOf(CategoryStruct::class, $category1);
+        $this->assertInstanceOf(EntitySearchResult::class, $category1->getProducts());
+        $this->assertCount(2, $category1->getProducts());
+
+        $this->assertEquals(
+            [$id1, $id3],
+            array_values($category1->getProducts()->getIds())
+        );
+
+        $this->assertInstanceOf(CategoryStruct::class, $category2);
+        $this->assertInstanceOf(EntitySearchResult::class, $category2->getProducts());
+        $this->assertCount(2, $category2->getProducts());
+
+        $this->assertEquals(
+            [$id2, $id3],
+            array_values($category2->getProducts()->getIds())
+        );
+
+        $criteria = new ReadCriteria([$id1, $id2]);
+
+        $productCriteria = new Criteria();
+        $productCriteria->addSorting(new FieldSorting('product.name', FieldSorting::DESCENDING));
+
+        $criteria->addAssociation('category.products', $productCriteria);
+        $categories = $repository->read($criteria, $context);
+
+        /** @var CategoryStruct $category1 */
+        /** @var CategoryStruct $category2 */
+        $category1 = $categories->get($id1);
+        $category2 = $categories->get($id2);
+
+        $this->assertEquals(
+            [$id3, $id1],
+            array_values($category1->getProducts()->getIds())
+        );
+
+        $this->assertEquals(
+            [$id3, $id2],
+            array_values($category2->getProducts()->getIds())
+        );
+    }
+
+
+
+    public function testLoadManyToManySupportsPagination()
+    {
+
+    }
+
+    public function testLoadManyToManyConsidersInheritance()
+    {
+
+    }
+
+    public function testReadSupportsConditions(): void
+    {
+        $id1 = Uuid::uuid4()->getHex();
+        $id2 = Uuid::uuid4()->getHex();
+
+        $products = [
+            [
+                'id' => $id1,
+                'price' => ['gross' => 10, 'net' => 9],
+                'active' => true,
+                'manufacturer' => ['name' => 'test'],
+                'name' => 'test',
+                'tax' => ['rate' => 13, 'name' => 'green'],
+            ],
+            [
+                'id' => $id2,
+                'price' => ['gross' => 10, 'net' => 9],
+                'active' => false,
+                'manufacturer' => ['name' => 'test'],
+                'name' => 'test',
+                'tax' => ['rate' => 13, 'name' => 'green'],
+            ]
+        ];
+
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+
+        $this->repository->upsert($products, $context);
+
+        $criteria = new ReadCriteria([$id1, $id2]);
+
+        $products = $this->repository->read($criteria, $context);
+        $this->assertCount(2, $products);
+
+        $criteria->addFilter(new TermQuery('product.active', true));
+        $products = $this->repository->read($criteria, $context);
+        $this->assertCount(1, $products);
+    }
+
+    public function testReadNotSupportsSorting(): void
+    {
+        $id1 = Uuid::uuid4()->getHex();
+        $id2 = Uuid::uuid4()->getHex();
+
+        $products = [
+            [
+                'id' => $id1,
+                'price' => ['gross' => 10, 'net' => 9],
+                'active' => true,
+                'manufacturer' => ['name' => 'test'],
+                'name' => 'B',
+                'tax' => ['rate' => 13, 'name' => 'green'],
+            ],
+            [
+                'id' => $id2,
+                'price' => ['gross' => 10, 'net' => 9],
+                'active' => false,
+                'manufacturer' => ['name' => 'test'],
+                'name' => 'A',
+                'tax' => ['rate' => 13, 'name' => 'green'],
+            ]
+        ];
+
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+
+        $this->repository->upsert($products, $context);
+
+        $criteria = new ReadCriteria([$id1, $id2]);
+
+        $products = $this->repository->read($criteria, $context);
+        $this->assertCount(2, $products);
+
+        $criteria = new ReadCriteria([$id1, $id2]);
+        $criteria->addSorting(new FieldSorting('product.name', FieldSorting::ASCENDING));
+        $products = $this->repository->read($criteria, $context);
+
+        $this->assertEquals(
+            [$id1, $id2],
+            array_values($products->getIds())
+        );
+
+        $criteria = new ReadCriteria([$id1, $id2]);
+        $criteria->addSorting(new FieldSorting('product.name', FieldSorting::DESCENDING));
+        $products = $this->repository->read($criteria, $context);
+
+        $this->assertEquals(
+            [$id1, $id2],
+            array_values($products->getIds())
+        );
     }
 }

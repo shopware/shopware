@@ -165,12 +165,11 @@ class EntityDefinitionQueryHelper
      * Creates the basic root query for the provided entity definition and application context.
      * It considers the current context version and the catalog restrictions.
      */
-    public function getBaseQuery(Connection $connection, string $definition, Context $context): QueryBuilder
+    public function getBaseQuery(QueryBuilder $query, string $definition, Context $context): QueryBuilder
     {
         /** @var string|EntityDefinition $definition */
         $table = $definition::getEntityName();
 
-        $query = new QueryBuilder($connection);
         $query->from(self::escape($table), self::escape($table));
 
         if ($definition::isVersionAware() && $context->getVersionId() !== Defaults::LIVE_VERSION) {

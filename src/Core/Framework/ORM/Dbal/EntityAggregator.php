@@ -83,7 +83,7 @@ class EntityAggregator implements EntityAggregatorInterface
         /** @var EntityDefinition $definition */
         $table = $definition::getEntityName();
 
-        $query = $this->queryHelper->getBaseQuery($this->connection, $definition, $context);
+        $query = $this->queryHelper->getBaseQuery(new QueryBuilder($this->connection), $definition, $context);
 
         $fields = array_merge(
             $criteria->getFilterFields(),

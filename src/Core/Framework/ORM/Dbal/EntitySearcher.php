@@ -19,6 +19,8 @@ use Shopware\Core\Framework\Struct\Uuid;
  */
 class EntitySearcher implements EntitySearcherInterface
 {
+    use CriteriaQueryHelper;
+
     /**
      * @var Connection
      */
@@ -49,42 +51,15 @@ class EntitySearcher implements EntitySearcherInterface
         /** @var EntityDefinition $definition */
         $table = $definition::getEntityName();
 
-        $query = $this->queryHelper->getBaseQuery($this->connection, $definition, $context);
-
-        if ($definition::isInheritanceAware()) {
-            /** @var EntityDefinition|string $definition */
-            $parent = $definition::getFields()->get('parent');
-            $this->queryHelper->resolveField($parent, $definition, $definition::getEntityName(), $query, $context);
-        }
-
-        //add id select, e.g. `product`.`id`;
-        $query->addSelect(
+        $query = new QueryBuilder($this->connection);
+        $query->select([
             EntityDefinitionQueryHelper::escape($table) . '.' . EntityDefinitionQueryHelper::escape('id') . ' as array_key',
             EntityDefinitionQueryHelper::escape($table) . '.' . EntityDefinitionQueryHelper::escape('id') . ' as primary_key'
-        );
+        ]);
 
-        $fields = array_merge(
-            $criteria->getSortingFields(),
-            $criteria->getFilterFields(),
-            $criteria->getPostFilterFields(),
-            $criteria->getQueryFields()
-        );
+        $query = $this->buildQueryByCriteria($query, $this->queryHelper, $this->queryParser, $definition, $criteria, $context);
 
-        //join association and translated fields
-        foreach ($fields as $fieldName) {
-            if ($fieldName === '_score') {
-                continue;
-            }
-            $this->queryHelper->resolveAccessor($fieldName, $definition, $table, $query, $context);
-        }
-
-        $this->addFilters($definition, $criteria, $query, $context);
-
-        $this->addQueries($definition, $criteria, $query, $context);
-
-        $this->addSortings($definition, $criteria, $query, $context);
-
-        $this->addGroupBy($definition, $criteria, $query, $context);
+        $this->addGroupBy($this->queryHelper, $definition, $criteria, $query, $context);
 
         //add pagination
         if ($criteria->getOffset() >= 0) {
@@ -115,77 +90,6 @@ class EntitySearcher implements EntitySearcherInterface
         return new IdSearchResult($total, $converted, $criteria, $context);
     }
 
-    private function addQueries(string $definition, Criteria $criteria, QueryBuilder $query, Context $context): void
-    {
-        /** @var string|EntityDefinition $definition */
-        $queries = $this->queryParser->parseRanking(
-            $criteria->getQueries(),
-            $definition,
-            $definition::getEntityName(),
-            $context
-        );
-        if (empty($queries->getWheres())) {
-            return;
-        }
-
-        $query->addState(EntityDefinitionQueryHelper::HAS_TO_MANY_JOIN);
-
-        $select = 'SUM(' . implode(' + ', $queries->getWheres()) . ')';
-        $query->addSelect($select . ' as _score');
-
-        if (empty($criteria->getSortings())) {
-            $query->addOrderBy('_score', 'DESC');
-        }
-
-        $minScore = array_map(function (ScoreQuery $query) {
-            return $query->getScore();
-        }, $criteria->getQueries());
-
-        $minScore = min($minScore);
-
-        $query->andHaving('_score >= :_minScore');
-        $query->setParameter('_minScore', $minScore);
-
-        foreach ($queries->getParameters() as $key => $value) {
-            $query->setParameter($key, $value, $queries->getType($key));
-        }
-    }
-
-    private function addFilters(string $definition, Criteria $criteria, QueryBuilder $query, Context $context): void
-    {
-        $parsed = $this->queryParser->parse($criteria->getAllFilters(), $definition, $context);
-
-        if (empty($parsed->getWheres())) {
-            return;
-        }
-
-        $query->andWhere(implode(' AND ', $parsed->getWheres()));
-        foreach ($parsed->getParameters() as $key => $value) {
-            $query->setParameter($key, $value, $parsed->getType($key));
-        }
-    }
-
-    private function addSortings(string $definition, Criteria $criteria, QueryBuilder $query, Context $context): void
-    {
-        /* @var string|EntityDefinition $definition */
-        foreach ($criteria->getSortings() as $sorting) {
-            if ($sorting->getField() === '_score') {
-                $query->addOrderBy('_score', $sorting->getDirection());
-                continue;
-            }
-
-            $query->addOrderBy(
-                $this->queryHelper->getFieldAccessor(
-                    $sorting->getField(),
-                    $definition,
-                    $definition::getEntityName(),
-                    $context
-                ),
-                $sorting->getDirection()
-            );
-        }
-    }
-
     private function addFetchCount(Criteria $criteria, QueryBuilder $query): void
     {
         //requires total count for query? add save SQL_CALC_FOUND_ROWS
@@ -201,40 +105,6 @@ class EntitySearcher implements EntitySearcherInterface
         $selects = $query->getQueryPart('select');
         $selects[0] = 'SQL_CALC_FOUND_ROWS ' . $selects[0];
         $query->select($selects);
-    }
-
-    private function addGroupBy(string $definition, Criteria $criteria, QueryBuilder $query, Context $context): void
-    {
-        /** @var string|EntityDefinition $definition */
-        $table = $definition::getEntityName();
-
-        if (!$query->hasState(EntityDefinitionQueryHelper::HAS_TO_MANY_JOIN)) {
-            return;
-        }
-
-        $fields = [
-            EntityDefinitionQueryHelper::escape($table) . '.' . EntityDefinitionQueryHelper::escape('id'),
-        ];
-
-        // each order by column has to be inside the group by statement (sql_mode=only_full_group_by)
-        foreach ($criteria->getSortings() as $sorting) {
-            if ($sorting->getField() === '_score') {
-                continue;
-            }
-
-            $fields[] = $this->queryHelper->getFieldAccessor(
-                $sorting->getField(),
-                $definition,
-                $definition::getEntityName(),
-                $context
-            );
-        }
-
-        $fields = array_unique($fields);
-
-        foreach ($fields as $field) {
-            $query->addGroupBy($field);
-        }
     }
 
     private function getTotalCount(Criteria $criteria, array $data): int

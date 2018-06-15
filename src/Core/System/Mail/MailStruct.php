@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Mail;
 
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 
 class MailStruct extends Entity
 {
@@ -75,6 +76,21 @@ class MailStruct extends Entity
      * @var \DateTime|null
      */
     protected $updatedAt;
+
+    /**
+     * @var OrderStateStruct|null
+     */
+    protected $orderState;
+
+    /**
+     * @var EntitySearchResult|null
+     */
+    protected $attachments;
+
+    /**
+     * @var EntitySearchResult|null
+     */
+    protected $translations;
 
     public function getOrderStateId(): ?string
     {
@@ -214,5 +230,35 @@ class MailStruct extends Entity
     public function setUpdatedAt(?\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function getOrderState(): ?OrderStateStruct
+    {
+        return $this->orderState;
+    }
+
+    public function setOrderState(OrderStateStruct $orderState): void
+    {
+        $this->orderState = $orderState;
+    }
+
+    public function getAttachments(): ?EntitySearchResult
+    {
+        return $this->attachments;
+    }
+
+    public function setAttachments(EntitySearchResult $attachments): void
+    {
+        $this->attachments = $attachments;
+    }
+
+    public function getTranslations(): ?EntitySearchResult
+    {
+        return $this->translations;
+    }
+
+    public function setTranslations(EntitySearchResult $translations): void
+    {
+        $this->translations = $translations;
     }
 }

@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Content\Category\Aggregate\CategoryTranslation;
 
+use Shopware\Core\Content\Category\CategoryStruct;
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\System\Language\LanguageStruct;
 
 class CategoryTranslationStruct extends Entity
 {
@@ -50,6 +52,16 @@ class CategoryTranslationStruct extends Entity
      * @var string|null
      */
     protected $cmsDescription;
+
+    /**
+     * @var CategoryStruct|null
+     */
+    protected $category;
+
+    /**
+     * @var LanguageStruct|null
+     */
+    protected $language;
 
     public function getCategoryId(): string
     {
@@ -139,5 +151,25 @@ class CategoryTranslationStruct extends Entity
     public function setCmsDescription(?string $cmsDescription): void
     {
         $this->cmsDescription = $cmsDescription;
+    }
+
+    public function getCategory(): ?CategoryStruct
+    {
+        return $this->category;
+    }
+
+    public function setCategory(CategoryStruct $category): void
+    {
+        $this->category = $category;
+    }
+
+    public function getLanguage(): ?LanguageStruct
+    {
+        return $this->language;
+    }
+
+    public function setLanguage(LanguageStruct $language): void
+    {
+        $this->language = $language;
     }
 }

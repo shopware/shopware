@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition;
 
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStruct;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemStruct;
 use Shopware\Core\Framework\ORM\Entity;
 
@@ -51,6 +52,11 @@ class OrderDeliveryPositionStruct extends Entity
      * @var OrderLineItemStruct
      */
     protected $orderLineItem;
+
+    /**
+     * @var OrderDeliveryStruct|null
+     */
+    protected $orderDelivery;
 
     public function getOrderDeliveryId(): string
     {
@@ -137,9 +143,18 @@ class OrderDeliveryPositionStruct extends Entity
         return $this->orderLineItem;
     }
 
-    public function setOrderLineItem(
-        OrderLineItemStruct $orderLineItem): void
+    public function setOrderLineItem(OrderLineItemStruct $orderLineItem): void
     {
         $this->orderLineItem = $orderLineItem;
+    }
+
+    public function getOrderDelivery(): ?OrderDeliveryStruct
+    {
+        return $this->orderDelivery;
+    }
+
+    public function setOrderDelivery(OrderDeliveryStruct $orderDelivery): void
+    {
+        $this->orderDelivery = $orderDelivery;
     }
 }

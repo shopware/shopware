@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount;
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupStruct;
 use Shopware\Core\Framework\ORM\Entity;
 
 class CustomerGroupDiscountStruct extends Entity
@@ -30,6 +31,11 @@ class CustomerGroupDiscountStruct extends Entity
      * @var \DateTime|null
      */
     protected $updatedAt;
+
+    /**
+     * @var CustomerGroupStruct|null
+     */
+    protected $customerGroup;
 
     public function getCustomerGroupId(): string
     {
@@ -79,5 +85,15 @@ class CustomerGroupDiscountStruct extends Entity
     public function setUpdatedAt(?\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function getCustomerGroup(): ?CustomerGroupStruct
+    {
+        return $this->customerGroup;
+    }
+
+    public function setCustomerGroup(CustomerGroupStruct $customerGroup): void
+    {
+        $this->customerGroup = $customerGroup;
     }
 }

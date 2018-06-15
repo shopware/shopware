@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Currency;
 
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 
 class CurrencyStruct extends Entity
 {
@@ -50,6 +51,11 @@ class CurrencyStruct extends Entity
      * @var \DateTime|null
      */
     protected $updatedAt;
+
+    /**
+     * @var EntitySearchResult|null
+     */
+    protected $translations;
 
     public function getFactor(): float
     {
@@ -139,5 +145,15 @@ class CurrencyStruct extends Entity
     public function setUpdatedAt(?\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function getTranslations(): ?EntitySearchResult
+    {
+        return $this->translations;
+    }
+
+    public function setTranslations(EntitySearchResult $translations): void
+    {
+        $this->translations = $translations;
     }
 }

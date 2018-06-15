@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup;
 
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 
 class CustomerGroupStruct extends Entity
 {
@@ -50,6 +51,16 @@ class CustomerGroupStruct extends Entity
      * @var \DateTime|null
      */
     protected $updatedAt;
+
+    /**
+     * @var EntitySearchResult|null
+     */
+    protected $discounts;
+
+    /**
+     * @var EntitySearchResult|null
+     */
+    protected $translations;
 
     public function getName(): string
     {
@@ -139,5 +150,25 @@ class CustomerGroupStruct extends Entity
     public function setUpdatedAt(?\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function getDiscounts(): ?EntitySearchResult
+    {
+        return $this->discounts;
+    }
+
+    public function setDiscounts(EntitySearchResult $discounts): void
+    {
+        $this->discounts = $discounts;
+    }
+
+    public function getTranslations(): ?EntitySearchResult
+    {
+        return $this->translations;
+    }
+
+    public function setTranslations(EntitySearchResult $translations): void
+    {
+        $this->translations = $translations;
     }
 }

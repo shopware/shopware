@@ -3,6 +3,8 @@
 namespace Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation;
 
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\System\Language\LanguageStruct;
+use Shopware\Core\System\Listing\ListingSortingStruct;
 
 class ListingSortingTranslationStruct extends Entity
 {
@@ -20,6 +22,16 @@ class ListingSortingTranslationStruct extends Entity
      * @var string
      */
     protected $label;
+
+    /**
+     * @var ListingSortingStruct|null
+     */
+    protected $listingSorting;
+
+    /**
+     * @var LanguageStruct|null
+     */
+    protected $language;
 
     public function getListingSortingId(): string
     {
@@ -49,5 +61,25 @@ class ListingSortingTranslationStruct extends Entity
     public function setLabel(string $label): void
     {
         $this->label = $label;
+    }
+
+    public function getListingSorting(): ?ListingSortingStruct
+    {
+        return $this->listingSorting;
+    }
+
+    public function setListingSorting(ListingSortingStruct $listingSorting): void
+    {
+        $this->listingSorting = $listingSorting;
+    }
+
+    public function getLanguage(): ?LanguageStruct
+    {
+        return $this->language;
+    }
+
+    public function setLanguage(LanguageStruct $language): void
+    {
+        $this->language = $language;
     }
 }

@@ -42,6 +42,11 @@ class ProductMediaStruct extends Entity
      */
     protected $media;
 
+    /**
+     * @var ProductStruct|null
+     */
+    protected $product;
+
     public function getProductId(): string
     {
         return $this->productId;
@@ -110,5 +115,15 @@ class ProductMediaStruct extends Entity
     public function setMedia(MediaStruct $media): void
     {
         $this->media = $media;
+    }
+
+    public function getProduct(): ?ProductStruct
+    {
+        return $this->product;
+    }
+
+    public function setProduct(ProductStruct $product): void
+    {
+        $this->product = $product;
     }
 }

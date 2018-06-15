@@ -2,7 +2,13 @@
 
 namespace Shopware\Core\System\Tax\Aggregate\TaxAreaRule;
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupStruct;
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
+use Shopware\Core\System\Country\Aggregate\CountryArea\CountryAreaStruct;
+use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateStruct;
+use Shopware\Core\System\Country\CountryStruct;
+use Shopware\Core\System\Tax\TaxStruct;
 
 class TaxAreaRuleStruct extends Entity
 {
@@ -55,6 +61,36 @@ class TaxAreaRuleStruct extends Entity
      * @var \DateTime|null
      */
     protected $updatedAt;
+
+    /**
+     * @var CountryAreaStruct|null
+     */
+    protected $countryArea;
+
+    /**
+     * @var CountryStruct|null
+     */
+    protected $country;
+
+    /**
+     * @var CountryStateStruct|null
+     */
+    protected $countryState;
+
+    /**
+     * @var TaxStruct|null
+     */
+    protected $tax;
+
+    /**
+     * @var CustomerGroupStruct|null
+     */
+    protected $customerGroup;
+
+    /**
+     * @var EntitySearchResult|null
+     */
+    protected $translations;
 
     public function getCountryAreaId(): ?string
     {
@@ -154,5 +190,65 @@ class TaxAreaRuleStruct extends Entity
     public function setUpdatedAt(?\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function getCountryArea(): ?CountryAreaStruct
+    {
+        return $this->countryArea;
+    }
+
+    public function setCountryArea(CountryAreaStruct $countryArea): void
+    {
+        $this->countryArea = $countryArea;
+    }
+
+    public function getCountry(): ?CountryStruct
+    {
+        return $this->country;
+    }
+
+    public function setCountry(CountryStruct $country): void
+    {
+        $this->country = $country;
+    }
+
+    public function getCountryState(): ?CountryStateStruct
+    {
+        return $this->countryState;
+    }
+
+    public function setCountryState(CountryStateStruct $countryState): void
+    {
+        $this->countryState = $countryState;
+    }
+
+    public function getTax(): ?TaxStruct
+    {
+        return $this->tax;
+    }
+
+    public function setTax(TaxStruct $tax): void
+    {
+        $this->tax = $tax;
+    }
+
+    public function getCustomerGroup(): ?CustomerGroupStruct
+    {
+        return $this->customerGroup;
+    }
+
+    public function setCustomerGroup(CustomerGroupStruct $customerGroup): void
+    {
+        $this->customerGroup = $customerGroup;
+    }
+
+    public function getTranslations(): ?EntitySearchResult
+    {
+        return $this->translations;
+    }
+
+    public function setTranslations(EntitySearchResult $translations): void
+    {
+        $this->translations = $translations;
     }
 }

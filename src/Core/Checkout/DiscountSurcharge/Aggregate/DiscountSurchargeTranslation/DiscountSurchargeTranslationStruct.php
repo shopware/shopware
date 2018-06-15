@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Checkout\DiscountSurcharge\Aggregate\DiscountSurchargeTranslation;
 
+use Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeStruct;
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\System\Language\LanguageStruct;
 
 class DiscountSurchargeTranslationStruct extends Entity
 {
@@ -20,6 +22,16 @@ class DiscountSurchargeTranslationStruct extends Entity
      * @var string
      */
     protected $name;
+
+    /**
+     * @var DiscountSurchargeStruct|null
+     */
+    protected $discountSurcharge;
+
+    /**
+     * @var LanguageStruct|null
+     */
+    protected $language;
 
     public function getDiscountSurchargeId(): string
     {
@@ -49,5 +61,25 @@ class DiscountSurchargeTranslationStruct extends Entity
     public function setName(string $name): void
     {
         $this->name = $name;
+    }
+
+    public function getDiscountSurcharge(): ?DiscountSurchargeStruct
+    {
+        return $this->discountSurcharge;
+    }
+
+    public function setDiscountSurcharge(DiscountSurchargeStruct $discountSurcharge): void
+    {
+        $this->discountSurcharge = $discountSurcharge;
+    }
+
+    public function getLanguage(): ?LanguageStruct
+    {
+        return $this->language;
+    }
+
+    public function setLanguage(LanguageStruct $language): void
+    {
+        $this->language = $language;
     }
 }

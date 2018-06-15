@@ -3,6 +3,8 @@
 namespace Shopware\Core\System\Locale\Aggregate\LocaleTranslation;
 
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\System\Language\LanguageStruct;
+use Shopware\Core\System\Locale\LocaleStruct;
 
 class LocaleTranslationStruct extends Entity
 {
@@ -25,6 +27,16 @@ class LocaleTranslationStruct extends Entity
      * @var string
      */
     protected $territory;
+
+    /**
+     * @var LocaleStruct|null
+     */
+    protected $locale;
+
+    /**
+     * @var LanguageStruct|null
+     */
+    protected $language;
 
     public function getLocaleId(): string
     {
@@ -64,5 +76,25 @@ class LocaleTranslationStruct extends Entity
     public function setTerritory(string $territory): void
     {
         $this->territory = $territory;
+    }
+
+    public function getLocale(): ?LocaleStruct
+    {
+        return $this->locale;
+    }
+
+    public function setLocale(LocaleStruct $locale): void
+    {
+        $this->locale = $locale;
+    }
+
+    public function getLanguage(): ?LanguageStruct
+    {
+        return $this->language;
+    }
+
+    public function setLanguage(LanguageStruct $language): void
+    {
+        $this->language = $language;
     }
 }

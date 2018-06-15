@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword;
 
+use Shopware\Core\Content\Product\ProductStruct;
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\System\Language\LanguageStruct;
 
 class ProductSearchKeywordStruct extends Entity
 {
@@ -25,6 +27,26 @@ class ProductSearchKeywordStruct extends Entity
      * @var float
      */
     protected $ranking;
+
+    /**
+     * @var ProductStruct|null
+     */
+    protected $product;
+
+    /**
+     * @var LanguageStruct|null
+     */
+    protected $language;
+
+    public function getLanguage(): ?LanguageStruct
+    {
+        return $this->language;
+    }
+
+    public function setLanguage(LanguageStruct $language): void
+    {
+        $this->language = $language;
+    }
 
     public function getKeyword(): string
     {
@@ -64,5 +86,15 @@ class ProductSearchKeywordStruct extends Entity
     public function setRanking(float $ranking): void
     {
         $this->ranking = $ranking;
+    }
+
+    public function getProduct(): ?ProductStruct
+    {
+        return $this->product;
+    }
+
+    public function setProduct(ProductStruct $product): void
+    {
+        $this->product = $product;
     }
 }

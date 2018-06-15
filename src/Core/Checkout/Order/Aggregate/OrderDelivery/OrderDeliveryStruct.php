@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressStruct;
 use Shopware\Core\Checkout\Order\Aggregate\OrderState\OrderStateStruct;
 use Shopware\Core\Checkout\Shipping\ShippingMethodStruct;
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 
 class OrderDeliveryStruct extends Entity
 {
@@ -73,6 +74,16 @@ class OrderDeliveryStruct extends Entity
      * @var ShippingMethodStruct
      */
     protected $shippingMethod;
+
+    /**
+     * @var OrderStruct|null
+     */
+    protected $order;
+
+    /**
+     * @var null|EntitySearchResult
+     */
+    protected $positions;
 
     public function getOrderId(): string
     {
@@ -202,5 +213,25 @@ class OrderDeliveryStruct extends Entity
     public function setShippingMethod(ShippingMethodStruct $shippingMethod): void
     {
         $this->shippingMethod = $shippingMethod;
+    }
+
+    public function getOrder(): ?OrderStruct
+    {
+        return $this->order;
+    }
+
+    public function setOrder(OrderStruct $order): void
+    {
+        $this->order = $order;
+    }
+
+    public function getPositions(): ?EntitySearchResult
+    {
+        return $this->positions;
+    }
+
+    public function setPositions(EntitySearchResult $positions): void
+    {
+        $this->positions = $positions;
     }
 }

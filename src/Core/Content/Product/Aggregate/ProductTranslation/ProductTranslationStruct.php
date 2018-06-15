@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductTranslation;
 
+use Shopware\Core\Content\Product\ProductStruct;
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\System\Language\LanguageStruct;
 
 class ProductTranslationStruct extends Entity
 {
@@ -50,6 +52,16 @@ class ProductTranslationStruct extends Entity
      * @var string|null
      */
     protected $packUnit;
+
+    /**
+     * @var ProductStruct|null
+     */
+    protected $product;
+
+    /**
+     * @var LanguageStruct|null
+     */
+    protected $language;
 
     public function getProductId(): string
     {
@@ -139,5 +151,25 @@ class ProductTranslationStruct extends Entity
     public function setPackUnit(?string $packUnit): void
     {
         $this->packUnit = $packUnit;
+    }
+
+    public function getProduct(): ?ProductStruct
+    {
+        return $this->product;
+    }
+
+    public function setProduct(ProductStruct $product): void
+    {
+        $this->product = $product;
+    }
+
+    public function getLanguage(): ?LanguageStruct
+    {
+        return $this->language;
+    }
+
+    public function setLanguage(LanguageStruct $language): void
+    {
+        $this->language = $language;
     }
 }

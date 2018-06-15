@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransaction;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Payment\PaymentMethodStruct;
 use Shopware\Core\Framework\ORM\Entity;
 
 class OrderTransactionStruct extends Entity
@@ -41,6 +42,11 @@ class OrderTransactionStruct extends Entity
      * @var \DateTime|null
      */
     protected $updatedAt;
+
+    /**
+     * @var PaymentMethodStruct|null
+     */
+    protected $paymentMethod;
 
     public function getOrderId(): string
     {
@@ -110,5 +116,15 @@ class OrderTransactionStruct extends Entity
     public function setUpdatedAt(?\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function getPaymentMethod(): ?PaymentMethodStruct
+    {
+        return $this->paymentMethod;
+    }
+
+    public function setPaymentMethod(PaymentMethodStruct $paymentMethod): void
+    {
+        $this->paymentMethod = $paymentMethod;
     }
 }

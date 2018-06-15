@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Shipping;
 
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 
 class ShippingMethodStruct extends Entity
 {
@@ -151,6 +152,11 @@ class ShippingMethodStruct extends Entity
      * @var int
      */
     protected $maxDeliveryTime;
+
+    /**
+     * @var EntitySearchResult|null
+     */
+    protected $translations;
 
     public function getType(): int
     {
@@ -440,5 +446,15 @@ class ShippingMethodStruct extends Entity
     public function setMaxDeliveryTime(int $maxDeliveryTime): void
     {
         $this->maxDeliveryTime = $maxDeliveryTime;
+    }
+
+    public function getTranslations(): ?EntitySearchResult
+    {
+        return $this->translations;
+    }
+
+    public function setTranslations(?EntitySearchResult $translations): void
+    {
+        $this->translations = $translations;
     }
 }

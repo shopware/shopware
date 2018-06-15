@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation;
 
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerStruct;
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\System\Language\LanguageStruct;
 
 class ProductManufacturerTranslationStruct extends Entity
 {
@@ -40,6 +42,26 @@ class ProductManufacturerTranslationStruct extends Entity
      * @var string|null
      */
     protected $metaKeywords;
+
+    /**
+     * @var ProductManufacturerStruct|null
+     */
+    protected $productManufacturer;
+
+    /**
+     * @var LanguageStruct|null
+     */
+    protected $language;
+
+    public function getLanguage(): ?LanguageStruct
+    {
+        return $this->language;
+    }
+
+    public function setLanguage(?LanguageStruct $language): void
+    {
+        $this->language = $language;
+    }
 
     public function getProductManufacturerId(): string
     {
@@ -109,5 +131,15 @@ class ProductManufacturerTranslationStruct extends Entity
     public function setMetaKeywords(?string $metaKeywords): void
     {
         $this->metaKeywords = $metaKeywords;
+    }
+
+    public function getProductManufacturer(): ?ProductManufacturerStruct
+    {
+        return $this->productManufacturer;
+    }
+
+    public function setProductManufacturer(ProductManufacturerStruct $productManufacturer): void
+    {
+        $this->productManufacturer = $productManufacturer;
     }
 }

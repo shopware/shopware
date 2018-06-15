@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Country\Aggregate\CountryAreaTranslation;
 
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\System\Country\Aggregate\CountryArea\CountryAreaStruct;
 
 class CountryAreaTranslationStruct extends Entity
 {
@@ -20,6 +21,16 @@ class CountryAreaTranslationStruct extends Entity
      * @var string
      */
     protected $name;
+
+    /**
+     * @var CountryAreaStruct|null
+     */
+    protected $countryArea;
+
+    /**
+     * @var LanguageStruct|null
+     */
+    protected $language;
 
     public function getCountryAreaId(): string
     {
@@ -49,5 +60,25 @@ class CountryAreaTranslationStruct extends Entity
     public function setName(string $name): void
     {
         $this->name = $name;
+    }
+
+    public function getCountryArea(): ?CountryAreaStruct
+    {
+        return $this->countryArea;
+    }
+
+    public function setCountryArea(CountryAreaStruct $countryArea): void
+    {
+        $this->countryArea = $countryArea;
+    }
+
+    public function getLanguage(): ?LanguageStruct
+    {
+        return $this->language;
+    }
+
+    public function setLanguage(LanguageStruct $language): void
+    {
+        $this->language = $language;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice;
 
+use Shopware\Core\Checkout\Shipping\ShippingMethodStruct;
 use Shopware\Core\Framework\ORM\Entity;
 
 class ShippingMethodPriceStruct extends Entity
@@ -35,6 +36,11 @@ class ShippingMethodPriceStruct extends Entity
      * @var \DateTime|null
      */
     protected $updatedAt;
+
+    /**
+     * @var null|ShippingMethodStruct
+     */
+    protected $shippingMethod;
 
     public function getShippingMethodId(): string
     {
@@ -94,5 +100,15 @@ class ShippingMethodPriceStruct extends Entity
     public function setUpdatedAt(?\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function getShippingMethod(): ?ShippingMethodStruct
+    {
+        return $this->shippingMethod;
+    }
+
+    public function setShippingMethod(ShippingMethodStruct $shippingMethod): void
+    {
+        $this->shippingMethod = $shippingMethod;
     }
 }

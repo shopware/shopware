@@ -3,6 +3,8 @@
 namespace Shopware\Core\System\Currency\Aggregate\CurrencyTranslation;
 
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\System\Currency\CurrencyStruct;
+use Shopware\Core\System\Language\LanguageStruct;
 
 class CurrencyTranslationStruct extends Entity
 {
@@ -25,6 +27,15 @@ class CurrencyTranslationStruct extends Entity
      * @var string
      */
     protected $name;
+    /**
+     * @var CurrencyStruct|null
+     */
+    protected $currency;
+
+    /**
+     * @var LanguageStruct|null
+     */
+    protected $language;
 
     public function getCurrencyId(): string
     {
@@ -64,5 +75,25 @@ class CurrencyTranslationStruct extends Entity
     public function setName(string $name): void
     {
         $this->name = $name;
+    }
+
+    public function getCurrency(): ?CurrencyStruct
+    {
+        return $this->currency;
+    }
+
+    public function setCurrency(CurrencyStruct $currency): void
+    {
+        $this->currency = $currency;
+    }
+
+    public function getLanguage(): ?LanguageStruct
+    {
+        return $this->language;
+    }
+
+    public function setLanguage(LanguageStruct $language): void
+    {
+        $this->language = $language;
     }
 }

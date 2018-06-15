@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Listing;
 
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 
 class ListingFacetStruct extends Entity
 {
@@ -50,6 +51,11 @@ class ListingFacetStruct extends Entity
      * @var \DateTime|null
      */
     protected $updatedAt;
+
+    /**
+     * @var EntitySearchResult|null
+     */
+    protected $translations;
 
     public function getUniqueKey(): string
     {
@@ -139,5 +145,15 @@ class ListingFacetStruct extends Entity
     public function setUpdatedAt(?\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function getTranslations(): ?EntitySearchResult
+    {
+        return $this->translations;
+    }
+
+    public function setTranslations(EntitySearchResult $translations): void
+    {
+        $this->translations = $translations;
     }
 }

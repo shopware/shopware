@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Listing;
 
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\Framework\ORM\Search\Sorting\FieldSorting;
 
 class ListingSortingStruct extends Entity
@@ -46,6 +47,11 @@ class ListingSortingStruct extends Entity
      * @var \DateTime|null
      */
     protected $updatedAt;
+
+    /**
+     * @var EntitySearchResult|null
+     */
+    protected $translations;
 
     public function getPayload(): array
     {
@@ -125,5 +131,15 @@ class ListingSortingStruct extends Entity
     public function setUniqueKey(string $uniqueKey): void
     {
         $this->uniqueKey = $uniqueKey;
+    }
+
+    public function getTranslations(): ?EntitySearchResult
+    {
+        return $this->translations;
+    }
+
+    public function setTranslations(EntitySearchResult $translations): void
+    {
+        $this->translations = $translations;
     }
 }

@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressStruct;
 use Shopware\Core\Checkout\Order\Aggregate\OrderState\OrderStateStruct;
 use Shopware\Core\Checkout\Payment\PaymentMethodStruct;
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\System\Currency\CurrencyStruct;
 use Shopware\Core\System\Touchpoint\TouchpointStruct;
 
@@ -121,6 +122,21 @@ class OrderStruct extends Entity
      * @var OrderAddressStruct
      */
     protected $billingAddress;
+
+    /**
+     * @var null|EntitySearchResult
+     */
+    protected $deliveries;
+
+    /**
+     * @var null|EntitySearchResult
+     */
+    protected $lineItems;
+
+    /**
+     * @var null|EntitySearchResult
+     */
+    protected $transactions;
 
     public function getCustomerId(): string
     {
@@ -340,5 +356,35 @@ class OrderStruct extends Entity
     public function setBillingAddress(OrderAddressStruct $billingAddress): void
     {
         $this->billingAddress = $billingAddress;
+    }
+
+    public function getDeliveries(): ?EntitySearchResult
+    {
+        return $this->deliveries;
+    }
+
+    public function setDeliveries(EntitySearchResult $deliveries): void
+    {
+        $this->deliveries = $deliveries;
+    }
+
+    public function getLineItems(): ?EntitySearchResult
+    {
+        return $this->lineItems;
+    }
+
+    public function setLineItems(EntitySearchResult $lineItems): void
+    {
+        $this->lineItems = $lineItems;
+    }
+
+    public function getTransactions(): ?EntitySearchResult
+    {
+        return $this->transactions;
+    }
+
+    public function setTransactions(EntitySearchResult $transactions): void
+    {
+        $this->transactions = $transactions;
     }
 }

@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductManufacturer;
 
+use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 
 class ProductManufacturerStruct extends Entity
 {
@@ -50,6 +52,26 @@ class ProductManufacturerStruct extends Entity
      * @var string|null
      */
     protected $metaKeywords;
+
+    /**
+     * @var MediaStruct|null
+     */
+    protected $media;
+
+    /**
+     * @var EntitySearchResult|null
+     */
+    protected $translations;
+
+    public function getTranslations(): ?EntitySearchResult
+    {
+        return $this->translations;
+    }
+
+    public function setTranslations(?EntitySearchResult $translations): void
+    {
+        $this->translations = $translations;
+    }
 
     public function getMediaId(): ?string
     {
@@ -139,5 +161,15 @@ class ProductManufacturerStruct extends Entity
     public function setMetaKeywords(?string $metaKeywords): void
     {
         $this->metaKeywords = $metaKeywords;
+    }
+
+    public function getMedia(): ?MediaStruct
+    {
+        return $this->media;
+    }
+
+    public function setMedia(MediaStruct $media): void
+    {
+        $this->media = $media;
     }
 }

@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderLineItem;
 
+use Shopware\Core\Checkout\Order\OrderStruct;
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 
 class OrderLineItemStruct extends Entity
 {
@@ -55,6 +57,16 @@ class OrderLineItemStruct extends Entity
      * @var \DateTime|null
      */
     protected $updatedAt;
+
+    /**
+     * @var OrderStruct|null
+     */
+    protected $order;
+
+    /**
+     * @var EntitySearchResult|null
+     */
+    protected $orderDeliveryPositions;
 
     public function getOrderId(): string
     {
@@ -154,5 +166,25 @@ class OrderLineItemStruct extends Entity
     public function setUpdatedAt(?\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function getOrder(): ?OrderStruct
+    {
+        return $this->order;
+    }
+
+    public function setOrder(OrderStruct $order): void
+    {
+        $this->order = $order;
+    }
+
+    public function getOrderDeliveryPositions(): ?EntitySearchResult
+    {
+        return $this->orderDeliveryPositions;
+    }
+
+    public function setOrderDeliveryPositions(EntitySearchResult $orderDeliveryPositions): void
+    {
+        $this->orderDeliveryPositions = $orderDeliveryPositions;
     }
 }

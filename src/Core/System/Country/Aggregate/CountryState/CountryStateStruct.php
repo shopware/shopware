@@ -3,6 +3,8 @@
 namespace Shopware\Core\System\Country\Aggregate\CountryState;
 
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
+use Shopware\Core\System\Country\CountryStruct;
 
 class CountryStateStruct extends Entity
 {
@@ -40,6 +42,16 @@ class CountryStateStruct extends Entity
      * @var \DateTime|null
      */
     protected $updatedAt;
+
+    /**
+     * @var CountryStruct|null
+     */
+    protected $country;
+
+    /**
+     * @var EntitySearchResult|null
+     */
+    protected $translations;
 
     public function getCountryId(): string
     {
@@ -109,5 +121,25 @@ class CountryStateStruct extends Entity
     public function setUpdatedAt(?\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function getCountry(): ?CountryStruct
+    {
+        return $this->country;
+    }
+
+    public function setCountry(CountryStruct $country): void
+    {
+        $this->country = $country;
+    }
+
+    public function getTranslations(): ?EntitySearchResult
+    {
+        return $this->translations;
+    }
+
+    public function setTranslations(EntitySearchResult $translations): void
+    {
+        $this->translations = $translations;
     }
 }

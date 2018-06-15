@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Configuration;
 
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 
 class ConfigurationGroupStruct extends Entity
 {
@@ -25,6 +26,16 @@ class ConfigurationGroupStruct extends Entity
      * @var int
      */
     protected $position;
+
+    /**
+     * @var EntitySearchResult|null
+     */
+    protected $options;
+
+    /**
+     * @var EntitySearchResult|null
+     */
+    protected $translations;
 
     public function getName(): string
     {
@@ -64,5 +75,25 @@ class ConfigurationGroupStruct extends Entity
     public function setPosition(int $position): void
     {
         $this->position = $position;
+    }
+
+    public function getOptions(): ?EntitySearchResult
+    {
+        return $this->options;
+    }
+
+    public function setOptions(EntitySearchResult $options): void
+    {
+        $this->options = $options;
+    }
+
+    public function getTranslations(): ?EntitySearchResult
+    {
+        return $this->translations;
+    }
+
+    public function setTranslations(EntitySearchResult $translations): void
+    {
+        $this->translations = $translations;
     }
 }

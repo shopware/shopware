@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption
 
 use Shopware\Core\Content\Configuration\ConfigurationGroupStruct;
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 
 class ConfigurationGroupOptionStruct extends Entity
 {
@@ -31,6 +32,11 @@ class ConfigurationGroupOptionStruct extends Entity
      * @var ConfigurationGroupStruct
      */
     protected $group;
+
+    /**
+     * @var EntitySearchResult|null
+     */
+    protected $translations;
 
     public function getGroupId(): string
     {
@@ -80,5 +86,15 @@ class ConfigurationGroupOptionStruct extends Entity
     public function setGroup(ConfigurationGroupStruct $group): void
     {
         $this->group = $group;
+    }
+
+    public function getTranslations(): ?EntitySearchResult
+    {
+        return $this->translations;
+    }
+
+    public function setTranslations(EntitySearchResult $translations): void
+    {
+        $this->translations = $translations;
     }
 }

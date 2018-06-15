@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\DiscountSurcharge;
 
 use Shopware\Core\Content\Rule\RuleStruct;
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\Framework\Rule\Rule;
 
 class DiscountSurchargeStruct extends Entity
@@ -47,6 +48,11 @@ class DiscountSurchargeStruct extends Entity
      * @var \DateTime
      */
     protected $updatedAt;
+
+    /**
+     * @var null|EntitySearchResult
+     */
+    protected $translations;
 
     public function getName(): string
     {
@@ -95,7 +101,7 @@ class DiscountSurchargeStruct extends Entity
 
     public function setAmount(float $amount): void
     {
-        $this->absolute = $amount;
+        $this->amount = $amount;
     }
 
     public function getCreatedAt(): \DateTime
@@ -126,5 +132,15 @@ class DiscountSurchargeStruct extends Entity
     public function setFilterRule(Rule $filterRule): void
     {
         $this->filterRule = $filterRule;
+    }
+
+    public function getTranslations(): ?EntitySearchResult
+    {
+        return $this->translations;
+    }
+
+    public function setTranslations(EntitySearchResult $translations): void
+    {
+        $this->translations = $translations;
     }
 }

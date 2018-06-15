@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState;
 
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 
 class OrderTransactionStateStruct extends Entity
 {
@@ -40,6 +41,11 @@ class OrderTransactionStateStruct extends Entity
      * @var \DateTime|null
      */
     protected $updatedAt;
+
+    /**
+     * @var EntitySearchResult|null
+     */
+    protected $translations;
 
     public function getPosition(): int
     {
@@ -109,5 +115,15 @@ class OrderTransactionStateStruct extends Entity
     public function setUpdatedAt(?\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function getTranslations(): ?EntitySearchResult
+    {
+        return $this->translations;
+    }
+
+    public function setTranslations(EntitySearchResult $translations): void
+    {
+        $this->translations = $translations;
     }
 }

@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Language;
 
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\System\Locale\LocaleStruct;
 
 class LanguageStruct extends Entity
@@ -38,9 +39,19 @@ class LanguageStruct extends Entity
     protected $updatedAt;
 
     /**
-     * @var LanguageStruct
+     * @var LocaleStruct
      */
     protected $locale;
+
+    /**
+     * @var LanguageStruct|null
+     */
+    protected $parent;
+
+    /**
+     * @var EntitySearchResult|null
+     */
+    protected $children;
 
     public function getParentId(): ?string
     {
@@ -110,5 +121,25 @@ class LanguageStruct extends Entity
     public function setLocale(LocaleStruct $locale): void
     {
         $this->locale = $locale;
+    }
+
+    public function getParent(): ?LanguageStruct
+    {
+        return $this->parent;
+    }
+
+    public function setParent(LanguageStruct $parent): void
+    {
+        $this->parent = $parent;
+    }
+
+    public function getChildren(): ?EntitySearchResult
+    {
+        return $this->children;
+    }
+
+    public function setChildren(EntitySearchResult $children): void
+    {
+        $this->children = $children;
     }
 }

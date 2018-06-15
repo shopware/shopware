@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation;
 
+use Shopware\Core\Checkout\Shipping\ShippingMethodStruct;
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\System\Language\LanguageStruct;
 
 class ShippingMethodTranslationStruct extends Entity
 {
@@ -30,6 +32,16 @@ class ShippingMethodTranslationStruct extends Entity
      * @var string|null
      */
     protected $comment;
+
+    /**
+     * @var ShippingMethodStruct|null
+     */
+    protected $shippingMethod;
+
+    /**
+     * @var LanguageStruct|null
+     */
+    protected $language;
 
     public function getShippingMethodId(): string
     {
@@ -79,5 +91,25 @@ class ShippingMethodTranslationStruct extends Entity
     public function setComment(?string $comment): void
     {
         $this->comment = $comment;
+    }
+
+    public function getShippingMethod(): ?ShippingMethodStruct
+    {
+        return $this->shippingMethod;
+    }
+
+    public function setShippingMethod(ShippingMethodStruct $shippingMethod): void
+    {
+        $this->shippingMethod = $shippingMethod;
+    }
+
+    public function getLanguage(): ?LanguageStruct
+    {
+        return $this->language;
+    }
+
+    public function setLanguage(LanguageStruct $language): void
+    {
+        $this->language = $language;
     }
 }

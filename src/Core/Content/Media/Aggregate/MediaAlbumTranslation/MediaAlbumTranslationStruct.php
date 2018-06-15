@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation;
 
+use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumStruct;
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\System\Language\LanguageStruct;
 
 class MediaAlbumTranslationStruct extends Entity
 {
@@ -20,6 +22,16 @@ class MediaAlbumTranslationStruct extends Entity
      * @var string
      */
     protected $name;
+
+    /**
+     * @var MediaAlbumStruct|null
+     */
+    protected $mediaAlbum;
+
+    /**
+     * @var LanguageStruct|null
+     */
+    protected $language;
 
     public function getMediaAlbumId(): string
     {
@@ -49,5 +61,25 @@ class MediaAlbumTranslationStruct extends Entity
     public function setName(string $name): void
     {
         $this->name = $name;
+    }
+
+    public function getMediaAlbum(): ?MediaAlbumStruct
+    {
+        return $this->mediaAlbum;
+    }
+
+    public function setMediaAlbum(MediaAlbumStruct $mediaAlbum): void
+    {
+        $this->mediaAlbum = $mediaAlbum;
+    }
+
+    public function getLanguage(): ?LanguageStruct
+    {
+        return $this->language;
+    }
+
+    public function setLanguage(LanguageStruct $language): void
+    {
+        $this->language = $language;
     }
 }

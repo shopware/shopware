@@ -3,6 +3,8 @@
 namespace Shopware\Core\System\Mail\Aggregate\MailTranslation;
 
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\System\Language\LanguageStruct;
+use Shopware\Core\System\Mail\MailStruct;
 
 class MailTranslationStruct extends Entity
 {
@@ -40,6 +42,16 @@ class MailTranslationStruct extends Entity
      * @var string
      */
     protected $contentHtml;
+
+    /**
+     * @var MailStruct|null
+     */
+    protected $mail;
+
+    /**
+     * @var LanguageStruct|null
+     */
+    protected $language;
 
     public function getMailId(): string
     {
@@ -109,5 +121,25 @@ class MailTranslationStruct extends Entity
     public function setContentHtml(string $contentHtml): void
     {
         $this->contentHtml = $contentHtml;
+    }
+
+    public function getMail(): ?MailStruct
+    {
+        return $this->mail;
+    }
+
+    public function setMail(MailStruct $mail): void
+    {
+        $this->mail = $mail;
+    }
+
+    public function getLanguage(): ?LanguageStruct
+    {
+        return $this->language;
+    }
+
+    public function setLanguage(LanguageStruct $language): void
+    {
+        $this->language = $language;
     }
 }

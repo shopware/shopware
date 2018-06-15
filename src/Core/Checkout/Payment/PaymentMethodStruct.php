@@ -3,6 +3,8 @@
 namespace Shopware\Core\Checkout\Payment;
 
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
+use Shopware\Core\Framework\Plugin\PluginStruct;
 
 class PaymentMethodStruct extends Entity
 {
@@ -115,6 +117,16 @@ class PaymentMethodStruct extends Entity
      * @var \DateTime|null
      */
     protected $updatedAt;
+
+    /**
+     * @var PluginStruct|null
+     */
+    protected $plugin;
+
+    /**
+     * @var EntitySearchResult|null
+     */
+    protected $translations;
 
     public function getPluginId(): ?string
     {
@@ -334,5 +346,25 @@ class PaymentMethodStruct extends Entity
     public function setUpdatedAt(?\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function getPlugin(): ?PluginStruct
+    {
+        return $this->plugin;
+    }
+
+    public function setPlugin(PluginStruct $plugin): void
+    {
+        $this->plugin = $plugin;
+    }
+
+    public function getTranslations(): ?EntitySearchResult
+    {
+        return $this->translations;
+    }
+
+    public function setTranslations(EntitySearchResult $translations): void
+    {
+        $this->translations = $translations;
     }
 }

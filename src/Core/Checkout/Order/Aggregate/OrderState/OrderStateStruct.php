@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderState;
 
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 
 class OrderStateStruct extends Entity
 {
@@ -30,6 +31,11 @@ class OrderStateStruct extends Entity
      * @var \DateTime|null
      */
     protected $updatedAt;
+
+    /**
+     * @var EntitySearchResult|null
+     */
+    protected $translations;
 
     public function getDescription(): string
     {
@@ -79,5 +85,15 @@ class OrderStateStruct extends Entity
     public function setUpdatedAt(?\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function getTranslations(): ?EntitySearchResult
+    {
+        return $this->translations;
+    }
+
+    public function setTranslations(EntitySearchResult $translations): void
+    {
+        $this->translations = $translations;
     }
 }

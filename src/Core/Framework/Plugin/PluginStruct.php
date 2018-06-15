@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Plugin;
 
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 
 class PluginStruct extends Entity
 {
@@ -130,6 +131,16 @@ class PluginStruct extends Entity
      * @var \DateTime|null
      */
     protected $updatedAt;
+
+    /**
+     * @var EntitySearchResult|null
+     */
+    protected $configForms;
+
+    /**
+     * @var EntitySearchResult|null
+     */
+    protected $paymentMethods;
 
     public function getName(): string
     {
@@ -379,5 +390,25 @@ class PluginStruct extends Entity
     public function setUpdatedAt(?\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function getConfigForms(): ?EntitySearchResult
+    {
+        return $this->configForms;
+    }
+
+    public function setConfigForms(EntitySearchResult $configForms): void
+    {
+        $this->configForms = $configForms;
+    }
+
+    public function getPaymentMethods(): ?EntitySearchResult
+    {
+        return $this->paymentMethods;
+    }
+
+    public function setPaymentMethods(EntitySearchResult $paymentMethods): void
+    {
+        $this->paymentMethods = $paymentMethods;
     }
 }

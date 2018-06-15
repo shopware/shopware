@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation;
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupStruct;
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\System\Language\LanguageStruct;
 
 class CustomerGroupTranslationStruct extends Entity
 {
@@ -20,6 +22,16 @@ class CustomerGroupTranslationStruct extends Entity
      * @var string
      */
     protected $name;
+
+    /**
+     * @var CustomerGroupStruct|null
+     */
+    protected $customerGroup;
+
+    /**
+     * @var LanguageStruct|null
+     */
+    protected $language;
 
     public function getCustomerGroupId(): string
     {
@@ -49,5 +61,25 @@ class CustomerGroupTranslationStruct extends Entity
     public function setName(string $name): void
     {
         $this->name = $name;
+    }
+
+    public function getCustomerGroup(): ?CustomerGroupStruct
+    {
+        return $this->customerGroup;
+    }
+
+    public function setCustomerGroup(CustomerGroupStruct $customerGroup): void
+    {
+        $this->customerGroup = $customerGroup;
+    }
+
+    public function getLanguage(): ?LanguageStruct
+    {
+        return $this->language;
+    }
+
+    public function setLanguage(LanguageStruct $language): void
+    {
+        $this->language = $language;
     }
 }

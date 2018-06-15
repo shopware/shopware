@@ -3,7 +3,7 @@
 namespace Shopware\Core\System\Snippet;
 
 use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\System\Language\Struct\LanguageBasicStruct;
+use Shopware\Core\System\Language\LanguageStruct;
 
 class SnippetStruct extends Entity
 {
@@ -33,7 +33,7 @@ class SnippetStruct extends Entity
     protected $updatedAt;
 
     /**
-     * @var LanguageBasicStruct
+     * @var LanguageStruct
      */
     protected $language;
 
@@ -87,12 +87,12 @@ class SnippetStruct extends Entity
         $this->updatedAt = $updatedAt;
     }
 
-    public function getLanguage(): LanguageBasicStruct
+    public function getLanguage(): LanguageStruct
     {
         return $this->language;
     }
 
-    public function setLanguage(LanguageBasicStruct $language): void
+    public function setLanguage(LanguageStruct $language): void
     {
         $this->language = $language;
     }

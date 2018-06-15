@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\System\Mail\Aggregate\MailAttachment;
 
+use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\System\Mail\MailStruct;
 
 class MailAttachmentStruct extends Entity
 {
@@ -25,6 +27,16 @@ class MailAttachmentStruct extends Entity
      * @var \DateTime|null
      */
     protected $updatedAt;
+
+    /**
+     * @var MailStruct|null
+     */
+    protected $mail;
+
+    /**
+     * @var MediaStruct|null
+     */
+    protected $media;
 
     public function getMailId(): string
     {
@@ -64,5 +76,25 @@ class MailAttachmentStruct extends Entity
     public function setUpdatedAt(?\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function getMail(): ?MailStruct
+    {
+        return $this->mail;
+    }
+
+    public function setMail(MailStruct $mail): void
+    {
+        $this->mail = $mail;
+    }
+
+    public function getMedia(): ?MediaStruct
+    {
+        return $this->media;
+    }
+
+    public function setMedia(MediaStruct $media): void
+    {
+        $this->media = $media;
     }
 }

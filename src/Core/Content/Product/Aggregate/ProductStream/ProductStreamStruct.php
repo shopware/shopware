@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductStream;
 
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\System\Listing\ListingSortingStruct;
 
 class ProductStreamStruct extends Entity
@@ -46,6 +47,11 @@ class ProductStreamStruct extends Entity
      * @var ListingSortingStruct|null
      */
     protected $listingSorting;
+
+    /**
+     * @var EntitySearchResult|null
+     */
+    protected $products;
 
     public function getListingSortingId(): ?string
     {
@@ -125,5 +131,15 @@ class ProductStreamStruct extends Entity
     public function setListingSorting(?ListingSortingStruct $listingSorting): void
     {
         $this->listingSorting = $listingSorting;
+    }
+
+    public function getProducts(): ?EntitySearchResult
+    {
+        return $this->products;
+    }
+
+    public function setProducts(EntitySearchResult $products): void
+    {
+        $this->products = $products;
     }
 }

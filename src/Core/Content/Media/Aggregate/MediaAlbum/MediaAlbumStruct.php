@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Media\Aggregate\MediaAlbum;
 
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 
 class MediaAlbumStruct extends Entity
 {
@@ -60,6 +61,26 @@ class MediaAlbumStruct extends Entity
      * @var \DateTime|null
      */
     protected $updatedAt;
+
+    /**
+     * @var MediaAlbumStruct|null
+     */
+    protected $parent;
+
+    /**
+     * @var EntitySearchResult|null
+     */
+    protected $media;
+
+    /**
+     * @var EntitySearchResult|null
+     */
+    protected $children;
+
+    /**
+     * @var EntitySearchResult|null
+     */
+    protected $translations;
 
     public function getParentId(): ?string
     {
@@ -169,5 +190,45 @@ class MediaAlbumStruct extends Entity
     public function setUpdatedAt(?\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function getParent(): ?MediaAlbumStruct
+    {
+        return $this->parent;
+    }
+
+    public function setParent(MediaAlbumStruct $parent): void
+    {
+        $this->parent = $parent;
+    }
+
+    public function getMedia(): ?EntitySearchResult
+    {
+        return $this->media;
+    }
+
+    public function setMedia(EntitySearchResult $media): void
+    {
+        $this->media = $media;
+    }
+
+    public function getChildren(): ?EntitySearchResult
+    {
+        return $this->children;
+    }
+
+    public function setChildren(?EntitySearchResult $children): void
+    {
+        $this->children = $children;
+    }
+
+    public function getTranslations(): ?EntitySearchResult
+    {
+        return $this->translations;
+    }
+
+    public function setTranslations(EntitySearchResult $translations): void
+    {
+        $this->translations = $translations;
     }
 }

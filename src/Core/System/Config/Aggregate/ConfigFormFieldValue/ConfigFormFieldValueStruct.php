@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue;
 
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\System\Config\Aggregate\ConfigFormField\ConfigFormFieldStruct;
 
 class ConfigFormFieldValueStruct extends Entity
 {
@@ -25,6 +26,11 @@ class ConfigFormFieldValueStruct extends Entity
      * @var \DateTime|null
      */
     protected $updatedAt;
+
+    /**
+     * @var ConfigFormFieldStruct|null
+     */
+    protected $configFormField;
 
     public function getConfigFormFieldId(): string
     {
@@ -64,5 +70,15 @@ class ConfigFormFieldValueStruct extends Entity
     public function setUpdatedAt(?\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function getConfigFormField(): ?ConfigFormFieldStruct
+    {
+        return $this->configFormField;
+    }
+
+    public function setConfigFormField(ConfigFormFieldStruct $configFormField): void
+    {
+        $this->configFormField = $configFormField;
     }
 }

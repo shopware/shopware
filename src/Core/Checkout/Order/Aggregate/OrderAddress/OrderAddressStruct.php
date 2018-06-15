@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderAddress;
 
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateStruct;
 use Shopware\Core\System\Country\CountryStruct;
 
@@ -102,6 +103,16 @@ class OrderAddressStruct extends Entity
      * @var CountryStateStruct|null
      */
     protected $countryState;
+
+    /**
+     * @var EntitySearchResult|null
+     */
+    protected $orders;
+
+    /**
+     * @var EntitySearchResult|null
+     */
+    protected $orderDeliveries;
 
     public function getCountryId(): string
     {
@@ -291,5 +302,25 @@ class OrderAddressStruct extends Entity
     public function setCountryState(?CountryStateStruct $countryState): void
     {
         $this->countryState = $countryState;
+    }
+
+    public function getOrders(): ?EntitySearchResult
+    {
+        return $this->orders;
+    }
+
+    public function setOrders(EntitySearchResult $orders): void
+    {
+        $this->orders = $orders;
+    }
+
+    public function getOrderDeliveries(): ?EntitySearchResult
+    {
+        return $this->orderDeliveries;
+    }
+
+    public function setOrderDeliveries(EntitySearchResult $orderDeliveries): void
+    {
+        $this->orderDeliveries = $orderDeliveries;
     }
 }

@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation;
 
+use Shopware\Core\Content\Configuration\ConfigurationGroupStruct;
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\System\Language\LanguageStruct;
 
 class ConfigurationGroupTranslationStruct extends Entity
 {
@@ -20,6 +22,16 @@ class ConfigurationGroupTranslationStruct extends Entity
      * @var string
      */
     protected $name;
+
+    /**
+     * @var ConfigurationGroupStruct|null
+     */
+    protected $configurationGroup;
+
+    /**
+     * @var LanguageStruct|null
+     */
+    protected $language;
 
     public function getConfigurationGroupId(): string
     {
@@ -49,5 +61,25 @@ class ConfigurationGroupTranslationStruct extends Entity
     public function setName(string $name): void
     {
         $this->name = $name;
+    }
+
+    public function getConfigurationGroup(): ?ConfigurationGroupStruct
+    {
+        return $this->configurationGroup;
+    }
+
+    public function setConfigurationGroup(ConfigurationGroupStruct $configurationGroup): void
+    {
+        $this->configurationGroup = $configurationGroup;
+    }
+
+    public function getLanguage(): ?LanguageStruct
+    {
+        return $this->language;
+    }
+
+    public function setLanguage(LanguageStruct $language): void
+    {
+        $this->language = $language;
     }
 }

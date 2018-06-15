@@ -3,6 +3,8 @@
 namespace Shopware\Core\System\Config\Aggregate\ConfigFormTranslation;
 
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\System\Config\ConfigFormStruct;
+use Shopware\Core\System\Locale\LocaleStruct;
 
 class ConfigFormTranslationStruct extends Entity
 {
@@ -25,6 +27,16 @@ class ConfigFormTranslationStruct extends Entity
      * @var string|null
      */
     protected $description;
+
+    /**
+     * @var ConfigFormStruct|null
+     */
+    protected $configForm;
+
+    /**
+     * @var LocaleStruct|null
+     */
+    protected $locale;
 
     public function getConfigFormId(): string
     {
@@ -64,5 +76,25 @@ class ConfigFormTranslationStruct extends Entity
     public function setDescription(?string $description): void
     {
         $this->description = $description;
+    }
+
+    public function getConfigForm(): ?ConfigFormStruct
+    {
+        return $this->configForm;
+    }
+
+    public function setConfigForm(ConfigFormStruct $configForm): void
+    {
+        $this->configForm = $configForm;
+    }
+
+    public function getLocale(): ?LocaleStruct
+    {
+        return $this->locale;
+    }
+
+    public function setLocale(LocaleStruct $locale): void
+    {
+        $this->locale = $locale;
     }
 }

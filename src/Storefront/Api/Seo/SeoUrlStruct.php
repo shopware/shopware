@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Api\Seo;
 
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\System\Touchpoint\TouchpointStruct;
 
 class SeoUrlStruct extends Entity
 {
@@ -60,10 +61,16 @@ class SeoUrlStruct extends Entity
      * @var \DateTime|null
      */
     protected $updatedAt;
+
     /**
      * @var string|null
      */
     protected $url;
+
+    /**
+     * @var TouchpointStruct|null
+     */
+    protected $touchpoint;
 
     public function getVersionId(): string
     {
@@ -180,8 +187,18 @@ class SeoUrlStruct extends Entity
         return $this->url;
     }
 
-    public function setUrl(?string $url)
+    public function setUrl(?string $url): void
     {
         $this->url = $url;
+    }
+
+    public function getTouchpoint(): ?TouchpointStruct
+    {
+        return $this->touchpoint;
+    }
+
+    public function setTouchpoint(TouchpointStruct $touchpoint): void
+    {
+        $this->touchpoint = $touchpoint;
     }
 }

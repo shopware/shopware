@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Tax;
 
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 
 class TaxStruct extends Entity
 {
@@ -25,6 +26,11 @@ class TaxStruct extends Entity
      * @var \DateTime|null
      */
     protected $updatedAt;
+
+    /**
+     * @var EntitySearchResult|null
+     */
+    protected $areaRules;
 
     public function getRate(): float
     {
@@ -64,5 +70,15 @@ class TaxStruct extends Entity
     public function setUpdatedAt(?\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function getAreaRules(): ?EntitySearchResult
+    {
+        return $this->areaRules;
+    }
+
+    public function setAreaRules(EntitySearchResult $areaRules): void
+    {
+        $this->areaRules = $areaRules;
     }
 }

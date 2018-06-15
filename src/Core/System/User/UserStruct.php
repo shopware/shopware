@@ -3,6 +3,8 @@
 namespace Shopware\Core\System\User;
 
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
+use Shopware\Core\System\Locale\LocaleStruct;
 
 class UserStruct extends Entity
 {
@@ -85,6 +87,16 @@ class UserStruct extends Entity
      * @var \DateTime|null
      */
     protected $updatedAt;
+
+    /**
+     * @var LocaleStruct|null
+     */
+    protected $locale;
+
+    /**
+     * @var EntitySearchResult|null
+     */
+    protected $media;
 
     public function getLocaleId(): string
     {
@@ -244,5 +256,25 @@ class UserStruct extends Entity
     public function setUpdatedAt(?\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function getLocale(): ?LocaleStruct
+    {
+        return $this->locale;
+    }
+
+    public function setLocale(LocaleStruct $locale): void
+    {
+        $this->locale = $locale;
+    }
+
+    public function getMedia(): ?EntitySearchResult
+    {
+        return $this->media;
+    }
+
+    public function setMedia(EntitySearchResult $media): void
+    {
+        $this->media = $media;
     }
 }

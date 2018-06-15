@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderStateTranslation;
 
+use Shopware\Core\Checkout\Order\Aggregate\OrderState\OrderStateStruct;
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\System\Language\LanguageStruct;
 
 class OrderStateTranslationStruct extends Entity
 {
@@ -20,6 +22,16 @@ class OrderStateTranslationStruct extends Entity
      * @var string
      */
     protected $description;
+
+    /**
+     * @var OrderStateStruct|null
+     */
+    protected $orderState;
+
+    /**
+     * @var LanguageStruct|null
+     */
+    protected $language;
 
     public function getOrderStateId(): string
     {
@@ -49,5 +61,25 @@ class OrderStateTranslationStruct extends Entity
     public function setDescription(string $description): void
     {
         $this->description = $description;
+    }
+
+    public function getOrderState(): ?OrderStateStruct
+    {
+        return $this->orderState;
+    }
+
+    public function setOrderState(OrderStateStruct $orderState): void
+    {
+        $this->orderState = $orderState;
+    }
+
+    public function getLanguage(): ?LanguageStruct
+    {
+        return $this->language;
+    }
+
+    public function setLanguage(LanguageStruct $language): void
+    {
+        $this->language = $language;
     }
 }

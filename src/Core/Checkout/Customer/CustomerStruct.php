@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStr
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupStruct;
 use Shopware\Core\Checkout\Payment\PaymentMethodStruct;
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\System\Touchpoint\TouchpointStruct;
 
 class CustomerStruct extends Entity
@@ -189,6 +190,7 @@ class CustomerStruct extends Entity
      * @var CustomerAddressStruct
      */
     protected $defaultShippingAddress;
+
     /**
      * @var CustomerAddressStruct|null
      */
@@ -198,6 +200,16 @@ class CustomerStruct extends Entity
      * @var CustomerAddressStruct|null
      */
     protected $activeShippingAddress;
+
+    /**
+     * @var EntitySearchResult|null
+     */
+    protected $addresses;
+
+    /**
+     * @var EntitySearchResult|null
+     */
+    protected $orders;
 
     public function getGroupId(): string
     {
@@ -586,5 +598,25 @@ class CustomerStruct extends Entity
     public function setActiveShippingAddress(?CustomerAddressStruct $activeShippingAddress): void
     {
         $this->activeShippingAddress = $activeShippingAddress;
+    }
+
+    public function getAddresses(): ?EntitySearchResult
+    {
+        return $this->addresses;
+    }
+
+    public function setAddresses(EntitySearchResult $addresses): void
+    {
+        $this->addresses = $addresses;
+    }
+
+    public function getOrders(): ?EntitySearchResult
+    {
+        return $this->orders;
+    }
+
+    public function setOrders(EntitySearchResult $orders): void
+    {
+        $this->orders = $orders;
     }
 }

@@ -2,7 +2,10 @@
 
 namespace Shopware\Core\System\Touchpoint;
 
+use Shopware\Core\Checkout\Payment\PaymentMethodStruct;
+use Shopware\Core\Checkout\Shipping\ShippingMethodStruct;
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\System\Country\CountryStruct;
 use Shopware\Core\System\Currency\CurrencyStruct;
 use Shopware\Core\System\Language\LanguageStruct;
 
@@ -102,6 +105,21 @@ class TouchpointStruct extends Entity
      * @var LanguageStruct
      */
     protected $language;
+
+    /**
+     * @var PaymentMethodStruct|null
+     */
+    protected $paymentMethod;
+
+    /**
+     * @var ShippingMethodStruct|null
+     */
+    protected $shippingMethod;
+
+    /**
+     * @var CountryStruct|null
+     */
+    protected $country;
 
     public function getLanguageId(): string
     {
@@ -294,5 +312,35 @@ class TouchpointStruct extends Entity
     public function setLanguage(LanguageStruct $language): void
     {
         $this->language = $language;
+    }
+
+    public function getPaymentMethod(): ?PaymentMethodStruct
+    {
+        return $this->paymentMethod;
+    }
+
+    public function setPaymentMethod(PaymentMethodStruct $paymentMethod): void
+    {
+        $this->paymentMethod = $paymentMethod;
+    }
+
+    public function getShippingMethod(): ?ShippingMethodStruct
+    {
+        return $this->shippingMethod;
+    }
+
+    public function setShippingMethod(ShippingMethodStruct $shippingMethod): void
+    {
+        $this->shippingMethod = $shippingMethod;
+    }
+
+    public function getCountry(): ?CountryStruct
+    {
+        return $this->country;
+    }
+
+    public function setCountry(CountryStruct $country): void
+    {
+        $this->country = $country;
     }
 }

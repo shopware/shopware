@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress;
 
+use Shopware\Core\Checkout\Customer\CustomerStruct;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateStruct;
 use Shopware\Core\System\Country\CountryStruct;
@@ -107,6 +108,11 @@ class CustomerAddressStruct extends Entity
      * @var CountryStateStruct|null
      */
     protected $countryState;
+
+    /**
+     * @var CustomerStruct|null
+     */
+    protected $customer;
 
     public function getCustomerId(): string
     {
@@ -306,5 +312,15 @@ class CustomerAddressStruct extends Entity
     public function setCountryState(?CountryStateStruct $countryState): void
     {
         $this->countryState = $countryState;
+    }
+
+    public function getCustomer(): ?CustomerStruct
+    {
+        return $this->customer;
+    }
+
+    public function setCustomer(CustomerStruct $customer): void
+    {
+        $this->customer = $customer;
     }
 }

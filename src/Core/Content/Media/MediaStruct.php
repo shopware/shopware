@@ -4,6 +4,8 @@ namespace Shopware\Core\Content\Media;
 
 use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumStruct;
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
+use Shopware\Core\System\User\UserStruct;
 
 class MediaStruct extends Entity
 {
@@ -61,6 +63,16 @@ class MediaStruct extends Entity
      * @var MediaAlbumStruct
      */
     protected $album;
+
+    /**
+     * @var UserStruct|null
+     */
+    protected $user;
+
+    /**
+     * @var EntitySearchResult|null
+     */
+    protected $translations;
 
     public function getAlbumId(): string
     {
@@ -170,5 +182,25 @@ class MediaStruct extends Entity
     public function setAlbum(MediaAlbumStruct $album): void
     {
         $this->album = $album;
+    }
+
+    public function getUser(): ?UserStruct
+    {
+        return $this->user;
+    }
+
+    public function setUser(UserStruct $user): void
+    {
+        $this->user = $user;
+    }
+
+    public function getTranslations(): ?EntitySearchResult
+    {
+        return $this->translations;
+    }
+
+    public function setTranslations(EntitySearchResult $translations): void
+    {
+        $this->translations = $translations;
     }
 }

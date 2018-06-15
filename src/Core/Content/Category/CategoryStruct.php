@@ -2,7 +2,10 @@
 
 namespace Shopware\Core\Content\Category;
 
+use Shopware\Core\Content\Media\MediaStruct;
+use Shopware\Core\Content\Product\Aggregate\ProductStream\ProductStreamStruct;
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 
 class CategoryStruct extends Entity
 {
@@ -135,6 +138,36 @@ class CategoryStruct extends Entity
      * @var string|null
      */
     protected $cmsDescription;
+
+    /**
+     * @var CategoryStruct|null
+     */
+    protected $parent;
+
+    /**
+     * @var EntitySearchResult|null
+     */
+    protected $children;
+
+    /**
+     * @var EntitySearchResult|null
+     */
+    protected $translations;
+
+    /**
+     * @var MediaStruct|null
+     */
+    protected $media;
+
+    /**
+     * @var ProductStreamStruct|null
+     */
+    protected $productStream;
+
+    /**
+     * @var EntitySearchResult|null
+     */
+    protected $products;
 
     public function getParentId(): ?string
     {
@@ -404,5 +437,65 @@ class CategoryStruct extends Entity
     public function getPathNamesArray(): array
     {
         return array_filter(explode('|', (string) $this->pathNames));
+    }
+
+    public function getParent(): ?CategoryStruct
+    {
+        return $this->parent;
+    }
+
+    public function setParent(CategoryStruct $parent): void
+    {
+        $this->parent = $parent;
+    }
+
+    public function getChildren(): ?EntitySearchResult
+    {
+        return $this->children;
+    }
+
+    public function setChildren(EntitySearchResult $children): void
+    {
+        $this->children = $children;
+    }
+
+    public function getTranslations(): ?EntitySearchResult
+    {
+        return $this->translations;
+    }
+
+    public function setTranslations(EntitySearchResult $translations): void
+    {
+        $this->translations = $translations;
+    }
+
+    public function getMedia(): ?MediaStruct
+    {
+        return $this->media;
+    }
+
+    public function setMedia(MediaStruct $media): void
+    {
+        $this->media = $media;
+    }
+
+    public function getProductStream(): ?ProductStreamStruct
+    {
+        return $this->productStream;
+    }
+
+    public function setProductStream(ProductStreamStruct $productStream): void
+    {
+        $this->productStream = $productStream;
+    }
+
+    public function getProducts(): ?EntitySearchResult
+    {
+        return $this->products;
+    }
+
+    public function setProducts(EntitySearchResult $products): void
+    {
+        $this->products = $products;
     }
 }

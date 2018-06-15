@@ -3,6 +3,8 @@
 namespace Shopware\Core\System\Country\Aggregate\CountryStateTranslation;
 
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateStruct;
+use Shopware\Core\System\Language\LanguageStruct;
 
 class CountryStateTranslationStruct extends Entity
 {
@@ -20,6 +22,16 @@ class CountryStateTranslationStruct extends Entity
      * @var string
      */
     protected $name;
+
+    /**
+     * @var CountryStateStruct|null
+     */
+    protected $countryState;
+
+    /**
+     * @var LanguageStruct|null
+     */
+    protected $language;
 
     public function getCountryStateId(): string
     {
@@ -49,5 +61,25 @@ class CountryStateTranslationStruct extends Entity
     public function setName(string $name): void
     {
         $this->name = $name;
+    }
+
+    public function getCountryState(): ?CountryStateStruct
+    {
+        return $this->countryState;
+    }
+
+    public function setCountryState(CountryStateStruct $countryState): void
+    {
+        $this->countryState = $countryState;
+    }
+
+    public function getLanguage(): ?LanguageStruct
+    {
+        return $this->language;
+    }
+
+    public function setLanguage(LanguageStruct $language): void
+    {
+        $this->language = $language;
     }
 }

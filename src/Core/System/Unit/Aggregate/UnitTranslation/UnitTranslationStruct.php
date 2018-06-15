@@ -3,6 +3,8 @@
 namespace Shopware\Core\System\Unit\Aggregate\UnitTranslation;
 
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\System\Language\LanguageStruct;
+use Shopware\Core\System\Unit\UnitStruct;
 
 class UnitTranslationStruct extends Entity
 {
@@ -25,6 +27,16 @@ class UnitTranslationStruct extends Entity
      * @var string
      */
     protected $name;
+
+    /**
+     * @var UnitStruct|null
+     */
+    protected $unit;
+
+    /**
+     * @var LanguageStruct|null
+     */
+    protected $language;
 
     public function getUnitId(): string
     {
@@ -64,5 +76,25 @@ class UnitTranslationStruct extends Entity
     public function setName(string $name): void
     {
         $this->name = $name;
+    }
+
+    public function getUnit(): ?UnitStruct
+    {
+        return $this->unit;
+    }
+
+    public function setUnit(UnitStruct $unit): void
+    {
+        $this->unit = $unit;
+    }
+
+    public function getLanguage(): ?LanguageStruct
+    {
+        return $this->language;
+    }
+
+    public function setLanguage(LanguageStruct $language): void
+    {
+        $this->language = $language;
     }
 }

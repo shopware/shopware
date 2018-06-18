@@ -51,32 +51,17 @@ class EntityHydrator
         $this->serializer = $serializer;
     }
 
-    public function hydrate(Entity $entity, string $definition, array $rows, string $root): array
+    public function hydrate(string $entity, string $definition, array $rows, string $root): array
     {
         /** @var EntityDefinition|string $definition */
         $collection = [];
         $this->objects = [];
 
         foreach ($rows as $row) {
-            $collection[] = $this->hydrateEntity(clone $entity, $definition, $row, $root);
+            $collection[] = $this->hydrateEntity(new $entity(), $definition, $row, $root);
         }
 
         return $collection;
-    }
-
-    private function isManyToOneLoaded(ManyToOneAssociationField $field, string $root, array $row)
-    {
-        $keys = $field->getReferenceClass()::getPrimaryKeys();
-
-        foreach ($keys as $key) {
-            $nested = $root . '.' . $field->getPropertyName() . '.' . $key->getPropertyName();
-
-            if (isset($row[$nested])) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private function hydrateEntity(Entity $entity, string $definition, array $row, string $root): Entity
@@ -88,10 +73,10 @@ class EntityHydrator
 
         $objectCacheKey = null;
 
-        if (array_key_exists($idProperty, $row)) {
+        if (isset($row[$idProperty])) {
             $objectCacheKey = $definition::getEntityName() . '::' . bin2hex($row[$idProperty]);
 
-            if (array_key_exists($objectCacheKey, $this->objects)) {
+            if (isset($this->objects[$objectCacheKey])) {
                 return $this->objects[$objectCacheKey];
             }
         }
@@ -101,13 +86,18 @@ class EntityHydrator
         $inherited = new ArrayStruct();
         $translated = new ArrayStruct();
 
+        /** @var Field $field */
         foreach ($fields as $field) {
-            $originalKey = $root . '.' . $field->getPropertyName();
+            $propertyName = $field->getPropertyName();
+
+            $originalKey = $root . '.' . $propertyName;
 
             //collect to one associations, this will be hydrated after loop
             if ($field instanceof ManyToOneAssociationField) {
-                if ($this->isManyToOneLoaded($field, $root, $row)) {
-                    $associations[$field->getPropertyName()] = $field;
+                $accessor = $root . '.' . $propertyName . '.id';
+
+                if (isset($row[$accessor])) {
+                    $associations[$propertyName] = $field;
                 }
 
                 continue;
@@ -119,15 +109,12 @@ class EntityHydrator
 
             $value = $row[$originalKey];
 
-            $propertyName = $field->getPropertyName();
-
             //remove internal .inherited key which used to detect if a inherited field is selected by parent or child
             if ($field->is(Inherited::class)) {
                 $inheritedKey = '_' . $originalKey . '.inherited';
 
-                if (array_key_exists($inheritedKey, $row)) {
+                if (isset($row[$inheritedKey])) {
                     $inherited->set($propertyName, (bool) $row[$inheritedKey]);
-                    unset($row[$inheritedKey]);
                 }
             }
 
@@ -135,9 +122,8 @@ class EntityHydrator
             if ($field instanceof TranslatedField) {
                 $translationKey = '_' . $originalKey . '.translated';
 
-                if (array_key_exists($translationKey, $row)) {
+                if (isset($row[$translationKey])) {
                     $translated->set($propertyName, (bool) $row[$translationKey]);
-                    unset($row[$translationKey]);
                 }
             }
 
@@ -305,7 +291,7 @@ class EntityHydrator
         $joinField = '_' . $definition::getEntityName() . '.' . $association->getPropertyName() . '.inherited';
         $idField = $definition::getEntityName() . '.' . $idField->getPropertyName();
 
-        if (!array_key_exists($joinField, $row)) {
+        if (!isset($row[$joinField])) {
             return false;
         }
 

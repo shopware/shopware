@@ -82,7 +82,7 @@ class EntityReader implements EntityReaderInterface
             $ids,
             $definition,
             $context,
-            new $structClass(),
+            $structClass,
             new $collectionClass(),
             $definition::getFields()->getDetailProperties()
         );
@@ -99,7 +99,7 @@ class EntityReader implements EntityReaderInterface
             $ids,
             $definition,
             $context,
-            new $structClass(),
+            $structClass,
             new $collectionClass(),
             $definition::getFields()->getBasicProperties()
         );
@@ -116,7 +116,7 @@ class EntityReader implements EntityReaderInterface
             $ids,
             $definition,
             $context,
-            new $structClass(),
+            $structClass,
             new $collectionClass(),
             $definition::getFields()->getDetailProperties(),
             true
@@ -127,7 +127,7 @@ class EntityReader implements EntityReaderInterface
         return $details;
     }
 
-    private function read(array $ids, string $definition, Context $context, Entity $entity, EntityCollection $collection, FieldCollection $fields, bool $raw = false): EntityCollection
+    private function read(array $ids, string $definition, Context $context, string $entity, EntityCollection $collection, FieldCollection $fields, bool $raw = false): EntityCollection
     {
         $ids = array_filter($ids);
 
@@ -490,9 +490,10 @@ class EntityReader implements EntityReaderInterface
     private function collectManyToManyIds(EntityCollection $collection, AssociationInterface $association): array
     {
         $ids = [];
+        /** @var Field $association */
+        $property = $association->getPropertyName();
         foreach ($collection as $struct) {
-            /** @var Field $association */
-            $tmp = $struct->getExtension(self::MANY_TO_MANY_EXTENSION_STORAGE)->get($association->getPropertyName());
+            $tmp = $struct->getExtension(self::MANY_TO_MANY_EXTENSION_STORAGE)->get($property);
             foreach ($tmp as $id) {
                 $ids[] = $id;
             }

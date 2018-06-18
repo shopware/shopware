@@ -81,7 +81,7 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
      */
     private function isObject(array $argument): bool
     {
-        return array_key_exists('_class', $argument);
+        return isset($argument['_class']);
     }
 
     /**

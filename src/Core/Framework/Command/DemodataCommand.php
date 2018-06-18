@@ -162,7 +162,10 @@ class DemodataCommand extends ContainerAwareCommand
 
         $this->createCustomer($input->getOption('customers'));
 
-        $this->createDefaultCustomer();
+        try {
+            $this->createDefaultCustomer();
+        } catch (\Exception $e) {
+        }
 
         $categories = $this->createCategory($input->getOption('categories'));
 

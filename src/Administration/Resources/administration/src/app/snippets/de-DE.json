@@ -381,13 +381,18 @@
       "labelOrderStatus": "Bestellstatus",
       "labelSalesChanel": "Verkaufskanal",
       "labelOrderDate": "Bestelldatum",
-      "headlineBillingAddress": "Rechnungsadresse"
+      "headlineBillingAddress": "Rechnungsadresse",
+      "buttonPrint": "Bestellung drucken",
+      "buttonCancel": "Bestellung stornieren",
+      "buttonArchive": "Bestellung archivieren"
     },
     "detailDeliveries": {
       "cardTitleItems": "Lieferung {count}",
       "labelShippingMethod": "Versandart",
       "labelDeliveryDate": "Lieferdatum",
-      "labelShippingCosts": "Versandkosten"
+      "labelShippingCosts": "Versandkosten",
+      "buttonMerge": "Lieferung zusammenfügen",
+      "buttonDelete": "Lieferung löschen"
     }
   }
 }

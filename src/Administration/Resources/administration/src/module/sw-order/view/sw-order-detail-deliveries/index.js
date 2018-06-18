@@ -10,11 +10,6 @@ Component.register('sw-order-detail-deliveries', {
             type: Object,
             required: true,
             default: {}
-        },
-        isLoading: {
-            type: Boolean,
-            required: true,
-            default: false
         }
     }
 });

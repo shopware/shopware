@@ -11,11 +11,5 @@ Component.register('sw-order-detail-base', {
             required: true,
             default: {}
         }
-    },
-
-    computed: {
-        moduleColor() {
-            return this.$route.meta.$module.color;
-        }
     }
 });

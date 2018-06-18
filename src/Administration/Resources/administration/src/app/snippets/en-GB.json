@@ -381,13 +381,18 @@
       "labelOrderStatus": "Order status",
       "labelSalesChanel": "Sales chanel",
       "labelOrderDate": "Order date",
-      "headlineBillingAddress": "Billing address"
+      "headlineBillingAddress": "Billing address",
+      "buttonPrint": "Print order",
+      "buttonCancel": "Cancel order",
+      "buttonArchive": "Archive order"
     },
     "detailDeliveries": {
       "cardTitleItems": "Delivery {count}",
       "labelShippingMethod": "Shipping method",
       "labelDeliveryDate": "Delivery date",
-      "labelShippingCosts": "Shipping costs"
+      "labelShippingCosts": "Shipping costs",
+      "buttonMerge": "Lieferung zusammenfügen",
+      "buttonDelete": "Lieferung löschen"
     }
   }
 }

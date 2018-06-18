@@ -1,7 +1,12 @@
 @import "~less/variables";
 
 .sw-order-detail-base {
+    .sw-order-detail-base__summary {
+        grid-template-areas: 'empty summary'
+    }
+
     .sw-order-detail-base__summary-data {
+        grid-area: summary;
         font-size: 15px;
 
         dt,
@@ -14,14 +19,5 @@
         dd {
             padding-right: 60px;
         }
-    }
-
-    .sw-address {
-        margin-bottom: 0;
-    }
-
-    .sw-grid__header .sw-icon {
-        width: 16px;
-        height: 16px;
     }
 }

@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\ORM\Version\Definition\VersionCommitDataDefinition;
 use Shopware\Core\Framework\ORM\Write\EntityWriter;
 use Shopware\Core\Framework\ORM\Write\EntityWriterInterface;
 use Shopware\Core\Framework\ORM\Write\FieldException\InvalidFieldException;
@@ -16,6 +15,7 @@ use Shopware\Core\Framework\ORM\Write\WriteContext;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\ORM\Field\TestDefinition\JsonDefinition;
 use Shopware\Core\Framework\Test\ORM\Field\TestDefinition\NestedDefinition;
+use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class JsonFieldTest extends KernelTestCase
@@ -32,6 +32,7 @@ class JsonFieldTest extends KernelTestCase
         $this->connection->beginTransaction();
 
         $nullableTable = <<<EOF
+DROP TABLE IF EXISTS _test_nullable;
 CREATE TABLE `_test_nullable` (
   `id` varbinary(16) NOT NULL,
   `data` longtext NULL,

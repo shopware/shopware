@@ -252,7 +252,7 @@ class EntityReader implements EntityReaderInterface
                 );
 
                 //requested a paginated, filtered or sorted list
-                if ($fieldCriteria && ($fieldCriteria->getLimit() || !empty($fieldCriteria->getAllFilters()->getQueries()) || $fieldCriteria->getSortings())) {
+                if ($this->hasCriteriaElements($fieldCriteria)) {
                     continue;
                 }
 
@@ -375,15 +375,8 @@ class EntityReader implements EntityReaderInterface
 
         $fieldCriteria = $criteria->getAssociation($accessor);
 
-        //requested a paginated, filtered or sorted list
-        if ($fieldCriteria && $fieldCriteria->getLimit()) {
-            $this->loadManyToManyWithPagination($definition, $fieldCriteria, $association, $context, $collection);
-
-            return;
-        }
-
-        if ($fieldCriteria && (!empty($fieldCriteria->getFilters()->getQueries()) || $fieldCriteria->getSortings())) {
-            $this->loadManyToManyWithoutPagination($fieldCriteria, $association, $context, $collection);
+        if ($this->hasCriteriaElements($fieldCriteria)) {
+            $this->loadManyToManyWithCriteria($definition, $fieldCriteria, $association, $context, $collection);
 
             return;
         }
@@ -681,7 +674,7 @@ class EntityReader implements EntityReaderInterface
         }
     }
 
-    private function loadManyToManyWithoutPagination(Criteria $fieldCriteria, ManyToManyAssociationField $association, Context $context, EntityCollection $collection): void
+    private function loadManyToManyWithCriteria(string $definition, Criteria $fieldCriteria, ManyToManyAssociationField $association, Context $context, EntityCollection $collection): void
     {
         /** @var string|EntityDefinition $definition */
         $fields = $association->getReferenceDefinition()::getFields();
@@ -710,7 +703,6 @@ class EntityReader implements EntityReaderInterface
         $criteria->setFilters($fieldCriteria->getFilters()->getQueries());
         $criteria->setLimit($fieldCriteria->getLimit());
         $criteria->setOffset($fieldCriteria->getOffset());
-
         $criteria->addFilter(new TermsQuery($accessor, $collection->getIds()));
 
         $root = EntityDefinitionQueryHelper::escape($association->getReferenceDefinition()::getEntityName() . '.' . $reference->getPropertyName() . '.mapping');
@@ -732,6 +724,31 @@ class EntityReader implements EntityReaderInterface
         ]);
 
         $query->addGroupBy($root . '.' . $localColumn);
+
+        if ($criteria->getLimit()) {
+            $limitQuery = $this->buildManyToManyLimitQuery($association);
+
+            $params = [
+                '#source_column#' => EntityDefinitionQueryHelper::escape($association->getMappingLocalColumn()),
+                '#reference_column#' => EntityDefinitionQueryHelper::escape($association->getMappingReferenceColumn()),
+                '#table#' => $root
+            ];
+            $query->innerJoin(
+                $root,
+                '('. $limitQuery .')',
+                'counter_table',
+                str_replace(
+                    array_keys($params),
+                    array_values($params),
+                    'counter_table.#source_column# = #table#.#source_column# AND 
+                     counter_table.#reference_column# = #table#.#reference_column# AND
+                     counter_table.id_count <= :limit'
+                )
+            );
+            $query->setParameter('limit', $criteria->getLimit());
+
+            $this->connection->executeQuery('SET @n = 0; SET @c = null;');
+        }
 
         $mapping = $query->execute()->fetchAll(\PDO::FETCH_KEY_PAIR);
 
@@ -760,10 +777,6 @@ class EntityReader implements EntityReaderInterface
                 $association->getPropertyName() => new EntitySearchResult(0, $entities, null, $criteria, $context),
             ]);
         }
-    }
-
-    private function loadManyToManyWithPagination(string $definition, Criteria $fieldCriteria, ManyToManyAssociationField $association, Context $context, EntityCollection $collection): void
-    {
     }
 
     private function fetchPaginatedOneToManyMapping(string $definition, OneToManyAssociationField $association, Context $context, EntityCollection $collection, Criteria $fieldCriteria): array
@@ -840,5 +853,47 @@ class EntityReader implements EntityReaderInterface
     private function getDomainName(string $name)
     {
         return lcfirst(str_replace('_', '', ucwords($name, '_')));
+    }
+
+    private function hasCriteriaElements(Criteria $criteria): bool
+    {
+        if ($criteria->getLimit() !== null) {
+            return true;
+        }
+        if (!empty($criteria->getSortings())) {
+            return true;
+        }
+        if (!empty($criteria->getAllFilters()->getQueries())) {
+            return true;
+        }
+        return false;
+    }
+
+    private function buildManyToManyLimitQuery(ManyToManyAssociationField $association): QueryBuilder
+    {
+        $table = EntityDefinitionQueryHelper::escape($association->getMappingDefinition()::getEntityName());
+
+        $sourceColumn = EntityDefinitionQueryHelper::escape($association->getMappingLocalColumn());
+        $referenceColumn = EntityDefinitionQueryHelper::escape($association->getMappingReferenceColumn());
+
+        $params = [
+            '#table#' => $table,
+            '#source_column#' => $sourceColumn
+        ];
+
+        $query = new QueryBuilder($this->connection);
+        $query->select([
+            str_replace(
+                array_keys($params),
+                array_values($params),
+                '@n:=IF(@c=#table#.#source_column#, @n+1, IF(@c:=#table#.#source_column#,1,1)) as id_count'
+            ),
+            $table . '.' . $referenceColumn,
+            $table . '.' . $sourceColumn
+        ]);
+        $query->from($table, $table);
+        $query->orderBy($table . '.' . $sourceColumn);
+
+        return $query;
     }
 }

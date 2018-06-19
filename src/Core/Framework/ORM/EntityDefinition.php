@@ -24,41 +24,37 @@ abstract class EntityDefinition
     /**
      * @var FieldCollection
      */
-    protected static $primaryKeys;
+    protected static $fields = [];
 
     /**
-     * @var FieldCollection
-     */
-    protected static $fields;
-
-    /**
-     * @var EntityExtensionInterface[]
+     * @var EntityExtensionInterface[][]
      */
     protected static $extensions = [];
 
     public static function addExtension(EntityExtensionInterface $extension): void
     {
-        static::$extensions[get_class($extension)] = $extension;
-        static::$fields = null;
+        static::$extensions[static::class][get_class($extension)] = $extension;
+        static::$fields[static::class] = null;
     }
 
     abstract public static function getEntityName(): string;
 
     public static function getFields(): FieldCollection
     {
-        if (static::$fields) {
-            return static::$fields;
+        if (isset(static::$fields[static::class])) {
+            return static::$fields[static::class];
         }
 
         $fields = static::defineFields();
 
-        foreach (static::$extensions as $extension) {
+        $extensions = static::$extensions[static::class] ?? [];
+        foreach ($extensions as $extension) {
             $extension->extendFields($fields);
         }
 
-        static::$fields = $fields;
+        static::$fields[static::class] = $fields;
 
-        return static::$fields;
+        return static::$fields[static::class];
     }
 
     public static function getCollectionClass(): string
@@ -78,7 +74,7 @@ abstract class EntityDefinition
 
     public static function getWriteOrder(): array
     {
-        $associations = static::defineFields()->filter(function (Field $field) {
+        $associations = static::getFields()->filter(function (Field $field) {
             return $field instanceof AssociationInterface && !$field->is(ReadOnly::class);
         });
 
@@ -110,11 +106,7 @@ abstract class EntityDefinition
 
     public static function getPrimaryKeys(): FieldCollection
     {
-        if (static::$primaryKeys) {
-            return static::$primaryKeys;
-        }
-
-        return static::$primaryKeys = static::defineFields()
+        return static::getFields()
             ->filter(function (Field $field) {
                 return $field->is(PrimaryKey::class);
             });
@@ -122,12 +114,12 @@ abstract class EntityDefinition
 
     public static function getDefaults(EntityExistence $existence): array
     {
-        if (!$existence->exists() && static::defineFields()->has('createdAt')) {
+        if (!$existence->exists() && static::getFields()->has('createdAt')) {
             return [
                 'createdAt' => (new \DateTime())->format('Y-m-d H:i:s'),
             ];
         }
-        if ($existence->exists() && static::defineFields()->has('updatedAt')) {
+        if ($existence->exists() && static::getFields()->has('updatedAt')) {
             return [
                 'updatedAt' => (new \DateTime())->format('Y-m-d H:i:s'),
             ];
@@ -143,32 +135,32 @@ abstract class EntityDefinition
 
     public static function isChildrenAware(): bool
     {
-        return static::defineFields()->get('children') instanceof ChildrenAssociationField;
+        return static::getFields()->get('children') instanceof ChildrenAssociationField;
     }
 
     public static function isChildCountAware(): bool
     {
-        return static::defineFields()->get('childCount') instanceof ChildCountField;
+        return static::getFields()->get('childCount') instanceof ChildCountField;
     }
 
     public static function isInheritanceAware(): bool
     {
-        return static::allowInheritance() && static::defineFields()->get('parent') instanceof ManyToOneAssociationField;
+        return static::allowInheritance() && static::getFields()->get('parent') instanceof ManyToOneAssociationField;
     }
 
     public static function isVersionAware(): bool
     {
-        return static::defineFields()->has('versionId');
+        return static::getFields()->has('versionId');
     }
 
     public static function isCatalogAware(): bool
     {
-        return static::defineFields()->has('catalogId');
+        return static::getFields()->has('catalogId');
     }
 
     public static function isTenantAware(): bool
     {
-        return static::defineFields()->has('tenantId');
+        return static::getFields()->has('tenantId');
     }
 
     abstract protected static function defineFields(): FieldCollection;

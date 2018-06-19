@@ -17,7 +17,7 @@ class ListDefinition extends EntityDefinition
         return '_test_nullable';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new Required(), new PrimaryKey()),
@@ -25,33 +25,4 @@ class ListDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getRepositoryClass(): string
-    {
-        return '';
-    }
-
-    public static function getBasicCollectionClass(): string
-    {
-        return '';
-    }
-
-    public static function getBasicStructClass(): string
-    {
-        return '';
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return '';
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return '';
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return '';
-    }
 }

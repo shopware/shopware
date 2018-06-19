@@ -16,7 +16,7 @@
 
     <testsuites>
         <testsuite name="Core Testsuite">
-            <directory>src/Core/*/Test</directory>
+            <directory>src/Core/**/Test</directory>
         </testsuite>
         <testsuite name="Storefront Testsuite">
             <directory>src/Storefront/Test</directory>
@@ -25,8 +25,8 @@
 
     <filter>
         <whitelist>
-            <directory suffix=".php">./src/Core/*/Test</directory>
-            <directory suffix=".php">./src/Storefront/Test</directory>
+            <directory suffix=".php">./src/Core</directory>
+            <directory suffix=".php">./src/Storefront</directory>
         </whitelist>
     </filter>
 

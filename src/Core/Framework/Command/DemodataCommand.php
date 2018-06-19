@@ -280,7 +280,7 @@ class DemodataCommand extends ContainerAwareCommand
                 'salutation' => $salutation,
                 'firstName' => $firstName,
                 'lastName' => $lastName,
-                'email' => $this->faker->safeEmail,
+                'email' => $this->faker->safeEmail . $id,
                 'password' => $password,
                 'defaultPaymentMethodId' => '47160b00-cd06-4b01-8817-6451f9f3c247',
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,

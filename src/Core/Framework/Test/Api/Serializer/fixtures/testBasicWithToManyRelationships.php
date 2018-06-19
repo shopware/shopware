@@ -3,6 +3,11 @@
 use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumStruct;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaStruct;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Search\Aggregation\AggregationResultCollection;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\Framework\Struct\StructCollection;
 
 $albumId = 'c83a7721-270a-4add-82fd-e60b1dd0c47e';
@@ -33,6 +38,8 @@ $media->setAlbum(clone $album);
 $media->addExtension('thumbnails', $thumbnailCollection);
 
 $mediaCollection = new MediaCollection([$media]);
-$album->setMedia($mediaCollection);
+$album->setMedia(
+    new EntitySearchResult(0, $mediaCollection, new AggregationResultCollection(), new Criteria(), Context::createDefaultContext(Defaults::TENANT_ID))
+);
 
 return $album;

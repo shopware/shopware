@@ -946,8 +946,6 @@ class EntityReaderTest extends KernelTestCase
         );
     }
 
-
-
     public function testLoadManyToManySupportsPagination()
     {
 

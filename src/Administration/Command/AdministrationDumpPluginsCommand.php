@@ -66,7 +66,7 @@ class AdministrationDumpPluginsCommand extends ContainerAwareCommand
     {
         $plugins = [];
 
-        foreach ($this->kernel::getPlugins()->getActivePlugins() as $pluginName => $plugin) {
+        foreach ($this->kernel::getPlugins()->getActives() as $pluginName => $plugin) {
             // First try to load the main.js
             try {
                 $indexFile = $this->kernel->locateResource('@' . $pluginName . '/Resources/views/administration/main.js');

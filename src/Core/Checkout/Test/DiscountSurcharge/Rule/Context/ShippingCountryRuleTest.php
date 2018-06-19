@@ -118,7 +118,7 @@ class ShippingCountryRuleTest extends TestCase
     /**
      * @dataProvider unsupportedOperators
      *
-     * @expectedException \UnsupportedOperatorException
+     * @expectedException \Shopware\Core\Content\Rule\Exception\UnsupportedOperatorException
      *
      * @param string $operator
      */

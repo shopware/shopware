@@ -4,20 +4,20 @@ namespace Shopware\Core\Framework\Test\ORM\Version;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
-use Shopware\Core\Framework\Pricing\PriceStruct;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\RangeQuery;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition;
 use Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\TaxAreaRuleTranslationDefinition;
-use Shopware\Core\System\Tax\TaxStruct;
 use Shopware\Core\System\Tax\TaxDefinition;
+use Shopware\Core\System\Tax\TaxStruct;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class VersioningTest extends KernelTestCase
@@ -456,7 +456,10 @@ class VersioningTest extends KernelTestCase
         $changes = $this->getVersionData(TaxAreaRuleDefinition::getEntityName(), $uuid->getHex(), $versionId);
         $this->assertCount(2, $changes);
 
-        $liveTax = $this->taxRepository->read(new ReadCriteria([$uuid->getHex()]), $liveVersionContext);
+        $criteria = new ReadCriteria([$uuid->getHex()]);
+        $criteria->addAssociation('tax.areaRules');
+
+        $liveTax = $this->taxRepository->read($criteria, $liveVersionContext);
         $this->assertCount(1, $liveTax);
         $this->assertTrue($liveTax->has($uuid->getHex()));
         $tax = $liveTax->get($uuid->getHex());
@@ -466,7 +469,9 @@ class VersioningTest extends KernelTestCase
         $this->assertCount(1, $tax->getAreaRules());
         $this->assertEquals(6, $tax->getAreaRules()->get($uuid->getHex())->getTaxRate());
 
-        $versionTax = $this->taxRepository->readDetail([$uuid->getHex()], $versionContext);
+        $criteria = new ReadCriteria([$uuid->getHex()]);
+        $criteria->addAssociation('tax.areaRules');
+        $versionTax = $this->taxRepository->read($criteria, $versionContext);
         $this->assertCount(1, $versionTax);
         $this->assertTrue($versionTax->has($uuid->getHex()));
         $tax = $versionTax->get($uuid->getHex());
@@ -478,7 +483,7 @@ class VersioningTest extends KernelTestCase
 
         $this->taxRepository->merge($versionId, $liveVersionContext);
 
-        $liveTax = $this->taxRepository->read(new ReadCriteria([$uuid->getHex()]), $liveVersionContext);
+        $liveTax = $this->taxRepository->read($criteria, $liveVersionContext);
         $this->assertCount(1, $liveTax);
         $this->assertTrue($liveTax->has($uuid->getHex()));
         $tax = $liveTax->get($uuid->getHex());
@@ -488,7 +493,7 @@ class VersioningTest extends KernelTestCase
         $this->assertCount(1, $tax->getAreaRules());
         $this->assertEquals(16, $tax->getAreaRules()->get($uuid->getHex())->getTaxRate());
 
-        $liveTax = $this->taxRepository->read(new ReadCriteria([$uuid->getHex()]), $versionContext);
+        $liveTax = $this->taxRepository->read($criteria, $versionContext);
         $this->assertCount(1, $liveTax);
         $this->assertTrue($liveTax->has($uuid->getHex()));
         $tax = $liveTax->get($uuid->getHex());

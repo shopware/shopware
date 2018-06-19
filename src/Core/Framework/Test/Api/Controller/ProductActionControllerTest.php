@@ -65,8 +65,9 @@ class ProductActionControllerTest extends ApiTestCase
 
         $this->assertSame(204, $this->apiClient->getResponse()->getStatusCode());
 
-        $product = $this->productRepository->read(new ReadCriteria([$id]), Context::createDefaultContext(Defaults::TENANT_ID))
-            ->get($id);
+        $criteria = new ReadCriteria([$id]);
+        $criteria->addAssociation('product.configurators');
+        $product = $this->productRepository->read($criteria, Context::createDefaultContext(Defaults::TENANT_ID))->get($id);
 
         /** @var ProductStruct $product */
         $configurators = $product->getConfigurators();

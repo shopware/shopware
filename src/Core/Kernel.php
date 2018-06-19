@@ -5,8 +5,8 @@ namespace Shopware\Core;
 use Shopware\Core\Framework\Api\Controller\ApiController;
 use Shopware\Core\Framework\Doctrine\DatabaseConnector;
 use Shopware\Core\Framework\Framework;
+use Shopware\Core\Framework\Plugin\BundleCollection;
 use Shopware\Core\Framework\Plugin\Plugin;
-use Shopware\Core\Framework\Plugin\PluginCollection;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -27,7 +27,7 @@ class Kernel extends HttpKernel
     protected static $connection;
 
     /**
-     * @var PluginCollection
+     * @var BundleCollection
      */
     protected static $plugins;
 
@@ -38,14 +38,14 @@ class Kernel extends HttpKernel
     {
         parent::__construct($environment, $debug);
 
-        self::$plugins = new PluginCollection();
+        self::$plugins = new BundleCollection();
     }
 
     public function registerBundles()
     {
         $contents = require $this->getProjectDir() . '/config/bundles.php';
 
-        foreach (self::$plugins->getActivePlugins() as $plugin) {
+        foreach (self::$plugins->getActives() as $plugin) {
             $contents[get_class($plugin)] = ['all' => true];
         }
 
@@ -95,9 +95,9 @@ class Kernel extends HttpKernel
     }
 
     /**
-     * @return PluginCollection
+     * @return BundleCollection
      */
-    public static function getPlugins(): PluginCollection
+    public static function getPlugins(): BundleCollection
     {
         return self::$plugins;
     }
@@ -163,7 +163,7 @@ class Kernel extends HttpKernel
 
         $activePluginMeta = [];
 
-        foreach (self::getPlugins()->getActivePlugins() as $namespace => $plugin) {
+        foreach (self::getPlugins()->getActives() as $namespace => $plugin) {
             $pluginName = $plugin->getName();
             $activePluginMeta[$pluginName] = [
                 'name' => $pluginName,
@@ -182,7 +182,7 @@ class Kernel extends HttpKernel
 
     protected function getContainerClass()
     {
-        $pluginHash = sha1(implode('', array_keys(self::getPlugins()->getActivePlugins())));
+        $pluginHash = sha1(implode('', array_keys(self::getPlugins()->getActives())));
 
         return $this->name
             . ucfirst($this->environment)

@@ -29,9 +29,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
-use Shopware\Core\System\Currency\CurrencyCollection;
-use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Storefront\Controller\StorefrontController;
 
 class IndexController extends StorefrontController
@@ -73,7 +72,7 @@ class IndexController extends StorefrontController
         ]);
     }
 
-    private function loadLanguages(CheckoutContext $context): LanguageCollection
+    private function loadLanguages(CheckoutContext $context): EntitySearchResult
     {
         $criteria = new Criteria();
         $criteria->addFilter(new TermsQuery('language.id', $context->getTouchpoint()->getLanguageIds()));
@@ -81,7 +80,7 @@ class IndexController extends StorefrontController
         return $this->languageRepository->search($criteria, $context->getContext());
     }
 
-    private function getCurrencies(CheckoutContext $context): CurrencyCollection
+    private function getCurrencies(CheckoutContext $context): EntitySearchResult
     {
         $criteria = new Criteria();
         $criteria->addFilter(new TermsQuery('currency.id', ['4c8eba11-bd35-46d7-86af-bed481a6e665', '2824ea63-db67-4110-9e23-78ddcc9cec84']));

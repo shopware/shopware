@@ -15,7 +15,6 @@ use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
-use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
 use Shopware\Core\Framework\ORM\Write\WriteContext;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -72,7 +71,10 @@ class EntityRepository implements RepositoryInterface
     {
         $ids = $this->searchIds($criteria, $context);
 
-        $entities = $this->read(new ReadCriteria($ids->getIds()), $context);
+        $read = new ReadCriteria($ids->getIds());
+        $read->setAssociations($criteria->getAssociations());
+
+        $entities = $this->read($read, $context);
 
         $aggregations = null;
         if ($criteria->getAggregations()) {

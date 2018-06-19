@@ -370,16 +370,17 @@ class CheckoutControllerTest extends ApiTestCase
         $order = $order['data'];
         $this->assertNotEmpty($order);
 
-        $this->assertCount(1, $order['deliveries']);
         $this->assertEquals($mail, $order['customer']['email']);
-        $this->assertCount(1, $order['lineItems']);
     }
 
     public function createCart(): Client
     {
         $this->storefrontApiClient->request('POST', '/storefront-api/checkout');
+        $response = $this->storefrontApiClient->getResponse();
 
-        $content = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        
+        $content = json_decode($response->getContent(), true);
 
         $client = clone $this->storefrontApiClient;
         $client->setServerParameter('HTTP_X_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);

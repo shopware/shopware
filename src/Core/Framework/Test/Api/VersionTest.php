@@ -85,31 +85,4 @@ class VersionTest extends ApiTestCase
             'Route should be protected. (URL: ' . $url . ')'
         );
     }
-
-    public function testContainerAlias(): void
-    {
-        $registry = self::$container->get(DefinitionRegistry::class);
-
-        foreach ($registry->getElements() as $definition) {
-            try {
-                $repositoryClass = $definition::getEntityName() . '.repository';
-            } catch (MappingEntityRepositoryException $ex) {
-                return;
-            }
-
-            $alias = self::$container->get($repositoryClass);
-
-            try {
-                $real = self::$container->get($repositoryClass . '.v' . PlatformRequest::API_VERSION);
-            } catch (ServiceNotFoundException $ex) {
-                $this->fail(sprintf(
-                    'Repository service definition for api version "%d" is missing. (%s)',
-                    PlatformRequest::API_VERSION,
-                    $repositoryClass . '.v' . PlatformRequest::API_VERSION
-                ));
-            }
-
-            $this->assertSame($alias, $real, sprintf('Repository version mismatch for "%s".', $definition::getEntityName()));
-        }
-    }
 }

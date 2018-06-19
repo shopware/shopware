@@ -73,8 +73,8 @@ class ManyToManyAssociationFieldTest extends KernelTestCase
         $this->assertInstanceOf(EntityWrittenEvent::class, $writtenEvent->getEventByDefinition(ProductManufacturerTranslationDefinition::class));
         $this->assertInstanceOf(EntityWrittenEvent::class, $writtenEvent->getEventByDefinition(ProductDefinition::class));
         $this->assertInstanceOf(EntityWrittenEvent::class, $writtenEvent->getEventByDefinition(ProductTranslationDefinition::class));
-        $this->assertInstanceOf(EntityWrittenEvent::class, $writtenEvent->getEventByDefinition(CategoryDefinition::class));
-        $this->assertInstanceOf(EntityWrittenEvent::class, $writtenEvent->getEventByDefinition(CategoryTranslationDefinition::class));
+        $this->assertNull($writtenEvent->getEventByDefinition(CategoryDefinition::class));
+        $this->assertNull($writtenEvent->getEventByDefinition(CategoryTranslationDefinition::class));
     }
 
     public function testWriteWithData()

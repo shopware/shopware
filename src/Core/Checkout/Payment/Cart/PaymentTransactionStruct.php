@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Payment\Cart;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Order\OrderStruct;
 use Shopware\Core\Checkout\Payment\PaymentMethodStruct;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Language\LanguageStruct;

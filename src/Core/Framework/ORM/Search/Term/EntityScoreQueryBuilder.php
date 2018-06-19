@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\ORM\Search\Term;
 
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Field\AssociationInterface;
+use Shopware\Core\Framework\ORM\Field\Field;
 use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\Field\TranslatedField;
@@ -25,10 +26,14 @@ class EntityScoreQueryBuilder
      */
     public function buildScoreQueries(SearchPattern $term, string $definition, string $root, float $multiplier = 1): array
     {
+        static $counter = 0;
+        $counter++;
+
         $fields = $this->getQueryFields($definition);
 
         $queries = [];
-        foreach ($fields as $field) {
+        /** @var Field $field */
+        foreach ($fields->getElements() as $field) {
             $flag = $field->getFlag(SearchRanking::class);
 
             $ranking = 1 * $multiplier;
@@ -40,20 +45,17 @@ class EntityScoreQueryBuilder
             $select = $root . '.' . $field->getPropertyName();
 
             if ($field instanceof ManyToManyAssociationField) {
-                $reference = $field->getReferenceDefinition();
-
                 $queries = array_merge(
                     $queries,
-                    $this->buildScoreQueries($term, $reference, $select, $ranking)
+                    $this->buildScoreQueries($term, $field->getReferenceDefinition(), $select, $ranking)
                 );
                 continue;
             }
 
             if ($field instanceof AssociationInterface) {
-                $reference = $field->getReferenceClass();
                 $queries = array_merge(
                     $queries,
-                    $this->buildScoreQueries($term, $reference, $select, $ranking)
+                    $this->buildScoreQueries($term, $field->getReferenceClass(), $select, $ranking)
                 );
                 continue;
             }

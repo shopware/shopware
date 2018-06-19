@@ -24,7 +24,7 @@
         </service>
 
         <!-- Plugins -->
-        <service class="Shopware\Core\Framework\Plugin\PluginCollection" id="Shopware\Core\Framework\Plugin\PluginCollection" public="true">
+        <service class="Shopware\Core\Framework\Plugin\BundleCollection" id="Shopware\Core\Framework\Plugin\BundleCollection" public="true">
             <factory service="kernel" method="getPlugins" />
         </service>
 

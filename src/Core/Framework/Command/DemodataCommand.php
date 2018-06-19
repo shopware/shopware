@@ -237,6 +237,9 @@ class DemodataCommand extends ContainerAwareCommand
         $number = $this->faker->randomNumber;
         $password = password_hash('shopware', PASSWORD_BCRYPT, ['cost' => 13]);
 
+        $this->io->section(sprintf('Generating %d customers...', $count));
+        $this->io->progressStart($count);
+
         $payload = [];
         for ($i = 0; $i < $count; ++$i) {
             $id = Uuid::uuid4()->getHex();
@@ -244,6 +247,32 @@ class DemodataCommand extends ContainerAwareCommand
             $firstName = $this->faker->firstName;
             $lastName = $this->faker->lastName;
             $salutation = $this->faker->title;
+
+            $addresses = [
+                [
+                    'id' => $addressId,
+                    'countryId' => 'ffe61e1c-9915-4f95-9701-4a310ab5482d',
+                    'salutation' => $salutation,
+                    'firstName' => $firstName,
+                    'lastName' => $lastName,
+                    'street' => $this->faker->streetName,
+                    'zipcode' => $this->faker->postcode,
+                    'city' => $this->faker->city,
+                ]
+            ];
+
+            $aCount = random_int(2, 5);
+            for ($x = 1; $x < $aCount; $x++) {
+                $addresses[] = [
+                    'countryId' => Defaults::COUNTRY,
+                    'salutation' => $salutation,
+                    'firstName' => $firstName,
+                    'lastName' => $lastName,
+                    'street' => $this->faker->streetName,
+                    'zipcode' => $this->faker->postcode,
+                    'city' => $this->faker->city,
+                ];
+            }
 
             $customer = [
                 'id' => $id,
@@ -258,31 +287,21 @@ class DemodataCommand extends ContainerAwareCommand
                 'touchpointId' => Defaults::TOUCHPOINT,
                 'defaultBillingAddressId' => $addressId,
                 'defaultShippingAddressId' => $addressId,
-                'addresses' => [
-                    [
-                        'id' => $addressId,
-                        'customerId' => $id,
-                        'countryId' => 'ffe61e1c-9915-4f95-9701-4a310ab5482d',
-                        'salutation' => $salutation,
-                        'firstName' => $firstName,
-                        'lastName' => $lastName,
-                        'street' => $this->faker->streetName,
-                        'zipcode' => $this->faker->postcode,
-                        'city' => $this->faker->city,
-                    ],
-                ],
+                'addresses' => $addresses
             ];
 
             $payload[] = $customer;
+
+            if (count($payload) >= 100) {
+                $this->writer->upsert(CustomerDefinition::class, $payload, $this->getContext());
+                $this->io->progressAdvance(count($payload));
+                $payload = [];
+            }
         }
 
-        $this->io->section(sprintf('Generating %d customers...', count($payload)));
-        $this->io->progressStart(count($payload));
-
-        $chunks = array_chunk($payload, 150);
-        foreach ($chunks as $chunk) {
-            $this->writer->upsert(CustomerDefinition::class, $chunk, $this->getContext());
-            $this->io->progressAdvance(count($chunk));
+        if (!empty($payload)) {
+            $this->writer->upsert(CustomerDefinition::class, $payload, $this->getContext());
+            $this->io->progressAdvance(count($payload));
         }
 
         $this->io->progressFinish();

@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Test\Product\Repository;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerStruct;
+use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleStruct;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductStruct;
 use Shopware\Core\Defaults;
@@ -328,6 +329,7 @@ class ProductRepositoryTest extends KernelTestCase
         $this->assertEquals(new PriceStruct(10, 15), $product->getPrice());
         $this->assertCount(2, $product->getPriceRules());
 
+        /** @var ProductPriceRuleStruct $price */
         $price = $product->getPriceRules()->get($ruleA);
         $this->assertEquals(15, $price->getPrice()->getGross());
         $this->assertEquals(10, $price->getPrice()->getNet());
@@ -809,9 +811,13 @@ class ProductRepositoryTest extends KernelTestCase
 
         $this->repository->create($products, Context::createDefaultContext(Defaults::TENANT_ID));
 
-        $products = $this->repository->read(new ReadCriteria([$redId, $greenId]), Context::createDefaultContext(
-            Defaults::TENANT_ID));
-        $parents = $this->repository->read(new ReadCriteria([$parentId]), Context::createDefaultContext(Defaults::TENANT_ID));
+        $criteria = new ReadCriteria([$redId, $greenId]);
+        $criteria->addAssociation('media');
+        $products = $this->repository->read($criteria, Context::createDefaultContext(Defaults::TENANT_ID));
+
+        $criteria = new ReadCriteria([$parentId]);
+        $criteria->addAssociation('media');
+        $parents = $this->repository->read($criteria, Context::createDefaultContext(Defaults::TENANT_ID));
 
         $this->assertTrue($parents->has($parentId));
         $this->assertTrue($products->has($redId));
@@ -878,9 +884,14 @@ class ProductRepositoryTest extends KernelTestCase
 
         $this->repository->create($products, Context::createDefaultContext(Defaults::TENANT_ID));
 
-        $products = $this->repository->read(new ReadCriteria([$redId, $greenId]), Context::createDefaultContext(
+        $criteria = new ReadCriteria([$redId, $greenId]);
+        $criteria->addAssociation('categories');
+        $products = $this->repository->read($criteria, Context::createDefaultContext(
             Defaults::TENANT_ID));
-        $parents = $this->repository->read(new ReadCriteria([$parentId]), Context::createDefaultContext(Defaults::TENANT_ID));
+
+        $criteria = new ReadCriteria([$parentId]);
+        $criteria->addAssociation('categories');
+        $parents = $this->repository->read($criteria, Context::createDefaultContext(Defaults::TENANT_ID));
 
         $this->assertTrue($parents->has($parentId));
         $this->assertTrue($products->has($redId));
@@ -1211,8 +1222,9 @@ class ProductRepositoryTest extends KernelTestCase
 
         $this->repository->create([$data], Context::createDefaultContext(Defaults::TENANT_ID));
 
-        $product = $this->repository->read(new ReadCriteria([$id]), Context::createDefaultContext(Defaults::TENANT_ID))
-            ->get($id);
+        $criteria = new ReadCriteria([$id]);
+        $criteria->addAssociation('datasheet');
+        $product = $this->repository->read($criteria, Context::createDefaultContext(Defaults::TENANT_ID))->get($id);
 
         /** @var ProductStruct $product */
         $sheet = $product->getDatasheet();
@@ -1261,8 +1273,9 @@ class ProductRepositoryTest extends KernelTestCase
 
         $this->repository->create([$data], Context::createDefaultContext(Defaults::TENANT_ID));
 
-        $product = $this->repository->read(new ReadCriteria([$id]), Context::createDefaultContext(Defaults::TENANT_ID))
-            ->get($id);
+        $criteria = new ReadCriteria([$id]);
+        $criteria->addAssociation('variations');
+        $product = $this->repository->read($criteria, Context::createDefaultContext(Defaults::TENANT_ID))->get($id);
 
         /** @var ProductStruct $product */
         $sheet = $product->getVariations();
@@ -1319,8 +1332,9 @@ class ProductRepositoryTest extends KernelTestCase
 
         $this->repository->create([$data], Context::createDefaultContext(Defaults::TENANT_ID));
 
-        $product = $this->repository->read(new ReadCriteria([$id]), Context::createDefaultContext(Defaults::TENANT_ID))
-            ->get($id);
+        $criteria = new ReadCriteria([$id]);
+        $criteria->addAssociation('configurators');
+        $product = $this->repository->read($criteria, Context::createDefaultContext(Defaults::TENANT_ID))->get($id);
 
         /** @var ProductStruct $product */
         $configurators = $product->getConfigurators();
@@ -1382,8 +1396,9 @@ class ProductRepositoryTest extends KernelTestCase
 
         $this->repository->create([$data], Context::createDefaultContext(Defaults::TENANT_ID));
 
-        $product = $this->repository->read(new ReadCriteria([$id]), Context::createDefaultContext(Defaults::TENANT_ID))
-            ->get($id);
+        $criteria = new ReadCriteria([$id]);
+        $criteria->addAssociation('services');
+        $product = $this->repository->read($criteria, Context::createDefaultContext(Defaults::TENANT_ID))->get($id);
 
         /** @var ProductStruct $product */
         $services = $product->getServices();

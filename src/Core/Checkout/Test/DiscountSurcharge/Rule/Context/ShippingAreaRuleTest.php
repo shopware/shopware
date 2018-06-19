@@ -30,7 +30,6 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Rule\ShippingAreaRule;
-use Shopware\Core\Content\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\Country\Aggregate\CountryArea\CountryAreaStruct;
 use Shopware\Core\System\Country\CountryStruct;
@@ -43,7 +42,7 @@ class ShippingAreaRuleTest extends TestCase
      * @param array  $ruleData
      * @param string $currentArea
      *
-     * @throws UnsupportedOperatorException
+     * @throws \Shopware\Core\Content\Rule\Exception\UnsupportedOperatorException
      */
     public function testEquals(array $ruleData, string $currentArea): void
     {
@@ -82,7 +81,7 @@ class ShippingAreaRuleTest extends TestCase
      * @param array  $ruleData
      * @param string $currentArea
      *
-     * @throws UnsupportedOperatorException
+     * @throws \Shopware\Core\Content\Rule\Exception\UnsupportedOperatorException
      */
     public function testNotEquals(array $ruleData, string $currentArea): void
     {
@@ -118,7 +117,7 @@ class ShippingAreaRuleTest extends TestCase
     /**
      * @dataProvider unsupportedOperators
      *
-     * @expectedException \UnsupportedOperatorException
+     * @expectedException \Shopware\Core\Content\Rule\Exception\UnsupportedOperatorException
      *
      * @param string $operator
      */

@@ -90,8 +90,10 @@ class VariantGeneratorTest extends KernelTestCase
 
         $this->assertCount(2, $productWritten->getIds());
 
-        $variants = $this->repository->read(new ReadCriteria($productWritten->getIds()), Context:: createDefaultContext(
-            Defaults::TENANT_ID));
+        $criteria = new ReadCriteria($productWritten->getIds());
+        $criteria->addAssociation('product.variations');
+        $variants = $this->repository->read($criteria, Context:: createDefaultContext(Defaults::TENANT_ID));
+
         $this->assertCount(2, $variants);
 
         /** @var ProductStruct $red */

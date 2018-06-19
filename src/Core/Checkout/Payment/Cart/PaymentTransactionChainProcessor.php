@@ -71,14 +71,18 @@ class PaymentTransactionChainProcessor
     public function process(string $orderId, Context $context): ?RedirectResponse
     {
         /** @var OrderStruct $order */
-        $order = $this->orderRepository->read(new ReadCriteria([$orderId]), $context)->first();
+        $criteria = new ReadCriteria([$orderId]);
+        $criteria->addAssociation('order.transactions');
+
+        $order = $this->orderRepository->read($criteria, $context)->first();
 
         if (!$order) {
             throw new InvalidOrderException($orderId);
         }
 
         /** @var OrderTransactionCollection $transactions */
-        $transactions = $order->getTransactions()->filterByOrderStateId(Defaults::ORDER_TRANSACTION_OPEN);
+        $transactions = $order->getTransactions()->getEntities();
+        $transactions = $transactions->filterByOrderStateId(Defaults::ORDER_TRANSACTION_OPEN);
 
         foreach ($transactions as $transaction) {
             $token = $this->tokenFactory->generateToken($transaction, $context);

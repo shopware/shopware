@@ -27,7 +27,7 @@ class EntityScoreBuilderTest extends TestCase
             new SearchTerm('term', 1)
         );
 
-        $queries = $builder->buildScoreQueries($pattern, TestDefinition::class, 'test');
+        $queries = $builder->buildScoreQueries($pattern, ScoreBuilderTestDefinition::class, 'test');
 
         $this->assertEquals(
             [
@@ -53,7 +53,7 @@ class EntityScoreBuilderTest extends TestCase
             new SearchTerm('test', 0.1)
         );
 
-        $queries = $builder->buildScoreQueries($pattern, TestDefinition::class, 'test');
+        $queries = $builder->buildScoreQueries($pattern, ScoreBuilderTestDefinition::class, 'test');
 
         $this->assertEquals(
             [
@@ -96,8 +96,23 @@ class EntityScoreBuilderTest extends TestCase
     }
 }
 
-class TestDefinition extends EntityDefinition
+class ScoreBuilderTestDefinition extends EntityDefinition
 {
+    /**
+     * @var FieldCollection
+     */
+    protected static $primaryKeys;
+
+    /**
+     * @var FieldCollection
+     */
+    protected static $fields;
+
+    /**
+     * @var EntityExtensionInterface[]
+     */
+    protected static $extensions = [];
+
     public static function getEntityName(): string
     {
         return 'test';
@@ -117,6 +132,21 @@ class TestDefinition extends EntityDefinition
 
 class NestedDefinition extends EntityDefinition
 {
+    /**
+     * @var FieldCollection
+     */
+    protected static $primaryKeys;
+
+    /**
+     * @var FieldCollection
+     */
+    protected static $fields;
+
+    /**
+     * @var EntityExtensionInterface[]
+     */
+    protected static $extensions = [];
+
     public static function getEntityName(): string
     {
         return 'nested';
@@ -133,6 +163,21 @@ class NestedDefinition extends EntityDefinition
 
 class OnlyTranslatedFieldDefinition extends EntityDefinition
 {
+    /**
+     * @var FieldCollection
+     */
+    protected static $primaryKeys;
+
+    /**
+     * @var FieldCollection
+     */
+    protected static $fields;
+
+    /**
+     * @var EntityExtensionInterface[]
+     */
+    protected static $extensions = [];
+
     public static function getEntityName(): string
     {
         return 'translated';

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Version\Aggregate\VersionCommit;
 
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataCollection;
 
 class VersionCommitStruct extends Entity
@@ -33,17 +34,9 @@ class VersionCommitStruct extends Entity
     protected $userId;
 
     /**
-     * @var VersionCommitDataCollection
+     * @var EntitySearchResult
      */
     protected $data;
-
-    /**
-     * VersionCommitStruct constructor.
-     */
-    public function __construct()
-    {
-        $this->data = new VersionCommitDataCollection();
-    }
 
     /**
      * @return int
@@ -125,18 +118,12 @@ class VersionCommitStruct extends Entity
         $this->versionId = $versionId;
     }
 
-    /**
-     * @return VersionCommitDataCollection
-     */
-    public function getData(): VersionCommitDataCollection
+    public function getData(): EntitySearchResult
     {
         return $this->data;
     }
 
-    /**
-     * @param VersionCommitDataCollection $data
-     */
-    public function setData(VersionCommitDataCollection $data): void
+    public function setData(EntitySearchResult $data): void
     {
         $this->data = $data;
     }

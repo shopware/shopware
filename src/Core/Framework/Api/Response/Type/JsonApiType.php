@@ -88,7 +88,7 @@ class JsonApiType implements ResponseTypeInterface
 
         if ($searchResult && $searchResult->getAggregations()) {
             $aggregations = [];
-            foreach ($searchResult->getAggregations()->getAggregations() as $aggregation) {
+            foreach ($searchResult->getAggregations() as $aggregation) {
                 $aggregations[$aggregation->getName()] = $aggregation->getResult();
             }
 

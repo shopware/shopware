@@ -399,9 +399,7 @@ class ApiController extends Controller
                 return $this->responseFactory->createRedirectResponse($definition, $entityId, $context);
             }
 
-            if ($responseDataType === self::RESPONSE_DETAIL) {
-                $entities = $repository->read(new ReadCriteria($event->getIds()), $context->getContext());
-            }
+            $entities = $repository->read(new ReadCriteria($event->getIds()), $context->getContext());
 
             return $this->responseFactory->createDetailResponse($entities->first(), $definition, $context, $appendLocationHeader);
         }
@@ -439,9 +437,7 @@ class ApiController extends Controller
 
             $repository = $this->getRepository($definition, $context->getVersion());
 
-            if ($responseDataType === self::RESPONSE_DETAIL) {
-                $entities = $repository->read(new ReadCriteria($event->getIds()), $context->getContext());
-            }
+            $entities = $repository->read(new ReadCriteria($event->getIds()), $context->getContext());
 
             return $this->responseFactory->createDetailResponse($entities->first(), $definition, $context, $appendLocationHeader);
         }
@@ -467,9 +463,7 @@ class ApiController extends Controller
                 return $this->responseFactory->createRedirectResponse($definition, $entityId, $context);
             }
 
-            if ($responseDataType === self::RESPONSE_DETAIL) {
-                $entities = $repository->read(new ReadCriteria($event->getIds()), $context->getContext());
-            }
+            $entities = $repository->read(new ReadCriteria($event->getIds()), $context->getContext());
 
             return $this->responseFactory->createDetailResponse($entities->first(), $definition, $context, $appendLocationHeader);
         }

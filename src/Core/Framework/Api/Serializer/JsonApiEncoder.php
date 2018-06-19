@@ -186,7 +186,7 @@ class JsonApiEncoder implements EncoderInterface
                     ],
                 ];
 
-                if (\count($value) === 0) {
+                if (!$value || \count($value) === 0) {
                     continue;
                 }
 

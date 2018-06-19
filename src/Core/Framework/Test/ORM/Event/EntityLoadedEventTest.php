@@ -171,6 +171,21 @@ class EntityLoadedEventTest extends TestCase
 
 class TestDefinition extends EntityDefinition
 {
+    /**
+     * @var FieldCollection
+     */
+    protected static $primaryKeys;
+
+    /**
+     * @var FieldCollection
+     */
+    protected static $fields;
+
+    /**
+     * @var EntityExtensionInterface[]
+     */
+    protected static $extensions = [];
+
     public static function getEntityName(): string
     {
         return 'test';
@@ -185,9 +200,9 @@ class TestDefinition extends EntityDefinition
     {
         return new FieldCollection([
             new IdField('id', 'id'),
-            new ManyToOneAssociationField('many_to_one', 'many_to_one', TestDefinition::class, true),
-            new OneToManyAssociationField('one_to_many', TestDefinition::class, 'test_id', true),
-            new ManyToManyAssociationField('many_to_many', TestDefinition::class, ProductCategoryDefinition::class, true, 'test_id', 'test_id'),
+            new ManyToOneAssociationField('many_to_one', 'many_to_one', self::class, true),
+            new OneToManyAssociationField('one_to_many', self::class, 'test_id', true),
+            new ManyToManyAssociationField('many_to_many', self::class, ProductCategoryDefinition::class, true, 'test_id', 'test_id'),
         ]);
     }
 }

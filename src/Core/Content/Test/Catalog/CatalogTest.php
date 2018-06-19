@@ -291,7 +291,9 @@ class CatalogTest extends KernelTestCase
         $this->assertContains($ids[2], $foundIds);
         $this->assertEquals(Uuid::fromStringToBytes($catalogId), array_unique(array_column($createdCategory, 'catalog_id'))[0]);
 
-        $categories = $this->categoryRepository->read(new ReadCriteria([$parentId->getHex()]), $context);
+        $criteria = new ReadCriteria([$parentId->getHex()]);
+        $criteria->addAssociation('children');
+        $categories = $this->categoryRepository->read($criteria, $context);
 
         $this->assertEquals(1, $categories->count(), 'Category was not fetched but should be.');
         $this->assertEquals(2, $categories->first()->getChildren()->count());

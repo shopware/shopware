@@ -67,10 +67,10 @@ class NavigationService
             })->first();
         }
 
-        $tree = TreeBuilder::buildTree(null, $rootCategories->sortByPosition()->sortByName());
+        $tree = TreeBuilder::buildTree(null, $rootCategories->getEntities()->sortByPosition()->sortByName());
 
         foreach ($tree as $index => $rootItem) {
-            $rootItem->addChildren(...TreeBuilder::buildTree($rootItem->getCategory()->getId(), $leafCategories->sortByPosition()->sortByName()));
+            $rootItem->addChildren(...TreeBuilder::buildTree($rootItem->getCategory()->getId(), $leafCategories->getEntities()->sortByPosition()->sortByName()));
         }
 
         return $this->navigation[$applicationId] = new Navigation($activeCategory, $tree);

@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\EntityCollection;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Symfony\Component\Stopwatch\Stopwatch;
 
 class TraceableEntityReader implements EntityReaderInterface
@@ -26,14 +27,14 @@ class TraceableEntityReader implements EntityReaderInterface
         $this->stopwatch = $stopwatch;
     }
 
-    public function readRaw(string $definition, array $ids, Context $context): EntityCollection
+    public function readRaw(string $definition, ReadCriteria $criteria, Context $context): EntityCollection
     {
         /** @var EntityDefinition $definition */
         $entity = $definition::getEntityName();
 
         $e = $this->stopwatch->start($entity . '.read_raw', 'shopware');
 
-        $result = $this->decorated->readRaw($definition, $ids, $context);
+        $result = $this->decorated->readRaw($definition, $criteria, $context);
 
         if ($e->isStarted()) {
             $e->stop();
@@ -42,30 +43,14 @@ class TraceableEntityReader implements EntityReaderInterface
         return $result;
     }
 
-    public function readDetail(string $definition, array $ids, Context $context): EntityCollection
-    {
-        /** @var EntityDefinition $definition */
-        $entity = $definition::getEntityName();
-
-        $e = $this->stopwatch->start($entity . '.read_detail', 'shopware');
-
-        $result = $this->decorated->readDetail($definition, $ids, $context);
-
-        if ($e->isStarted()) {
-            $e->stop();
-        }
-
-        return $result;
-    }
-
-    public function read(string $definition, array $ids, Context $context): EntityCollection
+    public function read(string $definition, ReadCriteria $criteria, Context $context): EntityCollection
     {
         /** @var EntityDefinition $definition */
         $entity = $definition::getEntityName();
 
         $e = $this->stopwatch->start($entity . '.read_basic', 'section');
 
-        $result = $this->decorated->read($definition, $ids, $context);
+        $result = $this->decorated->read($definition, $criteria, $context);
 
         if ($e->isStarted()) {
             $e->stop();

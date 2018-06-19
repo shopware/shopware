@@ -8,6 +8,7 @@ use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\ORM\EntityCollection;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Field\AssociationInterface;
+use Shopware\Core\Framework\ORM\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\ORM\Field\Field;
 use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
@@ -383,7 +384,7 @@ class EntityReader implements EntityReaderInterface
         }
 
         if ($fieldCriteria && (!empty($fieldCriteria->getFilters()->getQueries()) || $fieldCriteria->getSortings())) {
-            $this->loadManyToManyWithoutPagination($definition, $fieldCriteria, $association, $context, $collection);
+            $this->loadManyToManyWithoutPagination($fieldCriteria, $association, $context, $collection);
             return;
         }
 
@@ -541,22 +542,44 @@ class EntityReader implements EntityReaderInterface
     private function loadOneToManyWithoutPagination(string $definition, OneToManyAssociationField $association, Context $context, EntityCollection $collection, Criteria $fieldCriteria): void
     {
         /** @var string|EntityDefinition $definition */
+        $propertyName = $this->getDomainName($definition::getEntityName()) . 'Id';
+        if ($association instanceof ChildrenAssociationField) {
+            $propertyName = 'parentId';
+        }
 
         //build orm property accessor to add field sortings and conditions `customer_address.customerId`
-        $propertyAccessor = $association->getReferenceClass()::getEntityName() . '.' . $definition::getEntityName() . 'Id';
+        $propertyAccessor = $association->getReferenceClass()::getEntityName() . '.' . $propertyName;
+
+        $ids = array_values($collection->getIds());
+
+        $isInheritanceAware = $definition::isInheritanceAware();
+
+        if ($isInheritanceAware) {
+            $parentIds = $collection->map(function (Entity $entity) {
+                return $entity->get('parentId');
+            });
+
+            $parentIds = array_values(array_filter($parentIds));
+
+            $ids = array_unique(array_merge($ids, $parentIds));
+        }
 
         //create new read criteria for the association without pre fetched ids
         $readCriteria = new ReadCriteria([]);
         $readCriteria->setFilters($fieldCriteria->getAllFilters()->getQueries());
         $readCriteria->setSortings($fieldCriteria->getSortings());
         $readCriteria->setAssociations($fieldCriteria->getAssociations());
-        $readCriteria->addFilter(new TermsQuery($propertyAccessor, array_values($collection->getIds())));
+        $readCriteria->addFilter(new TermsQuery($propertyAccessor, $ids));
 
         $data = $this->readBasic($association->getReferenceClass(), $readCriteria, $context);
 
         //assign loaded data to root entities
         foreach ($collection as $entity) {
-            $structData = $data->filterByProperty($definition::getEntityName() . 'Id', $entity->getId());
+            $structData = $data->filterByProperty($propertyName, $entity->getId());
+
+            if ($structData->count() === 0 && $isInheritanceAware) {
+                $structData = $data->filterByProperty($propertyName, $entity->get('parentId'));
+            }
 
             $search = new EntitySearchResult(0, $structData, null, $readCriteria, $context);
 
@@ -574,9 +597,13 @@ class EntityReader implements EntityReaderInterface
     private function loadOneToManyWithPagination(string $definition, OneToManyAssociationField $association, Context $context, EntityCollection $collection, Criteria $fieldCriteria): void
     {
         /** @var string|EntityDefinition $definition */
+        $propertyName = $this->getDomainName($definition::getEntityName()) . 'Id';
+        if ($association instanceof ChildrenAssociationField) {
+            $propertyName = 'parentId';
+        }
 
         //build orm property accessor to add field sortings and conditions `customer_address.customerId`
-        $propertyAccessor = $association->getReferenceClass()::getEntityName() . '.' . $definition::getEntityName() . 'Id';
+        $propertyAccessor = $association->getReferenceClass()::getEntityName() . '.' . $propertyName;
 
         //inject sorting for foreign key, otherwise the internal counter wouldn't work `order by customer_address.customer_id, other_sortings`
         $fieldCriteria->setSortings(
@@ -653,7 +680,7 @@ class EntityReader implements EntityReaderInterface
         }
     }
 
-    private function loadManyToManyWithoutPagination(string $definition, Criteria $fieldCriteria, ManyToManyAssociationField $association, Context $context, EntityCollection $collection): void
+    private function loadManyToManyWithoutPagination(Criteria $fieldCriteria, ManyToManyAssociationField $association, Context $context, EntityCollection $collection): void
     {
         /** @var string|EntityDefinition $definition */
         $fields = $association->getReferenceDefinition()::getFields();
@@ -808,5 +835,10 @@ class EntityReader implements EntityReaderInterface
         $this->connection->executeQuery('SET @n = 0; SET @c = null;');
 
         return $wrapper->execute()->fetchAll(\PDO::FETCH_KEY_PAIR);
+    }
+
+    private function getDomainName(string $name)
+    {
+        return lcfirst(str_replace('_', '', ucwords($name, '_')));
     }
 }

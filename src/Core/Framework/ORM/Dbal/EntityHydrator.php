@@ -83,6 +83,7 @@ class EntityHydrator
 
         $data = [];
         $associations = [];
+        $inheritedFields = [];
         $inherited = new ArrayStruct();
         $translated = new ArrayStruct();
 
@@ -108,9 +109,10 @@ class EntityHydrator
             }
 
             $value = $row[$originalKey];
+            $isInherited = $field->is(Inherited::class);
 
             //remove internal .inherited key which used to detect if a inherited field is selected by parent or child
-            if ($field->is(Inherited::class)) {
+            if ($isInherited) {
                 $inheritedKey = '_' . $originalKey . '.inherited';
 
                 if (isset($row[$inheritedKey])) {
@@ -134,6 +136,9 @@ class EntityHydrator
                 continue;
             }
 
+            if ($isInherited) {
+                $inheritedFields[] = $field;
+            }
             //many to many fields contains a group concat id value in the selection, this will be stored in an internal extension to collect them later
             if ($field instanceof ManyToManyAssociationField) {
                 $property = $root . '.' . $propertyName;
@@ -183,13 +188,8 @@ class EntityHydrator
         }
 
         if ($definition::isInheritanceAware()) {
-            $associations = $definition::getFields()->getElements();
             /** @var Field $association */
-            foreach ($associations as $association) {
-                if (!$association->is(Inherited::class)) {
-                    continue;
-                }
-
+            foreach ($inheritedFields as $association) {
                 if (!$association instanceof ManyToManyAssociationField && !$association instanceof OneToManyAssociationField) {
                     continue;
                 }

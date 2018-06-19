@@ -18,21 +18,6 @@ use Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitDefinit
 
 class VersionDefinition extends EntityDefinition
 {
-    /**
-     * @var FieldCollection
-     */
-    protected static $primaryKeys;
-
-    /**
-     * @var FieldCollection
-     */
-    protected static $fields;
-
-    /**
-     * @var EntityExtensionInterface[]
-     */
-    protected static $extensions = [];
-
     public static function getEntityName(): string
     {
         return 'version';

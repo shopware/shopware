@@ -23,21 +23,6 @@ use Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\ListingFacetT
 
 class ListingFacetDefinition extends EntityDefinition
 {
-    /**
-     * @var FieldCollection
-     */
-    protected static $primaryKeys;
-
-    /**
-     * @var FieldCollection
-     */
-    protected static $fields;
-
-    /**
-     * @var EntityExtensionInterface[]
-     */
-    protected static $extensions = [];
-
     public static function getEntityName(): string
     {
         return 'listing_facet';

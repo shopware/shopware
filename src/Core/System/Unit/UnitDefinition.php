@@ -24,21 +24,6 @@ use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationDefinitio
 
 class UnitDefinition extends EntityDefinition
 {
-    /**
-     * @var FieldCollection
-     */
-    protected static $primaryKeys;
-
-    /**
-     * @var FieldCollection
-     */
-    protected static $fields;
-
-    /**
-     * @var EntityExtensionInterface[]
-     */
-    protected static $extensions = [];
-
     public static function getEntityName(): string
     {
         return 'unit';

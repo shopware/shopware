@@ -19,21 +19,6 @@ use Shopware\Core\Framework\ORM\Write\Flag\Required;
 
 class CustomerGroupDiscountDefinition extends EntityDefinition
 {
-    /**
-     * @var FieldCollection
-     */
-    protected static $primaryKeys;
-
-    /**
-     * @var FieldCollection
-     */
-    protected static $fields;
-
-    /**
-     * @var EntityExtensionInterface[]
-     */
-    protected static $extensions = [];
-
     public static function getEntityName(): string
     {
         return 'customer_group_discount';

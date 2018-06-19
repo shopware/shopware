@@ -57,21 +57,6 @@ use Shopware\Core\System\Unit\UnitDefinition;
 
 class ProductDefinition extends EntityDefinition
 {
-    /**
-     * @var FieldCollection
-     */
-    protected static $primaryKeys;
-
-    /**
-     * @var FieldCollection
-     */
-    protected static $fields;
-
-    /**
-     * @var EntityExtensionInterface[]
-     */
-    protected static $extensions = [];
-
     public static function getEntityName(): string
     {
         return 'product';

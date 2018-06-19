@@ -16,16 +16,6 @@ use Shopware\Core\System\Touchpoint\TouchpointDefinition;
 
 class ProductSeoCategoryDefinition extends MappingEntityDefinition
 {
-    /**
-     * @var FieldCollection
-     */
-    protected static $fields;
-
-    /**
-     * @var FieldCollection
-     */
-    protected static $primaryKeys;
-
     public static function getEntityName(): string
     {
         return 'product_seo_category';

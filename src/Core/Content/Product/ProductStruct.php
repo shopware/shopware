@@ -272,7 +272,7 @@ class ProductStruct extends Entity
     protected $cover;
 
     /**
-     * @var ProductBasicStruct|null
+     * @var ProductStruct|null
      */
     protected $parent;
 
@@ -955,12 +955,12 @@ class ProductStruct extends Entity
         $this->cover = $cover;
     }
 
-    public function getParent(): ?ProductBasicStruct
+    public function getParent(): ?ProductStruct
     {
         return $this->parent;
     }
 
-    public function setParent(?ProductBasicStruct $parent): void
+    public function setParent(?ProductStruct $parent): void
     {
         $this->parent = $parent;
     }

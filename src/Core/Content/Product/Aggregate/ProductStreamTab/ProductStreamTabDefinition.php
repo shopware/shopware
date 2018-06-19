@@ -15,16 +15,6 @@ use Shopware\Core\Framework\ORM\Write\Flag\Required;
 
 class ProductStreamTabDefinition extends MappingEntityDefinition
 {
-    /**
-     * @var FieldCollection
-     */
-    protected static $fields;
-
-    /**
-     * @var FieldCollection
-     */
-    protected static $primaryKeys;
-
     public static function getEntityName(): string
     {
         return 'product_stream_tab';

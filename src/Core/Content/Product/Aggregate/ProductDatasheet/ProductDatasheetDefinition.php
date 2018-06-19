@@ -14,16 +14,6 @@ use Shopware\Core\Framework\ORM\Write\Flag\Required;
 
 class ProductDatasheetDefinition extends MappingEntityDefinition
 {
-    /**
-     * @var FieldCollection
-     */
-    protected static $fields;
-
-    /**
-     * @var FieldCollection
-     */
-    protected static $primaryKeys;
-
     public static function getEntityName(): string
     {
         return 'product_datasheet';

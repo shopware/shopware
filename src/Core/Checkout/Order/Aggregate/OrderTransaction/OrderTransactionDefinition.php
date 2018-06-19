@@ -25,21 +25,6 @@ use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
 
 class OrderTransactionDefinition extends EntityDefinition
 {
-    /**
-     * @var FieldCollection
-     */
-    protected static $primaryKeys;
-
-    /**
-     * @var FieldCollection
-     */
-    protected static $fields;
-
-    /**
-     * @var EntityExtensionInterface[]
-     */
-    protected static $extensions = [];
-
     public static function getEntityName(): string
     {
         return 'order_transaction';

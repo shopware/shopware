@@ -27,21 +27,6 @@ use Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\ListingSort
 
 class ListingSortingDefinition extends EntityDefinition
 {
-    /**
-     * @var FieldCollection
-     */
-    protected static $primaryKeys;
-
-    /**
-     * @var FieldCollection
-     */
-    protected static $fields;
-
-    /**
-     * @var EntityExtensionInterface[]
-     */
-    protected static $extensions = [];
-
     public static function getEntityName(): string
     {
         return 'listing_sorting';

@@ -19,21 +19,6 @@ use Shopware\Core\System\Config\Aggregate\ConfigFormField\ConfigFormFieldDefinit
 
 class ConfigFormFieldValueDefinition extends EntityDefinition
 {
-    /**
-     * @var FieldCollection
-     */
-    protected static $primaryKeys;
-
-    /**
-     * @var FieldCollection
-     */
-    protected static $fields;
-
-    /**
-     * @var EntityExtensionInterface[]
-     */
-    protected static $extensions = [];
-
     public static function getEntityName(): string
     {
         return 'config_form_field_value';

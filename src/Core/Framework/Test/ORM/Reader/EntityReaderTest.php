@@ -284,9 +284,9 @@ class EntityReaderTest extends KernelTestCase
                     $address,
                     $address,
                     $address,
-                    $address
-                ]
-            ]
+                    $address,
+                ],
+            ],
         ], $context);
 
         /** @var CustomerStruct $customer */
@@ -333,11 +333,10 @@ class EntityReaderTest extends KernelTestCase
                     $address,
                     $address,
                     $address,
-                    $address
-                ]
-            ]
+                    $address,
+                ],
+            ],
         ], $context);
-
 
         $addresses = $this->connection->fetchColumn('SELECT COUNT(id) FROM customer_address WHERE customer_id = :id', ['id' => Uuid::fromHexToBytes($id)]);
         $this->assertEquals(5, $addresses);
@@ -393,7 +392,7 @@ class EntityReaderTest extends KernelTestCase
                         array_merge($address, ['zipcode' => 'B']),
                         array_merge($address, ['zipcode' => 'B']),
                         array_merge($address, ['zipcode' => 'X']),
-                    ]
+                    ],
                 ],
                 $customer
             ),
@@ -407,12 +406,11 @@ class EntityReaderTest extends KernelTestCase
                         array_merge($address, ['zipcode' => 'B']),
                         array_merge($address, ['zipcode' => 'C']),
                         array_merge($address, ['zipcode' => 'X']),
-                    ]
+                    ],
                 ],
                 $customer
-            )
+            ),
         ], $context);
-
 
         $bytes = [Uuid::fromHexToBytes($id1), Uuid::fromHexToBytes($id2)];
 
@@ -489,7 +487,7 @@ class EntityReaderTest extends KernelTestCase
                         array_merge($address, ['id' => $addressId1, 'zipcode' => 'C']),
                         array_merge($address, ['id' => $addressId2, 'zipcode' => 'B']),
                         array_merge($address, ['id' => $addressId3, 'zipcode' => 'X']),
-                    ]
+                    ],
                 ],
                 $customer
             ),
@@ -503,12 +501,11 @@ class EntityReaderTest extends KernelTestCase
                         array_merge($address, ['id' => $addressId4, 'zipcode' => 'X']),
                         array_merge($address, ['id' => $addressId5, 'zipcode' => 'B']),
                         array_merge($address, ['id' => $addressId6, 'zipcode' => 'A']),
-                    ]
+                    ],
                 ],
                 $customer
-            )
+            ),
         ], $context);
-
 
         $bytes = [Uuid::fromHexToBytes($id1), Uuid::fromHexToBytes($id2)];
 
@@ -544,7 +541,6 @@ class EntityReaderTest extends KernelTestCase
             array_values($customer2->getAddresses()->getIds())
         );
 
-
         /** @var CustomerStruct $customer1 */
         /** @var CustomerStruct $customer2 */
         $criteria = new ReadCriteria([$id1, $id2]);
@@ -566,7 +562,6 @@ class EntityReaderTest extends KernelTestCase
             [$addressId4, $addressId5, $addressId6],
             array_values($customer2->getAddresses()->getIds())
         );
-
     }
 
     public function testLoadOneToManySupportsPagination()
@@ -607,9 +602,9 @@ class EntityReaderTest extends KernelTestCase
                     $address,
                     $address,
                     $address,
-                    $address
-                ]
-            ]
+                    $address,
+                ],
+            ],
         ], $context);
 
         /** @var CustomerStruct $customer */
@@ -628,7 +623,6 @@ class EntityReaderTest extends KernelTestCase
 
     public function testLoadOneToManyConsidersInheritance()
     {
-
     }
 
     public function testLoadManyToManyNotLoadedAutomatically()
@@ -670,7 +664,7 @@ class EntityReaderTest extends KernelTestCase
         $repository->upsert(
             [
                 ['id' => $id1, 'name' => 'test', 'products' => [$product1, $product3]],
-                ['id' => $id2, 'name' => 'test', 'products' => [$product3, $product2]]
+                ['id' => $id2, 'name' => 'test', 'products' => [$product3, $product2]],
             ],
             $context
         );
@@ -686,11 +680,11 @@ class EntityReaderTest extends KernelTestCase
         $category2 = $categories->get($id2);
 
         $this->assertInstanceOf(CategoryStruct::class, $category1);
-        /** @var CategoryStruct $category1 */
+        /* @var CategoryStruct $category1 */
         $this->assertNull($category1->getProducts());
 
         $this->assertInstanceOf(CategoryStruct::class, $category2);
-        /** @var CategoryStruct $category2 */
+        /* @var CategoryStruct $category2 */
         $this->assertNull($category2->getProducts());
     }
 
@@ -733,7 +727,7 @@ class EntityReaderTest extends KernelTestCase
         $repository->upsert(
             [
                 ['id' => $id1, 'name' => 'test', 'products' => [$product1, $product3]],
-                ['id' => $id2, 'name' => 'test', 'products' => [$product3, $product2]]
+                ['id' => $id2, 'name' => 'test', 'products' => [$product3, $product2]],
             ],
             $context
         );
@@ -741,7 +735,6 @@ class EntityReaderTest extends KernelTestCase
         $bytes = [Uuid::fromHexToBytes($id1), Uuid::fromHexToBytes($id2)];
         $mapping = $this->connection->fetchAll('SELECT * FROM product_category WHERE category_id IN (:ids)', ['ids' => $bytes], ['ids' => Connection::PARAM_STR_ARRAY]);
         $this->assertCount(4, $mapping);
-
 
         //test that we can add the association and all products are fetched
         $criteria = new ReadCriteria([$id1, $id2]);
@@ -753,7 +746,7 @@ class EntityReaderTest extends KernelTestCase
         $category2 = $categories->get($id2);
 
         $this->assertInstanceOf(CategoryStruct::class, $category1);
-        /** @var CategoryStruct $category1 */
+        /* @var CategoryStruct $category1 */
         $this->assertInstanceOf(EntitySearchResult::class, $category1->getProducts());
         $this->assertCount(2, $category1->getProducts());
 
@@ -761,7 +754,7 @@ class EntityReaderTest extends KernelTestCase
         $this->assertContains($id3, $category1->getProducts()->getIds());
 
         $this->assertInstanceOf(CategoryStruct::class, $category2);
-        /** @var CategoryStruct $category2 */
+        /* @var CategoryStruct $category2 */
         $this->assertInstanceOf(EntitySearchResult::class, $category2->getProducts());
         $this->assertCount(2, $category2->getProducts());
 
@@ -808,7 +801,7 @@ class EntityReaderTest extends KernelTestCase
         $repository->upsert(
             [
                 ['id' => $id1, 'name' => 'test', 'products' => [$product1, $product3]],
-                ['id' => $id2, 'name' => 'test', 'products' => [$product3, $product2]]
+                ['id' => $id2, 'name' => 'test', 'products' => [$product3, $product2]],
             ],
             $context
         );
@@ -882,7 +875,7 @@ class EntityReaderTest extends KernelTestCase
         $repository->upsert(
             [
                 ['id' => $id1, 'name' => 'test', 'products' => [$product1, $product3]],
-                ['id' => $id2, 'name' => 'test', 'products' => [$product3, $product2]]
+                ['id' => $id2, 'name' => 'test', 'products' => [$product3, $product2]],
             ],
             $context
         );
@@ -948,12 +941,10 @@ class EntityReaderTest extends KernelTestCase
 
     public function testLoadManyToManySupportsPagination()
     {
-
     }
 
     public function testLoadManyToManyConsidersInheritance()
     {
-
     }
 
     public function testReadSupportsConditions(): void
@@ -977,7 +968,7 @@ class EntityReaderTest extends KernelTestCase
                 'manufacturer' => ['name' => 'test'],
                 'name' => 'test',
                 'tax' => ['rate' => 13, 'name' => 'green'],
-            ]
+            ],
         ];
 
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
@@ -1015,7 +1006,7 @@ class EntityReaderTest extends KernelTestCase
                 'manufacturer' => ['name' => 'test'],
                 'name' => 'A',
                 'tax' => ['rate' => 13, 'name' => 'green'],
-            ]
+            ],
         ];
 
         $context = Context::createDefaultContext(Defaults::TENANT_ID);

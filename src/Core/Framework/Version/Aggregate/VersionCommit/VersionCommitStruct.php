@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Version\Aggregate\VersionCommit;
 
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
-use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataCollection;
 
 class VersionCommitStruct extends Entity
 {

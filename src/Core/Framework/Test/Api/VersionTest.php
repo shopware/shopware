@@ -3,10 +3,6 @@
 namespace Shopware\Core\Framework\Test\Api;
 
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\ORM\DefinitionRegistry;
-use Shopware\Core\Framework\ORM\Exception\MappingEntityRepositoryException;
-use Shopware\Core\PlatformRequest;
-use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Client;
 

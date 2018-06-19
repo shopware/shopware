@@ -27,7 +27,7 @@ class EntityScoreQueryBuilder
     public function buildScoreQueries(SearchPattern $term, string $definition, string $root, float $multiplier = 1): array
     {
         static $counter = 0;
-        $counter++;
+        ++$counter;
 
         $fields = $this->getQueryFields($definition);
 

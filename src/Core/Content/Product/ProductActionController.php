@@ -27,7 +27,7 @@ class ProductActionController extends Controller
      * @Method({"POST"})
      *
      * @param Request     $request
-     * @param string             $productId
+     * @param string      $productId
      * @param RestContext $context
      *
      * @throws Exception\NoConfiguratorFoundException

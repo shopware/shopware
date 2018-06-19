@@ -379,7 +379,7 @@ class CheckoutControllerTest extends ApiTestCase
         $response = $this->storefrontApiClient->getResponse();
 
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
-        
+
         $content = json_decode($response->getContent(), true);
 
         $client = clone $this->storefrontApiClient;

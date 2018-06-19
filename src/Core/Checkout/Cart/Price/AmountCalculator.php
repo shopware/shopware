@@ -103,9 +103,9 @@ class AmountCalculator
      * `CalculatedPrice::price` contains the summed gross prices
      * Calculated taxes are based on the gross prices
      *
-     * @param CalculatedPriceCollection                              $prices
-     * @param CalculatedPriceCollection                              $shippingCosts
-     * @param CheckoutContext $context
+     * @param CalculatedPriceCollection $prices
+     * @param CalculatedPriceCollection $shippingCosts
+     * @param CheckoutContext           $context
      *
      * @return CartPrice
      */
@@ -138,9 +138,9 @@ class AmountCalculator
      * `CalculatedPrice::price` contains the summed net prices plus amount of calculated taxes
      * Calculated taxes are based on the net prices
      *
-     * @param CalculatedPriceCollection                              $prices
-     * @param CalculatedPriceCollection                              $shippingCosts
-     * @param CheckoutContext $context
+     * @param CalculatedPriceCollection $prices
+     * @param CalculatedPriceCollection $shippingCosts
+     * @param CheckoutContext           $context
      *
      * @return CartPrice
      */

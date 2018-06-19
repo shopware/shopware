@@ -78,7 +78,7 @@ class RequirementValidator
     }
 
     /**
-     * @param array[]                                    $requiredPlugins
+     * @param array[]  $requiredPlugins
      * @param Plugin[] $availablePlugins
      *
      * @throws \Exception

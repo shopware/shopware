@@ -258,11 +258,11 @@ class DemodataCommand extends ContainerAwareCommand
                     'street' => $this->faker->streetName,
                     'zipcode' => $this->faker->postcode,
                     'city' => $this->faker->city,
-                ]
+                ],
             ];
 
             $aCount = random_int(2, 5);
-            for ($x = 1; $x < $aCount; $x++) {
+            for ($x = 1; $x < $aCount; ++$x) {
                 $addresses[] = [
                     'countryId' => Defaults::COUNTRY,
                     'salutation' => $salutation,
@@ -287,7 +287,7 @@ class DemodataCommand extends ContainerAwareCommand
                 'touchpointId' => Defaults::TOUCHPOINT,
                 'defaultBillingAddressId' => $addressId,
                 'defaultShippingAddressId' => $addressId,
-                'addresses' => $addresses
+                'addresses' => $addresses,
             ];
 
             $payload[] = $customer;

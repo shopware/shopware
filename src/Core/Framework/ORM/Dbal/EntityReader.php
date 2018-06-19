@@ -30,7 +30,6 @@ use Shopware\Core\Framework\ORM\Write\Flag\DelayedLoad;
 use Shopware\Core\Framework\ORM\Write\Flag\Extension;
 use Shopware\Core\Framework\ORM\Write\Flag\Inherited;
 use Shopware\Core\Framework\Struct\ArrayStruct;
-use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Struct\Uuid;
 
 /**
@@ -248,7 +247,6 @@ class EntityReader implements EntityReaderInterface
 
             //add sub select for many to many field
             if ($field instanceof ManyToManyAssociationField) {
-
                 $fieldCriteria = $criteria->getAssociation(
                     $definition::getEntityName() . '.' . $field->getPropertyName()
                 );
@@ -380,11 +378,13 @@ class EntityReader implements EntityReaderInterface
         //requested a paginated, filtered or sorted list
         if ($fieldCriteria && $fieldCriteria->getLimit()) {
             $this->loadManyToManyWithPagination($definition, $fieldCriteria, $association, $context, $collection);
+
             return;
         }
 
         if ($fieldCriteria && (!empty($fieldCriteria->getFilters()->getQueries()) || $fieldCriteria->getSortings())) {
             $this->loadManyToManyWithoutPagination($fieldCriteria, $association, $context, $collection);
+
             return;
         }
 
@@ -532,6 +532,7 @@ class EntityReader implements EntityReaderInterface
         //association should not be paginated > load data over foreign key condition
         if (!$fieldCriteria->getLimit()) {
             $this->loadOneToManyWithoutPagination($definition, $association, $context, $collection, $fieldCriteria);
+
             return;
         }
 
@@ -589,7 +590,7 @@ class EntityReader implements EntityReaderInterface
             }
 
             $entity->assign([
-                $association->getPropertyName() => $search
+                $association->getPropertyName() => $search,
             ]);
         }
     }
@@ -620,7 +621,7 @@ class EntityReader implements EntityReaderInterface
 
         $ids = [];
         foreach ($mapping as $associationIds) {
-            $associationIds = array_filter(explode(',', (string)$associationIds));
+            $associationIds = array_filter(explode(',', (string) $associationIds));
             foreach ($associationIds as $associationId) {
                 $ids[] = $associationId;
             }
@@ -727,7 +728,7 @@ class EntityReader implements EntityReaderInterface
 
         $query->select([
             'LOWER(HEX(' . $root . '.' . $localColumn . '))',
-            'GROUP_CONCAT(LOWER(HEX(' . $root . '.' . $referenceColumn . ')) ' . $orderBy . ')'
+            'GROUP_CONCAT(LOWER(HEX(' . $root . '.' . $referenceColumn . ')) ' . $orderBy . ')',
         ]);
 
         $query->addGroupBy($root . '.' . $localColumn);
@@ -756,14 +757,13 @@ class EntityReader implements EntityReaderInterface
             }
 
             $entity->assign([
-                $association->getPropertyName() => new EntitySearchResult(0, $entities, null, $criteria, $context)
+                $association->getPropertyName() => new EntitySearchResult(0, $entities, null, $criteria, $context),
             ]);
         }
     }
 
     private function loadManyToManyWithPagination(string $definition, Criteria $fieldCriteria, ManyToManyAssociationField $association, Context $context, EntityCollection $collection): void
     {
-
     }
 
     private function fetchPaginatedOneToManyMapping(string $definition, OneToManyAssociationField $association, Context $context, EntityCollection $collection, Criteria $fieldCriteria): array
@@ -787,7 +787,7 @@ class EntityReader implements EntityReaderInterface
                 $sqlAccessor,
 
                 //add primary key select to group concat them
-                EntityDefinitionQueryHelper::escape($association->getReferenceClass()::getEntityName()) . '.id'
+                EntityDefinitionQueryHelper::escape($association->getReferenceClass()::getEntityName()) . '.id',
             ]
         );
 
@@ -797,8 +797,8 @@ class EntityReader implements EntityReaderInterface
         $wrapper = $this->connection->createQueryBuilder();
         $wrapper->select(
             [
-                'LOWER(HEX('.$root.'.id)) as id',
-                'GROUP_CONCAT(LOWER(HEX(child.id))) as ids'
+                'LOWER(HEX(' . $root . '.id)) as id',
+                'GROUP_CONCAT(LOWER(HEX(child.id))) as ids',
             ]
         );
 
@@ -807,16 +807,16 @@ class EntityReader implements EntityReaderInterface
         //wrap query into a sub select to restrict the association count from the outer query
         $wrapper->leftJoin(
             $root,
-            '('.$query->getSQL().')',
+            '(' . $query->getSQL() . ')',
             'child',
-            'child.'.$foreignKey.' = '.$root.'.id AND id_count <= :childCount'
+            'child.' . $foreignKey . ' = ' . $root . '.id AND id_count <= :childCount'
         );
 
         //add group by to concat all association ids for each root
-        $wrapper->addGroupBy($root.'.id');
+        $wrapper->addGroupBy($root . '.id');
 
         //filter result to loaded root entities
-        $wrapper->andWhere($root.'.id IN (:rootIds)');
+        $wrapper->andWhere($root . '.id IN (:rootIds)');
 
         $bytes = $collection->map(
             function (Entity $entity) {

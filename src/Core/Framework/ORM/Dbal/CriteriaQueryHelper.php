@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Framework\ORM\Dbal;
 
@@ -37,7 +37,6 @@ trait CriteriaQueryHelper
             }
             $queryHelper->resolveAccessor($fieldName, $definition, $table, $query, $context);
         }
-
 
         $this->addFilters($parser, $definition, $criteria, $query, $context);
 

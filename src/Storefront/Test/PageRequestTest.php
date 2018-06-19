@@ -32,7 +32,6 @@ class PageRequestTest extends KernelTestCase
 
     public function testPageRequestExtension()
     {
-
         $checkoutContext = Generator::createContext();
 
         $extension = new MyCustomExtension('property value');
@@ -42,7 +41,7 @@ class PageRequestTest extends KernelTestCase
 
         $originalData = [[
             'id' => $checkoutContext->getCustomer()->getId(),
-            'customExtension' => $extension
+            'customExtension' => $extension,
         ]];
 
         // array merge recrusive
@@ -66,10 +65,8 @@ class PageRequestTest extends KernelTestCase
     }
 }
 
-
 class MyCustomExtension extends Struct
 {
-
     /**
      * @var string
      */
@@ -89,5 +86,4 @@ class MyCustomExtension extends Struct
     {
         $this->myCustomProperty = $myCustomProperty;
     }
-
 }

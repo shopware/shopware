@@ -3,10 +3,8 @@
 namespace Shopware\Core\Framework\ORM\Search;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\ORM\EntityCollection;
 use Shopware\Core\Framework\ORM\Search\Aggregation\AggregationResultCollection;
-use Shopware\Core\Framework\Struct\ArrayStruct;
 
 class EntitySearchResult extends EntityCollection
 {

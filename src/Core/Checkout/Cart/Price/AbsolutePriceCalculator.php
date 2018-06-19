@@ -54,7 +54,7 @@ class AbsolutePriceCalculator
     /**
      * @param float                     $price
      * @param CalculatedPriceCollection $prices
-     * @param CheckoutContext         $context
+     * @param CheckoutContext           $context
      *
      * @return DerivedCalculatedPrice
      */

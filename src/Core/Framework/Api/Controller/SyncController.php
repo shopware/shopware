@@ -41,7 +41,7 @@ class SyncController extends Controller
      * @Route("/api/sync", name="sync.api")
      * @Method({"POST"})
      *
-     * @param Request                                     $request
+     * @param Request     $request
      * @param RestContext $restContext
      *
      * @return Response

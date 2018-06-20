@@ -33,7 +33,8 @@ Component.register('sw-context-button', {
             showMenu: this.showMenuOnStartup,
             positionTop: 0,
             positionLeft: 0,
-            paddingTop: 0
+            paddingTop: 0,
+            menuUuid: 0
         };
     },
 
@@ -67,10 +68,14 @@ Component.register('sw-context-button', {
             this.addMenuToBody();
         },
 
-        closeMenu() {
-            this.showMenu = false;
+        closeMenu(e) {
+            const el = this.$refs.swContextButton;
+            const target = e.target;
 
-            this.removeMenuFromBody();
+            if ((el !== target) && !el.contains(target)) {
+                this.showMenu = false;
+                this.removeMenuFromBody();
+            }
         },
 
         addMenuToBody() {
@@ -78,7 +83,7 @@ Component.register('sw-context-button', {
 
             if (menuEl) {
                 document.body.appendChild(menuEl.$el);
-                menuEl.$el.addEventListener('mouseleave', this.closeMenu);
+                document.addEventListener('click', this.closeMenu);
             }
         },
 
@@ -86,7 +91,7 @@ Component.register('sw-context-button', {
             const menuEl = this.$children[1];
 
             if (menuEl) {
-                menuEl.$el.removeEventListener('mouseleave', this.closeMenu);
+                document.removeEventListener('click', this.closeMenu);
                 menuEl.$el.remove();
             }
         }

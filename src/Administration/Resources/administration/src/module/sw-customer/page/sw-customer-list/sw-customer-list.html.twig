@@ -28,6 +28,7 @@
                                  :sortBy="sortBy"
                                  :sortDirection="sortDirection"
                                  :sidebar="true"
+                                 :selectable="false"
                                  :isFullpage="true"
                                  @sort-column="onSortColumn"
                                  @inline-edit-finish="onInlineEditSave">
@@ -40,6 +41,7 @@
                                             <sw-grid-column flex="minmax(80px, 100px)"
                                                             :label="$tc('sw-customer.list.columnCustomerNumber')"
                                                             dataIndex="number"
+                                                            align="right"
                                                             sortable
                                                             editable>
                                                 {% block sw_customer_list_grid_columns_customer_number_label %}
@@ -59,7 +61,9 @@
                                                             sortable
                                                             editable>
                                                 {% block sw_customer_list_grid_columns_first_name_label %}
-                                                    {{ item.firstName }}
+                                                    <router-link :to="{ name: 'sw.customer.detail', params: { id: item.id } }">
+                                                        {{ item.firstName }}
+                                                    </router-link>
                                                 {% endblock %}
 
                                                 {% block sw_customer_list_grid_columns_first_name_editor %}
@@ -75,7 +79,9 @@
                                                             sortable
                                                             editable>
                                                 {% block sw_customer_list_grid_columns_last_name_label %}
-                                                    {{ item.lastName }}
+                                                    <router-link :to="{ name: 'sw.customer.detail', params: { id: item.id } }">
+                                                        {{ item.lastName }}
+                                                    </router-link>
                                                 {% endblock %}
 
                                                 {% block sw_customer_list_grid_columns_last_name_editor %}
@@ -88,6 +94,7 @@
                                             <sw-grid-column flex="minmax(100px, 1fr)"
                                                             :label="$tc('sw-customer.list.columnStreet')"
                                                             dataIndex="defaultBillingAddress.street"
+                                                            truncate
                                                             sortable>
                                                 {% block sw_customer_list_grid_columns_street_label %}
                                                     {{ item.defaultBillingAddress.street }}
@@ -99,6 +106,7 @@
                                             <sw-grid-column flex="minmax(80px, 100px)"
                                                             :label="$tc('sw-customer.list.columnZip')"
                                                             dataIndex="defaultBillingAddress.zipcode"
+                                                            align="right"
                                                             sortable>
                                                 {% block sw_customer_list_grid_columns_zipcode_label %}
                                                     {{ item.defaultBillingAddress.zipcode }}
@@ -146,7 +154,6 @@
 
                                         {% block sw_customer_list_grid_columns_actions %}
                                             <sw-grid-column flex="minmax(100px, 120px)"
-                                                            :label="$tc('sw-customer.list.columnActions')"
                                                             align="center">
                                                 {% block sw_customer_list_grid_columns_actions_context_button %}
                                                     <sw-context-button>

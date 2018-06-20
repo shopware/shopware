@@ -1,4 +1,5 @@
 @import "~less/variables";
+@import "~less/mixins";
 
 @sw-grid-column-color-action: @color-shopware-blue;
 @sw-grid-column-color-border: @color-steam-cloud;
@@ -51,6 +52,22 @@
         line-height: 24px;
         padding: 20px 20px;
         text-align: left;
+        font-size: 15px;
+        color: @color-gutenberg;
+
+        &.is--truncate {
+            .truncate();
+            display: block;
+        }
+
+        a {
+            color: @color-gutenberg;
+            text-decoration: none;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
     }
 
     &.sw-grid-column--left {

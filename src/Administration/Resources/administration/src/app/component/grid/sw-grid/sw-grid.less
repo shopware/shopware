@@ -56,16 +56,18 @@
         .sw-grid-column {
             font-size: 16px;
             font-weight: bold;
-            color: @sw-grid-header-color-text;
+
+            .sw-grid__cell-content {
+                color: @sw-grid-header-color-text
+            }
 
             &.is--sortable {
                 cursor: pointer;
             }
 
             &.is--sorted {
-                color: @sw-grid-item-active-color-text;
-
                 .sw-grid__cell-content {
+                    color: darken(@sw-grid-header-color-text, 10%);
                     display: grid;
                     grid-template-columns: 1fr 10px;
                     grid-gap: 5px;

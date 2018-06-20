@@ -4,7 +4,7 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import VueI18n from 'vue-i18n';
-import { Component } from 'src/core/shopware';
+import { Component, Mixin } from 'src/core/shopware';
 import { warn } from 'src/core/service/utils/debug.utils';
 
 import 'src/app/component/components';
@@ -100,6 +100,17 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
 
         if (!componentConfig) {
             return false;
+        }
+
+        // If the mixin is a string, use our mixin registry
+        if (componentConfig.mixins && componentConfig.mixins.length) {
+            componentConfig.mixins = componentConfig.mixins.map((mixin) => {
+                if (typeof mixin === 'string') {
+                    return Mixin.getByName(mixin);
+                }
+
+                return mixin;
+            });
         }
 
         const vueComponent = Vue.component(componentName, componentConfig);

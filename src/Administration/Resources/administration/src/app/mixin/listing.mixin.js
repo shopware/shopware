@@ -25,7 +25,7 @@ Mixin.register('listing', {
         },
 
         filters() {
-            debug.warn('Listing Mixin', 'You can create your custom filters by defining the computed property "filers".');
+            debug.warn('Listing Mixin', 'You can create your custom filters by defining the computed property "filters".');
             return [];
         }
     },

@@ -231,7 +231,7 @@ class EntityReader implements EntityReaderInterface
 
                 $basics = $reference::getFields()->getBasicProperties();
 
-                if ($this->shouldBeLoadedDelayed($field, $reference, $basics)) {
+                if ($this->shouldBeLoadedDelayed($field, $reference, $basics->getElements())) {
                     continue;
                 }
 
@@ -340,7 +340,7 @@ class EntityReader implements EntityReaderInterface
         $reference = $association->getReferenceClass();
 
         $fields = $reference::getFields()->getBasicProperties();
-        if (!$this->shouldBeLoadedDelayed($association, $reference, $fields)) {
+        if (!$this->shouldBeLoadedDelayed($association, $reference, $fields->getElements())) {
             return;
         }
 
@@ -449,7 +449,7 @@ class EntityReader implements EntityReaderInterface
         return $ids;
     }
 
-    private function shouldBeLoadedDelayed(AssociationInterface $association, string $definition, FieldCollection $fields): bool
+    private function shouldBeLoadedDelayed(AssociationInterface $association, string $definition, array $fields): bool
     {
         /** @var AssociationInterface|Field $association */
         if ($association->is(DelayedLoad::class)) {
@@ -459,14 +459,6 @@ class EntityReader implements EntityReaderInterface
         foreach ($fields as $field) {
             if (!$field instanceof AssociationInterface) {
                 continue;
-            }
-
-            if ($field->is(Deferred::class)) {
-                continue;
-            }
-
-            if ($field->is(DelayedLoad::class)) {
-                return true;
             }
 
             if ($field instanceof ManyToManyAssociationField || $field instanceof OneToManyAssociationField) {
@@ -480,7 +472,16 @@ class EntityReader implements EntityReaderInterface
                 continue;
             }
 
-            if ($this->shouldBeLoadedDelayed($field, $reference, $reference::getFields()->getBasicProperties())) {
+            if ($field->is(Deferred::class)) {
+                continue;
+            }
+
+            if ($field->is(DelayedLoad::class)) {
+                return true;
+            }
+
+            $nested = $reference::getFields()->getBasicProperties()->getElements();
+            if ($this->shouldBeLoadedDelayed($field, $reference, $nested)) {
                 return true;
             }
         }

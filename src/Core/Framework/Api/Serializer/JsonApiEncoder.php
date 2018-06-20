@@ -33,9 +33,9 @@ class JsonApiEncoder implements EncoderInterface
      * @var array
      */
     private static $ignoredAttributes = [
-        'id',
-        '_class',
-        'translations',
+        'id' => 1,
+        '_class' => 1,
+        'translations' => 1,
     ];
 
     public function __construct(StructDecoder $structDecoder)
@@ -97,7 +97,7 @@ class JsonApiEncoder implements EncoderInterface
             $primaryResourcesHashes = [$this->getResourceHash($response['data'])];
         }
 
-        if (array_key_exists('included', $response) && \count($response)) {
+        if (isset($response['included']) && \count($response)) {
             // reduce includes by removing primary resources
             $response['included'] = array_values(array_diff_key($response['included'], array_flip($primaryResourcesHashes)));
         }
@@ -121,24 +121,15 @@ class JsonApiEncoder implements EncoderInterface
 
         /** @var array $fields */
         $fields = $context['definition']::getFields()->getElements();
-        if ($context['basic'] === true) {
-            $fields = array_filter($fields, function (Field $field) {
-                if ($field instanceof AssociationInterface) {
-                    return $field->loadInBasic() && !$field->is(WriteOnly::class);
-                }
-
-                return true;
-            });
-        }
 
         $missingProperties = [];
 
         foreach ($fields as $field) {
-            if (\in_array($field->getPropertyName(), self::$ignoredAttributes, true)) {
+            $key = $field->getPropertyName();
+
+            if (isset(self::$ignoredAttributes[$key])) {
                 continue;
             }
-
-            $key = $field->getPropertyName();
 
             try {
                 $value = $this->getValue($field, $data);
@@ -261,7 +252,7 @@ class JsonApiEncoder implements EncoderInterface
      */
     private function getIdentifier(array $data): string
     {
-        if (!array_key_exists('id', $data) || !$data['id']) {
+        if (!isset($data['id'])) {
             throw new UnexpectedValueException('Could not determine identifier for object.');
         }
 
@@ -303,7 +294,7 @@ class JsonApiEncoder implements EncoderInterface
             foreach ($resource['included'] as $include) {
                 $key = $this->getResourceHash($include);
 
-                if (array_key_exists($key, $response['included'])) {
+                if (isset($response['included'][$key])) {
                     continue;
                 }
 
@@ -335,7 +326,7 @@ class JsonApiEncoder implements EncoderInterface
     private function getValue(Field $field, array $data)
     {
         $name = $field->getPropertyName();
-        if (array_key_exists($name, $data)) {
+        if (isset($data[$name]) || array_key_exists($name, $data)) {
             return $data[$name];
         }
 

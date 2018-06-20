@@ -83,13 +83,12 @@ class EntityLoadedEvent extends NestedEvent
         /** @var string|EntityDefinition $definition */
         $associations = $definition::getFields()->getElements();
 
-        $associations = array_filter($associations, function (Field $association) {
-            return $association instanceof AssociationInterface;
-        });
-
         $events = [];
         /** @var AssociationInterface $association */
         foreach ($associations as $association) {
+            if (!$association instanceof AssociationInterface) {
+                continue;
+            }
             if ($association instanceof ManyToOneAssociationField) {
                 /** @var Entity $entity */
                 foreach ($entities as $entity) {

@@ -86,9 +86,6 @@
     },
     "baseInfo": {
       "contactEmail": "e-mail",
-      "labelAccountActiveField": "Account is active",
-      "buttonEdit": "Edit customer",
-      "buttonChangePassword" : "Change password",
       "labelCustomerNumber": "Customer number",
       "labelCustomerGroup": "Customer group",
       "labelBirthday": "Date of birth",
@@ -107,7 +104,10 @@
       "titleDefaultBillingAddress": "Default billing address",
       "buttonAddAddress": "Add address",
       "buttonTitleEditAddress": "Edit address",
-      "buttonSave": "Save"
+      "buttonSave": "Save",
+      "buttonEdit": "Edit customer",
+      "buttonChangePassword" : "Change password",
+      "labelAccountActiveField": "Account is active"
     },
     "detailAddresses": {
       "buttonAddAddress": "Add address",

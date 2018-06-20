@@ -1,109 +1,52 @@
 {% block sw_customer_base_info %}
-    <div class="sw-customer-base-info">
-        {% block sw_customer_base_info_overview %}
-            <sw-container class="sw-customer-base-info__overview" grid="80px 1fr 200px" gap="0px 30px">
-                {% block sw_customer_base_info_avatar %}
-                    <sw-avatar color="#f88962" size="80px" :user="customer" :isLoading="customer.isLoading"></sw-avatar>
+    <sw-container class="sw-customer-base-info" grid="1fr 1fr" gap="0px 30px">
+        {% block sw_customer_base_info_metadata %}
+            <sw-description-list>
+                {% block sw_customer_base_metadata_customer_number %}
+                    <dt>{{ $tc('sw-customer.baseInfo.labelCustomerNumber') }}</dt>
+                    <dd>{{ customer.number }}</dd>
                 {% endblock %}
 
-                {% block sw_customer_base_info_contact %}
-                    <div class="sw-customer-base-info__contact">
-                        {% block sw_customer_base_info_contact_name %}
-                            <div class="sw-customer-detail-base__contact-name">
-                                {{ customerName }}
-                            </div>
-                        {% endblock %}
-
-                        {% block sw_customer_base_info_contact_email %}
-                            <div v-if="customer.email" class="sw-customer-detail-base__contact-item">
-                                {{ $tc('sw-customer.baseInfo.contactEmail') }}: {{ customer.email }}
-                            </div>
-                        {% endblock %}
-
-                        {% block sw_customer_base_info_customer_active_field %}
-                            <sw-field class="sw-customer-base-info__active-field"
-                                      type="checkbox"
-                                      :label="$tc('sw-customer.baseInfo.labelAccountActiveField')"
-                                      name="active"
-                                      v-model="customer.active">
-                            </sw-field>
-                        {% endblock %}
-                    </div>
+                {% block sw_customer_base_metadata_customer_group %}
+                    <dt>{{ $tc('sw-customer.baseInfo.labelCustomerGroup') }}</dt>
+                    <dd>{{ customer.group.name }}</dd>
                 {% endblock %}
 
-                {% block sw_customer_base_info_actions %}
-                    <div class="sw-customer-base-info__actions">
-                        {% block sw_customer_base_info_actions_edit %}
-                            <sw-button size="small" block @click="onEditCustomer">
-                                {{ $tc('sw-customer.baseInfo.buttonEdit') }}
-                            </sw-button>
-                        {% endblock %}
-
-                        {% block sw_customer_base_info_actions_change_password %}
-                            <sw-button size="small" block disabled>
-                                {{ $tc('sw-customer.baseInfo.buttonChangePassword') }}
-                            </sw-button>
-                        {% endblock %}
-                    </div>
+                {% block sw_customer_base_metadata_birthday %}
+                    <dt>{{ $tc('sw-customer.baseInfo.labelBirthday') }}</dt>
+                    <dd>
+                        {{ customer.birthday ? customer.birthday : $tc('sw-customer.baseInfo.emptyTextBirthday') }}
+                    </dd>
                 {% endblock %}
-            </sw-container>
+
+                {% block sw_customer_base_metadata_last_login %}
+                    <dt>{{ $tc('sw-customer.baseInfo.labelLastLogin') }}</dt>
+                    <dd>
+                        {{ customer.lastLogin ? customer.lastLogin : $tc('sw-customer.baseInfo.emptyTextLogin') }}
+                    </dd>
+                {% endblock %}
+            </sw-description-list>
+            <sw-description-list>
+                {% block sw_customer_base_metadata_language %}
+                    <dt>{{ $tc('sw-customer.baseInfo.labelLanguage') }}</dt>
+                    <dd>Deutsch</dd>
+                {% endblock %}
+
+                {% block sw_customer_base_metadata_orders %}
+                    <dt>{{ $tc('sw-customer.baseInfo.labelOrders') }}</dt>
+                    <dd>{{ customer.orders.length }}</dd>
+                {% endblock %}
+
+                {% block sw_customer_base_metadata_turnover %}
+                    <dt>{{ $tc('sw-customer.baseInfo.labelTurnover') }}</dt>
+                    <dd>0</dd>
+                {% endblock %}
+
+                {% block sw_customer_base_metadata_payment_failures %}
+                    <dt>{{ $tc('sw-customer.baseInfo.labelPaymentFailures') }}</dt>
+                    <dd>0</dd>
+                {% endblock %}
+            </sw-description-list>
         {% endblock %}
-
-        {% block sw_customer_base_info_data %}
-            <div class="sw-customer-base-info__data">
-                {% block sw_customer_base_info_data_container %}
-                    <sw-container grid="1fr 1fr" gap="0px 30px">
-                        {% block sw_customer_base_info_data_table %}
-                            <sw-table columns="1fr 1fr">
-                                {% block sw_customer_base_info_data_customer_number %}
-                                    <div class="sw-table__cell">{{ $tc('sw-customer.baseInfo.labelCustomerNumber') }}</div>
-                                    <div class="sw-table__cell">{{ customer.number }}</div>
-                                {% endblock %}
-
-                                {% block sw_customer_base_info_data_customer_group %}
-                                    <div class="sw-table__cell">{{ $tc('sw-customer.baseInfo.labelCustomerGroup') }}</div>
-                                    <div class="sw-table__cell">{{ customer.group.name }}</div>
-                                {% endblock %}
-
-                                {% block sw_customer_base_info_data_birthday %}
-                                    <div class="sw-table__cell">{{ $tc('sw-customer.baseInfo.labelBirthday') }}</div>
-                                    <div class="sw-table__cell">
-                                        {{ customer.birthday ? customer.birthday : $tc('sw-customer.baseInfo.emptyTextBirthday') }}
-                                    </div>
-                                {% endblock %}
-
-                                {% block sw_customer_base_info_data_last_login %}
-                                    <div class="sw-table__cell">{{ $tc('sw-customer.baseInfo.labelLastLogin') }}</div>
-                                    <div class="sw-table__cell">
-                                        {{ customer.lastLogin ? customer.lastLogin : $tc('sw-customer.baseInfo.emptyTextLogin') }}
-                                    </div>
-                                {% endblock %}
-                            </sw-table>
-                            <sw-table columns="1fr 1fr">
-                                {% block sw_customer_base_info_data_language %}
-                                    <div class="sw-table__cell">{{ $tc('sw-customer.baseInfo.labelLanguage') }}</div>
-                                    <div class="sw-table__cell">Deutsch</div>
-                                {% endblock %}
-
-                                {% block sw_customer_base_info_data_orders %}
-                                    <div class="sw-table__cell">{{ $tc('sw-customer.baseInfo.labelOrders') }}</div>
-                                    <div class="sw-table__cell">{{ customer.orders.length }}</div>
-                                {% endblock %}
-
-                                {% block sw_customer_base_info_data_turnover %}
-                                    <div class="sw-table__cell">{{ $tc('sw-customer.baseInfo.labelTurnover') }}</div>
-                                    <div class="sw-table__cell">0</div>
-                                {% endblock %}
-
-                                {% block sw_customer_base_info_data_payment_failures %}
-                                    <div class="sw-table__cell">{{ $tc('sw-customer.baseInfo.labelPaymentFailures') }}</div>
-                                    <div class="sw-table__cell">0</div>
-                                {% endblock %}
-                            </sw-table>
-                        {% endblock %}
-                    </sw-container>
-                {% endblock %}
-            </div>
-        {% endblock %}
-    </div>
+    </sw-container>
 {% endblock %}

@@ -8,8 +8,7 @@
                     <sw-grid-column flex="minmax(180px, 1fr)"
                                     :label="$tc('sw-order.detailBase.columnProductName')">
                         {% block sw_order_line_items_grid_columns_name_link %}
-                            <router-link target="_blank"
-                                         :title="$tc('sw-order.detailBase.contextMenuShowProduct')"
+                            <router-link :title="$tc('sw-order.detailBase.contextMenuShowProduct')"
                                          :to="{ name: 'sw.product.detail', params: { id: item.identifier } }">
                                 {% block sw_order_line_items_grid_columns_name_label %}
                                     {{ item.label }}
@@ -60,8 +59,7 @@
                                 {% block sw_order_line_items_grid_columns_actions_show %}
                                     <sw-context-menu-item icon="default-eye-open">
                                         {% block sw_order_line_items_grid_columns_actions_show_link %}
-                                            <router-link :to="{ name: 'sw.product.detail', params: { id: item.identifier } }"
-                                                         target="_blank">
+                                            <router-link :to="{ name: 'sw.product.detail', params: { id: item.identifier } }">
                                                 {% block sw_order_line_items_grid_columns_actions_show_label %}
                                                     {{ $tc('sw-order.detailBase.contextMenuShowProduct') }}
                                                 {% endblock %}

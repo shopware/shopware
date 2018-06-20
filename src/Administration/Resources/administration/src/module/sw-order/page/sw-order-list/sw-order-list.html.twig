@@ -40,7 +40,7 @@
                     <div class="sw-order-list__content">
 
                         {% block sw_order_list_grid %}
-                            <sw-grid v-if="total"
+                            <sw-grid v-if="total || term"
                                      :items="orders"
                                      :pagination="true"
                                      :sortBy="sortBy"

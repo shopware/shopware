@@ -19,17 +19,48 @@
 
                 {% block sw_customer_detail_base_info_holder %}
                     <div v-if="!editMode" key="info" class="sw-customer-detail-base__info-holder">
+
                         {% block sw_customer_detail_base_info_card %}
-                            <sw-card :title="$tc('sw-customer.detailBase.labelAccountCard')"
-                                     class="sw-customer-detail-base__info"
-                                     :isLoading="customer.isLoading">
-                                {% block sw_customer_detail_base_info %}
+                            <sw-info-card :title="$tc('sw-customer.detailBase.labelAccountCard')"
+                                          :user="customer"
+                                          :isLoading="customer.isLoading">
+
+                                {% block sw_customer_detail_base_info_card_actions %}
+                                    <template slot="actions">
+                                        {% block sw_customer_detail_base_info_action_edit %}
+                                            <sw-button size="small" @click="onActivateCustomerEditMode">
+                                                <sw-icon name="small-pencil" small></sw-icon>
+                                                {{ $tc('sw-customer.detailBase.buttonEdit') }}
+                                            </sw-button>
+                                        {% endblock %}
+
+                                        {% block sw_customer_detail_base_info_action_change_password %}
+                                            <sw-button size="small" disabled>
+                                                <sw-icon name="default-lock-key" small></sw-icon>
+                                                {{ $tc('sw-customer.detailBase.buttonChangePassword') }}
+                                            </sw-button>
+                                        {% endblock %}
+                                    </template>
+                                {% endblock %}
+
+                                {% block sw_customer_detail_base_customer_active_field %}
+                                    <sw-field slot="metadata-additional"
+                                              class="sw-customer-detail-base__active-field"
+                                              type="checkbox"
+                                              :label="$tc('sw-customer.detailBase.labelAccountActiveField')"
+                                              name="active"
+                                              v-model="customer.active">
+                                    </sw-field>
+                                {% endblock %}
+
+                                {% block sw_customer_detail_base_info_metadata %}
                                     <sw-customer-base-info @activateCustomerEditMode="onActivateCustomerEditMode"
                                                            :customerName="customerName"
                                                            :customer="customer">
                                     </sw-customer-base-info>
                                 {% endblock %}
-                            </sw-card>
+
+                            </sw-info-card>
                         {% endblock %}
 
                         {% block sw_customer_detail_base_default_addresses_card %}
@@ -38,7 +69,9 @@
                                      class="sw-customer-detail-base__default-addresses"
                                      :isLoading="customer.isLoading">
                                 {% block sw_customer_detail_base_default_addresses %}
-                                    <sw-customer-default-addresses :customer="customer"></sw-customer-default-addresses>
+                                    <sw-customer-default-addresses :customer="customer"
+                                                                   slot="grid">
+                                    </sw-customer-default-addresses>
                                 {% endblock %}
                             </sw-card>
                         {% endblock %}

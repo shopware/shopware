@@ -34,11 +34,6 @@ class OrderDeliveryPositionStruct extends Entity
     protected $quantity;
 
     /**
-     * @var string
-     */
-    protected $payload;
-
-    /**
      * @var \DateTime|null
      */
     protected $createdAt;
@@ -106,16 +101,6 @@ class OrderDeliveryPositionStruct extends Entity
     public function setQuantity(float $quantity): void
     {
         $this->quantity = $quantity;
-    }
-
-    public function getPayload(): string
-    {
-        return $this->payload;
-    }
-
-    public function setPayload(string $payload): void
-    {
-        $this->payload = $payload;
     }
 
     public function getCreatedAt(): ?\DateTime

@@ -8,6 +8,8 @@ use Doctrine\DBAL\Connection;
 use Faker\Factory;
 use Faker\Generator;
 use League\Flysystem\FilesystemInterface;
+use Shopware\Core\Checkout\Cart\Cart\CartCollector;
+use Shopware\Core\Checkout\Cart\Cart\CartProcessor;
 use Shopware\Core\Checkout\Cart\Cart\CircularCartCalculation;
 use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
@@ -110,11 +112,6 @@ class DemodataCommand extends ContainerAwareCommand
     private $tmpImages = [];
 
     /**
-     * @var CircularCartCalculation
-     */
-    private $calculator;
-
-    /**
      * @var OrderConverter
      */
     private $orderConverter;
@@ -129,13 +126,24 @@ class DemodataCommand extends ContainerAwareCommand
      */
     private $contextFactory;
 
+    /**
+     * @var CartProcessor
+     */
+    private $processor;
+
+    /**
+     * @var CartCollector
+     */
+    private $collector;
+
     public function __construct(
         ?string $name = null,
         EntityWriterInterface $writer,
         VariantGenerator $variantGenerator,
         FilesystemInterface $filesystem,
         ContainerInterface $container,
-        CircularCartCalculation $calculator,
+        CartProcessor $processor,
+        CartCollector $collector,
         OrderConverter $orderConverter,
         Connection $connection,
         CheckoutContextFactory $contextFactory
@@ -149,10 +157,11 @@ class DemodataCommand extends ContainerAwareCommand
         $this->ruleRepository = $container->get('rule.repository');
         $this->categoryRepository = $container->get('category.repository');
         $this->albumRepository = $container->get('media_album.repository');
-        $this->calculator = $calculator;
         $this->orderConverter = $orderConverter;
         $this->connection = $connection;
         $this->contextFactory = $contextFactory;
+        $this->processor = $processor;
+        $this->collector = $collector;
     }
 
     protected function configure()
@@ -831,40 +840,56 @@ class DemodataCommand extends ContainerAwareCommand
 
     private function createOrders(int $limit, string $tenantId)
     {
-        $productIds = $this->connection->fetchAll('SELECT LOWER(HEX(id)) as id FROM product LIMIT 5000');
+        $productIds = $this->connection->fetchAll('SELECT LOWER(HEX(id)) as id FROM product LIMIT 250');
         $productIds = array_column($productIds, 'id');
 
-        $customerIds = $this->connection->fetchAll('SELECT LOWER(HEX(id)) as id FROM customer LIMIT 5000');
+        $customerIds = $this->connection->fetchAll('SELECT LOWER(HEX(id)) as id FROM customer LIMIT 200');
         $customerIds = array_column($customerIds, 'id');
 
         $this->io->section("Generating {$limit} orders...");
         $this->io->progressStart($limit);
 
+        //prefetch all data
+        $options = [CheckoutContextService::CUSTOMER_ID => $this->faker->randomElement($customerIds)];
+        $context = $this->contextFactory->create($tenantId, Uuid::uuid4()->getHex(), Defaults::TOUCHPOINT, $options);
+
+        $lineItems = array_map(function($id) {
+            return new LineItem($id, ProductProcessor::TYPE_PRODUCT, random_int(1, 50), ['id' => $id]);
+        }, $productIds);
+        $lineItems = new LineItemCollection($lineItems);
+
+        $cart = new Cart('shopware', Uuid::uuid4()->getHex(), $lineItems, new ErrorCollection());
+        $dataCollection = $this->collector->collect($cart, $context);
+
         $payload = [];
+
+        $contexts = [];
 
         for ($i = 1; $i <= $limit; ++$i ) {
             $token = Uuid::uuid4()->getHex();
 
+            $customerId = $this->faker->randomElement($customerIds);
+
             $options = [
-                CheckoutContextService::CUSTOMER_ID => $this->faker->randomElement($customerIds),
+                CheckoutContextService::CUSTOMER_ID => $customerId,
             ];
 
-            $context = $this->contextFactory->create($tenantId, $token, Defaults::TOUCHPOINT, $options);
-
-            $itemCount = random_int(1, 5);
-
-            $lineItems = new LineItemCollection();
-
-            for ($x = 1; $x <= $itemCount; ++$x) {
-                $productId = $this->faker->randomElement($productIds);
-                $lineItems->add(
-                    new LineItem($productId, ProductProcessor::TYPE_PRODUCT, random_int(1, 50), ['id' => $productId])
-                );
+            if (isset($contexts[$customerId])) {
+                $context = $contexts[$customerId];
+            } else {
+                $context = $this->contextFactory->create($tenantId, $token, Defaults::TOUCHPOINT, $options);
+                $contexts[$customerId] = $context;
             }
 
-            $cart = new Cart('shopware', $token, $lineItems, new ErrorCollection());
+            $itemCount = random_int(3, 5);
 
-            $calculated = $this->calculator->calculate($cart, $context);
+            $offset = random_int(0, $lineItems->count()) - 10;
+
+            $new = $lineItems->slice($offset, $itemCount);
+
+            $cart = new Cart('shopware', $token, $new, new ErrorCollection());
+
+            $calculated = $this->processor->process($cart, $context, $dataCollection);
 
             $payload[] = $this->orderConverter->convert($calculated, $context);
 

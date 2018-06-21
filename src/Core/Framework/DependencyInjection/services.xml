@@ -101,7 +101,8 @@
             <argument type="service" id="Shopware\Core\Content\Product\Util\VariantGenerator"/>
             <argument type="service" id="Shopware\Core\Content\Media\Util\Strategy\StrategyFilesystem"/>
             <argument type="service" id="service_container"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Cart\CircularCartCalculation"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Cart\CartProcessor"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Cart\CartCollector"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextFactory"/>

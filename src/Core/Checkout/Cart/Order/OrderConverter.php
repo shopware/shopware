@@ -69,8 +69,6 @@ class OrderConverter
             'billingAddressId' => $addressId,
             'lineItems' => [],
             'deliveries' => [],
-            'context' => json_encode($context),
-            'payload' => json_encode($calculatedCart),
         ];
 
         $address = $context->getCustomer()->getActiveBillingAddress();
@@ -164,7 +162,6 @@ class OrderConverter
             'unitPrice' => $lineItem->getPrice()->getUnitPrice(),
             'totalPrice' => $lineItem->getPrice()->getTotalPrice(),
             'type' => $lineItem->getType(),
-            'payload' => json_encode($lineItem),
         ];
     }
 
@@ -183,7 +180,6 @@ class OrderConverter
             'shippingAddress' => $this->convertAddress($delivery->getLocation()->getAddress()),
             'orderStateId' => Defaults::ORDER_STATE_OPEN,
             'positions' => [],
-            'payload' => json_encode($delivery),
         ];
 
         /** @var DeliveryPosition $position */
@@ -192,7 +188,6 @@ class OrderConverter
                 'unitPrice' => $position->getPrice()->getUnitPrice(),
                 'totalPrice' => $position->getPrice()->getTotalPrice(),
                 'quantity' => $position->getQuantity(),
-                'payload' => json_encode($position),
                 'orderLineItemId' => $lineItems[$position->getIdentifier()]['id'],
             ];
         }
@@ -205,7 +200,6 @@ class OrderConverter
         return [
             'paymentMethodId' => $transaction->getPaymentMethodId(),
             'amount' => $transaction->getAmount(),
-            'payload' => json_encode($transaction->getExtensions()),
             'orderTransactionStateId' => Defaults::ORDER_TRANSACTION_OPEN,
         ];
     }

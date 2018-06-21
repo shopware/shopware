@@ -41,11 +41,6 @@ class OrderDeliveryStruct extends Entity
     protected $shippingDateLatest;
 
     /**
-     * @var string
-     */
-    protected $payload;
-
-    /**
      * @var string|null
      */
     protected $trackingCode;
@@ -143,16 +138,6 @@ class OrderDeliveryStruct extends Entity
     public function setShippingDateLatest(\DateTime $shippingDateLatest): void
     {
         $this->shippingDateLatest = $shippingDateLatest;
-    }
-
-    public function getPayload(): string
-    {
-        return $this->payload;
-    }
-
-    public function setPayload(string $payload): void
-    {
-        $this->payload = $payload;
     }
 
     public function getTrackingCode(): ?string

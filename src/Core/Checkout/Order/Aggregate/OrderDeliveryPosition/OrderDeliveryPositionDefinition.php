@@ -42,7 +42,6 @@ class OrderDeliveryPositionDefinition extends EntityDefinition
             (new FloatField('unit_price', 'unitPrice'))->setFlags(new Required()),
             (new FloatField('total_price', 'totalPrice'))->setFlags(new Required()),
             (new FloatField('quantity', 'quantity'))->setFlags(new Required()),
-            (new LongTextField('payload', 'payload'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
             new ManyToOneAssociationField('orderDelivery', 'order_delivery_id', OrderDeliveryDefinition::class, false),

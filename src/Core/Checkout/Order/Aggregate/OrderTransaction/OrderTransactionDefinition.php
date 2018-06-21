@@ -41,7 +41,6 @@ class OrderTransactionDefinition extends EntityDefinition
             (new FkField('order_transaction_state_id', 'orderTransactionStateId', OrderTransactionStateDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(OrderTransactionStateDefinition::class))->setFlags(new Required()),
             (new ObjectField('amount', 'amount'))->setFlags(new Required()),
-            (new LongTextField('payload', 'payload'))->setFlags(new Required()),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
             (new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, false))->setFlags(new CascadeDelete()),

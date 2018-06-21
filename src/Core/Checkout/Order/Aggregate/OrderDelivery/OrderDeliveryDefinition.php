@@ -52,7 +52,6 @@ class OrderDeliveryDefinition extends EntityDefinition
 
             (new DateField('shipping_date_earliest', 'shippingDateEarliest'))->setFlags(new Required(), new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
             (new DateField('shipping_date_latest', 'shippingDateLatest'))->setFlags(new Required(), new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
-            (new LongTextField('payload', 'payload'))->setFlags(new Required()),
             (new StringField('tracking_code', 'trackingCode'))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),

@@ -71,8 +71,6 @@ class OrderDefinition extends EntityDefinition
             (new FloatField('shipping_total', 'shippingTotal'))->setFlags(new Required()),
             (new BoolField('is_net', 'isNet'))->setFlags(new Required()),
             (new BoolField('is_tax_free', 'isTaxFree'))->setFlags(new Required()),
-            (new LongTextField('context', 'context'))->setFlags(new Required()),
-            (new LongTextField('payload', 'payload'))->setFlags(new Required()),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
             (new ManyToOneAssociationField('customer', 'customer_id', CustomerDefinition::class, true))->setFlags(new SearchRanking(self::ASSOCIATION_SEARCH_RANKING), new DelayedLoad()),

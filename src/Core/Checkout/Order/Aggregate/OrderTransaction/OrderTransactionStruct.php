@@ -29,11 +29,6 @@ class OrderTransactionStruct extends Entity
     protected $amount;
 
     /**
-     * @var string
-     */
-    protected $payload;
-
-    /**
      * @var \DateTime|null
      */
     protected $createdAt;
@@ -86,16 +81,6 @@ class OrderTransactionStruct extends Entity
     public function setAmount(CalculatedPrice $amount): void
     {
         $this->amount = $amount;
-    }
-
-    public function getPayload(): string
-    {
-        return $this->payload;
-    }
-
-    public function setPayload(string $payload): void
-    {
-        $this->payload = $payload;
     }
 
     public function getCreatedAt(): ?\DateTime

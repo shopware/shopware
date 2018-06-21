@@ -74,16 +74,6 @@ class OrderStruct extends Entity
     protected $isTaxFree;
 
     /**
-     * @var string
-     */
-    protected $context;
-
-    /**
-     * @var string
-     */
-    protected $payload;
-
-    /**
      * @var \DateTime|null
      */
     protected $createdAt;
@@ -256,26 +246,6 @@ class OrderStruct extends Entity
     public function setIsTaxFree(bool $isTaxFree): void
     {
         $this->isTaxFree = $isTaxFree;
-    }
-
-    public function getContext(): string
-    {
-        return $this->context;
-    }
-
-    public function setContext(string $context): void
-    {
-        $this->context = $context;
-    }
-
-    public function getPayload(): string
-    {
-        return $this->payload;
-    }
-
-    public function setPayload(string $payload): void
-    {
-        $this->payload = $payload;
     }
 
     public function getCreatedAt(): ?\DateTime

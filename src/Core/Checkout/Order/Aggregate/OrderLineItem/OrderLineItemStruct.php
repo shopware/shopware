@@ -34,11 +34,6 @@ class OrderLineItemStruct extends Entity
     protected $totalPrice;
 
     /**
-     * @var string
-     */
-    protected $payload;
-
-    /**
      * @var string|null
      */
     protected $parentId;
@@ -116,16 +111,6 @@ class OrderLineItemStruct extends Entity
     public function setTotalPrice(float $totalPrice): void
     {
         $this->totalPrice = $totalPrice;
-    }
-
-    public function getPayload(): string
-    {
-        return $this->payload;
-    }
-
-    public function setPayload(string $payload): void
-    {
-        $this->payload = $payload;
     }
 
     public function getParentId(): ?string

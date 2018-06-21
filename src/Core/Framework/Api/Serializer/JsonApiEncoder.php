@@ -1,355 +1,234 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 namespace Shopware\Core\Framework\Api\Serializer;
 
-use Shopware\Core\Framework\Api\Exception\MissingDataException;
-use Shopware\Core\Framework\Api\Exception\MissingValueException;
+use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\EntityCollection;
 use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Field\AssociationInterface;
 use Shopware\Core\Framework\ORM\Field\Field;
-use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\ORM\Write\Flag\Extension;
-use Shopware\Core\Framework\ORM\Write\Flag\Required;
-use Shopware\Core\Framework\Struct\Serializer\StructDecoder;
-use Symfony\Component\Serializer\Encoder\EncoderInterface;
-use Symfony\Component\Serializer\Exception\BadMethodCallException;
-use Symfony\Component\Serializer\Exception\RuntimeException;
-use Symfony\Component\Serializer\Exception\UnexpectedValueException;
+use Shopware\Core\Framework\Struct\Collection;
+use Shopware\Core\Framework\Struct\Struct;
 
-class JsonApiEncoder implements EncoderInterface
+class JsonApiEncoder
 {
-    public const FORMAT = 'jsonapi';
-
-    /**
-     * @var StructDecoder
-     */
-    private $structDecoder;
-
-    /**
-     * Properties that should not appear in the attributes of a resource
-     *
-     * @var array
-     */
-    private static $ignoredAttributes = [
-        'id' => 1,
-        '_class' => 1,
-        'translations' => 1,
-    ];
-
-    public function __construct(StructDecoder $structDecoder)
+    public function encode(string $definition, $data, Context $context, string $url): string
     {
-        $this->structDecoder = $structDecoder;
+        $entities = new SerializedCollection();
+
+        if (!$data instanceof EntityCollection && !$data instanceof Entity) {
+            throw new UnsupportedEncoderInputException();
+        }
+
+        $this->encodeData($definition, $data, $entities, $context, $url);
+
+        $entities->setSingle($data instanceof Entity);
+
+        return json_encode($entities, JSON_PRESERVE_ZERO_FRACTION);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function supportsEncoding($format): bool
+    private function encodeData(string $definition, $data, SerializedCollection $entities, Context $context, string $url): void
     {
-        return $format === self::FORMAT;
+        if ($data === null) {
+            return;
+        }
+
+        if ($data instanceof EntityCollection) {
+            /** @var EntityCollection $data */
+            foreach ($data as $entity) {
+                $serialized = $this->serializeEntity($entities, $definition, $entity, $context, $url);
+
+                $entities->addData($serialized);
+            }
+
+            return;
+        }
+
+        $serialized = $this->serializeEntity($entities, $definition, $data, $context, $url);
+        $entities->addData($serialized);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function encode($data, $format, array $context = [])
+    private function serializeEntity(SerializedCollection $entities, string $definition, Entity $entity, Context $context, string $url): SerializedEntity
     {
-        $data = $this->structDecoder->decode($data, 'struct');
+        /** @var string|EntityDefinition $definition */
+        $included = $entities->contains($entity->getId(), $definition::getEntityName());
 
-        if (!is_iterable($data)) {
-            throw new UnexpectedValueException('Input is not iterable.');
+        if ($included) {
+            return $entities->get($entity->getId(), $definition::getEntityName());
         }
 
-        if (!array_key_exists('uri', $context)) {
-            throw new BadMethodCallException('The context key "uri" is required.');
-        }
+        $fields = $definition::getFields()->getElements();
 
-        if (!array_key_exists('definition', $context)) {
-            throw new BadMethodCallException(sprintf('The context key "definition" is required and must be an instance of %s.', EntityDefinition::class));
-        }
+        $serialized = new SerializedEntity($entity->getId(), $definition::getEntityName());
 
-        if (!array_key_exists('basic', $context)) {
-            throw new BadMethodCallException('The context key "basic" is required to indicate which type of struct should be encoded.');
-        }
+        $uriName = $this->camelCaseToSnailCase($definition::getEntityName());
 
-        $response = [];
+        $self = $uriName . '/' . $entity->getId();
+        $serialized->addLink('self', $url . '/api/' . $self);
 
-        if (array_key_exists('data', $context)) {
-            $response = array_merge($response, $context['data']);
-        }
-
-        if (empty($data)) {
-            $response['data'] = [];
-
-            return json_encode($response);
-        }
-
-        if ($this->isCollection($data)) {
-            $response = array_merge($response, $this->encodeCollection($data, $context));
-
-            $primaryResourcesHashes = array_map(function (array $resource) {
-                return $this->getResourceHash($resource);
-            }, $response['data']);
-        } else {
-            $response = array_merge($response, $this->encodeEntity($data, $context));
-            $primaryResourcesHashes = [$this->getResourceHash($response['data'])];
-        }
-
-        if (isset($response['included']) && \count($response)) {
-            // reduce includes by removing primary resources
-            $response['included'] = array_values(array_diff_key($response['included'], array_flip($primaryResourcesHashes)));
-        }
-
-        return json_encode($response);
-    }
-
-    /**
-     * @param mixed $data
-     * @param array $context
-     *
-     * @return array
-     */
-    public function encodeEntity($data, array $context = []): array
-    {
-        $attributes = [];
-        $relationships = [];
-        $includes = [];
-
-        $objectContextUri = $context['uri'] . '/' . $this->camelCaseToSnailCase($context['definition']::getEntityName()) . '/' . $this->getIdentifier($data);
-
-        /** @var array $fields */
-        $fields = $context['definition']::getFields()->getElements();
-
-        $missingProperties = [];
-
-        foreach ($fields as $field) {
-            $key = $field->getPropertyName();
-
-            if (isset(self::$ignoredAttributes[$key])) {
+        /** @var Field $field */
+        foreach ($fields as $propertyName => $field) {
+            if ($propertyName === 'id') {
                 continue;
             }
 
-            try {
-                $value = $this->getValue($field, $data);
-            } catch (MissingValueException $exception) {
-                if (!$field instanceof FkField && $field->is(Required::class)) {
-                    $missingProperties[] = $exception->getFieldName();
+            $isExtension = $field->is(Extension::class);
+
+            if ($isExtension) {
+                $value = $entity->getExtension($propertyName);
+            } else {
+                try {
+                    $value = $entity->get($propertyName);
+                } catch (\Throwable $e) {
+                    continue;
+                }
+            }
+
+            if (!$field instanceof AssociationInterface) {
+                $value = $this->formatAttributeValue($value);
+
+                if ($isExtension) {
+                    $serialized->addExtension($propertyName, $value);
+                } else {
+                    $serialized->addAttribute($propertyName, $value);
                 }
 
-                $value = $this->getDefaultValue($field);
+                continue;
             }
 
             if ($field instanceof ManyToOneAssociationField) {
-                $relationships[$key] = [
-                    'data' => null,
-                    'links' => [
-                        'related' => $objectContextUri . '/' . $this->camelCaseToSnailCase($key),
-                    ],
-                ];
+                $foreignKey = null;
 
-                if (!$value) {
-                    continue;
+                /** @var Entity $value */
+                if ($value !== null) {
+                    $nested = $this->serializeEntity($entities, $field->getReferenceClass(), $value, $context, $url);
+                    $entities->addIncluded($nested);
+
+                    $foreignKey = [
+                        'id' => $nested->getId(),
+                        'type' => $field->getReferenceClass()::getEntityName(),
+                    ];
                 }
 
-                $subContext = $context;
-                $subContext['definition'] = $field->getReferenceClass();
-                $subContext['basic'] = true;
+                $serialized->addRelationship(
+                    $propertyName,
+                    [
+                        'data' => $foreignKey,
+                        'links' => [
+                            'related' => $url . '/api/' . $self . '/' . $this->camelCaseToSnailCase($propertyName),
+                        ],
+                    ]
+                );
 
-                $relationship = $this->extractRelationship($value, $subContext['definition']);
-                $relationships[$key]['data'] = $relationship;
-
-                $encoded = $this->encodeEntity($value, $subContext);
-                $includes[$this->getResourceHash($relationship)] = $encoded['data'];
-
-                if (\count($encoded['included'])) {
-                    $includes = array_merge($includes, $encoded['included']);
-                }
                 continue;
             }
 
-            if ($field instanceof ManyToManyAssociationField || $field instanceof OneToManyAssociationField) {
-                $relationships[$key] = [
-                    'data' => [],
-                    'links' => [
-                        'related' => $objectContextUri . '/' . $this->camelCaseToSnailCase($key),
-                    ],
-                ];
+            if ($field instanceof OneToManyAssociationField) {
+                $foreignKey = [];
 
-                if (!$value || \count($value) === 0) {
-                    continue;
-                }
+                /** @var EntityCollection $value */
+                if ($value !== null) {
+                    $reference = $field->getReferenceClass();
+                    foreach ($value as $nestedEntitiy) {
+                        $nested = $this->serializeEntity($entities, $reference, $nestedEntitiy, $context, $url);
 
-                foreach ($value as $resource) {
-                    $subContext = $context;
+                        $entities->addIncluded($nested);
 
-                    if ($field instanceof OneToManyAssociationField) {
-                        $subContext['definition'] = $field->getReferenceClass();
-                    } else {
-                        $subContext['definition'] = $field->getReferenceDefinition();
-                    }
-
-                    $subContext['basic'] = true;
-
-                    $relationship = $this->extractRelationship($resource, $subContext['definition']);
-                    $relationships[$key]['data'][] = $relationship;
-
-                    $encoded = $this->encodeEntity($resource, $subContext);
-                    $includes[$this->getResourceHash($relationship)] = $encoded['data'];
-
-                    if (\count($encoded['included'])) {
-                        $includes = array_merge($includes, $encoded['included']);
+                        $foreignKey[] = [
+                            'id' => $nested->getId(),
+                            'type' => $reference::getEntityName(),
+                        ];
                     }
                 }
-                continue;
+
+                $serialized->addRelationship(
+                    $propertyName,
+                    [
+                        'data' => $foreignKey,
+                        'links' => [
+                            'related' => $url . '/api/' . $self . '/' . $this->camelCaseToSnailCase($propertyName),
+                        ],
+                    ]
+                );
             }
 
-            $attributes[$key] = $value;
-        }
+            if ($field instanceof  ManyToManyAssociationField) {
+                $foreignKey = [];
 
-        if (\count($missingProperties) > 0) {
-            throw new MissingDataException($missingProperties);
-        }
+                /** @var EntityCollection $value */
+                if ($value !== null) {
+                    $reference = $field->getReferenceDefinition();
 
-        $context['uri'] = $objectContextUri;
+                    /** @var Entity $nestedEntitiy */
+                    foreach ($value as $nestedEntitiy) {
+                        $nested = $this->serializeEntity($entities, $reference, $nestedEntitiy, $context, $url);
 
-        $object = [
-            'id' => $this->getIdentifier($data),
-            'type' => $context['definition']::getEntityName(),
-            'links' => [
-                'self' => $context['uri'],
-            ],
-        ];
+                        $entities->addIncluded($nested);
 
-        if (\count($attributes)) {
-            $object['attributes'] = $attributes;
-        }
-
-        if (\count($relationships)) {
-            $object['relationships'] = $relationships;
-        }
-
-        $response = [
-            'data' => $object,
-            'included' => $includes,
-        ];
-
-        return $response;
-    }
-
-    private function isCollection(array $array): bool
-    {
-        return array_keys($array) === range(0, \count($array) - 1);
-    }
-
-    /**
-     * @param array $data
-     *
-     * @throws \RuntimeException
-     *
-     * @return string
-     */
-    private function getIdentifier(array $data): string
-    {
-        if (!isset($data['id'])) {
-            throw new UnexpectedValueException('Could not determine identifier for object.');
-        }
-
-        return $data['id'];
-    }
-
-    /**
-     * @param mixed                   $value
-     * @param string|EntityDefinition $definition
-     *
-     * @return array
-     */
-    private function extractRelationship($value, string $definition): array
-    {
-        return [
-            'id' => $this->getIdentifier($value),
-            'type' => $definition::getEntityName(),
-        ];
-    }
-
-    /**
-     * @param mixed $data
-     * @param array $context
-     *
-     * @return array
-     */
-    private function encodeCollection($data, array $context): array
-    {
-        $response = [
-            'data' => [],
-            'included' => [],
-        ];
-
-        foreach ($data as $resource) {
-            $resource = $this->encodeEntity($resource, $context);
-
-            $response['data'][] = $resource['data'];
-
-            foreach ($resource['included'] as $include) {
-                $key = $this->getResourceHash($include);
-
-                if (isset($response['included'][$key])) {
-                    continue;
+                        $foreignKey[] = [
+                            'id' => $nestedEntitiy->getId(),
+                            'type' => $reference::getEntityName(),
+                        ];
+                    }
                 }
 
-                $response['included'][$key] = $include;
+                $serialized->addRelationship(
+                    $propertyName,
+                    [
+                        'data' => $foreignKey,
+                        'links' => [
+                            'related' => $url . '/api/' . $self . '/' . $this->camelCaseToSnailCase($propertyName),
+                        ],
+                    ]
+                );
             }
         }
 
-        return $response;
+        return $serialized;
     }
 
     private function camelCaseToSnailCase(string $input): string
     {
         $input = str_replace('_', '-', $input);
 
-        return ltrim(strtolower(preg_replace('/[A-Z]/', '-$0', $input)), '-');
+        return \ltrim(\strtolower(\preg_replace('/[A-Z]/', '-$0', $input)), '-');
     }
 
-    private function getResourceHash(array $resource): string
+    private function formatAttributeValue($value)
     {
-        return md5(json_encode(['id' => $resource['id'], 'type' => $resource['type']]));
-    }
-
-    /**
-     * @param Field $field
-     * @param array $data
-     *
-     * @return mixed
-     */
-    private function getValue(Field $field, array $data)
-    {
-        $name = $field->getPropertyName();
-        if (isset($data[$name]) || array_key_exists($name, $data)) {
-            return $data[$name];
+        if ($value instanceof \DateTime) {
+            return $value->format(\DateTime::ATOM);
         }
 
-        if (!$field->is(Extension::class)) {
-            throw new MissingValueException($name);
+        if ($value instanceof Collection) {
+            $formatted = [];
+
+            foreach ($value as $key => $nested) {
+                $data = [];
+
+                $keys = json_decode(json_encode($nested), true);
+                unset($keys['_class']);
+
+                foreach ($keys as $property => $tmp) {
+                    $data[$property] = $this->formatAttributeValue($nested->get($property));
+                }
+                $formatted[$key] = $data;
+            }
+
+            return $formatted;
         }
-        if (!array_key_exists('extensions', $data)) {
-            throw new RuntimeException(sprintf('Expected data container to contain key "extensions". It is required for field "%s".', $name));
+        if ($value instanceof Struct) {
+            $value = \json_decode(\json_encode($value), true);
+            unset($value['_class'], $value['extensions']);
         }
 
-        if (!array_key_exists($name, $data['extensions'])) {
-            throw new MissingValueException(sprintf('extensions.%s', $name));
-        }
-
-        return $data['extensions'][$name];
-    }
-
-    private function getDefaultValue(Field $field): ?array
-    {
-        if ($field instanceof ManyToManyAssociationField || $field instanceof OneToManyAssociationField) {
-            return [];
-        }
-
-        return null;
+        return $value;
     }
 }

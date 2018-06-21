@@ -36,11 +36,6 @@
         </service>
 
         <!-- Serializer -->
-        <service class="Shopware\Core\Framework\Api\Serializer\JsonApiEncoder" id="shopware.api.serializer.json_api_encoder">
-            <argument type="service" id="Shopware\Core\Framework\Struct\Serializer\StructDecoder"/>
-            <tag name="serializer.encoder"/>
-        </service>
-
         <service class="Shopware\Core\Framework\Api\Serializer\JsonApiDecoder" id="shopware.api.serializer.json_api_decoder">
             <tag name="serializer.encoder"/>
         </service>
@@ -51,9 +46,11 @@
         </service>
 
         <service class="Shopware\Core\Framework\Api\Response\Type\JsonApiType" id="Shopware\Core\Framework\Api\Response\Type\JsonApiType">
-            <argument type="service" id="serializer" />
+            <argument type="service" id="Shopware\Core\Framework\Api\Serializer\JsonApiEncoder" />
             <tag name="shopware.rest.response_type" />
         </service>
+
+        <service class="Shopware\Core\Framework\Api\Serializer\JsonApiEncoder" id="Shopware\Core\Framework\Api\Serializer\JsonApiEncoder" />
 
         <service class="Shopware\Core\Framework\Api\Response\Type\JsonType" id="Shopware\Core\Framework\Api\Response\Type\JsonType">
             <argument type="service" id="serializer" />

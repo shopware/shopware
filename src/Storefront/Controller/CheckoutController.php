@@ -260,10 +260,11 @@ class CheckoutController extends StorefrontController
 
         $order = $this->getOrder($request->get('order'), $context);
 
-        $calculatedCart = $this->serializer->denormalize(json_decode($order->getPayload(), true), 'json');
+        //todo@dr restore cart from order - NEXT-406
+//        $calculatedCart = $this->serializer->denormalize(json_decode($order->getPayload(), true), 'json');
 
         return $this->renderStorefront('@Storefront/frontend/checkout/finish.html.twig', [
-            'cart' => $calculatedCart,
+//            'cart' => $calculatedCart,
             'customer' => $context->getCustomer(),
         ]);
     }

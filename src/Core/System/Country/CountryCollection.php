@@ -49,6 +49,16 @@ class CountryCollection extends EntityCollection
         });
     }
 
+    public function sortCountryAndStates(): void
+    {
+        $this->sortByPositionAndName();
+        foreach ($this->elements as $country) {
+            if ($country->getStates()) {
+                $country->getStates()->getEntities()->sortByPositionAndName();
+            }
+        }
+    }
+
     public function sortByPositionAndName(): void
     {
         uasort($this->elements, function (CountryStruct $a, CountryStruct $b) {

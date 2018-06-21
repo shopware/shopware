@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorCollection;
 use Shopware\Core\Content\Product\Storefront\StorefrontProductRepository;
 use Shopware\Core\Content\Product\Storefront\StorefrontProductStruct;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\NestedQuery;
@@ -97,10 +98,10 @@ class DetailPageLoader
     {
         $containerId = $product->getParentId() ?? $product->getId();
 
-        $criteria = new Criteria();
+        $criteria = new ReadCriteria([]);
         $criteria->addFilter(new TermQuery('product_configurator.productId', $containerId));
 
-        $configurator = $this->configuratorRepository->search($criteria, $context->getContext());
+        $configurator = $this->configuratorRepository->read($criteria, $context->getContext());
         $variationIds = $product->getVariationIds() ?? [];
 
         foreach ($configurator as $config) {

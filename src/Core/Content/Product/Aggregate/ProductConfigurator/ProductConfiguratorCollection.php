@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductConfigurator;
 
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionCollection;
+use Shopware\Core\Content\Configuration\ConfigurationGroupCollection;
 use Shopware\Core\Framework\ORM\EntityCollection;
 
 class ProductConfiguratorCollection extends EntityCollection
@@ -59,9 +60,9 @@ class ProductConfiguratorCollection extends EntityCollection
         );
     }
 
-    public function getGroupedOptions(): ConfigurationGroupDetailCollection
+    public function getGroupedOptions(): ConfigurationGroupCollection
     {
-        $groups = new ConfigurationGroupDetailCollection();
+        $groups = new ConfigurationGroupCollection();
         foreach ($this->elements as $element) {
             if ($groups->has($element->getOption()->getGroupId())) {
                 $group = $groups->get($element->getOption()->getGroupId());

@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionStruct;
 use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceStruct;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
@@ -32,14 +33,18 @@ class StorefrontProductRepository
 
     public function read(array $ids, CheckoutContext $context): ProductCollection
     {
-        $basics = $this->repository->read($ids, $context->getContext());
+        $basics = $this->repository->read(new ReadCriteria($ids), $context->getContext());
 
         return $this->loadListProducts($basics, $context);
     }
 
     public function readDetail(array $ids, CheckoutContext $context): ProductCollection
     {
-        $basics = $this->repository->read($ids, $context->getContext());
+        $criteria = new ReadCriteria($ids);
+        $criteria->addAssociation('product.datasheet');
+        $criteria->addAssociation('product.services');
+
+        $basics = $this->repository->read($criteria, $context->getContext());
 
         return $this->loadDetailProducts($context, $basics);
     }
@@ -76,7 +81,7 @@ class StorefrontProductRepository
         return $listingProducts;
     }
 
-    private function loadDetailProducts(CheckoutContext $context, ProductDetailCollection $products): ProductCollection
+    private function loadDetailProducts(CheckoutContext $context, ProductCollection $products): ProductCollection
     {
         $collection = new ProductCollection();
 
@@ -86,13 +91,17 @@ class StorefrontProductRepository
 
             $this->calculatePrices($context, $detail);
 
-            $detail->getServices()->sort(function (ProductServiceStruct $a, ProductServiceStruct $b) {
-                return $a->getOption()->getGroupId() <=> $b->getOption()->getGroupId();
-            });
+            if ($detail->getServices()) {
+                $detail->getServices()->sort(function (ProductServiceStruct $a, ProductServiceStruct $b) {
+                    return $a->getOption()->getGroupId() <=> $b->getOption()->getGroupId();
+                });
+            }
 
-            $detail->getDatasheet()->sort(function (ConfigurationGroupOptionStruct $a, ConfigurationGroupOptionStruct $b) {
-                return $a->getGroupId() <=> $b->getGroupId();
-            });
+            if ($detail->getDatasheet()) {
+                $detail->getDatasheet()->sort(function (ConfigurationGroupOptionStruct $a, ConfigurationGroupOptionStruct $b) {
+                    return $a->getGroupId() <=> $b->getGroupId();
+                });
+            }
 
             $collection->add($detail);
         }

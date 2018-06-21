@@ -6,10 +6,11 @@ use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Confi
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
 use Shopware\Core\Framework\ORM\Search\Aggregation\AggregationResult;
 use Shopware\Core\Framework\ORM\Search\Aggregation\EntityAggregation;
-use Shopware\Core\Framework\ORM\Search\AggregatorResult;
 use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Storefront\Event\ListingEvents;
+use Shopware\Storefront\Event\ListingPageLoadedEvent;
+use Shopware\Storefront\Event\ListingPageRequestEvent;
 use Shopware\Storefront\Event\PageCriteriaCreatedEvent;
 use Shopware\Storefront\Page\Listing\AggregationView\ListAggregation;
 use Shopware\Storefront\Page\Listing\AggregationView\ListItem;
@@ -83,21 +84,18 @@ class DatasheetAggregationSubscriber implements EventSubscriberInterface
     {
         $page = $event->getPage();
 
-        $result = $page->getProducts()->getAggregationResult();
+        $result = $page->getProducts()->getAggregations();
 
         if ($result === null) {
             return;
         }
 
-        $aggregations = $result->getAggregations();
-
-        /* @var AggregatorResult $result */
-        if (!$aggregations->has(self::AGGREGATION_NAME)) {
+        if (!$result->has(self::AGGREGATION_NAME)) {
             return;
         }
 
         /** @var AggregationResult $aggregation */
-        $aggregation = $aggregations->get(self::AGGREGATION_NAME);
+        $aggregation = $result->get(self::AGGREGATION_NAME);
 
         /** @var ArrayStruct $filter */
         $filter = $page->getCriteria()->getExtension(self::AGGREGATION_NAME);

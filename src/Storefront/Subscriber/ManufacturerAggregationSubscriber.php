@@ -7,12 +7,13 @@ use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufactu
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Aggregation\AggregationResult;
 use Shopware\Core\Framework\ORM\Search\Aggregation\EntityAggregation;
-use Shopware\Core\Framework\ORM\Search\AggregatorResult;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\NestedQuery;
 use Shopware\Core\Framework\ORM\Search\Query\Query;
 use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
 use Shopware\Storefront\Event\ListingEvents;
+use Shopware\Storefront\Event\ListingPageLoadedEvent;
+use Shopware\Storefront\Event\ListingPageRequestEvent;
 use Shopware\Storefront\Event\PageCriteriaCreatedEvent;
 use Shopware\Storefront\Page\Listing\AggregationView\ListAggregation;
 use Shopware\Storefront\Page\Listing\AggregationView\ListItem;
@@ -96,21 +97,18 @@ class ManufacturerAggregationSubscriber implements EventSubscriberInterface
 
     public function buildPage(ListingPageLoadedEvent $event): void
     {
-        $result = $event->getPage()->getProducts()->getAggregationResult();
+        $result = $event->getPage()->getProducts()->getAggregations();
 
         if ($result === null) {
             return;
         }
 
-        $aggregations = $result->getAggregations();
-
-        /* @var AggregatorResult $result */
-        if (!$aggregations->has(self::AGGREGATION_NAME)) {
+        if (!$result->has(self::AGGREGATION_NAME)) {
             return;
         }
 
         /** @var AggregationResult $aggregation */
-        $aggregation = $aggregations->get(self::AGGREGATION_NAME);
+        $aggregation = $result->get(self::AGGREGATION_NAME);
 
         $criteria = $event->getPage()->getCriteria();
 

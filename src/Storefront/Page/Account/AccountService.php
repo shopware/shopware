@@ -156,12 +156,12 @@ class AccountService
 
     public function getCountryList(CheckoutContext $context): array
     {
-        $criteria = new Criteria();
+        $criteria = new ReadCriteria([]);
         $criteria->addFilter(new TermQuery('country.active', true));
 
-        $countries = $this->countryRepository->search($criteria, $context->getContext());
+        $countries = $this->countryRepository->read($criteria, $context->getContext());
 
-        $countries->getEntities()->sortCountryAndStates();
+        $countries->sortCountryAndStates();
 
         return $countries->getElements();
     }

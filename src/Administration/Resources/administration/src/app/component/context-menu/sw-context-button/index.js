@@ -14,7 +14,7 @@ Component.register('sw-context-button', {
         menuWidth: {
             type: Number,
             required: false,
-            default: 255
+            default: 200
         },
         menuOffsetTop: {
             type: Number,
@@ -24,7 +24,7 @@ Component.register('sw-context-button', {
         menuOffsetLeft: {
             type: Number,
             required: false,
-            default: 22
+            default: 15
         }
     },
 
@@ -72,7 +72,11 @@ Component.register('sw-context-button', {
             const el = this.$refs.swContextButton;
             const target = e.target;
 
-            if ((el !== target) && !el.contains(target)) {
+            if ((el !== target) &&
+                !el.contains(target) &&
+                !target.classList.contains('sw-context-menu__content') &&
+                !target.classList.contains('sw-context-menu-item')
+            ) {
                 this.showMenu = false;
                 this.removeMenuFromBody();
             }

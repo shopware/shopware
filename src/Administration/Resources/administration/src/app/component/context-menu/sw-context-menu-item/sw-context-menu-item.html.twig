@@ -1,17 +1,36 @@
 {% block sw_context_menu_item %}
-    <div class="sw-context-menu-item" v-on="$listeners" :class="{ 'is-disabled': disabled }">
-        {% block sw_context_menu_item %}
-            <slot name="icon">
-                {% block sw_context_menu_item_slot_icon %}
-                    <sw-icon :name="icon" small v-if="icon"></sw-icon>
-                {% endblock %}
-            </slot>
-        {% endblock %}
+    {% block sw_context_menu_item_router_link %}
+        <router-link v-if="routerLink"
+                     :to="routerLink"
+                     class="sw-context-menu-item"
+                     :class="contextMenuItemStyles"
+                     v-on="$listeners">
+            {% block sw_context_menu_item_icon %}
+                <slot name="icon">
+                    {% block sw_context_menu_item_slot_icon %}
+                        <sw-icon :name="icon" small v-if="icon"></sw-icon>
+                    {% endblock %}
+                </slot>
+            {% endblock %}
 
-        {% block sw_context_menu_item_text %}
-            <span class="sw-context-menu-item__text">
-                <slot>{% block sw_context_menu_item_text_slot_default %}{% endblock %}</slot>
-            </span>
-        {% endblock %}
-    </div>
+            <slot>{% block sw_context_menu_item_text_slot_default %}{% endblock %}</slot>
+        </router-link>
+    {% endblock %}
+
+    {% block sw_context_menu_item_entry %}
+        <div v-else
+             class="sw-context-menu-item"
+             :class="contextMenuItemStyles"
+             v-on="$listeners">
+            {% block sw_context_menu_item_icon %}
+                <slot name="icon">
+                    {% block sw_context_menu_item_slot_icon %}
+                        <sw-icon :name="icon" small v-if="icon"></sw-icon>
+                    {% endblock %}
+                </slot>
+            {% endblock %}
+
+            <slot>{% block sw_context_menu_item_text_slot_default %}{% endblock %}</slot>
+        </div>
+    {% endblock %}
 {% endblock %}

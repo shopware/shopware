@@ -46,6 +46,7 @@
                                      :sortBy="sortBy"
                                      :sortDirection="sortDirection"
                                      :sidebar="true"
+                                     :selectable="false"
                                      :isFullpage="true"
                                      @sort-column="onSortColumn"
                                      @inline-edit-finish="onInlineEditSave">
@@ -57,6 +58,7 @@
                                             <sw-grid-column flex="minmax(100px, 1fr)"
                                                             :label="$tc('sw-order.list.columnCustomerName')"
                                                             dataIndex="customer.firstName,customer.lastName"
+                                                            truncate
                                                             sortable>
                                                 {% block sw_order_list_grid_columns_customer_name_label %}
                                                     {{ item.customer.firstName }} {{ item.customer.lastName }}
@@ -68,6 +70,7 @@
                                             <sw-grid-column flex="minmax(100px, 1fr)"
                                                             :label="$tc('sw-order.list.columnBillingAddress')"
                                                             dataIndex="billingAddress.street"
+                                                            truncate
                                                             sortable>
                                                 {% block sw_order_list_grid_columns_billing_address_label %}
                                                     {{ item.billingAddress.street }},
@@ -81,6 +84,7 @@
                                             <sw-grid-column flex="minmax(80px, 180px)"
                                                             :label="$tc('sw-order.list.columnAmount')"
                                                             dataIndex="amountTotal"
+                                                            truncate
                                                             sortable>
                                                 {% block sw_order_list_grid_columns_amount_label %}
                                                     {{ item.amountTotal | currency }}
@@ -92,6 +96,7 @@
                                             <sw-grid-column flex="minmax(80px, 180px)"
                                                             :label="$tc('sw-order.list.columnState')"
                                                             dataIndex="state.description"
+                                                            truncate
                                                             sortable>
                                                 {% block sw_order_list_grid_columns_state_label %}
                                                     {{ item.state.description }}
@@ -103,6 +108,7 @@
                                             <sw-grid-column flex="minmax(90px, 180px)"
                                                             :label="$tc('sw-order.list.orderDate')"
                                                             dataIndex="date"
+                                                            truncate
                                                             sortable>
                                                 {% block sw_order_list_grid_columns_order_date_label %}
                                                     {{ item.date | date }}
@@ -112,7 +118,6 @@
 
                                         {% block sw_order_list_grid_columns_actions %}
                                             <sw-grid-column flex="minmax(100px, 120px)"
-                                                            :label="$tc('sw-customer.list.columnActions')"
                                                             align="center">
                                                 {% block sw_order_list_grid_columns_actions_context_button %}
                                                     <sw-context-button>

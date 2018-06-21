@@ -1,41 +1,77 @@
 @import '~less/variables';
 
-@sw-context-menu-color-background-hover: @color-light-gray;
+@sw-context-menu-color-background-hover: lighten(@color-shopware-blue, 40%);
 @sw-context-menu-color-text: @color-gutenberg;
 @sw-context-menu-color-active: @color-shopware-blue;
 
 .sw-context-menu-item {
-    display: grid;
-    grid-template-columns: 16px auto;
-    align-items: center;
-    justify-items: stretch;
-    justify-content: stretch;
+    display: block;
     position: relative;
-    padding: 8px 0 8px 16px;
+    border-radius: @border-radius-default;
     margin: 0;
     line-height: 18px;
+    padding: 4px 14px;
+    text-decoration: none;
+    color: @sw-context-menu-color-text;
+    outline: none;
+
+    &.sw-context-menu-item--icon {
+        display: grid;
+        grid-template-columns: 16px auto;
+        align-items: center;
+        justify-items: stretch;
+        justify-content: stretch;
+    }
 
     &:hover {
         background: @sw-context-menu-color-background-hover;
         color: @sw-context-menu-color-active;
 
-        a,
         .sw-icon {
             color: @sw-context-menu-color-active;
         }
     }
 
-    &.is-disabled {
-        pointer-events: none;
-        opacity: .5;
+    &.sw-context-menu-item--danger {
+        color: @color-crimson;
+
+        .sw-icon {
+            color: @color-crimson;
+        }
+
+        &:hover {
+            background: lighten(@color-crimson, 42%);
+        }
     }
 
-    a {
-        display: block;
-        padding-right: 16px;
-        color: @sw-context-menu-color-text;
-        text-decoration: none;
-        outline: none;
+    &.sw-context-menu-item--success {
+        color: @color-emerald;
+
+        .sw-icon {
+            color: @color-emerald;
+        }
+
+        &:hover {
+            background: lighten(@color-emerald, 42%);
+        }
+    }
+
+    &.sw-context-menu-item--warning {
+        color: @color-pumpkin-spice;
+
+        .sw-icon {
+            color: @color-pumpkin-spice;
+        }
+
+        &:hover {
+            background: lighten(@color-pumpkin-spice, 25%);
+        }
+    }
+
+    &.is--disabled {
+        pointer-events: none;
+        opacity: .5;
+        cursor: default;
     }
 
     & > .sw-icon {
@@ -44,6 +80,5 @@
 
     .sw-context-menu-item__text {
         display: block;
-        padding: 0 0 0 12px;
     }
 }

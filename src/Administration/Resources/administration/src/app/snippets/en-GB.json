@@ -17,7 +17,7 @@
     },
     "sw-grid-row": {
       "buttonInlineEditCancel": "Cancel",
-      "buttonInlineEditSave": "Save changes"
+      "buttonInlineEditSave": "Save"
     },
     "sw-pagination": {
       "labelItemsPerPage": "Items per page:"
@@ -50,6 +50,7 @@
       "textCustomersTotal": "No customer | One customer | {count} customers",
       "buttonAddCustomer": "Add customer",
       "columnCustomerNumber": "#",
+      "columnName": "Name",
       "columnFirstName": "First name",
       "columnLastName": "Last name",
       "columnStreet": "Street",
@@ -58,10 +59,10 @@
       "columnEmail": "e-mail",
       "columnLastLogin": "Last login",
       "columnActions": "Action(s)",
-      "contextMenuView": "View customer",
-      "contextMenuDelete": "Delete customer",
-      "contextMenuDuplicate": "Duplicate customer",
-      "contextMenuEdit": "Edit customer",
+      "contextMenuView": "View",
+      "contextMenuDelete": "Delete",
+      "contextMenuDuplicate": "Duplicate",
+      "contextMenuEdit": "Edit",
       "messageEmpty": "No customers yet"
     },
     "baseForm": {

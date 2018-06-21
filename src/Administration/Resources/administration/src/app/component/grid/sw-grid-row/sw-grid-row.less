@@ -21,7 +21,7 @@
     }
 
     &:last-child {
-        border-bottom: 0 none;
+        border-bottom-color: transparent;
     }
 
     &:hover {
@@ -51,12 +51,17 @@
             display: none;
         }
 
+        .sw-grid-column {
+            border-right-color: rgba(0, 0, 0, 0.05);
+        }
+
         .sw-grid__cell-inline-editing {
             display: grid;
             grid-auto-flow: column;
             align-items: center;
             justify-items: stretch;
             justify-content: stretch;
+            grid-gap: 10px;
             height: 100%;
             line-height: 24px;
             padding: 10px;
@@ -75,13 +80,16 @@
     .sw-grid-row__actions {
         display: none;
         position: absolute;
-        bottom: -61px;
+        //bottom: -61px;
         left: 50%;
+        bottom: -53px;
+        //right: 120px;
         transform: translate(-50%, 0);
         z-index: 10;
         padding: 10px 16px;
         background: @sw-grid-row-color-background;
         border: 1px solid @sw-grid-row-color-border;
         border-top: 0 none;
+        border-radius: 0 0 @border-radius-default @border-radius-default;
     }
 }

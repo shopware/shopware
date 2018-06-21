@@ -42,6 +42,7 @@
                                                             :label="$tc('sw-customer.list.columnCustomerNumber')"
                                                             dataIndex="number"
                                                             align="right"
+                                                            truncate
                                                             sortable
                                                             editable>
                                                 {% block sw_customer_list_grid_columns_customer_number_label %}
@@ -54,44 +55,28 @@
                                             </sw-grid-column>
                                         {% endblock %}
 
-                                        {% block sw_customer_list_grid_columns_first_name %}
-                                            <sw-grid-column flex="minmax(100px, 1fr)"
-                                                            :label="$tc('sw-customer.list.columnFirstName')"
-                                                            dataIndex="firstName"
+                                        {% block sw_customer_list_grid_columns_name %}
+                                            <sw-grid-column flex="minmax(200px, 1fr)"
+                                                            :label="$tc('sw-customer.list.columnName')"
+                                                            dataIndex="firstName,lastName"
+                                                            truncate
                                                             sortable
                                                             editable>
-                                                {% block sw_customer_list_grid_columns_first_name_label %}
+                                                {% block sw_customer_list_grid_columns_name_label %}
                                                     <router-link :to="{ name: 'sw.customer.detail', params: { id: item.id } }">
-                                                        {{ item.firstName }}
+                                                        {{ item.firstName }} {{ item.lastName }}
                                                     </router-link>
                                                 {% endblock %}
 
-                                                {% block sw_customer_list_grid_columns_first_name_editor %}
+                                                {% block sw_customer_list_grid_columns_name_editor %}
                                                     <sw-field type="text" v-model="item.firstName" slot="inline-edit"></sw-field>
-                                                {% endblock %}
-                                            </sw-grid-column>
-                                        {% endblock %}
-
-                                        {% block sw_customer_list_grid_columns_last_name %}
-                                            <sw-grid-column flex="minmax(100px, 1fr)"
-                                                            :label="$tc('sw-customer.list.columnLastName')"
-                                                            dataIndex="lastName"
-                                                            sortable
-                                                            editable>
-                                                {% block sw_customer_list_grid_columns_last_name_label %}
-                                                    <router-link :to="{ name: 'sw.customer.detail', params: { id: item.id } }">
-                                                        {{ item.lastName }}
-                                                    </router-link>
-                                                {% endblock %}
-
-                                                {% block sw_customer_list_grid_columns_last_name_editor %}
                                                     <sw-field type="text" v-model="item.lastName" slot="inline-edit"></sw-field>
                                                 {% endblock %}
                                             </sw-grid-column>
                                         {% endblock %}
 
                                         {% block sw_customer_list_grid_columns_street %}
-                                            <sw-grid-column flex="minmax(100px, 1fr)"
+                                            <sw-grid-column flex="minmax(150px, 1fr)"
                                                             :label="$tc('sw-customer.list.columnStreet')"
                                                             dataIndex="defaultBillingAddress.street"
                                                             truncate
@@ -107,6 +92,7 @@
                                                             :label="$tc('sw-customer.list.columnZip')"
                                                             dataIndex="defaultBillingAddress.zipcode"
                                                             align="right"
+                                                            truncate
                                                             sortable>
                                                 {% block sw_customer_list_grid_columns_zipcode_label %}
                                                     {{ item.defaultBillingAddress.zipcode }}
@@ -118,6 +104,7 @@
                                             <sw-grid-column flex="minmax(100px, 1fr)"
                                                             :label="$tc('sw-customer.list.columnCity')"
                                                             dataIndex="defaultBillingAddress.city"
+                                                            truncate
                                                             sortable>
                                                 {% block sw_customer_list_grid_columns_city_label %}
                                                     {{ item.defaultBillingAddress.city }}
@@ -130,6 +117,7 @@
                                                             :label="$tc('sw-customer.list.columnEmail')"
                                                             dataIndex="email"
                                                             sortable
+                                                            truncate
                                                             editable>
                                                 {% block sw_customer_list_grid_columns_email_label %}
                                                     {{ item.email }}
@@ -141,53 +129,40 @@
                                             </sw-grid-column>
                                         {% endblock %}
 
-                                        {% block sw_customer_list_grid_columns_last_login %}
-                                            <sw-grid-column flex="minmax(100px, 1fr)"
-                                                            :label="$tc('sw-customer.list.columnLastLogin')"
-                                                            dataIndex="lastLogin"
-                                                            sortable>
-                                                {% block sw_customer_list_grid_columns_last_login_label %}
-                                                    {{ item.lastLogin }}
-                                                {% endblock %}
-                                            </sw-grid-column>
-                                        {% endblock %}
-
                                         {% block sw_customer_list_grid_columns_actions %}
                                             <sw-grid-column flex="minmax(100px, 120px)"
                                                             align="center">
                                                 {% block sw_customer_list_grid_columns_actions_context_button %}
                                                     <sw-context-button>
+
                                                         {% block sw_customer_list_grid_columns_actions_view %}
-                                                            <sw-context-menu-item icon="default-eye-open">
-                                                                <router-link :to="{
+                                                            <sw-context-menu-item :routerLink="{
                                                                         name: 'sw.customer.detail',
                                                                         params: { id: item.id } }">
                                                                     {{ $tc('sw-customer.list.contextMenuView') }}
-                                                                </router-link>
                                                             </sw-context-menu-item>
                                                         {% endblock %}
 
                                                         {% block sw_customer_list_grid_columns_actions_edit %}
-                                                            <sw-context-menu-item icon="small-pencil-paper">
-                                                                <router-link :to="{
+                                                            <sw-context-menu-item :routerLink="{
                                                                         name: 'sw.customer.detail.base',
                                                                         params: { id: item.id, edit: 'edit' }}">
                                                                     {{ $tc('sw-customer.list.contextMenuEdit') }}
-                                                                </router-link>
-                                                            </sw-context-menu-item>
-                                                        {% endblock %}
-
-                                                        {% block sw_customer_list_grid_columns_actions_delete %}
-                                                            <sw-context-menu-item icon="small-default-x-line-medium" :disabled="true">
-                                                                {{ $tc('sw-customer.list.contextMenuDelete') }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}
 
                                                         {% block sw_customer_list_grid_columns_actions_duplicate %}
-                                                            <sw-context-menu-item icon="small-copy" :disabled="true">
+                                                            <sw-context-menu-item :disabled="true">
                                                                 {{ $tc('sw-customer.list.contextMenuDuplicate') }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}
+
+                                                        {% block sw_customer_list_grid_columns_actions_delete %}
+                                                            <sw-context-menu-item :disabled="true" variant="danger">
+                                                                {{ $tc('sw-customer.list.contextMenuDelete') }}
+                                                            </sw-context-menu-item>
+                                                        {% endblock %}
+
                                                     </sw-context-button>
                                                 {% endblock %}
                                             </sw-grid-column>

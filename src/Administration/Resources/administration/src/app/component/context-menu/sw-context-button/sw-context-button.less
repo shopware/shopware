@@ -6,5 +6,21 @@
     display: inline-block;
     position: relative;
     color: @sw-context-button-color-text;
-    cursor: pointer;
+
+    .sw-context-button__button {
+        color: @sw-context-button-color-text;
+        background: 0 none;
+        border: 1px solid transparent;
+        border-radius: @border-radius-default;
+        cursor: pointer;
+        height: 24px;
+        line-height: 20px;
+        padding: 0 8px;
+        outline: none;
+
+        &:hover,
+        &.is--active {
+            border-color: @color-steam-cloud;
+        }
+    }
 }

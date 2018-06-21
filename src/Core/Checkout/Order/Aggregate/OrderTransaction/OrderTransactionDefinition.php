@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState\OrderTransactio
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\IdField;
@@ -21,7 +21,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
-use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
+
 
 class OrderTransactionDefinition extends EntityDefinition
 {
@@ -46,7 +46,7 @@ class OrderTransactionDefinition extends EntityDefinition
             (new LongTextField('payload', 'payload'))->setFlags(new Required()),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            (new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, false))->setFlags(new WriteOnly(), new CascadeDelete()),
+            (new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, false))->setFlags(new CascadeDelete()),
             new ManyToOneAssociationField('paymentMethod', 'payment_method_id', PaymentMethodDefinition::class, false),
             (new ManyToOneAssociationField('orderTransactionState', 'order_transaction_state_id', OrderTransactionStateDefinition::class, false))->setFlags(new RestrictDelete()),
         ]);

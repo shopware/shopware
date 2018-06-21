@@ -500,6 +500,7 @@ CREATE TABLE `customer` (
   `id` binary(16) NOT NULL,
   `tenant_id` binary(16) NOT NULL,
   `version_id` binary(16) NOT NULL,
+  `auto_increment` bigint unsigned NOT NULL AUTO_INCREMENT,
   `customer_group_id` binary(16) NOT NULL,
   `customer_group_tenant_id` binary(16) NOT NULL,
   `customer_group_version_id` binary(16) NOT NULL,
@@ -551,7 +552,7 @@ CREATE TABLE `customer` (
   CONSTRAINT `fk_customer.default_payment_method_id` FOREIGN KEY (`default_payment_method_id`, `default_payment_method_version_id`, `default_payment_method_tenant_id`) REFERENCES `payment_method` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_customer.last_payment_method_id` FOREIGN KEY (`last_payment_method_id`, `last_payment_method_version_id`, `last_payment_method_tenant_id`) REFERENCES `payment_method` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_customer.touchpoint_id` FOREIGN KEY (`touchpoint_id`, `touchpoint_tenant_id`) REFERENCES `touchpoint` (`id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 DROP TABLE IF EXISTS `customer_address`;

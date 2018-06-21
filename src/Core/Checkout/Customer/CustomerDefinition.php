@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinit
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+
 use Shopware\Core\Framework\ORM\Field\BoolField;
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\FkField;
@@ -23,6 +23,7 @@ use Shopware\Core\Framework\ORM\Field\VersionField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\ORM\Write\Flag\ReadOnly;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
@@ -55,6 +56,8 @@ class CustomerDefinition extends EntityDefinition
 
             (new FkField('default_billing_address_id', 'defaultBillingAddressId', CustomerAddressDefinition::class))->setFlags(new Required()),
             (new FkField('default_shipping_address_id', 'defaultShippingAddressId', CustomerAddressDefinition::class))->setFlags(new Required()),
+
+            (new IntField('auto_increment', 'autoIncrement'))->setFlags(new ReadOnly()),
 
             (new StringField('customer_number', 'number'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
             (new StringField('salutation', 'salutation'))->setFlags(new Required()),

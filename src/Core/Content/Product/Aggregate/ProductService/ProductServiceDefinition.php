@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductService;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\IdField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
@@ -17,7 +17,7 @@ use Shopware\Core\Framework\ORM\Field\VersionField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
-use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
+
 use Shopware\Core\System\Tax\TaxDefinition;
 
 class ProductServiceDefinition extends EntityDefinition
@@ -41,7 +41,7 @@ class ProductServiceDefinition extends EntityDefinition
             new ReferenceVersionField(TaxDefinition::class),
             new PriceField('price', 'price'),
             new PriceRulesJsonField('prices', 'prices'),
-            (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false))->setFlags(new WriteOnly()),
+            new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false),
             new ManyToOneAssociationField('option', 'configuration_group_option_id', ConfigurationGroupOptionDefinition::class, true),
             new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class, true),
         ]);

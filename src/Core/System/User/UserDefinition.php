@@ -4,7 +4,7 @@ namespace Shopware\Core\System\User;
 
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+
 use Shopware\Core\Framework\ORM\Field\BoolField;
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\FkField;

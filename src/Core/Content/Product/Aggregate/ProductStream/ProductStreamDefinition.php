@@ -8,7 +8,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductStreamAssignment\ProductStrea
 use Shopware\Core\Content\Product\Aggregate\ProductStreamTab\ProductStreamTabDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\IdField;
@@ -27,7 +27,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
+
 use Shopware\Core\System\Listing\ListingSortingDefinition;
 
 class ProductStreamDefinition extends EntityDefinition
@@ -54,8 +54,8 @@ class ProductStreamDefinition extends EntityDefinition
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
             (new ManyToOneAssociationField('listingSorting', 'listing_sorting_id', ListingSortingDefinition::class, true))->setFlags(new RestrictDelete()),
-            (new OneToManyAssociationField('categories', CategoryDefinition::class, 'product_stream_id', false, 'id'))->setFlags(new WriteOnly()),
-            (new ManyToManyAssociationField('productTabs', ProductDefinition::class, ProductStreamTabDefinition::class, false, 'product_stream_id', 'product_id', 'productTabIds'))->setFlags(new CascadeDelete(), new WriteOnly()),
+            new OneToManyAssociationField('categories', CategoryDefinition::class, 'product_stream_id', false, 'id'),
+            (new ManyToManyAssociationField('productTabs', ProductDefinition::class, ProductStreamTabDefinition::class, false, 'product_stream_id', 'product_id', 'productTabIds'))->setFlags(new CascadeDelete()),
             (new ManyToManyAssociationField('products', ProductDefinition::class, ProductStreamAssignmentDefinition::class, false, 'product_stream_id', 'product_id', 'productIds'))->setFlags(new CascadeDelete()),
         ]);
     }

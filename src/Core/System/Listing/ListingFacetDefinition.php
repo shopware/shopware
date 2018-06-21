@@ -3,7 +3,7 @@
 namespace Shopware\Core\System\Listing;
 
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+
 use Shopware\Core\Framework\ORM\Field\BoolField;
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\IdField;

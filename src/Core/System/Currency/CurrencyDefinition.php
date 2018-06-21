@@ -4,7 +4,7 @@ namespace Shopware\Core\System\Currency;
 
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+
 use Shopware\Core\Framework\ORM\Field\BoolField;
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\FloatField;
@@ -22,7 +22,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
+
 use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition;
 use Shopware\Core\System\Touchpoint\TouchpointDefinition;
 
@@ -50,7 +50,7 @@ class CurrencyDefinition extends EntityDefinition
             new DateField('updated_at', 'updatedAt'),
             (new OneToManyAssociationField('touchpoints', TouchpointDefinition::class, 'currency_id', false, 'id'))->setFlags(new RestrictDelete()),
             (new TranslationsAssociationField('translations', CurrencyTranslationDefinition::class, 'currency_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
-            (new OneToManyAssociationField('orders', OrderDefinition::class, 'currency_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
+            (new OneToManyAssociationField('orders', OrderDefinition::class, 'currency_id', false, 'id'))->setFlags(new RestrictDelete()),
         ]);
     }
 

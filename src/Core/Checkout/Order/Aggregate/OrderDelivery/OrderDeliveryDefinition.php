@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderState\OrderStateDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\IdField;

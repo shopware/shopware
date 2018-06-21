@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerG
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+
 use Shopware\Core\Framework\ORM\Field\BoolField;
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\FloatField;
@@ -24,7 +24,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
+
 use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition;
 
 class CustomerGroupDefinition extends EntityDefinition
@@ -49,11 +49,11 @@ class CustomerGroupDefinition extends EntityDefinition
             new FloatField('minimum_order_amount_surcharge', 'minimumOrderAmountSurcharge'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            (new OneToManyAssociationField('customers', CustomerDefinition::class, 'customer_group_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
+            (new OneToManyAssociationField('customers', CustomerDefinition::class, 'customer_group_id', false, 'id'))->setFlags(new RestrictDelete()),
             (new OneToManyAssociationField('discounts', CustomerGroupDiscountDefinition::class, 'customer_group_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('translations', CustomerGroupTranslationDefinition::class, 'customer_group_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
-            (new OneToManyAssociationField('shippingMethods', ShippingMethodDefinition::class, 'customer_group_id', false, 'id'))->setFlags(new WriteOnly()),
-            (new OneToManyAssociationField('taxAreaRules', TaxAreaRuleDefinition::class, 'customer_group_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
+            new OneToManyAssociationField('shippingMethods', ShippingMethodDefinition::class, 'customer_group_id', false, 'id'),
+            (new OneToManyAssociationField('taxAreaRules', TaxAreaRuleDefinition::class, 'customer_group_id', false, 'id'))->setFlags(new CascadeDelete()),
         ]);
     }
 

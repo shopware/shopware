@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation
 use Shopware\Core\Content\Catalog\ORM\CatalogField;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\LongTextField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;

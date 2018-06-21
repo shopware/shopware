@@ -4,7 +4,7 @@ namespace Shopware\Core\System\Listing;
 
 use Shopware\Core\Content\Product\Aggregate\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+
 use Shopware\Core\Framework\ORM\Field\BoolField;
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\IdField;
@@ -22,7 +22,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
+
 use Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\ListingSortingTranslationDefinition;
 
 class ListingSortingDefinition extends EntityDefinition
@@ -47,7 +47,7 @@ class ListingSortingDefinition extends EntityDefinition
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
             (new TranslationsAssociationField('translations', ListingSortingTranslationDefinition::class, 'listing_sorting_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
-            (new OneToManyAssociationField('productStreams', ProductStreamDefinition::class, 'listing_sorting_id', false, 'id'))->setFlags(new WriteOnly()),
+            new OneToManyAssociationField('productStreams', ProductStreamDefinition::class, 'listing_sorting_id', false, 'id'),
         ]);
     }
 

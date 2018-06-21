@@ -9,7 +9,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefin
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\IdField;
@@ -29,7 +29,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
+
 use Shopware\Core\System\Mail\Aggregate\MailAttachment\MailAttachmentDefinition;
 use Shopware\Core\System\User\UserDefinition;
 
@@ -66,11 +66,11 @@ class MediaDefinition extends EntityDefinition
             new ManyToOneAssociationField('album', 'media_album_id', MediaAlbumDefinition::class, true),
             new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, false),
 
-            (new OneToManyAssociationField('categories', CategoryDefinition::class, 'media_id', false, 'id'))->setFlags(new WriteOnly()),
-            (new OneToManyAssociationField('mailAttachments', MailAttachmentDefinition::class, 'media_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
-            (new OneToManyAssociationField('productManufacturers', ProductManufacturerDefinition::class, 'media_id', false, 'id'))->setFlags(new WriteOnly()),
-            (new OneToManyAssociationField('productMedia', ProductMediaDefinition::class, 'media_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
-            (new TranslationsAssociationField('translations', MediaTranslationDefinition::class, 'media_id', false, 'id'))->setFlags(new Required(), new CascadeDelete(), new WriteOnly()),
+            new OneToManyAssociationField('categories', CategoryDefinition::class, 'media_id', false, 'id'),
+            (new OneToManyAssociationField('mailAttachments', MailAttachmentDefinition::class, 'media_id', false, 'id'))->setFlags(new RestrictDelete()),
+            new OneToManyAssociationField('productManufacturers', ProductManufacturerDefinition::class, 'media_id', false, 'id'),
+            (new OneToManyAssociationField('productMedia', ProductMediaDefinition::class, 'media_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new TranslationsAssociationField('translations', MediaTranslationDefinition::class, 'media_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
         ]);
     }
 

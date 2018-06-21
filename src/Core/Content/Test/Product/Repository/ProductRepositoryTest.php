@@ -944,10 +944,10 @@ class ProductRepositoryTest extends KernelTestCase
             ],
 
             //price should be inherited
-            ['id' => $redId,    'name' => $redName, 'parentId' => $parentId],
+            ['id' => $redId, 'name' => $redName, 'parentId' => $parentId],
 
             //name should be inherited
-            ['id' => $greenId,  'price' => $greenPrice, 'parentId' => $parentId],
+            ['id' => $greenId, 'price' => $greenPrice, 'parentId' => $parentId],
         ];
 
         $this->repository->create($products, Context::createDefaultContext(Defaults::TENANT_ID));

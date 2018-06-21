@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductPriceRule;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\IdField;

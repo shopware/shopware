@@ -3,7 +3,7 @@
 namespace Shopware\Core\System\Country\Aggregate\CountryArea;
 
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+
 use Shopware\Core\Framework\ORM\Field\BoolField;
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\IdField;
@@ -18,7 +18,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
+
 use Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\CountryAreaTranslationDefinition;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition;
@@ -42,7 +42,7 @@ class CountryAreaDefinition extends EntityDefinition
             new DateField('updated_at', 'updatedAt'),
             new OneToManyAssociationField('countries', CountryDefinition::class, 'country_area_id', false, 'id'),
             (new TranslationsAssociationField('translations', CountryAreaTranslationDefinition::class, 'country_area_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
-            (new OneToManyAssociationField('taxAreaRules', TaxAreaRuleDefinition::class, 'country_area_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
+            (new OneToManyAssociationField('taxAreaRules', TaxAreaRuleDefinition::class, 'country_area_id', false, 'id'))->setFlags(new CascadeDelete()),
         ]);
     }
 

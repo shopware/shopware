@@ -4,7 +4,7 @@ namespace Shopware\Core\System\Unit;
 
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\IdField;
 use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
@@ -19,7 +19,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
+
 use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationDefinition;
 
 class UnitDefinition extends EntityDefinition
@@ -39,7 +39,7 @@ class UnitDefinition extends EntityDefinition
             (new TranslatedField(new StringField('name', 'name')))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            (new OneToManyAssociationField('products', ProductDefinition::class, 'unit_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
+            (new OneToManyAssociationField('products', ProductDefinition::class, 'unit_id', false, 'id'))->setFlags(new RestrictDelete()),
             (new TranslationsAssociationField('translations', UnitTranslationDefinition::class, 'unit_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
         ]);
     }

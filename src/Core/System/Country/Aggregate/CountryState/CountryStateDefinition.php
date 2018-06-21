@@ -5,7 +5,7 @@ namespace Shopware\Core\System\Country\Aggregate\CountryState;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+
 use Shopware\Core\Framework\ORM\Field\BoolField;
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\FkField;
@@ -25,7 +25,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
+
 use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationDefinition;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition;
@@ -55,9 +55,9 @@ class CountryStateDefinition extends EntityDefinition
             new DateField('updated_at', 'updatedAt'),
             new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class, false),
             (new TranslationsAssociationField('translations', CountryStateTranslationDefinition::class, 'country_state_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
-            (new OneToManyAssociationField('customerAddresses', CustomerAddressDefinition::class, 'country_state_id', false, 'id'))->setFlags(new WriteOnly()),
-            (new OneToManyAssociationField('orderAddresses', OrderAddressDefinition::class, 'country_state_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
-            (new OneToManyAssociationField('taxAreaRules', TaxAreaRuleDefinition::class, 'country_state_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
+            new OneToManyAssociationField('customerAddresses', CustomerAddressDefinition::class, 'country_state_id', false, 'id'),
+            (new OneToManyAssociationField('orderAddresses', OrderAddressDefinition::class, 'country_state_id', false, 'id'))->setFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('taxAreaRules', TaxAreaRuleDefinition::class, 'country_state_id', false, 'id'))->setFlags(new CascadeDelete()),
         ]);
     }
 

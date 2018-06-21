@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption
 
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;

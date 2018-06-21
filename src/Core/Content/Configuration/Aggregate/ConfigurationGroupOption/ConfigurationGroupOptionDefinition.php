@@ -11,7 +11,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceDefinit
 use Shopware\Core\Content\Product\Aggregate\ProductVariation\ProductVariationDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\IdField;
 use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
@@ -27,7 +27,7 @@ use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
-use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
+
 
 class ConfigurationGroupOptionDefinition extends EntityDefinition
 {
@@ -50,10 +50,10 @@ class ConfigurationGroupOptionDefinition extends EntityDefinition
             new ReferenceVersionField(MediaDefinition::class),
             new ManyToOneAssociationField('group', 'configuration_group_id', ConfigurationGroupDefinition::class, true),
             (new TranslationsAssociationField('translations', ConfigurationGroupOptionTranslationDefinition::class, 'configuration_group_option_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
-            (new OneToManyAssociationField('productConfigurators', ProductConfiguratorDefinition::class, 'configuration_option_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
-            (new OneToManyAssociationField('productServices', ProductServiceDefinition::class, 'configuration_option_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
-            (new ManyToManyAssociationField('productDatasheets', ProductDefinition::class, ProductDatasheetDefinition::class, false, 'configuration_group_option_id', 'product_id'))->setFlags(new CascadeDelete(), new WriteOnly()),
-            (new ManyToManyAssociationField('productVariations', ProductDefinition::class, ProductVariationDefinition::class, false, 'configuration_group_option_id', 'product_id'))->setFlags(new CascadeDelete(), new WriteOnly()),
+            (new OneToManyAssociationField('productConfigurators', ProductConfiguratorDefinition::class, 'configuration_option_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('productServices', ProductServiceDefinition::class, 'configuration_option_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new ManyToManyAssociationField('productDatasheets', ProductDefinition::class, ProductDatasheetDefinition::class, false, 'configuration_group_option_id', 'product_id'))->setFlags(new CascadeDelete()),
+            (new ManyToManyAssociationField('productVariations', ProductDefinition::class, ProductVariationDefinition::class, false, 'configuration_group_option_id', 'product_id'))->setFlags(new CascadeDelete()),
         ]);
     }
 

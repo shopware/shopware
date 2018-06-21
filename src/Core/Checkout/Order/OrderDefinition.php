@@ -10,12 +10,13 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderState\OrderStateDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+
 use Shopware\Core\Framework\ORM\Field\BoolField;
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\FloatField;
 use Shopware\Core\Framework\ORM\Field\IdField;
+use Shopware\Core\Framework\ORM\Field\IntField;
 use Shopware\Core\Framework\ORM\Field\LongTextField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
@@ -26,6 +27,7 @@ use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\DelayedLoad;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\ORM\Write\Flag\ReadOnly;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\System\Currency\CurrencyDefinition;
@@ -44,6 +46,8 @@ class OrderDefinition extends EntityDefinition
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
+
+            (new IntField('auto_increment', 'autoIncrement'))->setFlags(new ReadOnly()),
 
             (new FkField('customer_id', 'customerId', CustomerDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(CustomerDefinition::class))->setFlags(new Required()),

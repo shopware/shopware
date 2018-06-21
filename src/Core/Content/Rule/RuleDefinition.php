@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Rule;
 use Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\IdField;
 use Shopware\Core\Framework\ORM\Field\IntField;
@@ -17,7 +17,7 @@ use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
-use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
+
 
 class RuleDefinition extends EntityDefinition
 {

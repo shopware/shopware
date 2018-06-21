@@ -22,8 +22,9 @@ use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslatio
 use Shopware\Core\Content\Product\Aggregate\ProductVariation\ProductVariationDefinition;
 use Shopware\Core\Content\Product\ORM\Field\ProductCoverField;
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+
 use Shopware\Core\Framework\ORM\Field\BoolField;
+use Shopware\Core\Framework\ORM\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\FloatField;
@@ -51,7 +52,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\ReadOnly;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
+
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Unit\UnitDefinition;
 
@@ -138,8 +139,8 @@ class ProductDefinition extends EntityDefinition
             (new TranslatedField(new StringField('pack_unit', 'packUnit')))->setFlags(new Inherited()),
 
             //parent - child inheritance
-            (new ManyToOneAssociationField('parent', 'parent_id', self::class, false))->setFlags(new WriteOnly()),
-            (new OneToManyAssociationField('children', self::class, 'parent_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
+            new ManyToOneAssociationField('parent', 'parent_id', self::class, false),
+            new ChildrenAssociationField(self::class),
 
             //inherited associations
             (new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class, true, 'id'))->setFlags(new Inherited()),
@@ -156,9 +157,9 @@ class ProductDefinition extends EntityDefinition
             (new ManyToManyAssociationField('seoCategories', CategoryDefinition::class, ProductSeoCategoryDefinition::class, false, 'product_id', 'category_id'))->setFlags(new CascadeDelete()),
             (new ManyToManyAssociationField('tabs', ProductStreamDefinition::class, ProductStreamTabDefinition::class, false, 'product_id', 'product_stream_id'))->setFlags(new CascadeDelete()),
             (new ManyToManyAssociationField('streams', ProductStreamDefinition::class, ProductStreamAssignmentDefinition::class, false, 'product_id', 'product_stream_id'))->setFlags(new CascadeDelete()),
-            (new ManyToManyAssociationField('categoriesRo', CategoryDefinition::class, ProductCategoryTreeDefinition::class, false, 'product_id', 'category_id'))->setFlags(new CascadeDelete(), new WriteOnly()),
-            (new OneToManyAssociationField('searchKeywords', ProductSearchKeywordDefinition::class, 'product_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
-            (new TranslationsAssociationField('translations', ProductTranslationDefinition::class, 'product_id', false, 'id'))->setFlags(new Inherited(), new CascadeDelete(), new Required(), new WriteOnly()),
+            (new ManyToManyAssociationField('categoriesRo', CategoryDefinition::class, ProductCategoryTreeDefinition::class, false, 'product_id', 'category_id'))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('searchKeywords', ProductSearchKeywordDefinition::class, 'product_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new TranslationsAssociationField('translations', ProductTranslationDefinition::class, 'product_id', false, 'id'))->setFlags(new Inherited(), new CascadeDelete(), new Required()),
             (new ProductCoverField('cover', true))->setFlags(new ReadOnly()),
 
             (new OneToManyAssociationField('configurators', ProductConfiguratorDefinition::class, 'product_id', false, 'id'))->setFlags(new CascadeDelete()),

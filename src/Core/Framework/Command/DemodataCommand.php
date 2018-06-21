@@ -4,15 +4,26 @@ namespace Shopware\Core\Framework\Command;
 
 use Bezhanov\Faker\Provider\Commerce;
 use bheller\ImagesGenerator\ImagesGeneratorProvider;
+use Doctrine\DBAL\Connection;
 use Faker\Factory;
 use Faker\Generator;
 use League\Flysystem\FilesystemInterface;
+use Shopware\Core\Checkout\Cart\Cart\CircularCartCalculation;
+use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
+use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Rule\GoodsPriceRule;
+use Shopware\Core\Checkout\Context\CheckoutContextFactory;
+use Shopware\Core\Checkout\Context\CheckoutContextService;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\Rule\CustomerGroupRule;
 use Shopware\Core\Checkout\Customer\Rule\IsNewCustomerRule;
+use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Configuration\ConfigurationGroupDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
+use Shopware\Core\Content\Product\Cart\ProductProcessor;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\Util\VariantGenerator;
 use Shopware\Core\Content\Rule\RuleDefinition;
@@ -85,6 +96,7 @@ class DemodataCommand extends ContainerAwareCommand
      * @var MediaAlbumRepository
      */
     private $albumRepository;
+
     /**
      * @var FilesystemInterface
      */
@@ -97,12 +109,36 @@ class DemodataCommand extends ContainerAwareCommand
      */
     private $tmpImages = [];
 
+    /**
+     * @var CircularCartCalculation
+     */
+    private $calculator;
+
+    /**
+     * @var OrderConverter
+     */
+    private $orderConverter;
+
+    /**
+     * @var Connection
+     */
+    private $connection;
+
+    /**
+     * @var CheckoutContextFactory
+     */
+    private $contextFactory;
+
     public function __construct(
         ?string $name = null,
         EntityWriterInterface $writer,
         VariantGenerator $variantGenerator,
         FilesystemInterface $filesystem,
-        ContainerInterface $container
+        ContainerInterface $container,
+        CircularCartCalculation $calculator,
+        OrderConverter $orderConverter,
+        Connection $connection,
+        CheckoutContextFactory $contextFactory
     ) {
         parent::__construct($name);
         $this->writer = $writer;
@@ -113,6 +149,10 @@ class DemodataCommand extends ContainerAwareCommand
         $this->ruleRepository = $container->get('rule.repository');
         $this->categoryRepository = $container->get('category.repository');
         $this->albumRepository = $container->get('media_album.repository');
+        $this->calculator = $calculator;
+        $this->orderConverter = $orderConverter;
+        $this->connection = $connection;
+        $this->contextFactory = $contextFactory;
     }
 
     protected function configure()
@@ -120,6 +160,7 @@ class DemodataCommand extends ContainerAwareCommand
         $this->addOption('tenant-id', 't', InputOption::VALUE_REQUIRED, 'Tenant id');
         $this->addOption('products', 'p', InputOption::VALUE_REQUIRED, 'Product count', 500);
         $this->addOption('categories', 'c', InputOption::VALUE_REQUIRED, 'Category count', 10);
+        $this->addOption('orders', 'o', InputOption::VALUE_REQUIRED, 'Order count', 50);
         $this->addOption('manufacturers', 'm', InputOption::VALUE_REQUIRED, 'Manufacturer count', 50);
         $this->addOption('customers', 'cs', InputOption::VALUE_REQUIRED, 'Customer count', 200);
 
@@ -176,6 +217,8 @@ class DemodataCommand extends ContainerAwareCommand
             $input->getOption('with-configurator') == 1,
             $input->getOption('with-services') == 1
         );
+
+        $this->createOrders((int) $input->getOption('orders'), $tenantId);
 
         $this->cleanupImages();
 
@@ -784,5 +827,58 @@ class DemodataCommand extends ContainerAwareCommand
         foreach ($this->tmpImages as $image) {
             unlink($image);
         }
+    }
+
+    private function createOrders(int $limit, string $tenantId)
+    {
+        $productIds = $this->connection->fetchAll('SELECT LOWER(HEX(id)) as id FROM product LIMIT 5000');
+        $productIds = array_column($productIds, 'id');
+
+        $customerIds = $this->connection->fetchAll('SELECT LOWER(HEX(id)) as id FROM customer LIMIT 5000');
+        $customerIds = array_column($customerIds, 'id');
+
+        $this->io->section("Generating {$limit} orders...");
+        $this->io->progressStart($limit);
+
+        $payload = [];
+
+        for ($i = 1; $i <= $limit; $i ++) {
+            $token = Uuid::uuid4()->getHex();
+
+            $options = [
+                CheckoutContextService::CUSTOMER_ID => $this->faker->randomElement($customerIds)
+            ];
+
+            $context = $this->contextFactory->create($tenantId, $token, Defaults::TOUCHPOINT, $options);
+
+            $itemCount = random_int(1, 5);
+
+            $lineItems = new LineItemCollection();
+
+            for ($x = 1; $x <= $itemCount; $x++) {
+                $productId = $this->faker->randomElement($productIds);
+                $lineItems->add(
+                    new LineItem($productId, ProductProcessor::TYPE_PRODUCT, random_int(1, 50), ['id' => $productId])
+                );
+            }
+
+            $cart = new Cart('shopware', $token, $lineItems, new ErrorCollection());
+
+            $calculated = $this->calculator->calculate($cart, $context);
+
+            $payload[] = $this->orderConverter->convert($calculated, $context);
+
+            if (count($payload) >= 20) {
+                $this->writer->upsert(OrderDefinition::class, $payload, $this->getContext());
+                $this->io->progressAdvance(count($payload));
+                $payload = [];
+            }
+        }
+
+        if (!empty($payload)) {
+            $this->writer->upsert(OrderDefinition::class, $payload, $this->getContext());
+        }
+
+        $this->io->progressFinish();
     }
 }

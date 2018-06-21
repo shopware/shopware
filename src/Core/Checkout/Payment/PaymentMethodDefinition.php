@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefi
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+
 use Shopware\Core\Framework\ORM\Field\BoolField;
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\FkField;
@@ -28,7 +28,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
+
 use Shopware\Core\Framework\Plugin\PluginDefinition;
 use Shopware\Core\System\Touchpoint\TouchpointDefinition;
 
@@ -69,10 +69,10 @@ class PaymentMethodDefinition extends EntityDefinition
             new DateField('updated_at', 'updatedAt'),
             (new OneToManyAssociationField('touchpoints', TouchpointDefinition::class, 'payment_method_id', false, 'id'))->setFlags(new RestrictDelete()),
             new ManyToOneAssociationField('plugin', 'plugin_id', PluginDefinition::class, false),
-            (new OneToManyAssociationField('customers', CustomerDefinition::class, 'default_payment_method_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
-            (new OneToManyAssociationField('customers', CustomerDefinition::class, 'last_payment_method_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
-            (new OneToManyAssociationField('orders', OrderDefinition::class, 'payment_method_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
-            (new OneToManyAssociationField('transactions', OrderTransactionDefinition::class, 'payment_method_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
+            (new OneToManyAssociationField('customers', CustomerDefinition::class, 'default_payment_method_id', false, 'id'))->setFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('customers', CustomerDefinition::class, 'last_payment_method_id', false, 'id'))->setFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('orders', OrderDefinition::class, 'payment_method_id', false, 'id'))->setFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('transactions', OrderTransactionDefinition::class, 'payment_method_id', false, 'id'))->setFlags(new RestrictDelete()),
             (new TranslationsAssociationField('translations', PaymentMethodTranslationDefinition::class, 'payment_method_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
         ]);
     }

@@ -3,7 +3,7 @@
 namespace Shopware\Core\System\Config\Aggregate\ConfigFormFieldTranslation;
 
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\IdField;
 use Shopware\Core\Framework\ORM\Field\LongTextField;

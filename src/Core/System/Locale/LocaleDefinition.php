@@ -3,7 +3,7 @@
 namespace Shopware\Core\System\Locale;
 
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\IdField;
 use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
@@ -18,7 +18,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
+
 use Shopware\Core\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationDefinition;
 use Shopware\Core\System\Touchpoint\TouchpointDefinition;
 use Shopware\Core\System\User\UserDefinition;
@@ -44,7 +44,7 @@ class LocaleDefinition extends EntityDefinition
             new OneToManyAssociationField('fallbackApplications', TouchpointDefinition::class, 'fallback_locale_id', false, 'id'),
             (new OneToManyAssociationField('applications', TouchpointDefinition::class, 'locale_id', false, 'id'))->setFlags(new RestrictDelete()),
             (new TranslationsAssociationField('translations', LocaleTranslationDefinition::class, 'locale_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
-            (new OneToManyAssociationField('users', UserDefinition::class, 'locale_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
+            (new OneToManyAssociationField('users', UserDefinition::class, 'locale_id', false, 'id'))->setFlags(new RestrictDelete()),
         ]);
     }
 

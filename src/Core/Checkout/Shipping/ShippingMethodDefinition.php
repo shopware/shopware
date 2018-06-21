@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceDefinition;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+
 use Shopware\Core\Framework\ORM\Field\BoolField;
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\FloatField;
@@ -25,7 +25,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
+
 use Shopware\Core\System\Touchpoint\TouchpointDefinition;
 
 class ShippingMethodDefinition extends EntityDefinition
@@ -70,7 +70,7 @@ class ShippingMethodDefinition extends EntityDefinition
             (new OneToManyAssociationField('touchpoints', TouchpointDefinition::class, 'shipping_method_id', false, 'id'))->setFlags(new RestrictDelete()),
             (new TranslatedField(new LongTextField('description', 'description')))->setFlags(new SearchRanking(self::LOW_SEARCH_RAKING)),
             (new TranslatedField(new StringField('comment', 'comment')))->setFlags(new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
-            (new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'shipping_method_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
+            (new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'shipping_method_id', false, 'id'))->setFlags(new RestrictDelete()),
             (new OneToManyAssociationField('prices', ShippingMethodPriceDefinition::class, 'shipping_method_id', true, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('translations', ShippingMethodTranslationDefinition::class, 'shipping_method_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
         ]);

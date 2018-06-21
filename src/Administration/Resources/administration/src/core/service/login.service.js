@@ -1,6 +1,7 @@
 /**
  * @module core/service/login
  */
+import { Application } from 'src/core/shopware';
 
 /**
  *
@@ -36,9 +37,16 @@ export default function createLoginService(httpClient) {
      * @returns {Observable<AjaxResponse>|AxiosPromise}
      */
     function loginByUsername(user, pass) {
-        return httpClient.post('auth', {
+        const contextService = Application.getContainer('init').contextService;
+
+        return httpClient.post('/oauth/token', {
+            grant_type: 'password',
+            client_id: 'administration',
+            scopes: 'write',
             username: user,
             password: pass
+        }, {
+            baseURL: contextService.apiPath
         });
     }
 
@@ -52,6 +60,7 @@ export default function createLoginService(httpClient) {
      * @returns {Object} saved authentication object
      */
     function setBearerAuthentication(token, expiry) {
+        expiry = Math.round(+new Date() / 1000) + expiry;
         const authObject = { token, expiry };
         localStorage.setItem(localStorageKey, JSON.stringify(authObject));
 

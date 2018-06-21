@@ -5,10 +5,12 @@
 export default function createContext(context) {
     const isDevMode = (process.env.NODE_ENV !== 'production');
     const installationPath = getInstallationPath(context, isDevMode);
+    const apiPath = getApiPath(installationPath, isDevMode);
 
     return {
         installationPath,
-        apiPath: getApiPath(installationPath, isDevMode),
+        apiPath: apiPath,
+        apiResourcePath: `${apiPath}/v1`,
         assetsPath: getAssetsPath(installationPath, isDevMode)
     };
 }
@@ -45,7 +47,7 @@ function getApiPath(installationPath, isDevMode) {
         installationPath = process.env.BASE_PATH;
     }
 
-    return `${installationPath}/api/v1`;
+    return `${installationPath}/api`;
 }
 
 /**

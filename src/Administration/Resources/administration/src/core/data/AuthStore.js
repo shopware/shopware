@@ -24,7 +24,7 @@ class AuthStore {
 
         return loginService.loginByUsername(this.username, this.password)
             .then((response) => {
-                loginService.setBearerAuthentication(response.data.token, response.data.expiry);
+                loginService.setBearerAuthentication(response.data.access_token, response.data.expires_in);
 
                 this.loginSuccess(response);
                 return true;
@@ -41,8 +41,8 @@ class AuthStore {
      * @param payload
      */
     loginSuccess(payload) {
-        this.token = payload.data.token;
-        this.expiry = payload.data.expiry;
+        this.token = payload.data.access_token;
+        this.expiry = payload.data.expires_in;
         this.errorTitle = '';
         this.errorMessage = '';
         this.password = '';

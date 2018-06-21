@@ -6,7 +6,6 @@ use Shopware\Core\Framework\ORM\Field\AssociationInterface;
 use Shopware\Core\Framework\ORM\Field\Field;
 use Shopware\Core\Framework\ORM\Write\FieldAware\StorageAware;
 use Shopware\Core\Framework\ORM\Write\Flag\ReadOnly;
-
 use Shopware\Core\Framework\Struct\Collection;
 
 class FieldCollection extends Collection

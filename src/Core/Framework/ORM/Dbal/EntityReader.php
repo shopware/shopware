@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\ORM\Dbal;
 
 use Doctrine\DBAL\Connection;
-
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\ORM\EntityCollection;
@@ -733,11 +732,11 @@ class EntityReader implements EntityReaderInterface
             $params = [
                 '#source_column#' => EntityDefinitionQueryHelper::escape($association->getMappingLocalColumn()),
                 '#reference_column#' => EntityDefinitionQueryHelper::escape($association->getMappingReferenceColumn()),
-                '#table#' => $root
+                '#table#' => $root,
             ];
             $query->innerJoin(
                 $root,
-                '('. $limitQuery .')',
+                '(' . $limitQuery . ')',
                 'counter_table',
                 str_replace(
                     array_keys($params),
@@ -868,6 +867,7 @@ class EntityReader implements EntityReaderInterface
         if (!empty($criteria->getAllFilters()->getQueries())) {
             return true;
         }
+
         return false;
     }
 
@@ -880,7 +880,7 @@ class EntityReader implements EntityReaderInterface
 
         $params = [
             '#table#' => $table,
-            '#source_column#' => $sourceColumn
+            '#source_column#' => $sourceColumn,
         ];
 
         $query = new QueryBuilder($this->connection);
@@ -891,7 +891,7 @@ class EntityReader implements EntityReaderInterface
                 '@n:=IF(@c=#table#.#source_column#, @n+1, IF(@c:=#table#.#source_column#,1,1)) as id_count'
             ),
             $table . '.' . $referenceColumn,
-            $table . '.' . $sourceColumn
+            $table . '.' . $sourceColumn,
         ]);
         $query->from($table, $table);
         $query->orderBy($table . '.' . $sourceColumn);

@@ -842,11 +842,11 @@ class DemodataCommand extends ContainerAwareCommand
 
         $payload = [];
 
-        for ($i = 1; $i <= $limit; $i ++) {
+        for ($i = 1; $i <= $limit; ++$i ) {
             $token = Uuid::uuid4()->getHex();
 
             $options = [
-                CheckoutContextService::CUSTOMER_ID => $this->faker->randomElement($customerIds)
+                CheckoutContextService::CUSTOMER_ID => $this->faker->randomElement($customerIds),
             ];
 
             $context = $this->contextFactory->create($tenantId, $token, Defaults::TOUCHPOINT, $options);
@@ -855,7 +855,7 @@ class DemodataCommand extends ContainerAwareCommand
 
             $lineItems = new LineItemCollection();
 
-            for ($x = 1; $x <= $itemCount; $x++) {
+            for ($x = 1; $x <= $itemCount; ++$x) {
                 $productId = $this->faker->randomElement($productIds);
                 $lineItems->add(
                     new LineItem($productId, ProductProcessor::TYPE_PRODUCT, random_int(1, 50), ['id' => $productId])

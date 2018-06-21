@@ -955,8 +955,8 @@ class EntityReaderTest extends KernelTestCase
                     ['name' => 'test6'],
                     ['name' => 'test7'],
                     ['name' => 'test8'],
-                    ['name' => 'test9']
-                ]
+                    ['name' => 'test9'],
+                ],
             ],
             [
                 'id' => $id2,
@@ -974,8 +974,8 @@ class EntityReaderTest extends KernelTestCase
                     ['name' => 'test15'],
                     ['name' => 'test16'],
                     ['name' => 'test17'],
-                    ['name' => 'test18']
-                ]
+                    ['name' => 'test18'],
+                ],
             ],
         ];
 

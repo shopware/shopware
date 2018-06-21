@@ -4,14 +4,10 @@ namespace Shopware\Storefront\Test;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository;
-use Shopware\Core\Checkout\Customer\CustomerRepository;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Framework\ORM\EntityRepository;
 use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Core\System\Country\CountryRepository;
 use Shopware\Storefront\Page\Account\AccountService;
 use Shopware\Storefront\Page\Account\EmailSaveRequest;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;

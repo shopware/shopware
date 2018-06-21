@@ -24,5 +24,4 @@ class ListDefinition extends EntityDefinition
             new ListField('data', 'data', StringField::class),
         ]);
     }
-
 }

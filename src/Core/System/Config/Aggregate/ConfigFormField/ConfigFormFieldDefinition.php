@@ -3,7 +3,6 @@
 namespace Shopware\Core\System\Config\Aggregate\ConfigFormField;
 
 use Shopware\Core\Framework\ORM\EntityDefinition;
-
 use Shopware\Core\Framework\ORM\Field\BoolField;
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\FkField;

@@ -10,7 +10,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductSeoCategory\ProductSeoCategor
 use Shopware\Core\Content\Product\Aggregate\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
-
 use Shopware\Core\Framework\ORM\Field\BoolField;
 use Shopware\Core\Framework\ORM\Field\ChildCountField;
 use Shopware\Core\Framework\ORM\Field\ChildrenAssociationField;

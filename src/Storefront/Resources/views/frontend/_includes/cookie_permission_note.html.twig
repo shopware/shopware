@@ -8,16 +8,16 @@
             {% block cookie_permission_content %}
                 <div class="cookie-permission--content">
                     {% block cookie_permission_content_text %}
-                        {% trans from 'frontend/cookiepermission/index' %}cookiePermission/text{% endtrans %}
+                        {% trans %}frontend.cookiepermission.index.cookiePermission.text{% endtrans %}
                     {% endblock %}
 
                     {% block cookie_permission_content_link %}
                         {$privacyLink = {config name="data_privacy_statement_link"}}
                         {% if shopware.config.data_privacy_statement_link %}
-                            <a title="{{ snippet('cookiePermission/linkText', 'frontend/cookiepermission/index')|escape }}"
+                            <a title="{{ 'frontend.cookiepermission.index.cookiePermission.linkText'|trans|escape }}"
                                class="cookie-permission--privacy-link"
                                href="{{ shopware.config.data_privacy_statement_link }}">
-                                {{ snippet('cookiePermission/linkText', 'frontend/cookiepermission/index') }}
+                                {% trans %}frontend.cookiepermission.index.cookiePermission.linkText{% endtrans %}
                             </a>
                         {% endif %}
                     {% endblock %}
@@ -27,7 +27,7 @@
             {% block cookie_permission_accept_button %}
                 <div class="cookie-permission--button">
                     <a href="#" class="cookie-permission--accept-button btn is--primary is--large is--center">
-                        {{ snippet('cookiePermission/buttonText', 'frontend/cookiepermission/index') }}
+                        {% trans %}frontend.cookiepermission.index.cookiePermission.buttonText{% endtrans %}
                     </a>
                 </div>
             {% endblock %}

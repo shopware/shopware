@@ -9,8 +9,8 @@
                     <div class="tab--container" data-tab-id="related">
                         {% block frontend_detail_index_tabs_related_inner %}
                             <div class="tab--header">
-                                <a href="#" class="tab--title" title="{% trans from 'frontend/detail/tabs' %}DetailTabsAccessories{% endtrans %}">
-                                    {% trans from 'frontend/detail/tabs' %}DetailTabsAccessories{% endtrans %}
+                                <a href="#" class="tab--title" title="{% trans %}frontend.detail.tabs.DetailTabsAccessories{% endtrans %}">
+                                    {% trans %}frontend.detail.tabs.DetailTabsAccessories{% endtrans %}
                                     <span class="product--rating-count-wrapper">
                                         <span class="product--rating-count">{{ product.relatedProducts|length }}</span>
                                     </span>
@@ -28,7 +28,7 @@
                     <div class="tab--container" data-tab-id="similar">
                         {% block frontend_detail_index_tabs_similar_inner %}
                             <div class="tab--header">
-                                <a href="#" class="tab--title" title="{% trans from 'frontend/detail/index' %}DetailRecommendationSimilarLabel{% endtrans %}">{% trans from 'frontend/detail/index' %}DetailRecommendationSimilarLabel{% endtrans %}</a>
+                                <a href="#" class="tab--title" title="{% trans %}frontend.detail.index.DetailRecommendationSimilarLabel{% endtrans %}">{% trans %}frontend.detail.index.DetailRecommendationSimilarLabel{% endtrans %}</a>
                             </div>
                             <div class="tab--content content--similar">{% sw_include '@Storefront/frontend/detail/tabs/similar.html.twig' %}</div>
                         {% endblock %}

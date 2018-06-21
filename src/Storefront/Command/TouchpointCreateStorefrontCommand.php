@@ -98,21 +98,6 @@ class TouchpointCreateStorefrontCommand extends ContainerAwareCommand
             $this->touchpointRepository->create([$data], Context::createDefaultContext($tenantId));
 
             $io->success('Touchpoint has been created successfully.');
-
-            $io->note('Copy snippets to new application');
-
-            $snippets = $this->connection->executeQuery('SELECT * FROM snippet')->fetchAll();
-
-            $io->progressStart(count($snippets));
-
-            foreach ($snippets as $snippet) {
-                $snippet['touchpoint_id'] = $idBin;
-                $snippet['id'] = Uuid::uuid4()->getBytes();
-                $this->connection->insert('snippet', $snippet);
-                $io->progressAdvance();
-            }
-
-            $io->progressFinish();
         } catch (WriteStackException $exception) {
             $io->error('Something went wrong.');
 

@@ -15,18 +15,18 @@
                                     {% block frontend_detail_data_block_prices_table_head_row %}
                                         {% block frontend_detail_data_block_prices_table_head_cell_quantity %}
                                             <th class="block-prices--cell">
-                                                {% trans from 'frontend/detail/data' %}DetailDataColumnQuantity{% endtrans %}
+                                                {% trans %}frontend.detail.data.DetailDataColumnQuantity{% endtrans %}
                                             </th>
                                         {% endblock %}
                                         {% block frontend_detail_data_block_prices_table_head_cell_price %}
                                             <th class="block-prices--cell">
-                                                {% trans from 'frontend/detail/data' %}DetailDataColumnPrice{% endtrans %}
+                                                {% trans %}frontend.detail.data.DetailDataColumnPrice{% endtrans %}
                                             </th>
                                         {% endblock %}
                                         {% if hasReferencePrice %}
                                             {% block frontend_detail_data_block_prices_table_head_cell_reference_price %}
                                                 <th class="block-prices--cell">
-                                                    {% trans from 'frontend/detail/data' %}DetailDataColumnReferencePrice{% endtrans %}
+                                                    {% trans %}frontend.detail.data.DetailDataColumnReferencePrice{% endtrans %}
                                                 </th>
                                             {% endblock %}
                                         {% endif %}
@@ -56,24 +56,24 @@
                                                         <link itemprop="availability" href="http://schema.org/InStock" />
 
                                                         {% if key == 0 %}
-                                                            {% trans from 'frontend/detail/data' %}DetailDataInfoUntil{% endtrans %}
+                                                            {% trans %}frontend.detail.data.DetailDataInfoUntil{% endtrans %}
                                                             <span class="block-prices--quantity">{{ price.quantity }}</span>
                                                         {% else %}
-                                                            {% trans from 'frontend/detail/data' %}DetailDataInfoFrom{% endtrans %}
+                                                            {% trans %}frontend.detail.data.DetailDataInfoFrom{% endtrans %}
                                                             <span class="block-prices--quantity">{{ price.quantity }}</span>
                                                         {% endif %}
                                                     </td>
                                                 {% endblock %}
                                                 {% block frontend_detail_data_block_prices_table_body_cell_price %}
                                                     <td class="block-prices--cell">
-                                                        {{ price.unitPrice|localizedcurrency(context.currency.shortName) }}{% trans from 'frontend/listing/box_article' %}Star{% endtrans %}
+                                                        {{ price.unitPrice|localizedcurrency(context.currency.shortName) }}{% trans %}frontend.listing.box_article.Star{% endtrans %}
                                                     </td>
                                                 {% endblock %}
                                                 {% if hasReferencePrice %}
                                                     {% block frontend_detail_data_block_prices_table_body_cell_reference_price %}
                                                         <td class="block-prices--cell">
                                                             {{ price.referencePrice|localizedcurrency(context.currency.shortName) }}
-                                                            {% trans from 'frontend/listing/box_article' %}Star{% endtrans %} /
+                                                            {% trans %}frontend.listing.box_article.Star{% endtrans %} /
                                                             {{ product.referenceUnit }} {{ product.unit.name }}
                                                         </td>
                                                     {% endblock %}

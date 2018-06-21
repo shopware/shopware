@@ -14,12 +14,12 @@
                     {% set thumbnails = product.cover.media.extension('thumbnails') %}
 
                     <a href="{{ product.cover.media.extensions.links.url }}"
-                       title="{% trans from 'frontend/detail/index' %}DetailThumbnailText{% endtrans %}: {{ product.name }}"
+                       title="{% trans %}frontend.detail.index.DetailThumbnailText{% endtrans %}: {{ product.name }}"
                        class="thumbnail--link is--active">
                         {% block frontend_detail_image_thumbs_main_img %}
                             <img srcset="{{ product.cover.media.extensions.links.url }}"
-                                 alt="{% trans from 'frontend/detail/index' %}DetailThumbnailText{% endtrans %}: {{ product.name }}"
-                                 title="{% trans from 'frontend/detail/index' %}DetailThumbnailText{% endtrans %}: {{ product.name }}"
+                                 alt="{% trans %}frontend.detail.index.DetailThumbnailText{% endtrans %}: {{ product.name }}"
+                                 title="{% trans %}frontend.detail.index.DetailThumbnailText{% endtrans %}: {{ product.name }}"
                                  class="thumbnail--image" />
                         {% endblock %}
                     </a>
@@ -32,12 +32,12 @@
                         {% set thumbnails = media.media.extension('thumbnails') %}
                         {% block frontend_detail_image_thumbnail_images %}
                             <a href="{{ media.media.extensions.links.url }}"
-                               title="{% trans from 'frontend/detail/index' %}DetailThumbnailText{% endtrans %}: {{ product.name }}"
+                               title="{% trans %}frontend.detail.index.DetailThumbnailText{% endtrans %}: {{ product.name }}"
                                class="thumbnail--link">
                                 {% block frontend_detail_image_thumbs_images_img %}
                                     <img srcset="{{ media.media.extensions.links.url }}"
-                                         alt="{% trans from 'frontend/detail/index' %}DetailThumbnailText{% endtrans %}: {{ product.name }}"
-                                         title="{% trans from 'frontend/detail/index' %}DetailThumbnailText{% endtrans %}: {{ product.name }}"
+                                         alt="{% trans %}frontend.detail.index.DetailThumbnailText{% endtrans %}: {{ product.name }}"
+                                         title="{% trans %}frontend.detail.index.DetailThumbnailText{% endtrans %}: {{ product.name }}"
                                          class="thumbnail--image" />
                                 {% endblock %}
                             </a>

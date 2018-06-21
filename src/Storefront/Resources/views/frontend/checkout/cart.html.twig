@@ -2,7 +2,7 @@
 
 {# Title #}
 {% block frontend_index_header_title %}
-    {% trans from 'frontend/checkout/cart' %}CartTitle{% endtrans %} | {{ shopware.config.shopname|e }}
+    {% trans %}frontend.checkout.cart.CartTitle{% endtrans %} | {{ shopware.config.shopname|e }}
 {% endblock %}
 
 {# Hide breadcrumb #}
@@ -49,9 +49,9 @@
                                     {% if true %}
 
                                         {% block frontend_checkout_actions_checkout %}
-                                            <a href="{{ path('checkout_confirm') }}" title="{% trans from 'frontend/checkout/cart' %}CheckoutActionsLinkProceedShort{% endtrans %}"
+                                            <a href="{{ path('checkout_confirm') }}" title="{% trans %}frontend.checkout.actions.CheckoutActionsLinkProceedShort{% endtrans %}"
                                                class="btn btn--checkout-proceed is--primary right is--icon-right is--large">
-                                                {% trans from 'frontend/checkout/actions' %}CheckoutActionsLinkProceedShort{% endtrans %}
+                                                {% trans %}frontend.checkout.actions.CheckoutActionsLinkProceedShort{% endtrans %}
                                                 <i class="icon--arrow-right"></i>
                                             </a>
                                         {% endblock %}
@@ -109,9 +109,9 @@
 
                                     {# Forward to the checkout #}
                                     {% block frontend_checkout_actions_confirm_bottom_checkout %}
-                                        <a href="{{ path('checkout_confirm') }}" title="{% trans from 'frontend/checkout/cart' %}CheckoutActionsLinkProceedShort{% endtrans %}"
+                                        <a href="{{ path('checkout_confirm') }}" title="{% trans %}frontend.checkout.actions.CheckoutActionsLinkProceedShort{% endtrans %}"
                                            class="btn btn--checkout-proceed is--primary right is--icon-right is--large">
-                                            {% trans from 'frontend/checkout/actions' %}CheckoutActionsLinkProceedShort{% endtrans %}
+                                            {% trans %}frontend.checkout.actions.CheckoutActionsLinkProceedShort{% endtrans %}
                                             <i class="icon--arrow-right"></i>
                                         </a>
                                     {% endblock %}
@@ -130,7 +130,7 @@
             {# Empty basket #}
             {% block frontend_basket_basket_is_empty %}
                 <div class="basket--info-messages">
-                    {% sw_include '@Storefront/frontend/_includes/messages.html.twig' with {'type': 'warning', 'content': 'CartInfoEmpty'|trans([], 'frontend/checkout/cart') } %}
+                    {% sw_include '@Storefront/frontend/_includes/messages.html.twig' with {'type': 'warning', 'content': 'frontend.checkout.cart.CartInfoEmpty'|trans } %}
                 </div>
             {% endblock %}
 

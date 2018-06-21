@@ -40,7 +40,7 @@
 
                                 {# Close Button #}
                                 {% block frontend_listing_text_content_offcanvas_close %}
-                                    <a href="#" title="{s namespace='frontend/listing/listing' name='ListingActionsCloseOffCanvas'}{/s}}" class="close--off-canvas">
+                                    <a href="#" title="{{ 'frontend.listing.listing.ListingActionsCloseOffCanvas'|trans|escape }}" class="close--off-canvas">
                                         <i class="icon--arrow-left"></i> {#{s namespace="frontend/listing/listing" name="ListingActionsCloseOffCanvas"}{/s}#}
                                     </a>
                                 {% endblock %}

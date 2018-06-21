@@ -1,5 +1,4 @@
 {% sw_extends 'frontend/address/index.html.twig' %}
-{% trans_default_domain 'frontend/address/index' %}
 
 {# Breadcrumb #}
 {% block frontend_index_start %}
@@ -15,7 +14,7 @@
         {% block frontend_address_headline %}
             <div class="account--welcome">
                 <h1 class="panel--title">
-                    {% trans %}AddressesDeleteTitle{% endtrans %}
+                    {% trans %}frontend.address.index.AddressesDeleteTitle{% endtrans %}
                 </h1>
             </div>
         {% endblock %}
@@ -23,9 +22,9 @@
         {% block frontend_address_content %}
             {% block frontend_address_delete_notice %}
                 <p>
-                    {% trans %}AddressesDeleteNotice{% endtrans %}
+                    {% trans %}frontend.address.index.AddressesDeleteNotice{% endtrans %}
                     <br/>
-                    {% trans %}AddressesDeleteConfirmText{% endtrans %}
+                    {% trans %}frontend.address.index.AddressesDeleteConfirmText{% endtrans %}
                 </p>
             {% endblock %}
 
@@ -82,17 +81,17 @@
                     <form action="{{ path('address_delete') }}" method="post">
                         {% block frontend_address_delete_actions_cancel %}
                             <a href="{{ path('address_index') }}"
-                               title="{% trans %}AddressesDeleteCancelText{% endtrans %}"
+                               title="{% trans %}frontend.address.index.AddressesDeleteCancelText{% endtrans %}"
                                class="btn  is--secondary">
-                                {% trans %}AddressesDeleteCancelText{% endtrans %}
+                                {% trans %}frontend.address.index.AddressesDeleteCancelText{% endtrans %}
                             </a>
                         {% endblock %}
 
                         {% block frontend_address_delete_actions_confirm %}
                             <button type="submit"
-                                    title="{% trans %}AddressesDeleteButtonText{% endtrans %}"
+                                    title="{% trans %}frontend.address.index.AddressesDeleteButtonText{% endtrans %}"
                                     class="btn is--primary is--right">
-                                {% trans %}AddressesDeleteButtonText{% endtrans %}
+                                {% trans %}frontend.address.index.AddressesDeleteButtonText{% endtrans %}
                             </button>
                         {% endblock %}
                         <input type="hidden" name="addressId" value="{{ address.id }}" />

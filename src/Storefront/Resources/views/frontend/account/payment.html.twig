@@ -1,5 +1,4 @@
 {% sw_extends '@Storefront/frontend/account/index.html.twig'%}
-{% trans_default_domain 'frontend/account/payment' %}
 
 {# Breadcrumb #}
 {% block frontend_index_start %}
@@ -15,7 +14,7 @@
         {# Payment headline #}
         {% block frontend_account_payment_headline %}
             <div class="account--welcome">
-                <h1 class="panel--title">{% trans %}PaymentHeadline{% endtrans %}</h1>
+                <h1 class="panel--title">{% trans %}frontend.account.payment.PaymentHeadline{% endtrans %}</h1>
             </div>
         {% endblock %}
 
@@ -50,7 +49,7 @@
                                         {#{% endif %}#}
                                     {#{% endblock %}#}
                                     {% block frontend_account_payment_action_button_send %}
-                                        <input type="submit" value="{% trans %}PaymentLinkSend{% endtrans %}" class="btn is--primary register--submit right" />
+                                        <input type="submit" value="{% trans %}frontend.account.payment.PaymentLinkSend{% endtrans %}" class="btn is--primary register--submit right" />
                                     {% endblock %}
                                 </div>
                             {% endblock %}

@@ -2,7 +2,7 @@
 {% block frontend_checkout_cart_footer_add_product %}
     <form method="post" action="{{ path('cart_add_product') }}" class="table--add-product add-product--form block-group">
         {% block frontend_checkout_cart_footer_add_product_field %}
-            <input name="number" class="add-product--field block" type="text" placeholder="{% trans from 'frontend/checkout/cart_footer_left' %}CheckoutFooterAddProductPlaceholder{% endtrans %}" />
+            <input name="number" class="add-product--field block" type="text" placeholder="{% trans %}frontend.checkout.cart_footer_left.CheckoutFooterAddProductPlaceholder{% endtrans %}" />
         {% endblock %}
 
         {% block frontend_checkout_cart_footer_add_product_button %}
@@ -27,14 +27,14 @@
 
                     {% block frontend_checkout_cart_footer_add_voucher_label %}
                         <label for="add-voucher--trigger" class="add-voucher--label">
-                            {% trans from 'frontend/checkout/cart_footer' %}CheckoutFooterVoucherTrigger{% endtrans %}
+                            {% trans %}frontend.checkout.cart_footer.CheckoutFooterVoucherTrigger{% endtrans %}
                         </label>
 s                   {% endblock %}
 
                     <div class="add-voucher--panel is--hidden block-group">
                         {% block frontend_checkout_cart_footer_add_voucher_field %}
                             {#<input type="text" class="add-voucher--field is--medium block" name="code" placeholder="{"{s name='CheckoutFooterAddVoucherLabelInline'}{/s}"|escape}" />#}
-                            <input type="text" class="add-voucher--field is--medium block" name="code" placeholder="{% trans from 'frontend/checkout/cart_footer' %}CheckoutFooterAddVoucherLabelInline{% endtrans %}" />
+                            <input type="text" class="add-voucher--field is--medium block" name="code" placeholder="{% trans %}frontend.checkout.cart_footer.CheckoutFooterAddVoucherLabelInline{% endtrans %}" />
                         {% endblock %}
 
                         {% block frontend_checkout_cart_footer_add_voucher_button %}

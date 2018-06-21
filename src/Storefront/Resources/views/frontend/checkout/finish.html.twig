@@ -23,7 +23,7 @@
 
                 {% block frontend_checkout_finish_teaser_title %}
                     <h2 class="panel--title teaser--title is--align-center">
-                        {% trans from 'frontend/checkout/finish' %}FinishHeaderThankYou{% endtrans %} {{ shopware.config.shopName }}!
+                        {% trans %}frontend.checkout.finish.FinishHeaderThankYou{% endtrans %} {{ shopware.config.shopName }}!
                     </h2>
                 {% endblock %}
 
@@ -35,11 +35,11 @@
 
                         <p class="teaser--text">
                             {% if not confirmMailDeliveryFailed %}
-                                {% trans from 'frontend/checkout/finish' %}FinishInfoConfirmationMail{% endtrans %}
+                                {% trans %}frontend.checkout.finish.FinishInfoConfirmationMail{% endtrans %}
                                 <br />
                             {% endif %}
 
-                            {% trans from 'frontend/checkout/finish' %}FinishInfoPrintOrder{% endtrans %}
+                            {% trans %}frontend.checkout.finish.FinishInfoPrintOrder{% endtrans %}
                         </p>
 
                         {% block frontend_checkout_finish_teaser_actions %}
@@ -49,13 +49,13 @@
                                     <a
                                             href="{{ path('cart_index') }}"
                                             class="btn is--secondary teaser--btn-back is--icon-left"
-                                            title="{"{% trans from 'frontend/checkout/finish' %}FinishButtonBackToShop{% endtrans %}"|escape}">
-                                    <i class="icon--arrow-left"></i>&nbsp;{{ 'FinishButtonBackToShop'|trans([], 'frontend/checkout/finish')|escape }}
+                                            title="{"{% trans %}frontend.checkout.finish.FinishButtonBackToShop{% endtrans %}"|escape}">
+                                    <i class="icon--arrow-left"></i>&nbsp;{{ 'frontend.checkout.finish.FinishButtonBackToShop'|trans|escape }}
                                     </a>
 
                                     {# Print button #}
-                                    <a href="#" class="btn is--primary teaser--btn-print" onclick="self.print()" title="{{ 'FinishLinkPrint'|trans([], 'frontend/checkout/finish')|escape }}">
-                                        {% trans from 'frontend/checkout/finish' %}FinishLinkPrint{% endtrans %}
+                                    <a href="#" class="btn is--primary teaser--btn-print" onclick="self.print()" title="{{ 'frontend.checkout.finish.FinishLinkPrint'|trans|escape }}">
+                                        {% trans %}frontend.checkout.finish.FinishLinkPrint{% endtrans %}
                                     </a>
                                 {% endspaceless %}
                             </p>
@@ -63,7 +63,7 @@
                             {# Print notice #}
                             {% block frontend_checkout_finish_teaser_print_notice %}
                                 <p class="print--notice">
-                                    {% trans from 'frontend/checkout/finish' %}FinishPrintNotice{% endtrans %}
+                                    {% trans %}frontend.checkout.finish.FinishPrintNotice{% endtrans %}
                                 </p>
                             {% endblock %}
 
@@ -76,7 +76,7 @@
         {% endblock %}
 
         {# Payment method #}
-        <h2>{% trans from 'frontend/checkout/finish' %}FinishDeliveries{% endtrans %}</h2>
+        <h2>{% trans %}frontend.checkout.finish.FinishDeliveries{% endtrans %}</h2>
         {% block frontend_checkout_finish_deliveries %}
         <div class="information--panel-item">
             {% block frontend_checkout_finish_deliveries_panel %}
@@ -90,7 +90,7 @@
 
                     {% block frontend_checkout_finish_deliveries_headline %}
                     <div class="panel--title is--underline payment--title">
-                        {% trans from 'frontend/checkout/finish' %}FinishDelivery{% endtrans %} {{ loop.index }}
+                        {% trans %}frontend.checkout.finish.FinishDelivery{% endtrans %} {{ loop.index }}
                     </div>
                     {% endblock %}
 
@@ -101,7 +101,7 @@
                         Lieferung zwischen {{ delivery.deliveryDate.earliest.format('d.m.Y') }} und
                         {{ delivery.deliveryDate.latest.format('d.m.Y') }}
 
-                        <h5>{% trans from 'frontend/checkout/finish' %}FinishDeliveryAddress{% endtrans %}</h5>
+                        <h5>{% trans %}frontend.checkout.finish.FinishDeliveryAddress{% endtrans %}</h5>
 
                         {{ location.address.street }}<br>
                         {{ location.address.zipcode }} {{ location.address.city }}<br>

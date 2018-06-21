@@ -1,5 +1,4 @@
 {% sw_extends 'frontend/address/index.html.twig' %}
-{% trans_default_domain 'frontend/address/index' %}
 
 {# Breadcrumb #}
 {% block frontend_index_start %}
@@ -15,7 +14,7 @@
         {% block frontend_address_form_headline %}
             <div class="account--welcome">
                 <h1 class="panel--title">
-                    {% trans %}AddressesTitleCreate{% endtrans %}
+                    {% trans %}frontend.address.index.AddressesTitleCreate{% endtrans %}
                 </h1>
             </div>
         {% endblock %}

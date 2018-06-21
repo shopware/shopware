@@ -7,7 +7,7 @@
 
                 {% block frontend_account_order_item_date_label %}
                     <div class="column--label">
-                        {% trans from 'frontend/account/orders' %}OrderColumnDate{% endtrans %}
+                        {% trans %}frontend.account.orders.OrderColumnDate{% endtrans %}
                     </div>
                 {% endblock %}
 
@@ -25,7 +25,7 @@
 
                 {% block frontend_account_order_item_number_label %}
                     <div class="column--label">
-                        {% trans from 'frontend/account/orders' %}OrderColumnId{% endtrans %}
+                        {% trans %}frontend.account.orders.OrderColumnId{% endtrans %}
                     </div>
                 {% endblock %}
 
@@ -44,7 +44,7 @@
 
                 {#{% block frontend_account_order_item_dispatch_label %}#}
                     {#<div class="column--label">#}
-                        {#{% trans from 'frontend/account/orders' %}OrderColumnDispatch{% endtrans %}#}
+                        {#{% trans %}frontend.account.orders.OrderColumnDispatch{% endtrans %}#}
                     {#</div>#}
                 {#{% endblock %}#}
 
@@ -65,7 +65,7 @@
             <div class="order--amount panel--td column--amount">
                 {% block frontend_account_order_item_amount_label %}
                     <div class="column--label">
-                        {% trans from 'frontend/account/orders' %}OrderColumnAmount{% endtrans %}
+                        {% trans %}frontend.account.orders.OrderColumnAmount{% endtrans %}
                     </div>
                 {% endblock %}
 
@@ -83,7 +83,7 @@
 
                 {% block frontend_account_order_item_status_label %}
                     <div class="column--label">
-                        {% trans from 'frontend/account/orders' %}OrderColumnStatus{% endtrans %}
+                        {% trans %}frontend.account.orders.OrderColumnStatus{% endtrans %}
                     </div>
                 {% endblock %}
 
@@ -91,7 +91,7 @@
                     <div class="column--value">
                         <span class="order--status-icon status--{$offerPosition.status}">&nbsp;</span>
                         {% if order.state.id == '1194a493806742c9b85e61f1f2cf9be8' %}
-                            {% trans from 'frontend/account/order_item' %}OrderItemInfoNotProcessed{% endtrans %}
+                            {% trans %}frontend.account.order_item.OrderItemInfoNotProcessed{% endtrans %}
                         {#{elseif $offerPosition.status==1}#}
                             {#{s name="OrderItemInfoInProgress"}{/s}#}
                         {#{elseif $offerPosition.status==2}#}
@@ -121,9 +121,9 @@
             <div class="order--actions panel--td column--actions">
                 <a href="{{ path('checkout_finish', {'order': order.id}) }}"
                    target="_blank"
-                   title="{% trans from 'frontend/account/order_item' %}OrderActionSlide{% endtrans %} {{ order.id }}"
+                   title="{% trans %}frontend.account.order_item.OrderActionSlide{% endtrans %} {{ order.id }}"
                    class="btn is--small">
-                    {% trans from 'frontend/account/order_item' %}OrderActionSlide{% endtrans %}
+                    {% trans %}frontend.account.order_item.OrderActionSlide{% endtrans %}
                 </a>
             </div>
         {% endblock %}

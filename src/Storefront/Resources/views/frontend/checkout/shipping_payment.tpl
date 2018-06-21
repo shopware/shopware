@@ -14,9 +14,9 @@
     {if $theme.checkoutHeader}
         <a href="{url controller='index'}"
            class="btn is--small btn--back-top-shop is--icon-left"
-           title="{"{s name='FinishButtonBackToShop' namespace='frontend/checkout/finish'}{/s}"|escape}">
+           title="{{ 'frontend.checkout.finish.FinishButtonBackToShop'|trans|escape }}">
             <i class="icon--arrow-left"></i>
-            {s name="FinishButtonBackToShop" namespace="frontend/checkout/finish"}{/s}
+            {% trans %}frontend.checkout.finish.FinishButtonBackToShop{% endtrans %}
         </a>
     {/if}
 {/block}

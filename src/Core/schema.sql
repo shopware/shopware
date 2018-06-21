@@ -1797,17 +1797,15 @@ DROP TABLE IF EXISTS `snippet`;
 CREATE TABLE `snippet` (
   `id` binary(16) NOT NULL,
   `tenant_id` binary(16) NOT NULL,
-  `namespace` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `locale` varchar(5) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `value` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `dirty` tinyint(1) DEFAULT '0',
-  `touchpoint_id` binary(16) NOT NULL,
-  `touchpoint_tenant_id` binary(16) NOT NULL,
+  `language_id` binary(16) NOT NULL,
+  `language_tenant_id` binary(16) NOT NULL,
+  `translation_key` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `value` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` datetime,
   `updated_at` datetime,
   PRIMARY KEY (`id`, `tenant_id`),
-  CONSTRAINT `fk_snippet.touchpoint_id` FOREIGN KEY (`touchpoint_id`, `touchpoint_tenant_id`) REFERENCES `touchpoint` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
+  UNIQUE (`tenant_id`, `language_id`, `translation_key`),
+  CONSTRAINT `fk_snippet.language_id` FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 

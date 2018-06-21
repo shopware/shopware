@@ -15,7 +15,7 @@
     <div class="content search--content">
         <h1 class="search--headline">
             {# @var listing \Shopware\Storefront\Page\Search\SearchPageStruct #}
-            {{ 'SearchHeadline'|trans({'%searchTerm%': searchTerm, '%searchResultProductsCount%': listing.products.total}, 'frontend/search/fuzzy')|raw}}
+            {{ 'frontend.search.fuzzy.SearchHeadline'|trans({'%searchTerm%': searchTerm, '%searchResultProductsCount%': listing.products.total})|raw}}
         </h1>
 
         {% set baseParameters = { search: searchTerm } %}

@@ -1,5 +1,4 @@
 {% sw_extends '@Storefront/frontend/account/index.html.twig' %}
-{% trans_default_domain 'frontend/account/orders' %}
 
 {# Breadcrumb #}
 {% block frontend_index_start %}
@@ -18,14 +17,14 @@
             <div class="account--welcome panel">
                 {% block frontend_account_orders_welcome_headline %}
                     <h1 class="panel--title">
-                        {% trans %}OrdersHeader{% endtrans %}
+                        {% trans %}frontend.account.orders.OrdersHeader{% endtrans %}
                     </h1>
                 {% endblock %}
 
                 {% block frontend_account_orders_welcome_content %}
                     <div class="panel--body is--wide">
                         <p>
-                            {% trans %}OrdersWelcomeText{% endtrans %}
+                            {% trans %}frontend.account.orders.OrdersWelcomeText{% endtrans %}
                         </p>
                     </div>
                 {% endblock %}
@@ -53,37 +52,37 @@
 
                                     {% block frontend_account_orders_table_head_date %}
                                         <div class="panel--th column--date">
-                                            {% trans %}OrderColumnDate{% endtrans %}
+                                            {% trans %}frontend.account.orders.OrderColumnDate{% endtrans %}
                                         </div>
                                     {% endblock %}
 
                                     {% block frontend_account_orders_table_head_id %}
                                         <div class="panel--th column--id">
-                                            {% trans %}OrderColumnId{% endtrans %}
+                                            {% trans %}frontend.account.orders.OrderColumnId{% endtrans %}
                                         </div>
                                     {% endblock %}
 
                                     {% block frontend_account_orders_table_head_amount %}
                                         <div class="panel--th column--amount">
-                                            {% trans %}OrderColumnAmount{% endtrans %}
+                                            {% trans %}frontend.account.orders.OrderColumnAmount{% endtrans %}
                                         </div>
                                     {% endblock %}
 
                                     {#{% block frontend_account_orders_table_head_dispatch %}#}
                                         {#<div class="panel--th column--dispatch">#}
-                                            {#{% trans %}OrderColumnDispatch{% endtrans %}#}
+                                            {#{% trans %}frontend.account.orders.OrderColumnDispatch{% endtrans %}#}
                                         {#</div>#}
                                     {#{% endblock %}#}
 
                                     {% block frontend_account_orders_table_head_status %}
                                         <div class="panel--th column--status">
-                                            {% trans %}OrderColumnStatus{% endtrans %}
+                                            {% trans %}frontend.account.orders.OrderColumnStatus{% endtrans %}
                                         </div>
                                     {% endblock %}
 
                                     {% block frontend_account_orders_table_head_actions %}
                                         <div class="panel--th column--actions is--align-center">
-                                            {% trans %}OrderColumnActions{% endtrans %}
+                                            {% trans %}frontend.account.orders.OrderColumnActions{% endtrans %}
                                         </div>
                                     {% endblock %}
                                 </div>
@@ -117,7 +116,7 @@
 
                             {% block frontend_account_orders_actions_paging_count %}
                                 <div class="paging--display">
-                                    {% trans from 'frontend/listing/listing_actions' %}ListingTextSite{% endtrans %}
+                                    {% trans %}frontend.account.orders.frontend.listing.listing_actions.ListingTextSite{% endtrans %}
                                     <span class="is--bold">{{ orderPage.currentPage }}</span>
                                 </div>
                             {% endblock %}

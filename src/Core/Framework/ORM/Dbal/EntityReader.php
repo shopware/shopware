@@ -89,7 +89,9 @@ class EntityReader implements EntityReaderInterface
         $criteria->setSortings([]);
         $criteria->setQueries([]);
 
-        return $this->readBasic($definition, $criteria, $context);
+        /** @var string|EntityDefinition $definition */
+        $collectionClass = $definition::getCollectionClass();
+        return $this->_read($criteria, $definition, $context, $definition::getStructClass(), new $collectionClass(), $definition::getFields()->getBasicProperties());
     }
 
     public function readRaw(string $definition, ReadCriteria $criteria, Context $context): EntityCollection
@@ -112,23 +114,6 @@ class EntityReader implements EntityReaderInterface
         $this->removeInheritance($definition, $details);
 
         return $details;
-    }
-
-    private function readBasic(string $definition, ReadCriteria $criteria, Context $context): EntityCollection
-    {
-        /** @var EntityDefinition $definition */
-        $collectionClass = $definition::getCollectionClass();
-
-        $structClass = $definition::getStructClass();
-
-        return $this->_read(
-            $criteria,
-            $definition,
-            $context,
-            $structClass,
-            new $collectionClass(),
-            $definition::getFields()->getBasicProperties()
-        );
     }
 
     private function _read(ReadCriteria $criteria, string $definition, Context $context, string $entity, EntityCollection $collection, FieldCollection $fields, bool $raw = false): EntityCollection
@@ -352,12 +337,20 @@ class EntityReader implements EntityReaderInterface
             return $entity->get($field->getPropertyName());
         });
 
-        $data = $this->readBasic($association->getReferenceClass(), new ReadCriteria($ids), $context);
+        $referenceClass = $association->getReferenceClass();
+
+        /** @var string|EntityDefinition $definition */
+        $collectionClass = $referenceClass::getCollectionClass();
+        $data = $this->_read(new ReadCriteria($ids), $referenceClass, $context, $referenceClass::getStructClass(), new $collectionClass(), $referenceClass::getFields()->getBasicProperties());
 
         /** @var Entity $struct */
         foreach ($collection as $struct) {
             /** @var string $id */
             $id = $struct->get($field->getPropertyName());
+
+            if (!$id) {
+                continue;
+            }
 
             if ($association->is(Extension::class)) {
                 $struct->addExtension($association->getPropertyName(), $data->get($id));
@@ -568,7 +561,9 @@ class EntityReader implements EntityReaderInterface
         $readCriteria->setAssociations($fieldCriteria->getAssociations());
         $readCriteria->addFilter(new TermsQuery($propertyAccessor, $ids));
 
-        $data = $this->readBasic($association->getReferenceClass(), $readCriteria, $context);
+        $referenceClass = $association->getReferenceClass();
+        $collectionClass = $referenceClass::getCollectionClass();
+        $data = $this->_read($readCriteria, $referenceClass, $context, $referenceClass::getStructClass(), new $collectionClass(), $referenceClass::getFields()->getBasicProperties());
 
         //assign loaded data to root entities
         foreach ($collection as $entity) {
@@ -627,7 +622,9 @@ class EntityReader implements EntityReaderInterface
         $readCriteria = new ReadCriteria($ids);
         $readCriteria->setAssociations($fieldCriteria->getAssociations());
 
-        $data = $this->readBasic($association->getReferenceClass(), $readCriteria, $context);
+        $referenceClass = $association->getReferenceClass();
+        $collectionClass = $referenceClass::getCollectionClass();
+        $data = $this->_read($readCriteria, $referenceClass, $context, $referenceClass::getStructClass(), new $collectionClass(), $referenceClass::getFields()->getBasicProperties());
 
         //assign loaded reference collections to root entities
         foreach ($collection as $entity) {
@@ -654,7 +651,9 @@ class EntityReader implements EntityReaderInterface
         //collect all ids of many to many association which already stored inside the struct instances
         $ids = $this->collectManyToManyIds($collection, $association);
 
-        $data = $this->readBasic($association->getReferenceDefinition(), new ReadCriteria($ids), $context);
+        $referenceClass = $association->getReferenceDefinition();
+        $collectionClass = $referenceClass::getCollectionClass();
+        $data = $this->_read(new ReadCriteria($ids), $referenceClass, $context, $referenceClass::getStructClass(), new $collectionClass(), $referenceClass::getFields()->getBasicProperties());
 
         /** @var Entity $struct */
         foreach ($collection as $struct) {
@@ -764,7 +763,10 @@ class EntityReader implements EntityReaderInterface
         }
 
         $read = new ReadCriteria($ids);
-        $data = $this->readBasic($association->getReferenceDefinition(), $read, $context);
+
+        $referenceClass = $association->getReferenceDefinition();
+        $collectionClass = $referenceClass::getCollectionClass();
+        $data = $this->_read($read, $referenceClass, $context, $referenceClass::getStructClass(), new $collectionClass(), $referenceClass::getFields()->getBasicProperties());
 
         /** @var Entity $entity */
         foreach ($collection as $entity) {

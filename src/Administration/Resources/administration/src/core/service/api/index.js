@@ -8,6 +8,7 @@ import OrderLineItemApiService from 'src/core/service/api/order-line-item.api.se
 import OrderDeliveryApiService from 'src/core/service/api/order-delivery.api.service';
 import OrderStateApiService from 'src/core/service/api/order-state.api.service';
 import CustomerApiService from 'src/core/service/api/customer.api.service';
+import CustomerAddressApiService from 'src/core/service/api/customer-address.api.service';
 import CustomerGroupApiService from 'src/core/service/api/customer-group.api.service';
 import PaymentMethodApiService from 'src/core/service/api/payment-method.api.service';
 import ShippingMethodApiService from 'src/core/service/api/shipping-method.api.service';
@@ -29,6 +30,7 @@ export default {
     orderDeliveryService: OrderDeliveryApiService,
     orderStateService: OrderStateApiService,
     customerService: CustomerApiService,
+    customerAddressService: CustomerAddressApiService,
     customerGroupService: CustomerGroupApiService,
     paymentMethodService: PaymentMethodApiService,
     shippingMethodService: ShippingMethodApiService,

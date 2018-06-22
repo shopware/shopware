@@ -24,8 +24,6 @@ class CustomerAddressApiService extends ApiService {
 
         params = Object.assign(params, additionalParams);
 
-        const url = this.getApiBasePath(customerId, 'customer');
-
         // Switch to the general search end point when we're having a search term
         if ((params.term && params.term.length) || (params.filter && params.filter.length)) {
             return this.httpClient

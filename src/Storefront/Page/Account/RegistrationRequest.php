@@ -50,15 +50,6 @@ class RegistrationRequest extends Struct implements JsonSerializable
     protected $differentShippingAddress = false;
 
     /** @var string|null */
-    protected $billingSalutation;
-
-    /** @var string|null */
-    protected $billingFirstName;
-
-    /** @var string|null */
-    protected $billingLastName;
-
-    /** @var string|null */
     protected $billingCompany;
 
     /** @var string|null */
@@ -262,42 +253,12 @@ class RegistrationRequest extends Struct implements JsonSerializable
 
     public function hasDifferentShippingAddress(): bool
     {
-        return $this->differentShippingAddress;
+        return (bool) $this->differentShippingAddress;
     }
 
     public function setDifferentShippingAddress(bool $differentShippingAddress): void
     {
         $this->differentShippingAddress = $differentShippingAddress;
-    }
-
-    public function getBillingSalutation(): ?string
-    {
-        return $this->billingSalutation;
-    }
-
-    public function setBillingSalutation(?string $billingSalutation): void
-    {
-        $this->billingSalutation = $billingSalutation;
-    }
-
-    public function getBillingFirstName(): ?string
-    {
-        return $this->billingFirstName;
-    }
-
-    public function setBillingFirstName(?string $billingFirstName): void
-    {
-        $this->billingFirstName = $billingFirstName;
-    }
-
-    public function getBillingLastName(): ?string
-    {
-        return $this->billingLastName;
-    }
-
-    public function setBillingLastName(?string $billingLastName): void
-    {
-        $this->billingLastName = $billingLastName;
     }
 
     public function getBillingCompany(): ?string

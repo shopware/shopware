@@ -21,7 +21,7 @@ Component.register('sw-customer-detail', {
             customerId: null,
             customerEditMode: false,
             customerGroups: [],
-            applications: [],
+            touchpoints: [],
             countries: [],
             addresses: [],
             paymentMethods: []
@@ -45,8 +45,8 @@ Component.register('sw-customer-detail', {
             return State.getStore('country');
         },
 
-        applicationStore() {
-            return State.getStore('application');
+        touchpointStore() {
+            return State.getStore('touchpoint');
         },
 
         paymentMethodStore() {
@@ -91,12 +91,13 @@ Component.register('sw-customer-detail', {
                 criteria.push(CriteriaFactory.term('customer_address.customerId', this.customerId));
                 params.criteria = CriteriaFactory.nested('AND', ...criteria);
 
-                this.customer.addresses = this.customerAddressStore.getList(params).then((response) => {
-                    this.customer.addresses = response.items;
-                });
+                // todo: this has to be done after the customer has been loaded
+                // this.customerAddressStore.getList(params).then((response) => {
+                //     this.customer.addresses = response.items;
+                // });
 
-                this.applicationStore.getList({ offset: 0, limit: 100 }).then((response) => {
-                    this.applications = response.items;
+                this.touchpointStore.getList({ offset: 0, limit: 100 }).then((response) => {
+                    this.touchpoints = response.items;
                 });
 
                 this.customerGroupStore.getList({ offset: 0, limit: 100 }).then((response) => {

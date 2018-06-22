@@ -10,7 +10,7 @@ Component.register('sw-customer-base-form', {
             required: true,
             default: {}
         },
-        applications: {
+        touchpoints: {
             type: Array,
             required: true,
             default() {

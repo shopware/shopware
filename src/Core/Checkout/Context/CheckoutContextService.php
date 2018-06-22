@@ -27,6 +27,7 @@ namespace Shopware\Core\Checkout\Context;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @category  Shopware\Core

@@ -4,6 +4,7 @@ namespace Shopware\Core\System\Country\Aggregate\CountryAreaTranslation;
 
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\System\Country\Aggregate\CountryArea\CountryAreaStruct;
+use Shopware\Core\System\Language\LanguageStruct;
 
 class CountryAreaTranslationStruct extends Entity
 {

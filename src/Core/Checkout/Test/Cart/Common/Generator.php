@@ -48,6 +48,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupStruct;
 use Shopware\Core\Checkout\Customer\CustomerStruct;
 use Shopware\Core\Checkout\Payment\PaymentMethodStruct;
 use Shopware\Core\Checkout\Shipping\ShippingMethodStruct;
+use Shopware\Core\Content\Product\Cart\ProductGateway;
 use Shopware\Core\Content\Product\Cart\ProductProcessor;
 use Shopware\Core\Content\Product\Cart\Struct\CalculatedProduct;
 use Shopware\Core\Content\Product\ProductStruct;
@@ -210,11 +211,11 @@ class Generator extends TestCase
     /**
      * @param PriceDefinition[] $priceDefinitions indexed by product number
      *
-     * @return \PHPUnit_Framework_MockObject_MockObject|ProductPriceGateway
+     * @return \PHPUnit_Framework_MockObject_MockObject|ProductGateway
      */
     public function createProductPriceGateway($priceDefinitions)
     {
-        $mock = $this->createMock(ProductPriceGateway::class);
+        $mock = $this->createMock(ProductGateway::class);
         $mock->expects(static::any())
             ->method('get')
             ->will(static::returnValue($priceDefinitions));

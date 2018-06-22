@@ -15,19 +15,7 @@ class FieldCollection extends Collection
      */
     protected $mapping = [];
 
-    /**
-     * @var Field[]
-     */
-    protected $elements = [];
-
-    public function __construct(array $elements = [])
-    {
-        foreach ($elements as $field) {
-            $this->add($field);
-        }
-    }
-
-    public function add(Field $field)
+    public function add(Field $field): void
     {
         $this->elements[$field->getPropertyName()] = $field;
         if ($field instanceof StorageAware && !$field instanceof AssociationInterface) {

@@ -5,8 +5,10 @@ namespace Shopware\Core\Framework\ORM;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
+use Shopware\Core\Framework\ORM\Search\Aggregation\AggregationResult;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
 
 interface RepositoryInterface
 {

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Mail;
 
+use Shopware\Core\Checkout\Order\Aggregate\OrderState\OrderStateStruct;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 

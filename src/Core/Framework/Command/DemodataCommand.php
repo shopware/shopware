@@ -10,7 +10,6 @@ use Faker\Generator;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Checkout\Cart\Cart\CartCollector;
 use Shopware\Core\Checkout\Cart\Cart\CartProcessor;
-use Shopware\Core\Checkout\Cart\Cart\CircularCartCalculation;
 use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -31,6 +30,7 @@ use Shopware\Core\Content\Product\Util\VariantGenerator;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Write\EntityWriterInterface;
 use Shopware\Core\Framework\ORM\Write\WriteContext;
@@ -75,17 +75,17 @@ class DemodataCommand extends ContainerAwareCommand
     private $variantGenerator;
 
     /**
-     * @var ProductRepository
+     * @var RepositoryInterface
      */
     private $productRepository;
 
     /**
-     * @var RuleRepository
+     * @var RepositoryInterface
      */
     private $ruleRepository;
 
     /**
-     * @var CategoryRepository
+     * @var RepositoryInterface
      */
     private $categoryRepository;
 
@@ -95,7 +95,7 @@ class DemodataCommand extends ContainerAwareCommand
     private $tenantId;
 
     /**
-     * @var MediaAlbumRepository
+     * @var RepositoryInterface
      */
     private $albumRepository;
 
@@ -853,7 +853,7 @@ class DemodataCommand extends ContainerAwareCommand
         $options = [CheckoutContextService::CUSTOMER_ID => $this->faker->randomElement($customerIds)];
         $context = $this->contextFactory->create($tenantId, Uuid::uuid4()->getHex(), Defaults::TOUCHPOINT, $options);
 
-        $lineItems = array_map(function($id) {
+        $lineItems = array_map(function ($id) {
             return new LineItem($id, ProductProcessor::TYPE_PRODUCT, random_int(1, 50), ['id' => $id]);
         }, $productIds);
         $lineItems = new LineItemCollection($lineItems);
@@ -865,7 +865,7 @@ class DemodataCommand extends ContainerAwareCommand
 
         $contexts = [];
 
-        for ($i = 1; $i <= $limit; ++$i ) {
+        for ($i = 1; $i <= $limit; ++$i) {
             $token = Uuid::uuid4()->getHex();
 
             $customerId = $this->faker->randomElement($customerIds);

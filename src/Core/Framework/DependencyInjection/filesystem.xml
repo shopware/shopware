@@ -33,10 +33,6 @@
             <tag name="Shopware\Core\Framework\Filesystem\FilesystemFactory" />
         </service>
 
-        <service class="Shopware\Core\Framework\Filesystem\Adapter\AzureFactory" id="Shopware\Core\Framework\Filesystem\FilesystemFactory.microsoft_azure">
-            <tag name="Shopware\Core\Framework\Filesystem\FilesystemFactory" />
-        </service>
-
         <service class="Shopware\Core\Framework\Filesystem\PrefixFilesystem" id="Shopware\Core\Framework\Filesystem\PrefixFilesystem">
             <argument type="service" id="shopware.filesystem.public" />
             <argument>media</argument>

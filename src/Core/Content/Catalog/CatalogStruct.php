@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Catalog;
 
-use Shopware\Core\Content\Catalog\Struct\DateTime;
+use DateTime;
 use Shopware\Core\Framework\ORM\Entity;
 
 class CatalogStruct extends Entity

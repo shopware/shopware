@@ -297,9 +297,6 @@ class StorefrontCustomerControllerTest extends ApiTestCase
 
         $billing = [
             'billingCountry' => Defaults::COUNTRY,
-            'billingSalutation' => 'Mrs.',
-            'billingFirstName' => 'Test',
-            'billingLastName' => 'Example',
             'billingStreet' => 'Examplestreet 11',
             'billingZipcode' => '48441',
             'billingCity' => 'Cologne',
@@ -363,9 +360,9 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         $billingAddress = $customer->getDefaultBillingAddress();
 
         $this->assertEquals($billing['billingCountry'], $billingAddress->getCountryId());
-        $this->assertEquals($billing['billingSalutation'], $billingAddress->getSalutation());
-        $this->assertEquals($billing['billingFirstName'], $billingAddress->getFirstName());
-        $this->assertEquals($billing['billingLastName'], $billingAddress->getLastName());
+        $this->assertEquals($personal['salutation'], $billingAddress->getSalutation());
+        $this->assertEquals($personal['firstName'], $billingAddress->getFirstName());
+        $this->assertEquals($personal['lastName'], $billingAddress->getLastName());
         $this->assertEquals($billing['billingStreet'], $billingAddress->getStreet());
         $this->assertEquals($billing['billingZipcode'], $billingAddress->getZipcode());
         $this->assertEquals($billing['billingCity'], $billingAddress->getCity());

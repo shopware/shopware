@@ -13,7 +13,8 @@ class FieldCollection extends Collection
     /**
      * @var Field[]
      */
-    public $mapping = [];
+    protected $mapping = [];
+
     /**
      * @var Field[]
      */
@@ -39,7 +40,7 @@ class FieldCollection extends Collection
         return $this->elements[$propertyName] ?? null;
     }
 
-    public function getBasicProperties(): self
+    public function filterBasic(): self
     {
         return $this->filter(
             function (Field $field) {
@@ -50,11 +51,6 @@ class FieldCollection extends Collection
                 return true;
             }
         );
-    }
-
-    public function getDetailProperties(): self
-    {
-        return $this;
     }
 
     public function getWritableFields(): self

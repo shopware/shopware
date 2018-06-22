@@ -91,7 +91,11 @@ class EntityLoadedEvent extends NestedEvent
             if ($association instanceof ManyToOneAssociationField) {
                 /** @var Entity $entity */
                 foreach ($entities as $entity) {
-                    $reference = $entity->get($association->getPropertyName());
+                    try {
+                        $reference = $entity->get($association->getPropertyName());
+                    } catch (\InvalidArgumentException $e) {
+                        continue;
+                    }
 
                     if ($reference) {
                         $events[$association->getReferenceClass()][] = $reference;
@@ -107,7 +111,11 @@ class EntityLoadedEvent extends NestedEvent
             }
 
             foreach ($entities as $entity) {
-                $references = $entity->get($association->getPropertyName());
+                try {
+                    $references = $entity->get($association->getPropertyName());
+                } catch (\InvalidArgumentException $e) {
+                    continue;
+                }
 
                 if (empty($references)) {
                     continue;

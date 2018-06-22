@@ -91,7 +91,8 @@ class EntityReader implements EntityReaderInterface
 
         /** @var string|EntityDefinition $definition */
         $collectionClass = $definition::getCollectionClass();
-        return $this->_read($criteria, $definition, $context, $definition::getStructClass(), new $collectionClass(), $definition::getFields()->getBasicProperties());
+
+        return $this->_read($criteria, $definition, $context, $definition::getStructClass(), new $collectionClass(), $definition::getFields()->filterBasic());
     }
 
     public function readRaw(string $definition, ReadCriteria $criteria, Context $context): EntityCollection
@@ -107,7 +108,7 @@ class EntityReader implements EntityReaderInterface
             $context,
             $structClass,
             new $collectionClass(),
-            $definition::getFields()->getDetailProperties(),
+            $definition::getFields(),
             true
         );
 
@@ -213,7 +214,7 @@ class EntityReader implements EntityReaderInterface
                 /** @var EntityDefinition|string $reference */
                 $reference = $field->getReferenceClass();
 
-                $basics = $reference::getFields()->getBasicProperties();
+                $basics = $reference::getFields()->filterBasic();
 
                 if ($this->shouldBeLoadedDelayed($field, $reference, $basics->getElements())) {
                     continue;
@@ -325,7 +326,7 @@ class EntityReader implements EntityReaderInterface
     {
         $reference = $association->getReferenceClass();
 
-        $fields = $reference::getFields()->getBasicProperties();
+        $fields = $reference::getFields()->filterBasic();
         if (!$this->shouldBeLoadedDelayed($association, $reference, $fields->getElements())) {
             return;
         }
@@ -341,7 +342,7 @@ class EntityReader implements EntityReaderInterface
 
         /** @var string|EntityDefinition $definition */
         $collectionClass = $referenceClass::getCollectionClass();
-        $data = $this->_read(new ReadCriteria($ids), $referenceClass, $context, $referenceClass::getStructClass(), new $collectionClass(), $referenceClass::getFields()->getBasicProperties());
+        $data = $this->_read(new ReadCriteria($ids), $referenceClass, $context, $referenceClass::getStructClass(), new $collectionClass(), $referenceClass::getFields()->filterBasic());
 
         /** @var Entity $struct */
         foreach ($collection as $struct) {
@@ -474,7 +475,7 @@ class EntityReader implements EntityReaderInterface
                 return true;
             }
 
-            $nested = $reference::getFields()->getBasicProperties()->getElements();
+            $nested = $reference::getFields()->filterBasic()->getElements();
             if ($this->shouldBeLoadedDelayed($field, $reference, $nested)) {
                 return true;
             }
@@ -563,7 +564,7 @@ class EntityReader implements EntityReaderInterface
 
         $referenceClass = $association->getReferenceClass();
         $collectionClass = $referenceClass::getCollectionClass();
-        $data = $this->_read($readCriteria, $referenceClass, $context, $referenceClass::getStructClass(), new $collectionClass(), $referenceClass::getFields()->getBasicProperties());
+        $data = $this->_read($readCriteria, $referenceClass, $context, $referenceClass::getStructClass(), new $collectionClass(), $referenceClass::getFields()->filterBasic());
 
         //assign loaded data to root entities
         foreach ($collection as $entity) {
@@ -624,7 +625,7 @@ class EntityReader implements EntityReaderInterface
 
         $referenceClass = $association->getReferenceClass();
         $collectionClass = $referenceClass::getCollectionClass();
-        $data = $this->_read($readCriteria, $referenceClass, $context, $referenceClass::getStructClass(), new $collectionClass(), $referenceClass::getFields()->getBasicProperties());
+        $data = $this->_read($readCriteria, $referenceClass, $context, $referenceClass::getStructClass(), new $collectionClass(), $referenceClass::getFields()->filterBasic());
 
         //assign loaded reference collections to root entities
         foreach ($collection as $entity) {
@@ -653,7 +654,7 @@ class EntityReader implements EntityReaderInterface
 
         $referenceClass = $association->getReferenceDefinition();
         $collectionClass = $referenceClass::getCollectionClass();
-        $data = $this->_read(new ReadCriteria($ids), $referenceClass, $context, $referenceClass::getStructClass(), new $collectionClass(), $referenceClass::getFields()->getBasicProperties());
+        $data = $this->_read(new ReadCriteria($ids), $referenceClass, $context, $referenceClass::getStructClass(), new $collectionClass(), $referenceClass::getFields()->filterBasic());
 
         /** @var Entity $struct */
         foreach ($collection as $struct) {
@@ -766,7 +767,7 @@ class EntityReader implements EntityReaderInterface
 
         $referenceClass = $association->getReferenceDefinition();
         $collectionClass = $referenceClass::getCollectionClass();
-        $data = $this->_read($read, $referenceClass, $context, $referenceClass::getStructClass(), new $collectionClass(), $referenceClass::getFields()->getBasicProperties());
+        $data = $this->_read($read, $referenceClass, $context, $referenceClass::getStructClass(), new $collectionClass(), $referenceClass::getFields()->filterBasic());
 
         /** @var Entity $entity */
         foreach ($collection as $entity) {

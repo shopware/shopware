@@ -38,14 +38,14 @@ class EntityReaderTest extends KernelTestCase
         parent::setUp();
 
         $this->connection = self::$container->get(Connection::class);
-//        $this->connection->beginTransaction();
+        $this->connection->beginTransaction();
 
         $this->repository = self::$container->get('product.repository');
     }
 
     protected function tearDown()
     {
-//        $this->connection->rollBack();
+        $this->connection->rollBack();
         parent::tearDown();
     }
 

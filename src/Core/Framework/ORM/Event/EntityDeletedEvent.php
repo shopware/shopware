@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\ORM\Event;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 
-class EntityDeletedEvent extends EntityWrittenEvent implements DeletedEvent
+class EntityDeletedEvent extends EntityWrittenEvent
 {
     public function __construct(
         string $definition,

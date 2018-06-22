@@ -44,7 +44,7 @@ class NestedEventDispatcher implements NestedEventDispatcherInterface
     public function dispatch($eventName, Event $event = null): Event
     {
         if (!$event instanceof EntityWrittenContainerEvent) {
-            $result = $this->dispatcher->dispatch($eventName, $event);
+            $event = $this->dispatcher->dispatch($eventName, $event);
         }
 
         if ($event instanceof NestedEvent && $events = $event->getEvents()) {
@@ -54,10 +54,10 @@ class NestedEventDispatcher implements NestedEventDispatcherInterface
         }
 
         if ($event instanceof EntityWrittenContainerEvent) {
-            $result = $this->dispatcher->dispatch($eventName, $event);
+            $event = $this->dispatcher->dispatch($eventName, $event);
         }
 
-        return $result;
+        return $event;
     }
 
     public function addListener($eventName, $listener, $priority = 0)

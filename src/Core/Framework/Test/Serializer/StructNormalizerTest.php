@@ -28,7 +28,7 @@ class StructNormalizerTest extends TestCase
         $this->assertFalse($this->normalizer->supportsNormalization(null));
         $this->assertFalse($this->normalizer->supportsNormalization(false));
         $this->assertFalse($this->normalizer->supportsNormalization(['array']));
-        $this->assertFalse($this->normalizer->supportsNormalization(new \StdClass()));
+        $this->assertFalse($this->normalizer->supportsNormalization(new \stdClass()));
     }
 
     public function testNormalizationOfSimpleStruct()
@@ -84,7 +84,7 @@ class StructNormalizerTest extends TestCase
         $this->assertFalse($this->normalizer->supportsDenormalization(null, 'array'));
         $this->assertFalse($this->normalizer->supportsDenormalization(false, 'array'));
         $this->assertFalse($this->normalizer->supportsDenormalization(['array'], 'array'));
-        $this->assertFalse($this->normalizer->supportsDenormalization(new \StdClass(), 'array'));
+        $this->assertFalse($this->normalizer->supportsDenormalization(new \stdClass(), 'array'));
     }
 
     public function testDenormalizeDate()
@@ -104,7 +104,7 @@ class StructNormalizerTest extends TestCase
             [1],
             [null],
             [false],
-            [new \StdClass()],
+            [new \stdClass()],
         ];
     }
 
@@ -122,7 +122,7 @@ class StructNormalizerTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Unable to unserialize a non-struct class: stdClass');
 
-        $this->normalizer->denormalize(['_class' => 'StdClass']);
+        $this->normalizer->denormalize(['_class' => 'stdClass']);
     }
 
     public function testDenormalizeWithConstructorParameters()
@@ -271,12 +271,7 @@ class ConstructorStruct extends Struct
      */
     protected $name;
 
-    /**
-     * @var int
-     */
-    protected $age;
-
-    public function __construct(string $name, int $age = 18)
+    public function __construct(string $name)
     {
         $this->name = $name;
     }

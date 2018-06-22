@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductMedia;
 
 use Shopware\Core\Content\Media\MediaStruct;
+use Shopware\Core\Content\Product\ProductStruct;
 use Shopware\Core\Framework\ORM\Entity;
 
 class ProductMediaStruct extends Entity

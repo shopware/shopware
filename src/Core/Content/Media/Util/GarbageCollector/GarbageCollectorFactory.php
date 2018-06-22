@@ -27,6 +27,7 @@ namespace Shopware\Core\Content\Media\Util\GarbageCollector;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Media\Media;
+use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Content\Media\Util\Strategy\StrategyInterface;
 
 /**
@@ -132,7 +133,7 @@ class GarbageCollectorFactory
             ->andWhere('entity = :entityName')
             ->andWhere('column_type = :columnType')
             ->setParameters([
-                'entityName' => Media::class,
+                'entityName' => MediaStruct::class,
                 'columnType' => 'single_selection',
             ])
             ->execute()
@@ -149,7 +150,7 @@ class GarbageCollectorFactory
             ->andWhere('entity = :entityName')
             ->andWhere('column_type = :columnType')
             ->setParameters([
-                'entityName' => Media::class,
+                'entityName' => MediaStruct::class,
                 'columnType' => 'multi_selection',
             ])
             ->execute()

@@ -29,7 +29,6 @@ use Shopware\Core\Checkout\Cart\Cart\CartProcessorInterface;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItem;
-use Shopware\Core\Checkout\Cart\LineItem\Discount;
 use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGroupDiscountCollection;
@@ -83,7 +82,7 @@ class CustomerGroupDiscountProcessor implements CartProcessorInterface
 
         $discount = $this->percentagePriceCalculator->calculate($discount, $prices, $context);
         $calculatedCart->getCalculatedLineItems()->add(
-            new CalculatedLineItem('customer-group-discount', $discount, 1, 'customer-group-discount')
+            new CalculatedLineItem('customer-group-discount', $discount, 1, 'customer-group-discount', 'Customer group discount')
         );
     }
 }

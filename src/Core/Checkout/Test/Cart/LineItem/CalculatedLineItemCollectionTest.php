@@ -139,7 +139,7 @@ class CalculatedLineItemCollectionTest extends TestCase
                 self::createLineItem('C', 3),
                 self::createLineItem('D', 3),
             ]),
-            $collection->filterInstance(ConfiguredLineItem::class)
+            $collection->filterInstance(ConfiguredGoodsItem::class)
         );
     }
 

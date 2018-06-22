@@ -28,7 +28,7 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupStruct;
 use Shopware\Core\Checkout\Customer\CustomerStruct;
-use Shopware\Core\Checkout\DiscountSurcharge\Exception\RulesLockedException;
+use Shopware\Core\Checkout\DiscountSurcharge\Exception\ContextRulesLockedException;
 use Shopware\Core\Checkout\Payment\PaymentMethodStruct;
 use Shopware\Core\Checkout\Shipping\ShippingMethodStruct;
 use Shopware\Core\Defaults;
@@ -239,7 +239,7 @@ class CheckoutContext extends Struct
     public function setRuleIds(array $ruleIds): void
     {
         if ($this->rulesLocked) {
-            throw new RulesLockedException();
+            throw new ContextRulesLockedException();
         }
 
         $this->rulesIds = array_values($ruleIds);

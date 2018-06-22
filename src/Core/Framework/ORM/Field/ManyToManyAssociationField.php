@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\ORM\Field;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\ORM\Write\EntityExistence;
+use Shopware\Core\Framework\ORM\Write\FieldException\MalformatDataException;
 
 class ManyToManyAssociationField extends SubresourceField implements AssociationInterface
 {

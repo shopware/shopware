@@ -391,6 +391,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         foreach ($relationships as $property => $relationship) {
             $relationshipData = $relationship['properties']['data'];
             $type = $relationshipData['type'];
+            $entity = '';
 
             if ($type === 'object') {
                 $entity = $relationshipData['properties']['type']['example'];

@@ -9,16 +9,16 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\PercentageTaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\Api\ApiTestCase;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\System\Tax\TaxRepository;
 use Symfony\Component\Serializer\Serializer;
 
 class PriceActionControllerTest extends ApiTestCase
 {
     /**
-     * @var TaxRepository
+     * @var RepositoryInterface
      */
     private $repository;
 

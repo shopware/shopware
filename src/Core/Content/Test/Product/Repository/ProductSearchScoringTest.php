@@ -7,6 +7,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\ORM\Search\Term\SearchPattern;
@@ -20,7 +21,7 @@ class ProductSearchScoringTest extends KernelTestCase
     /** @var Connection */
     private $connection;
 
-    /** @var ProductRepository */
+    /** @var RepositoryInterface */
     private $repository;
 
     protected function setUp()

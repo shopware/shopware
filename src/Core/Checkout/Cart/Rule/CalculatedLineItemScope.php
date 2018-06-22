@@ -20,8 +20,8 @@ class CalculatedLineItemScope extends CheckoutRuleScope
 
     public function __construct(CalculatedLineItemInterface $calculatedLineItem, CheckoutContext $context)
     {
+        parent::__construct($context);
         $this->calculatedLineItem = $calculatedLineItem;
-        $this->context = $context;
     }
 
     public function getCalculatedLineItem(): CalculatedLineItemInterface

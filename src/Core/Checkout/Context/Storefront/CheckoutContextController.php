@@ -33,7 +33,7 @@ class CheckoutContextController extends Controller
     protected $shippingMethodRepository;
 
     /**
-     * @var CustomerAddressRepository
+     * @var RepositoryInterface
      */
     protected $customerAddressRepository;
 
@@ -65,9 +65,9 @@ class CheckoutContextController extends Controller
      * @Route("/storefront-api/context/", name="storefront.api.context.update")
      * @Method({"PUT"})
      */
-    public function update(CheckoutContext $context): JsonResponse
+    public function update(Request $request, CheckoutContext $context): JsonResponse
     {
-        $payload = $this->getPayload();
+        $payload = $this->getPayload($request);
 
         $update = [];
         if (array_key_exists('shippingMethodId', $payload)) {

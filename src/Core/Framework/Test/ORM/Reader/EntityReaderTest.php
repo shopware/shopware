@@ -38,14 +38,14 @@ class EntityReaderTest extends KernelTestCase
         parent::setUp();
 
         $this->connection = self::$container->get(Connection::class);
-        $this->connection->beginTransaction();
+//        $this->connection->beginTransaction();
 
         $this->repository = self::$container->get('product.repository');
     }
 
     protected function tearDown()
     {
-        $this->connection->rollBack();
+//        $this->connection->rollBack();
         parent::tearDown();
     }
 
@@ -171,7 +171,7 @@ class EntityReaderTest extends KernelTestCase
 
         $this->assertTrue($inheritance->get('manufacturerId'));
         $this->assertTrue($inheritance->get('unitId'));
-        $this->assertTrue($inheritance->get('priceRules'), print_r($inheritance, true));
+        $this->assertTrue($inheritance->get('priceRules'));
 
         /** @var ProductStruct $green */
         $green = $products->get($greenId);

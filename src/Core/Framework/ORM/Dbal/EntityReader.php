@@ -371,7 +371,7 @@ class EntityReader implements EntityReaderInterface
         $fieldCriteria = $criteria->getAssociation($accessor);
 
         if ($this->hasCriteriaElements($fieldCriteria)) {
-            $this->loadManyToManyWithCriteria($definition, $fieldCriteria, $association, $context, $collection);
+            $this->loadManyToManyWithCriteria($fieldCriteria, $association, $context, $collection);
 
             return;
         }
@@ -676,7 +676,7 @@ class EntityReader implements EntityReaderInterface
         }
     }
 
-    private function loadManyToManyWithCriteria(string $definition, Criteria $fieldCriteria, ManyToManyAssociationField $association, Context $context, EntityCollection $collection): void
+    private function loadManyToManyWithCriteria(Criteria $fieldCriteria, ManyToManyAssociationField $association, Context $context, EntityCollection $collection): void
     {
         /** @var string|EntityDefinition $definition */
         $fields = $association->getReferenceDefinition()::getFields();

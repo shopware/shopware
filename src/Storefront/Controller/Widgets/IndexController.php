@@ -27,27 +27,25 @@ namespace Shopware\Storefront\Controller\Widgets;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
-use Shopware\Core\System\Currency\Collection\CurrencyBasicCollection;
-use Shopware\Core\System\Currency\CurrencyRepository;
-use Shopware\Core\System\Language\Collection\LanguageBasicCollection;
-use Shopware\Core\System\Language\LanguageRepository;
 use Shopware\Storefront\Controller\StorefrontController;
 
 class IndexController extends StorefrontController
 {
     /**
-     * @var CurrencyRepository
+     * @var RepositoryInterface
      */
     private $currencyRepository;
 
     /**
-     * @var LanguageRepository
+     * @var RepositoryInterface
      */
     private $languageRepository;
 
-    public function __construct(CurrencyRepository $currencyRepository, LanguageRepository $languageRepository)
+    public function __construct(RepositoryInterface $currencyRepository, RepositoryInterface $languageRepository)
     {
         $this->currencyRepository = $currencyRepository;
         $this->languageRepository = $languageRepository;
@@ -74,7 +72,7 @@ class IndexController extends StorefrontController
         ]);
     }
 
-    private function loadLanguages(CheckoutContext $context): LanguageBasicCollection
+    private function loadLanguages(CheckoutContext $context): EntitySearchResult
     {
         $criteria = new Criteria();
         $criteria->addFilter(new TermsQuery('language.id', $context->getTouchpoint()->getLanguageIds()));
@@ -82,7 +80,7 @@ class IndexController extends StorefrontController
         return $this->languageRepository->search($criteria, $context->getContext());
     }
 
-    private function getCurrencies(CheckoutContext $context): CurrencyBasicCollection
+    private function getCurrencies(CheckoutContext $context): EntitySearchResult
     {
         $criteria = new Criteria();
         $criteria->addFilter(new TermsQuery('currency.id', ['4c8eba11-bd35-46d7-86af-bed481a6e665', '2824ea63-db67-4110-9e23-78ddcc9cec84']));

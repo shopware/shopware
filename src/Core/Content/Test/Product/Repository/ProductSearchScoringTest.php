@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Test\Product\Repository;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\ProductRepository;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\ORM\Search\Criteria;
@@ -28,7 +28,7 @@ class ProductSearchScoringTest extends KernelTestCase
         parent::setUp();
         self::bootKernel();
         $this->connection = self::$container->get(Connection::class);
-        $this->repository = self::$container->get(ProductRepository::class);
+        $this->repository = self::$container->get('product.repository');
         $this->connection->beginTransaction();
         $this->connection->executeUpdate('DELETE FROM product');
     }
@@ -48,7 +48,7 @@ class ProductSearchScoringTest extends KernelTestCase
         $criteria = new Criteria();
         $criteria->addQueries($queries);
 
-        $context = Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID);
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
         $this->repository->create([
             ['id' => Uuid::uuid4()->getHex(), 'name' => 'product 1 test', 'tax' => ['name' => 'test', 'rate' => 5], 'manufacturer' => ['name' => 'test'], 'price' => ['gross' => 10, 'net' => 9]],
             ['id' => Uuid::uuid4()->getHex(), 'name' => 'product 2 test', 'tax' => ['name' => 'test', 'rate' => 5], 'manufacturer' => ['name' => 'test'], 'price' => ['gross' => 10, 'net' => 9]],

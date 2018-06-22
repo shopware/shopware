@@ -4,27 +4,26 @@ namespace Shopware\Core\Framework\Test\ORM\Version;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
-use Shopware\Core\Content\Category\CategoryRepository;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\ProductRepository;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\RangeQuery;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition;
 use Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\TaxAreaRuleTranslationDefinition;
-use Shopware\Core\System\Tax\Struct\TaxDetailStruct;
 use Shopware\Core\System\Tax\TaxDefinition;
-use Shopware\Core\System\Tax\TaxRepository;
+use Shopware\Core\System\Tax\TaxStruct;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class VersioningTest extends KernelTestCase
 {
     /**
-     * @var TaxRepository
+     * @var RepositoryInterface
      */
     private $taxRepository;
 
@@ -34,7 +33,7 @@ class VersioningTest extends KernelTestCase
     private $connection;
 
     /**
-     * @var \Shopware\Core\Content\Product\ProductRepository
+     * @var RepositoryInterface
      */
     private $productRepository;
 
@@ -42,8 +41,8 @@ class VersioningTest extends KernelTestCase
     {
         static::bootKernel();
 
-        $this->taxRepository = self::$container->get(TaxRepository::class);
-        $this->productRepository = self::$container->get(ProductRepository::class);
+        $this->taxRepository = self::$container->get('tax.repository');
+        $this->productRepository = self::$container->get('product.repository');
         $this->connection = self::$container->get(Connection::class);
         $this->connection->beginTransaction();
         $this->connection->executeUpdate('DELETE FROM product');
@@ -319,13 +318,13 @@ class VersioningTest extends KernelTestCase
         $versionContext = $liveVersionContext->createWithVersionId($versionId->getHex());
         $this->taxRepository->update([['id' => $uuid->getHex(), 'name' => 'new merged name']], $versionContext);
 
-        $basic = $this->taxRepository->readBasic([$uuid->getHex()], $liveVersionContext);
+        $basic = $this->taxRepository->read(new ReadCriteria([$uuid->getHex()]), $liveVersionContext);
         $this->assertCount(1, $basic);
         $this->assertTrue($basic->has($uuid->getHex()));
         $tax = $basic->get($uuid->getHex());
         $this->assertEquals('foo tax', $tax->getName());
 
-        $basic = $this->taxRepository->readBasic([$uuid->getHex()], $versionContext);
+        $basic = $this->taxRepository->read(new ReadCriteria([$uuid->getHex()]), $versionContext);
         $this->assertCount(1, $basic);
         $this->assertTrue($basic->has($uuid->getHex()));
         $tax = $basic->get($uuid->getHex());
@@ -344,13 +343,13 @@ class VersioningTest extends KernelTestCase
 
         $this->taxRepository->merge($versionId->getHex(), $liveVersionContext);
 
-        $basic = $this->taxRepository->readBasic([$uuid->getHex()], $liveVersionContext);
+        $basic = $this->taxRepository->read(new ReadCriteria([$uuid->getHex()]), $liveVersionContext);
         $this->assertCount(1, $basic);
         $this->assertTrue($basic->has($uuid->getHex()));
         $tax = $basic->get($uuid->getHex());
         $this->assertEquals('new merged name', $tax->getName());
 
-        $basic = $this->taxRepository->readBasic([$uuid->getHex()], $versionContext);
+        $basic = $this->taxRepository->read(new ReadCriteria([$uuid->getHex()]), $versionContext);
         $this->assertCount(1, $basic);
 
         $row = $this->connection->fetchAssoc('SELECT * FROM tax WHERE id = :id AND version_id = :version', [
@@ -457,44 +456,49 @@ class VersioningTest extends KernelTestCase
         $changes = $this->getVersionData(TaxAreaRuleDefinition::getEntityName(), $uuid->getHex(), $versionId);
         $this->assertCount(2, $changes);
 
-        $liveTax = $this->taxRepository->readDetail([$uuid->getHex()], $liveVersionContext);
+        $criteria = new ReadCriteria([$uuid->getHex()]);
+        $criteria->addAssociation('tax.areaRules');
+
+        $liveTax = $this->taxRepository->read($criteria, $liveVersionContext);
         $this->assertCount(1, $liveTax);
         $this->assertTrue($liveTax->has($uuid->getHex()));
         $tax = $liveTax->get($uuid->getHex());
 
-        /* @var TaxDetailStruct $tax */
+        /* @var TaxStruct $tax */
         $this->assertEquals(5, $tax->getRate());
         $this->assertCount(1, $tax->getAreaRules());
         $this->assertEquals(6, $tax->getAreaRules()->get($uuid->getHex())->getTaxRate());
 
-        $versionTax = $this->taxRepository->readDetail([$uuid->getHex()], $versionContext);
+        $criteria = new ReadCriteria([$uuid->getHex()]);
+        $criteria->addAssociation('tax.areaRules');
+        $versionTax = $this->taxRepository->read($criteria, $versionContext);
         $this->assertCount(1, $versionTax);
         $this->assertTrue($versionTax->has($uuid->getHex()));
         $tax = $versionTax->get($uuid->getHex());
 
-        /* @var TaxDetailStruct $tax */
+        /* @var TaxStruct $tax */
         $this->assertEquals(15, $tax->getRate());
         $this->assertCount(1, $tax->getAreaRules());
         $this->assertEquals(16, $tax->getAreaRules()->get($uuid->getHex())->getTaxRate());
 
         $this->taxRepository->merge($versionId, $liveVersionContext);
 
-        $liveTax = $this->taxRepository->readDetail([$uuid->getHex()], $liveVersionContext);
+        $liveTax = $this->taxRepository->read($criteria, $liveVersionContext);
         $this->assertCount(1, $liveTax);
         $this->assertTrue($liveTax->has($uuid->getHex()));
         $tax = $liveTax->get($uuid->getHex());
 
-        /* @var TaxDetailStruct $tax */
+        /* @var TaxStruct $tax */
         $this->assertEquals(15, $tax->getRate());
         $this->assertCount(1, $tax->getAreaRules());
         $this->assertEquals(16, $tax->getAreaRules()->get($uuid->getHex())->getTaxRate());
 
-        $liveTax = $this->taxRepository->readDetail([$uuid->getHex()], $versionContext);
+        $liveTax = $this->taxRepository->read($criteria, $versionContext);
         $this->assertCount(1, $liveTax);
         $this->assertTrue($liveTax->has($uuid->getHex()));
         $tax = $liveTax->get($uuid->getHex());
 
-        /* @var TaxDetailStruct $tax */
+        /* @var TaxStruct $tax */
         $this->assertEquals(15, $tax->getRate());
         $this->assertCount(1, $tax->getAreaRules());
         $this->assertEquals(16, $tax->getAreaRules()->get($uuid->getHex())->getTaxRate());
@@ -536,7 +540,7 @@ class VersioningTest extends KernelTestCase
 
         $this->assertEquals(['gross' => 20, 'net' => 19], json_decode($variant['price'], true));
 
-        $variants = $this->productRepository->readBasic([$variantId->getHex()], $versionContext);
+        $variants = $this->productRepository->read(new ReadCriteria([$variantId->getHex()]), $versionContext);
         $this->assertCount(1, $variants);
         $this->assertTrue($variants->has($variantId->getHex()));
 
@@ -566,7 +570,7 @@ class VersioningTest extends KernelTestCase
         );
         $this->assertEquals('parent version', $product['name']);
 
-        $variants = $this->productRepository->readBasic([$productId->getHex()], $versionContext);
+        $variants = $this->productRepository->read(new ReadCriteria([$productId->getHex()]), $versionContext);
         $this->assertCount(1, $variants);
         $this->assertTrue($variants->has($productId->getHex()));
 
@@ -574,7 +578,7 @@ class VersioningTest extends KernelTestCase
         $this->assertEquals(25, $variant->getPrice()->getGross());
         $this->assertEquals('parent version', $variant->getName());
 
-        $variants = $this->productRepository->readBasic([$variantId->getHex()], $versionContext);
+        $variants = $this->productRepository->read(new ReadCriteria([$variantId->getHex()]), $versionContext);
         $this->assertCount(1, $variants);
         $this->assertTrue($variants->has($variantId->getHex()));
 
@@ -804,7 +808,7 @@ class VersioningTest extends KernelTestCase
             $override
         );
 
-        self::$container->get(CategoryRepository::class)->create([$payload], $context);
+        self::$container->get('category.repository')->create([$payload], $context);
 
         return $payload['id'];
     }

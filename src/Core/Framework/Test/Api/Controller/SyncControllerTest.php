@@ -151,11 +151,11 @@ class SyncControllerTest extends ApiTestCase
         $response = $this->apiClient->getResponse();
         self::assertSame(200, $response->getStatusCode());
 
-        $this->apiClient->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $productId);
+        $this->apiClient->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $productId . '/categories');
         $responseData = json_decode($this->apiClient->getResponse()->getContent(), true);
 
         $this->assertSame(Response::HTTP_OK, $this->apiClient->getResponse()->getStatusCode());
-        $categories = array_column($responseData['data']['relationships']['categories']['data'], 'id');
+        $categories = array_column($responseData['data'], 'id');
 
         $this->assertContains($categoryId, $categories);
         $this->assertCount(1, $categories, 'Category Ids should not contain: ' . print_r(array_diff($categories, [$categoryId]), true));
@@ -206,15 +206,16 @@ class SyncControllerTest extends ApiTestCase
 
         $this->apiClient->request('POST', '/api/sync', [], [], [], json_encode($data));
 
-        $this->apiClient->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $product);
+        $this->apiClient->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $product . '/categories');
         $responseData = json_decode($this->apiClient->getResponse()->getContent(), true);
-        $categories = array_column($responseData['data']['relationships']['categories']['data'], 'id');
+        $categories = array_column($responseData['data'], 'id');
         $this->assertContains($category, $categories);
         $this->assertCount(1, $categories);
 
-        $this->apiClient->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $product2);
+        $this->apiClient->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $product2 . '/categories');
         $responseData = json_decode($this->apiClient->getResponse()->getContent(), true);
-        $categories = array_column($responseData['data']['relationships']['categories']['data'], 'id');
+
+        $categories = array_column($responseData['data'], 'id');
         $this->assertContains($category, $categories);
         $this->assertCount(1, $categories);
 

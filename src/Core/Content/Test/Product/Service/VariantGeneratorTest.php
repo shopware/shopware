@@ -4,10 +4,12 @@ namespace Shopware\Core\Content\Test\Product\Service;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\ProductRepository;
-use Shopware\Core\Content\Product\Struct\ProductDetailStruct;
+use Shopware\Core\Content\Product\ProductStruct;
 use Shopware\Core\Content\Product\Util\VariantGenerator;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\Pricing\PriceStruct;
@@ -17,7 +19,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 class VariantGeneratorTest extends KernelTestCase
 {
     /**
-     * @var \Shopware\Core\Content\Product\ProductRepository
+     * @var RepositoryInterface
      */
     private $repository;
 
@@ -36,7 +38,7 @@ class VariantGeneratorTest extends KernelTestCase
         self::bootKernel();
         $this->connection = self::$container->get(Connection::class);
         $this->generator = self::$container->get(VariantGenerator::class);
-        $this->repository = self::$container->get(ProductRepository::class);
+        $this->repository = self::$container->get('product.repository');
         $this->connection->beginTransaction();
         parent::setUp();
     }
@@ -80,33 +82,35 @@ class VariantGeneratorTest extends KernelTestCase
             ],
         ];
 
-        $this->repository->create([$data], Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID));
+        $this->repository->create([$data], Context::createDefaultContext(Defaults::TENANT_ID));
 
-        $writtenEvent = $this->generator->generate($id, Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID));
+        $writtenEvent = $this->generator->generate($id, Context::createDefaultContext(Defaults::TENANT_ID));
 
         $productWritten = $writtenEvent->getEventByDefinition(ProductDefinition::class);
 
         $this->assertCount(2, $productWritten->getIds());
 
-        $variants = $this->repository->readDetail($productWritten->getIds(), Context::createDefaultContext(
-            \Shopware\Core\Defaults::TENANT_ID));
+        $criteria = new ReadCriteria($productWritten->getIds());
+        $criteria->addAssociation('product.variations');
+        $variants = $this->repository->read($criteria, Context:: createDefaultContext(Defaults::TENANT_ID));
+
         $this->assertCount(2, $variants);
 
-        /** @var ProductDetailStruct $red */
-        $red = $variants->filter(function (ProductDetailStruct $detail) use ($redId) {
+        /** @var ProductStruct $red */
+        $red = $variants->filter(function (ProductStruct $detail) use ($redId) {
             return in_array($redId, $detail->getVariations()->getIds(), true);
         })->first();
 
-        /** @var ProductDetailStruct $blue */
-        $blue = $variants->filter(function (ProductDetailStruct $detail) use ($blueId) {
+        /** @var ProductStruct $blue */
+        $blue = $variants->filter(function (ProductStruct $detail) use ($blueId) {
             return in_array($blueId, $detail->getVariations()->getIds(), true);
         })->first();
 
         $this->assertEquals('test blue', $blue->getName());
         $this->assertEquals('test red', $red->getName());
 
-        $this->assertInstanceOf(ProductDetailStruct::class, $red);
-        $this->assertInstanceOf(ProductDetailStruct::class, $blue);
+        $this->assertInstanceOf(ProductStruct::class, $red);
+        $this->assertInstanceOf(ProductStruct::class, $blue);
 
         $this->assertEquals(new PriceStruct(35, 60), $red->getPrice());
         $this->assertEquals(new PriceStruct(100, 110), $blue->getPrice());
@@ -160,19 +164,19 @@ class VariantGeneratorTest extends KernelTestCase
             ],
         ];
 
-        $this->repository->create([$data], Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID));
+        $this->repository->create([$data], Context::createDefaultContext(Defaults::TENANT_ID));
 
-        $writtenEvent = $this->generator->generate($id, Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID));
+        $writtenEvent = $this->generator->generate($id, Context::createDefaultContext(Defaults::TENANT_ID));
 
         $productWritten = $writtenEvent->getEventByDefinition(ProductDefinition::class);
 
         $this->assertCount(4, $productWritten->getIds());
 
-        $variants = $this->repository->readBasic($productWritten->getIds(), Context::createDefaultContext(
-            \Shopware\Core\Defaults::TENANT_ID));
+        $variants = $this->repository->read(new ReadCriteria($productWritten->getIds()), Context::createDefaultContext(
+            Defaults::TENANT_ID));
         $this->assertCount(4, $variants);
 
-        $parent = $this->repository->readBasic([$id], Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID))
+        $parent = $this->repository->read(new ReadCriteria([$id]), Context::createDefaultContext(Defaults::TENANT_ID))
             ->get($id);
 
         $filtered = $variants->filterByVariationIds([$redId, $bigId]);
@@ -237,25 +241,25 @@ class VariantGeneratorTest extends KernelTestCase
             ],
         ];
 
-        $this->repository->create([$data], Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID));
+        $this->repository->create([$data], Context::createDefaultContext(Defaults::TENANT_ID));
 
-        $writtenEvent = $this->generator->generate($id, Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID), 0, 1);
+        $writtenEvent = $this->generator->generate($id, Context::createDefaultContext(Defaults::TENANT_ID), 0, 1);
         $productWritten = $writtenEvent->getEventByDefinition(ProductDefinition::class);
         $this->assertCount(1, $productWritten->getIds());
 
-        $variants = $this->repository->readBasic($productWritten->getIds(), Context::createDefaultContext(
-            \Shopware\Core\Defaults::TENANT_ID));
+        $variants = $this->repository->read(new ReadCriteria($productWritten->getIds()), Context:: createDefaultContext(
+            Defaults::TENANT_ID));
         $this->assertCount(1, $variants);
 
-        $writtenEvent = $this->generator->generate($id, Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID), 1, 1);
+        $writtenEvent = $this->generator->generate($id, Context::createDefaultContext(Defaults::TENANT_ID), 1, 1);
         $productWritten = $writtenEvent->getEventByDefinition(ProductDefinition::class);
         $this->assertCount(1, $productWritten->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('product.parentId', $id));
-        $variants = $this->repository->search($criteria, Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID));
+        $variants = $this->repository->search($criteria, Context::createDefaultContext(Defaults::TENANT_ID));
 
-        $parent = $this->repository->readBasic([$id], Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID))
+        $parent = $this->repository->read(new ReadCriteria([$id]), Context::createDefaultContext(Defaults::TENANT_ID))
             ->get($id);
 
         foreach ($variants as $variant) {
@@ -281,8 +285,8 @@ class VariantGeneratorTest extends KernelTestCase
             ]),
         ];
 
-        $this->repository->create([$data], Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID));
-        $event = $this->generator->generate($id, Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID));
+        $this->repository->create([$data], Context::createDefaultContext(Defaults::TENANT_ID));
+        $event = $this->generator->generate($id, Context::createDefaultContext(Defaults::TENANT_ID));
 
         $productEvent = $event->getEventByDefinition(ProductDefinition::class);
 

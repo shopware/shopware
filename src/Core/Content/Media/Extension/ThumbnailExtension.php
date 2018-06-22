@@ -2,10 +2,9 @@
 
 namespace Shopware\Core\Content\Media\Extension;
 
-use Shopware\Core\Content\Media\Event\MediaBasicLoadedEvent;
-use Shopware\Core\Content\Media\Struct\MediaBasicStruct;
-use Shopware\Core\Content\Media\Struct\ThumbnailStruct;
+use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Content\Media\Util\UrlGeneratorInterface;
+use Shopware\Core\Framework\ORM\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\Struct\StructCollection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -24,13 +23,13 @@ class ThumbnailExtension implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            MediaBasicLoadedEvent::NAME => 'mediaBasicLoaded',
+            'media.loaded' => 'mediaBasicLoaded',
         ];
     }
 
-    public function mediaBasicLoaded(MediaBasicLoadedEvent $event): void
+    public function mediaBasicLoaded(EntityLoadedEvent $event): void
     {
-        foreach ($event->getMedia() as $media) {
+        foreach ($event->getEntities() as $media) {
             $this->addThumbnails($media);
         }
     }
@@ -59,7 +58,7 @@ class ThumbnailExtension implements EventSubscriberInterface
         return $thumbnail;
     }
 
-    private function addThumbnails(MediaBasicStruct $media): void
+    private function addThumbnails(MediaStruct $media): void
     {
         if ($media->getAlbum()->getCreateThumbnails() === false) {
             return;

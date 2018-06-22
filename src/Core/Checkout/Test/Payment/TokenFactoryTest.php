@@ -6,12 +6,13 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\Customer\CustomerRepository;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionRepository;
-use Shopware\Core\Checkout\Order\OrderRepository;
 use Shopware\Core\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactory;
+use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
+use Shopware\Core\Checkout\Payment\Exception\TokenExpiredException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -28,22 +29,22 @@ class TokenFactoryTest extends KernelTestCase
     protected $tokenFactory;
 
     /**
-     * @var \Shopware\Core\Framework\Context
+     * @var Context
      */
     protected $context;
 
     /**
-     * @var \Shopware\Core\Checkout\Order\OrderRepository
+     * @var RepositoryInterface
      */
     protected $orderRepository;
 
     /**
-     * @var CustomerRepository
+     * @var RepositoryInterface
      */
     protected $customerRepository;
 
     /**
-     * @var \Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionRepository
+     * @var RepositoryInterface
      */
     protected $orderTransactionRepository;
 
@@ -57,12 +58,12 @@ class TokenFactoryTest extends KernelTestCase
         self::bootKernel();
 
         $this->tokenFactory = self::$container->get(PaymentTransactionTokenFactory::class);
-        $this->context = Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID);
+        $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
         $this->connection = self::$container->get(Connection::class);
 
-        $this->orderRepository = self::$container->get(OrderRepository::class);
-        $this->customerRepository = self::$container->get(CustomerRepository::class);
-        $this->orderTransactionRepository = self::$container->get(OrderTransactionRepository::class);
+        $this->orderRepository = self::$container->get('order.repository');
+        $this->customerRepository = self::$container->get('customer.repository');
+        $this->orderTransactionRepository = self::$container->get('order_transaction.repository');
     }
 
     /**
@@ -73,8 +74,8 @@ class TokenFactoryTest extends KernelTestCase
     {
         $transactionId = $this->prepare();
 
-        $transactions = $this->orderTransactionRepository->readBasic([$transactionId], Context::createDefaultContext(
-            \Shopware\Core\Defaults::TENANT_ID));
+        $transactions = $this->orderTransactionRepository->read(new ReadCriteria([$transactionId]), Context:: createDefaultContext(
+            Defaults::TENANT_ID));
 
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
         $tokenIdentifier = $this->tokenFactory->generateToken(
@@ -90,15 +91,15 @@ class TokenFactoryTest extends KernelTestCase
     }
 
     /**
-     * @throws \Shopware\Core\Checkout\Payment\Exception\InvalidTokenException
-     * @throws \Shopware\Core\Checkout\Payment\Exception\TokenExpiredException
+     * @throws InvalidTokenException
+     * @throws TokenExpiredException
      */
     public function testValidateToken()
     {
         $transactionId = $this->prepare();
 
-        $transactions = $this->orderTransactionRepository->readBasic([$transactionId], Context::createDefaultContext(
-            \Shopware\Core\Defaults::TENANT_ID));
+        $transactions = $this->orderTransactionRepository->read(new ReadCriteria([$transactionId]), Context:: createDefaultContext(
+            Defaults::TENANT_ID));
 
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
 
@@ -116,14 +117,14 @@ class TokenFactoryTest extends KernelTestCase
 
     /**
      * @throws \Doctrine\DBAL\Exception\InvalidArgumentException
-     * @throws \Shopware\Core\Checkout\Payment\Exception\InvalidTokenException
+     * @throws InvalidTokenException
      */
     public function testInvalidateToken()
     {
         $transactionId = $this->prepare();
 
-        $transactions = $this->orderTransactionRepository->readBasic([$transactionId], Context::createDefaultContext(
-            \Shopware\Core\Defaults::TENANT_ID));
+        $transactions = $this->orderTransactionRepository->read(new ReadCriteria([$transactionId]), Context:: createDefaultContext(
+            Defaults::TENANT_ID));
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
 
         $tokenIdentifier = $this->tokenFactory->generateToken(
@@ -146,7 +147,7 @@ class TokenFactoryTest extends KernelTestCase
 
     private function createTransaction(
         string $orderId,
-        OrderTransactionRepository $orderTransactionRepository,
+        RepositoryInterface $orderTransactionRepository,
         Context $context
     ): string {
         $id = Uuid::uuid4()->getHex();
@@ -166,7 +167,7 @@ class TokenFactoryTest extends KernelTestCase
 
     private function createOrder(
         string $customerId,
-        OrderRepository $orderRepository,
+        RepositoryInterface $orderRepository,
         Context $context
     ) {
         $orderId = Uuid::uuid4()->getHex();
@@ -207,7 +208,7 @@ class TokenFactoryTest extends KernelTestCase
         return $orderId;
     }
 
-    private function createCustomer(CustomerRepository $repository, Context $context): string
+    private function createCustomer(RepositoryInterface $repository, Context $context): string
     {
         $customerId = Uuid::uuid4()->getHex();
         $addressId = Uuid::uuid4()->getHex();

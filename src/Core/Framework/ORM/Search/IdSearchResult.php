@@ -23,7 +23,7 @@ class IdSearchResult extends Struct
     protected $criteria;
 
     /**
-     * @var \Shopware\Core\Framework\Context
+     * @var Context
      */
     protected $context;
 
@@ -41,6 +41,9 @@ class IdSearchResult extends Struct
         $this->context = $context;
     }
 
+    /**
+     * @return string[]
+     */
     public function getIds(): array
     {
         return $this->ids;

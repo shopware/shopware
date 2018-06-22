@@ -37,7 +37,7 @@ use Shopware\Core\Framework\Struct\Struct;
 class CalculatedCart extends Struct
 {
     /**
-     * @var \Shopware\Core\Checkout\Cart\Price\Struct\CartPrice
+     * @var CartPrice
      */
     protected $price;
 
@@ -52,7 +52,7 @@ class CalculatedCart extends Struct
     protected $calculatedLineItems;
 
     /**
-     * @var \Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection
+     * @var DeliveryCollection
      */
     protected $deliveries;
     /**

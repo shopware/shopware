@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\ORM;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Field\AssociationInterface;
 use Shopware\Core\Framework\ORM\Field\ChildCountField;
 use Shopware\Core\Framework\ORM\Field\ChildrenAssociationField;
@@ -13,7 +12,7 @@ use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\ORM\Write\EntityExistence;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\ReadOnly;
-use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 
 abstract class EntityDefinition
 {
@@ -25,39 +24,53 @@ abstract class EntityDefinition
     /**
      * @var FieldCollection
      */
-    protected static $primaryKeys;
+    protected static $fields = [];
 
     /**
-     * @var FieldCollection
-     */
-    protected static $fields;
-
-    /**
-     * @var EntityExtensionInterface[]
+     * @var EntityExtensionInterface[][]
      */
     protected static $extensions = [];
 
     public static function addExtension(EntityExtensionInterface $extension): void
     {
-        static::$extensions[get_class($extension)] = $extension;
-        static::$fields = null;
+        static::$extensions[static::class][get_class($extension)] = $extension;
+        static::$fields[static::class] = null;
     }
 
     abstract public static function getEntityName(): string;
 
-    abstract public static function getFields(): FieldCollection;
+    public static function getFields(): FieldCollection
+    {
+        if (isset(static::$fields[static::class])) {
+            return static::$fields[static::class];
+        }
 
-    abstract public static function getRepositoryClass(): string;
+        $fields = static::defineFields();
 
-    abstract public static function getBasicCollectionClass(): string;
+        $extensions = static::$extensions[static::class] ?? [];
+        foreach ($extensions as $extension) {
+            $extension->extendFields($fields);
+        }
 
-    abstract public static function getBasicStructClass(): string;
+        static::$fields[static::class] = $fields;
 
-    abstract public static function getWrittenEventClass(): string;
+        return static::$fields[static::class];
+    }
 
-    abstract public static function getDeletedEventClass(): string;
+    public static function getCollectionClass(): string
+    {
+        return EntityCollection::class;
+    }
 
-    abstract public static function getTranslationDefinitionClass(): ?string;
+    public static function getStructClass(): string
+    {
+        return ArrayStruct::class;
+    }
+
+    public static function getTranslationDefinitionClass(): ?string
+    {
+        return null;
+    }
 
     public static function getWriteOrder(): array
     {
@@ -93,26 +106,10 @@ abstract class EntityDefinition
 
     public static function getPrimaryKeys(): FieldCollection
     {
-        if (static::$primaryKeys) {
-            return static::$primaryKeys;
-        }
-
-        return static::$primaryKeys = static::getFields()
+        return static::getFields()
             ->filter(function (Field $field) {
                 return $field->is(PrimaryKey::class);
             });
-    }
-
-    public static function createWrittenEvent(array $identifiers, Context $context, array $errors): ?WrittenEvent
-    {
-        if (!array_key_exists(static::class, $identifiers)) {
-            return null;
-        }
-
-        $ids = $identifiers[static::class];
-        $class = self::getWrittenEventClass();
-
-        return new $class($ids, $context, $errors);
     }
 
     public static function getDefaults(EntityExistence $existence): array
@@ -131,19 +128,9 @@ abstract class EntityDefinition
         return [];
     }
 
-    public static function getDetailStructClass(): string
+    public static function allowInheritance(): bool
     {
-        return static::getBasicStructClass();
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return static::getBasicCollectionClass();
-    }
-
-    public static function getParentPropertyName(): ?string
-    {
-        return null;
+        return false;
     }
 
     public static function isChildrenAware(): bool
@@ -158,7 +145,7 @@ abstract class EntityDefinition
 
     public static function isInheritanceAware(): bool
     {
-        return static::getFields()->get('parent') instanceof ManyToOneAssociationField;
+        return static::allowInheritance() && static::getFields()->get('parent') instanceof ManyToOneAssociationField;
     }
 
     public static function isVersionAware(): bool
@@ -176,7 +163,9 @@ abstract class EntityDefinition
         return static::getFields()->has('tenantId');
     }
 
-    protected static function filterAssociationReferences(string $type, FieldCollection $fields)
+    abstract protected static function defineFields(): FieldCollection;
+
+    protected static function filterAssociationReferences(string $type, FieldCollection $fields): array
     {
         $associations = $fields->filterInstance($type)->getElements();
 

@@ -39,7 +39,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 class ListingController extends StorefrontController
 {
     /**
-     * @var \Shopware\Core\Content\Product\Storefront\StorefrontProductRepository
+     * @var StorefrontProductRepository
      */
     private $repository;
 

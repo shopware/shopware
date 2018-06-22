@@ -3,7 +3,6 @@
 namespace Shopware\Core\System\Log;
 
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\IdField;
 use Shopware\Core\Framework\ORM\Field\LongTextField;
@@ -13,40 +12,17 @@ use Shopware\Core\Framework\ORM\Field\VersionField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
-use Shopware\Core\System\Log\Collection\LogBasicCollection;
-use Shopware\Core\System\Log\Event\Log\LogDeletedEvent;
-use Shopware\Core\System\Log\Event\Log\LogWrittenEvent;
-use Shopware\Core\System\Log\Struct\LogBasicStruct;
 
 class LogDefinition extends EntityDefinition
 {
-    /**
-     * @var FieldCollection
-     */
-    protected static $primaryKeys;
-
-    /**
-     * @var FieldCollection
-     */
-    protected static $fields;
-
-    /**
-     * @var EntityExtensionInterface[]
-     */
-    protected static $extensions = [];
-
     public static function getEntityName(): string
     {
         return 'log';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
@@ -61,41 +37,15 @@ class LogDefinition extends EntityDefinition
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
     }
 
-    public static function getRepositoryClass(): string
+    public static function getCollectionClass(): string
     {
-        return LogRepository::class;
+        return LogCollection::class;
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getStructClass(): string
     {
-        return LogBasicCollection::class;
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return LogDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return LogWrittenEvent::class;
-    }
-
-    public static function getBasicStructClass(): string
-    {
-        return LogBasicStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return null;
+        return LogStruct::class;
     }
 }

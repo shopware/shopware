@@ -12,9 +12,9 @@ use Shopware\Core\Framework\ORM\Dbal\Common\LastIdQuery;
 use Shopware\Core\Framework\ORM\Dbal\Common\OffsetQuery;
 use Shopware\Core\Framework\ORM\DefinitionRegistry;
 use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\ORM\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\ORM\Write\EntityExistence;
-use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Core\Framework\ORM\Write\WrittenEvent;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -83,9 +83,9 @@ class ChildCountIndexer implements IndexerInterface
         }
     }
 
-    public function refresh(GenericWrittenEvent $event): void
+    public function refresh(EntityWrittenContainerEvent $event): void
     {
-        /** @var WrittenEvent $nested */
+        /** @var EntityWrittenEvent $nested */
         foreach ($event->getEvents() as $nested) {
             $definition = $nested->getDefinition();
 
@@ -95,7 +95,7 @@ class ChildCountIndexer implements IndexerInterface
         }
     }
 
-    private function update(WrittenEvent $event, array $ids, Context $context)
+    private function update(EntityWrittenEvent $event, array $ids, Context $context)
     {
         $entityParents = array_map(function (EntityExistence $existence) {
             if (!array_key_exists('parent_id', $existence->getState()) || !$existence->getState()['parent_id']) {

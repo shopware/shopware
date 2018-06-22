@@ -34,6 +34,7 @@ use Shopware\Core\Framework\ORM\Write\FieldException\InvalidJsonFieldException;
 use Shopware\Core\Framework\ORM\Write\FieldException\UnexpectedFieldException;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
@@ -136,6 +137,10 @@ class JsonField extends Field implements StorageAware
      */
     protected function getInsertConstraints(): array
     {
+        if ($this->is(Required::class)) {
+            $this->constraintBuilder->addConstraint(new NotBlank());
+        }
+
         return $this->constraintBuilder
             ->getConstraints();
     }

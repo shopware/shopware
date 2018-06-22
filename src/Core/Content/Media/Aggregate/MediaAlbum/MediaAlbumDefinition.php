@@ -3,16 +3,9 @@
 namespace Shopware\Core\Content\Media\Aggregate\MediaAlbum;
 
 use Shopware\Core\Content\Catalog\ORM\CatalogField;
-use Shopware\Core\Content\Media\Aggregate\MediaAlbum\Collection\MediaAlbumBasicCollection;
-use Shopware\Core\Content\Media\Aggregate\MediaAlbum\Collection\MediaAlbumDetailCollection;
-use Shopware\Core\Content\Media\Aggregate\MediaAlbum\Event\MediaAlbumDeletedEvent;
-use Shopware\Core\Content\Media\Aggregate\MediaAlbum\Event\MediaAlbumWrittenEvent;
-use Shopware\Core\Content\Media\Aggregate\MediaAlbum\Struct\MediaAlbumBasicStruct;
-use Shopware\Core\Content\Media\Aggregate\MediaAlbum\Struct\MediaAlbumDetailStruct;
 use Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\MediaAlbumTranslationDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\BoolField;
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\FkField;
@@ -36,33 +29,14 @@ use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 
 class MediaAlbumDefinition extends EntityDefinition
 {
-    /**
-     * @var FieldCollection
-     */
-    protected static $primaryKeys;
-
-    /**
-     * @var FieldCollection
-     */
-    protected static $fields;
-
-    /**
-     * @var EntityExtensionInterface[]
-     */
-    protected static $extensions = [];
-
     public static function getEntityName(): string
     {
         return 'media_album';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
@@ -84,51 +58,20 @@ class MediaAlbumDefinition extends EntityDefinition
             (new OneToManyAssociationField('children', self::class, 'parent_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('translations', MediaAlbumTranslationDefinition::class, 'media_album_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
     }
 
-    public static function getRepositoryClass(): string
+    public static function getCollectionClass(): string
     {
-        return MediaAlbumRepository::class;
+        return MediaAlbumCollection::class;
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getStructClass(): string
     {
-        return MediaAlbumBasicCollection::class;
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return MediaAlbumDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return MediaAlbumWrittenEvent::class;
-    }
-
-    public static function getBasicStructClass(): string
-    {
-        return MediaAlbumBasicStruct::class;
+        return MediaAlbumStruct::class;
     }
 
     public static function getTranslationDefinitionClass(): ?string
     {
         return MediaAlbumTranslationDefinition::class;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return MediaAlbumDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return MediaAlbumDetailCollection::class;
     }
 }

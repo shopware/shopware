@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Product\ORM\Indexing;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\Product\ProductRepository;
 use Shopware\Core\Content\Product\Util\EventIdExtractor;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
@@ -11,8 +10,8 @@ use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\ORM\Dbal\Common\LastIdQuery;
 use Shopware\Core\Framework\ORM\Dbal\Indexing\IndexerInterface;
+use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\ORM\Field\PriceRulesJsonField;
-use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Core\Framework\Pricing\PriceRuleStruct;
 use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -21,17 +20,12 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class ProductListingPriceIndexer implements IndexerInterface
 {
     /**
-     * @var ProductRepository
-     */
-    private $productRepository;
-
-    /**
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
 
     /**
-     * @var \Shopware\Core\Content\Product\Util\EventIdExtractor
+     * @var EventIdExtractor
      */
     private $eventIdExtractor;
 
@@ -41,12 +35,10 @@ class ProductListingPriceIndexer implements IndexerInterface
     private $connection;
 
     public function __construct(
-        ProductRepository $productRepository,
         EventDispatcherInterface $eventDispatcher,
         EventIdExtractor $eventIdExtractor,
         Connection $connection
     ) {
-        $this->productRepository = $productRepository;
         $this->eventDispatcher = $eventDispatcher;
         $this->eventIdExtractor = $eventIdExtractor;
         $this->connection = $connection;
@@ -82,7 +74,7 @@ class ProductListingPriceIndexer implements IndexerInterface
         );
     }
 
-    public function refresh(GenericWrittenEvent $event): void
+    public function refresh(EntityWrittenContainerEvent $event): void
     {
         $ids = $this->eventIdExtractor->getProductIds($event);
 

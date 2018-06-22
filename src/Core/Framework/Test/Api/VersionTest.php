@@ -3,10 +3,6 @@
 namespace Shopware\Core\Framework\Test\Api;
 
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\ORM\DefinitionRegistry;
-use Shopware\Core\Framework\ORM\Exception\MappingEntityRepositoryException;
-use Shopware\Core\PlatformRequest;
-use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Client;
 
@@ -84,32 +80,5 @@ class VersionTest extends ApiTestCase
             $this->unauthorizedClient->getResponse()->getStatusCode(),
             'Route should be protected. (URL: ' . $url . ')'
         );
-    }
-
-    public function testContainerAlias(): void
-    {
-        $registry = self::$container->get(DefinitionRegistry::class);
-
-        foreach ($registry->getElements() as $definition) {
-            try {
-                $repositoryClass = $definition::getRepositoryClass();
-            } catch (MappingEntityRepositoryException $ex) {
-                return;
-            }
-
-            $alias = self::$container->get($repositoryClass);
-
-            try {
-                $real = self::$container->get($repositoryClass . '.v' . PlatformRequest::API_VERSION);
-            } catch (ServiceNotFoundException $ex) {
-                $this->fail(sprintf(
-                    'Repository service definition for api version "%d" is missing. (%s)',
-                    PlatformRequest::API_VERSION,
-                    $repositoryClass . '.v' . PlatformRequest::API_VERSION
-                ));
-            }
-
-            $this->assertSame($alias, $real, sprintf('Repository version mismatch for "%s".', $definition::getEntityName()));
-        }
     }
 }

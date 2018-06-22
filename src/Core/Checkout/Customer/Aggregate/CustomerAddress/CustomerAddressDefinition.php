@@ -2,15 +2,8 @@
 
 namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress;
 
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Collection\CustomerAddressBasicCollection;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Collection\CustomerAddressDetailCollection;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Event\CustomerAddressDeletedEvent;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Event\CustomerAddressWrittenEvent;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressDetailStruct;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\IdField;
@@ -28,33 +21,14 @@ use Shopware\Core\System\Country\CountryDefinition;
 
 class CustomerAddressDefinition extends EntityDefinition
 {
-    /**
-     * @var FieldCollection
-     */
-    protected static $primaryKeys;
-
-    /**
-     * @var FieldCollection
-     */
-    protected static $fields;
-
-    /**
-     * @var EntityExtensionInterface[]
-     */
-    protected static $extensions = [];
-
     public static function getEntityName(): string
     {
         return 'customer_address';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
@@ -62,10 +36,10 @@ class CustomerAddressDefinition extends EntityDefinition
             (new FkField('customer_id', 'customerId', CustomerDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(CustomerDefinition::class))->setFlags(new Required()),
 
-            (new FkField('country_id', 'countryId', \Shopware\Core\System\Country\CountryDefinition::class))->setFlags(new Required()),
-            (new ReferenceVersionField(\Shopware\Core\System\Country\CountryDefinition::class))->setFlags(new Required()),
+            (new FkField('country_id', 'countryId', CountryDefinition::class))->setFlags(new Required()),
+            (new ReferenceVersionField(CountryDefinition::class))->setFlags(new Required()),
 
-            new FkField('country_state_id', 'countryStateId', \Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition::class),
+            new FkField('country_state_id', 'countryStateId', CountryStateDefinition::class),
             new ReferenceVersionField(CountryStateDefinition::class),
 
             (new StringField('salutation', 'salutation'))->setFlags(new Required()),
@@ -87,51 +61,15 @@ class CustomerAddressDefinition extends EntityDefinition
             new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class, true),
             new ManyToOneAssociationField('countryState', 'country_state_id', CountryStateDefinition::class, true),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
     }
 
-    public static function getRepositoryClass(): string
+    public static function getCollectionClass(): string
     {
-        return CustomerAddressRepository::class;
+        return CustomerAddressCollection::class;
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getStructClass(): string
     {
-        return CustomerAddressBasicCollection::class;
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return CustomerAddressDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return CustomerAddressWrittenEvent::class;
-    }
-
-    public static function getBasicStructClass(): string
-    {
-        return CustomerAddressBasicStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return null;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return CustomerAddressDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return CustomerAddressDetailCollection::class;
+        return CustomerAddressStruct::class;
     }
 }

@@ -5,11 +5,10 @@ namespace Shopware\Core\Framework\Test\Translation;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Translation\Translator;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\System\Language\LanguageRepository;
-use Shopware\Core\System\Snippet\SnippetRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -27,12 +26,12 @@ class TranslatorTest extends KernelTestCase
     private $translator;
 
     /**
-     * @var SnippetRepository
+     * @var RepositoryInterface
      */
     private $snippetRepository;
 
     /**
-     * @var LanguageRepository
+     * @var RepositoryInterface
      */
     private $languageRepository;
 
@@ -42,8 +41,8 @@ class TranslatorTest extends KernelTestCase
 
         $this->connection = self::$container->get(Connection::class);
         $this->translator = self::$container->get(Translator::class);
-        $this->snippetRepository = self::$container->get(SnippetRepository::class);
-        $this->languageRepository = self::$container->get(LanguageRepository::class);
+        $this->snippetRepository = self::$container->get('snippet.repository');
+        $this->languageRepository = self::$container->get('language.repository');
 
         $this->connection->beginTransaction();
     }

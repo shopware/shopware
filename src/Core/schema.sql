@@ -500,6 +500,7 @@ CREATE TABLE `customer` (
   `id` binary(16) NOT NULL,
   `tenant_id` binary(16) NOT NULL,
   `version_id` binary(16) NOT NULL,
+  `auto_increment` bigint unsigned NOT NULL AUTO_INCREMENT,
   `customer_group_id` binary(16) NOT NULL,
   `customer_group_tenant_id` binary(16) NOT NULL,
   `customer_group_version_id` binary(16) NOT NULL,
@@ -541,6 +542,7 @@ CREATE TABLE `customer` (
   `updated_at` datetime,
   PRIMARY KEY (`id`, `version_id`, `tenant_id`),
   UNIQUE `email` (`email`, `tenant_id`, `version_id`),
+  UNIQUE `auto_increment` (`auto_increment`),
   KEY `sessionID` (`session_id`),
   KEY `firstlogin` (`first_login`),
   KEY `lastlogin` (`last_login`),
@@ -551,7 +553,7 @@ CREATE TABLE `customer` (
   CONSTRAINT `fk_customer.default_payment_method_id` FOREIGN KEY (`default_payment_method_id`, `default_payment_method_version_id`, `default_payment_method_tenant_id`) REFERENCES `payment_method` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_customer.last_payment_method_id` FOREIGN KEY (`last_payment_method_id`, `last_payment_method_version_id`, `last_payment_method_tenant_id`) REFERENCES `payment_method` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_customer.touchpoint_id` FOREIGN KEY (`touchpoint_id`, `touchpoint_tenant_id`) REFERENCES `touchpoint` (`id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 DROP TABLE IF EXISTS `customer_address`;
@@ -904,6 +906,7 @@ CREATE TABLE `order` (
   `id` binary(16) NOT NULL,
   `tenant_id` binary(16) NOT NULL,
   `version_id` binary(16) NOT NULL,
+  `auto_increment` bigint unsigned NOT NULL AUTO_INCREMENT,
   `customer_id` binary(16) NOT NULL,
   `customer_tenant_id` binary(16) NOT NULL,
   `customer_version_id` binary(16) NOT NULL,
@@ -927,18 +930,17 @@ CREATE TABLE `order` (
   `shipping_total` double NOT NULL,
   `is_net` tinyint(1) NOT NULL,
   `is_tax_free` tinyint(1) NOT NULL,
-  `context` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` datetime,
   `updated_at` datetime,
    PRIMARY KEY (`id`, `version_id`, `tenant_id`),
+   UNIQUE `auto_increment` (`auto_increment`),
    CONSTRAINT `fk_order.billing_address_id` FOREIGN KEY (`billing_address_id`, `billing_address_version_id`, `billing_address_tenant_id`) REFERENCES `order_address` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
    CONSTRAINT `fk_order.currency_id` FOREIGN KEY (`currency_id`, `currency_version_id`, `currency_tenant_id`) REFERENCES `currency` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
    CONSTRAINT `fk_order.customer_id` FOREIGN KEY (`customer_id`, `customer_version_id`, `customer_tenant_id`) REFERENCES `customer` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
    CONSTRAINT `fk_order.order_state_id` FOREIGN KEY (`order_state_id`, `order_state_version_id`, `order_state_tenant_id`) REFERENCES `order_state` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
    CONSTRAINT `fk_order.payment_method_id` FOREIGN KEY (`payment_method_id`, `payment_method_version_id`, `payment_method_tenant_id`) REFERENCES `payment_method` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
    CONSTRAINT `fk_order.touchpoint_id` FOREIGN KEY (`touchpoint_id`, `touchpoint_tenant_id`) REFERENCES `touchpoint` (`id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 DROP TABLE IF EXISTS `order_address`;
@@ -993,7 +995,6 @@ CREATE TABLE `order_delivery` (
   `tracking_code` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `shipping_date_earliest` date NOT NULL,
   `shipping_date_latest` date NOT NULL,
-  `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` datetime,
   `updated_at` datetime,
   PRIMARY KEY (`id`, `version_id`, `tenant_id`),
@@ -1018,7 +1019,6 @@ CREATE TABLE `order_delivery_position` (
   `unit_price` double NOT NULL,
   `total_price` double NOT NULL,
   `quantity` double NOT NULL,
-  `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` datetime,
   `updated_at` datetime,
   PRIMARY KEY (`id`, `version_id`, `tenant_id`),
@@ -1042,7 +1042,6 @@ CREATE TABLE `order_line_item` (
   `unit_price` double NOT NULL,
   `total_price` double NOT NULL,
   `type` varchar(42) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` datetime,
   `updated_at` datetime,
   PRIMARY KEY (`id`, `version_id`, `tenant_id`),
@@ -1908,7 +1907,6 @@ CREATE TABLE `order_transaction` (
   `order_transaction_state_tenant_id` binary(16) NOT NULL,
   `order_transaction_state_version_id` binary(16) NOT NULL,
   `amount` longtext NOT NULL,
-  `payload` longtext NOT NULL,
   `created_at` datetime,
   `updated_at` datetime,
   PRIMARY KEY (`id`, `version_id`, `tenant_id`),

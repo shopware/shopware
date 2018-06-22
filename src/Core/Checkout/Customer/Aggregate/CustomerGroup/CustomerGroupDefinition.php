@@ -2,18 +2,11 @@
 
 namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup;
 
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Collection\CustomerGroupBasicCollection;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Collection\CustomerGroupDetailCollection;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Event\CustomerGroupDeletedEvent;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Event\CustomerGroupWrittenEvent;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupBasicStruct;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupDetailStruct;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGroupDiscountDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationDefinition;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\BoolField;
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\FloatField;
@@ -30,37 +23,18 @@ use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition;
 
 class CustomerGroupDefinition extends EntityDefinition
 {
-    /**
-     * @var FieldCollection
-     */
-    protected static $primaryKeys;
-
-    /**
-     * @var FieldCollection
-     */
-    protected static $fields;
-
-    /**
-     * @var EntityExtensionInterface[]
-     */
-    protected static $extensions = [];
-
     public static function getEntityName(): string
     {
         return 'customer_group';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
@@ -73,57 +47,26 @@ class CustomerGroupDefinition extends EntityDefinition
             new FloatField('minimum_order_amount_surcharge', 'minimumOrderAmountSurcharge'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            (new OneToManyAssociationField('customers', CustomerDefinition::class, 'customer_group_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
+            (new OneToManyAssociationField('customers', CustomerDefinition::class, 'customer_group_id', false, 'id'))->setFlags(new RestrictDelete()),
             (new OneToManyAssociationField('discounts', CustomerGroupDiscountDefinition::class, 'customer_group_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('translations', CustomerGroupTranslationDefinition::class, 'customer_group_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
-            (new OneToManyAssociationField('shippingMethods', ShippingMethodDefinition::class, 'customer_group_id', false, 'id'))->setFlags(new WriteOnly()),
-            (new OneToManyAssociationField('taxAreaRules', \Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition::class, 'customer_group_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
+            new OneToManyAssociationField('shippingMethods', ShippingMethodDefinition::class, 'customer_group_id', false, 'id'),
+            (new OneToManyAssociationField('taxAreaRules', TaxAreaRuleDefinition::class, 'customer_group_id', false, 'id'))->setFlags(new CascadeDelete()),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
     }
 
-    public static function getRepositoryClass(): string
+    public static function getCollectionClass(): string
     {
-        return CustomerGroupRepository::class;
+        return CustomerGroupCollection::class;
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getStructClass(): string
     {
-        return CustomerGroupBasicCollection::class;
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return CustomerGroupDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return CustomerGroupWrittenEvent::class;
-    }
-
-    public static function getBasicStructClass(): string
-    {
-        return CustomerGroupBasicStruct::class;
+        return CustomerGroupStruct::class;
     }
 
     public static function getTranslationDefinitionClass(): ?string
     {
         return CustomerGroupTranslationDefinition::class;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return CustomerGroupDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return CustomerGroupDetailCollection::class;
     }
 }

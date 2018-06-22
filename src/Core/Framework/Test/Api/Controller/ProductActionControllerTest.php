@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Framework\Test\Api\Controller;
 
-use Shopware\Core\Content\Product\ProductRepository;
-use Shopware\Core\Content\Product\Struct\ProductDetailStruct;
+use Shopware\Core\Content\Product\ProductStruct;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\Api\ApiTestCase;
@@ -13,7 +15,7 @@ use Shopware\Core\PlatformRequest;
 class ProductActionControllerTest extends ApiTestCase
 {
     /**
-     * @var ProductRepository
+     * @var RepositoryInterface
      */
     private $productRepository;
 
@@ -21,7 +23,7 @@ class ProductActionControllerTest extends ApiTestCase
     {
         parent::setUp();
 
-        $this->productRepository = $this->getContainer()->get(ProductRepository::class);
+        $this->productRepository = $this->getContainer()->get('product.repository');
     }
 
     public function testGenerateVariant(): void
@@ -63,10 +65,11 @@ class ProductActionControllerTest extends ApiTestCase
 
         $this->assertSame(204, $this->apiClient->getResponse()->getStatusCode());
 
-        $product = $this->productRepository->readDetail([$id], Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID))
-            ->get($id);
+        $criteria = new ReadCriteria([$id]);
+        $criteria->addAssociation('product.configurators');
+        $product = $this->productRepository->read($criteria, Context::createDefaultContext(Defaults::TENANT_ID))->get($id);
 
-        /** @var ProductDetailStruct $product */
+        /** @var ProductStruct $product */
         $configurators = $product->getConfigurators();
 
         $this->assertCount(2, $configurators);
@@ -96,8 +99,8 @@ class ProductActionControllerTest extends ApiTestCase
         $this->assertArrayHasKey('data', $ids);
         $this->assertCount(2, $ids['data']);
 
-        $products = $this->productRepository->readBasic($ids['data'], Context::createDefaultContext(
-            \Shopware\Core\Defaults::TENANT_ID));
+        $products = $this->productRepository->read(new ReadCriteria($ids['data']), Context::createDefaultContext(
+            Defaults::TENANT_ID));
 
         foreach ($products as $product) {
             $this->assertSame($id, $product->getParentId());

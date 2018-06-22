@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Product\ORM\Indexing;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\Product\ProductRepository;
 use Shopware\Core\Content\Product\Util\EventIdExtractor;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
@@ -11,14 +10,15 @@ use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\ORM\Dbal\Common\LastIdQuery;
 use Shopware\Core\Framework\ORM\Dbal\Indexing\IndexerInterface;
-use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductDatasheetIndexer implements IndexerInterface
 {
     /**
-     * @var ProductRepository
+     * @var RepositoryInterface
      */
     private $productRepository;
 
@@ -28,7 +28,7 @@ class ProductDatasheetIndexer implements IndexerInterface
     private $eventDispatcher;
 
     /**
-     * @var \Shopware\Core\Content\Product\Util\EventIdExtractor
+     * @var EventIdExtractor
      */
     private $eventIdExtractor;
 
@@ -38,7 +38,7 @@ class ProductDatasheetIndexer implements IndexerInterface
     private $connection;
 
     public function __construct(
-        ProductRepository $productRepository,
+        RepositoryInterface $productRepository,
         Connection $connection,
         EventDispatcherInterface $eventDispatcher,
         EventIdExtractor $eventIdExtractor
@@ -79,7 +79,7 @@ class ProductDatasheetIndexer implements IndexerInterface
         );
     }
 
-    public function refresh(GenericWrittenEvent $event): void
+    public function refresh(EntityWrittenContainerEvent $event): void
     {
         $ids = $this->eventIdExtractor->getProductIds($event);
 

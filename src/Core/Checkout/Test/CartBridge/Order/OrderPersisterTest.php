@@ -33,6 +33,7 @@ use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItem;
 use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -40,21 +41,21 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
-use Shopware\Core\Checkout\Customer\Struct\CustomerBasicStruct;
-use Shopware\Core\Checkout\Order\OrderRepository;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
+use Shopware\Core\Checkout\Customer\CustomerStruct;
+use Shopware\Core\Framework\ORM\EntityRepository;
 
 class OrderPersisterTest extends TestCase
 {
     public function testSave(): void
     {
         $faker = Factory::create();
-        $repository = $this->createMock(OrderRepository::class);
+        $repository = $this->createMock(EntityRepository::class);
         $repository->expects($this->once())->method('create');
 
         $taxDetector = new TaxDetector();
 
-        $billingAddress = new CustomerAddressBasicStruct();
+        $billingAddress = new CustomerAddressStruct();
         $billingAddress->setId('SWAG-ADDRESS-ID-1');
         $billingAddress->setSalutation('mr');
         $billingAddress->setFirstName($faker->firstName);
@@ -63,11 +64,12 @@ class OrderPersisterTest extends TestCase
         $billingAddress->setCity($faker->city);
         $billingAddress->setCountryId('SWAG-AREA-COUNTRY-ID-1');
 
-        $customer = new CustomerBasicStruct();
+        $customer = new CustomerStruct();
         $customer->setId('SWAG-CUSTOMER-ID-1');
         $customer->setDefaultBillingAddress($billingAddress);
 
-        $persister = new OrderPersister($repository, $taxDetector);
+        $converter = new OrderConverter($taxDetector);
+        $persister = new OrderPersister($repository, $converter);
 
         $checkoutContext = $this->createMock(CheckoutContext::class);
         $checkoutContext->expects($this->any())->method('getCustomer')->willReturn($customer);

@@ -24,7 +24,7 @@
 
 namespace Shopware\Storefront\Navigation;
 
-use Shopware\Core\Content\Category\Struct\CategoryBasicStruct;
+use Shopware\Core\Content\Category\CategoryStruct;
 use Shopware\Core\Content\Category\Util\Tree\TreeItem;
 
 class Navigation
@@ -35,17 +35,17 @@ class Navigation
     protected $tree;
 
     /**
-     * @var CategoryBasicStruct
+     * @var CategoryStruct
      */
     protected $activeCategory;
 
-    public function __construct(?CategoryBasicStruct $activeCategory, array $tree)
+    public function __construct(?CategoryStruct $activeCategory, array $tree)
     {
         $this->tree = $tree;
         $this->activeCategory = $activeCategory;
     }
 
-    public function isCategorySelected(CategoryBasicStruct $category): bool
+    public function isCategorySelected(CategoryStruct $category): bool
     {
         if (!$this->activeCategory) {
             return false;
@@ -68,12 +68,12 @@ class Navigation
         $this->tree = $tree;
     }
 
-    public function getActiveCategory(): ?CategoryBasicStruct
+    public function getActiveCategory(): ?CategoryStruct
     {
         return $this->activeCategory;
     }
 
-    public function setActiveCategory(?CategoryBasicStruct $activeCategory): void
+    public function setActiveCategory(?CategoryStruct $activeCategory): void
     {
         $this->activeCategory = $activeCategory;
     }

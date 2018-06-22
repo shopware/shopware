@@ -20,7 +20,7 @@ class RepositoryIterator
     private $repository;
 
     /**
-     * @var \Shopware\Core\Framework\Context
+     * @var Context
      */
     private $context;
 

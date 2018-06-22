@@ -3,8 +3,6 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductDatasheet;
 
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductDatasheet\Event\ProductDatasheetDeletedEvent;
-use Shopware\Core\Content\Product\Aggregate\ProductDatasheet\Event\ProductDatasheetWrittenEvent;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
@@ -16,28 +14,14 @@ use Shopware\Core\Framework\ORM\Write\Flag\Required;
 
 class ProductDatasheetDefinition extends MappingEntityDefinition
 {
-    /**
-     * @var FieldCollection
-     */
-    protected static $fields;
-
-    /**
-     * @var FieldCollection
-     */
-    protected static $primaryKeys;
-
     public static function getEntityName(): string
     {
         return 'product_datasheet';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        return self::$fields = new FieldCollection([
+        return new FieldCollection([
             (new FkField('product_id', 'productId', ProductDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             new ReferenceVersionField(ProductDefinition::class),
             (new FkField('configuration_group_option_id', 'optionId', ConfigurationGroupOptionDefinition::class))->setFlags(new PrimaryKey(), new Required()),
@@ -45,15 +29,5 @@ class ProductDatasheetDefinition extends MappingEntityDefinition
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false),
             new ManyToOneAssociationField('option', 'configuration_group_option_id', ConfigurationGroupOptionDefinition::class, false),
         ]);
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return ProductDatasheetWrittenEvent::class;
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return ProductDatasheetDeletedEvent::class;
     }
 }

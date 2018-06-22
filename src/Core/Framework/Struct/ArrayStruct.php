@@ -16,6 +16,11 @@ class ArrayStruct extends Entity implements \ArrayAccess
         $this->data = $data;
     }
 
+    public function getId(): string
+    {
+        return $this->data['id'];
+    }
+
     public function offsetExists($offset)
     {
         return array_key_exists($offset, $this->data);
@@ -23,7 +28,7 @@ class ArrayStruct extends Entity implements \ArrayAccess
 
     public function offsetGet($offset)
     {
-        return $this->data[$offset];
+        return $this->data[$offset] ?? null;
     }
 
     public function offsetSet($offset, $value)
@@ -43,7 +48,7 @@ class ArrayStruct extends Entity implements \ArrayAccess
 
     public function set($key, $value)
     {
-        return $this->offsetSet($key, $value);
+        return $this->data[$key] = $value;
     }
 
     public function assign(array $options)

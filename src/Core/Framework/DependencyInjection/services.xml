@@ -24,7 +24,7 @@
         </service>
 
         <!-- Plugins -->
-        <service class="Shopware\Core\Framework\Plugin\PluginCollection" id="Shopware\Core\Framework\Plugin\PluginCollection" public="true">
+        <service class="Shopware\Core\Framework\Plugin\BundleCollection" id="Shopware\Core\Framework\Plugin\BundleCollection" public="true">
             <factory service="kernel" method="getPlugins" />
         </service>
 
@@ -101,6 +101,11 @@
             <argument type="service" id="Shopware\Core\Content\Product\Util\VariantGenerator"/>
             <argument type="service" id="Shopware\Core\Content\Media\Util\Strategy\StrategyFilesystem"/>
             <argument type="service" id="service_container"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Cart\CartProcessor"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Cart\CartCollector"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextFactory"/>
         </service>
 
         <service class="Shopware\Core\Framework\Command\CreateTenantCommand" id="Shopware\Core\Framework\Command\CreateTenantCommand">
@@ -179,7 +184,7 @@
         </service>
 
         <service class="Shopware\Core\Framework\Routing\Firewall\CustomerProvider" id="Shopware\Core\Framework\Routing\Firewall\CustomerProvider">
-            <argument type="service" id="Shopware\Core\Checkout\Customer\CustomerRepository"/>
+            <argument type="service" id="customer.repository"/>
         </service>
 
         <service class="Shopware\Core\Framework\Routing\Firewall\TouchpointAuthenticator" id="Shopware\Core\Framework\Routing\Firewall\TouchpointAuthenticator">

@@ -137,7 +137,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
             /* @var string|EntityDefinition $definition */
             try {
-                $definition::getRepositoryClass();
+                $definition::getEntityName();
             } catch (\Exception $e) {
                 //mapping tables has no repository, skip them
                 continue;
@@ -538,7 +538,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         $humanReadableName = $this->convertToHumanReadable($definition::getEntityName());
 
         $schemaName = $definition::getEntityName() . '_detail';
-        if ($definition::getDetailStructClass() === $definition::getBasicStructClass()) {
+        if ($definition::getStructClass() === $definition::getStructClass()) {
             $schemaName = $definition::getEntityName() . '_basic';
         }
         $path = $this->getResourceUri($definition) . '/{id}';

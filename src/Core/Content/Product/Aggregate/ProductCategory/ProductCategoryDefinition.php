@@ -3,8 +3,6 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductCategory;
 
 use Shopware\Core\Content\Category\CategoryDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductCategory\Event\ProductCategoryDeletedEvent;
-use Shopware\Core\Content\Product\Aggregate\ProductCategory\Event\ProductCategoryWrittenEvent;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\FkField;
@@ -17,16 +15,6 @@ use Shopware\Core\Framework\ORM\Write\Flag\Required;
 
 class ProductCategoryDefinition extends MappingEntityDefinition
 {
-    /**
-     * @var FieldCollection
-     */
-    protected static $fields;
-
-    /**
-     * @var FieldCollection
-     */
-    protected static $primaryKeys;
-
     public static function getEntityName(): string
     {
         return 'product_category';
@@ -37,13 +25,9 @@ class ProductCategoryDefinition extends MappingEntityDefinition
         return true;
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        return self::$fields = new FieldCollection([
+        return new FieldCollection([
             (new FkField('product_id', 'productId', ProductDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new ReferenceVersionField(ProductDefinition::class))->setFlags(new PrimaryKey(), new Required()),
 
@@ -55,15 +39,5 @@ class ProductCategoryDefinition extends MappingEntityDefinition
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false),
             new ManyToOneAssociationField('category', 'category_id', CategoryDefinition::class, false),
         ]);
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return ProductCategoryWrittenEvent::class;
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return ProductCategoryDeletedEvent::class;
     }
 }

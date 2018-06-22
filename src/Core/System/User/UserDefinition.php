@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\System\User;
 
+use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\BoolField;
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\FkField;
@@ -20,42 +20,17 @@ use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\System\Locale\LocaleDefinition;
-use Shopware\Core\System\User\Collection\UserBasicCollection;
-use Shopware\Core\System\User\Collection\UserDetailCollection;
-use Shopware\Core\System\User\Event\UserDeletedEvent;
-use Shopware\Core\System\User\Event\UserWrittenEvent;
-use Shopware\Core\System\User\Struct\UserBasicStruct;
-use Shopware\Core\System\User\Struct\UserDetailStruct;
 
 class UserDefinition extends EntityDefinition
 {
-    /**
-     * @var FieldCollection
-     */
-    protected static $primaryKeys;
-
-    /**
-     * @var FieldCollection
-     */
-    protected static $fields;
-
-    /**
-     * @var EntityExtensionInterface[]
-     */
-    protected static $extensions = [];
-
     public static function getEntityName(): string
     {
         return 'user';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
@@ -77,53 +52,17 @@ class UserDefinition extends EntityDefinition
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
             new ManyToOneAssociationField('locale', 'locale_id', LocaleDefinition::class, false),
-            new OneToManyAssociationField('media', \Shopware\Core\Content\Media\MediaDefinition::class, 'user_id', false, 'id'),
+            new OneToManyAssociationField('media', MediaDefinition::class, 'user_id', false, 'id'),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
     }
 
-    public static function getRepositoryClass(): string
+    public static function getCollectionClass(): string
     {
-        return UserRepository::class;
+        return UserCollection::class;
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getStructClass(): string
     {
-        return UserBasicCollection::class;
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return UserDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return UserWrittenEvent::class;
-    }
-
-    public static function getBasicStructClass(): string
-    {
-        return UserBasicStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return null;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return UserDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return UserDetailCollection::class;
+        return UserStruct::class;
     }
 }

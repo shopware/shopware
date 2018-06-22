@@ -27,7 +27,7 @@ class EntityScoreBuilderTest extends TestCase
             new SearchTerm('term', 1)
         );
 
-        $queries = $builder->buildScoreQueries($pattern, TestDefinition::class, 'test');
+        $queries = $builder->buildScoreQueries($pattern, ScoreBuilderTestDefinition::class, 'test');
 
         $this->assertEquals(
             [
@@ -44,16 +44,16 @@ class EntityScoreBuilderTest extends TestCase
 
     public function testMultipleTerms()
     {
-        $builder = new \Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder();
+        $builder = new EntityScoreQueryBuilder();
 
         $pattern = new SearchPattern(
-            new \Shopware\Core\Framework\ORM\Search\Term\SearchTerm('term', 1)
+            new SearchTerm('term', 1)
         );
         $pattern->addTerm(
-            new \Shopware\Core\Framework\ORM\Search\Term\SearchTerm('test', 0.1)
+            new SearchTerm('test', 0.1)
         );
 
-        $queries = $builder->buildScoreQueries($pattern, TestDefinition::class, 'test');
+        $queries = $builder->buildScoreQueries($pattern, ScoreBuilderTestDefinition::class, 'test');
 
         $this->assertEquals(
             [
@@ -96,14 +96,14 @@ class EntityScoreBuilderTest extends TestCase
     }
 }
 
-class TestDefinition extends EntityDefinition
+class ScoreBuilderTestDefinition extends EntityDefinition
 {
     public static function getEntityName(): string
     {
         return 'test';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             new TenantIdField(),
@@ -112,36 +112,6 @@ class TestDefinition extends EntityDefinition
             new StringField('long_description', 'longDescription'),
             (new ManyToOneAssociationField('nested', 'nested_id', NestedDefinition::class, true))->setFlags(new SearchRanking(0.5)),
         ]);
-    }
-
-    public static function getRepositoryClass(): string
-    {
-        return '';
-    }
-
-    public static function getBasicCollectionClass(): string
-    {
-        return '';
-    }
-
-    public static function getBasicStructClass(): string
-    {
-        return '';
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return '';
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return '';
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return '';
     }
 }
 
@@ -152,42 +122,12 @@ class NestedDefinition extends EntityDefinition
         return 'nested';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             new TenantIdField(),
             (new StringField('name', 'name'))->setFlags(new SearchRanking(100)),
         ]);
-    }
-
-    public static function getRepositoryClass(): string
-    {
-        return '';
-    }
-
-    public static function getBasicCollectionClass(): string
-    {
-        return '';
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return '';
-    }
-
-    public static function getBasicStructClass(): string
-    {
-        return '';
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return '';
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return '';
     }
 }
 
@@ -198,41 +138,11 @@ class OnlyTranslatedFieldDefinition extends EntityDefinition
         return 'translated';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             new TenantIdField(),
             new TranslatedField(new StringField('name', 'name')),
         ]);
-    }
-
-    public static function getRepositoryClass(): string
-    {
-        return '';
-    }
-
-    public static function getBasicCollectionClass(): string
-    {
-        return '';
-    }
-
-    public static function getBasicStructClass(): string
-    {
-        return '';
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return '';
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return '';
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return '';
     }
 }

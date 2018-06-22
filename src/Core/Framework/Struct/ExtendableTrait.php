@@ -71,7 +71,7 @@ trait ExtendableTrait
      */
     public function getExtension(string $name): ?Struct
     {
-        if ($this->hasExtension($name)) {
+        if (isset($this->extensions[$name])) {
             return $this->extensions[$name];
         }
 
@@ -88,7 +88,7 @@ trait ExtendableTrait
      */
     public function hasExtension(string $name): bool
     {
-        return array_key_exists($name, $this->extensions);
+        return isset($this->extensions[$name]);
     }
 
     /**
@@ -109,7 +109,7 @@ trait ExtendableTrait
 
     public function removeExtension(string $name)
     {
-        if ($this->hasExtension($name)) {
+        if (isset($this->extensions[$name])) {
             unset($this->extensions[$name]);
         }
     }

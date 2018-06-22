@@ -1,9 +1,19 @@
 <?php declare(strict_types=1);
 
-$albumId = 'c83a7721-270a-4add-82fd-e60b1dd0c47e';
-$thumbnailCollection = new \Shopware\Core\Framework\Struct\StructCollection();
+use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumStruct;
+use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Media\MediaStruct;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Search\Aggregation\AggregationResultCollection;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
+use Shopware\Core\Framework\Struct\StructCollection;
 
-$album = new \Shopware\Core\Content\Media\Aggregate\MediaAlbum\Struct\MediaAlbumDetailStruct();
+$albumId = 'c83a7721-270a-4add-82fd-e60b1dd0c47e';
+$thumbnailCollection = new StructCollection();
+
+$album = new MediaAlbumStruct();
 $album->setId($albumId);
 $album->setName('Manufacturer');
 $album->setPosition(12);
@@ -15,7 +25,7 @@ $album->setThumbnailHighDpi(true);
 $album->setThumbnailHighDpiQuality(60);
 $album->setIcon('sprite-blue-folder');
 
-$media = new \Shopware\Core\Content\Media\Struct\MediaBasicStruct();
+$media = new MediaStruct();
 $media->setId('548faa1f-7846-436c-8594-4f4aea792d96');
 $media->setAlbumId($albumId);
 $media->setFileName('teaser.jpg');
@@ -27,7 +37,9 @@ $media->setUpdatedAt(date_create_from_format(\DateTime::ATOM, '2017-11-21T11:25:
 $media->setAlbum(clone $album);
 $media->addExtension('thumbnails', $thumbnailCollection);
 
-$mediaCollection = new \Shopware\Core\Content\Media\Collection\MediaBasicCollection([$media]);
-$album->setMedia($mediaCollection);
+$mediaCollection = new MediaCollection([$media]);
+$album->setMedia(
+    new EntitySearchResult(0, $mediaCollection, new AggregationResultCollection(), new Criteria(), Context::createDefaultContext(Defaults::TENANT_ID))
+);
 
 return $album;

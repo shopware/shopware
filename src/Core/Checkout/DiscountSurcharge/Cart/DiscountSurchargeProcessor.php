@@ -12,9 +12,8 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
 use Shopware\Core\Checkout\Cart\Rule\CalculatedLineItemScope;
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeStruct;
 use Shopware\Core\Checkout\DiscountSurcharge\Exception\UnsupportedModifierTypeException;
-use Shopware\Core\Checkout\DiscountSurcharge\Struct\DiscountSurchargeBasicStruct;
-use Shopware\Core\Checkout\DiscountSurcharge\Struct\DiscountSurchargeSearchResult;
 use Shopware\Core\Framework\Struct\StructCollection;
 
 class DiscountSurchargeProcessor implements CartProcessorInterface
@@ -59,7 +58,7 @@ class DiscountSurchargeProcessor implements CartProcessorInterface
             return;
         }
 
-        /** @var DiscountSurchargeBasicStruct $modifier */
+        /** @var DiscountSurchargeStruct $modifier */
         foreach ($discountSurcharges->getElements() as $modifier) {
             if (!in_array($modifier->getRuleId(), $context->getRuleIds(), true)) {
                 continue;
@@ -86,7 +85,7 @@ class DiscountSurchargeProcessor implements CartProcessorInterface
      * @throws UnsupportedModifierTypeException
      */
     private function calculate(
-        DiscountSurchargeBasicStruct $modifier,
+        DiscountSurchargeStruct $modifier,
         CalculatedCart $calculatedCart,
         CheckoutContext $context
     ): CalculatedPrice {

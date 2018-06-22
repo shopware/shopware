@@ -18,7 +18,7 @@ class RestContext
     private $userId;
 
     /**
-     * @var \Shopware\Core\Framework\Context
+     * @var Context
      */
     private $context;
 

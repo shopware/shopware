@@ -2,10 +2,10 @@
 
 namespace Shopware\Storefront\Subscriber;
 
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Core\System\Listing\ListingSortingRepository;
-use Shopware\Core\System\Listing\Struct\ListingSortingBasicStruct;
+use Shopware\Core\System\Listing\ListingSortingStruct;
 use Shopware\Storefront\Event\ListingEvents;
 use Shopware\Storefront\Event\ListingPageLoadedEvent;
 use Shopware\Storefront\Event\ListingPageRequestEvent;
@@ -17,11 +17,11 @@ class SortingSubscriber implements EventSubscriberInterface
     public const SORTING_PARAMETER = 'o';
 
     /**
-     * @var ListingSortingRepository
+     * @var RepositoryInterface
      */
     private $repository;
 
-    public function __construct(ListingSortingRepository $repository)
+    public function __construct(RepositoryInterface $repository)
     {
         $this->repository = $repository;
     }
@@ -60,7 +60,7 @@ class SortingSubscriber implements EventSubscriberInterface
             return;
         }
 
-        /** @var ListingSortingBasicStruct $sorting */
+        /** @var ListingSortingStruct $sorting */
         $sorting = $sortings->first();
         foreach ($sorting->getPayload() as $fieldSorting) {
             $event->getCriteria()->addSorting($fieldSorting);

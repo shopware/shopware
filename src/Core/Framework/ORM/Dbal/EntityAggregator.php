@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\ORM\Search\Aggregation\AggregationResult;
 use Shopware\Core\Framework\ORM\Search\Aggregation\AggregationResultCollection;
@@ -82,7 +83,13 @@ class EntityAggregator implements EntityAggregatorInterface
         /** @var EntityDefinition $definition */
         $table = $definition::getEntityName();
 
-        $query = $this->queryHelper->getBaseQuery($this->connection, $definition, $context);
+        $query = $this->queryHelper->getBaseQuery(new QueryBuilder($this->connection), $definition, $context);
+
+        if ($definition::isInheritanceAware()) {
+            /** @var EntityDefinition|string $definition */
+            $parent = $definition::getFields()->get('parent');
+            $this->queryHelper->resolveField($parent, $definition, $definition::getEntityName(), $query, $context);
+        }
 
         $fields = array_merge(
             $criteria->getFilterFields(),
@@ -96,9 +103,9 @@ class EntityAggregator implements EntityAggregatorInterface
 
         $parent = null;
 
-        if ($definition::getParentPropertyName()) {
+        if ($definition::isInheritanceAware()) {
             /** @var EntityDefinition|string $definition */
-            $parent = $definition::getFields()->get($definition::getParentPropertyName());
+            $parent = $definition::getFields()->get('parent');
             $this->queryHelper->resolveField($parent, $definition, $table, $query, $context);
         }
 
@@ -134,7 +141,7 @@ class EntityAggregator implements EntityAggregatorInterface
                 return Uuid::fromBytesToHex($bytes);
             }, $ids);
 
-            return $this->reader->readBasic($aggregation->getDefinition(), $ids, $context);
+            return $this->reader->read($aggregation->getDefinition(), new ReadCriteria($ids), $context);
         }
 
         if ($aggregation instanceof ValueCountAggregation) {

@@ -12,18 +12,13 @@ abstract class MappingEntityDefinition extends EntityDefinition
         throw new MappingEntityRepositoryException();
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
         throw new MappingEntityStructException();
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
         throw new MappingEntityStructException();
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return null;
     }
 }

@@ -4,22 +4,31 @@ namespace Shopware\Core\Framework\Command;
 
 use Bezhanov\Faker\Provider\Commerce;
 use bheller\ImagesGenerator\ImagesGeneratorProvider;
+use Doctrine\DBAL\Connection;
 use Faker\Factory;
 use Faker\Generator;
 use League\Flysystem\FilesystemInterface;
+use Shopware\Core\Checkout\Cart\Cart\CartCollector;
+use Shopware\Core\Checkout\Cart\Cart\CartProcessor;
+use Shopware\Core\Checkout\Cart\Cart\CircularCartCalculation;
+use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
+use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Rule\GoodsPriceRule;
+use Shopware\Core\Checkout\Context\CheckoutContextFactory;
+use Shopware\Core\Checkout\Context\CheckoutContextService;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\Rule\CustomerGroupRule;
 use Shopware\Core\Checkout\Customer\Rule\IsNewCustomerRule;
-use Shopware\Core\Content\Category\CategoryRepository;
+use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Configuration\ConfigurationGroupDefinition;
-use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumRepository;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
+use Shopware\Core\Content\Product\Cart\ProductProcessor;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\ProductRepository;
 use Shopware\Core\Content\Product\Util\VariantGenerator;
 use Shopware\Core\Content\Rule\RuleDefinition;
-use Shopware\Core\Content\Rule\RuleRepository;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Search\Criteria;
@@ -89,6 +98,7 @@ class DemodataCommand extends ContainerAwareCommand
      * @var MediaAlbumRepository
      */
     private $albumRepository;
+
     /**
      * @var FilesystemInterface
      */
@@ -101,22 +111,57 @@ class DemodataCommand extends ContainerAwareCommand
      */
     private $tmpImages = [];
 
+    /**
+     * @var OrderConverter
+     */
+    private $orderConverter;
+
+    /**
+     * @var Connection
+     */
+    private $connection;
+
+    /**
+     * @var CheckoutContextFactory
+     */
+    private $contextFactory;
+
+    /**
+     * @var CartProcessor
+     */
+    private $processor;
+
+    /**
+     * @var CartCollector
+     */
+    private $collector;
+
     public function __construct(
         ?string $name = null,
         EntityWriterInterface $writer,
         VariantGenerator $variantGenerator,
         FilesystemInterface $filesystem,
-        ContainerInterface $container
+        ContainerInterface $container,
+        CartProcessor $processor,
+        CartCollector $collector,
+        OrderConverter $orderConverter,
+        Connection $connection,
+        CheckoutContextFactory $contextFactory
     ) {
         parent::__construct($name);
         $this->writer = $writer;
         $this->filesystem = $filesystem;
 
         $this->variantGenerator = $variantGenerator;
-        $this->productRepository = $container->get(ProductRepository::class);
-        $this->ruleRepository = $container->get(RuleRepository::class);
-        $this->categoryRepository = $container->get(CategoryRepository::class);
-        $this->albumRepository = $container->get(MediaAlbumRepository::class);
+        $this->productRepository = $container->get('product.repository');
+        $this->ruleRepository = $container->get('rule.repository');
+        $this->categoryRepository = $container->get('category.repository');
+        $this->albumRepository = $container->get('media_album.repository');
+        $this->orderConverter = $orderConverter;
+        $this->connection = $connection;
+        $this->contextFactory = $contextFactory;
+        $this->processor = $processor;
+        $this->collector = $collector;
     }
 
     protected function configure()
@@ -124,6 +169,7 @@ class DemodataCommand extends ContainerAwareCommand
         $this->addOption('tenant-id', 't', InputOption::VALUE_REQUIRED, 'Tenant id');
         $this->addOption('products', 'p', InputOption::VALUE_REQUIRED, 'Product count', 500);
         $this->addOption('categories', 'c', InputOption::VALUE_REQUIRED, 'Category count', 10);
+        $this->addOption('orders', 'o', InputOption::VALUE_REQUIRED, 'Order count', 50);
         $this->addOption('manufacturers', 'm', InputOption::VALUE_REQUIRED, 'Manufacturer count', 50);
         $this->addOption('customers', 'cs', InputOption::VALUE_REQUIRED, 'Customer count', 200);
 
@@ -180,6 +226,8 @@ class DemodataCommand extends ContainerAwareCommand
             $input->getOption('with-configurator') == 1,
             $input->getOption('with-services') == 1
         );
+
+        $this->createOrders((int) $input->getOption('orders'), $tenantId);
 
         $this->cleanupImages();
 
@@ -241,6 +289,9 @@ class DemodataCommand extends ContainerAwareCommand
         $number = $this->faker->randomNumber;
         $password = password_hash('shopware', PASSWORD_BCRYPT, ['cost' => 13]);
 
+        $this->io->section(sprintf('Generating %d customers...', $count));
+        $this->io->progressStart($count);
+
         $payload = [];
         for ($i = 0; $i < $count; ++$i) {
             $id = Uuid::uuid4()->getHex();
@@ -249,44 +300,60 @@ class DemodataCommand extends ContainerAwareCommand
             $lastName = $this->faker->lastName;
             $salutation = $this->faker->title;
 
+            $addresses = [
+                [
+                    'id' => $addressId,
+                    'countryId' => 'ffe61e1c-9915-4f95-9701-4a310ab5482d',
+                    'salutation' => $salutation,
+                    'firstName' => $firstName,
+                    'lastName' => $lastName,
+                    'street' => $this->faker->streetName,
+                    'zipcode' => $this->faker->postcode,
+                    'city' => $this->faker->city,
+                ],
+            ];
+
+            $aCount = random_int(2, 5);
+            for ($x = 1; $x < $aCount; ++$x) {
+                $addresses[] = [
+                    'countryId' => Defaults::COUNTRY,
+                    'salutation' => $salutation,
+                    'firstName' => $firstName,
+                    'lastName' => $lastName,
+                    'street' => $this->faker->streetName,
+                    'zipcode' => $this->faker->postcode,
+                    'city' => $this->faker->city,
+                ];
+            }
+
             $customer = [
                 'id' => $id,
                 'number' => (string) ($number + $i),
                 'salutation' => $salutation,
                 'firstName' => $firstName,
                 'lastName' => $lastName,
-                'email' => $this->faker->safeEmail,
+                'email' => $this->faker->safeEmail . $id,
                 'password' => $password,
                 'defaultPaymentMethodId' => '47160b00-cd06-4b01-8817-6451f9f3c247',
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
                 'touchpointId' => Defaults::TOUCHPOINT,
                 'defaultBillingAddressId' => $addressId,
                 'defaultShippingAddressId' => $addressId,
-                'addresses' => [
-                    [
-                        'id' => $addressId,
-                        'customerId' => $id,
-                        'countryId' => 'ffe61e1c-9915-4f95-9701-4a310ab5482d',
-                        'salutation' => $salutation,
-                        'firstName' => $firstName,
-                        'lastName' => $lastName,
-                        'street' => $this->faker->streetName,
-                        'zipcode' => $this->faker->postcode,
-                        'city' => $this->faker->city,
-                    ],
-                ],
+                'addresses' => $addresses,
             ];
 
             $payload[] = $customer;
+
+            if (count($payload) >= 100) {
+                $this->writer->upsert(CustomerDefinition::class, $payload, $this->getContext());
+                $this->io->progressAdvance(count($payload));
+                $payload = [];
+            }
         }
 
-        $this->io->section(sprintf('Generating %d customers...', count($payload)));
-        $this->io->progressStart(count($payload));
-
-        $chunks = array_chunk($payload, 150);
-        foreach ($chunks as $chunk) {
-            $this->writer->upsert(CustomerDefinition::class, $chunk, $this->getContext());
-            $this->io->progressAdvance(count($chunk));
+        if (!empty($payload)) {
+            $this->writer->upsert(CustomerDefinition::class, $payload, $this->getContext());
+            $this->io->progressAdvance(count($payload));
         }
 
         $this->io->progressFinish();
@@ -769,5 +836,74 @@ class DemodataCommand extends ContainerAwareCommand
         foreach ($this->tmpImages as $image) {
             unlink($image);
         }
+    }
+
+    private function createOrders(int $limit, string $tenantId)
+    {
+        $productIds = $this->connection->fetchAll('SELECT LOWER(HEX(id)) as id FROM product LIMIT 250');
+        $productIds = array_column($productIds, 'id');
+
+        $customerIds = $this->connection->fetchAll('SELECT LOWER(HEX(id)) as id FROM customer LIMIT 200');
+        $customerIds = array_column($customerIds, 'id');
+
+        $this->io->section("Generating {$limit} orders...");
+        $this->io->progressStart($limit);
+
+        //prefetch all data
+        $options = [CheckoutContextService::CUSTOMER_ID => $this->faker->randomElement($customerIds)];
+        $context = $this->contextFactory->create($tenantId, Uuid::uuid4()->getHex(), Defaults::TOUCHPOINT, $options);
+
+        $lineItems = array_map(function($id) {
+            return new LineItem($id, ProductProcessor::TYPE_PRODUCT, random_int(1, 50), ['id' => $id]);
+        }, $productIds);
+        $lineItems = new LineItemCollection($lineItems);
+
+        $cart = new Cart('shopware', Uuid::uuid4()->getHex(), $lineItems, new ErrorCollection());
+        $dataCollection = $this->collector->collect($cart, $context);
+
+        $payload = [];
+
+        $contexts = [];
+
+        for ($i = 1; $i <= $limit; ++$i ) {
+            $token = Uuid::uuid4()->getHex();
+
+            $customerId = $this->faker->randomElement($customerIds);
+
+            $options = [
+                CheckoutContextService::CUSTOMER_ID => $customerId,
+            ];
+
+            if (isset($contexts[$customerId])) {
+                $context = $contexts[$customerId];
+            } else {
+                $context = $this->contextFactory->create($tenantId, $token, Defaults::TOUCHPOINT, $options);
+                $contexts[$customerId] = $context;
+            }
+
+            $itemCount = random_int(3, 5);
+
+            $offset = random_int(0, $lineItems->count()) - 10;
+
+            $new = $lineItems->slice($offset, $itemCount);
+
+            $cart = new Cart('shopware', $token, $new, new ErrorCollection());
+
+            $calculated = $this->processor->process($cart, $context, $dataCollection);
+
+            $payload[] = $this->orderConverter->convert($calculated, $context);
+
+            if (count($payload) >= 20) {
+                $this->writer->upsert(OrderDefinition::class, $payload, $this->getContext());
+                $this->io->progressAdvance(count($payload));
+                $payload = [];
+            }
+        }
+
+        if (!empty($payload)) {
+            $this->writer->upsert(OrderDefinition::class, $payload, $this->getContext());
+        }
+
+        $this->io->progressFinish();
     }
 }

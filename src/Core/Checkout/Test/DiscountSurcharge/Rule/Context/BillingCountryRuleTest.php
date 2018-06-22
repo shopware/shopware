@@ -28,10 +28,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
+use Shopware\Core\Checkout\Customer\CustomerStruct;
 use Shopware\Core\Checkout\Customer\Rule\BillingCountryRule;
-use Shopware\Core\Checkout\Customer\Struct\CustomerBasicStruct;
-use Shopware\Core\System\Country\Struct\CountryBasicStruct;
+use Shopware\Core\System\Country\CountryStruct;
 
 class BillingCountryRuleTest extends TestCase
 {
@@ -43,14 +43,14 @@ class BillingCountryRuleTest extends TestCase
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $country = new CountryBasicStruct();
+        $country = new CountryStruct();
         $country->setId('SWAG-AREA-COUNTRY-ID-1');
         $country->setAreaId('SWAG-AREA-ID-1');
 
-        $billing = new CustomerAddressBasicStruct();
+        $billing = new CustomerAddressStruct();
         $billing->setCountry($country);
 
-        $customer = new CustomerBasicStruct();
+        $customer = new CustomerStruct();
         $customer->setDefaultBillingAddress($billing);
 
         $context->expects($this->any())
@@ -70,14 +70,14 @@ class BillingCountryRuleTest extends TestCase
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $country = new CountryBasicStruct();
+        $country = new CountryStruct();
         $country->setId('SWAG-AREA-COUNTRY-ID-1');
         $country->setAreaId('SWAG-AREA-ID-1');
 
-        $billing = new CustomerAddressBasicStruct();
+        $billing = new CustomerAddressStruct();
         $billing->setCountry($country);
 
-        $customer = new CustomerBasicStruct();
+        $customer = new CustomerStruct();
         $customer->setDefaultBillingAddress($billing);
 
         $context->expects($this->any())
@@ -97,14 +97,14 @@ class BillingCountryRuleTest extends TestCase
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $country = new CountryBasicStruct();
+        $country = new CountryStruct();
         $country->setId('SWAG-AREA-COUNTRY-ID-1');
         $country->setAreaId('SWAG-AREA-ID-1');
 
-        $billing = new CustomerAddressBasicStruct();
+        $billing = new CustomerAddressStruct();
         $billing->setCountry($country);
 
-        $customer = new CustomerBasicStruct();
+        $customer = new CustomerStruct();
         $customer->setDefaultBillingAddress($billing);
 
         $context->expects($this->any())

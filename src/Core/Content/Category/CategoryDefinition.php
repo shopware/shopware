@@ -4,19 +4,12 @@ namespace Shopware\Core\Content\Category;
 
 use Shopware\Core\Content\Catalog\ORM\CatalogField;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
-use Shopware\Core\Content\Category\Collection\CategoryBasicCollection;
-use Shopware\Core\Content\Category\Collection\CategoryDetailCollection;
-use Shopware\Core\Content\Category\Event\CategoryDeletedEvent;
-use Shopware\Core\Content\Category\Event\CategoryWrittenEvent;
-use Shopware\Core\Content\Category\Struct\CategoryBasicStruct;
-use Shopware\Core\Content\Category\Struct\CategoryDetailStruct;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductSeoCategory\ProductSeoCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\BoolField;
 use Shopware\Core\Framework\ORM\Field\ChildCountField;
 use Shopware\Core\Framework\ORM\Field\ChildrenAssociationField;
@@ -40,37 +33,17 @@ use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\ReadOnly;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
 
 class CategoryDefinition extends EntityDefinition
 {
-    /**
-     * @var FieldCollection
-     */
-    protected static $primaryKeys;
-
-    /**
-     * @var FieldCollection
-     */
-    protected static $fields;
-
-    /**
-     * @var EntityExtensionInterface[]
-     */
-    protected static $extensions = [];
-
     public static function getEntityName(): string
     {
         return 'category';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
@@ -115,54 +88,23 @@ class CategoryDefinition extends EntityDefinition
             new ManyToOneAssociationField('productStream', 'product_stream_id', ProductStreamDefinition::class, false),
             (new ChildrenAssociationField(self::class))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('translations', CategoryTranslationDefinition::class, 'category_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
-            (new ManyToManyAssociationField('products', ProductDefinition::class, ProductCategoryDefinition::class, false, 'category_id', 'product_id', 'id', 'categories'))->setFlags(new CascadeDelete(), new WriteOnly()),
-            (new ManyToManyAssociationField('seoProducts', ProductDefinition::class, ProductSeoCategoryDefinition::class, false, 'category_id', 'product_id'))->setFlags(new CascadeDelete(), new WriteOnly()),
+            (new ManyToManyAssociationField('products', ProductDefinition::class, ProductCategoryDefinition::class, false, 'category_id', 'product_id', 'id', 'categories'))->setFlags(new CascadeDelete()),
+            (new ManyToManyAssociationField('seoProducts', ProductDefinition::class, ProductSeoCategoryDefinition::class, false, 'category_id', 'product_id'))->setFlags(new CascadeDelete()),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
     }
 
-    public static function getRepositoryClass(): string
+    public static function getCollectionClass(): string
     {
-        return CategoryRepository::class;
+        return CategoryCollection::class;
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getStructClass(): string
     {
-        return CategoryBasicCollection::class;
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return CategoryDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return CategoryWrittenEvent::class;
-    }
-
-    public static function getBasicStructClass(): string
-    {
-        return CategoryBasicStruct::class;
+        return CategoryStruct::class;
     }
 
     public static function getTranslationDefinitionClass(): ?string
     {
         return CategoryTranslationDefinition::class;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return CategoryDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return CategoryDetailCollection::class;
     }
 }

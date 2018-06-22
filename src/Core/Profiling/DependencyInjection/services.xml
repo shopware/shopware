@@ -14,7 +14,7 @@
 
         <service class="Shopware\Core\Profiling\Dbal\TraceableEntityReader"
                  id="Shopware\Core\Profiling\Dbal\TraceableEntityReader"
-                 decorates="Shopware\Core\Framework\ORM\Dbal\EntityReader">
+                 decorates="Shopware\Core\Framework\ORM\Read\EntityReaderInterface">
 
             <argument id="Shopware\Core\Profiling\Dbal\TraceableEntityReader.inner" type="service"/>
             <argument id="debug.stopwatch" type="service"/>
@@ -22,7 +22,7 @@
 
         <service class="Shopware\Core\Profiling\Dbal\TraceableEntitySearcher"
                  id="Shopware\Core\Profiling\Dbal\TraceableEntitySearcher"
-                 decorates="Shopware\Core\Framework\ORM\Dbal\EntitySearcher">
+                 decorates="Shopware\Core\Framework\ORM\Search\EntitySearcherInterface">
 
             <argument id="Shopware\Core\Profiling\Dbal\TraceableEntitySearcher.inner" type="service"/>
             <argument id="debug.stopwatch" type="service"/>

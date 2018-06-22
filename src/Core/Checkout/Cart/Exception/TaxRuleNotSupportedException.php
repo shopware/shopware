@@ -29,7 +29,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleInterface;
 class TaxRuleNotSupportedException extends \Exception
 {
     /**
-     * @var \Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleInterface
+     * @var TaxRuleInterface
      */
     protected $taxRule;
 

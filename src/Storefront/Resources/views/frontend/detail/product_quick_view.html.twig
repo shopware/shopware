@@ -9,10 +9,10 @@
 
         {% block frontend_detail_product_quick_view_inner %}
 
-            {# @var cover \Shopware\Core\Content\Product\Aggregate\ProductMedia\Struct\ProductMediaBasicStruct #}
+            {# @var cover \Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaStruct #}
             {% set cover = product.cover %}
 
-            {# @var thumbnails \Shopware\Core\Content\Media\Struct\ThumbnailStruct[] #}
+            {# @var thumbnails \Shopware\Core\Content\Media\Extension\ThumbnailStruct[] #}
             {% set thumbnails = cover.media.extension('thumbnails') %}
 
             {% block frontend_detail_product_quick_view_image_link %}

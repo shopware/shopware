@@ -30,12 +30,12 @@ class DeliverableLineItem extends CalculatedLineItem implements DeliverableLineI
     protected $weight;
 
     /**
-     * @var \Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate
+     * @var DeliveryDate
      */
     protected $inStockDeliveryDate;
 
     /**
-     * @var \Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate
+     * @var DeliveryDate
      */
     protected $outOfStockDeliveryDate;
 

@@ -3,14 +3,7 @@
 namespace Shopware\Core\Content\Configuration;
 
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\ConfigurationGroupTranslationDefinition;
-use Shopware\Core\Content\Configuration\Collection\ConfigurationGroupBasicCollection;
-use Shopware\Core\Content\Configuration\Collection\ConfigurationGroupDetailCollection;
-use Shopware\Core\Content\Configuration\Event\ConfigurationGroupDeletedEvent;
-use Shopware\Core\Content\Configuration\Event\ConfigurationGroupWrittenEvent;
-use Shopware\Core\Content\Configuration\Struct\ConfigurationGroupBasicStruct;
-use Shopware\Core\Content\Configuration\Struct\ConfigurationGroupDetailStruct;
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\BoolField;
 use Shopware\Core\Framework\ORM\Field\IdField;
 use Shopware\Core\Framework\ORM\Field\IntField;
@@ -27,33 +20,14 @@ use Shopware\Core\Framework\ORM\Write\Flag\Required;
 
 class ConfigurationGroupDefinition extends EntityDefinition
 {
-    /**
-     * @var FieldCollection
-     */
-    protected static $primaryKeys;
-
-    /**
-     * @var FieldCollection
-     */
-    protected static $fields;
-
-    /**
-     * @var EntityExtensionInterface[]
-     */
-    protected static $extensions = [];
-
     public static function getEntityName(): string
     {
         return 'configuration_group';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
@@ -64,51 +38,20 @@ class ConfigurationGroupDefinition extends EntityDefinition
             (new OneToManyAssociationField('options', Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition::class, 'configuration_group_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('translations', ConfigurationGroupTranslationDefinition::class, 'configuration_group_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
     }
 
-    public static function getRepositoryClass(): string
+    public static function getCollectionClass(): string
     {
-        return ConfigurationGroupRepository::class;
+        return ConfigurationGroupCollection::class;
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getStructClass(): string
     {
-        return ConfigurationGroupBasicCollection::class;
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return ConfigurationGroupDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return ConfigurationGroupWrittenEvent::class;
-    }
-
-    public static function getBasicStructClass(): string
-    {
-        return ConfigurationGroupBasicStruct::class;
+        return ConfigurationGroupStruct::class;
     }
 
     public static function getTranslationDefinitionClass(): ?string
     {
         return ConfigurationGroupTranslationDefinition::class;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return ConfigurationGroupDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return ConfigurationGroupDetailCollection::class;
     }
 }

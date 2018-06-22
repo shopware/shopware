@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Repository;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\OrRule;
@@ -31,7 +32,7 @@ class ContextRepositoryTest extends KernelTestCase
     public function setUp()
     {
         self::bootKernel();
-        $this->repository = self::$container->get(\Shopware\Core\Content\Rule\RuleRepository::class);
+        $this->repository = self::$container->get('rule.repository');
         $this->connection = self::$container->get(Connection::class);
         $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
         $this->connection->beginTransaction();
@@ -56,7 +57,7 @@ class ContextRepositoryTest extends KernelTestCase
 
         $this->repository->create([$data], $this->context);
 
-        $rules = $this->repository->readBasic([$id], $this->context);
+        $rules = $this->repository->read(new ReadCriteria([$id]), $this->context);
 
         $this->assertEquals(
             new AndRule([new OrRule()]),

@@ -4,11 +4,10 @@ namespace Shopware\Core\Checkout\Test\Cart;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
-use Shopware\Core\Checkout\Customer\CustomerRepository;
 use Shopware\Core\Content\Product\Cart\ProductProcessor;
-use Shopware\Core\Content\Product\ProductRepository;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Test\Api\ApiTestCase;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Client;
@@ -16,12 +15,12 @@ use Symfony\Bundle\FrameworkBundle\Client;
 class CheckoutControllerTest extends ApiTestCase
 {
     /**
-     * @var ProductRepository
+     * @var RepositoryInterface
      */
     private $repository;
 
     /**
-     * @var \Shopware\Core\Checkout\Customer\CustomerRepository
+     * @var RepositoryInterface
      */
     private $customerRepository;
 
@@ -44,9 +43,9 @@ class CheckoutControllerTest extends ApiTestCase
     {
         parent::setUp();
 
-        $this->connection = self::$container->get(Connection::class);
-        $this->repository = self::$container->get(ProductRepository::class);
-        $this->customerRepository = self::$container->get(CustomerRepository::class);
+        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->repository = $this->getContainer()->get('product.repository');
+        $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->taxId = Uuid::uuid4()->getHex();
         $this->manufacturerId = Uuid::uuid4()->getHex();
     }
@@ -63,7 +62,7 @@ class CheckoutControllerTest extends ApiTestCase
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'rate' => 17, 'name' => 'with id'],
             ],
-        ], Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID));
+        ], Context:: createDefaultContext(Defaults::TENANT_ID));
 
         $client = $this->createCart();
 
@@ -106,7 +105,7 @@ class CheckoutControllerTest extends ApiTestCase
                 'manufacturerId' => $this->manufacturerId,
                 'taxId' => $this->taxId,
             ],
-        ], Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID));
+        ], Context:: createDefaultContext(Defaults::TENANT_ID));
 
         $client = $this->createCart();
 
@@ -144,7 +143,7 @@ class CheckoutControllerTest extends ApiTestCase
                 'manufacturerId' => $this->manufacturerId,
                 'taxId' => $this->taxId,
             ],
-        ], Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID));
+        ], Context:: createDefaultContext(Defaults::TENANT_ID));
 
         $client = $this->createCart();
 
@@ -190,7 +189,7 @@ class CheckoutControllerTest extends ApiTestCase
                 'manufacturerId' => $this->manufacturerId,
                 'taxId' => $this->taxId,
             ],
-        ], Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID));
+        ], Context:: createDefaultContext(Defaults::TENANT_ID));
 
         $client = $this->createCart();
 
@@ -233,7 +232,7 @@ class CheckoutControllerTest extends ApiTestCase
                 'manufacturerId' => $this->manufacturerId,
                 'taxId' => $this->taxId,
             ],
-        ], Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID));
+        ], Context:: createDefaultContext(Defaults::TENANT_ID));
 
         $client = $this->createCart();
 
@@ -280,7 +279,7 @@ class CheckoutControllerTest extends ApiTestCase
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'rate' => 17, 'name' => 'with id'],
             ],
-        ], Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID));
+        ], Context:: createDefaultContext(Defaults::TENANT_ID));
 
         $client = $this->createCart();
 
@@ -314,7 +313,7 @@ class CheckoutControllerTest extends ApiTestCase
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'rate' => 17, 'name' => 'with id'],
             ],
-        ], Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID));
+        ], Context:: createDefaultContext(Defaults::TENANT_ID));
 
         $addressId = Uuid::uuid4()->getHex();
 
@@ -352,7 +351,7 @@ class CheckoutControllerTest extends ApiTestCase
                 'salutation' => 'not',
                 'number' => 'not',
             ],
-        ], Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID));
+        ], Context:: createDefaultContext(Defaults::TENANT_ID));
 
         $client = $this->createCart();
 
@@ -371,16 +370,17 @@ class CheckoutControllerTest extends ApiTestCase
         $order = $order['data'];
         $this->assertNotEmpty($order);
 
-        $this->assertCount(1, $order['deliveries']);
         $this->assertEquals($mail, $order['customer']['email']);
-        $this->assertCount(1, $order['lineItems']);
     }
 
     public function createCart(): Client
     {
         $this->storefrontApiClient->request('POST', '/storefront-api/checkout');
+        $response = $this->storefrontApiClient->getResponse();
 
-        $content = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+
+        $content = json_decode($response->getContent(), true);
 
         $client = clone $this->storefrontApiClient;
         $client->setServerParameter('HTTP_X_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);

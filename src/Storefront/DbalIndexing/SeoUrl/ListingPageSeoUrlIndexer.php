@@ -4,8 +4,6 @@ namespace Shopware\Storefront\DbalIndexing\SeoUrl;
 
 use Cocur\Slugify\SlugifyInterface;
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\Category\CategoryRepository;
-use Shopware\Core\Content\Category\Struct\CategorySearchResult;
 use Shopware\Core\Content\Product\Util\EventIdExtractor;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -15,11 +13,12 @@ use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\ORM\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\ORM\Dbal\Indexing\IndexerInterface;
+use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
-use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Core\System\Touchpoint\TouchpointRepository;
-use Shopware\Storefront\Api\Seo\Definition\SeoUrlDefinition;
+use Shopware\Storefront\Api\Seo\SeoUrlDefinition;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -43,7 +42,7 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
     private $router;
 
     /**
-     * @var TouchpointRepository
+     * @var RepositoryInterface
      */
     private $applicationRepository;
 
@@ -53,11 +52,12 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
     private $eventDispatcher;
 
     /**
-     * @var CategoryRepository
+     * @var RepositoryInterface
      */
     private $categoryRepository;
+
     /**
-     * @var \Shopware\Core\Content\Product\Util\EventIdExtractor
+     * @var EventIdExtractor
      */
     private $eventIdExtractor;
 
@@ -65,8 +65,8 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
         Connection $connection,
         SlugifyInterface $slugify,
         RouterInterface $router,
-        CategoryRepository $categoryRepository,
-        TouchpointRepository $applicationRepository,
+        RepositoryInterface $categoryRepository,
+        RepositoryInterface $applicationRepository,
         EventDispatcherInterface $eventDispatcher,
         EventIdExtractor $eventIdExtractor
     ) {
@@ -113,7 +113,7 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
         }
     }
 
-    public function refresh(GenericWrittenEvent $event): void
+    public function refresh(EntityWrittenContainerEvent $event): void
     {
         $ids = $this->eventIdExtractor->getCategoryIds($event);
 
@@ -155,7 +155,7 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
             return;
         }
 
-        $categories = $this->categoryRepository->readBasic($ids, $context);
+        $categories = $this->categoryRepository->read(new ReadCriteria($ids), $context);
 
         $canonicals = $this->fetchCanonicals($categories->getIds(), $context->getTouchpointId(), $context->getTenantId());
 

@@ -2,13 +2,8 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState;
 
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState\Collection\OrderTransactionStateBasicCollection;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState\Event\OrderTransactionStateDeletedEvent;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState\Event\OrderTransactionStateWrittenEvent;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState\Struct\OrderTransactionStateBasicStruct;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionStateTranslation\OrderTransactionStateTranslationDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\BoolField;
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\IdField;
@@ -24,33 +19,14 @@ use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
 
 class OrderTransactionStateDefinition extends EntityDefinition
 {
-    /**
-     * @var FieldCollection
-     */
-    protected static $primaryKeys;
-
-    /**
-     * @var FieldCollection
-     */
-    protected static $fields;
-
-    /**
-     * @var EntityExtensionInterface[]
-     */
-    protected static $extensions = [];
-
     public static function getEntityName(): string
     {
         return 'order_transaction_state';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new IntField('position', 'position'))->setFlags(new Required()),
@@ -60,37 +36,16 @@ class OrderTransactionStateDefinition extends EntityDefinition
             new DateField('updated_at', 'updatedAt'),
             (new TranslationsAssociationField('translations', OrderTransactionStateTranslationDefinition::class, 'order_transaction_state_id', false, 'id'))->setFlags(new Required(), new RestrictDelete()),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
     }
 
-    public static function getRepositoryClass(): string
+    public static function getCollectionClass(): string
     {
-        return OrderTransactionStateRepository::class;
+        return OrderTransactionStateCollection::class;
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getStructClass(): string
     {
-        return OrderTransactionStateBasicCollection::class;
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return OrderTransactionStateDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return OrderTransactionStateWrittenEvent::class;
-    }
-
-    public static function getBasicStructClass(): string
-    {
-        return OrderTransactionStateBasicStruct::class;
+        return OrderTransactionStateStruct::class;
     }
 
     public static function getTranslationDefinitionClass(): ?string

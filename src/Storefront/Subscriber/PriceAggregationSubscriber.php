@@ -80,21 +80,18 @@ class PriceAggregationSubscriber implements EventSubscriberInterface
     {
         $searchResult = $event->getPage()->getProducts();
 
-        $result = $searchResult->getAggregationResult();
+        $result = $searchResult->getAggregations();
 
         if ($result === null) {
             return;
         }
 
-        $aggregations = $result->getAggregations();
-
-        /* @var AggregatorResult $result */
-        if (!$aggregations->has(self::AGGREGATION_NAME)) {
+        if (!$result->has(self::AGGREGATION_NAME)) {
             return;
         }
 
         /** @var AggregationResult $aggregation */
-        $aggregation = $aggregations->get(self::AGGREGATION_NAME);
+        $aggregation = $result->get(self::AGGREGATION_NAME);
 
         $criteria = $searchResult->getCriteria();
 

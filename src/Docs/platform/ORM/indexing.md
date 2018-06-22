@@ -13,9 +13,9 @@ class MyCustomerIndexer implements IndexerInterface
         // via Shopware\Core\Framework\ORM\Dbal\Indexing\IndexerRegistry->index() 
     }
 
-    public function refresh(GenericWrittenEvent $event): void
+    public function refresh(EntityWrittenContainerEvent $event): void
     {
-        // will be called if a GenericWrittenEvent occurs
+        // will be called if a EntityWrittenContainerEvent occurs
         // please be careful to to only execute the logic for the required entites
         // e.g.
         $productEvent = $event->getEventByDefinition(ProductDefinition::class);

@@ -2,11 +2,10 @@
 
 namespace Shopware\Storefront\Subscriber;
 
+use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionCollection;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
-use Shopware\Core\Content\Configuration\Struct\ConfigurationGroupDetailStruct;
 use Shopware\Core\Framework\ORM\Search\Aggregation\AggregationResult;
 use Shopware\Core\Framework\ORM\Search\Aggregation\EntityAggregation;
-use Shopware\Core\Framework\ORM\Search\AggregatorResult;
 use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Storefront\Event\ListingEvents;
@@ -85,21 +84,18 @@ class DatasheetAggregationSubscriber implements EventSubscriberInterface
     {
         $page = $event->getPage();
 
-        $result = $page->getProducts()->getAggregationResult();
+        $result = $page->getProducts()->getAggregations();
 
         if ($result === null) {
             return;
         }
 
-        $aggregations = $result->getAggregations();
-
-        /* @var AggregatorResult $result */
-        if (!$aggregations->has(self::AGGREGATION_NAME)) {
+        if (!$result->has(self::AGGREGATION_NAME)) {
             return;
         }
 
         /** @var AggregationResult $aggregation */
-        $aggregation = $aggregations->get(self::AGGREGATION_NAME);
+        $aggregation = $result->get(self::AGGREGATION_NAME);
 
         /** @var ArrayStruct $filter */
         $filter = $page->getCriteria()->getExtension(self::AGGREGATION_NAME);
@@ -108,7 +104,7 @@ class DatasheetAggregationSubscriber implements EventSubscriberInterface
 
         $actives = $filter ? $filter->get('ids') : [];
 
-        /** @var \Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection $values */
+        /** @var ConfigurationGroupOptionCollection $values */
         $values = $aggregation->getResult();
 
         if (!$values || $values->count() <= 0) {
@@ -117,7 +113,7 @@ class DatasheetAggregationSubscriber implements EventSubscriberInterface
 
         $groups = $values->groupByConfigurationGroups();
 
-        /** @var ConfigurationGroupDetailStruct $group */
+        /** @var ConfigurationGroupStruct $group */
         foreach ($groups as $group) {
             $items = [];
 

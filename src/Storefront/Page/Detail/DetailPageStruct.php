@@ -2,44 +2,44 @@
 
 namespace Shopware\Storefront\Page\Detail;
 
-use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Collection\ProductConfiguratorBasicCollection;
-use Shopware\Core\Content\Product\Struct\ProductBasicStruct;
+use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorCollection;
+use Shopware\Core\Content\Product\ProductStruct;
 use Shopware\Core\Framework\Struct\Struct;
 
 class DetailPageStruct extends Struct
 {
     /**
-     * @var ProductBasicStruct
+     * @var ProductStruct
      */
     protected $product;
 
     /**
-     * @var \Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Collection\ProductConfiguratorBasicCollection
+     * @var ProductConfiguratorCollection
      */
     protected $configurator;
 
-    public function __construct(ProductBasicStruct $product)
+    public function __construct(ProductStruct $product)
     {
         $this->product = $product;
-        $this->configurator = new ProductConfiguratorBasicCollection();
+        $this->configurator = new ProductConfiguratorCollection();
     }
 
-    public function getConfigurator(): ProductConfiguratorBasicCollection
+    public function getConfigurator(): ProductConfiguratorCollection
     {
         return $this->configurator;
     }
 
-    public function setConfigurator(ProductConfiguratorBasicCollection $configurator): void
+    public function setConfigurator(ProductConfiguratorCollection $configurator): void
     {
         $this->configurator = $configurator;
     }
 
-    public function getProduct(): ProductBasicStruct
+    public function getProduct(): ProductStruct
     {
         return $this->product;
     }
 
-    public function setProduct(ProductBasicStruct $product): void
+    public function setProduct(ProductStruct $product): void
     {
         $this->product = $product;
     }

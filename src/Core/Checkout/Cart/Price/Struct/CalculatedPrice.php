@@ -47,12 +47,12 @@ class CalculatedPrice extends Struct
     protected $totalPrice;
 
     /**
-     * @var \Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection
+     * @var CalculatedTaxCollection
      */
     protected $calculatedTaxes;
 
     /**
-     * @var \Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection
+     * @var TaxRuleCollection
      */
     protected $taxRules;
 

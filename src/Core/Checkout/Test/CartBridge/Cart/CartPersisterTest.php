@@ -149,7 +149,7 @@ class CartPersisterTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())->method('executeUpdate');
 
-        $persister = new \Shopware\Core\Checkout\Cart\Cart\CartPersister($connection, $this->serializer);
+        $persister = new CartPersister($connection, $this->serializer);
 
         $calc = new CalculatedCart(
             new Cart('shopware', 'existing', new LineItemCollection(), new ErrorCollection()),

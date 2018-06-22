@@ -26,7 +26,7 @@ namespace Shopware\Core\Framework;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Core\System\Touchpoint\Struct\TouchpointBasicStruct;
+use Shopware\Core\System\Touchpoint\TouchpointStruct;
 
 class Context extends Struct
 {
@@ -102,7 +102,7 @@ class Context extends Struct
         return new self($tenantId, Defaults::TOUCHPOINT, [Defaults::CATALOG], [], Defaults::CURRENCY, Defaults::LANGUAGE);
     }
 
-    public static function createFromTouchpoint(TouchpointBasicStruct $touchpoint): self
+    public static function createFromTouchpoint(TouchpointStruct $touchpoint): self
     {
         return new self(
             $touchpoint->getTenantId(),

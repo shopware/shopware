@@ -4,7 +4,6 @@ namespace Shopware\Core\System\Mail;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderState\OrderStateDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\BoolField;
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\FkField;
@@ -26,42 +25,17 @@ use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\System\Mail\Aggregate\MailAttachment\MailAttachmentDefinition;
 use Shopware\Core\System\Mail\Aggregate\MailTranslation\MailTranslationDefinition;
-use Shopware\Core\System\Mail\Collection\MailBasicCollection;
-use Shopware\Core\System\Mail\Collection\MailDetailCollection;
-use Shopware\Core\System\Mail\Event\MailDeletedEvent;
-use Shopware\Core\System\Mail\Event\MailWrittenEvent;
-use Shopware\Core\System\Mail\Struct\MailBasicStruct;
-use Shopware\Core\System\Mail\Struct\MailDetailStruct;
 
 class MailDefinition extends EntityDefinition
 {
-    /**
-     * @var FieldCollection
-     */
-    protected static $primaryKeys;
-
-    /**
-     * @var FieldCollection
-     */
-    protected static $fields;
-
-    /**
-     * @var EntityExtensionInterface[]
-     */
-    protected static $extensions = [];
-
     public static function getEntityName(): string
     {
         return 'mail';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
@@ -84,51 +58,20 @@ class MailDefinition extends EntityDefinition
             (new OneToManyAssociationField('attachments', MailAttachmentDefinition::class, 'mail_id', false, 'id'))->setFlags(new CascadeDelete(), new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
             (new TranslationsAssociationField('translations', MailTranslationDefinition::class, 'mail_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
     }
 
-    public static function getRepositoryClass(): string
+    public static function getCollectionClass(): string
     {
-        return MailRepository::class;
+        return MailCollection::class;
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getStructClass(): string
     {
-        return MailBasicCollection::class;
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return MailDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return MailWrittenEvent::class;
-    }
-
-    public static function getBasicStructClass(): string
-    {
-        return MailBasicStruct::class;
+        return MailStruct::class;
     }
 
     public static function getTranslationDefinitionClass(): ?string
     {
         return MailTranslationDefinition::class;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return MailDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return MailDetailCollection::class;
     }
 }

@@ -3,11 +3,12 @@
 namespace Shopware\Core\Content\Category\Util;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\Category\CategoryRepository;
-use Shopware\Core\Content\Category\Collection\CategoryBasicCollection;
-use Shopware\Core\Content\Category\Event\CategoryWrittenEvent;
-use Shopware\Core\Content\Category\Struct\CategoryBasicStruct;
+use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Category\CategoryStruct;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -17,7 +18,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class CategoryPathBuilder implements EventSubscriberInterface
 {
     /**
-     * @var CategoryRepository
+     * @var RepositoryInterface
      */
     private $repository;
 
@@ -31,7 +32,7 @@ class CategoryPathBuilder implements EventSubscriberInterface
      */
     private $eventDispatcher;
 
-    public function __construct(CategoryRepository $repository, Connection $connection, EventDispatcherInterface $eventDispatcher)
+    public function __construct(RepositoryInterface $repository, Connection $connection, EventDispatcherInterface $eventDispatcher)
     {
         $this->repository = $repository;
         $this->connection = $connection;
@@ -41,11 +42,11 @@ class CategoryPathBuilder implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            CategoryWrittenEvent::NAME => 'categoryWritten',
+            'category.written' => 'categoryWritten',
         ];
     }
 
-    public function categoryWritten(CategoryWrittenEvent $event): void
+    public function categoryWritten(EntityWrittenEvent $event): void
     {
         $context = $event->getContext();
 
@@ -64,7 +65,7 @@ class CategoryPathBuilder implements EventSubscriberInterface
         $this->updateRecursive($parent, $parents, $context);
     }
 
-    private function updateRecursive(CategoryBasicStruct $parent, CategoryBasicCollection $parents, Context $context): void
+    private function updateRecursive(CategoryStruct $parent, CategoryCollection $parents, Context $context): void
     {
         $categories = $this->updateByParent($parent, $parents, $context);
         foreach ($categories as $category) {
@@ -74,7 +75,7 @@ class CategoryPathBuilder implements EventSubscriberInterface
         }
     }
 
-    private function updateByParent(CategoryBasicStruct $parent, CategoryBasicCollection $parents, Context $context): CategoryBasicCollection
+    private function updateByParent(CategoryStruct $parent, CategoryCollection $parents, Context $context): CategoryCollection
     {
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('category.parentId', $parent->getId()));
@@ -86,12 +87,12 @@ class CategoryPathBuilder implements EventSubscriberInterface
         $version = Uuid::fromStringToBytes($context->getVersionId());
         $tenantId = Uuid::fromHexToBytes($context->getTenantId());
 
-        /** @var CategoryBasicStruct $category */
+        /** @var CategoryStruct $category */
         foreach ($categories as $category) {
             $idPath = implode('|', $parents->getIds());
 
             $names = $parents->map(
-                function (CategoryBasicStruct $parent) {
+                function (CategoryStruct $parent) {
                     if ($parent->getLevel() === 0) {
                         return null;
                     }
@@ -121,12 +122,12 @@ class CategoryPathBuilder implements EventSubscriberInterface
             ]);
         }
 
-        return $categories;
+        return $categories->getEntities();
     }
 
-    private function loadParents(string $parentId, Context $context): CategoryBasicCollection
+    private function loadParents(string $parentId, Context $context): CategoryCollection
     {
-        $parents = $this->repository->readBasic([$parentId], $context);
+        $parents = $this->repository->read(new ReadCriteria([$parentId]), $context);
         $parent = $parents->get($parentId);
 
         if ($parent->getParentId() !== null) {

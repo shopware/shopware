@@ -2,9 +2,9 @@
 
 namespace Shopware\Storefront\Page\Checkout;
 
-use Shopware\Core\Checkout\Payment\Collection\PaymentMethodBasicCollection;
-use Shopware\Core\Checkout\Payment\PaymentMethodRepository;
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,11 +12,11 @@ use Symfony\Component\HttpFoundation\Request;
 class PaymentMethodLoader
 {
     /**
-     * @var \Shopware\Core\Checkout\Payment\PaymentMethodRepository
+     * @var RepositoryInterface
      */
     private $paymentMethodRepository;
 
-    public function __construct(PaymentMethodRepository $paymentMethodRepository)
+    public function __construct(RepositoryInterface $paymentMethodRepository)
     {
         $this->paymentMethodRepository = $paymentMethodRepository;
     }
@@ -27,7 +27,7 @@ class PaymentMethodLoader
         $criteria = $this->createCriteria($request);
         $paymentMethods = $this->paymentMethodRepository->search($criteria, $context);
 
-        return new PaymentMethodBasicCollection($paymentMethods->getElements());
+        return new PaymentMethodCollection($paymentMethods->getElements());
     }
 
     private function createCriteria(Request $request): Criteria

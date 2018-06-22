@@ -26,9 +26,10 @@ namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Framework\Rule\Match;
+use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-class CustomerGroupRule extends \Shopware\Core\Framework\Rule\Rule
+class CustomerGroupRule extends Rule
 {
     /**
      * @var int[]

@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Api\Context\RestContext;
 use Shopware\Core\Framework\ORM\DefinitionRegistry;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Write\FieldException\WriteStackException;
-use Shopware\Core\Framework\ORM\Write\WrittenEvent;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -42,8 +41,8 @@ class SyncController extends Controller
      * @Route("/api/sync", name="sync.api")
      * @Method({"POST"})
      *
-     * @param Request                                          $request
-     * @param \Shopware\Core\Framework\Api\Context\RestContext $restContext
+     * @param Request     $request
+     * @param RestContext $restContext
      *
      * @return Response
      */
@@ -62,7 +61,7 @@ class SyncController extends Controller
             $definition = $this->registry->get($entity);
 
             /** @var RepositoryInterface $repository */
-            $repository = $this->container->get($definition::getRepositoryClass());
+            $repository = $this->container->get($definition::getEntityName() . '.repository');
 
             switch ($action) {
                 case self::ACTION_DELETE:

@@ -12,7 +12,7 @@
          data-compare-ajax="true"
          {{ ajaxVariantSwitch }}>
 
-        {# @var url \Shopware\Core\Api\Seo\Struct\SeoUrlBasicStruct #}
+        {# @var url \Shopware\Core\Api\Seo\Struct\SeoUrlStruct #}
         {% set url = product.extension('canonicalUrl') %}
 
         <div class="is--hidden canonical-url">{{ url.url }}</div>

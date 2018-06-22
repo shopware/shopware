@@ -72,7 +72,7 @@ Now we can query and read the data over the repository:
 /** @var RepositoryInterface $repo */
 $repo = $this->get(HumanRepository::class);
 
-$humans = $repo->readBasic([$parentId, $childId], ShopContext::createDefaultContext());
+$humans = $repo->read(new ReadCriteria([$parentId, $childId]), ShopContext::createDefaultContext());
 
 $parent = $humans->get($parentId);
 $child = $humans->get($childId);
@@ -101,7 +101,7 @@ The ORM also allows to query this information in search requests:
 $repo = $this->get(HumanRepository::class);
 
 $criteria = new Criteria();
-$criteria->addFilter(new TermQuery('human.lastName', 'Family name'));
+$criteria->addFilter(new TermQuery('human.lastName', 'Family name'))8878;
 
 $result = $repo->search($criteria, ShopContext::createDefaultContext());
 

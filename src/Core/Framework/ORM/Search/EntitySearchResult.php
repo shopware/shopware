@@ -4,8 +4,9 @@ namespace Shopware\Core\Framework\ORM\Search;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\Framework\ORM\Search\Aggregation\AggregationResultCollection;
 
-class EntitySearchResult
+class EntitySearchResult extends EntityCollection
 {
     /**
      * @var int
@@ -18,7 +19,7 @@ class EntitySearchResult
     protected $entities;
 
     /**
-     * @var AggregatorResult
+     * @var AggregationResultCollection|null
      */
     protected $aggregations;
 
@@ -32,17 +33,60 @@ class EntitySearchResult
      */
     protected $context;
 
-    public function __construct(
-        int $total,
-        EntityCollection $entities,
-        AggregatorResult $aggregations,
-        Criteria $criteria,
-        Context $context
-    ) {
-        $this->total = $total;
+    public function __construct(int $total, EntityCollection $entities, ?AggregationResultCollection $aggregations, Criteria $criteria, Context $context)
+    {
+        parent::__construct($entities->getElements());
         $this->entities = $entities;
-        $this->aggregations = $aggregations;
+        $this->total = $total;
+        $this->aggregations = $aggregations ?? new AggregationResultCollection();
         $this->criteria = $criteria;
         $this->context = $context;
+    }
+
+    public function filter(\Closure $closure)
+    {
+        return new static(
+            $this->total,
+            $this->entities->filter($closure),
+            $this->aggregations,
+            $this->criteria,
+            $this->context
+        );
+    }
+
+    public function slice(int $offset, ?int $length = null)
+    {
+        return new static(
+            $this->total,
+            $this->entities->slice($offset, $length),
+            $this->aggregations,
+            $this->criteria,
+            $this->context
+        );
+    }
+
+    public function getTotal(): int
+    {
+        return $this->total;
+    }
+
+    public function getEntities(): EntityCollection
+    {
+        return $this->entities;
+    }
+
+    public function getAggregations(): AggregationResultCollection
+    {
+        return $this->aggregations;
+    }
+
+    public function getCriteria(): Criteria
+    {
+        return $this->criteria;
+    }
+
+    public function getContext(): Context
+    {
+        return $this->context;
     }
 }

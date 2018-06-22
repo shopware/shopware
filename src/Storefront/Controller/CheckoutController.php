@@ -8,17 +8,19 @@ use Shopware\Core\Checkout\Cart\Storefront\CartService;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
-use Shopware\Core\Checkout\Order\OrderRepository;
-use Shopware\Core\Checkout\Order\Struct\OrderBasicStruct;
+use Shopware\Core\Checkout\Order\OrderStruct;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor;
 use Shopware\Core\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactory;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
+use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidTransactionException;
+use Shopware\Core\Checkout\Payment\Exception\TokenExpiredException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
-use Shopware\Core\Checkout\Payment\PaymentMethodRepository;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -31,12 +33,12 @@ use Symfony\Component\Serializer\Serializer;
 class CheckoutController extends StorefrontController
 {
     /**
-     * @var \Shopware\Core\Checkout\Cart\Storefront\CartService
+     * @var CartService
      */
     private $cartService;
 
     /**
-     * @var OrderRepository
+     * @var RepositoryInterface
      */
     private $orderRepository;
 
@@ -46,12 +48,12 @@ class CheckoutController extends StorefrontController
     private $paymentMethodLoader;
 
     /**
-     * @var \Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor
+     * @var PaymentTransactionChainProcessor
      */
     private $paymentProcessor;
 
     /**
-     * @var \Shopware\Core\Checkout\Payment\PaymentMethodRepository
+     * @var RepositoryInterface
      */
     private $paymentMethodRepository;
 
@@ -77,11 +79,11 @@ class CheckoutController extends StorefrontController
 
     public function __construct(
         CartService $cartService,
-        OrderRepository $orderRepository,
+        RepositoryInterface $orderRepository,
         PaymentMethodLoader $paymentMethodLoader,
         PaymentTransactionChainProcessor $paymentProcessor,
         PaymentTransactionTokenFactory $tokenFactory,
-        PaymentMethodRepository $paymentMethodRepository,
+        RepositoryInterface $paymentMethodRepository,
         CheckoutContextPersister $contextPersister,
         Serializer $serializer,
         PaymentHandlerRegistry $paymentHandlerRegistry
@@ -221,8 +223,8 @@ class CheckoutController extends StorefrontController
      *
      * @throws UnknownPaymentMethodException
      * @throws \Doctrine\DBAL\Exception\InvalidArgumentException
-     * @throws \Shopware\Core\Checkout\Payment\Exception\InvalidTokenException
-     * @throws \Shopware\Core\Checkout\Payment\Exception\TokenExpiredException
+     * @throws InvalidTokenException
+     * @throws TokenExpiredException
      *
      * @return RedirectResponse
      */
@@ -258,15 +260,16 @@ class CheckoutController extends StorefrontController
 
         $order = $this->getOrder($request->get('order'), $context);
 
-        $calculatedCart = $this->serializer->denormalize(json_decode($order->getPayload(), true), 'json');
+        //todo@dr restore cart from order - NEXT-406
+//        $calculatedCart = $this->serializer->denormalize(json_decode($order->getPayload(), true), 'json');
 
         return $this->renderStorefront('@Storefront/frontend/checkout/finish.html.twig', [
-            'cart' => $calculatedCart,
+//            'cart' => $calculatedCart,
             'customer' => $context->getCustomer(),
         ]);
     }
 
-    private function getOrder(string $orderId, CheckoutContext $context): OrderBasicStruct
+    private function getOrder(string $orderId, CheckoutContext $context): OrderStruct
     {
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('order.customer.id', $context->getCustomer()->getId()));
@@ -314,7 +317,7 @@ class CheckoutController extends StorefrontController
 
     private function getPaymentHandlerById(string $paymentMethodId, Context $context): PaymentHandlerInterface
     {
-        $paymentMethods = $this->paymentMethodRepository->readBasic([$paymentMethodId], $context);
+        $paymentMethods = $this->paymentMethodRepository->read(new ReadCriteria([$paymentMethodId]), $context);
 
         $paymentMethod = $paymentMethods->get($paymentMethodId);
         if (!$paymentMethod) {

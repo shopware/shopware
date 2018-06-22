@@ -3,8 +3,8 @@
     {%  for configurator in product.configurators if not break %}
         {% if configurator.user_selected %}
             {% block frontend_detail_configurator_reset_button %}
-                {# @var canonical \Shopware\Core\Api\Seo\Struct\SeoUrlBasicStruct #}
-                {# @var product \Shopware\Core\Content\Product\Struct\StorefrontProductBasicStruct #}
+                {# @var canonical \Shopware\Core\Api\Seo\Struct\SeoUrlStruct #}
+                {# @var product \Shopware\Core\Content\Product\Storefront\StorefrontProductStruct #}
 
                 {% set url = path('detail_page', { id: product.id }) %}
                 {% if product.parentId %}

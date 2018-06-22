@@ -3,13 +3,9 @@
 namespace Shopware\Storefront\Seo\Category;
 
 use Shopware\Core\Content\Category\CategoryDefinition;
-use Shopware\Core\Content\Category\Event\CategoryBasicLoadedEvent;
-use Shopware\Core\Content\Category\Struct\CategoryBasicStruct;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Storefront\Api\Entity\Field\CanonicalUrlAssociationField;
-use Shopware\Storefront\Api\Seo\Collection\SeoUrlBasicCollection;
-use Shopware\Storefront\Api\Seo\Event\SeoUrl\SeoUrlBasicLoadedEvent;
 use Shopware\Storefront\DbalIndexing\SeoUrl\ListingPageSeoUrlIndexer;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -40,31 +36,6 @@ class CanonicalUrlExtension implements EntityExtensionInterface, EventSubscriber
 
     public static function getSubscribedEvents()
     {
-        return [
-            CategoryBasicLoadedEvent::NAME => 'categoryBasicLoaded',
-        ];
-    }
-
-    public function categoryBasicLoaded(CategoryBasicLoadedEvent $event)
-    {
-        if ($event->getCategories()->count() <= 0) {
-            return;
-        }
-
-        $urls = $event->getCategories()->map(function (CategoryBasicStruct $category) {
-            return $category->getExtension('canonicalUrl');
-        });
-
-        $urls = array_filter($urls);
-
-        if (empty($urls)) {
-            return;
-        }
-
-        $urls = new SeoUrlBasicCollection($urls);
-
-        if ($urls->count() > 0) {
-            $this->eventDispatcher->dispatch(SeoUrlBasicLoadedEvent::NAME, new SeoUrlBasicLoadedEvent($urls, $event->getContext()));
-        }
+        return [];
     }
 }

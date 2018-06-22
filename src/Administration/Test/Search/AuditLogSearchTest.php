@@ -5,12 +5,10 @@ namespace Shopware\Administration\Test\Search;
 use Doctrine\DBAL\Connection;
 use Shopware\Administration\Search\AdministrationSearch;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\ProductRepository;
-use Shopware\Core\Content\Product\Struct\ProductBasicStruct;
+use Shopware\Core\Content\Product\ProductStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Core\System\User\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class AuditLogSearchTest extends KernelTestCase
@@ -47,7 +45,7 @@ class AuditLogSearchTest extends KernelTestCase
         $this->connection = self::$container->get(Connection::class);
         $this->connection->beginTransaction();
 
-        $this->productRepository = self::$container->get(ProductRepository::class);
+        $this->productRepository = self::$container->get('product.repository');
         $this->search = self::$container->get(AdministrationSearch::class);
         $this->context = $context = Context::createDefaultContext(Defaults::TENANT_ID);
 
@@ -63,7 +61,7 @@ class AuditLogSearchTest extends KernelTestCase
 
         $this->userId = Uuid::uuid4()->getHex();
 
-        $repo = self::$container->get(UserRepository::class);
+        $repo = self::$container->get('user.repository');
         $repo->upsert([
             [
                 'id' => $this->userId,
@@ -104,13 +102,13 @@ class AuditLogSearchTest extends KernelTestCase
         self::assertEquals(2, $result['total']);
         self::assertCount(2, $result['data']);
 
-        /** @var ProductBasicStruct $first */
+        /** @var ProductStruct $first */
         $first = $result['data'][0];
-        self::assertInstanceOf(ProductBasicStruct::class, $first);
+        self::assertInstanceOf(ProductStruct::class, $first);
 
-        /** @var ProductBasicStruct $second */
+        /** @var ProductStruct $second */
         $second = $result['data'][1];
-        self::assertInstanceOf(ProductBasicStruct::class, $second);
+        self::assertInstanceOf(ProductStruct::class, $second);
 
         $firstScore = $first->getExtension('search')->get('_score');
         $secondScore = $second->getExtension('search')->get('_score');
@@ -144,13 +142,13 @@ class AuditLogSearchTest extends KernelTestCase
         self::assertEquals(2, $result['total']);
         self::assertCount(2, $result['data']);
 
-        /** @var ProductBasicStruct $first */
+        /** @var ProductStruct $first */
         $first = $result['data'][0];
-        self::assertInstanceOf(ProductBasicStruct::class, $first);
+        self::assertInstanceOf(ProductStruct::class, $first);
 
-        /** @var ProductBasicStruct $second */
+        /** @var ProductStruct $second */
         $second = $result['data'][1];
-        self::assertInstanceOf(ProductBasicStruct::class, $second);
+        self::assertInstanceOf(ProductStruct::class, $second);
 
         // `product-2` should now be boosted
         self::assertSame($first->getId(), $productId2);

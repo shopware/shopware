@@ -29,7 +29,7 @@ $criteria = new Criteria();
 $criteria->addAggregation(
     new CountAggregation('category.products.id', 'product_count')
 );
-$result = $this->container->get(CategoryRepository::class)
+$result = $this->container->get('category.repository')
     ->search($criteria, ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
 
 $aggregationResult = $result->getAggregationResult();

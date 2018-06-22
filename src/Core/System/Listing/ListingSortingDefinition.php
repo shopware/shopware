@@ -4,7 +4,6 @@ namespace Shopware\Core\System\Listing;
 
 use Shopware\Core\Content\Product\Aggregate\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\BoolField;
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\IdField;
@@ -22,44 +21,18 @@ use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
-use Shopware\Core\System\Listing\Collection\ListingSortingBasicCollection;
-use Shopware\Core\System\Listing\Collection\ListingSortingDetailCollection;
-use Shopware\Core\System\Listing\Definition\ListingSortingTranslationDefinition;
-use Shopware\Core\System\Listing\Event\ListingSortingDeletedEvent;
-use Shopware\Core\System\Listing\Event\ListingSortingWrittenEvent;
-use Shopware\Core\System\Listing\Struct\ListingSortingBasicStruct;
-use Shopware\Core\System\Listing\Struct\ListingSortingDetailStruct;
+use Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\ListingSortingTranslationDefinition;
 
 class ListingSortingDefinition extends EntityDefinition
 {
-    /**
-     * @var FieldCollection
-     */
-    protected static $primaryKeys;
-
-    /**
-     * @var FieldCollection
-     */
-    protected static $fields;
-
-    /**
-     * @var EntityExtensionInterface[]
-     */
-    protected static $extensions = [];
-
     public static function getEntityName(): string
     {
         return 'listing_sorting';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -72,53 +45,22 @@ class ListingSortingDefinition extends EntityDefinition
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
             (new TranslationsAssociationField('translations', ListingSortingTranslationDefinition::class, 'listing_sorting_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
-            (new OneToManyAssociationField('productStreams', ProductStreamDefinition::class, 'listing_sorting_id', false, 'id'))->setFlags(new WriteOnly()),
+            new OneToManyAssociationField('productStreams', ProductStreamDefinition::class, 'listing_sorting_id', false, 'id'),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
     }
 
-    public static function getRepositoryClass(): string
+    public static function getCollectionClass(): string
     {
-        return ListingSortingRepository::class;
+        return ListingSortingCollection::class;
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getStructClass(): string
     {
-        return ListingSortingBasicCollection::class;
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return ListingSortingDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return ListingSortingWrittenEvent::class;
-    }
-
-    public static function getBasicStructClass(): string
-    {
-        return ListingSortingBasicStruct::class;
+        return ListingSortingStruct::class;
     }
 
     public static function getTranslationDefinitionClass(): ?string
     {
         return ListingSortingTranslationDefinition::class;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return ListingSortingDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return ListingSortingDetailCollection::class;
     }
 }

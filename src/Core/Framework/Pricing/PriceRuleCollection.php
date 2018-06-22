@@ -8,7 +8,7 @@ use Shopware\Core\Framework\ORM\EntityCollection;
 class PriceRuleCollection extends EntityCollection
 {
     /**
-     * @var \Shopware\Core\Framework\Pricing\PriceRuleStruct[]
+     * @var PriceRuleStruct[]
      */
     protected $elements = [];
 

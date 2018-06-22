@@ -57,7 +57,7 @@ class CurrencyRuleTest extends TestCase
 
     public function testNotMatch(): void
     {
-        $rule = new \Shopware\Core\Framework\Rule\CurrencyRule(['SWAG-CURRENCY-ID-2', 'SWAG-CURRENCY-ID-3', 'SWAG-CURRENCY-ID-1']);
+        $rule = new CurrencyRule(['SWAG-CURRENCY-ID-2', 'SWAG-CURRENCY-ID-3', 'SWAG-CURRENCY-ID-1']);
 
         $cart = $this->createMock(CalculatedCart::class);
 

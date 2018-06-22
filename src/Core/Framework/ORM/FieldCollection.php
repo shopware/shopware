@@ -6,7 +6,6 @@ use Shopware\Core\Framework\ORM\Field\AssociationInterface;
 use Shopware\Core\Framework\ORM\Field\Field;
 use Shopware\Core\Framework\ORM\Write\FieldAware\StorageAware;
 use Shopware\Core\Framework\ORM\Write\Flag\ReadOnly;
-use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
 use Shopware\Core\Framework\Struct\Collection;
 
 class FieldCollection extends Collection
@@ -14,7 +13,8 @@ class FieldCollection extends Collection
     /**
      * @var Field[]
      */
-    public $mapping = [];
+    protected $mapping = [];
+
     /**
      * @var Field[]
      */
@@ -40,25 +40,12 @@ class FieldCollection extends Collection
         return $this->elements[$propertyName] ?? null;
     }
 
-    public function getBasicProperties(): self
+    public function filterBasic(): self
     {
         return $this->filter(
             function (Field $field) {
                 if ($field instanceof AssociationInterface) {
-                    return $field->loadInBasic() && !$field->is(WriteOnly::class);
-                }
-
-                return true;
-            }
-        );
-    }
-
-    public function getDetailProperties(): self
-    {
-        return $this->filter(
-            function (Field $field) {
-                if ($field instanceof AssociationInterface) {
-                    return !$field->is(WriteOnly::class);
+                    return $field->loadInBasic();
                 }
 
                 return true;

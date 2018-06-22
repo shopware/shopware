@@ -38,12 +38,12 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class MediaCleanupCommand extends Command
 {
     /**
-     * @var \Shopware\Core\Content\Media\Util\GarbageCollector\GarbageCollector
+     * @var GarbageCollector
      */
     private $garbageCollector;
 
     /**
-     * @param \Shopware\Core\Content\Media\Util\GarbageCollector\GarbageCollector $garbageCollector
+     * @param GarbageCollector $garbageCollector
      */
     public function __construct(GarbageCollector $garbageCollector)
     {

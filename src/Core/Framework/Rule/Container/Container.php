@@ -46,7 +46,7 @@ abstract class Container extends Rule
      *      new FalseRule,
      * )
      *
-     * @param \Shopware\Core\Framework\Rule\Rule[] $rules
+     * @param Rule[] $rules
      */
     public function __construct(array $rules = [])
     {

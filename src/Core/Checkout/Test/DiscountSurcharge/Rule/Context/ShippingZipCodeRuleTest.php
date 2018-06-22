@@ -29,9 +29,9 @@ use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
 use Shopware\Core\Checkout\Customer\Rule\ShippingZipCodeRule;
-use Shopware\Core\System\Country\Struct\CountryBasicStruct;
+use Shopware\Core\System\Country\CountryStruct;
 
 class ShippingZipCodeRuleTest extends TestCase
 {
@@ -103,7 +103,7 @@ class ShippingZipCodeRuleTest extends TestCase
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $location = ShippingLocation::createFromCountry(new CountryBasicStruct());
+        $location = ShippingLocation::createFromCountry(new CountryStruct());
 
         $context->expects($this->any())
             ->method('getShippingLocation')
@@ -114,11 +114,11 @@ class ShippingZipCodeRuleTest extends TestCase
         );
     }
 
-    private function createAddress(string $code): CustomerAddressBasicStruct
+    private function createAddress(string $code): CustomerAddressStruct
     {
-        $address = new CustomerAddressBasicStruct();
+        $address = new CustomerAddressStruct();
         $address->setZipcode($code);
-        $address->setCountry(new CountryBasicStruct());
+        $address->setCountry(new CountryStruct());
 
         return $address;
     }

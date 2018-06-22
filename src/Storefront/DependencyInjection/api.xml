@@ -6,19 +6,8 @@
 
     <services>
         <!-- Versioning -->
-        <service alias="Shopware\Storefront\Api\Seo\Repository\SeoUrlRepository.v1" id="Shopware\Storefront\Api\Seo\Repository\SeoUrlRepository" public="true"/>
 
-        <service class="Shopware\Storefront\Api\Seo\Definition\SeoUrlDefinition" id="shopware.seo.seo_url_definition" >
-            <tag name="shopware.entity.definition" entity="seo_url" />
-        </service>
 
-        <service class="Shopware\Storefront\Api\Seo\Repository\SeoUrlRepository" id="Shopware\Storefront\Api\Seo\Repository\SeoUrlRepository.v1" public="true">
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Version\Service\VersionManager" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntitySearcher" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntityAggregator" type="service"/>
-          <argument id="event_dispatcher" type="service"/>
-        </service>
     </services>
 </container>                
                 

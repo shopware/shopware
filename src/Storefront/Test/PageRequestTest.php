@@ -4,12 +4,10 @@ namespace Shopware\Storefront\Test;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository;
-use Shopware\Core\Checkout\Customer\CustomerRepository;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
-use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\EntityRepository;
+use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Core\System\Country\CountryRepository;
 use Shopware\Storefront\Page\Account\AccountService;
 use Shopware\Storefront\Page\Account\EmailSaveRequest;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -32,7 +30,6 @@ class PageRequestTest extends KernelTestCase
 
     public function testPageRequestExtension()
     {
-
         $checkoutContext = Generator::createContext();
 
         $extension = new MyCustomExtension('property value');
@@ -42,20 +39,24 @@ class PageRequestTest extends KernelTestCase
 
         $originalData = [[
             'id' => $checkoutContext->getCustomer()->getId(),
-            'customExtension' => $extension
+            'customExtension' => $extension,
         ]];
 
         // array merge recrusive
-        $customerRepository = $this->createMock(CustomerRepository::class);
-        $customerRepository->expects($this->once())->method('update')->will($this->returnCallback(function ($data) use ($originalData) {
-            $this->assertEquals($originalData, $data);
+        $customerRepository = $this->createMock(EntityRepository::class);
+        $customerRepository->expects($this->once())
+            ->method('update')
+            ->will($this->returnCallback(
+                function ($data) use ($originalData) {
+                    $this->assertEquals($originalData, $data);
 
-            return $this->createMock(GenericWrittenEvent::class);
-        }));
+                    return $this->createMock(EntityWrittenContainerEvent::class);
+                }
+            ));
 
         $service = new AccountService(
-            $this->createMock(CountryRepository::class),
-            $this->createMock(CustomerAddressRepository::class),
+            $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepository::class),
             $customerRepository,
             $this->createMock(SimpleAuthenticationProvider::class),
             $this->createMock(TokenStorage::class),
@@ -66,10 +67,8 @@ class PageRequestTest extends KernelTestCase
     }
 }
 
-
 class MyCustomExtension extends Struct
 {
-
     /**
      * @var string
      */
@@ -89,5 +88,4 @@ class MyCustomExtension extends Struct
     {
         $this->myCustomProperty = $myCustomProperty;
     }
-
 }

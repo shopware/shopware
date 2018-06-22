@@ -3,11 +3,11 @@
 namespace Shopware\Core\System\Command;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Util\Random;
-use Shopware\Core\System\User\UserRepository;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -25,11 +25,11 @@ class UserCreateCommand extends Command
     private $encoderFactory;
 
     /**
-     * @var UserRepository
+     * @var RepositoryInterface
      */
     private $userRepository;
 
-    public function __construct(UserRepository $userRepository, EncoderFactoryInterface $encoderFactory)
+    public function __construct(RepositoryInterface $userRepository, EncoderFactoryInterface $encoderFactory)
     {
         parent::__construct(null);
 

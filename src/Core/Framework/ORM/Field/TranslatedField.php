@@ -52,12 +52,18 @@ class TranslatedField extends Field
     private $foreignFieldName;
 
     /**
+     * @var StorageAware
+     */
+    private $field;
+
+    /**
      * @param StorageAware $field
      *
      * @internal param string $storageName
      */
     public function __construct(StorageAware $field)
     {
+        $this->field = $field;
         $this->storageName = $field->getStorageName();
         $this->foreignClassName = LanguageDefinition::class;
         $this->foreignFieldName = 'id';
@@ -125,5 +131,10 @@ class TranslatedField extends Field
     public function getExtractPriority(): int
     {
         return 100;
+    }
+
+    public function getField(): StorageAware
+    {
+        return $this->field;
     }
 }

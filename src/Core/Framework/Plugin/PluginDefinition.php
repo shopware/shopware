@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
+use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\BoolField;
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\IdField;
@@ -16,44 +16,18 @@ use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
-use Shopware\Core\Framework\Plugin\Collection\PluginBasicCollection;
-use Shopware\Core\Framework\Plugin\Collection\PluginDetailCollection;
-use Shopware\Core\Framework\Plugin\Event\PluginDeletedEvent;
-use Shopware\Core\Framework\Plugin\Event\PluginWrittenEvent;
-use Shopware\Core\Framework\Plugin\Repository\PluginRepository;
-use Shopware\Core\Framework\Plugin\Struct\PluginBasicStruct;
-use Shopware\Core\Framework\Plugin\Struct\PluginDetailStruct;
 use Shopware\Core\System\Config\ConfigFormDefinition;
 
 class PluginDefinition extends EntityDefinition
 {
-    /**
-     * @var FieldCollection
-     */
-    protected static $primaryKeys;
-
-    /**
-     * @var FieldCollection
-     */
-    protected static $fields;
-
-    /**
-     * @var EntityExtensionInterface[]
-     */
-    protected static $extensions = [];
-
     public static function getEntityName(): string
     {
         return 'plugin';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -83,53 +57,17 @@ class PluginDefinition extends EntityDefinition
             new StringField('update_version', 'updateVersion'),
             new DateField('updated_at', 'updatedAt'),
             (new OneToManyAssociationField('configForms', ConfigFormDefinition::class, 'plugin_id', false, 'id'))->setFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('paymentMethods', \Shopware\Core\Checkout\Payment\PaymentMethodDefinition::class, 'plugin_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('paymentMethods', PaymentMethodDefinition::class, 'plugin_id', false, 'id'))->setFlags(new CascadeDelete()),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
     }
 
-    public static function getRepositoryClass(): string
+    public static function getCollectionClass(): string
     {
-        return PluginRepository::class;
+        return PluginCollection::class;
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getStructClass(): string
     {
-        return PluginBasicCollection::class;
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return PluginDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return PluginWrittenEvent::class;
-    }
-
-    public static function getBasicStructClass(): string
-    {
-        return PluginBasicStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return null;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return PluginDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return PluginDetailCollection::class;
+        return PluginStruct::class;
     }
 }

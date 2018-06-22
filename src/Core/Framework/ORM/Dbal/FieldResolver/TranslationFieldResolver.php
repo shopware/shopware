@@ -28,13 +28,12 @@ class TranslationFieldResolver implements FieldResolverInterface
         $this->joinTranslationTable($root, $definition, $query, $context);
 
         /** @var string|EntityDefinition $definition */
-        if (!$definition::getParentPropertyName() || $raw) {
+        if (!$definition::isInheritanceAware() || $raw) {
             return;
         }
 
         /** @var EntityDefinition $definition */
-        $parent = $definition::getFields()->get($definition::getParentPropertyName());
-        $alias = $root . '.' . $parent->getPropertyName();
+        $alias = $root . '.parent';
 
         $this->joinTranslationTable($alias, $definition, $query, $context);
     }

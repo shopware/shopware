@@ -2,10 +2,11 @@
 
 namespace Shopware\Storefront\Navigation;
 
-use Shopware\Core\Content\Category\CategoryRepository;
-use Shopware\Core\Content\Category\Struct\CategoryBasicStruct;
+use Shopware\Core\Content\Category\CategoryStruct;
 use Shopware\Core\Content\Category\Util\Tree\TreeBuilder;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
@@ -13,7 +14,7 @@ use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
 class NavigationService
 {
     /**
-     * @var CategoryRepository
+     * @var RepositoryInterface
      */
     private $repository;
 
@@ -22,7 +23,7 @@ class NavigationService
      */
     private $navigation;
 
-    public function __construct(CategoryRepository $repository)
+    public function __construct(RepositoryInterface $repository)
     {
         $this->repository = $repository;
     }
@@ -43,7 +44,7 @@ class NavigationService
         $rootIds = [];
 
         if ($categoryId) {
-            $activeCategory = $this->repository->readBasic([$categoryId], $context)->get($categoryId);
+            $activeCategory = $this->repository->read(new ReadCriteria([$categoryId]), $context)->get($categoryId);
 
             if ($activeCategory) {
                 $rootIds = array_merge($activeCategory->getPathArray(), [$categoryId]);
@@ -56,20 +57,20 @@ class NavigationService
 
         $leafCategories = $this->repository->search($criteria, $context);
 
-        $activeCategory = $rootCategories->filter(function (CategoryBasicStruct $category) use ($categoryId) {
+        $activeCategory = $rootCategories->filter(function (CategoryStruct $category) use ($categoryId) {
             return $category->getId() === $categoryId;
         })->first();
 
         if (!$activeCategory) {
-            $activeCategory = $leafCategories->filter(function (CategoryBasicStruct $category) use ($categoryId) {
+            $activeCategory = $leafCategories->filter(function (CategoryStruct $category) use ($categoryId) {
                 return $category->getId() === $categoryId;
             })->first();
         }
 
-        $tree = TreeBuilder::buildTree(null, $rootCategories->sortByPosition()->sortByName());
+        $tree = TreeBuilder::buildTree(null, $rootCategories->getEntities()->sortByPosition()->sortByName());
 
         foreach ($tree as $index => $rootItem) {
-            $rootItem->addChildren(...TreeBuilder::buildTree($rootItem->getCategory()->getId(), $leafCategories->sortByPosition()->sortByName()));
+            $rootItem->addChildren(...TreeBuilder::buildTree($rootItem->getCategory()->getId(), $leafCategories->getEntities()->sortByPosition()->sortByName()));
         }
 
         return $this->navigation[$applicationId] = new Navigation($activeCategory, $tree);

@@ -2,12 +2,11 @@
 
 namespace Shopware\Storefront\Subscriber;
 
-use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\Collection\ProductManufacturerBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerRepository;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Aggregation\AggregationResult;
 use Shopware\Core\Framework\ORM\Search\Aggregation\EntityAggregation;
-use Shopware\Core\Framework\ORM\Search\AggregatorResult;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\NestedQuery;
 use Shopware\Core\Framework\ORM\Search\Query\Query;
@@ -29,11 +28,11 @@ class ManufacturerAggregationSubscriber implements EventSubscriberInterface
     public const AGGREGATION_NAME = 'manufacturer';
 
     /**
-     * @var \Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerRepository
+     * @var RepositoryInterface
      */
     private $manufacturerRepository;
 
-    public function __construct(ProductManufacturerRepository $manufacturerRepository)
+    public function __construct(RepositoryInterface $manufacturerRepository)
     {
         $this->manufacturerRepository = $manufacturerRepository;
     }
@@ -98,21 +97,18 @@ class ManufacturerAggregationSubscriber implements EventSubscriberInterface
 
     public function buildPage(ListingPageLoadedEvent $event): void
     {
-        $result = $event->getPage()->getProducts()->getAggregationResult();
+        $result = $event->getPage()->getProducts()->getAggregations();
 
         if ($result === null) {
             return;
         }
 
-        $aggregations = $result->getAggregations();
-
-        /* @var AggregatorResult $result */
-        if (!$aggregations->has(self::AGGREGATION_NAME)) {
+        if (!$result->has(self::AGGREGATION_NAME)) {
             return;
         }
 
         /** @var AggregationResult $aggregation */
-        $aggregation = $aggregations->get(self::AGGREGATION_NAME);
+        $aggregation = $result->get(self::AGGREGATION_NAME);
 
         $criteria = $event->getPage()->getCriteria();
 
@@ -122,7 +118,7 @@ class ManufacturerAggregationSubscriber implements EventSubscriberInterface
 
         $actives = $filter ? $filter->getValue() : [];
 
-        /** @var ProductManufacturerBasicCollection $values */
+        /** @var ProductManufacturerCollection $values */
         $values = $aggregation->getResult();
 
         $items = [];

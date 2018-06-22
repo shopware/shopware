@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\PercentageTaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\Api\ApiTestCase;
@@ -17,7 +18,7 @@ use Symfony\Component\Serializer\Serializer;
 class PriceActionControllerTest extends ApiTestCase
 {
     /**
-     * @var \Shopware\Core\System\Tax\TaxRepository
+     * @var TaxRepository
      */
     private $repository;
 
@@ -30,7 +31,7 @@ class PriceActionControllerTest extends ApiTestCase
     {
         parent::setUp();
 
-        $this->repository = $this->getContainer()->get(TaxRepository::class);
+        $this->repository = $this->getContainer()->get('tax.repository');
         $this->serializer = $this->getContainer()->get('serializer');
     }
 
@@ -133,7 +134,7 @@ class PriceActionControllerTest extends ApiTestCase
         $taxId = Uuid::uuid4()->getHex();
         $this->repository->create([
             ['id' => $taxId, 'rate' => 19, 'name' => 'test'],
-        ], Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID));
+        ], Context::createDefaultContext(Defaults::TENANT_ID));
 
         $price = $this->sendRequest([
             'price' => 11.9,
@@ -161,7 +162,7 @@ class PriceActionControllerTest extends ApiTestCase
         $taxId = Uuid::uuid4()->getHex();
         $this->repository->create([
             ['id' => $taxId, 'rate' => 19, 'name' => 'test'],
-        ], Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID));
+        ], Context::createDefaultContext(Defaults::TENANT_ID));
 
         $price = $this->sendRequest([
             'price' => 10,
@@ -191,7 +192,7 @@ class PriceActionControllerTest extends ApiTestCase
         $taxId = Uuid::uuid4()->getHex();
         $this->repository->create([
             ['id' => $taxId, 'rate' => 19, 'name' => 'test'],
-        ], Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID));
+        ], Context::createDefaultContext(Defaults::TENANT_ID));
 
         $price = $this->sendRequest([
             'price' => 10,
@@ -221,7 +222,7 @@ class PriceActionControllerTest extends ApiTestCase
         $taxId = Uuid::uuid4()->getHex();
         $this->repository->create([
             ['id' => $taxId, 'rate' => 19, 'name' => 'test'],
-        ], Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID));
+        ], Context::createDefaultContext(Defaults::TENANT_ID));
 
         $price = $this->sendRequest([
             'price' => 11.9,

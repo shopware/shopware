@@ -33,7 +33,7 @@ use Shopware\Storefront\Controller\StorefrontController;
 class CheckoutController extends StorefrontController
 {
     /**
-     * @var \Shopware\Core\Checkout\Cart\Storefront\CartService
+     * @var CartService
      */
     private $cartService;
 

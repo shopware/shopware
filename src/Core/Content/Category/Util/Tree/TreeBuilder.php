@@ -2,21 +2,21 @@
 
 namespace Shopware\Core\Content\Category\Util\Tree;
 
-use Shopware\Core\Content\Category\Collection\CategoryBasicCollection;
-use Shopware\Core\Content\Category\Struct\CategoryBasicStruct;
+use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Category\CategoryStruct;
 
 class TreeBuilder
 {
     /**
-     * @param null|string             $parentId
-     * @param CategoryBasicCollection $categories
+     * @param null|string        $parentId
+     * @param CategoryCollection $categories
      *
      * @return TreeItem[]
      */
-    public static function buildTree(?string $parentId, CategoryBasicCollection $categories): array
+    public static function buildTree(?string $parentId, CategoryCollection $categories): array
     {
         $result = [];
-        /** @var CategoryBasicStruct $category */
+        /** @var CategoryStruct $category */
         foreach ($categories->getElements() as $category) {
             if ($category->getParentId() !== $parentId) {
                 continue;

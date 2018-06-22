@@ -6,12 +6,11 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository;
 use Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException;
 use Shopware\Core\Checkout\Payment\Exception\PaymentMethodNotFoundHttpException;
-use Shopware\Core\Checkout\Payment\PaymentMethodRepository;
 use Shopware\Core\Checkout\Shipping\Exception\ShippingMethodNotFoundHttpException;
-use Shopware\Core\Checkout\Shipping\ShippingMethodRepository;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\PlatformRequest;
@@ -24,12 +23,12 @@ use Symfony\Component\Serializer\Serializer;
 class CheckoutContextController extends Controller
 {
     /**
-     * @var \Shopware\Core\Checkout\Payment\PaymentMethodRepository
+     * @var RepositoryInterface
      */
     protected $paymentMethodRepository;
 
     /**
-     * @var \Shopware\Core\Checkout\Shipping\ShippingMethodRepository
+     * @var RepositoryInterface
      */
     protected $shippingMethodRepository;
 
@@ -39,7 +38,7 @@ class CheckoutContextController extends Controller
     protected $customerAddressRepository;
 
     /**
-     * @var \Shopware\Core\Checkout\Context\CheckoutContextPersister
+     * @var RepositoryInterface
      */
     protected $contextPersister;
 
@@ -49,9 +48,9 @@ class CheckoutContextController extends Controller
     protected $serializer;
 
     public function __construct(
-        PaymentMethodRepository $paymentMethodRepository,
-        ShippingMethodRepository $shippingMethodRepository,
-        CustomerAddressRepository $customerAddressRepository,
+        RepositoryInterface $paymentMethodRepository,
+        RepositoryInterface $shippingMethodRepository,
+        RepositoryInterface $customerAddressRepository,
         CheckoutContextPersister $contextPersister,
         Serializer $serializer
     ) {
@@ -123,7 +122,7 @@ class CheckoutContextController extends Controller
             throw new NotLoggedInCustomerException();
         }
 
-        $addresses = $this->customerAddressRepository->readBasic([$addressId], $context);
+        $addresses = $this->customerAddressRepository->read(new ReadCriteria([$addressId]), $context);
         $address = $addresses->get($addressId);
 
         if (!$address) {

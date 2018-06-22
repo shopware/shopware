@@ -4,7 +4,6 @@ namespace Shopware\Core\System\Currency;
 
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\BoolField;
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\FloatField;
@@ -22,45 +21,19 @@ use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
 use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition;
-use Shopware\Core\System\Currency\Collection\CurrencyBasicCollection;
-use Shopware\Core\System\Currency\Collection\CurrencyDetailCollection;
-use Shopware\Core\System\Currency\Event\CurrencyDeletedEvent;
-use Shopware\Core\System\Currency\Event\CurrencyWrittenEvent;
-use Shopware\Core\System\Currency\Struct\CurrencyBasicStruct;
-use Shopware\Core\System\Currency\Struct\CurrencyDetailStruct;
 use Shopware\Core\System\Touchpoint\TouchpointDefinition;
 
 class CurrencyDefinition extends EntityDefinition
 {
-    /**
-     * @var FieldCollection
-     */
-    protected static $primaryKeys;
-
-    /**
-     * @var FieldCollection
-     */
-    protected static $fields;
-
-    /**
-     * @var EntityExtensionInterface[]
-     */
-    protected static $extensions = [];
-
     public static function getEntityName(): string
     {
         return 'currency';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
@@ -75,53 +48,22 @@ class CurrencyDefinition extends EntityDefinition
             new DateField('updated_at', 'updatedAt'),
             (new OneToManyAssociationField('touchpoints', TouchpointDefinition::class, 'currency_id', false, 'id'))->setFlags(new RestrictDelete()),
             (new TranslationsAssociationField('translations', CurrencyTranslationDefinition::class, 'currency_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
-            (new OneToManyAssociationField('orders', OrderDefinition::class, 'currency_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
+            (new OneToManyAssociationField('orders', OrderDefinition::class, 'currency_id', false, 'id'))->setFlags(new RestrictDelete()),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
     }
 
-    public static function getRepositoryClass(): string
+    public static function getCollectionClass(): string
     {
-        return CurrencyRepository::class;
+        return CurrencyCollection::class;
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getStructClass(): string
     {
-        return CurrencyBasicCollection::class;
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return CurrencyDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return CurrencyWrittenEvent::class;
-    }
-
-    public static function getBasicStructClass(): string
-    {
-        return CurrencyBasicStruct::class;
+        return CurrencyStruct::class;
     }
 
     public static function getTranslationDefinitionClass(): ?string
     {
         return CurrencyTranslationDefinition::class;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return CurrencyDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return CurrencyDetailCollection::class;
     }
 }

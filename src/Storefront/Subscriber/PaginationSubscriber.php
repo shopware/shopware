@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\Subscriber;
 
-use Shopware\Core\Content\Product\Struct\ProductSearchResult;
 use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Storefront\Event\ListingEvents;
 use Shopware\Storefront\Event\ListingPageLoadedEvent;
 use Shopware\Storefront\Event\ListingPageRequestEvent;
@@ -63,7 +63,7 @@ class PaginationSubscriber implements EventSubscriberInterface
         $page->setPageCount($pageCount);
     }
 
-    private function getPageCount(ProductSearchResult $products, Criteria $criteria, int $currentPage): int
+    private function getPageCount(EntitySearchResult $products, Criteria $criteria, int $currentPage): int
     {
         $pageCount = (int) floor($products->getTotal() / $criteria->getLimit());
 

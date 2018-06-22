@@ -2,41 +2,41 @@
 
 namespace Shopware\Core\Content\Product\Util;
 
-use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Collection\ProductConfiguratorBasicCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorRepository;
-use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Struct\ProductConfiguratorBasicStruct;
+use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorStruct;
 use Shopware\Core\Content\Product\Exception\NoConfiguratorFoundException;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
-use Shopware\Core\Content\Product\ProductRepository;
-use Shopware\Core\Content\Product\Struct\ProductBasicStruct;
+use Shopware\Core\Content\Product\ProductStruct;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
 
 class VariantGenerator
 {
     /**
-     * @var ProductRepository
+     * @var RepositoryInterface
      */
     private $productRepository;
 
     /**
-     * @var ProductConfiguratorRepository
+     * @var RepositoryInterface
      */
     private $configuratorRepository;
 
     public function __construct(
-        ProductRepository $productRepository,
-        ProductConfiguratorRepository $configuratorRepository
+        RepositoryInterface $productRepository,
+        RepositoryInterface $configuratorRepository
     ) {
         $this->productRepository = $productRepository;
         $this->configuratorRepository = $configuratorRepository;
     }
 
-    public function generate(string $productId, Context $context, $offset = null, $limit = null): GenericWrittenEvent
+    public function generate(string $productId, Context $context, $offset = null, $limit = null): EntityWrittenContainerEvent
     {
-        $products = $this->productRepository->readBasic([$productId], $context);
+        $products = $this->productRepository->read(new ReadCriteria([$productId]), $context);
         $product = $products->get($productId);
 
         if (!$product) {
@@ -60,14 +60,14 @@ class VariantGenerator
             }, $combination);
 
             $options = $configurator->filter(
-                function (ProductConfiguratorBasicStruct $config) use ($combination) {
+                function (ProductConfiguratorStruct $config) use ($combination) {
                     return in_array($config->getOptionId(), $combination, true);
                 }
             );
 
             $options->sortByGroup();
 
-            $names = $options->map(function (ProductConfiguratorBasicStruct $config) {
+            $names = $options->map(function (ProductConfiguratorStruct $config) {
                 return $config->getOption()->getName();
             });
 
@@ -85,15 +85,15 @@ class VariantGenerator
         return $this->productRepository->create($variants, $context);
     }
 
-    private function loadConfigurator(string $productId, Context $context): ProductConfiguratorBasicCollection
+    private function loadConfigurator(string $productId, Context $context): ProductConfiguratorCollection
     {
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('product_configurator.productId', $productId));
 
-        return $this->configuratorRepository->search($criteria, $context);
+        return $this->configuratorRepository->search($criteria, $context)->getEntities();
     }
 
-    private function buildCombinations(ProductConfiguratorBasicCollection $configurator): array
+    private function buildCombinations(ProductConfiguratorCollection $configurator): array
     {
         $groupedOptions = [];
         foreach ($configurator->getOptions() as $option) {
@@ -124,9 +124,9 @@ class VariantGenerator
         return $all;
     }
 
-    private function buildPrice(ProductBasicStruct $product, ProductConfiguratorBasicCollection $options): ?array
+    private function buildPrice(ProductStruct $product, ProductConfiguratorCollection $options): ?array
     {
-        $surcharges = $options->fmap(function (ProductConfiguratorBasicStruct $configurator) {
+        $surcharges = $options->fmap(function (ProductConfiguratorStruct $configurator) {
             return $configurator->getPrice();
         });
 

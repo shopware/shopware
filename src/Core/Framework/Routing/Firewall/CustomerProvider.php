@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\Framework\Routing\Firewall;
 
-use Shopware\Core\Checkout\Customer\CustomerRepository;
-use Shopware\Core\Checkout\Customer\Struct\CustomerBasicStruct;
+use Shopware\Core\Checkout\Customer\CustomerStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
@@ -16,16 +16,16 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 class CustomerProvider implements UserProviderInterface
 {
     /**
-     * @var \Shopware\Core\Checkout\Customer\CustomerRepository
+     * @var RepositoryInterface
      */
     private $customerRepository;
 
     /**
      * CustomerProvider constructor.
      *
-     * @param \Shopware\Core\Checkout\Customer\CustomerRepository $customerRepository
+     * @param RepositoryInterface $customerRepository
      */
-    public function __construct(CustomerRepository $customerRepository)
+    public function __construct(RepositoryInterface $customerRepository)
     {
         $this->customerRepository = $customerRepository;
     }
@@ -47,7 +47,7 @@ class CustomerProvider implements UserProviderInterface
             );
         }
 
-        /** @var CustomerBasicStruct $customer */
+        /** @var CustomerStruct $customer */
         $customer = $customerResult->first();
 
         $customerUser = new CustomerUser($customer->getEmail(), $customer->getPassword(), null, ['IS_AUTHENTICATED_FULLY', 'ROLE_CUSTOMER']);

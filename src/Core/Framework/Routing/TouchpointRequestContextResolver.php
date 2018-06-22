@@ -43,7 +43,7 @@ class TouchpointRequestContextResolver implements RequestContextResolverInterfac
 
             return;
         }
-        /** @var \Shopware\Core\Framework\Routing\Firewall\Touchpoint $touchpoint */
+        /** @var Touchpoint $touchpoint */
         $touchpoint = $this->tokenStorage->getToken()->getUser();
 
         if (!$touchpoint instanceof Touchpoint) {

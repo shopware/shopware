@@ -56,6 +56,11 @@ class Criteria extends Struct
     protected $fetchCount = self::FETCH_COUNT_NONE;
 
     /**
+     * @var Criteria[]
+     */
+    protected $associations = [];
+
+    /**
      * @return FieldSorting[]
      */
     public function getSortings(): array
@@ -100,7 +105,7 @@ class Criteria extends Struct
         return $this;
     }
 
-    public function addAggregation(Aggregation $aggregation): self
+    public function addAggregation(Aggregation $aggregation)
     {
         $this->aggregations[] = $aggregation;
 
@@ -236,5 +241,45 @@ class Criteria extends Struct
     public function setAggregations(array $aggregations): void
     {
         $this->aggregations = $aggregations;
+    }
+
+    public function addAssociation(string $field, ?Criteria $criteria = null): void
+    {
+        $this->associations[$field] = $criteria ?? new Criteria();
+    }
+
+    public function getAssociations(): array
+    {
+        return $this->associations;
+    }
+
+    public function getAssociation(string $field): Criteria
+    {
+        return $this->associations[$field] ?? new Criteria();
+    }
+
+    public function setSortings(array $sortings): void
+    {
+        $this->sortings = $sortings;
+    }
+
+    public function setAssociations(array $associations): void
+    {
+        $this->associations = [];
+        foreach ($associations as $key => $value) {
+            $this->addAssociation($key, $value);
+        }
+    }
+
+    public function setQueries(array $queries): void
+    {
+        $this->queries = [];
+        array_map([$this, 'addQuery'], $queries);
+    }
+
+    public function setFilters(array $filters): void
+    {
+        $this->filters = [];
+        array_map([$this, 'addFilter'], $filters);
     }
 }

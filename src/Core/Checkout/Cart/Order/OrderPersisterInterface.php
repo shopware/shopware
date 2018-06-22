@@ -26,9 +26,9 @@ namespace Shopware\Core\Checkout\Cart\Order;
 
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
 
 interface OrderPersisterInterface
 {
-    public function persist(CalculatedCart $calculatedCart, CheckoutContext $context): GenericWrittenEvent;
+    public function persist(CalculatedCart $calculatedCart, CheckoutContext $context): EntityWrittenContainerEvent;
 }

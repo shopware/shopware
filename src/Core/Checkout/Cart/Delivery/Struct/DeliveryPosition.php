@@ -42,7 +42,7 @@ class DeliveryPosition extends Struct
     protected $quantity;
 
     /**
-     * @var \Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice
+     * @var CalculatedPrice
      */
     protected $price;
 

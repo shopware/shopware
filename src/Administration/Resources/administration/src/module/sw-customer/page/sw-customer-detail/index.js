@@ -1,4 +1,5 @@
 import { Component, Mixin, State } from 'src/core/shopware';
+import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-customer-detail.html.twig';
 import './sw-customer-detail.less';
 
@@ -22,6 +23,7 @@ Component.register('sw-customer-detail', {
             customerGroups: [],
             applications: [],
             countries: [],
+            addresses: [],
             paymentMethods: []
         };
     },
@@ -29,6 +31,10 @@ Component.register('sw-customer-detail', {
     computed: {
         customerStore() {
             return State.getStore('customer');
+        },
+
+        customerAddressStore() {
+            return State.getStore('customer_address');
         },
 
         customerGroupStore() {
@@ -75,6 +81,19 @@ Component.register('sw-customer-detail', {
             if (this.$route.params.id) {
                 this.customerId = this.$route.params.id;
                 this.customer = this.customerStore.getById(this.customerId);
+                const criteria = [];
+                const params = {
+                    limit: 100,
+                    offset: 0
+                };
+
+                //todo this is a temporary solution for association loading
+                criteria.push(CriteriaFactory.term('customer_address.customerId', this.customerId));
+                params.criteria = CriteriaFactory.nested('AND', ...criteria);
+
+                this.customer.addresses = this.customerAddressStore.getList(params).then((response) => {
+                    this.customer.addresses = response.items;
+                });
 
                 this.applicationStore.getList({ offset: 0, limit: 100 }).then((response) => {
                     this.applications = response.items;

@@ -18,7 +18,7 @@ class PageCriteriaCreatedEvent extends NestedEvent
     protected $criteria;
 
     /**
-     * @var \Shopware\Core\Checkout\CheckoutContext
+     * @var CheckoutContext
      */
     protected $context;
 

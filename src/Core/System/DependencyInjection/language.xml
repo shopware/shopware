@@ -6,18 +6,11 @@
 
     <services>
         <!-- Versioning -->
-        <service alias="Shopware\Core\System\Language\LanguageRepository.v1" id="Shopware\Core\System\Language\LanguageRepository" public="true" />
 
         <service class="Shopware\Core\System\Language\LanguageDefinition" id="Shopware\Core\System\Language\LanguageDefinition" >
             <tag name="shopware.entity.definition" entity="language" />
         </service>
-        <service class="Shopware\Core\System\Language\LanguageRepository" id="Shopware\Core\System\Language\LanguageRepository.v1" public="true">
-            <argument id="Shopware\Core\Framework\ORM\Dbal\EntityReader" type="service"/>
-            <argument id="Shopware\Core\Framework\ORM\Version\Service\VersionManager" type="service"/>
-            <argument id="Shopware\Core\Framework\ORM\Dbal\EntitySearcher" type="service"/>
-            <argument id="Shopware\Core\Framework\ORM\Dbal\EntityAggregator" type="service"/>
-            <argument id="event_dispatcher" type="service"/>
-        </service>
+
     </services>
 </container>                
                 

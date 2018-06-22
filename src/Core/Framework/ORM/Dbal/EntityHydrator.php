@@ -83,6 +83,7 @@ class EntityHydrator
 
         $data = [];
         $associations = [];
+        $inheritedFields = [];
         $inherited = new ArrayStruct();
         $translated = new ArrayStruct();
 
@@ -91,6 +92,12 @@ class EntityHydrator
             $propertyName = $field->getPropertyName();
 
             $originalKey = $root . '.' . $propertyName;
+
+            $isInherited = $field->is(Inherited::class);
+
+            if ($isInherited && $field instanceof AssociationInterface) {
+                $inheritedFields[] = $field;
+            }
 
             //collect to one associations, this will be hydrated after loop
             if ($field instanceof ManyToOneAssociationField) {
@@ -108,9 +115,8 @@ class EntityHydrator
             }
 
             $value = $row[$originalKey];
-
             //remove internal .inherited key which used to detect if a inherited field is selected by parent or child
-            if ($field->is(Inherited::class)) {
+            if ($isInherited) {
                 $inheritedKey = '_' . $originalKey . '.inherited';
 
                 if (isset($row[$inheritedKey])) {
@@ -158,7 +164,7 @@ class EntityHydrator
             $reference = $field->getReferenceClass();
 
             /** @var EntityDefinition $reference */
-            $structClass = $reference::getBasicStructClass();
+            $structClass = $reference::getStructClass();
 
             $hydrated = $this->hydrateEntity(
                 new $structClass(),
@@ -182,14 +188,9 @@ class EntityHydrator
             $this->objects[$objectCacheKey] = $entity;
         }
 
-        if ($definition::getParentPropertyName()) {
-            $associations = $definition::getFields()->getElements();
+        if ($definition::isInheritanceAware()) {
             /** @var Field $association */
-            foreach ($associations as $association) {
-                if (!$association->is(Inherited::class)) {
-                    continue;
-                }
-
+            foreach ($inheritedFields as $association) {
                 if (!$association instanceof ManyToManyAssociationField && !$association instanceof OneToManyAssociationField) {
                     continue;
                 }

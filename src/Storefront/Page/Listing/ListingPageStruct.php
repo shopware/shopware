@@ -2,16 +2,16 @@
 
 namespace Shopware\Storefront\Page\Listing;
 
-use Shopware\Core\Content\Product\Struct\ProductSearchResult;
 use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Core\System\Listing\Collection\ListingSortingBasicCollection;
+use Shopware\Core\System\Listing\ListingSortingCollection;
 use Shopware\Storefront\Page\Listing\AggregationView\AggregationViewCollection;
 
 class ListingPageStruct extends Struct
 {
     /**
-     * @var ProductSearchResult
+     * @var EntitySearchResult
      */
     protected $products;
 
@@ -46,7 +46,7 @@ class ListingPageStruct extends Struct
     protected $aggregations;
 
     /**
-     * @var ListingSortingBasicCollection
+     * @var ListingSortingCollection
      */
     protected $sortings;
 
@@ -62,7 +62,7 @@ class ListingPageStruct extends Struct
 
     public function __construct(
         ?string $navigationId,
-        ProductSearchResult $products,
+        EntitySearchResult $products,
         Criteria $criteria,
         int $currentPage = 1,
         int $pageCount = 1,
@@ -70,7 +70,7 @@ class ListingPageStruct extends Struct
         ?string $currentSorting = null,
         string $productBoxLayout = 'basic',
         ?AggregationViewCollection $aggregations = null,
-        ?ListingSortingBasicCollection $sortings = null
+        ?ListingSortingCollection $sortings = null
     ) {
         $this->products = $products;
         $this->criteria = $criteria;
@@ -81,19 +81,19 @@ class ListingPageStruct extends Struct
         $this->productBoxLayout = $productBoxLayout;
 
         $aggregations = $aggregations ?? new AggregationViewCollection();
-        $sortings = $sortings ?? new ListingSortingBasicCollection();
+        $sortings = $sortings ?? new ListingSortingCollection();
 
         $this->aggregations = $aggregations;
         $this->sortings = $sortings;
         $this->navigationId = $navigationId;
     }
 
-    public function getProducts(): ProductSearchResult
+    public function getProducts(): EntitySearchResult
     {
         return $this->products;
     }
 
-    public function setProducts(ProductSearchResult $products): void
+    public function setProducts(EntitySearchResult $products): void
     {
         $this->products = $products;
     }
@@ -148,7 +148,7 @@ class ListingPageStruct extends Struct
         return $this->aggregations;
     }
 
-    public function getSortings(): ListingSortingBasicCollection
+    public function getSortings(): ListingSortingCollection
     {
         return $this->sortings;
     }

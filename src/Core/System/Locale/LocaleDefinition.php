@@ -3,7 +3,6 @@
 namespace Shopware\Core\System\Locale;
 
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\IdField;
 use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
@@ -18,46 +17,20 @@ use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
 use Shopware\Core\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationDefinition;
-use Shopware\Core\System\Locale\Collection\LocaleBasicCollection;
-use Shopware\Core\System\Locale\Collection\LocaleDetailCollection;
-use Shopware\Core\System\Locale\Event\LocaleDeletedEvent;
-use Shopware\Core\System\Locale\Event\LocaleWrittenEvent;
-use Shopware\Core\System\Locale\Struct\LocaleBasicStruct;
-use Shopware\Core\System\Locale\Struct\LocaleDetailStruct;
 use Shopware\Core\System\Touchpoint\TouchpointDefinition;
 use Shopware\Core\System\User\UserDefinition;
 
 class LocaleDefinition extends EntityDefinition
 {
-    /**
-     * @var FieldCollection
-     */
-    protected static $primaryKeys;
-
-    /**
-     * @var FieldCollection
-     */
-    protected static $fields;
-
-    /**
-     * @var EntityExtensionInterface[]
-     */
-    protected static $extensions = [];
-
     public static function getEntityName(): string
     {
         return 'locale';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
@@ -69,53 +42,22 @@ class LocaleDefinition extends EntityDefinition
             new OneToManyAssociationField('fallbackApplications', TouchpointDefinition::class, 'fallback_locale_id', false, 'id'),
             (new OneToManyAssociationField('applications', TouchpointDefinition::class, 'locale_id', false, 'id'))->setFlags(new RestrictDelete()),
             (new TranslationsAssociationField('translations', LocaleTranslationDefinition::class, 'locale_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
-            (new OneToManyAssociationField('users', UserDefinition::class, 'locale_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
+            (new OneToManyAssociationField('users', UserDefinition::class, 'locale_id', false, 'id'))->setFlags(new RestrictDelete()),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
     }
 
-    public static function getRepositoryClass(): string
+    public static function getCollectionClass(): string
     {
-        return LocaleRepository::class;
+        return LocaleCollection::class;
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getStructClass(): string
     {
-        return LocaleBasicCollection::class;
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return LocaleDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return LocaleWrittenEvent::class;
-    }
-
-    public static function getBasicStructClass(): string
-    {
-        return LocaleBasicStruct::class;
+        return LocaleStruct::class;
     }
 
     public static function getTranslationDefinitionClass(): ?string
     {
         return LocaleTranslationDefinition::class;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return LocaleDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return LocaleDetailCollection::class;
     }
 }

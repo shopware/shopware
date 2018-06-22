@@ -4,16 +4,15 @@ namespace Shopware\Core\Content\Test\Category\Repository;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryDefinition;
-use Shopware\Core\Content\Category\CategoryRepository;
-use Shopware\Core\Content\Category\Event\CategoryDeletedEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Event\EntityDeletedEvent;
+use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\ORM\Search\Term\SearchTermInterpreter;
-use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -32,7 +31,7 @@ class CategoryRepositoryTest extends KernelTestCase
     public function setUp()
     {
         self::bootKernel();
-        $this->repository = self::$container->get(CategoryRepository::class);
+        $this->repository = self::$container->get('category.repository');
         $this->connection = self::$container->get(Connection::class);
         $this->connection->beginTransaction();
     }
@@ -75,11 +74,12 @@ class CategoryRepositoryTest extends KernelTestCase
             Context::createDefaultContext(Defaults::TENANT_ID)
         );
 
-        $this->assertInstanceOf(GenericWrittenEvent::class, $result);
+        $this->assertInstanceOf(EntityWrittenContainerEvent::class, $result);
 
+        /** @var EntityWrittenContainerEvent $result */
         $event = $result->getEventByDefinition(CategoryDefinition::class);
 
-        $this->assertInstanceOf(CategoryDeletedEvent::class, $event);
+        $this->assertInstanceOf(EntityDeletedEvent::class, $event);
 
         $this->assertEquals(
             [$parentId->getHex(), $childId->getHex()],
@@ -125,10 +125,10 @@ class CategoryRepositoryTest extends KernelTestCase
             Context::createDefaultContext(Defaults::TENANT_ID)
         );
 
-        $this->assertInstanceOf(GenericWrittenEvent::class, $result);
+        $this->assertInstanceOf(EntityWrittenContainerEvent::class, $result);
         $event = $result->getEventByDefinition(CategoryDefinition::class);
 
-        $this->assertInstanceOf(CategoryDeletedEvent::class, $event);
+        $this->assertInstanceOf(EntityDeletedEvent::class, $event);
         $this->assertEquals([$childId->getHex()], $event->getIds());
 
         $exists = $this->connection->fetchAll(
@@ -177,10 +177,10 @@ class CategoryRepositoryTest extends KernelTestCase
             ['id' => $parentId->getHex()],
         ], Context::createDefaultContext(Defaults::TENANT_ID));
 
-        $this->assertInstanceOf(GenericWrittenEvent::class, $result);
+        $this->assertInstanceOf(EntityWrittenContainerEvent::class, $result);
 
         $event = $result->getEventByDefinition(CategoryDefinition::class);
-        $this->assertInstanceOf(CategoryDeletedEvent::class, $event);
+        $this->assertInstanceOf(EntityDeletedEvent::class, $event);
 
         $this->assertContains($parentId->getHex(), $event->getIds());
         $this->assertContains($childId->getHex(), $event->getIds(), 'Category children id did not detected by delete');

@@ -87,7 +87,7 @@ Component.register('sw-customer-detail', {
                     offset: 0
                 };
 
-                //todo this is a temporary solution for association loading
+                // todo this is a temporary solution for association loading
                 criteria.push(CriteriaFactory.term('customer_address.customerId', this.customerId));
                 params.criteria = CriteriaFactory.nested('AND', ...criteria);
 

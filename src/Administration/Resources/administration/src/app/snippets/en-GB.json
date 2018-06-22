@@ -125,8 +125,8 @@
       "columnZipCode": "Zip code",
       "columnCity": "City",
       "columnActions": "Actions",
-      "contextMenuEdit": "Edit address",
-      "contextMenuDelete": "Delete address"
+      "contextMenuEdit": "Edit",
+      "contextMenuDelete": "Delete"
     },
     "addressForm": {
       "labelCompany": "Company",
@@ -161,7 +161,7 @@
       "headlineCatalogs": "Catalogues",
       "introHeadlineCatalogs": "Welcome to the catalogue management",
       "introDescriptionCatalogs": "All information, like products, pages and media are stored in a catalogue. All contents of a catalogue can be structured in categories. You can use a catalogue to publish your products and content to several sales channels. You can create multiple catalogues to manage different assortments.",
-      "buttonCreateCatalog": "Create new catalogue"
+      "buttonCreateCatalog": "Create catalogue"
     },
     "list": {
       "columnLabelName": "Name",
@@ -287,15 +287,15 @@
       "columnPrice": "Price",
       "columnInStock": "In Stock",
       "columnActions": "Action(s)",
-      "contextMenuEdit": "Edit product",
-      "contextMenuDelete": "Delete product",
-      "contextMenuDuplicate": "Duplicate product",
+      "contextMenuEdit": "Edit",
+      "contextMenuDelete": "Delete",
+      "contextMenuDuplicate": "Duplicate",
       "messageEmpty": "No products yet"
     },
     "detail": {
       "textHeadline": "New product",
       "buttonCancel": "Cancel",
-      "buttonSave": "Save product",
+      "buttonSave": "Save",
       "tabGeneral": "General",
       "tabAdvancedPrices": "Advanced pricing"
     }
@@ -305,16 +305,16 @@
       "mainMenuItemList": "Manufacturer"
     },
     "list": {
-      "textManufacturerOverview": "Manufacturer overview",
+      "textManufacturerOverview": "Manufacturer",
       "textTotalManufacturer": "No manufacturer | one manufacturer | {count} manufacturers",
       "buttonAddManufacturer": "Add manufacturer",
       "columnName": "Manufacturer",
       "columnLink": "Website",
       "columnDescription": "Description",
       "columnActions": "Actions",
-      "contextMenuEdit": "Edit manufacturer",
-      "contextMenuDelete": "Delete manufacturer",
-      "contextMenuDuplicate": "Duplicate manufacturer",
+      "contextMenuEdit": "Edit",
+      "contextMenuDelete": "Delete",
+      "contextMenuDuplicate": "Duplicate",
       "modalTitleDelete": "Delete manufacturer",
       "textDeleteConfirm": "Are you sure, you want to delete the manufacter {name}?",
       "buttonCancel": "Cancel",
@@ -324,7 +324,7 @@
       "textHeadline": "New manufacturer",
       "textMediaSelection": "Media selection",
       "buttonCancel": "Cancel",
-      "buttonSave": "Save manufacturer",
+      "buttonSave": "Save",
       "cardTitleManufacturerInfo": "Manufacturer information",
       "labelName": "Name",
       "labelDescription": "Description",

@@ -13,7 +13,11 @@
                 </slot>
             {% endblock %}
 
-            <slot>{% block sw_context_menu_item_text_slot_default %}{% endblock %}</slot>
+            {% block sw_context_menu_item_text %}
+                <span class="sw-context-menu-item__text" :class="{ 'is--disabled': disabled }">
+                    <slot>{% block sw_context_menu_item_slot_default %}{% endblock %}</slot>
+                </span>
+            {% endblock %}
         </router-link>
     {% endblock %}
 
@@ -30,7 +34,11 @@
                 </slot>
             {% endblock %}
 
-            <slot>{% block sw_context_menu_item_text_slot_default %}{% endblock %}</slot>
+            {% block sw_context_menu_item_text %}
+                <span class="sw-context-menu-item__text" :class="{ 'is--disabled': disabled }">
+                    <slot>{% block sw_context_menu_item_slot_default %}{% endblock %}</slot>
+                </span>
+            {% endblock %}
         </div>
     {% endblock %}
 {% endblock %}

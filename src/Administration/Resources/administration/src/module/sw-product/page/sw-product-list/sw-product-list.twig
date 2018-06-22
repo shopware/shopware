@@ -111,25 +111,23 @@
                                         {% endblock %}
 
                                         {% block sw_product_list_grid_columns_actions %}
-                                            <sw-grid-column flex="minmax(100px, 120px)" align="center">
+                                            <sw-grid-column flex="minmax(100px, 100px)" align="center">
                                                 <sw-context-button>
                                                     {% block sw_product_list_grid_columns_actions_edit %}
-                                                        <sw-context-menu-item icon="small-pencil-paper">
-                                                            <router-link :to="{ name: 'sw.product.detail', params: { id: item.id } }">
-                                                                {{ $tc('sw-product.list.contextMenuEdit') }}
-                                                            </router-link>
-                                                        </sw-context-menu-item>
-                                                    {% endblock %}
-
-                                                    {% block sw_product_list_grid_columns_actions_delete %}
-                                                        <sw-context-menu-item icon="small-default-x-line-medium" :disabled="true">
-                                                            {{ $tc('sw-product.list.contextMenuDelete') }}
+                                                        <sw-context-menu-item :routerLink="{ name: 'sw.product.detail', params: { id: item.id } }">
+                                                            {{ $tc('sw-product.list.contextMenuEdit') }}
                                                         </sw-context-menu-item>
                                                     {% endblock %}
 
                                                     {% block sw_product_list_grid_columns_actions_duplicate %}
-                                                        <sw-context-menu-item icon="small-copy" :disabled="true">
+                                                        <sw-context-menu-item :disabled="true">
                                                             {{ $tc('sw-product.list.contextMenuDuplicate') }}
+                                                        </sw-context-menu-item>
+                                                    {% endblock %}
+
+                                                    {% block sw_product_list_grid_columns_actions_delete %}
+                                                        <sw-context-menu-item :disabled="true" variant="danger">
+                                                            {{ $tc('sw-product.list.contextMenuDelete') }}
                                                         </sw-context-menu-item>
                                                     {% endblock %}
                                                 </sw-context-button>

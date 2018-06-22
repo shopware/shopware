@@ -1,8 +1,11 @@
 @import '~less/variables';
 
 @sw-context-menu-color-background-hover: lighten(@color-shopware-blue, 40%);
-@sw-context-menu-color-text: @color-gutenberg;
-@sw-context-menu-color-active: @color-shopware-blue;
+@sw-context-menu-color-text:             @color-gutenberg;
+@sw-context-menu-color-active:           @color-shopware-blue;
+@sw-context-menu-color-danger:           @color-crimson;
+@sw-context-menu-color-success:          @color-emerald;
+@sw-context-menu-color-warning:          @color-pumpkin-spice;
 
 .sw-context-menu-item {
     display: block;
@@ -21,6 +24,7 @@
         align-items: center;
         justify-items: stretch;
         justify-content: stretch;
+        grid-gap: 12px;
     }
 
     &:hover {
@@ -33,52 +37,68 @@
     }
 
     &.sw-context-menu-item--danger {
-        color: @color-crimson;
+        color: @sw-context-menu-color-danger;
 
         .sw-icon {
-            color: @color-crimson;
+            color: @sw-context-menu-color-danger;
         }
 
         &:hover {
-            background: lighten(@color-crimson, 42%);
+            background: lighten(@sw-context-menu-color-danger, 42%);
+
+            &.is--disabled {
+                color: @sw-context-menu-color-danger;
+            }
         }
     }
 
     &.sw-context-menu-item--success {
-        color: @color-emerald;
+        color: @sw-context-menu-color-success;
 
         .sw-icon {
-            color: @color-emerald;
+            color: @sw-context-menu-color-success;
         }
 
         &:hover {
-            background: lighten(@color-emerald, 42%);
+            background: lighten(@sw-context-menu-color-success, 42%);
+
+            &.is--disabled {
+                color: @sw-context-menu-color-success;
+            }
         }
     }
 
     &.sw-context-menu-item--warning {
-        color: @color-pumpkin-spice;
+        color: @sw-context-menu-color-warning;
 
         .sw-icon {
-            color: @color-pumpkin-spice;
+            color: @sw-context-menu-color-warning;
         }
 
         &:hover {
-            background: lighten(@color-pumpkin-spice, 25%);
+            background: lighten(@sw-context-menu-color-warning, 25%);
+
+            &.is--disabled {
+                color: @sw-context-menu-color-warning;
+            }
         }
     }
 
     &.is--disabled {
-        pointer-events: none;
         opacity: .5;
         cursor: default;
+
+        &:hover {
+            color: @sw-context-menu-color-text;
+            background: 0 none;
+        }
+
+        .sw-icon {
+            color: @sw-context-menu-color-text;
+        }
     }
 
     & > .sw-icon {
         color: @sw-context-menu-color-text;
-    }
-
-    .sw-context-menu-item__text {
-        display: block;
     }
 }

@@ -117,25 +117,25 @@
                                         {% endblock %}
 
                                         {% block sw_order_list_grid_columns_actions %}
-                                            <sw-grid-column flex="minmax(100px, 120px)"
+                                            <sw-grid-column flex="minmax(100px, 100px)"
                                                             align="center">
                                                 {% block sw_order_list_grid_columns_actions_context_button %}
                                                     <sw-context-button>
 
                                                         {% block sw_customer_list_grid_columns_actions_view %}
-                                                            <sw-context-menu-item icon="default-eye-open" disabled>
+                                                            <sw-context-menu-item disabled>
                                                                 {{ $tc('sw-order.list.contextMenuView') }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}
 
                                                         {% block sw_customer_list_grid_columns_actions_confirm_payment %}
-                                                            <sw-context-menu-item icon="small-default-checkmark-line-medium" disabled>
+                                                            <sw-context-menu-item disabled>
                                                                 {{ $tc('sw-order.list.contextMenuConfirmPayment') }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}
 
                                                         {% block sw_customer_list_grid_columns_actions_delete %}
-                                                            <sw-context-menu-item icon="small-trash" disabled>
+                                                            <sw-context-menu-item variant="danger" disabled>
                                                                 {{ $tc('sw-order.list.contextMenuDelete') }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}

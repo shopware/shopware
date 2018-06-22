@@ -3,7 +3,11 @@
 namespace Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption;
 
 use Shopware\Core\Content\Configuration\ConfigurationGroupCollection;
+use Shopware\Core\Content\Configuration\ConfigurationGroupStruct;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 
 class ConfigurationGroupOptionCollection extends EntityCollection
 {
@@ -59,15 +63,25 @@ class ConfigurationGroupOptionCollection extends EntityCollection
         );
     }
 
-    public function groupByConfigurationGroups(): ConfigurationGroupDetailCollection
+    public function groupByConfigurationGroups(): ConfigurationGroupCollection
     {
-        $groups = new ConfigurationGroupDetailCollection();
+        $groups = new ConfigurationGroupCollection();
         foreach ($this->elements as $element) {
             if ($groups->has($element->getGroupId())) {
                 $group = $groups->get($element->getGroupId());
             } else {
                 $group = ConfigurationGroupStruct::createFrom($element->getGroup());
                 $groups->add($group);
+
+                $group->setOptions(
+                    new EntitySearchResult(
+                        0,
+                        new ConfigurationGroupOptionCollection(),
+                        null,
+                        new Criteria(),
+                        Context::createDefaultContext('')
+                    )
+                );
             }
 
             $group->getOptions()->add($element);

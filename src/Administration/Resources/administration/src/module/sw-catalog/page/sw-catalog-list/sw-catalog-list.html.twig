@@ -30,7 +30,7 @@
                 {% block sw_catalog_list_overview %}
                     <sw-card :isLoading="isLoading" class="sw-catalog-list__overview">
                         {% block sw_catalog_list_grid %}
-                            <sw-grid :items="catalogs">
+                            <sw-grid :items="catalogs" :selectable="false">
 
                                 <template slot="columns" slot-scope="{ item }">
                                     {% block sw_catalog_list_grid_columns %}

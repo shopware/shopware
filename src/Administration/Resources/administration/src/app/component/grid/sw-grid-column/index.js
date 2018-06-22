@@ -8,7 +8,7 @@ Component.register('sw-grid-column', {
     props: {
         label: {
             type: String,
-            required: true
+            required: false
         },
         iconLabel: {
             type: String,
@@ -36,6 +36,11 @@ Component.register('sw-grid-column', {
             type: Boolean,
             required: false,
             default: false
+        },
+        truncate: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -58,7 +63,8 @@ Component.register('sw-grid-column', {
                 sortable: this.sortable,
                 dataIndex: this.dataIndex,
                 align: this.align,
-                editable: this.editable
+                editable: this.editable,
+                truncate: this.truncate
             });
         }
     }

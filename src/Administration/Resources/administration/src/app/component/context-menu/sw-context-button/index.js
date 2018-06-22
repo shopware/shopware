@@ -14,7 +14,7 @@ Component.register('sw-context-button', {
         menuWidth: {
             type: Number,
             required: false,
-            default: 255
+            default: 220
         },
         menuOffsetTop: {
             type: Number,
@@ -24,7 +24,7 @@ Component.register('sw-context-button', {
         menuOffsetLeft: {
             type: Number,
             required: false,
-            default: 22
+            default: 15
         }
     },
 
@@ -33,7 +33,8 @@ Component.register('sw-context-button', {
             showMenu: this.showMenuOnStartup,
             positionTop: 0,
             positionLeft: 0,
-            paddingTop: 0
+            paddingTop: 0,
+            menuUuid: 0
         };
     },
 
@@ -67,10 +68,14 @@ Component.register('sw-context-button', {
             this.addMenuToBody();
         },
 
-        closeMenu() {
-            this.showMenu = false;
+        closeMenu(event) {
+            const el = this.$refs.swContextButton;
+            const target = event.target;
 
-            this.removeMenuFromBody();
+            if ((el !== target) && !el.contains(target) && !target.classList.contains('is--disabled')) {
+                this.showMenu = false;
+                this.removeMenuFromBody();
+            }
         },
 
         addMenuToBody() {
@@ -78,7 +83,7 @@ Component.register('sw-context-button', {
 
             if (menuEl) {
                 document.body.appendChild(menuEl.$el);
-                menuEl.$el.addEventListener('mouseleave', this.closeMenu);
+                document.addEventListener('click', this.closeMenu);
             }
         },
 
@@ -86,7 +91,7 @@ Component.register('sw-context-button', {
             const menuEl = this.$children[1];
 
             if (menuEl) {
-                menuEl.$el.removeEventListener('mouseleave', this.closeMenu);
+                document.removeEventListener('click', this.closeMenu);
                 menuEl.$el.remove();
             }
         }

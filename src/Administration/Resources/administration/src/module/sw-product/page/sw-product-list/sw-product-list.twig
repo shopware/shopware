@@ -25,6 +25,7 @@
                                  :sortDirection="sortDirection"
                                  :sidebar="true"
                                  :isFullpage="true"
+                                 :selectable="false"
                                  @edit="onEdit"
                                  @sort-column="onSortColumn"
                                  @inline-edit-finish="onInlineEditSave">
@@ -38,8 +39,15 @@
                                                             :label="$tc('sw-product.list.columnName')"
                                                             dataIndex="name"
                                                             sortable
+                                                            truncate
                                                             editable>
-                                                {{ item.name }}
+                                                {% block sw_product_list_grid_columns_name_link %}
+                                                    <router-link :to="{ name: 'sw.product.detail', params: { id: item.id } }">
+                                                        {% block sw_product_list_grid_columns_name_label %}
+                                                            {{ item.name }}
+                                                        {% endblock %}
+                                                    </router-link>
+                                                {% endblock %}
 
                                                 {% block sw_product_list_grid_columns_name_editor %}
                                                     <sw-field type="text" v-model="item.name" slot="inline-edit"></sw-field>
@@ -52,6 +60,7 @@
                                                             :label="$tc('sw-product.list.columnManufacturer')"
                                                             dataIndex="manufacturer.name"
                                                             sortable
+                                                            truncate
                                                             editable>
                                                 {{ item.manufacturer.name }}
 
@@ -67,6 +76,7 @@
                                                             dataIndex="active"
                                                             align="center"
                                                             sortable
+                                                            truncate
                                                             editable>
                                                 <sw-icon name="small-default-checkmark-line-medium" small v-if="item.active" class="is--active"></sw-icon>
                                                 <sw-icon name="small-default-x-line-medium" small v-else class="is--inactive"></sw-icon>
@@ -81,6 +91,7 @@
                                             <sw-grid-column flex="minmax(95px, 105px)"
                                                             :label="$tc('sw-product.list.columnPrice')"
                                                             sortable
+                                                            truncate
                                                             dataIndex="price"
                                                             align="right">
                                                 {{ item.price.gross | currency }}
@@ -91,6 +102,7 @@
                                             <sw-grid-column flex="minmax(95px, 150px)"
                                                             :label="$tc('sw-product.list.columnInStock')"
                                                             sortable
+                                                            truncate
                                                             dataIndex="stock"
                                                             align="right">
                                                 {{ item.stock }}
@@ -99,30 +111,23 @@
                                         {% endblock %}
 
                                         {% block sw_product_list_grid_columns_actions %}
-                                            <sw-grid-column flex="minmax(100px, 120px)"
-                                                            :label="$tc('sw-product.list.columnActions')"
-                                                            align="center">
-
+                                            <sw-grid-column flex="minmax(100px, 100px)" align="center">
                                                 <sw-context-button>
                                                     {% block sw_product_list_grid_columns_actions_edit %}
-                                                        <sw-context-menu-item icon="small-pencil-paper">
-                                                            <router-link :to="{
-                                                                    name: 'sw.product.detail',
-                                                                    params: { id: item.id } }">
-                                                                {{ $tc('sw-product.list.contextMenuEdit') }}
-                                                            </router-link>
-                                                        </sw-context-menu-item>
-                                                    {% endblock %}
-
-                                                    {% block sw_product_list_grid_columns_actions_delete %}
-                                                        <sw-context-menu-item icon="small-default-x-line-medium" :disabled="true">
-                                                            {{ $tc('sw-product.list.contextMenuDelete') }}
+                                                        <sw-context-menu-item :routerLink="{ name: 'sw.product.detail', params: { id: item.id } }">
+                                                            {{ $tc('sw-product.list.contextMenuEdit') }}
                                                         </sw-context-menu-item>
                                                     {% endblock %}
 
                                                     {% block sw_product_list_grid_columns_actions_duplicate %}
-                                                        <sw-context-menu-item icon="small-copy" :disabled="true">
+                                                        <sw-context-menu-item :disabled="true">
                                                             {{ $tc('sw-product.list.contextMenuDuplicate') }}
+                                                        </sw-context-menu-item>
+                                                    {% endblock %}
+
+                                                    {% block sw_product_list_grid_columns_actions_delete %}
+                                                        <sw-context-menu-item :disabled="true" variant="danger">
+                                                            {{ $tc('sw-product.list.contextMenuDelete') }}
                                                         </sw-context-menu-item>
                                                     {% endblock %}
                                                 </sw-context-button>

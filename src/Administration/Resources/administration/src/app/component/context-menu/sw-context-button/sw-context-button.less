@@ -1,10 +1,28 @@
 @import '~less/variables';
 
-@sw-context-button-color-text: @color-gutenberg;
+@sw-context-button-color-text:    @color-gutenberg;
+@sw-context-button-border-radius: @border-radius-default;
+@sw-context-button-color-border:  @color-steam-cloud;
 
 .sw-context-button {
     display: inline-block;
     position: relative;
     color: @sw-context-button-color-text;
-    cursor: pointer;
+
+    .sw-context-button__button {
+        color: @sw-context-button-color-text;
+        background: 0 none;
+        border: 1px solid transparent;
+        border-radius: @sw-context-button-border-radius;
+        cursor: pointer;
+        height: 24px;
+        line-height: 20px;
+        padding: 0 8px;
+        outline: none;
+
+        &:hover,
+        &.is--active {
+            border-color: @sw-context-button-color-border;
+        }
+    }
 }

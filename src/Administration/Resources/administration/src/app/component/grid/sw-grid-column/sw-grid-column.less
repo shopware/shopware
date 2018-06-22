@@ -1,7 +1,9 @@
 @import "~less/variables";
+@import "~less/mixins";
 
-@sw-grid-column-color-action: @color-shopware-blue;
-@sw-grid-column-color-border: @color-steam-cloud;
+@sw-grid-column-color-action:       @color-shopware-blue;
+@sw-grid-column-color-border:       @color-steam-cloud;
+@sw-grid-column-content-color-text: @color-gutenberg;
 
 .sw-grid-column {
     cursor: default;
@@ -51,6 +53,22 @@
         line-height: 24px;
         padding: 20px 20px;
         text-align: left;
+        font-size: 15px;
+        color: @sw-grid-column-content-color-text;
+
+        &.is--truncate {
+            .truncate();
+            display: block;
+        }
+
+        a {
+            color: @sw-grid-column-content-color-text;
+            text-decoration: none;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
     }
 
     &.sw-grid-column--left {

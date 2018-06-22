@@ -1,8 +1,10 @@
 {% block sw_context_button %}
-    <div class="sw-context-button" @mouseenter="openMenu">
+    <div class="sw-context-button" @click="openMenu" ref="swContextButton">
         {% block sw_context_button_button %}
             <slot name="button">
-                <sw-icon name="default-action-more-horizontal" decorative></sw-icon>
+                <button class="sw-context-button__button" :class="{ 'is--active': showMenu }">
+                    <sw-icon name="default-action-more-horizontal" decorative></sw-icon>
+                </button>
             </slot>
         {% endblock %}
 

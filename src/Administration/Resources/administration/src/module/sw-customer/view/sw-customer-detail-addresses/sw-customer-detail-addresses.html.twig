@@ -44,7 +44,7 @@
                 {% endblock %}
 
                 {% block sw_customer_detail_addresses_grid %}
-                    <sw-grid :items="customer.addresses">
+                    <sw-grid :items="customer.addresses" :selectable="false">
                         {% block sw_customer_detail_addresses_grid_slots %}
                             <template slot="columns" slot-scope="{ item }">
 
@@ -53,8 +53,7 @@
                                                     :label="$tc('sw-customer.detailAddresses.columnDefaultShippingAddress')"
                                                     iconLabel="default-shopping-cart"
                                                     dataIndex="defaultShippingAddress"
-                                                    align="center"
-                                                    truncate>
+                                                    align="center">
                                         {% block sw_customer_detail_addresses_grid_columns_default_shipping_address_radio %}
                                             <sw-field type="radio"
                                                       v-model="customer.defaultShippingAddressId"
@@ -70,8 +69,7 @@
                                                     :label="$tc('sw-customer.detailAddresses.columnDefaultBillingAddress')"
                                                     iconLabel="default-documentation-file"
                                                     dataIndex="defaultBillingAddress"
-                                                    align="center"
-                                                    truncate>
+                                                    align="center">
                                         {% block sw_customer_detail_addresses_grid_columns_default_billing_address_radio %}
                                             <sw-field type="radio"
                                                       v-model="customer.defaultBillingAddressId"
@@ -149,8 +147,7 @@
                                 {% endblock %}
 
                                 {% block sw_customer_detail_addresses_grid_columns_actions %}
-                                    <sw-grid-column flex="minmax(100px, 120px)"
-                                                    :label="$tc('sw-customer.detailAddresses.columnActions')"
+                                    <sw-grid-column flex="minmax(100px, 100px)"
                                                     dataIndex="actions"
                                                     align="center"
                                                     truncate>
@@ -158,16 +155,15 @@
                                             <sw-context-button>
 
                                                 {% block sw_customer_detail_addresses_grid_columns_actions_edit %}
-                                                    <sw-context-menu-item icon="small-pencil-paper"
-                                                                          @click="onEditAddress(item.id)">
+                                                    <sw-context-menu-item @click="onEditAddress(item.id)">
                                                         {{ $tc('sw-customer.detailAddresses.contextMenuEdit') }}
                                                     </sw-context-menu-item>
                                                 {% endblock %}
 
                                                 {% block sw_customer_detail_addresses_grid_columns_actions_delete %}
-                                                    <sw-context-menu-item icon="small-trash"
-                                                                          @click="onDeleteAddress(item.id)"
-                                                                          :disabled="customer.defaultBillingAddressId === item.id || customer.defaultShippingAddressId === item.id">
+                                                    <sw-context-menu-item @click="onDeleteAddress(item.id)"
+                                                                          variant="danger"
+                                                                          :disabled="isDefaultAddress(item.id)">
                                                         {{ $tc('sw-customer.detailAddresses.contextMenuDelete') }}
                                                     </sw-context-menu-item>
                                                 {% endblock %}

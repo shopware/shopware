@@ -1,13 +1,15 @@
 @import "~less/variables";
 
-@sw-grid-row-color-border:                @color-shopware-blue;
-@sw-grid-row-color-background:            @color-cadet-blue;
-@sw-grid-item-color-border:               @color-steam-cloud;
-@sw-grid-item-color-background:           @color-light-gray;
-@sw-grid-item-even-color-background:      @color-white;
-@sw-grid-item-active-color-border:        @color-shopware-blue;
-@sw-grid-item-active-color-background:    @color-cadet-blue;
-@sw-grid-item-active-color-text:          @color-black;
+@sw-grid-row-color-border:              @color-shopware-blue;
+@sw-grid-row-color-background:          @color-cadet-blue;
+@sw-grid-item-color-border:             @color-steam-cloud;
+@sw-grid-item-color-background:         @color-light-gray;
+@sw-grid-item-even-color-background:    @color-white;
+@sw-grid-item-active-color-border:      @color-shopware-blue;
+@sw-grid-item-hover-color-link:         @color-shopware-blue;
+@sw-grid-item-active-color-background:  @color-cadet-blue;
+@sw-grid-item-active-color-text:        @color-black;
+@sw-grid-row-inline-edit-border-radius: @border-radius-default;
 
 .sw-grid-row {
     display: grid;
@@ -21,11 +23,15 @@
     }
 
     &:last-child {
-        border-bottom: 0 none;
+        border-bottom-color: transparent;
     }
 
     &:hover {
         background: lighten(@sw-grid-item-active-color-background, 2%);
+
+        .sw-grid__cell-content a {
+            color: @sw-grid-item-hover-color-link;
+        }
     }
 
     &.is--selected {
@@ -47,12 +53,17 @@
             display: none;
         }
 
+        .sw-grid-column {
+            border-right-color: rgba(0, 0, 0, 0.05);
+        }
+
         .sw-grid__cell-inline-editing {
             display: grid;
             grid-auto-flow: column;
             align-items: center;
             justify-items: stretch;
             justify-content: stretch;
+            grid-gap: 10px;
             height: 100%;
             line-height: 24px;
             padding: 10px;
@@ -71,13 +82,14 @@
     .sw-grid-row__actions {
         display: none;
         position: absolute;
-        bottom: -61px;
         left: 50%;
+        bottom: -53px;
         transform: translate(-50%, 0);
         z-index: 10;
         padding: 10px 16px;
         background: @sw-grid-row-color-background;
         border: 1px solid @sw-grid-row-color-border;
         border-top: 0 none;
+        border-radius: 0 0 @sw-grid-row-inline-edit-border-radius @sw-grid-row-inline-edit-border-radius;
     }
 }

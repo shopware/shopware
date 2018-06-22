@@ -17,7 +17,7 @@
     },
     "sw-grid-row": {
       "buttonInlineEditCancel": "Abbrechen",
-      "buttonInlineEditSave": "Änderungen speichern"
+      "buttonInlineEditSave": "Speichern"
     },
     "sw-pagination": {
       "labelItemsPerPage": "Einträge pro Seite:"
@@ -50,6 +50,7 @@
       "textCustomersTotal": "Kein Kunde | Ein Kunde | {count} Kunden",
       "buttonAddCustomer": "Kunde anlegen",
       "columnCustomerNumber": "Kd. Nr.",
+      "columnName": "Name",
       "columnFirstName": "Vorname",
       "columnLastName": "Nachname",
       "columnStreet": "Straße",
@@ -58,10 +59,10 @@
       "columnEmail": "E-Mail",
       "columnLastLogin": "Zuletzt eingeloggt",
       "columnActions": "Aktion(en)",
-      "contextMenuView": "Kunde anzeigen",
-      "contextMenuDuplicate": "Kunde duplizieren",
-      "contextMenuDelete": "Kunde löschen",
-      "contextMenuEdit": "Kunde bearbeiten",
+      "contextMenuView": "Anzeigen",
+      "contextMenuDuplicate": "Duplizieren",
+      "contextMenuDelete": "Löschen",
+      "contextMenuEdit": "Bearbeiten",
       "messageEmpty": "Noch keine Kunden"
     },
     "baseForm": {
@@ -124,8 +125,8 @@
       "columnZipCode": "PLZ",
       "columnCity": "Stadt",
       "columnActions": "Aktionen",
-      "contextMenuEdit": "Adresse bearbeiten",
-      "contextMenuDelete": "Adresse löschen"
+      "contextMenuEdit": "Bearbeiten",
+      "contextMenuDelete": "Löschen"
     },
     "addressForm": {
       "labelCompany": "Firma",
@@ -160,7 +161,7 @@
       "headlineCatalogs": "Kataloge",
       "introHeadlineCatalogs": "Willkommen in der Katalogverwaltung",
       "introDescriptionCatalogs": "Alle Informationen, wie Produkte, Seiten oder Medien werden in einem Katalog abgelegt. Alle Daten eines Kataloges können in Kategorien strukturiert werden. Du kannst einen Katalog dazu benutzen, um Deine Produkte und Inhalte auf einem oder mehreren Verkaufskanälen auszuspielen. Man kann außerdem weitere Kataloge anlegen, um z.B. neue Sortimente besser zu verwalten.",
-      "buttonCreateCatalog": "Neuen Katalog anlegen"
+      "buttonCreateCatalog": "Katalog anlegen"
     },
     "list": {
       "columnLabelName": "Name",
@@ -286,15 +287,15 @@
       "columnPrice": "Preis",
       "columnInStock": "Lager",
       "columnActions": "Aktion(en)",
-      "contextMenuEdit": "Produkt editieren",
-      "contextMenuDelete": "Produkt löschen",
-      "contextMenuDuplicate": "Produkt duplizieren",
+      "contextMenuEdit": "Bearbeiten",
+      "contextMenuDelete": "Löschen",
+      "contextMenuDuplicate": "Duplizieren",
       "messageEmpty": "Noch keine Produkte"
     },
     "detail": {
       "textHeadline": "Neues Produkt",
       "buttonCancel": "Abbrechen",
-      "buttonSave": "Produkt speichern",
+      "buttonSave": "Speichern",
       "tabGeneral": "Allgemein",
       "tabAdvancedPrices": "Erweiterte Preise"
     }
@@ -304,16 +305,16 @@
       "mainMenuItemList": "Hersteller"
     },
     "list": {
-      "textManufacturerOverview": "Hersteller Übersicht",
+      "textManufacturerOverview": "Hersteller",
       "textTotalManufacturer": "Keine Hersteller | ein Hersteller | {count} Hersteller",
       "buttonAddManufacturer": "Hersteller anlegen",
       "columnName": "Hersteller",
       "columnLink": "Webseite",
       "columnDescription": "Beschreibung",
       "columnActions": "Aktionen",
-      "contextMenuEdit": "Hersteller bearbeiten",
-      "contextMenuDelete": "Hersteller löschen",
-      "contextMenuDuplicate": "Hersteller duplizieren",
+      "contextMenuEdit": "Bearbeiten",
+      "contextMenuDelete": "Löschen",
+      "contextMenuDuplicate": "Duplizieren",
       "modalTitleDelete": "Hersteller löschen",
       "textDeleteConfirm": "Sind Sie sich sicher dass sie den Hersteller {name} löschen möchten?",
       "buttonCancel": "Abbrechen",
@@ -323,7 +324,7 @@
       "textHeadline": "Neuer Hersteller",
       "textMediaSelection": "Medien Auswahl",
       "buttonCancel": "Abbrechen",
-      "buttonSave": "Hersteller speichern",
+      "buttonSave": "Speichern",
       "cardTitleManufacturerInfo": "Herstellerinformationen",
       "labelName": "Name",
       "labelDescription": "Beschreibung",

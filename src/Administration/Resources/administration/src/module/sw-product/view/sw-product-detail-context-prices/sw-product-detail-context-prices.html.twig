@@ -80,7 +80,7 @@
                         {% endblock %}
 
                         {% block sw_product_detail_prices_price_matrix_grid %}
-                            <sw-grid :items="currencyRule.prices">
+                            <sw-grid :items="currencyRule.prices" :selectable="false">
                                 <template slot="columns" slot-scope="{ item }">
                                     {% block sw_product_detail_prices_price_matrix_grid_columns %}
 
@@ -121,23 +121,23 @@
                                         {% endblock %}
 
                                         {% block sw_product_detail_prices_price_matrix_grid_actions %}
-                                            <sw-grid-column flex="64px" align="center" label="">
+                                            <sw-grid-column flex="64px" align="center">
                                                 {% block sw_product_detail_prices_price_matrix_grid_actions_button %}
                                                     <sw-context-button>
                                                         {% block sw_product_detail_prices_price_matrix_grid_actions_duplicate %}
-                                                            <sw-context-menu-item icon="small-copy" @click="onPriceRuleDuplicate(item)">
+                                                            <sw-context-menu-item @click="onPriceRuleDuplicate(item)">
                                                                 {{ $tc('sw-product.priceRules.contextMenuDuplicate') }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}
 
                                                         {% block sw_product_detail_prices_price_matrix_grid_actions_delete %}
-                                                        <sw-context-menu-item icon="small-default-x-line-medium"
-                                                                              @click="onPriceRuleDelete(item)"
-                                                                              :disabled="currencyRule.currency.isDefault &&
-                                                                                         currencyRule.prices.length <= 1 &&
-                                                                                         Object.keys(priceGroup.currencies).length > 1">
-                                                            {{ $tc('sw-product.priceRules.contextMenuDelete') }}
-                                                        </sw-context-menu-item>
+                                                            <sw-context-menu-item variant="danger"
+                                                                                  @click="onPriceRuleDelete(item)"
+                                                                                  :disabled="currencyRule.currency.isDefault &&
+                                                                                             currencyRule.prices.length <= 1 &&
+                                                                                             Object.keys(priceGroup.currencies).length > 1">
+                                                                {{ $tc('sw-product.priceRules.contextMenuDelete') }}
+                                                            </sw-context-menu-item>
                                                         {% endblock %}
                                                     </sw-context-button>
                                                 {% endblock %}

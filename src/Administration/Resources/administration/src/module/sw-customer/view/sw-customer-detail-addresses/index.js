@@ -92,6 +92,9 @@ Component.register('sw-customer-detail-addresses', {
         },
 
         onDeleteAddress(id) {
+            if (this.isDefaultAddress(id)) {
+                return;
+            }
             this.showDeleteAddressModal = id;
         },
 
@@ -101,6 +104,11 @@ Component.register('sw-customer-detail-addresses', {
 
         onCloseDeleteAddressModal() {
             this.showDeleteAddressModal = false;
+        },
+
+        isDefaultAddress(addressId) {
+            return this.customer.defaultBillingAddressId === addressId ||
+                this.customer.defaultShippingAddressId === addressId;
         }
     }
 });

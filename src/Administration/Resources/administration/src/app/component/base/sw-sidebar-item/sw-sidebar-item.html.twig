@@ -2,7 +2,7 @@
     <div class="sw-sidebar-item">
         {% block sw_sidebar_item_button %}
             <button class="sw-sidebar-item__button" :class="{ 'is-active': isExpanded, 'is-disabled': disabled }" @click="toggleContentPanel">
-                {% block sw_sidebar_item_icon %}<sw-icon :name="icon" :title="title"></sw-icon>{% endblock %}
+                {% block sw_sidebar_item_icon %}<sw-icon :name="icon" size="20px" :title="title"></sw-icon>{% endblock %}
             </button>
         {% endblock %}
 

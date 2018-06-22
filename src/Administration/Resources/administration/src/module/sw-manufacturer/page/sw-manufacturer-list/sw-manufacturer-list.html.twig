@@ -27,6 +27,7 @@
                                  :sortBy="sortBy"
                                  :sortDirection="sortDirection"
                                  :sidebar="true"
+                                 :selectable="false"
                                  :isFullpage="true"
                                  @sort-column="onSortColumn"
                                  @inline-edit-finish="onInlineEditSave">
@@ -40,8 +41,11 @@
                                                             :label="$tc('sw-manufacturer.list.columnName')"
                                                             dataIndex="name"
                                                             sortable
+                                                            truncate
                                                             editable>
-                                                {{ item.name }}
+                                                <router-link :to="{ name: 'sw.manufacturer.detail', params: { id: item.id } }">
+                                                    {{ item.name }}
+                                                </router-link>
 
                                                 {% block sw_manufacturer_list_grid_columns_name_editor %}
                                                     <sw-field type="text" v-model="item.name" slot="inline-edit"></sw-field>
@@ -54,6 +58,7 @@
                                                             :label="$tc('sw-manufacturer.list.columnLink')"
                                                             dataIndex="link"
                                                             sortable
+                                                            truncate
                                                             editable>
                                                 {{ item.link }}
 
@@ -67,36 +72,33 @@
                                             <sw-grid-column flex="minmax(200px, 1fr)"
                                                             :label="$tc('sw-manufacturer.list.columnDescription')"
                                                             dataIndex="description"
+                                                            truncate
                                                             sortable>
                                                 {{ item.description | truncate }}
                                             </sw-grid-column>
                                         {% endblock %}
 
                                         {% block sw_product_list_grid_columns_actions %}
-                                            <sw-grid-column flex="minmax(100px, 120px)"
-                                                        :label="$tc('sw-manufacturer.list.columnActions')"
-                                                        align="center">
+                                            <sw-grid-column flex="minmax(100px, 100px)" align="center">
                                                 <sw-context-button>
 
                                                     {% block sw_product_list_grid_columns_actions_edit %}
-                                                        <sw-context-menu-item icon="small-pencil-paper">
-                                                            <router-link :to="{
+                                                        <sw-context-menu-item :routerLink="{
                                                                 name: 'sw.manufacturer.detail',
                                                                 params: { id: item.id } }">
                                                             {{ $tc('sw-manufacturer.list.contextMenuEdit') }}
-                                                            </router-link>
-                                                        </sw-context-menu-item>
-                                                    {% endblock %}
-
-                                                    {% block sw_product_list_grid_columns_actions_delete %}
-                                                        <sw-context-menu-item icon="small-default-x-line-medium" @click="onDeleteManufacturer(item.id)">
-                                                            {{ $tc('sw-manufacturer.list.contextMenuDelete') }}
                                                         </sw-context-menu-item>
                                                     {% endblock %}
 
                                                     {% block sw_product_list_grid_columns_actions_duplicate %}
-                                                        <sw-context-menu-item icon="small-copy" :disabled="true">
+                                                        <sw-context-menu-item :disabled="true">
                                                             {{ $tc('sw-manufacturer.list.contextMenuDuplicate') }}
+                                                        </sw-context-menu-item>
+                                                    {% endblock %}
+
+                                                    {% block sw_product_list_grid_columns_actions_delete %}
+                                                        <sw-context-menu-item variant="danger" @click="onDeleteManufacturer(item.id)">
+                                                            {{ $tc('sw-manufacturer.list.contextMenuDelete') }}
                                                         </sw-context-menu-item>
                                                     {% endblock %}
                                             </sw-context-button>

@@ -161,7 +161,7 @@
                                                 {% endblock %}
 
                                                 {% block sw_customer_detail_addresses_grid_columns_actions_delete %}
-                                                    <sw-context-menu-item @on="{ click: isDefaultAddress(item.id) ? onDeleteAddress(item.id) : null }"
+                                                    <sw-context-menu-item @click="onDeleteAddress(item.id)"
                                                                           variant="danger"
                                                                           :disabled="isDefaultAddress(item.id)">
                                                         {{ $tc('sw-customer.detailAddresses.contextMenuDelete') }}

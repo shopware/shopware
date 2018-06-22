@@ -92,6 +92,9 @@ Component.register('sw-customer-detail-addresses', {
         },
 
         onDeleteAddress(id) {
+            if (this.isDefaultAddress(id)) {
+                return;
+            }
             this.showDeleteAddressModal = id;
         },
 

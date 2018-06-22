@@ -33,6 +33,7 @@ use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItem;
 use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -67,7 +68,8 @@ class OrderPersisterTest extends TestCase
         $customer->setId('SWAG-CUSTOMER-ID-1');
         $customer->setDefaultBillingAddress($billingAddress);
 
-        $persister = new OrderPersister($repository, $taxDetector);
+        $converter = new OrderConverter($taxDetector);
+        $persister = new OrderPersister($repository, $converter);
 
         $checkoutContext = $this->createMock(CheckoutContext::class);
         $checkoutContext->expects($this->any())->method('getCustomer')->willReturn($customer);

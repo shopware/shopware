@@ -171,7 +171,7 @@ class EntityReaderTest extends KernelTestCase
 
         $this->assertTrue($inheritance->get('manufacturerId'));
         $this->assertTrue($inheritance->get('unitId'));
-        $this->assertTrue($inheritance->get('priceRules'));
+        $this->assertTrue($inheritance->get('priceRules'), print_r($inheritance, true));
 
         /** @var ProductStruct $green */
         $green = $products->get($greenId);

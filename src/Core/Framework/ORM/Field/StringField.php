@@ -30,6 +30,7 @@ use Shopware\Core\Framework\ORM\Write\FieldAware\StorageAware;
 use Shopware\Core\Framework\ORM\Write\FieldException\InvalidFieldException;
 use Shopware\Core\Framework\ORM\Write\Filter\Filter;
 use Shopware\Core\Framework\ORM\Write\Filter\HtmlFilter;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 

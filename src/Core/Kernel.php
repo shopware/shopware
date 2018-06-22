@@ -5,8 +5,8 @@ namespace Shopware\Core;
 use Shopware\Core\Framework\Api\Controller\ApiController;
 use Shopware\Core\Framework\Doctrine\DatabaseConnector;
 use Shopware\Core\Framework\Framework;
+use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\BundleCollection;
-use Shopware\Core\Framework\Plugin\Plugin;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -219,7 +219,7 @@ class Kernel extends HttpKernel
 
             $isActive = in_array($pluginName, $activePlugins, true);
 
-            /** @var Plugin $plugin */
+            /** @var \Shopware\Core\Framework\Plugin $plugin */
             $plugin = new $className($isActive);
 
             if (!$plugin instanceof Plugin) {

@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Command;
 
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\PluginManager;
-use Shopware\Core\Framework\Struct\Plugin;
+use Shopware\Core\Framework\Plugin\PluginStruct;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -66,13 +66,13 @@ EOF
         $io->text(sprintf('Installing %d plugins:', count($plugins)));
         $io->listing($this->formatPluginList($plugins));
 
-        /** @var Plugin $plugin */
+        /** @var PluginStruct $plugin */
         foreach ($plugins as $plugin) {
             if ($input->getOption('reinstall') && $plugin->getInstallationDate()) {
                 $this->pluginManager->uninstallPlugin($plugin);
             }
 
-            if ($input->getOption('activate') && $plugin->getInstallationDate() && $plugin->isActive() === false) {
+            if ($input->getOption('activate') && $plugin->getInstallationDate() && $plugin->getActive() === false) {
                 $io->note(sprintf('Plugin "%s" is already installed. Activating.', $plugin->getName()));
                 $this->pluginManager->activatePlugin($plugin);
 

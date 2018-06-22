@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Plugin;
 
 use Closure;
+use Shopware\Core\Framework\Plugin;
 
 class BundleCollection
 {

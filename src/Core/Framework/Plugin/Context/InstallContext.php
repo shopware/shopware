@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Plugin\Context;
 
-use Shopware\Core\Framework\Plugin\Plugin;
+use Shopware\Core\Framework\Plugin;
 
 class InstallContext implements \JsonSerializable
 {

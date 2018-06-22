@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Plugin\Context;
 
-use Shopware\Core\Framework\Plugin\Plugin;
+use Shopware\Core\Framework\Plugin;
 
 class UpdateContext extends InstallContext
 {
@@ -12,10 +12,10 @@ class UpdateContext extends InstallContext
     private $updateVersion;
 
     /**
-     * @param Plugin $plugin
-     * @param string $shopwareVersion
-     * @param string $currentVersion
-     * @param string $updateVersion
+     * @param \Shopware\Core\Framework\Plugin $plugin
+     * @param string                          $shopwareVersion
+     * @param string                          $currentVersion
+     * @param string                          $updateVersion
      */
     public function __construct(
         Plugin $plugin,

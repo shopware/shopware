@@ -58,9 +58,9 @@ class PluginManager
      *
      * @throws PluginNotFoundException
      *
-     * @return Plugin
+     * @return PluginStruct
      */
-    public function getPluginByName(string $pluginName): Plugin
+    public function getPluginByName(string $pluginName): PluginStruct
     {
         $builder = $this->connection->createQueryBuilder();
         $plugin = $builder->select('*')
@@ -82,7 +82,7 @@ class PluginManager
      *
      * @return InstallContext
      */
-    public function installPlugin(Plugin $plugin): InstallContext
+    public function installPlugin(PluginStruct $plugin): InstallContext
     {
         $pluginBootstrap = $this->getPluginBootstrap($plugin->getName());
 
@@ -129,7 +129,7 @@ class PluginManager
      *
      * @return UninstallContext
      */
-    public function uninstallPlugin(Plugin $plugin, $removeUserData = true): Context\UninstallContext
+    public function uninstallPlugin(PluginStruct $plugin, $removeUserData = true): Context\UninstallContext
     {
         $pluginBootstrap = $this->getPluginBootstrap($plugin->getName());
 
@@ -165,7 +165,7 @@ class PluginManager
      *
      * @return UpdateContext
      */
-    public function updatePlugin(Plugin $plugin): Context\UpdateContext
+    public function updatePlugin(PluginStruct $plugin): Context\UpdateContext
     {
         $pluginBootstrap = $this->getPluginBootstrap($plugin->getName());
         $this->requirementValidator->validate($pluginBootstrap->getPath() . '/plugin.xml', Framework::VERSION, $this->getPlugins());
@@ -207,12 +207,12 @@ class PluginManager
      *
      * @return ActivateContext
      */
-    public function activatePlugin(Plugin $plugin): Context\ActivateContext
+    public function activatePlugin(PluginStruct $plugin): Context\ActivateContext
     {
         $pluginBootstrap = $this->getPluginBootstrap($plugin->getName());
         $context = new ActivateContext($pluginBootstrap, Framework::VERSION, $plugin->getVersion());
 
-        if ($plugin->isActive()) {
+        if ($plugin->getActive()) {
             return $context;
         }
 
@@ -239,7 +239,7 @@ class PluginManager
      *
      * @return DeactivateContext
      */
-    public function deactivatePlugin(Plugin $plugin): Context\DeactivateContext
+    public function deactivatePlugin(PluginStruct $plugin): Context\DeactivateContext
     {
         $pluginBootstrap = $this->getPluginBootstrap($plugin->getName());
         $context = new DeactivateContext($pluginBootstrap, Framework::VERSION, $plugin->getVersion());
@@ -248,7 +248,7 @@ class PluginManager
             throw new PluginNotInstalledException($plugin->getName());
         }
 
-        if ($plugin->isActive() === false) {
+        if ($plugin->getActive() === false) {
             throw new PluginNotActivatedException($plugin->getName());
         }
 
@@ -321,7 +321,7 @@ class PluginManager
     }
 
     /**
-     * @return Plugin[]
+     * @return PluginStruct[]
      */
     public function getPlugins(): array
     {
@@ -366,9 +366,9 @@ class PluginManager
      *
      * @return Plugin
      */
-    private function hydrate($databasePlugin): Plugin
+    private function hydrate($databasePlugin): PluginStruct
     {
-        $plugin = new Plugin();
+        $plugin = new PluginStruct();
 
         $plugin->setId($databasePlugin['name']);
         $plugin->setName($databasePlugin['name']);

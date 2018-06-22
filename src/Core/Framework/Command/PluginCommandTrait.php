@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\Command;
 
-use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\PluginManager;
+use Shopware\Core\Framework\Plugin\PluginStruct;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 trait PluginCommandTrait
@@ -33,13 +33,13 @@ trait PluginCommandTrait
     }
 
     /**
-     * @param Plugin[] $pluginStructs
+     * @param PluginStruct[] $pluginStructs
      *
      * @return string[]
      */
     public function formatPluginList(array $pluginStructs): array
     {
-        return array_map(function (Plugin $plugin) {
+        return array_map(function (PluginStruct $plugin) {
             return sprintf('%s (v%s)', $plugin->getLabel(), $plugin->getVersion());
         }, $pluginStructs);
     }

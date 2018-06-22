@@ -1004,7 +1004,7 @@ The following example shows the basic structure of a plugin which should be defi
 
 namespace GettingStarted;
 
-use Shopware\Core\Framework\Plugin\Plugin;
+use Shopware\Core\Framework\Plugin;
 
 class GettingStarted extends Plugin
 {

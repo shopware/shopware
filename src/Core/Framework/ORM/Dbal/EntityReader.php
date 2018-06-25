@@ -574,15 +574,13 @@ class EntityReader implements EntityReaderInterface
                 $structData = $data->filterByProperty($propertyName, $entity->get('parentId'));
             }
 
-            $search = new EntitySearchResult(0, $structData, null, $readCriteria, $context);
-
             if ($association->is(Extension::class)) {
-                $entity->addExtension($association->getPropertyName(), $search);
+                $entity->addExtension($association->getPropertyName(), $structData);
                 continue;
             }
 
             $entity->assign([
-                $association->getPropertyName() => $search,
+                $association->getPropertyName() => $structData,
             ]);
         }
     }
@@ -634,15 +632,13 @@ class EntityReader implements EntityReaderInterface
 
             $structData = $data->getList($mappingIds);
 
-            $search = new EntitySearchResult(0, $structData, null, $readCriteria, $context);
-
             if ($association->is(Extension::class)) {
-                $entity->addExtension($association->getPropertyName(), $search);
+                $entity->addExtension($association->getPropertyName(), $structData);
                 continue;
             }
 
             $entity->assign([
-                $association->getPropertyName() => $search,
+                $association->getPropertyName() => $structData,
             ]);
         }
     }

@@ -2,11 +2,12 @@
 
 namespace Shopware\Core\Checkout\Customer;
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupStruct;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodStruct;
 use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\System\Touchpoint\TouchpointStruct;
 
 class CustomerStruct extends Entity
@@ -202,12 +203,12 @@ class CustomerStruct extends Entity
     protected $activeShippingAddress;
 
     /**
-     * @var EntitySearchResult|null
+     * @var CustomerAddressCollection|null
      */
     protected $addresses;
 
     /**
-     * @var EntitySearchResult|null
+     * @var OrderCollection|null
      */
     protected $orders;
 
@@ -600,22 +601,22 @@ class CustomerStruct extends Entity
         $this->activeShippingAddress = $activeShippingAddress;
     }
 
-    public function getAddresses(): ?EntitySearchResult
+    public function getAddresses(): ?CustomerAddressCollection
     {
         return $this->addresses;
     }
 
-    public function setAddresses(EntitySearchResult $addresses): void
+    public function setAddresses(CustomerAddressCollection $addresses): void
     {
         $this->addresses = $addresses;
     }
 
-    public function getOrders(): ?EntitySearchResult
+    public function getOrders(): ?OrderCollection
     {
         return $this->orders;
     }
 
-    public function setOrders(EntitySearchResult $orders): void
+    public function setOrders(OrderCollection $orders): void
     {
         $this->orders = $orders;
     }

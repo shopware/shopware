@@ -2,9 +2,13 @@
 
 namespace Shopware\Core\Checkout\Payment;
 
+use Shopware\Core\Checkout\Customer\CustomerCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
+use Shopware\Core\Checkout\Order\OrderCollection;
+use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationCollection;
 use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\Framework\Plugin\PluginStruct;
+use Shopware\Core\System\Touchpoint\TouchpointCollection;
 
 class PaymentMethodStruct extends Entity
 {
@@ -124,9 +128,29 @@ class PaymentMethodStruct extends Entity
     protected $plugin;
 
     /**
-     * @var EntitySearchResult|null
+     * @var PaymentMethodTranslationCollection|null
      */
     protected $translations;
+
+    /**
+     * @var OrderTransactionCollection|null
+     */
+    protected $transactions;
+
+    /**
+     * @var OrderCollection|null
+     */
+    protected $orders;
+
+    /**
+     * @var CustomerCollection|null
+     */
+    protected $customers;
+
+    /**
+     * @var TouchpointCollection|null
+     */
+    protected $touchpoints;
 
     public function getPluginId(): ?string
     {
@@ -358,13 +382,53 @@ class PaymentMethodStruct extends Entity
         $this->plugin = $plugin;
     }
 
-    public function getTranslations(): ?EntitySearchResult
+    public function getTranslations(): ?PaymentMethodTranslationCollection
     {
         return $this->translations;
     }
 
-    public function setTranslations(EntitySearchResult $translations): void
+    public function setTranslations(PaymentMethodTranslationCollection $translations): void
     {
         $this->translations = $translations;
+    }
+
+    public function getTransactions(): ?OrderTransactionCollection
+    {
+        return $this->transactions;
+    }
+
+    public function setTransactions(OrderTransactionCollection $transactions): void
+    {
+        $this->transactions = $transactions;
+    }
+
+    public function getOrders(): ?OrderCollection
+    {
+        return $this->orders;
+    }
+
+    public function setOrders(OrderCollection $orders): void
+    {
+        $this->orders = $orders;
+    }
+
+    public function getCustomers(): ?CustomerCollection
+    {
+        return $this->customers;
+    }
+
+    public function setCustomers(CustomerCollection $customers): void
+    {
+        $this->customers = $customers;
+    }
+
+    public function getTouchpoints(): ?TouchpointCollection
+    {
+        return $this->touchpoints;
+    }
+
+    public function setTouchpoints(TouchpointCollection $touchpoints): void
+    {
+        $this->touchpoints = $touchpoints;
     }
 }

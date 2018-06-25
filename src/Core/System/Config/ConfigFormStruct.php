@@ -3,8 +3,9 @@
 namespace Shopware\Core\System\Config;
 
 use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\Framework\Plugin\PluginStruct;
+use Shopware\Core\System\Config\Aggregate\ConfigFormField\ConfigFormFieldCollection;
+use Shopware\Core\System\Config\Aggregate\ConfigFormTranslation\ConfigFormTranslationCollection;
 
 class ConfigFormStruct extends Entity
 {
@@ -59,17 +60,17 @@ class ConfigFormStruct extends Entity
     protected $plugin;
 
     /**
-     * @var EntitySearchResult|null
+     * @var ConfigFormCollection|null
      */
     protected $children;
 
     /**
-     * @var EntitySearchResult|null
+     * @var ConfigFormFieldCollection|null
      */
     protected $fields;
 
     /**
-     * @var EntitySearchResult|null
+     * @var ConfigFormTranslationCollection|null
      */
     protected $translations;
 
@@ -173,32 +174,32 @@ class ConfigFormStruct extends Entity
         $this->plugin = $plugin;
     }
 
-    public function getChildren(): ?EntitySearchResult
+    public function getChildren(): ?ConfigFormCollection
     {
         return $this->children;
     }
 
-    public function setChildren(EntitySearchResult $children): void
+    public function setChildren(ConfigFormCollection $children): void
     {
         $this->children = $children;
     }
 
-    public function getFields(): ?EntitySearchResult
+    public function getFields(): ?ConfigFormFieldCollection
     {
         return $this->fields;
     }
 
-    public function setFields(EntitySearchResult $fields): void
+    public function setFields(ConfigFormFieldCollection $fields): void
     {
         $this->fields = $fields;
     }
 
-    public function getTranslations(): ?EntitySearchResult
+    public function getTranslations(): ?ConfigFormTranslationCollection
     {
         return $this->translations;
     }
 
-    public function setTranslations(EntitySearchResult $translations): void
+    public function setTranslations(ConfigFormTranslationCollection $translations): void
     {
         $this->translations = $translations;
     }

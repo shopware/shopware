@@ -2,8 +2,12 @@
 
 namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup;
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGroupDiscountCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationCollection;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
+use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleCollection;
 
 class CustomerGroupStruct extends Entity
 {
@@ -53,14 +57,29 @@ class CustomerGroupStruct extends Entity
     protected $updatedAt;
 
     /**
-     * @var EntitySearchResult|null
+     * @var CustomerGroupDiscountCollection|null
      */
     protected $discounts;
 
     /**
-     * @var EntitySearchResult|null
+     * @var CustomerGroupTranslationCollection|null
      */
     protected $translations;
+
+    /**
+     * @var TaxAreaRuleCollection|null
+     */
+    protected $taxAreaRules;
+
+    /**
+     * @var ShippingMethodCollection|null
+     */
+    protected $shippingMethods;
+
+    /**
+     * @var CustomerCollection|null
+     */
+    protected $customers;
 
     public function getName(): string
     {
@@ -152,23 +171,53 @@ class CustomerGroupStruct extends Entity
         $this->updatedAt = $updatedAt;
     }
 
-    public function getDiscounts(): ?EntitySearchResult
+    public function getDiscounts(): ?CustomerGroupDiscountCollection
     {
         return $this->discounts;
     }
 
-    public function setDiscounts(EntitySearchResult $discounts): void
+    public function setDiscounts(CustomerGroupDiscountCollection $discounts): void
     {
         $this->discounts = $discounts;
     }
 
-    public function getTranslations(): ?EntitySearchResult
+    public function getTranslations(): ?CustomerGroupTranslationCollection
     {
         return $this->translations;
     }
 
-    public function setTranslations(EntitySearchResult $translations): void
+    public function setTranslations(CustomerGroupTranslationCollection $translations): void
     {
         $this->translations = $translations;
+    }
+
+    public function getTaxAreaRules(): ?TaxAreaRuleCollection
+    {
+        return $this->taxAreaRules;
+    }
+
+    public function setTaxAreaRules(?TaxAreaRuleCollection $taxAreaRules): void
+    {
+        $this->taxAreaRules = $taxAreaRules;
+    }
+
+    public function getShippingMethods(): ?ShippingMethodCollection
+    {
+        return $this->shippingMethods;
+    }
+
+    public function setShippingMethods(?ShippingMethodCollection $shippingMethods): void
+    {
+        $this->shippingMethods = $shippingMethods;
+    }
+
+    public function getCustomers(): ?CustomerCollection
+    {
+        return $this->customers;
+    }
+
+    public function setCustomers(?CustomerCollection $customers): void
+    {
+        $this->customers = $customers;
     }
 }

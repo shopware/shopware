@@ -3,7 +3,9 @@
 namespace Shopware\Core\System\Locale;
 
 use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
+use Shopware\Core\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationCollection;
+use Shopware\Core\System\Touchpoint\TouchpointCollection;
+use Shopware\Core\System\User\UserCollection;
 
 class LocaleStruct extends Entity
 {
@@ -33,9 +35,24 @@ class LocaleStruct extends Entity
     protected $updatedAt;
 
     /**
-     * @var EntitySearchResult|null
+     * @var LocaleTranslationCollection|null
      */
     protected $translations;
+
+    /**
+     * @var UserCollection|null
+     */
+    protected $users;
+
+    /**
+     * @var TouchpointCollection|null
+     */
+    protected $touchpoints;
+
+    /**
+     * @var TouchpointCollection|null
+     */
+    protected $fallbackTouchpoints;
 
     public function getCode(): string
     {
@@ -87,13 +104,43 @@ class LocaleStruct extends Entity
         $this->updatedAt = $updatedAt;
     }
 
-    public function getTranslations(): ?EntitySearchResult
+    public function getTranslations(): ?LocaleTranslationCollection
     {
         return $this->translations;
     }
 
-    public function setTranslations(EntitySearchResult $translations): void
+    public function setTranslations(LocaleTranslationCollection $translations): void
     {
         $this->translations = $translations;
+    }
+
+    public function getUsers(): ?UserCollection
+    {
+        return $this->users;
+    }
+
+    public function setUsers(UserCollection $users): void
+    {
+        $this->users = $users;
+    }
+
+    public function getTouchpoints(): ?TouchpointCollection
+    {
+        return $this->touchpoints;
+    }
+
+    public function setTouchpoints(TouchpointCollection $touchpoints): void
+    {
+        $this->touchpoints = $touchpoints;
+    }
+
+    public function getFallbackTouchpoints(): ?TouchpointCollection
+    {
+        return $this->fallbackTouchpoints;
+    }
+
+    public function setFallbackTouchpoints(TouchpointCollection $fallbackTouchpoints): void
+    {
+        $this->fallbackTouchpoints = $fallbackTouchpoints;
     }
 }

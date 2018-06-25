@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderState;
 
+use Shopware\Core\Checkout\Order\Aggregate\OrderStateTranslation\OrderStateTranslationCollection;
 use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 
 class OrderStateStruct extends Entity
 {
@@ -33,7 +33,7 @@ class OrderStateStruct extends Entity
     protected $updatedAt;
 
     /**
-     * @var EntitySearchResult|null
+     * @var OrderStateTranslationCollection|null
      */
     protected $translations;
 
@@ -87,12 +87,12 @@ class OrderStateStruct extends Entity
         $this->updatedAt = $updatedAt;
     }
 
-    public function getTranslations(): ?EntitySearchResult
+    public function getTranslations(): ?OrderStateTranslationCollection
     {
         return $this->translations;
     }
 
-    public function setTranslations(EntitySearchResult $translations): void
+    public function setTranslations(OrderStateTranslationCollection $translations): void
     {
         $this->translations = $translations;
     }

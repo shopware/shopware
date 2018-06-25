@@ -2,9 +2,14 @@
 
 namespace Shopware\Core\System\Country;
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
 use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\System\Country\Aggregate\CountryArea\CountryAreaStruct;
+use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateCollection;
+use Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationCollection;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleCollection;
+use Shopware\Core\System\Touchpoint\TouchpointCollection;
 
 class CountryStruct extends Entity
 {
@@ -84,14 +89,34 @@ class CountryStruct extends Entity
     protected $area;
 
     /**
-     * @var EntitySearchResult|null
+     * @var CountryStateCollection|null
      */
     protected $states;
 
     /**
-     * @var EntitySearchResult|null
+     * @var CountryTranslationCollection|null
      */
     protected $translations;
+
+    /**
+     * @var TaxAreaRuleCollection|null
+     */
+    protected $taxAreaRules;
+
+    /**
+     * @var OrderAddressCollection|null
+     */
+    protected $orderAddresses;
+
+    /**
+     * @var CustomerAddressCollection|null
+     */
+    protected $customerAddresses;
+
+    /**
+     * @var TouchpointCollection|null
+     */
+    protected $touchpoints;
 
     public function getAreaId(): ?string
     {
@@ -243,23 +268,63 @@ class CountryStruct extends Entity
         $this->area = $area;
     }
 
-    public function getStates(): ?EntitySearchResult
+    public function getStates(): ?CountryStateCollection
     {
         return $this->states;
     }
 
-    public function setStates(EntitySearchResult $states): void
+    public function setStates(CountryStateCollection $states): void
     {
         $this->states = $states;
     }
 
-    public function getTranslations(): ?EntitySearchResult
+    public function getTranslations(): ?CountryTranslationCollection
     {
         return $this->translations;
     }
 
-    public function setTranslations(EntitySearchResult $translations): void
+    public function setTranslations(CountryTranslationCollection $translations): void
     {
         $this->translations = $translations;
+    }
+
+    public function getTaxAreaRules(): ?TaxAreaRuleCollection
+    {
+        return $this->taxAreaRules;
+    }
+
+    public function setTaxAreaRules(TaxAreaRuleCollection $taxAreaRules): void
+    {
+        $this->taxAreaRules = $taxAreaRules;
+    }
+
+    public function getOrderAddresses(): ?OrderAddressCollection
+    {
+        return $this->orderAddresses;
+    }
+
+    public function setOrderAddresses(OrderAddressCollection $orderAddresses): void
+    {
+        $this->orderAddresses = $orderAddresses;
+    }
+
+    public function getCustomerAddresses(): ?CustomerAddressCollection
+    {
+        return $this->customerAddresses;
+    }
+
+    public function setCustomerAddresses(CustomerAddressCollection $customerAddresses): void
+    {
+        $this->customerAddresses = $customerAddresses;
+    }
+
+    public function getTouchpoints(): ?TouchpointCollection
+    {
+        return $this->touchpoints;
+    }
+
+    public function setTouchpoints(TouchpointCollection $touchpoints): void
+    {
+        $this->touchpoints = $touchpoints;
     }
 }

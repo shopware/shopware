@@ -2,8 +2,9 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderAddress;
 
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateStruct;
 use Shopware\Core\System\Country\CountryStruct;
 
@@ -105,12 +106,12 @@ class OrderAddressStruct extends Entity
     protected $countryState;
 
     /**
-     * @var EntitySearchResult|null
+     * @var OrderCollection|null
      */
     protected $orders;
 
     /**
-     * @var EntitySearchResult|null
+     * @var OrderDeliveryCollection|null
      */
     protected $orderDeliveries;
 
@@ -304,22 +305,22 @@ class OrderAddressStruct extends Entity
         $this->countryState = $countryState;
     }
 
-    public function getOrders(): ?EntitySearchResult
+    public function getOrders(): ?OrderCollection
     {
         return $this->orders;
     }
 
-    public function setOrders(EntitySearchResult $orders): void
+    public function setOrders(OrderCollection $orders): void
     {
         $this->orders = $orders;
     }
 
-    public function getOrderDeliveries(): ?EntitySearchResult
+    public function getOrderDeliveries(): ?OrderDeliveryCollection
     {
         return $this->orderDeliveries;
     }
 
-    public function setOrderDeliveries(EntitySearchResult $orderDeliveries): void
+    public function setOrderDeliveries(OrderDeliveryCollection $orderDeliveries): void
     {
         $this->orderDeliveries = $orderDeliveries;
     }

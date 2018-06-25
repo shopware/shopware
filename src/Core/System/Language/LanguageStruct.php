@@ -2,9 +2,27 @@
 
 namespace Shopware\Core\System\Language;
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderStateTranslation\OrderStateTranslationCollection;
+use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationCollection;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationCollection;
+use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\MediaAlbumTranslationCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
+use Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\CountryAreaTranslationCollection;
+use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationCollection;
+use Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationCollection;
+use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationCollection;
+use Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\ListingFacetTranslationCollection;
+use Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\ListingSortingTranslationCollection;
+use Shopware\Core\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationCollection;
 use Shopware\Core\System\Locale\LocaleStruct;
+use Shopware\Core\System\Mail\Aggregate\MailTranslation\MailTranslationCollection;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\TaxAreaRuleTranslationCollection;
+use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationCollection;
 
 class LanguageStruct extends Entity
 {
@@ -49,9 +67,104 @@ class LanguageStruct extends Entity
     protected $parent;
 
     /**
-     * @var EntitySearchResult|null
+     * @var LanguageCollection|null
      */
     protected $children;
+
+    /**
+     * @var MediaAlbumTranslationCollection|null
+     */
+    protected $mediaAlbumTranslations;
+
+    /**
+     * @var CountryAreaTranslationCollection|null
+     */
+    protected $countryAreaTranslations;
+
+    /**
+     * @var CategoryTranslationCollection|null
+     */
+    protected $categoryTranslations;
+
+    /**
+     * @var CountryStateTranslationCollection|null
+     */
+    protected $countryStateTranslations;
+
+    /**
+     * @var CountryTranslationCollection|null
+     */
+    protected $countryTranslations;
+
+    /**
+     * @var CurrencyTranslationCollection|null
+     */
+    protected $currencyTranslations;
+
+    /**
+     * @var CustomerGroupTranslationCollection|null
+     */
+    protected $customerGroupTranslations;
+
+    /**
+     * @var ListingFacetTranslationCollection|null
+     */
+    protected $listingFacetTranslations;
+
+    /**
+     * @var ListingSortingTranslationCollection|null
+     */
+    protected $listingSortingTranslations;
+
+    /**
+     * @var LocaleTranslationCollection|null
+     */
+    protected $localeTranslations;
+
+    /**
+     * @var MailTranslationCollection|null
+     */
+    protected $mailTranslations;
+
+    /**
+     * @var MediaTranslationCollection|null
+     */
+    protected $mediaTranslations;
+
+    /**
+     * @var OrderStateTranslationCollection|null
+     */
+    protected $orderStateTranslations;
+
+    /**
+     * @var PaymentMethodTranslationCollection|null
+     */
+    protected $paymentMethodTranslations;
+
+    /**
+     * @var ProductManufacturerTranslationCollection|null
+     */
+    protected $productManufacturerTranslations;
+
+    /**
+     * @var ProductTranslationCollection|null
+     */
+    protected $productTranslations;
+
+    /**
+     * @var ShippingMethodTranslationCollection|null
+     */
+    protected $shippingMethodTranslations;
+
+    /**
+     * @var TaxAreaRuleTranslationCollection|null
+     */
+    protected $taxAreaRuleTranslations;
+
+    /**
+     * @var UnitTranslationCollection|null
+     */
+    protected $unitTranslations;
 
     public function getParentId(): ?string
     {
@@ -133,13 +246,203 @@ class LanguageStruct extends Entity
         $this->parent = $parent;
     }
 
-    public function getChildren(): ?EntitySearchResult
+    public function getChildren(): ?LanguageCollection
     {
         return $this->children;
     }
 
-    public function setChildren(EntitySearchResult $children): void
+    public function setChildren(LanguageCollection $children): void
     {
         $this->children = $children;
+    }
+
+    public function getMediaAlbumTranslations(): ?MediaAlbumTranslationCollection
+    {
+        return $this->mediaAlbumTranslations;
+    }
+
+    public function setMediaAlbumTranslations(MediaAlbumTranslationCollection $mediaAlbumTranslations): void
+    {
+        $this->mediaAlbumTranslations = $mediaAlbumTranslations;
+    }
+
+    public function getCountryAreaTranslations(): ?CountryAreaTranslationCollection
+    {
+        return $this->countryAreaTranslations;
+    }
+
+    public function setCountryAreaTranslations(CountryAreaTranslationCollection $countryAreaTranslations): void
+    {
+        $this->countryAreaTranslations = $countryAreaTranslations;
+    }
+
+    public function getCategoryTranslations(): ?CategoryTranslationCollection
+    {
+        return $this->categoryTranslations;
+    }
+
+    public function setCategoryTranslations(CategoryTranslationCollection $categoryTranslations): void
+    {
+        $this->categoryTranslations = $categoryTranslations;
+    }
+
+    public function getCountryStateTranslations(): ?CountryStateTranslationCollection
+    {
+        return $this->countryStateTranslations;
+    }
+
+    public function setCountryStateTranslations(CountryStateTranslationCollection $countryStateTranslations): void
+    {
+        $this->countryStateTranslations = $countryStateTranslations;
+    }
+
+    public function getCountryTranslations(): ?CountryTranslationCollection
+    {
+        return $this->countryTranslations;
+    }
+
+    public function setCountryTranslations(CountryTranslationCollection $countryTranslations): void
+    {
+        $this->countryTranslations = $countryTranslations;
+    }
+
+    public function getCurrencyTranslations(): ?CurrencyTranslationCollection
+    {
+        return $this->currencyTranslations;
+    }
+
+    public function setCurrencyTranslations(CurrencyTranslationCollection $currencyTranslations): void
+    {
+        $this->currencyTranslations = $currencyTranslations;
+    }
+
+    public function getCustomerGroupTranslations(): ?CustomerGroupTranslationCollection
+    {
+        return $this->customerGroupTranslations;
+    }
+
+    public function setCustomerGroupTranslations(CustomerGroupTranslationCollection $customerGroupTranslations): void
+    {
+        $this->customerGroupTranslations = $customerGroupTranslations;
+    }
+
+    public function getListingFacetTranslations(): ?ListingFacetTranslationCollection
+    {
+        return $this->listingFacetTranslations;
+    }
+
+    public function setListingFacetTranslations(ListingFacetTranslationCollection $listingFacetTranslations): void
+    {
+        $this->listingFacetTranslations = $listingFacetTranslations;
+    }
+
+    public function getListingSortingTranslations(): ?ListingSortingTranslationCollection
+    {
+        return $this->listingSortingTranslations;
+    }
+
+    public function setListingSortingTranslations(ListingSortingTranslationCollection $listingSortingTranslations): void
+    {
+        $this->listingSortingTranslations = $listingSortingTranslations;
+    }
+
+    public function getLocaleTranslations(): ?LocaleTranslationCollection
+    {
+        return $this->localeTranslations;
+    }
+
+    public function setLocaleTranslations(LocaleTranslationCollection $localeTranslations): void
+    {
+        $this->localeTranslations = $localeTranslations;
+    }
+
+    public function getMailTranslations(): ?MailTranslationCollection
+    {
+        return $this->mailTranslations;
+    }
+
+    public function setMailTranslations(MailTranslationCollection $mailTranslations): void
+    {
+        $this->mailTranslations = $mailTranslations;
+    }
+
+    public function getMediaTranslations(): ?MediaTranslationCollection
+    {
+        return $this->mediaTranslations;
+    }
+
+    public function setMediaTranslations(MediaTranslationCollection $mediaTranslations): void
+    {
+        $this->mediaTranslations = $mediaTranslations;
+    }
+
+    public function getOrderStateTranslations(): ?OrderStateTranslationCollection
+    {
+        return $this->orderStateTranslations;
+    }
+
+    public function setOrderStateTranslations(OrderStateTranslationCollection $orderStateTranslations): void
+    {
+        $this->orderStateTranslations = $orderStateTranslations;
+    }
+
+    public function getPaymentMethodTranslations(): ?PaymentMethodTranslationCollection
+    {
+        return $this->paymentMethodTranslations;
+    }
+
+    public function setPaymentMethodTranslations(PaymentMethodTranslationCollection $paymentMethodTranslations): void
+    {
+        $this->paymentMethodTranslations = $paymentMethodTranslations;
+    }
+
+    public function getProductManufacturerTranslations(): ?ProductManufacturerTranslationCollection
+    {
+        return $this->productManufacturerTranslations;
+    }
+
+    public function setProductManufacturerTranslations(?ProductManufacturerTranslationCollection $productManufacturerTranslations): void
+    {
+        $this->productManufacturerTranslations = $productManufacturerTranslations;
+    }
+
+    public function getProductTranslations(): ?ProductTranslationCollection
+    {
+        return $this->productTranslations;
+    }
+
+    public function setProductTranslations(ProductTranslationCollection $productTranslations): void
+    {
+        $this->productTranslations = $productTranslations;
+    }
+
+    public function getShippingMethodTranslations(): ?ShippingMethodTranslationCollection
+    {
+        return $this->shippingMethodTranslations;
+    }
+
+    public function setShippingMethodTranslations(ShippingMethodTranslationCollection $shippingMethodTranslations): void
+    {
+        $this->shippingMethodTranslations = $shippingMethodTranslations;
+    }
+
+    public function getTaxAreaRuleTranslations(): ?TaxAreaRuleTranslationCollection
+    {
+        return $this->taxAreaRuleTranslations;
+    }
+
+    public function setTaxAreaRuleTranslations(TaxAreaRuleTranslationCollection $taxAreaRuleTranslations): void
+    {
+        $this->taxAreaRuleTranslations = $taxAreaRuleTranslations;
+    }
+
+    public function getUnitTranslations(): ?UnitTranslationCollection
+    {
+        return $this->unitTranslations;
+    }
+
+    public function setUnitTranslations(UnitTranslationCollection $unitTranslations): void
+    {
+        $this->unitTranslations = $unitTranslations;
     }
 }

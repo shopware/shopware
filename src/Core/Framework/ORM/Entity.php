@@ -28,7 +28,13 @@ class Entity extends Struct
 
     public function get(string $property)
     {
-        return $this->$property ?? null;
+        try {
+            return $this->$property;
+        } catch (\Throwable $e) {
+            throw new \InvalidArgumentException(
+                sprintf('Property %s do not exist in class %s', $property, get_class($this))
+            );
+        }
     }
 
     public function getTenantId(): string

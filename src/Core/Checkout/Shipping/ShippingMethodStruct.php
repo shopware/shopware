@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Checkout\Shipping;
 
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationCollection;
 use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
+use Shopware\Core\System\Touchpoint\TouchpointCollection;
 
 class ShippingMethodStruct extends Entity
 {
@@ -154,9 +156,19 @@ class ShippingMethodStruct extends Entity
     protected $maxDeliveryTime;
 
     /**
-     * @var EntitySearchResult|null
+     * @var ShippingMethodTranslationCollection|null
      */
     protected $translations;
+
+    /**
+     * @var OrderDeliveryCollection|null
+     */
+    protected $orderDeliveries;
+
+    /**
+     * @var TouchpointCollection|null
+     */
+    protected $touchpoints;
 
     public function getType(): int
     {
@@ -448,13 +460,33 @@ class ShippingMethodStruct extends Entity
         $this->maxDeliveryTime = $maxDeliveryTime;
     }
 
-    public function getTranslations(): ?EntitySearchResult
+    public function getTranslations(): ?ShippingMethodTranslationCollection
     {
         return $this->translations;
     }
 
-    public function setTranslations(?EntitySearchResult $translations): void
+    public function setTranslations(?ShippingMethodTranslationCollection $translations): void
     {
         $this->translations = $translations;
+    }
+
+    public function getOrderDeliveries(): ?OrderDeliveryCollection
+    {
+        return $this->orderDeliveries;
+    }
+
+    public function setOrderDeliveries(?OrderDeliveryCollection $orderDeliveries): void
+    {
+        $this->orderDeliveries = $orderDeliveries;
+    }
+
+    public function getTouchpoints(): ?TouchpointCollection
+    {
+        return $this->touchpoints;
+    }
+
+    public function setTouchpoints(?TouchpointCollection $touchpoints): void
+    {
+        $this->touchpoints = $touchpoints;
     }
 }

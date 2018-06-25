@@ -2,8 +2,9 @@
 
 namespace Shopware\Core\Content\Media\Aggregate\MediaAlbum;
 
+use Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\MediaAlbumTranslationCollection;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 
 class MediaAlbumStruct extends Entity
 {
@@ -68,17 +69,17 @@ class MediaAlbumStruct extends Entity
     protected $parent;
 
     /**
-     * @var EntitySearchResult|null
+     * @var MediaCollection|null
      */
     protected $media;
 
     /**
-     * @var EntitySearchResult|null
+     * @var MediaAlbumCollection|null
      */
     protected $children;
 
     /**
-     * @var EntitySearchResult|null
+     * @var MediaAlbumTranslationCollection|null
      */
     protected $translations;
 
@@ -202,32 +203,32 @@ class MediaAlbumStruct extends Entity
         $this->parent = $parent;
     }
 
-    public function getMedia(): ?EntitySearchResult
+    public function getMedia(): ?MediaCollection
     {
         return $this->media;
     }
 
-    public function setMedia(EntitySearchResult $media): void
+    public function setMedia(MediaCollection $media): void
     {
         $this->media = $media;
     }
 
-    public function getChildren(): ?EntitySearchResult
+    public function getChildren(): ?MediaAlbumCollection
     {
         return $this->children;
     }
 
-    public function setChildren(?EntitySearchResult $children): void
+    public function setChildren(MediaAlbumCollection $children): void
     {
         $this->children = $children;
     }
 
-    public function getTranslations(): ?EntitySearchResult
+    public function getTranslations(): ?MediaAlbumTranslationCollection
     {
         return $this->translations;
     }
 
-    public function setTranslations(EntitySearchResult $translations): void
+    public function setTranslations(MediaAlbumTranslationCollection $translations): void
     {
         $this->translations = $translations;
     }

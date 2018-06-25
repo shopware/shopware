@@ -4,7 +4,8 @@ namespace Shopware\Core\System\Mail;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderState\OrderStateStruct;
 use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
+use Shopware\Core\System\Mail\Aggregate\MailAttachment\MailAttachmentCollection;
+use Shopware\Core\System\Mail\Aggregate\MailTranslation\MailTranslationCollection;
 
 class MailStruct extends Entity
 {
@@ -84,12 +85,12 @@ class MailStruct extends Entity
     protected $orderState;
 
     /**
-     * @var EntitySearchResult|null
+     * @var MailAttachmentCollection|null
      */
     protected $attachments;
 
     /**
-     * @var EntitySearchResult|null
+     * @var MailTranslationCollection|null
      */
     protected $translations;
 
@@ -243,22 +244,22 @@ class MailStruct extends Entity
         $this->orderState = $orderState;
     }
 
-    public function getAttachments(): ?EntitySearchResult
+    public function getAttachments(): ?MailAttachmentCollection
     {
         return $this->attachments;
     }
 
-    public function setAttachments(EntitySearchResult $attachments): void
+    public function setAttachments(MailAttachmentCollection $attachments): void
     {
         $this->attachments = $attachments;
     }
 
-    public function getTranslations(): ?EntitySearchResult
+    public function getTranslations(): ?MailTranslationCollection
     {
         return $this->translations;
     }
 
-    public function setTranslations(EntitySearchResult $translations): void
+    public function setTranslations(MailTranslationCollection $translations): void
     {
         $this->translations = $translations;
     }

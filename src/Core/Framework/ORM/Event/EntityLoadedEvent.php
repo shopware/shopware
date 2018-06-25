@@ -11,6 +11,7 @@ use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Field\AssociationInterface;
 use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Write\Flag\Extension;
 
 class EntityLoadedEvent extends NestedEvent
 {
@@ -88,11 +89,17 @@ class EntityLoadedEvent extends NestedEvent
             if (!$association instanceof AssociationInterface) {
                 continue;
             }
+            $isExtension = $association->is(Extension::class);
+
             if ($association instanceof ManyToOneAssociationField) {
                 /** @var Entity $entity */
                 foreach ($entities as $entity) {
                     try {
-                        $reference = $entity->get($association->getPropertyName());
+                        if ($isExtension) {
+                            $reference = $entity->getExtension($association->getPropertyName());
+                        } else {
+                            $reference = $entity->get($association->getPropertyName());
+                        }
                     } catch (\InvalidArgumentException $e) {
                         continue;
                     }
@@ -112,7 +119,11 @@ class EntityLoadedEvent extends NestedEvent
 
             foreach ($entities as $entity) {
                 try {
-                    $references = $entity->get($association->getPropertyName());
+                    if ($isExtension) {
+                        $references = $entity->getExtension($association->getPropertyName());
+                    } else {
+                        $references = $entity->get($association->getPropertyName());
+                    }
                 } catch (\InvalidArgumentException $e) {
                     continue;
                 }

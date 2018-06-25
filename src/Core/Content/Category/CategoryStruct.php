@@ -2,10 +2,11 @@
 
 namespace Shopware\Core\Content\Category;
 
+use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationCollection;
 use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Content\Product\Aggregate\ProductStream\ProductStreamStruct;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 
 class CategoryStruct extends Entity
 {
@@ -145,12 +146,12 @@ class CategoryStruct extends Entity
     protected $parent;
 
     /**
-     * @var EntitySearchResult|null
+     * @var CategoryCollection|null
      */
     protected $children;
 
     /**
-     * @var EntitySearchResult|null
+     * @var CategoryTranslationCollection|null
      */
     protected $translations;
 
@@ -165,9 +166,14 @@ class CategoryStruct extends Entity
     protected $productStream;
 
     /**
-     * @var EntitySearchResult|null
+     * @var ProductCollection|null
      */
     protected $products;
+
+    /**
+     * @var ProductCollection|null
+     */
+    protected $seoProducts;
 
     public function getParentId(): ?string
     {
@@ -449,26 +455,6 @@ class CategoryStruct extends Entity
         $this->parent = $parent;
     }
 
-    public function getChildren(): ?EntitySearchResult
-    {
-        return $this->children;
-    }
-
-    public function setChildren(EntitySearchResult $children): void
-    {
-        $this->children = $children;
-    }
-
-    public function getTranslations(): ?EntitySearchResult
-    {
-        return $this->translations;
-    }
-
-    public function setTranslations(EntitySearchResult $translations): void
-    {
-        $this->translations = $translations;
-    }
-
     public function getMedia(): ?MediaStruct
     {
         return $this->media;
@@ -484,18 +470,43 @@ class CategoryStruct extends Entity
         return $this->productStream;
     }
 
-    public function setProductStream(ProductStreamStruct $productStream): void
+    public function getChildren(): ?CategoryCollection
     {
-        $this->productStream = $productStream;
+        return $this->children;
     }
 
-    public function getProducts(): ?EntitySearchResult
+    public function setChildren(CategoryCollection $children): void
+    {
+        $this->children = $children;
+    }
+
+    public function getTranslations(): ?CategoryTranslationCollection
+    {
+        return $this->translations;
+    }
+
+    public function setTranslations(CategoryTranslationCollection $translations): void
+    {
+        $this->translations = $translations;
+    }
+
+    public function getProducts(): ?ProductCollection
     {
         return $this->products;
     }
 
-    public function setProducts(EntitySearchResult $products): void
+    public function setProducts(ProductCollection $products): void
     {
         $this->products = $products;
+    }
+
+    public function getSeoProducts(): ?ProductCollection
+    {
+        return $this->seoProducts;
+    }
+
+    public function setSeoProducts(ProductCollection $seoProducts): void
+    {
+        $this->seoProducts = $seoProducts;
     }
 }

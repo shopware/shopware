@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Version\Aggregate\VersionCommit;
 
 use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
+use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataCollection;
 
 class VersionCommitStruct extends Entity
 {
@@ -33,7 +33,7 @@ class VersionCommitStruct extends Entity
     protected $userId;
 
     /**
-     * @var EntitySearchResult
+     * @var VersionCommitDataCollection
      */
     protected $data;
 
@@ -117,12 +117,12 @@ class VersionCommitStruct extends Entity
         $this->versionId = $versionId;
     }
 
-    public function getData(): EntitySearchResult
+    public function getData(): VersionCommitDataCollection
     {
         return $this->data;
     }
 
-    public function setData(EntitySearchResult $data): void
+    public function setData(VersionCommitDataCollection $data): void
     {
         $this->data = $data;
     }

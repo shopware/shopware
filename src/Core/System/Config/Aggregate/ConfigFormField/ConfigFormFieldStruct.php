@@ -3,7 +3,8 @@
 namespace Shopware\Core\System\Config\Aggregate\ConfigFormField;
 
 use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
+use Shopware\Core\System\Config\Aggregate\ConfigFormFieldTranslation\ConfigFormFieldTranslationCollection;
+use Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\ConfigFormFieldValueCollection;
 use Shopware\Core\System\Config\ConfigFormStruct;
 
 class ConfigFormFieldStruct extends Entity
@@ -74,12 +75,12 @@ class ConfigFormFieldStruct extends Entity
     protected $configForm;
 
     /**
-     * @var EntitySearchResult|null
+     * @var ConfigFormFieldTranslationCollection|null
      */
     protected $translations;
 
     /**
-     * @var EntitySearchResult|null
+     * @var ConfigFormFieldValueCollection|null
      */
     protected $values;
 
@@ -213,22 +214,22 @@ class ConfigFormFieldStruct extends Entity
         $this->configForm = $configForm;
     }
 
-    public function getTranslations(): ?EntitySearchResult
+    public function getTranslations(): ?ConfigFormFieldTranslationCollection
     {
         return $this->translations;
     }
 
-    public function setTranslations(EntitySearchResult $translations): void
+    public function setTranslations(ConfigFormFieldTranslationCollection $translations): void
     {
         $this->translations = $translations;
     }
 
-    public function getValues(): ?EntitySearchResult
+    public function getValues(): ?ConfigFormFieldValueCollection
     {
         return $this->values;
     }
 
-    public function setValues(EntitySearchResult $values): void
+    public function setValues(ConfigFormFieldValueCollection $values): void
     {
         $this->values = $values;
     }

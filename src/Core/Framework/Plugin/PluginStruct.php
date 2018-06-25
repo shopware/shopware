@@ -2,8 +2,9 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
+use Shopware\Core\System\Config\ConfigFormCollection;
 
 class PluginStruct extends Entity
 {
@@ -133,12 +134,12 @@ class PluginStruct extends Entity
     protected $updatedAt;
 
     /**
-     * @var EntitySearchResult|null
+     * @var ConfigFormCollection|null
      */
     protected $configForms;
 
     /**
-     * @var EntitySearchResult|null
+     * @var PaymentMethodCollection|null
      */
     protected $paymentMethods;
 
@@ -392,22 +393,22 @@ class PluginStruct extends Entity
         $this->updatedAt = $updatedAt;
     }
 
-    public function getConfigForms(): ?EntitySearchResult
+    public function getConfigForms(): ?ConfigFormCollection
     {
         return $this->configForms;
     }
 
-    public function setConfigForms(EntitySearchResult $configForms): void
+    public function setConfigForms(?ConfigFormCollection $configForms): void
     {
         $this->configForms = $configForms;
     }
 
-    public function getPaymentMethods(): ?EntitySearchResult
+    public function getPaymentMethods(): ?PaymentMethodCollection
     {
         return $this->paymentMethods;
     }
 
-    public function setPaymentMethods(EntitySearchResult $paymentMethods): void
+    public function setPaymentMethods(?PaymentMethodCollection $paymentMethods): void
     {
         $this->paymentMethods = $paymentMethods;
     }

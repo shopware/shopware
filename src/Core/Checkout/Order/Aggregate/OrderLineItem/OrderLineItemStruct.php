@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderLineItem;
 
+use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionCollection;
 use Shopware\Core\Checkout\Order\OrderStruct;
 use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 
 class OrderLineItemStruct extends Entity
 {
@@ -59,7 +59,7 @@ class OrderLineItemStruct extends Entity
     protected $order;
 
     /**
-     * @var EntitySearchResult|null
+     * @var OrderDeliveryPositionCollection|null
      */
     protected $orderDeliveryPositions;
 
@@ -163,12 +163,12 @@ class OrderLineItemStruct extends Entity
         $this->order = $order;
     }
 
-    public function getOrderDeliveryPositions(): ?EntitySearchResult
+    public function getOrderDeliveryPositions(): ?OrderDeliveryPositionCollection
     {
         return $this->orderDeliveryPositions;
     }
 
-    public function setOrderDeliveryPositions(EntitySearchResult $orderDeliveryPositions): void
+    public function setOrderDeliveryPositions(OrderDeliveryPositionCollection $orderDeliveryPositions): void
     {
         $this->orderDeliveryPositions = $orderDeliveryPositions;
     }

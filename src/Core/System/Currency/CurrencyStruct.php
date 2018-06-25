@@ -2,8 +2,11 @@
 
 namespace Shopware\Core\System\Currency;
 
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
+use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationCollection;
+use Shopware\Core\System\Touchpoint\TouchpointCollection;
 
 class CurrencyStruct extends Entity
 {
@@ -53,9 +56,19 @@ class CurrencyStruct extends Entity
     protected $updatedAt;
 
     /**
-     * @var EntitySearchResult|null
+     * @var CurrencyTranslationCollection|null
      */
     protected $translations;
+
+    /**
+     * @var OrderCollection|null
+     */
+    protected $orders;
+
+    /**
+     * @var TouchpointCollection|null
+     */
+    protected $touchpoints;
 
     public function getFactor(): float
     {
@@ -155,5 +168,25 @@ class CurrencyStruct extends Entity
     public function setTranslations(EntitySearchResult $translations): void
     {
         $this->translations = $translations;
+    }
+
+    public function getOrders(): ?EntitySearchResult
+    {
+        return $this->orders;
+    }
+
+    public function setOrders(?EntitySearchResult $orders): void
+    {
+        $this->orders = $orders;
+    }
+
+    public function getTouchpoints(): ?EntitySearchResult
+    {
+        return $this->touchpoints;
+    }
+
+    public function setTouchpoints(?EntitySearchResult $touchpoints): void
+    {
+        $this->touchpoints = $touchpoints;
     }
 }

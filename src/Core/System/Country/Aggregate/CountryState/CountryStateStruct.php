@@ -3,7 +3,7 @@
 namespace Shopware\Core\System\Country\Aggregate\CountryState;
 
 use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
+use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationCollection;
 use Shopware\Core\System\Country\CountryStruct;
 
 class CountryStateStruct extends Entity
@@ -49,7 +49,7 @@ class CountryStateStruct extends Entity
     protected $country;
 
     /**
-     * @var EntitySearchResult|null
+     * @var CountryStateTranslationCollection|null
      */
     protected $translations;
 
@@ -133,12 +133,12 @@ class CountryStateStruct extends Entity
         $this->country = $country;
     }
 
-    public function getTranslations(): ?EntitySearchResult
+    public function getTranslations(): ?CountryStateTranslationCollection
     {
         return $this->translations;
     }
 
-    public function setTranslations(EntitySearchResult $translations): void
+    public function setTranslations(CountryStateTranslationCollection $translations): void
     {
         $this->translations = $translations;
     }

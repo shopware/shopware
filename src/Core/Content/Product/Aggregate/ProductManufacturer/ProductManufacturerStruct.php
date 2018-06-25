@@ -3,8 +3,9 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductManufacturer;
 
 use Shopware\Core\Content\Media\MediaStruct;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationCollection;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 
 class ProductManufacturerStruct extends Entity
 {
@@ -59,19 +60,14 @@ class ProductManufacturerStruct extends Entity
     protected $media;
 
     /**
-     * @var EntitySearchResult|null
+     * @var ProductManufacturerTranslationCollection|null
      */
     protected $translations;
 
-    public function getTranslations(): ?EntitySearchResult
-    {
-        return $this->translations;
-    }
-
-    public function setTranslations(?EntitySearchResult $translations): void
-    {
-        $this->translations = $translations;
-    }
+    /**
+     * @var ProductCollection|null
+     */
+    protected $products;
 
     public function getMediaId(): ?string
     {
@@ -171,5 +167,25 @@ class ProductManufacturerStruct extends Entity
     public function setMedia(MediaStruct $media): void
     {
         $this->media = $media;
+    }
+
+    public function getTranslations(): ?ProductManufacturerTranslationCollection
+    {
+        return $this->translations;
+    }
+
+    public function setTranslations(ProductManufacturerTranslationCollection $translations): void
+    {
+        $this->translations = $translations;
+    }
+
+    public function getProducts(): ?ProductCollection
+    {
+        return $this->products;
+    }
+
+    public function setProducts(ProductCollection $products): void
+    {
+        $this->products = $products;
     }
 }

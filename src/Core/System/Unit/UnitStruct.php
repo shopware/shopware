@@ -3,7 +3,7 @@
 namespace Shopware\Core\System\Unit;
 
 use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
+use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationCollection;
 
 class UnitStruct extends Entity
 {
@@ -28,7 +28,7 @@ class UnitStruct extends Entity
     protected $updatedAt;
 
     /**
-     * @var EntitySearchResult|null
+     * @var UnitTranslationCollection|null
      */
     protected $translations;
 
@@ -72,12 +72,12 @@ class UnitStruct extends Entity
         $this->updatedAt = $updatedAt;
     }
 
-    public function getTranslations(): ?EntitySearchResult
+    public function getTranslations(): ?UnitTranslationCollection
     {
         return $this->translations;
     }
 
-    public function setTranslations(EntitySearchResult $translations): void
+    public function setTranslations(UnitTranslationCollection $translations): void
     {
         $this->translations = $translations;
     }

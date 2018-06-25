@@ -40,7 +40,7 @@ class LocaleDefinition extends EntityDefinition
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
             new OneToManyAssociationField('fallbackApplications', TouchpointDefinition::class, 'fallback_locale_id', false, 'id'),
-            (new OneToManyAssociationField('applications', TouchpointDefinition::class, 'locale_id', false, 'id'))->setFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('touchpoints', TouchpointDefinition::class, 'locale_id', false, 'id'))->setFlags(new RestrictDelete()),
             (new TranslationsAssociationField('translations', LocaleTranslationDefinition::class, 'locale_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
             (new OneToManyAssociationField('users', UserDefinition::class, 'locale_id', false, 'id'))->setFlags(new RestrictDelete()),
         ]);

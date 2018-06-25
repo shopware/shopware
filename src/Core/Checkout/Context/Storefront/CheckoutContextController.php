@@ -6,6 +6,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
+use Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException;
 use Shopware\Core\Checkout\Order\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Payment\Exception\PaymentMethodNotFoundHttpException;
 use Shopware\Core\Checkout\Shipping\Exception\ShippingMethodNotFoundHttpException;
@@ -38,7 +40,7 @@ class CheckoutContextController extends Controller
     protected $customerAddressRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var CheckoutContextPersister
      */
     protected $contextPersister;
 
@@ -95,7 +97,7 @@ class CheckoutContextController extends Controller
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('payment_method.id', $paymentMethodId));
 
-        $valid = $this->paymentMethodRepository->searchIds($criteria, $context);
+        $valid = $this->paymentMethodRepository->searchIds($criteria, $context->getContext());
         if (!in_array($paymentMethodId, $valid->getIds(), true)) {
             throw new PaymentMethodNotFoundHttpException($paymentMethodId);
         }
@@ -108,7 +110,7 @@ class CheckoutContextController extends Controller
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('shipping_method.id', $shippingMethodId));
 
-        $valid = $this->shippingMethodRepository->searchIds($criteria, $context);
+        $valid = $this->shippingMethodRepository->searchIds($criteria, $context->getContext());
         if (!in_array($shippingMethodId, $valid->getIds(), true)) {
             throw new ShippingMethodNotFoundHttpException($shippingMethodId);
         }
@@ -122,7 +124,8 @@ class CheckoutContextController extends Controller
             throw new CustomerNotLoggedInException();
         }
 
-        $addresses = $this->customerAddressRepository->read(new ReadCriteria([$addressId]), $context);
+        $addresses = $this->customerAddressRepository->read(new ReadCriteria([$addressId]), $context->getContext());
+        /** @var CustomerAddressStruct $address */
         $address = $addresses->get($addressId);
 
         if (!$address) {

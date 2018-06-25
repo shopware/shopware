@@ -81,7 +81,7 @@ class PaymentTransactionChainProcessor
         }
 
         /** @var OrderTransactionCollection $transactions */
-        $transactions = $order->getTransactions()->getEntities();
+        $transactions = $order->getTransactions();
         $transactions = $transactions->filterByOrderStateId(Defaults::ORDER_TRANSACTION_OPEN);
 
         foreach ($transactions as $transaction) {

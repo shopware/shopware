@@ -19,7 +19,6 @@ use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\Framework\ORM\Search\Parser\SqlQueryParser;
 use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
 use Shopware\Core\Framework\ORM\Search\Sorting\FieldSorting;
@@ -660,15 +659,13 @@ class EntityReader implements EntityReaderInterface
             //use assign function to avoid setter name building
             $structData = $data->getList($extension->get($association->getPropertyName()));
 
-            $result = new EntitySearchResult(0, $structData, null, new Criteria(), $context);
-
             if ($association->is(Extension::class)) {
-                $struct->addExtension($association->getPropertyName(), $result);
+                $struct->addExtension($association->getPropertyName(), $structData);
                 continue;
             }
 
             $struct->assign([
-                $association->getPropertyName() => $result,
+                $association->getPropertyName() => $structData,
             ]);
         }
     }
@@ -767,7 +764,7 @@ class EntityReader implements EntityReaderInterface
 
         /** @var Entity $entity */
         foreach ($collection as $entity) {
-            $entities = new EntityCollection([]);
+            $entities = new $collectionClass([]);
 
             if (array_key_exists($entity->getId(), $mapping)) {
                 $x = $mapping[$entity->getId()];
@@ -776,7 +773,7 @@ class EntityReader implements EntityReaderInterface
             }
 
             $entity->assign([
-                $association->getPropertyName() => new EntitySearchResult(0, $entities, null, $criteria, $context),
+                $association->getPropertyName() => $entities,
             ]);
         }
     }

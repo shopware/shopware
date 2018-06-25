@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 class DetailPageLoader
 {
     /**
-     * @var RepositoryInterface
+     * @var StorefrontProductRepository
      */
     private $productRepository;
 
@@ -101,6 +101,7 @@ class DetailPageLoader
         $criteria = new ReadCriteria([]);
         $criteria->addFilter(new TermQuery('product_configurator.productId', $containerId));
 
+        /** @var ProductConfiguratorCollection $configurator */
         $configurator = $this->configuratorRepository->read($criteria, $context->getContext());
         $variationIds = $product->getVariationIds() ?? [];
 

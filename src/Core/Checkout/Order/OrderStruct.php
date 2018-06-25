@@ -4,10 +4,12 @@ namespace Shopware\Core\Checkout\Order;
 
 use Shopware\Core\Checkout\Customer\CustomerStruct;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressStruct;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderState\OrderStateStruct;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodStruct;
 use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\System\Currency\CurrencyStruct;
 use Shopware\Core\System\Touchpoint\TouchpointStruct;
 
@@ -114,17 +116,17 @@ class OrderStruct extends Entity
     protected $billingAddress;
 
     /**
-     * @var null|EntitySearchResult
+     * @var null|OrderDeliveryCollection
      */
     protected $deliveries;
 
     /**
-     * @var null|EntitySearchResult
+     * @var null|OrderLineItemCollection
      */
     protected $lineItems;
 
     /**
-     * @var null|EntitySearchResult
+     * @var null|OrderTransactionCollection
      */
     protected $transactions;
 
@@ -323,37 +325,32 @@ class OrderStruct extends Entity
         return $this->billingAddress;
     }
 
-    public function setBillingAddress(OrderAddressStruct $billingAddress): void
-    {
-        $this->billingAddress = $billingAddress;
-    }
-
-    public function getDeliveries(): ?EntitySearchResult
+    public function getDeliveries(): ?OrderDeliveryCollection
     {
         return $this->deliveries;
     }
 
-    public function setDeliveries(EntitySearchResult $deliveries): void
+    public function setDeliveries(OrderDeliveryCollection $deliveries): void
     {
         $this->deliveries = $deliveries;
     }
 
-    public function getLineItems(): ?EntitySearchResult
+    public function getLineItems(): ?OrderLineItemCollection
     {
         return $this->lineItems;
     }
 
-    public function setLineItems(EntitySearchResult $lineItems): void
+    public function setLineItems(OrderLineItemCollection $lineItems): void
     {
         $this->lineItems = $lineItems;
     }
 
-    public function getTransactions(): ?EntitySearchResult
+    public function getTransactions(): ?OrderTransactionCollection
     {
         return $this->transactions;
     }
 
-    public function setTransactions(EntitySearchResult $transactions): void
+    public function setTransactions(OrderTransactionCollection $transactions): void
     {
         $this->transactions = $transactions;
     }

@@ -125,7 +125,7 @@ abstract class Field extends Struct
     }
 
     /**
-     * @param Flag[] ...$flags
+     * @param Flag ...$flags
      *
      * @return self
      */

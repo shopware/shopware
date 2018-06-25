@@ -37,15 +37,6 @@
 
         <!-- ProductMedia Extension -->
 
-        <service class="Shopware\Core\Content\Media\Util\GarbageCollector\GarbageCollectorFactory" id="Shopware\Core\Content\Media\Util\GarbageCollector\GarbageCollectorFactory">
-            <argument type="service" id="Doctrine\DBAL\Connection" />
-            <argument type="service" id="Shopware\Core\Content\Media\Util\Strategy\StrategyInterface" />
-        </service>
-
-        <service class="Shopware\Core\Content\Media\Util\GarbageCollector\GarbageCollector" id="Shopware\Core\Content\Media\Util\GarbageCollector\GarbageCollector">
-            <factory service="Shopware\Core\Content\Media\Util\GarbageCollector\GarbageCollectorFactory" method="factory" />
-        </service>
-
         <service class="Shopware\Core\Content\Media\Util\Strategy\StrategyFilesystem" id="Shopware\Core\Content\Media\Util\Strategy\StrategyFilesystem">
             <argument type="service" id="Shopware\Core\Framework\Filesystem\PrefixFilesystem" />
             <argument type="service" id="Shopware\Core\Content\Media\Util\Strategy\StrategyInterface" />
@@ -55,12 +46,6 @@
             <argument type="service" id="Shopware\Core\Content\Media\Util\Strategy\StrategyInterface" />
             <argument type="service" id="request_stack" />
             <argument>%shopware.cdn.url%</argument>
-        </service>
-
-        <service class="Shopware\Core\Content\Media\Util\MediaReplaceService" id="Shopware\Core\Content\Media\Util\MediaReplaceService">
-            <argument type="service" id="Shopware\Core\Content\Media\Util\Strategy\StrategyFilesystem" />
-            <!--<argument type="service" id="thumbnail_manager"/>-->
-            <!--<argument type="service" id="models" />-->
         </service>
 
         <service class="Shopware\Core\Content\Media\Util\Strategy\StrategyFactory" id="Shopware\Core\Content\Media\Util\Strategy\StrategyFactory">
@@ -79,11 +64,6 @@
             <argument type="service" id="event_dispatcher" />
             <tag name="console.command" />
             <tag name="kernel.event_subscriber" />
-        </service>
-
-        <service class="Shopware\Core\Content\Media\Commands\MediaCleanupCommand" id="Shopware\Core\Content\Media\Commands\MediaCleanupCommand">
-            <argument type="service" id="Shopware\Core\Content\Media\Util\GarbageCollector\GarbageCollector" />
-            <tag name="console.command" />
         </service>
 
         <service class="Shopware\Core\Content\Media\Commands\MediaOptimizeCommand" id="Shopware\Core\Content\Media\Commands\MediaOptimizeCommand">

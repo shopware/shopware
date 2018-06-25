@@ -6,7 +6,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Storefront\CartService;
-use Shopware\Core\Checkout\CartBridge\Voucher\VoucherProcessor;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Product\Cart\ProductProcessor;
 use Symfony\Component\HttpFoundation\AcceptHeader;
@@ -155,7 +154,7 @@ class CartController extends StorefrontController
         }
 
         $this->cartService->add(
-            new LineItem($identifier, VoucherProcessor::TYPE_VOUCHER, 1, ['code' => $identifier]),
+            new LineItem($identifier, 'voucher', 1, ['code' => $identifier]),
             $context
         );
 

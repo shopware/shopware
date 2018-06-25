@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Page\Account;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\ORM\Search\Sorting\FieldSorting;
 use Symfony\Component\HttpFoundation\Request;
@@ -54,7 +55,7 @@ class OrderPageLoader
         return $criteria;
     }
 
-    private function getPageCount(OrderSearchResult $orders, Criteria $criteria, int $currentPage): int
+    private function getPageCount(EntitySearchResult $orders, Criteria $criteria, int $currentPage): int
     {
         $pageCount = (int) floor($orders->getTotal() / $criteria->getLimit());
 

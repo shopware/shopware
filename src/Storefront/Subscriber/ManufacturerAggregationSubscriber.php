@@ -9,6 +9,7 @@ use Shopware\Core\Framework\ORM\Search\Aggregation\AggregationResult;
 use Shopware\Core\Framework\ORM\Search\Aggregation\EntityAggregation;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\NestedQuery;
+use Shopware\Core\Framework\ORM\Search\Query\NotQuery;
 use Shopware\Core\Framework\ORM\Search\Query\Query;
 use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
 use Shopware\Storefront\Event\ListingEvents;

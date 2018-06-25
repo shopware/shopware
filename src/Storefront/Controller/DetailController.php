@@ -55,6 +55,6 @@ class DetailController extends StorefrontController
             $template = '@Storefront/frontend/detail/content.html.twig';
         }
 
-        return $this->renderStorefront($template, ['page' => $page], null, !$xhr);
+        return $this->renderStorefront($template, ['page' => $page], null);
     }
 }

@@ -3,12 +3,13 @@
 namespace Shopware\Storefront\Page\Account;
 
 use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\Framework\Struct\Struct;
 
 class OrderPageStruct extends Struct
 {
     /**
-     * @var OrderSearchResult
+     * @var EntitySearchResult
      */
     private $orders;
 
@@ -28,7 +29,7 @@ class OrderPageStruct extends Struct
     private $pageCount;
 
     public function __construct(
-        OrderSearchResult $orders,
+        EntitySearchResult $orders,
         Criteria $criteria,
         int $currentPage = 1,
         int $pageCount = 1
@@ -39,7 +40,7 @@ class OrderPageStruct extends Struct
         $this->pageCount = $pageCount;
     }
 
-    public function getOrders(): OrderSearchResult
+    public function getOrders(): EntitySearchResult
     {
         return $this->orders;
     }

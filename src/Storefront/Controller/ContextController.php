@@ -38,7 +38,7 @@ class ContextController extends StorefrontController
 
     public function __construct(
         CheckoutContextPersister $contextPersister,
-        CheckoutContextService $storefrontContextService,
+        CheckoutContextService $checkoutContextService,
         RepositoryInterface $currencyRepository,
         RepositoryInterface $languageRepository
     ) {

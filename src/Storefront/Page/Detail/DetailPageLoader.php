@@ -21,7 +21,7 @@ class DetailPageLoader
     private $productRepository;
 
     /**
-     * @var ProductConfiguratorRepository
+     * @var RepositoryInterface
      */
     private $configuratorRepository;
 

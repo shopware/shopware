@@ -28,6 +28,7 @@ done
 if [ "$FILES" != "" ]
 then
 	bin/php-cs-fixer.phar fix --config=.php_cs.dist --quiet --allow-risky=yes -vv $FILES
+	vendor/bin/phpstan analyze --level 1 --no-progress --configuration ../../../phpstan.neon $FILES
 	if [ $? != 0 ]
 	then
 		echo "Fix the error before commit."

@@ -101,8 +101,6 @@ class EntityAggregator implements EntityAggregatorInterface
             $this->queryHelper->resolveAccessor($fieldName, $definition, $table, $query, $context);
         }
 
-        $parent = null;
-
         if ($definition::isInheritanceAware()) {
             /** @var EntityDefinition|string $definition */
             $parent = $definition::getFields()->get('parent');

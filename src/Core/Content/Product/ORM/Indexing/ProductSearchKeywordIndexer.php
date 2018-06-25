@@ -12,7 +12,6 @@ use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\ORM\Dbal\Common\IndexTableOperator;
 use Shopware\Core\Framework\ORM\Dbal\Common\LastIdQuery;
-use Shopware\Core\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\ORM\Dbal\Indexing\IndexerInterface;
 use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
@@ -87,29 +86,14 @@ class ProductSearchKeywordIndexer implements IndexerInterface
         $table = $this->indexTableOperator->getIndexName(self::TABLE, $timestamp);
         $documentTable = $this->indexTableOperator->getIndexName(self::DOCUMENT_TABLE, $timestamp);
 
-        $table = EntityDefinitionQueryHelper::escape($table);
-        $documentTable = EntityDefinitionQueryHelper::escape($documentTable);
+        $this->connection->executeUpdate('ALTER TABLE `' . $table . '` ADD PRIMARY KEY `language_keyword` (`keyword`, `language_id`, `version_id`, `tenant_id`, `language_tenant_id`);');
+        $this->connection->executeUpdate('ALTER TABLE `' . $table . '` ADD INDEX `keyword` (`keyword`, `language_id`, `language_tenant_id`, `tenant_id`);');
+        $this->connection->executeUpdate('ALTER TABLE `' . $table . '` ADD FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE');
 
-        $sql = str_replace('#table#', $table, 'ALTER TABLE #table# ADD PRIMARY KEY `language_keyword` (`keyword`, `language_id`, `version_id`, `tenant_id`, `language_tenant_id`);');
-        $this->connection->executeUpdate($sql);
-
-        $sql = str_replace('#table#', $table, 'ALTER TABLE #table# ADD INDEX `keyword` (`keyword`, `language_id`, `language_tenant_id`, `tenant_id`);');
-        $this->connection->executeUpdate($sql);
-
-        $sql = str_replace('#table#', $table, 'ALTER TABLE #table# ADD FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE');
-        $this->connection->executeUpdate($sql);
-
-        $sql = str_replace('#table#', $documentTable, 'ALTER TABLE #table# ADD PRIMARY KEY `product_shop_keyword` (`id`, `version_id`, `tenant_id`);');
-        $this->connection->executeUpdate($sql);
-
-        $sql = str_replace('#table#', $documentTable, 'ALTER TABLE #table# ADD UNIQUE KEY (`language_id`, `keyword`, `product_id`, `ranking`, `version_id`, `tenant_id`);');
-        $this->connection->executeUpdate($sql);
-
-        $sql = str_replace('#table#', $documentTable, 'ALTER TABLE #table# ADD FOREIGN KEY (`product_id`, `product_version_id`, `product_tenant_id`) REFERENCES `product` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE');
-        $this->connection->executeUpdate($sql);
-
-        $sql = str_replace('#table#', $documentTable, 'ALTER TABLE #table# ADD FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE');
-        $this->connection->executeUpdate($sql);
+        $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD PRIMARY KEY `product_shop_keyword` (`id`, `version_id`, `tenant_id`);');
+        $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD UNIQUE KEY (`language_id`, `keyword`, `product_id`, `ranking`, `version_id`, `tenant_id`);');
+        $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD FOREIGN KEY (`product_id`, `product_version_id`, `product_tenant_id`) REFERENCES `product` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE');
+        $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE');
 
         $languages = $this->languageRepository->search(new Criteria(), Context::createDefaultContext($tenantId));
         $catalogIds = $this->catalogRepository->searchIds(new Criteria(), Context::createDefaultContext($tenantId));

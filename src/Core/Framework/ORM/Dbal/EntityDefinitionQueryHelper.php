@@ -80,13 +80,13 @@ class EntityDefinitionQueryHelper
         $associationKey = explode('.', $fieldName);
         $associationKey = array_shift($associationKey);
 
-        /** @var AssociationInterface|Field $field */
         $field = $fields->get($associationKey);
 
         if (!$field instanceof AssociationInterface) {
             return $field;
         }
 
+        /** @var AssociationInterface $field */
         $referenceClass = $field->getReferenceClass();
         if ($field instanceof ManyToManyAssociationField) {
             $referenceClass = $field->getReferenceDefinition();

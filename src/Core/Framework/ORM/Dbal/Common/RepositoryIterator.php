@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\ORM\Dbal\Common;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
-use Shopware\Core\Framework\ORM\Search\SearchResultInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 
 class RepositoryIterator
 {
@@ -62,7 +62,7 @@ class RepositoryIterator
         return null;
     }
 
-    public function fetch(): ?SearchResultInterface
+    public function fetch(): ?EntitySearchResult
     {
         $this->criteria->setFetchCount(Criteria::FETCH_COUNT_NONE);
         $result = $this->repository->search($this->criteria, $this->context);

@@ -3,6 +3,8 @@
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransaction;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState\OrderTransactionStateStruct;
+use Shopware\Core\Checkout\Order\OrderStruct;
 use Shopware\Core\Checkout\Payment\PaymentMethodStruct;
 use Shopware\Core\Framework\ORM\Entity;
 
@@ -42,6 +44,16 @@ class OrderTransactionStruct extends Entity
      * @var PaymentMethodStruct|null
      */
     protected $paymentMethod;
+
+    /**
+     * @var OrderStruct|null
+     */
+    protected $order;
+
+    /***
+     * @var OrderTransactionStateStruct
+     */
+    protected $orderTransactionState;
 
     public function getOrderId(): string
     {
@@ -111,5 +123,25 @@ class OrderTransactionStruct extends Entity
     public function setPaymentMethod(PaymentMethodStruct $paymentMethod): void
     {
         $this->paymentMethod = $paymentMethod;
+    }
+
+    public function getOrderTransactionState(): OrderTransactionStateStruct
+    {
+        return $this->orderTransactionState;
+    }
+
+    public function setOrderTransactionState(OrderTransactionStateStruct $orderTransactionState): void
+    {
+        $this->orderTransactionState = $orderTransactionState;
+    }
+
+    public function getOrder(): ?OrderStruct
+    {
+        return $this->order;
+    }
+
+    public function setOrder(?OrderStruct $order): void
+    {
+        $this->order = $order;
     }
 }

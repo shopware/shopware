@@ -15,6 +15,10 @@
             <argument type="service" id="serializer"/>
         </service>
 
+        <service class="Shopware\Core\Framework\ORM\DefinitionValidator" id="Shopware\Core\Framework\ORM\DefinitionValidator">
+            <argument id="Shopware\Core\Framework\ORM\DefinitionRegistry" type="service"/>
+        </service>
+
         <service class="Shopware\Core\Framework\ORM\Search\Term\Tokenizer" id="Shopware\Core\Framework\ORM\Search\Term\Tokenizer"/>
 
         <service class="Shopware\Core\Framework\ORM\Search\Term\StopWordFilter" id="Shopware\Core\Framework\ORM\Search\Term\StopWordFilter"/>
@@ -272,51 +276,6 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service id="config_form.repository" class="Shopware\Core\Framework\ORM\EntityRepository" public="true">
-            <argument>Shopware\Core\System\Config\ConfigFormDefinition</argument>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\VersionManager"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntitySearcherInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface"/>
-            <argument type="service" id="event_dispatcher"/>
-        </service>
-
-        <service id="config_form_field.repository" class="Shopware\Core\Framework\ORM\EntityRepository" public="true">
-            <argument>Shopware\Core\System\Config\Aggregate\ConfigFormField\ConfigFormFieldDefinition</argument>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\VersionManager"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntitySearcherInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface"/>
-            <argument type="service" id="event_dispatcher"/>
-        </service>
-
-        <service id="config_form_field_translation.repository" class="Shopware\Core\Framework\ORM\EntityRepository" public="true">
-            <argument>Shopware\Core\System\Config\Aggregate\ConfigFormFieldTranslation\ConfigFormFieldTranslationDefinition</argument>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\VersionManager"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntitySearcherInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface"/>
-            <argument type="service" id="event_dispatcher"/>
-        </service>
-
-        <service id="config_form_field_value.repository" class="Shopware\Core\Framework\ORM\EntityRepository" public="true">
-            <argument>Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\ConfigFormFieldValueDefinition</argument>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\VersionManager"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntitySearcherInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface"/>
-            <argument type="service" id="event_dispatcher"/>
-        </service>
-
-        <service id="config_form_translation.repository" class="Shopware\Core\Framework\ORM\EntityRepository" public="true">
-            <argument>Shopware\Core\System\Config\Aggregate\ConfigFormTranslation\ConfigFormTranslationDefinition</argument>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\VersionManager"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntitySearcherInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface"/>
-            <argument type="service" id="event_dispatcher"/>
-        </service>
-
         <service id="country.repository" class="Shopware\Core\Framework\ORM\EntityRepository" public="true">
             <argument>Shopware\Core\System\Country\CountryDefinition</argument>
             <argument type="service" id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface"/>
@@ -436,42 +395,6 @@
 
         <service id="listing_sorting_translation.repository" class="Shopware\Core\Framework\ORM\EntityRepository" public="true">
             <argument>Shopware\Core\System\Listing\Definition\ListingSortingTranslationDefinition</argument>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\VersionManager"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntitySearcherInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface"/>
-            <argument type="service" id="event_dispatcher"/>
-        </service>
-
-        <service id="log.repository" class="Shopware\Core\Framework\ORM\EntityRepository" public="true">
-            <argument>Shopware\Core\System\Log\LogDefinition</argument>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\VersionManager"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntitySearcherInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface"/>
-            <argument type="service" id="event_dispatcher"/>
-        </service>
-
-        <service id="mail.repository" class="Shopware\Core\Framework\ORM\EntityRepository" public="true">
-            <argument>Shopware\Core\System\Mail\MailDefinition</argument>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\VersionManager"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntitySearcherInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface"/>
-            <argument type="service" id="event_dispatcher"/>
-        </service>
-
-        <service id="mail_attachment.repository" class="Shopware\Core\Framework\ORM\EntityRepository" public="true">
-            <argument>Shopware\Core\System\Mail\Aggregate\MailAttachment\MailAttachmentDefinition</argument>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\VersionManager"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntitySearcherInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface"/>
-            <argument type="service" id="event_dispatcher"/>
-        </service>
-
-        <service id="mail_translation.repository" class="Shopware\Core\Framework\ORM\EntityRepository" public="true">
-            <argument>Shopware\Core\System\Mail\Aggregate\MailTranslation\MailTranslationDefinition</argument>
             <argument type="service" id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\VersionManager"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntitySearcherInterface"/>
@@ -715,33 +638,6 @@
 
         <service id="product_service.repository" class="Shopware\Core\Framework\ORM\EntityRepository" public="true">
             <argument>Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceDefinition</argument>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\VersionManager"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntitySearcherInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface"/>
-            <argument type="service" id="event_dispatcher"/>
-        </service>
-
-        <service id="product_stream.repository" class="Shopware\Core\Framework\ORM\EntityRepository" public="true">
-            <argument>Shopware\Core\Content\Product\Aggregate\ProductStream\ProductStreamDefinition</argument>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\VersionManager"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntitySearcherInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface"/>
-            <argument type="service" id="event_dispatcher"/>
-        </service>
-
-        <service id="product_stream_assignment.repository" class="Shopware\Core\Framework\ORM\EntityRepository" public="true">
-            <argument>Shopware\Core\Content\Product\Aggregate\ProductStreamAssignment\ProductStreamAssignmentDefinition</argument>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\VersionManager"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntitySearcherInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface"/>
-            <argument type="service" id="event_dispatcher"/>
-        </service>
-
-        <service id="product_stream_tab.repository" class="Shopware\Core\Framework\ORM\EntityRepository" public="true">
-            <argument>Shopware\Core\Content\Product\Aggregate\ProductStreamTab\ProductStreamTabDefinition</argument>
             <argument type="service" id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\VersionManager"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntitySearcherInterface"/>

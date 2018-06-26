@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductTranslation;
 
+use Shopware\Core\Content\Catalog\CatalogDefinition;
 use Shopware\Core\Content\Catalog\ORM\CatalogField;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Core\System\Language\LanguageDefinition;
 
 class ProductTranslationDefinition extends EntityDefinition
@@ -40,6 +42,7 @@ class ProductTranslationDefinition extends EntityDefinition
             new StringField('pack_unit', 'packUnit'),
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false),
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, false),
+            (new ManyToOneAssociationField('catalog', 'catalog_id', CatalogDefinition::class, false, 'id'))->setFlags(new RestrictDelete()),
         ]);
     }
 

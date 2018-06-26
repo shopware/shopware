@@ -4,6 +4,7 @@ namespace Shopware\Core\System\Country\Aggregate\CountryArea;
 
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\System\Country\CountryCollection;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleCollection;
 
 class CountryAreaStruct extends Entity
 {
@@ -36,6 +37,11 @@ class CountryAreaStruct extends Entity
      * @var CountryAreaCollection|null
      */
     protected $translations;
+
+    /**
+     * @var TaxAreaRuleCollection|null
+     */
+    protected $taxAreaRules;
 
     public function getName(): string
     {
@@ -95,5 +101,15 @@ class CountryAreaStruct extends Entity
     public function setTranslations(CountryAreaCollection $translations): void
     {
         $this->translations = $translations;
+    }
+
+    public function getTaxAreaRules(): ?TaxAreaRuleCollection
+    {
+        return $this->taxAreaRules;
+    }
+
+    public function setTaxAreaRules(?TaxAreaRuleCollection $taxAreaRules): void
+    {
+        $this->taxAreaRules = $taxAreaRules;
     }
 }

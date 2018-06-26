@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductTranslation;
 
+use Shopware\Core\Content\Catalog\CatalogStruct;
 use Shopware\Core\Content\Product\ProductStruct;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\System\Language\LanguageStruct;
@@ -17,6 +18,11 @@ class ProductTranslationStruct extends Entity
      * @var string
      */
     protected $languageId;
+
+    /**
+     * @var int
+     */
+    protected $catalogId;
 
     /**
      * @var string|null
@@ -62,6 +68,11 @@ class ProductTranslationStruct extends Entity
      * @var LanguageStruct|null
      */
     protected $language;
+
+    /**
+     * @var CatalogStruct|null
+     */
+    protected $catalog;
 
     public function getProductId(): string
     {
@@ -171,5 +182,25 @@ class ProductTranslationStruct extends Entity
     public function setLanguage(LanguageStruct $language): void
     {
         $this->language = $language;
+    }
+
+    public function getCatalogId(): int
+    {
+        return $this->catalogId;
+    }
+
+    public function setCatalogId(int $catalogId): void
+    {
+        $this->catalogId = $catalogId;
+    }
+
+    public function getCatalog(): ?CatalogStruct
+    {
+        return $this->catalog;
+    }
+
+    public function setCatalog(?CatalogStruct $catalog): void
+    {
+        $this->catalog = $catalog;
     }
 }

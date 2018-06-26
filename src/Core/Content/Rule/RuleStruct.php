@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Content\Rule;
 
+use Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleCollection;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\Rule\Rule;
 
@@ -31,6 +33,16 @@ class RuleStruct extends Entity
      * @var \DateTime
      */
     protected $updatedAt;
+
+    /**
+     * @var DiscountSurchargeCollection|null
+     */
+    protected $discountSurcharges;
+
+    /**
+     * @var ProductPriceRuleCollection|null
+     */
+    protected $productPriceRules;
 
     public function getName(): string
     {
@@ -80,5 +92,25 @@ class RuleStruct extends Entity
     public function setPriority(int $priority): void
     {
         $this->priority = $priority;
+    }
+
+    public function getDiscountSurcharges(): ?DiscountSurchargeCollection
+    {
+        return $this->discountSurcharges;
+    }
+
+    public function setDiscountSurcharges(?DiscountSurchargeCollection $discountSurcharges): void
+    {
+        $this->discountSurcharges = $discountSurcharges;
+    }
+
+    public function getProductPriceRules(): ?ProductPriceRuleCollection
+    {
+        return $this->productPriceRules;
+    }
+
+    public function setProductPriceRules(?ProductPriceRuleCollection $productPriceRules): void
+    {
+        $this->productPriceRules = $productPriceRules;
     }
 }

@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderState;
 
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderStateTranslation\OrderStateTranslationCollection;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Framework\ORM\Entity;
 
 class OrderStateStruct extends Entity
@@ -36,6 +38,16 @@ class OrderStateStruct extends Entity
      * @var OrderStateTranslationCollection|null
      */
     protected $translations;
+
+    /**
+     * @var OrderCollection|null
+     */
+    protected $orders;
+
+    /**
+     * @var OrderDeliveryCollection|null
+     */
+    protected $orderDeliveries;
 
     public function getDescription(): string
     {
@@ -95,5 +107,25 @@ class OrderStateStruct extends Entity
     public function setTranslations(OrderStateTranslationCollection $translations): void
     {
         $this->translations = $translations;
+    }
+
+    public function getOrders(): ?OrderCollection
+    {
+        return $this->orders;
+    }
+
+    public function setOrders(?OrderCollection $orders): void
+    {
+        $this->orders = $orders;
+    }
+
+    public function getOrderDeliveries(): ?OrderDeliveryCollection
+    {
+        return $this->orderDeliveries;
+    }
+
+    public function setOrderDeliveries(?OrderDeliveryCollection $orderDeliveries): void
+    {
+        $this->orderDeliveries = $orderDeliveries;
     }
 }

@@ -263,14 +263,10 @@
 
         <service class="Shopware\Storefront\Seo\Product\CanonicalUrlExtension" id="Shopware\Storefront\Seo\Product\CanonicalUrlExtension">
             <tag name="shopware.entity.extension"/>
-            <tag name="kernel.event_subscriber" />
-            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service class="Shopware\Storefront\Seo\Category\CanonicalUrlExtension" id="Shopware\Storefront\Seo\Category\CanonicalUrlExtension">
-            <tag name="kernel.event_subscriber"/>
             <tag name="shopware.entity.extension"/>
-            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service class="Shopware\Storefront\Api\Seo\SeoUrlDefinition" id="Shopware\Storefront\Api\Seo\SeoUrlDefinition" >
@@ -281,5 +277,10 @@
             <argument id="touchpoint.repository" type="service"/>
             <tag name="console.command"/>
         </service>
+
+        <service class="Shopware\Storefront\Api\Seo\TouchpointExtension" id="Shopware\Storefront\Api\Seo\TouchpointExtension">
+            <tag name="shopware.entity.extension"/>
+        </service>
+
     </services>
 </container>

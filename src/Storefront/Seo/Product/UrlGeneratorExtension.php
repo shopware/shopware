@@ -24,7 +24,7 @@ class UrlGeneratorExtension implements EntityExtensionInterface, EventSubscriber
         $this->requestStack = $requestStack;
     }
 
-    public function extendFields(FieldCollection $collection)
+    public function extendFields(FieldCollection $collection): void
     {
         $collection->add(
             (new StringField('url', 'url'))->setFlags(new Deferred(), new ReadOnly())

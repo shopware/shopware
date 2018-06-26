@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation;
 
+use Shopware\Core\Checkout\Payment\PaymentMethodStruct;
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\System\Language\LanguageStruct;
 
 class PaymentMethodTranslationStruct extends Entity
 {
@@ -25,6 +27,16 @@ class PaymentMethodTranslationStruct extends Entity
      * @var string
      */
     protected $additionalDescription;
+
+    /**
+     * @var LanguageStruct|null
+     */
+    protected $language;
+
+    /**
+     * @var PaymentMethodStruct
+     */
+    protected $paymentMethod;
 
     public function getPaymentMethodId(): string
     {
@@ -64,5 +76,25 @@ class PaymentMethodTranslationStruct extends Entity
     public function setAdditionalDescription(string $additionalDescription): void
     {
         $this->additionalDescription = $additionalDescription;
+    }
+
+    public function getPaymentMethod(): PaymentMethodStruct
+    {
+        return $this->paymentMethod;
+    }
+
+    public function setPaymentMethod(PaymentMethodStruct $paymentMethod): void
+    {
+        $this->paymentMethod = $paymentMethod;
+    }
+
+    public function getLanguage(): ?LanguageStruct
+    {
+        return $this->language;
+    }
+
+    public function setLanguage(?LanguageStruct $language): void
+    {
+        $this->language = $language;
     }
 }

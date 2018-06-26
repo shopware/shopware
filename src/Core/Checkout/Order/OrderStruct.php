@@ -130,6 +130,11 @@ class OrderStruct extends Entity
      */
     protected $transactions;
 
+    /**
+     * @var int
+     */
+    protected $autoIncrement;
+
     public function getCustomerId(): string
     {
         return $this->customerId;
@@ -353,5 +358,20 @@ class OrderStruct extends Entity
     public function setTransactions(OrderTransactionCollection $transactions): void
     {
         $this->transactions = $transactions;
+    }
+
+    public function getAutoIncrement(): int
+    {
+        return $this->autoIncrement;
+    }
+
+    public function setAutoIncrement(int $autoIncrement): void
+    {
+        $this->autoIncrement = $autoIncrement;
+    }
+
+    public function setBillingAddress(OrderAddressStruct $billingAddress): void
+    {
+        $this->billingAddress = $billingAddress;
     }
 }

@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Content\Media;
 
+use Shopware\Core\Content\Catalog\CatalogStruct;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumStruct;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\System\Mail\Aggregate\MailAttachment\MailAttachmentCollection;
 use Shopware\Core\System\User\UserStruct;
 
 class MediaStruct extends Entity
@@ -17,6 +17,11 @@ class MediaStruct extends Entity
      * @var string
      */
     protected $albumId;
+
+    /**
+     * @var int
+     */
+    protected $catalogId;
 
     /**
      * @var string|null
@@ -84,11 +89,6 @@ class MediaStruct extends Entity
     protected $categories;
 
     /**
-     * @var MailAttachmentCollection|null
-     */
-    protected $mailAttachments;
-
-    /**
      * @var ProductManufacturerCollection|null
      */
     protected $productManufacturers;
@@ -97,6 +97,11 @@ class MediaStruct extends Entity
      * @var ProductMediaCollection|null
      */
     protected $productMedia;
+
+    /**
+     * @var CatalogStruct|null
+     */
+    protected $catalog;
 
     public function getAlbumId(): string
     {
@@ -238,16 +243,6 @@ class MediaStruct extends Entity
         $this->categories = $categories;
     }
 
-    public function getMailAttachments(): ?MailAttachmentCollection
-    {
-        return $this->mailAttachments;
-    }
-
-    public function setMailAttachments(MailAttachmentCollection $mailAttachments): void
-    {
-        $this->mailAttachments = $mailAttachments;
-    }
-
     public function getProductManufacturers(): ?ProductManufacturerCollection
     {
         return $this->productManufacturers;
@@ -266,5 +261,25 @@ class MediaStruct extends Entity
     public function setProductMedia(ProductMediaCollection $productMedia): void
     {
         $this->productMedia = $productMedia;
+    }
+
+    public function getCatalogId(): int
+    {
+        return $this->catalogId;
+    }
+
+    public function setCatalogId(int $catalogId): void
+    {
+        $this->catalogId = $catalogId;
+    }
+
+    public function getCatalog(): ?CatalogStruct
+    {
+        return $this->catalog;
+    }
+
+    public function setCatalog(?CatalogStruct $catalog): void
+    {
+        $this->catalog = $catalog;
     }
 }

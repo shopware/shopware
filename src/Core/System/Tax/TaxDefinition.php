@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Tax;
 
+use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Field\DateField;
@@ -38,6 +39,7 @@ class TaxDefinition extends EntityDefinition
             new DateField('updated_at', 'updatedAt'),
             (new OneToManyAssociationField('products', ProductDefinition::class, 'tax_id', false, 'id'))->setFlags(new RestrictDelete()),
             (new OneToManyAssociationField('areaRules', TaxAreaRuleDefinition::class, 'tax_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('productServices', ProductServiceDefinition::class, 'tax_id', false, 'id'))->setFlags(new CascadeDelete()),
         ]);
     }
 

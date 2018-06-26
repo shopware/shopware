@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGroupDiscountCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
-use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleCollection;
 
@@ -70,11 +69,6 @@ class CustomerGroupStruct extends Entity
      * @var TaxAreaRuleCollection|null
      */
     protected $taxAreaRules;
-
-    /**
-     * @var ShippingMethodCollection|null
-     */
-    protected $shippingMethods;
 
     /**
      * @var CustomerCollection|null
@@ -199,16 +193,6 @@ class CustomerGroupStruct extends Entity
     public function setTaxAreaRules(?TaxAreaRuleCollection $taxAreaRules): void
     {
         $this->taxAreaRules = $taxAreaRules;
-    }
-
-    public function getShippingMethods(): ?ShippingMethodCollection
-    {
-        return $this->shippingMethods;
-    }
-
-    public function setShippingMethods(?ShippingMethodCollection $shippingMethods): void
-    {
-        $this->shippingMethods = $shippingMethods;
     }
 
     public function getCustomers(): ?CustomerCollection

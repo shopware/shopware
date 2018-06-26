@@ -2,9 +2,12 @@
 
 namespace Shopware\Core\System\Country\Aggregate\CountryState;
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationCollection;
 use Shopware\Core\System\Country\CountryStruct;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleCollection;
 
 class CountryStateStruct extends Entity
 {
@@ -52,6 +55,21 @@ class CountryStateStruct extends Entity
      * @var CountryStateTranslationCollection|null
      */
     protected $translations;
+
+    /**
+     * @var CustomerAddressCollection|null
+     */
+    protected $customerAddresses;
+
+    /**
+     * @var OrderAddressCollection|null
+     */
+    protected $orderAddresses;
+
+    /**
+     * @var TaxAreaRuleCollection|null
+     */
+    protected $taxAreaRules;
 
     public function getCountryId(): string
     {
@@ -141,5 +159,35 @@ class CountryStateStruct extends Entity
     public function setTranslations(CountryStateTranslationCollection $translations): void
     {
         $this->translations = $translations;
+    }
+
+    public function getCustomerAddresses(): ?CustomerAddressCollection
+    {
+        return $this->customerAddresses;
+    }
+
+    public function setCustomerAddresses(?CustomerAddressCollection $customerAddresses): void
+    {
+        $this->customerAddresses = $customerAddresses;
+    }
+
+    public function getOrderAddresses(): ?OrderAddressCollection
+    {
+        return $this->orderAddresses;
+    }
+
+    public function setOrderAddresses(?OrderAddressCollection $orderAddresses): void
+    {
+        $this->orderAddresses = $orderAddresses;
+    }
+
+    public function getTaxAreaRules(): ?TaxAreaRuleCollection
+    {
+        return $this->taxAreaRules;
+    }
+
+    public function setTaxAreaRules(?TaxAreaRuleCollection $taxAreaRules): void
+    {
+        $this->taxAreaRules = $taxAreaRules;
     }
 }

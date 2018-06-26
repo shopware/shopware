@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\System\Touchpoint;
 
+use Shopware\Core\Checkout\Customer\CustomerCollection;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodStruct;
 use Shopware\Core\Checkout\Shipping\ShippingMethodStruct;
 use Shopware\Core\Framework\ORM\Entity;
@@ -120,6 +122,16 @@ class TouchpointStruct extends Entity
      * @var CountryStruct|null
      */
     protected $country;
+
+    /**
+     * @var OrderCollection|null
+     */
+    protected $orders;
+
+    /**
+     * @var CustomerCollection|null
+     */
+    protected $customers;
 
     public function getLanguageId(): string
     {
@@ -342,5 +354,25 @@ class TouchpointStruct extends Entity
     public function setCountry(CountryStruct $country): void
     {
         $this->country = $country;
+    }
+
+    public function getOrders(): ?OrderCollection
+    {
+        return $this->orders;
+    }
+
+    public function setOrders(?OrderCollection $orders): void
+    {
+        $this->orders = $orders;
+    }
+
+    public function getCustomers(): ?CustomerCollection
+    {
+        return $this->customers;
+    }
+
+    public function setCustomers(?CustomerCollection $customers): void
+    {
+        $this->customers = $customers;
     }
 }

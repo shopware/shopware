@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption
 
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOptionTranslation\ConfigurationGroupOptionTranslationCollection;
 use Shopware\Core\Content\Configuration\ConfigurationGroupStruct;
+use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceCollection;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\ORM\Entity;
 
 class ConfigurationGroupOptionStruct extends Entity
@@ -37,6 +40,26 @@ class ConfigurationGroupOptionStruct extends Entity
      * @var ConfigurationGroupOptionTranslationCollection|null
      */
     protected $translations;
+
+    /**
+     * @var ProductConfiguratorCollection|null
+     */
+    protected $productConfigurators;
+
+    /**
+     * @var ProductServiceCollection|null
+     */
+    protected $productServices;
+
+    /**
+     * @var ProductCollection|null
+     */
+    protected $productDatasheets;
+
+    /**
+     * @var ProductCollection|null
+     */
+    protected $productVariations;
 
     public function getGroupId(): string
     {
@@ -96,5 +119,45 @@ class ConfigurationGroupOptionStruct extends Entity
     public function setTranslations(ConfigurationGroupOptionTranslationCollection $translations): void
     {
         $this->translations = $translations;
+    }
+
+    public function getProductConfigurators(): ?ProductConfiguratorCollection
+    {
+        return $this->productConfigurators;
+    }
+
+    public function setProductConfigurators(?ProductConfiguratorCollection $productConfigurators): void
+    {
+        $this->productConfigurators = $productConfigurators;
+    }
+
+    public function getProductServices(): ?ProductServiceCollection
+    {
+        return $this->productServices;
+    }
+
+    public function setProductServices(?ProductServiceCollection $productServices): void
+    {
+        $this->productServices = $productServices;
+    }
+
+    public function getProductDatasheets(): ?ProductCollection
+    {
+        return $this->productDatasheets;
+    }
+
+    public function setProductDatasheets(?ProductCollection $productDatasheets): void
+    {
+        $this->productDatasheets = $productDatasheets;
+    }
+
+    public function getProductVariations(): ?ProductCollection
+    {
+        return $this->productVariations;
+    }
+
+    public function setProductVariations(?ProductCollection $productVariations): void
+    {
+        $this->productVariations = $productVariations;
     }
 }

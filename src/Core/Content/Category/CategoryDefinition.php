@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Content\Category;
 
+use Shopware\Core\Content\Catalog\CatalogDefinition;
 use Shopware\Core\Content\Catalog\ORM\CatalogField;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductSeoCategory\ProductSeoCategoryDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Field\BoolField;
@@ -32,6 +31,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\ReadOnly;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 
 class CategoryDefinition extends EntityDefinition
@@ -55,9 +55,6 @@ class CategoryDefinition extends EntityDefinition
 
             new FkField('media_id', 'mediaId', MediaDefinition::class),
             new ReferenceVersionField(MediaDefinition::class),
-
-            new FkField('product_stream_id', 'productStreamId', ProductStreamDefinition::class),
-            new ReferenceVersionField(ProductStreamDefinition::class),
 
             (new IntField('auto_increment', 'autoIncrement'))->setFlags(new ReadOnly()),
             new LongTextField('path', 'path'),
@@ -85,11 +82,11 @@ class CategoryDefinition extends EntityDefinition
             new TranslatedField(new LongTextField('cms_description', 'cmsDescription')),
             new ManyToOneAssociationField('parent', 'parent_id', self::class, false),
             new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, false),
-            new ManyToOneAssociationField('productStream', 'product_stream_id', ProductStreamDefinition::class, false),
             (new ChildrenAssociationField(self::class))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('translations', CategoryTranslationDefinition::class, 'category_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
             (new ManyToManyAssociationField('products', ProductDefinition::class, ProductCategoryDefinition::class, false, 'category_id', 'product_id', 'id', 'categories'))->setFlags(new CascadeDelete()),
             (new ManyToManyAssociationField('seoProducts', ProductDefinition::class, ProductSeoCategoryDefinition::class, false, 'category_id', 'product_id'))->setFlags(new CascadeDelete()),
+            (new ManyToOneAssociationField('catalog', 'catalog_id', CatalogDefinition::class, false, 'id'))->setFlags(new RestrictDelete()),
         ]);
     }
 

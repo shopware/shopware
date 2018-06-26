@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Unit;
 
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationCollection;
 
@@ -31,6 +32,11 @@ class UnitStruct extends Entity
      * @var UnitTranslationCollection|null
      */
     protected $translations;
+
+    /**
+     * @var ProductCollection|null
+     */
+    protected $products;
 
     public function getShortCode(): string
     {
@@ -80,5 +86,15 @@ class UnitStruct extends Entity
     public function setTranslations(UnitTranslationCollection $translations): void
     {
         $this->translations = $translations;
+    }
+
+    public function getProducts(): ?ProductCollection
+    {
+        return $this->products;
+    }
+
+    public function setProducts(?ProductCollection $products): void
+    {
+        $this->products = $products;
     }
 }

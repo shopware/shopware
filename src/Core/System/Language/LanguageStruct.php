@@ -4,12 +4,16 @@ namespace Shopware\Core\System\Language;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderStateTranslation\OrderStateTranslationCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionStateTranslation\OrderTransactionStateTranslationCollection;
 use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationCollection;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationCollection;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationCollection;
+use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOptionTranslation\ConfigurationGroupOptionTranslationCollection;
+use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\ConfigurationGroupTranslationCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\MediaAlbumTranslationCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\CountryAreaTranslationCollection;
@@ -20,8 +24,9 @@ use Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\ListingFacetT
 use Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\ListingSortingTranslationCollection;
 use Shopware\Core\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationCollection;
 use Shopware\Core\System\Locale\LocaleStruct;
-use Shopware\Core\System\Mail\Aggregate\MailTranslation\MailTranslationCollection;
+use Shopware\Core\System\Snippet\SnippetCollection;
 use Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\TaxAreaRuleTranslationCollection;
+use Shopware\Core\System\Touchpoint\TouchpointCollection;
 use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationCollection;
 
 class LanguageStruct extends Entity
@@ -70,6 +75,11 @@ class LanguageStruct extends Entity
      * @var LanguageCollection|null
      */
     protected $children;
+
+    /**
+     * @var TouchpointCollection|null
+     */
+    protected $touchpoints;
 
     /**
      * @var MediaAlbumTranslationCollection|null
@@ -165,6 +175,31 @@ class LanguageStruct extends Entity
      * @var UnitTranslationCollection|null
      */
     protected $unitTranslations;
+
+    /**
+     * @var OrderTransactionStateTranslationCollection|null
+     */
+    protected $orderTransactionStateTranslations;
+
+    /**
+     * @var ConfigurationGroupTranslationCollection|null
+     */
+    protected $configurationGroupTranslations;
+
+    /**
+     * @var ConfigurationGroupOptionTranslationCollection|null
+     */
+    protected $configurationGroupOptionTranslations;
+
+    /**
+     * @var ProductSearchKeywordCollection|null
+     */
+    protected $productSearchKeywords;
+
+    /**
+     * @var SnippetCollection|null
+     */
+    protected $snippets;
 
     public function getParentId(): ?string
     {
@@ -444,5 +479,65 @@ class LanguageStruct extends Entity
     public function setUnitTranslations(UnitTranslationCollection $unitTranslations): void
     {
         $this->unitTranslations = $unitTranslations;
+    }
+
+    public function getTouchpoints(): ?TouchpointCollection
+    {
+        return $this->touchpoints;
+    }
+
+    public function setTouchpoints(?TouchpointCollection $touchpoints): void
+    {
+        $this->touchpoints = $touchpoints;
+    }
+
+    public function getOrderTransactionStateTranslations(): ?OrderTransactionStateTranslationCollection
+    {
+        return $this->orderTransactionStateTranslations;
+    }
+
+    public function setOrderTransactionStateTranslations(?OrderTransactionStateTranslationCollection $orderTransactionStateTranslations): void
+    {
+        $this->orderTransactionStateTranslations = $orderTransactionStateTranslations;
+    }
+
+    public function getConfigurationGroupTranslations(): ?ConfigurationGroupTranslationCollection
+    {
+        return $this->configurationGroupTranslations;
+    }
+
+    public function setConfigurationGroupTranslations(?ConfigurationGroupTranslationCollection $configurationGroupTranslations): void
+    {
+        $this->configurationGroupTranslations = $configurationGroupTranslations;
+    }
+
+    public function getConfigurationGroupOptionTranslations(): ?ConfigurationGroupOptionTranslationCollection
+    {
+        return $this->configurationGroupOptionTranslations;
+    }
+
+    public function setConfigurationGroupOptionTranslations(?ConfigurationGroupOptionTranslationCollection $configurationGroupOptionTranslations): void
+    {
+        $this->configurationGroupOptionTranslations = $configurationGroupOptionTranslations;
+    }
+
+    public function getProductSearchKeywords(): ?ProductSearchKeywordCollection
+    {
+        return $this->productSearchKeywords;
+    }
+
+    public function setProductSearchKeywords(?ProductSearchKeywordCollection $productSearchKeywords): void
+    {
+        $this->productSearchKeywords = $productSearchKeywords;
+    }
+
+    public function getSnippets(): ?SnippetCollection
+    {
+        return $this->snippets;
+    }
+
+    public function setSnippets(?SnippetCollection $snippets): void
+    {
+        $this->snippets = $snippets;
     }
 }

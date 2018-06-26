@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductConfigurator;
 
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionStruct;
+use Shopware\Core\Content\Product\ProductStruct;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\Pricing\PriceStruct;
 
@@ -37,6 +38,11 @@ class ProductConfiguratorStruct extends Entity
      * @var bool
      */
     protected $selected = false;
+
+    /**
+     * @var ProductStruct|null
+     */
+    protected $product;
 
     public function getProductId(): string
     {
@@ -83,8 +89,7 @@ class ProductConfiguratorStruct extends Entity
         return $this->option;
     }
 
-    public function setOption(
-        ConfigurationGroupOptionStruct $option): void
+    public function setOption(ConfigurationGroupOptionStruct $option): void
     {
         $this->option = $option;
     }
@@ -97,5 +102,15 @@ class ProductConfiguratorStruct extends Entity
     public function setSelected(bool $selected): void
     {
         $this->selected = $selected;
+    }
+
+    public function getProduct(): ?ProductStruct
+    {
+        return $this->product;
+    }
+
+    public function setProduct(?ProductStruct $product): void
+    {
+        $this->product = $product;
     }
 }

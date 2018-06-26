@@ -6,12 +6,9 @@
 
     <services>
         <!-- Versioning -->
-
         <service class="Shopware\Core\Content\Catalog\CatalogDefinition" id="Shopware\Core\Content\Catalog\CatalogDefinition">
             <tag name="shopware.entity.definition" entity="catalog"/>
         </service>
-
-
     </services>
 </container>                
                 

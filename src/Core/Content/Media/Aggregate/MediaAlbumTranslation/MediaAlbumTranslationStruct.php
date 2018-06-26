@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation;
 
+use Shopware\Core\Content\Catalog\CatalogStruct;
 use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumStruct;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\System\Language\LanguageStruct;
@@ -12,6 +13,11 @@ class MediaAlbumTranslationStruct extends Entity
      * @var string
      */
     protected $mediaAlbumId;
+
+    /**
+     * @var int
+     */
+    protected $catalogId;
 
     /**
      * @var string
@@ -32,6 +38,11 @@ class MediaAlbumTranslationStruct extends Entity
      * @var LanguageStruct|null
      */
     protected $language;
+
+    /**
+     * @var CatalogStruct|null
+     */
+    protected $catalog;
 
     public function getMediaAlbumId(): string
     {
@@ -81,5 +92,25 @@ class MediaAlbumTranslationStruct extends Entity
     public function setLanguage(LanguageStruct $language): void
     {
         $this->language = $language;
+    }
+
+    public function getCatalogId(): int
+    {
+        return $this->catalogId;
+    }
+
+    public function setCatalogId(int $catalogId): void
+    {
+        $this->catalogId = $catalogId;
+    }
+
+    public function getCatalog(): ?CatalogStruct
+    {
+        return $this->catalog;
+    }
+
+    public function setCatalog(?CatalogStruct $catalog): void
+    {
+        $this->catalog = $catalog;
     }
 }

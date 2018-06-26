@@ -15,7 +15,7 @@ class SeoUrlStruct extends Entity
     /**
      * @var string
      */
-    protected $applicationId;
+    protected $touchpointId;
 
     /**
      * @var string
@@ -63,11 +63,6 @@ class SeoUrlStruct extends Entity
     protected $updatedAt;
 
     /**
-     * @var string|null
-     */
-    protected $url;
-
-    /**
      * @var TouchpointStruct|null
      */
     protected $touchpoint;
@@ -82,14 +77,14 @@ class SeoUrlStruct extends Entity
         $this->versionId = $versionId;
     }
 
-    public function getApplicationId(): string
+    public function getTouchpointId(): string
     {
-        return $this->applicationId;
+        return $this->touchpointId;
     }
 
-    public function setApplicationId(string $applicationId): void
+    public function setTouchpointId(string $touchpointId): void
     {
-        $this->applicationId = $applicationId;
+        $this->touchpointId = $touchpointId;
     }
 
     public function getName(): string
@@ -180,16 +175,6 @@ class SeoUrlStruct extends Entity
     public function setUpdatedAt(?\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
-    }
-
-    public function getUrl(): ?string
-    {
-        return $this->url;
-    }
-
-    public function setUrl(?string $url): void
-    {
-        $this->url = $url;
     }
 
     public function getTouchpoint(): ?TouchpointStruct

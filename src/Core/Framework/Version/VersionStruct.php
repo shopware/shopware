@@ -13,16 +13,6 @@ class VersionStruct extends Entity
     protected $name;
 
     /**
-     * @var string
-     */
-    protected $entityName;
-
-    /**
-     * @var string
-     */
-    protected $entityId;
-
-    /**
      * @var \DateTime
      */
     protected $createdAt;
@@ -89,25 +79,5 @@ class VersionStruct extends Entity
     public function setUpdatedAt(?\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
-    }
-
-    public function getEntityName(): string
-    {
-        return $this->entityName;
-    }
-
-    public function setEntityName(string $entityName): void
-    {
-        $this->entityName = $entityName;
-    }
-
-    public function getEntityId(): string
-    {
-        return $this->entityId;
-    }
-
-    public function setEntityId(string $entityId): void
-    {
-        $this->entityId = $entityId;
     }
 }

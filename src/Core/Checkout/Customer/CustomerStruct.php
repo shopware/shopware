@@ -212,6 +212,11 @@ class CustomerStruct extends Entity
      */
     protected $orders;
 
+    /**
+     * @var int
+     */
+    protected $autoIncrement;
+
     public function getGroupId(): string
     {
         return $this->groupId;
@@ -619,5 +624,15 @@ class CustomerStruct extends Entity
     public function setOrders(OrderCollection $orders): void
     {
         $this->orders = $orders;
+    }
+
+    public function getAutoIncrement(): int
+    {
+        return $this->autoIncrement;
+    }
+
+    public function setAutoIncrement(int $autoIncrement): void
+    {
+        $this->autoIncrement = $autoIncrement;
     }
 }

@@ -97,9 +97,6 @@ CREATE TABLE `category` (
   `media_id` binary(16) DEFAULT NULL,
   `media_tenant_id` binary(16) DEFAULT NULL,
   `media_version_id` binary(16) DEFAULT NULL,
-  `product_stream_id` binary(16) DEFAULT NULL,
-  `product_stream_tenant_id` binary(16) DEFAULT NULL,
-  `product_stream_version_id` binary(16) DEFAULT NULL,
   `path` longtext COLLATE utf8mb4_unicode_ci,
   `position` int(11) unsigned NOT NULL DEFAULT '1',
   `level` int(11) unsigned NOT NULL DEFAULT '1',
@@ -122,8 +119,7 @@ CREATE TABLE `category` (
   KEY `auto_increment` (`auto_increment`),
   CONSTRAINT `fk_category.catalog_id` FOREIGN KEY (`catalog_id`, `catalog_tenant_id`) REFERENCES `catalog` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_category.media_id` FOREIGN KEY (`media_id`, `media_version_id`, `media_tenant_id`) REFERENCES `media` (`id`, `version_id`, `tenant_id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `fk_category.parent_id` FOREIGN KEY (`parent_id`, `parent_version_id`, `parent_tenant_id`) REFERENCES `category` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_category.product_stream_id` FOREIGN KEY (`product_stream_id`, `product_stream_version_id`, `product_stream_tenant_id`) REFERENCES `product_stream` (`id`, `version_id`, `tenant_id`) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT `fk_category.parent_id` FOREIGN KEY (`parent_id`, `parent_version_id`, `parent_tenant_id`) REFERENCES `category` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `category_translation`;
@@ -616,7 +612,6 @@ CREATE TABLE `locale` (
   UNIQUE KEY `locale` (`code`, `version_id`, `tenant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
 DROP TABLE IF EXISTS `locale_translation`;
 CREATE TABLE `locale_translation` (
   `locale_id` binary(16) NOT NULL,
@@ -630,88 +625,6 @@ CREATE TABLE `locale_translation` (
   CONSTRAINT `locale_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `locale_translation_ibfk_2` FOREIGN KEY (`locale_id`, `locale_version_id`, `locale_tenant_id`) REFERENCES `locale` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
-DROP TABLE IF EXISTS `log`;
-CREATE TABLE `log` (
-  `id` binary(16) NOT NULL,
-  `tenant_id` binary(16) NOT NULL,
-  `version_id` binary(16) NOT NULL,
-  `type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `key` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `text` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `date` datetime NOT NULL,
-  `user` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `ip_address` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `user_agent` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `value4` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `created_at` datetime,
-  `updated_at` datetime,
-  PRIMARY KEY (`id`, `version_id`, `tenant_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
-DROP TABLE IF EXISTS `mail`;
-CREATE TABLE `mail` (
-  `id` binary(16) NOT NULL,
-  `tenant_id` binary(16) NOT NULL,
-  `version_id` binary(16) NOT NULL,
-  `order_state_id` binary(16) DEFAULT NULL,
-  `order_state_tenant_id` binary(16) DEFAULT NULL,
-  `order_state_version_id` binary(16) DEFAULT NULL,
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `is_html` tinyint(1) NOT NULL,
-  `attachment` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `mail_type` int(11) NOT NULL DEFAULT '1',
-  `context` longtext COLLATE utf8mb4_unicode_ci,
-  `dirty` tinyint(1) DEFAULT NULL,
-  `created_at` datetime,
-  `updated_at` datetime,
-   PRIMARY KEY (`id`, `version_id`, `tenant_id`),
-   UNIQUE KEY `name` (`name`, `version_id`, `tenant_id`),
-   CONSTRAINT `fk_mail.order_state_id` FOREIGN KEY (`order_state_id`, `order_state_version_id`, `order_state_tenant_id`) REFERENCES `order_state` (`id`, `version_id`, `tenant_id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
-DROP TABLE IF EXISTS `mail_attachment`;
-CREATE TABLE `mail_attachment` (
-  `id` binary(16) NOT NULL,
-  `tenant_id` binary(16) NOT NULL,
-  `version_id` binary(16) NOT NULL,
-  `mail_id` binary(16) NOT NULL,
-  `mail_tenant_id` binary(16) NOT NULL,
-  `mail_version_id` binary(16) NOT NULL,
-  `media_id` binary(16) NOT NULL,
-  `media_tenant_id` binary(16) NOT NULL,
-  `media_version_id` binary(16) NOT NULL,
-  `shop_id` binary(16) DEFAULT NULL,
-  `shop_tenant_id` binary(16) DEFAULT NULL,
-  `shop_version_id` binary(16) DEFAULT NULL,
-  `created_at` datetime,
-  `updated_at` datetime,
-   PRIMARY KEY (`id`, `version_id`, `tenant_id`),
-   CONSTRAINT `fk_mail_attachment.mail_id` FOREIGN KEY (`mail_id`, `mail_version_id`, `mail_tenant_id`) REFERENCES `mail` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-   CONSTRAINT `fk_mail_attachment.media_id` FOREIGN KEY (`media_id`, `media_version_id`, `media_tenant_id`) REFERENCES `media` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-   CONSTRAINT `fk_mail_attachment.shop_id` FOREIGN KEY (`shop_id`, `shop_version_id`, `shop_tenant_id`) REFERENCES `shop` (`id`, `version_id`, `tenant_id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-DROP TABLE IF EXISTS `mail_translation`;
-CREATE TABLE `mail_translation` (
-  `mail_id` binary(16) NOT NULL,
-  `mail_tenant_id` binary(16) NOT NULL,
-  `mail_version_id` binary(16) NOT NULL,
-  `language_id` binary(16) NOT NULL,
-  `language_tenant_id` binary(16) NOT NULL,
-  `from_mail` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `from_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `subject` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `content` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `content_html` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  PRIMARY KEY (`mail_id`, `mail_version_id`, `mail_tenant_id`, `language_id`, `language_tenant_id`),
-  CONSTRAINT `mail_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `mail_translation_ibfk_2` FOREIGN KEY (`mail_id`, `mail_version_id`, `mail_tenant_id`) REFERENCES `mail` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 
 DROP TABLE IF EXISTS `media`;
 CREATE TABLE `media` (
@@ -1253,7 +1166,6 @@ CREATE TABLE `product_manufacturer_translation` (
   CONSTRAINT `product_manufacturer_translation_ibfk_3` FOREIGN KEY (`catalog_id`, `catalog_tenant_id`) REFERENCES `catalog` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
 DROP TABLE IF EXISTS `product_media`;
 CREATE TABLE `product_media` (
   `id` binary(16) NOT NULL,
@@ -1276,78 +1188,6 @@ CREATE TABLE `product_media` (
   CONSTRAINT `fk_product_media.product_id` FOREIGN KEY (`product_id`, `product_version_id`, `product_tenant_id`) REFERENCES `product` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_product_media.catalog_id` FOREIGN KEY (`catalog_id`, `catalog_tenant_id`) REFERENCES `catalog` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-DROP TABLE IF EXISTS `product_seo_category`;
-CREATE TABLE `product_seo_category` (
-  `touchpoint_id` binary(16) NOT NULL,
-  `touchpoint_tenant_id` binary(16) NOT NULL,
-  `product_id` binary(16) NOT NULL,
-  `product_tenant_id` binary(16) NOT NULL,
-  `product_version_id` binary(16) NOT NULL,
-  `category_id` binary(16) NOT NULL,
-  `category_tenant_id` binary(16) NOT NULL,
-  `category_version_id` binary(16) NOT NULL,
-  `created_at` datetime,
-  `updated_at` datetime,
-  PRIMARY KEY (`touchpoint_id`, `product_id`, `category_id`, `product_version_id`, `category_version_id`, `category_tenant_id`, `touchpoint_tenant_id`, `product_tenant_id`),
-  CONSTRAINT `fk_product_seo_category.category_id` FOREIGN KEY (`category_id`, `category_version_id`, `category_tenant_id`) REFERENCES `category` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_product_seo_category.product_id` FOREIGN KEY (`product_id`, `product_version_id`, `product_tenant_id`) REFERENCES `product` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_product_seo_category.touchpoint_id` FOREIGN KEY (`touchpoint_id`, `touchpoint_tenant_id`) REFERENCES `touchpoint` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
-DROP TABLE IF EXISTS `product_stream`;
-CREATE TABLE `product_stream` (
-  `id` binary(16) NOT NULL,
-  `tenant_id` binary(16) NOT NULL,
-  `version_id` binary(16) NOT NULL,
-  `catalog_id` binary(16) NOT NULL,
-  `catalog_tenant_id` binary(16) NOT NULL,
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `conditions` text COLLATE utf8mb4_unicode_ci,
-  `type` int(11) DEFAULT NULL,
-  `description` text COLLATE utf8mb4_unicode_ci,
-  `listing_sorting_id` binary(16) DEFAULT NULL,
-  `listing_sorting_tenant_id` binary(16) DEFAULT NULL,
-  `listing_sorting_version_id` binary(16) DEFAULT NULL,
-  `created_at` datetime,
-  `updated_at` datetime,
-   PRIMARY KEY (`id`, `version_id`, `tenant_id`),
-   CONSTRAINT `fk_product_stream.listing_sorting_id` FOREIGN KEY (`listing_sorting_id`, `listing_sorting_version_id`, `listing_sorting_tenant_id`) REFERENCES `listing_sorting` (`id`, `version_id`, `tenant_id`) ON DELETE SET NULL ON UPDATE CASCADE,
-   CONSTRAINT `fk_product_stream.catalog_id` FOREIGN KEY (`catalog_id`, `catalog_tenant_id`) REFERENCES `catalog` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
-DROP TABLE IF EXISTS `product_stream_assignment`;
-CREATE TABLE `product_stream_assignment` (
-  `product_id` binary(16) NOT NULL,
-  `product_tenant_id` binary(16) NOT NULL,
-  `product_version_id` binary(16) NOT NULL,
-  `product_stream_id` binary(16) NOT NULL,
-  `product_stream_tenant_id` binary(16) NOT NULL,
-  `product_stream_version_id` binary(16) NOT NULL,
-  `created_at` datetime,
-  `updated_at` datetime,
-  PRIMARY KEY (`product_id`, `product_version_id`, `product_stream_id`, `product_stream_version_id`, `product_stream_tenant_id`, `product_tenant_id`),
-  CONSTRAINT `fk_product_stream_assignment.product_id` FOREIGN KEY (`product_id`, `product_version_id`, `product_tenant_id`) REFERENCES `product` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_product_stream_assignment.product_stream_id` FOREIGN KEY (`product_stream_id`, `product_stream_version_id`, `product_stream_tenant_id`) REFERENCES `product_stream` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Contains the manually assigned products of a stream';
-
-
-DROP TABLE IF EXISTS `product_stream_tab`;
-CREATE TABLE `product_stream_tab` (
-  `product_stream_id` binary(16) NOT NULL,
-  `product_stream_tenant_id` binary(16) NOT NULL,
-  `product_stream_version_id` binary(16) NOT NULL,
-  `product_id` binary(16) NOT NULL,
-  `product_tenant_id` binary(16) NOT NULL,
-  `product_version_id` binary(16) NOT NULL,
-  `created_at` datetime,
-  `updated_at` datetime,
-  PRIMARY KEY (`product_id`, `product_version_id`, `product_stream_id`, `product_stream_version_id`, `product_tenant_id`, `product_stream_tenant_id`),
-  CONSTRAINT `fk_product_stream_tab.product_id` FOREIGN KEY (`product_id`, `product_version_id`, `product_tenant_id`) REFERENCES `product` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_product_stream_tab.product_stream_id` FOREIGN KEY (`product_stream_id`, `product_stream_version_id`, `product_stream_tenant_id`) REFERENCES `product_stream` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='used to assign stream as detail page tab item';
 
 DROP TABLE IF EXISTS `product_translation`;
 CREATE TABLE `product_translation` (

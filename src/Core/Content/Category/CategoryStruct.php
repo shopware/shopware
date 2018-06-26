@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Content\Category;
 
+use Shopware\Core\Content\Catalog\CatalogStruct;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationCollection;
 use Shopware\Core\Content\Media\MediaStruct;
-use Shopware\Core\Content\Product\Aggregate\ProductStream\ProductStreamStruct;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\ORM\Entity;
 
@@ -16,14 +16,19 @@ class CategoryStruct extends Entity
     protected $parentId;
 
     /**
-     * @var string|null
+     * @var int
      */
-    protected $mediaId;
+    protected $catalogId;
+
+    /**
+     * @var int
+     */
+    protected $autoIncrement;
 
     /**
      * @var string|null
      */
-    protected $productStreamId;
+    protected $mediaId;
 
     /**
      * @var string
@@ -161,11 +166,6 @@ class CategoryStruct extends Entity
     protected $media;
 
     /**
-     * @var ProductStreamStruct|null
-     */
-    protected $productStream;
-
-    /**
      * @var ProductCollection|null
      */
     protected $products;
@@ -174,6 +174,11 @@ class CategoryStruct extends Entity
      * @var ProductCollection|null
      */
     protected $seoProducts;
+
+    /**
+     * @var CatalogStruct|null
+     */
+    protected $catalog;
 
     public function getParentId(): ?string
     {
@@ -193,16 +198,6 @@ class CategoryStruct extends Entity
     public function setMediaId(?string $mediaId): void
     {
         $this->mediaId = $mediaId;
-    }
-
-    public function getProductStreamId(): ?string
-    {
-        return $this->productStreamId;
-    }
-
-    public function setProductStreamId(?string $productStreamId): void
-    {
-        $this->productStreamId = $productStreamId;
     }
 
     public function getName(): string
@@ -465,11 +460,6 @@ class CategoryStruct extends Entity
         $this->media = $media;
     }
 
-    public function getProductStream(): ?ProductStreamStruct
-    {
-        return $this->productStream;
-    }
-
     public function getChildren(): ?CategoryCollection
     {
         return $this->children;
@@ -508,5 +498,35 @@ class CategoryStruct extends Entity
     public function setSeoProducts(ProductCollection $seoProducts): void
     {
         $this->seoProducts = $seoProducts;
+    }
+
+    public function getAutoIncrement(): int
+    {
+        return $this->autoIncrement;
+    }
+
+    public function setAutoIncrement(int $autoIncrement): void
+    {
+        $this->autoIncrement = $autoIncrement;
+    }
+
+    public function getCatalogId(): int
+    {
+        return $this->catalogId;
+    }
+
+    public function setCatalogId(int $catalogId): void
+    {
+        $this->catalogId = $catalogId;
+    }
+
+    public function getCatalog(): ?CatalogStruct
+    {
+        return $this->catalog;
+    }
+
+    public function setCatalog(?CatalogStruct $catalog): void
+    {
+        $this->catalog = $catalog;
     }
 }

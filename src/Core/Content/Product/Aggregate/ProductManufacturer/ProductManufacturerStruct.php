@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductManufacturer;
 
+use Shopware\Core\Content\Catalog\CatalogStruct;
 use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationCollection;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -13,6 +14,11 @@ class ProductManufacturerStruct extends Entity
      * @var string|null
      */
     protected $mediaId;
+
+    /**
+     * @var int
+     */
+    protected $catalogId;
 
     /**
      * @var string
@@ -68,6 +74,11 @@ class ProductManufacturerStruct extends Entity
      * @var ProductCollection|null
      */
     protected $products;
+
+    /**
+     * @var CatalogStruct|null
+     */
+    protected $catalog;
 
     public function getMediaId(): ?string
     {
@@ -187,5 +198,25 @@ class ProductManufacturerStruct extends Entity
     public function setProducts(ProductCollection $products): void
     {
         $this->products = $products;
+    }
+
+    public function getCatalogId(): int
+    {
+        return $this->catalogId;
+    }
+
+    public function setCatalogId(int $catalogId): void
+    {
+        $this->catalogId = $catalogId;
+    }
+
+    public function getCatalog(): ?CatalogStruct
+    {
+        return $this->catalog;
+    }
+
+    public function setCatalog(?CatalogStruct $catalog): void
+    {
+        $this->catalog = $catalog;
     }
 }

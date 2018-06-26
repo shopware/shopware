@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Tax;
 
+use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceCollection;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleCollection;
@@ -37,6 +38,11 @@ class TaxStruct extends Entity
      * @var ProductCollection|null
      */
     protected $products;
+
+    /**
+     * @var ProductServiceCollection|null
+     */
+    protected $productServices;
 
     public function getRate(): float
     {
@@ -96,5 +102,15 @@ class TaxStruct extends Entity
     public function setProducts(ProductCollection $products): void
     {
         $this->products = $products;
+    }
+
+    public function getProductServices(): ?ProductServiceCollection
+    {
+        return $this->productServices;
+    }
+
+    public function setProductServices(?ProductServiceCollection $productServices): void
+    {
+        $this->productServices = $productServices;
     }
 }

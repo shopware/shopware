@@ -3,8 +3,8 @@
 namespace Shopware\Core\System\Locale;
 
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationCollection;
-use Shopware\Core\System\Touchpoint\TouchpointCollection;
 use Shopware\Core\System\User\UserCollection;
 
 class LocaleStruct extends Entity
@@ -45,14 +45,9 @@ class LocaleStruct extends Entity
     protected $users;
 
     /**
-     * @var TouchpointCollection|null
+     * @var LanguageCollection|null
      */
-    protected $touchpoints;
-
-    /**
-     * @var TouchpointCollection|null
-     */
-    protected $fallbackTouchpoints;
+    protected $languages;
 
     public function getCode(): string
     {
@@ -124,23 +119,13 @@ class LocaleStruct extends Entity
         $this->users = $users;
     }
 
-    public function getTouchpoints(): ?TouchpointCollection
+    public function getLanguages(): ?LanguageCollection
     {
-        return $this->touchpoints;
+        return $this->languages;
     }
 
-    public function setTouchpoints(TouchpointCollection $touchpoints): void
+    public function setLanguages(?LanguageCollection $languages): void
     {
-        $this->touchpoints = $touchpoints;
-    }
-
-    public function getFallbackTouchpoints(): ?TouchpointCollection
-    {
-        return $this->fallbackTouchpoints;
-    }
-
-    public function setFallbackTouchpoints(TouchpointCollection $fallbackTouchpoints): void
-    {
-        $this->fallbackTouchpoints = $fallbackTouchpoints;
+        $this->languages = $languages;
     }
 }

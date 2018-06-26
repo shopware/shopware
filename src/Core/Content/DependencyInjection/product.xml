@@ -51,22 +51,8 @@
             <tag name="shopware.entity.definition" entity="product_search_keyword" />
         </service>
 
-         <service class="Shopware\Core\Content\Product\Aggregate\ProductSeoCategory\ProductSeoCategoryDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductSeoCategory\ProductSeoCategoryDefinition" >
-            <tag name="shopware.entity.definition" entity="product_seo_category" />
-        </service>
          <service class="Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceDefinition" >
             <tag name="shopware.entity.definition" entity="product_service" />
-        </service>
-
-         <service class="Shopware\Core\Content\Product\Aggregate\ProductStream\ProductStreamDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductStream\ProductStreamDefinition" >
-            <tag name="shopware.entity.definition" entity="product_stream" />
-        </service>
-
-         <service class="Shopware\Core\Content\Product\Aggregate\ProductStreamAssignment\ProductStreamAssignmentDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductStreamAssignment\ProductStreamAssignmentDefinition" >
-            <tag name="shopware.entity.definition" entity="product_stream_assignment" />
-        </service>
-         <service class="Shopware\Core\Content\Product\Aggregate\ProductStreamTab\ProductStreamTabDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductStreamTab\ProductStreamTabDefinition" >
-            <tag name="shopware.entity.definition" entity="product_stream_tab" />
         </service>
          <service class="Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition" >
             <tag name="shopware.entity.definition" entity="product_translation" />

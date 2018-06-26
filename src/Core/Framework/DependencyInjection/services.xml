@@ -70,6 +70,12 @@
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager" />
         </service>
 
+        <service class="Shopware\Core\Framework\Command\OrmValidateCommand" id="Shopware\Core\Framework\Command\OrmValidateCommand">
+            <tag name="console.command"/>
+            <argument>orm:validate</argument>
+            <argument id="Shopware\Core\Framework\ORM\DefinitionValidator" type="service"/>
+        </service>
+
         <service class="Shopware\Core\Framework\Command\PluginDeactivateCommand" id="Shopware\Core\Framework\Command\PluginDeactivateCommand">
             <tag name="console.command" />
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager" />

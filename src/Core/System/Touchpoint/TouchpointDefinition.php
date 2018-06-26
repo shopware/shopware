@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\System\Touchpoint;
 
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
+use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
@@ -12,6 +14,7 @@ use Shopware\Core\Framework\ORM\Field\IdField;
 use Shopware\Core\Framework\ORM\Field\JsonField;
 use Shopware\Core\Framework\ORM\Field\ListField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\PasswordField;
 use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
 use Shopware\Core\Framework\ORM\Field\StringField;
@@ -61,6 +64,8 @@ class TouchpointDefinition extends EntityDefinition
             new ManyToOneAssociationField('paymentMethod', 'payment_method_id', PaymentMethodDefinition::class, false),
             new ManyToOneAssociationField('shippingMethod', 'shipping_method_id', ShippingMethodDefinition::class, false),
             new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class, false),
+            new OneToManyAssociationField('orders', OrderDefinition::class, 'touchpoint_id', false, 'id'),
+            new OneToManyAssociationField('customers', CustomerDefinition::class, 'touchpoint_id', false, 'id'),
         ]);
     }
 

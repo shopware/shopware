@@ -13,7 +13,7 @@ interface EntityExtensionInterface
      *
      * @param FieldCollection $collection
      */
-    public function extendFields(FieldCollection $collection);
+    public function extendFields(FieldCollection $collection): void;
 
     /**
      * Defines which entity definition should be extended by this class

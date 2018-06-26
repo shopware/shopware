@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Plugin;
 
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\System\Config\ConfigFormCollection;
 
 class PluginStruct extends Entity
 {
@@ -132,11 +131,6 @@ class PluginStruct extends Entity
      * @var \DateTime|null
      */
     protected $updatedAt;
-
-    /**
-     * @var ConfigFormCollection|null
-     */
-    protected $configForms;
 
     /**
      * @var PaymentMethodCollection|null
@@ -391,16 +385,6 @@ class PluginStruct extends Entity
     public function setUpdatedAt(?\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
-    }
-
-    public function getConfigForms(): ?ConfigFormCollection
-    {
-        return $this->configForms;
-    }
-
-    public function setConfigForms(?ConfigFormCollection $configForms): void
-    {
-        $this->configForms = $configForms;
     }
 
     public function getPaymentMethods(): ?PaymentMethodCollection

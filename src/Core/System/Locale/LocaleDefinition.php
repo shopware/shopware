@@ -17,8 +17,8 @@ use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
+use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationDefinition;
-use Shopware\Core\System\Touchpoint\TouchpointDefinition;
 use Shopware\Core\System\User\UserDefinition;
 
 class LocaleDefinition extends EntityDefinition
@@ -39,8 +39,7 @@ class LocaleDefinition extends EntityDefinition
             new TranslatedField(new StringField('territory', 'territory')),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            new OneToManyAssociationField('fallbackTouchpoints', TouchpointDefinition::class, 'fallback_locale_id', false, 'id'),
-            (new OneToManyAssociationField('touchpoints', TouchpointDefinition::class, 'locale_id', false, 'id'))->setFlags(new RestrictDelete()),
+            new OneToManyAssociationField('languages', LanguageDefinition::class, 'locale_id', false, 'id'),
             (new TranslationsAssociationField('translations', LocaleTranslationDefinition::class, 'locale_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
             (new OneToManyAssociationField('users', UserDefinition::class, 'locale_id', false, 'id'))->setFlags(new RestrictDelete()),
         ]);

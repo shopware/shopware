@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\PercentageTaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Content\Catalog\CatalogStruct;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorCollection;
@@ -17,7 +18,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleCol
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleStruct;
 use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductStream\ProductStreamCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Entity;
@@ -32,6 +32,16 @@ class ProductStruct extends Entity
      * @var string|null
      */
     protected $parentId;
+
+    /**
+     * @var int
+     */
+    protected $catalogId;
+
+    /**
+     * @var int
+     */
+    protected $autoIncrement;
 
     /**
      * @var string|null
@@ -309,21 +319,6 @@ class ProductStruct extends Entity
     protected $categories;
 
     /**
-     * @var CategoryCollection|null
-     */
-    protected $seoCategories;
-
-    /**
-     * @var ProductStreamCollection|null
-     */
-    protected $tabs;
-
-    /**
-     * @var ProductStreamCollection|null
-     */
-    protected $streams;
-
-    /**
      * @var ConfigurationGroupOptionCollection|null
      */
     protected $datasheet;
@@ -347,6 +342,11 @@ class ProductStruct extends Entity
      * @var CategoryCollection|null
      */
     protected $categoriesRo;
+
+    /**
+     * @var CatalogStruct|null
+     */
+    protected $catalog;
 
     public function __construct()
     {
@@ -1026,36 +1026,6 @@ class ProductStruct extends Entity
         $this->categories = $categories;
     }
 
-    public function getSeoCategories(): ?CategoryCollection
-    {
-        return $this->seoCategories;
-    }
-
-    public function setSeoCategories(CategoryCollection $seoCategories): void
-    {
-        $this->seoCategories = $seoCategories;
-    }
-
-    public function getTabs(): ?ProductStreamCollection
-    {
-        return $this->tabs;
-    }
-
-    public function setTabs(ProductStreamCollection $tabs): void
-    {
-        $this->tabs = $tabs;
-    }
-
-    public function getStreams(): ?ProductStreamCollection
-    {
-        return $this->streams;
-    }
-
-    public function setStreams(ProductStreamCollection $streams): void
-    {
-        $this->streams = $streams;
-    }
-
     public function getDatasheet(): ?ConfigurationGroupOptionCollection
     {
         return $this->datasheet;
@@ -1104,5 +1074,35 @@ class ProductStruct extends Entity
     public function setCategoriesRo(CategoryCollection $categoriesRo): void
     {
         $this->categoriesRo = $categoriesRo;
+    }
+
+    public function getAutoIncrement(): int
+    {
+        return $this->autoIncrement;
+    }
+
+    public function setAutoIncrement(int $autoIncrement): void
+    {
+        $this->autoIncrement = $autoIncrement;
+    }
+
+    public function getCatalogId(): int
+    {
+        return $this->catalogId;
+    }
+
+    public function setCatalogId(int $catalogId): void
+    {
+        $this->catalogId = $catalogId;
+    }
+
+    public function getCatalog(): ?CatalogStruct
+    {
+        return $this->catalog;
+    }
+
+    public function setCatalog(?CatalogStruct $catalog): void
+    {
+        $this->catalog = $catalog;
     }
 }

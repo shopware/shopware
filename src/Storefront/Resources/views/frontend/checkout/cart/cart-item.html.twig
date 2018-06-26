@@ -8,8 +8,8 @@
         {% if calculatedLineItem.extensions.canonicalUrl %}
             {% set detailUrl = calculatedLineItem.extensions.canonicalUrl.url %}
         {% else %}
-            {% if calculatedLineItem.id %}
-                {% set detailUrl = url('detail_page', { 'id': calculatedLineItem.id }) %}
+            {% if calculatedLineItem.identifier and calculatedLineItem.product %}
+                {% set detailUrl = url('detail_page', { 'id': calculatedLineItem.identifier }) %}
             {% endif %}
         {% endif %}
 
@@ -34,9 +34,10 @@
                                                 {% set image = calculatedLineItem.cover %}
                                                 {% set desc = calculatedLineItem.name|striptags|escape %}
 
+
                                                 {% if image %}
                                                     <a href="{{ detailUrl }}" title="{{ desc }}" class="table--media-link">
-                                                        <img src="{{ image.media.extensions.links.url }}" alt="{{ desc }}" title="{{ desc|truncate(160) }}" />
+                                                        <img src="{{ image.extensions.links.url }}" alt="{{ desc }}" title="{{ desc|truncate(160) }}" />
                                                     </a>
                                                 {% endif %}
 

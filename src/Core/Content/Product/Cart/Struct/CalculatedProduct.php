@@ -119,8 +119,12 @@ class CalculatedProduct extends Struct implements DeliverableLineItemInterface, 
         $this->inStockDeliveryDate = $inStockDeliveryDate;
         $this->outOfStockDeliveryDate = $outOfStockDeliveryDate;
 
-        if ($children === null) {
+        if (!$children) {
             $children = new CalculatedLineItemCollection();
+        }
+
+        if (!$cover && $product && $product->getCover()) {
+            $this->cover = $product->getCover()->getMedia();
         }
         $this->children = $children;
     }

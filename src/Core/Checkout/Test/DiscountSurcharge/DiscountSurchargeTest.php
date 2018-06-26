@@ -474,7 +474,7 @@ class DiscountSurchargeTest extends KernelTestCase
         return $id;
     }
 
-    private function removediscountSurcharge(string $id)
+    private function removeDiscountSurcharge(string $id)
     {
         self::$discountSurchargeRepository->delete([['id' => $id]], self::$context);
     }

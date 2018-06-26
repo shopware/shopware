@@ -1,0 +1,5 @@
+parameters:
+	excludes_analyse:
+		- %rootDir%/../../src/Core/Content/Media/Util/*
+		- %rootDir%/../../src/Core/Content/Media/Commands/MediaCleanupCommand.php
+		- %rootDir%/../../src/Core/Profiling/Cart/CircularCartCalculationTracer.php

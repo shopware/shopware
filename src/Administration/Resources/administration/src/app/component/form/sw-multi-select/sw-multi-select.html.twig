@@ -1,32 +1,50 @@
-<div class="sw-multi-select">
-    <label v-if="label" :for="id">{{ label }}</label>
+{% block sw_multi_select %}
+    <div class="sw-multi-select">
 
-    <div class="sw-multi-select--inner">
-        <input type="hidden" :value="stringifyValues">
-        <ul class="sw-multi-select--list">
+        {% block sw_multi_select_label %}
+            <label v-if="label" :for="id" class="sw-multi-select__label">{{ label }}</label>
+        {% endblock %}
 
-            <!-- Loop through the selected values -->
-            <li class="list--value" v-for="entry in displayValues" :key="entry.id">
-                <span class="value--display">{{ entry.name }}</span>
-                <a href="#" class="value--dismiss" @click.prevent="onDismissEntry(entry.id)">&#x2715;</a>
-            </li>
+        {% block sw_multi_select_inner %}
+            <div class="sw-multi-select__inner" :class="{ 'is--active' : isExpanded }">
 
-            <li class="list--input">
-                <input class="input--element" type="text" :placeholder="placeholder" v-model="searchTerm">
-            </li>
-        </ul>
+                {% block sw_multi_select_data %}
+                    <input type="hidden" :value="stringifyValues">
+                {% endblock %}
 
-        <transition name="fade">
-            <div class="sw-drop-down" v-if="isExpanded">
-                <ul class="sw-drop-down--list">
-                    <li v-for="entry in filteredEntries"
-                        class="list--entry"
-                        :data-id="entry.id"
-                        @click="onSelectEntry(entry)">
-                        {{ entry.name }}
-                    </li>
-                </ul>
+                {% block sw_multi_select_list %}
+                    <ul class="sw-multi-select__list">
+                        <li class="sw-multi-select__list-item" v-for="entry in displayValues" :key="entry.id">
+                            <span class="value--display">{{ entry.name }}</span>
+                            <a href="#" class="value--dismiss" @click.prevent="onDismissEntry(entry.id)">&#x2715;</a>
+                        </li>
+
+                        <li class="list--input">
+                            <input class="input--element"
+                                   type="text"
+                                   :placeholder="placeholder"
+                                   v-model="searchTerm"
+                                   @focus="openResultList">
+                        </li>
+                    </ul>
+                {% endblock %}
+
+                {% block sw_multi_select_results_transition %}
+                    <transition name="fade">
+                        <div class="sw-multi-select__results" v-if="isExpanded">
+                            <ul class="sw-drop-down--list">
+                                <li v-for="entry in filteredEntries"
+                                    class="list--entry"
+                                    :data-id="entry.id"
+                                    @click="onSelectEntry(entry.id)">
+                                    {{ entry.name }}
+                                </li>
+                            </ul>
+                        </div>
+                    </transition>
+                {% endblock %}
             </div>
-        </transition>
+        {% endblock %}
+
     </div>
-</div>
+{% endblock %}

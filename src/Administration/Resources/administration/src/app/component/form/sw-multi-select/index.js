@@ -3,6 +3,8 @@ import './sw-multi-select.less';
 import template from './sw-multi-select.html.twig';
 
 Component.register('sw-multi-select', {
+    template,
+
     props: {
         serviceProvider: {
             type: Object,
@@ -34,7 +36,8 @@ Component.register('sw-multi-select', {
         return {
             searchTerm: '',
             isExpanded: false,
-            entries: []
+            entries: [],
+            activePosition: 0
         };
     },
 
@@ -65,13 +68,26 @@ Component.register('sw-multi-select', {
     },
 
     created() {
-        // Get data from the service provider
-        this.serviceProvider.getList(0, 500).then((response) => {
-            this.entries = response.data;
-        });
+        this.createdComponent();
+    },
+
+    destroyed() {
+        this.destroyedComponent();
     },
 
     methods: {
+        createdComponent() {
+            this.serviceProvider.getList(0, 500).then((response) => {
+                this.entries = response.data;
+            });
+
+            document.addEventListener('keyup', this.navigateResults);
+        },
+
+        destroyedComponent() {
+            document.removeEventListener('keyup', this.navigateResults);
+        },
+
         getCategoryEntry(id) {
             return this.entries.find((entry) => {
                 return entry.id === id;
@@ -90,13 +106,36 @@ Component.register('sw-multi-select', {
             this.isExpanded = this.searchTerm.length > 3 && this.filteredEntries.length > 0;
         },
 
-        onSelectEntry(entry) {
-            if (!entry) {
+        openResultList() {
+            this.isExpanded = true;
+        },
+
+        closeResultList() {
+            this.isExpanded = false;
+        },
+
+        navigateResults(event) {
+            const arrowUp = 40;
+            const arrowDown = 38;
+
+            if (!this.isExpanded) {
+                return;
+            }
+
+            if (event.keyCode === arrowUp) {
+                this.activePosition = this.activePosition - 1;
+            } else if (event.keyCode === arrowDown) {
+                this.activePosition = this.activePosition + 1;
+            }
+        },
+
+        onSelectEntry(id) {
+            if (!id) {
                 return;
             }
 
             // Update values array
-            this.values.push(entry);
+            this.values.push({ id });
 
             // Reset search term to reset the filtered list and collapse the drop down
             this.searchTerm = '';
@@ -104,7 +143,5 @@ Component.register('sw-multi-select', {
             // Emit change for v-model support
             this.$emit('input', this.values);
         }
-    },
-
-    template
+    }
 });

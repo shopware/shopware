@@ -1,7 +1,12 @@
 @import "~less/variables";
 
+@sw-multi-select-border-radius:      @border-radius-default;
+@sw-multi-select-color-border:       @color-steam-cloud;
+@sw-multi-select-color-border-focus: @color-shopware-blue;
+@sw-multi-select-color-background:   @color-white;
+
 .sw-multi-select {
-    label {
+    .sw-multi-select__label {
         display: block;
         line-height: 16px;
         font-size: 14px;
@@ -12,19 +17,25 @@
         user-select: none;
     }
 
-    .sw-multi-select--inner {
+    .sw-multi-select__inner {
         display: block;
         position: relative;
         width: 100%;
         padding: 4px 6px;
-        border-radius: @border-radius-default;
-        border: 1px solid @color-steam-cloud;
-        background: @color-white;
+        border-radius: @sw-multi-select-border-radius;
+        border: 1px solid @sw-multi-select-color-border;
+        background-color: @sw-multi-select-color-background;
         font-size: 14px;
         line-height: 27px;
+
+        &.is--active {
+            border-color: @sw-multi-select-color-border-focus;
+            border-bottom-right-radius: 3px;
+            border-bottom-left-radius: 3px;
+        }
     }
 
-    .sw-multi-select--list {
+    .sw-multi-select__list {
         display: block;
         list-style: none;
 
@@ -37,7 +48,7 @@
         }
     }
 
-    .list--value {
+    .sw-multi-select__list-item {
         display: block;
         float: left;
         position: relative;
@@ -79,41 +90,48 @@
             color: lighten(@color-gutenberg, 25%);
         }
     }
-}
 
-.sw-drop-down {
-    position: absolute;
-    left: -1px;
-    right: -1px;
-    top: 42px;
-    z-index: 1000;
-    background: @color-white;
-    padding: 0;
-    margin: 0;
-    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.09);
+    .sw-multi-select__results {
+        position: absolute;
+        left: -1px;
+        right: -1px;
+        top: 43px;
+        z-index: 1000;
+        background: @color-white;
+        padding: 0;
+        margin: 0;
+        box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.09);
+        max-height: 300px;
+        overflow-x: hidden;
+        overflow-y: scroll;
+        border: 1px solid @color-shopware-blue;
+        border-top-color: white;
+        border-bottom-right-radius: 3px;
+        border-bottom-left-radius: 3px;
 
-    .sw-drop-down--list {
-        display: block;
-        list-style: none;
-        border: 1px solid @color-steam-cloud;
-        border-top: 0 none;
-    }
+        .sw-drop-down--list {
+            display: block;
+            list-style: none;
+            border-top: 0 none;
+        }
 
-    .list--entry {
-        border-bottom: 1px solid @color-steam-cloud;
-        padding: 10px 15px;
-        cursor: pointer;
+        .list--entry {
+            border-bottom: 1px solid @color-steam-cloud;
+            padding: 10px 15px;
+            cursor: pointer;
 
-        &:hover {
-            background: @color-light-gray;
+            &:hover {
+                background: @color-light-gray;
+            }
         }
     }
 }
 
+// Vue.js transitions
 .fade-enter-active, .fade-leave-active {
-    transition: opacity .2s
+    transition: opacity ease-in-out .2s
 }
 
-.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+.fade-enter, .fade-leave-to {
     opacity: 0
 }

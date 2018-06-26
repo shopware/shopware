@@ -147,7 +147,7 @@ class AuthControllerTest extends ApiTestCase
             'name' => $username,
             'email' => 'admin@example.com',
             'username' => $username,
-            'password' => password_hash($password, PASSWORD_BCRYPT, ['cost' => 13]),
+            'password' => password_hash($password, PASSWORD_ARGON2I),
             'locale_id' => Uuid::fromStringToBytes('7b52d9dd-2b06-40ec-90be-9f57edf29be7'),
             'locale_tenant_id' => Uuid::fromHexToBytes(Defaults::TENANT_ID),
             'active' => 1,

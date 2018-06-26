@@ -100,11 +100,8 @@ class UserCreateCommand extends Command
 
     private function createUser(string $username, string $password, string $tenantId): array
     {
-        $password = password_hash($password, PASSWORD_BCRYPT);
         $accessKey = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode(Random::getAlphanumericString(16)));
         $secretAccessKey = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode(Random::getAlphanumericString(32)));
-        $secretAccessKeyHash = hash('sha512', $secretAccessKey);
-        $secretAccessKeyHash = password_hash($secretAccessKeyHash, PASSWORD_ARGON2I);
 
         $context = Context::createDefaultContext($tenantId);
 
@@ -120,7 +117,7 @@ class UserCreateCommand extends Command
                 'accessKeys' => [
                     [
                         'accessKey' => $accessKey,
-                        'secretAccessKey' => $secretAccessKeyHash,
+                        'secretAccessKey' => $secretAccessKey,
                         'writeAccess' => true,
                     ],
                 ],

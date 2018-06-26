@@ -64,14 +64,12 @@ class TouchpointCreateCommand extends ContainerAwareCommand
         $io = new SymfonyStyle($input, $output);
 
         $secretAccessKey = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode(Random::getAlphanumericString(52)));
-        $secretAccessKeyHash = hash('sha512', $secretAccessKey);
-        $secretAccessKeyHash = password_hash($secretAccessKeyHash, PASSWORD_ARGON2I);
 
         $data = [
             'id' => $id,
             'type' => $this->getType(),
             'accessKey' => str_replace(['+', '/', '='], ['-', '_', ''], base64_encode(Random::getAlphanumericString(32))),
-            'secretAccessKey' => $secretAccessKeyHash,
+            'secretAccessKey' => $secretAccessKey,
             'configuration' => $this->getTouchpointConfiguration($input, $output),
             'languageId' => $input->getOption('languageId'),
             'currencyId' => $input->getOption('currencyId'),

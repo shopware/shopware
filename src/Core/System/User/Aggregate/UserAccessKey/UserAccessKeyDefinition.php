@@ -8,6 +8,7 @@ use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\IdField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Field\PasswordField;
 use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\Field\TenantIdField;
 use Shopware\Core\Framework\ORM\FieldCollection;
@@ -29,7 +30,7 @@ class UserAccessKeyDefinition extends EntityDefinition
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('user_id', 'userId', UserDefinition::class))->setFlags(new Required()),
             (new StringField('access_key', 'accessKey'))->setFlags(new Required()),
-            (new StringField('secret_access_key', 'secretAccessKey'))->setFlags(new Required()),
+            (new PasswordField('secret_access_key', 'secretAccessKey'))->setFlags(new Required()),
             new BoolField('write_access', 'writeAccess'),
             new DateField('created_at', 'createdAt'),
             new DateField('last_usage_at', 'lastUsageAt'),

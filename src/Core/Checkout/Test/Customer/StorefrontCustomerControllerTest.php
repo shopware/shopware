@@ -500,7 +500,7 @@ class StorefrontCustomerControllerTest extends ApiTestCase
                 ],
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => $email,
-                'password' => password_hash($password, PASSWORD_BCRYPT, ['cost' => 13]),
+                'password' => $password,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'salutation' => 'Mr.',

@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Page\Account;
 
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
 use Shopware\Core\Checkout\Customer\CustomerStruct;
 use Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException;
@@ -99,8 +98,7 @@ class AccountService
     {
         $data = [
             'id' => $context->getCustomer()->getId(),
-            'password' => password_hash($passwordSaveRequest->getPassword(), PASSWORD_BCRYPT, ['cost' => 13]),
-            'encoder' => 'bcrypt',
+            'password' => $passwordSaveRequest->getPassword(),
         ];
 
         foreach ($passwordSaveRequest->getExtensions() as $key => $value) {
@@ -297,7 +295,7 @@ class AccountService
             'salutation' => $registrationRequest->getSalutation(),
             'firstName' => $registrationRequest->getFirstName(),
             'lastName' => $registrationRequest->getLastName(),
-            'password' => password_hash($registrationRequest->getPassword(), PASSWORD_BCRYPT, ['cost' => 13]),
+            'password' => $registrationRequest->getPassword(),
             'email' => $registrationRequest->getEmail(),
             'title' => $registrationRequest->getTitle(),
             'encoder' => 'bcrypt',

@@ -160,7 +160,7 @@ class OrderingProcessTest extends ApiTestCase
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'email' => $email,
-            'password' => password_hash($password, PASSWORD_BCRYPT, ['cost' => 13]),
+            'password' => $password,
             'defaultPaymentMethodId' => Defaults::PAYMENT_METHOD_INVOICE,
             'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
             'touchpointId' => Defaults::TOUCHPOINT,

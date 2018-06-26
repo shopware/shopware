@@ -347,7 +347,7 @@ class CheckoutControllerTest extends ApiTestCase
                 ],
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => $mail,
-                'password' => password_hash($password, PASSWORD_BCRYPT, ['cost' => 13]),
+                'password' => $password,
                 'lastName' => 'not',
                 'firstName' => 'match',
                 'salutation' => 'not',

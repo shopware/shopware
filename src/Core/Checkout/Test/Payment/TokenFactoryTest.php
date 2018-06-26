@@ -220,7 +220,7 @@ class TokenFactoryTest extends KernelTestCase
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'email' => Uuid::uuid4()->getHex() . '@example.com',
-            'password' => password_hash('shopware', PASSWORD_BCRYPT, ['cost' => 13]),
+            'password' => 'shopware',
             'defaultPaymentMethodId' => self::PAYMENT_METHOD_INVOICE,
             'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
             'touchpointId' => Defaults::TOUCHPOINT,

@@ -11,6 +11,7 @@ use Shopware\Core\Framework\ORM\Field\IdField;
 use Shopware\Core\Framework\ORM\Field\IntField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\ORM\Field\PasswordField;
 use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\Field\TenantIdField;
 use Shopware\Core\Framework\ORM\FieldCollection;
@@ -34,7 +35,7 @@ class UserDefinition extends EntityDefinition
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('locale_id', 'localeId', LocaleDefinition::class))->setFlags(new Required()),
             (new StringField('username', 'username'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
-            (new StringField('password', 'password'))->setFlags(new Required()),
+            (new PasswordField('password', 'password'))->setFlags(new Required()),
             (new StringField('name', 'name'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
             (new StringField('email', 'email'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
             new DateField('last_login', 'lastLogin'),

@@ -57,7 +57,7 @@ class ClientRepository implements ClientRepositoryInterface
             return null;
         }
 
-        if ($mustValidateSecret === true && !password_verify(hash('sha512', $clientSecret), $touchpoint['secret_access_key'])) {
+        if ($mustValidateSecret === true && !password_verify($clientSecret, $touchpoint['secret_access_key'])) {
             return null;
         }
 

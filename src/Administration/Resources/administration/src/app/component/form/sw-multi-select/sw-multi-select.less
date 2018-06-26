@@ -20,71 +20,84 @@
     .sw-multi-select__inner {
         display: block;
         position: relative;
+        cursor: text;
         width: 100%;
-        padding: 4px 6px;
+        padding: 8px 8px 0 8px;
         border-radius: @sw-multi-select-border-radius;
         border: 1px solid @sw-multi-select-color-border;
         background-color: @sw-multi-select-color-background;
         font-size: 14px;
-        line-height: 27px;
+        line-height: 20px;
+        transition: all ease-in-out .2s;
 
         &.is--active {
             border-color: @sw-multi-select-color-border-focus;
-            border-bottom-right-radius: 3px;
-            border-bottom-left-radius: 3px;
+            border-bottom-right-radius: 0;
+            border-bottom-left-radius: 0;
+            border-bottom-color: transparent;
         }
     }
 
     .sw-multi-select__list {
-        display: block;
+        display: flex;
+        flex-wrap: wrap;
         list-style: none;
-
-        &:after {
-            content: ".";
-            clear: both;
-            display: block;
-            visibility: hidden;
-            height: 0;
-        }
     }
 
     .sw-multi-select__list-item {
         display: block;
-        float: left;
         position: relative;
-        margin-right: 12px;
-        background: darken(@color-light-gray, 2%);
+        margin-right: 8px;
+        margin-bottom: 8px;
+        font-size: 13px;
+        background: darken(@color-light-gray, 5%);
         border-radius: @border-radius-default;
         color: @color-gutenberg;
-        padding: 4px 46px 4px 16px;
+        line-height: 22px;
+        padding: 4px 40px 4px 12px;
+        flex-shrink: 0;
+        cursor: default;
     }
 
     .value--dismiss {
-        background: darken(@color-light-gray, 5%);
-        border-radius: 0 @border-radius-default @border-radius-default 0;
         display: inline-block;
         position: absolute;
+        cursor: pointer;
         right: 0;
         top: 0;
+        height: 100%;
         color: @color-gutenberg;
         text-decoration: none;
         font-size: 14px;
         text-align: center;
         width: 35px;
-        line-height: 27px;
+        line-height: 0;
         padding: 4px 10px;
         font-weight: bold;
+        border: 0 none;
+        background: 0 none;
+
+        .sw-icon {
+            width: 12px;
+            height: 12px;
+        }
+    }
+
+    .list--input {
+        flex-grow: 1;
+        margin-bottom: 8px;
     }
 
     .input--element {
         display: inline-block;
         min-width: 200px;
-        padding: 4px 8px;
+        padding: 2px 8px;
         font-size: 14px;
-        line-height: 27px;
+        line-height: 26px;
         border: 0 none;
         outline: none;
         color: @color-gutenberg;
+        width: 100%;
 
         &::placeholder {
             color: lighten(@color-gutenberg, 25%);
@@ -95,21 +108,21 @@
         position: absolute;
         left: -1px;
         right: -1px;
-        top: 43px;
+        top: 100%;
         z-index: 1000;
         background: @color-white;
         padding: 0;
         margin: 0;
         box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.09);
-        max-height: 300px;
         overflow-x: hidden;
-        overflow-y: scroll;
+        overflow-y: auto;
         border: 1px solid @color-shopware-blue;
-        border-top-color: white;
+        border-top: 0 none;
         border-bottom-right-radius: 3px;
         border-bottom-left-radius: 3px;
+        max-height: 300px;
 
-        .sw-drop-down--list {
+        .sw-multi-select__results-list {
             display: block;
             list-style: none;
             border-top: 0 none;
@@ -120,18 +133,28 @@
             padding: 10px 15px;
             cursor: pointer;
 
-            &:hover {
-                background: @color-light-gray;
+            &:last-child {
+                border-bottom: 0 none;
+            }
+
+            &:hover,
+            &.is--selected {
+                background: lighten(@color-shopware-blue, 40%);
+                color: @color-shopware-blue;
             }
         }
+    }
+
+    .sw-multi-select__results-empty {
+        padding: 8px 12px;
     }
 }
 
 // Vue.js transitions
 .fade-enter-active, .fade-leave-active {
-    transition: opacity ease-in-out .2s
+    transition: all ease-in-out .2s;
 }
 
 .fade-enter, .fade-leave-to {
-    opacity: 0
+    opacity: 0;
 }

@@ -37,7 +37,8 @@ Component.register('sw-multi-select', {
             searchTerm: '',
             isExpanded: false,
             entries: [],
-            activePosition: 0
+            activePosition: -1,
+            isLoading: false
         };
     },
 
@@ -45,6 +46,7 @@ Component.register('sw-multi-select', {
         // Client side filtered
         filteredEntries() {
             const searchTerm = this.searchTerm.toLowerCase();
+
             return this.entries.filter((entry) => {
                 const entryName = entry.name.toLowerCase();
                 return entryName.indexOf(searchTerm) !== -1;
@@ -60,6 +62,10 @@ Component.register('sw-multi-select', {
 
         stringifyValues() {
             return this.values.join('|');
+        },
+
+        currentSearchTerm() {
+            return this.searchTerm;
         }
     },
 
@@ -81,11 +87,22 @@ Component.register('sw-multi-select', {
                 this.entries = response.data;
             });
 
-            document.addEventListener('keyup', this.navigateResults);
+            document.addEventListener('keyup', this.handleKeyboardEvents);
+            document.addEventListener('click', this.closeOnClickOutside);
         },
 
         destroyedComponent() {
-            document.removeEventListener('keyup', this.navigateResults);
+            document.removeEventListener('keyup', this.handleKeyboardEvents);
+            document.removeEventListener('click', this.closeOnClickOutside);
+        },
+
+        closeOnClickOutside(event) {
+            const target = event.target;
+
+            if (target.closest('.sw-multi-select') === null) {
+                this.isExpanded = false;
+                this.activePosition = 0;
+            }
         },
 
         getCategoryEntry(id) {
@@ -95,15 +112,21 @@ Component.register('sw-multi-select', {
         },
 
         onDismissEntry(id) {
+            if (!id) {
+                return;
+            }
+
             // Remove the field from the value attribute of the hidden field
             this.values = this.values.filter((entry) => entry.id !== id);
 
             // Emit change for v-model support
             this.$emit('input', this.values);
+
+            this.setFocus();
         },
 
         onSearchTermChange() {
-            this.isExpanded = this.searchTerm.length > 3 && this.filteredEntries.length > 0;
+            this.activePosition = -1;
         },
 
         openResultList() {
@@ -114,19 +137,68 @@ Component.register('sw-multi-select', {
             this.isExpanded = false;
         },
 
-        navigateResults(event) {
-            const arrowUp = 40;
-            const arrowDown = 38;
+        handleKeyboardEvents(event) {
+            const keyArrowUp = 40;
+            const keyArrowDown = 38;
+            const keyEnter = 13;
+            const keyBackspace = 8;
+            const keyEsc = 27;
 
             if (!this.isExpanded) {
                 return;
             }
 
-            if (event.keyCode === arrowUp) {
-                this.activePosition = this.activePosition - 1;
-            } else if (event.keyCode === arrowDown) {
-                this.activePosition = this.activePosition + 1;
+            if (event.keyCode === keyEnter) {
+                this.addItemOnEnter();
             }
+
+            if (event.keyCode === keyBackspace) {
+                this.deleteItemOnBackspace();
+            }
+
+            if (event.keyCode === keyEsc) {
+                this.closeResultList();
+                this.$refs.swMultiSelectInput.blur();
+            }
+
+            if (event.keyCode === keyArrowUp) {
+                this.activePosition = this.activePosition + 1;
+            } else if (event.keyCode === keyArrowDown) {
+                this.activePosition = this.activePosition - 1;
+            }
+        },
+
+        addItemOnEnter() {
+            const activeItem = this.$refs.swMultiSelect.querySelector('.is--selected');
+            const id = activeItem.dataset.id;
+
+            if (!id) {
+                return;
+            }
+
+            this.onSelectEntry(id);
+        },
+
+        deleteItemOnBackspace() {
+            if (this.searchTerm.length > 0) {
+                return;
+            }
+
+            const htmlList = this.$refs.swMultiSelect.getElementsByClassName('sw-multi-select__list-item');
+
+            if (!htmlList.length) {
+                return;
+            }
+
+            const index = htmlList.length - 1;
+            const list = Array.from(htmlList);
+            const id = list[index].dataset.id;
+
+            this.onDismissEntry(id);
+        },
+
+        setFocus() {
+            this.$refs.swMultiSelectInput.focus();
         },
 
         onSelectEntry(id) {
@@ -142,6 +214,8 @@ Component.register('sw-multi-select', {
 
             // Emit change for v-model support
             this.$emit('input', this.values);
+
+            this.setFocus();
         }
     }
 });

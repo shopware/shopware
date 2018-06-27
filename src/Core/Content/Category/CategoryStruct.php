@@ -171,14 +171,14 @@ class CategoryStruct extends Entity
     protected $products;
 
     /**
-     * @var ProductCollection|null
-     */
-    protected $seoProducts;
-
-    /**
      * @var CatalogStruct|null
      */
     protected $catalog;
+
+    /**
+     * @var ProductCollection|null
+     */
+    protected $nestedProducts;
 
     public function getParentId(): ?string
     {
@@ -490,16 +490,6 @@ class CategoryStruct extends Entity
         $this->products = $products;
     }
 
-    public function getSeoProducts(): ?ProductCollection
-    {
-        return $this->seoProducts;
-    }
-
-    public function setSeoProducts(ProductCollection $seoProducts): void
-    {
-        $this->seoProducts = $seoProducts;
-    }
-
     public function getAutoIncrement(): int
     {
         return $this->autoIncrement;
@@ -528,5 +518,15 @@ class CategoryStruct extends Entity
     public function setCatalog(?CatalogStruct $catalog): void
     {
         $this->catalog = $catalog;
+    }
+
+    public function getNestedProducts(): ?ProductCollection
+    {
+        return $this->nestedProducts;
+    }
+
+    public function setNestedProducts(ProductCollection $nestedProducts): void
+    {
+        $this->nestedProducts = $nestedProducts;
     }
 }

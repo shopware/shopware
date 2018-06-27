@@ -37,7 +37,7 @@ class ReferenceVersionField extends FkField
     /**
      * @var EntityDefinition|string
      */
-    private $versionReference;
+    protected $versionReference;
 
     public function __construct(string $definition, ?string $storageName = null)
     {
@@ -70,5 +70,10 @@ class ReferenceVersionField extends FkField
         }
 
         yield $this->storageName => Uuid::fromStringToBytes($value);
+    }
+
+    public function getVersionReference(): string
+    {
+        return $this->versionReference;
     }
 }

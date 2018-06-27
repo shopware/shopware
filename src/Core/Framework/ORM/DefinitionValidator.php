@@ -13,6 +13,7 @@ use Shopware\Core\Framework\ORM\Field\TenantIdField;
 use Shopware\Core\Framework\ORM\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\ORM\Field\VersionField;
 use Shopware\Core\Framework\ORM\Write\Flag\Extension;
+use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 
 class DefinitionValidator
@@ -47,11 +48,10 @@ class DefinitionValidator
         foreach ($this->registry->getElements() as $definition) {
             $instance = new $definition();
 
-            if ($instance instanceof MappingEntityDefinition) {
-                continue;
+            $struct = ArrayStruct::class;
+            if (!$instance instanceof MappingEntityDefinition) {
+                $struct = $definition::getStructClass();
             }
-
-            $struct = $definition::getStructClass();
 
             if ($struct !== ArrayStruct::class) {
                 $violations[$definition] = array_merge(
@@ -181,6 +181,11 @@ class DefinitionValidator
         /** @var string|EntityDefinition $definition */
         $associations = $definition::getFields()->filterInstance(AssociationInterface::class);
 
+        $instance = new $definition();
+        if ($instance instanceof MappingEntityDefinition) {
+            return [];
+        }
+
         /** @var AssociationInterface $association */
         foreach ($associations as $association) {
             $key = $definition::getEntityName() . '.' . $association->getPropertyName();
@@ -212,6 +217,11 @@ class DefinitionValidator
             }
 
             if ($association instanceof ManyToManyAssociationField) {
+                $violations = array_merge_recursive(
+                    $violations,
+                    $this->validateManyToMany($definition, $association)
+                );
+
                 continue;
             }
         }
@@ -291,5 +301,70 @@ class DefinitionValidator
         }
 
         return $associationViolations;
+    }
+
+    private function validateManyToMany(string $definition, ManyToManyAssociationField $association)
+    {
+        $reference = $association->getReferenceDefinition();
+
+        $mapping = $association->getMappingDefinition();
+
+        $violations = [];
+        $column = $association->getMappingReferenceColumn();
+        $fk = $mapping::getFields()->getByStorageName($column);
+
+        if (!$fk) {
+            $violations[$mapping][] = sprintf('Missing field %s in definition %s', $column, $mapping);
+        }
+        if ($fk && !$fk->is(PrimaryKey::class)) {
+            $violations[$mapping][] = sprintf('Foreign key field %s in definition %s is not part of the primary key', $column, $mapping);
+        }
+        if ($fk && !$fk instanceof FkField) {
+            $violations[$mapping][] = sprintf('Field %s in definition %s has to be defined as FkField', $column, $mapping);
+        }
+
+        $column = $association->getMappingReferenceColumn();
+        $fk = $mapping::getFields()->getByStorageName($column);
+
+        if (!$fk) {
+            $violations[$mapping][] = sprintf('Missing field %s in definition %s', $column, $mapping);
+        }
+        if ($fk && !$fk->is(PrimaryKey::class)) {
+            $violations[$mapping][] = sprintf('Foreign key field %s in definition %s is not part of the primary key', $column, $mapping);
+        }
+        if ($fk && !$fk instanceof FkField) {
+            $violations[$mapping][] = sprintf('Field %s in definition %s has to be defined as FkField', $column, $mapping);
+        }
+
+        /** @var string|EntityDefinition $definition */
+        if ($definition::isVersionAware()) {
+            $versionField = $mapping::getFields()->filter(function (Field $field) use ($definition) {
+                return $field instanceof ReferenceVersionField && $field->getVersionReference() === $definition;
+            })->first();
+
+            if (!$versionField) {
+                $violations[$mapping][] = sprintf('Missing reference version field for definition %s in mapping definition %s', $definition, $mapping);
+            }
+
+            $versionField = $mapping::getFields()->filter(function (Field $field) use ($reference) {
+                return $field instanceof ReferenceVersionField && $field->getVersionReference() === $reference;
+            })->first();
+
+            if (!$versionField) {
+                $violations[$mapping][] = sprintf('Missing reference version field for definition %s in mapping definition %s', $reference, $mapping);
+            }
+        }
+
+        $reverse = $reference::getFields()->filter(function (Field $field) use ($definition, $association) {
+            return $field instanceof ManyToManyAssociationField
+                && $field->getReferenceDefinition() === $definition
+                && $field->getMappingDefinition() === $association->getMappingDefinition();
+        })->first();
+
+        if (!$reverse) {
+            $violations[$reference][] = sprintf('Missing reverse many to many association for original %s.%s', $definition, $association->getPropertyName());
+        }
+
+        return $violations;
     }
 }

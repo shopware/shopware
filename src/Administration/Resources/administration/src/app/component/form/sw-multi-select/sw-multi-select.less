@@ -22,7 +22,7 @@
         position: relative;
         cursor: text;
         width: 100%;
-        padding: 8px 8px 0 8px;
+        padding: 6px 45px 0 6px;
         border-radius: @sw-multi-select-border-radius;
         border: 1px solid @sw-multi-select-color-border;
         background-color: @sw-multi-select-color-background;
@@ -38,6 +38,12 @@
         }
     }
 
+    .sw-loader {
+        width: 45px;
+        left: auto;
+        border-radius: @border-radius-default;
+    }
+
     .sw-multi-select__list {
         display: flex;
         flex-wrap: wrap;
@@ -47,8 +53,8 @@
     .sw-multi-select__list-item {
         display: block;
         position: relative;
-        margin-right: 8px;
-        margin-bottom: 8px;
+        margin-right: 6px;
+        margin-bottom: 6px;
         font-size: 13px;
         background: darken(@color-light-gray, 5%);
         border-radius: @border-radius-default;
@@ -76,6 +82,7 @@
         font-weight: bold;
         border: 0 none;
         background: 0 none;
+        outline: none;
 
         .sw-icon {
             width: 12px;
@@ -83,12 +90,12 @@
         }
     }
 
-    .list--input {
+    .sw-multi-select__list-item-input {
         flex-grow: 1;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
     }
 
-    .input--element {
+    .sw-multi-select__input {
         display: inline-block;
         min-width: 200px;
         padding: 2px 8px;
@@ -146,15 +153,32 @@
     }
 
     .sw-multi-select__results-empty {
-        padding: 8px 12px;
+        padding: 10px 16px;
+
+        .sw-icon {
+            color: darken(@color-light-gray, 10%);
+            margin-right: 10px;
+        }
     }
 }
 
 // Vue.js transitions
 .fade-enter-active, .fade-leave-active {
     transition: all ease-in-out .2s;
+    transform: translateY(0);
 }
 
 .fade-enter, .fade-leave-to {
+    transform: translateY(-10px);
     opacity: 0;
+}
+
+.appear-enter-active, .appear-leave-active {
+    transition: all ease-in-out .15s;
+    transform: scale(1);
+}
+
+.appear-enter, .appear-leave-to {
+    opacity: 0;
+    transform: scale(0.4);
 }

@@ -13,7 +13,7 @@
                 {% endblock %}
 
                 {% block sw_multi_select_list %}
-                    <ul class="sw-multi-select__list">
+                    <transition-group name="appear" tag="ul" class="sw-multi-select__list" mode="out-in">
                         {% block sw_multi_select_list_item %}
                             <li class="sw-multi-select__list-item"
                                 v-for="entry in displayValues"
@@ -27,10 +27,10 @@
                         {% endblock %}
 
                         {% block sw_multi_select_list_item_input %}
-                            <li class="list--input">
+                            <li class="sw-multi-select__list-item-input" key="listInput">
                                 {% block sw_multi_select_input %}
                                     <input ref="swMultiSelectInput"
-                                           class="input--element"
+                                           class="sw-multi-select__input"
                                            type="text"
                                            :placeholder="placeholder"
                                            v-model="searchTerm"
@@ -38,7 +38,11 @@
                                 {% endblock %}
                             </li>
                         {% endblock %}
-                    </ul>
+                    </transition-group>
+                {% endblock %}
+
+                {% block sw_multi_select_loader %}
+                    <sw-loader v-if="isLoading" size="20px"></sw-loader>
                 {% endblock %}
 
                 {% block sw_multi_select_results_transition %}
@@ -63,6 +67,7 @@
                                 {% block sw_multi_select_results_empty %}
                                     <div class="sw-multi-select__results-empty" v-else>
                                         {% block sw_multi_select_results_empty_text %}
+                                            <sw-icon name="default-action-search" size="20px"></sw-icon>
                                             No Results found for "{{ currentSearchTerm }}"
                                         {% endblock %}
                                     </div>

@@ -36,6 +36,8 @@ Component.register('sw-multi-select', {
         return {
             searchTerm: '',
             isExpanded: false,
+
+            // Search results entries
             entries: [],
             activePosition: -1,
             isLoading: false
@@ -83,8 +85,11 @@ Component.register('sw-multi-select', {
 
     methods: {
         createdComponent() {
+            this.isLoading = true;
+
             this.serviceProvider.getList(0, 500).then((response) => {
                 this.entries = response.data;
+                this.isLoading = false;
             });
 
             document.addEventListener('keyup', this.handleKeyboardEvents);
@@ -127,6 +132,30 @@ Component.register('sw-multi-select', {
 
         onSearchTermChange() {
             this.activePosition = -1;
+
+            this.isLoading = true;
+
+            setTimeout(() => {
+                this.isLoading = false;
+            }, 1500);
+
+            console.log(this.searchTerm);
+
+            // TODO: Doubled request for testing!
+
+            const params = {
+                offset: 0,
+                limit: 100
+            };
+
+            params.term = 'Movie';
+
+            this.serviceProvider.getList(params).then((response) => {
+                console.log(response.data);
+                response.data.forEach((item) => {
+                    console.log(item.name);
+                });
+            });
         },
 
         openResultList() {

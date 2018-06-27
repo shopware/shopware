@@ -151,7 +151,7 @@ class EntityRepository implements RepositoryInterface
     public function delete(array $ids, Context $context): EntityWrittenContainerEvent
     {
         $affected = $this->versionManager->delete($this->definition, $ids, WriteContext::createFromContext($context));
-        $event = EntityWrittenContainerEvent::createWithDeletedEvents($affected, $context, []);
+        $event = EntityWrittenContainerEvent::createWithDeletedEvents($affected->getDeleted(), $context, $affected->getNotFound());
         $this->eventDispatcher->dispatch(EntityWrittenContainerEvent::NAME, $event);
 
         return $event;

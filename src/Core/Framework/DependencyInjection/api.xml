@@ -13,7 +13,6 @@
         <service class="Shopware\Core\Framework\Api\EventListener\ResponseExceptionListener" id="Shopware\Core\Framework\Api\EventListener\ResponseExceptionListener">
             <tag name="kernel.event_subscriber" />
             <argument type="service" id="logger" />
-            <argument type="service" id="Shopware\Core\Framework\Api\Response\ResponseFactory" />
         </service>
 
         <service class="Shopware\Core\Framework\Api\Context\RestContextValueResolver" id="Shopware\Core\Framework\Api\Context\RestContextValueResolver">
@@ -51,13 +50,11 @@
 
         <service class="Shopware\Core\Framework\Api\Response\Type\JsonApiType" id="Shopware\Core\Framework\Api\Response\Type\JsonApiType">
             <argument type="service" id="serializer" />
-            <argument>%kernel.debug%</argument>
             <tag name="shopware.rest.response_type" />
         </service>
 
         <service class="Shopware\Core\Framework\Api\Response\Type\JsonType" id="Shopware\Core\Framework\Api\Response\Type\JsonType">
             <argument type="service" id="serializer" />
-            <argument>%kernel.debug%</argument>
             <tag name="shopware.rest.response_type" />
         </service>
 

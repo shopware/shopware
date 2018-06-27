@@ -24,6 +24,7 @@
 
 namespace Shopware\Core\Framework\ORM\Write;
 
+use Shopware\Core\Framework\Api\Exception\IncompletePrimaryKeyException;
 use Shopware\Core\Framework\ORM\Dbal\EntityForeignKeyResolver;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Field\Field;
@@ -130,16 +131,15 @@ class EntityWriter implements EntityWriterInterface
 
     /**
      * @param EntityDefinition|string $definition
-     * @param array                   $ids
+     * @param string[]                $ids
      * @param WriteContext            $writeContext
      *
      * @throws RestrictDeleteViolationException
-     * @throws \InvalidArgumentException
-     * @throws \RuntimeException
+     * @throws IncompletePrimaryKeyException
      *
-     * @return array
+     * @return DeleteResult
      */
-    public function delete(string $definition, array $ids, WriteContext $writeContext): array
+    public function delete(string $definition, array $ids, WriteContext $writeContext): DeleteResult
     {
         $this->validateWriteInput($ids);
 
@@ -147,6 +147,7 @@ class EntityWriter implements EntityWriterInterface
         $commandQueue->setOrder($definition, ...$definition::getWriteOrder());
 
         $fields = $definition::getPrimaryKeys();
+        $primaryKeyFields = [];
 
         $resolved = [];
         foreach ($ids as $raw) {
@@ -156,6 +157,7 @@ class EntityWriter implements EntityWriterInterface
             foreach ($fields as $field) {
                 if (array_key_exists($field->getPropertyName(), $raw)) {
                     $mapped[$field->getStorageName()] = $raw[$field->getPropertyName()];
+                    $primaryKeyFields[$field->getPropertyName()] = $raw[$field->getPropertyName()];
                     continue;
                 }
 
@@ -174,9 +176,15 @@ class EntityWriter implements EntityWriterInterface
                     continue;
                 }
 
-                throw new \InvalidArgumentException(
-                    sprintf('Missing primary key value %s for entity %s', $field->getPropertyName(), $definition::getEntityName())
-                );
+                $fieldKeys = $fields
+                    ->filter(function (Field $field) {
+                        return !$field instanceof VersionField && !$field instanceof ReferenceVersionField && !$field instanceof TenantIdField;
+                    })
+                    ->map(function (Field $field) {
+                        return $field->getPropertyName();
+                    });
+
+                throw new IncompletePrimaryKeyException($fieldKeys);
             }
 
             $resolved[] = $mapped;
@@ -217,17 +225,29 @@ class EntityWriter implements EntityWriterInterface
             }
         }
 
+        $skipped = [];
         foreach ($resolved as $mapped) {
-            $mapped = array_map(function ($id) {
+            $mappedBytes = array_map(function ($id) {
                 return Uuid::fromStringToBytes($id);
             }, $mapped);
+
+            $existence = $this->gateway->getExistence($definition, $mappedBytes, [], $commandQueue);
+
+            if (!$existence->exists()) {
+                $skipped[$definition][] = [
+                    'primaryKey' => $mapped,
+                    'payload' => $mapped,
+                    'existence' => $existence,
+                ];
+                continue;
+            }
 
             $commandQueue->add(
                 $definition,
                 new DeleteCommand(
                     $definition,
-                    $mapped,
-                    $this->gateway->getExistence($definition, $mapped, [], $commandQueue)
+                    $mappedBytes,
+                    $existence
                 )
             );
         }
@@ -235,7 +255,10 @@ class EntityWriter implements EntityWriterInterface
         $identifiers = $this->getWriteIdentifiers($commandQueue);
         $this->gateway->execute($commandQueue->getCommandsInOrder());
 
-        return array_merge_recursive($identifiers, $cascades);
+        return new DeleteResult(
+            array_merge_recursive($identifiers, $cascades),
+            $skipped
+        );
     }
 
     private function getWriteIdentifiers(WriteCommandQueue $queue): array

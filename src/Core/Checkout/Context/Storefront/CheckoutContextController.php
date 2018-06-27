@@ -6,7 +6,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
-use Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException;
+use Shopware\Core\Checkout\Order\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Payment\Exception\PaymentMethodNotFoundHttpException;
 use Shopware\Core\Checkout\Shipping\Exception\ShippingMethodNotFoundHttpException;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
@@ -119,7 +119,7 @@ class CheckoutContextController extends Controller
     private function validateAddressId(string $addressId, CheckoutContext $context): string
     {
         if (!$context->getCustomer()) {
-            throw new NotLoggedInCustomerException();
+            throw new CustomerNotLoggedInException();
         }
 
         $addresses = $this->customerAddressRepository->read(new ReadCriteria([$addressId]), $context);

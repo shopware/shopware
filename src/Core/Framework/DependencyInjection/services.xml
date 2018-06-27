@@ -40,10 +40,6 @@
             <argument type="service" id="Shopware\Core\Framework\Event\NestedEventDispatcher.inner" />
         </service>
 
-        <service class="Shopware\Core\Framework\EventListener\ResponseExceptionListener" id="Shopware\Core\Framework\EventListener\ResponseExceptionListener">
-            <tag name="kernel.event_listener" event="kernel.exception" method="onKernelException"/>
-        </service>
-
         <!-- Pluginsystem -->
         <service class="Shopware\Core\Framework\Plugin\PluginManager" id="Shopware\Core\Framework\Plugin\PluginManager">
             <argument>%kernel.plugin_dir%</argument>

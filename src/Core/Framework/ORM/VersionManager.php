@@ -15,6 +15,7 @@ use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\ORM\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\ORM\Write\Command\InsertCommand;
+use Shopware\Core\Framework\ORM\Write\DeleteResult;
 use Shopware\Core\Framework\ORM\Write\EntityExistence;
 use Shopware\Core\Framework\ORM\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\ORM\Write\EntityWriterInterface;
@@ -106,13 +107,13 @@ class VersionManager
         return $writtenEvent;
     }
 
-    public function delete(string $definition, array $ids, WriteContext $writeContext): array
+    public function delete(string $definition, array $ids, WriteContext $writeContext): DeleteResult
     {
-        $writtenEvent = $this->entityWriter->delete($definition, $ids, $writeContext);
+        $deleteEvent = $this->entityWriter->delete($definition, $ids, $writeContext);
 
-        $this->writeAuditLog($writtenEvent, $writeContext, __FUNCTION__);
+        $this->writeAuditLog($deleteEvent->getDeleted(), $writeContext, __FUNCTION__);
 
-        return $writtenEvent;
+        return $deleteEvent;
     }
 
     public function createVersion(string $definition, string $id, WriteContext $context, ?string $name = null, ?string $versionId = null): string
@@ -153,6 +154,7 @@ class VersionManager
 
         $allChanges = [];
         $entities = [];
+        $cascades = [];
 
         $versionContext = $writeContext->createWithVersionId($versionId);
         $liveContext = $writeContext->createWithVersionId(Defaults::LIVE_VERSION);
@@ -166,10 +168,24 @@ class VersionManager
                     $allChanges[] = $data;
                 }
 
-                $entities[] = [
+                /** @var AssociationInterface[] $cascadeFields */
+                $cascadeFields = $dataDefinition::getFields()
+                    ->filterInstance(AssociationInterface::class)
+                    ->filterByFlag(CascadeDelete::class)
+                    ->getElements();
+
+                foreach ($cascadeFields as $field) {
+                    $cascades[$field->getReferenceClass()] = 1;
+                }
+
+                $entity = [
                     'definition' => $dataDefinition,
                     'primary' => $data->getEntityId(),
                 ];
+
+                // deduplicate to prevent deletion errors
+                $entityKey = md5(json_encode($entity));
+                $entities[$entityKey] = $entity;
 
                 switch ($data->getAction()) {
                     case 'insert':
@@ -220,6 +236,11 @@ class VersionManager
         $this->entityWriter->delete(VersionDefinition::class, [['id' => $versionId]], $writeContext);
 
         foreach ($entities as $entity) {
+            // this entity will be deleted because of it's constraint
+            if (isset($cascades[$entity['definition']])) {
+                continue;
+            }
+
             $primary = $entity['primary'];
             $definition = $entity['definition'];
             $primary = $this->addVersionToPayload($primary, $definition, $versionId);

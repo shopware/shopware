@@ -50,7 +50,7 @@ interface RepositoryInterface
 
     public function create(array $data, Context $context): EntityWrittenContainerEvent;
 
-    public function delete(array $data, Context $context);
+    public function delete(array $data, Context $context): EntityWrittenContainerEvent;
 
     public function createVersion(string $id, Context $context, ?string $name = null, ?string $versionId = null): string;
 

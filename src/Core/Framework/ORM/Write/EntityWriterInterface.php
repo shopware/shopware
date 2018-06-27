@@ -10,5 +10,5 @@ interface EntityWriterInterface
 
     public function update(string $resourceClass, array $rawData, WriteContext $writeContext);
 
-    public function delete(string $definition, array $ids, WriteContext $writeContext): array;
+    public function delete(string $definition, array $ids, WriteContext $writeContext): DeleteResult;
 }

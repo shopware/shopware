@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
-use Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException;
+use Shopware\Core\Checkout\Order\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Framework\Api\Context\RestContext;
 use Shopware\Core\Framework\Api\Response\ResponseFactory;
 use Shopware\Core\Framework\Api\Response\Type\JsonType;
@@ -139,7 +139,7 @@ class CustomerController extends Controller
      * @Route("/storefront-api/customer/default-billing-address/{id}", name="storefront.api.customer.default_billing_address.update")
      * @Method({"PUT"})
      *
-     * @throws NotLoggedInCustomerException
+     * @throws CustomerNotLoggedInException
      */
     public function setDefaultBillingAddress(string $id, CheckoutContext $context)
     {
@@ -152,7 +152,7 @@ class CustomerController extends Controller
      * @Route("/storefront-api/customer/orders", name="storefront.api.customer.orders.get")
      * @Method({"GET"})
      *
-     * @throws NotLoggedInCustomerException
+     * @throws CustomerNotLoggedInException
      */
     public function orderOverview(Request $request, CheckoutContext $context): JsonResponse
     {
@@ -251,7 +251,7 @@ class CustomerController extends Controller
      * @Route("/storefront-api/customer", name="storefront.api.customer.detail.get")
      * @Method({"GET"})
      *
-     * @throws NotLoggedInCustomerException
+     * @throws CustomerNotLoggedInException
      */
     public function getCustomerDetail(Request $request, CheckoutContext $context): Response
     {
@@ -266,7 +266,7 @@ class CustomerController extends Controller
      * @Route("/storefront-api/customer/addresses", name="storefront.api.customer.addresses.get")
      * @Method({"GET"})
      *
-     * @throws NotLoggedInCustomerException
+     * @throws CustomerNotLoggedInException
      */
     public function getAddresses(CheckoutContext $context): JsonResponse
     {
@@ -279,7 +279,7 @@ class CustomerController extends Controller
      * @Route("/storefront-api/customer/address/{id}", name="storefront.api.customer.address.get")
      * @Method({"GET"})
      *
-     * @throws NotLoggedInCustomerException
+     * @throws CustomerNotLoggedInException
      */
     public function getAddress(string $id, CheckoutContext $context): JsonResponse
     {
@@ -292,7 +292,7 @@ class CustomerController extends Controller
      * @Route("/storefront-api/customer/address", name="storefront.api.customer.address.create")
      * @Method({"POST"})
      *
-     * @throws NotLoggedInCustomerException
+     * @throws CustomerNotLoggedInException
      */
     public function createAddress(Request $request, CheckoutContext $context): JsonResponse
     {
@@ -310,7 +310,7 @@ class CustomerController extends Controller
      * @Route("/storefront-api/customer/address/{id}", name="storefront.api.customer.address.delete")
      * @Method({"DELETE"})
      *
-     * @throws NotLoggedInCustomerException
+     * @throws CustomerNotLoggedInException
      */
     public function deleteAddress(string $id, CheckoutContext $context): JsonResponse
     {
@@ -323,7 +323,7 @@ class CustomerController extends Controller
      * @Route("/storefront-api/customer/default-shipping-address/{id}", name="storefront.api.customer.default_shipping_address.update")
      * @Method({"PUT"})
      *
-     * @throws NotLoggedInCustomerException
+     * @throws CustomerNotLoggedInException
      */
     public function setDefaultShippingAddress(string $id, CheckoutContext $context)
     {

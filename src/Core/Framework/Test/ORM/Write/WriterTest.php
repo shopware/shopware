@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Exception\IncompletePrimaryKeyException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Write\EntityWriter;
 use Shopware\Core\Framework\ORM\Write\EntityWriterInterface;
@@ -58,7 +59,7 @@ class WriterTest extends KernelTestCase
         $exists = $this->connection->fetchAll('SELECT * FROM country_area WHERE id = :id', ['id' => $id->getBytes()]);
         $this->assertNotEmpty($exists);
 
-        $this->getWriter()->delete(
+        $deleteResult = $this->getWriter()->delete(
             CountryAreaDefinition::class,
             [
                 ['id' => $id->getHex()],
@@ -68,6 +69,8 @@ class WriterTest extends KernelTestCase
 
         $exists = $this->connection->fetchAll('SELECT * FROM country_area WHERE id = :id', ['id' => $id->getBytes()]);
         $this->assertEmpty($exists);
+        $this->assertEmpty($deleteResult->getNotFound());
+        $this->assertNotEmpty($deleteResult->getDeleted());
     }
 
     public function testMultiDelete()
@@ -94,7 +97,7 @@ class WriterTest extends KernelTestCase
 
         $this->assertCount(2, $exists);
 
-        $this->getWriter()->delete(
+        $deleteResult = $this->getWriter()->delete(
             CountryAreaDefinition::class,
             [
                 ['id' => $id->getHex()],
@@ -110,6 +113,8 @@ class WriterTest extends KernelTestCase
         );
 
         $this->assertEmpty($exists);
+        $this->assertEmpty($deleteResult->getNotFound());
+        $this->assertNotEmpty($deleteResult->getDeleted()[CountryAreaDefinition::class]);
     }
 
     public function testMultiDeleteWithNoneExistingId()
@@ -136,7 +141,7 @@ class WriterTest extends KernelTestCase
 
         $this->assertCount(2, $exists);
 
-        $this->getWriter()->delete(
+        $deleteResult = $this->getWriter()->delete(
             CountryAreaDefinition::class,
             [
                 ['id' => $id->getHex()],
@@ -147,6 +152,9 @@ class WriterTest extends KernelTestCase
             ],
             $context
         );
+
+        $this->assertCount(3, $deleteResult->getNotFound()[CountryAreaDefinition::class]);
+        $this->assertCount(2, $deleteResult->getDeleted()[CountryAreaDefinition::class]);
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM country_area WHERE id IN (:id) ',
@@ -182,7 +190,7 @@ class WriterTest extends KernelTestCase
         );
         $this->assertCount(1, $exists);
 
-        $this->getWriter()->delete(ProductCategoryDefinition::class, [
+        $deleteResult = $this->getWriter()->delete(ProductCategoryDefinition::class, [
             ['productId' => $productId->getHex(), 'categoryId' => $categoryId->getHex()],
         ], $context);
 
@@ -191,13 +199,15 @@ class WriterTest extends KernelTestCase
             ['product' => $productId->getBytes(), 'category' => $categoryId->getBytes()]
         );
         $this->assertEmpty($exists);
+
+        $this->assertCount(1, $deleteResult->getDeleted()[ProductCategoryDefinition::class]);
+        $this->assertCount(0, $deleteResult->getNotFound());
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
     public function testRequiresAllPrimaryKeyValuesForDelete()
     {
+        $this->expectException(IncompletePrimaryKeyException::class);
+
         $productId = Uuid::uuid4();
 
         $this->getWriter()->delete(ProductCategoryDefinition::class, [
@@ -251,7 +261,7 @@ class WriterTest extends KernelTestCase
         );
         $this->assertCount(2, $exists);
 
-        $this->getWriter()->delete(ProductCategoryDefinition::class, [
+        $deleteResult = $this->getWriter()->delete(ProductCategoryDefinition::class, [
             ['productId' => $productId->getHex(), 'categoryId' => $categoryId->getHex()],
             ['productId' => $productId2->getHex(), 'categoryId' => $categoryId->getHex()],
         ], $context);
@@ -262,6 +272,9 @@ class WriterTest extends KernelTestCase
             ['product' => Connection::PARAM_STR_ARRAY]
         );
         $this->assertEmpty($exists);
+
+        $this->assertCount(2, $deleteResult->getDeleted()[ProductCategoryDefinition::class]);
+        $this->assertCount(0, $deleteResult->getNotFound());
     }
 
     public function testInsertWithId()

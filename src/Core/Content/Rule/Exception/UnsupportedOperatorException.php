@@ -24,11 +24,10 @@
 
 namespace Shopware\Core\Content\Rule\Exception;
 
-use Shopware\Core\Framework\HttpExceptionInterface;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 
-class UnsupportedOperatorException extends \Exception implements HttpExceptionInterface
+class UnsupportedOperatorException extends ShopwareHttpException
 {
     public const CODE = 200002;
 
@@ -62,8 +61,8 @@ class UnsupportedOperatorException extends \Exception implements HttpExceptionIn
         return $this->class;
     }
 
-    public function getHttpException(): \Symfony\Component\HttpKernel\Exception\HttpExceptionInterface
+    public function getStatusCode(): int
     {
-        return new HttpException(Response::HTTP_BAD_REQUEST, $this->getMessage(), $this);
+        return Response::HTTP_BAD_REQUEST;
     }
 }

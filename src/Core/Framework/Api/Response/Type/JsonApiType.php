@@ -2,18 +2,13 @@
 
 namespace Shopware\Core\Framework\Api\Response\Type;
 
-use League\OAuth2\Server\Exception\OAuthServerException;
 use Shopware\Core\Framework\Api\Context\RestContext;
-use Shopware\Core\Framework\Api\Exception\WriteStackHttpException;
 use Shopware\Core\Framework\Api\Response\JsonApiResponse;
 use Shopware\Core\Framework\Api\Response\ResponseTypeInterface;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
-use Shopware\Core\Framework\ORM\Write\FieldException\InvalidFieldException;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Serializer\Serializer;
 
 class JsonApiType implements ResponseTypeInterface
@@ -23,15 +18,9 @@ class JsonApiType implements ResponseTypeInterface
      */
     private $serializer;
 
-    /**
-     * @var bool
-     */
-    private $debug;
-
-    public function __construct(Serializer $serializer, bool $debug)
+    public function __construct(Serializer $serializer)
     {
         $this->serializer = $serializer;
-        $this->debug = $debug;
     }
 
     public function supportsContentType(string $contentType): bool
@@ -110,19 +99,6 @@ class JsonApiType implements ResponseTypeInterface
         return new JsonApiResponse($response, JsonApiResponse::HTTP_OK, [], true);
     }
 
-    public function createErrorResponse(Request $request, \Throwable $exception, int $statusCode = 400): Response
-    {
-        if ($exception instanceof OAuthServerException) {
-            return $this->handleOAuthServerException($exception);
-        }
-
-        $errorData = [
-            'errors' => $this->convertExceptionToError($exception),
-        ];
-
-        return new JsonApiResponse($errorData, $statusCode);
-    }
-
     public function createRedirectResponse(string $definition, string $id, RestContext $context): Response
     {
         /** @var string|EntityDefinition $definition */
@@ -199,76 +175,6 @@ class JsonApiType implements ResponseTypeInterface
         return $uri . '?' . http_build_query($parameters);
     }
 
-    private function convertExceptionToError(\Throwable $exception): array
-    {
-        if ($exception instanceof WriteStackHttpException) {
-            return $this->handleWriteStackException($exception);
-        }
-
-        $statusCode = 500;
-
-        if ($exception instanceof HttpException) {
-            $statusCode = $exception->getStatusCode();
-        }
-
-        $error = [
-            'code' => (string) $exception->getCode(),
-            'status' => (string) $statusCode,
-            'title' => Response::$statusTexts[$statusCode] ?? 'unknown status',
-            'detail' => $exception->getMessage(),
-        ];
-
-        if ($this->debug) {
-            $error['trace'] = $exception->getTraceAsString();
-        }
-
-        // single exception (default)
-        return [$error];
-    }
-
-    private function handleWriteStackException(WriteStackHttpException $exception): array
-    {
-        $errors = [];
-
-        foreach ($exception->getExceptionStack()->getExceptions() as $innerException) {
-            if ($innerException instanceof InvalidFieldException) {
-                foreach ($innerException->getViolations() as $violation) {
-                    $error = [
-                        'code' => (string) $exception->getCode(),
-                        'status' => (string) $exception->getStatusCode(),
-                        'title' => $innerException->getConcern(),
-                        'detail' => $violation->getMessage(),
-                        'source' => ['pointer' => $innerException->getPath()],
-                    ];
-
-                    if ($this->debug) {
-                        $error['trace'] = $innerException->getTraceAsString();
-                    }
-
-                    $errors[] = $error;
-                }
-
-                continue;
-            }
-
-            $error = [
-                'code' => (string) $exception->getCode(),
-                'status' => (string) $exception->getStatusCode(),
-                'title' => $innerException->getConcern(),
-                'detail' => $innerException->getMessage(),
-                'source' => ['pointer' => $innerException->getPath()],
-            ];
-
-            if ($this->debug) {
-                $error['trace'] = $innerException->getTraceAsString();
-            }
-
-            $errors[] = $error;
-        }
-
-        return $errors;
-    }
-
     private function getBaseUrl(RestContext $context): string
     {
         return $context->getRequest()->getSchemeAndHttpHost() . $context->getRequest()->getBasePath();
@@ -279,21 +185,5 @@ class JsonApiType implements ResponseTypeInterface
         $input = str_replace('_', '-', $input);
 
         return ltrim(strtolower(preg_replace('/[A-Z]/', '-$0', $input)), '-');
-    }
-
-    private function handleOAuthServerException(OAuthServerException $exception): Response
-    {
-        $error = [
-            'code' => (string) $exception->getCode(),
-            'status' => (string) $exception->getHttpStatusCode(),
-            'title' => $exception->getMessage(),
-            'detail' => $exception->getHint(),
-        ];
-
-        if ($this->debug) {
-            $error['trace'] = $exception->getTraceAsString();
-        }
-
-        return new JsonApiResponse(['errors' => [$error]], $exception->getHttpStatusCode(), $exception->getHttpHeaders());
     }
 }

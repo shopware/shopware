@@ -294,22 +294,10 @@ class ApiControllerTest extends ApiTestCase
         $this->assertNotEmpty($response->headers->get('Location'));
         $this->assertEquals('http://localhost/api/v' . PlatformRequest::API_VERSION . '/tax/' . $id->getHex(), $response->headers->get('Location'));
 
-        // basic response
-        $this->apiClient->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/tax/' . $id->getHex() . '?_response=basic', [], [], [], json_encode(['name' => 'foo']));
+        // with response
+        $this->apiClient->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/tax/' . $id->getHex() . '?_response=1', [], [], [], json_encode(['name' => 'foo']));
         $response = $this->apiClient->getResponse();
         $this->assertSame(Response::HTTP_OK, $this->apiClient->getResponse()->getStatusCode());
-        $this->assertNull($response->headers->get('Location'));
-
-        // detail response
-        $this->apiClient->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/tax/' . $id->getHex() . '?_response=detail', [], [], [], json_encode(['name' => 'foo']));
-        $response = $this->apiClient->getResponse();
-        $this->assertSame(Response::HTTP_OK, $this->apiClient->getResponse()->getStatusCode());
-        $this->assertNull($response->headers->get('Location'));
-
-        // invalid response
-        $this->apiClient->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/tax/' . $id->getHex() . '?_response=does_not_exists', [], [], [], json_encode(['name' => 'foo']));
-        $response = $this->apiClient->getResponse();
-        $this->assertSame(Response::HTTP_BAD_REQUEST, $this->apiClient->getResponse()->getStatusCode());
         $this->assertNull($response->headers->get('Location'));
     }
 

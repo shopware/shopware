@@ -24,9 +24,10 @@
 
 namespace Shopware\Core\Framework\ORM\Write\FieldException;
 
-use Shopware\Core\Framework\ShopwareException;
+use Shopware\Core\Framework\ShopwareHttpException;
+use Symfony\Component\HttpFoundation\Response;
 
-class WriteStackException extends \DomainException implements ShopwareException
+class WriteStackException extends ShopwareHttpException
 {
     /**
      * @var WriteFieldException[]
@@ -60,5 +61,37 @@ class WriteStackException extends \DomainException implements ShopwareException
         }
 
         return $result;
+    }
+
+    public function getStatusCode(): int
+    {
+        return Response::HTTP_BAD_REQUEST;
+    }
+
+    public function getErrors(): \Generator
+    {
+        foreach ($this->getExceptions() as $innerException) {
+            if ($innerException instanceof InvalidFieldException) {
+                foreach ($innerException->getViolations() as $violation) {
+                    yield [
+                        'code' => (string) $this->getCode(),
+                        'status' => (string) $this->getStatusCode(),
+                        'title' => $innerException->getConcern(),
+                        'detail' => $violation->getMessage(),
+                        'source' => ['pointer' => $innerException->getPath()],
+                    ];
+                }
+
+                continue;
+            }
+
+            yield [
+                'code' => (string) $this->getCode(),
+                'status' => (string) $this->getStatusCode(),
+                'title' => $innerException->getConcern(),
+                'detail' => $innerException->getMessage(),
+                'source' => ['pointer' => $innerException->getPath()],
+            ];
+        }
     }
 }

@@ -2,17 +2,27 @@
 
 namespace Shopware\Core\Framework\Api\Exception;
 
-use Shopware\Core\Framework\ShopwareException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Shopware\Core\Framework\ShopwareHttpException;
+use Symfony\Component\HttpFoundation\Response;
 
-class ResourceNotFoundException extends NotFoundHttpException implements ShopwareException
+class ResourceNotFoundException extends ShopwareHttpException
 {
     protected $code = 'REST-RESOURCE-4';
 
-    public function __construct(string $resourceType, string $resourceId, \Exception $previous = null, $code = 0)
+    public function __construct(string $resourceType, array $primaryKey, \Exception $previous = null, $code = 0)
     {
-        $message = sprintf('The %s resource with id "%s" was not found.', $resourceType, $resourceId);
+        $resourceIds = [];
+        foreach ($primaryKey as $key => $value) {
+            $resourceIds[] = $key . '(' . $value . ')';
+        }
 
-        parent::__construct($message, $previous, $code);
+        $message = sprintf('The %s resource with the following primary key was not found: %s', $resourceType, implode(' ', $resourceIds));
+
+        parent::__construct($message, $code, $previous);
+    }
+
+    public function getStatusCode(): int
+    {
+        return Response::HTTP_NOT_FOUND;
     }
 }

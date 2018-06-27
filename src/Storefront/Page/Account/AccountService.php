@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Page\Account;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
 use Shopware\Core\Checkout\Customer\CustomerStruct;
-use Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException;
+use Shopware\Core\Checkout\Order\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
@@ -66,7 +66,7 @@ class AccountService
     }
 
     /**
-     * @throws NotLoggedInCustomerException
+     * @throws CustomerNotLoggedInException
      */
     public function getCustomerByContext(CheckoutContext $context): CustomerStruct
     {
@@ -142,7 +142,7 @@ class AccountService
     }
 
     /**
-     * @throws NotLoggedInCustomerException
+     * @throws CustomerNotLoggedInException
      */
     public function getAddressesByCustomer(CheckoutContext $context): array
     {
@@ -158,7 +158,7 @@ class AccountService
     }
 
     /**
-     * @throws NotLoggedInCustomerException
+     * @throws CustomerNotLoggedInException
      */
     public function saveAddress(AddressSaveRequest $addressSaveRequest, CheckoutContext $context): string
     {
@@ -203,7 +203,7 @@ class AccountService
     }
 
     /**
-     * @throws NotLoggedInCustomerException
+     * @throws CustomerNotLoggedInException
      */
     public function deleteAddress(string $addressId, CheckoutContext $context)
     {
@@ -213,7 +213,7 @@ class AccountService
     }
 
     /**
-     * @throws NotLoggedInCustomerException
+     * @throws CustomerNotLoggedInException
      */
     public function setDefaultBillingAddress(string $addressId, CheckoutContext $context)
     {
@@ -228,7 +228,7 @@ class AccountService
     }
 
     /**
-     * @throws NotLoggedInCustomerException
+     * @throws CustomerNotLoggedInException
      */
     public function setDefaultShippingAddress(string $addressId, CheckoutContext $context)
     {
@@ -313,12 +313,12 @@ class AccountService
     }
 
     /**
-     * @throws NotLoggedInCustomerException
+     * @throws CustomerNotLoggedInException
      */
     private function validateCustomer(CheckoutContext $context)
     {
         if (!$context->getCustomer()) {
-            throw new NotLoggedInCustomerException();
+            throw new CustomerNotLoggedInException();
         }
     }
 

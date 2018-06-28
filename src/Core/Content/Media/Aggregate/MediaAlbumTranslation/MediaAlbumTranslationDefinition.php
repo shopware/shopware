@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation;
 
+use Shopware\Core\Content\Catalog\CatalogDefinition;
 use Shopware\Core\Content\Catalog\ORM\CatalogField;
 use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
@@ -31,6 +32,7 @@ class MediaAlbumTranslationDefinition extends EntityDefinition
             (new StringField('name', 'name'))->setFlags(new Required()),
             new ManyToOneAssociationField('mediaAlbum', 'media_album_id', MediaAlbumDefinition::class, false),
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, false),
+            new ManyToOneAssociationField('catalog', 'catalog_id', CatalogDefinition::class, false, 'id'),
         ]);
     }
 

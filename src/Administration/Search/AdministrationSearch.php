@@ -10,9 +10,9 @@ use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
-use Shopware\Core\Framework\ORM\Search\SearchResultInterface;
 use Shopware\Core\Framework\ORM\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\ORM\Search\Term\SearchTermInterpreter;
@@ -100,9 +100,9 @@ class AdministrationSearch
      * @param string                  $term
      * @param Context                 $context
      *
-     * @return SearchResultInterface
+     * @return EntitySearchResult
      */
-    private function searchDefinition(string $definition, string $term, Context $context): SearchResultInterface
+    private function searchDefinition(string $definition, string $term, Context $context): EntitySearchResult
     {
         $repository = $this->container->get($definition::getRepositoryClass());
 
@@ -121,8 +121,8 @@ class AdministrationSearch
     }
 
     /**
-     * @param SearchResultInterface[] $results
-     * @param string                  $userId
+     * @param EntitySearchResult[] $results
+     * @param string               $userId
      *
      * @return array
      */
@@ -175,7 +175,7 @@ class AdministrationSearch
     }
 
     /**
-     * @param SearchResultInterface[] $results
+     * @param EntitySearchResult[] $results
      *
      * @return array
      */

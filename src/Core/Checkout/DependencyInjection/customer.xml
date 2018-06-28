@@ -5,21 +5,20 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <!-- Versioning -->
-        <service class="Shopware\Core\Checkout\Customer\CustomerDefinition" id="Shopware\Core\Checkout\Customer\CustomerDefinition" >
-            <tag name="shopware.entity.definition" entity="customer" />
+        <service class="Shopware\Core\Checkout\Customer\CustomerDefinition" id="Shopware\Core\Checkout\Customer\CustomerDefinition">
+            <tag name="shopware.entity.definition" entity="customer"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition" id="Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition" >
-            <tag name="shopware.entity.definition" entity="customer_address" />
+        <service class="Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition" id="Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition">
+            <tag name="shopware.entity.definition" entity="customer_address"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition" id="Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition" >
-            <tag name="shopware.entity.definition" entity="customer_group" />
+        <service class="Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition" id="Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition">
+            <tag name="shopware.entity.definition" entity="customer_group"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGroupDiscountDefinition" id="Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGroupDiscountDefinition" >
-            <tag name="shopware.entity.definition" entity="customer_group_discount" />
+        <service class="Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGroupDiscountDefinition" id="Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGroupDiscountDefinition">
+            <tag name="shopware.entity.definition" entity="customer_group_discount"/>
         </service>
 
         <service class="Shopware\Core\Checkout\Customer\Cart\CustomerGroupDiscountProcessor" id="Shopware\Core\Checkout\Customer\Cart\CustomerGroupDiscountProcessor">
@@ -74,11 +73,11 @@
         </service>
 
         <service class="Shopware\Core\Checkout\Context\CheckoutContextService" id="Shopware\Core\Checkout\Context\CheckoutContextService">
-            <argument type="service" id="shopware.cache" />
+            <argument type="service" id="shopware.cache"/>
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextFactory"/>
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutRuleLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>
-            <tag name="shopware.traceable" />
+            <tag name="shopware.traceable"/>
         </service>
 
         <service class="Shopware\Core\Checkout\Context\Storefront\CheckoutContextController" id="Shopware\Core\Checkout\Context\Storefront\CheckoutContextController" public="true">

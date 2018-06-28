@@ -12,7 +12,7 @@ class TreeItem
     protected $category;
 
     /**
-     * @var CategoryStruct[]
+     * @var TreeItem[]
      */
     protected $children;
 

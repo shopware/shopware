@@ -7,13 +7,20 @@ use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\PercentageTaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Content\Catalog\CatalogStruct;
+use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerStruct;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaStruct;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleStruct;
+use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\Framework\Pricing\PriceRuleCollection;
 use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\System\Tax\TaxStruct;
@@ -25,6 +32,16 @@ class ProductStruct extends Entity
      * @var string|null
      */
     protected $parentId;
+
+    /**
+     * @var int
+     */
+    protected $catalogId;
+
+    /**
+     * @var int
+     */
+    protected $autoIncrement;
 
     /**
      * @var string|null
@@ -257,7 +274,7 @@ class ProductStruct extends Entity
     protected $unit;
 
     /**
-     * @var EntitySearchResult
+     * @var ProductPriceRuleCollection
      */
     protected $priceRules;
 
@@ -277,64 +294,59 @@ class ProductStruct extends Entity
     protected $parent;
 
     /**
-     * @var EntitySearchResult|null
+     * @var ProductCollection|null
      */
     protected $children;
 
     /**
-     * @var EntitySearchResult|null
+     * @var ProductMediaCollection|null
      */
     protected $media;
 
     /**
-     * @var EntitySearchResult|null
+     * @var ProductSearchKeywordCollection|null
      */
     protected $searchKeywords;
 
     /**
-     * @var EntitySearchResult|null
+     * @var ProductTranslationCollection|null
      */
     protected $translations;
 
     /**
-     * @var EntitySearchResult|null
+     * @var CategoryCollection|null
      */
     protected $categories;
 
     /**
-     * @var EntitySearchResult|null
-     */
-    protected $seoCategories;
-
-    /**
-     * @var EntitySearchResult|null
-     */
-    protected $tabs;
-
-    /**
-     * @var EntitySearchResult|null
-     */
-    protected $streams;
-
-    /**
-     * @var EntitySearchResult|null
+     * @var ConfigurationGroupOptionCollection|null
      */
     protected $datasheet;
 
     /**
-     * @var EntitySearchResult|null
+     * @var ConfigurationGroupOptionCollection|null
      */
     protected $variations;
 
     /**
-     * @var EntitySearchResult|null
+     * @var ProductConfiguratorCollection|null
      */
     protected $configurators;
 
     /**
-     * @var EntitySearchResult|null
+     * @var ProductServiceCollection|null
      */
     protected $services;
+
+    /**
+     * @var CategoryCollection|null
+     */
+    protected $categoriesRo;
+
+    /**
+     * @var CatalogStruct|null
+     */
+    protected $catalog;
 
     public function __construct()
     {
@@ -736,7 +748,7 @@ class ProductStruct extends Entity
         return $this->tax;
     }
 
-    public function setTax(?TaxStruct $tax): void
+    public function setTax(TaxStruct $tax): void
     {
         $this->tax = $tax;
     }
@@ -746,7 +758,7 @@ class ProductStruct extends Entity
         return $this->manufacturer;
     }
 
-    public function setManufacturer(?ProductManufacturerStruct $manufacturer): void
+    public function setManufacturer(ProductManufacturerStruct $manufacturer): void
     {
         $this->manufacturer = $manufacturer;
     }
@@ -756,17 +768,17 @@ class ProductStruct extends Entity
         return $this->unit;
     }
 
-    public function setUnit(?UnitStruct $unit): void
+    public function setUnit(UnitStruct $unit): void
     {
         $this->unit = $unit;
     }
 
-    public function getPriceRules(): EntitySearchResult
+    public function getPriceRules(): ProductPriceRuleCollection
     {
         return $this->priceRules;
     }
 
-    public function setPriceRules(EntitySearchResult $priceRules): void
+    public function setPriceRules(ProductPriceRuleCollection $priceRules): void
     {
         $this->priceRules = $priceRules;
     }
@@ -776,7 +788,7 @@ class ProductStruct extends Entity
         return $this->listingPrices;
     }
 
-    public function setListingPrices(?PriceRuleCollection $listingPrices): void
+    public function setListingPrices(PriceRuleCollection $listingPrices): void
     {
         $this->listingPrices = $listingPrices;
     }
@@ -815,8 +827,7 @@ class ProductStruct extends Entity
     {
         $taxRules = $this->getTaxRuleCollection();
 
-        /** @var ProductPriceRuleCollection $rules */
-        $rules = $this->getPriceRules()->getEntities();
+        $rules = $this->getPriceRules();
 
         $prices = $rules->getPriceRulesForContext($context);
 
@@ -877,7 +888,7 @@ class ProductStruct extends Entity
         $taxRules = $this->getTaxRuleCollection();
 
         /** @var ProductPriceRuleCollection $rules */
-        $rules = $this->getPriceRules()->getEntities();
+        $rules = $this->getPriceRules();
 
         $prices = $rules->getPriceRulesForContext($context);
 
@@ -950,7 +961,7 @@ class ProductStruct extends Entity
         return $this->cover;
     }
 
-    public function setCover(?ProductMediaStruct $cover): void
+    public function setCover(ProductMediaStruct $cover): void
     {
         $this->cover = $cover;
     }
@@ -960,128 +971,138 @@ class ProductStruct extends Entity
         return $this->parent;
     }
 
-    public function setParent(?ProductStruct $parent): void
+    public function setParent(ProductStruct $parent): void
     {
         $this->parent = $parent;
     }
 
-    public function getChildren(): ?EntitySearchResult
+    public function getChildren(): ?ProductCollection
     {
         return $this->children;
     }
 
-    public function setChildren(EntitySearchResult $children): void
+    public function setChildren(ProductCollection $children): void
     {
         $this->children = $children;
     }
 
-    public function getMedia(): ?EntitySearchResult
+    public function getMedia(): ?ProductMediaCollection
     {
         return $this->media;
     }
 
-    public function setMedia(EntitySearchResult $media): void
+    public function setMedia(ProductMediaCollection $media): void
     {
         $this->media = $media;
     }
 
-    public function getSearchKeywords(): ?EntitySearchResult
+    public function getSearchKeywords(): ?ProductSearchKeywordCollection
     {
         return $this->searchKeywords;
     }
 
-    public function setSearchKeywords(EntitySearchResult $searchKeywords): void
+    public function setSearchKeywords(ProductSearchKeywordCollection $searchKeywords): void
     {
         $this->searchKeywords = $searchKeywords;
     }
 
-    public function getTranslations(): ?EntitySearchResult
+    public function getTranslations(): ?ProductTranslationCollection
     {
         return $this->translations;
     }
 
-    public function setTranslations(EntitySearchResult $translations): void
+    public function setTranslations(ProductTranslationCollection $translations): void
     {
         $this->translations = $translations;
     }
 
-    public function getCategories(): ?EntitySearchResult
+    public function getCategories(): ?CategoryCollection
     {
         return $this->categories;
     }
 
-    public function setCategories(EntitySearchResult $categories): void
+    public function setCategories(CategoryCollection $categories): void
     {
         $this->categories = $categories;
     }
 
-    public function getSeoCategories(): ?EntitySearchResult
-    {
-        return $this->seoCategories;
-    }
-
-    public function setSeoCategories(EntitySearchResult $seoCategories): void
-    {
-        $this->seoCategories = $seoCategories;
-    }
-
-    public function getTabs(): ?EntitySearchResult
-    {
-        return $this->tabs;
-    }
-
-    public function setTabs(EntitySearchResult $tabs): void
-    {
-        $this->tabs = $tabs;
-    }
-
-    public function getStreams(): ?EntitySearchResult
-    {
-        return $this->streams;
-    }
-
-    public function setStreams(EntitySearchResult $streams): void
-    {
-        $this->streams = $streams;
-    }
-
-    public function getDatasheet(): ?EntitySearchResult
+    public function getDatasheet(): ?ConfigurationGroupOptionCollection
     {
         return $this->datasheet;
     }
 
-    public function setDatasheet(EntitySearchResult $datasheet): void
+    public function setDatasheet(ConfigurationGroupOptionCollection $datasheet): void
     {
         $this->datasheet = $datasheet;
     }
 
-    public function getVariations(): ?EntitySearchResult
+    public function getVariations(): ?ConfigurationGroupOptionCollection
     {
         return $this->variations;
     }
 
-    public function setVariations(EntitySearchResult $variations): void
+    public function setVariations(ConfigurationGroupOptionCollection $variations): void
     {
         $this->variations = $variations;
     }
 
-    public function getConfigurators(): ?EntitySearchResult
+    public function getConfigurators(): ?ProductConfiguratorCollection
     {
         return $this->configurators;
     }
 
-    public function setConfigurators(EntitySearchResult $configurators): void
+    public function setConfigurators(ProductConfiguratorCollection $configurators): void
     {
         $this->configurators = $configurators;
     }
 
-    public function getServices(): ?EntitySearchResult
+    public function getServices(): ?ProductServiceCollection
     {
         return $this->services;
     }
 
-    public function setServices(EntitySearchResult $services): void
+    public function setServices(ProductServiceCollection $services): void
     {
         $this->services = $services;
+    }
+
+    public function getCategoriesRo(): ?CategoryCollection
+    {
+        return $this->categoriesRo;
+    }
+
+    public function setCategoriesRo(CategoryCollection $categoriesRo): void
+    {
+        $this->categoriesRo = $categoriesRo;
+    }
+
+    public function getAutoIncrement(): int
+    {
+        return $this->autoIncrement;
+    }
+
+    public function setAutoIncrement(int $autoIncrement): void
+    {
+        $this->autoIncrement = $autoIncrement;
+    }
+
+    public function getCatalogId(): int
+    {
+        return $this->catalogId;
+    }
+
+    public function setCatalogId(int $catalogId): void
+    {
+        $this->catalogId = $catalogId;
+    }
+
+    public function getCatalog(): ?CatalogStruct
+    {
+        return $this->catalog;
+    }
+
+    public function setCatalog(CatalogStruct $catalog): void
+    {
+        $this->catalog = $catalog;
     }
 }

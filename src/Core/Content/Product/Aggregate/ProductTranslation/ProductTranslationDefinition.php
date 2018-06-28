@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductTranslation;
 
+use Shopware\Core\Content\Catalog\CatalogDefinition;
 use Shopware\Core\Content\Catalog\ORM\CatalogField;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
@@ -40,6 +41,7 @@ class ProductTranslationDefinition extends EntityDefinition
             new StringField('pack_unit', 'packUnit'),
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false),
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, false),
+            new ManyToOneAssociationField('catalog', 'catalog_id', CatalogDefinition::class, false, 'id'),
         ]);
     }
 

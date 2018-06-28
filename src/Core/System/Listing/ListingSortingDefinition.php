@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\Listing;
 
-use Shopware\Core\Content\Product\Aggregate\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Field\BoolField;
 use Shopware\Core\Framework\ORM\Field\DateField;
@@ -10,7 +9,6 @@ use Shopware\Core\Framework\ORM\Field\IdField;
 use Shopware\Core\Framework\ORM\Field\IntField;
 use Shopware\Core\Framework\ORM\Field\ListField;
 use Shopware\Core\Framework\ORM\Field\ObjectField;
-use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\Field\TenantIdField;
 use Shopware\Core\Framework\ORM\Field\TranslatedField;
@@ -45,7 +43,6 @@ class ListingSortingDefinition extends EntityDefinition
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
             (new TranslationsAssociationField('translations', ListingSortingTranslationDefinition::class, 'listing_sorting_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
-            new OneToManyAssociationField('productStreams', ProductStreamDefinition::class, 'listing_sorting_id', false, 'id'),
         ]);
     }
 

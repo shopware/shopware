@@ -2,9 +2,13 @@
 
 namespace Shopware\Core\Content\Media;
 
+use Shopware\Core\Content\Catalog\CatalogStruct;
+use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumStruct;
+use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\System\User\UserStruct;
 
 class MediaStruct extends Entity
@@ -13,6 +17,11 @@ class MediaStruct extends Entity
      * @var string
      */
     protected $albumId;
+
+    /**
+     * @var int
+     */
+    protected $catalogId;
 
     /**
      * @var string|null
@@ -70,9 +79,29 @@ class MediaStruct extends Entity
     protected $user;
 
     /**
-     * @var EntitySearchResult|null
+     * @var MediaTranslationCollection|null
      */
     protected $translations;
+
+    /**
+     * @var CategoryCollection|null
+     */
+    protected $categories;
+
+    /**
+     * @var ProductManufacturerCollection|null
+     */
+    protected $productManufacturers;
+
+    /**
+     * @var ProductMediaCollection|null
+     */
+    protected $productMedia;
+
+    /**
+     * @var CatalogStruct|null
+     */
+    protected $catalog;
 
     public function getAlbumId(): string
     {
@@ -194,13 +223,63 @@ class MediaStruct extends Entity
         $this->user = $user;
     }
 
-    public function getTranslations(): ?EntitySearchResult
+    public function getTranslations(): ?MediaTranslationCollection
     {
         return $this->translations;
     }
 
-    public function setTranslations(EntitySearchResult $translations): void
+    public function setTranslations(MediaTranslationCollection $translations): void
     {
         $this->translations = $translations;
+    }
+
+    public function getCategories(): ?CategoryCollection
+    {
+        return $this->categories;
+    }
+
+    public function setCategories(CategoryCollection $categories): void
+    {
+        $this->categories = $categories;
+    }
+
+    public function getProductManufacturers(): ?ProductManufacturerCollection
+    {
+        return $this->productManufacturers;
+    }
+
+    public function setProductManufacturers(ProductManufacturerCollection $productManufacturers): void
+    {
+        $this->productManufacturers = $productManufacturers;
+    }
+
+    public function getProductMedia(): ?ProductMediaCollection
+    {
+        return $this->productMedia;
+    }
+
+    public function setProductMedia(ProductMediaCollection $productMedia): void
+    {
+        $this->productMedia = $productMedia;
+    }
+
+    public function getCatalogId(): int
+    {
+        return $this->catalogId;
+    }
+
+    public function setCatalogId(int $catalogId): void
+    {
+        $this->catalogId = $catalogId;
+    }
+
+    public function getCatalog(): ?CatalogStruct
+    {
+        return $this->catalog;
+    }
+
+    public function setCatalog(CatalogStruct $catalog): void
+    {
+        $this->catalog = $catalog;
     }
 }

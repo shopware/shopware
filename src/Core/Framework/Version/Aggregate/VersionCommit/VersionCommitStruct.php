@@ -3,7 +3,8 @@
 namespace Shopware\Core\Framework\Version\Aggregate\VersionCommit;
 
 use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
+use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataCollection;
+use Shopware\Core\Framework\Version\VersionStruct;
 
 class VersionCommitStruct extends Entity
 {
@@ -33,9 +34,19 @@ class VersionCommitStruct extends Entity
     protected $userId;
 
     /**
-     * @var EntitySearchResult
+     * @var VersionCommitDataCollection
      */
     protected $data;
+
+    /**
+     * @var bool
+     */
+    protected $isMerge;
+
+    /**
+     * @var VersionStruct|null
+     */
+    protected $version;
 
     /**
      * @return int
@@ -117,13 +128,33 @@ class VersionCommitStruct extends Entity
         $this->versionId = $versionId;
     }
 
-    public function getData(): EntitySearchResult
+    public function getData(): VersionCommitDataCollection
     {
         return $this->data;
     }
 
-    public function setData(EntitySearchResult $data): void
+    public function setData(VersionCommitDataCollection $data): void
     {
         $this->data = $data;
+    }
+
+    public function getIsMerge(): bool
+    {
+        return $this->isMerge;
+    }
+
+    public function setIsMerge(bool $isMerge): void
+    {
+        $this->isMerge = $isMerge;
+    }
+
+    public function getVersion(): ?VersionStruct
+    {
+        return $this->version;
+    }
+
+    public function setVersion(VersionStruct $version): void
+    {
+        $this->version = $version;
     }
 }

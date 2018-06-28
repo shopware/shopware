@@ -17,7 +17,6 @@ return [
             'description' => null,
             'versionId' => null,
             'mediaAlbumVersionId' => null,
-            'userVersionId' => null,
             'catalogId' => null,
             'tenantId' => null,
         ],
@@ -46,12 +45,6 @@ return [
                     'related' => '/api/media/548faa1f-7846-436c-8594-4f4aea792d96/categories',
                 ],
             ],
-            'mailAttachments' => [
-                'data' => [],
-                'links' => [
-                    'related' => '/api/media/548faa1f-7846-436c-8594-4f4aea792d96/mail-attachments',
-                ],
-            ],
             'productManufacturers' => [
                 'data' => [],
                 'links' => [
@@ -62,6 +55,12 @@ return [
                 'data' => [],
                 'links' => [
                     'related' => '/api/media/548faa1f-7846-436c-8594-4f4aea792d96/product-media',
+                ],
+            ],
+            'catalog' => [
+                'data' => null,
+                'links' => [
+                    'related' => '/api/media/548faa1f-7846-436c-8594-4f4aea792d96/catalog',
                 ],
             ],
         ],
@@ -108,6 +107,12 @@ return [
                         'related' => '/api/media-album/6f51622e-b381-4c75-ae02-63cece27ce72/children',
                     ],
                     'data' => [],
+                ],
+                'catalog' => [
+                    'data' => null,
+                    'links' => [
+                        'related' => '/api/media-album/6f51622e-b381-4c75-ae02-63cece27ce72/catalog',
+                    ],
                 ],
             ],
         ],

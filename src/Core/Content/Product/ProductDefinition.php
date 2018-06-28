@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product;
 
+use Shopware\Core\Content\Catalog\CatalogDefinition;
 use Shopware\Core\Content\Catalog\ORM\CatalogField;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
@@ -13,11 +14,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufactu
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductSeoCategory\ProductSeoCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductStream\ProductStreamDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductStreamAssignment\ProductStreamAssignmentDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductStreamTab\ProductStreamTabDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVariation\ProductVariationDefinition;
 use Shopware\Core\Content\Product\ORM\Field\ProductCoverField;
@@ -142,7 +139,6 @@ class ProductDefinition extends EntityDefinition
 
             //inherited associations
             (new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class, true, 'id'))->setFlags(new Inherited()),
-
             (new ManyToOneAssociationField('manufacturer', 'product_manufacturer_id', ProductManufacturerDefinition::class, true, 'id'))->setFlags(new Inherited(), new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
             (new ManyToOneAssociationField('unit', 'unit_id', UnitDefinition::class, true, 'id'))->setFlags(new Inherited()),
             (new OneToManyAssociationField('media', ProductMediaDefinition::class, 'product_id', false))->setFlags(new CascadeDelete(), new Inherited()),
@@ -152,9 +148,6 @@ class ProductDefinition extends EntityDefinition
             (new ManyToManyAssociationField('categories', CategoryDefinition::class, ProductCategoryDefinition::class, false, 'product_id', 'category_id'))->setFlags(new CascadeDelete(), new Inherited()),
 
             //not inherited associations
-            (new ManyToManyAssociationField('seoCategories', CategoryDefinition::class, ProductSeoCategoryDefinition::class, false, 'product_id', 'category_id'))->setFlags(new CascadeDelete()),
-            (new ManyToManyAssociationField('tabs', ProductStreamDefinition::class, ProductStreamTabDefinition::class, false, 'product_id', 'product_stream_id'))->setFlags(new CascadeDelete()),
-            (new ManyToManyAssociationField('streams', ProductStreamDefinition::class, ProductStreamAssignmentDefinition::class, false, 'product_id', 'product_stream_id'))->setFlags(new CascadeDelete()),
             (new ManyToManyAssociationField('categoriesRo', CategoryDefinition::class, ProductCategoryTreeDefinition::class, false, 'product_id', 'category_id'))->setFlags(new CascadeDelete()),
             (new OneToManyAssociationField('searchKeywords', ProductSearchKeywordDefinition::class, 'product_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('translations', ProductTranslationDefinition::class, 'product_id', false, 'id'))->setFlags(new Inherited(), new CascadeDelete(), new Required()),
@@ -162,6 +155,7 @@ class ProductDefinition extends EntityDefinition
 
             (new OneToManyAssociationField('configurators', ProductConfiguratorDefinition::class, 'product_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new ManyToManyAssociationField('variations', ConfigurationGroupOptionDefinition::class, ProductVariationDefinition::class, false, 'product_id', 'configuration_group_option_id'))->setFlags(new CascadeDelete()),
+            new ManyToOneAssociationField('catalog', 'catalog_id', CatalogDefinition::class, false, 'id'),
         ]);
     }
 

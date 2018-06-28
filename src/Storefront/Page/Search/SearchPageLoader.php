@@ -6,18 +6,12 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Product\Storefront\StorefrontProductRepository;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Core\System\Config\Util\ConfigServiceInterface;
 use Shopware\Storefront\Event\ListingPageLoadedEvent;
 use Shopware\Storefront\Event\PageCriteriaCreatedEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class SearchPageLoader
 {
-    /**
-     * @var ConfigServiceInterface
-     */
-    private $configService;
-
     /**
      * @var StorefrontProductRepository
      */
@@ -29,18 +23,16 @@ class SearchPageLoader
     private $eventDispatcher;
 
     public function __construct(
-        ConfigServiceInterface $configService,
         StorefrontProductRepository $productRepository,
         EventDispatcherInterface $eventDispatcher
     ) {
-        $this->configService = $configService;
         $this->productRepository = $productRepository;
         $this->eventDispatcher = $eventDispatcher;
     }
 
     public function load(SearchPageRequest $request, CheckoutContext $context): SearchPageStruct
     {
-        $config = $this->configService->get($context->getTouchpoint()->getId(), null);
+        $config = [];
 
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('product.active', 1));

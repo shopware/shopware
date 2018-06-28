@@ -22,7 +22,6 @@ use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\Core\System\Mail\MailDefinition;
 
 class OrderStateDefinition extends EntityDefinition
 {
@@ -42,7 +41,6 @@ class OrderStateDefinition extends EntityDefinition
             new BoolField('has_mail', 'hasMail'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            new OneToManyAssociationField('mails', MailDefinition::class, 'order_state_id', false, 'id'),
             (new OneToManyAssociationField('orders', OrderDefinition::class, 'order_state_id', false, 'id'))->setFlags(new RestrictDelete()),
             (new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'order_state_id', false, 'id'))->setFlags(new RestrictDelete()),
             (new TranslationsAssociationField('translations', OrderStateTranslationDefinition::class, 'order_state_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),

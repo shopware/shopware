@@ -16,6 +16,7 @@ use Shopware\Core\Framework\ORM\Field\VersionField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\Framework\ORM\Write\Flag\ReverseInherited;
 use Shopware\Core\System\Tax\TaxDefinition;
 
 class ProductServiceDefinition extends EntityDefinition
@@ -39,7 +40,7 @@ class ProductServiceDefinition extends EntityDefinition
             new ReferenceVersionField(TaxDefinition::class),
             new PriceField('price', 'price'),
             new PriceRulesJsonField('prices', 'prices'),
-            new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false),
+            (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false))->setFlags(new ReverseInherited('services')),
             new ManyToOneAssociationField('option', 'configuration_group_option_id', ConfigurationGroupOptionDefinition::class, true),
             new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class, true),
         ]);

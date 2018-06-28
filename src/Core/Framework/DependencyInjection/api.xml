@@ -7,7 +7,7 @@
     <services>
 
         <service class="Shopware\Core\Framework\Api\EventListener\CorsListener" id="Shopware\Core\Framework\Api\EventListener\CorsListener">
-            <tag name="kernel.event_subscriber" />
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service class="Shopware\Core\Framework\Api\EventListener\ResponseExceptionListener" id="Shopware\Core\Framework\Api\EventListener\ResponseExceptionListener">
@@ -27,7 +27,7 @@
             <argument type="service" id="Shopware\Core\Framework\ORM\Search\SearchCriteriaBuilder"/>
         </service>
 
-        <service class="Shopware\Core\Framework\Api\Controller\SyncController" public="true" id="Shopware\Core\Framework\Api\Controller\SyncController" >
+        <service class="Shopware\Core\Framework\Api\Controller\SyncController" public="true" id="Shopware\Core\Framework\Api\Controller\SyncController">
             <argument type="service" id="Shopware\Core\Framework\ORM\DefinitionRegistry"/>
             <argument type="service" id="service_container"/>
             <argument type="service" id="serializer"/>
@@ -35,17 +35,17 @@
 
         <!-- Serializer -->
         <service class="Shopware\Core\Framework\Api\Serializer\JsonApiEncoder" id="shopware.api.serializer.json_api_encoder">
-            <argument type="service" id="Shopware\Core\Framework\Struct\Serializer\StructDecoder" />
-            <tag name="serializer.encoder" />
+            <argument type="service" id="Shopware\Core\Framework\Struct\Serializer\StructDecoder"/>
+            <tag name="serializer.encoder"/>
         </service>
 
         <service class="Shopware\Core\Framework\Api\Serializer\JsonApiDecoder" id="shopware.api.serializer.json_api_decoder">
-            <tag name="serializer.encoder" />
+            <tag name="serializer.encoder"/>
         </service>
 
         <!-- Response types -->
         <service class="Shopware\Core\Framework\Api\Response\ResponseFactory" id="Shopware\Core\Framework\Api\Response\ResponseFactory">
-            <argument type="tagged" tag="shopware.rest.response_type" />
+            <argument type="tagged" tag="shopware.rest.response_type"/>
         </service>
 
         <service class="Shopware\Core\Framework\Api\Response\Type\JsonApiType" id="Shopware\Core\Framework\Api\Response\Type\JsonApiType">
@@ -60,12 +60,12 @@
 
         <!-- API Docs -->
         <service class="Shopware\Core\Framework\Api\ApiDefinition\DefinitionService" id="Shopware\Core\Framework\Api\ApiDefinition\DefinitionService">
-            <argument type="tagged" tag="shopware.rest.definition_generator" />
+            <argument type="tagged" tag="shopware.rest.definition_generator"/>
         </service>
 
         <service class="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator">
-            <argument type="service" id="Shopware\Core\Framework\ORM\DefinitionRegistry" />
-            <tag name="shopware.rest.definition_generator" />
+            <argument type="service" id="Shopware\Core\Framework\ORM\DefinitionRegistry"/>
+            <tag name="shopware.rest.definition_generator"/>
         </service>
 
         <service class="Shopware\Core\Framework\Api\Controller\InfoController" id="Shopware\Core\Framework\Api\Controller\InfoController" public="true">

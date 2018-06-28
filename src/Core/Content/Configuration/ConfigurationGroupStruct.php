@@ -2,8 +2,9 @@
 
 namespace Shopware\Core\Content\Configuration;
 
+use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionCollection;
+use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\ConfigurationGroupTranslationCollection;
 use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 
 class ConfigurationGroupStruct extends Entity
 {
@@ -28,12 +29,12 @@ class ConfigurationGroupStruct extends Entity
     protected $position;
 
     /**
-     * @var EntitySearchResult|null
+     * @var ConfigurationGroupOptionCollection|null
      */
     protected $options;
 
     /**
-     * @var EntitySearchResult|null
+     * @var ConfigurationGroupTranslationCollection|null
      */
     protected $translations;
 
@@ -77,22 +78,22 @@ class ConfigurationGroupStruct extends Entity
         $this->position = $position;
     }
 
-    public function getOptions(): ?EntitySearchResult
+    public function getOptions(): ?ConfigurationGroupOptionCollection
     {
         return $this->options;
     }
 
-    public function setOptions(EntitySearchResult $options): void
+    public function setOptions(ConfigurationGroupOptionCollection $options): void
     {
         $this->options = $options;
     }
 
-    public function getTranslations(): ?EntitySearchResult
+    public function getTranslations(): ?ConfigurationGroupTranslationCollection
     {
         return $this->translations;
     }
 
-    public function setTranslations(EntitySearchResult $translations): void
+    public function setTranslations(ConfigurationGroupTranslationCollection $translations): void
     {
         $this->translations = $translations;
     }

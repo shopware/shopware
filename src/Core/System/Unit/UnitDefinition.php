@@ -17,6 +17,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
+use Shopware\Core\Framework\ORM\Write\Flag\ReverseInherited;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationDefinition;
 
@@ -37,7 +38,7 @@ class UnitDefinition extends EntityDefinition
             (new TranslatedField(new StringField('name', 'name')))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            (new OneToManyAssociationField('products', ProductDefinition::class, 'unit_id', false, 'id'))->setFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('products', ProductDefinition::class, 'unit_id', false, 'id'))->setFlags(new RestrictDelete(), new ReverseInherited('unit')),
             (new TranslationsAssociationField('translations', UnitTranslationDefinition::class, 'unit_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
         ]);
     }

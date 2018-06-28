@@ -2,8 +2,11 @@
 
 namespace Shopware\Core\System\Currency;
 
+use Shopware\Core\Checkout\Order\OrderCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleCollection;
 use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
+use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationCollection;
+use Shopware\Core\System\Touchpoint\TouchpointCollection;
 
 class CurrencyStruct extends Entity
 {
@@ -53,9 +56,24 @@ class CurrencyStruct extends Entity
     protected $updatedAt;
 
     /**
-     * @var EntitySearchResult|null
+     * @var CurrencyTranslationCollection|null
      */
     protected $translations;
+
+    /**
+     * @var OrderCollection|null
+     */
+    protected $orders;
+
+    /**
+     * @var TouchpointCollection|null
+     */
+    protected $touchpoints;
+
+    /**
+     * @var ProductPriceRuleCollection|null
+     */
+    protected $productPriceRules;
 
     public function getFactor(): float
     {
@@ -147,13 +165,43 @@ class CurrencyStruct extends Entity
         $this->updatedAt = $updatedAt;
     }
 
-    public function getTranslations(): ?EntitySearchResult
+    public function getTranslations(): ?CurrencyTranslationCollection
     {
         return $this->translations;
     }
 
-    public function setTranslations(EntitySearchResult $translations): void
+    public function setTranslations(CurrencyTranslationCollection $translations): void
     {
         $this->translations = $translations;
+    }
+
+    public function getOrders(): ?OrderCollection
+    {
+        return $this->orders;
+    }
+
+    public function setOrders(OrderCollection $orders): void
+    {
+        $this->orders = $orders;
+    }
+
+    public function getTouchpoints(): ?TouchpointCollection
+    {
+        return $this->touchpoints;
+    }
+
+    public function setTouchpoints(TouchpointCollection $touchpoints): void
+    {
+        $this->touchpoints = $touchpoints;
+    }
+
+    public function getProductPriceRules(): ?ProductPriceRuleCollection
+    {
+        return $this->productPriceRules;
+    }
+
+    public function setProductPriceRules(ProductPriceRuleCollection $productPriceRules): void
+    {
+        $this->productPriceRules = $productPriceRules;
     }
 }

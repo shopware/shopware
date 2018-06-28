@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation;
 
+use Shopware\Core\Content\Catalog\CatalogDefinition;
 use Shopware\Core\Content\Catalog\ORM\CatalogField;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
@@ -37,6 +38,7 @@ class ProductManufacturerTranslationDefinition extends EntityDefinition
             new StringField('meta_keywords', 'metaKeywords'),
             new ManyToOneAssociationField('productManufacturer', 'product_manufacturer_id', ProductManufacturerDefinition::class, false),
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, false),
+            new ManyToOneAssociationField('catalog', 'catalog_id', CatalogDefinition::class, false, 'id'),
         ]);
     }
 

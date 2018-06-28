@@ -2,10 +2,11 @@
 
 namespace Shopware\Core\Content\Category;
 
+use Shopware\Core\Content\Catalog\CatalogStruct;
+use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationCollection;
 use Shopware\Core\Content\Media\MediaStruct;
-use Shopware\Core\Content\Product\Aggregate\ProductStream\ProductStreamStruct;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 
 class CategoryStruct extends Entity
 {
@@ -15,14 +16,19 @@ class CategoryStruct extends Entity
     protected $parentId;
 
     /**
-     * @var string|null
+     * @var int
      */
-    protected $mediaId;
+    protected $catalogId;
+
+    /**
+     * @var int
+     */
+    protected $autoIncrement;
 
     /**
      * @var string|null
      */
-    protected $productStreamId;
+    protected $mediaId;
 
     /**
      * @var string
@@ -145,12 +151,12 @@ class CategoryStruct extends Entity
     protected $parent;
 
     /**
-     * @var EntitySearchResult|null
+     * @var CategoryCollection|null
      */
     protected $children;
 
     /**
-     * @var EntitySearchResult|null
+     * @var CategoryTranslationCollection|null
      */
     protected $translations;
 
@@ -160,14 +166,19 @@ class CategoryStruct extends Entity
     protected $media;
 
     /**
-     * @var ProductStreamStruct|null
-     */
-    protected $productStream;
-
-    /**
-     * @var EntitySearchResult|null
+     * @var ProductCollection|null
      */
     protected $products;
+
+    /**
+     * @var CatalogStruct|null
+     */
+    protected $catalog;
+
+    /**
+     * @var ProductCollection|null
+     */
+    protected $nestedProducts;
 
     public function getParentId(): ?string
     {
@@ -187,16 +198,6 @@ class CategoryStruct extends Entity
     public function setMediaId(?string $mediaId): void
     {
         $this->mediaId = $mediaId;
-    }
-
-    public function getProductStreamId(): ?string
-    {
-        return $this->productStreamId;
-    }
-
-    public function setProductStreamId(?string $productStreamId): void
-    {
-        $this->productStreamId = $productStreamId;
     }
 
     public function getName(): string
@@ -449,26 +450,6 @@ class CategoryStruct extends Entity
         $this->parent = $parent;
     }
 
-    public function getChildren(): ?EntitySearchResult
-    {
-        return $this->children;
-    }
-
-    public function setChildren(EntitySearchResult $children): void
-    {
-        $this->children = $children;
-    }
-
-    public function getTranslations(): ?EntitySearchResult
-    {
-        return $this->translations;
-    }
-
-    public function setTranslations(EntitySearchResult $translations): void
-    {
-        $this->translations = $translations;
-    }
-
     public function getMedia(): ?MediaStruct
     {
         return $this->media;
@@ -479,23 +460,73 @@ class CategoryStruct extends Entity
         $this->media = $media;
     }
 
-    public function getProductStream(): ?ProductStreamStruct
+    public function getChildren(): ?CategoryCollection
     {
-        return $this->productStream;
+        return $this->children;
     }
 
-    public function setProductStream(ProductStreamStruct $productStream): void
+    public function setChildren(CategoryCollection $children): void
     {
-        $this->productStream = $productStream;
+        $this->children = $children;
     }
 
-    public function getProducts(): ?EntitySearchResult
+    public function getTranslations(): ?CategoryTranslationCollection
+    {
+        return $this->translations;
+    }
+
+    public function setTranslations(CategoryTranslationCollection $translations): void
+    {
+        $this->translations = $translations;
+    }
+
+    public function getProducts(): ?ProductCollection
     {
         return $this->products;
     }
 
-    public function setProducts(EntitySearchResult $products): void
+    public function setProducts(ProductCollection $products): void
     {
         $this->products = $products;
+    }
+
+    public function getAutoIncrement(): int
+    {
+        return $this->autoIncrement;
+    }
+
+    public function setAutoIncrement(int $autoIncrement): void
+    {
+        $this->autoIncrement = $autoIncrement;
+    }
+
+    public function getCatalogId(): int
+    {
+        return $this->catalogId;
+    }
+
+    public function setCatalogId(int $catalogId): void
+    {
+        $this->catalogId = $catalogId;
+    }
+
+    public function getCatalog(): ?CatalogStruct
+    {
+        return $this->catalog;
+    }
+
+    public function setCatalog(CatalogStruct $catalog): void
+    {
+        $this->catalog = $catalog;
+    }
+
+    public function getNestedProducts(): ?ProductCollection
+    {
+        return $this->nestedProducts;
+    }
+
+    public function setNestedProducts(ProductCollection $nestedProducts): void
+    {
+        $this->nestedProducts = $nestedProducts;
     }
 }

@@ -5,12 +5,9 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <!-- Versioning -->
-
-        <service class="Shopware\Core\Framework\Plugin\PluginDefinition" id="Shopware\Core\Framework\Plugin\PluginDefinition" >
-            <tag name="shopware.entity.definition" entity="plugin" />
+        <service class="Shopware\Core\Framework\Plugin\PluginDefinition" id="Shopware\Core\Framework\Plugin\PluginDefinition">
+            <tag name="shopware.entity.definition" entity="plugin"/>
         </service>
-
     </services>
 </container>                
                 

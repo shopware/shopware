@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Content\Media\Aggregate\MediaAlbum;
 
+use Shopware\Core\Content\Catalog\CatalogStruct;
+use Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\MediaAlbumTranslationCollection;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 
 class MediaAlbumStruct extends Entity
 {
@@ -11,6 +13,11 @@ class MediaAlbumStruct extends Entity
      * @var string|null
      */
     protected $parentId;
+
+    /**
+     * @var int
+     */
+    protected $catalogId;
 
     /**
      * @var string
@@ -68,19 +75,24 @@ class MediaAlbumStruct extends Entity
     protected $parent;
 
     /**
-     * @var EntitySearchResult|null
+     * @var MediaCollection|null
      */
     protected $media;
 
     /**
-     * @var EntitySearchResult|null
+     * @var MediaAlbumCollection|null
      */
     protected $children;
 
     /**
-     * @var EntitySearchResult|null
+     * @var MediaAlbumTranslationCollection|null
      */
     protected $translations;
+
+    /**
+     * @var CatalogStruct|null
+     */
+    protected $catalog;
 
     public function getParentId(): ?string
     {
@@ -202,33 +214,53 @@ class MediaAlbumStruct extends Entity
         $this->parent = $parent;
     }
 
-    public function getMedia(): ?EntitySearchResult
+    public function getMedia(): ?MediaCollection
     {
         return $this->media;
     }
 
-    public function setMedia(EntitySearchResult $media): void
+    public function setMedia(MediaCollection $media): void
     {
         $this->media = $media;
     }
 
-    public function getChildren(): ?EntitySearchResult
+    public function getChildren(): ?MediaAlbumCollection
     {
         return $this->children;
     }
 
-    public function setChildren(?EntitySearchResult $children): void
+    public function setChildren(MediaAlbumCollection $children): void
     {
         $this->children = $children;
     }
 
-    public function getTranslations(): ?EntitySearchResult
+    public function getTranslations(): ?MediaAlbumTranslationCollection
     {
         return $this->translations;
     }
 
-    public function setTranslations(EntitySearchResult $translations): void
+    public function setTranslations(MediaAlbumTranslationCollection $translations): void
     {
         $this->translations = $translations;
+    }
+
+    public function getCatalogId(): int
+    {
+        return $this->catalogId;
+    }
+
+    public function setCatalogId(int $catalogId): void
+    {
+        $this->catalogId = $catalogId;
+    }
+
+    public function getCatalog(): ?CatalogStruct
+    {
+        return $this->catalog;
+    }
+
+    public function setCatalog(CatalogStruct $catalog): void
+    {
+        $this->catalog = $catalog;
     }
 }

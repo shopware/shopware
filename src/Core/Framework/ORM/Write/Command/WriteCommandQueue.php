@@ -50,8 +50,8 @@ class WriteCommandQueue
     }
 
     /**
-     * @param string   $definition
-     * @param string[] ...$identifierOrder
+     * @param string $definition
+     * @param string ...$identifierOrder
      */
     public function setOrder(string $definition, string ...$identifierOrder): void
     {

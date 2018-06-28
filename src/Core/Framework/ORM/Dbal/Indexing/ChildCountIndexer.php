@@ -128,19 +128,25 @@ class ChildCountIndexer implements IndexerInterface
 
         $this->validateTableName($entityName);
 
-        $this->connection->executeQuery('
-            UPDATE `' . $entityName . '`  as parent
-                    LEFT JOIN
-                    (
-                        SELECT parent_id, count(id) total
-                        FROM    `' . $entityName . '`
-                        WHERE version_id = :version AND tenant_id = :tenant
-                        GROUP BY parent_id
-                    ) child ON parent.id = child.parent_id
+        $sql = str_replace(
+            ['#entity#'],
+            [$entityName],
+            'UPDATE #entity#  as parent
+                LEFT JOIN
+                (
+                    SELECT parent_id, count(id) total
+                    FROM   #entity#
+                    WHERE version_id = :version AND tenant_id = :tenant
+                    GROUP BY parent_id
+                ) child ON parent.id = child.parent_id
             SET parent.child_count = IFNULL(child.total, 0)
             WHERE parent.id IN (:ids)
             AND parent.version_id = :version
-            AND parent.tenant_id = :tenant',
+            AND parent.tenant_id = :tenant'
+        );
+
+        $this->connection->executeQuery(
+            $sql,
             [
                 'ids' => $parentIds,
                 'version' => $versionId,

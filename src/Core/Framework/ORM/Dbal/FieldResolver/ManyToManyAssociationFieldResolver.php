@@ -11,6 +11,7 @@ use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\Inherited;
+use Shopware\Core\Framework\ORM\Write\Flag\ReverseInherited;
 
 class ManyToManyAssociationFieldResolver implements FieldResolverInterface
 {
@@ -96,11 +97,19 @@ class ManyToManyAssociationFieldResolver implements FieldResolverInterface
             $tenantJoinCondition = ' AND #root#.`tenant_id` = #alias#.`tenant_id`';
         }
 
+        $referenceColumn = EntityDefinitionQueryHelper::escape($field->getReferenceField());
+        if ($field->is(ReverseInherited::class)) {
+            /** @var ReverseInherited $flag */
+            $flag = $field->getFlag(ReverseInherited::class);
+
+            $referenceColumn = EntityDefinitionQueryHelper::escape($flag->getName());
+        }
+
         $parameters = [
             '#mapping#' => EntityDefinitionQueryHelper::escape($mappingAlias),
             '#source_column#' => EntityDefinitionQueryHelper::escape($field->getMappingReferenceColumn()),
             '#alias#' => EntityDefinitionQueryHelper::escape($alias),
-            '#reference_column#' => EntityDefinitionQueryHelper::escape($field->getReferenceField()),
+            '#reference_column#' => $referenceColumn,
             '#root#' => EntityDefinitionQueryHelper::escape($root),
         ];
 

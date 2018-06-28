@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Category\Aggregate\CategoryTranslation;
 
+use Shopware\Core\Content\Catalog\CatalogDefinition;
 use Shopware\Core\Content\Catalog\ORM\CatalogField;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
@@ -40,6 +41,7 @@ class CategoryTranslationDefinition extends EntityDefinition
             new LongTextField('cms_description', 'cmsDescription'),
             new ManyToOneAssociationField('category', 'category_id', CategoryDefinition::class, false),
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, false),
+            new ManyToOneAssociationField('catalog', 'catalog_id', CatalogDefinition::class, false, 'id'),
         ]);
     }
 

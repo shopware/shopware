@@ -2,9 +2,10 @@
 
 namespace Shopware\Core\System\User;
 
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\System\Locale\LocaleStruct;
+use Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyCollection;
 
 class UserStruct extends Entity
 {
@@ -69,12 +70,12 @@ class UserStruct extends Entity
     protected $locale;
 
     /**
-     * @var EntitySearchResult|null
+     * @var MediaCollection|null
      */
     protected $media;
 
     /**
-     * @var EntitySearchResult|null
+     * @var UserAccessKeyCollection|null
      */
     protected $accessKeys;
 
@@ -198,22 +199,22 @@ class UserStruct extends Entity
         $this->locale = $locale;
     }
 
-    public function getMedia(): ?EntitySearchResult
+    public function getMedia(): ?MediaCollection
     {
         return $this->media;
     }
 
-    public function setMedia(EntitySearchResult $media): void
+    public function setMedia(MediaCollection $media): void
     {
         $this->media = $media;
     }
 
-    public function getAccessKeys(): ?EntitySearchResult
+    public function getAccessKeys(): ?UserAccessKeyCollection
     {
         return $this->accessKeys;
     }
 
-    public function setAccessKeys(EntitySearchResult $accessKeys): void
+    public function setAccessKeys(UserAccessKeyCollection $accessKeys): void
     {
         $this->accessKeys = $accessKeys;
     }

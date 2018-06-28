@@ -2,8 +2,9 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState;
 
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionStateTranslation\OrderTransactionStateTranslationCollection;
 use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 
 class OrderTransactionStateStruct extends Entity
 {
@@ -25,16 +26,6 @@ class OrderTransactionStateStruct extends Entity
     /**
      * @var string
      */
-    protected $orderTransactionStateId;
-
-    /**
-     * @var string
-     */
-    protected $languageId;
-
-    /**
-     * @var string
-     */
     protected $description;
 
     /**
@@ -43,9 +34,14 @@ class OrderTransactionStateStruct extends Entity
     protected $updatedAt;
 
     /**
-     * @var EntitySearchResult|null
+     * @var OrderTransactionStateTranslationCollection|null
      */
     protected $translations;
+
+    /**
+     * @var OrderTransactionCollection|null
+     */
+    protected $orderTransactions;
 
     public function getPosition(): int
     {
@@ -77,26 +73,6 @@ class OrderTransactionStateStruct extends Entity
         $this->createdAt = $createdAt;
     }
 
-    public function getOrderTransactionStateId(): string
-    {
-        return $this->orderTransactionStateId;
-    }
-
-    public function setOrderTransactionStateId(string $orderTransactionStateId): void
-    {
-        $this->orderTransactionStateId = $orderTransactionStateId;
-    }
-
-    public function getLanguageId(): string
-    {
-        return $this->languageId;
-    }
-
-    public function setLanguageId(string $languageId): void
-    {
-        $this->languageId = $languageId;
-    }
-
     public function getDescription(): string
     {
         return $this->description;
@@ -117,13 +93,23 @@ class OrderTransactionStateStruct extends Entity
         $this->updatedAt = $updatedAt;
     }
 
-    public function getTranslations(): ?EntitySearchResult
+    public function getTranslations(): ?OrderTransactionStateTranslationCollection
     {
         return $this->translations;
     }
 
-    public function setTranslations(EntitySearchResult $translations): void
+    public function setTranslations(OrderTransactionStateTranslationCollection $translations): void
     {
         $this->translations = $translations;
+    }
+
+    public function getOrderTransactions(): ?OrderTransactionCollection
+    {
+        return $this->orderTransactions;
+    }
+
+    public function setOrderTransactions(OrderTransactionCollection $orderTransactions): void
+    {
+        $this->orderTransactions = $orderTransactions;
     }
 }

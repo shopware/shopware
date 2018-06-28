@@ -6,9 +6,8 @@
 
     <services>
         <service class="Shopware\Core\System\User\UserDefinition" id="Shopware\Core\System\User\UserDefinition" >
-            <tag name="shopware.entity.definition" entity="user" />
+            <tag name="shopware.entity.definition" entity="user"/>
         </service>
-
 
         <service class="Shopware\Core\System\Command\UserCreateCommand" id="Shopware\Core\System\Command\UserCreateCommand">
             <argument id="user.repository" type="service"/>

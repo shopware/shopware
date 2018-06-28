@@ -6,9 +6,11 @@ use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\PercentageTaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionStruct;
+use Shopware\Core\Content\Product\ProductStruct;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\Pricing\PriceRuleCollection;
+use Shopware\Core\Framework\Pricing\PriceRuleStruct;
 use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\System\Tax\TaxStruct;
 
@@ -35,11 +37,6 @@ class ProductServiceStruct extends Entity
     protected $price;
 
     /**
-     * @var PriceRuleCollection
-     */
-    protected $priceRules;
-
-    /**
      * @var ConfigurationGroupOptionStruct
      */
     protected $option;
@@ -49,10 +46,15 @@ class ProductServiceStruct extends Entity
      */
     protected $tax;
 
-    public function __construct()
-    {
-        $this->priceRules = new PriceRuleCollection();
-    }
+    /**
+     * @var PriceRuleCollection|null
+     */
+    protected $prices;
+
+    /**
+     * @var ProductStruct|null
+     */
+    protected $product;
 
     public function getProductId(): string
     {
@@ -89,19 +91,9 @@ class ProductServiceStruct extends Entity
         return $this->price;
     }
 
-    public function setPrice(?PriceStruct $price): void
+    public function setPrice(PriceStruct $price): void
     {
         $this->price = $price;
-    }
-
-    public function getPriceRules(): PriceRuleCollection
-    {
-        return $this->priceRules;
-    }
-
-    public function setPriceRules(PriceRuleCollection $priceRules): void
-    {
-        $this->priceRules = $priceRules;
     }
 
     public function getOption(): ConfigurationGroupOptionStruct
@@ -129,10 +121,11 @@ class ProductServiceStruct extends Entity
     {
         $taxRules = $this->getTaxRuleCollection();
 
-        $prices = $this->getPriceRules()->getPriceRulesForContext($context);
+        $prices = $this->getPrices()->getPriceRulesForContext($context);
 
         if ($prices && $prices->count() > 0) {
-            $price = $this->priceRules->first();
+            /** @var PriceRuleStruct $price */
+            $price = $this->getPrices()->first();
 
             return new PriceDefinition($price->getPrice()->getGross(), $taxRules, $quantity, true);
         }
@@ -149,5 +142,25 @@ class ProductServiceStruct extends Entity
         return new TaxRuleCollection([
             new PercentageTaxRule($this->getTax()->getRate(), 100),
         ]);
+    }
+
+    public function getPrices(): ?PriceRuleCollection
+    {
+        return $this->prices;
+    }
+
+    public function setPrices(PriceRuleCollection $prices): void
+    {
+        $this->prices = $prices;
+    }
+
+    public function getProduct(): ?ProductStruct
+    {
+        return $this->product;
+    }
+
+    public function setProduct(ProductStruct $product): void
+    {
+        $this->product = $product;
     }
 }

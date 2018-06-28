@@ -3,7 +3,7 @@
 namespace Shopware\Core\System\Listing;
 
 use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
+use Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\ListingFacetTranslationCollection;
 
 class ListingFacetStruct extends Entity
 {
@@ -53,7 +53,7 @@ class ListingFacetStruct extends Entity
     protected $updatedAt;
 
     /**
-     * @var EntitySearchResult|null
+     * @var ListingFacetTranslationCollection|null
      */
     protected $translations;
 
@@ -147,12 +147,12 @@ class ListingFacetStruct extends Entity
         $this->updatedAt = $updatedAt;
     }
 
-    public function getTranslations(): ?EntitySearchResult
+    public function getTranslations(): ?ListingFacetTranslationCollection
     {
         return $this->translations;
     }
 
-    public function setTranslations(EntitySearchResult $translations): void
+    public function setTranslations(ListingFacetTranslationCollection $translations): void
     {
         $this->translations = $translations;
     }

@@ -3,11 +3,6 @@
 use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumStruct;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaStruct;
-use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\ORM\Search\Aggregation\AggregationResultCollection;
-use Shopware\Core\Framework\ORM\Search\Criteria;
-use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 
 $albumId = 'f343a3c1-19cf-42a7-841a-a0ac5094908c';
 $mediaCollection = new MediaCollection();
@@ -36,8 +31,6 @@ $media->setUpdatedAt(date_create_from_format(\DateTime::ATOM, '2017-11-21T11:25:
 $media->setName('Lagerkorn-5,0klein');
 
 $mediaCollection->add($media);
-$album->setMedia(
-    new EntitySearchResult(0, $mediaCollection, new AggregationResultCollection(), new Criteria(), Context::createDefaultContext(Defaults::TENANT_ID))
-);
+$album->setMedia($mediaCollection);
 
 return $album;

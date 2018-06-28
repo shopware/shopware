@@ -3,7 +3,8 @@
 namespace Shopware\Core\System\Country\Aggregate\CountryArea;
 
 use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
+use Shopware\Core\System\Country\CountryCollection;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleCollection;
 
 class CountryAreaStruct extends Entity
 {
@@ -28,14 +29,19 @@ class CountryAreaStruct extends Entity
     protected $updatedAt;
 
     /**
-     * @var EntitySearchResult|null
+     * @var CountryCollection|null
      */
     protected $countries;
 
     /**
-     * @var EntitySearchResult|null
+     * @var CountryAreaCollection|null
      */
     protected $translations;
+
+    /**
+     * @var TaxAreaRuleCollection|null
+     */
+    protected $taxAreaRules;
 
     public function getName(): string
     {
@@ -77,23 +83,33 @@ class CountryAreaStruct extends Entity
         $this->updatedAt = $updatedAt;
     }
 
-    public function getCountries(): ?EntitySearchResult
+    public function getCountries(): ?CountryCollection
     {
         return $this->countries;
     }
 
-    public function setCountries(EntitySearchResult $countries): void
+    public function setCountries(CountryCollection $countries): void
     {
         $this->countries = $countries;
     }
 
-    public function getTranslations(): ?EntitySearchResult
+    public function getTranslations(): ?CountryAreaCollection
     {
         return $this->translations;
     }
 
-    public function setTranslations(EntitySearchResult $translations): void
+    public function setTranslations(CountryAreaCollection $translations): void
     {
         $this->translations = $translations;
+    }
+
+    public function getTaxAreaRules(): ?TaxAreaRuleCollection
+    {
+        return $this->taxAreaRules;
+    }
+
+    public function setTaxAreaRules(TaxAreaRuleCollection $taxAreaRules): void
+    {
+        $this->taxAreaRules = $taxAreaRules;
     }
 }

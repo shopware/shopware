@@ -72,7 +72,7 @@ class UserAccessKeyStruct extends Entity
         $this->secretAccessKey = $secretAccessKey;
     }
 
-    public function isWriteAccess(): bool
+    public function getWriteAccess(): bool
     {
         return $this->writeAccess;
     }

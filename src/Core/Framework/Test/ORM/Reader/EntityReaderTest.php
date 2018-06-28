@@ -3,15 +3,17 @@
 namespace Shopware\Core\Framework\Test\ORM\Reader;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\CustomerStruct;
+use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryStruct;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
-use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\Framework\ORM\Search\PaginationCriteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\ORM\Search\Sorting\FieldSorting;
@@ -344,7 +346,7 @@ class EntityReaderTest extends KernelTestCase
         $criteria = new ReadCriteria([$id]);
         $criteria->addAssociation('customer.addresses');
         $customer = $repository->read($criteria, $context)->get($id);
-        $this->assertInstanceOf(EntitySearchResult::class, $customer->getAddresses());
+        $this->assertInstanceOf(CustomerAddressCollection::class, $customer->getAddresses());
         $this->assertCount(5, $customer->getAddresses());
     }
 
@@ -433,10 +435,10 @@ class EntityReaderTest extends KernelTestCase
         $customer1 = $customers->get($id1);
         $customer2 = $customers->get($id2);
 
-        $this->assertInstanceOf(EntitySearchResult::class, $customer1->getAddresses());
+        $this->assertInstanceOf(CustomerAddressCollection::class, $customer1->getAddresses());
         $this->assertCount(2, $customer1->getAddresses());
 
-        $this->assertInstanceOf(EntitySearchResult::class, $customer1->getAddresses());
+        $this->assertInstanceOf(CustomerAddressCollection::class, $customer1->getAddresses());
         $this->assertCount(1, $customer2->getAddresses());
     }
 
@@ -527,14 +529,14 @@ class EntityReaderTest extends KernelTestCase
         $customer1 = $customers->get($id1);
         $customer2 = $customers->get($id2);
 
-        $this->assertInstanceOf(EntitySearchResult::class, $customer1->getAddresses());
+        $this->assertInstanceOf(CustomerAddressCollection::class, $customer1->getAddresses());
         $this->assertCount(3, $customer1->getAddresses());
         $this->assertEquals(
             [$addressId2, $addressId1, $addressId3],
             array_values($customer1->getAddresses()->getIds())
         );
 
-        $this->assertInstanceOf(EntitySearchResult::class, $customer1->getAddresses());
+        $this->assertInstanceOf(CustomerAddressCollection::class, $customer1->getAddresses());
         $this->assertCount(3, $customer2->getAddresses());
         $this->assertEquals(
             [$addressId6, $addressId5, $addressId4],
@@ -743,7 +745,7 @@ class EntityReaderTest extends KernelTestCase
 
         $this->assertInstanceOf(CategoryStruct::class, $category1);
         /* @var CategoryStruct $category1 */
-        $this->assertInstanceOf(EntitySearchResult::class, $category1->getProducts());
+        $this->assertInstanceOf(ProductCollection::class, $category1->getProducts());
         $this->assertCount(2, $category1->getProducts());
 
         $this->assertContains($id1, $category1->getProducts()->getIds());
@@ -751,7 +753,7 @@ class EntityReaderTest extends KernelTestCase
 
         $this->assertInstanceOf(CategoryStruct::class, $category2);
         /* @var CategoryStruct $category2 */
-        $this->assertInstanceOf(EntitySearchResult::class, $category2->getProducts());
+        $this->assertInstanceOf(ProductCollection::class, $category2->getProducts());
         $this->assertCount(2, $category2->getProducts());
 
         $this->assertContains($id2, $category2->getProducts()->getIds());
@@ -820,11 +822,11 @@ class EntityReaderTest extends KernelTestCase
         $category2 = $categories->get($id2);
 
         $this->assertInstanceOf(CategoryStruct::class, $category1);
-        $this->assertInstanceOf(EntitySearchResult::class, $category1->getProducts());
+        $this->assertInstanceOf(ProductCollection::class, $category1->getProducts());
         $this->assertCount(1, $category1->getProducts());
 
         $this->assertInstanceOf(CategoryStruct::class, $category2);
-        $this->assertInstanceOf(EntitySearchResult::class, $category2->getProducts());
+        $this->assertInstanceOf(ProductCollection::class, $category2->getProducts());
         $this->assertCount(0, $category2->getProducts());
     }
 
@@ -890,7 +892,7 @@ class EntityReaderTest extends KernelTestCase
         $category2 = $categories->get($id2);
 
         $this->assertInstanceOf(CategoryStruct::class, $category1);
-        $this->assertInstanceOf(EntitySearchResult::class, $category1->getProducts());
+        $this->assertInstanceOf(ProductCollection::class, $category1->getProducts());
         $this->assertCount(2, $category1->getProducts());
 
         $this->assertEquals(
@@ -899,7 +901,7 @@ class EntityReaderTest extends KernelTestCase
         );
 
         $this->assertInstanceOf(CategoryStruct::class, $category2);
-        $this->assertInstanceOf(EntitySearchResult::class, $category2->getProducts());
+        $this->assertInstanceOf(ProductCollection::class, $category2->getProducts());
         $this->assertCount(2, $category2->getProducts());
 
         $this->assertEquals(
@@ -993,8 +995,8 @@ class EntityReaderTest extends KernelTestCase
         $product1 = $products->get($id1);
         $product2 = $products->get($id2);
 
-        $this->assertInstanceOf(EntitySearchResult::class, $product1->getCategories());
-        $this->assertInstanceOf(EntitySearchResult::class, $product2->getCategories());
+        $this->assertInstanceOf(CategoryCollection::class, $product1->getCategories());
+        $this->assertInstanceOf(CategoryCollection::class, $product2->getCategories());
 
         $this->assertCount(3, $product1->getCategories());
         $this->assertCount(3, $product2->getCategories());

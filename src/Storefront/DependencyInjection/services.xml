@@ -9,9 +9,7 @@
         <service class="Shopware\Storefront\Twig\TemplateDataExtension" id="Shopware\Storefront\Twig\TemplateDataExtension">
             <tag name="twig.extension" />
 
-            <argument type="service" id="translator" />
             <argument type="service" id="request_stack" />
-            <argument type="service" id="Shopware\Core\System\Config\Util\ConfigService" />
             <argument type="service" id="Shopware\Storefront\Theme\ThemeConfigReader" />
         </service>
 
@@ -75,7 +73,6 @@
         </service>
 
         <service class="Shopware\Storefront\Page\Search\SearchPageLoader" id="Shopware\Storefront\Page\Search\SearchPageLoader">
-            <argument type="service" id="Shopware\Core\System\Config\Util\ConfigService" />
             <argument id="Shopware\Core\Content\Product\Storefront\StorefrontProductRepository" type="service"/>
             <argument type="service" id="event_dispatcher" />
         </service>
@@ -266,14 +263,10 @@
 
         <service class="Shopware\Storefront\Seo\Product\CanonicalUrlExtension" id="Shopware\Storefront\Seo\Product\CanonicalUrlExtension">
             <tag name="shopware.entity.extension"/>
-            <tag name="kernel.event_subscriber" />
-            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service class="Shopware\Storefront\Seo\Category\CanonicalUrlExtension" id="Shopware\Storefront\Seo\Category\CanonicalUrlExtension">
-            <tag name="kernel.event_subscriber"/>
             <tag name="shopware.entity.extension"/>
-            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service class="Shopware\Storefront\Api\Seo\SeoUrlDefinition" id="Shopware\Storefront\Api\Seo\SeoUrlDefinition" >
@@ -284,5 +277,10 @@
             <argument id="touchpoint.repository" type="service"/>
             <tag name="console.command"/>
         </service>
+
+        <service class="Shopware\Storefront\Api\Seo\TouchpointExtension" id="Shopware\Storefront\Api\Seo\TouchpointExtension">
+            <tag name="shopware.entity.extension"/>
+        </service>
+
     </services>
 </container>

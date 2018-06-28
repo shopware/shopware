@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGroupDiscountDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationDefinition;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
-use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Field\BoolField;
 use Shopware\Core\Framework\ORM\Field\DateField;
@@ -50,7 +49,6 @@ class CustomerGroupDefinition extends EntityDefinition
             (new OneToManyAssociationField('customers', CustomerDefinition::class, 'customer_group_id', false, 'id'))->setFlags(new RestrictDelete()),
             (new OneToManyAssociationField('discounts', CustomerGroupDiscountDefinition::class, 'customer_group_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('translations', CustomerGroupTranslationDefinition::class, 'customer_group_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
-            new OneToManyAssociationField('shippingMethods', ShippingMethodDefinition::class, 'customer_group_id', false, 'id'),
             (new OneToManyAssociationField('taxAreaRules', TaxAreaRuleDefinition::class, 'customer_group_id', false, 'id'))->setFlags(new CascadeDelete()),
         ]);
     }

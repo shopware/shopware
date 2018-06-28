@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ORM\Dbal\Common;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
 
 class IndexTableOperator
 {
@@ -29,9 +30,13 @@ class IndexTableOperator
     {
         $name = $this->getIndexName($table, $timestamp);
 
-        $this->connection->executeUpdate('
-            DROP TABLE IF EXISTS ' . $name . ';
-            CREATE TABLE ' . $name . ' SELECT * FROM ' . $table . ' LIMIT 0
-        ');
+        $sql = str_replace(
+            ['#name#', '#table#'],
+            [EntityDefinitionQueryHelper::escape($name), EntityDefinitionQueryHelper::escape($table)],
+            'DROP TABLE IF EXISTS #name#;
+            CREATE TABLE #name# SELECT * FROM #table# LIMIT 0'
+        );
+
+        $this->connection->executeUpdate($sql);
     }
 }

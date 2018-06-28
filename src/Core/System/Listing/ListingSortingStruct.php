@@ -3,8 +3,8 @@
 namespace Shopware\Core\System\Listing;
 
 use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\Framework\ORM\Search\Sorting\FieldSorting;
+use Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\ListingSortingTranslationCollection;
 
 class ListingSortingStruct extends Entity
 {
@@ -49,7 +49,7 @@ class ListingSortingStruct extends Entity
     protected $updatedAt;
 
     /**
-     * @var EntitySearchResult|null
+     * @var ListingSortingTranslationCollection|null
      */
     protected $translations;
 
@@ -133,12 +133,12 @@ class ListingSortingStruct extends Entity
         $this->uniqueKey = $uniqueKey;
     }
 
-    public function getTranslations(): ?EntitySearchResult
+    public function getTranslations(): ?ListingSortingTranslationCollection
     {
         return $this->translations;
     }
 
-    public function setTranslations(EntitySearchResult $translations): void
+    public function setTranslations(ListingSortingTranslationCollection $translations): void
     {
         $this->translations = $translations;
     }

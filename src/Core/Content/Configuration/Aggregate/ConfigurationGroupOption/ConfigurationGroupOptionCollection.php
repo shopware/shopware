@@ -4,10 +4,7 @@ namespace Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption
 
 use Shopware\Core\Content\Configuration\ConfigurationGroupCollection;
 use Shopware\Core\Content\Configuration\ConfigurationGroupStruct;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\EntityCollection;
-use Shopware\Core\Framework\ORM\Search\Criteria;
-use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 
 class ConfigurationGroupOptionCollection extends EntityCollection
 {
@@ -73,15 +70,7 @@ class ConfigurationGroupOptionCollection extends EntityCollection
                 $group = ConfigurationGroupStruct::createFrom($element->getGroup());
                 $groups->add($group);
 
-                $group->setOptions(
-                    new EntitySearchResult(
-                        0,
-                        new ConfigurationGroupOptionCollection(),
-                        null,
-                        new Criteria(),
-                        Context::createDefaultContext('')
-                    )
-                );
+                $group->setOptions(new ConfigurationGroupOptionCollection());
             }
 
             $group->getOptions()->add($element);

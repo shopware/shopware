@@ -40,13 +40,10 @@ class System extends Bundle
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $loader->load('touchpoint.xml');
-        $loader->load('config.xml');
         $loader->load('country.xml');
         $loader->load('currency.xml');
         $loader->load('locale.xml');
         $loader->load('listing.xml');
-        $loader->load('log.xml');
-        $loader->load('mail.xml');
         $loader->load('snippet.xml');
         $loader->load('tax.xml');
         $loader->load('unit.xml');

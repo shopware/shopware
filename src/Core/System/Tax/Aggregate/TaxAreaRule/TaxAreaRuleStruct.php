@@ -4,10 +4,10 @@ namespace Shopware\Core\System\Tax\Aggregate\TaxAreaRule;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupStruct;
 use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\System\Country\Aggregate\CountryArea\CountryAreaStruct;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateStruct;
 use Shopware\Core\System\Country\CountryStruct;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\TaxAreaRuleTranslationCollection;
 use Shopware\Core\System\Tax\TaxStruct;
 
 class TaxAreaRuleStruct extends Entity
@@ -88,7 +88,7 @@ class TaxAreaRuleStruct extends Entity
     protected $customerGroup;
 
     /**
-     * @var EntitySearchResult|null
+     * @var TaxAreaRuleTranslationCollection|null
      */
     protected $translations;
 
@@ -242,12 +242,12 @@ class TaxAreaRuleStruct extends Entity
         $this->customerGroup = $customerGroup;
     }
 
-    public function getTranslations(): ?EntitySearchResult
+    public function getTranslations(): ?TaxAreaRuleTranslationCollection
     {
         return $this->translations;
     }
 
-    public function setTranslations(EntitySearchResult $translations): void
+    public function setTranslations(TaxAreaRuleTranslationCollection $translations): void
     {
         $this->translations = $translations;
     }

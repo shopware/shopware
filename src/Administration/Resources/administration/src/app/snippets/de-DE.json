@@ -15,6 +15,9 @@
       "labelPriceGross": "Preis (Brutto)",
       "labelPriceNet": "Preis (Netto)"
     },
+    "sw-text-editor": {
+      "labelTextLength": "{count} Zeichen | {count} Zeichen"
+    },
     "sw-grid-row": {
       "buttonInlineEditCancel": "Abbrechen",
       "buttonInlineEditSave": "Speichern"

@@ -11,12 +11,10 @@
         {% endblock %}
 
         {% block sw_product_basic_form_description_field %}
-            <sw-field type="textarea"
-                      :label="$tc('sw-product.basicForm.labelDescription')"
-                      :placeholder="$tc('sw-product.basicForm.placeholderDescription')"
-                      name="descriptionLong"
-                      v-model="product.descriptionLong">
-            </sw-field>
+            <sw-text-editor :label="$tc('sw-product.basicForm.labelDescription')"
+                            :placeholder="$tc('sw-product.basicForm.placeholderDescription')"
+                            v-model="product.descriptionLong">
+            </sw-text-editor>
         {% endblock %}
 
         <sw-container grid="1fr 1fr" gap="0px 30px">

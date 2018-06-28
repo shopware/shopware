@@ -15,6 +15,9 @@
       "labelPriceGross": "Price (Gross)",
       "labelPriceNet": "Price (Net)"
     },
+    "sw-text-editor": {
+      "labelTextLength": "{count} Character | {count} Characters"
+    },
     "sw-grid-row": {
       "buttonInlineEditCancel": "Cancel",
       "buttonInlineEditSave": "Save"

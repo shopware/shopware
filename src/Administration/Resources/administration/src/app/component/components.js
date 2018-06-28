@@ -27,6 +27,7 @@ import './form/sw-field';
 import './form/sw-price-field';
 import './form/sw-form-grid';
 import './form/sw-multi-select';
+import './form/sw-text-editor';
 
 import './tree/sw-tree';
 import './tree/sw-tree-item';

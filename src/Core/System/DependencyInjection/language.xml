@@ -5,12 +5,9 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <!-- Versioning -->
-
-        <service class="Shopware\Core\System\Language\LanguageDefinition" id="Shopware\Core\System\Language\LanguageDefinition" >
-            <tag name="shopware.entity.definition" entity="language" />
+        <service class="Shopware\Core\System\Language\LanguageDefinition" id="Shopware\Core\System\Language\LanguageDefinition">
+            <tag name="shopware.entity.definition" entity="language"/>
         </service>
-
     </services>
 </container>                
                 

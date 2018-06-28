@@ -9,61 +9,67 @@
         <service class="Shopware\Core\Content\Product\Storefront\StorefrontProductRepository" id="Shopware\Core\Content\Product\Storefront\StorefrontProductRepository">
             <argument type="service" id="product.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PriceCalculator"/>
-            <tag name="shopware.traceable" label="product.storefront-repository" />
+            <tag name="shopware.traceable" label="product.storefront-repository"/>
         </service>
+
         <service class="Shopware\Core\Content\Product\Storefront\StorefrontProductController" id="Shopware\Core\Content\Product\Storefront\StorefrontProductController" public="true">
             <argument id="Shopware\Core\Content\Product\Storefront\StorefrontProductRepository" type="service"/>
             <argument type="service" id="Shopware\Core\Framework\Api\Response\ResponseFactory"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\Search\SearchCriteriaBuilder"/>
         </service>
 
-        <service class="Shopware\Core\Content\Product\ProductDefinition" id="Shopware\Core\Content\Product\ProductDefinition" >
-            <tag name="shopware.entity.definition" entity="product" />
+        <service class="Shopware\Core\Content\Product\ProductDefinition" id="Shopware\Core\Content\Product\ProductDefinition">
+            <tag name="shopware.entity.definition" entity="product"/>
         </service>
 
-         <service class="Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition" >
-            <tag name="shopware.entity.definition" entity="product_category" />
-        </service>
-         <service class="Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorDefinition" >
-            <tag name="shopware.entity.definition" entity="product_configurator" />
+        <service class="Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition">
+            <tag name="shopware.entity.definition" entity="product_category"/>
         </service>
 
-         <service class="Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleDefinition" >
-            <tag name="shopware.entity.definition" entity="product_price_rule" />
+        <service class="Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorDefinition">
+            <tag name="shopware.entity.definition" entity="product_configurator"/>
         </service>
 
-         <service class="Shopware\Core\Content\Product\Aggregate\ProductDatasheet\ProductDatasheetDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductDatasheet\ProductDatasheetDefinition" >
-            <tag name="shopware.entity.definition" entity="product_datasheet" />
-        </service>
-         <service class="Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition" >
-            <tag name="shopware.entity.definition" entity="product_manufacturer" />
+        <service class="Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleDefinition">
+            <tag name="shopware.entity.definition" entity="product_price_rule"/>
         </service>
 
-         <service class="Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition" >
-            <tag name="shopware.entity.definition" entity="product_manufacturer_translation" />
+        <service class="Shopware\Core\Content\Product\Aggregate\ProductDatasheet\ProductDatasheetDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductDatasheet\ProductDatasheetDefinition">
+            <tag name="shopware.entity.definition" entity="product_datasheet"/>
         </service>
 
-         <service class="Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition" >
-            <tag name="shopware.entity.definition" entity="product_media" />
+        <service class="Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition">
+            <tag name="shopware.entity.definition" entity="product_manufacturer"/>
         </service>
 
-         <service class="Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordDefinition" >
-            <tag name="shopware.entity.definition" entity="product_search_keyword" />
+        <service class="Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition">
+            <tag name="shopware.entity.definition" entity="product_manufacturer_translation"/>
         </service>
 
-         <service class="Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceDefinition" >
-            <tag name="shopware.entity.definition" entity="product_service" />
-        </service>
-         <service class="Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition" >
-            <tag name="shopware.entity.definition" entity="product_translation" />
+        <service class="Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition">
+            <tag name="shopware.entity.definition" entity="product_media"/>
         </service>
 
-         <service class="Shopware\Core\Content\Product\Aggregate\ProductVariation\ProductVariationDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductVariation\ProductVariationDefinition" >
-            <tag name="shopware.entity.definition" entity="product_variation" />
+        <service class="Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordDefinition">
+            <tag name="shopware.entity.definition" entity="product_search_keyword"/>
         </service>
-        <service class="Shopware\Core\Content\Product\Aggregate\ProductCategoryTree\ProductCategoryTreeDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductCategoryTree\ProductCategoryTreeDefinition" >
-            <tag name="shopware.entity.definition" entity="product_category_tree" />
+
+        <service class="Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceDefinition">
+            <tag name="shopware.entity.definition" entity="product_service"/>
         </service>
+
+        <service class="Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition">
+            <tag name="shopware.entity.definition" entity="product_translation"/>
+        </service>
+
+        <service class="Shopware\Core\Content\Product\Aggregate\ProductVariation\ProductVariationDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductVariation\ProductVariationDefinition">
+            <tag name="shopware.entity.definition" entity="product_variation"/>
+        </service>
+
+        <service class="Shopware\Core\Content\Product\Aggregate\ProductCategoryTree\ProductCategoryTreeDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductCategoryTree\ProductCategoryTreeDefinition">
+            <tag name="shopware.entity.definition" entity="product_category_tree"/>
+        </service>
+
         <service class="Shopware\Core\Content\Product\Util\VariantGenerator" id="Shopware\Core\Content\Product\Util\VariantGenerator" public="true">
             <argument id="product.repository" type="service"/>
             <argument id="product_configurator.repository" type="service"/>
@@ -72,11 +78,11 @@
         <!--cart implementations-->
         <service class="Shopware\Core\Content\Product\Cart\ProductCartCollector" id="Shopware\Core\Content\Product\Cart\ProductCartCollector">
             <argument id="Shopware\Core\Content\Product\Cart\ProductGateway" type="service"/>
-            <tag name="cart.collector" priority="1000" />
+            <tag name="cart.collector" priority="1000"/>
             <argument type="service" id="product_service.repository"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\Cart\ProductGateway" class="Shopware\Core\Content\Product\Cart\ProductGateway" >
+        <service id="Shopware\Core\Content\Product\Cart\ProductGateway" class="Shopware\Core\Content\Product\Cart\ProductGateway">
             <argument type="service" id="product.repository"/>
         </service>
 
@@ -85,8 +91,8 @@
         </service>
 
         <service class="Shopware\Core\Content\Product\Cart\ProductProcessor" id="Shopware\Core\Content\Product\Cart\ProductProcessor">
-            <argument type="service" id="Shopware\Core\Content\Product\Cart\ProductCalculator" />
-            <tag name="cart.processor" priority="1000" />
+            <argument type="service" id="Shopware\Core\Content\Product\Cart\ProductCalculator"/>
+            <tag name="cart.processor" priority="1000"/>
         </service>
 
         <service class="Shopware\Core\Content\Product\Util\KeywordSearchTermInterpreter" id="Shopware\Core\Content\Product\Util\KeywordSearchTermInterpreter">
@@ -96,13 +102,13 @@
         </service>
 
         <service class="Shopware\Core\Content\Product\ORM\Field\ProductCoverFieldResolver" id="Shopware\Core\Content\Product\ORM\Field\ProductCoverFieldResolver">
-            <tag name="shopware.entity.field_resolver" />
+            <tag name="shopware.entity.field_resolver"/>
         </service>
 
         <service class="Shopware\Core\Content\Product\ORM\Indexing\ProductLanguageAnalyzer" id="Shopware\Core\Content\Product\ORM\Indexing\ProductLanguageAnalyzer">
             <argument id="Shopware\Core\Framework\ORM\Search\Term\Tokenizer" type="service"/>
             <argument id="Shopware\Core\Framework\ORM\Search\Term\StopWordFilter" type="service"/>
-            <tag name="shopware.search_analyzer" />
+            <tag name="shopware.search_analyzer"/>
         </service>
 
         <service class="Shopware\Core\Content\Product\ORM\Indexing\ProductSearchAnalyzerRegistry" id="Shopware\Core\Content\Product\ORM\Indexing\ProductSearchAnalyzerRegistry">

@@ -5,16 +5,13 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <!-- Versioning -->
-
-        <service class="Shopware\Core\System\Unit\UnitDefinition" id="Shopware\Core\System\Unit\UnitDefinition" >
-            <tag name="shopware.entity.definition" entity="unit" />
+        <service class="Shopware\Core\System\Unit\UnitDefinition" id="Shopware\Core\System\Unit\UnitDefinition">
+            <tag name="shopware.entity.definition" entity="unit"/>
         </service>
 
-         <service class="Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationDefinition" id="Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationDefinition" >
-            <tag name="shopware.entity.definition" entity="unit_translation" />
+        <service class="Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationDefinition" id="Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationDefinition">
+            <tag name="shopware.entity.definition" entity="unit_translation"/>
         </service>
-
     </services>
 </container>                
                 

@@ -5,9 +5,8 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <!-- Versioning -->
-         <service class="Shopware\Core\System\Touchpoint\TouchpointDefinition" id="Shopware\Core\System\Touchpoint\TouchpointDefinition" >
-            <tag name="shopware.entity.definition" entity="touchpoint" />
+        <service class="Shopware\Core\System\Touchpoint\TouchpointDefinition" id="Shopware\Core\System\Touchpoint\TouchpointDefinition">
+            <tag name="shopware.entity.definition" entity="touchpoint"/>
         </service>
 
         <service class="Shopware\Core\System\Command\TouchpointCreateCommand" id="Shopware\Core\System\Command\TouchpointCreateCommand">

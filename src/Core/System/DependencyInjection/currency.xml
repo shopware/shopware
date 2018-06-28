@@ -7,14 +7,13 @@
     <services>
         <!-- Versioning -->
 
-        <service class="Shopware\Core\System\Currency\CurrencyDefinition" id="Shopware\Core\System\Currency\CurrencyDefinition" >
-            <tag name="shopware.entity.definition" entity="currency" />
+        <service class="Shopware\Core\System\Currency\CurrencyDefinition" id="Shopware\Core\System\Currency\CurrencyDefinition">
+            <tag name="shopware.entity.definition" entity="currency"/>
         </service>
 
-         <service class="Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition" id="Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition" >
-            <tag name="shopware.entity.definition" entity="currency_translation" />
+        <service class="Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition" id="Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition">
+            <tag name="shopware.entity.definition" entity="currency_translation"/>
         </service>
-
     </services>
 </container>                
                 

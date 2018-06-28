@@ -5,21 +5,17 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <!-- Versioning -->
-
-
-        <service class="Shopware\Core\System\Tax\TaxDefinition" id="Shopware\Core\System\Tax\TaxDefinition" >
-            <tag name="shopware.entity.definition" entity="tax" />
+        <service class="Shopware\Core\System\Tax\TaxDefinition" id="Shopware\Core\System\Tax\TaxDefinition">
+            <tag name="shopware.entity.definition" entity="tax"/>
         </service>
 
-         <service class="Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition" id="Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition" >
-            <tag name="shopware.entity.definition" entity="tax_area_rule" />
+        <service class="Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition" id="Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition">
+            <tag name="shopware.entity.definition" entity="tax_area_rule"/>
         </service>
 
-         <service class="Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\TaxAreaRuleTranslationDefinition" id="Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\TaxAreaRuleTranslationDefinition" >
-            <tag name="shopware.entity.definition" entity="tax_area_rule_translation" />
+        <service class="Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\TaxAreaRuleTranslationDefinition" id="Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\TaxAreaRuleTranslationDefinition">
+            <tag name="shopware.entity.definition" entity="tax_area_rule_translation"/>
         </service>
-
     </services>
 </container>                
                 

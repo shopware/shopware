@@ -5,14 +5,12 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <!-- Versioning -->
-
-         <service class="Shopware\Core\Checkout\Payment\PaymentMethodDefinition" id="Shopware\Core\Checkout\Payment\PaymentMethodDefinition" >
-            <tag name="shopware.entity.definition" entity="payment_method" />
+        <service class="Shopware\Core\Checkout\Payment\PaymentMethodDefinition" id="Shopware\Core\Checkout\Payment\PaymentMethodDefinition">
+            <tag name="shopware.entity.definition" entity="payment_method"/>
         </service>
 
-         <service class="Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationDefinition" id="Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationDefinition" >
-            <tag name="shopware.entity.definition" entity="payment_method_translation" />
+        <service class="Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationDefinition" id="Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationDefinition">
+            <tag name="shopware.entity.definition" entity="payment_method_translation"/>
         </service>
 
         <service class="Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor" id="Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor">
@@ -28,31 +26,31 @@
         </service>
 
         <service class="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry" id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry">
-            <argument type="tagged" tag="payment.method" />
+            <argument type="tagged" tag="payment.method"/>
         </service>
 
         <service class="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PrePayment" id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PrePayment">
-            <tag name="payment.method" />
+            <tag name="payment.method"/>
             <argument type="service" id="order_transaction.repository"/>
         </service>
 
         <service class="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\DebitPayment" id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\DebitPayment">
-            <tag name="payment.method" />
+            <tag name="payment.method"/>
             <argument type="service" id="order_transaction.repository"/>
         </service>
 
         <service class="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\CashPayment" id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\CashPayment">
-            <tag name="payment.method" />
+            <tag name="payment.method"/>
             <argument type="service" id="order_transaction.repository"/>
         </service>
 
         <service class="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\InvoicePayment" id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\InvoicePayment">
-            <tag name="payment.method" />
+            <tag name="payment.method"/>
             <argument type="service" id="order_transaction.repository"/>
         </service>
 
         <service class="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SEPAPayment" id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SEPAPayment">
-            <tag name="payment.method" />
+            <tag name="payment.method"/>
             <argument type="service" id="order_transaction.repository"/>
         </service>
 

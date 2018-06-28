@@ -7,28 +7,21 @@
     <services>
         <!-- Versioning -->
 
-         <service class="Shopware\Core\Content\Configuration\ConfigurationGroupDefinition" id="Shopware\Core\Content\Configuration\ConfigurationGroupDefinition" >
-            <tag name="shopware.entity.definition" entity="configuration_group" />
+        <service class="Shopware\Core\Content\Configuration\ConfigurationGroupDefinition" id="Shopware\Core\Content\Configuration\ConfigurationGroupDefinition">
+            <tag name="shopware.entity.definition" entity="configuration_group"/>
         </service>
 
-
-
-         <service class="Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition" id="Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition" >
-            <tag name="shopware.entity.definition" entity="configuration_group_option" />
+        <service class="Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition" id="Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition">
+            <tag name="shopware.entity.definition" entity="configuration_group_option"/>
         </service>
 
-
-
-         <service class="Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOptionTranslation\ConfigurationGroupOptionTranslationDefinition" id="Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOptionTranslation\ConfigurationGroupOptionTranslationDefinition" >
-            <tag name="shopware.entity.definition" entity="configuration_group_option_translation" />
+        <service class="Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOptionTranslation\ConfigurationGroupOptionTranslationDefinition" id="Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOptionTranslation\ConfigurationGroupOptionTranslationDefinition">
+            <tag name="shopware.entity.definition" entity="configuration_group_option_translation"/>
         </service>
 
-
-
-         <service class="Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\ConfigurationGroupTranslationDefinition" id="Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\ConfigurationGroupTranslationDefinition" >
-            <tag name="shopware.entity.definition" entity="configuration_group_translation" />
+        <service class="Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\ConfigurationGroupTranslationDefinition" id="Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\ConfigurationGroupTranslationDefinition">
+            <tag name="shopware.entity.definition" entity="configuration_group_translation"/>
         </service>
-
 
     </services>
 </container>                

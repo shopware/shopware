@@ -5,7 +5,8 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <parameters>
-        <parameter key="doctrine.dbal.connection_factory.class">Shopware\Core\Framework\Doctrine\ConnectionFactory</parameter>
+        <parameter key="doctrine.dbal.connection_factory.class">Shopware\Core\Framework\Doctrine\ConnectionFactory
+        </parameter>
 
         <parameter key="shopware.slug.config" type="collection">
             <parameter key="regexp">/([^A-Za-z0-9\.]|-)+/</parameter>
@@ -14,22 +15,22 @@
     </parameters>
 
     <services>
-        <service id="templating.loader.wrapped" alias="templating.loader" />
+        <service id="templating.loader.wrapped" alias="templating.loader"/>
 
         <!-- Database / Doctrine -->
-        <service id="Doctrine\DBAL\Connection" alias="doctrine.dbal.default_connection" public="true" />
+        <service id="Doctrine\DBAL\Connection" alias="doctrine.dbal.default_connection" public="true"/>
 
-        <service id="PDO" class="PDO" public="true" >
-            <factory class="Shopware\Core\Kernel" method="getConnection" />
+        <service id="PDO" class="PDO" public="true">
+            <factory class="Shopware\Core\Kernel" method="getConnection"/>
         </service>
 
         <!-- Plugins -->
         <service class="Shopware\Core\Framework\Plugin\BundleCollection" id="Shopware\Core\Framework\Plugin\BundleCollection" public="true">
-            <factory service="kernel" method="getPlugins" />
+            <factory service="kernel" method="getPlugins"/>
         </service>
 
         <!-- Cache -->
-        <service id="shopware.cache" alias="cache.app" />
+        <service id="shopware.cache" alias="cache.app"/>
 
         <service class="Cocur\Slugify\Slugify" public="false" id="slugify">
             <argument>%shopware.slug.config%</argument>
@@ -37,7 +38,7 @@
 
         <!--Event Listener -->
         <service class="Shopware\Core\Framework\Event\NestedEventDispatcher" decorates="event_dispatcher" id="Shopware\Core\Framework\Event\NestedEventDispatcher">
-            <argument type="service" id="Shopware\Core\Framework\Event\NestedEventDispatcher.inner" />
+            <argument type="service" id="Shopware\Core\Framework\Event\NestedEventDispatcher.inner"/>
         </service>
 
         <!-- Pluginsystem -->
@@ -46,7 +47,7 @@
             <argument type="service" id="kernel"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="service_container"/>
-            <argument type="service" id="Shopware\Core\Framework\Plugin\RequirementValidator" />
+            <argument type="service" id="Shopware\Core\Framework\Plugin\RequirementValidator"/>
         </service>
 
         <service class="Shopware\Core\Framework\Plugin\XmlPluginInfoReader" id="Shopware\Core\Framework\Plugin\XmlPluginInfoReader"/>
@@ -56,18 +57,18 @@
         </service>
 
         <service class="Shopware\Core\Framework\Command\PluginUpdateCommand" id="Shopware\Core\Framework\Command\PluginUpdateCommand">
-            <tag name="console.command" />
-            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager" />
+            <tag name="console.command"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager"/>
         </service>
 
         <service class="Shopware\Core\Framework\Command\PluginInstallCommand" id="Shopware\Core\Framework\Command\PluginInstallCommand">
-            <tag name="console.command" />
-            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager" />
+            <tag name="console.command"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager"/>
         </service>
 
         <service class="Shopware\Core\Framework\Command\PluginActivateCommand" id="Shopware\Core\Framework\Command\PluginActivateCommand">
-            <tag name="console.command" />
-            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager" />
+            <tag name="console.command"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager"/>
         </service>
 
         <service class="Shopware\Core\Framework\Command\OrmValidateCommand" id="Shopware\Core\Framework\Command\OrmValidateCommand">
@@ -77,27 +78,27 @@
         </service>
 
         <service class="Shopware\Core\Framework\Command\PluginDeactivateCommand" id="Shopware\Core\Framework\Command\PluginDeactivateCommand">
-            <tag name="console.command" />
-            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager" />
+            <tag name="console.command"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager"/>
         </service>
 
         <service class="Shopware\Core\Framework\Command\PluginUninstallCommand" id="Shopware\Core\Framework\Command\PluginUninstallCommand">
-            <tag name="console.command" />
-            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager" />
+            <tag name="console.command"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager"/>
         </service>
 
         <service class="Shopware\Core\Framework\Command\PluginUpgradeCommand" id="Shopware\Core\Framework\Command\PluginUpgradeCommand">
-            <tag name="console.command" />
-            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager" />
+            <tag name="console.command"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager"/>
         </service>
 
         <service class="Shopware\Core\Framework\Command\PluginListCommand" id="Shopware\Core\Framework\Command\PluginListCommand">
-            <tag name="console.command" />
-            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager" />
+            <tag name="console.command"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager"/>
         </service>
 
         <service class="Shopware\Core\Framework\Command\DemodataCommand" id="Shopware\Core\Framework\Command\DemodataCommand">
-            <tag name="console.command" command="framework:demodata" />
+            <tag name="console.command" command="framework:demodata"/>
             <argument>framework:demodata</argument>
             <argument type="service" id="Shopware\Core\Framework\ORM\Write\EntityWriter"/>
             <argument type="service" id="Shopware\Core\Content\Product\Util\VariantGenerator"/>
@@ -111,7 +112,7 @@
         </service>
 
         <service class="Shopware\Core\Framework\Command\CreateTenantCommand" id="Shopware\Core\Framework\Command\CreateTenantCommand">
-            <tag name="console.command" command="framework:create:tenant" />
+            <tag name="console.command" command="framework:create:tenant"/>
             <argument>framework:create:tenant</argument>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
@@ -126,7 +127,6 @@
         </service>
 
         <!-- Routing -->
-
         <service class="Shopware\Core\Framework\Routing\TouchpointSubscriber" id="Shopware\Core\Framework\Routing\TouchpointSubscriber">
             <argument type="service" id="request_stack"/>
             <argument type="service" id="Shopware\Core\Framework\Routing\ApiRequestContextResolver"/>
@@ -143,10 +143,9 @@
         </service>
 
         <service class="Shopware\Core\Framework\Translation\TranslatorCacheInvalidate" id="Shopware\Core\Framework\Translation\TranslatorCacheInvalidate">
-            <argument type="service" id="shopware.cache" />
+            <argument type="service" id="shopware.cache"/>
             <tag name="kernel.event_subscriber"/>
         </service>
-
 
         <!-- Twig -->
         <service class="Shopware\Core\Framework\Twig\TemplateFinder" public="true" id="Shopware\Core\Framework\Twig\TemplateFinder">
@@ -154,17 +153,17 @@
         </service>
 
         <service class="Shopware\Core\Framework\Twig\InheritanceExtension" public="false" id="Shopware\Core\Framework\Twig\InheritanceExtension">
-            <tag name="twig.extension" />
+            <tag name="twig.extension"/>
 
-            <argument type="service" id="Shopware\Core\Framework\Twig\TemplateFinder" />
+            <argument type="service" id="Shopware\Core\Framework\Twig\TemplateFinder"/>
         </service>
 
         <service class="Twig_Extensions_Extension_Intl" id="twig.extension.intl">
-            <tag name="twig.extension" />
+            <tag name="twig.extension"/>
         </service>
 
         <service class="Twig_Extensions_Extension_Text" id="twig.extension.text">
-            <tag name="twig.extension" />
+            <tag name="twig.extension"/>
         </service>
 
         <service class="Shopware\Core\Framework\Twig\InstanceOfExtension" id="Shopware\Core\Framework\Twig\InstanceOfExtension">

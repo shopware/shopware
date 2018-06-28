@@ -7,29 +7,25 @@
     <services>
         <!-- Versioning -->
 
-         <service class="Shopware\Core\Content\Category\CategoryDefinition" id="Shopware\Core\Content\Category\CategoryDefinition" >
-            <tag name="shopware.entity.definition" entity="category" />
+        <service class="Shopware\Core\Content\Category\CategoryDefinition" id="Shopware\Core\Content\Category\CategoryDefinition">
+            <tag name="shopware.entity.definition" entity="category"/>
         </service>
 
-         <service class="Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition" id="Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition" >
-            <tag name="shopware.entity.definition" entity="category_translation" />
+        <service class="Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition" id="Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition">
+            <tag name="shopware.entity.definition" entity="category_translation"/>
         </service>
-
-
-
-
 
         <service class="Shopware\Core\Content\Category\Util\CategoryPathBuilder" id="Shopware\Core\Content\Category\Util\CategoryPathBuilder">
             <argument id="category.repository" type="service"/>
             <argument id="Doctrine\DBAL\Connection" type="service"/>
             <argument type="service" id="event_dispatcher"/>
-            <tag name="kernel.event_subscriber" />
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service class="Shopware\Core\Content\Category\Command\BuildCategoryPathCommand" id="Shopware\Core\Content\Category\Command\BuildCategoryPathCommand">
             <argument type="service" id="Shopware\Core\Content\Category\Util\CategoryPathBuilder"/>
             <tag name="console.command"/>
-            <tag name="kernel.event_subscriber" />
+            <tag name="kernel.event_subscriber"/>
         </service>
     </services>
 </container>                

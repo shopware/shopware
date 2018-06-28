@@ -5,46 +5,44 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <!-- Versioning -->
-
-        <service class="Shopware\Core\Checkout\Order\OrderDefinition" id="Shopware\Core\Checkout\Order\OrderDefinition" >
-            <tag name="shopware.entity.definition" entity="order" />
+        <service class="Shopware\Core\Checkout\Order\OrderDefinition" id="Shopware\Core\Checkout\Order\OrderDefinition">
+            <tag name="shopware.entity.definition" entity="order"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition" id="Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition" >
-            <tag name="shopware.entity.definition" entity="order_address" />
+        <service class="Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition" id="Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition">
+            <tag name="shopware.entity.definition" entity="order_address"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition" id="Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition" >
-            <tag name="shopware.entity.definition" entity="order_delivery" />
+        <service class="Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition" id="Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition">
+            <tag name="shopware.entity.definition" entity="order_delivery"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionDefinition" id="Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionDefinition" >
-            <tag name="shopware.entity.definition" entity="order_delivery_position" />
+        <service class="Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionDefinition" id="Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionDefinition">
+            <tag name="shopware.entity.definition" entity="order_delivery_position"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition" id="Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition" >
-            <tag name="shopware.entity.definition" entity="order_line_item" />
+        <service class="Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition" id="Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition">
+            <tag name="shopware.entity.definition" entity="order_line_item"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Order\Aggregate\OrderState\OrderStateDefinition" id="Shopware\Core\Checkout\Order\Aggregate\OrderState\OrderStateDefinition" >
-            <tag name="shopware.entity.definition" entity="order_state" />
+        <service class="Shopware\Core\Checkout\Order\Aggregate\OrderState\OrderStateDefinition" id="Shopware\Core\Checkout\Order\Aggregate\OrderState\OrderStateDefinition">
+            <tag name="shopware.entity.definition" entity="order_state"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Order\Aggregate\OrderStateTranslation\OrderStateTranslationDefinition" id="Shopware\Core\Checkout\Order\Aggregate\OrderStateTranslation\OrderStateTranslationDefinition" >
-            <tag name="shopware.entity.definition" entity="order_state_translation" />
+        <service class="Shopware\Core\Checkout\Order\Aggregate\OrderStateTranslation\OrderStateTranslationDefinition" id="Shopware\Core\Checkout\Order\Aggregate\OrderStateTranslation\OrderStateTranslationDefinition">
+            <tag name="shopware.entity.definition" entity="order_state_translation"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition" >
-            <tag name="shopware.entity.definition" entity="order_transaction" />
+        <service class="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition">
+            <tag name="shopware.entity.definition" entity="order_transaction"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState\OrderTransactionStateDefinition" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState\OrderTransactionStateDefinition" >
-            <tag name="shopware.entity.definition" entity="order_transaction_state" />
+        <service class="Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState\OrderTransactionStateDefinition" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState\OrderTransactionStateDefinition">
+            <tag name="shopware.entity.definition" entity="order_transaction_state"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Order\Aggregate\OrderTransactionStateTranslation\OrderTransactionStateTranslationDefinition" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransactionStateTranslation\OrderTransactionStateTranslationDefinition" >
-            <tag name="shopware.entity.definition" entity="order_transaction_state_translation" />
+        <service class="Shopware\Core\Checkout\Order\Aggregate\OrderTransactionStateTranslation\OrderTransactionStateTranslationDefinition" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransactionStateTranslation\OrderTransactionStateTranslationDefinition">
+            <tag name="shopware.entity.definition" entity="order_transaction_state_translation"/>
         </service>
 
         <service class="Shopware\Core\Checkout\Customer\Cart\MinimumOrderAmountProcessor" id="Shopware\Core\Checkout\Customer\Cart\MinimumOrderAmountProcessor">

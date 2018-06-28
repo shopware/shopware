@@ -5,32 +5,29 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <!-- Versioning -->
-
-         <service class="Shopware\Core\System\Country\CountryDefinition" id="Shopware\Core\System\Country\CountryDefinition" >
-            <tag name="shopware.entity.definition" entity="country" />
+        <service class="Shopware\Core\System\Country\CountryDefinition" id="Shopware\Core\System\Country\CountryDefinition">
+            <tag name="shopware.entity.definition" entity="country"/>
         </service>
 
-         <service class="Shopware\Core\System\Country\Aggregate\CountryArea\CountryAreaDefinition" id="Shopware\Core\System\Country\Aggregate\CountryArea\CountryAreaDefinition" >
-            <tag name="shopware.entity.definition" entity="country_area" />
+        <service class="Shopware\Core\System\Country\Aggregate\CountryArea\CountryAreaDefinition" id="Shopware\Core\System\Country\Aggregate\CountryArea\CountryAreaDefinition">
+            <tag name="shopware.entity.definition" entity="country_area"/>
         </service>
 
-         <service class="Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\CountryAreaTranslationDefinition" id="Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\CountryAreaTranslationDefinition">
-            <tag name="shopware.entity.definition" entity="country_area_translation" />
+        <service class="Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\CountryAreaTranslationDefinition" id="Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\CountryAreaTranslationDefinition">
+            <tag name="shopware.entity.definition" entity="country_area_translation"/>
         </service>
 
-         <service class="Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition" id="Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition" >
-            <tag name="shopware.entity.definition" entity="country_state" />
+        <service class="Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition" id="Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition">
+            <tag name="shopware.entity.definition" entity="country_state"/>
         </service>
 
-         <service class="Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationDefinition" id="Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationDefinition" >
-            <tag name="shopware.entity.definition" entity="country_state_translation" />
+        <service class="Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationDefinition" id="Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationDefinition">
+            <tag name="shopware.entity.definition" entity="country_state_translation"/>
         </service>
 
-         <service class="Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationDefinition" id="Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationDefinition" >
-            <tag name="shopware.entity.definition" entity="country_translation" />
+        <service class="Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationDefinition" id="Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationDefinition">
+            <tag name="shopware.entity.definition" entity="country_translation"/>
         </service>
-
     </services>
 </container>                
                 

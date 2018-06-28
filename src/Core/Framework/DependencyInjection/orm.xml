@@ -172,13 +172,14 @@
             <tag name="shopware.entity.field_accessor_builder" priority="-200"/>
         </service>
 
-        <!-- Versioning -->
         <service class="Shopware\Core\Framework\Version\VersionDefinition" id="Shopware\Core\Framework\Version\VersionDefinition">
             <tag name="shopware.entity.definition" entity="version"/>
         </service>
+
         <service class="Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitDefinition" id="Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitDefinition">
             <tag name="shopware.entity.definition" entity="version_commit"/>
         </service>
+
         <service class="Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition" id="Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition">
             <tag name="shopware.entity.definition" entity="version_commit_data"/>
         </service>

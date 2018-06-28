@@ -114,6 +114,7 @@ class ApiTestCase extends WebTestCase
             'username' => $username,
             'password' => password_hash($password, PASSWORD_ARGON2I),
             'locale_id' => Uuid::fromStringToBytes(Defaults::LOCALE),
+            'locale_version_id' => Uuid::fromStringToBytes(Defaults::LIVE_VERSION),
             'locale_tenant_id' => Uuid::fromHexToBytes(Defaults::TENANT_ID),
             'active' => 1,
         ]);

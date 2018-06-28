@@ -34,7 +34,7 @@ class ListingPageLoader
     public function load(ListingPageRequest $request, CheckoutContext $context): ListingPageStruct
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('product.active', 1));
+        $criteria->addFilter(new TermQuery('product.active', true));
         $criteria->addFilter(new TermQuery('product.categoriesRo.id', $request->getNavigationId()));
 
         $this->eventDispatcher->dispatch(

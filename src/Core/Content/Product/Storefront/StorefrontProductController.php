@@ -69,12 +69,9 @@ class StorefrontProductController extends Controller
      * @Route("/storefront-api/product/{productId}", name="storefront.api.product.detail")
      * @Method({"GET"})
      */
-    public function detail(string $productId, Request $request): Response
+    public function detail(string $productId, Request $request, CheckoutContext $context): Response
     {
-        /** @var ContextUser $user */
-        $user = $this->getUser();
-
-        $products = $this->repository->readDetail([$productId], $user->getContext());
+        $products = $this->repository->readDetail([$productId], $context);
         if (!$products->has($productId)) {
             throw new ProductNotFoundException($productId);
         }
@@ -82,7 +79,7 @@ class StorefrontProductController extends Controller
         return $this->responseFactory->createDetailResponse(
             $products->get($productId),
             ProductDefinition::class,
-            new RestContext($request, $user->getContext()->getContext(), null)
+            new RestContext($request, $context->getContext(), null)
         );
     }
 }

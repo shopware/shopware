@@ -5,7 +5,7 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service class="Shopware\Core\System\User\UserDefinition" id="shopware.user.user_definition" >
+        <service class="Shopware\Core\System\User\UserDefinition" id="Shopware\Core\System\User\UserDefinition" >
             <tag name="shopware.entity.definition" entity="user" />
         </service>
 
@@ -15,6 +15,9 @@
             <tag name="console.command"/>
         </service>
 
+        <service class="Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyDefinition" id="Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyDefinition" >
+            <tag name="shopware.entity.definition" entity="user_access_key" />
+        </service>
     </services>
 </container>                
                 

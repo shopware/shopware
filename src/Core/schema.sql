@@ -715,8 +715,7 @@ CREATE TABLE `locale` (
   `created_at` datetime,
   `updated_at` datetime,
   PRIMARY KEY (`id`, `version_id`, `tenant_id`),
-  UNIQUE KEY `locale` (`code`, `version_id`, `tenant_id`),
-  INDEX (`id`, `tenant_id`)
+  UNIQUE KEY `locale` (`code`, `version_id`, `tenant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -828,7 +827,6 @@ CREATE TABLE `media` (
   `media_album_version_id` binary(16) NOT NULL,
   `user_id` binary(16) DEFAULT NULL,
   `user_tenant_id` binary(16) DEFAULT NULL,
-  `user_version_id` binary(16) DEFAULT NULL,
   `file_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `mime_type` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   `file_size` int(10) unsigned NOT NULL,
@@ -838,7 +836,7 @@ CREATE TABLE `media` (
    PRIMARY KEY (`id`, `version_id`, `tenant_id`),
    KEY `path` (`file_name`),
    CONSTRAINT `fk_media.media_album_id` FOREIGN KEY (`media_album_id`, `media_album_version_id`, `media_album_tenant_id`) REFERENCES `media_album` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-   CONSTRAINT `fk_media.user_id` FOREIGN KEY (`user_id`, `user_version_id`, `user_tenant_id`) REFERENCES `user` (`id`, `version_id`, `tenant_id`) ON DELETE SET NULL ON UPDATE CASCADE,
+   CONSTRAINT `fk_media.user_id` FOREIGN KEY (`user_id`, `user_tenant_id`) REFERENCES `user` (`id`, `tenant_id`) ON DELETE SET NULL ON UPDATE CASCADE,
    CONSTRAINT `fk_media.catalog_id` FOREIGN KEY (`catalog_id`, `catalog_tenant_id`) REFERENCES `catalog` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1956,12 +1954,12 @@ CREATE TABLE `user` (
   `failed_logins` int(11) NOT NULL DEFAULT '0',
   `locked_until` datetime DEFAULT NULL,
   `locale_id` binary(16) NOT NULL,
+  `locale_version_id` binary(16) NOT NULL,
   `locale_tenant_id` binary(16) NOT NULL,
   `created_at` datetime,
   `updated_at` datetime,
   PRIMARY KEY (`id`, `tenant_id`),
-  UNIQUE KEY `username` (`username`, `tenant_id`),
-  CONSTRAINT `fk_user.locale_id` FOREIGN KEY (`locale_id`, `locale_tenant_id`) REFERENCES `locale` (`id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE
+  CONSTRAINT `fk_user.locale_id` FOREIGN KEY (`locale_id`, `locale_version_id`, `locale_tenant_id`) REFERENCES `locale` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `user_access_key`;

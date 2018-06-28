@@ -50,7 +50,6 @@ class MediaDefinition extends EntityDefinition
             (new ReferenceVersionField(MediaAlbumDefinition::class))->setFlags(new Required()),
 
             new FkField('user_id', 'userId', UserDefinition::class),
-            new ReferenceVersionField(UserDefinition::class),
 
             (new StringField('file_name', 'fileName'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
             (new StringField('mime_type', 'mimeType'))->setFlags(new Required(), new SearchRanking(self::LOW_SEARCH_RAKING)),

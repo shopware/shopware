@@ -132,11 +132,6 @@ class LanguageStruct extends Entity
     protected $localeTranslations;
 
     /**
-     * @var MailTranslationCollection|null
-     */
-    protected $mailTranslations;
-
-    /**
      * @var MediaTranslationCollection|null
      */
     protected $mediaTranslations;
@@ -389,16 +384,6 @@ class LanguageStruct extends Entity
     public function setLocaleTranslations(LocaleTranslationCollection $localeTranslations): void
     {
         $this->localeTranslations = $localeTranslations;
-    }
-
-    public function getMailTranslations(): ?MailTranslationCollection
-    {
-        return $this->mailTranslations;
-    }
-
-    public function setMailTranslations(MailTranslationCollection $mailTranslations): void
-    {
-        $this->mailTranslations = $mailTranslations;
     }
 
     public function getMediaTranslations(): ?MediaTranslationCollection

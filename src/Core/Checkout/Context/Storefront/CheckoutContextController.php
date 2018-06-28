@@ -7,7 +7,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
-use Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException;
 use Shopware\Core\Checkout\Order\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Payment\Exception\PaymentMethodNotFoundHttpException;
 use Shopware\Core\Checkout\Shipping\Exception\ShippingMethodNotFoundHttpException;

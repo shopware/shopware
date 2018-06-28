@@ -20,7 +20,9 @@
                                 :key="entry.id"
                                 :data-id="entry.id">
                                 <span class="value--display">{{ entry.name }}</span>
-                                <button class="value--dismiss" @click.prevent="onDismissEntry(entry.id)">
+                                <button class="value--dismiss"
+                                        title="Delete"
+                                        @click.prevent="onDismissEntry(entry.id)">
                                     <sw-icon name="small-default-x-line-medium"></sw-icon>
                                 </button>
                             </li>
@@ -54,7 +56,7 @@
                                     <ul v-if="filteredEntries.length > 0" class="sw-multi-select__results-list">
                                         {% block sw_multi_select_results_item %}
                                             <li v-for="(entry, index) in filteredEntries"
-                                                class="list--entry"
+                                                class="sw-multi-select__results-entry"
                                                 :class="{ 'is--selected' : (index === activePosition) }"
                                                 :data-id="entry.id"
                                                 @click="onSelectEntry(entry.id)">

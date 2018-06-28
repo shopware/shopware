@@ -15,13 +15,13 @@ Component.register('sw-multi-select', {
             required: false,
             default: ''
         },
-        values: {
-            type: Array,
-            required: true,
-            default() {
-                return [];
-            }
-        },
+        // values: {
+        //     type: Array,
+        //     required: true,
+        //     default() {
+        //         return [];
+        //     }
+        // },
         label: {
             type: String,
             default: ''
@@ -39,8 +39,13 @@ Component.register('sw-multi-select', {
 
             // Search results entries
             entries: [],
-            activePosition: -1,
-            isLoading: false
+
+            // Selected values
+            values: [],
+
+            activePosition: 0,
+            isLoading: false,
+            timeout: null
         };
     },
 
@@ -56,10 +61,14 @@ Component.register('sw-multi-select', {
         },
 
         displayValues() {
+            // TODO: Replace filtering of search result entries
             return this.entries.filter((entry) => {
                 const isValue = this.values.find(value => value.id === entry.id);
                 return (typeof isValue !== 'undefined');
             });
+
+            // TODO: Get category names by IDs in case a category name changes
+            // return this.values;
         },
 
         stringifyValues() {
@@ -87,17 +96,19 @@ Component.register('sw-multi-select', {
         createdComponent() {
             this.isLoading = true;
 
-            this.serviceProvider.getList(0, 500).then((response) => {
+            this.serviceProvider.getList(0, 15).then((response) => {
                 this.entries = response.data;
                 this.isLoading = false;
             });
 
-            document.addEventListener('keyup', this.handleKeyboardEvents);
+            document.addEventListener('keyup', this.handleKeyUpActions);
+            document.addEventListener('keydown', this.handleKeyDownActions);
             document.addEventListener('click', this.closeOnClickOutside);
         },
 
         destroyedComponent() {
-            document.removeEventListener('keyup', this.handleKeyboardEvents);
+            document.removeEventListener('keyup', this.handleKeyUpActions);
+            document.removeEventListener('keydown', this.handleKeyDownActions);
             document.removeEventListener('click', this.closeOnClickOutside);
         },
 
@@ -131,31 +142,17 @@ Component.register('sw-multi-select', {
         },
 
         onSearchTermChange() {
-            this.activePosition = -1;
-
+            this.activePosition = 0;
             this.isLoading = true;
 
-            setTimeout(() => {
-                this.isLoading = false;
-            }, 1500);
+            clearTimeout(this.timeout);
 
-            console.log(this.searchTerm);
-
-            // TODO: Doubled request for testing!
-
-            const params = {
-                offset: 0,
-                limit: 100
-            };
-
-            params.term = 'Movie';
-
-            this.serviceProvider.getList(params).then((response) => {
-                console.log(response.data);
-                response.data.forEach((item) => {
-                    console.log(item.name);
+            this.timeout = setTimeout(() => {
+                this.serviceProvider.getList(0, 200, { term: this.searchTerm }).then((response) => {
+                    this.entries = response.data;
+                    this.isLoading = false;
                 });
-            });
+            }, 400);
         },
 
         openResultList() {
@@ -164,11 +161,10 @@ Component.register('sw-multi-select', {
 
         closeResultList() {
             this.isExpanded = false;
+            this.$refs.swMultiSelectInput.blur();
         },
 
-        handleKeyboardEvents(event) {
-            const keyArrowUp = 40;
-            const keyArrowDown = 38;
+        handleKeyUpActions(event) {
             const keyEnter = 13;
             const keyBackspace = 8;
             const keyEsc = 27;
@@ -189,11 +185,44 @@ Component.register('sw-multi-select', {
                 this.closeResultList();
                 this.$refs.swMultiSelectInput.blur();
             }
+        },
+
+        handleKeyDownActions(event) {
+            const keyArrowUp = 38;
+            const keyArrowDown = 40;
 
             if (event.keyCode === keyArrowUp) {
-                this.activePosition = this.activePosition + 1;
+                this.navigateUpSearchResults();
             } else if (event.keyCode === keyArrowDown) {
-                this.activePosition = this.activePosition - 1;
+                this.navigateDownSearchResults();
+            }
+        },
+
+        navigateUpSearchResults() {
+            if (this.activePosition === 0) {
+                return;
+            }
+            this.activePosition = this.activePosition - 1;
+            const itemHeight = this.$refs.swMultiSelect.querySelector('.sw-multi-select__results-entry').offsetHeight;
+            this.$refs.swMultiSelect.querySelector('.sw-multi-select__results').scrollTop -= itemHeight;
+        },
+
+        navigateDownSearchResults() {
+            if (this.activePosition === this.filteredEntries.length - 1) {
+                return;
+            }
+
+            this.activePosition = this.activePosition + 1;
+
+            const activeItem = this.$refs.swMultiSelect.querySelector('.is--selected');
+            const itemHeight = activeItem.offsetHeight;
+            const activeItemPosition = activeItem.offsetTop + itemHeight;
+            let resultContainerHeight = this.$refs.swMultiSelect.querySelector('.sw-multi-select__results').offsetHeight;
+
+            resultContainerHeight -= itemHeight;
+
+            if (activeItemPosition > resultContainerHeight) {
+                this.$refs.swMultiSelect.querySelector('.sw-multi-select__results').scrollTop += itemHeight;
             }
         },
 

@@ -119,6 +119,8 @@ class CartController extends Controller
 
         $payload = isset($post['payload']) ? $post['payload'] : [];
 
+        $identifier = strtolower($identifier);
+
         $payload = array_replace_recursive(['id' => $identifier], $payload);
 
         $calculated = $this->addLineItem($context, $identifier, ProductProcessor::TYPE_PRODUCT, $quantity, $payload);

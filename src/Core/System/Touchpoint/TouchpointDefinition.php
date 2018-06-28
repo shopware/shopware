@@ -12,6 +12,7 @@ use Shopware\Core\Framework\ORM\Field\IdField;
 use Shopware\Core\Framework\ORM\Field\JsonField;
 use Shopware\Core\Framework\ORM\Field\ListField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Field\PasswordField;
 use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
 use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\Field\TenantIdField;
@@ -46,7 +47,7 @@ class TouchpointDefinition extends EntityDefinition
             (new StringField('type', 'type'))->setFlags(new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),
             (new StringField('access_key', 'accessKey'))->setFlags(new Required()),
-            (new StringField('secret_access_key', 'secretAccessKey'))->setFlags(new Required()),
+            (new PasswordField('secret_access_key', 'secretAccessKey'))->setFlags(new Required()),
             (new ListField('catalog_ids', 'catalogIds', IdField::class))->setFlags(new Required()),
             (new ListField('currency_ids', 'currencyIds', IdField::class))->setFlags(new Required()),
             (new ListField('language_ids', 'languageIds', IdField::class))->setFlags(new Required()),

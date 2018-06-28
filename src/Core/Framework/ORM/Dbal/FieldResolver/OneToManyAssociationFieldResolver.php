@@ -10,6 +10,7 @@ use Shopware\Core\Framework\ORM\Field\Field;
 use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\Inherited;
+use Shopware\Core\Framework\ORM\Write\Flag\ReverseInherited;
 
 class OneToManyAssociationFieldResolver implements FieldResolverInterface
 {
@@ -59,10 +60,19 @@ class OneToManyAssociationFieldResolver implements FieldResolverInterface
         if ($field->is(Inherited::class)) {
             $source = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getPropertyName());
         }
+
+        $referenceColumn = EntityDefinitionQueryHelper::escape($field->getReferenceField());
+        if ($field->is(ReverseInherited::class)) {
+            /** @var ReverseInherited $flag */
+            $flag = $field->getFlag(ReverseInherited::class);
+
+            $referenceColumn = EntityDefinitionQueryHelper::escape($flag->getName());
+        }
+
         $parameters = [
             '#source#' => $source,
             '#alias#' => EntityDefinitionQueryHelper::escape($alias),
-            '#reference_column#' => EntityDefinitionQueryHelper::escape($field->getReferenceField()),
+            '#reference_column#' => $referenceColumn,
             '#root#' => EntityDefinitionQueryHelper::escape($root),
         ];
 

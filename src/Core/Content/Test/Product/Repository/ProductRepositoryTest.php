@@ -1067,6 +1067,58 @@ class ProductRepositoryTest extends KernelTestCase
         $this->assertContains($categoryId, $categories->getIds());
     }
 
+    public function testSearchProductsOverInheritedCategories()
+    {
+        $redId = Uuid::uuid4()->getHex();
+        $greenId = Uuid::uuid4()->getHex();
+        $parentId = Uuid::uuid4()->getHex();
+
+        $redCategories = [
+            ['id' => $redId, 'name' => 'Red category'],
+        ];
+
+        $parentCategories = [
+            ['id' => $parentId, 'name' => 'Parent category'],
+        ];
+
+        $products = [
+            [
+                'id' => $parentId,
+                'tax' => ['name' => 'test', 'rate' => 15],
+                'name' => 'Parent',
+                'price' => ['gross' => 10, 'net' => 9],
+                'manufacturer' => ['name' => 'test'],
+                'categories' => $parentCategories,
+            ],
+            [
+                'id' => $redId,
+                'name' => 'Red',
+                'parentId' => $parentId,
+                'price' => ['gross' => 10, 'net' => 9],
+                'manufacturer' => ['name' => 'test'],
+                'categories' => $redCategories,
+            ],
+
+            ['id' => $greenId, 'parentId' => $parentId],
+        ];
+
+        $this->repository->upsert($products, $this->context);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new TermQuery('category.products.name', 'Parent'));
+
+        $repo = self::$container->get('category.repository');
+        $result = $repo->search($criteria, $this->context);
+        $this->assertCount(1, $result);
+        $this->assertTrue($result->has($parentId));
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new TermQuery('category.products.name', 'Red'));
+        $result = $repo->search($criteria, $this->context);
+        $this->assertCount(1, $result);
+        $this->assertTrue($result->has($redId));
+    }
+
     public function testSearchManufacturersWithProductsUseInheritance()
     {
         $redId = Uuid::uuid4()->getHex();

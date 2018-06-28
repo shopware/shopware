@@ -136,6 +136,12 @@ class JsonApiEncoderTest extends TestCase
                             'related' => '/api/media-album/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/children',
                         ],
                     ],
+                    'catalog' => [
+                        'data' => null,
+                        'links' => [
+                            'related' => '/api/media-album/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/catalog',
+                        ],
+                    ],
                 ],
             ],
             'included' => [],
@@ -207,6 +213,12 @@ class JsonApiEncoderTest extends TestCase
                             'related' => '/api/media-album/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/children',
                         ],
                         'data' => [],
+                    ],
+                    'catalog' => [
+                        'data' => null,
+                        'links' => [
+                            'related' => '/api/media-album/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/catalog',
+                        ],
                     ],
                 ],
             ],

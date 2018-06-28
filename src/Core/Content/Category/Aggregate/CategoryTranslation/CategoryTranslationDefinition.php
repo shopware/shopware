@@ -14,7 +14,6 @@ use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
-use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Core\System\Language\LanguageDefinition;
 
 class CategoryTranslationDefinition extends EntityDefinition
@@ -42,7 +41,7 @@ class CategoryTranslationDefinition extends EntityDefinition
             new LongTextField('cms_description', 'cmsDescription'),
             new ManyToOneAssociationField('category', 'category_id', CategoryDefinition::class, false),
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, false),
-            (new ManyToOneAssociationField('catalog', 'catalog_id', CatalogDefinition::class, false, 'id'))->setFlags(new RestrictDelete()),
+            new ManyToOneAssociationField('catalog', 'catalog_id', CatalogDefinition::class, false, 'id'),
         ]);
     }
 

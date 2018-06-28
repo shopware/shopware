@@ -11,6 +11,7 @@ use Shopware\Core\Framework\ORM\Field\Field;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\ORM\Write\Flag\Inherited;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\Framework\ORM\Write\Flag\ReverseInherited;
 
 class ManyToOneAssociationFieldResolver implements FieldResolverInterface
 {
@@ -90,6 +91,14 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
             $source = $inherited;
         }
 
+        $referenceColumn = EntityDefinitionQueryHelper::escape($field->getReferenceField());
+        if ($field->is(ReverseInherited::class)) {
+            /** @var ReverseInherited $flag */
+            $flag = $field->getFlag(ReverseInherited::class);
+
+            $referenceColumn = EntityDefinitionQueryHelper::escape($flag->getName());
+        }
+
         //specified version requested, use sub version call to solve live version or specified
         if ($versionAware && $context->getVersionId() !== Defaults::LIVE_VERSION) {
             $versionQuery = $this->createSubVersionQuery($field, $query, $context, $queryHelper);
@@ -98,7 +107,7 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
                 '#source#' => $source,
                 '#root#' => EntityDefinitionQueryHelper::escape($root),
                 '#alias#' => EntityDefinitionQueryHelper::escape($alias),
-                '#reference_column#' => EntityDefinitionQueryHelper::escape($field->getReferenceField()),
+                '#reference_column#' => $referenceColumn,
             ];
 
             $query->leftJoin(

@@ -28,7 +28,6 @@ done
 if [ "$FILES" != "" ]
 then
 	bin/phpstan.phar analyze --level 1 --no-progress --configuration phpstan.neon --autoload-file=../../autoload.php $FILES
-	bin/php-cs-fixer.phar fix --config=.php_cs.dist --quiet --allow-risky=yes -vv $FILES
 	if [ $? != 0 ]
 	then
 		echo "Fix the error before commit."
@@ -38,7 +37,8 @@ fi
 
 if [ "$FILES" != "" ]
 then
-    # add fixed files to commit
+    # fix code style and update the commit
+	bin/php-cs-fixer.phar fix --config=.php_cs.dist --quiet --allow-risky=yes -vv $FILES
     git add $FILES
 fi
 

@@ -70,7 +70,6 @@ return [
                 'description' => null,
                 'versionId' => null,
                 'mediaAlbumVersionId' => null,
-                'userVersionId' => null,
                 'catalogId' => null,
                 'tenantId' => null,
             ],

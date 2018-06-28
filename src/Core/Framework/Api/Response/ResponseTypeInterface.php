@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Api\Response;
 use Shopware\Core\Framework\Api\Context\RestContext;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 interface ResponseTypeInterface
@@ -17,6 +16,4 @@ interface ResponseTypeInterface
     public function createListingResponse(EntitySearchResult $searchResult, string $definition, RestContext $context): Response;
 
     public function createRedirectResponse(string $definition, string $id, RestContext $context): Response;
-
-    public function createErrorResponse(Request $request, \Throwable $exception, int $statusCode = 400): Response;
 }

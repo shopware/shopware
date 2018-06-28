@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\ORM;
 
+use Shopware\Core\Framework\ORM\Exception\DefinitionNotFoundException;
+
 /**
  * Contains all registered entity definitions.
  */
@@ -28,11 +30,17 @@ class DefinitionRegistry
     /**
      * @param string $entity
      *
-     * @return null|string|EntityDefinition
+     * @throws DefinitionNotFoundException
+     *
+     * @return string|EntityDefinition
      */
-    public function get(string $entity): ?string
+    public function get(string $entity): string
     {
-        return $this->elements[$entity] ?? null;
+        if (isset($this->elements[$entity])) {
+            return $this->elements[$entity];
+        }
+
+        throw new DefinitionNotFoundException($entity);
     }
 
     public function getByClass(string $class): ?string

@@ -12,9 +12,9 @@ use Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
 use Shopware\Core\Checkout\Order\Exception\CustomerHasNoActiveBillingAddressException;
+use Shopware\Core\Checkout\Order\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
-use Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Struct\Uuid;
 
@@ -34,7 +34,7 @@ class OrderConverter
     {
         $addressId = Uuid::uuid4()->getHex();
         if (!$context->getCustomer()) {
-            throw new NotLoggedInCustomerException();
+            throw new CustomerNotLoggedInException();
         }
         if ($calculatedCart->getCalculatedLineItems()->count() <= 0) {
             throw new EmptyCartException();

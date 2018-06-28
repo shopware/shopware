@@ -12,7 +12,6 @@ use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\Api\ApiTestCase;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Serializer\Serializer;
 
 class StorefrontCustomerControllerTest extends ApiTestCase
@@ -111,12 +110,11 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         $this->assertArrayHasKey('errors', $content);
         $this->assertNotEmpty($content['errors']);
 
-        $this->expectException(HttpException::class);
         $this->storefrontApiClient->request('GET', '/storefront-api/customer');
         $response = $this->storefrontApiClient->getResponse();
         $content = json_decode($response->getContent(), true);
 
-        $this->assertEquals(500, $response->getStatusCode());
+        $this->assertEquals(403, $response->getStatusCode());
         $this->assertNotEmpty($content);
         $this->assertArrayHasKey('errors', $content);
         $this->assertNotEmpty($content['errors']);
@@ -132,12 +130,11 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         $this->assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
         $this->assertNull($content);
 
-        $this->expectException(HttpException::class);
         $this->storefrontApiClient->request('GET', '/storefront-api/customer');
         $response = $this->storefrontApiClient->getResponse();
         $content = json_decode($response->getContent(), true);
 
-        $this->assertEquals(500, $response->getStatusCode());
+        $this->assertEquals(403, $response->getStatusCode());
         $this->assertNotEmpty($content);
         $this->assertArrayHasKey('errors', $content);
     }

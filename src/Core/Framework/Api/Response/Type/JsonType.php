@@ -8,7 +8,6 @@ use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Serializer;
 
@@ -19,15 +18,9 @@ class JsonType implements ResponseTypeInterface
      */
     private $serializer;
 
-    /**
-     * @var bool
-     */
-    private $debug;
-
-    public function __construct(Serializer $serializer, bool $debug)
+    public function __construct(Serializer $serializer)
     {
         $this->serializer = $serializer;
-        $this->debug = $debug;
     }
 
     public function supportsContentType(string $contentType): bool
@@ -71,21 +64,6 @@ class JsonType implements ResponseTypeInterface
         }
 
         return new JsonResponse($response);
-    }
-
-    public function createErrorResponse(Request $request, \Throwable $exception, int $statusCode = 400): Response
-    {
-        $error = [
-            'status' => (string) $statusCode,
-            'title' => Response::$statusTexts[$statusCode] ?? 'unknown status',
-            'detail' => $exception->getMessage(),
-        ];
-
-        if ($this->debug) {
-            $error['trace'] = $exception->getTraceAsString();
-        }
-
-        return new JsonResponse(['errors' => [$error]]);
     }
 
     public function createRedirectResponse(string $definition, string $id, RestContext $context): Response

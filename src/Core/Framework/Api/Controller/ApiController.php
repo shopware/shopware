@@ -5,13 +5,13 @@ namespace Shopware\Core\Framework\Api\Controller;
 use Shopware\Core\Framework\Api\Context\RestContext;
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
 use Shopware\Core\Framework\Api\Exception\UnknownRepositoryVersionException;
-use Shopware\Core\Framework\Api\Exception\WriteStackHttpException;
 use Shopware\Core\Framework\Api\OAuth\Api\Scope\WriteScope;
 use Shopware\Core\Framework\Api\Response\ResponseFactory;
 use Shopware\Core\Framework\ORM\DefinitionRegistry;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\ORM\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\ORM\Field\AssociationInterface;
 use Shopware\Core\Framework\ORM\Field\Field;
 use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
@@ -27,7 +27,6 @@ use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\ORM\Search\SearchCriteriaBuilder;
 use Shopware\Core\Framework\ORM\Write\EntityWriterInterface;
-use Shopware\Core\Framework\ORM\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\ORM\Write\WriteContext;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -35,7 +34,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
@@ -46,9 +45,6 @@ class ApiController extends Controller
 {
     public const WRITE_UPDATE = 'update';
     public const WRITE_CREATE = 'create';
-
-    public const RESPONSE_BASIC = 'basic';
-    public const RESPONSE_DETAIL = 'detail';
 
     /**
      * @var DefinitionRegistry
@@ -121,7 +117,7 @@ class ApiController extends Controller
         $entity = $entities->get($id);
 
         if ($entity === null) {
-            throw new ResourceNotFoundException($definition::getEntityName(), $id);
+            throw new ResourceNotFoundException($definition::getEntityName(), ['id' => $id]);
         }
 
         return $this->responseFactory->createDetailResponse($entity, (string) $definition, $context);
@@ -334,11 +330,15 @@ class ApiController extends Controller
                 $reference->getPropertyName() => $id,
             ];
 
-            $this->entityWriter->delete(
+            $deleteResult = $this->entityWriter->delete(
                 $definition,
                 [$mapping],
                 WriteContext::createFromContext($context->getContext())
             );
+
+            if (empty($deleteResult->getDeleted())) {
+                throw new ResourceNotFoundException($definition::getEntityName(), $mapping);
+            }
 
             return $this->responseFactory->createRedirectResponse($definition, $id, $context);
         }
@@ -382,7 +382,7 @@ class ApiController extends Controller
     private function write(Request $request, RestContext $context, string $path, string $type): Response
     {
         $payload = $this->getRequestBody($request);
-        $responseDataType = $this->getResponseDataType($request);
+        $noContent = !$request->query->has('_response');
         $appendLocationHeader = $type === self::WRITE_CREATE;
 
         if ($this->isCollection($payload)) {
@@ -392,6 +392,11 @@ class ApiController extends Controller
         $path = $this->buildEntityPath($path);
 
         $last = $path[\count($path) - 1];
+
+        if ($type === self::WRITE_CREATE && !empty($last['value'])) {
+            $methods = ['GET', 'PATCH', 'DELETE'];
+            throw new MethodNotAllowedHttpException($methods, sprintf('No route found for "%s %s": Method Not Allowed (Allow: %s)', $request->getMethod(), $request->getPathInfo(), implode(', ', $methods)));
+        }
 
         if ($type === self::WRITE_UPDATE && isset($last['value'])) {
             $payload['id'] = $last['value'];
@@ -410,7 +415,7 @@ class ApiController extends Controller
             $eventIds = $event->getIds();
             $entityId = array_shift($eventIds);
 
-            if (!$responseDataType) {
+            if ($noContent) {
                 return $this->responseFactory->createRedirectResponse($definition, $entityId, $context);
             }
 
@@ -444,7 +449,7 @@ class ApiController extends Controller
 
             $events = $this->executeWriteOperation($definition, $payload, $context, $type);
 
-            if (!$responseDataType) {
+            if ($noContent) {
                 return $this->responseFactory->createRedirectResponse($definition, $parent['value'], $context);
             }
 
@@ -474,7 +479,7 @@ class ApiController extends Controller
             $repository = $this->getRepository($parentDefinition, $context->getVersion());
             $repository->update([$payload], $context->getContext());
 
-            if (!$responseDataType) {
+            if ($noContent) {
                 return $this->responseFactory->createRedirectResponse($definition, $entityId, $context);
             }
 
@@ -508,7 +513,7 @@ class ApiController extends Controller
 
         $repository->update([$payload], $context->getContext());
 
-        if (!$responseDataType) {
+        if ($noContent) {
             return $this->responseFactory->createRedirectResponse($reference, $entity->getId(), $context);
         }
 
@@ -527,19 +532,12 @@ class ApiController extends Controller
     {
         $repository = $this->getRepository($definition, $context->getVersion());
 
-        try {
-            /* @var RepositoryInterface $repository */
-            switch ($type) {
-                case self::WRITE_CREATE:
+        if ($type === self::WRITE_CREATE) {
+            return $repository->create([$payload], $context->getContext());
+        }
 
-                    return $repository->create([$payload], $context->getContext());
-
-                case self::WRITE_UPDATE:
-                default:
-                    return $repository->update([$payload], $context->getContext());
-            }
-        } catch (WriteStackException $exceptionStack) {
-            throw new WriteStackHttpException($exceptionStack);
+        if ($type === self::WRITE_UPDATE) {
+            return $repository->update([$payload], $context->getContext());
         }
     }
 
@@ -594,7 +592,11 @@ class ApiController extends Controller
         $parts = array_filter($parts);
         $first = array_shift($parts);
 
-        $root = $this->definitionRegistry->get($first['entity']);
+        try {
+            $root = $this->definitionRegistry->get($first['entity']);
+        } catch (DefinitionNotFoundException $e) {
+            throw new NotFoundHttpException($e->getMessage(), $e);
+        }
 
         $entities = [
             [
@@ -611,10 +613,10 @@ class ApiController extends Controller
             /** @var AssociationInterface $field */
             $field = $fields->get($part['entity']);
             if (!$field) {
-                throw new \InvalidArgumentException(
-                    sprintf('')
-                );
+                $path = implode('.', array_column($entities, 'entity')) . '.' . $part['entity'];
+                throw new NotFoundHttpException(sprintf('Resource at path "%s" is not an existing relation.', $path));
             }
+
             $entities[] = [
                 'entity' => $part['entity'],
                 'value' => $part['value'],
@@ -664,8 +666,6 @@ class ApiController extends Controller
             }
         } catch (InvalidArgumentException | UnexpectedValueException $exception) {
             throw new BadRequestHttpException($exception->getMessage());
-        } catch (\Exception $exception) {
-            throw new HttpException(500, $exception->getMessage());
         }
 
         throw new UnsupportedMediaTypeHttpException(sprintf('The Content-Type "%s" is unsupported.', $contentType));
@@ -681,11 +681,15 @@ class ApiController extends Controller
      * @param string|EntityDefinition $definition
      * @param string                  $id
      *
-     * @throws \RuntimeException
+     * @throws ResourceNotFoundException
      */
-    private function doDelete(RestContext $context, $definition, $id): void
+    private function doDelete(RestContext $context, string $definition, string $id): void
     {
-        $repository = $this->getRepository($definition, $context->getVersion());
+        try {
+            $repository = $this->getRepository($definition, $context->getVersion());
+        } catch (UnknownRepositoryVersionException $e) {
+            throw new NotFoundHttpException($e->getMessage(), $e);
+        }
 
         $payload = [];
         $fields = $definition::getPrimaryKeys()->filter(function (Field $field) {
@@ -698,12 +702,6 @@ class ApiController extends Controller
             // empty payload is allowed for DELETE requests
         }
 
-        if ($fields->count() > 1 && empty($payload)) {
-            throw new \RuntimeException(
-                sprintf('Entity primary key is defined by multiple columns. Please provide primary key in payload.')
-            );
-        }
-
         if ($fields->count() > 1) {
             $mapping = $payload;
         } else {
@@ -712,23 +710,13 @@ class ApiController extends Controller
             $mapping = [$pk->getPropertyName() => $id];
         }
 
-        $repository->delete([$mapping], $context->getContext());
-    }
+        $deleteEvent = $repository->delete([$mapping], $context->getContext());
 
-    private function getResponseDataType(Request $request): ?string
-    {
-        if ($request->query->has('_response') === false) {
-            return null;
+        if (empty($deleteEvent->getErrors())) {
+            return;
         }
 
-        $responses = [self::RESPONSE_BASIC, self::RESPONSE_DETAIL];
-        $response = $request->query->get('_response');
-
-        if (!\in_array($response, $responses, true)) {
-            throw new BadRequestHttpException(sprintf('The response type "%s" is not supported. Available types are: %s', $response, implode(', ', $responses)));
-        }
-
-        return $response;
+        throw new ResourceNotFoundException($definition::getEntityName(), $mapping);
     }
 
     /**

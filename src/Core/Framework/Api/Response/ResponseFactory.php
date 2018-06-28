@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Api\Response;
 use Shopware\Core\Framework\Api\Context\RestContext;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException;
 
@@ -33,12 +32,6 @@ class ResponseFactory
     {
         return $this->getType($context->getRequest()->getAcceptableContentTypes())
             ->createListingResponse($searchResult, $definition, $context);
-    }
-
-    public function createErrorResponse(Request $request, \Throwable $exception, int $statusCode = 400): Response
-    {
-        return $this->getType($request->getAcceptableContentTypes())
-            ->createErrorResponse($request, $exception, $statusCode);
     }
 
     public function createRedirectResponse(string $definition, string $id, RestContext $context): Response

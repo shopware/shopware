@@ -149,6 +149,7 @@ class AuthControllerTest extends ApiTestCase
             'username' => $username,
             'password' => password_hash($password, PASSWORD_ARGON2I),
             'locale_id' => Uuid::fromStringToBytes('7b52d9dd-2b06-40ec-90be-9f57edf29be7'),
+            'locale_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
             'locale_tenant_id' => Uuid::fromHexToBytes(Defaults::TENANT_ID),
             'active' => 1,
         ]);

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Response\Type;
 
+use League\OAuth2\Server\Exception\OAuthServerException;
 use Shopware\Core\Framework\Api\Context\RestContext;
 use Shopware\Core\Framework\Api\Exception\WriteStackHttpException;
 use Shopware\Core\Framework\Api\Response\JsonApiResponse;
@@ -111,6 +112,10 @@ class JsonApiType implements ResponseTypeInterface
 
     public function createErrorResponse(Request $request, \Throwable $exception, int $statusCode = 400): Response
     {
+        if ($exception instanceof OAuthServerException) {
+            return $this->handleOAuthServerException($exception);
+        }
+
         $errorData = [
             'errors' => $this->convertExceptionToError($exception),
         ];
@@ -274,5 +279,21 @@ class JsonApiType implements ResponseTypeInterface
         $input = str_replace('_', '-', $input);
 
         return ltrim(strtolower(preg_replace('/[A-Z]/', '-$0', $input)), '-');
+    }
+
+    private function handleOAuthServerException(OAuthServerException $exception): Response
+    {
+        $error = [
+            'code' => (string) $exception->getCode(),
+            'status' => (string) $exception->getHttpStatusCode(),
+            'title' => $exception->getMessage(),
+            'detail' => $exception->getHint(),
+        ];
+
+        if ($this->debug) {
+            $error['trace'] = $exception->getTraceAsString();
+        }
+
+        return new JsonApiResponse(['errors' => [$error]], $exception->getHttpStatusCode(), $exception->getHttpHeaders());
     }
 }

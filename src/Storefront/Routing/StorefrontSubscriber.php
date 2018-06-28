@@ -59,7 +59,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $applicationId = $master->headers->get(PlatformRequest::HEADER_TOUCHPOINT_TOKEN);
+        $applicationId = $master->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID);
 
         if (!$session->isStarted()) {
             $session->setName('session-' . $applicationId);

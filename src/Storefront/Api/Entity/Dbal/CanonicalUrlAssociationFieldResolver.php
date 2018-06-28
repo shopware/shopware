@@ -26,6 +26,10 @@ class CanonicalUrlAssociationFieldResolver implements FieldResolverInterface
             return;
         }
 
+        if ($context->getTouchpointId() === 'administration') {
+            return;
+        }
+
         $table = SeoUrlDefinition::getEntityName();
         $alias = $root . '.' . $field->getPropertyName();
 

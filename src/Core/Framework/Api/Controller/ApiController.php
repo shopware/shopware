@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Api\Context\RestContext;
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
 use Shopware\Core\Framework\Api\Exception\UnknownRepositoryVersionException;
 use Shopware\Core\Framework\Api\Exception\WriteStackHttpException;
+use Shopware\Core\Framework\Api\OAuth\Api\Scope\WriteScope;
 use Shopware\Core\Framework\Api\Response\ResponseFactory;
 use Shopware\Core\Framework\ORM\DefinitionRegistry;
 use Shopware\Core\Framework\ORM\Entity;
@@ -28,9 +29,11 @@ use Shopware\Core\Framework\ORM\Search\SearchCriteriaBuilder;
 use Shopware\Core\Framework\ORM\Write\EntityWriterInterface;
 use Shopware\Core\Framework\ORM\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\ORM\Write\WriteContext;
+use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -252,16 +255,28 @@ class ApiController extends Controller
 
     public function create(Request $request, RestContext $context, string $path): Response
     {
+        if (!$this->hasScope($request, WriteScope::IDENTIFIER)) {
+            throw new AccessDeniedHttpException('You don\'t have write access using this access key.');
+        }
+
         return $this->write($request, $context, $path, self::WRITE_CREATE);
     }
 
     public function update(Request $request, RestContext $context, string $path)
     {
+        if (!$this->hasScope($request, WriteScope::IDENTIFIER)) {
+            throw new AccessDeniedHttpException('You don\'t have write access using this access key.');
+        }
+
         return $this->write($request, $context, $path, self::WRITE_UPDATE);
     }
 
     public function delete(Request $request, RestContext $context, string $path): Response
     {
+        if (!$this->hasScope($request, WriteScope::IDENTIFIER)) {
+            throw new AccessDeniedHttpException('You don\'t have write access using this access key.');
+        }
+
         $path = $this->buildEntityPath($path);
 
         $last = $path[\count($path) - 1];
@@ -733,5 +748,12 @@ class ApiController extends Controller
         }
 
         return $this->get($definition::getEntityName() . '.repository');
+    }
+
+    private function hasScope(Request $request, string $scopeIdentifier): bool
+    {
+        $scopes = array_flip($request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_SCOPES));
+
+        return isset($scopes[$scopeIdentifier]);
     }
 }

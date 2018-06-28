@@ -57,16 +57,17 @@ class VersionTest extends ApiTestCase
 
     public function testAuthShouldNotBeProtected(): void
     {
-        $this->unauthorizedClient->request('POST', '/api/v1/auth');
+        $this->unauthorizedClient->request('POST', '/api/oauth/token');
         $this->assertEquals(
-            Response::HTTP_UNAUTHORIZED,
+            Response::HTTP_BAD_REQUEST,
             $this->unauthorizedClient->getResponse()->getStatusCode(),
-            'Route should be protected. (URL: /api/v1/auth)'
+            'Route should be protected. (URL: /api/oauth/token)'
         );
 
         $response = json_decode($this->unauthorizedClient->getResponse()->getContent(), true);
 
-        $this->assertEquals('Invalid username and/or password.', $response['errors'][0]['detail']);
+        $this->assertEquals('The authorization grant type is not supported by the authorization server.', $response['errors'][0]['title']);
+        $this->assertEquals('Check that all required parameters have been provided', $response['errors'][0]['detail']);
     }
 
     /**

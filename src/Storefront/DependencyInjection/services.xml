@@ -15,12 +15,6 @@
             <argument type="service" id="Shopware\Storefront\Theme\ThemeConfigReader" />
         </service>
 
-        <service class="Shopware\Storefront\Command\TouchpointCreateStorefrontCommand" id="Shopware\Storefront\Command\TouchpointCreateStorefrontCommand">
-            <argument id="touchpoint.repository" type="service"/>
-            <argument id="Doctrine\DBAL\Connection" type="service"/>
-            <tag name="console.command"/>
-        </service>
-
         <service class="Shopware\Storefront\Page\Search\KeywordSearchTermInterpreter" id="Shopware\Storefront\Page\Search\KeywordSearchTermInterpreter" public="true">
             <argument id="Doctrine\DBAL\Connection" type="service"/>
             <argument id="Shopware\Core\Framework\ORM\Search\Term\Tokenizer" type="service"/>
@@ -93,8 +87,6 @@
         </service>
 
         <service class="Shopware\Storefront\Controller\AccountController" public="true" id="Shopware\Storefront\Controller\AccountController">
-            <argument type="service" id="security.authentication_utils" />
-            <argument type="service" id="security.token_storage"/>
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>
             <argument type="service" id="Shopware\Storefront\Page\Account\AccountService"/>
             <argument type="service" id="Shopware\Storefront\Page\Account\CustomerAddressPageLoader"/>
@@ -286,6 +278,11 @@
 
         <service class="Shopware\Storefront\Api\Seo\SeoUrlDefinition" id="Shopware\Storefront\Api\Seo\SeoUrlDefinition" >
             <tag name="shopware.entity.definition" entity="seo_url" />
+        </service>
+
+        <service class="Shopware\Storefront\Command\TouchpointCreateStorefrontCommand" id="Shopware\Storefront\Command\TouchpointCreateStorefrontCommand">
+            <argument id="touchpoint.repository" type="service"/>
+            <tag name="console.command"/>
         </service>
     </services>
 </container>

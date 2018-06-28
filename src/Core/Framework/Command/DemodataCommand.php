@@ -287,7 +287,6 @@ class DemodataCommand extends ContainerAwareCommand
     private function createCustomer($count = 500)
     {
         $number = $this->faker->randomNumber;
-        $password = password_hash('shopware', PASSWORD_BCRYPT, ['cost' => 13]);
 
         $this->io->section(sprintf('Generating %d customers...', $count));
         $this->io->progressStart($count);
@@ -332,8 +331,8 @@ class DemodataCommand extends ContainerAwareCommand
                 'salutation' => $salutation,
                 'firstName' => $firstName,
                 'lastName' => $lastName,
-                'email' => $this->faker->safeEmail . $id,
-                'password' => $password,
+                'email' => $id . $this->faker->safeEmail,
+                'password' => 'shopware',
                 'defaultPaymentMethodId' => '47160b00-cd06-4b01-8817-6451f9f3c247',
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
                 'touchpointId' => Defaults::TOUCHPOINT,
@@ -373,7 +372,7 @@ class DemodataCommand extends ContainerAwareCommand
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'email' => 'test@example.com',
-            'password' => password_hash('shopware', PASSWORD_BCRYPT, ['cost' => 13]),
+            'password' => 'shopware',
             'defaultPaymentMethodId' => '47160b00cd064b0188176451f9f3c247',
             'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
             'touchpointId' => Defaults::TOUCHPOINT,

@@ -33,4 +33,34 @@ class UserEvents
      * @Event("Shopware\Core\Framework\ORM\Event\EntityIdSearchResultLoadedEvent")
      */
     public const USER_ID_SEARCH_RESULT_LOADED_EVENT = 'user.id.search.result.loaded';
+
+    /**
+     * @Event("Shopware\Core\Framework\ORM\Event\EntityWrittenEvent")
+     */
+    public const USER_ACCESS_KEY_WRITTEN_EVENT = 'user_access_key.written';
+
+    /**
+     * @Event("Shopware\Core\Framework\ORM\Event\EntityDeletedEvent")
+     */
+    public const USER_ACCESS_KEY_DELETED_EVENT = 'user_access_key.deleted';
+
+    /**
+     * @Event("Shopware\Core\Framework\ORM\Event\EntityLoadedEvent")
+     */
+    public const USER_ACCESS_KEY_LOADED_EVENT = 'user_access_key.loaded';
+
+    /**
+     * @Event("Shopware\Core\Framework\ORM\Event\EntitySearchResultLoadedEvent")
+     */
+    public const USER_ACCESS_KEY_SEARCH_RESULT_LOADED_EVENT = 'user_access_key.search.result.loaded';
+
+    /**
+     * @Event("Shopware\Core\Framework\ORM\Event\EntityAggregationResultLoadedEvent")
+     */
+    public const USER_ACCESS_KEY_AGGREGATION_LOADED_EVENT = 'user_access_key.aggregation.result.loaded';
+
+    /**
+     * @Event("Shopware\Core\Framework\ORM\Event\EntityIdSearchResultLoadedEvent")
+     */
+    public const USER_ACCESS_KEY_ID_SEARCH_RESULT_LOADED_EVENT = 'user_access_key.id.search.result.loaded';
 }

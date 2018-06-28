@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Page\Account;
 
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
 use Shopware\Core\Checkout\Customer\CustomerStruct;
 use Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException;
@@ -14,8 +13,6 @@ use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Storefront\Exception\AddressNotFoundHttpException;
 use Shopware\Storefront\Exception\CustomerNotFoundException;
-use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterface;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 
 class AccountService
@@ -35,35 +32,14 @@ class AccountService
      */
     private $customerRepository;
 
-    /**
-     * @var AuthenticationManagerInterface
-     */
-    private $authenticationManager;
-
-    /**
-     * @var TokenStorageInterface
-     */
-    private $tokenStorage;
-
-    /**
-     * @var CheckoutContextPersister
-     */
-    private $contextPersister;
-
     public function __construct(
         RepositoryInterface $countryRepository,
         RepositoryInterface $customerAddressRepository,
-        RepositoryInterface $customerRepository,
-        AuthenticationManagerInterface $authenticationManager,
-        TokenStorageInterface $tokenStorage,
-        CheckoutContextPersister $contextPersister
+        RepositoryInterface $customerRepository
     ) {
         $this->countryRepository = $countryRepository;
         $this->customerAddressRepository = $customerAddressRepository;
         $this->customerRepository = $customerRepository;
-        $this->authenticationManager = $authenticationManager;
-        $this->tokenStorage = $tokenStorage;
-        $this->contextPersister = $contextPersister;
     }
 
     public function getCustomerByLogin(string $email, string $password, CheckoutContext $context): CustomerStruct
@@ -122,8 +98,7 @@ class AccountService
     {
         $data = [
             'id' => $context->getCustomer()->getId(),
-            'password' => password_hash($passwordSaveRequest->getPassword(), PASSWORD_BCRYPT, ['cost' => 13]),
-            'encoder' => 'bcrypt',
+            'password' => $passwordSaveRequest->getPassword(),
         ];
 
         foreach ($passwordSaveRequest->getExtensions() as $key => $value) {
@@ -320,7 +295,7 @@ class AccountService
             'salutation' => $registrationRequest->getSalutation(),
             'firstName' => $registrationRequest->getFirstName(),
             'lastName' => $registrationRequest->getLastName(),
-            'password' => password_hash($registrationRequest->getPassword(), PASSWORD_BCRYPT, ['cost' => 13]),
+            'password' => $registrationRequest->getPassword(),
             'email' => $registrationRequest->getEmail(),
             'title' => $registrationRequest->getTitle(),
             'encoder' => 'bcrypt',

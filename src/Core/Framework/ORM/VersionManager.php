@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\ORM;
 
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Field\AssociationInterface;
 use Shopware\Core\Framework\ORM\Field\Field;
 use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
@@ -29,9 +28,8 @@ use Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitDefinit
 use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataStruct;
 use Shopware\Core\Framework\Version\VersionDefinition;
-use Shopware\Core\System\User\UserDefinition;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
+use Shopware\Core\PlatformRequest;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class VersionManager
 {
@@ -56,34 +54,29 @@ class VersionManager
     private $entityDefinitionRegistry;
 
     /**
-     * @var TokenStorageInterface
-     */
-    private $tokenStorage;
-
-    /**
-     * @var array
-     */
-    private $mapping = [];
-
-    /**
      * @var EntityWriteGatewayInterface
      */
     private $entityWriteGateway;
+
+    /**
+     * @var RequestStack
+     */
+    private $requestStack;
 
     public function __construct(
         EntityWriterInterface $entityWriter,
         EntityReaderInterface $entityReader,
         EntitySearcherInterface $entitySearcher,
         DefinitionRegistry $entityDefinitionRegistry,
-        TokenStorageInterface $tokenStorage,
-        EntityWriteGatewayInterface $entityWriteGateway
+        EntityWriteGatewayInterface $entityWriteGateway,
+        RequestStack $requestStack
     ) {
         $this->entityWriter = $entityWriter;
         $this->entityReader = $entityReader;
         $this->entitySearcher = $entitySearcher;
         $this->entityDefinitionRegistry = $entityDefinitionRegistry;
-        $this->tokenStorage = $tokenStorage;
         $this->entityWriteGateway = $entityWriteGateway;
+        $this->requestStack = $requestStack;
     }
 
     public function upsert(string $definition, array $rawData, WriteContext $writeContext): array
@@ -218,7 +211,7 @@ class VersionManager
         $commit = [
             'versionId' => Defaults::LIVE_VERSION,
             'data' => $newData,
-            'userId' => $this->getUserId($writeContext->getContext()),
+            'userId' => $this->getUserId(),
             'isMerge' => true,
             'message' => 'merge commit ' . (new \DateTime())->format(\DateTime::ATOM),
         ];
@@ -361,7 +354,7 @@ class VersionManager
 
     private function writeAuditLog(array $writtenEvents, WriteContext $writeContext, string $action, ?string $versionId = null): void
     {
-        $userId = $this->getUserId($writeContext->getContext());
+        $userId = $this->getUserId();
 
         $userId = $userId ? Uuid::fromStringToBytes($userId) : null;
 
@@ -450,39 +443,14 @@ class VersionManager
         $this->entityWriteGateway->execute($commands);
     }
 
-    private function getUserId(Context $context): ?string
+    private function getUserId(): ?string
     {
-        $token = $this->tokenStorage->getToken();
-        if (!$token) {
+        $master = $this->requestStack->getMasterRequest();
+        if (!$master) {
             return null;
         }
 
-        /** @var UserInterface $user */
-        $user = $token->getUser();
-
-        if (!$user instanceof UserInterface) {
-            return null;
-        }
-
-        $name = $user->getUsername();
-        if (array_key_exists($name, $this->mapping)) {
-            return $this->mapping[$name];
-        }
-
-        $criteria = new Criteria();
-        $criteria->setLimit(1);
-        $criteria->addFilter(new TermQuery(UserDefinition::getEntityName() . '.username', $name));
-
-        $users = $this->entitySearcher->search(UserDefinition::class, $criteria, $context);
-        $ids = $users->getIds();
-
-        $id = array_shift($ids);
-
-        if (!$id) {
-            return $this->mapping[$name] = null;
-        }
-
-        return $this->mapping[$name] = $id;
+        return $master->headers->get(PlatformRequest::ATTRIBUTE_OAUTH_USER_ID);
     }
 
     private function addVersionToPayload(array $payload, string $definition, string $versionId): array

@@ -3,11 +3,11 @@
 namespace Shopware\Core\Framework\Routing;
 
 use Shopware\Core\Checkout\Context\CheckoutContextService;
-use Shopware\Core\Framework\Routing\Firewall\Touchpoint;
+use Shopware\Core\Framework\Routing\Exception\TouchpointNotFoundException;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\PlatformRequest;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class TouchpointRequestContextResolver implements RequestContextResolverInterface
 {
@@ -21,32 +21,23 @@ class TouchpointRequestContextResolver implements RequestContextResolverInterfac
      */
     private $contextService;
 
-    /**
-     * @var TokenStorageInterface
-     */
-    private $tokenStorage;
-
     public function __construct(
         RequestContextResolverInterface $decorated,
-        CheckoutContextService $contextService,
-        TokenStorageInterface $tokenStorage
+        CheckoutContextService $contextService
     ) {
         $this->decorated = $decorated;
         $this->contextService = $contextService;
-        $this->tokenStorage = $tokenStorage;
     }
 
     public function resolve(SymfonyRequest $master, SymfonyRequest $request): void
     {
-        if (!$this->tokenStorage->getToken()) {
+        if (!$master->attributes->has(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID)) {
             $this->decorated->resolve($master, $request);
 
             return;
         }
-        /** @var Touchpoint $touchpoint */
-        $touchpoint = $this->tokenStorage->getToken()->getUser();
 
-        if (!$touchpoint instanceof Touchpoint) {
+        if ($master->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID) === 'administration') {
             $this->decorated->resolve($master, $request);
 
             return;
@@ -66,9 +57,11 @@ class TouchpointRequestContextResolver implements RequestContextResolverInterfac
             return;
         }
 
+        $this->validateRequest($master);
+
         $contextToken = $master->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
-        $touchpointId = $touchpoint->getTouchpointId();
         $tenantId = $master->headers->get(PlatformRequest::HEADER_TENANT_ID);
+        $touchpointId = $master->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID);
 
         //sub requests can use the context of the master request
         if ($master->attributes->has(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT)) {
@@ -79,5 +72,12 @@ class TouchpointRequestContextResolver implements RequestContextResolverInterfac
 
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context->getContext());
         $request->attributes->set(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT, $context);
+    }
+
+    private function validateRequest(Request $request): void
+    {
+        if (!$request->attributes->has(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID)) {
+            throw new TouchpointNotFoundException();
+        }
     }
 }

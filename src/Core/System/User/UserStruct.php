@@ -34,21 +34,6 @@ class UserStruct extends Entity
     protected $email;
 
     /**
-     * @var string
-     */
-    protected $encoder;
-
-    /**
-     * @var string|null
-     */
-    protected $apiKey;
-
-    /**
-     * @var string|null
-     */
-    protected $sessionId;
-
-    /**
      * @var \DateTime|null
      */
     protected $lastLogin;
@@ -69,16 +54,6 @@ class UserStruct extends Entity
     protected $lockedUntil;
 
     /**
-     * @var bool
-     */
-    protected $extendedEditor;
-
-    /**
-     * @var bool
-     */
-    protected $disabledCache;
-
-    /**
      * @var \DateTime|null
      */
     protected $createdAt;
@@ -97,6 +72,11 @@ class UserStruct extends Entity
      * @var EntitySearchResult|null
      */
     protected $media;
+
+    /**
+     * @var EntitySearchResult|null
+     */
+    protected $accessKeys;
 
     public function getLocaleId(): string
     {
@@ -148,36 +128,6 @@ class UserStruct extends Entity
         $this->email = $email;
     }
 
-    public function getEncoder(): string
-    {
-        return $this->encoder;
-    }
-
-    public function setEncoder(string $encoder): void
-    {
-        $this->encoder = $encoder;
-    }
-
-    public function getApiKey(): ?string
-    {
-        return $this->apiKey;
-    }
-
-    public function setApiKey(?string $apiKey): void
-    {
-        $this->apiKey = $apiKey;
-    }
-
-    public function getSessionId(): ?string
-    {
-        return $this->sessionId;
-    }
-
-    public function setSessionId(?string $sessionId): void
-    {
-        $this->sessionId = $sessionId;
-    }
-
     public function getLastLogin(): ?\DateTime
     {
         return $this->lastLogin;
@@ -218,26 +168,6 @@ class UserStruct extends Entity
         $this->lockedUntil = $lockedUntil;
     }
 
-    public function getExtendedEditor(): bool
-    {
-        return $this->extendedEditor;
-    }
-
-    public function setExtendedEditor(bool $extendedEditor): void
-    {
-        $this->extendedEditor = $extendedEditor;
-    }
-
-    public function getDisabledCache(): bool
-    {
-        return $this->disabledCache;
-    }
-
-    public function setDisabledCache(bool $disabledCache): void
-    {
-        $this->disabledCache = $disabledCache;
-    }
-
     public function getCreatedAt(): ?\DateTime
     {
         return $this->createdAt;
@@ -276,5 +206,15 @@ class UserStruct extends Entity
     public function setMedia(EntitySearchResult $media): void
     {
         $this->media = $media;
+    }
+
+    public function getAccessKeys(): ?EntitySearchResult
+    {
+        return $this->accessKeys;
+    }
+
+    public function setAccessKeys(EntitySearchResult $accessKeys): void
+    {
+        $this->accessKeys = $accessKeys;
     }
 }

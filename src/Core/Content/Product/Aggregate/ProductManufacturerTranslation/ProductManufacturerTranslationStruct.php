@@ -69,7 +69,7 @@ class ProductManufacturerTranslationStruct extends Entity
         return $this->language;
     }
 
-    public function setLanguage(?LanguageStruct $language): void
+    public function setLanguage(LanguageStruct $language): void
     {
         $this->language = $language;
     }
@@ -169,7 +169,7 @@ class ProductManufacturerTranslationStruct extends Entity
         return $this->catalog;
     }
 
-    public function setCatalog(?CatalogStruct $catalog): void
+    public function setCatalog(CatalogStruct $catalog): void
     {
         $this->catalog = $catalog;
     }

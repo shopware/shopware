@@ -361,7 +361,7 @@ class TouchpointStruct extends Entity
         return $this->orders;
     }
 
-    public function setOrders(?OrderCollection $orders): void
+    public function setOrders(OrderCollection $orders): void
     {
         $this->orders = $orders;
     }
@@ -371,7 +371,7 @@ class TouchpointStruct extends Entity
         return $this->customers;
     }
 
-    public function setCustomers(?CustomerCollection $customers): void
+    public function setCustomers(CustomerCollection $customers): void
     {
         $this->customers = $customers;
     }

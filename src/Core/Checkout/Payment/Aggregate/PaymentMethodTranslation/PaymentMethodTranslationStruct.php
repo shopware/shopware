@@ -93,7 +93,7 @@ class PaymentMethodTranslationStruct extends Entity
         return $this->language;
     }
 
-    public function setLanguage(?LanguageStruct $language): void
+    public function setLanguage(LanguageStruct $language): void
     {
         $this->language = $language;
     }

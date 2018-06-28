@@ -166,7 +166,7 @@ class CountryStateStruct extends Entity
         return $this->customerAddresses;
     }
 
-    public function setCustomerAddresses(?CustomerAddressCollection $customerAddresses): void
+    public function setCustomerAddresses(CustomerAddressCollection $customerAddresses): void
     {
         $this->customerAddresses = $customerAddresses;
     }
@@ -176,7 +176,7 @@ class CountryStateStruct extends Entity
         return $this->orderAddresses;
     }
 
-    public function setOrderAddresses(?OrderAddressCollection $orderAddresses): void
+    public function setOrderAddresses(OrderAddressCollection $orderAddresses): void
     {
         $this->orderAddresses = $orderAddresses;
     }
@@ -186,7 +186,7 @@ class CountryStateStruct extends Entity
         return $this->taxAreaRules;
     }
 
-    public function setTaxAreaRules(?TaxAreaRuleCollection $taxAreaRules): void
+    public function setTaxAreaRules(TaxAreaRuleCollection $taxAreaRules): void
     {
         $this->taxAreaRules = $taxAreaRules;
     }

@@ -91,19 +91,9 @@ class ProductServiceStruct extends Entity
         return $this->price;
     }
 
-    public function setPrice(?PriceStruct $price): void
+    public function setPrice(PriceStruct $price): void
     {
         $this->price = $price;
-    }
-
-    public function getPriceRules(): PriceRuleCollection
-    {
-        return $this->priceRules;
-    }
-
-    public function setPriceRules(PriceRuleCollection $priceRules): void
-    {
-        $this->priceRules = $priceRules;
     }
 
     public function getOption(): ConfigurationGroupOptionStruct
@@ -135,7 +125,7 @@ class ProductServiceStruct extends Entity
 
         if ($prices && $prices->count() > 0) {
             /** @var PriceRuleStruct $price */
-            $price = $this->priceRules->first();
+            $price = $this->getPrices()->first();
 
             return new PriceDefinition($price->getPrice()->getGross(), $taxRules, $quantity, true);
         }

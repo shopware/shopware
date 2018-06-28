@@ -199,7 +199,7 @@ class ProductTranslationStruct extends Entity
         return $this->catalog;
     }
 
-    public function setCatalog(?CatalogStruct $catalog): void
+    public function setCatalog(CatalogStruct $catalog): void
     {
         $this->catalog = $catalog;
     }

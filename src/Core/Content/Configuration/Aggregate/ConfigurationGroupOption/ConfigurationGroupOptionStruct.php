@@ -126,7 +126,7 @@ class ConfigurationGroupOptionStruct extends Entity
         return $this->productConfigurators;
     }
 
-    public function setProductConfigurators(?ProductConfiguratorCollection $productConfigurators): void
+    public function setProductConfigurators(ProductConfiguratorCollection $productConfigurators): void
     {
         $this->productConfigurators = $productConfigurators;
     }
@@ -136,7 +136,7 @@ class ConfigurationGroupOptionStruct extends Entity
         return $this->productServices;
     }
 
-    public function setProductServices(?ProductServiceCollection $productServices): void
+    public function setProductServices(ProductServiceCollection $productServices): void
     {
         $this->productServices = $productServices;
     }
@@ -146,7 +146,7 @@ class ConfigurationGroupOptionStruct extends Entity
         return $this->productDatasheets;
     }
 
-    public function setProductDatasheets(?ProductCollection $productDatasheets): void
+    public function setProductDatasheets(ProductCollection $productDatasheets): void
     {
         $this->productDatasheets = $productDatasheets;
     }
@@ -156,7 +156,7 @@ class ConfigurationGroupOptionStruct extends Entity
         return $this->productVariations;
     }
 
-    public function setProductVariations(?ProductCollection $productVariations): void
+    public function setProductVariations(ProductCollection $productVariations): void
     {
         $this->productVariations = $productVariations;
     }

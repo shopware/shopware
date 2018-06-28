@@ -748,7 +748,7 @@ class ProductStruct extends Entity
         return $this->tax;
     }
 
-    public function setTax(?TaxStruct $tax): void
+    public function setTax(TaxStruct $tax): void
     {
         $this->tax = $tax;
     }
@@ -758,7 +758,7 @@ class ProductStruct extends Entity
         return $this->manufacturer;
     }
 
-    public function setManufacturer(?ProductManufacturerStruct $manufacturer): void
+    public function setManufacturer(ProductManufacturerStruct $manufacturer): void
     {
         $this->manufacturer = $manufacturer;
     }
@@ -768,7 +768,7 @@ class ProductStruct extends Entity
         return $this->unit;
     }
 
-    public function setUnit(?UnitStruct $unit): void
+    public function setUnit(UnitStruct $unit): void
     {
         $this->unit = $unit;
     }
@@ -788,7 +788,7 @@ class ProductStruct extends Entity
         return $this->listingPrices;
     }
 
-    public function setListingPrices(?PriceRuleCollection $listingPrices): void
+    public function setListingPrices(PriceRuleCollection $listingPrices): void
     {
         $this->listingPrices = $listingPrices;
     }
@@ -961,7 +961,7 @@ class ProductStruct extends Entity
         return $this->cover;
     }
 
-    public function setCover(?ProductMediaStruct $cover): void
+    public function setCover(ProductMediaStruct $cover): void
     {
         $this->cover = $cover;
     }
@@ -971,7 +971,7 @@ class ProductStruct extends Entity
         return $this->parent;
     }
 
-    public function setParent(?ProductStruct $parent): void
+    public function setParent(ProductStruct $parent): void
     {
         $this->parent = $parent;
     }
@@ -1101,7 +1101,7 @@ class ProductStruct extends Entity
         return $this->catalog;
     }
 
-    public function setCatalog(?CatalogStruct $catalog): void
+    public function setCatalog(CatalogStruct $catalog): void
     {
         $this->catalog = $catalog;
     }

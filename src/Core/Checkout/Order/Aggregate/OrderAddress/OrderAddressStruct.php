@@ -300,7 +300,7 @@ class OrderAddressStruct extends Entity
         return $this->countryState;
     }
 
-    public function setCountryState(?CountryStateStruct $countryState): void
+    public function setCountryState(CountryStateStruct $countryState): void
     {
         $this->countryState = $countryState;
     }

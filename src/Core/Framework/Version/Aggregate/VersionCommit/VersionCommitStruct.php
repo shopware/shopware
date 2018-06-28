@@ -153,7 +153,7 @@ class VersionCommitStruct extends Entity
         return $this->version;
     }
 
-    public function setVersion(?VersionStruct $version): void
+    public function setVersion(VersionStruct $version): void
     {
         $this->version = $version;
     }

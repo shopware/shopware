@@ -475,7 +475,7 @@ class ShippingMethodStruct extends Entity
         return $this->orderDeliveries;
     }
 
-    public function setOrderDeliveries(?OrderDeliveryCollection $orderDeliveries): void
+    public function setOrderDeliveries(OrderDeliveryCollection $orderDeliveries): void
     {
         $this->orderDeliveries = $orderDeliveries;
     }
@@ -485,7 +485,7 @@ class ShippingMethodStruct extends Entity
         return $this->touchpoints;
     }
 
-    public function setTouchpoints(?TouchpointCollection $touchpoints): void
+    public function setTouchpoints(TouchpointCollection $touchpoints): void
     {
         $this->touchpoints = $touchpoints;
     }

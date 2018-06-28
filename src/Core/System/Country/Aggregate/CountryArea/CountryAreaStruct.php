@@ -108,7 +108,7 @@ class CountryAreaStruct extends Entity
         return $this->taxAreaRules;
     }
 
-    public function setTaxAreaRules(?TaxAreaRuleCollection $taxAreaRules): void
+    public function setTaxAreaRules(TaxAreaRuleCollection $taxAreaRules): void
     {
         $this->taxAreaRules = $taxAreaRules;
     }

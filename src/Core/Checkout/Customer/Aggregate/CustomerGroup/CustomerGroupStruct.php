@@ -190,7 +190,7 @@ class CustomerGroupStruct extends Entity
         return $this->taxAreaRules;
     }
 
-    public function setTaxAreaRules(?TaxAreaRuleCollection $taxAreaRules): void
+    public function setTaxAreaRules(TaxAreaRuleCollection $taxAreaRules): void
     {
         $this->taxAreaRules = $taxAreaRules;
     }
@@ -200,7 +200,7 @@ class CustomerGroupStruct extends Entity
         return $this->customers;
     }
 
-    public function setCustomers(?CustomerCollection $customers): void
+    public function setCustomers(CustomerCollection $customers): void
     {
         $this->customers = $customers;
     }

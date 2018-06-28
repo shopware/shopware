@@ -436,7 +436,7 @@ class LanguageStruct extends Entity
         return $this->productManufacturerTranslations;
     }
 
-    public function setProductManufacturerTranslations(?ProductManufacturerTranslationCollection $productManufacturerTranslations): void
+    public function setProductManufacturerTranslations(ProductManufacturerTranslationCollection $productManufacturerTranslations): void
     {
         $this->productManufacturerTranslations = $productManufacturerTranslations;
     }
@@ -486,7 +486,7 @@ class LanguageStruct extends Entity
         return $this->touchpoints;
     }
 
-    public function setTouchpoints(?TouchpointCollection $touchpoints): void
+    public function setTouchpoints(TouchpointCollection $touchpoints): void
     {
         $this->touchpoints = $touchpoints;
     }
@@ -496,7 +496,7 @@ class LanguageStruct extends Entity
         return $this->orderTransactionStateTranslations;
     }
 
-    public function setOrderTransactionStateTranslations(?OrderTransactionStateTranslationCollection $orderTransactionStateTranslations): void
+    public function setOrderTransactionStateTranslations(OrderTransactionStateTranslationCollection $orderTransactionStateTranslations): void
     {
         $this->orderTransactionStateTranslations = $orderTransactionStateTranslations;
     }
@@ -506,7 +506,7 @@ class LanguageStruct extends Entity
         return $this->configurationGroupTranslations;
     }
 
-    public function setConfigurationGroupTranslations(?ConfigurationGroupTranslationCollection $configurationGroupTranslations): void
+    public function setConfigurationGroupTranslations(ConfigurationGroupTranslationCollection $configurationGroupTranslations): void
     {
         $this->configurationGroupTranslations = $configurationGroupTranslations;
     }
@@ -516,7 +516,7 @@ class LanguageStruct extends Entity
         return $this->configurationGroupOptionTranslations;
     }
 
-    public function setConfigurationGroupOptionTranslations(?ConfigurationGroupOptionTranslationCollection $configurationGroupOptionTranslations): void
+    public function setConfigurationGroupOptionTranslations(ConfigurationGroupOptionTranslationCollection $configurationGroupOptionTranslations): void
     {
         $this->configurationGroupOptionTranslations = $configurationGroupOptionTranslations;
     }
@@ -526,7 +526,7 @@ class LanguageStruct extends Entity
         return $this->productSearchKeywords;
     }
 
-    public function setProductSearchKeywords(?ProductSearchKeywordCollection $productSearchKeywords): void
+    public function setProductSearchKeywords(ProductSearchKeywordCollection $productSearchKeywords): void
     {
         $this->productSearchKeywords = $productSearchKeywords;
     }
@@ -536,7 +536,7 @@ class LanguageStruct extends Entity
         return $this->snippets;
     }
 
-    public function setSnippets(?SnippetCollection $snippets): void
+    public function setSnippets(SnippetCollection $snippets): void
     {
         $this->snippets = $snippets;
     }

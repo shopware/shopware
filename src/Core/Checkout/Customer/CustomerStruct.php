@@ -552,7 +552,7 @@ class CustomerStruct extends Entity
         return $this->lastPaymentMethod;
     }
 
-    public function setLastPaymentMethod(?PaymentMethodStruct $lastPaymentMethod): void
+    public function setLastPaymentMethod(PaymentMethodStruct $lastPaymentMethod): void
     {
         $this->lastPaymentMethod = $lastPaymentMethod;
     }
@@ -587,7 +587,7 @@ class CustomerStruct extends Entity
         return $this->activeBillingAddress;
     }
 
-    public function setActiveBillingAddress(?CustomerAddressStruct $activeBillingAddress): void
+    public function setActiveBillingAddress(CustomerAddressStruct $activeBillingAddress): void
     {
         $this->activeBillingAddress = $activeBillingAddress;
     }
@@ -601,7 +601,7 @@ class CustomerStruct extends Entity
         return $this->activeShippingAddress;
     }
 
-    public function setActiveShippingAddress(?CustomerAddressStruct $activeShippingAddress): void
+    public function setActiveShippingAddress(CustomerAddressStruct $activeShippingAddress): void
     {
         $this->activeShippingAddress = $activeShippingAddress;
     }

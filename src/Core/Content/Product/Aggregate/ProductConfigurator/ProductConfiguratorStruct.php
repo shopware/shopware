@@ -69,7 +69,7 @@ class ProductConfiguratorStruct extends Entity
         return $this->price;
     }
 
-    public function setPrice(?PriceStruct $price): void
+    public function setPrice(PriceStruct $price): void
     {
         $this->price = $price;
     }
@@ -109,7 +109,7 @@ class ProductConfiguratorStruct extends Entity
         return $this->product;
     }
 
-    public function setProduct(?ProductStruct $product): void
+    public function setProduct(ProductStruct $product): void
     {
         $this->product = $product;
     }

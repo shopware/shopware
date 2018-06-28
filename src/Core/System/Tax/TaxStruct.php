@@ -109,7 +109,7 @@ class TaxStruct extends Entity
         return $this->productServices;
     }
 
-    public function setProductServices(?ProductServiceCollection $productServices): void
+    public function setProductServices(ProductServiceCollection $productServices): void
     {
         $this->productServices = $productServices;
     }

@@ -108,7 +108,7 @@ class OrderTransactionStateStruct extends Entity
         return $this->orderTransactions;
     }
 
-    public function setOrderTransactions(?OrderTransactionCollection $orderTransactions): void
+    public function setOrderTransactions(OrderTransactionCollection $orderTransactions): void
     {
         $this->orderTransactions = $orderTransactions;
     }

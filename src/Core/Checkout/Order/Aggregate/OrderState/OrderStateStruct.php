@@ -114,7 +114,7 @@ class OrderStateStruct extends Entity
         return $this->orders;
     }
 
-    public function setOrders(?OrderCollection $orders): void
+    public function setOrders(OrderCollection $orders): void
     {
         $this->orders = $orders;
     }
@@ -124,7 +124,7 @@ class OrderStateStruct extends Entity
         return $this->orderDeliveries;
     }
 
-    public function setOrderDeliveries(?OrderDeliveryCollection $orderDeliveries): void
+    public function setOrderDeliveries(OrderDeliveryCollection $orderDeliveries): void
     {
         $this->orderDeliveries = $orderDeliveries;
     }

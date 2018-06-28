@@ -124,7 +124,7 @@ class LocaleStruct extends Entity
         return $this->languages;
     }
 
-    public function setLanguages(?LanguageCollection $languages): void
+    public function setLanguages(LanguageCollection $languages): void
     {
         $this->languages = $languages;
     }

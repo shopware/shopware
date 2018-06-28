@@ -140,7 +140,7 @@ class OrderTransactionStruct extends Entity
         return $this->order;
     }
 
-    public function setOrder(?OrderStruct $order): void
+    public function setOrder(OrderStruct $order): void
     {
         $this->order = $order;
     }

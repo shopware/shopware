@@ -99,7 +99,7 @@ class RuleStruct extends Entity
         return $this->discountSurcharges;
     }
 
-    public function setDiscountSurcharges(?DiscountSurchargeCollection $discountSurcharges): void
+    public function setDiscountSurcharges(DiscountSurchargeCollection $discountSurcharges): void
     {
         $this->discountSurcharges = $discountSurcharges;
     }
@@ -109,7 +109,7 @@ class RuleStruct extends Entity
         return $this->productPriceRules;
     }
 
-    public function setProductPriceRules(?ProductPriceRuleCollection $productPriceRules): void
+    public function setProductPriceRules(ProductPriceRuleCollection $productPriceRules): void
     {
         $this->productPriceRules = $productPriceRules;
     }

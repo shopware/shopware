@@ -1,24 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Product\Storefront;
+namespace Shopware\Core\Content\Category\Storefront;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
-use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\Api\Context\RestContext;
 use Shopware\Core\Framework\Api\Response\ResponseFactory;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\SearchCriteriaBuilder;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class StorefrontProductController extends Controller
+class StorefrontCategoryController extends Controller
 {
     /**
-     * @var StorefrontProductRepository
+     * @var RepositoryInterface
      */
     private $repository;
 
@@ -33,7 +35,7 @@ class StorefrontProductController extends Controller
     private $criteriaBuilder;
 
     public function __construct(
-        StorefrontProductRepository $repository,
+        RepositoryInterface $repository,
         ResponseFactory $responseFactory,
         SearchCriteriaBuilder $criteriaBuilder
     ) {
@@ -43,7 +45,11 @@ class StorefrontProductController extends Controller
     }
 
     /**
-     * @Route("/storefront-api/product", name="storefront.api.product.list")
+     * @Route("/storefront-api/category", name="storefront.api.category.list")
+     *
+     * @param Request $request
+     * @param CheckoutContext $context
+     * @return Response
      */
     public function list(Request $request, CheckoutContext $context): Response
     {
@@ -52,11 +58,11 @@ class StorefrontProductController extends Controller
         $criteria = $this->criteriaBuilder->handleRequest(
             $request,
             $criteria,
-            ProductDefinition::class,
+            CategoryDefinition::class,
             $context->getContext()
         );
 
-        $result = $this->repository->search($criteria, $context);
+        $result = $this->repository->search($criteria, $context->getContext());
 
         return $this->responseFactory->createListingResponse(
             $result,
@@ -66,19 +72,27 @@ class StorefrontProductController extends Controller
     }
 
     /**
-     * @Route("/storefront-api/product/{productId}", name="storefront.api.product.detail")
+     * @Route("/storefront-api/category/{categoryId}", name="storefront.api.category.detail")
      * @Method({"GET"})
+     *
+     * @param string $categoryId
+     * @param Request $request
+     * @param CheckoutContext $context
+     *
+     * @return Response
+     *
+     * @throws CategoryNotFoundException
      */
-    public function detail(string $productId, Request $request, CheckoutContext $context): Response
+    public function detail(string $categoryId, Request $request, CheckoutContext $context): Response
     {
-        $products = $this->repository->read([$productId], $context);
-        if (!$products->has($productId)) {
-            throw new ProductNotFoundException($productId);
+        $categories = $this->repository->read(new ReadCriteria([$categoryId]), $context->getContext());
+        if (!$categories->has($categoryId)) {
+            throw new CategoryNotFoundException($categoryId);
         }
 
         return $this->responseFactory->createDetailResponse(
-            $products->get($productId),
-            ProductDefinition::class,
+            $categories->get($categoryId),
+            CategoryDefinition::class,
             new RestContext($request, $context->getContext(), null)
         );
     }

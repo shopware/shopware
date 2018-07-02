@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Test\Category\Storefront;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
@@ -292,5 +293,22 @@ class StorefrontCategoryControllerTest extends ApiTestCase
             ],
             $content['aggregations']['category-names']
         );
+    }
+
+    public function testDetailWithNoneExistingCategory()
+    {
+        $id = Uuid::uuid4()->getHex();
+
+        $this->storefrontApiClient->request('GET', '/storefront-api/category/' . $id);
+        $response = $this->storefrontApiClient->getResponse();
+
+        $this->assertSame(404, $response->getStatusCode());
+        $content = json_decode($response->getContent(), true);
+
+        $this->assertNotEmpty($content);
+        $this->assertArrayHasKey('errors', $content);
+        $this->assertEquals($content['errors'][0]['code'], CategoryNotFoundException::CODE);
+        $this->assertEquals($content['errors'][0]['status'], 404);
+        $this->assertStringMatchesFormat('Category %s not found', $content['errors'][0]['detail']);
     }
 }

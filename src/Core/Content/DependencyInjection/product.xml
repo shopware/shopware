@@ -17,6 +17,12 @@
             <argument type="service" id="Shopware\Core\Framework\ORM\Search\SearchCriteriaBuilder"/>
         </service>
 
+        <service class="Shopware\Core\Content\Category\Storefront\StorefrontCategoryController" id="Shopware\Core\Content\Category\Storefront\StorefrontCategoryController" public="true">
+            <argument id="category.repository" type="service"/>
+            <argument id="Shopware\Core\Framework\Api\Response\ResponseFactory" type="service"/>
+            <argument id="Shopware\Core\Framework\ORM\Search\SearchCriteriaBuilder" type="service"/>
+        </service>
+
         <service class="Shopware\Core\Content\Product\ProductDefinition" id="Shopware\Core\Content\Product\ProductDefinition">
             <tag name="shopware.entity.definition" entity="product"/>
         </service>

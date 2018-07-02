@@ -50,10 +50,13 @@ class QueryStringParser
             case 'range':
                 return new RangeQuery($query['field'], $query['parameters']);
             case 'terms':
-                return new TermsQuery(
-                    $query['field'],
-                    array_filter(explode('|', $query['value']))
-                );
+
+                $value = $query['value'];
+                if (is_string($value)) {
+                    $value = array_filter(explode('|', $value));
+                }
+
+                return new TermsQuery($query['field'], $value);
             default:
                 throw new \RuntimeException(sprintf('Unsupported query type %s', get_class($query)));
         }

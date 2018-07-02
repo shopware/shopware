@@ -66,7 +66,7 @@ class StorefrontCategoryController extends Controller
 
         return $this->responseFactory->createListingResponse(
             $result,
-            ProductDefinition::class,
+            CategoryDefinition::class,
             new RestContext($request, $context->getContext(), null)
         );
     }

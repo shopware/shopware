@@ -48,12 +48,12 @@ class CatalogField extends FkField
     /**
      * {@inheritdoc}
      */
-    public function __invoke(EntityExistence $existence, KeyValuePair $kvPair): \Generator
+    public function invoke(EntityExistence $existence, KeyValuePair $data): \Generator
     {
         if ($this->writeContext->has($this->definition, 'catalogId')) {
             $value = $this->writeContext->get($this->definition, 'catalogId');
-        } elseif (!empty($kvPair->getValue())) {
-            $value = $kvPair->getValue();
+        } elseif (!empty($data->getValue())) {
+            $value = $data->getValue();
         } else {
             $value = Defaults::CATALOG;
         }

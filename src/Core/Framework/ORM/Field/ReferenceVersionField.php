@@ -58,11 +58,11 @@ class ReferenceVersionField extends FkField
     /**
      * {@inheritdoc}
      */
-    public function __invoke(EntityExistence $existence, KeyValuePair $kvPair): \Generator
+    public function invoke(EntityExistence $existence, KeyValuePair $data): \Generator
     {
         if ($this->definition === $this->versionReference) {
             //parent inheritance with versioning
-            $value = $kvPair->getValue() ?? Defaults::LIVE_VERSION;
+            $value = $data->getValue() ?? Defaults::LIVE_VERSION;
         } elseif ($this->writeContext->has($this->versionReference, 'versionId')) {
             $value = $this->writeContext->get($this->versionReference, 'versionId');
         } else {

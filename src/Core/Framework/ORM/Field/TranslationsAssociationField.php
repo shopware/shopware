@@ -32,7 +32,7 @@ class TranslationsAssociationField extends SubresourceField implements Associati
         $this->referenceField = $referenceField;
     }
 
-    public function __invoke(EntityExistence $existence, KeyValuePair $data): \Generator
+    public function invoke(EntityExistence $existence, KeyValuePair $data): \Generator
     {
         $value = $data->getValue();
         if ($value === null) {
@@ -42,7 +42,7 @@ class TranslationsAssociationField extends SubresourceField implements Associati
             $data = new KeyValuePair($data->getKey(), $value, $data->isRaw());
         }
 
-        return parent::__invoke($existence, $data);
+        return parent::invoke($existence, $data);
     }
 
     public function getReferenceField(): string

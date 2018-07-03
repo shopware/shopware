@@ -46,7 +46,7 @@ class LongTextField extends Field implements StorageAware
         parent::__construct($propertyName);
     }
 
-    public function __invoke(EntityExistence $existence, KeyValuePair $data): \Generator
+    public function invoke(EntityExistence $existence, KeyValuePair $data): \Generator
     {
         $key = $data->getKey();
         $value = $data->getValue();

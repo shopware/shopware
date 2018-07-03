@@ -7,7 +7,7 @@ use Shopware\Core\Framework\ORM\Write\EntityExistence;
 
 class PriceRulesJsonField extends JsonField
 {
-    public function __invoke(EntityExistence $existence, KeyValuePair $data): \Generator
+    public function invoke(EntityExistence $existence, KeyValuePair $data): \Generator
     {
         $value = $data->getValue();
         if (!empty($data->getValue())) {

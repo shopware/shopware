@@ -43,7 +43,7 @@ class VersionField extends FkField
     /**
      * {@inheritdoc}
      */
-    public function __invoke(EntityExistence $existence, KeyValuePair $kvPair): \Generator
+    public function invoke(EntityExistence $existence, KeyValuePair $data): \Generator
     {
         $value = $this->writeContext->getContext()->getVersionId();
 

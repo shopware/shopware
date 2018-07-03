@@ -51,7 +51,7 @@ class IdField extends Field implements StorageAware
     /**
      * {@inheritdoc}
      */
-    public function __invoke(EntityExistence $existence, KeyValuePair $data): \Generator
+    public function invoke(EntityExistence $existence, KeyValuePair $data): \Generator
     {
         $key = $data->getKey();
         $value = $data->getValue();

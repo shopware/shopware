@@ -1,7 +1,8 @@
 {% block sw_customer_detail_addresses %}
     <div class="sw-customer-detail-addresses">
+
         {% block sw_customer_detail_addresses %}
-            <sw-card :isLoading="customer.isLoading">
+            <sw-card :isLoading="customerAddressStore.isLoading">
 
                 {% block sw_customer_detail_addresses_add_button %}
                     <div class="sw-customer-detail-addresses__toolbar">
@@ -44,7 +45,7 @@
                 {% endblock %}
 
                 {% block sw_customer_detail_addresses_grid %}
-                    <sw-grid :items="addresses" :selectable="false">
+                    <sw-grid :items="customer.addresses" :selectable="false">
                         {% block sw_customer_detail_addresses_grid_slots %}
                             <template slot="columns" slot-scope="{ item }">
 

@@ -2,6 +2,7 @@
  * @module core/helper/jsonapi-parser
  */
 import types from 'src/core/service/utils/types.utils';
+import { hasOwnProperty } from 'src/core/service/utils/object.utils';
 
 /**
  * Converts a JSONApi compliant data structure into a nested object structure which suits the data entry management
@@ -103,7 +104,12 @@ function createIncludeMap(included) {
  * @returns {Object} parsed data structure
  */
 function parseDataStructure(json) {
-    const data = {};
+    const data = {
+        links: null,
+        errors: null,
+        data: null,
+        associations: null
+    };
 
     // Errors will be returned right away, we don't need to convert anything
     if (json.errors) {
@@ -114,9 +120,24 @@ function parseDataStructure(json) {
     const includedMap = createIncludeMap(json.included);
 
     if (types.isArray(json.data)) {
-        data.data = json.data.map((record) => createItem(record, includedMap));
+        data.data = json.data.map((record) => {
+            const dataItem = createItem(record, includedMap);
+
+            if (hasOwnProperty(dataItem, 'associationLinks')) {
+                data.associations = { ...data.associations, ...dataItem.associationLinks };
+                delete dataItem.associationLinks;
+            }
+
+            return dataItem;
+        });
     } else if (types.isObject(json.data)) {
-        data.data = createItem(json.data, includedMap);
+        const dataItem = createItem(json.data, includedMap);
+
+        if (Object.prototype.hasOwnProperty.call(dataItem, 'associationLinks')) {
+            data.associations = { ...data.associations, ...dataItem.associationLinks };
+            delete dataItem.associationLinks;
+        }
+        data.data = dataItem;
     } else {
         data.data = null;
     }
@@ -153,7 +174,8 @@ function createItem(record, includedMap) {
     }
 
     if (record.relationships) {
-        item = { ...item, ...createRelationships(record.relationships, includedMap) };
+        const relations = createRelationships(record.relationships, includedMap);
+        item = { ...item, ...relations.mappedRelations, ...{ associationLinks: relations.associationLinks } };
     }
 
     return item;
@@ -179,6 +201,22 @@ function renameObjectPropertiesToCamelCase(attributesCollection) {
 }
 
 /**
+ * Maps the included entries and creates new items out of it including dependency resolving
+ * @param {Object} item
+ * @param {Map} includedMap
+ * @returns {Object}
+ */
+function mapIncluded(item, includedMap) {
+    const includedKey = `${item.type}-${item.id}`;
+    if (!includedMap.has(includedKey)) {
+        return item;
+    }
+
+    const included = includedMap.get(includedKey);
+    return createItem(included, includedMap);
+}
+
+/**
  * Resolve the dependencies between entries in `includedMap` and the relations of the item.
  *
  * @param {Object} relationships
@@ -187,8 +225,14 @@ function renameObjectPropertiesToCamelCase(attributesCollection) {
  */
 function createRelationships(relationships, includedMap) {
     const mappedRelations = {};
+    const associationLinks = {};
+
     Object.keys(relationships).forEach((prop) => {
         const relationship = relationships[prop];
+
+        if (relationship.links && Object.keys(relationship.links).length) {
+            associationLinks[prop] = relationship.links.related;
+        }
 
         // We don't have any data, don't continue with the iteration
         if (!relationship.data) {
@@ -206,21 +250,5 @@ function createRelationships(relationships, includedMap) {
         }
     });
 
-    return mappedRelations;
-}
-
-/**
- * Maps the included entries and creates new items out of it including dependency resolving
- * @param {Object} item
- * @param {Map} includedMap
- * @returns {Object}
- */
-function mapIncluded(item, includedMap) {
-    const includedKey = `${item.type}-${item.id}`;
-    if (!includedMap.has(includedKey)) {
-        return item;
-    }
-
-    const included = includedMap.get(includedKey);
-    return createItem(included, includedMap);
+    return { mappedRelations: mappedRelations, associationLinks: associationLinks };
 }

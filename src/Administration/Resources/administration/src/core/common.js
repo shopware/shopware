@@ -97,7 +97,8 @@ module.exports = {
         getDefinition: EntityFactory.getEntityDefinition,
         getDefinitionRegistry: EntityFactory.getDefinitionRegistry,
         getRawEntityObject: EntityFactory.getRawEntityObject,
-        getRequiredProperties: EntityFactory.getRequiredProperties
+        getRequiredProperties: EntityFactory.getRequiredProperties,
+        getAssociatedProperties: EntityFactory.getAssociatedProperties
     },
 
     /**

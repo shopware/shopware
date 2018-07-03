@@ -11,13 +11,6 @@ Component.register('sw-order-detail-deliveries', {
             default() {
                 return {};
             }
-        },
-        deliveries: {
-            type: Array,
-            required: true,
-            default() {
-                return [];
-            }
         }
     }
 });

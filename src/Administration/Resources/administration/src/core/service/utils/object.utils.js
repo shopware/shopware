@@ -95,12 +95,13 @@ export function getAssociatedDeletions(baseObject, compareObject, entitySchemaNa
  * Compares to objects recursively and returns a new object including the changeset.
  * You can optionally pass the name of an entity to validate all properties against the entity schema.
  *
- * @param baseObject
- * @param compareObject
- * @param entitySchemaName
+ * @param {Object} baseObject
+ * @param {Object} compareObject
+ * @param {String|null} [entitySchemaName = null]
+ * @param {Boolean} [includeAssociations = true]
  * @returns {*}
  */
-export function getObjectChangeSet(baseObject, compareObject, entitySchemaName = null) {
+export function getObjectChangeSet(baseObject, compareObject, entitySchemaName = null, includeAssociations = true) {
     // Both objects or properties are the same, so there is no change.
     if (baseObject === compareObject) {
         return {};
@@ -128,6 +129,17 @@ export function getObjectChangeSet(baseObject, compareObject, entitySchemaName =
 
         if (entitySchema !== null) {
             entityProperties = Object.keys(entitySchema.properties);
+
+            if (!includeAssociations) {
+                entityProperties = Object.keys(entitySchema.properties).reduce((accumulator, propName) => {
+                    const prop = entitySchema.properties[propName];
+                    if (prop.type !== 'array' || !hasOwnProperty(prop, 'entity')) {
+                        accumulator.push(propName);
+                    }
+
+                    return accumulator;
+                }, []);
+            }
         }
     }
 

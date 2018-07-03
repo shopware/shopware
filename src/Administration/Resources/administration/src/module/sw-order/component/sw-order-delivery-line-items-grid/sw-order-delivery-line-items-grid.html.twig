@@ -11,7 +11,7 @@
                             <router-link :title="$tc('sw-order.detailBase.contextMenuShowProduct')"
                                          :to="{ name: 'sw.product.detail', params: { id: item.identifier } }">
                                 {% block sw_order_delivery_line_items_grid_columns_name_label %}
-                                    {{ item.label }}
+                                    {{ item.orderLineItem.label }}
                                 {% endblock %}
                             </router-link>
                         {% endblock %}

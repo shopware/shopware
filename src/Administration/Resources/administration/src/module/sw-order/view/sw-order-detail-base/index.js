@@ -12,13 +12,6 @@ Component.register('sw-order-detail-base', {
             default() {
                 return {};
             }
-        },
-        lineItems: {
-            type: Array,
-            required: true,
-            default() {
-                return [];
-            }
         }
     }
 });

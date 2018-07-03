@@ -2,10 +2,9 @@
     <div class="sw-order-detail-deliveries">
 
         {% block sw_order_detail_delivery_items %}
-            <sw-order-delivery v-for="(delivery, index) in deliveries"
+            <sw-order-delivery v-for="(delivery, index) in order.deliveries"
                                class="sw-order-detail-deliveries__delivery"
                                :title="$tc('sw-order.detailDeliveries.cardTitleItems', 0, { count: index + 1 })"
-                               :isLoading="order.isLoading"
                                :delivery="delivery"
                                :key="delivery.id"
                                :order="order">

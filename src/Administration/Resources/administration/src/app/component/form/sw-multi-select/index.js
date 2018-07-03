@@ -90,13 +90,13 @@ Component.register('sw-multi-select', {
             this.isExpanded = this.searchTerm.length > 3 && this.filteredEntries.length > 0;
         },
 
-        onSelectEntry(id) {
-            if (!id) {
+        onSelectEntry(entry) {
+            if (!entry) {
                 return;
             }
 
             // Update values array
-            this.values.push({ id });
+            this.values.push(entry);
 
             // Reset search term to reset the filtered list and collapse the drop down
             this.searchTerm = '';

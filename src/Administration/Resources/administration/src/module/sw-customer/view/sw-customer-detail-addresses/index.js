@@ -1,5 +1,5 @@
 import { Component, Entity } from 'src/core/shopware';
-import utils, { object } from 'src/core/service/util.service';
+import { object } from 'src/core/service/util.service';
 import { required } from 'src/core/service/validation.service';
 import template from './sw-customer-detail-addresses.html.twig';
 import './sw-customer-detail-addresses.less';
@@ -38,6 +38,12 @@ Component.register('sw-customer-detail-addresses', {
         };
     },
 
+    computed: {
+        customerAddressStore() {
+            return this.customer.getAssociationStore('addresses');
+        }
+    },
+
     methods: {
         onCreateNewAddress() {
             this.showAddAddressModal = true;
@@ -48,7 +54,6 @@ Component.register('sw-customer-detail-addresses', {
         createNewCustomerAddress() {
             const newAddress = this.createEmptyAddress();
 
-            newAddress.id = utils.createId();
             newAddress.customerId = this.customer.id;
 
             this.currentAddress = newAddress;
@@ -90,7 +95,7 @@ Component.register('sw-customer-detail-addresses', {
         },
 
         createEmptyAddress() {
-            return Entity.getRawEntityObject('customer_address');
+            return this.customerAddressStore.create();
         },
 
         onEditAddress(id) {
@@ -106,6 +111,7 @@ Component.register('sw-customer-detail-addresses', {
         },
 
         onConfirmDeleteAddress(id) {
+            this.customerAddressStore.getById(id).delete();
             this.customer.addresses = this.customer.addresses.filter(a => a.id !== id);
         },
 

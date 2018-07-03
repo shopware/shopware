@@ -26,7 +26,7 @@
 
                 {% block sw_order_delivery_row_line_items %}
                     {# TODO: Get line items from delivery #}
-                    <sw-order-delivery-line-items-grid :deliveryLineItems="[]"
+                    <sw-order-delivery-line-items-grid :deliveryLineItems="delivery.positions"
                                                        :order="order">
                     </sw-order-delivery-line-items-grid>
                 {% endblock %}

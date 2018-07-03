@@ -1,9 +1,14 @@
 @import "~less/variables";
 
-@sw-multi-select-border-radius:      @border-radius-default;
-@sw-multi-select-color-border:       @color-steam-cloud;
-@sw-multi-select-color-border-focus: @color-shopware-blue;
-@sw-multi-select-color-background:   @color-white;
+@sw-multi-select-border-radius:                   @border-radius-default;
+@sw-multi-select-color-border:                    @color-steam-cloud;
+@sw-multi-select-color-border-focus:              @color-shopware-blue;
+@sw-multi-select-color-background:                @color-white;
+@sw-multi-select-color-label:                     @color-kashmir;
+@sw-multi-select-selection-item-color-text:       @color-gutenberg;
+@sw-multi-select-selection-item-color-background: darken(@color-light-gray, 5%);
+@sw-multi-select-input-color-text:                @color-gutenberg;
+@sw-multi-select-input-color-placeholder:         lighten(@color-gutenberg, 25%);
 
 .sw-multi-select {
     .sw-multi-select__label {
@@ -11,7 +16,7 @@
         line-height: 16px;
         font-size: 14px;
         margin-bottom: 8px;
-        color: @color-kashmir;
+        color: @sw-multi-select-color-label;
         font-weight: normal;
         cursor: pointer;
         user-select: none;
@@ -31,7 +36,7 @@
         transition: all ease-in-out .2s;
         min-height: 45px;
 
-        &.is--active {
+        &.is--expanded {
             border-color: @sw-multi-select-color-border-focus;
             border-bottom-right-radius: 0;
             border-bottom-left-radius: 0;
@@ -42,42 +47,42 @@
     .sw-loader {
         width: 45px;
         left: auto;
-        border-radius: @border-radius-default;
+        border-radius: @sw-multi-select-border-radius;
     }
 
-    .sw-multi-select__list {
+    .sw-multi-select__selections {
         display: flex;
         flex-wrap: wrap;
         list-style: none;
     }
 
-    .sw-multi-select__list-item {
+    .sw-multi-select__selection-item {
         display: block;
         position: relative;
         margin-right: 6px;
         margin-bottom: 6px;
         font-size: 13px;
-        background: darken(@color-light-gray, 5%);
-        border-radius: @border-radius-default;
-        color: @color-gutenberg;
+        background: @sw-multi-select-selection-item-color-background;
+        border-radius: @sw-multi-select-border-radius;
+        color: @sw-multi-select-selection-item-color-text;
         line-height: 22px;
         padding: 4px 40px 4px 12px;
         flex-shrink: 0;
         cursor: default;
 
         &:hover {
-            background: darken(@color-light-gray, 8%);
+            background: darken(@sw-multi-select-selection-item-color-background, 3%);
         }
     }
 
-    .value--dismiss {
+    .sw-multi-select__selection-dismiss {
         display: inline-block;
         position: absolute;
         cursor: pointer;
         right: 0;
         top: 0;
         height: 100%;
-        color: @color-gutenberg;
+        color: @sw-multi-select-selection-item-color-text;
         text-decoration: none;
         font-size: 14px;
         text-align: center;
@@ -95,7 +100,7 @@
         }
     }
 
-    .sw-multi-select__list-item-input {
+    .sw-multi-select__selection-item-input {
         flex-grow: 1;
         margin-bottom: 6px;
     }
@@ -108,11 +113,11 @@
         line-height: 26px;
         border: 0 none;
         outline: none;
-        color: @color-gutenberg;
+        color: @sw-multi-select-input-color-text;
         width: 100%;
 
         &::placeholder {
-            color: lighten(@color-gutenberg, 25%);
+            color: @sw-multi-select-input-color-placeholder;
         }
     }
 
@@ -141,7 +146,7 @@
         border-top: 0 none;
     }
 
-    .sw-multi-select__results-entry {
+    .sw-multi-select__result-item {
         border-bottom: 1px solid @color-steam-cloud;
         padding: 12px 15px;
         cursor: pointer;
@@ -157,7 +162,7 @@
         }
     }
 
-    .sw-multi-select__results-empty {
+    .sw-multi-select__results-empty-message {
         padding: 10px 16px;
 
         .sw-icon {

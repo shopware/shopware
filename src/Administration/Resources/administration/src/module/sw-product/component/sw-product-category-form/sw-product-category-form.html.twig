@@ -18,11 +18,8 @@
             {% block sw_product_category_form_category_field %}
                 <sw-multi-select id="categories"
                                  :label="$tc('sw-product.categoryForm.labelCategory')"
-                                 {#:placeholder="$tc('sw-product.categoryForm.placeholderCategory')"#}
-                                 placeholder="Tippe, um Kategorien zu suchen..."
+                                 :placeholder="$tc('sw-product.categoryForm.placeholderCategory')"
                                  :serviceProvider="categoryService"
-                                 :values="product.categories"
-                                 @input="onInputCategories"
                                  v-model="product.categories">
                 </sw-multi-select>
             {% endblock %}

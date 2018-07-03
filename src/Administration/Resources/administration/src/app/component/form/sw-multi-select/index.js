@@ -15,13 +15,9 @@ Component.register('sw-multi-select', {
             required: false,
             default: ''
         },
-        // values: {
-        //     type: Array,
-        //     required: true,
-        //     default() {
-        //         return [];
-        //     }
-        // },
+        value: {
+            type: Array
+        },
         label: {
             type: String,
             default: ''
@@ -29,6 +25,21 @@ Component.register('sw-multi-select', {
         id: {
             type: String,
             required: true
+        },
+        previewResultsLimit: {
+            type: Number,
+            required: false,
+            default: 20
+        },
+        resultsLimit: {
+            type: Number,
+            required: false,
+            default: 200
+        },
+        searchDelayTime: {
+            type: Number,
+            required: false,
+            default: 400
         }
     },
 
@@ -36,43 +47,23 @@ Component.register('sw-multi-select', {
         return {
             searchTerm: '',
             isExpanded: false,
-
-            // Search results entries
-            entries: [],
-
-            // Selected values
-            values: [],
-
-            activePosition: 0,
+            results: [], // entries
+            selections: [], // values
+            activeResultPosition: 0,
             isLoading: false,
             timeout: null
         };
     },
 
     computed: {
-        // Client side filtered
-        filteredEntries() {
-            const searchTerm = this.searchTerm.toLowerCase();
-
-            return this.entries.filter((entry) => {
-                const entryName = entry.name.toLowerCase();
-                return entryName.indexOf(searchTerm) !== -1;
-            });
+        filteredResults() {
+            return this.results;
         },
 
-        displayValues() {
-            // TODO: Replace filtering of search result entries
-            return this.entries.filter((entry) => {
-                const isValue = this.values.find(value => value.id === entry.id);
-                return (typeof isValue !== 'undefined');
-            });
-
-            // TODO: Get category names by IDs in case a category name changes
-            // return this.values;
-        },
-
-        stringifyValues() {
-            return this.values.join('|');
+        displaySelections() {
+            // TODO 1. Load selections initially (terms query with multiple IDs)
+            // TODO 2. On adding use local selection array with id and name
+            return this.selections;
         },
 
         currentSearchTerm() {
@@ -94,22 +85,33 @@ Component.register('sw-multi-select', {
 
     methods: {
         createdComponent() {
-            this.isLoading = true;
+            this.loadPreviewResults();
+            this.addEventListeners();
+        },
 
-            this.serviceProvider.getList(0, 15).then((response) => {
-                this.entries = response.data;
-                this.isLoading = false;
-            });
+        destroyedComponent() {
+            this.removeEventListeners();
+        },
 
+        addEventListeners() {
             document.addEventListener('keyup', this.handleKeyUpActions);
             document.addEventListener('keydown', this.handleKeyDownActions);
             document.addEventListener('click', this.closeOnClickOutside);
         },
 
-        destroyedComponent() {
+        removeEventListeners() {
             document.removeEventListener('keyup', this.handleKeyUpActions);
             document.removeEventListener('keydown', this.handleKeyDownActions);
             document.removeEventListener('click', this.closeOnClickOutside);
+        },
+
+        loadPreviewResults() {
+            this.isLoading = true;
+
+            this.serviceProvider.getList(0, this.previewResultsLimit).then((response) => {
+                this.results = response.data;
+                this.isLoading = false;
+            });
         },
 
         closeOnClickOutside(event) {
@@ -117,42 +119,50 @@ Component.register('sw-multi-select', {
 
             if (target.closest('.sw-multi-select') === null) {
                 this.isExpanded = false;
-                this.activePosition = 0;
+                this.activeResultPosition = 0;
             }
         },
 
         getCategoryEntry(id) {
-            return this.entries.find((entry) => {
+            return this.results.find((entry) => {
                 return entry.id === id;
             });
         },
 
-        onDismissEntry(id) {
+        setActiveResultPosition(index) {
+            this.activeResultPosition = index;
+        },
+
+        onDismissSelection(id) {
             if (!id) {
                 return;
             }
 
             // Remove the field from the value attribute of the hidden field
-            this.values = this.values.filter((entry) => entry.id !== id);
+            this.selections = this.selections.filter((entry) => entry.id !== id);
 
             // Emit change for v-model support
-            this.$emit('input', this.values);
+            this.$emit('input', this.selections);
 
             this.setFocus();
         },
 
         onSearchTermChange() {
-            this.activePosition = 0;
+            this.activeResultPosition = 0;
             this.isLoading = true;
 
             clearTimeout(this.timeout);
 
-            this.timeout = setTimeout(() => {
-                this.serviceProvider.getList(0, 200, { term: this.searchTerm }).then((response) => {
-                    this.entries = response.data;
-                    this.isLoading = false;
-                });
-            }, 400);
+            if (this.searchTerm.length > 0) {
+                this.timeout = setTimeout(() => {
+                    this.serviceProvider.getList(0, this.resultsLimit, { term: this.searchTerm }).then((response) => {
+                        this.results = response.data;
+                        this.isLoading = false;
+                    });
+                }, this.searchDelayTime);
+            } else {
+                this.loadPreviewResults();
+            }
         },
 
         openResultList() {
@@ -191,28 +201,34 @@ Component.register('sw-multi-select', {
             const keyArrowUp = 38;
             const keyArrowDown = 40;
 
+            if (!this.isExpanded) {
+                return;
+            }
+
             if (event.keyCode === keyArrowUp) {
-                this.navigateUpSearchResults();
+                this.navigateUpResults();
             } else if (event.keyCode === keyArrowDown) {
-                this.navigateDownSearchResults();
+                this.navigateDownResults();
             }
         },
 
-        navigateUpSearchResults() {
-            if (this.activePosition === 0) {
+        navigateUpResults() {
+            if (this.activeResultPosition === 0) {
                 return;
             }
-            this.activePosition = this.activePosition - 1;
-            const itemHeight = this.$refs.swMultiSelect.querySelector('.sw-multi-select__results-entry').offsetHeight;
+
+            this.activeResultPosition = this.activeResultPosition - 1;
+
+            const itemHeight = this.$refs.swMultiSelect.querySelector('.sw-multi-select__result-item').offsetHeight;
             this.$refs.swMultiSelect.querySelector('.sw-multi-select__results').scrollTop -= itemHeight;
         },
 
-        navigateDownSearchResults() {
-            if (this.activePosition === this.filteredEntries.length - 1) {
+        navigateDownResults() {
+            if (this.activeResultPosition === this.filteredResults.length - 1) {
                 return;
             }
 
-            this.activePosition = this.activePosition + 1;
+            this.activeResultPosition = this.activeResultPosition + 1;
 
             const activeItem = this.$refs.swMultiSelect.querySelector('.is--selected');
             const itemHeight = activeItem.offsetHeight;
@@ -242,7 +258,7 @@ Component.register('sw-multi-select', {
                 return;
             }
 
-            const htmlList = this.$refs.swMultiSelect.getElementsByClassName('sw-multi-select__list-item');
+            const htmlList = this.$refs.swMultiSelect.getElementsByClassName('sw-multi-select__selection-item');
 
             if (!htmlList.length) {
                 return;
@@ -252,26 +268,34 @@ Component.register('sw-multi-select', {
             const list = Array.from(htmlList);
             const id = list[index].dataset.id;
 
-            this.onDismissEntry(id);
+            this.onDismissSelection(id);
         },
 
         setFocus() {
             this.$refs.swMultiSelectInput.focus();
         },
 
-        onSelectEntry(id) {
-            if (!id) {
+        onSelectEntry(result) {
+            if (!result.id || !result.name) {
                 return;
             }
 
-            // Update values array
-            this.values.push({ id });
+            const alreadyExistsInSelection = !this.selections.every((item) => {
+                return item.id !== result.id;
+            });
+
+            if (alreadyExistsInSelection) {
+                return;
+            }
+
+            // Update selections array
+            this.selections.push({ id: result.id, name: result.name });
 
             // Reset search term to reset the filtered list and collapse the drop down
             this.searchTerm = '';
 
             // Emit change for v-model support
-            this.$emit('input', this.values);
+            this.$emit('input', this.selections.map((item) => item.id));
 
             this.setFocus();
         }

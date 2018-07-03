@@ -34,6 +34,9 @@
         "move": "Move",
         "delete": "Delete"
       }
+    },
+    "sw-multi-select": {
+      "messageNoResults": "No Results found for \"{term}\"."
     }
   },
   "sw-login": {
@@ -220,7 +223,7 @@
       "labelCatalog": "Catalog",
       "labelCategory": "Category",
       "placeholderCatalog": "Select product catalog...",
-      "placeholderCategory": "Select product categories...",
+      "placeholderCategory": "Type to search for categories...",
       "optionDefaultCatalog": "Default catalog"
     },
     "priceForm": {

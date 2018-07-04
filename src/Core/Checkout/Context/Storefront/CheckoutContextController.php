@@ -63,12 +63,12 @@ class CheckoutContextController extends Controller
     }
 
     /**
-     * @Route("/storefront-api/context/", name="storefront.api.context.update")
+     * @Route("/storefront-api/context", name="storefront.api.context.update")
      * @Method({"PUT"})
      */
     public function update(Request $request, CheckoutContext $context): JsonResponse
     {
-        $payload = $this->getPayload($request);
+        $payload = $request->request->all();
 
         $update = [];
         if (array_key_exists('shippingMethodId', $payload)) {
@@ -136,14 +136,5 @@ class CheckoutContextController extends Controller
         }
 
         return $addressId;
-    }
-
-    private function getPayload(Request $request): array
-    {
-        if (empty($request->getContent())) {
-            return [];
-        }
-
-        return $this->serializer->decode($request->getContent(), 'json');
     }
 }

@@ -38,6 +38,7 @@ use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\NotRule;
 use Shopware\Core\Framework\Rule\CurrencyRule;
 use Shopware\Core\Framework\Rule\DateRangeRule;
+use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
@@ -565,22 +566,40 @@ class DemodataCommand extends ContainerAwareCommand
         }
 
         $pool = [
-            new IsNewCustomerRule(),
-            new DateRangeRule(new \DateTime(), (new \DateTime())->modify('+2 day')),
-            new GoodsPriceRule(5000, GoodsPriceRule::OPERATOR_GTE),
-            new NotRule([new CustomerGroupRule([Defaults::FALLBACK_CUSTOMER_GROUP])]),
-            new NotRule([new CurrencyRule([Defaults::CURRENCY])]),
+            [
+                'rule' => new IsNewCustomerRule(),
+                'name' => 'New customer',
+            ],
+            [
+                'rule' => new DateRangeRule(new \DateTime(), (new \DateTime())->modify('+2 day')),
+                'name' => 'Next two days',
+            ],
+            [
+                'rule' => new GoodsPriceRule(5000, GoodsPriceRule::OPERATOR_GTE),
+                'name' => 'Cart >= 5000',
+            ],
+            [
+                'rule' => new NotRule([new CustomerGroupRule([Defaults::FALLBACK_CUSTOMER_GROUP])]),
+                'name' => 'Default group',
+            ],
+            [
+                'rule' => new NotRule([new CurrencyRule([Defaults::CURRENCY])]),
+                'name' => 'Default currency',
+            ],
         ];
 
         $payload = [];
         for ($i = 0; $i < 20; ++$i) {
             $rules = \array_slice($pool, random_int(0, count($pool) - 2), random_int(1, 2));
 
+            $classes = array_column($rules, 'rule');
+            $names = array_column($rules, 'name');
+
             $payload[] = [
                 'id' => Uuid::uuid4()->getHex(),
                 'priority' => $i,
-                'name' => 'Random rule value',
-                'payload' => new AndRule($rules),
+                'name' => implode(' + ', $names),
+                'payload' => new AndRule($classes),
             ];
         }
 

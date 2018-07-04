@@ -90,17 +90,7 @@ class WriteCommandExtractor
         $existence = $this->entityExistenceGateway->getExistence($definition, $pkData, $rawData, $commandQueue);
         $rawData = $this->integrateDefaults($definition, $rawData, $existence);
 
-        $mainFields = array_filter($fields, function (Field $field) {
-            if ($field instanceof ChildrenAssociationField) {
-                return false;
-            }
-
-            if (!$field->is(PrimaryKey::class)) {
-                return true;
-            }
-
-            return $field instanceof FkField;
-        });
+        $mainFields = $this->getMainFields($fields);
 
         // without child association
         $data = $this->map($mainFields, $rawData, $existence, $exceptionStack, $extender);
@@ -218,15 +208,25 @@ class WriteCommandExtractor
     {
         $fields = $definition::getFields()->getElements();
 
-        $filtered = array_filter($fields, function (Field $field) {
-            return !$field->is(ReadOnly::class);
-        });
+        $filtered = [];
 
-        usort($filtered, function (Field $a, Field $b) {
-            return $b->getExtractPriority() <=> $a->getExtractPriority();
-        });
+        /** @var Field $field */
+        foreach ($fields as $field) {
+            if ($field->is(ReadOnly::class)) {
+                continue;
+            }
+            $filtered[$field->getExtractPriority()][] = $field;
+        }
 
-        return $filtered;
+        krsort($filtered, SORT_NUMERIC);
+
+        $sorted = [];
+        foreach ($filtered as $prio => $fields) {
+            foreach ($fields as $field) {
+                $sorted[] = $field;
+            }
+        }
+        return $sorted;
     }
 
     /**
@@ -335,5 +335,30 @@ class WriteCommandExtractor
         }
 
         return null;
+    }
+
+    /**
+     * @param Field[] $fields
+     * @return Field[]
+     */
+    private function getMainFields(array $fields): array
+    {
+        $main = [];
+        foreach ($fields as $field) {
+            if ($field instanceof ChildrenAssociationField) {
+                continue;
+            }
+
+            if (!$field->is(PrimaryKey::class)) {
+                $main[] = $field;
+                continue;
+            }
+
+            if ($field instanceof FkField) {
+                $main[] = $field;
+            }
+        }
+
+        return $main;
     }
 }

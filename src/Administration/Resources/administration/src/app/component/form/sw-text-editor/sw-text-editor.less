@@ -1,0 +1,90 @@
+@import "~less/variables";
+
+@sw-text-editor-color-border:           @color-steam-cloud;
+@sw-text-editor-color-label:            @color-kashmir;
+@sw-text-editor-color-toolbar:          #9aa8b5;
+@sw-text-editor-color-toolbar-bg:       #f4f7fa;
+@sw-text-editor-color-toolbar-hover:    @color-shopware-blue;
+@sw-text-editor-font:                   @font-family-default;
+
+.sw-text-editor {
+    margin-bottom: 22px;
+
+    .sw-text-editor__label {
+        display: block;
+        line-height: 16px;
+        font-size: 14px;
+        margin-bottom: 8px;
+        color: @sw-text-editor-color-label;
+        font-weight: normal;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .ql-toolbar {
+        border-color: @sw-text-editor-color-border;
+        background: @sw-text-editor-color-toolbar-bg;
+        border-top-left-radius: @border-radius-default;
+        border-top-right-radius: @border-radius-default;
+
+        .ql-stroke {
+            stroke: @sw-text-editor-color-toolbar;
+        }
+
+        .ql-fill {
+            fill: @sw-text-editor-color-toolbar;
+        }
+
+        .ql-picker {
+            color: @sw-text-editor-color-toolbar;
+        }
+
+        button:hover,
+        button:focus,
+        button.ql-active,
+        .ql-picker-label:hover,
+        .ql-picker-label.ql-active,
+        .ql-picker-item:hover,
+        .ql-picker-item.ql-selected {
+            color: @sw-text-editor-color-toolbar-hover;
+
+            .ql-stroke {
+                stroke: @sw-text-editor-color-toolbar-hover;
+            }
+
+            .ql-fill {
+                fill: @sw-text-editor-color-toolbar-hover;
+            }
+
+            .ql-picker {
+                color: @sw-text-editor-color-toolbar-hover;
+            }
+        }
+    }
+
+    .editor {
+        border-color: @sw-text-editor-color-border;
+        border-width: 0 1px;
+        font-family: @sw-text-editor-font;
+        height: 260px;
+        overflow: auto;
+
+        .ql-editor {
+            padding: 15px 20px;
+
+            &.ql-blank::before {
+                left: 20px;
+            }
+        }
+    }
+
+    .editor__sub-toolbar {
+        padding: 8px 12px;
+        font-size: 14px;
+        color: @sw-text-editor-color-toolbar;
+        background: #f4f7fa;
+        border: 1px solid @sw-text-editor-color-border;
+        border-bottom-left-radius: @border-radius-default;
+        border-bottom-right-radius: @border-radius-default;
+    }
+}

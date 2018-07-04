@@ -29,7 +29,7 @@ Component.register('sw-container', {
             required: false,
             default: 'stretch',
             validator(value) {
-                return ['start', 'end', 'center', 'stretch'].includes(value);
+                return ['start', 'end', 'center', 'stretch', 'left', 'right'].includes(value);
             }
         },
         align: {

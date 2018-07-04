@@ -2,7 +2,7 @@
     <div class="sw-order-detail-deliveries">
 
         {% block sw_order_detail_deliveries_delivery %}
-            <sw-card v-for="(delivery, index) in order.deliveries"
+            <sw-card v-for="(delivery, index) in deliveries"
                      class="sw-order-detail-deliveries__delivery"
                      :title="$tc('sw-order.detailDeliveries.cardTitleItems', 0, { count: index + 1 })"
                      :isLoading="order.isLoading"
@@ -33,7 +33,7 @@
 
                         {% block sw_order_detail_deliveries_delivery_row_line_items %}
                             {# TODO: Get line items from delivery #}
-                            <sw-order-line-items-grid :orderLineItems="order.lineItems"></sw-order-line-items-grid>
+                            <sw-order-line-items-grid :orderLineItems="order.lineItems" :order="order"></sw-order-line-items-grid>
                         {% endblock %}
 
                         {% block sw_order_detail_deliveries_delivery_row_info %}

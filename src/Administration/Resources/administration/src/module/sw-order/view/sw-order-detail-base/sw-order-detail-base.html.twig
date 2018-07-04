@@ -38,7 +38,7 @@
                                 <dt>{{ $tc('sw-order.detailBase.labelOrderStatus') }}</dt>
                                 <dd>{{ order.state.description }}</dd>
                                 <dt>{{ $tc('sw-order.detailBase.summaryLabelAmountTotal') }}</dt>
-                                <dd>{{ order.amountTotal | currency }}</dd>
+                                <dd>{{ order.amountTotal }} {{ order.currency.symbol }}</dd>
                                 <dt>{{ $tc('sw-order.detailBase.labelOrderDate') }}</dt>
                                 <dd>{{ order.date | date }}</dd>
                                 <dt>{{ $tc('sw-order.detailBase.labelSalesChanel') }}</dt>
@@ -65,7 +65,7 @@
                     <sw-container slot="grid" type="row">
 
                         {% block sw_order_detail_base_line_items_grid %}
-                            <sw-order-line-items-grid :orderLineItems="order.lineItems"></sw-order-line-items-grid>
+                            <sw-order-line-items-grid :orderLineItems="lineItems" :order="order"></sw-order-line-items-grid>
                         {% endblock %}
 
                         {% block sw_order_detail_base_line_items_row_summary %}
@@ -76,11 +76,11 @@
                                         <sw-description-list columns="265px 1fr"
                                                              class="sw-order-detail-base__summary-data">
                                             <dt>{{ $tc('sw-order.detailBase.summaryLabelAmount') }}</dt>
-                                            <dd>{{ order.positionPrice | currency }}</dd>
+                                            <dd>{{ order.positionPrice }} {{ order.currency.symbol }}</dd>
                                             <dt>{{ $tc('sw-order.detailBase.summaryLabelShippingCosts') }}</dt>
-                                            <dd>{{ order.shippingTotal | currency }}</dd>
+                                            <dd>{{ order.shippingTotal }} {{ order.currency.symbol }}</dd>
                                             <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountTotal') }}</strong></dt>
-                                            <dd><strong>{{ order.amountTotal | currency }}</strong></dd>
+                                            <dd><strong>{{ order.amountTotal }} {{ order.currency.symbol }}</strong></dd>
                                         </sw-description-list>
                                     {% endblock %}
                                 </sw-container>

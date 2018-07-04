@@ -9,7 +9,16 @@ Component.register('sw-order-line-items-grid', {
         orderLineItems: {
             type: Array,
             required: true,
-            default: []
+            default() {
+                return [];
+            }
+        },
+        order: {
+            type: Object,
+            required: true,
+            default() {
+                return {};
+            }
         }
     },
 

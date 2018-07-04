@@ -9,7 +9,16 @@ Component.register('sw-order-detail-base', {
         order: {
             type: Object,
             required: true,
-            default: {}
+            default() {
+                return {};
+            }
+        },
+        lineItems: {
+            type: Array,
+            required: true,
+            default() {
+                return [];
+            }
         }
     }
 });

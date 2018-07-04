@@ -23,7 +23,7 @@
                                     align="right"
                                     :label="$tc('sw-order.detailBase.columnPrice')">
                         {% block sw_order_line_items_grid_columns_unit_price_label %}
-                            {{ item.unitPrice | currency }}
+                            {{ item.unitPrice }} {{ order.currency.symbol }}
                         {% endblock %}
                     </sw-grid-column>
                 {% endblock %}
@@ -43,7 +43,7 @@
                                     align="right"
                                     :label="$tc('sw-order.detailBase.columnTotalPrice')">
                         {% block sw_order_line_items_grid_columns_total_price_label %}
-                            {{ item.totalPrice | currency }}
+                            {{ item.totalPrice }} {{ order.currency.symbol }}
                         {% endblock %}
                     </sw-grid-column>
                 {% endblock %}
@@ -57,13 +57,9 @@
                             <sw-context-button>
 
                                 {% block sw_order_line_items_grid_columns_actions_show %}
-                                    <sw-context-menu-item icon="default-eye-open">
-                                        {% block sw_order_line_items_grid_columns_actions_show_link %}
-                                            <router-link :to="{ name: 'sw.product.detail', params: { id: item.identifier } }">
-                                                {% block sw_order_line_items_grid_columns_actions_show_label %}
-                                                    {{ $tc('sw-order.detailBase.contextMenuShowProduct') }}
-                                                {% endblock %}
-                                            </router-link>
+                                    <sw-context-menu-item icon="default-eye-open" :routerLink="{ name: 'sw.product.detail', params: { id: item.identifier } }">
+                                        {% block sw_order_line_items_grid_columns_actions_show_label %}
+                                            {{ $tc('sw-order.detailBase.contextMenuShowProduct') }}
                                         {% endblock %}
                                     </sw-context-menu-item>
                                 {% endblock %}

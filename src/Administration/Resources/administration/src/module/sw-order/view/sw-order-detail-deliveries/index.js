@@ -9,7 +9,16 @@ Component.register('sw-order-detail-deliveries', {
         order: {
             type: Object,
             required: true,
-            default: {}
+            default() {
+                return {};
+            }
+        },
+        deliveries: {
+            type: Array,
+            required: true,
+            default() {
+                return [];
+            }
         }
     }
 });

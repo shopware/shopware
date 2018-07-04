@@ -44,11 +44,6 @@ class OrderLineItemStruct extends Entity
     protected $description;
 
     /**
-     * @var string
-     */
-    protected $payload;
-
-    /**
      * @var string|null
      */
     protected $parentId;
@@ -146,16 +141,6 @@ class OrderLineItemStruct extends Entity
     public function setDescription(?string $description): void
     {
         $this->description = $description;
-    }
-
-    public function getPayload(): string
-    {
-        return $this->payload;
-    }
-
-    public function setPayload(string $payload): void
-    {
-        $this->payload = $payload;
     }
 
     public function getParentId(): ?string

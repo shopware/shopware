@@ -19,6 +19,13 @@ Component.register('sw-customer-detail-addresses', {
             default() {
                 return [];
             }
+        },
+        addresses: {
+            type: Array,
+            required: true,
+            default() {
+                return [];
+            }
         }
     },
 

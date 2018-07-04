@@ -82,14 +82,18 @@ Component.register('sw-customer-detail', {
                 this.customerId = this.$route.params.id;
                 this.customer = this.customerStore.getById(this.customerId);
                 const criteria = [];
-                const params = {
+                const addressParams = {
                     limit: 100,
                     offset: 0
                 };
 
                 // todo this is a temporary solution for association loading
-                criteria.push(CriteriaFactory.term('customer_address.customerId', this.customerId));
-                params.criteria = CriteriaFactory.nested('AND', ...criteria);
+                criteria.push(CriteriaFactory.term('customerId', this.customerId));
+                addressParams.criteria = CriteriaFactory.nested('AND', ...criteria);
+
+                this.customerAddressStore.getList(addressParams).then((response) => {
+                    this.addresses = response.items;
+                });
 
                 this.touchpointStore.getList({ offset: 0, limit: 100 }).then((response) => {
                     this.touchpoints = response.items;

@@ -1,6 +1,6 @@
 {% block sw_multi_select %}
     <div class="sw-multi-select"
-         :class="{ 'has--error': hasError }"
+         :class="multiSelectClasses"
          ref="swMultiSelect"
          @click="setFocus"
          @keyup.esc="closeResultList"
@@ -13,10 +13,13 @@
         {% endblock %}
 
         {% block sw_multi_select_inner %}
-            <div class="sw-multi-select__inner" :class="{ 'is--expanded': isExpanded }">
+            <div class="sw-multi-select__inner">
 
                 {% block sw_multi_select_selections %}
-                    <transition-group name="appear" tag="ul" class="sw-multi-select__selections" mode="out-in">
+                    <transition-group name="sw-multi-select-magnify"
+                                      tag="ul"
+                                      class="sw-multi-select__selections"
+                                      mode="out-in">
                         {% block sw_multi_select_selection_item %}
                             <li class="sw-multi-select__selection-item"
                                 v-for="selection in displaySelections"
@@ -61,7 +64,7 @@
                 {% endblock %}
 
                 {% block sw_multi_select_results_transition %}
-                    <transition name="fade">
+                    <transition name="sw-multi-select-fade-down">
                         {% block sw_multi_select_results %}
                             <div class="sw-multi-select__results" v-if="isExpanded">
 
@@ -81,9 +84,9 @@
                                                 {% endblock %}
 
                                                 {% block sw_multi_select_result_item_icon_transition %}
-                                                    <transition name="show">
+                                                    <transition name="sw-multi-select-appear">
                                                         {% block sw_multi_select_result_item_icon %}
-                                                            <sw-icon v-if="isSelected(result)"
+                                                            <sw-icon v-if="isInSelections(result)"
                                                                      name="small-default-checkmark-line-medium"
                                                                      size="16px">
                                                             </sw-icon>

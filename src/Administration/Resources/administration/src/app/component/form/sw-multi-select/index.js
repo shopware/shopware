@@ -1,4 +1,5 @@
 import { Component } from 'src/core/shopware';
+import CriteriaFactory from 'src/core/factory/criteria.factory';
 import './sw-multi-select.less';
 import template from './sw-multi-select.html.twig';
 
@@ -40,6 +41,16 @@ Component.register('sw-multi-select', {
             type: Number,
             required: false,
             default: 400
+        },
+        entityName: {
+            type: String,
+            required: false,
+            default: 'category'
+        },
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -65,8 +76,12 @@ Component.register('sw-multi-select', {
             return this.selections;
         },
 
-        currentSearchTerm() {
-            return this.searchTerm;
+        multiSelectClasses() {
+            return {
+                'has--error': this.hasError,
+                'is--disabled': this.disabled,
+                'is--expanded': this.isExpanded
+            };
         }
     },
 
@@ -102,20 +117,34 @@ Component.register('sw-multi-select', {
         },
 
         loadSelections() {
-            // TODO 1. Load selections initially (terms query with multiple IDs)
-            // TODO 2. On adding use local selection array with id and name
+            if (!this.value.length) {
+                return;
+            }
 
-            // const criteria = [];
-            // const params = {};
-            //
-            // criteria.push(CriteriaFactory.term('customer_address.customerId', this.customerId));
-            // params.criteria = CriteriaFactory.nested('AND', ...criteria);
-            //
-            // this.serviceProvider.getList(0, 200, {
-            //
-            // }).then((response) => {
-            //     console.log(response.data);
-            // });
+            this.isLoading = true;
+
+            const criteria = CriteriaFactory.nested(
+                'AND',
+                CriteriaFactory.terms(`${this.entityName}.id`, this.value)
+            );
+
+            this.serviceProvider.getList(0, this.value.length, {
+                filter: [criteria.getQuery()]
+            }).then((response) => {
+                this.selections = response.data;
+                this.isLoading = false;
+            });
+        },
+
+        loadResults() {
+            this.timeout = setTimeout(() => {
+                this.serviceProvider.getList(0, this.resultsLimit, { term: this.searchTerm }).then((response) => {
+                    this.results = response.data;
+                    this.isLoading = false;
+
+                    this.scrollToResultsTop();
+                });
+            }, this.searchDelayTime);
         },
 
         loadPreviewResults() {
@@ -127,35 +156,13 @@ Component.register('sw-multi-select', {
             });
         },
 
-        closeOnClickOutside(event) {
-            const target = event.target;
-
-            if (target.closest('.sw-multi-select') === null) {
-                this.isExpanded = false;
-                this.activeResultPosition = 0;
-            }
+        openResultList() {
+            this.isExpanded = true;
         },
 
-        getCategoryEntry(id) {
-            return this.results.find((entry) => {
-                return entry.id === id;
-            });
-        },
-
-        setActiveResultPosition(index) {
-            this.activeResultPosition = index;
-        },
-
-        dismissSelection(id) {
-            if (!id) {
-                return;
-            }
-
-            this.selections = this.selections.filter((entry) => entry.id !== id);
-
-            this.$emit('input', this.selections);
-
-            this.setFocus();
+        closeResultList() {
+            this.isExpanded = false;
+            this.$refs.swMultiSelectInput.blur();
         },
 
         onSearchTermChange() {
@@ -172,24 +179,8 @@ Component.register('sw-multi-select', {
             }
         },
 
-        loadResults() {
-            this.timeout = setTimeout(() => {
-                this.serviceProvider.getList(0, this.resultsLimit, { term: this.searchTerm }).then((response) => {
-                    this.results = response.data;
-                    this.isLoading = false;
-
-                    this.scrollToResultsTop();
-                });
-            }, this.searchDelayTime);
-        },
-
-        openResultList() {
-            this.isExpanded = true;
-        },
-
-        closeResultList() {
-            this.isExpanded = false;
-            this.$refs.swMultiSelectInput.blur();
+        setActiveResultPosition(index) {
+            this.activeResultPosition = index;
         },
 
         navigateUpResults() {
@@ -224,8 +215,43 @@ Component.register('sw-multi-select', {
         },
 
         scrollToResultsTop() {
-            const swMultiSelectEl = this.$refs.swMultiSelect;
-            swMultiSelectEl.querySelector('.sw-multi-select__results').scrollTop = 0;
+            this.$refs.swMultiSelect.querySelector('.sw-multi-select__results').scrollTop = 0;
+        },
+
+        setFocus() {
+            this.$refs.swMultiSelectInput.focus();
+        },
+
+        closeOnClickOutside(event) {
+            const target = event.target;
+
+            if (target.closest('.sw-multi-select') === null) {
+                this.isExpanded = false;
+                this.activeResultPosition = 0;
+            }
+        },
+
+        isInSelections(result) {
+            return !this.selections.every((item) => {
+                return item.id !== result.id;
+            });
+        },
+
+        addSelection(result) {
+            if (!result.id || !result.name) {
+                return;
+            }
+
+            if (this.isInSelections(result)) {
+                return;
+            }
+
+            this.selections.push({ id: result.id, name: result.name });
+            this.searchTerm = '';
+
+            this.$emit('input', this.selections.map((item) => item.id));
+
+            this.setFocus();
         },
 
         addSelectionOnEnter() {
@@ -246,6 +272,18 @@ Component.register('sw-multi-select', {
             this.addSelection(result[0]);
         },
 
+        dismissSelection(id) {
+            if (!id) {
+                return;
+            }
+
+            this.selections = this.selections.filter((entry) => entry.id !== id);
+
+            this.$emit('input', this.selections);
+
+            this.setFocus();
+        },
+
         dismissLastSelection() {
             if (this.searchTerm.length > 0) {
                 return;
@@ -258,33 +296,6 @@ Component.register('sw-multi-select', {
             const lastSelectionId = this.selections.slice(-1)[0].id;
 
             this.dismissSelection(lastSelectionId);
-        },
-
-        setFocus() {
-            this.$refs.swMultiSelectInput.focus();
-        },
-
-        isSelected(result) {
-            return !this.selections.every((item) => {
-                return item.id !== result.id;
-            });
-        },
-
-        addSelection(result) {
-            if (!result.id || !result.name) {
-                return;
-            }
-
-            if (this.isSelected(result)) {
-                return;
-            }
-
-            this.selections.push({ id: result.id, name: result.name });
-            this.searchTerm = '';
-
-            this.$emit('input', this.selections.map((item) => item.id));
-
-            this.setFocus();
         }
     }
 });

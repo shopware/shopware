@@ -3,13 +3,14 @@
 namespace Shopware\Core\Framework\Struct;
 
 use Ramsey\Uuid\UuidInterface;
+use Shopware\Core\Framework\Exception\InvalidUuidException;
 
 class Uuid
 {
     /**
      * Regular expression pattern for matching a valid UUID of any variant.
      */
-    const VALID_PATTERN = '^[0-9A-Fa-f]{8}-?[0-9A-Fa-f]{4}-?[0-9A-Fa-f]{4}-?[0-9A-Fa-f]{4}-?[0-9A-Fa-f]{12}$';
+    public const VALID_PATTERN = '^[0-9A-Fa-f]{8}-?[0-9A-Fa-f]{4}-?[0-9A-Fa-f]{4}-?[0-9A-Fa-f]{4}-?[0-9A-Fa-f]{12}$';
 
     public static function uuid4(): UuidInterface
     {
@@ -19,27 +20,31 @@ class Uuid
 
     public static function fromBytesToHex(string $bytes): string
     {
-        return strtolower(bin2hex($bytes));
+        return bin2hex($bytes);
     }
 
-    public static function fromBytesToString(string $bytes): string
-    {
-        return strtolower(bin2hex($bytes));
-    }
-
+    /**
+     * @throws InvalidUuidException
+     */
     public static function fromStringToBytes(string $uuid): string
     {
-        return hex2bin(self::optimize($uuid));
+        if ($bin = @hex2bin(str_replace('-', '', $uuid))) {
+            return $bin;
+        }
+
+        throw new InvalidUuidException($uuid);
     }
 
-    public static function fromStringToHex(string $uuid): string
-    {
-        return self::optimize($uuid);
-    }
-
+    /**
+     * @throws InvalidUuidException
+     */
     public static function fromHexToBytes(string $hex): string
     {
-        return hex2bin(strtolower($hex));
+        if ($bin = @hex2bin($hex)) {
+            return $bin;
+        }
+
+        throw new InvalidUuidException($hex);
     }
 
     public static function fromHexToString(string $hex): string
@@ -54,10 +59,5 @@ class Uuid
         }
 
         return true;
-    }
-
-    public static function optimize(string $id): string
-    {
-        return str_replace('-', '', strtolower($id));
     }
 }

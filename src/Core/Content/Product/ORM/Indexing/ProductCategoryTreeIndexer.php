@@ -227,13 +227,6 @@ class ProductCategoryTreeIndexer implements IndexerInterface
     private function mapCategories(array $mapping): array
     {
         $categoryIds = array_filter(explode('||', (string) $mapping['ids']));
-        $categoryIds = array_map(
-            function (string $bytes) {
-                return Uuid::fromStringToHex($bytes);
-            },
-            $categoryIds
-        );
-
         $categoryIds = array_merge(
             explode('|', (string) $mapping['paths']),
             $categoryIds

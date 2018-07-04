@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Api\EventListener;
 
 use League\OAuth2\Server\Exception\OAuthServerException;
-use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,12 +12,6 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class ResponseExceptionListener extends ExceptionListener
 {
-    public function __construct(LoggerInterface $logger)
-    {
-        parent::__construct(null, $logger);
-        $this->logger = $logger;
-    }
-
     public function onKernelException(GetResponseForExceptionEvent $event)
     {
         $exception = $event->getException();
@@ -26,7 +19,7 @@ class ResponseExceptionListener extends ExceptionListener
         $this->logException($exception, sprintf('Uncaught PHP Exception %s: "%s" at %s line %s', \get_class($exception), $exception->getMessage(), $exception->getFile(), $exception->getLine()));
 
         if ($exception instanceof ShopwareHttpException) {
-            $response = new JsonResponse(['errors' => iterator_to_array($exception->getErrors())], $exception->getStatusCode());
+            $response = new JsonResponse(['errors' => iterator_to_array($exception->getErrors($this->debug))], $exception->getStatusCode());
         } elseif ($exception instanceof OAuthServerException) {
             $error = [
                 'code' => (string) $exception->getCode(),
@@ -64,6 +57,10 @@ class ResponseExceptionListener extends ExceptionListener
             'detail' => $exception->getMessage(),
             'trace' => $exception->getTraceAsString(),
         ];
+
+        if ($this->debug) {
+            $error['trace'] = $exception->getTrace();
+        }
 
         return [$error];
     }

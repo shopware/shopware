@@ -63,7 +63,7 @@ class ProductOfManufacturerRuleTest extends TestCase
 
     private function createProductWithManufacturer(): ProductStruct
     {
-        $id = Uuid::optimize(Uuid::uuid4()->getHex());
+        $id = Uuid::uuid4()->getHex();
 
         $manufacturer = new ProductManufacturerStruct();
         $manufacturer->setId($id);

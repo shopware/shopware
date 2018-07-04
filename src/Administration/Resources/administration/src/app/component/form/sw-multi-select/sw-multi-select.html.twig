@@ -1,12 +1,19 @@
 {% block sw_multi_select %}
-    <div class="sw-multi-select" @click="setFocus" ref="swMultiSelect">
+    <div class="sw-multi-select"
+         :class="{ 'has--error': hasError }"
+         ref="swMultiSelect"
+         @click="setFocus"
+         @keyup.esc="closeResultList"
+         @keyup.enter.prevent="addSelectionOnEnter"
+         @keydown.up.prevent="navigateUpResults"
+         @keydown.down.prevent="navigateDownResults">
 
         {% block sw_multi_select_label %}
             <label v-if="label" :for="id" class="sw-multi-select__label">{{ label }}</label>
         {% endblock %}
 
         {% block sw_multi_select_inner %}
-            <div class="sw-multi-select__inner" ref="swMultiSelectInner" :class="{ 'is--expanded': isExpanded }">
+            <div class="sw-multi-select__inner" :class="{ 'is--expanded': isExpanded }">
 
                 {% block sw_multi_select_selections %}
                     <transition-group name="appear" tag="ul" class="sw-multi-select__selections" mode="out-in">
@@ -24,7 +31,7 @@
                                 {% block sw_multi_select_selection_dismiss %}
                                     <button class="sw-multi-select__selection-dismiss"
                                             title="Delete"
-                                            @click.prevent="onDismissSelection(selection.id)">
+                                            @click.prevent="dismissSelection(selection.id)">
                                         {% block sw_multi_select_selection_dismiss_icon %}
                                             <sw-icon name="small-default-x-line-medium"></sw-icon>
                                         {% endblock %}
@@ -41,7 +48,8 @@
                                            type="text"
                                            :placeholder="placeholder"
                                            v-model="searchTerm"
-                                           @focus="openResultList">
+                                           @focus="openResultList"
+                                           @keydown.delete="dismissLastSelection">
                                 {% endblock %}
                             </li>
                         {% endblock %}
@@ -65,9 +73,22 @@
                                                 :class="{ 'is--selected': (index === activeResultPosition) }"
                                                 :data-id="result.id"
                                                 @mouseover="setActiveResultPosition(index)"
-                                                @click="onSelectEntry(result)">
+                                                @click="addSelection(result)">
                                                 {% block sw_multi_select_result_item_text %}
-                                                    {{ result.name }}
+                                                    <span class="sw-multi-select__result-item-text">
+                                                        {{ result.name }}
+                                                    </span>
+                                                {% endblock %}
+
+                                                {% block sw_multi_select_result_item_icon_transition %}
+                                                    <transition name="show">
+                                                        {% block sw_multi_select_result_item_icon %}
+                                                            <sw-icon v-if="isSelected(result)"
+                                                                     name="small-default-checkmark-line-medium"
+                                                                     size="16px">
+                                                            </sw-icon>
+                                                        {% endblock %}
+                                                    </transition>
                                                 {% endblock %}
                                             </li>
                                         {% endblock %}

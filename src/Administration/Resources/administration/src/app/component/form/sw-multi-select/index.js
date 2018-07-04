@@ -47,10 +47,11 @@ Component.register('sw-multi-select', {
         return {
             searchTerm: '',
             isExpanded: false,
-            results: [], // entries
-            selections: [], // values
+            results: [],
+            selections: [],
             activeResultPosition: 0,
             isLoading: false,
+            hasError: false,
             timeout: null
         };
     },
@@ -61,8 +62,6 @@ Component.register('sw-multi-select', {
         },
 
         displaySelections() {
-            // TODO 1. Load selections initially (terms query with multiple IDs)
-            // TODO 2. On adding use local selection array with id and name
             return this.selections;
         },
 
@@ -86,6 +85,7 @@ Component.register('sw-multi-select', {
     methods: {
         createdComponent() {
             this.loadPreviewResults();
+            this.loadSelections();
             this.addEventListeners();
         },
 
@@ -94,15 +94,28 @@ Component.register('sw-multi-select', {
         },
 
         addEventListeners() {
-            document.addEventListener('keyup', this.handleKeyUpActions);
-            document.addEventListener('keydown', this.handleKeyDownActions);
             document.addEventListener('click', this.closeOnClickOutside);
         },
 
         removeEventListeners() {
-            document.removeEventListener('keyup', this.handleKeyUpActions);
-            document.removeEventListener('keydown', this.handleKeyDownActions);
             document.removeEventListener('click', this.closeOnClickOutside);
+        },
+
+        loadSelections() {
+            // TODO 1. Load selections initially (terms query with multiple IDs)
+            // TODO 2. On adding use local selection array with id and name
+
+            // const criteria = [];
+            // const params = {};
+            //
+            // criteria.push(CriteriaFactory.term('customer_address.customerId', this.customerId));
+            // params.criteria = CriteriaFactory.nested('AND', ...criteria);
+            //
+            // this.serviceProvider.getList(0, 200, {
+            //
+            // }).then((response) => {
+            //     console.log(response.data);
+            // });
         },
 
         loadPreviewResults() {
@@ -133,15 +146,13 @@ Component.register('sw-multi-select', {
             this.activeResultPosition = index;
         },
 
-        onDismissSelection(id) {
+        dismissSelection(id) {
             if (!id) {
                 return;
             }
 
-            // Remove the field from the value attribute of the hidden field
             this.selections = this.selections.filter((entry) => entry.id !== id);
 
-            // Emit change for v-model support
             this.$emit('input', this.selections);
 
             this.setFocus();
@@ -154,15 +165,22 @@ Component.register('sw-multi-select', {
             clearTimeout(this.timeout);
 
             if (this.searchTerm.length > 0) {
-                this.timeout = setTimeout(() => {
-                    this.serviceProvider.getList(0, this.resultsLimit, { term: this.searchTerm }).then((response) => {
-                        this.results = response.data;
-                        this.isLoading = false;
-                    });
-                }, this.searchDelayTime);
+                this.loadResults();
             } else {
                 this.loadPreviewResults();
+                this.scrollToResultsTop();
             }
+        },
+
+        loadResults() {
+            this.timeout = setTimeout(() => {
+                this.serviceProvider.getList(0, this.resultsLimit, { term: this.searchTerm }).then((response) => {
+                    this.results = response.data;
+                    this.isLoading = false;
+
+                    this.scrollToResultsTop();
+                });
+            }, this.searchDelayTime);
         },
 
         openResultList() {
@@ -172,44 +190,6 @@ Component.register('sw-multi-select', {
         closeResultList() {
             this.isExpanded = false;
             this.$refs.swMultiSelectInput.blur();
-        },
-
-        handleKeyUpActions(event) {
-            const keyEnter = 13;
-            const keyBackspace = 8;
-            const keyEsc = 27;
-
-            if (!this.isExpanded) {
-                return;
-            }
-
-            if (event.keyCode === keyEnter) {
-                this.addItemOnEnter();
-            }
-
-            if (event.keyCode === keyBackspace) {
-                this.deleteItemOnBackspace();
-            }
-
-            if (event.keyCode === keyEsc) {
-                this.closeResultList();
-                this.$refs.swMultiSelectInput.blur();
-            }
-        },
-
-        handleKeyDownActions(event) {
-            const keyArrowUp = 38;
-            const keyArrowDown = 40;
-
-            if (!this.isExpanded) {
-                return;
-            }
-
-            if (event.keyCode === keyArrowUp) {
-                this.navigateUpResults();
-            } else if (event.keyCode === keyArrowDown) {
-                this.navigateDownResults();
-            }
         },
 
         navigateUpResults() {
@@ -230,19 +210,25 @@ Component.register('sw-multi-select', {
 
             this.activeResultPosition = this.activeResultPosition + 1;
 
-            const activeItem = this.$refs.swMultiSelect.querySelector('.is--selected');
-            const itemHeight = activeItem.offsetHeight;
+            const swMultiSelectEl = this.$refs.swMultiSelect;
+            const activeItem = swMultiSelectEl.querySelector('.is--selected');
+            const itemHeight = swMultiSelectEl.querySelector('.sw-multi-select__result-item').offsetHeight;
             const activeItemPosition = activeItem.offsetTop + itemHeight;
             let resultContainerHeight = this.$refs.swMultiSelect.querySelector('.sw-multi-select__results').offsetHeight;
 
             resultContainerHeight -= itemHeight;
 
             if (activeItemPosition > resultContainerHeight) {
-                this.$refs.swMultiSelect.querySelector('.sw-multi-select__results').scrollTop += itemHeight;
+                swMultiSelectEl.querySelector('.sw-multi-select__results').scrollTop += itemHeight;
             }
         },
 
-        addItemOnEnter() {
+        scrollToResultsTop() {
+            const swMultiSelectEl = this.$refs.swMultiSelect;
+            swMultiSelectEl.querySelector('.sw-multi-select__results').scrollTop = 0;
+        },
+
+        addSelectionOnEnter() {
             const activeItem = this.$refs.swMultiSelect.querySelector('.is--selected');
             const id = activeItem.dataset.id;
 
@@ -250,51 +236,52 @@ Component.register('sw-multi-select', {
                 return;
             }
 
-            this.onSelectEntry(id);
+            const result = this.results.filter((entry) => entry.id === id);
+
+            if (!result.length) {
+                return;
+            }
+
+            // TODO: First array item?
+            this.addSelection(result[0]);
         },
 
-        deleteItemOnBackspace() {
+        dismissLastSelection() {
             if (this.searchTerm.length > 0) {
                 return;
             }
 
-            const htmlList = this.$refs.swMultiSelect.getElementsByClassName('sw-multi-select__selection-item');
-
-            if (!htmlList.length) {
+            if (!this.selections.length) {
                 return;
             }
 
-            const index = htmlList.length - 1;
-            const list = Array.from(htmlList);
-            const id = list[index].dataset.id;
+            const lastSelectionId = this.selections.slice(-1)[0].id;
 
-            this.onDismissSelection(id);
+            this.dismissSelection(lastSelectionId);
         },
 
         setFocus() {
             this.$refs.swMultiSelectInput.focus();
         },
 
-        onSelectEntry(result) {
+        isSelected(result) {
+            return !this.selections.every((item) => {
+                return item.id !== result.id;
+            });
+        },
+
+        addSelection(result) {
             if (!result.id || !result.name) {
                 return;
             }
 
-            const alreadyExistsInSelection = !this.selections.every((item) => {
-                return item.id !== result.id;
-            });
-
-            if (alreadyExistsInSelection) {
+            if (this.isSelected(result)) {
                 return;
             }
 
-            // Update selections array
             this.selections.push({ id: result.id, name: result.name });
-
-            // Reset search term to reset the filtered list and collapse the drop down
             this.searchTerm = '';
 
-            // Emit change for v-model support
             this.$emit('input', this.selections.map((item) => item.id));
 
             this.setFocus();

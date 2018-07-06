@@ -9,21 +9,21 @@
                 {% block sw_order_detail_base_info_card_actions %}
                     <template slot="actions">
                         {% block sw_order_detail_base_info_card_action_print %}
-                            <sw-button size="small">
+                            <sw-button size="small" disabled>
                                 <sw-icon name="default-device-printer" small></sw-icon>
                                 {{ $tc('sw-order.detailBase.buttonPrint') }}
                             </sw-button>
                         {% endblock %}
 
                         {% block sw_order_detail_base_info_card_action_archive %}
-                            <sw-button size="small">
+                            <sw-button size="small" disabled>
                                 <sw-icon name="small-documentation-map-closed" small></sw-icon>
                                 {{ $tc('sw-order.detailBase.buttonArchive') }}
                             </sw-button>
                         {% endblock %}
 
                         {% block sw_order_detail_base_info_card_action_cancel %}
-                            <sw-button size="small">
+                            <sw-button size="small" disabled>
                                 <sw-icon name="small-default-x-line-medium" small></sw-icon>
                                 {{ $tc('sw-order.detailBase.buttonCancel') }}
                             </sw-button>

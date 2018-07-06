@@ -354,8 +354,8 @@
       "buttonAddOrder": "Add order",
       "textOrders": "Orders",
       "textOrdersTotal": "No orders | One order | {count} orders",
-      "contextMenuView": "View order",
-      "contextMenuDelete": "Delete order",
+      "contextMenuView": "View",
+      "contextMenuDelete": "Delete",
       "contextMenuConfirmPayment": "Confirm payment",
       "messageEmpty": "No orders yet"
     },

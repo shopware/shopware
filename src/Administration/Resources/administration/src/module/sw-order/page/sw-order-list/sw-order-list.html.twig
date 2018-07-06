@@ -88,7 +88,7 @@
                                                             truncate
                                                             sortable>
                                                 {% block sw_order_list_grid_columns_amount_label %}
-                                                    {{ item.amountTotal | currency }}
+                                                    {{ item.amountTotal | currency(item.currency.shortName) }}
                                                 {% endblock %}
                                             </sw-grid-column>
                                         {% endblock %}

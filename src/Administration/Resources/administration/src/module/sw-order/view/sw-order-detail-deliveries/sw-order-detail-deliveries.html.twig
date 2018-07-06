@@ -1,86 +1,16 @@
 {% block sw_order_detail_deliveries %}
     <div class="sw-order-detail-deliveries">
 
-        {% block sw_order_detail_deliveries_delivery %}
-            <sw-card v-for="(delivery, index) in deliveries"
-                     class="sw-order-detail-deliveries__delivery"
-                     :title="$tc('sw-order.detailDeliveries.cardTitleItems', 0, { count: index + 1 })"
-                     :isLoading="order.isLoading"
-                     :key="delivery.id">
-
-                {% block sw_order_detail_deliveries_delivery_rows %}
-                    <sw-container type="row" slot="grid">
-
-                        {% block sw_order_detail_deliveries_delivery_actions %}
-                            <sw-card-section divider="bottom" class="sw-order-detail-deliveries__delivery-actions">
-
-                                {% block sw_order_detail_deliveries_delivery_action_merge %}
-                                    <sw-button size="small">
-                                        {{ $tc('sw-order.detailDeliveries.buttonMerge') }}
-                                        <sw-icon name="small-arrow-small-down" small></sw-icon>
-                                    </sw-button>
-                                {% endblock %}
-
-                                {% block sw_order_detail_deliveries_delivery_action_delete %}
-                                    <sw-button size="small">
-                                        <sw-icon name="small-default-x-line-medium" small></sw-icon>
-                                        {{ $tc('sw-order.detailDeliveries.buttonDelete') }}
-                                    </sw-button>
-                                {% endblock %}
-
-                            </sw-card-section>
-                        {% endblock %}
-
-                        {% block sw_order_detail_deliveries_delivery_row_line_items %}
-                            {# TODO: Get line items from delivery #}
-                            <sw-order-line-items-grid :orderLineItems="order.lineItems" :order="order"></sw-order-line-items-grid>
-                        {% endblock %}
-
-                        {% block sw_order_detail_deliveries_delivery_row_info %}
-                            <sw-card-section divider="top" secondary slim>
-                                {% block sw_order_detail_deliveries_delivery_info %}
-                                    <sw-container grid="1fr 1fr" gap="0 30px">
-
-                                        {% block sw_order_detail_deliveries_delivery_metadata %}
-                                            <sw-description-list>
-                                                {% block sw_order_detail_deliveries_delivery_shipping_method_label %}
-                                                    <dt>{{ $tc('sw-order.detailDeliveries.labelShippingMethod') }}</dt>
-                                                {% endblock %}
-                                                {% block sw_order_detail_deliveries_delivery_shipping_method_value %}
-                                                    <dd>{{ delivery.shippingMethod.name }}</dd>
-                                                {% endblock %}
-
-                                                {% block sw_order_detail_deliveries_delivery_date_label %}
-                                                    <dt>{{ $tc('sw-order.detailDeliveries.labelDeliveryDate') }}</dt>
-                                                {% endblock %}
-                                                {% block sw_order_detail_deliveries_delivery_date_value %}
-                                                    <dd>{{ delivery.shippingDateEarliest | date }}</dd>
-                                                {% endblock %}
-
-                                                {% block sw_order_detail_deliveries_shipping_costs_label %}
-                                                    <dt>{{ $tc('sw-order.detailDeliveries.labelShippingCosts') }}</dt>
-                                                {% endblock %}
-                                                {% block sw_order_detail_deliveries_shipping_costs_value %}
-                                                    <dd></dd>
-                                                {% endblock %}
-                                            </sw-description-list>
-                                        {% endblock %}
-
-                                        {% block sw_order_detail_deliveries_delivery_address %}
-                                            <sw-address headline="Shipping Address"
-                                                        :address="delivery.shippingAddress">
-                                            </sw-address>
-                                        {% endblock %}
-
-                                    </sw-container>
-                                {% endblock %}
-                            </sw-card-section>
-                        {% endblock %}
-
-                    </sw-container>
-                {% endblock %}
-
-            </sw-card>
+        {% block sw_order_detail_delivery_items %}
+            <sw-order-delivery v-for="(delivery, index) in deliveries"
+                               class="sw-order-detail-deliveries__delivery"
+                               :title="$tc('sw-order.detailDeliveries.cardTitleItems', 0, { count: index + 1 })"
+                               :isLoading="order.isLoading"
+                               :delivery="delivery"
+                               :key="delivery.id"
+                               :order="order">
+            </sw-order-delivery>
         {% endblock %}
+
     </div>
 {% endblock %}

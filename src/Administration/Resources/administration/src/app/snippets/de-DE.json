@@ -354,8 +354,8 @@
       "buttonAddOrder": "Bestellung anlegen",
       "textOrders": "Bestellungen",
       "textOrdersTotal": "Keine Bestellungen | Eine Bestellung | {count} Bestellungen",
-      "contextMenuView": "Bestellung anzeigen",
-      "contextMenuDelete": "Bestellung löschen",
+      "contextMenuView": "Anzeigen",
+      "contextMenuDelete": "Löschen",
       "contextMenuConfirmPayment": "Zahlung bestätigen",
       "messageEmpty": "Noch keine Bestellungen"
     },

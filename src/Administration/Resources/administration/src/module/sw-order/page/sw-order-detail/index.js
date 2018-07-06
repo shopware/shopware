@@ -11,7 +11,8 @@ Component.register('sw-order-detail', {
             order: {},
             orderId: null,
             lineItems: [],
-            deliveries: []
+            deliveries: [],
+            deliveryPosition: []
         };
     },
 
@@ -24,8 +25,12 @@ Component.register('sw-order-detail', {
             return State.getStore('order_line_item');
         },
 
-        deliveryStory() {
+        deliveryStore() {
             return State.getStore('order_delivery');
+        },
+
+        deliveryPositionStore() {
+            return State.getStore('order_delivery_position');
         }
     },
 
@@ -41,7 +46,23 @@ Component.register('sw-order-detail', {
 
                 this.getLineItems();
                 this.getDeliveries();
+                this.getDeliveryPosition();
             }
+        },
+
+        getDeliveryPosition() {
+            const criteria = [];
+            const params = {
+                limit: 100,
+                offset: 0
+            };
+
+            criteria.push(CriteriaFactory.term('orderDelivery.orderId', this.orderId));
+            params.criteria = CriteriaFactory.nested('AND', ...criteria);
+
+            this.deliveryPositionStore.getList(params).then((response) => {
+                this.deliveryPosition = response.items;
+            });
         },
 
         getLineItems() {
@@ -69,7 +90,7 @@ Component.register('sw-order-detail', {
             criteria.push(CriteriaFactory.term('orderId', this.orderId));
             params.criteria = CriteriaFactory.nested('AND', ...criteria);
 
-            this.deliveryStory.getList(params).then((response) => {
+            this.deliveryStore.getList(params).then((response) => {
                 this.deliveries = response.items;
             });
         },

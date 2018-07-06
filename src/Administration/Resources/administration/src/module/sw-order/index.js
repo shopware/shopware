@@ -4,6 +4,8 @@ import './page/sw-order-detail';
 import './view/sw-order-detail-base';
 import './view/sw-order-detail-deliveries';
 import './component/sw-order-line-items-grid';
+import './component/sw-order-delivery-line-items-grid';
+import './component/sw-order-delivery';
 
 Module.register('sw-order', {
     type: 'core',

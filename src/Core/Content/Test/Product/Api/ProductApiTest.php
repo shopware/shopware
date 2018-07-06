@@ -65,20 +65,20 @@ class ProductApiTest extends ApiTestCase
         ];
 
         $this->apiClient->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', [], [], [], json_encode($data));
-        $this->assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
+        static::assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
 
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
         $products = $this->repository->read(new ReadCriteria([$id]), $context);
-        $this->assertTrue($products->has($id));
+        static::assertTrue($products->has($id));
 
         /** @var ProductStruct $product */
         $product = $products->get($id);
 
-        $this->assertCount(1, $product->getPriceRules());
+        static::assertCount(1, $product->getPriceRules());
 
         /** @var ProductPriceRuleStruct $price */
         $price = $product->getPriceRules()->first();
-        $this->assertEquals($ruleA, $price->getRuleId());
+        static::assertEquals($ruleA, $price->getRuleId());
 
         $data = [
             'id' => $id,
@@ -101,23 +101,23 @@ class ProductApiTest extends ApiTestCase
         ];
 
         $this->apiClient->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id, [], [], [], json_encode($data));
-        $this->assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
+        static::assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
 
         $products = $this->repository->read(new ReadCriteria([$id]), $context);
-        $this->assertTrue($products->has($id));
+        static::assertTrue($products->has($id));
 
         /** @var ProductStruct $product */
         $product = $products->get($id);
 
-        $this->assertCount(2, $product->getPriceRules());
+        static::assertCount(2, $product->getPriceRules());
 
         /** @var ProductPriceRuleStruct $price */
         $price = $product->getPriceRules()->get($id);
-        $this->assertEquals($ruleA, $price->getRuleId());
-        $this->assertEquals(new PriceStruct(4000, 5000), $price->getPrice());
+        static::assertEquals($ruleA, $price->getRuleId());
+        static::assertEquals(new PriceStruct(4000, 5000), $price->getPrice());
 
-        $this->assertEquals(1, $price->getQuantityStart());
-        $this->assertEquals(20, $price->getQuantityEnd());
+        static::assertEquals(1, $price->getQuantityStart());
+        static::assertEquals(20, $price->getQuantityEnd());
 
         $id3 = Uuid::uuid4()->getHex();
 
@@ -135,22 +135,54 @@ class ProductApiTest extends ApiTestCase
         ];
 
         $this->apiClient->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id, [], [], [], json_encode($data));
-        $this->assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
+        static::assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
 
         $products = $this->repository->read(new ReadCriteria([$id]), $context);
-        $this->assertTrue($products->has($id));
+        static::assertTrue($products->has($id));
 
         /** @var ProductStruct $product */
         $product = $products->get($id);
 
-        $this->assertCount(3, $product->getPriceRules());
+        static::assertCount(3, $product->getPriceRules());
 
         /** @var ProductPriceRuleStruct $price */
         $price = $product->getPriceRules()->get($id3);
-        $this->assertEquals($ruleB, $price->getRuleId());
-        $this->assertEquals(new PriceStruct(50, 50), $price->getPrice());
+        static::assertEquals($ruleB, $price->getRuleId());
+        static::assertEquals(new PriceStruct(50, 50), $price->getPrice());
 
-        $this->assertEquals(1, $price->getQuantityStart());
-        $this->assertNull($price->getQuantityEnd());
+        static::assertEquals(1, $price->getQuantityStart());
+        static::assertNull($price->getQuantityEnd());
+    }
+
+    public function testSpecialCharacterInDescriptionTest()
+    {
+        $id = Uuid::uuid4()->getHex();
+
+        $description = '<p>Dies ist ein Typoblindtext. An ihm kann man sehen, ob alle Buchstaben da sind und wie sie aussehen. Manchmal benutzt man Worte wie Hamburgefonts, Rafgenduks oder Handgloves, um Schriften zu testen. Manchmal Sätze, die alle Buchstaben des Alphabets enthalten - man nennt diese Sätze »Pangrams«. Sehr bekannt ist dieser: The quick brown fox jumps over the lazy old dog. Oft werden in Typoblindtexte auch fremdsprachige Satzteile eingebaut (AVAIL® and Wefox™ are testing aussi la Kerning), um die Wirkung in anderen Sprachen zu testen. In Lateinisch sieht zum Beispiel fast jede Schrift gut aus. Quod erat demonstrandum. Seit 1975 fehlen in den meisten Testtexten die Zahlen, weswegen nach TypoGb. 204 § ab dem Jahr 2034 Zahlen in 86 der Texte zur Pflicht werden. Nichteinhaltung wird mit bis zu 245 € oder 368 $ bestraft. Genauso wichtig in sind mittlerweile auch Âçcèñtë, die in neueren Schriften aber fast immer enthalten sind. Ein wichtiges aber schwierig zu integrierendes Feld sind OpenType-Funktionalitäten. Je nach Software und Voreinstellungen können eingebaute Kapitälchen, Kerning oder Ligaturen (sehr pfiffig) nicht richtig dargestellt werden.Dies ist ein Typoblindtext. An ihm kann man sehen, ob alle Buchstaben da sind und wie sie aussehen. Manchmal benutzt man Worte wie Hamburgefonts, Rafgenduks</p>';
+
+        $data = [
+            'id' => $id,
+            'name' => 'price test',
+            'price' => ['gross' => 15, 'net' => 10],
+            'manufacturer' => ['name' => 'test'],
+            'tax' => ['name' => 'test', 'rate' => 15],
+            'descriptionLong' => $description,
+        ];
+
+        $this->apiClient->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', [], [], [], json_encode($data));
+        static::assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
+
+        $this->apiClient->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id, [], [], [
+            'HTTP_ACCEPT' => 'application/json',
+        ]);
+
+        $response = $this->apiClient->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $product = json_decode($response->getContent(), true);
+
+        static::assertNotEmpty($product);
+        static::assertArrayHasKey('data', $product);
+        static::assertSame($description, $product['data']['descriptionLong']);
     }
 }

@@ -58,7 +58,9 @@ class StopWordFilter implements SearchFilterInterface
     private function filterLength(array $tokens): array
     {
         return array_filter($tokens, function ($token) {
-            return strlen($token) > 3;
+            $token = (string) $token;
+
+            return \strlen($token) > 3;
         });
     }
 }

@@ -23,7 +23,6 @@ $album->setIcon('sprite-blue-folder');
 $media = new MediaStruct();
 $media->setId('548faa1f-7846-436c-8594-4f4aea792d96');
 $media->setAlbumId($albumId);
-$media->setFileName('teaser.jpg');
 $media->setMimeType('image/jpg');
 $media->setFileSize(93889);
 $media->setName('2');

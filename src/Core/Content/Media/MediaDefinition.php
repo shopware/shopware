@@ -50,9 +50,8 @@ class MediaDefinition extends EntityDefinition
 
             new FkField('user_id', 'userId', UserDefinition::class),
 
-            (new StringField('file_name', 'fileName'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
-            (new StringField('mime_type', 'mimeType'))->setFlags(new Required(), new SearchRanking(self::LOW_SEARCH_RAKING)),
-            (new IntField('file_size', 'fileSize'))->setFlags(new Required()),
+            (new StringField('mime_type', 'mimeType'))->setFlags(new SearchRanking(self::LOW_SEARCH_RAKING)),
+            new IntField('file_size', 'fileSize'),
             new LongTextField('meta_data', 'metaData'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),

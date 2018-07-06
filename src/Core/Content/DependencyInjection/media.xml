@@ -51,6 +51,21 @@
             <argument>%shopware.cdn.strategy%</argument>
         </service>
 
+        <service class="Shopware\Core\Content\Media\Upload\FileFetcher" id="Shopware\Core\Content\Media\Upload\FileFetcher">
+        </service>
+
+        <service class="Shopware\Core\Content\Media\Upload\MediaUpdater" id="Shopware\Core\Content\Media\Upload\MediaUpdater" public="true">
+            <argument type="service" id="media.repository"/>
+            <argument type="service" id="shopware.filesystem.public"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Util\Strategy\StrategyInterface"/>
+        </service>
+
+        <service class="Shopware\Core\Content\Media\Subscriber\MediaDeletedSubscriber" id="Shopware\Core\Content\Media\Subscriber\MediaDeletedSubscriber">
+            <argument type="service" id="shopware.filesystem.public"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Util\Strategy\StrategyInterface"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <!-- Commands -->
         <service class="Shopware\Core\Content\Media\Commands\MediaMigrateCommand" id="Shopware\Core\Content\Media\Commands\MediaMigrateCommand">
             <argument type="service" id="Shopware\Core\Content\Media\Util\Strategy\StrategyFilesystem"/>
@@ -105,5 +120,15 @@
         <service class="Shopware\Core\Content\Media\Util\Optimizer\PngcrushOptimizer" id="Shopware\Core\Content\Media\Util\Optimizer\PngcrushOptimizer">
             <tag name="shopware.media.optimizer" priority="80"/>
         </service>
+
+        <service class="Shopware\Core\Content\Media\Api\MediaUploadController" id="Shopware\Core\Content\Media\Api\MediaUploadController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\Api\Response\ResponseFactory"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Upload\FileFetcher"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Upload\MediaUpdater"/>
+            <call method="setContainer">
+                <argument id="service_container" type="service"/>
+            </call>
+        </service>
+
     </services>
 </container>

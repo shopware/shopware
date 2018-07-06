@@ -7,7 +7,6 @@ return [
             'type' => 'media',
             'attributes' => [
                 'albumId' => 'f343a3c1-19cf-42a7-841a-a0ac5094908c',
-                'fileName' => 'Lagerkorn-50klein.jpg',
                 'mimeType' => 'image/jpg',
                 'fileSize' => 18921,
                 'metaData' => null,
@@ -71,7 +70,6 @@ return [
             'type' => 'media',
             'attributes' => [
                 'albumId' => 'f343a3c1-19cf-42a7-841a-a0ac5094908c',
-                'fileName' => 'Jasmine-Lotus-Cover.jpg',
                 'mimeType' => 'image/jpg',
                 'fileSize' => 155633,
                 'metaData' => null,

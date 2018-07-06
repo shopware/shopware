@@ -23,7 +23,6 @@ $media = new MediaStruct();
 $media->setId('3e352be2-d858-46dd-9752-9c0f6b544870');
 $media->setAlbumId($albumId);
 $media->setAlbum(clone $album);
-$media->setFileName('Lagerkorn-50klein.jpg');
 $media->setMimeType('image/jpg');
 $media->setFileSize(18921);
 $media->setCreatedAt(date_create_from_format(\DateTime::ATOM, '2012-08-15T00:00:00+00:00'));

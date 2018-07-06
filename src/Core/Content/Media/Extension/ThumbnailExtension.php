@@ -75,12 +75,12 @@ class ThumbnailExtension implements EventSubscriberInterface
             $height = (int) $height;
 
             $collection->add(
-                $this->createThumbnailStruct($media->getFileName(), $width, $height)
+                $this->createThumbnailStruct($media->getId(), $width, $height)
             );
 
             if ($media->getAlbum()->getThumbnailHighDpi()) {
                 $collection->add(
-                    $this->createThumbnailStruct($media->getFileName(), $width, $height, true)
+                    $this->createThumbnailStruct($media->getId(), $width, $height, true)
                 );
             }
         }

@@ -31,11 +31,6 @@ class MediaStruct extends Entity
     /**
      * @var string
      */
-    protected $fileName;
-
-    /**
-     * @var string
-     */
     protected $mimeType;
 
     /**
@@ -121,16 +116,6 @@ class MediaStruct extends Entity
     public function setUserId(?string $userId): void
     {
         $this->userId = $userId;
-    }
-
-    public function getFileName(): string
-    {
-        return $this->fileName;
-    }
-
-    public function setFileName(string $fileName): void
-    {
-        $this->fileName = $fileName;
     }
 
     public function getMimeType(): string

@@ -26,5 +26,5 @@ namespace Shopware\Core\Content\Media\Util;
 
 interface UrlGeneratorInterface
 {
-    public function getUrl(string $filename): string;
+    public function getUrl(string $filename, string $mimeType): string;
 }

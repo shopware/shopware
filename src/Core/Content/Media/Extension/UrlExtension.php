@@ -30,7 +30,7 @@ class UrlExtension implements EventSubscriberInterface
     {
         foreach ($event->getEntities() as $media) {
             $media->addExtension('links', new ArrayStruct([
-                'url' => $this->urlGenerator->getUrl($media->getFileName()),
+                'url' => $this->urlGenerator->getUrl($media->getId(), $media->getMimeType()),
             ]));
         }
     }

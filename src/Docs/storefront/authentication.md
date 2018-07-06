@@ -1,6 +1,21 @@
+- [Storefront Authentication](#storefront-authentication)
+  * [Request](#request)
+  * [Default Access](#default-access)
+  * [Access Token](#access-token)
+  * [Examples](#examples)
+    + [PHP](#php)
+    + [Curl](#curl)
+    + [Python](#python)
+    + [Java](#java)
+    + [Javascript](#javascript)
+    + [jQuery](#jquery)
+    + [NodeJS Native](#nodejs-native)
+    + [Go](#go)
+
 # Storefront Authentication
 To be able to send a request against the Storefront API, an oAuth authentication must first be made via the following route:
 
+## Request
 ```
 POST /storefront-api/oauth/token HTTP/1.1
 Host: shopware.development
@@ -14,6 +29,7 @@ Cache-Control: no-cache
 }
 ```
 
+## Default Access
 The corresponding client_id and client_secret are generated when a touchpoint is initialized. In the current state of development, the initialization of the environment automatically generates a touchpoint for accessing the Storefront API:
 
 ```
@@ -31,6 +47,7 @@ The corresponding client_id and client_secret are generated when a touchpoint is
      +-------------------+------------------------------------------------------------------------+
 ```
 
+## Access Token
 If the authentication was successful, the response includes an access token which can be used for authentication for further request: 
 ```json
 {

@@ -194,7 +194,40 @@ class EntityDefinitionQueryHelper
             $query->setParameter('catalogIds', $catalogIds, Connection::PARAM_STR_ARRAY);
         }
 
+        if ($definition::isBlacklistAware() && $context->getRules()) {
+            $condition = static::buildRuleFieldWhere($context, $table);
+
+            foreach ($condition['parameters'] as $key => $value) {
+                $query->setParameter($key, $value);
+            }
+
+            $query->andWhere(implode(' + ', $condition['wheres']) . ' = 0');
+        }
+
         return $query;
+    }
+
+    public static function buildRuleFieldWhere(Context $context, string $root): array
+    {
+        $wheres = [];
+        $parameters = [];
+
+        foreach ($context->getRules() as $id) {
+            $key = 'blacklist' . $id;
+
+            $parameters[$key] = $id;
+            $wheres[] = sprintf(
+                'JSON_CONTAINS(IFNULL(%s.%s, JSON_ARRAY()), JSON_ARRAY(:%s))',
+                self::escape($root),
+                '`blacklisted_rule_ids`',
+                $key
+            );
+        }
+
+        return [
+            'parameters' => $parameters,
+            'wheres' => $wheres
+        ];
     }
 
     /**

@@ -133,6 +133,10 @@ class EntityReader implements EntityReaderInterface
         $entities = $this->hydrator->hydrate($entity, $definition, $rows, $definition::getEntityName());
         $collection->fill($entities);
 
+        if ($collection->count() <= 0) {
+            return $collection;
+        }
+
         /** @var EntityDefinition $reference */
         $associations = $fields->filterInstance(ManyToOneAssociationField::class);
         /** @var ManyToOneAssociationField[] $associations */
@@ -316,6 +320,7 @@ class EntityReader implements EntityReaderInterface
             $query->setParameter('ids', array_values($bytes), Connection::PARAM_STR_ARRAY);
         }
 
+        
         return $query->execute()->fetchAll();
     }
 

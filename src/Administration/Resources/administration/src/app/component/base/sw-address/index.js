@@ -28,7 +28,7 @@ Component.register('sw-address', {
             return salutation + title + firstName + lastName;
         },
 
-        addressStyles() {
+        addressClasses() {
             return {
                 'sw-address--headline': this.headline
             };

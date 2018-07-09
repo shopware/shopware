@@ -1,5 +1,5 @@
 {% block sw_address %}
-    <div class="sw-address" :class="addressStyles">
+    <div class="sw-address" :class="addressClasses">
 
         {% block sw_address_headline %}
             <div class="sw-address__headline" v-if="headline">
@@ -58,6 +58,5 @@
                 {% endblock %}
             </div>
         {% endblock %}
-
     </div>
 {% endblock %}

@@ -23,7 +23,7 @@ Component.register('sw-card', {
     },
 
     computed: {
-        cardStyles() {
+        cardClasses() {
             return {
                 'sw-card--tabs': !!this.$slots.tabs,
                 'sw-card--grid': !!this.$slots.grid

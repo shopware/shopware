@@ -93,17 +93,41 @@ class LineItemCollection extends Collection
         return $this->getKeys();
     }
 
+    public function getPrices(): PriceCollection
+    {
+        return new PriceCollection(
+            $this->fmap(function (LineItem $lineItem) {
+                return $lineItem->getPrice();
+            })
+        );
+    }
+
+    public function getFlat(): self
+    {
+        return new static($this->flatter($this->getElements()));
+    }
+
     protected function getKey(LineItem $element): string
     {
         return $element->getIdentifier();
     }
 
-    public function getPrices(): PriceCollection
+    private function flatter(array $lineItems): array
     {
-        return new PriceCollection(
-            $this->fmap(function(LineItem $lineItem) {
-                return $lineItem->getPrice();
-            })
-        );
+        $flat = [];
+        foreach ($lineItems as $lineItem) {
+            $flat[] = $lineItem;
+            if (!$lineItem->getChildren()) {
+                continue;
+            }
+
+            $nested = $this->flatter($lineItem->getChildren()->getElements());
+
+            foreach ($nested as $nest) {
+                $flat[] = $nest;
+            }
+        }
+
+        return $flat;
     }
 }

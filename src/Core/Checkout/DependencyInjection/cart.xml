@@ -121,5 +121,14 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator"/>
         </service>
 
+        <service class="Shopware\Core\Checkout\Cart\Enrichment" id="Shopware\Core\Checkout\Cart\Enrichment" public="true">
+            <argument type="tagged" tag="Shopware\Core\Checkout\Cart\Cart\CollectorInterface"/>
+        </service>
+
+        <service class="Shopware\Core\Checkout\Cart\Cart\ProductCollector" id="Shopware\Core\Checkout\Cart\Cart\ProductCollector">
+            <argument id="Shopware\Core\Content\Product\Cart\ProductGateway" type="service"/>
+            <tag name="Shopware\Core\Checkout\Cart\Cart\CollectorInterface"/>
+        </service>
+
     </services>
 </container>

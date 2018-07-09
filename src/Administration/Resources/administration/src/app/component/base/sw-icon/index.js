@@ -37,7 +37,7 @@ Component.register('sw-icon', {
 
     computed: {
         iconNamePrefix() {
-            return 'icons--';
+            return 'icon--';
         },
 
         iconSetPath() {

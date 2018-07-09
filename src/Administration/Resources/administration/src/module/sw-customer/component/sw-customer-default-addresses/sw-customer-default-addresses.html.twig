@@ -2,8 +2,7 @@
     <sw-container class="sw-customer-default-addresses" grid="50% 50%">
 
         {% block sw_customer_default_addresses_shipping %}
-            <div v-if="customer.defaultShippingAddress.id"
-                 class="sw-customer-default-addresses__shipping">
+            <sw-card-section v-if="customer.defaultShippingAddress.id" divider="right">
 
                 {% block sw_customer_default_addresses_shipping_title %}
                     <h3 class="sw-customer-default-addresses__title">
@@ -31,12 +30,11 @@
                 {% block sw_customer_default_addresses_shipping_postal %}
                     <sw-address :address="customer.defaultShippingAddress"></sw-address>
                 {% endblock %}
-            </div>
+            </sw-card-section>
         {% endblock %}
 
         {% block sw_customer_default_addresses_billing %}
-            <div v-if="customer.defaultBillingAddress.id"
-                 class="sw-customer-default-addresses__billing">
+            <sw-card-section v-if="customer.defaultBillingAddress.id">
 
                 {% block sw_customer_default_addresses_billing_title %}
                     <h3 class="sw-customer-default-addresses__title">
@@ -64,7 +62,7 @@
                 {% block sw_customer_default_addresses_billing_postal %}
                     <sw-address :address="customer.defaultBillingAddress"></sw-address>
                 {% endblock %}
-            </div>
+            </sw-card-section>
         {% endblock %}
 
     </sw-container>

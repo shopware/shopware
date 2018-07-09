@@ -16,6 +16,7 @@ use Shopware\Core\Checkout\Order\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Struct\Uuid;
 
 class OrderConverter
@@ -162,6 +163,8 @@ class OrderConverter
             'unitPrice' => $lineItem->getPrice()->getUnitPrice(),
             'totalPrice' => $lineItem->getPrice()->getTotalPrice(),
             'type' => $lineItem->getType(),
+            'label' => $lineItem->getLabel(),
+            'description' => $lineItem->getDescription(),
         ];
     }
 

@@ -34,6 +34,16 @@ class OrderLineItemStruct extends Entity
     protected $totalPrice;
 
     /**
+     * @var string
+     */
+    protected $label;
+
+    /**
+     * @var string|null
+     */
+    protected $description;
+
+    /**
      * @var string|null
      */
     protected $parentId;
@@ -111,6 +121,26 @@ class OrderLineItemStruct extends Entity
     public function setTotalPrice(float $totalPrice): void
     {
         $this->totalPrice = $totalPrice;
+    }
+
+    public function getLabel() : string
+    {
+        return $this->label;
+    }
+
+    public function setLabel(string $label): void
+    {
+        $this->label = $label;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): void
+    {
+        $this->description = $description;
     }
 
     public function getParentId(): ?string

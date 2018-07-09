@@ -1,0 +1,76 @@
+{% block sw_order_delivery %}
+    <sw-card class="sw-order-delivery" :title="title" :isLoading="isLoading">
+
+        {% block sw_order_delivery_rows %}
+            <sw-container type="row" slot="grid">
+
+                {% block sw_order_delivery_actions %}
+                    <sw-card-section divider="bottom" class="sw-order-detail-deliveries__delivery-actions">
+
+                        {% block sw_order_delivery_action_merge %}
+                            <sw-button size="small" disabled>
+                                {{ $tc('sw-order.detailDeliveries.buttonMerge') }}
+                                <sw-icon name="small-arrow-small-down" small></sw-icon>
+                            </sw-button>
+                        {% endblock %}
+
+                        {% block sw_order_detail_delivery_action_delete %}
+                            <sw-button size="small" disabled>
+                                <sw-icon name="small-default-x-line-medium" small></sw-icon>
+                                {{ $tc('sw-order.detailDeliveries.buttonDelete') }}
+                            </sw-button>
+                        {% endblock %}
+
+                    </sw-card-section>
+                {% endblock %}
+
+                {% block sw_order_delivery_row_line_items %}
+                    {# TODO: Get line items from delivery #}
+                    <sw-order-delivery-line-items-grid :deliveryLineItems="[]"
+                                                       :order="order">
+                    </sw-order-delivery-line-items-grid>
+                {% endblock %}
+
+                {% block sw_order_delivery_row_info %}
+                    <sw-card-section divider="top" secondary slim>
+                        {% block sw_order_detail_delivery_info %}
+                            <sw-container grid="1fr 1fr" gap="0 30px">
+
+                                {% block sw_order_delivery_metadata %}
+                                    <sw-description-list>
+                                        {% block sw_order_delivery_shipping_method_label %}
+                                            <dt>{{ $tc('sw-order.detailDeliveries.labelShippingMethod') }}</dt>
+                                        {% endblock %}
+                                        {% block sw_order_delivery_shipping_method_value %}
+                                            <dd>{{ delivery.shippingMethod.name }}</dd>
+                                        {% endblock %}
+
+                                        {% block sw_order_delivery_date_label %}
+                                            <dt>{{ $tc('sw-order.detailDeliveries.labelDeliveryDate') }}</dt>
+                                        {% endblock %}
+                                        {% block sw_order_delivery_date_value %}
+                                            <dd>{{ delivery.shippingDateEarliest | date }}</dd>
+                                        {% endblock %}
+
+                                        {% block sw_order_shipping_costs_label %}
+                                            <dt>{{ $tc('sw-order.detailDeliveries.labelShippingCosts') }}</dt>
+                                        {% endblock %}
+                                        {% block sw_order_shipping_costs_value %}
+                                            <dd></dd>
+                                        {% endblock %}
+                                    </sw-description-list>
+                                {% endblock %}
+
+                                {% block sw_order_delivery_address %}
+                                    <sw-address headline="Shipping Address"
+                                                :address="delivery.shippingAddress">
+                                    </sw-address>
+                                {% endblock %}
+                            </sw-container>
+                        {% endblock %}
+                    </sw-card-section>
+                {% endblock %}
+            </sw-container>
+        {% endblock %}
+    </sw-card>
+{% endblock %}

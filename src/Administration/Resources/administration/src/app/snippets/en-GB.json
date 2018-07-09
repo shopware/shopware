@@ -86,9 +86,6 @@
     },
     "baseInfo": {
       "contactEmail": "e-mail",
-      "labelAccountActiveField": "Account is active",
-      "buttonEdit": "Edit customer",
-      "buttonChangePassword" : "Change password",
       "labelCustomerNumber": "Customer number",
       "labelCustomerGroup": "Customer group",
       "labelBirthday": "Date of birth",
@@ -107,7 +104,10 @@
       "titleDefaultBillingAddress": "Default billing address",
       "buttonAddAddress": "Add address",
       "buttonTitleEditAddress": "Edit address",
-      "buttonSave": "Save"
+      "buttonSave": "Save",
+      "buttonEdit": "Edit customer",
+      "buttonChangePassword" : "Change password",
+      "labelAccountActiveField": "Account is active"
     },
     "detailAddresses": {
       "buttonAddAddress": "Add address",
@@ -354,10 +354,45 @@
       "buttonAddOrder": "Add order",
       "textOrders": "Orders",
       "textOrdersTotal": "No orders | One order | {count} orders",
-      "contextMenuView": "View order",
-      "contextMenuDelete": "Delete order",
+      "contextMenuView": "View",
+      "contextMenuDelete": "Delete",
       "contextMenuConfirmPayment": "Confirm payment",
       "messageEmpty": "No orders yet"
+    },
+    "detail": {
+      "buttonCancel": "Cancel",
+      "buttonSave": "Save",
+      "tabOrderDetails": "Order details",
+      "tabDeliveries": "Deliveries",
+      "textHeadline": "Order",
+      "textHeadlineNew": "New order"
+    },
+    "detailBase": {
+      "cardTitleDetails": "Details",
+      "cardTitleLineItems": "Items",
+      "columnProductName": "Name",
+      "columnQuantity": "Quantity",
+      "columnPrice": "Price",
+      "columnTotalPrice": "Total",
+      "contextMenuShowProduct": "Show product",
+      "summaryLabelAmount": "Amount",
+      "summaryLabelAmountTotal": "Total amount",
+      "summaryLabelShippingCosts": "Shipping costs",
+      "labelOrderStatus": "Order status",
+      "labelSalesChanel": "Sales chanel",
+      "labelOrderDate": "Order date",
+      "headlineBillingAddress": "Billing address",
+      "buttonPrint": "Print order",
+      "buttonCancel": "Cancel order",
+      "buttonArchive": "Archive order"
+    },
+    "detailDeliveries": {
+      "cardTitleItems": "Delivery {count}",
+      "labelShippingMethod": "Shipping method",
+      "labelDeliveryDate": "Delivery date",
+      "labelShippingCosts": "Shipping costs",
+      "buttonMerge": "Merge order",
+      "buttonDelete": "Delete"
     }
   }
 }

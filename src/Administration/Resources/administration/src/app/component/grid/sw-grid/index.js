@@ -58,6 +58,12 @@ Component.register('sw-grid', {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        table: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -87,6 +93,7 @@ Component.register('sw-grid', {
             return {
                 'sw-grid--sidebar': this.sidebar,
                 'sw-grid--fullpage': this.isFullpage,
+                'sw-grid--table': this.table,
                 [this.sizeClass]: true
             };
         },

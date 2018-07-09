@@ -11,6 +11,7 @@
 @sw-grid-header-color-text:               @color-kashmir;
 @sw-grid-actions-icon-color:              @color-gutenberg;
 @sw-grid-actions-icon-hover-color:        @color-shopware-blue;
+@sw-grid-table-row-color-background:      @color-white;
 
 .sw-grid {
     display: grid;
@@ -28,6 +29,26 @@
         height: 100%;
         position: absolute;
         border: 0 none;
+    }
+
+    &.sw-grid--table {
+        border: 0 none;
+
+        .sw-grid__header {
+            background: 0 none;
+        }
+
+        .sw-grid-row {
+            background-color: @sw-grid-table-row-color-background;
+
+            &.is--selected {
+                background-color: @sw-grid-item-active-color-background;
+            }
+        }
+
+        .sw-grid-column {
+            border-right: 0 none;
+        }
     }
 
     .sw-grid__content {

@@ -88,6 +88,8 @@ function getRawEntityObject(entityName, includeObjectAssociations = false) {
             }
         } else if (property.type === 'boolean') {
             entity[propertyName] = false;
+        } else if (property.type === 'string' && property.format === 'date-time') {
+            entity[propertyName] = '';
         } else if (property.type === 'string' || property.type === 'number' || property.type === 'integer') {
             entity[propertyName] = null;
         } else {

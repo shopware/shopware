@@ -40,7 +40,7 @@
                     <div class="sw-order-list__content">
 
                         {% block sw_order_list_grid %}
-                            <sw-grid v-if="total"
+                            <sw-grid v-if="total || term"
                                      :items="orders"
                                      :pagination="true"
                                      :sortBy="sortBy"
@@ -84,10 +84,11 @@
                                             <sw-grid-column flex="minmax(80px, 180px)"
                                                             :label="$tc('sw-order.list.columnAmount')"
                                                             dataIndex="amountTotal"
+                                                            align="right"
                                                             truncate
                                                             sortable>
                                                 {% block sw_order_list_grid_columns_amount_label %}
-                                                    {{ item.amountTotal | currency }}
+                                                    {{ item.amountTotal | currency(item.currency.shortName) }}
                                                 {% endblock %}
                                             </sw-grid-column>
                                         {% endblock %}
@@ -123,7 +124,7 @@
                                                     <sw-context-button>
 
                                                         {% block sw_customer_list_grid_columns_actions_view %}
-                                                            <sw-context-menu-item disabled>
+                                                            <sw-context-menu-item :routerLink="{ name: 'sw.order.detail', params: { id: item.id } }">
                                                                 {{ $tc('sw-order.list.contextMenuView') }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}

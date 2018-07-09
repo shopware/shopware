@@ -44,7 +44,7 @@
                 {% endblock %}
 
                 {% block sw_customer_detail_addresses_grid %}
-                    <sw-grid :items="customer.addresses" :selectable="false">
+                    <sw-grid :items="addresses" :selectable="false">
                         {% block sw_customer_detail_addresses_grid_slots %}
                             <template slot="columns" slot-scope="{ item }">
 

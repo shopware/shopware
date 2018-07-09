@@ -86,9 +86,6 @@
     },
     "baseInfo": {
       "contactEmail": "E-Mail",
-      "labelAccountActiveField": "Konto ist aktiv",
-      "buttonEdit": "Kunde bearbeiten",
-      "buttonChangePassword" : "Password ändern",
       "labelCustomerNumber": "Kundennummer",
       "labelCustomerGroup": "Kundengruppe",
       "labelBirthday": "Geburtsdatum",
@@ -107,7 +104,10 @@
       "titleDefaultBillingAddress": "Standard Rechnungsadresse",
       "buttonAddAddress": "Adresse anlegen",
       "buttonTitleEditAddress": "Adresse bearbeiten",
-      "buttonSave": "Speichern"
+      "buttonSave": "Speichern",
+      "buttonEdit": "Kunde bearbeiten",
+      "buttonChangePassword" : "Password ändern",
+      "labelAccountActiveField": "Konto ist aktiv"
     },
     "detailAddresses": {
       "buttonAddAddress": "Adresse anlegen",
@@ -354,10 +354,45 @@
       "buttonAddOrder": "Bestellung anlegen",
       "textOrders": "Bestellungen",
       "textOrdersTotal": "Keine Bestellungen | Eine Bestellung | {count} Bestellungen",
-      "contextMenuView": "Bestellung anzeigen",
-      "contextMenuDelete": "Bestellung löschen",
+      "contextMenuView": "Anzeigen",
+      "contextMenuDelete": "Löschen",
       "contextMenuConfirmPayment": "Zahlung bestätigen",
       "messageEmpty": "Noch keine Bestellungen"
+    },
+    "detail": {
+      "buttonCancel": "Abbrechen",
+      "buttonSave": "Speichern",
+      "tabOrderDetails": "Bestelldetails",
+      "tabDeliveries": "Lieferungen",
+      "textHeadline": "Bestellung",
+      "textHeadlineNew": "Neue Bestellung"
+    },
+    "detailBase": {
+      "cardTitleDetails": "Details",
+      "cardTitleLineItems": "Positionen",
+      "columnProductName": "Name",
+      "columnQuantity": "Menge",
+      "columnPrice": "Preis",
+      "columnTotalPrice": "Gesamt",
+      "contextMenuShowProduct": "Produkt anzeigen",
+      "summaryLabelAmount": "Summe",
+      "summaryLabelAmountTotal": "Gesamtsumme",
+      "summaryLabelShippingCosts": "Versandkosten",
+      "labelOrderStatus": "Bestellstatus",
+      "labelSalesChanel": "Verkaufskanal",
+      "labelOrderDate": "Bestelldatum",
+      "headlineBillingAddress": "Rechnungsadresse",
+      "buttonPrint": "Bestellung drucken",
+      "buttonCancel": "Bestellung stornieren",
+      "buttonArchive": "Bestellung archivieren"
+    },
+    "detailDeliveries": {
+      "cardTitleItems": "Lieferung {count}",
+      "labelShippingMethod": "Versandart",
+      "labelDeliveryDate": "Lieferdatum",
+      "labelShippingCosts": "Versandkosten",
+      "buttonMerge": "Lieferung zusammenfügen",
+      "buttonDelete": "Löschen"
     }
   }
 }

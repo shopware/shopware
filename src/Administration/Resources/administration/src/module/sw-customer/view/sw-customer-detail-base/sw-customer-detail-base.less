@@ -1,20 +1,20 @@
 @import "~less/variables";
 
+@sw-customer-detail-base-color-text: @color-gutenberg;
+
 .sw-customer-detail-base {
-    .sw-customer-detail-base__info .sw-card__content,
-    .sw-customer-detail-base__default-addresses .sw-card__content {
-        padding: 0;
-    }
+    .sw-field.sw-customer-detail-base__active-field {
+        grid-template-columns: 16px 140px 1fr;
+        grid-gap: 10px;
+        margin: 0;
 
-    // Vue.js Transitions
-    .sw-customer-fade-enter-active,
-    .sw-customer-fade-leave-active {
-        transition: opacity .2s ease-in-out;
-    }
+        .sw-field__input {
+            order: 1;
+        }
 
-    // Vue.js Transitions
-    .sw-customer-fade-enter,
-    .sw-customer-fade-leave-to {
-        opacity: 0;
+        label {
+            color: @sw-customer-detail-base-color-text;
+            order: 2;
+        }
     }
 }

@@ -1,0 +1,94 @@
+{% block sw_order_detail_base %}
+    <div class="sw-order-detail-base">
+
+        {% block sw_order_detail_base_info_card %}
+            <sw-user-card :title="$tc('sw-order.detailBase.cardTitleDetails')"
+                          :user="order.customer"
+                          :isLoading="order.isLoading">
+
+                {% block sw_order_detail_base_info_card_actions %}
+                    <template slot="actions">
+                        {% block sw_order_detail_base_info_card_action_print %}
+                            <sw-button size="small" disabled>
+                                <sw-icon name="default-device-printer" small></sw-icon>
+                                {{ $tc('sw-order.detailBase.buttonPrint') }}
+                            </sw-button>
+                        {% endblock %}
+
+                        {% block sw_order_detail_base_info_card_action_archive %}
+                            <sw-button size="small" disabled>
+                                <sw-icon name="small-documentation-map-closed" small></sw-icon>
+                                {{ $tc('sw-order.detailBase.buttonArchive') }}
+                            </sw-button>
+                        {% endblock %}
+
+                        {% block sw_order_detail_base_info_card_action_cancel %}
+                            <sw-button size="small" disabled>
+                                <sw-icon name="small-default-x-line-medium" small></sw-icon>
+                                {{ $tc('sw-order.detailBase.buttonCancel') }}
+                            </sw-button>
+                        {% endblock %}
+                    </template>
+                {% endblock %}
+
+                {% block sw_order_detail_base_info_card_order_overview %}
+                    <sw-container grid="1fr 1fr" gap="30px 30px">
+                        {% block sw_order_detail_base_info_card_order_metadata %}
+                            <sw-description-list>
+                                <dt>{{ $tc('sw-order.detailBase.labelOrderStatus') }}</dt>
+                                <dd>{{ order.state.description }}</dd>
+                                <dt>{{ $tc('sw-order.detailBase.summaryLabelAmountTotal') }}</dt>
+                                <dd>{{ order.amountTotal }} {{ order.currency.symbol }}</dd>
+                                <dt>{{ $tc('sw-order.detailBase.labelOrderDate') }}</dt>
+                                <dd>{{ order.date | date }}</dd>
+                                <dt>{{ $tc('sw-order.detailBase.labelSalesChanel') }}</dt>
+                                <dd>{{ order.touchpoint.name }}</dd>
+                            </sw-description-list>
+                        {% endblock %}
+
+                        {% block sw_order_detail_base_info_card_billing_address %}
+                            <sw-address :headline="$tc('sw-order.detailBase.headlineBillingAddress')"
+                                        :address="order.billingAddress">
+                            </sw-address>
+                        {% endblock %}
+                    </sw-container>
+                {% endblock %}
+
+            </sw-user-card>
+        {% endblock %}
+
+        {% block sw_order_detail_base_line_items_card %}
+            <sw-card :title="$tc('sw-order.detailBase.cardTitleLineItems')"
+                     :isLoading="order.isLoading">
+
+                {% block sw_order_detail_base_line_items_card_rows %}
+                    <sw-container slot="grid" type="row">
+
+                        {% block sw_order_detail_base_line_items_grid %}
+                            <sw-order-line-items-grid :orderLineItems="lineItems" :order="order"></sw-order-line-items-grid>
+                        {% endblock %}
+
+                        {% block sw_order_detail_base_line_items_row_summary %}
+                            <sw-card-section divider="top" secondary slim>
+                                <sw-container grid="1fr 440px"
+                                              class="sw-order-detail-base__summary">
+                                    {% block sw_order_detail_base_line_items_summary %}
+                                        <sw-description-list columns="265px 1fr"
+                                                             class="sw-order-detail-base__summary-data">
+                                            <dt>{{ $tc('sw-order.detailBase.summaryLabelAmount') }}</dt>
+                                            <dd>{{ order.positionPrice }} {{ order.currency.symbol }}</dd>
+                                            <dt>{{ $tc('sw-order.detailBase.summaryLabelShippingCosts') }}</dt>
+                                            <dd>{{ order.shippingTotal }} {{ order.currency.symbol }}</dd>
+                                            <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountTotal') }}</strong></dt>
+                                            <dd><strong>{{ order.amountTotal }} {{ order.currency.symbol }}</strong></dd>
+                                        </sw-description-list>
+                                    {% endblock %}
+                                </sw-container>
+                            </sw-card-section>
+                        {% endblock %}
+                    </sw-container>
+                {% endblock %}
+            </sw-card>
+        {% endblock %}
+    </div>
+{% endblock %}

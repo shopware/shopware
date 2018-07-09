@@ -7,6 +7,7 @@
    - 1.2 <a href="#components-props-order">Component properties order</a>
    - 1.3 <a href="#components-lifecycle-hooks">Lifecycle hooks</a>
    - 1.4 <a href="#components-variants">Component variants</a>
+   - 1.5 <a href="#style-bindings">Class and style bindings</a>
 2. <a href="#markup-less">Markup and LESS</a>
    - 2.1 <a href="#markup-bem">BEM</a>
    - 2.2 <a href="#markup-less-variables">LESS variables</a>
@@ -161,6 +162,33 @@ When a certain behavior should be active or inactive, a Boolean property is of c
 <sw-button isLoading>Button text</sw-button>
 ```
 
+### 1.5 <span id="style-bindings">Class and style bindings</span>
+
+When creating a default component like `sw-card` or `sw-button` the class and style bindings should not be directly in 
+the template. This pattern can often be found in the Vue.js documentation or different tutorials.
+
+Instead there should be a computed property which contains all logic for toggling classes or handle inline styles.
+The computed prop should be named like the component in camelCase with the word "Classes" or "Styles" as a suffix - 
+depending if there should be CSS classes or inline styles.
+
+```
+cardClasses() {
+    return {
+        'sw-card--slim': this.slim,
+        'sw-card--dark': this.dark,
+        [`sw-card--${this.variant}`]: this.variant,
+    };
+}
+```
+
+In the template we only have to bind the computed prop now:
+
+```
+<div class="sw-card" :class="cardClasses" :style="cardStyles">
+```
+
+This makes it easier for other developers to override CSS classes or inline styles because
+no root level Twig blocks have to be overridden.
 
 ## 2. <span id="markup-less">Markup and LESS</span>
 

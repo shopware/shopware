@@ -1,0 +1,23 @@
+@import "~less/variables";
+
+.sw-order-detail-base {
+    .sw-order-detail-base__summary {
+        grid-template-areas: 'empty summary'
+    }
+
+    .sw-order-detail-base__summary-data {
+        grid-area: summary;
+        font-size: 15px;
+
+        dt,
+        dd {
+            color: @color-gutenberg;
+            font-weight: normal;
+            text-align: right;
+        }
+
+        dd {
+            padding-right: 60px;
+        }
+    }
+}

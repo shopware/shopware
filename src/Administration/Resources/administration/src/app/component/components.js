@@ -1,4 +1,6 @@
 import './base/sw-card';
+import './base/sw-user-card';
+import './base/sw-card-section';
 import './base/sw-button';
 import './base/sw-icon';
 import './base/sw-alert';
@@ -12,6 +14,7 @@ import './base/sw-table';
 import './base/sw-modal';
 import './base/sw-address';
 import './base/sw-empty-state';
+import './base/sw-description-list';
 
 import './utils/sw-loader';
 import './utils/sw-notifications';

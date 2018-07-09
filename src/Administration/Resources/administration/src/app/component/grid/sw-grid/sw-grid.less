@@ -11,6 +11,7 @@
 @sw-grid-header-color-text:               @color-kashmir;
 @sw-grid-actions-icon-color:              @color-gutenberg;
 @sw-grid-actions-icon-hover-color:        @color-shopware-blue;
+@sw-grid-table-row-color-background:      @color-white;
 
 .sw-grid {
     display: grid;
@@ -38,7 +39,7 @@
         }
 
         .sw-grid-row {
-            background-color: @color-white;
+            background-color: @sw-grid-table-row-color-background;
 
             &.is--selected {
                 background-color: @sw-grid-item-active-color-background;
@@ -79,10 +80,6 @@
 
             .sw-grid__cell-content {
                 color: @sw-grid-header-color-text
-            }
-
-            .sw-grid__cell-content {
-                color: @color-kashmir;
             }
 
             &.is--sortable {

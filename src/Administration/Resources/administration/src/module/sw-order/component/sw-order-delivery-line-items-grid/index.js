@@ -20,11 +20,5 @@ Component.register('sw-order-delivery-line-items-grid', {
                 return {};
             }
         }
-    },
-
-    computed: {
-        lineItems() {
-            return this.deliveryLineItems;
-        }
     }
 });

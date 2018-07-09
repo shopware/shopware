@@ -28,8 +28,10 @@ Component.register('sw-address', {
             return salutation + title + firstName + lastName;
         },
 
-        addressHeadline() {
-            return this.headline;
+        addressStyles() {
+            return {
+                'sw-address--headline': this.headline
+            };
         }
     }
 });

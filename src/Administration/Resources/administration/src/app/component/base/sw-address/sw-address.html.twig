@@ -1,9 +1,9 @@
 {% block sw_address %}
-    <div class="sw-address" :class="{ 'sw-address--headline': addressHeadline }">
+    <div class="sw-address" :class="addressStyles">
 
         {% block sw_address_headline %}
-            <div class="sw-address__headline" v-if="addressHeadline">
-                {{ addressHeadline }}
+            <div class="sw-address__headline" v-if="headline">
+                {{ headline }}
             </div>
         {% endblock %}
 

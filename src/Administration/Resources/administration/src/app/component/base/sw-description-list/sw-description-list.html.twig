@@ -1,6 +1,5 @@
 {% block sw_description_list %}
-    <dl class="sw-description-list"
-        :style="{ 'grid-template-columns': descriptionListColumns }">
+    <dl class="sw-description-list" :style="descriptionListStyles">
         <slot>
             {% block sw_description_list_slot_default %}{% endblock %}
         </slot>

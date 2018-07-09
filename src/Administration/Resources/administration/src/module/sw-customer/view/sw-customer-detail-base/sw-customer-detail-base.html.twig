@@ -21,7 +21,7 @@
                     <div v-if="!editMode" key="info" class="sw-customer-detail-base__info-holder">
 
                         {% block sw_customer_detail_base_info_card %}
-                            <sw-info-card :title="$tc('sw-customer.detailBase.labelAccountCard')"
+                            <sw-user-card :title="$tc('sw-customer.detailBase.labelAccountCard')"
                                           :user="customer"
                                           :isLoading="customer.isLoading">
 
@@ -60,7 +60,7 @@
                                     </sw-customer-base-info>
                                 {% endblock %}
 
-                            </sw-info-card>
+                            </sw-user-card>
                         {% endblock %}
 
                         {% block sw_customer_detail_base_default_addresses_card %}
@@ -69,9 +69,7 @@
                                      class="sw-customer-detail-base__default-addresses"
                                      :isLoading="customer.isLoading">
                                 {% block sw_customer_detail_base_default_addresses %}
-                                    <sw-customer-default-addresses :customer="customer"
-                                                                   slot="grid">
-                                    </sw-customer-default-addresses>
+                                    <sw-customer-default-addresses :customer="customer" slot="grid"></sw-customer-default-addresses>
                                 {% endblock %}
                             </sw-card>
                         {% endblock %}

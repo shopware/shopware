@@ -1,8 +1,8 @@
 import { Component } from 'src/core/shopware';
-import template from './sw-info-card.html.twig';
-import './sw-info-card.less';
+import template from './sw-user-card.html.twig';
+import './sw-user-card.less';
 
-Component.register('sw-info-card', {
+Component.register('sw-user-card', {
     template,
 
     props: {

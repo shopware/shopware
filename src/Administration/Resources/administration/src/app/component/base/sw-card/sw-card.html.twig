@@ -1,6 +1,5 @@
 {% block sw_card %}
-    <div class="sw-card"
-         :class="{ 'sw-card--tabs': hasTabsSlot, 'sw-card--grid': hasGridSlot }">
+    <div class="sw-card" :class="cardStyles">
         {% block sw_card_title %}
             <div class="sw-card__title" v-if="title">{{ title }}</div>
         {% endblock %}

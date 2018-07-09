@@ -391,8 +391,8 @@
       "labelShippingMethod": "Shipping method",
       "labelDeliveryDate": "Delivery date",
       "labelShippingCosts": "Shipping costs",
-      "buttonMerge": "Lieferung zusammenfügen",
-      "buttonDelete": "Lieferung löschen"
+      "buttonMerge": "Merge order",
+      "buttonDelete": "Delete"
     }
   }
 }

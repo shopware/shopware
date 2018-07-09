@@ -20,11 +20,5 @@ Component.register('sw-order-line-items-grid', {
                 return {};
             }
         }
-    },
-
-    computed: {
-        lineItems() {
-            return this.orderLineItems;
-        }
     }
 });

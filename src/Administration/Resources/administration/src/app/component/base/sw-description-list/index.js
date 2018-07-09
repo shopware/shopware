@@ -6,7 +6,7 @@ Component.register('sw-description-list', {
     template,
 
     props: {
-        columns: {
+        grid: {
             type: String,
             required: false,
             default: '1fr 1fr'
@@ -14,8 +14,10 @@ Component.register('sw-description-list', {
     },
 
     computed: {
-        descriptionListColumns() {
-            return this.columns;
+        descriptionListStyles() {
+            return {
+                'grid-template-columns': this.grid
+            };
         }
     }
 });

@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Cart\Price;
 
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
@@ -60,7 +60,7 @@ class AmountCalculator
         $this->taxAmountCalculator = $taxAmountCalculator;
     }
 
-    public function calculateAmount(CalculatedPriceCollection $prices, CalculatedPriceCollection $shippingCosts, CheckoutContext $context): CartPrice
+    public function calculateAmount(PriceCollection $prices, PriceCollection $shippingCosts, CheckoutContext $context): CartPrice
     {
         if ($this->taxDetector->isNetDelivery($context)) {
             return $this->calculateNetDeliveryAmount($prices, $shippingCosts);
@@ -74,14 +74,14 @@ class AmountCalculator
 
     /**
      * Calculates the amount for a new delivery.
-     * `CalculatedPrice::price` and `CalculatedPrice::netPrice` are equals and taxes are empty.
+     * `Price::price` and `Price::netPrice` are equals and taxes are empty.
      *
-     * @param CalculatedPriceCollection $prices
-     * @param CalculatedPriceCollection $shippingCosts
+     * @param PriceCollection $prices
+     * @param PriceCollection $shippingCosts
      *
      * @return CartPrice
      */
-    private function calculateNetDeliveryAmount(CalculatedPriceCollection $prices, CalculatedPriceCollection $shippingCosts): CartPrice
+    private function calculateNetDeliveryAmount(PriceCollection $prices, PriceCollection $shippingCosts): CartPrice
     {
         $positionPrice = $prices->sum();
 
@@ -99,17 +99,17 @@ class AmountCalculator
 
     /**
      * Calculates the amount for a gross delivery.
-     * `CalculatedPrice::netPrice` contains the summed gross prices minus amount of calculated taxes.
-     * `CalculatedPrice::price` contains the summed gross prices
+     * `Price::netPrice` contains the summed gross prices minus amount of calculated taxes.
+     * `Price::price` contains the summed gross prices
      * Calculated taxes are based on the gross prices
      *
-     * @param CalculatedPriceCollection $prices
-     * @param CalculatedPriceCollection $shippingCosts
+     * @param PriceCollection $prices
+     * @param PriceCollection $shippingCosts
      * @param CheckoutContext           $context
      *
      * @return CartPrice
      */
-    private function calculateGrossAmount(CalculatedPriceCollection $prices, CalculatedPriceCollection $shippingCosts, CheckoutContext $context): CartPrice
+    private function calculateGrossAmount(PriceCollection $prices, PriceCollection $shippingCosts, CheckoutContext $context): CartPrice
     {
         $allPrices = $prices->merge($shippingCosts);
 
@@ -134,17 +134,17 @@ class AmountCalculator
 
     /**
      * Calculates the amount for a net based delivery, but gross prices has be be payed
-     * `CalculatedPrice::netPrice` contains the summed net prices.
-     * `CalculatedPrice::price` contains the summed net prices plus amount of calculated taxes
+     * `Price::netPrice` contains the summed net prices.
+     * `Price::price` contains the summed net prices plus amount of calculated taxes
      * Calculated taxes are based on the net prices
      *
-     * @param CalculatedPriceCollection $prices
-     * @param CalculatedPriceCollection $shippingCosts
+     * @param PriceCollection $prices
+     * @param PriceCollection $shippingCosts
      * @param CheckoutContext           $context
      *
      * @return CartPrice
      */
-    private function calculateNetAmount(CalculatedPriceCollection $prices, CalculatedPriceCollection $shippingCosts, CheckoutContext $context): CartPrice
+    private function calculateNetAmount(PriceCollection $prices, PriceCollection $shippingCosts, CheckoutContext $context): CartPrice
     {
         $all = $prices->merge($shippingCosts);
 

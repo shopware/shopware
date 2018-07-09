@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Test\Cart\Common;
 
 use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemInterface;
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Content\Media\MediaStruct;
@@ -17,7 +17,7 @@ class TestLineItem implements CalculatedLineItemInterface
     private $identifier;
 
     /**
-     * @var CalculatedPrice
+     * @var Price
      */
     private $price;
 
@@ -53,7 +53,7 @@ class TestLineItem implements CalculatedLineItemInterface
 
     public function __construct(
         string $identifier,
-        ?CalculatedPrice $price = null,
+        ?Price $price = null,
         int $quantity = 1,
         string $type = 'test-item',
         string $label = 'Default label',
@@ -71,7 +71,7 @@ class TestLineItem implements CalculatedLineItemInterface
         $this->description = $description;
 
         if (!$this->price) {
-            $this->price = new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection());
+            $this->price = new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection());
         }
     }
 
@@ -80,7 +80,7 @@ class TestLineItem implements CalculatedLineItemInterface
         return $this->identifier;
     }
 
-    public function getPrice(): CalculatedPrice
+    public function getPrice(): Price
     {
         return $this->price;
     }

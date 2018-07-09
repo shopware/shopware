@@ -2,30 +2,25 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
-use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemInterface;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 
 class CalculatedLineItemScope extends CheckoutRuleScope
 {
     /**
-     * @var CheckoutContext
+     * @var LineItem
      */
-    protected $context;
+    protected $lineItem;
 
-    /**
-     * @var CalculatedLineItemInterface
-     */
-    protected $calculatedLineItem;
-
-    public function __construct(CalculatedLineItemInterface $calculatedLineItem, CheckoutContext $context)
+    public function __construct(LineItem $calculatedLineItem, CheckoutContext $context)
     {
         parent::__construct($context);
-        $this->calculatedLineItem = $calculatedLineItem;
+        $this->lineItem = $calculatedLineItem;
     }
 
-    public function getCalculatedLineItem(): CalculatedLineItemInterface
+    public function getLineItem(): LineItem
     {
-        return $this->calculatedLineItem;
+        return $this->lineItem;
     }
 }

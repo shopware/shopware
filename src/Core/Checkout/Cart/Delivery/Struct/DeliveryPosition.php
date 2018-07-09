@@ -26,7 +26,7 @@ declare(strict_types=1);
 namespace Shopware\Core\Checkout\Cart\Delivery\Struct;
 
 use Shopware\Core\Checkout\Cart\LineItem\DeliverableLineItemInterface;
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Framework\Struct\Struct;
 
 class DeliveryPosition extends Struct
@@ -42,7 +42,7 @@ class DeliveryPosition extends Struct
     protected $quantity;
 
     /**
-     * @var CalculatedPrice
+     * @var Price
      */
     protected $price;
 
@@ -60,7 +60,7 @@ class DeliveryPosition extends Struct
         string $identifier,
         DeliverableLineItemInterface $calculatedLineItem,
         int $quantity,
-        CalculatedPrice $price,
+        Price $price,
         DeliveryDate $deliveryDate
     ) {
         $this->calculatedLineItem = $calculatedLineItem;
@@ -102,7 +102,7 @@ class DeliveryPosition extends Struct
         return $this->quantity;
     }
 
-    public function getPrice(): CalculatedPrice
+    public function getPrice(): Price
     {
         return $this->price;
     }

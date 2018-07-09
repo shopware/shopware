@@ -7,7 +7,7 @@
     <services>
         <service class="Shopware\Core\Content\Product\Storefront\StorefrontProductRepository" id="Shopware\Core\Content\Product\Storefront\StorefrontProductRepository">
             <argument type="service" id="product.repository"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PriceCalculator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
             <tag name="shopware.traceable" label="product.storefront-repository"/>
         </service>
 
@@ -92,7 +92,7 @@
         </service>
 
         <service class="Shopware\Core\Content\Product\Cart\ProductCalculator" id="Shopware\Core\Content\Product\Cart\ProductCalculator">
-            <argument id="Shopware\Core\Checkout\Cart\Price\PriceCalculator" type="service"/>
+            <argument id="QuantityPriceCalculator" type="service"/>
         </service>
 
         <service class="Shopware\Core\Content\Product\Cart\ProductProcessor" id="Shopware\Core\Content\Product\Cart\ProductProcessor">

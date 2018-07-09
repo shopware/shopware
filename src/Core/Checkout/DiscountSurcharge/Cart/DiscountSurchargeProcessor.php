@@ -4,12 +4,12 @@ namespace Shopware\Core\Checkout\DiscountSurcharge\Cart;
 
 use Shopware\Core\Checkout\Cart\Cart\CartProcessorInterface;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
+use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItem;
 use Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\Price;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Rule\CalculatedLineItemScope;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeStruct;
@@ -88,8 +88,8 @@ class DiscountSurchargeProcessor implements CartProcessorInterface
         DiscountSurchargeStruct $modifier,
         CalculatedCart $calculatedCart,
         CheckoutContext $context
-    ): CalculatedPrice {
-        $prices = new CalculatedPriceCollection();
+    ): Price {
+        $prices = new PriceCollection();
         foreach ($calculatedCart->getCalculatedLineItems() as $calculatedLineItem) {
             $match = $modifier->getFilterRule()->match(
                 new CalculatedLineItemScope($calculatedLineItem, $context)

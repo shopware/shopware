@@ -4,7 +4,7 @@ namespace Shopware\Core\Profiling\Cart;
 
 use Shopware\Core\Checkout\Cart\Cart\CircularCartCalculation;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
+use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\CheckoutContext;
 
 class CircularCartCalculationTracer extends CircularCartCalculation

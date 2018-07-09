@@ -27,7 +27,7 @@ namespace Shopware\Core\Checkout\Test\CartBridge\Order;
 use Faker\Factory;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
+use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItem;
@@ -35,7 +35,7 @@ use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
@@ -79,7 +79,7 @@ class OrderPersisterTest extends TestCase
             new CalculatedLineItemCollection([
                 new CalculatedLineItem(
                     'test',
-                    new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                    new Price(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
                     1,
                     'test',
                     'test'

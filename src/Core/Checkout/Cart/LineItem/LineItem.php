@@ -25,16 +25,25 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Cart\LineItem;
 
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
+use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
+use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 
-class LineItem extends Struct implements LineItemInterface
+class LineItem extends Struct
 {
     /**
      * @var string
      */
     protected $identifier;
+
+    /**
+     * @var string|null
+     */
+    protected $label;
 
     /**
      * @var int
@@ -52,30 +61,82 @@ class LineItem extends Struct implements LineItemInterface
     protected $payload;
 
     /**
-     * @var null|PriceDefinition
+     * @var QuantityPriceDefinition|null
      */
     protected $priceDefinition;
 
     /**
-     * @throws InvalidQuantityException
+     * @var Price|null
      */
-    public function __construct(
-        string $identifier,
-        string $type,
-        int $quantity,
-        array $payload = [],
-        ?PriceDefinition $priceDefinition = null
-    ) {
+    protected $price;
+
+    /**
+     * @var bool
+     */
+    protected $good = true;
+
+    /**
+     * @var int
+     */
+    protected $priority = 0;
+
+    /**
+     * @var string|null
+     */
+    protected $description;
+
+    /**
+     * @var null|MediaStruct
+     */
+    protected $cover;
+
+    /**
+     * @var DeliveryInformation|null
+     */
+    protected $deliveryInformation;
+
+    /**
+     * @var LineItemCollection|null
+     */
+    protected $children;
+
+    public function __construct(string $identifier, string $type, int $quantity = 1)
+    {
         $this->identifier = $identifier;
+        $this->quantity = $quantity;
         $this->type = $type;
-        $this->payload = $payload;
-        $this->priceDefinition = $priceDefinition;
-        $this->setQuantity($quantity);
+    }
+
+    public static function createFrom(Struct $object)
+    {
+        /** @var LineItem $object */
+        $self = new static($object->identifier, $object->type, $object->quantity);
+
+        foreach ($object as $propety => $value) {
+            $self->$propety = $value;
+        }
+
+        return $self;
     }
 
     public function getIdentifier(): string
     {
         return $this->identifier;
+    }
+
+    public function setIdentifier(string $identifier): void
+    {
+        $this->identifier = $identifier;
+    }
+
+    public function getLabel(): ?string
+    {
+        return $this->label;
+    }
+
+    public function setLabel(?string $label): void
+    {
+        $this->label = $label;
     }
 
     public function getQuantity(): int
@@ -99,9 +160,19 @@ class LineItem extends Struct implements LineItemInterface
         return $this->type;
     }
 
+    public function setType(string $type): void
+    {
+        $this->type = $type;
+    }
+
     public function getPayload(): array
     {
         return $this->payload;
+    }
+
+    public function setPayload(array $payload): void
+    {
+        $this->payload = $payload;
     }
 
     public function getPriceDefinition(): ?PriceDefinition
@@ -112,5 +183,75 @@ class LineItem extends Struct implements LineItemInterface
     public function setPriceDefinition(?PriceDefinition $priceDefinition): void
     {
         $this->priceDefinition = $priceDefinition;
+    }
+
+    public function getPrice(): ?Price
+    {
+        return $this->price;
+    }
+
+    public function setPrice(?Price $price): void
+    {
+        $this->price = $price;
+    }
+
+    public function isGood(): bool
+    {
+        return $this->good;
+    }
+
+    public function setGood(bool $good): void
+    {
+        $this->good = $good;
+    }
+
+    public function getPriority(): int
+    {
+        return $this->priority;
+    }
+
+    public function setPriority(int $priority): void
+    {
+        $this->priority = $priority;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): void
+    {
+        $this->description = $description;
+    }
+
+    public function getCover(): ?MediaStruct
+    {
+        return $this->cover;
+    }
+
+    public function setCover(?MediaStruct $cover): void
+    {
+        $this->cover = $cover;
+    }
+
+    public function getDeliveryInformation(): ?DeliveryInformation
+    {
+        return $this->deliveryInformation;
+    }
+
+    public function setDeliveryInformation(?DeliveryInformation $deliveryInformation): void
+    {
+        $this->deliveryInformation = $deliveryInformation;
+    }
+
+    public function getChildren(): ?LineItemCollection
+    {
+        return $this->children;
+    }
+
+    public function setChildren(?LineItemCollection $children): void
+    {
+        $this->children = $children;
     }
 }

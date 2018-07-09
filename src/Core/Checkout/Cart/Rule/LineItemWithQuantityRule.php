@@ -44,7 +44,7 @@ class LineItemWithQuantityRule extends Rule
             );
         }
 
-        if ($scope->getCalculatedLineItem()->getIdentifier() !== $this->id) {
+        if ($scope->getLineItem()->getIdentifier() !== $this->id) {
             return new Match(
                 false,
                 ['CalculatedLineItem id does not match']
@@ -52,7 +52,7 @@ class LineItemWithQuantityRule extends Rule
         }
 
         if ($this->quantity !== null) {
-            $quantity = $scope->getCalculatedLineItem()->getQuantity();
+            $quantity = $scope->getLineItem()->getQuantity();
 
             switch ($this->operator) {
                 case self::OPERATOR_GTE:

@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductService;
 
-use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\PercentageTaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionStruct;
@@ -147,7 +147,7 @@ class ProductServiceStruct extends Entity
         $this->tax = $tax;
     }
 
-    public function getPriceDefinition(int $quantity, Context $context): PriceDefinition
+    public function getPriceDefinition(int $quantity, Context $context): QuantityPriceDefinition
     {
         $taxRules = $this->getTaxRuleCollection();
 
@@ -157,14 +157,14 @@ class ProductServiceStruct extends Entity
             /** @var PriceRuleStruct $price */
             $price = $this->getPrices()->first();
 
-            return new PriceDefinition($price->getPrice()->getGross(), $taxRules, $quantity, true);
+            return new QuantityPriceDefinition($price->getPrice()->getGross(), $taxRules, $quantity, true);
         }
 
         if (!$this->getPrice()) {
-            return new PriceDefinition(0, $taxRules, $quantity, true);
+            return new QuantityPriceDefinition(0, $taxRules, $quantity, true);
         }
 
-        return new PriceDefinition($this->getPrice()->getGross(), $taxRules, $quantity, true);
+        return new QuantityPriceDefinition($this->getPrice()->getGross(), $taxRules, $quantity, true);
     }
 
     public function getTaxRuleCollection()

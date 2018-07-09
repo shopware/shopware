@@ -28,8 +28,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItem;
 use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Core\Checkout\Cart\LineItem\GoodsInterface;
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\Price;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 
@@ -74,14 +74,14 @@ class CalculatedLineItemCollectionTest extends TestCase
         $collection = new CalculatedLineItemCollection([
             new CustomLineItem(
                 'Item1',
-                new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                new Price(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
                 1,
                 'Test',
                 'test_line_item'
             ),
             new CustomLineItem(
                 'Item2',
-                new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                new Price(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
                 1,
                 'Test',
                 'test_line_item'
@@ -106,14 +106,14 @@ class CalculatedLineItemCollectionTest extends TestCase
             new CalculatedLineItemCollection([
                 new CustomLineItem(
                     'Item1',
-                    new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                    new Price(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
                     1,
                     'Test',
                     'test_line_item'
                 ),
                 new CustomLineItem(
                     'Item2',
-                    new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                    new Price(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
                     1,
                     'Test',
                     'test_line_item'
@@ -275,14 +275,14 @@ class CalculatedLineItemCollectionTest extends TestCase
         $collection = new CalculatedLineItemCollection([
             new CustomLineItem(
                 'Code1',
-                new CalculatedPrice(200, 200, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                new Price(200, 200, new CalculatedTaxCollection(), new TaxRuleCollection()),
                 1,
                 'custom_line_item',
                 'test'
             ),
             new CustomLineItem(
                 'Code2',
-                new CalculatedPrice(300, 300, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                new Price(300, 300, new CalculatedTaxCollection(), new TaxRuleCollection()),
                 1,
                 'custom_line_item',
                 'test'
@@ -290,9 +290,9 @@ class CalculatedLineItemCollectionTest extends TestCase
         ]);
 
         static::assertEquals(
-            new CalculatedPriceCollection([
-                new CalculatedPrice(200, 200, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                new CalculatedPrice(300, 300, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            new PriceCollection([
+                new Price(200, 200, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                new Price(300, 300, new CalculatedTaxCollection(), new TaxRuleCollection()),
             ]),
             $collection->getPrices()
         );
@@ -384,7 +384,7 @@ class CalculatedLineItemCollectionTest extends TestCase
     {
         return new CalculatedLineItem(
             $identifier,
-            new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
             $quantity,
             $identifier,
             $identifier
@@ -398,7 +398,7 @@ class ConfiguredGoodsItem extends CalculatedLineItem implements GoodsInterface
     {
         parent::__construct(
             $identifier,
-            new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
             $quantity,
             $identifier,
             $identifier

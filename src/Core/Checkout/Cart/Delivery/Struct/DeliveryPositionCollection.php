@@ -27,7 +27,7 @@ namespace Shopware\Core\Checkout\Cart\Delivery\Struct;
 
 use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Core\Checkout\Cart\LineItem\DeliverableLineItemInterface;
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Framework\Struct\Collection;
 
 class DeliveryPositionCollection extends Collection
@@ -67,9 +67,9 @@ class DeliveryPositionCollection extends Collection
         return null;
     }
 
-    public function getPrices(): CalculatedPriceCollection
+    public function getPrices(): PriceCollection
     {
-        return new CalculatedPriceCollection(
+        return new PriceCollection(
             array_map(
                 function (DeliveryPosition $position) {
                     return $position->getPrice();

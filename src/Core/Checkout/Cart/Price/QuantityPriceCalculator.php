@@ -25,16 +25,16 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Cart\Price;
 
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
-use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\Price;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Checkout\CheckoutContext;
 
-class PriceCalculator
+class QuantityPriceCalculator
 {
     /**
      * @var GrossPriceCalculator
@@ -61,18 +61,18 @@ class PriceCalculator
         $this->taxDetector = $taxDetector;
     }
 
-    public function calculateCollection(PriceDefinitionCollection $collection, CheckoutContext $context): CalculatedPriceCollection
+    public function calculateCollection(PriceDefinitionCollection $collection, CheckoutContext $context): PriceCollection
     {
         $prices = $collection->map(
-            function (PriceDefinition $definition) use ($context) {
+            function (QuantityPriceDefinition $definition) use ($context) {
                 return $this->calculate($definition, $context);
             }
         );
 
-        return new CalculatedPriceCollection($prices);
+        return new PriceCollection($prices);
     }
 
-    public function calculate(PriceDefinition $definition, CheckoutContext $context): CalculatedPrice
+    public function calculate(QuantityPriceDefinition $definition, CheckoutContext $context): Price
     {
         if ($this->taxDetector->useGross($context)) {
             $price = $this->grossPriceCalculator->calculate($definition);
@@ -88,7 +88,7 @@ class PriceCalculator
             $calculatedTaxes = new CalculatedTaxCollection();
         }
 
-        return new CalculatedPrice(
+        return new Price(
             $price->getUnitPrice(),
             $price->getTotalPrice(),
             $calculatedTaxes,

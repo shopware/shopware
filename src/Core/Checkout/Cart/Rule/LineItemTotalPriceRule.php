@@ -38,7 +38,7 @@ class LineItemTotalPriceRule extends Rule
             );
         }
 
-        $calculatedLineItem = $scope->getCalculatedLineItem();
+        $calculatedLineItem = $scope->getLineItem();
 
         switch ($this->operator) {
             case self::OPERATOR_GTE:

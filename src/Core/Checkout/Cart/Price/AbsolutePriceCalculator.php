@@ -25,16 +25,16 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Cart\Price;
 
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
-use Shopware\Core\Checkout\Cart\Price\Struct\DerivedCalculatedPrice;
-use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\DerivedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Core\Checkout\CheckoutContext;
 
 class AbsolutePriceCalculator
 {
     /**
-     * @var PriceCalculator
+     * @var QuantityPriceCalculator
      */
     private $priceCalculator;
 
@@ -44,7 +44,7 @@ class AbsolutePriceCalculator
     private $percentageTaxRuleBuilder;
 
     public function __construct(
-        PriceCalculator $priceCalculator,
+        QuantityPriceCalculator $priceCalculator,
         PercentageTaxRuleBuilder $percentageTaxRuleBuilder
     ) {
         $this->priceCalculator = $priceCalculator;
@@ -53,23 +53,23 @@ class AbsolutePriceCalculator
 
     /**
      * @param float                     $price
-     * @param CalculatedPriceCollection $prices
+     * @param PriceCollection $prices
      * @param CheckoutContext           $context
      *
-     * @return DerivedCalculatedPrice
+     * @return DerivedPrice
      */
     public function calculate(
         float $price,
-        CalculatedPriceCollection $prices,
+        PriceCollection $prices,
         CheckoutContext $context
-    ): DerivedCalculatedPrice {
+    ): DerivedPrice {
         $taxRules = $this->percentageTaxRuleBuilder->buildRules($prices->sum());
 
-        $priceDefinition = new PriceDefinition($price, $taxRules, 1, true);
+        $priceDefinition = new QuantityPriceDefinition($price, $taxRules, 1, true);
 
         $calculatedPrice = $this->priceCalculator->calculate($priceDefinition, $context);
 
-        return new DerivedCalculatedPrice(
+        return new DerivedPrice(
             $calculatedPrice->getUnitPrice(),
             $calculatedPrice->getTotalPrice(),
             $calculatedPrice->getCalculatedTaxes(),

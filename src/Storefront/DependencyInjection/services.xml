@@ -78,24 +78,24 @@
             <argument id="customer.repository" type="service"/>
         </service>
 
-        <service class="Shopware\Storefront\Controller\AccountController" public="true" id="Shopware\Storefront\Controller\AccountController">
-            <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>
-            <argument type="service" id="Shopware\Storefront\Page\Account\AccountService"/>
-            <argument type="service" id="Shopware\Storefront\Page\Account\CustomerAddressPageLoader"/>
-            <argument type="service" id="Shopware\Storefront\Page\Account\CustomerPageLoader"/>
-            <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextService"/>
-            <argument type="service" id="Shopware\Storefront\Page\Checkout\PaymentMethodLoader"/>
-            <argument type="service" id="Shopware\Storefront\Page\Account\OrderPageLoader"/>
-        </service>
+        <!--<service class="Shopware\Storefront\Controller\AccountController" public="true" id="Shopware\Storefront\Controller\AccountController">-->
+            <!--<argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>-->
+            <!--<argument type="service" id="Shopware\Storefront\Page\Account\AccountService"/>-->
+            <!--<argument type="service" id="Shopware\Storefront\Page\Account\CustomerAddressPageLoader"/>-->
+            <!--<argument type="service" id="Shopware\Storefront\Page\Account\CustomerPageLoader"/>-->
+            <!--<argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextService"/>-->
+            <!--<argument type="service" id="Shopware\Storefront\Page\Checkout\PaymentMethodLoader"/>-->
+            <!--<argument type="service" id="Shopware\Storefront\Page\Account\OrderPageLoader"/>-->
+        <!--</service>-->
 
         <service class="Shopware\Storefront\Controller\Widgets\IndexController" public="true" id="Shopware\Storefront\Controller\Widgets\IndexController">
             <argument type="service" id="currency.repository"/>
             <argument type="service" id="language.repository"/>
         </service>
 
-        <service class="Shopware\Storefront\Controller\Widgets\CheckoutController" public="true" id="Shopware\Storefront\Controller\Widgets\CheckoutController">
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService" />
-        </service>
+        <!--<service class="Shopware\Storefront\Controller\Widgets\CheckoutController" public="true" id="Shopware\Storefront\Controller\Widgets\CheckoutController">-->
+            <!--<argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService" />-->
+        <!--</service>-->
 
         <service class="Shopware\Storefront\Controller\ListingController" public="true" id="Shopware\Storefront\Controller\ListingController">
             <argument type="service" id="Shopware\Storefront\Page\Listing\ListingPageLoader" />
@@ -107,9 +107,9 @@
 
         <service class="Shopware\Storefront\Page\Account\CustomerPageLoader" id="Shopware\Storefront\Page\Account\CustomerPageLoader"/>
 
-        <service class="Shopware\Storefront\Controller\CartController" id="Shopware\Storefront\Controller\CartController" public="true">
-            <argument id="Shopware\Core\Checkout\Cart\Storefront\CartService" type="service"/>
-        </service>
+        <!--<service class="Shopware\Storefront\Controller\CartController" id="Shopware\Storefront\Controller\CartController" public="true">-->
+            <!--<argument id="Shopware\Core\Checkout\Cart\Storefront\CartService" type="service"/>-->
+        <!--</service>-->
 
         <service class="Shopware\Storefront\Routing\StorefrontSubscriber" id="shopware.storefront.routing.storefront_subscriber">
             <tag name="kernel.event_subscriber"/>
@@ -117,17 +117,17 @@
             <argument type="service" id="router"/>
         </service>
 
-        <service class="Shopware\Storefront\Controller\CheckoutController" id="Shopware\Storefront\Controller\CheckoutController" public="true">
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService"/>
-            <argument type="service" id="order.repository"/>
-            <argument type="service" id="Shopware\Storefront\Page\Checkout\PaymentMethodLoader"/>
-            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor"/>
-            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactory"/>
-            <argument type="service" id="payment_method.repository"/>
-            <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>
-            <argument type="service" id="serializer"/>
-            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry"/>
-        </service>
+        <!--<service class="Shopware\Storefront\Controller\CheckoutController" id="Shopware\Storefront\Controller\CheckoutController" public="true">-->
+            <!--<argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService"/>-->
+            <!--<argument type="service" id="order.repository"/>-->
+            <!--<argument type="service" id="Shopware\Storefront\Page\Checkout\PaymentMethodLoader"/>-->
+            <!--<argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor"/>-->
+            <!--<argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactory"/>-->
+            <!--<argument type="service" id="payment_method.repository"/>-->
+            <!--<argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>-->
+            <!--<argument type="service" id="serializer"/>-->
+            <!--<argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry"/>-->
+        <!--</service>-->
 
         <service class="Shopware\Storefront\Controller\SearchController" public="true" id="Shopware\Storefront\Controller\SearchController">
             <argument id="Shopware\Storefront\Page\Search\SearchPageLoader" type="service"/>

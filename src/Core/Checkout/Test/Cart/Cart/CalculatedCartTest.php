@@ -26,7 +26,7 @@ namespace Shopware\Core\Checkout\Test\Cart\Cart;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
+use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItem;
@@ -35,7 +35,7 @@ use Shopware\Core\Checkout\Cart\LineItem\GoodsInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemInterface;
 use Shopware\Core\Checkout\Cart\LineItem\NestedInterface;
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
@@ -61,7 +61,7 @@ class CalculatedCartTest extends TestCase
         $cart = new CalculatedCart(
             new Cart('test', 'test', new LineItemCollection(), new ErrorCollection()),
             new CalculatedLineItemCollection([
-                new ConfiguredGoods('A', new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()), 1, 'A', 'Label'),
+                new ConfiguredGoods('A', new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()), 1, 'A', 'Label'),
                 new TestLineItem('B'),
             ]),
             new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS),
@@ -88,7 +88,7 @@ class CalculatedCartTest extends TestCase
 
     public function testCartWithNestedLineItemHasChildren(): void
     {
-        $price = new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection());
+        $price = new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection());
 
         $lineItem = new NestedLineItem('X', $price, 1, 'nested',
             new CalculatedLineItemCollection([
@@ -122,7 +122,7 @@ class NestedLineItem extends CalculatedLineItem implements NestedInterface
 
     public function __construct(
         string $identifier,
-        CalculatedPrice $price,
+        Price $price,
         int $quantity,
         string $type,
         CalculatedLineItemCollection $children,

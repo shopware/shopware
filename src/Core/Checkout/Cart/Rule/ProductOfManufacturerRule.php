@@ -28,7 +28,7 @@ class ProductOfManufacturerRule extends Rule
             );
         }
 
-        $calculatedLineItem = $scope->getCalculatedLineItem();
+        $calculatedLineItem = $scope->getLineItem();
         if (!$calculatedLineItem instanceof CalculatedProduct) {
             return new Match(
                 false,

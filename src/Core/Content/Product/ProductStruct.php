@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Product;
 
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
-use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\PercentageTaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
@@ -841,18 +841,18 @@ class ProductStruct extends Entity
         $definitions = $prices->map(function (ProductPriceRuleStruct $rule) use ($taxRules) {
             $quantity = $rule->getQuantityEnd() ?? $rule->getQuantityStart();
 
-            return new PriceDefinition($rule->getPrice()->getGross(), $taxRules, $quantity, true);
+            return new QuantityPriceDefinition($rule->getPrice()->getGross(), $taxRules, $quantity, true);
         });
 
         return new PriceDefinitionCollection($definitions);
     }
 
-    public function getPriceDefinition(Context $context): PriceDefinition
+    public function getPriceDefinition(Context $context): QuantityPriceDefinition
     {
-        return new PriceDefinition($this->getPrice()->getGross(), $this->getTaxRuleCollection(), 1, true);
+        return new QuantityPriceDefinition($this->getPrice()->getGross(), $this->getTaxRuleCollection(), 1, true);
     }
 
-    public function getListingPriceDefinition(Context $context): PriceDefinition
+    public function getListingPriceDefinition(Context $context): QuantityPriceDefinition
     {
         $taxRules = $this->getTaxRuleCollection();
 
@@ -869,20 +869,20 @@ class ProductStruct extends Entity
         $prices = $prices->getPriceRulesForContext($context);
 
         if (!$prices) {
-            return new PriceDefinition($this->getPrice()->getGross(), $taxRules, 1, true);
+            return new QuantityPriceDefinition($this->getPrice()->getGross(), $taxRules, 1, true);
         }
 
         if ($prices->count() <= 0) {
-            return new PriceDefinition($this->getPrice()->getGross(), $taxRules, 1, true);
+            return new QuantityPriceDefinition($this->getPrice()->getGross(), $taxRules, 1, true);
         }
 
         /** @var ProductPriceRuleStruct $price */
         $price = $prices->first();
 
-        return new PriceDefinition($price->getPrice()->getGross(), $taxRules, 1, true);
+        return new QuantityPriceDefinition($price->getPrice()->getGross(), $taxRules, 1, true);
     }
 
-    public function getPriceDefinitionForQuantity(Context $context, int $quantity): PriceDefinition
+    public function getPriceDefinitionForQuantity(Context $context, int $quantity): QuantityPriceDefinition
     {
         // TODO@DR consider tax state of touchpoint context (NEXT-286)
         $taxRules = $this->getTaxRuleCollection();
@@ -893,13 +893,13 @@ class ProductStruct extends Entity
         $prices = $rules->getPriceRulesForContext($context);
 
         if (!$prices) {
-            return new PriceDefinition($this->getPrice()->getGross(), $taxRules, $quantity, true);
+            return new QuantityPriceDefinition($this->getPrice()->getGross(), $taxRules, $quantity, true);
         }
 
         /** @var ProductPriceRuleCollection $prices */
         $price = $prices->getQuantityPrice($quantity);
 
-        return new PriceDefinition($price->getPrice()->getGross(), $taxRules, $quantity, true);
+        return new QuantityPriceDefinition($price->getPrice()->getGross(), $taxRules, $quantity, true);
     }
 
     public function getTaxRuleCollection()

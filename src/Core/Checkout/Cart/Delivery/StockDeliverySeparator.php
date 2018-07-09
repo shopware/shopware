@@ -33,9 +33,9 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Core\Checkout\Cart\LineItem\DeliverableLineItemInterface;
-use Shopware\Core\Checkout\Cart\Price\PriceCalculator;
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\Struct\Price;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\CheckoutContext;
@@ -44,11 +44,11 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodStruct;
 class StockDeliverySeparator
 {
     /**
-     * @var PriceCalculator
+     * @var QuantityPriceCalculator
      */
     private $priceCalculator;
 
-    public function __construct(PriceCalculator $priceCalculator)
+    public function __construct(QuantityPriceCalculator $priceCalculator)
     {
         $this->priceCalculator = $priceCalculator;
     }
@@ -145,7 +145,7 @@ class StockDeliverySeparator
         DeliveryDate $deliveryDate,
         CheckoutContext $context
     ): DeliveryPosition {
-        $definition = new PriceDefinition(
+        $definition = new QuantityPriceDefinition(
             $item->getPrice()->getUnitPrice(),
             $item->getPrice()->getTaxRules(),
             $quantity,
@@ -185,7 +185,7 @@ class StockDeliverySeparator
             $position->getDeliveryDate(),
             $shippingMethod,
             $location,
-            new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
+            new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
         );
 
         $deliveries->add($delivery);

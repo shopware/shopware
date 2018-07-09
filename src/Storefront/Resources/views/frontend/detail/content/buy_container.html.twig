@@ -60,7 +60,7 @@
                         {% set lowestPrice = false %}
                         {% set highestPrice = false %}
 
-                        {# @var price \Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice #}
+                        {# @var price \Shopware\Core\Checkout\Cart\Price\Struct\Price #}
                         {% for price in product.calculatedPriceRules %}
                             {% if lowestPrice == false or price.totalPrice < lowestPrice %}
                                 {% set lowestPrice = price.totalPrice %}

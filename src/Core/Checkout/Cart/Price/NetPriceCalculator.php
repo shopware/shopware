@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Checkout\Cart\Price;
 
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
-use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\Price;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 
@@ -26,18 +26,18 @@ class NetPriceCalculator
         $this->priceRounding = $priceRounding;
     }
 
-    public function calculateCollection(PriceDefinitionCollection $collection): CalculatedPriceCollection
+    public function calculateCollection(PriceDefinitionCollection $collection): PriceCollection
     {
         $prices = $collection->map(
-            function (PriceDefinition $definition) {
+            function (QuantityPriceDefinition $definition) {
                 return $this->calculate($definition);
             }
         );
 
-        return new CalculatedPriceCollection($prices);
+        return new PriceCollection($prices);
     }
 
-    public function calculate(PriceDefinition $definition): CalculatedPrice
+    public function calculate(QuantityPriceDefinition $definition): Price
     {
         $unitPrice = $this->getUnitPrice($definition);
 
@@ -49,10 +49,10 @@ class NetPriceCalculator
 
         $calculatedTaxes = $this->taxCalculator->calculateNetTaxes($price, $definition->getTaxRules());
 
-        return new CalculatedPrice($unitPrice, $price, $calculatedTaxes, $taxRules, $definition->getQuantity());
+        return new Price($unitPrice, $price, $calculatedTaxes, $taxRules, $definition->getQuantity());
     }
 
-    private function getUnitPrice(PriceDefinition $definition): float
+    private function getUnitPrice(QuantityPriceDefinition $definition): float
     {
         //unit price already calculated?
         if ($definition->isCalculated()) {

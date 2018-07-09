@@ -28,11 +28,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
-use Shopware\Core\Checkout\Cart\Price\PriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\PriceRounding;
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
-use Shopware\Core\Checkout\Cart\Price\Struct\DerivedCalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\Price;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\DerivedPrice;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleCalculator;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
@@ -50,13 +50,13 @@ class AbsolutePriceCalculatorTest extends TestCase
      * @dataProvider calculateAbsolutePriceOfGrossPricesProvider
      *
      * @param float                     $price
-     * @param DerivedCalculatedPrice    $expected
-     * @param CalculatedPriceCollection $prices
+     * @param DerivedPrice    $expected
+     * @param PriceCollection $prices
      */
     public function testCalculateAbsolutePriceOfGrossPrices(
         float $price,
-        DerivedCalculatedPrice $expected,
-        CalculatedPriceCollection $prices
+        DerivedPrice $expected,
+        PriceCollection $prices
     ): void {
         $rounding = new PriceRounding(2);
 
@@ -69,7 +69,7 @@ class AbsolutePriceCalculatorTest extends TestCase
         );
 
         $calculator = new AbsolutePriceCalculator(
-            new PriceCalculator(
+            new QuantityPriceCalculator(
                 new GrossPriceCalculator($taxCalculator, $rounding),
                 new NetPriceCalculator($taxCalculator, $rounding),
                 Generator::createGrossPriceDetector()
@@ -101,16 +101,16 @@ class AbsolutePriceCalculatorTest extends TestCase
         ]);
 
         //prices of cart line items
-        $prices = new CalculatedPriceCollection([
-            new CalculatedPrice(30.00, 30.00, new CalculatedTaxCollection([new CalculatedTax(4.79, 19, 30.00)]), $highTax),
-            new CalculatedPrice(30.00, 30.00, new CalculatedTaxCollection([new CalculatedTax(1.96, 7, 30.00)]), $highTax),
+        $prices = new PriceCollection([
+            new Price(30.00, 30.00, new CalculatedTaxCollection([new CalculatedTax(4.79, 19, 30.00)]), $highTax),
+            new Price(30.00, 30.00, new CalculatedTaxCollection([new CalculatedTax(1.96, 7, 30.00)]), $highTax),
         ]);
 
         return [
             [
                 -6,
                 //expected calculated "discount" price
-                new DerivedCalculatedPrice(
+                new DerivedPrice(
                     -6,
                     -6,
                     new CalculatedTaxCollection([

@@ -45,7 +45,7 @@
     {# @var calculatedCart \Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart #}
     {% set calculatedCart = collector.calculatedCart %}
 
-    {# @var cart \Shopware\Core\Checkout\Cart\Cart\Struct\Cart #}
+    {# @var cart \Shopware\Core\Checkout\Cart\Cart\Cart #}
     {% set cart = collector.cart %}
 
     {% set lineItemsCount = calculatedCart.calculatedLineItems.flatElements|length %}
@@ -117,7 +117,7 @@
     {# @var calculatedCart \Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart #}
     {% set calculatedCart = collector.calculatedCart %}
 
-    {# @var cart \Shopware\Core\Checkout\Cart\Cart\Struct\Cart #}
+    {# @var cart \Shopware\Core\Checkout\Cart\Cart\Cart #}
     {% set cart = collector.cart %}
 
     {% set currencyName = collector.context.currency.shortName %}

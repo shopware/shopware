@@ -8,9 +8,7 @@ use Doctrine\DBAL\Connection;
 use Faker\Factory;
 use Faker\Generator;
 use League\Flysystem\FilesystemInterface;
-use Shopware\Core\Checkout\Cart\Cart\CartCollector;
-use Shopware\Core\Checkout\Cart\Cart\CartProcessor;
-use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
+use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -126,24 +124,12 @@ class DemodataCommand extends ContainerAwareCommand
      */
     private $contextFactory;
 
-    /**
-     * @var CartProcessor
-     */
-    private $processor;
-
-    /**
-     * @var CartCollector
-     */
-    private $collector;
-
     public function __construct(
         ?string $name = null,
         EntityWriterInterface $writer,
         VariantGenerator $variantGenerator,
         FilesystemInterface $filesystem,
         ContainerInterface $container,
-        CartProcessor $processor,
-        CartCollector $collector,
         OrderConverter $orderConverter,
         Connection $connection,
         CheckoutContextFactory $contextFactory
@@ -160,8 +146,6 @@ class DemodataCommand extends ContainerAwareCommand
         $this->orderConverter = $orderConverter;
         $this->connection = $connection;
         $this->contextFactory = $contextFactory;
-        $this->processor = $processor;
-        $this->collector = $collector;
     }
 
     protected function configure()
@@ -227,7 +211,7 @@ class DemodataCommand extends ContainerAwareCommand
             $input->getOption('with-services') == 1
         );
 
-        $this->createOrders((int) $input->getOption('orders'), $tenantId);
+//        $this->createOrders((int) $input->getOption('orders'), $tenantId);
 
         $this->cleanupImages();
 

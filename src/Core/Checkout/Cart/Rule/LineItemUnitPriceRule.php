@@ -38,7 +38,7 @@ class LineItemUnitPriceRule extends Rule
             );
         }
 
-        $unitPrice = $scope->getCalculatedLineItem()->getPrice()->getUnitPrice();
+        $unitPrice = $scope->getLineItem()->getPrice()->getUnitPrice();
         switch ($this->operator) {
             case self::OPERATOR_GTE:
 

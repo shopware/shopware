@@ -26,7 +26,7 @@ declare(strict_types=1);
 namespace Shopware\Core\Checkout\Cart\Delivery\Struct;
 
 use Shopware\Core\Checkout\Cart\LineItem\DeliverableLineItemInterface;
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Framework\Struct\Collection;
 
 class DeliveryCollection extends Collection
@@ -98,9 +98,9 @@ class DeliveryCollection extends Collection
         return false;
     }
 
-    public function getShippingCosts(): CalculatedPriceCollection
+    public function getShippingCosts(): PriceCollection
     {
-        return new CalculatedPriceCollection(
+        return new PriceCollection(
             $this->map(function (Delivery $delivery) {
                 return $delivery->getShippingCosts();
             })

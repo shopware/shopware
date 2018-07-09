@@ -25,31 +25,54 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Cart\Price\Struct;
 
-use Shopware\Core\Framework\Struct\Collection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Framework\Struct\Struct;
 
-class PriceDefinitionCollection extends Collection
+class QuantityPriceDefinition extends Struct implements PriceDefinition
 {
+    /** @var float */
+    protected $price;
+
+    /** @var TaxRuleCollection */
+    protected $taxRules;
+
+    /** @var int */
+    protected $quantity;
+
     /**
-     * @var PriceDefinition[]
+     * @var bool
      */
-    protected $elements = [];
+    protected $isCalculated;
 
-    public function add(PriceDefinition $price): void
-    {
-        parent::doAdd($price);
+    public function __construct(
+        float $price,
+        TaxRuleCollection $taxRules,
+        int $quantity = 1,
+        bool $isCalculated = false
+    ) {
+        $this->price = $price;
+        $this->taxRules = $taxRules;
+        $this->quantity = $quantity;
+        $this->isCalculated = $isCalculated;
     }
 
-    public function remove(int $key): void
+    public function getPrice(): float
     {
-        parent::doRemoveByKey($key);
+        return $this->price;
     }
 
-    public function get(int $key): ? PriceDefinition
+    public function getTaxRules(): TaxRuleCollection
     {
-        if ($this->has($key)) {
-            return $this->elements[$key];
-        }
+        return $this->taxRules;
+    }
 
-        return null;
+    public function getQuantity(): int
+    {
+        return $this->quantity;
+    }
+
+    public function isCalculated(): bool
+    {
+        return $this->isCalculated;
     }
 }

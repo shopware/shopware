@@ -29,7 +29,7 @@ class LineItemOfTypeRule extends Rule
         }
 
         return new Match(
-            $scope->getCalculatedLineItem()->getType() == $this->type,
+            $scope->getLineItem()->getType() == $this->type,
             ['LineItem type does not match']
         );
     }

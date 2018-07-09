@@ -4,8 +4,8 @@ namespace Shopware\Core\Checkout\Cart\Transaction;
 
 use Shopware\Core\Checkout\Cart\Cart\CartProcessorInterface;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Struct\StructCollection;
@@ -21,7 +21,7 @@ class TransactionSeparatorProcessor implements CartProcessorInterface
         $price = $calculatedCart->getPrice()->getTotalPrice();
 
         $calculatedCart->addTransaction(new Transaction(
-            new CalculatedPrice(
+            new Price(
                 $price,
                 $price,
                 $calculatedCart->getPrice()->getCalculatedTaxes(),

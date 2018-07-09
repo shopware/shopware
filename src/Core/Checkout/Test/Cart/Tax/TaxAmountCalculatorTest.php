@@ -26,8 +26,8 @@ namespace Shopware\Core\Checkout\Test\Cart\Tax;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\PriceRounding;
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\Price;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleCalculator;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
@@ -49,10 +49,10 @@ class TaxAmountCalculatorTest extends TestCase
      *
      * @param string                    $calculationType
      * @param TaxDetector               $taxDetector
-     * @param CalculatedPriceCollection $prices
+     * @param PriceCollection $prices
      * @param CalculatedTaxCollection   $expected
      */
-    public function testCalculation(string $calculationType, TaxDetector $taxDetector, CalculatedPriceCollection $prices, CalculatedTaxCollection $expected): void
+    public function testCalculation(string $calculationType, TaxDetector $taxDetector, PriceCollection $prices, CalculatedTaxCollection $expected): void
     {
         $shop = $this->createMock(TouchpointStruct::class);
         $shop->method('getTaxCalculationType')->will($this->returnValue($calculationType));
@@ -96,10 +96,10 @@ class TaxAmountCalculatorTest extends TestCase
             [
                 TaxAmountCalculator::CALCULATION_VERTICAL,
                 $grossPriceDetector,
-                new CalculatedPriceCollection([
-                    new CalculatedPrice(1.44, 1.44, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.44)]), new TaxRuleCollection([new TaxRule(7)])),
-                    new CalculatedPrice(1.44, 1.44, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.44)]), new TaxRuleCollection([new TaxRule(7)])),
-                    new CalculatedPrice(1.44, 1.44, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.44)]), new TaxRuleCollection([new TaxRule(7)])),
+                new PriceCollection([
+                    new Price(1.44, 1.44, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.44)]), new TaxRuleCollection([new TaxRule(7)])),
+                    new Price(1.44, 1.44, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.44)]), new TaxRuleCollection([new TaxRule(7)])),
+                    new Price(1.44, 1.44, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.44)]), new TaxRuleCollection([new TaxRule(7)])),
                 ]),
                 new CalculatedTaxCollection([
                     new CalculatedTax(0.27, 7, 4.32),
@@ -110,10 +110,10 @@ class TaxAmountCalculatorTest extends TestCase
             [
                 TaxAmountCalculator::CALCULATION_VERTICAL,
                 $grossPriceDetector,
-                new CalculatedPriceCollection([
-                    new CalculatedPrice(1.61, 1.61, new CalculatedTaxCollection([new CalculatedTax(0.26, 19, 1.61)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.61, 1.61, new CalculatedTaxCollection([new CalculatedTax(0.26, 19, 1.61)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.61, 1.61, new CalculatedTaxCollection([new CalculatedTax(0.26, 19, 1.61)]), new TaxRuleCollection([new TaxRule(19)])),
+                new PriceCollection([
+                    new Price(1.61, 1.61, new CalculatedTaxCollection([new CalculatedTax(0.26, 19, 1.61)]), new TaxRuleCollection([new TaxRule(19)])),
+                    new Price(1.61, 1.61, new CalculatedTaxCollection([new CalculatedTax(0.26, 19, 1.61)]), new TaxRuleCollection([new TaxRule(19)])),
+                    new Price(1.61, 1.61, new CalculatedTaxCollection([new CalculatedTax(0.26, 19, 1.61)]), new TaxRuleCollection([new TaxRule(19)])),
                 ]),
                 new CalculatedTaxCollection([
                     new CalculatedTax(0.78, 19, 4.83),
@@ -124,10 +124,10 @@ class TaxAmountCalculatorTest extends TestCase
             [
                 TaxAmountCalculator::CALCULATION_VERTICAL,
                 $grossPriceDetector,
-                new CalculatedPriceCollection([
-                    new CalculatedPrice(1.61, 1.61, new CalculatedTaxCollection([new CalculatedTax(0.26, 19, 1.61)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.44, 1.44, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.44)]), new TaxRuleCollection([new TaxRule(7)])),
-                    new CalculatedPrice(1.61, 1.61, new CalculatedTaxCollection([new CalculatedTax(0.26, 19, 1.61)]), new TaxRuleCollection([new TaxRule(19)])),
+                new PriceCollection([
+                    new Price(1.61, 1.61, new CalculatedTaxCollection([new CalculatedTax(0.26, 19, 1.61)]), new TaxRuleCollection([new TaxRule(19)])),
+                    new Price(1.44, 1.44, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.44)]), new TaxRuleCollection([new TaxRule(7)])),
+                    new Price(1.61, 1.61, new CalculatedTaxCollection([new CalculatedTax(0.26, 19, 1.61)]), new TaxRuleCollection([new TaxRule(19)])),
                 ]),
                 new CalculatedTaxCollection([
                     new CalculatedTax(0.52, 19, 3.22),
@@ -139,12 +139,12 @@ class TaxAmountCalculatorTest extends TestCase
             [
                 TaxAmountCalculator::CALCULATION_VERTICAL,
                 $grossPriceDetector,
-                new CalculatedPriceCollection([
-                    new CalculatedPrice(3.03, 3.03, new CalculatedTaxCollection([new CalculatedTax(0.48, 19, 3.03)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.44, 1.44, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.44)]), new TaxRuleCollection([new TaxRule(19)])),
+                new PriceCollection([
+                    new Price(3.03, 3.03, new CalculatedTaxCollection([new CalculatedTax(0.48, 19, 3.03)]), new TaxRuleCollection([new TaxRule(19)])),
+                    new Price(1.44, 1.44, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.44)]), new TaxRuleCollection([new TaxRule(19)])),
 
                     //percentage voucher
-                    new CalculatedPrice(
+                    new Price(
                         -2.30,
                         -2.30,
                         new CalculatedTaxCollection([
@@ -167,10 +167,10 @@ class TaxAmountCalculatorTest extends TestCase
             [
                 TaxAmountCalculator::CALCULATION_HORIZONTAL,
                 $grossPriceDetector,
-                new CalculatedPriceCollection([
-                    new CalculatedPrice(1.44, 1.44, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.44)]), new TaxRuleCollection([new TaxRule(7)])),
-                    new CalculatedPrice(1.44, 1.44, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.44)]), new TaxRuleCollection([new TaxRule(7)])),
-                    new CalculatedPrice(1.44, 1.44, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.44)]), new TaxRuleCollection([new TaxRule(7)])),
+                new PriceCollection([
+                    new Price(1.44, 1.44, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.44)]), new TaxRuleCollection([new TaxRule(7)])),
+                    new Price(1.44, 1.44, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.44)]), new TaxRuleCollection([new TaxRule(7)])),
+                    new Price(1.44, 1.44, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.44)]), new TaxRuleCollection([new TaxRule(7)])),
                 ]),
                 new CalculatedTaxCollection([
                     new CalculatedTax(0.28, 7, 4.32),
@@ -181,10 +181,10 @@ class TaxAmountCalculatorTest extends TestCase
             [
                 TaxAmountCalculator::CALCULATION_HORIZONTAL,
                 $grossPriceDetector,
-                new CalculatedPriceCollection([
-                    new CalculatedPrice(1.61, 1.61, new CalculatedTaxCollection([new CalculatedTax(0.26, 19, 1.61)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.61, 1.61, new CalculatedTaxCollection([new CalculatedTax(0.26, 19, 1.61)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.61, 1.61, new CalculatedTaxCollection([new CalculatedTax(0.26, 19, 1.61)]), new TaxRuleCollection([new TaxRule(19)])),
+                new PriceCollection([
+                    new Price(1.61, 1.61, new CalculatedTaxCollection([new CalculatedTax(0.26, 19, 1.61)]), new TaxRuleCollection([new TaxRule(19)])),
+                    new Price(1.61, 1.61, new CalculatedTaxCollection([new CalculatedTax(0.26, 19, 1.61)]), new TaxRuleCollection([new TaxRule(19)])),
+                    new Price(1.61, 1.61, new CalculatedTaxCollection([new CalculatedTax(0.26, 19, 1.61)]), new TaxRuleCollection([new TaxRule(19)])),
                 ]),
                 new CalculatedTaxCollection([
                     new CalculatedTax(0.77, 19, 4.83),
@@ -195,10 +195,10 @@ class TaxAmountCalculatorTest extends TestCase
             [
                 TaxAmountCalculator::CALCULATION_HORIZONTAL,
                 $grossPriceDetector,
-                new CalculatedPriceCollection([
-                    new CalculatedPrice(1.61, 1.61, new CalculatedTaxCollection([new CalculatedTax(0.26, 19, 1.61)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.44, 1.44, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.44)]), new TaxRuleCollection([new TaxRule(7)])),
-                    new CalculatedPrice(1.61, 1.61, new CalculatedTaxCollection([new CalculatedTax(0.26, 19, 1.61)]), new TaxRuleCollection([new TaxRule(19)])),
+                new PriceCollection([
+                    new Price(1.61, 1.61, new CalculatedTaxCollection([new CalculatedTax(0.26, 19, 1.61)]), new TaxRuleCollection([new TaxRule(19)])),
+                    new Price(1.44, 1.44, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.44)]), new TaxRuleCollection([new TaxRule(7)])),
+                    new Price(1.61, 1.61, new CalculatedTaxCollection([new CalculatedTax(0.26, 19, 1.61)]), new TaxRuleCollection([new TaxRule(19)])),
                 ]),
                 new CalculatedTaxCollection([
                     new CalculatedTax(0.51, 19, 3.22),
@@ -210,12 +210,12 @@ class TaxAmountCalculatorTest extends TestCase
             [
                 TaxAmountCalculator::CALCULATION_HORIZONTAL,
                 $grossPriceDetector,
-                new CalculatedPriceCollection([
-                    new CalculatedPrice(3.03, 3.03, new CalculatedTaxCollection([new CalculatedTax(0.48, 19, 3.03)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.44, 1.44, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.44)]), new TaxRuleCollection([new TaxRule(19)])),
+                new PriceCollection([
+                    new Price(3.03, 3.03, new CalculatedTaxCollection([new CalculatedTax(0.48, 19, 3.03)]), new TaxRuleCollection([new TaxRule(19)])),
+                    new Price(1.44, 1.44, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.44)]), new TaxRuleCollection([new TaxRule(19)])),
 
                     //percentage voucher
-                    new CalculatedPrice(
+                    new Price(
                         -2.30,
                         -2.30,
                         new CalculatedTaxCollection([
@@ -238,10 +238,10 @@ class TaxAmountCalculatorTest extends TestCase
             [
                 TaxAmountCalculator::CALCULATION_HORIZONTAL,
                 $netDeliveryDetector,
-                new CalculatedPriceCollection([
-                    new CalculatedPrice(1.44, 1.44, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.44)]), new TaxRuleCollection([new TaxRule(7)])),
-                    new CalculatedPrice(1.44, 1.44, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.44)]), new TaxRuleCollection([new TaxRule(7)])),
-                    new CalculatedPrice(1.44, 1.44, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.44)]), new TaxRuleCollection([new TaxRule(7)])),
+                new PriceCollection([
+                    new Price(1.44, 1.44, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.44)]), new TaxRuleCollection([new TaxRule(7)])),
+                    new Price(1.44, 1.44, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.44)]), new TaxRuleCollection([new TaxRule(7)])),
+                    new Price(1.44, 1.44, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.44)]), new TaxRuleCollection([new TaxRule(7)])),
                 ]),
                 new CalculatedTaxCollection([]),
             ],
@@ -249,10 +249,10 @@ class TaxAmountCalculatorTest extends TestCase
             [
                 TaxAmountCalculator::CALCULATION_VERTICAL,
                 $netDeliveryDetector,
-                new CalculatedPriceCollection([
-                    new CalculatedPrice(1.44, 1.44, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.44)]), new TaxRuleCollection([new TaxRule(7)])),
-                    new CalculatedPrice(1.44, 1.44, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.44)]), new TaxRuleCollection([new TaxRule(7)])),
-                    new CalculatedPrice(1.44, 1.44, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.44)]), new TaxRuleCollection([new TaxRule(7)])),
+                new PriceCollection([
+                    new Price(1.44, 1.44, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.44)]), new TaxRuleCollection([new TaxRule(7)])),
+                    new Price(1.44, 1.44, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.44)]), new TaxRuleCollection([new TaxRule(7)])),
+                    new Price(1.44, 1.44, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.44)]), new TaxRuleCollection([new TaxRule(7)])),
                 ]),
                 new CalculatedTaxCollection([]),
             ],
@@ -262,10 +262,10 @@ class TaxAmountCalculatorTest extends TestCase
             [
                 TaxAmountCalculator::CALCULATION_VERTICAL,
                 $netPriceDetector,
-                new CalculatedPriceCollection([
-                    new CalculatedPrice(1.35, 1.35, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.35)]), new TaxRuleCollection([new TaxRule(7)])),
-                    new CalculatedPrice(1.35, 1.35, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.35)]), new TaxRuleCollection([new TaxRule(7)])),
-                    new CalculatedPrice(1.35, 1.35, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.35)]), new TaxRuleCollection([new TaxRule(7)])),
+                new PriceCollection([
+                    new Price(1.35, 1.35, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.35)]), new TaxRuleCollection([new TaxRule(7)])),
+                    new Price(1.35, 1.35, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.35)]), new TaxRuleCollection([new TaxRule(7)])),
+                    new Price(1.35, 1.35, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.35)]), new TaxRuleCollection([new TaxRule(7)])),
                 ]),
                 new CalculatedTaxCollection([
                     new CalculatedTax(0.27, 7, 4.05),
@@ -276,10 +276,10 @@ class TaxAmountCalculatorTest extends TestCase
             [
                 TaxAmountCalculator::CALCULATION_VERTICAL,
                 $netPriceDetector,
-                new CalculatedPriceCollection([
-                    new CalculatedPrice(1.35, 1.35, new CalculatedTaxCollection([new CalculatedTax(0.26, 19, 1.35)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.35, 1.35, new CalculatedTaxCollection([new CalculatedTax(0.26, 19, 1.35)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.35, 1.35, new CalculatedTaxCollection([new CalculatedTax(0.26, 19, 1.35)]), new TaxRuleCollection([new TaxRule(19)])),
+                new PriceCollection([
+                    new Price(1.35, 1.35, new CalculatedTaxCollection([new CalculatedTax(0.26, 19, 1.35)]), new TaxRuleCollection([new TaxRule(19)])),
+                    new Price(1.35, 1.35, new CalculatedTaxCollection([new CalculatedTax(0.26, 19, 1.35)]), new TaxRuleCollection([new TaxRule(19)])),
+                    new Price(1.35, 1.35, new CalculatedTaxCollection([new CalculatedTax(0.26, 19, 1.35)]), new TaxRuleCollection([new TaxRule(19)])),
                 ]),
                 new CalculatedTaxCollection([
                     new CalculatedTax(0.78, 19, 4.05),
@@ -290,10 +290,10 @@ class TaxAmountCalculatorTest extends TestCase
             [
                 TaxAmountCalculator::CALCULATION_VERTICAL,
                 $netPriceDetector,
-                new CalculatedPriceCollection([
-                    new CalculatedPrice(1.35, 1.35, new CalculatedTaxCollection([new CalculatedTax(0.26, 19, 1.35)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.35, 1.35, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.35)]), new TaxRuleCollection([new TaxRule(7)])),
-                    new CalculatedPrice(1.35, 1.35, new CalculatedTaxCollection([new CalculatedTax(0.26, 19, 1.35)]), new TaxRuleCollection([new TaxRule(19)])),
+                new PriceCollection([
+                    new Price(1.35, 1.35, new CalculatedTaxCollection([new CalculatedTax(0.26, 19, 1.35)]), new TaxRuleCollection([new TaxRule(19)])),
+                    new Price(1.35, 1.35, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.35)]), new TaxRuleCollection([new TaxRule(7)])),
+                    new Price(1.35, 1.35, new CalculatedTaxCollection([new CalculatedTax(0.26, 19, 1.35)]), new TaxRuleCollection([new TaxRule(19)])),
                 ]),
                 new CalculatedTaxCollection([
                     new CalculatedTax(0.52, 19, 2.70),
@@ -305,12 +305,12 @@ class TaxAmountCalculatorTest extends TestCase
             [
                 TaxAmountCalculator::CALCULATION_VERTICAL,
                 $netPriceDetector,
-                new CalculatedPriceCollection([
-                    new CalculatedPrice(2.55, 2.55, new CalculatedTaxCollection([new CalculatedTax(0.48, 19, 2.55)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.35, 1.35, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.35)]), new TaxRuleCollection([new TaxRule(19)])),
+                new PriceCollection([
+                    new Price(2.55, 2.55, new CalculatedTaxCollection([new CalculatedTax(0.48, 19, 2.55)]), new TaxRuleCollection([new TaxRule(19)])),
+                    new Price(1.35, 1.35, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.35)]), new TaxRuleCollection([new TaxRule(19)])),
 
                     //percentage voucher
-                    new CalculatedPrice(
+                    new Price(
                         -2.0,
                         -2.0,
                         new CalculatedTaxCollection([
@@ -333,12 +333,12 @@ class TaxAmountCalculatorTest extends TestCase
             [
                 TaxAmountCalculator::CALCULATION_HORIZONTAL,
                 $netPriceDetector,
-                new CalculatedPriceCollection([
-                    new CalculatedPrice(2.55, 2.55, new CalculatedTaxCollection([new CalculatedTax(0.48, 19, 2.55)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.35, 1.35, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.35)]), new TaxRuleCollection([new TaxRule(19)])),
+                new PriceCollection([
+                    new Price(2.55, 2.55, new CalculatedTaxCollection([new CalculatedTax(0.48, 19, 2.55)]), new TaxRuleCollection([new TaxRule(19)])),
+                    new Price(1.35, 1.35, new CalculatedTaxCollection([new CalculatedTax(0.09, 7, 1.35)]), new TaxRuleCollection([new TaxRule(19)])),
 
                     //percentage voucher
-                    new CalculatedPrice(
+                    new Price(
                         -2.0,
                         -2.0,
                         new CalculatedTaxCollection([

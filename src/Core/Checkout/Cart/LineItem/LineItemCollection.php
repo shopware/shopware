@@ -25,18 +25,21 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Cart\LineItem;
 
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Framework\Struct\Collection;
 
 class LineItemCollection extends Collection
 {
     /**
-     * @var LineItemInterface[]
+     * @var LineItem[]
      */
     protected $elements = [];
 
-    public function add(LineItemInterface $lineItem): void
+    public function add(LineItem $lineItem): void
     {
-        if ($exists = $this->get($lineItem->getIdentifier())) {
+        $exists = $this->get($lineItem->getIdentifier());
+
+        if ($exists) {
             $exists->setQuantity($lineItem->getQuantity() + $exists->getQuantity());
 
             return;
@@ -50,17 +53,17 @@ class LineItemCollection extends Collection
         parent::doRemoveByKey($identifier);
     }
 
-    public function removeElement(LineItemInterface $lineItem): void
+    public function removeElement(LineItem $lineItem): void
     {
         parent::doRemoveByKey($this->getKey($lineItem));
     }
 
-    public function exists(LineItemInterface $lineItem): bool
+    public function exists(LineItem $lineItem): bool
     {
         return parent::has($this->getKey($lineItem));
     }
 
-    public function get(string $identifier): ? LineItemInterface
+    public function get(string $identifier): ? LineItem
     {
         if ($this->has($identifier)) {
             return $this->elements[$identifier];
@@ -72,7 +75,7 @@ class LineItemCollection extends Collection
     public function filterType(string $type): self
     {
         return $this->filter(
-            function (LineItemInterface $lineItem) use ($type) {
+            function (LineItem $lineItem) use ($type) {
                 return $lineItem->getType() === $type;
             }
         );
@@ -90,8 +93,17 @@ class LineItemCollection extends Collection
         return $this->getKeys();
     }
 
-    protected function getKey(LineItemInterface $element): string
+    protected function getKey(LineItem $element): string
     {
         return $element->getIdentifier();
+    }
+
+    public function getPrices(): PriceCollection
+    {
+        return new PriceCollection(
+            $this->fmap(function(LineItem $lineItem) {
+                return $lineItem->getPrice();
+            })
+        );
     }
 }

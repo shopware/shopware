@@ -25,9 +25,9 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Cart\Price;
 
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
-use Shopware\Core\Checkout\Cart\Price\Struct\DerivedCalculatedPrice;
-use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\DerivedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Core\Checkout\CheckoutContext;
 
@@ -39,7 +39,7 @@ class PercentagePriceCalculator
     private $rounding;
 
     /**
-     * @var PriceCalculator
+     * @var QuantityPriceCalculator
      */
     private $priceCalculator;
 
@@ -50,7 +50,7 @@ class PercentagePriceCalculator
 
     public function __construct(
         PriceRounding $rounding,
-        PriceCalculator $priceCalculator,
+        QuantityPriceCalculator $priceCalculator,
         PercentageTaxRuleBuilder $percentageTaxRuleBuilder
     ) {
         $this->rounding = $rounding;
@@ -62,27 +62,27 @@ class PercentagePriceCalculator
      * Provide a negative percentage value for discount or a positive percentage value for a surcharge
      *
      * @param float                     $percentage 10.00 for 10%, -10.0 for -10%
-     * @param CalculatedPriceCollection $prices
+     * @param PriceCollection $prices
      * @param CheckoutContext           $context
      *
-     * @return DerivedCalculatedPrice
+     * @return DerivedPrice
      */
     public function calculate(
         $percentage,
-        CalculatedPriceCollection $prices,
+        PriceCollection $prices,
         CheckoutContext $context
-    ): DerivedCalculatedPrice {
+    ): DerivedPrice {
         $price = $prices->sum();
 
         $discount = $this->rounding->round($price->getTotalPrice() / 100 * $percentage);
 
         $rules = $this->percentageTaxRuleBuilder->buildRules($price);
 
-        $definition = new PriceDefinition($discount, $rules, 1, true);
+        $definition = new QuantityPriceDefinition($discount, $rules, 1, true);
 
         $calculatedPrice = $this->priceCalculator->calculate($definition, $context);
 
-        return new DerivedCalculatedPrice(
+        return new DerivedPrice(
             $calculatedPrice->getUnitPrice(),
             $calculatedPrice->getTotalPrice(),
             $calculatedPrice->getCalculatedTaxes(),

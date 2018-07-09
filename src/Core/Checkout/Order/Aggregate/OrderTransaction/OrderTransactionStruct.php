@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransaction;
 
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState\OrderTransactionStateStruct;
 use Shopware\Core\Checkout\Order\OrderStruct;
 use Shopware\Core\Checkout\Payment\PaymentMethodStruct;
@@ -26,7 +26,7 @@ class OrderTransactionStruct extends Entity
     protected $orderTransactionStateId;
 
     /**
-     * @var CalculatedPrice
+     * @var Price
      */
     protected $amount;
 
@@ -85,12 +85,12 @@ class OrderTransactionStruct extends Entity
         $this->orderTransactionStateId = $orderTransactionStateId;
     }
 
-    public function getAmount(): CalculatedPrice
+    public function getAmount(): Price
     {
         return $this->amount;
     }
 
-    public function setAmount(CalculatedPrice $amount): void
+    public function setAmount(Price $amount): void
     {
         $this->amount = $amount;
     }

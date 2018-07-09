@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Test\Cart\LineItem;
 
 use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemInterface;
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Content\Media\MediaStruct;
 
 class CustomLineItem implements CalculatedLineItemInterface
@@ -15,7 +15,7 @@ class CustomLineItem implements CalculatedLineItemInterface
     private $identifier;
 
     /**
-     * @var CalculatedPrice
+     * @var Price
      */
     private $price;
 
@@ -36,7 +36,7 @@ class CustomLineItem implements CalculatedLineItemInterface
 
     public function __construct(
         string $identifier,
-        CalculatedPrice $price,
+        Price $price,
         int $quantity,
         string $type,
         string $label
@@ -53,7 +53,7 @@ class CustomLineItem implements CalculatedLineItemInterface
         return $this->identifier;
     }
 
-    public function getPrice(): CalculatedPrice
+    public function getPrice(): Price
     {
         return $this->price;
     }

@@ -29,14 +29,14 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\Struct\Collection;
 
-class CalculatedPriceCollection extends Collection
+class PriceCollection extends Collection
 {
     /**
-     * @var CalculatedPrice[]
+     * @var Price[]
      */
     protected $elements = [];
 
-    public function add(CalculatedPrice $price): void
+    public function add(Price $price): void
     {
         parent::doAdd($price);
     }
@@ -46,7 +46,7 @@ class CalculatedPriceCollection extends Collection
         parent::doRemoveByKey($key);
     }
 
-    public function get(int $key): ? CalculatedPrice
+    public function get(int $key): ? Price
     {
         if ($this->has($key)) {
             return $this->elements[$key];
@@ -65,9 +65,9 @@ class CalculatedPriceCollection extends Collection
         return $rules;
     }
 
-    public function sum(): CalculatedPrice
+    public function sum(): Price
     {
-        return new CalculatedPrice(
+        return new Price(
             $this->getUnitPriceAmount(),
             $this->getAmount(),
             $this->getCalculatedTaxes(),
@@ -92,7 +92,7 @@ class CalculatedPriceCollection extends Collection
 
     private function getUnitPriceAmount(): float
     {
-        $prices = $this->map(function (CalculatedPrice $price) {
+        $prices = $this->map(function (Price $price) {
             return $price->getUnitPrice();
         });
 
@@ -101,7 +101,7 @@ class CalculatedPriceCollection extends Collection
 
     private function getAmount(): float
     {
-        $prices = $this->map(function (CalculatedPrice $price) {
+        $prices = $this->map(function (Price $price) {
             return $price->getTotalPrice();
         });
 

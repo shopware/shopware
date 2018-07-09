@@ -29,8 +29,8 @@ use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItem;
 use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemInterface;
-use Shopware\Core\Checkout\Cart\Price\PriceCalculator;
-use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceStruct;
 use Shopware\Core\Content\Product\Cart\Struct\CalculatedProduct;
@@ -40,11 +40,11 @@ use Shopware\Core\Framework\Struct\StructCollection;
 class ProductCalculator
 {
     /**
-     * @var PriceCalculator
+     * @var QuantityPriceCalculator
      */
     private $priceCalculator;
 
-    public function __construct(PriceCalculator $priceCalculator)
+    public function __construct(QuantityPriceCalculator $priceCalculator)
     {
         $this->priceCalculator = $priceCalculator;
     }
@@ -80,7 +80,7 @@ class ProductCalculator
                 );
             }
 
-            $priceDefinition = new PriceDefinition(
+            $priceDefinition = new QuantityPriceDefinition(
                 $priceDefinition->getPrice(),
                 $priceDefinition->getTaxRules(),
                 $lineItem->getQuantity(),

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Test\Media\Upload;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Exception\MimeTypeMismatchException;
 use Shopware\Core\Content\Media\Exception\UploadException;
 use Shopware\Core\Content\Media\Upload\FileFetcher;
 use Symfony\Component\HttpFoundation\Request;
@@ -44,8 +45,8 @@ class FileFetcherTest extends TestCase
 
     public function testFetchRequestDataWithWrongMimeType()
     {
-        $this->expectException(UploadException::class);
-        $this->expectExceptionMessage('mime-type did not match received data');
+        $this->expectException(MimeTypeMismatchException::class);
+        $this->expectExceptionMessage('Content-type \'image/jpeg\' sent in Header does not match Mime-Type \'image/png\' of binary');
 
         $tempFile = tempnam(sys_get_temp_dir(), '');
         $request = $this->createMock(Request::class);

@@ -55,7 +55,7 @@ class MediaDeletedSubscriber implements EventSubscriberInterface
         $path = $this->strategy->encode($mediaId);
         $dir = dirname($path);
         foreach ($this->filesystem->listContents('media/' . $dir) as $file) {
-            if (preg_match('/' . $mediaId . '[(\..*)_]/', $file['basename'])) {
+            if (preg_match('/^' . $mediaId . '[(\..*)_]/', $file['basename'])) {
                 $this->filesystem->delete($file['path']);
             }
         }

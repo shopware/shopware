@@ -7,8 +7,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\Upload\FileFetcher;
 use Shopware\Core\Content\Media\Upload\MediaUpdater;
-use Shopware\Core\Framework\Api\Context\RestContext;
 use Shopware\Core\Framework\Api\Response\ResponseFactory;
+use Shopware\Core\Framework\Context;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -46,13 +46,13 @@ class MediaUploadController extends Controller
      * @Route("/api/v{version}/media/{mediaId}/actions/upload", name="api.media.actions.upload")
      * @Method({"POST"})
      *
-     * @param Request     $request
-     * @param string      $mediaId
-     * @param RestContext $context
+     * @param Request $request
+     * @param string  $mediaId
+     * @param Context $context
      *
      * @return Response
      */
-    public function upload(Request $request, string $mediaId, RestContext $context): Response
+    public function upload(Request $request, string $mediaId, Context $context): Response
     {
         $contentType = $request->headers->get('content_type');
 
@@ -61,12 +61,12 @@ class MediaUploadController extends Controller
         try {
             $contentLength = $this->fetchFile($request, $contentType, $tempFile);
             $contentType = mime_content_type($tempFile);
-            $this->mediaUpdater->persistFileToMedia($tempFile, $mediaId, $contentType, $contentLength, $context->getContext());
+            $this->mediaUpdater->persistFileToMedia($tempFile, $mediaId, $contentType, $contentLength, $context);
         } finally {
             unlink($tempFile);
         }
 
-        return $this->responseFactory->createRedirectResponse(MediaDefinition::class, $mediaId, $context);
+        return $this->responseFactory->createRedirectResponse(MediaDefinition::class, $mediaId, $request, $context);
     }
 
     /**

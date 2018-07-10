@@ -10,7 +10,6 @@ use Shopware\Core\Content\Media\Util\Strategy\StrategyInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
-use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -71,12 +70,16 @@ class MediaUpdaterTest extends KernelTestCase
         $mediaId = Uuid::uuid4();
 
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
-        $criteria = new Criteria();
-        $criteria->setLimit(1);
-        $albumId = $this->albumRepository->searchIds($criteria, $context)->getIds()[0];
         $this->repository->create(
             [
-                ['id' => $mediaId->getHex(), 'name' => 'test file', 'albumId' => $albumId],
+                [
+                    'id' => $mediaId->getHex(),
+                    'name' => 'test file',
+                    'album' => [
+                        'id' => Uuid::uuid4()->getHex(),
+                        'name' => 'test',
+                    ],
+                ],
             ],
             $context
         );

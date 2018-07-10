@@ -4,11 +4,11 @@ namespace Shopware\Core\Content\Test\Media\Controller;
 
 use League\Flysystem\FileNotFoundException;
 use League\Flysystem\FilesystemInterface;
+use Ramsey\Uuid\Uuid;
 use Shopware\Core\Content\Media\Util\Strategy\StrategyInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
-use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\Test\Api\ApiTestCase;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
@@ -36,10 +36,21 @@ class MediaUploadControllerTest extends ApiTestCase
         $this->filesystem = $this->getContainer()->get('shopware.filesystem.public');
         $this->strategy = $this->getContainer()->get(StrategyInterface::class);
 
+        $this->mediaId = Uuid::uuid4()->getHex();
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
-        $criteria = new Criteria();
-        $criteria->setLimit(1);
-        $this->mediaId = $this->mediaRepository->searchIds($criteria, $context)->getIds()[0];
+        $this->mediaRepository->create(
+            [
+                [
+                    'id' => $this->mediaId,
+                    'name' => 'test file',
+                    'album' => [
+                        'id' => Uuid::uuid4()->getHex(),
+                        'name' => 'test',
+                    ],
+                ],
+            ],
+            $context
+        );
     }
 
     public function tearDown()

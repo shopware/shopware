@@ -127,19 +127,19 @@ class CustomerRepositoryTest extends KernelTestCase
 
         $result = $this->repository->searchIds($criteria, Context::createDefaultContext(Defaults::TENANT_ID));
 
-        $this->assertCount(4, $result->getIds());
+        static::assertCount(4, $result->getIds());
 
-        $this->assertEquals(
+        static::assertEquals(
             $result->getDataFieldOfId($recordA, '_score'),
             $result->getDataFieldOfId($recordB, '_score')
         );
 
-        $this->assertEquals(
+        static::assertEquals(
             $result->getDataFieldOfId($recordC, '_score'),
             $result->getDataFieldOfId($recordD, '_score')
         );
 
-        $this->assertTrue(
+        static::assertTrue(
             $result->getDataFieldOfId($recordC, '_score')
             >
             $result->getDataFieldOfId($recordA, '_score')

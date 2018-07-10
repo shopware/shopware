@@ -25,16 +25,6 @@
             <tag name="shopware.entity.definition" entity="customer_group_discount"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Customer\Cart\CustomerGroupDiscountProcessor" id="Shopware\Core\Checkout\Customer\Cart\CustomerGroupDiscountProcessor">
-            <argument id="Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator" type="service"/>
-            <tag name="cart.processor" priority="800"/>
-        </service>
-
-        <service class="Shopware\Core\Checkout\Customer\Cart\CustomerGroupDiscountCartCollector" id="Shopware\Core\Checkout\Customer\Cart\CustomerGroupDiscountCartCollector">
-            <tag name="cart.collector" priority="-1000"/>
-            <argument type="service" id="customer_group_discount.repository"/>
-        </service>
-
         <service class="Shopware\Core\Checkout\Customer\Storefront\StorefrontCustomerController" id="Shopware\Core\Checkout\Customer\Storefront\StorefrontCustomerController" public="true">
             <argument id="serializer" type="service"/>
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>
@@ -64,25 +54,21 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\TaxDetector"/>
         </service>
 
-        <!--<service class="Shopware\Core\Checkout\Context\CheckoutRuleLoader" id="Shopware\Core\Checkout\Context\CheckoutRuleLoader">-->
-            <!--<argument id="Shopware\Core\Checkout\Cart\Cart\CartPersister" type="service"/>-->
-            <!--<argument id="Shopware\Core\Checkout\Cart\Tax\TaxDetector" type="service"/>-->
-            <!--<argument id="Shopware\Core\Checkout\Cart\Cart\CartCollector" type="service"/>-->
-            <!--<argument id="Shopware\Core\Checkout\Cart\Cart\CartProcessor" type="service"/>-->
-            <!--<argument id="Shopware\Core\Checkout\Cart\Cart\CartValidator" type="service"/>-->
-            <!--<argument id="shopware.cache" type="service"/>-->
-            <!--<argument id="rule.repository" type="service"/>-->
-            <!--<argument id="serializer" type="service"/>-->
-            <!--<argument id="Shopware\Core\Checkout\Cart\Storefront\CartService" type="service"/>-->
-        <!--</service>-->
+        <service class="Shopware\Core\Checkout\Context\CheckoutRuleLoader" id="Shopware\Core\Checkout\Context\CheckoutRuleLoader">
+            <argument id="Shopware\Core\Checkout\Cart\Cart\CartPersister" type="service"/>
+            <argument id="Shopware\Core\Checkout\Cart\Processor" type="service"/>
+            <argument id="shopware.cache" type="service"/>
+            <argument id="rule.repository" type="service"/>
+            <argument id="Shopware\Core\Checkout\Cart\Storefront\CartService" type="service"/>
+        </service>
 
-        <!--<service class="Shopware\Core\Checkout\Context\CheckoutContextService" id="Shopware\Core\Checkout\Context\CheckoutContextService">-->
-            <!--<argument type="service" id="shopware.cache"/>-->
-            <!--<argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextFactory"/>-->
-            <!--<argument type="service" id="Shopware\Core\Checkout\Context\CheckoutRuleLoader"/>-->
-            <!--<argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>-->
-            <!--<tag name="shopware.traceable"/>-->
-        <!--</service>-->
+        <service class="Shopware\Core\Checkout\Context\CheckoutContextService" id="Shopware\Core\Checkout\Context\CheckoutContextService">
+            <argument type="service" id="shopware.cache"/>
+            <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextFactory"/>
+            <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutRuleLoader"/>
+            <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>
+            <tag name="shopware.traceable"/>
+        </service>
 
         <service class="Shopware\Core\Checkout\Context\Storefront\StorefrontCheckoutContextController" id="Shopware\Core\Checkout\Context\Storefront\StorefrontCheckoutContextController" public="true">
             <argument id="payment_method.repository" type="service"/>

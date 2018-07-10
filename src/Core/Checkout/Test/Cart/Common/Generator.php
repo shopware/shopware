@@ -223,17 +223,25 @@ class Generator extends TestCase
         return $mock;
     }
 
-    public static function createCalculatedCart(): CalculatedCart
+    public static function createCalculatedCart(): Cart
     {
-        return new CalculatedCart(
-            new Cart('test', 'test', new LineItemCollection(), new ErrorCollection()),
-            new CalculatedLineItemCollection([
-                self::createCalculatedProduct('A', 10, 27),
-                new TestLineItem('B', null, 5),
-            ]),
-            new CartPrice(275, 275, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS),
-            new DeliveryCollection()
+        $cart = new Cart('test', 'test');
+        $cart->setLineItems(
+            new LineItemCollection([
+                (new LineItem('A', 'product', 27))
+                    ->setPrice(new Price(10, 270, new CalculatedTaxCollection(), new TaxRuleCollection(), 27)),
+
+                (new LineItem('B', 'test', 5))
+                    ->setGood(false)
+                    ->setPrice(new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()))
+            ])
         );
+        $cart->setPrice(
+            new CartPrice(275, 275, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS)
+        );
+
+        return $cart;
+
     }
 
     public static function createCalculatedProduct(

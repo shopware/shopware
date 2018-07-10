@@ -87,7 +87,6 @@ class AbsolutePriceCalculatorTest extends TestCase
         static::assertEquals($expected->getTotalPrice(), $calculatedPrice->getTotalPrice());
         static::assertEquals($expected->getUnitPrice(), $calculatedPrice->getUnitPrice());
         static::assertEquals($expected->getQuantity(), $calculatedPrice->getQuantity());
-        static::assertEquals($expected->getCalculationBasePrices(), $calculatedPrice->getCalculationBasePrices());
     }
 
     public function calculateAbsolutePriceOfGrossPricesProvider(): array

@@ -42,13 +42,13 @@ class PriceTest extends TestCase
     public function testAdd(Price $a, Price $b, Price $expected): void
     {
         $a->add($b);
-        $this->assertEquals($expected->getQuantity(), $a->getQuantity());
-        $this->assertEquals($expected->getUnitPrice(), $a->getUnitPrice());
-        $this->assertEquals($expected->getUnitPrice(), $a->getUnitPrice());
-        $this->assertEquals($expected->getTotalPrice(), $a->getTotalPrice());
-        $this->assertEquals($expected->getTaxRules(), $a->getTaxRules());
-        $this->assertEquals($expected->getCalculatedTaxes(), $a->getCalculatedTaxes());
-        $this->assertEquals($expected, $a);
+        static::assertEquals($expected->getQuantity(), $a->getQuantity());
+        static::assertEquals($expected->getUnitPrice(), $a->getUnitPrice());
+        static::assertEquals($expected->getUnitPrice(), $a->getUnitPrice());
+        static::assertEquals($expected->getTotalPrice(), $a->getTotalPrice());
+        static::assertEquals($expected->getTaxRules(), $a->getTaxRules());
+        static::assertEquals($expected->getCalculatedTaxes(), $a->getCalculatedTaxes());
+        static::assertEquals($expected, $a);
     }
 
     /**
@@ -61,13 +61,13 @@ class PriceTest extends TestCase
     public function testSub(Price $a, Price $b, Price $expected): void
     {
         $a->sub($b);
-        $this->assertEquals($expected->getQuantity(), $a->getQuantity());
-        $this->assertEquals($expected->getUnitPrice(), $a->getUnitPrice());
-        $this->assertEquals($expected->getUnitPrice(), $a->getUnitPrice());
-        $this->assertEquals($expected->getTotalPrice(), $a->getTotalPrice());
-        $this->assertEquals($expected->getTaxRules(), $a->getTaxRules());
-        $this->assertEquals($expected->getCalculatedTaxes(), $a->getCalculatedTaxes());
-        $this->assertEquals($expected, $a);
+        static::assertEquals($expected->getQuantity(), $a->getQuantity());
+        static::assertEquals($expected->getUnitPrice(), $a->getUnitPrice());
+        static::assertEquals($expected->getUnitPrice(), $a->getUnitPrice());
+        static::assertEquals($expected->getTotalPrice(), $a->getTotalPrice());
+        static::assertEquals($expected->getTaxRules(), $a->getTaxRules());
+        static::assertEquals($expected->getCalculatedTaxes(), $a->getCalculatedTaxes());
+        static::assertEquals($expected, $a);
     }
 
     public function addCases(): array

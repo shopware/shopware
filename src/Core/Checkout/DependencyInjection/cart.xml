@@ -22,11 +22,12 @@
             <argument type="service" id="serializer"/>
         </service>
 
-        <!--<service class="Shopware\Core\Checkout\Cart\Storefront\CartService" id="Shopware\Core\Checkout\Cart\Storefront\CartService">-->
-            <!--<argument type="service" id="Shopware\Core\Checkout\Cart\Cart\CircularCartCalculation"/>-->
-            <!--<argument type="service" id="Shopware\Core\Checkout\Cart\Cart\CartPersister"/>-->
-            <!--<argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderPersister"/>-->
-        <!--</service>-->
+        <service class="Shopware\Core\Checkout\Cart\Storefront\CartService" id="Shopware\Core\Checkout\Cart\Storefront\CartService">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Enrichment"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Processor"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Cart\CartPersister"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderPersister"/>
+        </service>
 
         <service class="Shopware\Core\Checkout\Cart\Price\PriceRounding" id="Shopware\Core\Checkout\Cart\Price\PriceRounding">
             <argument>%price.rounding.precision%</argument>
@@ -95,14 +96,8 @@
             <argument id="Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder" type="service"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Cart\Transaction\TransactionSeparatorProcessor" id="Shopware\Core\Checkout\Cart\Transaction\TransactionSeparatorProcessor">
-            <tag name="cart.processor" priority="-1000"/>
-        </service>
-
         <service class="Shopware\Core\Checkout\Cart\Storefront\StorefrontCartController" id="Shopware\Core\Checkout\Cart\Storefront\StorefrontCartController" public="true">
-            <argument id="Shopware\Core\Checkout\Cart\Cart\CircularCartCalculation" type="service"/>
-            <argument id="Shopware\Core\Checkout\Cart\Cart\CartPersister" type="service"/>
-            <argument id="Shopware\Core\Checkout\Cart\Order\OrderPersister" type="service"/>
+            <argument id="Shopware\Core\Checkout\Cart\Storefront\CartService" type="service"/>
             <argument type="service" id="order.repository"/>
             <argument type="service" id="serializer"/>
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>
@@ -142,7 +137,10 @@
             <argument id="Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor" type="service"/>
             <argument id="Shopware\Core\Checkout\Cart\Validator" type="service"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\AmountCalculator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Transaction\TransactionProcessor"/>
         </service>
+
+        <service class="Shopware\Core\Checkout\Cart\Transaction\TransactionProcessor" id="Shopware\Core\Checkout\Cart\Transaction\TransactionProcessor"/>
 
     </services>
 </container>

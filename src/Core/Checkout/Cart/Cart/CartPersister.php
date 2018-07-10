@@ -26,8 +26,6 @@ declare(strict_types=1);
 namespace Shopware\Core\Checkout\Cart\Cart;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Defaults;
@@ -55,7 +53,7 @@ class CartPersister implements CartPersisterInterface
     public function load(string $token, string $name, CheckoutContext $context): Cart
     {
         $content = $this->connection->fetchColumn(
-            'SELECT container FROM cart WHERE `token` = :token AND `name` = :name AND tenant_id = :tenant',
+            'SELECT `cart`.`cart` FROM cart WHERE `token` = :token AND `name` = :name AND tenant_id = :tenant',
             ['token' => $token, 'name' => $name, 'tenant' => Uuid::fromHexToBytes($context->getTenantId())]
         );
 
@@ -66,24 +64,10 @@ class CartPersister implements CartPersisterInterface
         return $this->serializer->deserialize((string) $content, '', 'json');
     }
 
-    public function loadCalculated(string $token, string $name, CheckoutContext $context): CalculatedCart
-    {
-        $content = $this->connection->fetchColumn(
-            'SELECT calculated FROM cart WHERE `token` = :token AND `name` = :name AND tenant_id = :tenant',
-            ['token' => $token, 'name' => $name, 'tenant' => Uuid::fromHexToBytes($context->getTenantId())]
-        );
-
-        if ($content === false) {
-            throw new CartTokenNotFoundException($token);
-        }
-
-        return $this->serializer->deserialize((string) $content, '', 'json');
-    }
-
-    public function save(CalculatedCart $cart, CheckoutContext $context): void
+    public function save(Cart $cart, CheckoutContext $context): void
     {
         //prevent empty carts
-        if ($cart->getCalculatedLineItems()->count() <= 0) {
+        if ($cart->getLineItems()->count() <= 0) {
             $this->delete($context->getToken(), $cart->getName(), $context);
 
             return;
@@ -120,9 +104,8 @@ class CartPersister implements CartPersisterInterface
             'customer_tenant_id' => $tenantId,
             'customer_version_id' => $context->getCustomer() ? $liveVersion : null,
             'price' => $cart->getPrice()->getTotalPrice(),
-            'line_item_count' => $cart->getCalculatedLineItems()->count(),
-            'calculated' => $this->serializer->serialize($cart, 'json'),
-            'container' => $this->serializer->serialize($cart->getCart(), 'json'),
+            'line_item_count' => $cart->getLineItems()->count(),
+            'cart' => $this->serializer->serialize($cart, 'json'),
             'created_at' => (new \DateTime())->format(Defaults::DATE_FORMAT),
         ];
 

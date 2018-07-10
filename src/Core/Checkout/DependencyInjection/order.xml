@@ -45,11 +45,6 @@
             <tag name="shopware.entity.definition" entity="order_transaction_state_translation"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Customer\Cart\MinimumOrderAmountProcessor" id="Shopware\Core\Checkout\Customer\Cart\MinimumOrderAmountProcessor">
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator"/>
-            <tag name="cart.processor" priority="600"/>
-        </service>
-
         <service class="Shopware\Core\Checkout\Cart\Order\OrderPersister" id="Shopware\Core\Checkout\Cart\Order\OrderPersister">
             <argument id="order.repository" type="service"/>
             <argument id="Shopware\Core\Checkout\Cart\Order\OrderConverter" type="service"/>

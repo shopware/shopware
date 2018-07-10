@@ -80,24 +80,8 @@
             <argument id="product_configurator.repository" type="service"/>
         </service>
 
-        <!--cart implementations-->
-        <service class="Shopware\Core\Content\Product\Cart\ProductCartCollector" id="Shopware\Core\Content\Product\Cart\ProductCartCollector">
-            <argument id="Shopware\Core\Content\Product\Cart\ProductGateway" type="service"/>
-            <tag name="cart.collector" priority="1000"/>
-            <argument type="service" id="product_service.repository"/>
-        </service>
-
         <service id="Shopware\Core\Content\Product\Cart\ProductGateway" class="Shopware\Core\Content\Product\Cart\ProductGateway">
             <argument type="service" id="product.repository"/>
-        </service>
-
-        <service class="Shopware\Core\Content\Product\Cart\ProductCalculator" id="Shopware\Core\Content\Product\Cart\ProductCalculator">
-            <argument id="QuantityPriceCalculator" type="service"/>
-        </service>
-
-        <service class="Shopware\Core\Content\Product\Cart\ProductProcessor" id="Shopware\Core\Content\Product\Cart\ProductProcessor">
-            <argument type="service" id="Shopware\Core\Content\Product\Cart\ProductCalculator"/>
-            <tag name="cart.processor" priority="1000"/>
         </service>
 
         <service class="Shopware\Core\Content\Product\Util\KeywordSearchTermInterpreter" id="Shopware\Core\Content\Product\Util\KeywordSearchTermInterpreter">

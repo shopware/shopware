@@ -30,6 +30,11 @@ use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\Price;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
+use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
 use Shopware\Core\Framework\Struct\Struct;
 
 class Cart extends Struct
@@ -64,13 +69,20 @@ class Cart extends Struct
      */
     protected $deliveries;
 
+    /**
+     * @var TransactionCollection
+     */
+    protected $transactions;
+
     public function __construct(string $name, string $token)
     {
         $this->name = $name;
         $this->token = $token;
         $this->lineItems = new LineItemCollection();
+        $this->transactions = new TransactionCollection();
         $this->errors = new ErrorCollection();
         $this->deliveries = new DeliveryCollection();
+        $this->price = new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS);
     }
 
     public function getName(): string
@@ -169,5 +181,22 @@ class Cart extends Struct
     public function has(string $lineItemKey)
     {
         return $this->lineItems->has($lineItemKey);
+    }
+
+    public function getTransactions(): TransactionCollection
+    {
+        return $this->transactions;
+    }
+
+    public function setTransactions(TransactionCollection $transactions): self
+    {
+        $this->transactions = $transactions;
+
+        return $this;
+    }
+
+    public function getShippingCosts(): Price
+    {
+        return $this->deliveries->getShippingCosts()->sum();
     }
 }

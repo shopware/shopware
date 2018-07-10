@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Test\Cart;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
-use Shopware\Core\Content\Product\Cart\ProductProcessor;
+use Shopware\Core\Content\Product\Cart\ProductCollector;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
@@ -68,7 +68,7 @@ class StorefrontCartControllerTest extends ApiTestCase
 
         $this->assertArrayHasKey('price', $cart);
         $this->assertEquals(0, $cart['price']['totalPrice']);
-        $this->assertCount(0, $cart['calculatedLineItems']);
+        $this->assertCount(0, $cart['lineItems']);
     }
 
     public function testAddProduct()
@@ -88,20 +88,20 @@ class StorefrontCartControllerTest extends ApiTestCase
         $client = $this->createCart();
 
         $this->addProduct($client, $productId);
-        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $content = json_decode($client->getResponse()->getContent(), true);
 
-        $this->assertNotEmpty($content);
-        $this->assertArrayHasKey('data', $content);
+        static::assertNotEmpty($content);
+        static::assertArrayHasKey('data', $content);
         $cart = $content['data'];
 
-        $this->assertArrayHasKey('price', $cart);
-        $this->assertEquals(10, $cart['price']['totalPrice']);
-        $this->assertCount(1, $cart['calculatedLineItems']);
+        static::assertArrayHasKey('price', $cart);
+        static::assertEquals(10, $cart['price']['totalPrice']);
+        static::assertCount(1, $cart['lineItems']);
 
-        $product = array_shift($cart['calculatedLineItems']);
-        $this->assertEquals($productId, $product['identifier']);
+        $product = array_shift($cart['lineItems']);
+        static::assertEquals($productId, $product['key']);
     }
 
     public function testAddMultipleProducts()
@@ -131,15 +131,15 @@ class StorefrontCartControllerTest extends ApiTestCase
         $client = $this->createCart();
 
         $this->addProduct($client, $productId1);
-        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $this->addProduct($client, $productId2);
-        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $cart = $this->getCart($client);
 
-        $this->assertNotEmpty($cart);
-        $this->assertCount(2, $cart['calculatedLineItems']);
+        static::assertNotEmpty($cart);
+        static::assertCount(2, $cart['lineItems']);
     }
 
     public function testChangeQuantity()
@@ -169,21 +169,21 @@ class StorefrontCartControllerTest extends ApiTestCase
         $client = $this->createCart();
 
         $this->addProduct($client, $productId1);
-        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $this->addProduct($client, $productId2);
-        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $this->changeQuantity($client, $productId1, 10);
 
         $cart = $this->getCart($client);
 
-        $this->assertNotEmpty($cart);
-        $this->assertCount(2, $cart['calculatedLineItems']);
+        static::assertNotEmpty($cart);
+        static::assertCount(2, $cart['lineItems']);
 
-        foreach ($cart['calculatedLineItems'] as $lineItem) {
-            if ($lineItem['identifier'] === $productId1) {
-                $this->assertEquals(10, $lineItem['quantity']);
+        foreach ($cart['lineItems'] as $lineItem) {
+            if ($lineItem['key'] === $productId1) {
+                static::assertEquals(10, $lineItem['quantity']);
             }
         }
     }
@@ -302,20 +302,20 @@ class StorefrontCartControllerTest extends ApiTestCase
         $client = $this->createCart();
 
         $this->addProduct($client, $productId1);
-        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $this->addProduct($client, $productId2);
-        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $this->removeLineItem($client, $productId1);
 
         $cart = $this->getCart($client);
 
-        $this->assertNotEmpty($cart);
-        $this->assertCount(1, $cart['calculatedLineItems']);
+        static::assertNotEmpty($cart);
+        static::assertCount(1, $cart['lineItems']);
 
-        $identifiers = array_column($cart['calculatedLineItems'], 'identifier');
-        $this->assertNotContains($productId1, $identifiers);
+        $keys = array_column($cart['lineItems'], 'key');
+        static::assertNotContains($productId1, $keys);
     }
 
     public function testRemoveNonExistingLineItem()
@@ -327,10 +327,10 @@ class StorefrontCartControllerTest extends ApiTestCase
 
         $cart = $this->getCart($client);
 
-        $this->assertNotEmpty($cart);
-        $this->assertArrayHasKey('errors', $cart);
+        static::assertNotEmpty($cart);
+        static::assertArrayHasKey('errors', $cart);
 
-        $this->assertTrue(array_key_exists('CART-LINE-ITEM-NOT-FOUND', array_flip(array_column($cart['errors'], 'code'))));
+        static::assertTrue(array_key_exists('CART-LINE-ITEM-NOT-FOUND', array_flip(array_column($cart['errors'], 'code'))));
     }
 
     public function testMergeSameProduct()
@@ -361,31 +361,31 @@ class StorefrontCartControllerTest extends ApiTestCase
 
         //add product 1 three times with quantity 1
         $this->addProduct($client, $productId1);
-        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $this->addProduct($client, $productId1);
-        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $this->addProduct($client, $productId1);
-        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         //add product 2 one time with quantity 1 and one time with quantity 10
         $this->addProduct($client, $productId2);
-        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $this->addProduct($client, $productId2, 10);
-        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $cart = $this->getCart($client);
 
-        $this->assertNotEmpty($cart);
-        $this->assertCount(2, $cart['calculatedLineItems']);
+        static::assertNotEmpty($cart);
+        static::assertCount(2, $cart['lineItems']);
 
-        foreach ($cart['calculatedLineItems'] as $lineItem) {
-            if ($lineItem['identifier'] === $productId1) {
-                $this->assertEquals(3, $lineItem['quantity']);
+        foreach ($cart['lineItems'] as $lineItem) {
+            if ($lineItem['key'] === $productId1) {
+                static::assertEquals(3, $lineItem['quantity']);
             } else {
-                $this->assertEquals(11, $lineItem['quantity']);
+                static::assertEquals(11, $lineItem['quantity']);
             }
         }
     }
@@ -406,22 +406,22 @@ class StorefrontCartControllerTest extends ApiTestCase
 
         $client = $this->createCart();
 
-        $client->request('POST', '/storefront-api/checkout/cart/line-item/' . $productId, [], [], [], json_encode(['type' => ProductProcessor::TYPE_PRODUCT]));
+        $client->request('POST', '/storefront-api/checkout/cart/line-item/' . $productId, [], [], [], json_encode(['type' => ProductCollector::LINE_ITEM_TYPE]));
 
-        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $content = json_decode($client->getResponse()->getContent(), true);
 
-        $this->assertNotEmpty($content);
-        $this->assertArrayHasKey('data', $content);
+        static::assertNotEmpty($content);
+        static::assertArrayHasKey('data', $content);
         $cart = $content['data'];
 
-        $this->assertArrayHasKey('price', $cart);
-        $this->assertEquals(10, $cart['price']['totalPrice']);
-        $this->assertCount(1, $cart['calculatedLineItems']);
+        static::assertArrayHasKey('price', $cart);
+        static::assertEquals(10, $cart['price']['totalPrice']);
+        static::assertCount(1, $cart['lineItems']);
 
-        $product = array_shift($cart['calculatedLineItems']);
-        $this->assertEquals($productId, $product['identifier']);
+        $product = array_shift($cart['lineItems']);
+        static::assertEquals($productId, $product['key']);
     }
 
     public function testOrderProcess()
@@ -481,21 +481,21 @@ class StorefrontCartControllerTest extends ApiTestCase
         $client = $this->createCart();
 
         $this->addProduct($client, $productId);
-        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $this->login($client, $mail, $password);
-        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $this->order($client);
-        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $order = json_decode($client->getResponse()->getContent(), true);
-        $this->assertArrayHasKey('data', $order);
+        static::assertArrayHasKey('data', $order);
 
         $order = $order['data'];
-        $this->assertNotEmpty($order);
+        static::assertNotEmpty($order);
 
-        $this->assertEquals($mail, $order['customer']['email']);
+        static::assertEquals($mail, $order['customer']['email']);
     }
 
     public function testOrderProcessWithEmptyCart()
@@ -542,15 +542,15 @@ class StorefrontCartControllerTest extends ApiTestCase
         $client = $this->createCart();
 
         $this->login($client, $mail, $password);
-        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $this->order($client);
-        $this->assertSame(400, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(400, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $response = json_decode($client->getResponse()->getContent(), true);
-        $this->assertArrayHasKey('errors', $response);
+        static::assertArrayHasKey('errors', $response);
 
-        $this->assertTrue(array_key_exists('CART-EMPTY', array_flip(array_column($response['errors'], 'code'))));
+        static::assertTrue(array_key_exists('CART-EMPTY', array_flip(array_column($response['errors'], 'code'))));
     }
 
     private function createCart(): Client
@@ -558,7 +558,7 @@ class StorefrontCartControllerTest extends ApiTestCase
         $this->storefrontApiClient->request('POST', '/storefront-api/checkout/cart');
         $response = $this->storefrontApiClient->getResponse();
 
-        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        static::assertEquals(200, $response->getStatusCode(), $response->getContent());
 
         $content = json_decode($response->getContent(), true);
 
@@ -570,7 +570,7 @@ class StorefrontCartControllerTest extends ApiTestCase
 
     private function getCart(Client $client)
     {
-        $this->storefrontApiClient->request('GET', '/storefront-api/checkout');
+        $this->storefrontApiClient->request('GET', '/storefront-api/checkout/cart');
 
         $cart = json_decode($client->getResponse()->getContent(), true);
 
@@ -586,8 +586,7 @@ class StorefrontCartControllerTest extends ApiTestCase
             [],
             [],
             json_encode([
-                'quantity' => $quantity,
-                'payload' => ['id' => $id],
+                'quantity' => $quantity
             ])
         );
     }

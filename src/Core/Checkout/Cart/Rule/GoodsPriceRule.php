@@ -59,7 +59,8 @@ class GoodsPriceRule extends Rule
                 ['Invalid Match Context. CartRuleScope expected']
             );
         }
-        $goods = $scope->getCart()->getCalculatedLineItems()->filterGoods();
+        $goods = $scope->getCart()->getLineItems()->filterGoods();
+
         $goodsAmount = $goods->getPrices()->sum()->getTotalPrice();
 
         switch ($this->operator) {
@@ -67,28 +68,28 @@ class GoodsPriceRule extends Rule
 
                 return new Match(
                     $goodsAmount >= $this->amount,
-                    ['GoodsInterface price too low']
+                    ['Goods price too low']
                 );
 
             case self::OPERATOR_LTE:
 
                 return new Match(
                     $goodsAmount <= $this->amount,
-                    ['GoodsInterface price too high']
+                    ['Goods price too high']
                 );
 
             case self::OPERATOR_EQ:
 
                 return new Match(
-                    $goodsAmount == $this->amount,
-                    ['GoodsInterface price is not equal']
+                    $goodsAmount === $this->amount,
+                    ['Goods price is not equal']
                 );
 
             case self::OPERATOR_NEQ:
 
                 return new Match(
-                    $goodsAmount != $this->amount,
-                    ['GoodsInterface price is equal']
+                    $goodsAmount !== $this->amount,
+                    ['Goods price is equal']
                 );
 
             default:

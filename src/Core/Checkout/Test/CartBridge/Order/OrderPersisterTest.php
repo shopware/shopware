@@ -32,6 +32,7 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItem;
 use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemCollection;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
@@ -51,7 +52,7 @@ class OrderPersisterTest extends TestCase
     {
         $faker = Factory::create();
         $repository = $this->createMock(EntityRepository::class);
-        $repository->expects($this->once())->method('create');
+        $repository->expects(static::once())->method('create');
 
         $taxDetector = new TaxDetector();
 
@@ -72,21 +73,13 @@ class OrderPersisterTest extends TestCase
         $persister = new OrderPersister($repository, $converter);
 
         $checkoutContext = $this->createMock(CheckoutContext::class);
-        $checkoutContext->expects($this->any())->method('getCustomer')->willReturn($customer);
+        $checkoutContext->expects(static::any())->method('getCustomer')->willReturn($customer);
 
-        $cart = new CalculatedCart(
-            new Cart('A', 'a-b-c', new LineItemCollection(), new ErrorCollection()),
-            new CalculatedLineItemCollection([
-                new CalculatedLineItem(
-                    'test',
-                    new Price(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                    1,
-                    'test',
-                    'test'
-                ),
-            ]),
-            new CartPrice(1, 1, 1, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE),
-            new DeliveryCollection()
+        $cart = new Cart('A', 'a-b-c');
+        $cart->add(
+            (new LineItem('test', 'test'))
+                ->setPrice(new Price(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()))
+                ->setLabel('test')
         );
 
         $persister->persist($cart, $checkoutContext);

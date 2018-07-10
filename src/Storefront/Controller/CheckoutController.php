@@ -113,7 +113,7 @@ class CheckoutController extends StorefrontController
     public function cart(CheckoutContext $context): Response
     {
         return $this->renderStorefront('@Storefront/frontend/checkout/cart.html.twig', [
-            'cart' => $this->cartService->getCalculatedCart($context),
+            'cart' => $this->cartService->getCart($context),
         ]);
     }
 
@@ -167,12 +167,12 @@ class CheckoutController extends StorefrontController
     {
         $this->denyAccessUnlessLoggedIn();
 
-        if ($this->cartService->getCalculatedCart($context)->getCalculatedLineItems()->count() === 0) {
+        if ($this->cartService->getCart($context)->getCalculatedLineItems()->count() === 0) {
             return $this->redirectToRoute('checkout_cart');
         }
 
         return $this->renderStorefront('@Storefront/frontend/checkout/confirm.html.twig', [
-            'cart' => $this->cartService->getCalculatedCart($context),
+            'cart' => $this->cartService->getCart($context),
             'redirectTo' => urlencode($request->getRequestUri()),
         ]);
     }
@@ -203,7 +203,7 @@ class CheckoutController extends StorefrontController
             return $this->processPayment($orderId, $applicationContext);
         }
 
-        $cart = $this->cartService->getCalculatedCart($context);
+        $cart = $this->cartService->getCart($context);
         // customer is not inside transaction loop and tries to finish the order
         if ($cart->getCalculatedLineItems()->count() === 0) {
             return $this->redirectToRoute('checkout_cart');

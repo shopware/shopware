@@ -25,23 +25,39 @@
 namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\CalculatedLineItem;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemWithQuantityRule;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Framework\Rule\Rule;
 
 class LineItemWithQuantityRuleTest extends TestCase
 {
+    /**
+     * @var LineItem
+     */
+    private $lineItem;
+
+    protected function setUp()
+    {
+        parent::setUp();
+
+        $this->lineItem = (new LineItem('A', 'product', 2))
+            ->setPrice(new Price(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection(), 2));
+    }
+
     public function testRuleWithExactAmountMatch(): void
     {
         $rule = new LineItemWithQuantityRule('A', 2);
 
-        $calculatedLineItem = Generator::createCalculatedProduct('A', 100, 2);
         $context = $this->createMock(CheckoutContext::class);
 
-        $this->assertTrue(
-            $rule->match(new LineItemScope($calculatedLineItem, $context))->matches()
+        static::assertTrue(
+            $rule->match(new LineItemScope($this->lineItem, $context))->matches()
         );
     }
 
@@ -49,11 +65,10 @@ class LineItemWithQuantityRuleTest extends TestCase
     {
         $rule = new LineItemWithQuantityRule('A', 0);
 
-        $calculatedLineItem = Generator::createCalculatedProduct('A', 100, 2);
         $context = $this->createMock(CheckoutContext::class);
 
-        $this->assertFalse(
-            $rule->match(new LineItemScope($calculatedLineItem, $context))->matches()
+        static::assertFalse(
+            $rule->match(new LineItemScope($this->lineItem, $context))->matches()
         );
     }
 
@@ -61,11 +76,10 @@ class LineItemWithQuantityRuleTest extends TestCase
     {
         $rule = new LineItemWithQuantityRule('A', 2, Rule::OPERATOR_LTE);
 
-        $calculatedLineItem = Generator::createCalculatedProduct('A', 100, 2);
         $context = $this->createMock(CheckoutContext::class);
 
-        $this->assertTrue(
-            $rule->match(new LineItemScope($calculatedLineItem, $context))->matches()
+        static::assertTrue(
+            $rule->match(new LineItemScope($this->lineItem, $context))->matches()
         );
     }
 
@@ -73,11 +87,10 @@ class LineItemWithQuantityRuleTest extends TestCase
     {
         $rule = new LineItemWithQuantityRule('A', 3, Rule::OPERATOR_LTE);
 
-        $calculatedLineItem = Generator::createCalculatedProduct('A', 100, 2);
         $context = $this->createMock(CheckoutContext::class);
 
-        $this->assertTrue(
-            $rule->match(new LineItemScope($calculatedLineItem, $context))->matches()
+        static::assertTrue(
+            $rule->match(new LineItemScope($this->lineItem, $context))->matches()
         );
     }
 
@@ -85,11 +98,10 @@ class LineItemWithQuantityRuleTest extends TestCase
     {
         $rule = new LineItemWithQuantityRule('A', 1, Rule::OPERATOR_LTE);
 
-        $calculatedLineItem = Generator::createCalculatedProduct('A', 100, 2);
         $context = $this->createMock(CheckoutContext::class);
 
-        $this->assertFalse(
-            $rule->match(new LineItemScope($calculatedLineItem, $context))->matches()
+        static::assertFalse(
+            $rule->match(new LineItemScope($this->lineItem, $context))->matches()
         );
     }
 
@@ -97,11 +109,10 @@ class LineItemWithQuantityRuleTest extends TestCase
     {
         $rule = new LineItemWithQuantityRule('A', 2, Rule::OPERATOR_GTE);
 
-        $calculatedLineItem = Generator::createCalculatedProduct('A', 100, 2);
         $context = $this->createMock(CheckoutContext::class);
 
-        $this->assertTrue(
-            $rule->match(new LineItemScope($calculatedLineItem, $context))->matches()
+        static::assertTrue(
+            $rule->match(new LineItemScope($this->lineItem, $context))->matches()
         );
     }
 
@@ -109,11 +120,10 @@ class LineItemWithQuantityRuleTest extends TestCase
     {
         $rule = new LineItemWithQuantityRule('A', 1, Rule::OPERATOR_GTE);
 
-        $calculatedLineItem = Generator::createCalculatedProduct('A', 100, 2);
         $context = $this->createMock(CheckoutContext::class);
 
-        $this->assertTrue(
-            $rule->match(new LineItemScope($calculatedLineItem, $context))->matches()
+        static::assertTrue(
+            $rule->match(new LineItemScope($this->lineItem, $context))->matches()
         );
     }
 
@@ -121,11 +131,10 @@ class LineItemWithQuantityRuleTest extends TestCase
     {
         $rule = new LineItemWithQuantityRule('A', 3, Rule::OPERATOR_GTE);
 
-        $calculatedLineItem = Generator::createCalculatedProduct('A', 100, 2);
         $context = $this->createMock(CheckoutContext::class);
 
-        $this->assertFalse(
-            $rule->match(new LineItemScope($calculatedLineItem, $context))->matches()
+        static::assertFalse(
+            $rule->match(new LineItemScope($this->lineItem, $context))->matches()
         );
     }
 
@@ -133,11 +142,10 @@ class LineItemWithQuantityRuleTest extends TestCase
     {
         $rule = new LineItemWithQuantityRule('A', 1, Rule::OPERATOR_NEQ);
 
-        $calculatedLineItem = Generator::createCalculatedProduct('A', 100, 2);
         $context = $this->createMock(CheckoutContext::class);
 
-        $this->assertTrue(
-            $rule->match(new LineItemScope($calculatedLineItem, $context))->matches()
+        static::assertTrue(
+            $rule->match(new LineItemScope($this->lineItem, $context))->matches()
         );
     }
 
@@ -145,11 +153,10 @@ class LineItemWithQuantityRuleTest extends TestCase
     {
         $rule = new LineItemWithQuantityRule('A', 2, Rule::OPERATOR_NEQ);
 
-        $calculatedLineItem = Generator::createCalculatedProduct('A', 100, 2);
         $context = $this->createMock(CheckoutContext::class);
 
-        $this->assertFalse(
-            $rule->match(new LineItemScope($calculatedLineItem, $context))->matches()
+        static::assertFalse(
+            $rule->match(new LineItemScope($this->lineItem, $context))->matches()
         );
     }
 }

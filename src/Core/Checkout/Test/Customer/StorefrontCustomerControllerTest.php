@@ -77,10 +77,10 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         $response = $this->storefrontApiClient->getResponse();
         $content = json_decode($response->getContent(), true);
 
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertNotEmpty($content);
-        $this->assertArrayHasKey('x-sw-context-token', $content);
-        $this->assertNotEmpty($content['x-sw-context-token']);
+        static::assertEquals(200, $response->getStatusCode());
+        static::assertNotEmpty($content);
+        static::assertArrayHasKey('x-sw-context-token', $content);
+        static::assertNotEmpty($content['x-sw-context-token']);
 
         $this->storefrontApiClient->request('GET', '/storefront-api/customer');
         $response = $this->storefrontApiClient->getResponse();
@@ -88,9 +88,9 @@ class StorefrontCustomerControllerTest extends ApiTestCase
 
         $customer = $this->serialize($this->readCustomer($customerId));
 
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertNotEmpty($content);
-        $this->assertEquals($customer, $content);
+        static::assertEquals(200, $response->getStatusCode());
+        static::assertNotEmpty($content);
+        static::assertEquals($customer, $content);
     }
 
     public function testLoginWithBadCredentials()
@@ -105,19 +105,19 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         $response = $this->storefrontApiClient->getResponse();
         $content = json_decode($response->getContent(), true);
 
-        $this->assertEquals(401, $response->getStatusCode());
-        $this->assertNotEmpty($content);
-        $this->assertArrayHasKey('errors', $content);
-        $this->assertNotEmpty($content['errors']);
+        static::assertEquals(401, $response->getStatusCode());
+        static::assertNotEmpty($content);
+        static::assertArrayHasKey('errors', $content);
+        static::assertNotEmpty($content['errors']);
 
         $this->storefrontApiClient->request('GET', '/storefront-api/customer');
         $response = $this->storefrontApiClient->getResponse();
         $content = json_decode($response->getContent(), true);
 
-        $this->assertEquals(403, $response->getStatusCode());
-        $this->assertNotEmpty($content);
-        $this->assertArrayHasKey('errors', $content);
-        $this->assertNotEmpty($content['errors']);
+        static::assertEquals(403, $response->getStatusCode());
+        static::assertNotEmpty($content);
+        static::assertArrayHasKey('errors', $content);
+        static::assertNotEmpty($content['errors']);
     }
 
     public function testLogout()
@@ -127,16 +127,16 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         $response = $this->storefrontApiClient->getResponse();
         $content = json_decode($response->getContent(), true);
 
-        $this->assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
-        $this->assertNull($content);
+        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+        static::assertNull($content);
 
         $this->storefrontApiClient->request('GET', '/storefront-api/customer');
         $response = $this->storefrontApiClient->getResponse();
         $content = json_decode($response->getContent(), true);
 
-        $this->assertEquals(403, $response->getStatusCode());
-        $this->assertNotEmpty($content);
-        $this->assertArrayHasKey('errors', $content);
+        static::assertEquals(403, $response->getStatusCode());
+        static::assertNotEmpty($content);
+        static::assertArrayHasKey('errors', $content);
     }
 
     public function testGetCustomerDetail()
@@ -149,9 +149,9 @@ class StorefrontCustomerControllerTest extends ApiTestCase
 
         $customer = $this->serialize($this->readCustomer($customerId));
 
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertNotEmpty($content);
-        $this->assertEquals($customer, $content);
+        static::assertEquals(200, $response->getStatusCode());
+        static::assertNotEmpty($content);
+        static::assertEquals($customer, $content);
     }
 
     public function testGetAddress()
@@ -163,15 +163,15 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         $response = $this->storefrontApiClient->getResponse();
         $content = json_decode($response->getContent(), true);
 
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertNotEmpty($content);
-        $this->assertArrayHasKey('data', $content);
-        $this->assertCount(1, $content);
+        static::assertEquals(200, $response->getStatusCode());
+        static::assertNotEmpty($content);
+        static::assertArrayHasKey('data', $content);
+        static::assertCount(1, $content);
 
         $address = $content['data'];
 
-        $this->assertEquals($customerId, $address['customerId']);
-        $this->assertEquals($addressId, $address['id']);
+        static::assertEquals($customerId, $address['customerId']);
+        static::assertEquals($addressId, $address['id']);
     }
 
     public function testGetAddresses()
@@ -183,10 +183,10 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         $response = $this->storefrontApiClient->getResponse();
         $content = json_decode($response->getContent(), true);
 
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertNotEmpty($content);
-        $this->assertArrayHasKey('data', $content);
-        $this->assertCount(2, $content['data']);
+        static::assertEquals(200, $response->getStatusCode());
+        static::assertNotEmpty($content);
+        static::assertArrayHasKey('data', $content);
+        static::assertCount(2, $content['data']);
     }
 
     public function testCreateAddress()
@@ -208,22 +208,22 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         $response = $this->storefrontApiClient->getResponse();
         $content = json_decode($response->getContent(), true);
 
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
-        $this->assertNotEmpty($content);
-        $this->assertArrayHasKey('data', $content);
+        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertNotEmpty($content);
+        static::assertArrayHasKey('data', $content);
 
-        $this->assertTrue(Uuid::isValid($content['data']));
+        static::assertTrue(Uuid::isValid($content['data']));
 
         $customerAddress = $this->readCustomerAddress($content['data']);
 
-        $this->assertEquals($customerId, $customerAddress->getCustomerId());
-        $this->assertEquals($address['countryId'], $customerAddress->getCountryId());
-        $this->assertEquals($address['salutation'], $customerAddress->getSalutation());
-        $this->assertEquals($address['firstName'], $customerAddress->getFirstName());
-        $this->assertEquals($address['lastName'], $customerAddress->getLastName());
-        $this->assertEquals($address['street'], $customerAddress->getStreet());
-        $this->assertEquals($address['zipcode'], $customerAddress->getZipcode());
-        $this->assertEquals($address['city'], $customerAddress->getCity());
+        static::assertEquals($customerId, $customerAddress->getCustomerId());
+        static::assertEquals($address['countryId'], $customerAddress->getCountryId());
+        static::assertEquals($address['salutation'], $customerAddress->getSalutation());
+        static::assertEquals($address['firstName'], $customerAddress->getFirstName());
+        static::assertEquals($address['lastName'], $customerAddress->getLastName());
+        static::assertEquals($address['street'], $customerAddress->getStreet());
+        static::assertEquals($address['zipcode'], $customerAddress->getZipcode());
+        static::assertEquals($address['city'], $customerAddress->getCity());
     }
 
     public function testDeleteAddress()
@@ -232,13 +232,13 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         $addressId = $this->createCustomerAddress($customerId);
 
         $customerAddress = $this->readCustomerAddress($addressId);
-        $this->assertInstanceOf(CustomerAddressStruct::class, $customerAddress);
-        $this->assertEquals($addressId, $customerAddress->getId());
+        static::assertInstanceOf(CustomerAddressStruct::class, $customerAddress);
+        static::assertEquals($addressId, $customerAddress->getId());
 
         $this->storefrontApiClient->request('DELETE', '/storefront-api/customer/address/' . $addressId);
 
         $customerAddress = $this->readCustomerAddress($customerId);
-        $this->assertNull($customerAddress);
+        static::assertNull($customerAddress);
     }
 
     public function testSetDefaultShippingAddress()
@@ -251,11 +251,11 @@ class StorefrontCustomerControllerTest extends ApiTestCase
 
         $customer = $this->readCustomer($customerId);
 
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
-        $this->assertNotEmpty($content);
-        $this->assertNotEmpty($content['data']);
-        $this->assertEquals($addressId, $content['data']);
-        $this->assertEquals($addressId, $customer->getDefaultShippingAddressId());
+        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertNotEmpty($content);
+        static::assertNotEmpty($content['data']);
+        static::assertEquals($addressId, $content['data']);
+        static::assertEquals($addressId, $customer->getDefaultShippingAddressId());
     }
 
     public function testSetDefaultBillingAddress()
@@ -268,11 +268,11 @@ class StorefrontCustomerControllerTest extends ApiTestCase
 
         $customer = $this->readCustomer($customerId);
 
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
-        $this->assertNotEmpty($content);
-        $this->assertNotEmpty($content['data']);
-        $this->assertEquals($addressId, $content['data']);
-        $this->assertEquals($addressId, $customer->getDefaultBillingAddressId());
+        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertNotEmpty($content);
+        static::assertNotEmpty($content['data']);
+        static::assertEquals($addressId, $content['data']);
+        static::assertEquals($addressId, $customer->getDefaultBillingAddressId());
     }
 
     public function testRegister()
@@ -328,23 +328,23 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         $response = $this->storefrontApiClient->getResponse();
         $content = json_decode($response->getContent(), true);
 
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
-        $this->assertNotEmpty($content);
+        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertNotEmpty($content);
 
         $uuid = $content['data'];
-        $this->assertTrue(Uuid::isValid($uuid));
+        static::assertTrue(Uuid::isValid($uuid));
 
         $customer = $this->readCustomer($uuid);
 
         // verify personal data
-        $this->assertEquals($personal['salutation'], $customer->getSalutation());
-        $this->assertEquals($personal['firstName'], $customer->getFirstName());
-        $this->assertEquals($personal['lastName'], $customer->getLastName());
-        $this->assertTrue(password_verify($personal['password'], $customer->getPassword()));
-        $this->assertEquals($personal['email'], $customer->getEmail());
-        $this->assertEquals($personal['title'], $customer->getTitle());
-        $this->assertEquals($personal['active'], $customer->getActive());
-        $this->assertEquals(
+        static::assertEquals($personal['salutation'], $customer->getSalutation());
+        static::assertEquals($personal['firstName'], $customer->getFirstName());
+        static::assertEquals($personal['lastName'], $customer->getLastName());
+        static::assertTrue(password_verify($personal['password'], $customer->getPassword()));
+        static::assertEquals($personal['email'], $customer->getEmail());
+        static::assertEquals($personal['title'], $customer->getTitle());
+        static::assertEquals($personal['active'], $customer->getActive());
+        static::assertEquals(
             $this->formatBirthday(
                 $personal['birthdayDay'],
                 $personal['birthdayMonth'],
@@ -356,33 +356,33 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         // verify billing address
         $billingAddress = $customer->getDefaultBillingAddress();
 
-        $this->assertEquals($billing['billingCountry'], $billingAddress->getCountryId());
-        $this->assertEquals($personal['salutation'], $billingAddress->getSalutation());
-        $this->assertEquals($personal['firstName'], $billingAddress->getFirstName());
-        $this->assertEquals($personal['lastName'], $billingAddress->getLastName());
-        $this->assertEquals($billing['billingStreet'], $billingAddress->getStreet());
-        $this->assertEquals($billing['billingZipcode'], $billingAddress->getZipcode());
-        $this->assertEquals($billing['billingCity'], $billingAddress->getCity());
-        $this->assertEquals($billing['billingPhone'], $billingAddress->getPhoneNumber());
-        $this->assertEquals($billing['billingVatId'], $billingAddress->getVatId());
-        $this->assertEquals($billing['billingAdditionalAddressLine1'], $billingAddress->getAdditionalAddressLine1());
-        $this->assertEquals($billing['billingAdditionalAddressLine2'], $billingAddress->getAdditionalAddressLine2());
-        $this->assertEquals($billing['billingCountryState'], $billingAddress->getCountryStateId());
+        static::assertEquals($billing['billingCountry'], $billingAddress->getCountryId());
+        static::assertEquals($personal['salutation'], $billingAddress->getSalutation());
+        static::assertEquals($personal['firstName'], $billingAddress->getFirstName());
+        static::assertEquals($personal['lastName'], $billingAddress->getLastName());
+        static::assertEquals($billing['billingStreet'], $billingAddress->getStreet());
+        static::assertEquals($billing['billingZipcode'], $billingAddress->getZipcode());
+        static::assertEquals($billing['billingCity'], $billingAddress->getCity());
+        static::assertEquals($billing['billingPhone'], $billingAddress->getPhoneNumber());
+        static::assertEquals($billing['billingVatId'], $billingAddress->getVatId());
+        static::assertEquals($billing['billingAdditionalAddressLine1'], $billingAddress->getAdditionalAddressLine1());
+        static::assertEquals($billing['billingAdditionalAddressLine2'], $billingAddress->getAdditionalAddressLine2());
+        static::assertEquals($billing['billingCountryState'], $billingAddress->getCountryStateId());
 
         // verify shipping address
         $shippingAddress = $customer->getDefaultShippingAddress();
 
-        $this->assertEquals($shipping['shippingCountry'], $shippingAddress->getCountryId());
-        $this->assertEquals($shipping['shippingSalutation'], $shippingAddress->getSalutation());
-        $this->assertEquals($shipping['shippingFirstName'], $shippingAddress->getFirstName());
-        $this->assertEquals($shipping['shippingLastName'], $shippingAddress->getLastName());
-        $this->assertEquals($shipping['shippingStreet'], $shippingAddress->getStreet());
-        $this->assertEquals($shipping['shippingZipcode'], $shippingAddress->getZipcode());
-        $this->assertEquals($shipping['shippingCity'], $shippingAddress->getCity());
-        $this->assertEquals($shipping['shippingPhone'], $shippingAddress->getPhoneNumber());
-        $this->assertEquals($shipping['shippingAdditionalAddressLine1'], $shippingAddress->getAdditionalAddressLine1());
-        $this->assertEquals($shipping['shippingAdditionalAddressLine2'], $shippingAddress->getAdditionalAddressLine2());
-        $this->assertEquals($shipping['shippingCountryState'], $shippingAddress->getCountryStateId());
+        static::assertEquals($shipping['shippingCountry'], $shippingAddress->getCountryId());
+        static::assertEquals($shipping['shippingSalutation'], $shippingAddress->getSalutation());
+        static::assertEquals($shipping['shippingFirstName'], $shippingAddress->getFirstName());
+        static::assertEquals($shipping['shippingLastName'], $shippingAddress->getLastName());
+        static::assertEquals($shipping['shippingStreet'], $shippingAddress->getStreet());
+        static::assertEquals($shipping['shippingZipcode'], $shippingAddress->getZipcode());
+        static::assertEquals($shipping['shippingCity'], $shippingAddress->getCity());
+        static::assertEquals($shipping['shippingPhone'], $shippingAddress->getPhoneNumber());
+        static::assertEquals($shipping['shippingAdditionalAddressLine1'], $shippingAddress->getAdditionalAddressLine1());
+        static::assertEquals($shipping['shippingAdditionalAddressLine2'], $shippingAddress->getAdditionalAddressLine2());
+        static::assertEquals($shipping['shippingCountryState'], $shippingAddress->getCountryStateId());
     }
 
     public function testChangeEmail()
@@ -399,9 +399,9 @@ class StorefrontCustomerControllerTest extends ApiTestCase
 
         $actualMail = $this->readCustomer($customerId)->getEmail();
 
-        $this->assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
-        $this->assertNull($content);
-        $this->assertEquals($mail, $actualMail);
+        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+        static::assertNull($content);
+        static::assertEquals($mail, $actualMail);
     }
 
     public function testChangePassword()
@@ -418,9 +418,9 @@ class StorefrontCustomerControllerTest extends ApiTestCase
 
         $hash = $this->readCustomer($customerId)->getPassword();
 
-        $this->assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
-        $this->assertNull($content);
-        $this->assertTrue(password_verify($password, $hash));
+        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+        static::assertNull($content);
+        static::assertTrue(password_verify($password, $hash));
     }
 
     public function testChangeProfile()
@@ -442,13 +442,13 @@ class StorefrontCustomerControllerTest extends ApiTestCase
 
         $customer = $this->readCustomer($customerId);
 
-        $this->assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
-        $this->assertNull($content);
-        $this->assertEquals($data['firstName'], $customer->getFirstName());
-        $this->assertEquals($data['lastName'], $customer->getLastName());
-        $this->assertEquals($data['title'], $customer->getTitle());
-        $this->assertEquals($data['salutation'], $customer->getSalutation());
-        $this->assertEquals(
+        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+        static::assertNull($content);
+        static::assertEquals($data['firstName'], $customer->getFirstName());
+        static::assertEquals($data['lastName'], $customer->getLastName());
+        static::assertEquals($data['title'], $customer->getTitle());
+        static::assertEquals($data['salutation'], $customer->getSalutation());
+        static::assertEquals(
             $this->formatBirthday(
                 $data['birthdayDay'],
                 $data['birthdayMonth'],

@@ -57,13 +57,13 @@ class AmountCalculatorTest extends TestCase
     public function testCalculateAmountWithGrossPrices(CartPrice $expected, PriceCollection $prices): void
     {
         $detector = $this->createMock(TaxDetector::class);
-        $detector->method('useGross')->will($this->returnValue(true));
+        $detector->method('useGross')->will(static::returnValue(true));
 
         $shop = $this->createMock(TouchpointStruct::class);
-        $shop->method('getTaxCalculationType')->will($this->returnValue(TaxAmountCalculator::CALCULATION_VERTICAL));
+        $shop->method('getTaxCalculationType')->will(static::returnValue(TaxAmountCalculator::CALCULATION_VERTICAL));
 
         $context = $this->createMock(CheckoutContext::class);
-        $context->method('getTouchpoint')->will($this->returnValue($shop));
+        $context->method('getTouchpoint')->will(static::returnValue($shop));
 
         $calculator = new AmountCalculator(
             $detector,
@@ -94,14 +94,14 @@ class AmountCalculatorTest extends TestCase
     public function testCalculateAmountWithNetPrices(CartPrice $expected, PriceCollection $prices): void
     {
         $detector = $this->createMock(TaxDetector::class);
-        $detector->method('useGross')->will($this->returnValue(false));
-        $detector->method('isNetDelivery')->will($this->returnValue(false));
+        $detector->method('useGross')->will(static::returnValue(false));
+        $detector->method('isNetDelivery')->will(static::returnValue(false));
 
         $shop = $this->createMock(TouchpointStruct::class);
-        $shop->method('getTaxCalculationType')->will($this->returnValue(TaxAmountCalculator::CALCULATION_VERTICAL));
+        $shop->method('getTaxCalculationType')->will(static::returnValue(TaxAmountCalculator::CALCULATION_VERTICAL));
 
         $context = $this->createMock(CheckoutContext::class);
-        $context->method('getTouchpoint')->will($this->returnValue($shop));
+        $context->method('getTouchpoint')->will(static::returnValue($shop));
 
         $calculator = new AmountCalculator(
             $detector,
@@ -132,14 +132,14 @@ class AmountCalculatorTest extends TestCase
     public function testCalculateAmountForNetDeliveries(CartPrice $expected, PriceCollection $prices): void
     {
         $detector = $this->createMock(TaxDetector::class);
-        $detector->method('useGross')->will($this->returnValue(false));
-        $detector->method('isNetDelivery')->will($this->returnValue(true));
+        $detector->method('useGross')->will(static::returnValue(false));
+        $detector->method('isNetDelivery')->will(static::returnValue(true));
 
         $shop = $this->createMock(TouchpointStruct::class);
-        $shop->method('getTaxCalculationType')->will($this->returnValue(TaxAmountCalculator::CALCULATION_VERTICAL));
+        $shop->method('getTaxCalculationType')->will(static::returnValue(TaxAmountCalculator::CALCULATION_VERTICAL));
 
         $context = $this->createMock(CheckoutContext::class);
-        $context->method('getTouchpoint')->will($this->returnValue($shop));
+        $context->method('getTouchpoint')->will(static::returnValue($shop));
 
         $calculator = new AmountCalculator(
             $detector,

@@ -25,8 +25,13 @@
 namespace Shopware\Core\Checkout\Test\Cart\LineItem;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\Price;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 
 class LineItemCollectionTest extends TestCase
 {
@@ -197,7 +202,7 @@ class LineItemCollectionTest extends TestCase
 
         $collection->removeElement($first);
 
-        $this->assertEquals(
+        static::assertEquals(
             new LineItemCollection([new LineItem('B', 'temp', 1)]),
             $collection
         );
@@ -213,23 +218,162 @@ class LineItemCollectionTest extends TestCase
             new LineItem('B', 'temp', 1),
         ]);
 
-        $this->assertTrue($collection->exists($first));
-        $this->assertFalse($collection->exists($second));
+        static::assertTrue($collection->exists($first));
+        static::assertFalse($collection->exists($second));
     }
 
     public function testGetCollectivePayload(): void
     {
         $collection = new LineItemCollection([
-            new LineItem('A', 'temp', 1, ['foo' => 'bar']),
-            new LineItem('B', 'temp', 1, ['bar' => 'foo']),
+            (new LineItem('A', 'temp', 1))->setPayload(['foo' => 'bar']),
+            (new LineItem('B', 'temp', 1))->setPayload(['bar' => 'foo']),
         ]);
 
-        $this->assertEquals(
+        static::assertEquals(
             [
                 'A' => ['foo' => 'bar'],
                 'B' => ['bar' => 'foo'],
             ],
             $collection->getPayload()
+        );
+    }
+
+    public function testCollectionSumsQuantityOfSameKey(): void
+    {
+        $collection = new LineItemCollection([
+            new LineItem('A', 'test'),
+            new LineItem('A', 'test', 2),
+            new LineItem('A', 'test', 3),
+        ]);
+
+        static::assertEquals(
+            new LineItemCollection([
+                new LineItem('A', 'test', 6)
+            ]),
+            $collection
+        );
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testCartThrowsExceptionOnLineItemCollision(): void
+    {
+        $cart = new Cart('test', 'test');
+
+        $cart->add(new LineItem('a', 'first-type'));
+        $cart->add(new LineItem('a', 'other-type'));
+
+    }
+
+    public function testGetLineItemByIdentifier(): void
+    {
+        $collection = new LineItemCollection([
+            new LineItem('A', 'test', 3),
+            new LineItem('B', 'test', 3),
+            new LineItem('C', 'test', 3),
+            new LineItem('D', 'test', 3),
+        ]);
+
+        static::assertEquals(
+            new LineItem('C', 'test', 3),
+            $collection->get('C')
+        );
+    }
+
+    public function testFilterGoodsReturnsOnlyGoods(): void
+    {
+        $collection = new LineItemCollection([
+            (new LineItem('A', 'test', 3))->setGood(true),
+            (new LineItem('B', 'test', 3))->setGood(false),
+            (new LineItem('C', 'test', 3))->setGood(false),
+            (new LineItem('D', 'test', 3))->setGood(true),
+        ]);
+
+        static::assertEquals(
+            new LineItemCollection([
+                (new LineItem('A', 'test', 3))->setGood(true),
+                (new LineItem('D', 'test', 3))->setGood(true),
+            ]),
+            $collection->filterGoods()
+        );
+    }
+
+    public function testFilterGoodsReturnsNewCollection(): void
+    {
+        $collection = new LineItemCollection([
+            (new LineItem('A', 'test', 3))->setGood(true),
+            (new LineItem('B', 'test', 3))->setGood(true),
+            (new LineItem('C', 'test', 3))->setGood(true),
+            (new LineItem('D', 'test', 3))->setGood(true),
+        ]);
+
+        static::assertNotSame(
+            $collection->filterGoods(),
+            $collection->filterGoods()
+        );
+    }
+
+    public function testGetPricesCollectionOfMultipleItems(): void
+    {
+        $lineItems = new LineItemCollection([
+            (new LineItem('A', 'test'))
+                ->setPrice(new Price(200, 200, new CalculatedTaxCollection(), new TaxRuleCollection())),
+
+            (new LineItem('B', 'test'))
+                ->setPrice(new Price(300, 300, new CalculatedTaxCollection(), new TaxRuleCollection())),
+        ])                                         ;
+
+        static::assertEquals(
+            new PriceCollection([
+                new Price(200, 200, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                new Price(300, 300, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            ]),
+            $lineItems->getPrices()
+        );
+    }
+
+    public function testRemoveWithNoneExistingIdentifier(): void
+    {
+        $collection = new LineItemCollection([
+            new LineItem('A', 'test', 3),
+            new LineItem('B', 'test', 3),
+            new LineItem('C', 'test', 3),
+            new LineItem('D', 'test', 3),
+        ]);
+
+        $collection->remove('X');
+
+        static::assertEquals(
+            new LineItemCollection([
+                new LineItem('A', 'test', 3),
+                new LineItem('B', 'test', 3),
+                new LineItem('C', 'test', 3),
+                new LineItem('D', 'test', 3),
+            ]),
+            $collection
+        );
+    }
+
+    public function testRemoveWithNotExisting(): void
+    {
+        $c = new LineItem('C', 'test', 3);
+
+        $collection = new LineItemCollection([
+            new LineItem('A', 'test', 3),
+            new LineItem('B', 'test', 3),
+            new LineItem('D', 'test', 3),
+        ]);
+
+        $collection->removeElement($c);
+
+        static::assertEquals(
+            new LineItemCollection([
+                new LineItem('A', 'test', 3),
+                new LineItem('B', 'test', 3),
+                new LineItem('D', 'test', 3),
+            ]),
+            $collection
         );
     }
 }

@@ -48,7 +48,7 @@ class CheckoutController extends StorefrontController
      */
     public function infoAction(CheckoutContext $context)
     {
-        $cart = $this->cartService->getCalculatedCart($context);
+        $cart = $this->cartService->getCart($context);
 
         return $this->render('@Storefront/widgets/checkout/info.html.twig', [
             'cartQuantity' => $cart->getCalculatedLineItems()->filterGoods()->count(),

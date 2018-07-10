@@ -25,23 +25,24 @@
 namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\CalculatedLineItem;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Cart\Cart;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemOfTypeRule;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
-use Shopware\Core\Content\Product\Cart\ProductProcessor;
+use Shopware\Core\Content\Product\Cart\ProductCollector;
 
 class LineItemOfTypeRuleTest extends TestCase
 {
     public function testRuleWithProductTypeMatch(): void
     {
-        $rule = new LineItemOfTypeRule(ProductProcessor::TYPE_PRODUCT);
+        $rule = new LineItemOfTypeRule(ProductCollector::LINE_ITEM_TYPE);
 
-        $calculatedLineItem = Generator::createCalculatedProduct('A', 100, 1);
         $context = $this->createMock(CheckoutContext::class);
 
-        $this->assertTrue(
-            $rule->match(new LineItemScope($calculatedLineItem, $context))->matches()
+        static::assertTrue(
+            $rule->match(new LineItemScope(new LineItem('A', 'product'), $context))->matches()
         );
     }
 
@@ -49,11 +50,10 @@ class LineItemOfTypeRuleTest extends TestCase
     {
         $rule = new LineItemOfTypeRule('voucher');
 
-        $calculatedLineItem = Generator::createCalculatedProduct('A', 100, 1);
         $context = $this->createMock(CheckoutContext::class);
 
-        $this->assertFalse(
-            $rule->match(new LineItemScope($calculatedLineItem, $context))->matches()
+        static::assertFalse(
+            $rule->match(new LineItemScope(new LineItem('A', 'product'), $context))->matches()
         );
     }
 }

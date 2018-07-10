@@ -25,7 +25,7 @@
 namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\Context;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\CustomerStruct;
@@ -37,18 +37,18 @@ class CustomerNumberRuleTest extends TestCase
     {
         $rule = new CustomerNumberRule(['NO. 1']);
 
-        $cart = $this->createMock(CalculatedCart::class);
+        $cart = $this->createMock(Cart::class);
 
         $customer = new CustomerStruct();
         $customer->setNumber('NO. 1');
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $context->expects($this->any())
+        $context->expects(static::any())
             ->method('getCustomer')
-            ->will($this->returnValue($customer));
+            ->will(static::returnValue($customer));
 
-        $this->assertTrue(
+        static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
@@ -57,18 +57,18 @@ class CustomerNumberRuleTest extends TestCase
     {
         $rule = new CustomerNumberRule(['NO. 1', 'NO. 2', 'NO. 3']);
 
-        $cart = $this->createMock(CalculatedCart::class);
+        $cart = $this->createMock(Cart::class);
 
         $customer = new CustomerStruct();
         $customer->setNumber('NO. 2');
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $context->expects($this->any())
+        $context->expects(static::any())
             ->method('getCustomer')
-            ->will($this->returnValue($customer));
+            ->will(static::returnValue($customer));
 
-        $this->assertTrue(
+        static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
@@ -77,18 +77,18 @@ class CustomerNumberRuleTest extends TestCase
     {
         $rule = new CustomerNumberRule(['NO. 1']);
 
-        $cart = $this->createMock(CalculatedCart::class);
+        $cart = $this->createMock(Cart::class);
 
         $customer = new CustomerStruct();
         $customer->setNumber('no. 1');
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $context->expects($this->any())
+        $context->expects(static::any())
             ->method('getCustomer')
-            ->will($this->returnValue($customer));
+            ->will(static::returnValue($customer));
 
-        $this->assertTrue(
+        static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
@@ -97,15 +97,15 @@ class CustomerNumberRuleTest extends TestCase
     {
         $rule = new CustomerNumberRule(['NO. 1']);
 
-        $cart = $this->createMock(CalculatedCart::class);
+        $cart = $this->createMock(Cart::class);
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $context->expects($this->any())
+        $context->expects(static::any())
             ->method('getCustomer')
-            ->will($this->returnValue(null));
+            ->will(static::returnValue(null));
 
-        $this->assertFalse(
+        static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
@@ -114,18 +114,18 @@ class CustomerNumberRuleTest extends TestCase
     {
         $rule = new CustomerNumberRule(['NO. 1']);
 
-        $cart = $this->createMock(CalculatedCart::class);
+        $cart = $this->createMock(Cart::class);
 
         $customer = new CustomerStruct();
         $customer->setNumber('no. 2');
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $context->expects($this->any())
+        $context->expects(static::any())
             ->method('getCustomer')
-            ->will($this->returnValue($customer));
+            ->will(static::returnValue($customer));
 
-        $this->assertFalse(
+        static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }

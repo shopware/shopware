@@ -37,7 +37,7 @@ class ContainerTest extends TestCase
             new TrueRule(),
         ]);
 
-        $this->assertEquals(
+        static::assertEquals(
             [new TrueRule()],
             $container->getRules()
         );
@@ -46,7 +46,7 @@ class ContainerTest extends TestCase
             new FalseRule(),
         ]);
 
-        $this->assertEquals(
+        static::assertEquals(
             [new FalseRule()],
             $container->getRules()
         );

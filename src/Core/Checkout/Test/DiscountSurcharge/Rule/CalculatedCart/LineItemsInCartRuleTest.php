@@ -39,7 +39,7 @@ class LineItemsInCartRuleTest extends TestCase
         $calculatedCart = Generator::createCalculatedCart();
         $context = $this->createMock(CheckoutContext::class);
 
-        $this->assertTrue(
+        static::assertTrue(
             $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
         );
     }
@@ -51,7 +51,7 @@ class LineItemsInCartRuleTest extends TestCase
         $calculatedCart = Generator::createCalculatedCart();
         $context = $this->createMock(CheckoutContext::class);
 
-        $this->assertFalse(
+        static::assertFalse(
             $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
         );
     }
@@ -63,7 +63,7 @@ class LineItemsInCartRuleTest extends TestCase
         $calculatedCart = Generator::createCalculatedCart();
         $context = $this->createMock(CheckoutContext::class);
 
-        $this->assertTrue(
+        static::assertTrue(
             $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
         );
     }

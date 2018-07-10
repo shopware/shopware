@@ -24,7 +24,6 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
-use Shopware\Core\Checkout\Cart\LineItem\GoodsInterface;
 use Shopware\Core\Content\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
@@ -60,34 +59,35 @@ class GoodsCountRule extends Rule
             );
         }
 
-        $goods = $scope->getCart()->getCalculatedLineItems()->filterInstance(GoodsInterface::class);
-
+        $goods = $scope->getCart()->getLineItems()->filterGoods();
+        
         switch ($this->operator) {
             case self::OPERATOR_GTE:
 
                 return new Match(
                     $goods->count() >= $this->count,
-                    ['GoodsInterface count too much']
+                    ['Goods count too much']
                 );
 
             case self::OPERATOR_LTE:
 
                 return new Match(
                     $goods->count() <= $this->count,
-                    ['GoodsInterface count too less']
+                    ['Goods count too less']
                 );
 
             case self::OPERATOR_EQ:
 
                 return new Match(
-                    $goods->count() == $this->count,
-                    ['GoodsInterface count not equal']
+                    $goods->count() === $this->count,
+                    ['Goods count not equal']
                 );
 
             case self::OPERATOR_NEQ:
+
                 return new Match(
-                    $goods->count() != $this->count,
-                    ['GoodsInterface count equal']
+                    $goods->count() !== $this->count,
+                    ['Goods count equal']
                 );
 
             default:

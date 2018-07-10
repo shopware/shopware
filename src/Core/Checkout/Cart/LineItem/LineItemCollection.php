@@ -39,6 +39,12 @@ class LineItemCollection extends Collection
     {
         $exists = $this->get($lineItem->getKey());
 
+        if ($exists && $exists->getType() !== $lineItem->getType()) {
+            throw new \RuntimeException(
+                sprintf('Line item with key %s already exists with different type', $exists->getType())
+            );
+        }
+
         if ($exists) {
             $exists->setQuantity($lineItem->getQuantity() + $exists->getQuantity());
 
@@ -99,7 +105,7 @@ class LineItemCollection extends Collection
 
     public function getFlat(): array
     {
-        return $this->flatter($this->getElements());
+        return $this->buildFlat($this->getElements());
     }
 
     protected function getKey(LineItem $element): string
@@ -107,7 +113,7 @@ class LineItemCollection extends Collection
         return $element->getKey();
     }
 
-    private function flatter(array $lineItems): array
+    private function buildFlat(array $lineItems): array
     {
         $flat = [];
         foreach ($lineItems as $lineItem) {
@@ -116,7 +122,7 @@ class LineItemCollection extends Collection
                 continue;
             }
 
-            $nested = $this->flatter($lineItem->getChildren()->getElements());
+            $nested = $this->buildFlat($lineItem->getChildren()->getElements());
 
             foreach ($nested as $nest) {
                 $flat[] = $nest;
@@ -129,5 +135,14 @@ class LineItemCollection extends Collection
     public function current(): LineItem
     {
         return parent::current();
+    }
+
+    public function filterGoods(): self
+    {
+        return $this->filter(
+            function(LineItem $lineItem) {
+                return $lineItem->isGood();
+            }
+        );
     }
 }

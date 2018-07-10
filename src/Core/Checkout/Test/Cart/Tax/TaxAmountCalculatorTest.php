@@ -55,10 +55,10 @@ class TaxAmountCalculatorTest extends TestCase
     public function testCalculation(string $calculationType, TaxDetector $taxDetector, PriceCollection $prices, CalculatedTaxCollection $expected): void
     {
         $shop = $this->createMock(TouchpointStruct::class);
-        $shop->method('getTaxCalculationType')->will($this->returnValue($calculationType));
+        $shop->method('getTaxCalculationType')->will(static::returnValue($calculationType));
 
         $context = $this->createMock(CheckoutContext::class);
-        $context->method('getTouchpoint')->will($this->returnValue($shop));
+        $context->method('getTouchpoint')->will(static::returnValue($shop));
 
         $taxAmountCalculator = new TaxAmountCalculator(
             new PercentageTaxRuleBuilder(),
@@ -72,7 +72,7 @@ class TaxAmountCalculatorTest extends TestCase
             $taxDetector
         );
 
-        $this->assertEquals(
+        static::assertEquals(
             $expected,
             $taxAmountCalculator->calculate($prices, $context)
         );
@@ -81,15 +81,15 @@ class TaxAmountCalculatorTest extends TestCase
     public function calculationProvider(): array
     {
         $grossPriceDetector = $this->createMock(TaxDetector::class);
-        $grossPriceDetector->method('useGross')->will($this->returnValue(true));
+        $grossPriceDetector->method('useGross')->will(static::returnValue(true));
 
         $netPriceDetector = $this->createMock(TaxDetector::class);
-        $netPriceDetector->method('useGross')->will($this->returnValue(false));
-        $netPriceDetector->method('isNetDelivery')->will($this->returnValue(false));
+        $netPriceDetector->method('useGross')->will(static::returnValue(false));
+        $netPriceDetector->method('isNetDelivery')->will(static::returnValue(false));
 
         $netDeliveryDetector = $this->createMock(TaxDetector::class);
-        $netDeliveryDetector->method('useGross')->will($this->returnValue(false));
-        $netDeliveryDetector->method('isNetDelivery')->will($this->returnValue(true));
+        $netDeliveryDetector->method('useGross')->will(static::returnValue(false));
+        $netDeliveryDetector->method('isNetDelivery')->will(static::returnValue(true));
 
         return [
             //0

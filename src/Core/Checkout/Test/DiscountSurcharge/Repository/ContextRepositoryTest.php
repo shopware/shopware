@@ -59,7 +59,7 @@ class ContextRepositoryTest extends KernelTestCase
 
         $rules = $this->repository->read(new ReadCriteria([$id]), $this->context);
 
-        $this->assertEquals(
+        static::assertEquals(
             new AndRule([new OrRule()]),
             $rules->get($id)->getPayload()
         );

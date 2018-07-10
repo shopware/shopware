@@ -156,16 +156,16 @@ class PriceCollectionTest extends TestCase
             new Price(2, 2, new CalculatedTaxCollection(), new TaxRuleCollection()),
         ]);
 
-        $this->assertEquals(
+        static::assertEquals(
             new Price(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
             $collection->get(0)
         );
 
-        $this->assertEquals(
+        static::assertEquals(
             new Price(2, 2, new CalculatedTaxCollection(), new TaxRuleCollection()),
             $collection->get(1)
         );
-        $this->assertNull($collection->get(2));
+        static::assertNull($collection->get(2));
     }
 
     public function testRemove(): void
@@ -175,19 +175,19 @@ class PriceCollectionTest extends TestCase
             new Price(2, 2, new CalculatedTaxCollection(), new TaxRuleCollection()),
         ]);
 
-        $this->assertEquals(
+        static::assertEquals(
             new Price(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
             $collection->get(0)
         );
 
-        $this->assertEquals(
+        static::assertEquals(
             new Price(2, 2, new CalculatedTaxCollection(), new TaxRuleCollection()),
             $collection->get(1)
         );
 
         $collection->remove(0);
         $collection->remove(1);
-        $this->assertNull($collection->get(0));
-        $this->assertNull($collection->get(1));
+        static::assertNull($collection->get(0));
+        static::assertNull($collection->get(1));
     }
 }

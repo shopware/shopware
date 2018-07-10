@@ -3,10 +3,14 @@
 namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\CalculatedCart;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Cart\Cart;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\GoodsPriceRule;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Framework\Rule\Rule;
 
 class GoodsPriceRuleTest extends TestCase
@@ -15,23 +19,28 @@ class GoodsPriceRuleTest extends TestCase
     {
         $rule = new GoodsPriceRule(270, Rule::OPERATOR_EQ);
 
-        $calculatedCart = Generator::createCalculatedCart();
+        $cart = new Cart('test', 'test');
+        $cart->add(
+            (new LineItem('a', 'a'))
+                ->setPrice(new Price(270, 270, new CalculatedTaxCollection(), new TaxRuleCollection()))
+        );
+
         $context = $this->createMock(CheckoutContext::class);
 
-        $this->assertTrue(
-            $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
+        static::assertTrue(
+            $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
 
     public function testRuleWithExactPriceNotMatch(): void
     {
-        $rule = new GoodsPriceRule(0, Rule::OPERATOR_EQ);
+        $rule = new GoodsPriceRule(1, Rule::OPERATOR_EQ);
 
-        $calculatedCart = Generator::createCalculatedCart();
+        $cart = new Cart('test', 'test');
         $context = $this->createMock(CheckoutContext::class);
 
-        $this->assertFalse(
-            $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
+        static::assertFalse(
+            $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
 
@@ -39,11 +48,11 @@ class GoodsPriceRuleTest extends TestCase
     {
         $rule = new GoodsPriceRule(270, Rule::OPERATOR_LTE);
 
-        $calculatedCart = Generator::createCalculatedCart();
+        $cart = new Cart('test', 'test');
         $context = $this->createMock(CheckoutContext::class);
 
-        $this->assertTrue(
-            $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
+        static::assertTrue(
+            $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
 
@@ -51,23 +60,23 @@ class GoodsPriceRuleTest extends TestCase
     {
         $rule = new GoodsPriceRule(300, Rule::OPERATOR_LTE);
 
-        $calculatedCart = Generator::createCalculatedCart();
+        $cart = new Cart('test', 'test');
         $context = $this->createMock(CheckoutContext::class);
 
-        $this->assertTrue(
-            $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
+        static::assertTrue(
+            $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
 
     public function testRuleWithLowerThanEqualPriceNotMatch(): void
     {
-        $rule = new GoodsPriceRule(250, Rule::OPERATOR_LTE);
+        $rule = new GoodsPriceRule(-1, Rule::OPERATOR_LTE);
 
-        $calculatedCart = Generator::createCalculatedCart();
+        $cart = new Cart('test', 'test');
         $context = $this->createMock(CheckoutContext::class);
 
-        $this->assertFalse(
-            $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
+        static::assertFalse(
+            $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
 
@@ -75,11 +84,16 @@ class GoodsPriceRuleTest extends TestCase
     {
         $rule = new GoodsPriceRule(270, Rule::OPERATOR_GTE);
 
-        $calculatedCart = Generator::createCalculatedCart();
+        $cart = new Cart('test', 'test');
+        $cart->add(
+            (new LineItem('a', 'a'))
+                ->setPrice(new Price(270, 270, new CalculatedTaxCollection(), new TaxRuleCollection()))
+
+        );
         $context = $this->createMock(CheckoutContext::class);
 
-        $this->assertTrue(
-            $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
+        static::assertTrue(
+            $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
 
@@ -87,11 +101,16 @@ class GoodsPriceRuleTest extends TestCase
     {
         $rule = new GoodsPriceRule(250, Rule::OPERATOR_GTE);
 
-        $calculatedCart = Generator::createCalculatedCart();
+        $cart = new Cart('test', 'test');
+        $cart->add(
+            (new LineItem('a', 'a'))
+                ->setPrice(new Price(270, 270, new CalculatedTaxCollection(), new TaxRuleCollection()))
+        );
+
         $context = $this->createMock(CheckoutContext::class);
 
-        $this->assertTrue(
-            $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
+        static::assertTrue(
+            $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
 
@@ -99,11 +118,11 @@ class GoodsPriceRuleTest extends TestCase
     {
         $rule = new GoodsPriceRule(300, Rule::OPERATOR_GTE);
 
-        $calculatedCart = Generator::createCalculatedCart();
+        $cart = new Cart('test', 'test');
         $context = $this->createMock(CheckoutContext::class);
 
-        $this->assertFalse(
-            $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
+        static::assertFalse(
+            $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
 
@@ -111,11 +130,11 @@ class GoodsPriceRuleTest extends TestCase
     {
         $rule = new GoodsPriceRule(200, Rule::OPERATOR_NEQ);
 
-        $calculatedCart = Generator::createCalculatedCart();
+        $cart = new Cart('test', 'test');
         $context = $this->createMock(CheckoutContext::class);
 
-        $this->assertTrue(
-            $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
+        static::assertTrue(
+            $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
 
@@ -123,11 +142,16 @@ class GoodsPriceRuleTest extends TestCase
     {
         $rule = new GoodsPriceRule(270, Rule::OPERATOR_NEQ);
 
-        $calculatedCart = Generator::createCalculatedCart();
+        $cart = new Cart('test', 'test');
+        $cart->add(
+            (new LineItem('a', 'a'))
+                ->setPrice(new Price(270, 270, new CalculatedTaxCollection(), new TaxRuleCollection()))
+        );
+
         $context = $this->createMock(CheckoutContext::class);
 
-        $this->assertFalse(
-            $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
+        static::assertFalse(
+            $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
 }

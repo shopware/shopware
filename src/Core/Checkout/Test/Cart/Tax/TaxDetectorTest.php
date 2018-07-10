@@ -37,22 +37,22 @@ class TaxDetectorTest extends TestCase
     {
         $context = $this->createMock(CheckoutContext::class);
         $customerGroup = $this->createMock(CustomerGroupStruct::class);
-        $customerGroup->expects($this->once())->method('getDisplayGross')->will($this->returnValue(true));
-        $context->expects($this->once())->method('getCurrentCustomerGroup')->will($this->returnValue($customerGroup));
+        $customerGroup->expects(static::once())->method('getDisplayGross')->will(static::returnValue(true));
+        $context->expects(static::once())->method('getCurrentCustomerGroup')->will(static::returnValue($customerGroup));
 
         $detector = new TaxDetector();
-        $this->assertTrue($detector->useGross($context));
+        static::assertTrue($detector->useGross($context));
     }
 
     public function testDoNotUseGrossPrices(): void
     {
         $context = $this->createMock(CheckoutContext::class);
         $customerGroup = $this->createMock(CustomerGroupStruct::class);
-        $customerGroup->expects($this->once())->method('getDisplayGross')->will($this->returnValue(false));
-        $context->expects($this->once())->method('getCurrentCustomerGroup')->will($this->returnValue($customerGroup));
+        $customerGroup->expects(static::once())->method('getDisplayGross')->will(static::returnValue(false));
+        $context->expects(static::once())->method('getCurrentCustomerGroup')->will(static::returnValue($customerGroup));
 
         $detector = new TaxDetector();
-        $this->assertFalse($detector->useGross($context));
+        static::assertFalse($detector->useGross($context));
     }
 
     public function testIsNetDelivery(): void
@@ -62,12 +62,13 @@ class TaxDetectorTest extends TestCase
         $country = new CountryStruct();
         $country->setTaxFree(true);
 
-        $context->expects($this->once())->method('getShippingLocation')->will($this->returnValue(
+        $context->expects(static::once())->method('getShippingLocation')->will(
+            static::returnValue(
             ShippingLocation::createFromCountry($country)
         ));
 
         $detector = new TaxDetector();
-        $this->assertTrue($detector->isNetDelivery($context));
+        static::assertTrue($detector->isNetDelivery($context));
     }
 
     public function testIsNotNetDelivery(): void
@@ -77,11 +78,12 @@ class TaxDetectorTest extends TestCase
         $country = new CountryStruct();
         $country->setTaxFree(false);
 
-        $context->expects($this->once())->method('getShippingLocation')->will($this->returnValue(
+        $context->expects(static::once())->method('getShippingLocation')->will(
+            static::returnValue(
             ShippingLocation::createFromCountry($country)
         ));
 
         $detector = new TaxDetector();
-        $this->assertFalse($detector->isNetDelivery($context));
+        static::assertFalse($detector->isNetDelivery($context));
     }
 }

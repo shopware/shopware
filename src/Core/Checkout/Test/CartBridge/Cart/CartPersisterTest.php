@@ -34,6 +34,7 @@ use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItem;
 use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemCollection;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -86,9 +87,9 @@ class CartPersisterTest extends TestCase
     public function testLoadWithNotExistingToken(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->expects($this->once())
+        $connection->expects(static::once())
             ->method('fetchColumn')
-            ->will($this->returnValue(false));
+            ->will(static::returnValue(false));
 
         $persister = new CartPersister($connection, $this->serializer);
 
@@ -99,16 +100,17 @@ class CartPersisterTest extends TestCase
         }
 
         /* @var CartTokenNotFoundException $e */
-        $this->assertInstanceOf(CartTokenNotFoundException::class, $e);
-        $this->assertSame('not_existing_token', $e->getToken());
+        static::assertInstanceOf(CartTokenNotFoundException::class, $e);
+        static::assertSame('not_existing_token', $e->getToken());
     }
 
     public function testLoadWithExistingToken(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->expects($this->once())
+        $connection->expects(static::once())
             ->method('fetchColumn')
-            ->will($this->returnValue(
+            ->will(
+                static::returnValue(
                 json_encode([
                     '_class' => Cart::class,
                     'lineItems' => new LineItemCollection(),
@@ -121,7 +123,7 @@ class CartPersisterTest extends TestCase
         $persister = new CartPersister($connection, $this->serializer);
         $cart = $persister->load('existing', 'shopware', Generator::createContext());
 
-        $this->assertEquals(
+        static::assertEquals(
             new Cart('shopware', 'existing', new LineItemCollection(), new ErrorCollection()),
             $cart
         );
@@ -130,16 +132,11 @@ class CartPersisterTest extends TestCase
     public function testEmptyCartShouldnBeSaved(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->expects($this->never())->method('insert');
+        $connection->expects(static::never())->method('insert');
 
         $persister = new CartPersister($connection, $this->serializer);
 
-        $calc = new CalculatedCart(
-            new Cart('shopware', 'existing', new LineItemCollection(), new ErrorCollection()),
-            new CalculatedLineItemCollection([]),
-            new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS),
-            new DeliveryCollection()
-        );
+        $calc = new Cart('shopware', 'existing');
 
         $persister->save($calc, Generator::createContext());
     }
@@ -147,23 +144,15 @@ class CartPersisterTest extends TestCase
     public function testSaveWithItems(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->expects($this->once())->method('executeUpdate');
+        $connection->expects(static::once())->method('executeUpdate');
 
         $persister = new CartPersister($connection, $this->serializer);
 
-        $calc = new CalculatedCart(
-            new Cart('shopware', 'existing', new LineItemCollection(), new ErrorCollection()),
-            new CalculatedLineItemCollection([
-                new CalculatedLineItem(
-                    'A',
-                    new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                    1,
-                    'test',
-                    'label'
-                ),
-            ]),
-            new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS),
-            new DeliveryCollection()
+        $calc = new Cart('shopware', 'existing');
+        $calc->add(
+            (new LineItem('A', 'test'))
+                ->setPrice(new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()))
+                ->setLabel('test')
         );
 
         $persister->save($calc, Generator::createContext());

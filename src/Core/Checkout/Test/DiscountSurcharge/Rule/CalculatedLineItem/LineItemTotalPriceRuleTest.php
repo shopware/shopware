@@ -25,8 +25,12 @@
 namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\CalculatedLineItem;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemTotalPriceRule;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Framework\Rule\Rule;
@@ -37,11 +41,15 @@ class LineItemTotalPriceRuleTest extends TestCase
     {
         $rule = new LineItemTotalPriceRule(200);
 
-        $calculatedLineItem = Generator::createCalculatedProduct('A', 100, 2);
         $context = $this->createMock(CheckoutContext::class);
 
-        $this->assertTrue(
-            $rule->match(new LineItemScope($calculatedLineItem, $context))->matches()
+        $lineItem = (new LineItem('A', 'product'))
+            ->setPrice(
+                new Price(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection())
+            );
+
+        static::assertTrue(
+            $rule->match(new LineItemScope($lineItem, $context))->matches()
         );
     }
 
@@ -49,11 +57,16 @@ class LineItemTotalPriceRuleTest extends TestCase
     {
         $rule = new LineItemTotalPriceRule(199);
 
-        $calculatedLineItem = Generator::createCalculatedProduct('A', 100, 2);
         $context = $this->createMock(CheckoutContext::class);
 
-        $this->assertFalse(
-            $rule->match(new LineItemScope($calculatedLineItem, $context))->matches()
+        $lineItem = (new LineItem('A', 'product'))
+            ->setPrice(
+                new Price(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection())
+            );
+
+
+        static::assertFalse(
+            $rule->match(new LineItemScope($lineItem, $context))->matches()
         );
     }
 
@@ -61,11 +74,16 @@ class LineItemTotalPriceRuleTest extends TestCase
     {
         $rule = new LineItemTotalPriceRule(200, Rule::OPERATOR_LTE);
 
-        $calculatedLineItem = Generator::createCalculatedProduct('A', 100, 2);
         $context = $this->createMock(CheckoutContext::class);
 
-        $this->assertTrue(
-            $rule->match(new LineItemScope($calculatedLineItem, $context))->matches()
+        $lineItem = (new LineItem('A', 'product'))
+            ->setPrice(
+                new Price(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection())
+            );
+
+
+        static::assertTrue(
+            $rule->match(new LineItemScope($lineItem, $context))->matches()
         );
     }
 
@@ -73,11 +91,15 @@ class LineItemTotalPriceRuleTest extends TestCase
     {
         $rule = new LineItemTotalPriceRule(201, Rule::OPERATOR_LTE);
 
-        $calculatedLineItem = Generator::createCalculatedProduct('A', 100, 2);
         $context = $this->createMock(CheckoutContext::class);
 
-        $this->assertTrue(
-            $rule->match(new LineItemScope($calculatedLineItem, $context))->matches()
+        $lineItem = (new LineItem('A', 'product'))
+            ->setPrice(
+                new Price(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection())
+            );
+
+        static::assertTrue(
+            $rule->match(new LineItemScope($lineItem, $context))->matches()
         );
     }
 
@@ -85,11 +107,15 @@ class LineItemTotalPriceRuleTest extends TestCase
     {
         $rule = new LineItemTotalPriceRule(199, Rule::OPERATOR_LTE);
 
-        $calculatedLineItem = Generator::createCalculatedProduct('A', 100, 2);
         $context = $this->createMock(CheckoutContext::class);
 
-        $this->assertFalse(
-            $rule->match(new LineItemScope($calculatedLineItem, $context))->matches()
+        $lineItem = (new LineItem('A', 'product'))
+            ->setPrice(
+                new Price(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection())
+            );
+
+        static::assertFalse(
+            $rule->match(new LineItemScope($lineItem, $context))->matches()
         );
     }
 
@@ -97,11 +123,15 @@ class LineItemTotalPriceRuleTest extends TestCase
     {
         $rule = new LineItemTotalPriceRule(200, Rule::OPERATOR_GTE);
 
-        $calculatedLineItem = Generator::createCalculatedProduct('A', 100, 2);
         $context = $this->createMock(CheckoutContext::class);
 
-        $this->assertTrue(
-            $rule->match(new LineItemScope($calculatedLineItem, $context))->matches()
+        $lineItem = (new LineItem('A', 'product'))
+            ->setPrice(
+                new Price(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection())
+            );
+
+        static::assertTrue(
+            $rule->match(new LineItemScope($lineItem, $context))->matches()
         );
     }
 
@@ -109,11 +139,15 @@ class LineItemTotalPriceRuleTest extends TestCase
     {
         $rule = new LineItemTotalPriceRule(199, Rule::OPERATOR_GTE);
 
-        $calculatedLineItem = Generator::createCalculatedProduct('A', 100, 2);
         $context = $this->createMock(CheckoutContext::class);
 
-        $this->assertTrue(
-            $rule->match(new LineItemScope($calculatedLineItem, $context))->matches()
+        $lineItem = (new LineItem('A', 'product'))
+            ->setPrice(
+                new Price(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection())
+            );
+
+        static::assertTrue(
+            $rule->match(new LineItemScope($lineItem, $context))->matches()
         );
     }
 
@@ -121,11 +155,15 @@ class LineItemTotalPriceRuleTest extends TestCase
     {
         $rule = new LineItemTotalPriceRule(201, Rule::OPERATOR_GTE);
 
-        $calculatedLineItem = Generator::createCalculatedProduct('A', 100, 2);
+        $lineItem = (new LineItem('A', 'product'))
+            ->setPrice(
+                new Price(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection())
+            );
+
         $context = $this->createMock(CheckoutContext::class);
 
-        $this->assertFalse(
-            $rule->match(new LineItemScope($calculatedLineItem, $context))->matches()
+        static::assertFalse(
+            $rule->match(new LineItemScope($lineItem, $context))->matches()
         );
     }
 
@@ -133,11 +171,15 @@ class LineItemTotalPriceRuleTest extends TestCase
     {
         $rule = new LineItemTotalPriceRule(199, Rule::OPERATOR_NEQ);
 
-        $calculatedLineItem = Generator::createCalculatedProduct('A', 100, 2);
+        $lineItem = (new LineItem('A', 'product'))
+            ->setPrice(
+                new Price(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection())
+            );
+
         $context = $this->createMock(CheckoutContext::class);
 
-        $this->assertTrue(
-            $rule->match(new LineItemScope($calculatedLineItem, $context))->matches()
+        static::assertTrue(
+            $rule->match(new LineItemScope($lineItem, $context))->matches()
         );
     }
 
@@ -145,11 +187,15 @@ class LineItemTotalPriceRuleTest extends TestCase
     {
         $rule = new LineItemTotalPriceRule(200, Rule::OPERATOR_NEQ);
 
-        $calculatedLineItem = Generator::createCalculatedProduct('A', 100, 2);
+        $lineItem = (new LineItem('A', 'product'))
+            ->setPrice(
+                new Price(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection())
+            );
+
         $context = $this->createMock(CheckoutContext::class);
 
-        $this->assertFalse(
-            $rule->match(new LineItemScope($calculatedLineItem, $context))->matches()
+        static::assertFalse(
+            $rule->match(new LineItemScope($lineItem, $context))->matches()
         );
     }
 }

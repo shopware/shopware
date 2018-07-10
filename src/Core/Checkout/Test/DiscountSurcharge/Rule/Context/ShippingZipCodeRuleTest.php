@@ -25,7 +25,7 @@
 namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\Context;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\CheckoutContext;
@@ -40,17 +40,17 @@ class ShippingZipCodeRuleTest extends TestCase
         $rule = new ShippingZipCodeRule(['ABC123']);
         $address = $this->createAddress('ABC123');
 
-        $cart = $this->createMock(CalculatedCart::class);
+        $cart = $this->createMock(Cart::class);
 
         $context = $this->createMock(CheckoutContext::class);
 
         $location = ShippingLocation::createFromAddress($address);
 
-        $context->expects($this->any())
+        $context->expects(static::any())
             ->method('getShippingLocation')
-            ->will($this->returnValue($location));
+            ->will(static::returnValue($location));
 
-        $this->assertTrue(
+        static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
@@ -60,17 +60,17 @@ class ShippingZipCodeRuleTest extends TestCase
         $rule = new ShippingZipCodeRule(['ABC1', 'ABC2', 'ABC3']);
         $address = $this->createAddress('ABC2');
 
-        $cart = $this->createMock(CalculatedCart::class);
+        $cart = $this->createMock(Cart::class);
 
         $context = $this->createMock(CheckoutContext::class);
 
         $location = ShippingLocation::createFromAddress($address);
 
-        $context->expects($this->any())
+        $context->expects(static::any())
             ->method('getShippingLocation')
-            ->will($this->returnValue($location));
+            ->will(static::returnValue($location));
 
-        $this->assertTrue(
+        static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
@@ -80,17 +80,17 @@ class ShippingZipCodeRuleTest extends TestCase
         $rule = new ShippingZipCodeRule(['ABC1', 'ABC2', 'ABC3']);
         $address = $this->createAddress('ABC4');
 
-        $cart = $this->createMock(CalculatedCart::class);
+        $cart = $this->createMock(Cart::class);
 
         $context = $this->createMock(CheckoutContext::class);
 
         $location = ShippingLocation::createFromAddress($address);
 
-        $context->expects($this->any())
+        $context->expects(static::any())
             ->method('getShippingLocation')
-            ->will($this->returnValue($location));
+            ->will(static::returnValue($location));
 
-        $this->assertFalse(
+        static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
@@ -99,17 +99,17 @@ class ShippingZipCodeRuleTest extends TestCase
     {
         $rule = new ShippingZipCodeRule(['ABC1', 'ABC2', 'ABC3']);
 
-        $cart = $this->createMock(CalculatedCart::class);
+        $cart = $this->createMock(Cart::class);
 
         $context = $this->createMock(CheckoutContext::class);
 
         $location = ShippingLocation::createFromCountry(new CountryStruct());
 
-        $context->expects($this->any())
+        $context->expects(static::any())
             ->method('getShippingLocation')
-            ->will($this->returnValue($location));
+            ->will(static::returnValue($location));
 
-        $this->assertFalse(
+        static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }

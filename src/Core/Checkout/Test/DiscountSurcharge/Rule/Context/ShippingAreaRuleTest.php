@@ -25,7 +25,7 @@
 namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\Context;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\CheckoutContext;
@@ -48,21 +48,21 @@ class ShippingAreaRuleTest extends TestCase
     {
         $rule = new ShippingAreaRule($ruleData, ShippingAreaRule::OPERATOR_EQ);
 
-        $cart = $this->createMock(CalculatedCart::class);
+        $cart = $this->createMock(Cart::class);
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $context->expects($this->any())
+        $context->expects(static::any())
             ->method('getShippingLocation')
             ->will(
-                $this->returnValue(
+                static::returnValue(
                     ShippingLocation::createFromCountry(
                         $this->createCountryWithArea($currentArea)
                     )
                 )
             );
 
-        $this->assertTrue(
+        static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
@@ -87,21 +87,21 @@ class ShippingAreaRuleTest extends TestCase
     {
         $rule = new ShippingAreaRule($ruleData, ShippingAreaRule::OPERATOR_NEQ);
 
-        $cart = $this->createMock(CalculatedCart::class);
+            $cart = $this->createMock(Cart::class);
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $context->expects($this->any())
+        $context->expects(static::any())
             ->method('getShippingLocation')
             ->will(
-                $this->returnValue(
+                static::returnValue(
                     ShippingLocation::createFromCountry(
                         $this->createCountryWithArea($currentArea)
                     )
                 )
             );
 
-        $this->assertTrue(
+        static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
@@ -125,7 +125,7 @@ class ShippingAreaRuleTest extends TestCase
     {
         $rule = new ShippingAreaRule(['SWAG-AREA-ID-1'], $operator);
 
-        $cart = $this->createMock(CalculatedCart::class);
+        $cart = $this->createMock(Cart::class);
 
         $context = $this->createMock(CheckoutContext::class);
 

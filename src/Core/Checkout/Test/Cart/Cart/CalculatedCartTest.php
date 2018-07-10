@@ -25,126 +25,62 @@
 namespace Shopware\Core\Checkout\Test\Cart\Cart;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Core\Checkout\Cart\Cart\Cart;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
-use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
-use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItem;
-use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemCollection;
-use Shopware\Core\Checkout\Cart\LineItem\GoodsInterface;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
-use Shopware\Core\Checkout\Cart\LineItem\LineItemInterface;
-use Shopware\Core\Checkout\Cart\LineItem\NestedInterface;
-use Shopware\Core\Checkout\Cart\Price\Struct\Price;
-use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
-use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\Test\Cart\Common\TestLineItem;
-use Shopware\Core\Framework\Rule\Rule;
 
 class CalculatedCartTest extends TestCase
 {
     public function testEmptyCartHasNoGoods(): void
     {
-        $cart = new CalculatedCart(
-            new Cart('test', 'test', new LineItemCollection(), new ErrorCollection()),
-            new CalculatedLineItemCollection(),
-            new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS),
-            new DeliveryCollection()
-        );
-
-        static::assertCount(0, $cart->getCalculatedLineItems()->filterGoods());
+        $cart = new Cart('test', 'test');
+        static::assertCount(0, $cart->getLineItems()->filterGoods());
     }
 
     public function testCartWithLineItemsHasGoods(): void
     {
-        $cart = new CalculatedCart(
-            new Cart('test', 'test', new LineItemCollection(), new ErrorCollection()),
-            new CalculatedLineItemCollection([
-                new ConfiguredGoods('A', new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()), 1, 'A', 'Label'),
-                new TestLineItem('B'),
-            ]),
-            new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS),
-            new DeliveryCollection()
+        $cart = new Cart('test', 'test');
+        $cart->add(
+            (new LineItem('A', 'test'))
+                ->setGood(true)
+        );
+        $cart->add(
+            (new LineItem('A', 'test'))
+                ->setGood(false)
         );
 
-        static::assertCount(1, $cart->getCalculatedLineItems()->filterGoods());
+        static::assertCount(1, $cart->getLineItems()->filterGoods());
     }
 
     public function testCartHasNoGoodsIfNoLineItemDefinedAsGoods(): void
     {
-        $cart = new CalculatedCart(
-            new Cart('test', 'test', new LineItemCollection(), new ErrorCollection()),
-            new CalculatedLineItemCollection([
-                new TestLineItem('A'),
-                new TestLineItem('B'),
-            ]),
-            new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS),
-            new DeliveryCollection()
-        );
+        $cart = new Cart('test', 'test');
 
-        static::assertCount(0, $cart->getCalculatedLineItems()->filterGoods());
+        $cart->add((new LineItem('A', 'test'))->setGood(false));
+        $cart->add((new LineItem('B', 'test'))->setGood(false));
+
+        static::assertCount(0, $cart->getLineItems()->filterGoods());
     }
 
     public function testCartWithNestedLineItemHasChildren(): void
     {
-        $price = new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection());
+        $cart = new Cart('test', 'test');
 
-        $lineItem = new NestedLineItem('X', $price, 1, 'nested',
-            new CalculatedLineItemCollection([
-                new TestLineItem('B'),
-                new TestLineItem('C'),
-            ]),
-            'test'
+        $cart->add(
+            (new LineItem('nested', 'nested'))
+                ->setChildren(
+                    new LineItemCollection([
+                        (new LineItem('A', 'test'))->setGood(true),
+                        (new LineItem('B', 'test'))->setGood(true)
+                    ])
+                )
         );
 
-        $cart = new CalculatedCart(
-            new Cart('test', 'test', new LineItemCollection(), new ErrorCollection()),
-            new CalculatedLineItemCollection([
-                new TestLineItem('A'),
-                $lineItem,
-            ]),
-            new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS),
-            new DeliveryCollection()
+        $cart->add(
+            (new LineItem('flat', 'flat'))->setGood(true)
         );
 
-        $this->assertCount(4, $cart->getCalculatedLineItems()->getFlatElements());
-        $this->assertCount(2, $cart->getCalculatedLineItems());
+        static::assertCount(4, $cart->getLineItems()->getFlat());
+        static::assertCount(2, $cart->getLineItems());
     }
-}
-
-class NestedLineItem extends CalculatedLineItem implements NestedInterface
-{
-    /**
-     * @var CalculatedLineItemCollection
-     */
-    private $children;
-
-    public function __construct(
-        string $identifier,
-        Price $price,
-        int $quantity,
-        string $type,
-        CalculatedLineItemCollection $children,
-        string $label,
-        ?LineItemInterface $lineItem = null,
-        ?Rule $rule = null
-    ) {
-        parent::__construct($identifier, $price, $quantity, $type, $label, $lineItem, $rule);
-        $this->children = $children;
-    }
-
-    public function considerChildrenPrices(): bool
-    {
-        return false;
-    }
-
-    public function getChildren(): CalculatedLineItemCollection
-    {
-        return $this->children;
-    }
-}
-
-class ConfiguredGoods extends CalculatedLineItem implements GoodsInterface
-{
 }

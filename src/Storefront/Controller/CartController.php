@@ -73,7 +73,7 @@ class CartController extends StorefrontController
         if ($request->isXmlHttpRequest() && $this->acceptsHTML($request)) {
             return $this->renderStorefront(
                 '@Storefront/frontend/checkout/ajax_cart.html.twig',
-                ['cart' => $this->cartService->getCalculatedCart($context)]
+                ['cart' => $this->cartService->getCart($context)]
             );
         }
 
@@ -124,7 +124,7 @@ class CartController extends StorefrontController
         if ($request->isXmlHttpRequest() && $this->acceptsHTML($request)) {
             return $this->renderStorefront(
                 '@Storefront/frontend/checkout/ajax_cart.html.twig',
-                ['cart' => $this->cartService->getCalculatedCart($context)]
+                ['cart' => $this->cartService->getCart($context)]
             );
         }
 
@@ -168,7 +168,7 @@ class CartController extends StorefrontController
      */
     public function getCartAmount(Request $request, CheckoutContext $context): Response
     {
-        $calculatedCart = $this->cartService->getCalculatedCart($context);
+        $calculatedCart = $this->cartService->getCart($context);
 
         $amount = $this->renderStorefront(
             '@Storefront/frontend/checkout/ajax_amount.html.twig',
@@ -189,7 +189,7 @@ class CartController extends StorefrontController
      */
     public function getCart(Request $request, CheckoutContext $context): Response
     {
-        $calculatedCart = $this->cartService->getCalculatedCart($context);
+        $calculatedCart = $this->cartService->getCart($context);
 
         return $this->renderStorefront(
             '@Storefront/frontend/checkout/ajax_cart.html.twig',

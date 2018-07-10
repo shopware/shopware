@@ -20,12 +20,12 @@ interface CollectorInterface
     /**
      * Triggers after all collectors::prepare functions called
      *
-     * @param StructCollection $definitions
+     * @param StructCollection $discountDefinitions
      * @param StructCollection $data
      * @param Cart             $cart
      * @param CheckoutContext  $context
      */
-    public function collect(StructCollection $definitions, StructCollection $data, Cart $cart, CheckoutContext $context): void;
+    public function collect(StructCollection $discountDefinitions, StructCollection $data, Cart $cart, CheckoutContext $context): void;
 
     /**
      * Triggers after all collectors::collect functions called.

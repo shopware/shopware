@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Cart\Delivery\Struct;
 
-use Shopware\Core\Checkout\Cart\LineItem\DeliverableLineItemInterface;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Framework\Struct\Collection;
 
@@ -83,14 +83,14 @@ class DeliveryCollection extends Collection
     }
 
     /**
-     * @param DeliverableLineItemInterface $item
+     * @param LineItem $item
      *
      * @return bool
      */
-    public function contains(DeliverableLineItemInterface $item): bool
+    public function contains(LineItem $item): bool
     {
         foreach ($this->elements as $delivery) {
-            if ($delivery->getPositions()->has($item->getIdentifier())) {
+            if ($delivery->getPositions()->has($item->getKey())) {
                 return true;
             }
         }

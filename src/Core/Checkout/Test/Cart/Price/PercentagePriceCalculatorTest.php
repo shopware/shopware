@@ -32,7 +32,6 @@ use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\PriceRounding;
 use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
-use Shopware\Core\Checkout\Cart\Price\Struct\DerivedPrice;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleCalculator;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
@@ -49,15 +48,12 @@ class PercentagePriceCalculatorTest extends TestCase
     /**
      * @dataProvider calculatePercentagePriceOfGrossPricesProvider
      *
-     * @param float                     $percentage
-     * @param DerivedPrice    $expected
+     * @param float $percentage
+     * @param Price $expected
      * @param PriceCollection $prices
      */
-    public function testCalculatePercentagePriceOfGrossPrices(
-        $percentage,
-        DerivedPrice $expected,
-        PriceCollection $prices
-    ): void {
+    public function testCalculatePercentagePriceOfGrossPrices($percentage, Price $expected, PriceCollection $prices): void
+    {
         $rounding = new PriceRounding(2);
 
         $taxCalculator = new TaxCalculator(
@@ -105,7 +101,7 @@ class PercentagePriceCalculatorTest extends TestCase
                 //10% discount
                 -10,
                 //expected calculated "discount" price
-                new DerivedPrice(
+                new Price(
                     -6.0,
                     -6.0,
                     new CalculatedTaxCollection([
@@ -116,10 +112,9 @@ class PercentagePriceCalculatorTest extends TestCase
                         new PercentageTaxRule(19, 50),
                         new PercentageTaxRule(7, 50),
                     ]),
-                    1,
-                    $prices
+                    1
                 ),
-                $prices,
+                $prices
             ],
         ];
     }

@@ -59,7 +59,7 @@ class GoodsPriceRule extends Rule
                 ['Invalid Match Context. CartRuleScope expected']
             );
         }
-        $goods = $scope->getCalculatedCart()->getCalculatedLineItems()->filterGoods();
+        $goods = $scope->getCart()->getCalculatedLineItems()->filterGoods();
         $goodsAmount = $goods->getPrices()->sum()->getTotalPrice();
 
         switch ($this->operator) {

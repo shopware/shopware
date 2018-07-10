@@ -30,15 +30,22 @@ use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Content\Media\MediaStruct;
+use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 
 class LineItem extends Struct
 {
+    public const GOODS_PRIORITY = 100;
+
+    public const VOUCHER_PRIORITY = 50;
+
+    public const DISCOUNT_PRIORITY = 25;
+
     /**
      * @var string
      */
-    protected $identifier;
+    protected $key;
 
     /**
      * @var string|null
@@ -78,7 +85,7 @@ class LineItem extends Struct
     /**
      * @var int
      */
-    protected $priority = 0;
+    protected $priority = self::GOODS_PRIORITY;
 
     /**
      * @var string|null
@@ -100,9 +107,14 @@ class LineItem extends Struct
      */
     protected $children;
 
-    public function __construct(string $identifier, string $type, int $quantity = 1)
+    /**
+     * @var Rule|null
+     */
+    protected $requirement;
+
+    public function __construct(string $key, string $type, int $quantity = 1, int $priority = self::GOODS_PRIORITY)
     {
-        $this->identifier = $identifier;
+        $this->key = $key;
         $this->quantity = $quantity;
         $this->type = $type;
     }
@@ -110,7 +122,7 @@ class LineItem extends Struct
     public static function createFrom(Struct $object)
     {
         /** @var LineItem $object */
-        $self = new static($object->identifier, $object->type, $object->quantity);
+        $self = new static($object->key, $object->type, $object->quantity, $object->priority);
 
         foreach ($object as $propety => $value) {
             $self->$propety = $value;
@@ -119,14 +131,15 @@ class LineItem extends Struct
         return $self;
     }
 
-    public function getIdentifier(): string
+    public function getKey(): string
     {
-        return $this->identifier;
+        return $this->key;
     }
 
-    public function setIdentifier(string $identifier): void
+    public function setKey(string $key): self
     {
-        $this->identifier = $identifier;
+        $this->key = $key;
+        return $this;
     }
 
     public function getLabel(): ?string
@@ -134,9 +147,10 @@ class LineItem extends Struct
         return $this->label;
     }
 
-    public function setLabel(?string $label): void
+    public function setLabel(?string $label): self
     {
         $this->label = $label;
+        return $this;
     }
 
     public function getQuantity(): int
@@ -147,12 +161,14 @@ class LineItem extends Struct
     /**
      * @throws InvalidQuantityException
      */
-    public function setQuantity(int $quantity): void
+    public function setQuantity(int $quantity): self
     {
         if ($quantity < 1) {
             throw new InvalidQuantityException((string) $quantity);
         }
         $this->quantity = $quantity;
+
+        return $this;
     }
 
     public function getType(): string
@@ -160,9 +176,10 @@ class LineItem extends Struct
         return $this->type;
     }
 
-    public function setType(string $type): void
+    public function setType(string $type): self
     {
         $this->type = $type;
+        return $this;
     }
 
     public function getPayload(): array
@@ -170,9 +187,10 @@ class LineItem extends Struct
         return $this->payload;
     }
 
-    public function setPayload(array $payload): void
+    public function setPayload(array $payload): self
     {
         $this->payload = $payload;
+        return $this;
     }
 
     public function getPriceDefinition(): ?PriceDefinition
@@ -180,9 +198,10 @@ class LineItem extends Struct
         return $this->priceDefinition;
     }
 
-    public function setPriceDefinition(?PriceDefinition $priceDefinition): void
+    public function setPriceDefinition(?PriceDefinition $priceDefinition): self
     {
         $this->priceDefinition = $priceDefinition;
+        return $this;
     }
 
     public function getPrice(): ?Price
@@ -190,9 +209,10 @@ class LineItem extends Struct
         return $this->price;
     }
 
-    public function setPrice(?Price $price): void
+    public function setPrice(?Price $price): self
     {
         $this->price = $price;
+        return $this;
     }
 
     public function isGood(): bool
@@ -200,9 +220,10 @@ class LineItem extends Struct
         return $this->good;
     }
 
-    public function setGood(bool $good): void
+    public function setGood(bool $good): self
     {
         $this->good = $good;
+        return $this;
     }
 
     public function getPriority(): int
@@ -210,9 +231,10 @@ class LineItem extends Struct
         return $this->priority;
     }
 
-    public function setPriority(int $priority): void
+    public function setPriority(int $priority): self
     {
         $this->priority = $priority;
+        return $this;
     }
 
     public function getDescription(): ?string
@@ -220,9 +242,10 @@ class LineItem extends Struct
         return $this->description;
     }
 
-    public function setDescription(?string $description): void
+    public function setDescription(?string $description): self
     {
         $this->description = $description;
+        return $this;
     }
 
     public function getCover(): ?MediaStruct
@@ -230,9 +253,10 @@ class LineItem extends Struct
         return $this->cover;
     }
 
-    public function setCover(?MediaStruct $cover): void
+    public function setCover(?MediaStruct $cover): self
     {
         $this->cover = $cover;
+        return $this;
     }
 
     public function getDeliveryInformation(): ?DeliveryInformation
@@ -240,9 +264,10 @@ class LineItem extends Struct
         return $this->deliveryInformation;
     }
 
-    public function setDeliveryInformation(?DeliveryInformation $deliveryInformation): void
+    public function setDeliveryInformation(?DeliveryInformation $deliveryInformation): self
     {
         $this->deliveryInformation = $deliveryInformation;
+        return $this;
     }
 
     public function getChildren(): ?LineItemCollection
@@ -250,8 +275,21 @@ class LineItem extends Struct
         return $this->children;
     }
 
-    public function setChildren(?LineItemCollection $children): void
+    public function setChildren(?LineItemCollection $children): self
     {
         $this->children = $children;
+        return $this;
+    }
+
+    public function setRequirement(?Rule $requirement): LineItem
+    {
+        $this->requirement = $requirement;
+
+        return $this;
+    }
+
+    public function getRequirement(): ?Rule
+    {
+        return $this->requirement;
     }
 }

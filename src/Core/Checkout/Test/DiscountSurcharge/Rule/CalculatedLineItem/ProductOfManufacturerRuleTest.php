@@ -25,7 +25,7 @@
 namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\CalculatedLineItem;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Rule\CalculatedLineItemScope;
+use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Cart\Rule\ProductOfManufacturerRule;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
@@ -44,7 +44,7 @@ class ProductOfManufacturerRuleTest extends TestCase
         $context = $this->createMock(CheckoutContext::class);
 
         $this->assertTrue(
-            $rule->match(new CalculatedLineItemScope($calculatedLineItem, $context))->matches()
+            $rule->match(new LineItemScope($calculatedLineItem, $context))->matches()
         );
     }
 
@@ -57,7 +57,7 @@ class ProductOfManufacturerRuleTest extends TestCase
         $context = $this->createMock(CheckoutContext::class);
 
         $this->assertFalse(
-            $rule->match(new CalculatedLineItemScope($calculatedLineItem, $context))->matches()
+            $rule->match(new LineItemScope($calculatedLineItem, $context))->matches()
         );
     }
 

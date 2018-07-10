@@ -26,8 +26,10 @@ declare(strict_types=1);
 namespace Shopware\Core\Checkout\Cart\Delivery;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
-use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemCollection;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
@@ -72,7 +74,14 @@ class DeliveryCalculator
         $this->percentageTaxRuleBuilder = $percentageTaxRuleBuilder;
     }
 
-    public function calculate(Delivery $delivery, CheckoutContext $context): void
+    public function calculate(DeliveryCollection $deliveries, Cart $cart, CheckoutContext $context): void
+    {
+        foreach ($deliveries as $delivery) {
+            $this->calculateDelivery($delivery, $context);
+        }
+    }
+
+    private function calculateDelivery(Delivery $delivery, CheckoutContext $context): void
     {
         switch ($delivery->getShippingMethod()->getCalculation()) {
             case self::CALCULATION_BY_WEIGHT:
@@ -126,7 +135,7 @@ class DeliveryCalculator
         $delivery->setShippingCosts($costs);
     }
 
-    private function calculateShippingCosts(float $price, CalculatedLineItemCollection $calculatedLineItems, CheckoutContext $context): Price
+    private function calculateShippingCosts(float $price, LineItemCollection $calculatedLineItems, CheckoutContext $context): Price
     {
         $rules = $this->percentageTaxRuleBuilder->buildRules(
             $calculatedLineItems->getPrices()->sum()

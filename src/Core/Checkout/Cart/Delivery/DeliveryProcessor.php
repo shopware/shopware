@@ -9,8 +9,30 @@ use Shopware\Core\Checkout\CheckoutContext;
 
 class DeliveryProcessor
 {
+    /**
+     * @var DeliveryBuilder
+     */
+    private $builder;
+
+    /**
+     * @var DeliveryCalculator
+     */
+    private $calculator;
+
+    public function __construct(DeliveryBuilder $builder, DeliveryCalculator $calculator)
+    {
+        $this->builder = $builder;
+        $this->calculator = $calculator;
+    }
+
     public function process(Cart $cart, CheckoutContext $context): DeliveryCollection
     {
-        return new DeliveryCollection();
+        $deliveries = $cart->getDeliveries();
+
+        $deliveries = $this->builder->build($deliveries, $cart->getLineItems(), $context);
+        
+        $this->calculator->calculate($cart->getDeliveries(), $cart, $context);
+
+        return $deliveries;
     }
 }

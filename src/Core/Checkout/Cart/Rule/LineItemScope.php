@@ -6,17 +6,17 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 
-class CalculatedLineItemScope extends CheckoutRuleScope
+class LineItemScope extends CheckoutRuleScope
 {
     /**
      * @var LineItem
      */
     protected $lineItem;
 
-    public function __construct(LineItem $calculatedLineItem, CheckoutContext $context)
+    public function __construct(LineItem $lineItem, CheckoutContext $context)
     {
         parent::__construct($context);
-        $this->lineItem = $calculatedLineItem;
+        $this->lineItem = $lineItem;
     }
 
     public function getLineItem(): LineItem

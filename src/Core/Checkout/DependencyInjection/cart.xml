@@ -85,7 +85,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\TaxDetector"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Cart\Delivery\StockDeliverySeparator" id="Shopware\Core\Checkout\Cart\Delivery\StockDeliverySeparator">
+        <service class="Shopware\Core\Checkout\Cart\Delivery\DeliveryBuilder" id="Shopware\Core\Checkout\Cart\Delivery\DeliveryBuilder">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
         </service>
 
@@ -125,9 +125,23 @@
             <argument type="tagged" tag="Shopware\Core\Checkout\Cart\Cart\CollectorInterface"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Cart\Cart\ProductCollector" id="Shopware\Core\Checkout\Cart\Cart\ProductCollector">
+        <service class="Shopware\Core\Content\Product\Cart\ProductCollector" id="Shopware\Core\Content\Product\Cart\ProductCollector">
             <argument id="Shopware\Core\Content\Product\Cart\ProductGateway" type="service"/>
             <tag name="Shopware\Core\Checkout\Cart\Cart\CollectorInterface"/>
+        </service>
+
+        <service class="Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor" id="Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor">
+            <argument id="Shopware\Core\Checkout\Cart\Delivery\DeliveryBuilder" type="service"/>
+            <argument id="Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator" type="service"/>
+        </service>
+
+        <service class="Shopware\Core\Checkout\Cart\Validator" id="Shopware\Core\Checkout\Cart\Validator"/>
+
+        <service class="Shopware\Core\Checkout\Cart\Processor" id="Shopware\Core\Checkout\Cart\Processor" public="true">
+            <argument id="Shopware\Core\Checkout\Cart\Calculator" type="service"/>
+            <argument id="Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor" type="service"/>
+            <argument id="Shopware\Core\Checkout\Cart\Validator" type="service"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\AmountCalculator"/>
         </service>
 
     </services>

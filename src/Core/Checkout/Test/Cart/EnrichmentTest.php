@@ -94,7 +94,8 @@ class EnrichmentTest extends KernelTestCase
 
         $cart = new Cart('test', 'test');
         $cart->add(
-            (new LineItem('A', 'product'))->assign(['payload' => ['id' => $id]])
+            (new LineItem('A', 'product'))
+                ->setPayload(['id' => $id])
         );
 
         $enriched = $this->enrichment->enrich($cart, $this->context);
@@ -149,18 +150,18 @@ class EnrichmentTest extends KernelTestCase
 
         $cart = new Cart('test', 'test');
         $cart->add(
-            (new LineItem('A', 'product'))->assign([
-                'payload' => ['id' => $id],
-                'priceDefinition' => new QuantityPriceDefinition(1, new TaxRuleCollection()),
-                'label' => 'Do not override',
-                'description' => 'Do not override',
-                'cover' => (new MediaStruct())->assign([
-                    'name' => 'Do not override',
-                    'fileName' => 'Do not override',
-                    'fileSize' => 10,
-                    'mimeType' => 'B',
-                ]),
-            ])
+            (new LineItem('A', 'product'))
+                ->setPayload(['id' => $id])
+                ->setPriceDefinition(new QuantityPriceDefinition(1, new TaxRuleCollection()))
+                ->setDescription('Do not override')
+                ->setCover(
+                    (new MediaStruct())->assign([
+                        'name' => 'Do not override',
+                        'fileName' => 'Do not override',
+                        'fileSize' => 10,
+                        'mimeType' => 'B'
+                    ])
+                )
         );
 
         $enriched = $this->enrichment->enrich($cart, $this->context);
@@ -169,7 +170,7 @@ class EnrichmentTest extends KernelTestCase
         self::assertTrue($enriched->getLineItems()->has('A'));
 
         $product = $enriched->getLineItems()->get('A');
-        self::assertSame('Do not override', $product->getLabel());
+        self::assertSame('Missing label', $product->getLabel());
         self::assertSame('Do not override', $product->getDescription());
 
         /** @var QuantityPriceDefinition $price */

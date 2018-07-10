@@ -37,7 +37,7 @@ class LineItemCollection extends Collection
 
     public function add(LineItem $lineItem): void
     {
-        $exists = $this->get($lineItem->getIdentifier());
+        $exists = $this->get($lineItem->getKey());
 
         if ($exists) {
             $exists->setQuantity($lineItem->getQuantity() + $exists->getQuantity());
@@ -88,11 +88,6 @@ class LineItemCollection extends Collection
         });
     }
 
-    public function getIdentifiers(): array
-    {
-        return $this->getKeys();
-    }
-
     public function getPrices(): PriceCollection
     {
         return new PriceCollection(
@@ -102,14 +97,14 @@ class LineItemCollection extends Collection
         );
     }
 
-    public function getFlat(): self
+    public function getFlat(): array
     {
-        return new static($this->flatter($this->getElements()));
+        return $this->flatter($this->getElements());
     }
 
     protected function getKey(LineItem $element): string
     {
-        return $element->getIdentifier();
+        return $element->getKey();
     }
 
     private function flatter(array $lineItems): array
@@ -129,5 +124,10 @@ class LineItemCollection extends Collection
         }
 
         return $flat;
+    }
+
+    public function current(): LineItem
+    {
+        return parent::current();
     }
 }

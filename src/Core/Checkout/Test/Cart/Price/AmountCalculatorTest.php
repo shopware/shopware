@@ -81,7 +81,7 @@ class AmountCalculatorTest extends TestCase
             )
         );
 
-        $cartPrice = $calculator->calculateAmount($prices, new PriceCollection(), $context);
+        $cartPrice = $calculator->calculate($prices, new PriceCollection(), $context);
         static::assertEquals($expected, $cartPrice);
     }
 
@@ -119,7 +119,7 @@ class AmountCalculatorTest extends TestCase
             )
         );
 
-        $cartPrice = $calculator->calculateAmount($prices, new PriceCollection(), $context);
+        $cartPrice = $calculator->calculate($prices, new PriceCollection(), $context);
         static::assertEquals($expected, $cartPrice);
     }
 
@@ -157,7 +157,7 @@ class AmountCalculatorTest extends TestCase
             )
         );
 
-        $cartPrice = $calculator->calculateAmount($prices, new PriceCollection(), $context);
+        $cartPrice = $calculator->calculate($prices, new PriceCollection(), $context);
         static::assertEquals($expected, $cartPrice);
         static::assertSame($expected->getTotalPrice(), $cartPrice->getTotalPrice());
         static::assertEquals($expected->getTaxRules(), $cartPrice->getTaxRules());

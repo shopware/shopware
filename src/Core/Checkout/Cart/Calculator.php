@@ -13,7 +13,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
-use Shopware\Core\Checkout\Cart\Rule\CalculatedLineItemScope;
+use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Rule\Rule;
 
@@ -46,10 +46,10 @@ class Calculator
 
     public function calculate(Cart $cart, CheckoutContext $context): LineItemCollection
     {
-        return $this->calculateLineItems($cart->getLineItems(), $context);
+        return $this->calculateLineItems($cart, $cart->getLineItems(), $context);
     }
 
-    private function calculateLineItems(LineItemCollection $lineItems, CheckoutContext $context): LineItemCollection
+    private function calculateLineItems(Cart $cart, LineItemCollection $lineItems, CheckoutContext $context): LineItemCollection
     {
         $lineItems->sort(
             function(LineItem $a, LineItem $b) {
@@ -64,7 +64,13 @@ class Calculator
         foreach ($lineItems as $original) {
             $lineItem = LineItem::createFrom($original);
 
-            $price = $this->calculatePrice($lineItem, $context, $calculated);
+            try {
+                $price = $this->calculatePrice($cart, $lineItem, $context, $calculated);
+            } catch (\Exception $e) {
+                $cart->getLineItems()->remove($lineItem->getKey());
+                continue;
+            }
+
             $lineItem->setPrice($price);
 
             $calculated->add($lineItem);
@@ -82,7 +88,7 @@ class Calculator
         return $calculated->filter(
             function(LineItem $lineItem) use ($filter, $context) {
                 $match = $filter->match(
-                    new CalculatedLineItemScope($lineItem, $context)
+                    new LineItemScope($lineItem, $context)
                 );
 
                 return $match->matches();
@@ -90,14 +96,14 @@ class Calculator
         );
     }
 
-    private function calculatePrice(LineItem $lineItem, CheckoutContext $context, LineItemCollection $calculated): Price
+    private function calculatePrice(Cart $cart, LineItem $lineItem, CheckoutContext $context, LineItemCollection $calculated): Price
     {
         if ($lineItem->getPrice()) {
             return $lineItem->getPrice();
         }
 
         if ($lineItem->getChildren()) {
-            $children = $this->calculateLineItems($lineItem->getChildren(), $context);
+            $children = $this->calculateLineItems($cart, $lineItem->getChildren(), $context);
 
             $lineItem->setChildren($children);
 
@@ -127,6 +133,6 @@ class Calculator
             return $this->priceCalculator->calculate($definition, $context);
         }
 
-        throw new \RuntimeException(sprintf('No price definition and no price given for elements %s', $lineItem->getIdentifier()));
+        throw new \RuntimeException(sprintf('No price definition and no price given for elements %s', $lineItem->getKey()));
     }
 }

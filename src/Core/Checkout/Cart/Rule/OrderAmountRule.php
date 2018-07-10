@@ -59,7 +59,7 @@ class OrderAmountRule extends Rule
                 ['Invalid Match Context. CartRuleScope expected']
             );
         }
-        $cartAmount = $scope->getCalculatedCart()->getPrice()->getTotalPrice();
+        $cartAmount = $scope->getCart()->getPrice()->getTotalPrice();
 
         switch ($this->operator) {
             case self::OPERATOR_GTE:

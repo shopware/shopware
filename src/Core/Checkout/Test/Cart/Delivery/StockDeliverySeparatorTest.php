@@ -25,7 +25,7 @@
 namespace Shopware\Core\Checkout\Test\Cart\Delivery;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Delivery\StockDeliverySeparator;
+use Shopware\Core\Checkout\Cart\Delivery\DeliveryBuilder;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
@@ -58,7 +58,7 @@ use Shopware\Core\System\Country\CountryStruct;
 class StockDeliverySeparatorTest extends TestCase
 {
     /**
-     * @var StockDeliverySeparator
+     * @var DeliveryBuilder
      */
     private $separator;
 
@@ -71,7 +71,7 @@ class StockDeliverySeparatorTest extends TestCase
             [new TaxRuleCalculator(new PriceRounding(2))]
         );
 
-        $this->separator = new StockDeliverySeparator(
+        $this->separator = new DeliveryBuilder(
             new QuantityPriceCalculator(
                 new GrossPriceCalculator($taxCalculator, new PriceRounding(2)),
                 new NetPriceCalculator($taxCalculator, new PriceRounding(2)),
@@ -83,7 +83,7 @@ class StockDeliverySeparatorTest extends TestCase
     public function testAnEmptyCartHasNoDeliveries(): void
     {
         $deliveries = new DeliveryCollection();
-        $this->separator->addItemsToDeliveries(
+        $this->separator->build(
             $deliveries,
             new CalculatedLineItemCollection(),
             Generator::createContext()
@@ -118,7 +118,7 @@ class StockDeliverySeparatorTest extends TestCase
 
         $deliveries = new DeliveryCollection();
 
-        $this->separator->addItemsToDeliveries(
+        $this->separator->build(
             $deliveries,
             new CalculatedLineItemCollection([$item]),
             $context
@@ -170,7 +170,7 @@ class StockDeliverySeparatorTest extends TestCase
 
         $deliveries = new DeliveryCollection();
 
-        $this->separator->addItemsToDeliveries(
+        $this->separator->build(
             $deliveries,
             new CalculatedLineItemCollection([$itemA, $itemB]),
             Generator::createContext(null, null, null, null, null, null, $location->getAreaId(), $location->getCountry(), $location->getState())
@@ -212,7 +212,7 @@ class StockDeliverySeparatorTest extends TestCase
         );
 
         $deliveries = new DeliveryCollection();
-        $this->separator->addItemsToDeliveries(
+        $this->separator->build(
             $deliveries,
             new CalculatedLineItemCollection([$itemA, $itemB]),
             $context
@@ -260,7 +260,7 @@ class StockDeliverySeparatorTest extends TestCase
         );
 
         $deliveries = new DeliveryCollection();
-        $this->separator->addItemsToDeliveries(
+        $this->separator->build(
             $deliveries,
             new CalculatedLineItemCollection([$product, $calculatedLineItem]),
             $context
@@ -299,7 +299,7 @@ class StockDeliverySeparatorTest extends TestCase
         );
 
         $deliveries = new DeliveryCollection();
-        $this->separator->addItemsToDeliveries(
+        $this->separator->build(
             $deliveries,
             new CalculatedLineItemCollection([$product]),
             $context

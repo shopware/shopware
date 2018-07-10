@@ -49,10 +49,8 @@ class CalculatorTest extends KernelTestCase
     {
         $cart = new Cart('test', 'test');
 
-        $lineItem = new LineItem('A', 'test', 1);
-        $lineItem->setPriceDefinition(
-            new QuantityPriceDefinition(100, new TaxRuleCollection([]))
-        );
+        $lineItem = (new LineItem('A', 'test', 1))
+            ->setPriceDefinition(new QuantityPriceDefinition(100, new TaxRuleCollection([])));
 
         $cart->add($lineItem);
 
@@ -66,10 +64,8 @@ class CalculatorTest extends KernelTestCase
     {
         $cart = new Cart('test', 'test');
 
-        $lineItem = new LineItem('A', 'test', 2);
-        $lineItem->setPriceDefinition(
-            new QuantityPriceDefinition(100, new TaxRuleCollection([]), 2)
-        );
+        $lineItem = (new LineItem('A', 'test', 2))
+            ->setPriceDefinition(new QuantityPriceDefinition(100, new TaxRuleCollection([]), 2));
 
         $cart->add($lineItem);
 
@@ -83,16 +79,14 @@ class CalculatorTest extends KernelTestCase
     {
         $cart = new Cart('test', 'test');
 
-        $lineItem = new LineItem('A', 'test', 2);
-        $lineItem->setPriceDefinition(
-            new QuantityPriceDefinition(100, new TaxRuleCollection([]), 2)
-        );
+        $lineItem = (new LineItem('A', 'test', 2))
+            ->setPriceDefinition(new QuantityPriceDefinition(100, new TaxRuleCollection([]), 2));
+
         $cart->add($lineItem);
 
-        $lineItem = new LineItem('B', 'test', 1);
-        $lineItem->setPriceDefinition(
-            new PercentagePriceDefinition(-10, null)
-        );
+        $lineItem = (new LineItem('B', 'test', 1))
+            ->setPriceDefinition(new PercentagePriceDefinition(-10, null));
+
         $cart->add($lineItem);
 
         $calculated = $this->calculator->calculate($cart, $this->context);
@@ -106,18 +100,16 @@ class CalculatorTest extends KernelTestCase
     {
         $cart = new Cart('test', 'test');
 
-        $lineItem = new LineItem('A', 'test', 2);
-        $lineItem->setPriceDefinition(
-            new QuantityPriceDefinition(100, new TaxRuleCollection([]), 2)
-        );
+        $lineItem = (new LineItem('A', 'test', 2))
+            ->setPriority(LineItem::GOODS_PRIORITY)
+            ->setPriceDefinition(new QuantityPriceDefinition(100, new TaxRuleCollection([]), 2));
+
         $cart->add($lineItem);
 
-        $lineItem = new LineItem('B', 'test', 1);
-        $lineItem->setPriority(1);
+        $lineItem = (new LineItem('B', 'test', 1))
+            ->setPriority(LineItem::GOODS_PRIORITY + 1)
+            ->setPriceDefinition(new PercentagePriceDefinition(-10, null));
 
-        $lineItem->setPriceDefinition(
-            new PercentagePriceDefinition(-10, null)
-        );
         $cart->add($lineItem);
 
         $calculated = $this->calculator->calculate($cart, $this->context);
@@ -131,16 +123,14 @@ class CalculatorTest extends KernelTestCase
     {
         $cart = new Cart('test', 'test');
 
-        $lineItem = new LineItem('A', 'test', 2);
-        $lineItem->setPriceDefinition(
-            new QuantityPriceDefinition(100, new TaxRuleCollection([]), 2)
-        );
+        $lineItem = (new LineItem('A', 'test', 2))
+            ->setPriceDefinition(new QuantityPriceDefinition(100, new TaxRuleCollection([]), 2));
+
         $cart->add($lineItem);
 
-        $lineItem = new LineItem('B', 'test', 1);
-        $lineItem->setPriceDefinition(
-            new AbsolutePriceDefinition(-15, null)
-        );
+        $lineItem = (new LineItem('B', 'test', 1))
+            ->setPriceDefinition(new AbsolutePriceDefinition(-15, null));
+
         $cart->add($lineItem);
 
         $calculated = $this->calculator->calculate($cart, $this->context);
@@ -154,27 +144,26 @@ class CalculatorTest extends KernelTestCase
     {
         $cart = new Cart('test', 'test');
 
-        $lineItem = new LineItem('A', 'test', 1);
-        $lineItem->setPriceDefinition(
-            new QuantityPriceDefinition(100, new TaxRuleCollection([]), 1)
-        );
+        $lineItem = (new LineItem('A', 'test', 1))
+            ->setPriceDefinition(new QuantityPriceDefinition(100, new TaxRuleCollection([]), 1));
+
         $cart->add($lineItem);
 
-        $lineItem = new LineItem('B', 'product', 2);
-        $lineItem->setPriceDefinition(
-            new QuantityPriceDefinition(100, new TaxRuleCollection([]), 2)
-        );
+        $lineItem = (new LineItem('B', 'product', 2))
+            ->setPriceDefinition(new QuantityPriceDefinition(100, new TaxRuleCollection([]), 2));
+
         $cart->add($lineItem);
 
 
-        $lineItem = new LineItem('C', 'test', 1);
-        $lineItem->setPriceDefinition(
-            new PercentagePriceDefinition(
-                -10,
-                new AndRule([
-                new LineItemOfTypeRule('product')])
-            )
-        );
+        $lineItem = (new LineItem('C', 'test', 1))
+            ->setPriceDefinition(
+                new PercentagePriceDefinition(
+                    -10,
+                    new AndRule([
+                    new LineItemOfTypeRule('product')])
+                )
+            );
+
         $cart->add($lineItem);
 
         $calculated = $this->calculator->calculate($cart, $this->context);

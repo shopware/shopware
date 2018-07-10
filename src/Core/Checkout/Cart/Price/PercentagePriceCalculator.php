@@ -25,8 +25,8 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Cart\Price;
 
+use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
-use Shopware\Core\Checkout\Cart\Price\Struct\DerivedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Core\Checkout\CheckoutContext;
@@ -65,13 +65,10 @@ class PercentagePriceCalculator
      * @param PriceCollection $prices
      * @param CheckoutContext           $context
      *
-     * @return DerivedPrice
+     * @return Price
      */
-    public function calculate(
-        $percentage,
-        PriceCollection $prices,
-        CheckoutContext $context
-    ): DerivedPrice {
+    public function calculate($percentage, PriceCollection $prices, CheckoutContext $context): Price
+    {
         $price = $prices->sum();
 
         $discount = $this->rounding->round($price->getTotalPrice() / 100 * $percentage);
@@ -80,15 +77,6 @@ class PercentagePriceCalculator
 
         $definition = new QuantityPriceDefinition($discount, $rules, 1, true);
 
-        $calculatedPrice = $this->priceCalculator->calculate($definition, $context);
-
-        return new DerivedPrice(
-            $calculatedPrice->getUnitPrice(),
-            $calculatedPrice->getTotalPrice(),
-            $calculatedPrice->getCalculatedTaxes(),
-            $calculatedPrice->getTaxRules(),
-            $calculatedPrice->getQuantity(),
-            $prices
-        );
+        return $this->priceCalculator->calculate($definition, $context);
     }
 }

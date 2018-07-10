@@ -22,35 +22,45 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Core\Checkout\Cart\Order;
+namespace Shopware\Core\Checkout\Cart\Rule;
 
-use Shopware\Core\Checkout\Cart\Cart\Cart;
-use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Framework\Rule\Match;
+use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleScope;
 
-class OrderPersister implements OrderPersisterInterface
+class LineItemRule extends Rule
 {
     /**
-     * @var RepositoryInterface
+     * @var string[]
      */
-    private $repository;
+    protected $identifiers;
 
     /**
-     * @var OrderConverter
+     * @param string[] $identifiers
      */
-    private $converter;
-
-    public function __construct(RepositoryInterface $repository, OrderConverter $converter)
+    public function __construct(array $identifiers)
     {
-        $this->repository = $repository;
-        $this->converter = $converter;
+        $this->identifiers = $identifiers;
     }
 
-    public function persist(Cart $cart, CheckoutContext $context): EntityWrittenContainerEvent
+    public function match(RuleScope $scope): Match
     {
-        $order = $this->converter->convert($cart, $context);
+        if (!$scope instanceof LineItemScope) {
+            return new Match(
+                false,
+                ['Invalid Match Context. CartRuleScope expected']
+            );
+        }
 
-        return $this->repository->create([$order], $context->getContext());
+        return new Match(
+            \in_array($scope->getLineItem()->getKey(), $this->identifiers, true),
+            ['Line item not in cart']
+        );
+    }
+
+    public function getIdentifiers(): array
+    {
+        return $this->identifiers;
     }
 }

@@ -5,15 +5,9 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service class="Shopware\Core\Checkout\DiscountSurcharge\Cart\DiscountSurchargeProcessor" id="Shopware\Core\Checkout\DiscountSurcharge\Cart\DiscountSurchargeProcessor">
-            <argument id="Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator" type="service"/>
-            <argument id="Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator" type="service"/>
-            <tag name="cart.processor" priority="700"/>
-        </service>
-
         <service class="Shopware\Core\Checkout\DiscountSurcharge\Cart\DiscountSurchargeCollector" id="Shopware\Core\Checkout\DiscountSurcharge\Cart\DiscountSurchargeCollector">
             <argument id="discount_surcharge.repository" type="service"/>
-            <tag name="cart.collector"/>
+            <tag name="Shopware\Core\Checkout\Cart\Cart\CollectorInterface"/>
         </service>
 
         <service class="Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeDefinition" id="Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeDefinition">

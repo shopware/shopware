@@ -25,8 +25,8 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Cart\Delivery\Struct;
 
-use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemCollection;
-use Shopware\Core\Checkout\Cart\LineItem\DeliverableLineItemInterface;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Framework\Struct\Collection;
 
@@ -79,12 +79,12 @@ class DeliveryPositionCollection extends Collection
         );
     }
 
-    public function getLineItems(): CalculatedLineItemCollection
+    public function getLineItems(): LineItemCollection
     {
-        return new CalculatedLineItemCollection(
+        return new LineItemCollection(
             array_map(
                 function (DeliveryPosition $position) {
-                    return $position->getCalculatedLineItem();
+                    return $position->getLineItem();
                 },
                 $this->elements
             )
@@ -93,8 +93,8 @@ class DeliveryPositionCollection extends Collection
 
     public function getWeight(): float
     {
-        $weights = $this->getLineItems()->map(function (DeliverableLineItemInterface $deliverable) {
-            return $deliverable->getWeight();
+        $weights = $this->getLineItems()->map(function (LineItem $deliverable) {
+            return $deliverable->getDeliveryInformation()->getWeight();
         });
 
         return array_sum($weights);

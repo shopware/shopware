@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Checkout\Cart\Order;
 
-use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
-use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemInterface;
-use Shopware\Core\Checkout\Cart\LineItem\NestedInterface;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction;
 use Shopware\Core\Checkout\CheckoutContext;
@@ -36,13 +35,13 @@ class OrderConverter
      * @throws DeliveryWithoutAddressException
      * @throws EmptyCartException
      */
-    public function convert(CalculatedCart $calculatedCart, CheckoutContext $context): array
+    public function convert(Cart $cart, CheckoutContext $context): array
     {
         $addressId = Uuid::uuid4()->getHex();
         if (!$context->getCustomer()) {
             throw new CustomerNotLoggedInException();
         }
-        if ($calculatedCart->getCalculatedLineItems()->count() <= 0) {
+        if ($cart->getLineItems()->count() <= 0) {
             throw new EmptyCartException();
         }
 
@@ -51,7 +50,7 @@ class OrderConverter
         }
 
         /** @var Delivery $delivery */
-        foreach ($calculatedCart->getDeliveries() as $delivery) {
+        foreach ($cart->getDeliveries() as $delivery) {
             if (!$delivery->getLocation()->getAddress()) {
                 throw new DeliveryWithoutAddressException();
             }
@@ -60,11 +59,11 @@ class OrderConverter
         $data = [
             'id' => Uuid::uuid4()->getHex(),
             'date' => (new \DateTime())->format(Defaults::DATE_FORMAT),
-            'amountTotal' => $calculatedCart->getPrice()->getTotalPrice(),
-            'amountNet' => $calculatedCart->getPrice()->getNetPrice(),
-            'positionPrice' => $calculatedCart->getPrice()->getPositionPrice(),
-            'shippingTotal' => $calculatedCart->getShippingCosts()->getTotalPrice(),
-            'shippingNet' => $calculatedCart->getShippingCosts()->getTotalPrice() - $calculatedCart->getShippingCosts()->getCalculatedTaxes()->getAmount(),
+            'amountTotal' => $cart->getPrice()->getTotalPrice(),
+            'amountNet' => $cart->getPrice()->getNetPrice(),
+            'positionPrice' => $cart->getPrice()->getPositionPrice(),
+            'shippingTotal' => $cart->getShippingCosts()->getTotalPrice(),
+            'shippingNet' => $cart->getShippingCosts()->getTotalPrice() - $cart->getShippingCosts()->getCalculatedTaxes()->getAmount(),
             'isNet' => !$this->taxDetector->useGross($context),
             'isTaxFree' => $this->taxDetector->isNetDelivery($context),
             'customerId' => $context->getCustomer()->getId(),
@@ -83,22 +82,22 @@ class OrderConverter
         $data['billingAddress']['id'] = $addressId;
 
         $lineItems = [];
-        foreach ($calculatedCart->getCalculatedLineItems() as $lineItem) {
+        foreach ($cart->getLineItems() as $lineItem) {
             $row = $this->convertLineItem($lineItem);
             $row['id'] = Uuid::uuid4()->getHex();
-            $lineItems[$lineItem->getIdentifier()] = $row;
+            $lineItems[$lineItem->getKey()] = $row;
         }
 
         /** @var Delivery $delivery */
-        foreach ($calculatedCart->getDeliveries() as $delivery) {
+        foreach ($cart->getDeliveries() as $delivery) {
             $data['deliveries'][] = $this->convertDelivery($delivery, $lineItems);
         }
 
         $lineItems = array_values($lineItems);
 
         foreach ($lineItems as $parent) {
-            $lineItem = $calculatedCart->getCalculatedLineItems()->get($parent['identifier']);
-            if (!$lineItem instanceof NestedInterface) {
+            $lineItem = $cart->getLineItems()->get($parent['identifier']);
+            if (!$lineItem->getChildren()) {
                 continue;
             }
 
@@ -108,7 +107,7 @@ class OrderConverter
             }
         }
 
-        foreach ($calculatedCart->getTransactions() as $transaction) {
+        foreach ($cart->getTransactions() as $transaction) {
             $data['transactions'][] = $this->convertTransaction($transaction);
         }
 
@@ -117,16 +116,22 @@ class OrderConverter
         return $data;
     }
 
-    private function convertNestedLineItem(NestedInterface $lineItem, string $parentId = null)
+    private function convertNestedLineItem(LineItem $lineItem, string $parentId = null)
     {
+        $children = $lineItem->getChildren();
+
+        if (!$children) {
+            return [];
+        }
+
         $data = [];
-        foreach ($lineItem->getChildren() as $child) {
+        foreach ($children as $child) {
             $row = $this->convertLineItem($child);
             $row['parentId'] = $parentId;
             $row['id'] = Uuid::uuid4()->getHex();
             $data[] = $row;
 
-            if (!$child instanceof NestedInterface) {
+            if (!$child->getChildren()) {
                 continue;
             }
 
@@ -160,10 +165,10 @@ class OrderConverter
         ]);
     }
 
-    private function convertLineItem(CalculatedLineItemInterface $lineItem): array
+    private function convertLineItem(LineItem $lineItem): array
     {
         return [
-            'identifier' => $lineItem->getIdentifier(),
+            'identifier' => $lineItem->getKey(),
             'quantity' => $lineItem->getQuantity(),
             'unitPrice' => $lineItem->getPrice()->getUnitPrice(),
             'totalPrice' => $lineItem->getPrice()->getTotalPrice(),

@@ -60,7 +60,7 @@ class AmountCalculator
         $this->taxAmountCalculator = $taxAmountCalculator;
     }
 
-    public function calculateAmount(PriceCollection $prices, PriceCollection $shippingCosts, CheckoutContext $context): CartPrice
+    public function calculate(PriceCollection $prices, PriceCollection $shippingCosts, CheckoutContext $context): CartPrice
     {
         if ($this->taxDetector->isNetDelivery($context)) {
             return $this->calculateNetDeliveryAmount($prices, $shippingCosts);

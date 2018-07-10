@@ -60,7 +60,7 @@ class GoodsCountRule extends Rule
             );
         }
 
-        $goods = $scope->getCalculatedCart()->getCalculatedLineItems()->filterInstance(GoodsInterface::class);
+        $goods = $scope->getCart()->getCalculatedLineItems()->filterInstance(GoodsInterface::class);
 
         switch ($this->operator) {
             case self::OPERATOR_GTE:

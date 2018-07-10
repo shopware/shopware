@@ -123,21 +123,21 @@ class Cart extends Struct
         $this->deliveries = $deliveries;
     }
 
-    public function addLineItems(LineItemCollection $lineItems)
+    public function addLineItems(LineItemCollection $lineItems): void
     {
         foreach ($lineItems as $lineItem) {
             $this->add($lineItem);
         }
     }
 
-    public function addDeliveries(DeliveryCollection $deliveries)
+    public function addDeliveries(DeliveryCollection $deliveries): void
     {
         foreach ($deliveries as $delivery) {
             $this->deliveries->add($delivery);
         }
     }
 
-    public function addErrors(ErrorCollection $errors)
+    public function addErrors(ErrorCollection $errors): void
     {
         foreach ($errors as $error) {
             $this->errors->add($error);
@@ -159,5 +159,15 @@ class Cart extends Struct
         $this->lineItems->add($lineItem);
 
         return $this;
+    }
+
+    public function get(string $lineItemKey)
+    {
+        return $this->lineItems->get($lineItemKey);
+    }
+
+    public function has(string $lineItemKey)
+    {
+        return $this->lineItems->has($lineItemKey);
     }
 }

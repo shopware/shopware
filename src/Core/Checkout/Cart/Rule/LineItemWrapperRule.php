@@ -13,7 +13,7 @@ class LineItemWrapperRule extends Rule
     /**
      * @var Container
      */
-    private $container;
+    protected $container;
 
     public function __construct(Container $container)
     {
@@ -25,7 +25,7 @@ class LineItemWrapperRule extends Rule
         if (!$scope instanceof CheckoutRuleScope) {
             return new Match(false, ['No checkout scope']);
         }
-        if ($scope instanceof CalculatedLineItemScope) {
+        if ($scope instanceof LineItemScope) {
             return $this->container->match($scope);
         }
 
@@ -33,8 +33,8 @@ class LineItemWrapperRule extends Rule
             return new Match(false, ['Invalid match context. CartRuleScope required.']);
         }
 
-        foreach ($scope->getCalculatedCart()->getCalculatedLineItems() as $lineItem) {
-            $context = new CalculatedLineItemScope($lineItem, $scope->getContext());
+        foreach ($scope->getCart()->getCalculatedLineItems() as $lineItem) {
+            $context = new LineItemScope($lineItem, $scope->getContext());
             $match = $this->container->match($context);
             if ($match->matches()) {
                 return $match;

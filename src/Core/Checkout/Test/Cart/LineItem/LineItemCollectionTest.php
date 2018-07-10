@@ -161,7 +161,7 @@ class LineItemCollectionTest extends TestCase
 
         static::assertSame([
             'A', 'B', 'C',
-        ], $collection->getIdentifiers());
+        ], $collection->getKeys());
     }
 
     public function testFillCollectionWithItems(): void

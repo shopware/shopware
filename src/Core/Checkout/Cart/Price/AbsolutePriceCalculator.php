@@ -25,8 +25,8 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Cart\Price;
 
+use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
-use Shopware\Core\Checkout\Cart\Price\Struct\DerivedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Core\Checkout\CheckoutContext;
@@ -43,39 +43,18 @@ class AbsolutePriceCalculator
      */
     private $percentageTaxRuleBuilder;
 
-    public function __construct(
-        QuantityPriceCalculator $priceCalculator,
-        PercentageTaxRuleBuilder $percentageTaxRuleBuilder
-    ) {
+    public function __construct(QuantityPriceCalculator $priceCalculator, PercentageTaxRuleBuilder $percentageTaxRuleBuilder)
+    {
         $this->priceCalculator = $priceCalculator;
         $this->percentageTaxRuleBuilder = $percentageTaxRuleBuilder;
     }
 
-    /**
-     * @param float                     $price
-     * @param PriceCollection $prices
-     * @param CheckoutContext           $context
-     *
-     * @return DerivedPrice
-     */
-    public function calculate(
-        float $price,
-        PriceCollection $prices,
-        CheckoutContext $context
-    ): DerivedPrice {
+    public function calculate(float $price, PriceCollection $prices, CheckoutContext $context): Price
+    {
         $taxRules = $this->percentageTaxRuleBuilder->buildRules($prices->sum());
 
         $priceDefinition = new QuantityPriceDefinition($price, $taxRules, 1, true);
 
-        $calculatedPrice = $this->priceCalculator->calculate($priceDefinition, $context);
-
-        return new DerivedPrice(
-            $calculatedPrice->getUnitPrice(),
-            $calculatedPrice->getTotalPrice(),
-            $calculatedPrice->getCalculatedTaxes(),
-            $calculatedPrice->getTaxRules(),
-            $calculatedPrice->getQuantity(),
-            $prices
-        );
+        return $this->priceCalculator->calculate($priceDefinition, $context);
     }
 }

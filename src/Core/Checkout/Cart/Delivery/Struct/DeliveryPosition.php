@@ -25,16 +25,16 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Cart\Delivery\Struct;
 
-use Shopware\Core\Checkout\Cart\LineItem\DeliverableLineItemInterface;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Framework\Struct\Struct;
 
 class DeliveryPosition extends Struct
 {
     /**
-     * @var DeliverableLineItemInterface
+     * @var LineItem
      */
-    protected $calculatedLineItem;
+    protected $lineItem;
 
     /**
      * @var float
@@ -58,43 +58,43 @@ class DeliveryPosition extends Struct
 
     public function __construct(
         string $identifier,
-        DeliverableLineItemInterface $calculatedLineItem,
+        LineItem $lineItem,
         int $quantity,
         Price $price,
         DeliveryDate $deliveryDate
     ) {
-        $this->calculatedLineItem = $calculatedLineItem;
+        $this->lineItem = $lineItem;
         $this->quantity = $quantity;
         $this->price = $price;
         $this->identifier = $identifier;
         $this->deliveryDate = $deliveryDate;
     }
 
-    public static function createByLineItemForInStockDate(DeliverableLineItemInterface $lineItem): self
+    public static function createByLineItemForInStockDate(LineItem $lineItem): self
     {
         return new self(
-            $lineItem->getIdentifier(),
+            $lineItem->getKey(),
             clone $lineItem,
             $lineItem->getQuantity(),
             $lineItem->getPrice(),
-            $lineItem->getInStockDeliveryDate()
+            $lineItem->getDeliveryInformation()->getInStockDeliveryDate()
         );
     }
 
-    public static function createByLineItemForOutOfStockDate(DeliverableLineItemInterface $lineItem): self
+    public static function createByLineItemForOutOfStockDate(LineItem $lineItem): self
     {
         return new self(
-            $lineItem->getIdentifier(),
+            $lineItem->getKey(),
             clone $lineItem,
             $lineItem->getQuantity(),
             $lineItem->getPrice(),
-            $lineItem->getOutOfStockDeliveryDate()
+            $lineItem->getDeliveryInformation()->getOutOfStockDeliveryDate()
         );
     }
 
-    public function getCalculatedLineItem(): DeliverableLineItemInterface
+    public function getLineItem(): LineItem
     {
-        return $this->calculatedLineItem;
+        return $this->lineItem;
     }
 
     public function getQuantity(): float

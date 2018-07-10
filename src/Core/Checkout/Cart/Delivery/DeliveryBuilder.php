@@ -31,8 +31,8 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemCollection;
-use Shopware\Core\Checkout\Cart\LineItem\DeliverableLineItemInterface;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
@@ -41,7 +41,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Shipping\ShippingMethodStruct;
 
-class StockDeliverySeparator
+class DeliveryBuilder
 {
     /**
      * @var QuantityPriceCalculator
@@ -53,13 +53,11 @@ class StockDeliverySeparator
         $this->priceCalculator = $priceCalculator;
     }
 
-    public function addItemsToDeliveries(
-        DeliveryCollection $deliveries,
-        CalculatedLineItemCollection $items,
-        CheckoutContext $context
-    ): void {
+    public function build(DeliveryCollection $deliveries, LineItemCollection $items, CheckoutContext $context): DeliveryCollection
+    {
+        /** @var LineItem $item */
         foreach ($items as $item) {
-            if (!$item instanceof DeliverableLineItemInterface) {
+            if (!$item->getDeliveryInformation()) {
                 continue;
             }
 
@@ -70,15 +68,15 @@ class StockDeliverySeparator
             $quantity = $item->getQuantity();
 
             $position = new DeliveryPosition(
-                $item->getIdentifier(),
+                $item->getKey(),
                 clone $item,
                 $quantity,
                 $item->getPrice(),
-                $item->getInStockDeliveryDate()
+                $item->getDeliveryInformation()->getInStockDeliveryDate()
             );
 
             //completely in stock?
-            if ($item->getStock() >= $quantity) {
+            if ($item->getDeliveryInformation()->getStock() >= $quantity) {
                 $this->addGoodsToDelivery(
                     $deliveries,
                     $position,
@@ -89,13 +87,13 @@ class StockDeliverySeparator
             }
 
             //completely out of stock? add full quantity to a delivery with same of out stock delivery date
-            if ($item->getStock() <= 0) {
+            if ($item->getDeliveryInformation()->getStock() <= 0) {
                 $position = new DeliveryPosition(
-                    $item->getIdentifier(),
+                    $item->getKey(),
                     clone $item,
                     $quantity,
                     $item->getPrice(),
-                    $item->getOutOfStockDeliveryDate()
+                    $item->getDeliveryInformation()->getOutOfStockDeliveryDate()
                 );
 
                 $this->addGoodsToDelivery(
@@ -107,12 +105,12 @@ class StockDeliverySeparator
                 continue;
             }
 
-            $outOfStock = (int) abs($item->getStock() - $quantity);
+            $outOfStock = (int) abs($item->getDeliveryInformation()->getStock() - $quantity);
 
             $position = $this->recalculatePosition(
                 $item,
-                $item->getStock(),
-                $item->getInStockDeliveryDate(),
+                $item->getDeliveryInformation()->getStock(),
+                $item->getDeliveryInformation()->getInStockDeliveryDate(),
                 $context
             );
 
@@ -126,7 +124,7 @@ class StockDeliverySeparator
             $position = $this->recalculatePosition(
                 $item,
                 $outOfStock,
-                $item->getOutOfStockDeliveryDate(),
+                $item->getDeliveryInformation()->getOutOfStockDeliveryDate(),
                 $context
             );
 
@@ -137,14 +135,17 @@ class StockDeliverySeparator
                 $context->getShippingMethod()
             );
         }
+
+        return $deliveries;
     }
 
     private function recalculatePosition(
-        DeliverableLineItemInterface $item,
+        LineItem $item,
         int $quantity,
         DeliveryDate $deliveryDate,
         CheckoutContext $context
     ): DeliveryPosition {
+
         $definition = new QuantityPriceDefinition(
             $item->getPrice()->getUnitPrice(),
             $item->getPrice()->getTaxRules(),
@@ -155,7 +156,7 @@ class StockDeliverySeparator
         $price = $this->priceCalculator->calculate($definition, $context);
 
         return new DeliveryPosition(
-            $item->getIdentifier(),
+            $item->getKey(),
             clone $item,
             $quantity,
             $price,
@@ -169,6 +170,7 @@ class StockDeliverySeparator
         ShippingLocation $location,
         ShippingMethodStruct $shippingMethod
     ): void {
+
         $delivery = $deliveries->getDelivery(
             $position->getDeliveryDate(),
             $location

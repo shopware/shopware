@@ -21,10 +21,10 @@ class ProductOfManufacturerRule extends Rule
 
     public function match(RuleScope $scope): Match
     {
-        if (!$scope instanceof CalculatedLineItemScope) {
+        if (!$scope instanceof LineItemScope) {
             return new Match(
                 false,
-                ['Invalid Match Context. CalculatedLineItemScope expected']
+                ['Invalid Match Context. LineItemScope expected']
             );
         }
 

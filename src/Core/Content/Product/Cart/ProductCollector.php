@@ -1,12 +1,13 @@
 <?php
 declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Cart\Cart;
+namespace Shopware\Core\Content\Product\Cart;
 
+use Shopware\Core\Checkout\Cart\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Cart\CollectorInterface;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Content\Product\Cart\ProductGatewayInterface;
 use Shopware\Core\Content\Product\Cart\Struct\ProductFetchDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductStruct;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\Struct\StructCollection;
 class ProductCollector implements CollectorInterface
 {
     public const DATA_KEY = 'products';
+
     /**
      * @var ProductGatewayInterface
      */
@@ -27,9 +29,14 @@ class ProductCollector implements CollectorInterface
 
     public function prepare(StructCollection $definitions, Cart $cart, CheckoutContext $context): void
     {
-        $lineItems = $cart->getLineItems()->getFlat()->filterType('product');
+        $lineItems = array_filter(
+            $cart->getLineItems()->getFlat(),
+            function(LineItem $lineItem) {
+                return $lineItem->getType() === 'product';
+            }
+        );
 
-        if ($lineItems->count() <= 0) {
+        if (count($lineItems) <= 0) {
             return;
         }
 
@@ -48,9 +55,9 @@ class ProductCollector implements CollectorInterface
         $definitions->add(new ProductFetchDefinition($ids));
     }
 
-    public function collect(StructCollection $definitions, StructCollection $data, Cart $cart, CheckoutContext $context): void
+    public function collect(StructCollection $discountDefinitions, StructCollection $data, Cart $cart, CheckoutContext $context): void
     {
-        $productDefinitions = $definitions->filterInstance(ProductFetchDefinition::class);
+        $productDefinitions = $discountDefinitions->filterInstance(ProductFetchDefinition::class);
 
         if ($productDefinitions->count() <= 0) {
             return;
@@ -78,9 +85,14 @@ class ProductCollector implements CollectorInterface
 
         $products = $data->get(self::DATA_KEY);
 
-        $flat = $cart->getLineItems()->getFlat()->filterType('product');
+        $flat = array_filter(
+            $cart->getLineItems()->getFlat(),
+            function(LineItem $lineItem) {
+                return $lineItem->getType() === 'product';
+            }
+        );
 
-        if ($flat->count() <= 0) {
+        if (\count($flat) <= 0) {
             return;
         }
 
@@ -97,7 +109,7 @@ class ProductCollector implements CollectorInterface
 
             /** @var ProductStruct $product */
             if (!$product) {
-                throw new \RuntimeException(sprintf('No product data found for line item %s', $lineItem->getIdentifier()));
+                throw new \RuntimeException(sprintf('No product data found for line item %s', $lineItem->getKey()));
             }
 
             if (!$lineItem->getLabel()) {

@@ -37,14 +37,14 @@ class LineItemWithQuantityRule extends Rule
     public function match(
         RuleScope $scope
     ): Match {
-        if (!$scope instanceof CalculatedLineItemScope) {
+        if (!$scope instanceof LineItemScope) {
             return new Match(
                 false,
-                ['Invalid Match Context. CalculatedLineItemScope expected']
+                ['Invalid Match Context. LineItemScope expected']
             );
         }
 
-        if ($scope->getLineItem()->getIdentifier() !== $this->id) {
+        if ($scope->getLineItem()->getKey() !== $this->id) {
             return new Match(
                 false,
                 ['CalculatedLineItem id does not match']

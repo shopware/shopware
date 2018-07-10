@@ -20,8 +20,7 @@ class RestContextValueResolver implements ArgumentValueResolverInterface
 
         yield new RestContext(
             $request,
-            $context,
-            $request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_USER_ID)
+            $context
         );
     }
 }

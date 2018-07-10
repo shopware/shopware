@@ -29,8 +29,6 @@ use Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitDefinit
 use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataStruct;
 use Shopware\Core\Framework\Version\VersionDefinition;
-use Shopware\Core\PlatformRequest;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 class VersionManager
 {
@@ -59,25 +57,18 @@ class VersionManager
      */
     private $entityWriteGateway;
 
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
-
     public function __construct(
         EntityWriterInterface $entityWriter,
         EntityReaderInterface $entityReader,
         EntitySearcherInterface $entitySearcher,
         DefinitionRegistry $entityDefinitionRegistry,
-        EntityWriteGatewayInterface $entityWriteGateway,
-        RequestStack $requestStack
+        EntityWriteGatewayInterface $entityWriteGateway
     ) {
         $this->entityWriter = $entityWriter;
         $this->entityReader = $entityReader;
         $this->entitySearcher = $entitySearcher;
         $this->entityDefinitionRegistry = $entityDefinitionRegistry;
         $this->entityWriteGateway = $entityWriteGateway;
-        $this->requestStack = $requestStack;
     }
 
     public function upsert(string $definition, array $rawData, WriteContext $writeContext): array
@@ -218,6 +209,7 @@ class VersionManager
                 'entityId' => $id,
                 'payload' => json_encode($payload),
                 'userId' => $data->getUserId(),
+                'integrationId' => $data->getIntegrationId(),
                 'entityName' => $data->getEntityName(),
                 'action' => $data->getAction(),
                 'createdAt' => (new \DateTime())->format(\DateTime::ATOM),
@@ -227,7 +219,8 @@ class VersionManager
         $commit = [
             'versionId' => Defaults::LIVE_VERSION,
             'data' => $newData,
-            'userId' => $this->getUserId(),
+            'integrationId' => $writeContext->getContext()->getSourceContext()->getIntegrationId(),
+            'userId' => $writeContext->getContext()->getSourceContext()->getUserId(),
             'isMerge' => true,
             'message' => 'merge commit ' . (new \DateTime())->format(\DateTime::ATOM),
         ];
@@ -375,11 +368,16 @@ class VersionManager
 
     private function writeAuditLog(array $writtenEvents, WriteContext $writeContext, string $action, ?string $versionId = null): void
     {
-        $userId = $this->getUserId();
-
-        $userId = $userId ? Uuid::fromStringToBytes($userId) : null;
-
+        $sourceContext = $writeContext->getContext()->getSourceContext();
         $versionId = $versionId ?? $writeContext->getContext()->getVersionId();
+
+        if ($userId = $sourceContext->getUserId()) {
+            $userId = Uuid::fromHexToBytes($sourceContext->getUserId());
+        }
+
+        if ($integrationId = $sourceContext->getIntegrationId()) {
+            $integrationId = Uuid::fromHexToBytes($sourceContext->getIntegrationId());
+        }
 
         $commitId = Uuid::uuid4();
 
@@ -393,6 +391,9 @@ class VersionManager
                 'id' => $commitId->getBytes(),
                 'tenant_id' => $tenantId,
                 'user_id' => $userId,
+                'user_tenant_id' => $userId ? $tenantId : null,
+                'integration_id' => $integrationId,
+                'integration_tenant_id' => $integrationId ? $tenantId : null,
                 'version_id' => Uuid::fromStringToBytes($versionId),
                 'version_tenant_id' => $tenantId,
                 'created_at' => $date,
@@ -441,6 +442,9 @@ class VersionManager
                         'entity_id' => json_encode($primary),
                         'payload' => json_encode($payload),
                         'user_id' => $userId,
+                        'user_tenant_id' => $userId ? $tenantId : null,
+                        'integration_id' => $integrationId,
+                        'integration_tenant_id' => $integrationId ? $tenantId : null,
                         'action' => $action,
                         'created_at' => $date,
                     ],
@@ -462,16 +466,6 @@ class VersionManager
         }
 
         $this->entityWriteGateway->execute($commands);
-    }
-
-    private function getUserId(): ?string
-    {
-        $master = $this->requestStack->getMasterRequest();
-        if (!$master) {
-            return null;
-        }
-
-        return $master->headers->get(PlatformRequest::ATTRIBUTE_OAUTH_USER_ID);
     }
 
     private function addVersionToPayload(array $payload, string $definition, string $versionId): array

@@ -17,6 +17,8 @@ use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
+use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Storefront\Api\Seo\SeoUrlDefinition;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -84,7 +86,7 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
         $applications = $this->applicationRepository->search(new Criteria(), Context::createDefaultContext($tenantId));
 
         foreach ($applications as $application) {
-            $context = Context::createFromTouchpoint($application);
+            $context = Context::createFromTouchpoint($application, SourceContext::ORIGIN_SYSTEM);
 
             $iterator = new RepositoryIterator($this->categoryRepository, $context);
 
@@ -96,7 +98,7 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
                 )
             );
 
-            /* @var CategorySearchResult $categories */
+            /* @var EntitySearchResult $categories */
             while ($ids = $iterator->fetchIds()) {
                 $this->updateCategories($ids, $context);
 
@@ -157,7 +159,7 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
 
         $categories = $this->categoryRepository->read(new ReadCriteria($ids), $context);
 
-        $canonicals = $this->fetchCanonicals($categories->getIds(), $context->getTouchpointId(), $context->getTenantId());
+        $canonicals = $this->fetchCanonicals($categories->getIds(), $context->getSourceContext()->getTouchpointId(), $context->getTenantId());
 
         $liveVersionId = Uuid::fromStringToBytes(Defaults::LIVE_VERSION);
         $insertQuery = new MultiInsertQueryQueue($this->connection, 250, false, true);
@@ -196,7 +198,7 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
                 'id' => $existing['id'],
                 'tenant_id' => Uuid::fromStringToBytes($context->getTenantId()),
                 'version_id' => $liveVersionId,
-                'touchpoint_id' => Uuid::fromStringToBytes($context->getTouchpointId()),
+                'touchpoint_id' => Uuid::fromStringToBytes($context->getSourceContext()->getTouchpointId()),
                 'touchpoint_tenant_id' => Uuid::fromStringToBytes($context->getTenantId()),
                 'name' => self::ROUTE_NAME,
                 'foreign_key' => Uuid::fromStringToBytes($category->getId()),

@@ -53,7 +53,7 @@ class Context extends Struct
     /**
      * @var string
      */
-    protected $touchpointId;
+    protected $sourceContext;
 
     /**
      * @var array|null
@@ -77,7 +77,7 @@ class Context extends Struct
 
     public function __construct(
         string $tenantId,
-        string $touchpointId,
+        SourceContext $sourceContext,
         ?array $catalogIds,
         array $rules,
         string $currencyId,
@@ -87,7 +87,7 @@ class Context extends Struct
         float $currencyFactor = 1.0
     ) {
         $this->tenantId = $tenantId;
-        $this->touchpointId = $touchpointId;
+        $this->sourceContext = $sourceContext;
         $this->catalogIds = $catalogIds;
         $this->rules = $rules;
         $this->currencyId = $currencyId;
@@ -99,14 +99,20 @@ class Context extends Struct
 
     public static function createDefaultContext(string $tenantId): self
     {
-        return new self($tenantId, Defaults::TOUCHPOINT, [Defaults::CATALOG], [], Defaults::CURRENCY, Defaults::LANGUAGE);
+        $sourceContext = new SourceContext('cli');
+        $sourceContext->setTouchpointId(Defaults::TOUCHPOINT);
+
+        return new self($tenantId, $sourceContext, [Defaults::CATALOG], [], Defaults::CURRENCY, Defaults::LANGUAGE);
     }
 
-    public static function createFromTouchpoint(TouchpointStruct $touchpoint): self
+    public static function createFromTouchpoint(TouchpointStruct $touchpoint, string $origin): self
     {
+        $sourceContext = new SourceContext($origin);
+        $sourceContext->setTouchpointId($touchpoint->getId());
+
         return new self(
             $touchpoint->getTenantId(),
-            $touchpoint->getId(),
+            $sourceContext,
             $touchpoint->getCatalogIds(),
             [],
             $touchpoint->getCurrencyId(),
@@ -123,9 +129,9 @@ class Context extends Struct
             && $this->getFallbackLanguageId() !== $this->getLanguageId();
     }
 
-    public function getTouchpointId(): string
+    public function getSourceContext(): SourceContext
     {
-        return $this->touchpointId;
+        return $this->sourceContext;
     }
 
     public function getVersionId(): string
@@ -172,7 +178,7 @@ class Context extends Struct
     {
         return new self(
             $this->tenantId,
-            $this->touchpointId,
+            $this->sourceContext,
             $this->catalogIds,
             $this->rules,
             $this->currencyId,
@@ -187,7 +193,7 @@ class Context extends Struct
     {
         return new self(
             $this->tenantId,
-            $this->touchpointId,
+            $this->sourceContext,
             $catalogIds,
             $this->rules,
             $this->currencyId,

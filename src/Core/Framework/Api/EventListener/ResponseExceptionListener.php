@@ -62,6 +62,7 @@ class ResponseExceptionListener extends ExceptionListener
             'status' => (string) $statusCode,
             'title' => Response::$statusTexts[$statusCode] ?? 'unknown status',
             'detail' => $exception->getMessage(),
+            'trace' => $exception->getTraceAsString(),
         ];
 
         return [$error];

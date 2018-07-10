@@ -220,7 +220,6 @@
             <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntitySearcherInterface"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\DefinitionRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\Write\EntityWriteGatewayInterface"/>
-            <argument type="service" id="request_stack"/>
         </service>
 
         <service id="seo_url.repository" class="Shopware\Core\Framework\ORM\EntityRepository" public="true">

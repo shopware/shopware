@@ -17,6 +17,7 @@ use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -98,10 +99,13 @@ class ProductSearchKeywordIndexer implements IndexerInterface
         $languages = $this->languageRepository->search(new Criteria(), Context::createDefaultContext($tenantId));
         $catalogIds = $this->catalogRepository->searchIds(new Criteria(), Context::createDefaultContext($tenantId));
 
+        $sourceContext = new SourceContext();
+        $sourceContext->setTouchpointId(Defaults::TOUCHPOINT);
+
         foreach ($languages as $language) {
             $context = new Context(
                 $tenantId,
-                Defaults::TOUCHPOINT,
+                $sourceContext,
                 $catalogIds->getIds(),
                 [],
                 Defaults::CURRENCY,
@@ -160,7 +164,7 @@ class ProductSearchKeywordIndexer implements IndexerInterface
         $this->eventDispatcher->dispatch(
             ProgressStartedEvent::NAME,
             new ProgressStartedEvent(
-                sprintf('Start analyzing search keywords for application %s', $context->getTouchpointId()),
+                sprintf('Start analyzing search keywords for application %s', $context->getSourceContext()->getTouchpointId()),
                 $iterator->fetchCount()
             )
         );
@@ -191,7 +195,7 @@ class ProductSearchKeywordIndexer implements IndexerInterface
 
         $this->eventDispatcher->dispatch(
             ProgressFinishedEvent::NAME,
-            new ProgressFinishedEvent(sprintf('Finished analyzing search keywords for application id %s', $context->getTouchpointId()))
+            new ProgressFinishedEvent(sprintf('Finished analyzing search keywords for application id %s', $context->getSourceContext()->getTouchpointId()))
         );
     }
 

@@ -7,6 +7,7 @@ use Shopware\Core\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\ORM\Dbal\FieldResolver\FieldResolverInterface;
 use Shopware\Core\Framework\ORM\Dbal\QueryBuilder;
 use Shopware\Core\Framework\ORM\Field\Field;
+use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Storefront\Api\Entity\Field\CanonicalUrlAssociationField;
 use Shopware\Storefront\Api\Seo\SeoUrlDefinition;
@@ -26,7 +27,7 @@ class CanonicalUrlAssociationFieldResolver implements FieldResolverInterface
             return;
         }
 
-        if ($context->getTouchpointId() === 'administration') {
+        if ($context->getSourceContext()->getOrigin() !== SourceContext::ORIGIN_STOREFRONT_API) {
             return;
         }
 
@@ -61,6 +62,6 @@ class CanonicalUrlAssociationFieldResolver implements FieldResolverInterface
             )
         );
         $query->setParameter($key, $field->getRouteName());
-        $query->setParameter('touchpointId', Uuid::fromStringToBytes($context->getTouchpointId()));
+        $query->setParameter('touchpointId', Uuid::fromStringToBytes($context->getSourceContext()->getTouchpointId()));
     }
 }

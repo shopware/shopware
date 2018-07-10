@@ -6,7 +6,8 @@ use Doctrine\DBAL\Connection;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
-use Shopware\Core\Framework\Api\OAuth\Api\Client\AdministrationClient;
+use Shopware\Core\Framework\Api\OAuth\Api\Client\ApiClient;
+use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Struct\Uuid;
 
 class ClientRepository implements ClientRepositoryInterface
@@ -35,23 +36,36 @@ class ClientRepository implements ClientRepositoryInterface
     public function getClientEntity($clientIdentifier, $grantType = null, $clientSecret = null, $mustValidateSecret = true)
     {
         if ($grantType === 'password' && $clientIdentifier === 'administration') {
-            return new AdministrationClient();
+            return new ApiClient('administration', true);
         }
 
         if ($grantType === 'refresh_token' && $clientIdentifier === 'administration') {
-            return new AdministrationClient();
+            return new ApiClient('administration', true);
         }
 
         if ($grantType === 'client_credentials') {
-            $user = $this->getUserByAccessKey($clientIdentifier, $clientSecret);
-
-            return new AdministrationClient(Uuid::fromBytesToHex($user['user_id']), (bool) $user['write_access']);
+            return $this->getByAccessKey($clientIdentifier, $clientSecret);
         }
 
         return null;
     }
 
-    private function getUserByAccessKey(string $clientIdentifier, string $clientSecret): array
+    private function getByAccessKey(string $clientIdentifier, string $clientSecret): ?ClientEntityInterface
+    {
+        $origin = AccessKeyHelper::getOrigin($clientIdentifier);
+
+        if ($origin === 'user') {
+            return $this->getUserByAccessKey($clientIdentifier, $clientSecret);
+        }
+
+        if ($origin === 'integration') {
+            return $this->getIntegrationByAccessKey($clientIdentifier, $clientSecret);
+        }
+
+        return null;
+    }
+
+    private function getUserByAccessKey(string $clientIdentifier, string $clientSecret): ClientEntityInterface
     {
         $key = $this->connection->createQueryBuilder()
             ->select(['user_id', 'secret_access_key', 'write_access'])
@@ -66,9 +80,38 @@ class ClientRepository implements ClientRepositoryInterface
         }
 
         if (!password_verify($clientSecret, $key['secret_access_key'])) {
-            OAuthServerException::invalidCredentials();
+            throw OAuthServerException::invalidCredentials();
         }
 
-        return $key;
+        return new ApiClient(
+            $clientIdentifier,
+            (bool) $key['write_access'],
+            Uuid::fromBytesToHex($key['user_id'])
+        );
+    }
+
+    private function getIntegrationByAccessKey(string $clientIdentifier, string $clientSecret): ClientEntityInterface
+    {
+        $key = $this->connection->createQueryBuilder()
+            ->select(['id', 'label', 'secret_access_key', 'write_access'])
+            ->from('integration')
+            ->where('access_key = :accessKey')
+            ->setParameter('accessKey', $clientIdentifier)
+            ->execute()
+            ->fetch();
+
+        if (!$key) {
+            throw OAuthServerException::invalidCredentials();
+        }
+
+        if (!password_verify($clientSecret, $key['secret_access_key'])) {
+            throw OAuthServerException::invalidCredentials();
+        }
+
+        return new ApiClient(
+            $clientIdentifier,
+            (bool) $key['write_access'],
+            $key['label']
+        );
     }
 }

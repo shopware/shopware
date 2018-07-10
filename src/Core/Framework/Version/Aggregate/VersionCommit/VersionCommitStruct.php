@@ -34,6 +34,11 @@ class VersionCommitStruct extends Entity
     protected $userId;
 
     /**
+     * @var string|null
+     */
+    protected $integrationId;
+
+    /**
      * @var VersionCommitDataCollection
      */
     protected $data;
@@ -156,5 +161,15 @@ class VersionCommitStruct extends Entity
     public function setVersion(VersionStruct $version): void
     {
         $this->version = $version;
+    }
+
+    public function getIntegrationId(): ?string
+    {
+        return $this->integrationId;
+    }
+
+    public function setIntegrationId(string $integrationId): void
+    {
+        $this->integrationId = $integrationId;
     }
 }

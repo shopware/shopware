@@ -63,7 +63,7 @@ class ContextController extends StorefrontController
 
         if (!empty($payload)) {
             $this->contextPersister->save($context->getToken(), $payload, $context->getTenantId());
-            $this->checkoutContextService->refresh($context->getTenantId(), $context->getContext()->getTouchpointId(), $context->getToken());
+            $this->checkoutContextService->refresh($context->getTenantId(), $context->getContext()->getSourceContext()->getTouchpointId(), $context->getToken());
         }
 
         $target = $request->request->get('target') ?? $request->headers->get('referer');

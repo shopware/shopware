@@ -180,6 +180,7 @@
 
             <argument id="Shopware\Core\Framework\Routing\TouchpointRequestContextResolver.inner" type="service"/>
             <argument id="Shopware\Core\Checkout\Context\CheckoutContextService" type="service"/>
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
         </service>
 
     </services>

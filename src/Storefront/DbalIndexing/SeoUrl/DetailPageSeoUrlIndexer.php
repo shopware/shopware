@@ -82,10 +82,11 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
 
     public function index(\DateTime $timestamp, string $tenantId): void
     {
-        $applications = $this->touchpointRepository->search(new Criteria(), Context::createDefaultContext($tenantId));
+        $defaultContext = Context::createDefaultContext($tenantId);
+        $applications = $this->touchpointRepository->search(new Criteria(), $defaultContext);
 
         foreach ($applications as $application) {
-            $context = Context::createFromTouchpoint($application);
+            $context = Context::createFromTouchpoint($application, $defaultContext->getSourceContext()->getOrigin());
 
             $iterator = new RepositoryIterator($this->productRepository, $context);
 
@@ -162,7 +163,7 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
 
         $products = $this->productRepository->read(new ReadCriteria($ids), $context);
 
-        $canonicals = $this->fetchCanonicals($products->getIds(), $context->getTouchpointId(), $context->getTenantId());
+        $canonicals = $this->fetchCanonicals($products->getIds(), $context->getSourceContext()->getTouchpointId(), $context->getTenantId());
         $timestamp = new \DateTime();
 
         foreach ($products as $product) {
@@ -186,7 +187,7 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
                 'id' => $existing['id'],
                 'tenant_id' => Uuid::fromStringToBytes($context->getTenantId()),
                 'version_id' => $liveVersionId,
-                'touchpoint_id' => Uuid::fromStringToBytes($context->getTouchpointId()),
+                'touchpoint_id' => Uuid::fromStringToBytes($context->getSourceContext()->getTouchpointId()),
                 'touchpoint_tenant_id' => Uuid::fromStringToBytes($context->getTenantId()),
                 'name' => self::ROUTE_NAME,
                 'foreign_key' => Uuid::fromStringToBytes($product->getId()),

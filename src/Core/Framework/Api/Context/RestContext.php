@@ -13,11 +13,6 @@ class RestContext
     private $request;
 
     /**
-     * @var string
-     */
-    private $userId;
-
-    /**
      * @var Context
      */
     private $context;
@@ -29,23 +24,16 @@ class RestContext
 
     public function __construct(
         Request $request,
-        Context $context,
-        ?string $userId
+        Context $context
     ) {
         $this->request = $request;
         $this->context = $context;
-        $this->userId = $userId;
         $this->version = (int) $this->getRequest()->get('version');
     }
 
     public function getContext(): Context
     {
         return $this->context;
-    }
-
-    public function getUserId(): ?string
-    {
-        return $this->userId;
     }
 
     public function getRequest(): Request

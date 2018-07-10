@@ -55,7 +55,7 @@ class AdministrationController extends Controller
         $limit = $request->query->getInt('limit', 20);
 
         $context = $restContext->getContext();
-        $result = $this->search->search($term, $page, $limit, $context, $restContext->getUserId());
+        $result = $this->search->search($term, $page, $limit, $context, $restContext->getContext()->getSourceContext()->getUserId());
 
         return new JsonResponse($result);
     }

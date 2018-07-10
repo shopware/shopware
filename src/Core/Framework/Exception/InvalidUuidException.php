@@ -8,7 +8,9 @@ use Throwable;
 
 class InvalidUuidException extends ShopwareHttpException
 {
-    public function __construct(string $uuid, int $code = 0, Throwable $previous = null)
+    protected $code = 'INVALID-UUID';
+
+    public function __construct(string $uuid, $code = 0, Throwable $previous = null)
     {
         $message = sprintf('Value is not a valid UUID: %s', $uuid);
 

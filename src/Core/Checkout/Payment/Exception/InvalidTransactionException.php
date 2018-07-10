@@ -2,12 +2,23 @@
 
 namespace Shopware\Core\Checkout\Payment\Exception;
 
-class InvalidTransactionException extends \Exception
+use Shopware\Core\Framework\ShopwareHttpException;
+use Symfony\Component\HttpFoundation\Response;
+use Throwable;
+
+class InvalidTransactionException extends ShopwareHttpException
 {
-    public function __construct(string $transactionId, $code = 0)
+    protected $code = 'INVALID-TRANSACTION-ID';
+
+    public function __construct(string $transactionId, $code = 0, Throwable $previous = null)
     {
         $message = sprintf('The transaction with id %s is invalid or could not be found.', $transactionId);
 
-        parent::__construct($message, $code);
+        parent::__construct($message, $code, $previous);
+    }
+
+    public function getStatusCode(): int
+    {
+        return Response::HTTP_NOT_FOUND;
     }
 }

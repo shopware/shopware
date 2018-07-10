@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\Api\Response\ResponseFactory;
+use Shopware\Core\Framework\Exception\InvalidUuidException;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
@@ -45,11 +46,6 @@ class StorefrontCategoryController extends Controller
 
     /**
      * @Route("/storefront-api/category", name="storefront.api.category.list")
-     *
-     * @param Request         $request
-     * @param CheckoutContext $checkoutContext
-     *
-     * @return Response
      */
     public function list(Request $request, CheckoutContext $checkoutContext): Response
     {
@@ -76,13 +72,8 @@ class StorefrontCategoryController extends Controller
      * @Route("/storefront-api/category/{categoryId}", name="storefront.api.category.detail")
      * @Method({"GET"})
      *
-     * @param string          $categoryId
-     * @param Request         $request
-     * @param CheckoutContext $checkoutContext
-     *
      * @throws CategoryNotFoundException
-     *
-     * @return Response
+     * @throws InvalidUuidException
      */
     public function detail(string $categoryId, Request $request, CheckoutContext $checkoutContext): Response
     {

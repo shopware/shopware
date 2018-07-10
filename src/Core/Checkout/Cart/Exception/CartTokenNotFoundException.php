@@ -24,20 +24,28 @@
 
 namespace Shopware\Core\Checkout\Cart\Exception;
 
-class CartTokenNotFoundException extends \Exception
+use Shopware\Core\Framework\ShopwareHttpException;
+use Symfony\Component\HttpFoundation\Response;
+use Throwable;
+
+class CartTokenNotFoundException extends ShopwareHttpException
 {
+    protected $code = 'CART-TOKEN-NOT-FOUND';
     /**
      * @var string
      */
-    protected $token;
+    private $token;
 
-    /**
-     * @param string $token
-     */
-    public function __construct($token)
+    public function __construct(string $token, $code = 0, Throwable $previous = null)
     {
+        $message = sprintf('Cart with token %s not found', $token);
+        parent::__construct($message, $code, $previous);
         $this->token = $token;
-        parent::__construct(sprintf('Cart with token %s not found', $this->token));
+    }
+
+    public function getStatusCode(): int
+    {
+        return Response::HTTP_NOT_FOUND;
     }
 
     public function getToken(): string

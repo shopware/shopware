@@ -2,12 +2,21 @@
 
 namespace Shopware\Core\Checkout\Order\Exception;
 
-class EmptyCartException extends \Exception
-{
-    public const CODE = 4004;
+use Shopware\Core\Framework\ShopwareHttpException;
+use Symfony\Component\HttpFoundation\Response;
+use Throwable;
 
-    public function __construct()
+class EmptyCartException extends ShopwareHttpException
+{
+    protected $code = 'CART-EMPTY';
+
+    public function __construct($code = 0, Throwable $previous = null)
     {
-        parent::__construct('Cart is empty', self::CODE);
+        parent::__construct('Cart is empty', $code, $previous);
+    }
+
+    public function getStatusCode(): int
+    {
+        return Response::HTTP_BAD_REQUEST;
     }
 }

@@ -31,7 +31,7 @@
             <argument type="service" id="customer_group_discount.repository"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Customer\Storefront\CustomerController" id="Shopware\Core\Checkout\Customer\Storefront\CustomerController" public="true">
+        <service class="Shopware\Core\Checkout\Customer\Storefront\StorefrontCustomerController" id="Shopware\Core\Checkout\Customer\Storefront\StorefrontCustomerController" public="true">
             <argument id="serializer" type="service"/>
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>
             <argument type="service" id="Shopware\Storefront\Page\Account\AccountService"/>
@@ -80,7 +80,7 @@
             <tag name="shopware.traceable"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Context\Storefront\CheckoutContextController" id="Shopware\Core\Checkout\Context\Storefront\CheckoutContextController" public="true">
+        <service class="Shopware\Core\Checkout\Context\Storefront\StorefrontCheckoutContextController" id="Shopware\Core\Checkout\Context\Storefront\StorefrontCheckoutContextController" public="true">
             <argument id="payment_method.repository" type="service"/>
             <argument id="shipping_method.repository" type="service"/>
             <argument id="customer_address.repository" type="service"/>

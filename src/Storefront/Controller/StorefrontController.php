@@ -24,9 +24,9 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Framework\Twig\TemplateFinder;
 use Shopware\Core\PlatformRequest;
-use Shopware\Storefront\Exception\CustomerNotLoggedInException;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -61,6 +61,9 @@ abstract class StorefrontController extends Controller
         return $this->get(TemplateFinder::class)->find($view, true);
     }
 
+    /**
+     * @throws CustomerNotLoggedInException
+     */
     protected function denyAccessUnlessLoggedIn(): void
     {
         $request = $this->get('request_stack')->getMasterRequest();

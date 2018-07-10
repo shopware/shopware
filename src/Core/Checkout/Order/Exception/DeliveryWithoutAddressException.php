@@ -2,12 +2,22 @@
 
 namespace Shopware\Core\Checkout\Order\Exception;
 
-class DeliveryWithoutAddressException extends \Exception
-{
-    public const CODE = 4003;
+use Shopware\Core\Framework\ShopwareHttpException;
+use Symfony\Component\HttpFoundation\Response;
+use Throwable;
 
-    public function __construct()
+class DeliveryWithoutAddressException extends ShopwareHttpException
+{
+    protected $code = 'DELIVERY-WITHOUT-ADDRESS';
+
+    public function __construct($code = 0, Throwable $previous = null)
     {
-        parent::__construct('Delivery contains no shipping address', self::CODE);
+        $message = 'Delivery contains no shipping address';
+        parent::__construct($message, $code, $previous);
+    }
+
+    public function getStatusCode(): int
+    {
+        return Response::HTTP_BAD_REQUEST;
     }
 }

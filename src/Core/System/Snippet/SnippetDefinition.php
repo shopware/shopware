@@ -28,7 +28,7 @@ class SnippetDefinition extends EntityDefinition
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->setFlags(new PrimaryKey(), new Required()),
-            (new StringField('translation_key', 'translationKey'))->setFlags(new PrimaryKey(), new Required()),
+            (new StringField('translation_key', 'translationKey'))->setFlags(new Required()),
             (new LongTextField('value', 'value'))->setFlags(new Required()),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),

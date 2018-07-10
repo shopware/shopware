@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Struct;
 
 use Ramsey\Uuid\UuidInterface;
 use Shopware\Core\Framework\Exception\InvalidUuidException;
+use Shopware\Core\Framework\Exception\InvalidUuidLengthException;
 
 class Uuid
 {
@@ -18,9 +19,22 @@ class Uuid
         return \Ramsey\Uuid\Uuid::uuid4();
     }
 
+    /**
+     * @throws InvalidUuidException
+     * @throws InvalidUuidLengthException
+     */
     public static function fromBytesToHex(string $bytes): string
     {
-        return bin2hex($bytes);
+        if (strlen($bytes) !== 16) {
+            throw new InvalidUuidLengthException(strlen($bytes), bin2hex($bytes));
+        }
+        $uuid = bin2hex($bytes);
+
+        if (!self::isValid($uuid)) {
+            throw new InvalidUuidException($uuid);
+        }
+
+        return $uuid;
     }
 
     /**
@@ -45,11 +59,6 @@ class Uuid
         }
 
         throw new InvalidUuidException($hex);
-    }
-
-    public static function fromHexToString(string $hex): string
-    {
-        return \Ramsey\Uuid\Uuid::fromString($hex)->toString();
     }
 
     public static function isValid($id): bool

@@ -1,51 +1,5 @@
-@import "~less/variables";
-
-@sw-customer-default-addresses-color-title-text:      @color-kashmir;
-@sw-customer-default-addresses-color-edit-icon:       @color-gutenberg;
-@sw-customer-default-addresses-color-edit-background: @color-light-gray;
-
 .sw-customer-default-addresses {
     min-height: 160px;
-
-    .sw-customer-default-addresses__title {
-        display: grid;
-        grid-template-columns: 1fr 30px;
-        align-items: center;
-        margin: 0 0 20px 0;
-    }
-
-    .sw-customer-default-addresses__title-text {
-        color: @sw-customer-default-addresses-color-title-text;
-        font-weight: normal;
-        font-size: 18px;
-    }
-
-    .sw-customer-default-addresses__edit {
-        width: 32px;
-        height: 32px;
-        background: 0 none;
-        border: 0 none;
-        outline: none;
-        cursor: pointer;
-        color: lighten(@sw-customer-default-addresses-color-edit-icon, 10%);
-        line-height: 0;
-        text-align: center;
-        border-radius: 50%;
-
-        &:hover {
-            color: @sw-customer-default-addresses-color-edit-icon;
-        }
-
-        &:focus {
-            background-color: darken(@sw-customer-default-addresses-color-edit-background, 5%);
-        }
-
-        &:disabled {
-            color: darken(@sw-customer-default-addresses-color-edit-background, 15%);
-            pointer-events: none;
-            cursor: default;
-        }
-    }
 
     .sw-address {
         margin-bottom: 0;

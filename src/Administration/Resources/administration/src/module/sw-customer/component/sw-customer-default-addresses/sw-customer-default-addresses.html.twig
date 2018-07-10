@@ -3,64 +3,20 @@
 
         {% block sw_customer_default_addresses_shipping %}
             <sw-card-section v-if="customer.defaultShippingAddress.id" divider="right">
-
-                {% block sw_customer_default_addresses_shipping_title %}
-                    <h3 class="sw-customer-default-addresses__title">
-
-                        {% block sw_customer_default_addresses_shipping_title_text %}
-                            <span class="sw-customer-default-addresses__title-text">
-                                {{ $tc('sw-customer.detailBase.titleDefaultShippingAddress') }}
-                            </span>
-                        {% endblock %}
-
-                        {% block sw_customer_default_addresses_shipping_title_edit %}
-                            <button class="sw-customer-default-addresses__edit"
-                                    :title="$tc('sw-customer.detailBase.buttonTitleEditAddress')"
-                                    :aria-label="$tc('sw-customer.detailBase.buttonTitleEditAddress')"
-                                    disabled>
-                                {% block sw_customer_default_addresses_shipping_title_edit_icon %}
-                                    <sw-icon name="small-pencil" small></sw-icon>
-                                {% endblock %}
-                            </button>
-                        {% endblock %}
-
-                    </h3>
-                {% endblock %}
-
                 {% block sw_customer_default_addresses_shipping_postal %}
-                    <sw-address :address="customer.defaultShippingAddress"></sw-address>
+                    <sw-address :address="customer.defaultShippingAddress"
+                                :headline="$tc('sw-customer.detailBase.titleDefaultShippingAddress')">
+                    </sw-address>
                 {% endblock %}
             </sw-card-section>
         {% endblock %}
 
         {% block sw_customer_default_addresses_billing %}
             <sw-card-section v-if="customer.defaultBillingAddress.id">
-
-                {% block sw_customer_default_addresses_billing_title %}
-                    <h3 class="sw-customer-default-addresses__title">
-
-                        {% block sw_customer_default_addresses_billing_title_text %}
-                            <span class="sw-customer-default-addresses__title-text">
-                                {{ $tc('sw-customer.detailBase.titleDefaultBillingAddress') }}
-                            </span>
-                        {% endblock %}
-
-                        {% block sw_customer_default_addresses_billing_title_edit %}
-                            <button class="sw-customer-default-addresses__edit"
-                                    :title="$tc('sw-customer.detailBase.buttonTitleEditAddress')"
-                                    :aria-label="$tc('sw-customer.detailBase.buttonTitleEditAddress')"
-                                    disabled>
-                                {% block sw_customer_default_addresses_billing_title_edit_icon %}
-                                    <sw-icon name="small-pencil" small></sw-icon>
-                                {% endblock %}
-                            </button>
-                        {% endblock %}
-
-                    </h3>
-                {% endblock %}
-
                 {% block sw_customer_default_addresses_billing_postal %}
-                    <sw-address :address="customer.defaultBillingAddress"></sw-address>
+                    <sw-address :address="customer.defaultBillingAddress"
+                                :headline="$tc('sw-customer.detailBase.titleDefaultBillingAddress')">
+                    </sw-address>
                 {% endblock %}
             </sw-card-section>
         {% endblock %}

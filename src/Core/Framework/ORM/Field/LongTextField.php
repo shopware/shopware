@@ -46,7 +46,12 @@ class LongTextField extends Field implements StorageAware
         parent::__construct($propertyName);
     }
 
-    public function invoke(EntityExistence $existence, KeyValuePair $data): \Generator
+    public function getStorageName(): string
+    {
+        return $this->storageName;
+    }
+
+    protected function invoke(EntityExistence $existence, KeyValuePair $data): \Generator
     {
         $key = $data->getKey();
         $value = $data->getValue();
@@ -58,11 +63,6 @@ class LongTextField extends Field implements StorageAware
         }
 
         yield $this->storageName => $this->getFilter()->filter($value);
-    }
-
-    public function getStorageName(): string
-    {
-        return $this->storageName;
     }
 
     /**

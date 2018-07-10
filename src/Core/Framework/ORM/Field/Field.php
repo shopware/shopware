@@ -30,7 +30,7 @@ use Shopware\Core\Framework\ORM\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\ORM\Write\EntityExistence;
 use Shopware\Core\Framework\ORM\Write\FieldAware\FieldExtenderCollection;
 use Shopware\Core\Framework\ORM\Write\FieldException\FieldExceptionStack;
-use Shopware\Core\Framework\ORM\Write\FieldException\InvalidFieldException;
+use Shopware\Core\Framework\ORM\Write\FieldException\InsufficientWritePermissionException;
 use Shopware\Core\Framework\ORM\Write\Filter\FilterRegistry;
 use Shopware\Core\Framework\ORM\Write\Flag\Flag;
 use Shopware\Core\Framework\ORM\Write\Flag\WriteProtected;
@@ -133,8 +133,6 @@ abstract class Field extends Struct
 
         yield from $this->invoke($existence, $data);
     }
-
-    abstract public function invoke(EntityExistence $existence, KeyValuePair $data): \Generator;
 
     public function getExtractPriority(): int
     {
@@ -255,6 +253,8 @@ abstract class Field extends Struct
         $this->writeResource = $writeResource;
     }
 
+    abstract protected function invoke(EntityExistence $existence, KeyValuePair $data): \Generator;
+
     /**
      * @param $value
      * @param $key
@@ -280,7 +280,7 @@ abstract class Field extends Struct
             )
         );
 
-        throw new InvalidFieldException($this->path . '/' . $key, $violationList);
+        throw new InsufficientWritePermissionException($this->path . '/' . $key, $violationList);
     }
 
     /**

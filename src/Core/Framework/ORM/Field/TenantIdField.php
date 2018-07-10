@@ -20,7 +20,7 @@ class TenantIdField extends IdField
     /**
      * {@inheritdoc}
      */
-    public function invoke(EntityExistence $existence, KeyValuePair $data): \Generator
+    protected function invoke(EntityExistence $existence, KeyValuePair $data): \Generator
     {
         $value = $this->writeContext->getContext()->getTenantId();
 

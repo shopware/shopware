@@ -73,9 +73,35 @@ class TranslatedField extends Field
     }
 
     /**
+     * @return string
+     */
+    public function getStorageName(): string
+    {
+        return $this->storageName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getReferencedClassName(): string
+    {
+        return $this->referencedClassName;
+    }
+
+    public function getExtractPriority(): int
+    {
+        return 100;
+    }
+
+    public function getField(): StorageAware
+    {
+        return $this->field;
+    }
+
+    /**
      * {@inheritdoc}
      */
-    public function invoke(EntityExistence $existence, KeyValuePair $data): \Generator
+    protected function invoke(EntityExistence $existence, KeyValuePair $data): \Generator
     {
         $key = $data->getKey();
         $value = $data->getValue();
@@ -110,31 +136,5 @@ class TranslatedField extends Field
                 $key => $value,
             ],
         ];
-    }
-
-    /**
-     * @return string
-     */
-    public function getStorageName(): string
-    {
-        return $this->storageName;
-    }
-
-    /**
-     * @return string
-     */
-    public function getReferencedClassName(): string
-    {
-        return $this->referencedClassName;
-    }
-
-    public function getExtractPriority(): int
-    {
-        return 100;
-    }
-
-    public function getField(): StorageAware
-    {
-        return $this->field;
     }
 }

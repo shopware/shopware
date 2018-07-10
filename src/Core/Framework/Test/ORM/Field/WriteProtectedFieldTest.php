@@ -7,7 +7,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Write\EntityWriter;
 use Shopware\Core\Framework\ORM\Write\EntityWriterInterface;
-use Shopware\Core\Framework\ORM\Write\FieldException\InvalidFieldException;
+use Shopware\Core\Framework\ORM\Write\FieldException\InsufficientWritePermissionException;
 use Shopware\Core\Framework\ORM\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\ORM\Write\WriteContext;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -102,7 +102,7 @@ EOF;
         $this->assertEquals('This field is write-protected.', $this->getValidationExceptionMessage($ex));
 
         $fieldException = $ex->getExceptions()[0];
-        $this->assertEquals(InvalidFieldException::class, get_class($fieldException));
+        $this->assertEquals(InsufficientWritePermissionException::class, get_class($fieldException));
         $this->assertEquals('/protected', $fieldException->getPath());
     }
 
@@ -167,7 +167,7 @@ EOF;
         $this->assertEquals('This field is write-protected.', $this->getValidationExceptionMessage($ex, 'relation'));
 
         $fieldException = $ex->getExceptions()[0];
-        $this->assertEquals(InvalidFieldException::class, get_class($fieldException));
+        $this->assertEquals(InsufficientWritePermissionException::class, get_class($fieldException));
         $this->assertEquals('/relation', $fieldException->getPath());
     }
 
@@ -218,7 +218,7 @@ EOF;
         $this->assertEquals('This field is write-protected.', $this->getValidationExceptionMessage($ex, 'wp'));
 
         $fieldException = $ex->getExceptions()[0];
-        $this->assertEquals(InvalidFieldException::class, get_class($fieldException));
+        $this->assertEquals(InsufficientWritePermissionException::class, get_class($fieldException));
         $this->assertEquals('/wp', $fieldException->getPath());
     }
 
@@ -272,7 +272,7 @@ EOF;
         $this->assertEquals('This field is write-protected.', $this->getValidationExceptionMessage($ex, 'relations'));
 
         $fieldException = $ex->getExceptions()[0];
-        $this->assertEquals(InvalidFieldException::class, get_class($fieldException));
+        $this->assertEquals(InsufficientWritePermissionException::class, get_class($fieldException));
         $this->assertEquals('/relations', $fieldException->getPath());
     }
 
@@ -322,7 +322,7 @@ EOF;
         $this->assertEquals('This field is write-protected.', $this->getValidationExceptionMessage($ex));
 
         $fieldException = $ex->getExceptions()[0];
-        $this->assertEquals(InvalidFieldException::class, get_class($fieldException));
+        $this->assertEquals(InsufficientWritePermissionException::class, get_class($fieldException));
         $this->assertEquals('/protected', $fieldException->getPath());
     }
 
@@ -360,6 +360,6 @@ EOF;
 
     private function getValidationExceptionMessage(WriteStackException $ex, string $field = 'protected'): string
     {
-        return $ex->toArray()['/' . $field]['validation-error'][0]['message'];
+        return $ex->toArray()['/' . $field]['insufficient-permission'][0]['message'];
     }
 }

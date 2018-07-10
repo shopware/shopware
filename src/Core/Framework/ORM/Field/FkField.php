@@ -67,7 +67,17 @@ class FkField extends Field implements StorageAware
         $this->tenantIdField = str_replace('_id', '_tenant_id', $this->storageName);
     }
 
-    public function invoke(EntityExistence $existence, KeyValuePair $data): \Generator
+    public function getStorageName(): string
+    {
+        return $this->storageName;
+    }
+
+    public function getExtractPriority(): int
+    {
+        return 70;
+    }
+
+    protected function invoke(EntityExistence $existence, KeyValuePair $data): \Generator
     {
         $key = $data->getKey();
         $value = $data->getValue();
@@ -93,16 +103,6 @@ class FkField extends Field implements StorageAware
 
         yield $this->storageName => Uuid::fromStringToBytes($value);
         yield $this->tenantIdField => Uuid::fromStringToBytes($this->writeContext->getContext()->getTenantId());
-    }
-
-    public function getStorageName(): string
-    {
-        return $this->storageName;
-    }
-
-    public function getExtractPriority(): int
-    {
-        return 70;
     }
 
     /**

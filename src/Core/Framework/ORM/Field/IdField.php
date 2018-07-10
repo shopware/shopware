@@ -48,10 +48,15 @@ class IdField extends Field implements StorageAware
         parent::__construct($propertyName);
     }
 
+    public function getStorageName(): string
+    {
+        return $this->storageName;
+    }
+
     /**
      * {@inheritdoc}
      */
-    public function invoke(EntityExistence $existence, KeyValuePair $data): \Generator
+    protected function invoke(EntityExistence $existence, KeyValuePair $data): \Generator
     {
         $key = $data->getKey();
         $value = $data->getValue();
@@ -65,10 +70,5 @@ class IdField extends Field implements StorageAware
         $this->writeContext->set($this->definition, $key, $value);
 
         yield $this->storageName => $generator->toStorageValue($value);
-    }
-
-    public function getStorageName(): string
-    {
-        return $this->storageName;
     }
 }

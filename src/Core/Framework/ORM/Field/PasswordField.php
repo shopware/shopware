@@ -35,10 +35,15 @@ class PasswordField extends Field implements StorageAware
         $this->hashOptions = $hashOptions;
     }
 
+    public function getStorageName(): string
+    {
+        return $this->storageName;
+    }
+
     /**
      * {@inheritdoc}
      */
-    public function invoke(EntityExistence $existence, KeyValuePair $data): \Generator
+    protected function invoke(EntityExistence $existence, KeyValuePair $data): \Generator
     {
         $key = $data->getKey();
         $value = $data->getValue();
@@ -54,11 +59,6 @@ class PasswordField extends Field implements StorageAware
         }
 
         yield $this->storageName => $value;
-    }
-
-    public function getStorageName(): string
-    {
-        return $this->storageName;
     }
 
     /**

@@ -7,26 +7,6 @@ use Shopware\Core\Framework\ORM\Write\EntityExistence;
 
 class PriceRulesJsonField extends JsonField
 {
-    public function invoke(EntityExistence $existence, KeyValuePair $data): \Generator
-    {
-        $value = $data->getValue();
-        if (!empty($data->getValue())) {
-            $value = $this->convertToStorage($value);
-        }
-
-        if ($existence->exists()) {
-            $this->validate($this->getUpdateConstraints(), $data->getKey(), $value);
-        } else {
-            $this->validate($this->getInsertConstraints(), $data->getKey(), $value);
-        }
-
-        if (!is_string($value) && $value !== null) {
-            $value = json_encode($value);
-        }
-
-        yield $this->storageName => $value;
-    }
-
     public static function format(string $ruleId, string $currencyId, float $gross, float $net)
     {
         return [
@@ -55,5 +35,25 @@ class PriceRulesJsonField extends JsonField
             'raw' => $data,
             'optimized' => $queryOptimized,
         ];
+    }
+
+    protected function invoke(EntityExistence $existence, KeyValuePair $data): \Generator
+    {
+        $value = $data->getValue();
+        if (!empty($data->getValue())) {
+            $value = $this->convertToStorage($value);
+        }
+
+        if ($existence->exists()) {
+            $this->validate($this->getUpdateConstraints(), $data->getKey(), $value);
+        } else {
+            $this->validate($this->getInsertConstraints(), $data->getKey(), $value);
+        }
+
+        if (!is_string($value) && $value !== null) {
+            $value = json_encode($value);
+        }
+
+        yield $this->storageName => $value;
     }
 }

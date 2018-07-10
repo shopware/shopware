@@ -52,7 +52,7 @@ class SubresourceField extends Field
     /**
      * {@inheritdoc}
      */
-    public function invoke(EntityExistence $existence, KeyValuePair $data): \Generator
+    protected function invoke(EntityExistence $existence, KeyValuePair $data): \Generator
     {
         $key = $data->getKey();
         $value = $data->getValue();

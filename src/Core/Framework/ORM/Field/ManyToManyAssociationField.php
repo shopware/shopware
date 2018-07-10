@@ -61,7 +61,43 @@ class ManyToManyAssociationField extends SubresourceField implements Association
         $this->referenceColumn = $referenceColumn;
     }
 
-    public function invoke(EntityExistence $existence, KeyValuePair $data): \Generator
+    /**
+     * @return string|EntityDefinition
+     */
+    public function getReferenceDefinition(): string
+    {
+        return $this->referenceDefinition;
+    }
+
+    /**
+     * @return string|EntityDefinition
+     */
+    public function getMappingDefinition(): string
+    {
+        return $this->mappingDefinition;
+    }
+
+    public function getMappingLocalColumn(): string
+    {
+        return $this->mappingLocalColumn;
+    }
+
+    public function getMappingReferenceColumn(): string
+    {
+        return $this->mappingReferenceColumn;
+    }
+
+    public function getLocalField(): string
+    {
+        return $this->sourceColumn;
+    }
+
+    public function getReferenceField(): string
+    {
+        return $this->referenceColumn;
+    }
+
+    protected function invoke(EntityExistence $existence, KeyValuePair $data): \Generator
     {
         $key = $data->getKey();
         $value = $data->getValue();
@@ -101,42 +137,6 @@ class ManyToManyAssociationField extends SubresourceField implements Association
 
         return;
         yield __CLASS__ => __METHOD__;
-    }
-
-    /**
-     * @return string|EntityDefinition
-     */
-    public function getReferenceDefinition(): string
-    {
-        return $this->referenceDefinition;
-    }
-
-    /**
-     * @return string|EntityDefinition
-     */
-    public function getMappingDefinition(): string
-    {
-        return $this->mappingDefinition;
-    }
-
-    public function getMappingLocalColumn(): string
-    {
-        return $this->mappingLocalColumn;
-    }
-
-    public function getMappingReferenceColumn(): string
-    {
-        return $this->mappingReferenceColumn;
-    }
-
-    public function getLocalField(): string
-    {
-        return $this->sourceColumn;
-    }
-
-    public function getReferenceField(): string
-    {
-        return $this->referenceColumn;
     }
 
     private function getMappingAssociation(): ?AssociationInterface

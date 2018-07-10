@@ -45,10 +45,15 @@ class CatalogField extends FkField
         $this->setFlags(new Required());
     }
 
+    public function getExtractPriority(): int
+    {
+        return 1000;
+    }
+
     /**
      * {@inheritdoc}
      */
-    public function invoke(EntityExistence $existence, KeyValuePair $data): \Generator
+    protected function invoke(EntityExistence $existence, KeyValuePair $data): \Generator
     {
         if ($this->writeContext->has($this->definition, 'catalogId')) {
             $value = $this->writeContext->get($this->definition, 'catalogId');
@@ -73,11 +78,6 @@ class CatalogField extends FkField
 
         yield $this->storageName => Uuid::fromStringToBytes($value);
         yield 'catalog_tenant_id' => Uuid::fromStringToBytes($this->writeContext->getContext()->getTenantId());
-    }
-
-    public function getExtractPriority(): int
-    {
-        return 1000;
     }
 
     private function validateCatalog(array $restrictedCatalogs, $catalogId, EntityExistence $existence): void

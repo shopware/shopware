@@ -46,10 +46,15 @@ class DateField extends Field implements StorageAware
         parent::__construct($propertyName);
     }
 
+    public function getStorageName(): string
+    {
+        return $this->storageName;
+    }
+
     /**
      * {@inheritdoc}
      */
-    public function invoke(EntityExistence $existence, KeyValuePair $data): \Generator
+    protected function invoke(EntityExistence $existence, KeyValuePair $data): \Generator
     {
         $key = $data->getKey();
         $value = $data->getValue();
@@ -59,11 +64,6 @@ class DateField extends Field implements StorageAware
         }
 
         yield $this->storageName => $this->getValueTransformer()->transform($value);
-    }
-
-    public function getStorageName(): string
-    {
-        return $this->storageName;
     }
 
     /**

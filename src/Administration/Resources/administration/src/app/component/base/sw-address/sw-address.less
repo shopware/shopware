@@ -1,7 +1,7 @@
 @import "~less/variables";
 
-@sw-address-color-text:   @color-gutenberg;
-@sw-address-color-border: @color-steam-cloud;
+@sw-address-color-text:     @color-gutenberg;
+@sw-address-color-headline: @color-kashmir;
 
 .sw-address {
     margin-bottom: 20px;
@@ -11,14 +11,9 @@
     color: @sw-address-color-text;
 
     .sw-address__headline {
-        font-weight: 600;
-        padding: 15px;
-        border-bottom: 1px solid @sw-address-color-border;
-    }
-
-    &.sw-address--headline {
-        .sw-address__body {
-            padding: 15px;
-        }
+        margin: 0 0 20px 0;
+        color: @sw-address-color-headline;
+        font-weight: normal;
+        font-size: 18px;
     }
 }

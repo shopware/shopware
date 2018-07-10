@@ -4,7 +4,7 @@ namespace Shopware\Administration\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Administration\Search\AdministrationSearch;
-use Shopware\Core\Framework\Api\Context\RestContext;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Twig\TemplateFinder;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -48,14 +48,13 @@ class AdministrationController extends Controller
      *
      * @return JsonResponse
      */
-    public function search(Request $request, RestContext $restContext): JsonResponse
+    public function search(Request $request, Context $context): JsonResponse
     {
         $term = $request->query->get('term');
         $page = $request->query->getInt('page', 1);
         $limit = $request->query->getInt('limit', 20);
 
-        $context = $restContext->getContext();
-        $result = $this->search->search($term, $page, $limit, $context, $restContext->getContext()->getSourceContext()->getUserId());
+        $result = $this->search->search($term, $page, $limit, $context, $context->getSourceContext()->getUserId());
 
         return new JsonResponse($result);
     }

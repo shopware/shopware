@@ -2,12 +2,13 @@
 
 namespace Shopware\Core\Framework\Api\Response\Type;
 
-use Shopware\Core\Framework\Api\Context\RestContext;
 use Shopware\Core\Framework\Api\Response\JsonApiResponse;
 use Shopware\Core\Framework\Api\Response\ResponseTypeInterface;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Serializer;
 
@@ -28,19 +29,19 @@ class JsonApiType implements ResponseTypeInterface
         return $contentType === 'application/vnd.api+json';
     }
 
-    public function createDetailResponse(Entity $entity, string $definition, RestContext $context, bool $setLocationHeader = false): Response
+    public function createDetailResponse(Entity $entity, string $definition, Request $request, Context $context, bool $setLocationHeader = false): Response
     {
         $headers = [];
-        $baseUrl = $this->getBaseUrl($context);
+        $baseUrl = $this->getBaseUrl($request);
 
         if ($setLocationHeader) {
             /* @var string|EntityDefinition $definition */
-            $headers['Location'] = $baseUrl . '/api/v' . $context->getVersion() . '/' . $this->camelCaseToSnailCase($definition::getEntityName()) . '/' . $entity->getId();
+            $headers['Location'] = $baseUrl . '/api/v' . $this->getVersion($request) . '/' . $this->camelCaseToSnailCase($definition::getEntityName()) . '/' . $entity->getId();
         }
 
         $rootNode = [
             'links' => [
-                'self' => $baseUrl . $context->getRequest()->getPathInfo(),
+                'self' => $baseUrl . $request->getPathInfo(),
             ],
         ];
 
@@ -48,7 +49,7 @@ class JsonApiType implements ResponseTypeInterface
             $entity,
             'jsonapi',
             [
-                'uri' => $baseUrl . '/api/v' . $context->getVersion(),
+                'uri' => $baseUrl . '/api/v' . $this->getVersion($request),
                 'data' => $rootNode,
                 'definition' => $definition,
                 'basic' => false,
@@ -58,17 +59,17 @@ class JsonApiType implements ResponseTypeInterface
         return new JsonApiResponse($response, JsonApiResponse::HTTP_OK, $headers, true);
     }
 
-    public function createListingResponse(EntitySearchResult $searchResult, string $definition, RestContext $context): Response
+    public function createListingResponse(EntitySearchResult $searchResult, string $definition, Request $request, Context $context): Response
     {
-        $baseUrl = $this->getBaseUrl($context);
+        $baseUrl = $this->getBaseUrl($request);
 
-        $uri = $baseUrl . $context->getRequest()->getPathInfo();
+        $uri = $baseUrl . $request->getPathInfo();
 
         $rootNode = [
-            'links' => $this->createPaginationLinks($searchResult, $uri, $context->getRequest()->query->all()),
+            'links' => $this->createPaginationLinks($searchResult, $uri, $request->query->all()),
         ];
 
-        $rootNode['links']['self'] = $context->getRequest()->getUri();
+        $rootNode['links']['self'] = $request->getUri();
 
         if ($searchResult->getCriteria()->fetchCount()) {
             $rootNode['meta'] = [
@@ -89,7 +90,7 @@ class JsonApiType implements ResponseTypeInterface
             $searchResult,
             'jsonapi',
             [
-                'uri' => $baseUrl . '/api/v' . $context->getVersion(),
+                'uri' => $baseUrl . '/api/v' . $this->getVersion($request),
                 'data' => $rootNode,
                 'definition' => $definition,
                 'basic' => true,
@@ -99,11 +100,11 @@ class JsonApiType implements ResponseTypeInterface
         return new JsonApiResponse($response, JsonApiResponse::HTTP_OK, [], true);
     }
 
-    public function createRedirectResponse(string $definition, string $id, RestContext $context): Response
+    public function createRedirectResponse(string $definition, string $id, Request $request, Context $context): Response
     {
         /** @var string|EntityDefinition $definition */
         $headers = [
-            'Location' => $this->getBaseUrl($context) . '/api/v' . $context->getVersion() . '/' . $this->camelCaseToSnailCase($definition::getEntityName()) . '/' . $id,
+            'Location' => $this->getBaseUrl($request) . '/api/v' . $this->getVersion($request) . '/' . $this->camelCaseToSnailCase($definition::getEntityName()) . '/' . $id,
         ];
 
         return new Response(null, Response::HTTP_NO_CONTENT, $headers);
@@ -175,9 +176,9 @@ class JsonApiType implements ResponseTypeInterface
         return $uri . '?' . http_build_query($parameters);
     }
 
-    private function getBaseUrl(RestContext $context): string
+    private function getBaseUrl(Request $request): string
     {
-        return $context->getRequest()->getSchemeAndHttpHost() . $context->getRequest()->getBasePath();
+        return $request->getSchemeAndHttpHost() . $request->getBasePath();
     }
 
     private function camelCaseToSnailCase(string $input): string
@@ -185,5 +186,10 @@ class JsonApiType implements ResponseTypeInterface
         $input = str_replace('_', '-', $input);
 
         return ltrim(strtolower(preg_replace('/[A-Z]/', '-$0', $input)), '-');
+    }
+
+    private function getVersion(Request $request): int
+    {
+        return (int) $request->get('version');
     }
 }

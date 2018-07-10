@@ -7,7 +7,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Framework\Api\Context\RestContext;
 use Shopware\Core\Framework\Api\Response\ResponseFactory;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\SearchCriteriaBuilder;
@@ -45,7 +44,7 @@ class StorefrontProductController extends Controller
     /**
      * @Route("/storefront-api/product", name="storefront.api.product.list")
      */
-    public function list(Request $request, CheckoutContext $context): Response
+    public function list(Request $request, CheckoutContext $checkoutContext): Response
     {
         $criteria = new Criteria();
 
@@ -53,15 +52,16 @@ class StorefrontProductController extends Controller
             $request,
             $criteria,
             ProductDefinition::class,
-            $context->getContext()
+            $checkoutContext->getContext()
         );
 
-        $result = $this->repository->search($criteria, $context);
+        $result = $this->repository->search($criteria, $checkoutContext);
 
         return $this->responseFactory->createListingResponse(
             $result,
             ProductDefinition::class,
-            new RestContext($request, $context->getContext(), null)
+            $request,
+            $checkoutContext->getContext()
         );
     }
 
@@ -69,9 +69,9 @@ class StorefrontProductController extends Controller
      * @Route("/storefront-api/product/{productId}", name="storefront.api.product.detail")
      * @Method({"GET"})
      */
-    public function detail(string $productId, Request $request, CheckoutContext $context): Response
+    public function detail(string $productId, Request $request, CheckoutContext $checkoutContext): Response
     {
-        $products = $this->repository->read([$productId], $context);
+        $products = $this->repository->read([$productId], $checkoutContext);
         if (!$products->has($productId)) {
             throw new ProductNotFoundException($productId);
         }
@@ -79,7 +79,8 @@ class StorefrontProductController extends Controller
         return $this->responseFactory->createDetailResponse(
             $products->get($productId),
             ProductDefinition::class,
-            new RestContext($request, $context->getContext(), null)
+            $request,
+            $checkoutContext->getContext()
         );
     }
 }

@@ -4,8 +4,9 @@ namespace Shopware\Core\Framework\Api\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Core\Framework\Api\Context\RestContext;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\DefinitionRegistry;
+use Shopware\Core\Framework\ORM\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Write\FieldException\WriteStackException;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -41,16 +42,14 @@ class SyncController extends Controller
      * @Route("/api/sync", name="sync.api")
      * @Method({"POST"})
      *
-     * @param Request     $request
-     * @param RestContext $restContext
+     * @param Request $request
+     * @param Context $context
      *
      * @return Response
      */
-    public function sync(Request $request, RestContext $restContext): Response
+    public function sync(Request $request, Context $context): Response
     {
         $payload = $this->serializer->decode($request->getContent(), 'json');
-
-        $context = $restContext->getContext();
 
         $errors = $result = [];
 
@@ -65,7 +64,7 @@ class SyncController extends Controller
 
             switch ($action) {
                 case self::ACTION_DELETE:
-                    /** @var WrittenEvent $event */
+                    /** @var EntityWrittenEvent $event */
                     $generic = $repository->delete([$operation['payload']], $context);
 
                     $errors = array_merge($errors, $generic->getErrors());
@@ -74,7 +73,7 @@ class SyncController extends Controller
 
                 case self::ACTION_UPSERT:
                     try {
-                        /** @var WrittenEvent $event */
+                        /** @var EntityWrittenEvent $event */
                         $generic = $repository->upsert(
                             [$operation['payload']],
                             $context

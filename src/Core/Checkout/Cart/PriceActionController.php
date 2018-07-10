@@ -9,10 +9,11 @@ use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\PercentageTaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Framework\Api\Context\RestContext;
 use Shopware\Core\Framework\Api\Response\Type\JsonType;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\System\Tax\TaxStruct;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -56,31 +57,29 @@ class PriceActionController extends Controller
      * @Route("/api/v1/price/actions/calculate", name="api.price.actions.calculate")
      * @Method({"POST"})
      *
-     * @param Request     $request
-     * @param RestContext $context
+     * @param Request $request
+     * @param Context $context
      *
      * @return JsonResponse
      */
-    public function calculate(Request $request, RestContext $context): JsonResponse
+    public function calculate(Request $request, Context $context): JsonResponse
     {
-        $post = $this->getPost($request);
-
-        if (!array_key_exists('price', $post)) {
+        if (!$request->request->has('price')) {
             throw new \InvalidArgumentException('Parameter price missing');
         }
-        if (!array_key_exists('taxId', $post)) {
+        if (!$request->request->has('taxId')) {
             throw new \InvalidArgumentException('Parameter taxId missing');
         }
 
-        $taxId = $post['taxId'];
-        $price = (float) $post['price'];
-        $quantity = (int) ($post['quantity'] ?? 1);
-        $output = $post['output'] ?? 'gross';
-        $preCalculated = (bool) ($post['calculated'] ?? true);
+        $taxId = $request->request->get('taxId');
+        $price = (float) $request->request->get('price');
+        $quantity = $request->request->getInt('quantity', 1);
+        $output = $request->request->get('output', 'gross');
+        $preCalculated = $request->request->getBoolean('calculated', true);
 
-        $taxes = $this->taxRepository->read(new ReadCriteria([$taxId]), $context->getContext());
+        $taxes = $this->taxRepository->read(new ReadCriteria([$taxId]), $context);
         $tax = $taxes->get($taxId);
-        if (!$tax) {
+        if (!$tax instanceof TaxStruct) {
             throw new \InvalidArgumentException(sprintf('Tax rule with id %s not found taxId missing', $taxId));
         }
 
@@ -103,14 +102,5 @@ class PriceActionController extends Controller
         return new JsonResponse(
             ['data' => JsonType::format($data)]
         );
-    }
-
-    private function getPost(Request $request): array
-    {
-        if (empty($request->getContent())) {
-            return [];
-        }
-
-        return $this->serializer->decode($request->getContent(), 'json');
     }
 }

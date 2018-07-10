@@ -7,7 +7,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
-use Shopware\Core\Framework\Api\Context\RestContext;
 use Shopware\Core\Framework\Api\Response\ResponseFactory;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
@@ -47,11 +46,12 @@ class StorefrontCategoryController extends Controller
     /**
      * @Route("/storefront-api/category", name="storefront.api.category.list")
      *
-     * @param Request $request
-     * @param CheckoutContext $context
+     * @param Request         $request
+     * @param CheckoutContext $checkoutContext
+     *
      * @return Response
      */
-    public function list(Request $request, CheckoutContext $context): Response
+    public function list(Request $request, CheckoutContext $checkoutContext): Response
     {
         $criteria = new Criteria();
 
@@ -59,15 +59,16 @@ class StorefrontCategoryController extends Controller
             $request,
             $criteria,
             CategoryDefinition::class,
-            $context->getContext()
+            $checkoutContext->getContext()
         );
 
-        $result = $this->repository->search($criteria, $context->getContext());
+        $result = $this->repository->search($criteria, $checkoutContext->getContext());
 
         return $this->responseFactory->createListingResponse(
             $result,
             CategoryDefinition::class,
-            new RestContext($request, $context->getContext(), null)
+            $request,
+            $checkoutContext->getContext()
         );
     }
 
@@ -75,17 +76,17 @@ class StorefrontCategoryController extends Controller
      * @Route("/storefront-api/category/{categoryId}", name="storefront.api.category.detail")
      * @Method({"GET"})
      *
-     * @param string $categoryId
-     * @param Request $request
-     * @param CheckoutContext $context
-     *
-     * @return Response
+     * @param string          $categoryId
+     * @param Request         $request
+     * @param CheckoutContext $checkoutContext
      *
      * @throws CategoryNotFoundException
+     *
+     * @return Response
      */
-    public function detail(string $categoryId, Request $request, CheckoutContext $context): Response
+    public function detail(string $categoryId, Request $request, CheckoutContext $checkoutContext): Response
     {
-        $categories = $this->repository->read(new ReadCriteria([$categoryId]), $context->getContext());
+        $categories = $this->repository->read(new ReadCriteria([$categoryId]), $checkoutContext->getContext());
         if (!$categories->has($categoryId)) {
             throw new CategoryNotFoundException($categoryId);
         }
@@ -93,7 +94,8 @@ class StorefrontCategoryController extends Controller
         return $this->responseFactory->createDetailResponse(
             $categories->get($categoryId),
             CategoryDefinition::class,
-            new RestContext($request, $context->getContext(), null)
+            $request,
+            $checkoutContext->getContext()
         );
     }
 }

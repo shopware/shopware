@@ -2,9 +2,10 @@
 
 namespace Shopware\Core\Framework\Api\Response;
 
-use Shopware\Core\Framework\Api\Context\RestContext;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException;
 
@@ -22,22 +23,22 @@ class ResponseFactory
         $this->responseFactories = $responseFactories;
     }
 
-    public function createDetailResponse(Entity $entity, string $definition, RestContext $context, bool $setLocationHeader = false): Response
+    public function createDetailResponse(Entity $entity, string $definition, Request $request, Context $context, bool $setLocationHeader = false): Response
     {
-        return $this->getType($context->getRequest()->getAcceptableContentTypes())
-            ->createDetailResponse($entity, $definition, $context, $setLocationHeader);
+        return $this->getType($request->getAcceptableContentTypes())
+            ->createDetailResponse($entity, $definition, $request, $context, $setLocationHeader);
     }
 
-    public function createListingResponse(EntitySearchResult $searchResult, string $definition, RestContext $context): Response
+    public function createListingResponse(EntitySearchResult $searchResult, string $definition, Request $request, Context $context): Response
     {
-        return $this->getType($context->getRequest()->getAcceptableContentTypes())
-            ->createListingResponse($searchResult, $definition, $context);
+        return $this->getType($request->getAcceptableContentTypes())
+            ->createListingResponse($searchResult, $definition, $request, $context);
     }
 
-    public function createRedirectResponse(string $definition, string $id, RestContext $context): Response
+    public function createRedirectResponse(string $definition, string $id, Request $request, Context $context): Response
     {
-        return $this->getType($context->getRequest()->getAcceptableContentTypes())
-            ->createRedirectResponse($definition, $id, $context);
+        return $this->getType($request->getAcceptableContentTypes())
+            ->createRedirectResponse($definition, $id, $request, $context);
     }
 
     /**

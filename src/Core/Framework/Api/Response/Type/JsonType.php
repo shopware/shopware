@@ -2,12 +2,13 @@
 
 namespace Shopware\Core\Framework\Api\Response\Type;
 
-use Shopware\Core\Framework\Api\Context\RestContext;
 use Shopware\Core\Framework\Api\Response\ResponseTypeInterface;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Serializer;
 
@@ -28,30 +29,30 @@ class JsonType implements ResponseTypeInterface
         return $contentType === 'application/json';
     }
 
-    public function createDetailResponse(Entity $entity, string $definition, RestContext $context, bool $setLocationHeader = false): Response
+    public function createDetailResponse(Entity $entity, string $definition, Request $request, Context $context, bool $setLocationHeader = false): Response
     {
         $headers = [];
         if ($setLocationHeader) {
             /* @var string|EntityDefinition $definition */
-            $headers['Location'] = $this->getBaseUrl($context) . '/api/v' . $context->getVersion() . '/' . $this->camelCaseToSnailCase($definition::getEntityName()) . '/' . $entity->getId();
+            $headers['Location'] = $this->getBaseUrl($request) . '/api/v' . $this->getVersion($request) . '/' . $this->camelCaseToSnailCase($definition::getEntityName()) . '/' . $entity->getId();
         }
 
         $decoded = $this->serializer->normalize($entity);
 
         $response = [
-            'data' => $this->format($decoded),
+            'data' => self::format($decoded),
         ];
 
         return new JsonResponse($response);
     }
 
-    public function createListingResponse(EntitySearchResult $searchResult, string $definition, RestContext $context): Response
+    public function createListingResponse(EntitySearchResult $searchResult, string $definition, Request $request, Context $context): Response
     {
         $decoded = $this->serializer->normalize($searchResult);
 
         $response = [
             'total' => $decoded['total'],
-            'data' => $this->format($decoded),
+            'data' => self::format($decoded),
         ];
 
         if ($searchResult && $searchResult->getAggregations()) {
@@ -66,11 +67,11 @@ class JsonType implements ResponseTypeInterface
         return new JsonResponse($response);
     }
 
-    public function createRedirectResponse(string $definition, string $id, RestContext $context): Response
+    public function createRedirectResponse(string $definition, string $id, Request $request, Context $context): Response
     {
         /** @var string|EntityDefinition $definition */
         $headers = [
-            'Location' => $this->getBaseUrl($context) . '/api/v' . $context->getVersion() . '/' . $this->camelCaseToSnailCase($definition::getEntityName()) . '/' . $id,
+            'Location' => $this->getBaseUrl($request) . '/api/v' . $this->getVersion($request) . '/' . $this->camelCaseToSnailCase($definition::getEntityName()) . '/' . $id,
         ];
 
         return new Response(null, Response::HTTP_NO_CONTENT, $headers);
@@ -100,9 +101,9 @@ class JsonType implements ResponseTypeInterface
         return $decoded;
     }
 
-    private function getBaseUrl(RestContext $context): string
+    private function getBaseUrl(Request $request): string
     {
-        return $context->getRequest()->getSchemeAndHttpHost() . $context->getRequest()->getBasePath();
+        return $request->getSchemeAndHttpHost() . $request->getBasePath();
     }
 
     private function camelCaseToSnailCase(string $input): string
@@ -110,5 +111,10 @@ class JsonType implements ResponseTypeInterface
         $input = str_replace('_', '-', $input);
 
         return ltrim(strtolower(preg_replace('/[A-Z]/', '-$0', $input)), '-');
+    }
+
+    private function getVersion(Request $request): int
+    {
+        return (int) $request->get('version');
     }
 }

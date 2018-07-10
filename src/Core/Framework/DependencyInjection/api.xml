@@ -15,7 +15,7 @@
             <argument type="service" id="logger" />
         </service>
 
-        <service class="Shopware\Core\Framework\Api\Context\RestContextValueResolver" id="Shopware\Core\Framework\Api\Context\RestContextValueResolver">
+        <service class="Shopware\Core\Framework\Api\Context\ContextValueResolver" id="Shopware\Core\Framework\Api\Context\ContextValueResolver">
             <tag name="controller.argument_value_resolver" priority="1000"/>
         </service>
 

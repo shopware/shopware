@@ -36,6 +36,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Touchpoint\TouchpointStruct;
@@ -145,11 +146,11 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
     ): CheckoutContext {
         $context = $this->getContext($touchpointId, $tenantId);
 
-        $touchpoint = $this->touchpointRepository->read(new ReadCriteria([$context->getTouchpointId()]), $context)
-            ->get($context->getTouchpointId());
+        $touchpoint = $this->touchpointRepository->read(new ReadCriteria([$context->getSourceContext()->getTouchpointId()]), $context)
+            ->get($context->getSourceContext()->getTouchpointId());
 
         if (!$touchpoint) {
-            throw new \RuntimeException(sprintf('Touchpoint with id %s not found or not valid!', $context->getTouchpointId()));
+            throw new \RuntimeException(sprintf('Touchpoint with id %s not found or not valid!', $context->getSourceContext()->getTouchpointId()));
         }
 
         //load active currency, fallback to shop currency
@@ -281,9 +282,12 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
 
         $data = $query->execute()->fetch(\PDO::FETCH_ASSOC);
 
+        $sourceContext = new SourceContext(SourceContext::ORIGIN_STOREFRONT_API);
+        $sourceContext->setTouchpointId($touchpointId);
+
         return new Context(
             $tenantId,
-            Uuid::fromBytesToHex($data['touchpoint_id']),
+            $sourceContext,
             json_decode($data['touchpoint_catalog_ids'], true),
             [],
             Uuid::fromBytesToHex($data['touchpoint_currency_id']),

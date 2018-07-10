@@ -19,6 +19,7 @@ use Shopware\Core\Framework\ORM\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\Pricing\PriceRuleStruct;
 use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\Framework\Rule\Container\AndRule;
+use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Tax\TaxStruct;
@@ -404,9 +405,12 @@ class ProductRepositoryTest extends KernelTestCase
         $criteria = new Criteria();
         $criteria->addSorting(new FieldSorting('product.priceRules.price', FieldSorting::ASCENDING));
 
+        $sourceContext = new SourceContext();
+        $sourceContext->setTouchpointId(Defaults::TOUCHPOINT);
+
         $context = new Context(
             Defaults::TENANT_ID,
-            Defaults::TOUCHPOINT,
+            $sourceContext,
             [Defaults::CATALOG],
             [$ruleA],
             Defaults::CURRENCY,

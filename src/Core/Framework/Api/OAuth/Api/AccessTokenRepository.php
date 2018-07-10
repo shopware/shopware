@@ -7,6 +7,7 @@ use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
 use League\OAuth2\Server\Exception\UniqueTokenIdentifierConstraintViolationException;
 use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
+use Shopware\Core\Framework\Api\OAuth\Api\Client\ApiClient;
 
 class AccessTokenRepository implements AccessTokenRepositoryInterface
 {
@@ -21,7 +22,13 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
      */
     public function getNewToken(ClientEntityInterface $clientEntity, array $scopes, $userIdentifier = null)
     {
-        return new AccessToken($clientEntity, $scopes, $userIdentifier);
+        $token = new AccessToken($clientEntity, $scopes, $userIdentifier);
+
+        if ($clientEntity instanceof ApiClient && $clientEntity->getIdentifier() === 'administration') {
+            $token->setIdentifier('administration');
+        }
+
+        return $token;
     }
 
     /**

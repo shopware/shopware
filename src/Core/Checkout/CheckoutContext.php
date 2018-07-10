@@ -33,6 +33,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodStruct;
 use Shopware\Core\Checkout\Shipping\ShippingMethodStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Currency\CurrencyStruct;
 use Shopware\Core\System\Language\LanguageStruct;
@@ -218,9 +219,12 @@ class CheckoutContext extends Struct
             return $this->context;
         }
 
+        $sourceContext = new SourceContext(SourceContext::ORIGIN_STOREFRONT_API);
+        $sourceContext->setTouchpointId($this->touchpoint->getId());
+
         return $this->context = new Context(
             $this->tenantId,
-            $this->touchpoint->getId(),
+            $sourceContext,
             $this->touchpoint->getCatalogIds(),
             $this->rulesIds,
             $this->currency->getId(),
@@ -245,7 +249,7 @@ class CheckoutContext extends Struct
         $this->rulesIds = array_values($ruleIds);
     }
 
-    public function lockRules()
+    public function lockRules(): void
     {
         $this->rulesLocked = true;
     }

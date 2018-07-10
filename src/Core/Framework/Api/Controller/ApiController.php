@@ -2,11 +2,11 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
-use Shopware\Core\Framework\Api\Context\RestContext;
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
 use Shopware\Core\Framework\Api\Exception\UnknownRepositoryVersionException;
 use Shopware\Core\Framework\Api\OAuth\Api\Scope\WriteScope;
 use Shopware\Core\Framework\Api\Response\ResponseFactory;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\DefinitionRegistry;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\ORM\EntityDefinition;
@@ -85,20 +85,20 @@ class ApiController extends Controller
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
     }
 
-    public function detail(Request $request, RestContext $context, string $path): Response
+    public function detail(Request $request, Context $context, string $path): Response
     {
-        $path = $this->buildEntityPath($path);
+        $pathSegments = $this->buildEntityPath($path);
 
-        $root = $path[0]['entity'];
-        $id = $path[\count($path) - 1]['value'];
+        $root = $pathSegments[0]['entity'];
+        $id = $pathSegments[\count($pathSegments) - 1]['value'];
 
         $definition = $this->definitionRegistry->get($root);
 
-        $associations = array_column($path, 'entity');
+        $associations = array_column($pathSegments, 'entity');
         array_shift($associations);
 
         if (empty($associations)) {
-            $repository = $this->getRepository($definition, $context->getVersion());
+            $repository = $this->getRepository($definition, $request);
         } else {
             /** @var EntityDefinition $definition */
             $field = $this->getAssociation($definition::getFields(), $associations);
@@ -108,11 +108,11 @@ class ApiController extends Controller
                 $definition = $field->getReferenceDefinition();
             }
 
-            $repository = $this->getRepository($definition, $context->getVersion());
+            $repository = $this->getRepository($definition, $request);
         }
 
         /** @var RepositoryInterface $repository */
-        $entities = $repository->read(new ReadCriteria([$id]), $context->getContext());
+        $entities = $repository->read(new ReadCriteria([$id]), $context);
 
         $entity = $entities->get($id);
 
@@ -120,14 +120,14 @@ class ApiController extends Controller
             throw new ResourceNotFoundException($definition::getEntityName(), ['id' => $id]);
         }
 
-        return $this->responseFactory->createDetailResponse($entity, (string) $definition, $context);
+        return $this->responseFactory->createDetailResponse($entity, (string) $definition, $request, $context);
     }
 
-    public function list(Request $request, RestContext $context, string $path): Response
+    public function list(Request $request, Context $context, string $path): Response
     {
-        $path = $this->buildEntityPath($path);
+        $pathSegments = $this->buildEntityPath($path);
 
-        $first = array_shift($path);
+        $first = array_shift($pathSegments);
 
         /** @var EntityDefinition|string $definition */
         $definition = $first['definition'];
@@ -136,35 +136,35 @@ class ApiController extends Controller
             throw new NotFoundHttpException('The requested entity does not exist.');
         }
 
-        $repository = $this->getRepository($definition, $context->getVersion());
+        $repository = $this->getRepository($definition, $request);
 
         $criteria = new Criteria();
 
-        if (empty($path)) {
+        if (empty($pathSegments)) {
             $criteria = $this->searchCriteriaBuilder->handleRequest(
                 $request,
                 $criteria,
                 $definition,
-                $context->getContext()
+                $context
             );
 
-            $data = $repository->search($criteria, $context->getContext());
+            $data = $repository->search($criteria, $context);
 
-            return $this->responseFactory->createListingResponse($data, (string) $definition, $context);
+            return $this->responseFactory->createListingResponse($data, (string) $definition, $request, $context);
         }
 
-        $child = array_pop($path);
+        $child = array_pop($pathSegments);
         $parent = $first;
 
-        if (!empty($path)) {
-            $parent = array_pop($path);
+        if (!empty($pathSegments)) {
+            $parent = array_pop($pathSegments);
         }
 
         $criteria = $this->searchCriteriaBuilder->handleRequest(
             $request,
             $criteria,
             $definition,
-            $context->getContext()
+            $context
         );
 
         $association = $child['field'];
@@ -242,14 +242,14 @@ class ApiController extends Controller
             );
         }
 
-        $repository = $this->getRepository($definition, $context->getVersion());
+        $repository = $this->getRepository($definition, $request);
 
-        $result = $repository->search($criteria, $context->getContext());
+        $result = $repository->search($criteria, $context);
 
-        return $this->responseFactory->createListingResponse($result, (string) $definition, $context);
+        return $this->responseFactory->createListingResponse($result, (string) $definition, $request, $context);
     }
 
-    public function create(Request $request, RestContext $context, string $path): Response
+    public function create(Request $request, Context $context, string $path): Response
     {
         if (!$this->hasScope($request, WriteScope::IDENTIFIER)) {
             throw new AccessDeniedHttpException('You don\'t have write access using this access key.');
@@ -258,7 +258,7 @@ class ApiController extends Controller
         return $this->write($request, $context, $path, self::WRITE_CREATE);
     }
 
-    public function update(Request $request, RestContext $context, string $path)
+    public function update(Request $request, Context $context, string $path)
     {
         if (!$this->hasScope($request, WriteScope::IDENTIFIER)) {
             throw new AccessDeniedHttpException('You don\'t have write access using this access key.');
@@ -267,34 +267,34 @@ class ApiController extends Controller
         return $this->write($request, $context, $path, self::WRITE_UPDATE);
     }
 
-    public function delete(Request $request, RestContext $context, string $path): Response
+    public function delete(Request $request, Context $context, string $path): Response
     {
         if (!$this->hasScope($request, WriteScope::IDENTIFIER)) {
             throw new AccessDeniedHttpException('You don\'t have write access using this access key.');
         }
 
-        $path = $this->buildEntityPath($path);
+        $pathSegments = $this->buildEntityPath($path);
 
-        $last = $path[\count($path) - 1];
+        $last = $pathSegments[\count($pathSegments) - 1];
 
         $id = $last['value'];
 
-        $first = array_shift($path);
+        $first = array_shift($pathSegments);
 
         /* @var string|EntityDefinition $definition */
-        if (\count($path) === 0) {
+        if (\count($pathSegments) === 0) {
             //first api level call /product/{id}
             $definition = $first['definition'];
 
-            $this->doDelete($context, $definition, $id);
+            $this->doDelete($request, $context, $definition, $id);
 
-            return $this->responseFactory->createRedirectResponse($definition, $id, $context);
+            return $this->responseFactory->createRedirectResponse($definition, $id, $request, $context);
         }
 
-        $child = array_pop($path);
+        $child = array_pop($pathSegments);
         $parent = $first;
-        if (!empty($path)) {
-            $parent = array_pop($path);
+        if (!empty($pathSegments)) {
+            $parent = array_pop($pathSegments);
         }
 
         $definition = $child['definition'];
@@ -303,16 +303,16 @@ class ApiController extends Controller
         $association = $child['field'];
 
         if ($association instanceof OneToManyAssociationField) {
-            $this->doDelete($context, $definition, $id);
+            $this->doDelete($request, $context, $definition, $id);
 
-            return $this->responseFactory->createRedirectResponse($definition, $id, $context);
+            return $this->responseFactory->createRedirectResponse($definition, $id, $request, $context);
         }
 
         // DELETE api/product/{id}/manufacturer/{id}
         if ($association instanceof ManyToOneAssociationField) {
-            $this->doDelete($context, $definition, $id);
+            $this->doDelete($request, $context, $definition, $id);
 
-            return $this->responseFactory->createRedirectResponse($definition, $id, $context);
+            return $this->responseFactory->createRedirectResponse($definition, $id, $request, $context);
         }
 
         // DELETE api/product/{id}/category/{id}
@@ -333,23 +333,23 @@ class ApiController extends Controller
             $deleteResult = $this->entityWriter->delete(
                 $definition,
                 [$mapping],
-                WriteContext::createFromContext($context->getContext())
+                WriteContext::createFromContext($context)
             );
 
             if (empty($deleteResult->getDeleted())) {
                 throw new ResourceNotFoundException($definition::getEntityName(), $mapping);
             }
 
-            return $this->responseFactory->createRedirectResponse($definition, $id, $context);
+            return $this->responseFactory->createRedirectResponse($definition, $id, $request, $context);
         }
 
         throw new \RuntimeException(sprintf('Unsupported association for field %s', $association->getPropertyName()));
     }
 
-    public function search(Request $request, RestContext $context, string $path): Response
+    public function search(Request $request, Context $context, string $path): Response
     {
-        $path = $this->buildEntityPath($path);
-        $first = array_shift($path);
+        $pathSegments = $this->buildEntityPath($path);
+        $first = array_shift($pathSegments);
 
         /** @var EntityDefinition|string $definition */
         $definition = $first['definition'];
@@ -358,9 +358,9 @@ class ApiController extends Controller
             throw new NotFoundHttpException('The requested entity does not exist.');
         }
 
-        $repository = $this->getRepository($definition, $context->getVersion());
+        $repository = $this->getRepository($definition, $request);
 
-        if (!empty($path)) {
+        if (!empty($pathSegments)) {
             throw new \RuntimeException('Only entities are supported');
         }
 
@@ -371,15 +371,15 @@ class ApiController extends Controller
                 $request,
                 $criteria,
                 $definition,
-                $context->getContext()
+                $context
             ),
-            $context->getContext()
+            $context
         );
 
-        return $this->responseFactory->createListingResponse($data, (string) $definition, $context);
+        return $this->responseFactory->createListingResponse($data, (string) $definition, $request, $context);
     }
 
-    private function write(Request $request, RestContext $context, string $path, string $type): Response
+    private function write(Request $request, Context $context, string $path, string $type): Response
     {
         $payload = $this->getRequestBody($request);
         $noContent = !$request->query->has('_response');
@@ -389,9 +389,9 @@ class ApiController extends Controller
             throw new BadRequestHttpException('Only single write operations are supported. Please send the entities one by one or use the /sync api endpoint.');
         }
 
-        $path = $this->buildEntityPath($path);
+        $pathSegments = $this->buildEntityPath($path);
 
-        $last = $path[\count($path) - 1];
+        $last = $pathSegments[\count($pathSegments) - 1];
 
         if ($type === self::WRITE_CREATE && !empty($last['value'])) {
             $methods = ['GET', 'PATCH', 'DELETE'];
@@ -402,33 +402,33 @@ class ApiController extends Controller
             $payload['id'] = $last['value'];
         }
 
-        $first = array_shift($path);
+        $first = array_shift($pathSegments);
 
         /* @var string|EntityDefinition $definition */
-        if (\count($path) === 0) {
+        if (\count($pathSegments) === 0) {
             $definition = $first['definition'];
 
-            $repository = $this->getRepository($definition, $context->getVersion());
+            $repository = $this->getRepository($definition, $request);
 
-            $events = $this->executeWriteOperation($definition, $payload, $context, $type);
+            $events = $this->executeWriteOperation($repository, $payload, $context, $type);
             $event = $events->getEventByDefinition($definition);
             $eventIds = $event->getIds();
             $entityId = array_shift($eventIds);
 
             if ($noContent) {
-                return $this->responseFactory->createRedirectResponse($definition, $entityId, $context);
+                return $this->responseFactory->createRedirectResponse($definition, $entityId, $request, $context);
             }
 
-            $entities = $repository->read(new ReadCriteria($event->getIds()), $context->getContext());
+            $entities = $repository->read(new ReadCriteria($event->getIds()), $context);
 
-            return $this->responseFactory->createDetailResponse($entities->first(), $definition, $context, $appendLocationHeader);
+            return $this->responseFactory->createDetailResponse($entities->first(), $definition, $request, $context, $appendLocationHeader);
         }
 
-        $child = array_pop($path);
+        $child = array_pop($pathSegments);
 
         $parent = $first;
-        if (!empty($path)) {
-            $parent = array_pop($path);
+        if (!empty($pathSegments)) {
+            $parent = array_pop($pathSegments);
         }
 
         $definition = $child['definition'];
@@ -438,8 +438,6 @@ class ApiController extends Controller
         /** @var EntityDefinition|string $parentDefinition */
         $parentDefinition = $parent['definition'];
 
-        /* @var RepositoryInterface $repository */
-
         /* @var Entity $entity */
         if ($association instanceof OneToManyAssociationField) {
             $foreignKey = $definition::getFields()
@@ -447,23 +445,25 @@ class ApiController extends Controller
 
             $payload[$foreignKey->getPropertyName()] = $parent['value'];
 
-            $events = $this->executeWriteOperation($definition, $payload, $context, $type);
+            $repository = $this->getRepository($definition, $request);
+            $events = $this->executeWriteOperation($repository, $payload, $context, $type);
 
             if ($noContent) {
-                return $this->responseFactory->createRedirectResponse($definition, $parent['value'], $context);
+                return $this->responseFactory->createRedirectResponse($definition, $parent['value'], $request, $context);
             }
 
             $event = $events->getEventByDefinition($definition);
 
-            $repository = $this->getRepository($definition, $context->getVersion());
+            $repository = $this->getRepository($definition, $request);
 
-            $entities = $repository->read(new ReadCriteria($event->getIds()), $context->getContext());
+            $entities = $repository->read(new ReadCriteria($event->getIds()), $context);
 
-            return $this->responseFactory->createDetailResponse($entities->first(), $definition, $context, $appendLocationHeader);
+            return $this->responseFactory->createDetailResponse($entities->first(), $definition, $request, $context, $appendLocationHeader);
         }
 
         if ($association instanceof ManyToOneAssociationField) {
-            $events = $this->executeWriteOperation($definition, $payload, $context, $type);
+            $repository = $this->getRepository($definition, $request);
+            $events = $this->executeWriteOperation($repository, $payload, $context, $type);
             $event = $events->getEventByDefinition($definition);
 
             $entityIds = $event->getIds();
@@ -476,16 +476,16 @@ class ApiController extends Controller
                 $foreignKey->getPropertyName() => $entityId,
             ];
 
-            $repository = $this->getRepository($parentDefinition, $context->getVersion());
-            $repository->update([$payload], $context->getContext());
+            $repository = $this->getRepository($parentDefinition, $request);
+            $repository->update([$payload], $context);
 
             if ($noContent) {
-                return $this->responseFactory->createRedirectResponse($definition, $entityId, $context);
+                return $this->responseFactory->createRedirectResponse($definition, $entityId, $request, $context);
             }
 
-            $entities = $repository->read(new ReadCriteria($event->getIds()), $context->getContext());
+            $entities = $repository->read(new ReadCriteria($event->getIds()), $context);
 
-            return $this->responseFactory->createDetailResponse($entities->first(), $definition, $context, $appendLocationHeader);
+            return $this->responseFactory->createDetailResponse($entities->first(), $definition, $request, $context, $appendLocationHeader);
         }
 
         /** @var ManyToManyAssociationField $association */
@@ -493,16 +493,17 @@ class ApiController extends Controller
         /** @var EntityDefinition|string $reference */
         $reference = $association->getReferenceDefinition();
 
-        $events = $this->executeWriteOperation($reference, $payload, $context, $type);
+        $repository = $this->getRepository($reference, $request);
+        $events = $this->executeWriteOperation($repository, $payload, $context, $type);
         $event = $events->getEventByDefinition($reference);
 
-        $repository = $this->getRepository($reference, $context->getVersion());
+        $repository = $this->getRepository($reference, $request);
 
-        $entities = $repository->read(new ReadCriteria($event->getIds()), $context->getContext());
+        $entities = $repository->read(new ReadCriteria($event->getIds()), $context);
 
         $entity = $entities->first();
 
-        $repository = $this->getRepository($parentDefinition, $context->getVersion());
+        $repository = $this->getRepository($parentDefinition, $request);
 
         $payload = [
             'id' => $parent['value'],
@@ -511,34 +512,34 @@ class ApiController extends Controller
             ],
         ];
 
-        $repository->update([$payload], $context->getContext());
+        $repository->update([$payload], $context);
 
         if ($noContent) {
-            return $this->responseFactory->createRedirectResponse($reference, $entity->getId(), $context);
+            return $this->responseFactory->createRedirectResponse($reference, $entity->getId(), $request, $context);
         }
 
-        return $this->responseFactory->createDetailResponse($entity, $definition, $context, $appendLocationHeader);
+        return $this->responseFactory->createDetailResponse($entity, $definition, $request, $context, $appendLocationHeader);
     }
 
     /**
-     * @param string|EntityDefinition $definition
-     * @param array                   $payload
-     * @param RestContext             $context
-     * @param string                  $type
+     * @param RepositoryInterface $repository
+     * @param array               $payload
+     * @param Context             $context
+     * @param string              $type
      *
      * @return EntityWrittenContainerEvent
      */
-    private function executeWriteOperation(string $definition, array $payload, RestContext $context, string $type): EntityWrittenContainerEvent
+    private function executeWriteOperation(RepositoryInterface $repository, array $payload, Context $context, string $type): EntityWrittenContainerEvent
     {
-        $repository = $this->getRepository($definition, $context->getVersion());
-
         if ($type === self::WRITE_CREATE) {
-            return $repository->create([$payload], $context->getContext());
+            return $repository->create([$payload], $context);
         }
 
         if ($type === self::WRITE_UPDATE) {
-            return $repository->update([$payload], $context->getContext());
+            return $repository->update([$payload], $context);
         }
+
+        throw new \RuntimeException('Unsupported write operation.');
     }
 
     private function getAssociation(FieldCollection $fields, array $keys): AssociationInterface
@@ -677,16 +678,17 @@ class ApiController extends Controller
     }
 
     /**
-     * @param RestContext             $context
+     * @param Request                 $request
+     * @param Context                 $context
      * @param string|EntityDefinition $definition
      * @param string                  $id
      *
      * @throws ResourceNotFoundException
      */
-    private function doDelete(RestContext $context, string $definition, string $id): void
+    private function doDelete(Request $request, Context $context, string $definition, string $id): void
     {
         try {
-            $repository = $this->getRepository($definition, $context->getVersion());
+            $repository = $this->getRepository($definition, $request);
         } catch (UnknownRepositoryVersionException $e) {
             throw new NotFoundHttpException($e->getMessage(), $e);
         }
@@ -697,7 +699,7 @@ class ApiController extends Controller
         });
 
         try {
-            $payload = $this->getRequestBody($context->getRequest());
+            $payload = $this->getRequestBody($request);
         } catch (\Exception $exception) {
             // empty payload is allowed for DELETE requests
         }
@@ -710,7 +712,7 @@ class ApiController extends Controller
             $mapping = [$pk->getPropertyName() => $id];
         }
 
-        $deleteEvent = $repository->delete([$mapping], $context->getContext());
+        $deleteEvent = $repository->delete([$mapping], $context);
 
         if (empty($deleteEvent->getErrors())) {
             return;
@@ -721,18 +723,18 @@ class ApiController extends Controller
 
     /**
      * @param string|EntityDefinition $definition
-     * @param int                     $version
+     * @param Request                 $request
      *
      * @throws UnknownRepositoryVersionException
      *
      * @return RepositoryInterface
      */
-    private function getRepository(string $definition, int $version): RepositoryInterface
+    private function getRepository(string $definition, Request $request): RepositoryInterface
     {
         $repositoryClass = $definition::getEntityName() . '.repository';
 
         if ($this->has($repositoryClass) === false) {
-            throw new UnknownRepositoryVersionException($definition::getEntityName(), $version);
+            throw new UnknownRepositoryVersionException($definition::getEntityName(), (int) $request->get('version'));
         }
 
         return $this->get($definition::getEntityName() . '.repository');

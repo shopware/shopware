@@ -4,9 +4,12 @@ namespace Shopware\Core\Framework\Routing;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Storefront\StorefrontRequest;
 use Symfony\Component\HttpFoundation\Request;
 
 class ApiRequestContextResolver implements RequestContextResolverInterface
@@ -33,19 +36,19 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             return;
         }
 
-        $config = $this->getRuntimeParameters($master);
-        $userId = $master->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_USER_ID);
         $tenantId = $master->headers->get(PlatformRequest::HEADER_TENANT_ID);
+        $config = $this->getRuntimeParameters($master);
+        $sourceContext = $this->resolveSourceContext($request);
 
-        if ($userId) {
-            $config = array_replace_recursive($this->getUserParameters($userId, $tenantId), $config);
+        if ($sourceContext->getUserId()) {
+            $config = array_replace_recursive($this->getUserParameters($sourceContext->getUserId(), $tenantId), $config);
         }
 
         $currencyFactory = 1.0;
 
         $context = new Context(
             $tenantId,
-            '',
+            $sourceContext,
             null,
             [],
             $config['currencyId'],
@@ -94,5 +97,62 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         }
 
         return [];
+    }
+
+    private function resolveSourceContext(Request $request): SourceContext
+    {
+        $origin = SourceContext::ORIGIN_API;
+        if ($request->attributes->has(StorefrontRequest::ATTRIBUTE_IS_STOREFRONT_REQUEST)) {
+            $origin = SourceContext::ORIGIN_STOREFRONT_API;
+        }
+
+        $sourceContext = new SourceContext($origin);
+
+        if (!$request->attributes->has(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID)) {
+            return $sourceContext;
+        }
+
+        if ($userId = $request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_USER_ID)) {
+            $sourceContext->setUserId($userId);
+
+            return $sourceContext;
+        }
+
+        $clientId = $request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID);
+        $keyOrigin = AccessKeyHelper::getOrigin($clientId);
+
+        if ($keyOrigin === 'user') {
+            $sourceContext->setUserId($this->getUserIdByAccessKey($clientId));
+        } elseif ($keyOrigin === 'integration') {
+            $sourceContext->setIntegrationId($this->getIntegrationIdByAccessKey($clientId));
+        }
+
+        return $sourceContext;
+    }
+
+    private function getUserIdByAccessKey(string $clientId): string
+    {
+        $id = $this->connection->createQueryBuilder()
+            ->select(['user_id'])
+            ->from('user_access_key')
+            ->where('access_key = :accessKey')
+            ->setParameter('accessKey', $clientId)
+            ->execute()
+            ->fetchColumn();
+
+        return Uuid::fromBytesToHex($id);
+    }
+
+    private function getIntegrationIdByAccessKey(string $clientId): string
+    {
+        $id = $this->connection->createQueryBuilder()
+            ->select(['id'])
+            ->from('integration')
+            ->where('access_key = :accessKey')
+            ->setParameter('accessKey', $clientId)
+            ->execute()
+            ->fetchColumn();
+
+        return Uuid::fromBytesToHex($id);
     }
 }

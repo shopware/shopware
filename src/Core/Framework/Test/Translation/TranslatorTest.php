@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Framework\Test\Translation;
 
@@ -67,7 +67,7 @@ class TranslatorTest extends KernelTestCase
         $snippet = [
             'translationKey' => 'frontend.index.footer.IndexCopyright',
             'value' => 'Realisiert mit Unit test',
-            'languageId' => Defaults::LANGUAGE
+            'languageId' => Defaults::LANGUAGE,
         ];
 
         $this->snippetRepository->create([$snippet], $context);
@@ -108,7 +108,7 @@ class TranslatorTest extends KernelTestCase
                 'translationKey' => 'frontend.index.footer.IndexCopyright',
                 'value' => 'Realisiert with default language',
                 'languageId' => Defaults::LANGUAGE,
-            ]
+            ],
         ];
 
         $this->snippetRepository->create($snippets, $context);
@@ -139,7 +139,7 @@ class TranslatorTest extends KernelTestCase
         // change language in context
         $context = new Context(
             $context->getTenantId(),
-            $context->getTouchpointId(),
+            $context->getSourceContext(),
             $context->getCatalogIds(),
             [],
             $context->getCurrencyId(),
@@ -168,7 +168,7 @@ class TranslatorTest extends KernelTestCase
         // change language in context to unknown language
         $context = new Context(
             $context->getTenantId(),
-            $context->getTouchpointId(),
+            $context->getSourceContext(),
             $context->getCatalogIds(),
             [],
             $context->getCurrencyId(),

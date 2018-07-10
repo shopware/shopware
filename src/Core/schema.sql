@@ -1779,6 +1779,8 @@ CREATE TABLE `version_commit` (
   `message` varchar(5000) NULL DEFAULT NULL,
   `user_id` binary(16) DEFAULT NULL,
   `user_tenant_id` binary(16) DEFAULT NULL,
+  `integration_id` binary(16) DEFAULT NULL,
+  `integration_tenant_id` binary(16) DEFAULT NULL,
   `version_id` binary(16) NOT NULL,
   `version_tenant_id` binary(16) NOT NULL,
   `created_at` datetime NOT NULL,
@@ -1798,6 +1800,8 @@ CREATE TABLE `version_commit_data` (
   `payload` LONGTEXT NOT NULL,
   `user_id` binary(16) DEFAULT NULL,
   `user_tenant_id` binary(16) DEFAULT NULL,
+  `integration_id` binary(16) DEFAULT NULL,
+  `integration_tenant_id` binary(16) DEFAULT NULL,
   `created_at` datetime NOT NULL,
   CHECK (JSON_VALID (`entity_id`)),
   CHECK (JSON_VALID (`payload`)),
@@ -1834,6 +1838,20 @@ CREATE TABLE `product_category_tree` (
   PRIMARY KEY (`product_id`, `product_version_id`, `product_tenant_id`, `category_id`, `category_version_id`, `category_tenant_id`),
   CONSTRAINT `product_category_tree_ibfk_1` FOREIGN KEY (`product_id`, `product_version_id`, `product_tenant_id`) REFERENCES `product` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `product_category_tree_ibfk_2` FOREIGN KEY (`category_id`, `category_version_id`, `category_tenant_id`) REFERENCES `category` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `integration`;
+CREATE TABLE `integration` (
+  `id` binary(16) NOT NULL,
+  `tenant_id` binary(16) NOT NULL,
+  `write_access` tinyint(1) NOT NULL,
+  `access_key` varchar(255) NOT NULL,
+  `secret_access_key` varchar(255) NOT NULL,
+  `label` varchar(255) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `last_usage_at` datetime NULL,
+  PRIMARY KEY (`id`, `tenant_id`),
+  INDEX `access_key` (`access_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 SET FOREIGN_KEY_CHECKS=1;

@@ -3,12 +3,12 @@
 namespace Shopware\Core\System\Command;
 
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Core\Framework\Util\Random;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -100,8 +100,8 @@ class UserCreateCommand extends Command
 
     private function createUser(string $username, string $password, string $tenantId): array
     {
-        $accessKey = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode(Random::getAlphanumericString(16)));
-        $secretAccessKey = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode(Random::getAlphanumericString(32)));
+        $accessKey = AccessKeyHelper::generateAccessKey('user');
+        $secretAccessKey = AccessKeyHelper::generateSecretAccessKey();
 
         $context = Context::createDefaultContext($tenantId);
 

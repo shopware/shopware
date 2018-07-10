@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\Exception\CustomerNotLoggedInException;
-use Shopware\Core\Framework\Api\Context\RestContext;
 use Shopware\Core\Framework\Api\Response\ResponseFactory;
 use Shopware\Core\Framework\Api\Response\Type\JsonType;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
@@ -258,7 +257,8 @@ class CustomerController extends Controller
         return $this->responseFactory->createDetailResponse(
             $this->accountService->getCustomerByContext($context),
             CustomerDefinition::class,
-            new RestContext($request, $context->getContext(), null)
+            $request,
+            $context->getContext()
         );
     }
 

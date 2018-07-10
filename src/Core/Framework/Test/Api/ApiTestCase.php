@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\Api;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Client;
@@ -141,14 +142,16 @@ class ApiTestCase extends WebTestCase
     protected function authorizeStorefrontClient(Client $storefrontApiClient): void
     {
         $touchpoint = Uuid::uuid4();
+        $accessKey = AccessKeyHelper::generateAccessKey('touchpoint');
+        $secretKey = AccessKeyHelper::generateSecretAccessKey();
 
         self::$container->get(Connection::class)->insert('touchpoint', [
             'id' => $touchpoint->getBytes(),
             'tenant_id' => Uuid::fromHexToBytes(Defaults::TENANT_ID),
             'name' => $touchpoint->getHex(),
             'type' => 'storefront_api',
-            'access_key' => $touchpoint->getHex(),
-            'secret_access_key' => password_hash($touchpoint->getHex(), PASSWORD_ARGON2I),
+            'access_key' => $accessKey,
+            'secret_access_key' => password_hash($secretKey, PASSWORD_ARGON2I),
             'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE),
             'language_tenant_id' => Uuid::fromHexToBytes(Defaults::TENANT_ID),
             'currency_id' => Uuid::fromHexToBytes(Defaults::CURRENCY),
@@ -172,8 +175,8 @@ class ApiTestCase extends WebTestCase
 
         $authPayload = [
             'grant_type' => 'client_credentials',
-            'client_id' => $touchpoint->getHex(),
-            'client_secret' => $touchpoint->getHex(),
+            'client_id' => $accessKey,
+            'client_secret' => $secretKey,
         ];
 
         $storefrontApiClient->request('POST', '/storefront-api/oauth/token', $authPayload);

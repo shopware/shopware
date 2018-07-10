@@ -38,6 +38,7 @@ class VersionCommitDataDefinition extends EntityDefinition
             (new FkField('version_commit_id', 'versionCommitId', VersionCommitDefinition::class))->setFlags(new Required()),
             new ManyToOneAssociationField('commit', 'version_commit_id', VersionCommitDefinition::class, false),
             new IdField('user_id', 'userId'),
+            new IdField('integration_id', 'integrationId'),
             new IntField('auto_increment', 'autoIncrement'),
             (new StringField('entity_name', 'entityName'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
             (new JsonField('entity_id', 'entityId'))->setFlags(new Required()),

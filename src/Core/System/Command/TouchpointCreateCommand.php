@@ -3,11 +3,11 @@
 namespace Shopware\Core\System\Command;
 
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Core\Framework\Util\Random;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
@@ -63,12 +63,12 @@ class TouchpointCreateCommand extends ContainerAwareCommand
 
         $io = new SymfonyStyle($input, $output);
 
-        $secretAccessKey = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode(Random::getAlphanumericString(52)));
+        $secretAccessKey = AccessKeyHelper::generateSecretAccessKey();
 
         $data = [
             'id' => $id,
             'type' => $this->getType(),
-            'accessKey' => str_replace(['+', '/', '='], ['-', '_', ''], base64_encode(Random::getAlphanumericString(32))),
+            'accessKey' => AccessKeyHelper::generateAccessKey('touchpoint'),
             'secretAccessKey' => $secretAccessKey,
             'configuration' => $this->getTouchpointConfiguration($input, $output),
             'languageId' => $input->getOption('languageId'),

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\Api\Controller;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\Api\ApiTestCase;
 use Shopware\Core\PlatformRequest;
@@ -196,5 +197,50 @@ class AuthControllerTest extends ApiTestCase
         $this->assertEquals(200, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
         $response = json_decode($this->apiClient->getResponse()->getContent(), true);
         $this->assertArrayNotHasKey('errors', $response);
+    }
+
+    public function testIntegrationAuth(): void
+    {
+        $client = $this->getClient();
+        $client->setServerParameters([
+            'CONTENT_TYPE' => 'application/json',
+            'HTTP_ACCEPT' => ['application/vnd.api+json,application/json'],
+            'HTTP_X_SW_TENANT_ID' => Defaults::TENANT_ID,
+        ]);
+
+        $accessKey = AccessKeyHelper::generateAccessKey('integration');
+        $secretKey = AccessKeyHelper::generateSecretAccessKey();
+
+        self::$container->get(Connection::class)->insert('integration', [
+            'id' => Uuid::uuid4()->getBytes(),
+            'tenant_id' => Uuid::fromHexToBytes(Defaults::TENANT_ID),
+            'label' => 'test integration',
+            'access_key' => $accessKey,
+            'secret_access_key' => password_hash($secretKey, PASSWORD_ARGON2I),
+            'write_access' => 1,
+            'created_at' => (new \DateTime())->format('Y-m-d H:i:s'),
+        ]);
+
+        /**
+         * Auth the api client first
+         */
+        $authPayload = [
+            'grant_type' => 'client_credentials',
+            'client_id' => $accessKey,
+            'client_secret' => $secretKey,
+        ];
+
+        $client->request('POST', '/api/oauth/token', $authPayload);
+        $data = json_decode($client->getResponse()->getContent(), true);
+
+        $this->assertArrayHasKey('access_token', $data, 'No token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error'));
+
+        /*
+         * Access protected routes
+         */
+        $client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['access_token']));
+        $client->request('GET', '/api/v1/tax');
+
+        $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
     }
 }

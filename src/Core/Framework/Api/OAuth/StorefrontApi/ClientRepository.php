@@ -7,6 +7,7 @@ use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 use Shopware\Core\Framework\Api\OAuth\StorefrontApi\Client\TouchpointClient;
+use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -42,9 +43,14 @@ class ClientRepository implements ClientRepositoryInterface
      */
     public function getClientEntity($clientIdentifier, $grantType = null, $clientSecret = null, $mustValidateSecret = true)
     {
+        $origin = AccessKeyHelper::getOrigin($clientIdentifier);
+        if ($origin !== 'touchpoint') {
+            OAuthServerException::invalidCredentials();
+        }
+
         $builder = $this->connection->createQueryBuilder();
 
-        $touchpoint = $builder->select(['touchpoint.id', 'touchpoint.secret_access_key'])
+        $touchpoint = $builder->select(['touchpoint.secret_access_key'])
             ->from('touchpoint')
             ->where('touchpoint.tenant_id = :tenantId')
             ->andWhere('touchpoint.access_key = :accessKey')
@@ -61,7 +67,7 @@ class ClientRepository implements ClientRepositoryInterface
             return null;
         }
 
-        return new TouchpointClient(Uuid::fromBytesToHex($touchpoint['id']));
+        return new TouchpointClient($clientIdentifier);
     }
 
     private function getTenantId(): string

@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Api\OAuth\Api;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
 use League\OAuth2\Server\Repositories\ScopeRepositoryInterface;
-use Shopware\Core\Framework\Api\OAuth\Api\Client\AdministrationClient;
+use Shopware\Core\Framework\Api\OAuth\Api\Client\ApiClient;
 use Shopware\Core\Framework\Api\OAuth\Api\Scope\WriteScope;
 
 class ScopeRepository implements ScopeRepositoryInterface
@@ -63,7 +63,7 @@ class ScopeRepository implements ScopeRepositoryInterface
             $hasWrite = true;
         }
 
-        if ($grantType === 'client_credentials' && $clientEntity instanceof AdministrationClient && $clientEntity->hasWriteAccess()) {
+        if ($grantType === 'client_credentials' && $clientEntity instanceof ApiClient && $clientEntity->getWriteAccess()) {
             $hasWrite = true;
         }
 

@@ -618,6 +618,12 @@ class ApiController extends Controller
                 throw new NotFoundHttpException(sprintf('Resource at path "%s" is not an existing relation.', $path));
             }
 
+            if ($field instanceof ManyToManyAssociationField) {
+                $root = $field->getReferenceDefinition();
+            } else {
+                $root = $field->getReferenceClass();
+            }
+
             $entities[] = [
                 'entity' => $part['entity'],
                 'value' => $part['value'],

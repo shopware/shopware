@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Cart\CircularCartCalculation;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
+use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\OrderPersisterInterface;
@@ -17,6 +18,7 @@ use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Product\Cart\ProductProcessor;
 use Shopware\Core\Framework\Api\Response\Type\JsonType;
+use Shopware\Core\Framework\Exception\MissingParameterException;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -24,10 +26,9 @@ use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Exception\InvalidParameterException;
 use Symfony\Component\Serializer\Serializer;
 
-class CartController extends Controller
+class StorefrontCartController extends Controller
 {
     public const CART_NAME = CartService::CART_NAME;
 
@@ -78,7 +79,7 @@ class CartController extends Controller
     }
 
     /**
-     * @Route("/storefront-api/checkout", name="storefront.api.checkout.get")
+     * @Route("/storefront-api/checkout/cart", name="storefront.api.checkout.cart.get")
      * @Method({"GET"})
      */
     public function getCart(CheckoutContext $context): JsonResponse
@@ -93,10 +94,10 @@ class CartController extends Controller
     }
 
     /**
-     * @Route("/storefront-api/checkout", name="storefront.api.checkout.create")
+     * @Route("/storefront-api/checkout/cart", name="storefront.api.checkout.cart.create")
      * @Method({"POST"})
      */
-    public function create(CheckoutContext $context): JsonResponse
+    public function createCart(CheckoutContext $context): JsonResponse
     {
         $this->persister->delete($context->getToken(), self::CART_NAME, $context);
 
@@ -108,22 +109,18 @@ class CartController extends Controller
     }
 
     /**
-     * @Route("/storefront-api/checkout/add-product/{identifier}", name="storefront.api.checkout.add.product")
+     * @Route("/storefront-api/checkout/cart/product/{id}", name="storefront.api.checkout.cart.product.add")
      * @Method({"POST"})
+     *
+     * @throws InvalidQuantityException
      */
-    public function addProduct(string $identifier, Request $request, CheckoutContext $context): JsonResponse
+    public function addProduct(string $id, Request $request, CheckoutContext $context): JsonResponse
     {
-        $post = $this->getPost($request);
+        $quantity = $request->request->getInt('quantity', 1);
+        $payload = $request->request->get('payload', []);
+        $payload = array_replace_recursive(['id' => $id], $payload);
 
-        $quantity = isset($post['quantity']) ? (int) $post['quantity'] : 1;
-
-        $payload = isset($post['payload']) ? $post['payload'] : [];
-
-        $identifier = strtolower($identifier);
-
-        $payload = array_replace_recursive(['id' => $identifier], $payload);
-
-        $calculated = $this->addLineItem($context, $identifier, ProductProcessor::TYPE_PRODUCT, $quantity, $payload);
+        $calculated = $this->addLineItemToCart($context, $id, ProductProcessor::TYPE_PRODUCT, $quantity, $payload);
 
         return new JsonResponse(
             $this->serialize($calculated)
@@ -131,32 +128,27 @@ class CartController extends Controller
     }
 
     /**
-     * @Route("/storefront-api/checkout/add", name="storefront.api.checkout.add")
+     * @Route("/storefront-api/checkout/cart/line-item/{id}", name="storefront.api.checkout.cart.line-item.add")
      * @Method({"POST"})
+     *
+     * @throws InvalidQuantityException
+     * @throws MissingParameterException
      */
-    public function add(Request $request, CheckoutContext $context): JsonResponse
+    public function addLineItem(string $id, Request $request, CheckoutContext $context): JsonResponse
     {
-        $post = $this->getPost($request);
+        $quantity = $request->request->getInt('quantity', 1);
+        $type = $request->request->getAlnum('type', null);
+        $payload = $request->request->get('payload', []);
+        $payload = array_replace_recursive(['id' => $id], $payload);
 
-        if (!isset($post['identifier'])) {
-            throw new InvalidParameterException('Parameter identifier missing');
+        if (!$type) {
+            throw new MissingParameterException('type');
         }
-        if (!isset($post['type'])) {
-            throw new InvalidParameterException('Parameter type missing');
-        }
-        if (!isset($post['quantity'])) {
-            throw new InvalidParameterException('Parameter quantity missing');
-        }
-        if (!isset($post['payload'])) {
-            throw new InvalidParameterException('Parameter payload missing');
+        if (!$id) {
+            throw new MissingParameterException('id');
         }
 
-        $identifier = $post['identifier'];
-        $quantity = (int) $post['quantity'];
-        $type = $post['type'];
-        $payload = $post['payload'];
-
-        $calculated = $this->addLineItem($context, $identifier, $type, $quantity, $payload);
+        $calculated = $this->addLineItemToCart($context, $id, $type, $quantity, $payload);
 
         return new JsonResponse(
             $this->serialize($calculated)
@@ -164,22 +156,23 @@ class CartController extends Controller
     }
 
     /**
-     * @Route("/storefront-api/checkout/{identifier}", name="storefront.api.checkout.delete")
+     * @Route("/storefront-api/checkout/cart/line-item/{id}", name="storefront.api.checkout.cart.line-item.delete")
      * @Method({"DELETE"})
+     *
+     * @throws LineItemNotFoundException
      */
-    public function remove(string $identifier, CheckoutContext $context): JsonResponse
+    public function removeLineItem(string $id, CheckoutContext $context): JsonResponse
     {
         $cart = $this->loadCart($context->getToken(), $context);
 
-        if (!$lineItem = $cart->getLineItems()->get($identifier)) {
-            throw new LineItemNotFoundException($identifier);
+        if (!$lineItem = $cart->getLineItems()->get($id)) {
+            throw new LineItemNotFoundException($id);
         }
 
-        $cart->getLineItems()->remove($identifier);
+        $cart->getLineItems()->remove($id);
 
         $calculated = $this->calculation->calculate($cart, $context);
-
-        $this->save($calculated, $context);
+        $this->saveCart($calculated, $context);
 
         return new JsonResponse(
             $this->serialize($calculated)
@@ -187,30 +180,23 @@ class CartController extends Controller
     }
 
     /**
-     * @Route("/storefront-api/checkout/set-quantity/{identifier}", name="storefront.api.checkout.set-quantity")
-     * @Method({"PUT"})
+     * @Route("/storefront-api/checkout/cart/line-item/{id}/quantity/{quantity}", name="storefront.api.checkout.cart.line-item.quatity.update")
+     * @Method({"PATCH"})
+     *
+     * @throws LineItemNotFoundException
      */
-    public function setQuantity(string $identifier, Request $request, CheckoutContext $context): JsonResponse
+    public function setLineItemQuantity(string $id, int $quantity, CheckoutContext $context): JsonResponse
     {
         $cart = $this->loadCart($context->getToken(), $context);
 
-        $post = $this->getPost($request);
-
-        if (!isset($post['quantity'])) {
-            throw new \InvalidArgumentException('Parameter quantity missing');
+        if (!$lineItem = $cart->getLineItems()->get($id)) {
+            throw new LineItemNotFoundException($id);
         }
-
-        if (!$lineItem = $cart->getLineItems()->get($identifier)) {
-            throw new LineItemNotFoundException($identifier);
-        }
-
-        $quantity = (int) $post['quantity'];
 
         $lineItem->setQuantity($quantity);
 
         $calculated = $this->calculation->calculate($cart, $context);
-
-        $this->save($calculated, $context);
+        $this->saveCart($calculated, $context);
 
         return new JsonResponse(
             $this->serialize($calculated)
@@ -218,21 +204,45 @@ class CartController extends Controller
     }
 
     /**
-     * @Route("/storefront-api/checkout/order", name="storefront.api.checkout.order")
-     * @Method({"POST"})
+     * @Route("/storefront-api/checkout/cart/line-item/{id}", name="storefront.api.checkout.cart.line-item.update")
+     * @Method({"PATCH"})
+     *
+     * @throws LineItemNotFoundException
      */
-    public function order(CheckoutContext $context): JsonResponse
+    public function updateLineItem(string $id, Request $request, CheckoutContext $context): JsonResponse
     {
         $cart = $this->loadCart($context->getToken(), $context);
 
+        if (!$lineItem = $cart->getLineItems()->get($id)) {
+            throw new LineItemNotFoundException($id);
+        }
+
+        $quantity = $request->request->getInt('quantity', null);
+
+        if ($quantity) {
+            $lineItem->setQuantity($quantity);
+        }
+
+        $calculated = $this->calculation->calculate($cart, $context);
+        $this->saveCart($calculated, $context);
+
+        return new JsonResponse(
+            $this->serialize($calculated)
+        );
+    }
+
+    /**
+     * @Route("/storefront-api/checkout/order", name="storefront.api.checkout.order.create")
+     * @Method({"POST"})
+     */
+    public function createOrder(CheckoutContext $context): JsonResponse
+    {
+        $cart = $this->loadCart($context->getToken(), $context);
         $calculated = $this->calculation->calculate($cart, $context);
 
         $events = $this->orderPersister->persist($calculated, $context);
-
         $orders = $events->getEventByDefinition(OrderDefinition::class);
-
         $ids = $orders->getIds();
-
         $orderId = array_shift($ids);
 
         $order = $this->orderRepository->read(new ReadCriteria([$orderId]), $context->getContext());
@@ -268,31 +278,23 @@ class CartController extends Controller
         ];
     }
 
-    private function save(CalculatedCart $calculated, CheckoutContext $context): void
+    private function saveCart(CalculatedCart $calculated, CheckoutContext $context): void
     {
         $this->persister->save($calculated, $context);
     }
 
-    private function getPost(Request $request): array
-    {
-        if (empty($request->getContent())) {
-            return [];
-        }
-
-        return $this->serializer->decode($request->getContent(), 'json');
-    }
-
-    private function addLineItem(CheckoutContext $context, string $identifier, string $type, int $quantity, array $payload): CalculatedCart
+    /**
+     * @throws InvalidQuantityException
+     */
+    private function addLineItemToCart(CheckoutContext $context, string $identifier, string $type, int $quantity, array $payload): CalculatedCart
     {
         $cart = $this->loadCart($context->getToken(), $context);
 
         $lineItem = new LineItem($identifier, $type, $quantity, $payload);
-
         $cart->getLineItems()->add($lineItem);
 
         $calculated = $this->calculation->calculate($cart, $context);
-
-        $this->save($calculated, $context);
+        $this->saveCart($calculated, $context);
 
         return $calculated;
     }

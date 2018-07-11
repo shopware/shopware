@@ -8,14 +8,17 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
-use Shopware\Core\Checkout\Order\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Framework\Api\Response\ResponseFactory;
 use Shopware\Core\Framework\Api\Response\Type\JsonType;
+use Shopware\Core\Framework\Exception\InvalidUuidException;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\ORM\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Storefront\Exception\AddressNotFoundException;
 use Shopware\Storefront\Exception\CustomerNotFoundException;
 use Shopware\Storefront\Page\Account\AccountService;
 use Shopware\Storefront\Page\Account\AddressSaveRequest;
@@ -31,7 +34,7 @@ use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Serializer\Serializer;
 
-class CustomerController extends Controller
+class StorefrontCustomerController extends Controller
 {
     /**
      * @var Serializer
@@ -138,7 +141,9 @@ class CustomerController extends Controller
      * @Route("/storefront-api/customer/default-billing-address/{id}", name="storefront.api.customer.default_billing_address.update")
      * @Method({"PUT"})
      *
+     * @throws AddressNotFoundException
      * @throws CustomerNotLoggedInException
+     * @throws InvalidUuidException
      */
     public function setDefaultBillingAddress(string $id, CheckoutContext $context)
     {
@@ -279,7 +284,9 @@ class CustomerController extends Controller
      * @Route("/storefront-api/customer/address/{id}", name="storefront.api.customer.address.get")
      * @Method({"GET"})
      *
+     * @throws AddressNotFoundException
      * @throws CustomerNotLoggedInException
+     * @throws InvalidUuidException
      */
     public function getAddress(string $id, CheckoutContext $context): JsonResponse
     {
@@ -289,10 +296,13 @@ class CustomerController extends Controller
     }
 
     /**
+    /**
      * @Route("/storefront-api/customer/address", name="storefront.api.customer.address.create")
      * @Method({"POST"})
      *
+     * @throws AddressNotFoundException
      * @throws CustomerNotLoggedInException
+     * @throws InvalidUuidException
      */
     public function createAddress(Request $request, CheckoutContext $context): JsonResponse
     {
@@ -310,7 +320,9 @@ class CustomerController extends Controller
      * @Route("/storefront-api/customer/address/{id}", name="storefront.api.customer.address.delete")
      * @Method({"DELETE"})
      *
+     * @throws AddressNotFoundException
      * @throws CustomerNotLoggedInException
+     * @throws InvalidUuidException
      */
     public function deleteAddress(string $id, CheckoutContext $context): JsonResponse
     {
@@ -324,9 +336,14 @@ class CustomerController extends Controller
      * @Method({"PUT"})
      *
      * @throws CustomerNotLoggedInException
+     * @throws InvalidUuidException
+     * @throws AddressNotFoundException
      */
     public function setDefaultShippingAddress(string $id, CheckoutContext $context)
     {
+        if (!Uuid::isValid($id)) {
+            throw new InvalidUuidException($id);
+        }
         $this->accountService->setDefaultShippingAddress($id, $context);
 
         return new JsonResponse($this->serialize($id));

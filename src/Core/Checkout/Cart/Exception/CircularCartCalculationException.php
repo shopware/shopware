@@ -24,6 +24,22 @@
 
 namespace Shopware\Core\Checkout\Cart\Exception;
 
-class CircularCartCalculationException extends \Exception
+use Shopware\Core\Framework\ShopwareHttpException;
+use Symfony\Component\HttpFoundation\Response;
+use Throwable;
+
+class CircularCartCalculationException extends ShopwareHttpException
 {
+    protected $code = 'CART-CALCULATION-LOOP';
+
+    public function __construct(int $code = 0, Throwable $previous = null)
+    {
+        $message = 'Cart calculation has been termininated. Infinite loop detected.';
+        parent::__construct($message, $code, $previous);
+    }
+
+    public function getStatusCode(): int
+    {
+        return Response::HTTP_LOOP_DETECTED;
+    }
 }

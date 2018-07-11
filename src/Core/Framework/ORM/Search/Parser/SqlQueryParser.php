@@ -165,7 +165,7 @@ class SqlQueryParser
         $value = array_values($query->getValue());
         if ($field instanceof IdField || $field instanceof FkField) {
             $value = array_map(function (string $id) {
-                return Uuid::fromStringToBytes($id);
+                return Uuid::fromHexToBytes($id);
             }, $value);
         }
         $result->addParameter($key, $value, Connection::PARAM_STR_ARRAY);
@@ -197,7 +197,7 @@ class SqlQueryParser
 
         $value = $query->getValue();
         if ($field instanceof IdField || $field instanceof FkField) {
-            $value = Uuid::fromStringToBytes($value);
+            $value = Uuid::fromHexToBytes($value);
         }
 
         $result->addParameter($key, $value);
@@ -251,6 +251,6 @@ class SqlQueryParser
 
     private function getKey(): string
     {
-        return 'param_' . str_replace('-', '', Uuid::uuid4()->getHex());
+        return 'param_' . Uuid::uuid4()->getHex();
     }
 }

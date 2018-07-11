@@ -2,15 +2,23 @@
 
 namespace Shopware\Storefront\Exception;
 
-use Shopware\Core\Framework\ShopwareException;
+use Shopware\Core\Framework\ShopwareHttpException;
+use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
-class CustomerNotFoundException extends \Exception implements ShopwareException
+class CustomerNotFoundException extends ShopwareHttpException
 {
+    protected $code = 'CUSTOMER-NOT_FOUND';
+
     public function __construct(string $email, int $code = 0, Throwable $previous = null)
     {
-        $message = sprintf('No matching customer for email "%s" was found.', $email);
+        $message = sprintf('No matching customer for email `%s` was found.', $email);
 
         parent::__construct($message, $code, $previous);
+    }
+
+    public function getStatusCode(): int
+    {
+        return Response::HTTP_NOT_FOUND;
     }
 }

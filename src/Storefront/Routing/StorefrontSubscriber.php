@@ -2,9 +2,9 @@
 
 namespace Shopware\Storefront\Routing;
 
+use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\PlatformRequest;
-use Shopware\Storefront\Exception\CustomerNotLoggedInException;
 use Shopware\Storefront\StorefrontRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -87,6 +87,10 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
     public function customerNotLoggedInHandler(GetResponseForExceptionEvent $event)
     {
+        if (!$event->getRequest()->attributes->has(StorefrontRequest::ATTRIBUTE_IS_STOREFRONT_REQUEST)) {
+            return;
+        }
+
         if (!$event->getException() instanceof CustomerNotLoggedInException) {
             return;
         }

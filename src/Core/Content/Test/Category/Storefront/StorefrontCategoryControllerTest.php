@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Content\Test\Category\Storefront;
 
@@ -48,7 +48,7 @@ class StorefrontCategoryControllerTest extends ApiTestCase
         $id = Uuid::uuid4()->getHex();
 
         $this->repository->create([
-            ['id' => $id, 'name' => 'Test category']
+            ['id' => $id, 'name' => 'Test category'],
         ], $this->context);
 
         $this->storefrontApiClient->request('GET', '/storefront-api/category');
@@ -70,7 +70,7 @@ class StorefrontCategoryControllerTest extends ApiTestCase
         $id = Uuid::uuid4()->getHex();
 
         $this->repository->create([
-            ['id' => $id, 'name' => 'Test category']
+            ['id' => $id, 'name' => 'Test category'],
         ], $this->context);
 
         $this->storefrontApiClient->request('GET', '/storefront-api/category/' . $id);
@@ -153,8 +153,8 @@ class StorefrontCategoryControllerTest extends ApiTestCase
         $params = http_build_query([
             'filter' => [
                 'name' => 'Matching name',
-                'active' => true
-            ]
+                'active' => true,
+            ],
         ]);
 
         $this->storefrontApiClient->request('GET', '/storefront-api/category?' . $params);
@@ -182,17 +182,17 @@ class StorefrontCategoryControllerTest extends ApiTestCase
             ['id' => $categoryB, 'name' => 'B', 'active' => false],
         ], $this->context);
 
-        $body = json_encode([
+        $body = [
             'filter' => [
                 [
                     'type' => 'terms',
                     'field' => 'category.id',
-                    'value' => [$categoryA, $categoryB]
-                ]
-            ]
-        ]);
+                    'value' => implode('|', [$categoryA, $categoryB]),
+                ],
+            ],
+        ];
 
-        $this->storefrontApiClient->request('POST', '/storefront-api/category', [], [], [], $body);
+        $this->storefrontApiClient->request('POST', '/storefront-api/category', $body);
 
         $response = $this->storefrontApiClient->getResponse();
         $content = json_decode($response->getContent(), true);
@@ -202,22 +202,20 @@ class StorefrontCategoryControllerTest extends ApiTestCase
         $this->assertContains($categoryA, $ids);
         $this->assertContains($categoryB, $ids);
 
-
-
-        $body = json_encode([
+        $body = [
             'filter' => [
                 [
                     'type' => 'term',
                     'field' => 'category.active',
-                    'value' => true
-                ]
+                    'value' => true,
+                ],
             ],
             'sort' => [
-                ['field' => 'category.name']
-            ]
-        ]);
+                ['field' => 'category.name'],
+            ],
+        ];
 
-        $this->storefrontApiClient->request('POST', '/storefront-api/category', [], [], [], $body);
+        $this->storefrontApiClient->request('POST', '/storefront-api/category', $body);
         $response = $this->storefrontApiClient->getResponse();
         $content = json_decode($response->getContent(), true);
 
@@ -226,22 +224,20 @@ class StorefrontCategoryControllerTest extends ApiTestCase
         $ids = array_column($content['data'], 'id');
         $this->assertSame([$categoryA, $categoryC], $ids);
 
-
-
-        $body = json_encode([
+        $body = [
             'filter' => [
                 [
                     'type' => 'nested',
                     'operator' => 'OR',
                     'queries' => [
                         ['type' => 'term', 'field' => 'category.active', 'value' => true],
-                        ['type' => 'term', 'field' => 'category.name', 'value' => 'B']
-                    ]
-                ]
-            ]
-        ]);
+                        ['type' => 'term', 'field' => 'category.name', 'value' => 'B'],
+                    ],
+                ],
+            ],
+        ];
 
-        $this->storefrontApiClient->request('POST', '/storefront-api/category', [], [], [], $body);
+        $this->storefrontApiClient->request('POST', '/storefront-api/category', $body);
         $response = $this->storefrontApiClient->getResponse();
         $content = json_decode($response->getContent(), true);
 
@@ -253,26 +249,24 @@ class StorefrontCategoryControllerTest extends ApiTestCase
         $this->assertContains($categoryB, $ids);
         $this->assertContains($categoryC, $ids);
 
+        $body = [
+            'post-filter' => [
+                ['type' => 'term', 'field' => 'category.active', 'value' => true],
+            ],
+            'aggregations' => [
+                'category-names' => [
+                    'value_count' => ['field' => 'category.name'],
+                ],
+            ],
+        ];
 
-        $body = json_encode(
-            [
-                'post-filter' => [
-                    ['type' => 'term', 'field' => 'category.active', 'value' => true],
-                ],
-                'aggregations' => [
-                    'category-names' => [
-                        'value_count' => ['field' => 'category.name'],
-                    ],
-                ],
-            ]
-        );
-        $this->storefrontApiClient->request('POST', '/storefront-api/category', [], [], [], $body);
+        $this->storefrontApiClient->request('POST', '/storefront-api/category', $body);
         $response = $this->storefrontApiClient->getResponse();
         $content = json_decode($response->getContent(), true);
 
         $this->assertSame(200, $response->getStatusCode());
         $this->assertSame(2, $content['total']);
-        
+
         $ids = array_column($content['data'], 'id');
 
         $this->assertContains($categoryA, $ids);
@@ -281,7 +275,7 @@ class StorefrontCategoryControllerTest extends ApiTestCase
         $this->assertArrayHasKey('aggregations', $content);
         $this->assertArrayHasKey('category-names', $content['aggregations']);
 
-        usort($content['aggregations']['category-names'], function($a, $b) {
+        usort($content['aggregations']['category-names'], function ($a, $b) {
             return $a['key'] <=> $b['key'];
         });
 

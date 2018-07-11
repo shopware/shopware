@@ -11,13 +11,19 @@ abstract class ShopwareHttpException extends \Exception implements ShopwareExcep
         return Response::HTTP_INTERNAL_SERVER_ERROR;
     }
 
-    public function getErrors(): \Generator
+    public function getErrors(bool $withTrace = false): \Generator
     {
-        yield [
+        $error = [
             'code' => (string) $this->getCode(),
             'status' => (string) $this->getStatusCode(),
             'title' => Response::$statusTexts[$this->getStatusCode()] ?? 'unknown status',
             'detail' => $this->getMessage(),
         ];
+
+        if ($withTrace) {
+            $error['trace'] = $this->getTraceAsString();
+        }
+
+        yield $error;
     }
 }

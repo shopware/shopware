@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Test\Api\ApiTestCase;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Client;
 
-class CheckoutControllerTest extends ApiTestCase
+class StorefrontCartControllerTest extends ApiTestCase
 {
     /**
      * @var RepositoryInterface
@@ -43,11 +43,32 @@ class CheckoutControllerTest extends ApiTestCase
     {
         parent::setUp();
 
+        $this->storefrontApiClient->setServerParameter('CONTENT_TYPE', 'application/json');
+
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->repository = $this->getContainer()->get('product.repository');
         $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->taxId = Uuid::uuid4()->getHex();
         $this->manufacturerId = Uuid::uuid4()->getHex();
+    }
+
+    public function testAddNonExistingProduct()
+    {
+        $productId = Uuid::uuid4()->getHex();
+
+        $client = $this->createCart();
+
+        $this->addProduct($client, $productId);
+
+        $content = json_decode($client->getResponse()->getContent(), true);
+
+        $this->assertNotEmpty($content);
+        $this->assertArrayHasKey('data', $content);
+        $cart = $content['data'];
+
+        $this->assertArrayHasKey('price', $cart);
+        $this->assertEquals(0, $cart['price']['totalPrice']);
+        $this->assertCount(0, $cart['calculatedLineItems']);
     }
 
     public function testAddProduct()
@@ -167,6 +188,93 @@ class CheckoutControllerTest extends ApiTestCase
         }
     }
 
+    public function testUpdateLineItem()
+    {
+        $productId1 = Uuid::uuid4()->getHex();
+        $productId2 = Uuid::uuid4()->getHex();
+
+        $this->repository->create([
+            [
+                'id' => $productId1,
+                'name' => 'Test 1',
+                'catalogId' => Defaults::CATALOG,
+                'price' => ['gross' => 10, 'net' => 9],
+                'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
+                'tax' => ['id' => $this->taxId, 'rate' => 17, 'name' => 'with id'],
+            ],
+            [
+                'id' => $productId2,
+                'name' => 'Test 2',
+                'catalogId' => Defaults::CATALOG,
+                'price' => ['gross' => 20, 'net' => 9],
+                'manufacturerId' => $this->manufacturerId,
+                'taxId' => $this->taxId,
+            ],
+        ], Context:: createDefaultContext(Defaults::TENANT_ID));
+
+        $client = $this->createCart();
+
+        $this->addProduct($client, $productId1);
+        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+
+        $this->addProduct($client, $productId2);
+        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+
+        $this->updateLineItem($client, $productId1, 10);
+
+        $cart = $this->getCart($client);
+
+        $this->assertNotEmpty($cart);
+        $this->assertCount(2, $cart['calculatedLineItems']);
+
+        foreach ($cart['calculatedLineItems'] as $lineItem) {
+            if ($lineItem['identifier'] === $productId1) {
+                $this->assertEquals(10, $lineItem['quantity']);
+            }
+        }
+    }
+
+    public function testChangeWithInvalidQuantity()
+    {
+        $productId1 = Uuid::uuid4()->getHex();
+        $productId2 = Uuid::uuid4()->getHex();
+
+        $this->repository->create([
+            [
+                'id' => $productId1,
+                'name' => 'Test 1',
+                'catalogId' => Defaults::CATALOG,
+                'price' => ['gross' => 10, 'net' => 9],
+                'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
+                'tax' => ['id' => $this->taxId, 'rate' => 17, 'name' => 'with id'],
+            ],
+            [
+                'id' => $productId2,
+                'name' => 'Test 2',
+                'catalogId' => Defaults::CATALOG,
+                'price' => ['gross' => 20, 'net' => 9],
+                'manufacturerId' => $this->manufacturerId,
+                'taxId' => $this->taxId,
+            ],
+        ], Context:: createDefaultContext(Defaults::TENANT_ID));
+
+        $client = $this->createCart();
+
+        $this->addProduct($client, $productId1);
+        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+
+        $this->addProduct($client, $productId2);
+        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+
+        $this->changeQuantity($client, $productId1, -1);
+
+        $cart = $this->getCart($client);
+
+        $this->assertNotEmpty($cart);
+        $this->assertArrayHasKey('errors', $cart);
+        $this->assertEquals('CART-INVALID-QUANTITY', $cart['errors'][0]['code']);
+    }
+
     public function testRemoveLineItem()
     {
         $productId1 = Uuid::uuid4()->getHex();
@@ -208,6 +316,21 @@ class CheckoutControllerTest extends ApiTestCase
 
         $identifiers = array_column($cart['calculatedLineItems'], 'identifier');
         $this->assertNotContains($productId1, $identifiers);
+    }
+
+    public function testRemoveNonExistingLineItem()
+    {
+        $productId1 = Uuid::uuid4()->getHex();
+        $client = $this->createCart();
+
+        $this->removeLineItem($client, $productId1);
+
+        $cart = $this->getCart($client);
+
+        $this->assertNotEmpty($cart);
+        $this->assertArrayHasKey('errors', $cart);
+
+        $this->assertTrue(array_key_exists('CART-LINE-ITEM-NOT-FOUND', array_flip(array_column($cart['errors'], 'code'))));
     }
 
     public function testMergeSameProduct()
@@ -267,7 +390,7 @@ class CheckoutControllerTest extends ApiTestCase
         }
     }
 
-    public function testUseAddProductRoute()
+    public function testAddProductUsingGenericLineItemRoute()
     {
         $productId = Uuid::uuid4()->getHex();
         $this->repository->create([
@@ -283,7 +406,7 @@ class CheckoutControllerTest extends ApiTestCase
 
         $client = $this->createCart();
 
-        $client->request('POST', '/storefront-api/checkout/add-product/' . $productId);
+        $client->request('POST', '/storefront-api/checkout/cart/line-item/' . $productId, [], [], [], json_encode(['type' => ProductProcessor::TYPE_PRODUCT]));
 
         $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
@@ -375,9 +498,64 @@ class CheckoutControllerTest extends ApiTestCase
         $this->assertEquals($mail, $order['customer']['email']);
     }
 
-    public function createCart(): Client
+    public function testOrderProcessWithEmptyCart()
     {
-        $this->storefrontApiClient->request('POST', '/storefront-api/checkout');
+        $addressId = Uuid::uuid4()->getHex();
+        $context = Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID);
+
+        $mail = Uuid::uuid4()->getHex();
+        $password = 'shopware';
+
+        $this->connection->executeUpdate('DELETE FROM customer WHERE email = :mail', [
+            'mail' => $mail,
+        ]);
+
+        $this->customerRepository->create([
+            [
+                'touchpointId' => $context->getSourceContext()->getTouchpointId(),
+                'defaultShippingAddress' => [
+                    'id' => $addressId,
+                    'firstName' => 'not',
+                    'lastName' => 'not',
+                    'street' => 'test',
+                    'city' => 'not',
+                    'zipcode' => 'not',
+                    'salutation' => 'not',
+                    'country' => ['name' => 'not'],
+                ],
+                'defaultBillingAddressId' => $addressId,
+                'defaultPaymentMethod' => [
+                    'name' => 'test',
+                    'additionalDescription' => 'test',
+                    'technicalName' => Uuid::uuid4()->getHex(),
+                ],
+                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                'email' => $mail,
+                'password' => $password,
+                'lastName' => 'not',
+                'firstName' => 'match',
+                'salutation' => 'not',
+                'number' => 'not',
+            ],
+        ], $context);
+
+        $client = $this->createCart();
+
+        $this->login($client, $mail, $password);
+        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+
+        $this->order($client);
+        $this->assertSame(400, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+
+        $response = json_decode($client->getResponse()->getContent(), true);
+        $this->assertArrayHasKey('errors', $response);
+
+        $this->assertTrue(array_key_exists('CART-EMPTY', array_flip(array_column($response['errors'], 'code'))));
+    }
+
+    private function createCart(): Client
+    {
+        $this->storefrontApiClient->request('POST', '/storefront-api/checkout/cart');
         $response = $this->storefrontApiClient->getResponse();
 
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
@@ -390,40 +568,43 @@ class CheckoutControllerTest extends ApiTestCase
         return $client;
     }
 
-    public function getCart(Client $client)
+    private function getCart(Client $client)
     {
         $this->storefrontApiClient->request('GET', '/storefront-api/checkout');
 
         $cart = json_decode($client->getResponse()->getContent(), true);
 
-        return $cart['data'];
+        return $cart['data'] ?? $cart;
     }
 
     private function addProduct(Client $client, string $id, int $quantity = 1)
     {
         $client->request(
             'POST',
-            '/storefront-api/checkout/add',
+            '/storefront-api/checkout/cart/product/' . $id,
             [],
             [],
             [],
             json_encode([
-                'type' => ProductProcessor::TYPE_PRODUCT,
-                'identifier' => $id,
                 'quantity' => $quantity,
                 'payload' => ['id' => $id],
             ])
         );
     }
 
-    private function changeQuantity(Client $client, string $productId, int $quantity): void
+    private function changeQuantity(Client $client, string $lineItemId, $quantity): void
     {
-        $client->request('PUT', '/storefront-api/checkout/set-quantity/' . $productId, [], [], [], json_encode(['quantity' => $quantity]));
+        $client->request('PATCH', sprintf('/storefront-api/checkout/cart/line-item/%s/quantity/%s', $lineItemId, $quantity));
     }
 
-    private function removeLineItem(Client $client, string $productId): void
+    private function updateLineItem(Client $client, string $lineItemId, $quantity): void
     {
-        $client->request('DELETE', '/storefront-api/checkout/' . $productId);
+        $client->request('PATCH', sprintf('/storefront-api/checkout/cart/line-item/%s', $lineItemId), [], [], [], json_encode(['quantity' => $quantity]));
+    }
+
+    private function removeLineItem(Client $client, string $lineItemId): void
+    {
+        $client->request('DELETE', '/storefront-api/checkout/cart/line-item/' . $lineItemId);
     }
 
     private function order(Client $client)

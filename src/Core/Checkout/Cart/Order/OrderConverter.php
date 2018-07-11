@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Cart\Order;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
+use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemInterface;
 use Shopware\Core\Checkout\Cart\LineItem\NestedInterface;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
@@ -12,7 +13,6 @@ use Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
 use Shopware\Core\Checkout\Order\Exception\CustomerHasNoActiveBillingAddressException;
-use Shopware\Core\Checkout\Order\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Defaults;
@@ -31,6 +31,12 @@ class OrderConverter
         $this->taxDetector = $taxDetector;
     }
 
+    /**
+     * @throws CustomerHasNoActiveBillingAddressException
+     * @throws CustomerNotLoggedInException
+     * @throws DeliveryWithoutAddressException
+     * @throws EmptyCartException
+     */
     public function convert(CalculatedCart $calculatedCart, CheckoutContext $context): array
     {
         $addressId = Uuid::uuid4()->getHex();

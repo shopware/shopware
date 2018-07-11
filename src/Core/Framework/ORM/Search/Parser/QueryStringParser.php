@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\ORM\Search\Parser;
 
+use Shopware\Core\Framework\ORM\Exception\InvalidFilterQueryException;
+use Shopware\Core\Framework\ORM\Exception\SearchRequestException;
 use Shopware\Core\Framework\ORM\Search\Query\MatchQuery;
 use Shopware\Core\Framework\ORM\Search\Query\NestedQuery;
 use Shopware\Core\Framework\ORM\Search\Query\NotQuery;
@@ -12,54 +14,86 @@ use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
 
 class QueryStringParser
 {
-    public static function toUrl(Query $query): string
+    public static function fromArray(array $query, SearchRequestException $exception, string $path = ''): Query
     {
-        return json_encode(
-            self::toArray($query)
-        );
-    }
+        if (empty($query['type'])) {
+            throw new InvalidFilterQueryException('Value for filter type is required.');
+        }
 
-    public static function fromUrl(string $url): Query
-    {
-        return self::fromArray(
-            json_decode($url, true)
-        );
-    }
-
-    public static function fromArray(array $query): Query
-    {
         switch ($query['type']) {
             case 'term':
+                if (empty($query['field'])) {
+                    throw new InvalidFilterQueryException('Parameter "field" for term filter is missing.', $path . '/field');
+                }
+
+                if (!isset($query['value']) || $query['value'] === '') {
+                    throw new InvalidFilterQueryException('Parameter "value" for term filter is missing.', $path . '/value');
+                }
+
                 return new TermQuery($query['field'], $query['value']);
             case 'nested':
-                return new NestedQuery(
-                    array_map(function (array $query) {
-                        return self::fromArray($query);
-                    }, $query['queries']),
-                    array_key_exists('operator', $query) ? $query['operator'] : 'AND'
-                );
+                $queries = [];
+                $operator = 'AND';
+
+                if (isset($query['operator']) && $query['operator'] === 'OR') {
+                    $operator = 'OR';
+                }
+
+                foreach ($query['queries'] as $index => $subQuery) {
+                    try {
+                        $queries[] = self::fromArray($subQuery, $exception, $path . '/queries/' . $index);
+                    } catch (InvalidFilterQueryException $ex) {
+                        $exception->add($ex, $ex->getPath());
+                        continue;
+                    }
+                }
+
+                return new NestedQuery($queries, $operator);
             case 'match':
+                if (empty($query['field'])) {
+                    throw new InvalidFilterQueryException('Parameter "field" for match filter is missing.', $path . '/field');
+                }
+
+                if (!isset($query['value']) || $query['value'] === '') {
+                    throw new InvalidFilterQueryException('Parameter "value" for match filter is missing.', $path . '/value');
+                }
+
                 return new MatchQuery($query['field'], $query['value']);
             case 'not':
                 return new NotQuery(
-                    array_map(function (array $query) {
-                        return self::fromArray($query);
+                    array_map(function (array $query) use ($path) {
+                        return self::fromArray($query, $path);
                     }, $query['queries']),
                     array_key_exists('operator', $query) ? $query['operator'] : 'AND'
                 );
             case 'range':
                 return new RangeQuery($query['field'], $query['parameters']);
             case 'terms':
-
-                $value = $query['value'];
-                if (is_string($value)) {
-                    $value = array_filter(explode('|', $value));
+                if (empty($query['field'])) {
+                    throw new InvalidFilterQueryException('Parameter "field" for terms filter is missing.', $path . '/field');
                 }
 
-                return new TermsQuery($query['field'], $value);
-            default:
-                throw new \RuntimeException(sprintf('Unsupported query type %s', get_class($query)));
+                if (empty($query['value'])) {
+                    throw new InvalidFilterQueryException('Parameter "value" for terms filter is missing.', $path . '/value');
+                }
+
+                $values = $query['value'];
+                if (is_string($values)) {
+                    $values = array_filter(explode('|', $values));
+                }
+
+                if (!is_array($values)) {
+                    $values = [$values];
+                }
+
+                if (empty($values)) {
+                    throw new InvalidFilterQueryException('Parameter "value" for terms filter does not contain any value.', $path . '/value');
+                }
+
+                return new TermsQuery($query['field'], $values);
         }
+
+        throw new InvalidFilterQueryException(sprintf('Unsupported query type: %s', $query['type']), $path . '/type');
     }
 
     private static function toArray(Query $query): array

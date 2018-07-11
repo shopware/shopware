@@ -62,6 +62,6 @@ class CanonicalUrlAssociationFieldResolver implements FieldResolverInterface
             )
         );
         $query->setParameter($key, $field->getRouteName());
-        $query->setParameter('touchpointId', Uuid::fromStringToBytes($context->getSourceContext()->getTouchpointId()));
+        $query->setParameter('touchpointId', Uuid::fromHexToBytes($context->getSourceContext()->getTouchpointId()));
     }
 }

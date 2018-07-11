@@ -12,7 +12,9 @@
 
         <service class="Shopware\Core\Framework\Api\EventListener\ResponseExceptionListener" id="Shopware\Core\Framework\Api\EventListener\ResponseExceptionListener">
             <tag name="kernel.event_subscriber" />
+            <argument />
             <argument type="service" id="logger" />
+            <argument>%kernel.debug%</argument>
         </service>
 
         <service class="Shopware\Core\Framework\Api\Context\ContextValueResolver" id="Shopware\Core\Framework\Api\Context\ContextValueResolver">

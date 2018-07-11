@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\ORM\Dbal;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Dbal\Exception\UnmappedFieldException;
 use Shopware\Core\Framework\ORM\Dbal\FieldAccessorBuilder\FieldAccessorBuilderRegistry;
 use Shopware\Core\Framework\ORM\Dbal\FieldResolver\FieldResolverRegistry;
 use Shopware\Core\Framework\ORM\EntityDefinition;
@@ -114,6 +115,8 @@ class EntityDefinitionQueryHelper
      * fieldName => product.name
      * root      => product
      * return    => COALESCE(`product.translation`.`name`,`product.parent.translation`.`name`)
+     *
+     * @throws UnmappedFieldException
      */
     public function getFieldAccessor(string $fieldName, string $definition, string $root, Context $context): string
     {
@@ -126,7 +129,6 @@ class EntityDefinitionQueryHelper
 
         /** @var EntityDefinition $definition */
         $fields = $definition::getFields();
-
         if ($fields->has($fieldName)) {
             $field = $fields->get($fieldName);
 
@@ -137,7 +139,7 @@ class EntityDefinitionQueryHelper
         $associationKey = array_shift($associationKey);
 
         if (!$fields->has($associationKey)) {
-            throw new \RuntimeException(sprintf('Unmapped field %s for definition class %s', $original, $definition));
+            throw new UnmappedFieldException($original, $definition);
         }
 
         /** @var AssociationInterface|Field $field */

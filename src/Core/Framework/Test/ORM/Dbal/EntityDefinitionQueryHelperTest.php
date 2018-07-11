@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Core\Framework\ORM\Dbal\Exception\FieldAccessorBuilderNotFoundException;
 use Shopware\Core\Framework\ORM\Dbal\FieldAccessorBuilder\FieldAccessorBuilderRegistry;
 use Shopware\Core\Framework\ORM\Dbal\FieldAccessorBuilder\ObjectFieldAccessorBuilder;
 use Shopware\Core\Framework\ORM\Dbal\FieldResolver\FieldResolverRegistry;
@@ -16,11 +17,10 @@ use Shopware\Core\Framework\ORM\FieldCollection;
 
 class EntityDefinitionQueryHelperTest extends TestCase
 {
-    /**
-     * @expectedException \RuntimeException
-     */
     public function testJsonObjectAccessWithoutAccessorBuilder()
     {
+        $this->expectException(FieldAccessorBuilderNotFoundException::class);
+
         $helper = new EntityDefinitionQueryHelper(
             new FieldResolverRegistry([]),
             new FieldAccessorBuilderRegistry([])

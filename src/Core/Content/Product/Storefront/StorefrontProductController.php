@@ -8,8 +8,10 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Api\Response\ResponseFactory;
+use Shopware\Core\Framework\Exception\InvalidUuidException;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\SearchCriteriaBuilder;
+use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -68,9 +70,16 @@ class StorefrontProductController extends Controller
     /**
      * @Route("/storefront-api/product/{productId}", name="storefront.api.product.detail")
      * @Method({"GET"})
+     *
+     * @throws ProductNotFoundException
+     * @throws InvalidUuidException
      */
     public function detail(string $productId, Request $request, CheckoutContext $checkoutContext): Response
     {
+        if (!Uuid::isValid($productId)) {
+            throw new InvalidUuidException($productId);
+        }
+
         $products = $this->repository->read([$productId], $checkoutContext);
         if (!$products->has($productId)) {
             throw new ProductNotFoundException($productId);

@@ -428,6 +428,7 @@ class ApiControllerTest extends ApiTestCase
             'stock' => 50,
         ];
         $this->apiClient->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', [], [], [], json_encode($data));
+        $this->assertEquals(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode());
 
         $productB = Uuid::uuid4()->getHex();
         $data = [
@@ -439,6 +440,7 @@ class ApiControllerTest extends ApiTestCase
             'stock' => 100,
         ];
         $this->apiClient->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', [], [], [], json_encode($data));
+        $this->assertEquals(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode());
 
         $data = [
             'aggregations' => [
@@ -471,7 +473,7 @@ class ApiControllerTest extends ApiTestCase
         $this->assertArrayHasKey('aggregations', $content);
         $aggregations = $content['aggregations'];
 
-        $this->assertArrayHasKey('product_count', $aggregations);
+        $this->assertArrayHasKey('product_count', $aggregations, print_r($aggregations, true));
         $productCount = $aggregations['product_count'];
         $this->assertEquals(2, $productCount['count']);
 

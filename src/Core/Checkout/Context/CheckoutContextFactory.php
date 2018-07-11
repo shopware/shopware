@@ -301,28 +301,39 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
     private function loadCustomer(array $options, Context $context): ?CustomerStruct
     {
         $customerId = $options[CheckoutContextService::CUSTOMER_ID];
+
+        /** @var CustomerStruct $customer */
         $customer = $this->customerRepository->read(new ReadCriteria([$customerId]), $context)->get($customerId);
 
         if (!$customer) {
+            return null;
+        }
+
+        $billingAddressId = $options[CheckoutContextService::BILLING_ADDRESS_ID] ?? null;
+        $shippingAddressId = $options[CheckoutContextService::SHIPPING_ADDRESS_ID] ?? null;
+
+        $addressIds = [];
+        if (array_key_exists(CheckoutContextService::BILLING_ADDRESS_ID, $options)) {
+            $addressIds[] = $options[CheckoutContextService::BILLING_ADDRESS_ID];
+        }
+
+        if (array_key_exists(CheckoutContextService::SHIPPING_ADDRESS_ID, $options)) {
+            $addressIds[] = $options[CheckoutContextService::SHIPPING_ADDRESS_ID];
+        }
+
+        if (empty($addressIds)) {
             return $customer;
         }
 
-        if (array_key_exists(CheckoutContextService::BILLING_ADDRESS_ID, $options) === false && array_key_exists(CheckoutContextService::SHIPPING_ADDRESS_ID, $options) === false) {
-            return $customer;
-        }
-
-        $billingAddressId = $options[CheckoutContextService::BILLING_ADDRESS_ID];
-        $shippingAddressId = $options[CheckoutContextService::SHIPPING_ADDRESS_ID];
-
-        $addresses = $this->addressRepository->read(new ReadCriteria([$billingAddressId, $shippingAddressId]), $context);
+        $addresses = $this->addressRepository->read(new ReadCriteria($addressIds), $context);
 
         //billing address changed within checkout?
-        if ($billingAddressId !== null) {
+        if ($billingAddressId) {
             $customer->setActiveBillingAddress($addresses->get($billingAddressId));
         }
 
         //shipping address changed within checkout?
-        if ($shippingAddressId !== null) {
+        if ($shippingAddressId) {
             $customer->setActiveShippingAddress($addresses->get($shippingAddressId));
         }
 

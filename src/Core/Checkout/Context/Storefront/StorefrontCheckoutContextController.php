@@ -4,10 +4,10 @@ namespace Shopware\Core\Checkout\Context\Storefront;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
-use Shopware\Core\Checkout\Order\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Payment\Exception\PaymentMethodNotFoundHttpException;
 use Shopware\Core\Checkout\Shipping\Exception\ShippingMethodNotFoundHttpException;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
@@ -15,13 +15,13 @@ use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\PlatformRequest;
-use Shopware\Storefront\Exception\AddressNotFoundHttpException;
+use Shopware\Storefront\Exception\AddressNotFoundException;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Serializer\Serializer;
 
-class CheckoutContextController extends Controller
+class StorefrontCheckoutContextController extends Controller
 {
     /**
      * @var RepositoryInterface
@@ -63,12 +63,15 @@ class CheckoutContextController extends Controller
     }
 
     /**
-     * @Route("/storefront-api/context/", name="storefront.api.context.update")
+     * @Route("/storefront-api/context", name="storefront.api.context.update")
      * @Method({"PUT"})
+     *
+     * @throws AddressNotFoundException
+     * @throws CustomerNotLoggedInException
      */
     public function update(Request $request, CheckoutContext $context): JsonResponse
     {
-        $payload = $this->getPayload($request);
+        $payload = $request->request->all();
 
         $update = [];
         if (array_key_exists('shippingMethodId', $payload)) {
@@ -117,6 +120,10 @@ class CheckoutContextController extends Controller
         return $shippingMethodId;
     }
 
+    /**
+     * @throws AddressNotFoundException
+     * @throws CustomerNotLoggedInException
+     */
     private function validateAddressId(string $addressId, CheckoutContext $context): string
     {
         if (!$context->getCustomer()) {
@@ -128,22 +135,13 @@ class CheckoutContextController extends Controller
         $address = $addresses->get($addressId);
 
         if (!$address) {
-            throw new AddressNotFoundHttpException($addressId);
+            throw new AddressNotFoundException($addressId);
         }
 
         if ($address->getCustomerId() !== $context->getCustomer()->getId()) {
-            throw new AddressNotFoundHttpException($addressId);
+            throw new AddressNotFoundException($addressId);
         }
 
         return $addressId;
-    }
-
-    private function getPayload(Request $request): array
-    {
-        if (empty($request->getContent())) {
-            return [];
-        }
-
-        return $this->serializer->decode($request->getContent(), 'json');
     }
 }

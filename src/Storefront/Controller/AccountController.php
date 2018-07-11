@@ -8,9 +8,11 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
-use Shopware\Core\Checkout\Order\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Payment\Exception\PaymentMethodNotFoundHttpException;
+use Shopware\Core\Framework\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Storefront\Exception\AddressNotFoundException;
 use Shopware\Storefront\Exception\CustomerNotFoundException;
 use Shopware\Storefront\Page\Account\AccountService;
 use Shopware\Storefront\Page\Account\AddressSaveRequest;
@@ -350,6 +352,8 @@ class AccountController extends StorefrontController
      * @Method({"POST"})
      *
      * @throws CustomerNotLoggedInException
+     * @throws InvalidUuidException
+     * @throws AddressNotFoundException
      */
     public function saveAddress(AddressSaveRequest $request, Request $httpRequest, CheckoutContext $context): Response
     {

@@ -129,7 +129,7 @@
             <tag name="cart.processor" priority="-1000"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Cart\Storefront\CartController" id="Shopware\Core\Checkout\Cart\Storefront\CartController" public="true">
+        <service class="Shopware\Core\Checkout\Cart\Storefront\StorefrontCartController" id="Shopware\Core\Checkout\Cart\Storefront\StorefrontCartController" public="true">
             <argument id="Shopware\Core\Checkout\Cart\Cart\CircularCartCalculation" type="service"/>
             <argument id="Shopware\Core\Checkout\Cart\Cart\CartPersister" type="service"/>
             <argument id="Shopware\Core\Checkout\Cart\Order\OrderPersister" type="service"/>

@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Cart\LineItem;
 
+use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -55,6 +56,9 @@ class LineItem extends Struct implements LineItemInterface
      */
     protected $priceDefinition;
 
+    /**
+     * @throws InvalidQuantityException
+     */
     public function __construct(
         string $identifier,
         string $type,
@@ -63,10 +67,10 @@ class LineItem extends Struct implements LineItemInterface
         ?PriceDefinition $priceDefinition = null
     ) {
         $this->identifier = $identifier;
-        $this->quantity = $quantity;
         $this->type = $type;
         $this->payload = $payload;
         $this->priceDefinition = $priceDefinition;
+        $this->setQuantity($quantity);
     }
 
     public function getIdentifier(): string
@@ -79,8 +83,14 @@ class LineItem extends Struct implements LineItemInterface
         return $this->quantity;
     }
 
+    /**
+     * @throws InvalidQuantityException
+     */
     public function setQuantity(int $quantity): void
     {
+        if ($quantity < 1) {
+            throw new InvalidQuantityException((string) $quantity);
+        }
         $this->quantity = $quantity;
     }
 

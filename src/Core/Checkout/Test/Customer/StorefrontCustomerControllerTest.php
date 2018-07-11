@@ -334,7 +334,7 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         $uuid = $content['data'];
         $this->assertTrue(Uuid::isValid($uuid));
 
-        $customer = $this->readCustomer(Uuid::optimize($uuid));
+        $customer = $this->readCustomer($uuid);
 
         // verify personal data
         $this->assertEquals($personal['salutation'], $customer->getSalutation());

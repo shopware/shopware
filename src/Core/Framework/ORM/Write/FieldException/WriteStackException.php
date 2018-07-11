@@ -68,30 +68,42 @@ class WriteStackException extends ShopwareHttpException
         return Response::HTTP_BAD_REQUEST;
     }
 
-    public function getErrors(): \Generator
+    public function getErrors(bool $withTrace = false): \Generator
     {
         foreach ($this->getExceptions() as $innerException) {
             if ($innerException instanceof InvalidFieldException) {
                 foreach ($innerException->getViolations() as $violation) {
-                    yield [
+                    $error = [
                         'code' => (string) $this->getCode(),
                         'status' => (string) $this->getStatusCode(),
                         'title' => $innerException->getConcern(),
                         'detail' => $violation->getMessage(),
                         'source' => ['pointer' => $innerException->getPath()],
                     ];
+
+                    if ($withTrace) {
+                        $error['trace'] = $innerException->getTrace();
+                    }
+
+                    yield $error;
                 }
 
                 continue;
             }
 
-            yield [
+            $error = [
                 'code' => (string) $this->getCode(),
                 'status' => (string) $this->getStatusCode(),
                 'title' => $innerException->getConcern(),
                 'detail' => $innerException->getMessage(),
                 'source' => ['pointer' => $innerException->getPath()],
             ];
+
+            if ($withTrace) {
+                $error['trace'] = $innerException->getTrace();
+            }
+
+            yield $error;
         }
     }
 }

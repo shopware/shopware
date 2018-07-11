@@ -33,6 +33,9 @@ class ApiTestCase extends WebTestCase
      */
     protected $touchpoints = [];
 
+    /**
+     * @throws \Shopware\Core\Framework\Exception\InvalidUuidException
+     */
     protected function setUp()
     {
         parent::setUp();
@@ -102,6 +105,9 @@ class ApiTestCase extends WebTestCase
         $this->assertSame(Response::HTTP_NOT_FOUND, $this->apiClient->getResponse()->getStatusCode(), 'Entity exists but should not.');
     }
 
+    /**
+     * @throws \Shopware\Core\Framework\Exception\InvalidUuidException
+     */
     protected function authorizeClient(Client $client): void
     {
         $username = Uuid::uuid4()->getHex();
@@ -139,6 +145,9 @@ class ApiTestCase extends WebTestCase
         $client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['access_token']));
     }
 
+    /**
+     * @throws \Shopware\Core\Framework\Exception\InvalidUuidException
+     */
     protected function authorizeStorefrontClient(Client $storefrontApiClient): void
     {
         $touchpoint = Uuid::uuid4();

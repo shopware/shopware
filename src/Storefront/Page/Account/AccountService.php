@@ -2,16 +2,19 @@
 
 namespace Shopware\Storefront\Page\Account;
 
+use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
 use Shopware\Core\Checkout\Customer\CustomerStruct;
-use Shopware\Core\Checkout\Order\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Framework\Exception\InvalidUuidException;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Storefront\Exception\AddressNotFoundHttpException;
+use Shopware\Core\System\Country\CountryCollection;
+use Shopware\Storefront\Exception\AddressNotFoundException;
 use Shopware\Storefront\Exception\CustomerNotFoundException;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 
@@ -42,6 +45,9 @@ class AccountService
         $this->customerRepository = $customerRepository;
     }
 
+    /**
+     * @throws CustomerNotFoundException
+     */
     public function getCustomerByLogin(string $email, string $password, CheckoutContext $context): CustomerStruct
     {
         $criteria = new Criteria();
@@ -124,6 +130,10 @@ class AccountService
         $this->customerRepository->update([$data], $context->getContext());
     }
 
+    /**
+     * @throws AddressNotFoundException
+     * @throws InvalidUuidException
+     */
     public function getAddressById(string $addressId, CheckoutContext $context): CustomerAddressStruct
     {
         return $this->validateAddressId($addressId, $context);
@@ -134,6 +144,7 @@ class AccountService
         $criteria = new ReadCriteria([]);
         $criteria->addFilter(new TermQuery('country.active', true));
 
+        /** @var CountryCollection $countries */
         $countries = $this->countryRepository->read($criteria, $context->getContext());
 
         $countries->sortCountryAndStates();
@@ -151,15 +162,16 @@ class AccountService
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('customer_address.customerId', $context->getCustomer()->getId()));
 
-        $addresses = $this->customerAddressRepository->search($criteria, $context->getContext());
-        $addresses = $addresses->getEntities();
+        /** @var CustomerAddressCollection $addresses */
+        $addresses = $this->customerAddressRepository->search($criteria, $context->getContext())->getEntities();
 
         return $addresses->sortByDefaultAddress($customer)->getElements();
     }
 
     /**
      * @throws CustomerNotLoggedInException
-     */
+     * @throws InvalidUuidException
+     * @throws AddressNotFoundException     */
     public function saveAddress(AddressSaveRequest $addressSaveRequest, CheckoutContext $context): string
     {
         $this->validateCustomer($context);
@@ -204,6 +216,8 @@ class AccountService
 
     /**
      * @throws CustomerNotLoggedInException
+     * @throws InvalidUuidException
+     * @throws AddressNotFoundException
      */
     public function deleteAddress(string $addressId, CheckoutContext $context)
     {
@@ -214,6 +228,8 @@ class AccountService
 
     /**
      * @throws CustomerNotLoggedInException
+     * @throws InvalidUuidException
+     * @throws AddressNotFoundException
      */
     public function setDefaultBillingAddress(string $addressId, CheckoutContext $context)
     {
@@ -229,6 +245,8 @@ class AccountService
 
     /**
      * @throws CustomerNotLoggedInException
+     * @throws InvalidUuidException
+     * @throws AddressNotFoundException
      */
     public function setDefaultShippingAddress(string $addressId, CheckoutContext $context)
     {
@@ -322,17 +340,21 @@ class AccountService
         }
     }
 
+    /**
+     * @throws AddressNotFoundException
+     * @throws InvalidUuidException
+     */
     private function validateAddressId(string $addressId, CheckoutContext $context): CustomerAddressStruct
     {
-        $addresses = $this->customerAddressRepository->read(new ReadCriteria([$addressId]), $context->getContext());
-        $address = $addresses->get($addressId);
-
-        if (!$address) {
-            throw new AddressNotFoundHttpException($addressId);
+        if (!Uuid::isValid($addressId)) {
+            throw new InvalidUuidException($addressId);
         }
 
-        if ($address->getCustomerId() !== $context->getCustomer()->getId()) {
-            throw new AddressNotFoundHttpException($addressId);
+        /** @var CustomerAddressStruct $address */
+        $address = $this->customerAddressRepository->read(new ReadCriteria([$addressId]), $context->getContext())->get($addressId);
+
+        if (!$address || $address->getCustomerId() !== $context->getCustomer()->getId()) {
+            throw new AddressNotFoundException($addressId);
         }
 
         return $address;

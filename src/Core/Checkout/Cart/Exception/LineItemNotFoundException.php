@@ -24,23 +24,23 @@
 
 namespace Shopware\Core\Checkout\Cart\Exception;
 
-class LineItemNotFoundException extends \Exception
-{
-    /**
-     * @var string
-     */
-    protected $identifier;
+use Shopware\Core\Framework\ShopwareHttpException;
+use Symfony\Component\HttpFoundation\Response;
+use Throwable;
 
-    public function __construct(string $identifier)
+class LineItemNotFoundException extends ShopwareHttpException
+{
+    protected $code = 'CART-LINE-ITEM-NOT-FOUND';
+
+    public function __construct(string $identifier, int $code = 0, Throwable $previous = null)
     {
-        $this->identifier = $identifier;
-        parent::__construct(
-            sprintf('Line item with identifier %s not found', $identifier)
-        );
+        $message = sprintf('Line item with identifier %s not found', $identifier);
+
+        parent::__construct($message, $code, $previous);
     }
 
-    public function getIdentifier(): string
+    public function getStatusCode(): int
     {
-        return $this->identifier;
+        return Response::HTTP_NOT_FOUND;
     }
 }

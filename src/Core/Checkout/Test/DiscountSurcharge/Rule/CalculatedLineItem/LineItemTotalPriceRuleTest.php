@@ -32,7 +32,6 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemTotalPriceRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Framework\Rule\Rule;
 
 class LineItemTotalPriceRuleTest extends TestCase
@@ -64,7 +63,6 @@ class LineItemTotalPriceRuleTest extends TestCase
                 new Price(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection())
             );
 
-
         static::assertFalse(
             $rule->match(new LineItemScope($lineItem, $context))->matches()
         );
@@ -80,7 +78,6 @@ class LineItemTotalPriceRuleTest extends TestCase
             ->setPrice(
                 new Price(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection())
             );
-
 
         static::assertTrue(
             $rule->match(new LineItemScope($lineItem, $context))->matches()

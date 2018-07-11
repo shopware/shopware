@@ -5,5 +5,4 @@ namespace Shopware\Core\Checkout\Cart\Price\Struct;
 
 interface PriceDefinition
 {
-
 }

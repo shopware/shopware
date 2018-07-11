@@ -30,7 +30,7 @@ class DeliveryProcessor
         $deliveries = $cart->getDeliveries();
 
         $deliveries = $this->builder->build($deliveries, $cart->getLineItems(), $context);
-        
+
         $this->calculator->calculate($cart->getDeliveries(), $cart, $context);
 
         return $deliveries;

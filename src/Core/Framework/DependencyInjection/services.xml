@@ -106,6 +106,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextFactory"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Processor"/>
         </service>
 
         <service class="Shopware\Core\Framework\Command\CreateTenantCommand" id="Shopware\Core\Framework\Command\CreateTenantCommand">

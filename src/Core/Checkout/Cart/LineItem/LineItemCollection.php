@@ -108,6 +108,20 @@ class LineItemCollection extends Collection
         return $this->buildFlat($this->getElements());
     }
 
+    public function current(): LineItem
+    {
+        return parent::current();
+    }
+
+    public function filterGoods(): self
+    {
+        return $this->filter(
+            function (LineItem $lineItem) {
+                return $lineItem->isGood();
+            }
+        );
+    }
+
     protected function getKey(LineItem $element): string
     {
         return $element->getKey();
@@ -130,19 +144,5 @@ class LineItemCollection extends Collection
         }
 
         return $flat;
-    }
-
-    public function current(): LineItem
-    {
-        return parent::current();
-    }
-
-    public function filterGoods(): self
-    {
-        return $this->filter(
-            function(LineItem $lineItem) {
-                return $lineItem->isGood();
-            }
-        );
     }
 }

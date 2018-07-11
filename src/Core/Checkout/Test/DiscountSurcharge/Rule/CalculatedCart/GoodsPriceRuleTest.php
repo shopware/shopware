@@ -88,7 +88,6 @@ class GoodsPriceRuleTest extends TestCase
         $cart->add(
             (new LineItem('a', 'a'))
                 ->setPrice(new Price(270, 270, new CalculatedTaxCollection(), new TaxRuleCollection()))
-
         );
         $context = $this->createMock(CheckoutContext::class);
 

@@ -71,7 +71,7 @@ class CalculatedCartTest extends TestCase
                 ->setChildren(
                     new LineItemCollection([
                         (new LineItem('A', 'test'))->setGood(true),
-                        (new LineItem('B', 'test'))->setGood(true)
+                        (new LineItem('B', 'test'))->setGood(true),
                     ])
                 )
         );

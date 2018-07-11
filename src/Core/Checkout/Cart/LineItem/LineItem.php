@@ -117,6 +117,7 @@ class LineItem extends Struct
         $this->key = $key;
         $this->quantity = $quantity;
         $this->type = $type;
+        $this->priority = $priority;
     }
 
     public static function createFrom(Struct $object)
@@ -139,6 +140,7 @@ class LineItem extends Struct
     public function setKey(string $key): self
     {
         $this->key = $key;
+
         return $this;
     }
 
@@ -150,6 +152,7 @@ class LineItem extends Struct
     public function setLabel(?string $label): self
     {
         $this->label = $label;
+
         return $this;
     }
 
@@ -179,6 +182,7 @@ class LineItem extends Struct
     public function setType(string $type): self
     {
         $this->type = $type;
+
         return $this;
     }
 
@@ -190,6 +194,7 @@ class LineItem extends Struct
     public function setPayload(array $payload): self
     {
         $this->payload = $payload;
+
         return $this;
     }
 
@@ -201,6 +206,7 @@ class LineItem extends Struct
     public function setPriceDefinition(?PriceDefinition $priceDefinition): self
     {
         $this->priceDefinition = $priceDefinition;
+
         return $this;
     }
 
@@ -212,6 +218,7 @@ class LineItem extends Struct
     public function setPrice(?Price $price): self
     {
         $this->price = $price;
+
         return $this;
     }
 
@@ -223,6 +230,7 @@ class LineItem extends Struct
     public function setGood(bool $good): self
     {
         $this->good = $good;
+
         return $this;
     }
 
@@ -234,6 +242,7 @@ class LineItem extends Struct
     public function setPriority(int $priority): self
     {
         $this->priority = $priority;
+
         return $this;
     }
 
@@ -245,6 +254,7 @@ class LineItem extends Struct
     public function setDescription(?string $description): self
     {
         $this->description = $description;
+
         return $this;
     }
 
@@ -256,6 +266,7 @@ class LineItem extends Struct
     public function setCover(?MediaStruct $cover): self
     {
         $this->cover = $cover;
+
         return $this;
     }
 
@@ -267,6 +278,7 @@ class LineItem extends Struct
     public function setDeliveryInformation(?DeliveryInformation $deliveryInformation): self
     {
         $this->deliveryInformation = $deliveryInformation;
+
         return $this;
     }
 
@@ -278,6 +290,7 @@ class LineItem extends Struct
     public function setChildren(?LineItemCollection $children): self
     {
         $this->children = $children;
+
         return $this;
     }
 

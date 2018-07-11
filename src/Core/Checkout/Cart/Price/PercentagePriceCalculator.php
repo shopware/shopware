@@ -61,9 +61,9 @@ class PercentagePriceCalculator
     /**
      * Provide a negative percentage value for discount or a positive percentage value for a surcharge
      *
-     * @param float                     $percentage 10.00 for 10%, -10.0 for -10%
+     * @param float           $percentage 10.00 for 10%, -10.0 for -10%
      * @param PriceCollection $prices
-     * @param CheckoutContext           $context
+     * @param CheckoutContext $context
      *
      * @return Price
      */

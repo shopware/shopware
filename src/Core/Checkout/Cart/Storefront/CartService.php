@@ -25,8 +25,8 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Cart\Storefront;
 
-use Shopware\Core\Checkout\Cart\Cart\CartPersisterInterface;
 use Shopware\Core\Checkout\Cart\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Cart\CartPersisterInterface;
 use Shopware\Core\Checkout\Cart\Enrichment;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;

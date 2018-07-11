@@ -60,7 +60,7 @@ class GoodsCountRule extends Rule
         }
 
         $goods = $scope->getCart()->getLineItems()->filterGoods();
-        
+
         switch ($this->operator) {
             case self::OPERATOR_GTE:
 

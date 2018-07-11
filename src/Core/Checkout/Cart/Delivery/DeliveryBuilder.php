@@ -145,7 +145,6 @@ class DeliveryBuilder
         DeliveryDate $deliveryDate,
         CheckoutContext $context
     ): DeliveryPosition {
-
         $definition = new QuantityPriceDefinition(
             $item->getPrice()->getUnitPrice(),
             $item->getPrice()->getTaxRules(),
@@ -170,7 +169,6 @@ class DeliveryBuilder
         ShippingLocation $location,
         ShippingMethodStruct $shippingMethod
     ): void {
-
         $delivery = $deliveries->getDelivery(
             $position->getDeliveryDate(),
             $location

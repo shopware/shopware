@@ -25,18 +25,13 @@
 namespace Shopware\Core\Checkout\Test\Cart\Common;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
-use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
-use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
@@ -49,9 +44,6 @@ use Shopware\Core\Checkout\Customer\CustomerStruct;
 use Shopware\Core\Checkout\Payment\PaymentMethodStruct;
 use Shopware\Core\Checkout\Shipping\ShippingMethodStruct;
 use Shopware\Core\Content\Product\Cart\ProductGateway;
-use Shopware\Core\Content\Product\Cart\ProductProcessor;
-use Shopware\Core\Content\Product\Cart\Struct\CalculatedProduct;
-use Shopware\Core\Content\Product\ProductStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryArea\CountryAreaStruct;
@@ -233,7 +225,7 @@ class Generator extends TestCase
 
                 (new LineItem('B', 'test', 5))
                     ->setGood(false)
-                    ->setPrice(new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()))
+                    ->setPrice(new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())),
             ])
         );
         $cart->setPrice(
@@ -241,26 +233,6 @@ class Generator extends TestCase
         );
 
         return $cart;
-
-    }
-
-    public static function createCalculatedProduct(
-        string $identifier,
-        float $price,
-        int $quantity,
-        ?ProductStruct $productStruct = null
-    ): CalculatedProduct {
-        $product = $productStruct ?? new ProductStruct();
-
-        return new CalculatedProduct(
-            new LineItem($identifier, ProductProcessor::TYPE_PRODUCT, $quantity),
-            new Price($price, $price * $quantity, new CalculatedTaxCollection(), new TaxRuleCollection(), $quantity),
-            $identifier,
-            $quantity,
-            new DeliveryDate(new \DateTime(), new \DateTime()),
-            new DeliveryDate(new \DateTime(), new \DateTime()),
-            $product
-        );
     }
 
     private function createTaxDetector($useGross, $isNetDelivery)

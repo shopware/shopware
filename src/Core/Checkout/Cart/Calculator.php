@@ -52,7 +52,7 @@ class Calculator
     private function calculateLineItems(Cart $cart, LineItemCollection $lineItems, CheckoutContext $context): LineItemCollection
     {
         $lineItems->sort(
-            function(LineItem $a, LineItem $b) {
+            function (LineItem $a, LineItem $b) {
                 return $b->getPriority() <=> $a->getPriority();
             }
         );
@@ -75,7 +75,7 @@ class Calculator
 
             $calculated->add($lineItem);
         }
-        
+
         return $calculated;
     }
 
@@ -86,7 +86,7 @@ class Calculator
         }
 
         return $calculated->filter(
-            function(LineItem $lineItem) use ($filter, $context) {
+            function (LineItem $lineItem) use ($filter, $context) {
                 $match = $filter->match(
                     new LineItemScope($lineItem, $context)
                 );
@@ -113,7 +113,6 @@ class Calculator
         $definition = $lineItem->getPriceDefinition();
 
         if ($definition instanceof AbsolutePriceDefinition) {
-
             //reduce line items for provided filter
             $prices = $this->filterLineItems($calculated, $definition->getFilter(), $context)
                 ->getPrices();

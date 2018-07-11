@@ -87,7 +87,7 @@ class ShippingAreaRuleTest extends TestCase
     {
         $rule = new ShippingAreaRule($ruleData, ShippingAreaRule::OPERATOR_NEQ);
 
-            $cart = $this->createMock(Cart::class);
+        $cart = $this->createMock(Cart::class);
 
         $context = $this->createMock(CheckoutContext::class);
 

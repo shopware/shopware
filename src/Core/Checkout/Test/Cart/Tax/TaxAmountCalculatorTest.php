@@ -47,10 +47,10 @@ class TaxAmountCalculatorTest extends TestCase
     /**
      * @dataProvider calculationProvider
      *
-     * @param string                    $calculationType
-     * @param TaxDetector               $taxDetector
-     * @param PriceCollection $prices
-     * @param CalculatedTaxCollection   $expected
+     * @param string                  $calculationType
+     * @param TaxDetector             $taxDetector
+     * @param PriceCollection         $prices
+     * @param CalculatedTaxCollection $expected
      */
     public function testCalculation(string $calculationType, TaxDetector $taxDetector, PriceCollection $prices, CalculatedTaxCollection $expected): void
     {

@@ -4,8 +4,8 @@ namespace Shopware\Core\Checkout\Cart\Price;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
-use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 
 class NetPriceCalculator

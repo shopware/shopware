@@ -91,7 +91,7 @@ class AccountController extends StorefrontController
     /**
      * @Route("/account", name="account_home")
      */
-    public function index(Request $request, CheckoutContext $context): Response
+    public function index(): Response
     {
         $this->denyAccessUnlessLoggedIn();
 

@@ -2,10 +2,9 @@
 
 namespace Shopware\Storefront\Page\Account;
 
-use JsonSerializable;
 use Shopware\Core\Framework\Struct\Struct;
 
-class PasswordSaveRequest extends Struct implements JsonSerializable
+class PasswordSaveRequest extends Struct
 {
     /** @var string|null */
     protected $password;

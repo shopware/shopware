@@ -9,11 +9,14 @@ use Faker\Factory;
 use Faker\Generator;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Checkout\Cart\Cart\Cart;
-use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
+use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\Rule\GoodsPriceRule;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Context\CheckoutContextFactory;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
@@ -22,7 +25,7 @@ use Shopware\Core\Checkout\Customer\Rule\IsNewCustomerRule;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Configuration\ConfigurationGroupDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
-use Shopware\Core\Content\Product\Cart\ProductProcessor;
+use Shopware\Core\Content\Product\Cart\ProductCollector;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\Util\VariantGenerator;
 use Shopware\Core\Content\Rule\RuleDefinition;
@@ -124,6 +127,11 @@ class DemodataCommand extends ContainerAwareCommand
      */
     private $contextFactory;
 
+    /**
+     * @var Processor
+     */
+    private $processor;
+
     public function __construct(
         ?string $name = null,
         EntityWriterInterface $writer,
@@ -132,7 +140,8 @@ class DemodataCommand extends ContainerAwareCommand
         ContainerInterface $container,
         OrderConverter $orderConverter,
         Connection $connection,
-        CheckoutContextFactory $contextFactory
+        CheckoutContextFactory $contextFactory,
+        Processor $calculator
     ) {
         parent::__construct($name);
         $this->writer = $writer;
@@ -146,6 +155,7 @@ class DemodataCommand extends ContainerAwareCommand
         $this->orderConverter = $orderConverter;
         $this->connection = $connection;
         $this->contextFactory = $contextFactory;
+        $this->processor = $calculator;
     }
 
     protected function configure()
@@ -211,7 +221,7 @@ class DemodataCommand extends ContainerAwareCommand
             $input->getOption('with-services') == 1
         );
 
-//        $this->createOrders((int) $input->getOption('orders'), $tenantId);
+        $this->createOrders((int) $input->getOption('orders'), $tenantId);
 
         $this->cleanupImages();
 
@@ -844,8 +854,7 @@ class DemodataCommand extends ContainerAwareCommand
 
     private function createOrders(int $limit, string $tenantId)
     {
-        $productIds = $this->connection->fetchAll('SELECT LOWER(HEX(id)) as id FROM product LIMIT 250');
-        $productIds = array_column($productIds, 'id');
+        $products = $this->connection->fetchAll('SELECT LOWER(HEX(id)) as id, price FROM product LIMIT 500');
 
         $customerIds = $this->connection->fetchAll('SELECT LOWER(HEX(id)) as id FROM customer LIMIT 200');
         $customerIds = array_column($customerIds, 'id');
@@ -853,21 +862,39 @@ class DemodataCommand extends ContainerAwareCommand
         $this->io->section("Generating {$limit} orders...");
         $this->io->progressStart($limit);
 
-        //prefetch all data
-        $options = [CheckoutContextService::CUSTOMER_ID => $this->faker->randomElement($customerIds)];
-        $context = $this->contextFactory->create($tenantId, Uuid::uuid4()->getHex(), Defaults::TOUCHPOINT, $options);
+        $lineItems = array_map(
+            function ($product) {
+                $id = $product['id'];
 
-        $lineItems = array_map(function ($id) {
-            return new LineItem($id, ProductProcessor::TYPE_PRODUCT, random_int(1, 50), ['id' => $id]);
-        }, $productIds);
-        $lineItems = new LineItemCollection($lineItems);
+                if (!$product['price']) {
+                    $price = random_int(20, 2000);
+                } else {
+                    $raw = json_decode((string) $product['price'], true);
+                    $price = $raw['gross'];
+                }
 
-        $cart = new Cart('shopware', Uuid::uuid4()->getHex(), $lineItems, new ErrorCollection());
-        $dataCollection = $this->collector->collect($cart, $context);
+                $quantity = random_int(1, 10);
+
+                $price = new QuantityPriceDefinition(
+                    $price,
+                    new TaxRuleCollection([
+                        new TaxRule($this->faker->randomElement([19, 7])),
+                    ]),
+                    $quantity,
+                    true
+                );
+
+                return (new LineItem($id, ProductCollector::LINE_ITEM_TYPE, $quantity))
+                    ->setPayload(['id' => $id])
+                    ->setPriceDefinition($price);
+            },
+            $products
+        );
 
         $payload = [];
 
         $contexts = [];
+        $lineItems = new LineItemCollection($lineItems);
 
         for ($i = 1; $i <= $limit; ++$i) {
             $token = Uuid::uuid4()->getHex();
@@ -891,11 +918,12 @@ class DemodataCommand extends ContainerAwareCommand
 
             $new = $lineItems->slice($offset, $itemCount);
 
-            $cart = new Cart('shopware', $token, $new, new ErrorCollection());
+            $cart = new Cart('shopware', $token);
+            $cart->addLineItems($new);
 
-            $calculated = $this->processor->process($cart, $context, $dataCollection);
+            $cart = $this->processor->process($cart, $context);
 
-            $payload[] = $this->orderConverter->convert($calculated, $context);
+            $payload[] = $this->orderConverter->convert($cart, $context);
 
             if (count($payload) >= 20) {
                 $this->writer->upsert(OrderDefinition::class, $payload, $this->getContext());

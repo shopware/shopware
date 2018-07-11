@@ -258,7 +258,7 @@ class CheckoutController extends StorefrontController
     {
         $this->denyAccessUnlessLoggedIn();
 
-        $order = $this->getOrder($request->get('order'), $context);
+        $this->getOrder($request->get('order'), $context);
 
         //todo@dr restore cart from order - NEXT-406
 //        $calculatedCart = $this->serializer->denormalize(json_decode($order->getPayload(), true), 'json');

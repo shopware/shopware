@@ -33,16 +33,13 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItem;
-use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
-use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\PriceRounding;
+use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\Price;
-use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
@@ -51,10 +48,6 @@ use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
-use Shopware\Core\Content\Product\Cart\ProductProcessor;
-use Shopware\Core\Content\Product\Cart\Struct\CalculatedProduct;
-use Shopware\Core\Content\Product\ProductStruct;
-use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateStruct;
 use Shopware\Core\System\Country\CountryStruct;
 
@@ -243,7 +236,6 @@ class StockDeliverySeparatorTest extends TestCase
         $location = self::createShippingLocation();
         $context = Generator::createContext(null, null, null, null, null, null, $location->getAreaId(), $location->getCountry(), $location->getState());
 
-
         $product = (new LineItem('A', 'product', 5))
             ->setPrice(new Price(1, 5, new CalculatedTaxCollection(), new TaxRuleCollection(), 5))
             ->setDeliveryInformation(
@@ -350,5 +342,4 @@ class StockDeliverySeparatorTest extends TestCase
 
         return ShippingLocation::createFromAddress($address);
     }
-
 }

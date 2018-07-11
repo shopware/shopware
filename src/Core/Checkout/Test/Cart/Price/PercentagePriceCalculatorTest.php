@@ -28,8 +28,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
-use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\PriceRounding;
+use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
@@ -48,8 +48,8 @@ class PercentagePriceCalculatorTest extends TestCase
     /**
      * @dataProvider calculatePercentagePriceOfGrossPricesProvider
      *
-     * @param float $percentage
-     * @param Price $expected
+     * @param float           $percentage
+     * @param Price           $expected
      * @param PriceCollection $prices
      */
     public function testCalculatePercentagePriceOfGrossPrices($percentage, Price $expected, PriceCollection $prices): void
@@ -114,7 +114,7 @@ class PercentagePriceCalculatorTest extends TestCase
                     ]),
                     1
                 ),
-                $prices
+                $prices,
             ],
         ];
     }

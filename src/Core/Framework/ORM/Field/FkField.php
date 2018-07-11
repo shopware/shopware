@@ -82,7 +82,7 @@ class FkField extends Field implements StorageAware
         $key = $data->getKey();
         $value = $data->getValue();
 
-        if ($this->shouldUseContext($data, $existence)) {
+        if ($this->shouldUseContext($data)) {
             try {
                 $value = $this->writeContext->get($this->referenceClass, $this->referenceField);
             } catch (\InvalidArgumentException $exception) {
@@ -106,12 +106,11 @@ class FkField extends Field implements StorageAware
     }
 
     /**
-     * @param KeyValuePair    $data
-     * @param EntityExistence $existence
+     * @param KeyValuePair $data
      *
      * @return bool
      */
-    protected function shouldUseContext(KeyValuePair $data, EntityExistence $existence): bool
+    protected function shouldUseContext(KeyValuePair $data): bool
     {
         return $data->isRaw() && $data->getValue() === null && $this->is(Required::class);
     }

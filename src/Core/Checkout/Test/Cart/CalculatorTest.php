@@ -154,13 +154,12 @@ class CalculatorTest extends KernelTestCase
 
         $cart->add($lineItem);
 
-
         $lineItem = (new LineItem('C', 'test', 1))
             ->setPriceDefinition(
                 new PercentagePriceDefinition(
                     -10,
                     new AndRule([
-                    new LineItemOfTypeRule('product')])
+                    new LineItemOfTypeRule('product'), ])
                 )
             );
 
@@ -189,7 +188,6 @@ class CalculatorTest extends KernelTestCase
             new QuantityPriceDefinition(100, new TaxRuleCollection([]), 2)
         );
         $cart->add($lineItem);
-
 
         $lineItem = new LineItem('C', 'test', 1);
         $lineItem->setPriceDefinition(
@@ -240,41 +238,41 @@ class CalculatorTest extends KernelTestCase
         $nested = (new LineItem('A', 'container', 1))->assign([
             'children' => new LineItemCollection([
                 (new LineItem('P1', 'product', 1))->assign([
-                    'priceDefinition' => new QuantityPriceDefinition(100, new TaxRuleCollection())
+                    'priceDefinition' => new QuantityPriceDefinition(100, new TaxRuleCollection()),
                 ]),
                 (new LineItem('P2', 'product', 1))->assign([
-                    'priceDefinition' => new QuantityPriceDefinition(100, new TaxRuleCollection())
+                    'priceDefinition' => new QuantityPriceDefinition(100, new TaxRuleCollection()),
                 ]),
                 (new LineItem('D', 'discount', 1))->assign([
-                    'priceDefinition' => new PercentagePriceDefinition(-10, null)
+                    'priceDefinition' => new PercentagePriceDefinition(-10, null),
                 ]),
                 (new LineItem('B', 'container', 1))->assign([
                     'children' => new LineItemCollection([
                         (new LineItem('P1', 'product', 1))->assign([
-                            'priceDefinition' => new QuantityPriceDefinition(100, new TaxRuleCollection())
+                            'priceDefinition' => new QuantityPriceDefinition(100, new TaxRuleCollection()),
                         ]),
                         (new LineItem('P2', 'product', 1))->assign([
-                            'priceDefinition' => new QuantityPriceDefinition(100, new TaxRuleCollection())
+                            'priceDefinition' => new QuantityPriceDefinition(100, new TaxRuleCollection()),
                         ]),
                         (new LineItem('D', 'discount', 1))->assign([
-                            'priceDefinition' => new PercentagePriceDefinition(-10, null)
+                            'priceDefinition' => new PercentagePriceDefinition(-10, null),
                         ]),
                         (new LineItem('C', 'container', 1))->assign([
                             'children' => new LineItemCollection([
                                 (new LineItem('P1', 'product', 1))->assign([
-                                    'priceDefinition' => new QuantityPriceDefinition(100, new TaxRuleCollection())
+                                    'priceDefinition' => new QuantityPriceDefinition(100, new TaxRuleCollection()),
                                 ]),
                                 (new LineItem('P2', 'product', 1))->assign([
-                                    'priceDefinition' => new QuantityPriceDefinition(100, new TaxRuleCollection())
+                                    'priceDefinition' => new QuantityPriceDefinition(100, new TaxRuleCollection()),
                                 ]),
                                 (new LineItem('D', 'discount', 1))->assign([
-                                    'priceDefinition' => new PercentagePriceDefinition(-10, null)
+                                    'priceDefinition' => new PercentagePriceDefinition(-10, null),
                                 ]),
-                            ])
-                        ])
-                    ])
-                ])
-            ])
+                            ]),
+                        ]),
+                    ]),
+                ]),
+            ]),
         ]);
 
         $cart->add($nested);

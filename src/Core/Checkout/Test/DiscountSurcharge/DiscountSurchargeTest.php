@@ -5,28 +5,16 @@ namespace Shopware\Core\Checkout\Test\DiscountSurcharge;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Enrichment;
-use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Processor;
-use Shopware\Core\Checkout\Cart\Rule\GoodsCountRule;
-use Shopware\Core\Checkout\Cart\Rule\GoodsPriceRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemOfTypeRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemRule;
-use Shopware\Core\Checkout\Cart\Rule\LineItemsInCartRule;
-use Shopware\Core\Checkout\Cart\Rule\LineItemTotalPriceRule;
-use Shopware\Core\Checkout\Cart\Rule\LineItemWithQuantityRule;
-use Shopware\Core\Checkout\Cart\Rule\LineItemWrapperRule;
-use Shopware\Core\Checkout\Cart\Rule\ProductOfManufacturerRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
-use Shopware\Core\Checkout\Cart\Tax\Struct\PercentageTaxRule;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextFactory;
 use Shopware\Core\Checkout\DiscountSurcharge\Cart\DiscountSurchargeCollector;
-use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Rule;
@@ -445,7 +433,7 @@ class DiscountSurchargeTest extends KernelTestCase
                     'name' => $name,
                     'priority' => $priority,
                     'payload' => new AndRule($rules),
-                ]
+                ],
             ],
             Context::createDefaultContext(Defaults::TENANT_ID)
         );
@@ -482,10 +470,9 @@ class DiscountSurchargeTest extends KernelTestCase
                 'manufacturer' => ['name' => 'test'],
                 'price' => ['gross' => $grossPrice, 'net' => $netPrice],
                 'tax' => ['name' => 'test', 'rate' => $taxRate],
-            ]
+            ],
         ], Context::createDefaultContext(Defaults::TENANT_ID));
 
         return $id;
     }
-
 }

@@ -32,7 +32,7 @@ class ProductCollector implements CollectorInterface
     {
         $lineItems = array_filter(
             $cart->getLineItems()->getFlat(),
-            function(LineItem $lineItem) {
+            function (LineItem $lineItem) {
                 return $lineItem->getType() === self::LINE_ITEM_TYPE;
             }
         );
@@ -88,7 +88,7 @@ class ProductCollector implements CollectorInterface
 
         $flat = array_filter(
             $cart->getLineItems()->getFlat(),
-            function(LineItem $lineItem) {
+            function (LineItem $lineItem) {
                 return $lineItem->getType() === self::LINE_ITEM_TYPE;
             }
         );

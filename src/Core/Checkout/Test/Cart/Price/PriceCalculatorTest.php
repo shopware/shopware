@@ -27,8 +27,8 @@ namespace Shopware\Core\Checkout\Test\Cart\Price;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
-use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\PriceRounding;
+use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
@@ -49,8 +49,8 @@ class PriceCalculatorTest extends TestCase
     /**
      * @dataProvider priceCalculationWithGrossPricesProvider
      *
-     * @param PriceRounding   $priceRounding
-     * @param Price $expected
+     * @param PriceRounding           $priceRounding
+     * @param Price                   $expected
      * @param QuantityPriceDefinition $priceDefinition
      */
     public function testPriceCalculationWithGrossPrices(
@@ -80,7 +80,7 @@ class PriceCalculatorTest extends TestCase
     /**
      * @dataProvider netPrices
      *
-     * @param Price $expected
+     * @param Price                   $expected
      * @param QuantityPriceDefinition $priceDefinition
      */
     public function testNetPrices(
@@ -112,7 +112,7 @@ class PriceCalculatorTest extends TestCase
     /**
      * @dataProvider netDeliveryPrices
      *
-     * @param Price $expected
+     * @param Price                   $expected
      * @param QuantityPriceDefinition $priceDefinition
      */
     public function testNetDeliveries(

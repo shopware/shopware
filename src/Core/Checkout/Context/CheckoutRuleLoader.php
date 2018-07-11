@@ -3,18 +3,16 @@
 namespace Shopware\Core\Checkout\Context;
 
 use Psr\Cache\CacheItemPoolInterface;
-use Shopware\Core\Checkout\Cart\Cart\CartPersisterInterface;
 use Shopware\Core\Checkout\Cart\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Cart\CartPersisterInterface;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\Storefront\CartService;
-use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
-use Symfony\Component\Serializer\SerializerInterface;
 
 class CheckoutRuleLoader
 {
@@ -142,10 +140,10 @@ class CheckoutRuleLoader
 
     private function cartChanged(Cart $previous, Cart $current): bool
     {
-        return (
+        return
             $previous->getLineItems()->count() !== $current->getLineItems()->count()
             ||
             $previous->getPrice()->getTotalPrice() !== $current->getPrice()->getTotalPrice()
-        );
+        ;
     }
 }

@@ -159,7 +159,7 @@ class EnrichmentTest extends KernelTestCase
                         'name' => 'Do not override',
                         'fileName' => 'Do not override',
                         'fileSize' => 10,
-                        'mimeType' => 'B'
+                        'mimeType' => 'B',
                     ])
                 )
         );

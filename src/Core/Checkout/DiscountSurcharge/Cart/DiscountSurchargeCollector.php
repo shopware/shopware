@@ -17,16 +17,15 @@ use Shopware\Core\Framework\Struct\StructCollection;
 
 class DiscountSurchargeCollector implements CollectorInterface
 {
-    /**
-     * @var RepositoryInterface
-     */
-    private $repository;
-
     public const ABSOLUTE_MODIFIER = 'absolute';
 
     public const PERCENTAL_MODIFIER = 'percental';
 
     public const DATA_KEY = 'discount-surcharge';
+    /**
+     * @var RepositoryInterface
+     */
+    private $repository;
 
     public function __construct(RepositoryInterface $discountSurchargeRepository)
     {
@@ -111,19 +110,17 @@ class DiscountSurchargeCollector implements CollectorInterface
                         $discount->getFilterRule()
                     )
                 );
-
-            } else if ($discount->getType() === self::PERCENTAL_MODIFIER) {
+            } elseif ($discount->getType() === self::PERCENTAL_MODIFIER) {
                 $lineItem->setPriceDefinition(
                     new PercentagePriceDefinition(
                         $discount->getAmount(),
                         $discount->getFilterRule()
                     )
                 );
-
             } else {
                 throw new UnsupportedModifierTypeException($discount->getType(), self::class);
             }
-            
+
             $cart->add($lineItem);
         }
     }

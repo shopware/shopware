@@ -248,7 +248,7 @@ class LineItemCollectionTest extends TestCase
 
         static::assertEquals(
             new LineItemCollection([
-                new LineItem('A', 'test', 6)
+                new LineItem('A', 'test', 6),
             ]),
             $collection
         );
@@ -263,7 +263,6 @@ class LineItemCollectionTest extends TestCase
 
         $cart->add(new LineItem('a', 'first-type'));
         $cart->add(new LineItem('a', 'other-type'));
-
     }
 
     public function testGetLineItemByIdentifier(): void
@@ -322,7 +321,7 @@ class LineItemCollectionTest extends TestCase
 
             (new LineItem('B', 'test'))
                 ->setPrice(new Price(300, 300, new CalculatedTaxCollection(), new TaxRuleCollection())),
-        ])                                         ;
+        ]);
 
         static::assertEquals(
             new PriceCollection([

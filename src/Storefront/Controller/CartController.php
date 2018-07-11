@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Storefront\CartService;
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Content\Product\Cart\ProductProcessor;
+use Shopware\Core\Content\Product\Cart\ProductCollector;
 use Symfony\Component\HttpFoundation\AcceptHeader;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -166,18 +166,18 @@ class CartController extends StorefrontController
      *
      * @throws \Exception
      */
-    public function getCartAmount(Request $request, CheckoutContext $context): Response
+    public function getCartAmount(CheckoutContext $context): Response
     {
-        $calculatedCart = $this->cartService->getCart($context);
+        $cart = $this->cartService->getCart($context);
 
         $amount = $this->renderStorefront(
             '@Storefront/frontend/checkout/ajax_amount.html.twig',
-            ['amount' => $calculatedCart->getPrice()->getTotalPrice()]
+            ['amount' => $cart->getPrice()->getTotalPrice()]
         )->getContent();
 
         return new JsonResponse([
             'amount' => $amount,
-            'quantity' => $calculatedCart->getCalculatedLineItems()->count(),
+            'quantity' => $cart->getLineItems()->count(),
         ]);
     }
 
@@ -187,13 +187,13 @@ class CartController extends StorefrontController
      *
      * @throws \Exception
      */
-    public function getCart(Request $request, CheckoutContext $context): Response
+    public function getCart(CheckoutContext $context): Response
     {
-        $calculatedCart = $this->cartService->getCart($context);
+        $cart = $this->cartService->getCart($context);
 
         return $this->renderStorefront(
             '@Storefront/frontend/checkout/ajax_cart.html.twig',
-            ['cart' => $calculatedCart]
+            ['cart' => $cart]
         );
     }
 
@@ -218,12 +218,8 @@ class CartController extends StorefrontController
     private function addLineItemToCart(string $identifier, int $quantity, string $type, CheckoutContext $context)
     {
         $this->cartService->add(
-            new LineItem(
-                $identifier,
-                $type,
-                $quantity,
-                ['id' => $identifier]
-            ),
+            (new LineItem($identifier, $type, $quantity))
+                ->setPayload(['id' => $identifier]),
             $context
         );
     }
@@ -237,12 +233,8 @@ class CartController extends StorefrontController
         }
 
         $this->cartService->add(
-            new LineItem(
-                $key,
-                ProductProcessor::TYPE_PRODUCT,
-                $quantity,
-                ['id' => $identifier, 'services' => $services]
-            ),
+            (new LineItem($key, ProductCollector::LINE_ITEM_TYPE, $quantity))
+                ->setPayload(['id' => $identifier, 'services' => $services]),
             $context
         );
     }

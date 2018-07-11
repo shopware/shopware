@@ -25,8 +25,8 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Cart\Price;
 
-use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxAmountCalculatorInterface;
@@ -105,7 +105,7 @@ class AmountCalculator
      *
      * @param PriceCollection $prices
      * @param PriceCollection $shippingCosts
-     * @param CheckoutContext           $context
+     * @param CheckoutContext $context
      *
      * @return CartPrice
      */
@@ -140,7 +140,7 @@ class AmountCalculator
      *
      * @param PriceCollection $prices
      * @param PriceCollection $shippingCosts
-     * @param CheckoutContext           $context
+     * @param CheckoutContext $context
      *
      * @return CartPrice
      */

@@ -26,18 +26,13 @@ namespace Shopware\Core\Checkout\Test\CartBridge\Cart;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Cart\CartPersister;
-use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Core\Checkout\Cart\Cart\Cart;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
+use Shopware\Core\Checkout\Cart\Cart\CartPersister;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
-use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItem;
-use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\Price;
-use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
@@ -124,7 +119,7 @@ class CartPersisterTest extends TestCase
         $cart = $persister->load('existing', 'shopware', Generator::createContext());
 
         static::assertEquals(
-            new Cart('shopware', 'existing', new LineItemCollection(), new ErrorCollection()),
+            new Cart('shopware', 'existing'),
             $cart
         );
     }

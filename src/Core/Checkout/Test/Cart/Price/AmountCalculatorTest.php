@@ -27,9 +27,9 @@ namespace Shopware\Core\Checkout\Test\Cart\Price;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
 use Shopware\Core\Checkout\Cart\Price\PriceRounding;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
-use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleCalculator;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
@@ -51,7 +51,7 @@ class AmountCalculatorTest extends TestCase
     /**
      * @dataProvider calculateAmountWithGrossPricesProvider
      *
-     * @param CartPrice                 $expected
+     * @param CartPrice       $expected
      * @param PriceCollection $prices
      */
     public function testCalculateAmountWithGrossPrices(CartPrice $expected, PriceCollection $prices): void
@@ -88,7 +88,7 @@ class AmountCalculatorTest extends TestCase
     /**
      * @dataProvider calculateAmountWithNetPricesProvider
      *
-     * @param CartPrice                 $expected
+     * @param CartPrice       $expected
      * @param PriceCollection $prices
      */
     public function testCalculateAmountWithNetPrices(CartPrice $expected, PriceCollection $prices): void
@@ -126,7 +126,7 @@ class AmountCalculatorTest extends TestCase
     /**
      * @dataProvider calculateAmountForNetDeliveriesProvider
      *
-     * @param CartPrice                 $expected
+     * @param CartPrice       $expected
      * @param PriceCollection $prices
      */
     public function testCalculateAmountForNetDeliveries(CartPrice $expected, PriceCollection $prices): void

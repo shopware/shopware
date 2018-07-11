@@ -41,28 +41,37 @@
                                 {% block sw_catalog_detail_info_statistic_products %}
                                     <div class="info-card">
                                         <h4 class="info-card__headline">{{ $tc('sw-catalog.detail.labelOverviewProducts') }}</h4>
-                                        <div class="info-card__stats is--color-product">1.521</div>
+                                        <div class="info-card__stats is--color-product">
+                                            <span v-if="aggregations.productCount">{{ aggregations.productCount.count }}</span>
+                                            <sw-loader size="30" v-else></sw-loader>
+                                        </div>
                                     </div>
                                 {% endblock %}
 
                                 {% block sw_catalog_detail_info_statistic_categories %}
                                     <div class="info-card">
                                         <h4 class="info-card__headline">{{ $tc('sw-catalog.detail.labelOverviewCategories') }}</h4>
-                                        <div class="info-card__stats is--color-category">438</div>
+                                        <div class="info-card__stats is--color-category">
+                                            <span v-if="aggregations.categoryCount">{{ aggregations.categoryCount.count }}</span>
+                                            <sw-loader size="30" v-else></sw-loader>
+                                        </div>
                                     </div>
                                 {% endblock %}
 
                                 {% block sw_catalog_detail_info_statistic_pages %}
                                     <div class="info-card">
                                         <h4 class="info-card__headline">{{ $tc('sw-catalog.detail.labelOverviewPages') }}</h4>
-                                        <div class="info-card__stats is--color-page">24</div>
+                                        <div class="info-card__stats is--color-page">0</div>
                                     </div>
                                 {% endblock %}
 
                                 {% block sw_catalog_detail_info_statistic_media %}
                                     <div class="info-card">
                                         <h4 class="info-card__headline">{{ $tc('sw-catalog.detail.labelOverviewMedia') }}</h4>
-                                        <div class="info-card__stats is--color-media">674</div>
+                                        <div class="info-card__stats is--color-media">
+                                            <span v-if="aggregations.mediaCount">{{ aggregations.mediaCount.count }}</span>
+                                            <sw-loader size="30" v-else></sw-loader>
+                                        </div>
                                     </div>
                                 {% endblock %}
                             </sw-container>
@@ -87,7 +96,7 @@
                                 {% block sw_catalog_detail_categories_tree_actions %}
                                     <template slot="actions">
                                         <sw-container grid="3fr 1fr" gap="0 20px">
-                                            <sw-field type="text" v-model="addCategoryName" :placeholder="$tc('sw-catalog.detail.fieldPlaceholderAddCategory')"></sw-field>
+                                            <sw-field v-model="addCategoryName" v-on:keyup.enter="onAddCategory" :placeholder="$tc('sw-catalog.detail.fieldPlaceholderAddCategory')"></sw-field>
                                             <sw-button @click="onAddCategory">{{ $tc('sw-catalog.detail.buttonAddCategory') }}</sw-button>
                                         </sw-container>
                                     </template>
@@ -96,14 +105,69 @@
                                 {% block sw_catalog_detail_categories_tree_items %}
                                     <template slot="items" slot-scope="{ treeItems, sortable, draggedItem }">
                                         {% block sw_catalog_detail_categories_tree_items_item %}
-                                            <sw-tree-item v-for="item in treeItems" :key="item.id" :item="item" :sortable="sortable" :draggedItem="draggedItem">
+                                            <sw-tree-item v-for="item in treeItems"
+                                                          :key="item.id"
+                                                          :item="item"
+                                                          :sortable="currentEditCategory === null ? sortable : false"
+                                                          :draggedItem="draggedItem">
+
+                                                {% block sw_catalog_detail_categories_tree_items_item_content %}
+                                                    <template slot="content" slot-scope="{ item }">
+                                                        {% block sw_catalog_detail_categories_tree_items_item_content_edit %}
+                                                            <template v-if="currentEditCategory === item.data.id">
+                                                                <sw-field v-model="item.data.name" v-on:keyup.enter="onEditCategoryFinish(item)"></sw-field>
+                                                            </template>
+                                                        {% endblock %}
+
+                                                        {% block sw_catalog_detail_categories_tree_items_item_content_default %}
+                                                            <template v-else>
+                                                                <span class="sw-tree-item__label">{{ item.data.name }}</span>
+                                                                <span class="sw-tree-item__child-count" v-if="item.childCount > 0">{{ item.childCount }}</span>
+                                                            </template>
+                                                        {% endblock %}
+                                                    </template>
+                                                {% endblock %}
+
                                                 {% block sw_catalog_detail_categories_tree_items_item_actions %}
-                                                    <template slot="actions" slot-scope="{ item }">
-                                                        <sw-context-button>
-                                                            <sw-icon slot="button" name="default-action-more-horizontal" size="16" decorative></sw-icon>
-                                                            <sw-context-menu-item icon="small-default-x-line-medium">{{ $tc('sw-catalog.detail.contextButtonDeleteCategory') }}</sw-context-menu-item>
-                                                            <sw-context-menu-item icon="small-documentation-map-closed">{{ $tc('sw-catalog.detail.contextButtonAddChildCategory') }}</sw-context-menu-item>
-                                                        </sw-context-button>
+                                                    <template slot="actions" slot-scope="{ item, openTreeItem }">
+
+                                                        {% block sw_catalog_detail_categories_tree_items_item_actions_edit_mode %}
+                                                            <template v-if="currentEditCategory === item.data.id">
+                                                                <sw-button variant="primary" @click="onEditCategoryFinish(item)">
+                                                                    <sw-icon name="small-default-checkmark-line-medium" size="14"></sw-icon>
+                                                                </sw-button>
+                                                            </template>
+                                                        {% endblock %}
+
+                                                        {% block sw_catalog_detail_categories_tree_items_item_actions_default %}
+                                                            <template v-else>
+                                                                <sw-context-button>
+                                                                    {% block sw_catalog_detail_categories_tree_items_item_actions_add_child %}
+                                                                        <sw-context-menu-item icon="small-documentation-map-closed"
+                                                                                              :disabled="currentEditCategory !== null"
+                                                                                              @click="onAddChildCategory(item); openTreeItem(true)">
+                                                                            {{ $tc('sw-catalog.detail.contextButtonAddChildCategory') }}
+                                                                        </sw-context-menu-item>
+                                                                    {% endblock %}
+
+                                                                    {% block sw_catalog_detail_categories_tree_items_item_actions_standard %}
+                                                                        <div class="sw-context-menu__group">
+                                                                            {% block sw_catalog_detail_categories_tree_items_item_actions_edit %}
+                                                                                <sw-context-menu-item icon="small-pencil" @click="onEditCategory(item)">
+                                                                                    {{ $tc('sw-catalog.detail.contextButtonEditCategory') }}
+                                                                                </sw-context-menu-item>
+                                                                            {% endblock %}
+
+                                                                            {% block sw_catalog_detail_categories_tree_items_item_actions_delete %}
+                                                                                <sw-context-menu-item icon="small-default-x-line-medium" variant="danger">
+                                                                                    {{ $tc('sw-catalog.detail.contextButtonDeleteCategory') }}
+                                                                                </sw-context-menu-item>
+                                                                            {% endblock %}
+                                                                        </div>
+                                                                    {% endblock %}
+                                                                </sw-context-button>
+                                                            </template>
+                                                        {% endblock %}
                                                     </template>
                                                 {% endblock %}
                                             </sw-tree-item>

@@ -6,12 +6,16 @@ import './sw-catalog-detail.less';
 Component.register('sw-catalog-detail', {
     template,
 
+    inject: ['catalogService'],
+
     data() {
         return {
             catalogId: null,
             catalog: {},
             categories: [],
+            aggregations: {},
             addCategoryName: '',
+            currentEditCategory: null,
             isLoading: false
         };
     },
@@ -36,6 +40,7 @@ Component.register('sw-catalog-detail', {
                 this.catalogId = this.$route.params.id;
                 this.catalog = this.catalogStore.getById(this.catalogId);
 
+                this.getAggregations();
                 this.getCategories();
             }
         },
@@ -43,7 +48,7 @@ Component.register('sw-catalog-detail', {
         getCategories(parentId = null, searchTerm = null) {
             const criteria = [];
             const params = {
-                limit: 100
+                limit: 500
             };
 
             criteria.push(CriteriaFactory.term('catalogId', this.catalogId));
@@ -62,7 +67,7 @@ Component.register('sw-catalog-detail', {
 
             return this.categoryStore.getList(params).then((response) => {
                 response.items.forEach((category) => {
-                    if (typeof this.categories.find(i => i.d === category.id) !== 'undefined') {
+                    if (typeof this.categories.find(c => c.id === category.id) !== 'undefined') {
                         return;
                     }
 
@@ -71,6 +76,27 @@ Component.register('sw-catalog-detail', {
 
                 this.isLoading = false;
                 return response.items;
+            });
+        },
+
+        getAggregations() {
+            const aggregateParams = {
+                aggregations: {
+                    productCount: {
+                        count: { field: 'catalog.products.id' }
+                    },
+                    categoryCount: {
+                        count: { field: 'catalog.categories.id' }
+                    },
+                    mediaCount: {
+                        count: { field: 'catalog.media.id' }
+                    }
+                },
+                filter: [CriteriaFactory.term('id', this.catalogId).getQuery()]
+            };
+
+            return this.catalogService.getList(0, 1, aggregateParams).then((response) => {
+                this.aggregations = response.aggregations;
             });
         },
 
@@ -94,6 +120,41 @@ Component.register('sw-catalog-detail', {
 
             this.categories.push(newCategory);
             this.addCategoryName = '';
+        },
+
+        onAddChildCategory(item) {
+            if (!item || !item.data || !item.data.id || this.currentEditCategory !== null) {
+                return;
+            }
+
+            this.getCategories(item.data.id).then(() => {
+                const parentCategory = item.data;
+                const newCategory = this.categoryStore.create();
+
+                newCategory.name = '';
+                newCategory.catalogId = this.catalogId;
+                newCategory.parentId = parentCategory.id;
+                newCategory.position = 0;
+
+                this.categories.forEach((category) => {
+                    if (category.parentId === parentCategory.id) {
+                        category.position += 1;
+                    }
+                });
+
+                parentCategory.childCount += 1;
+
+                this.categories.push(newCategory);
+                this.currentEditCategory = newCategory.id;
+            });
+        },
+
+        onEditCategory(item) {
+            this.currentEditCategory = item.id;
+        },
+
+        onEditCategoryFinish() {
+            this.currentEditCategory = null;
         },
 
         searchCategories(searchTerm) {

@@ -123,6 +123,7 @@ export function getObjectChangeSet(baseObject, compareObject, entitySchemaName =
 
     let entitySchema = null;
     let entityProperties = null;
+    const blacklist = getPropertyBlacklist();
 
     if (entitySchemaName !== null) {
         entitySchema = Shopware.Entity.getDefinition(entitySchemaName) || null;
@@ -150,6 +151,11 @@ export function getObjectChangeSet(baseObject, compareObject, entitySchemaName =
     return Object.keys(c).reduce((acc, key) => {
         let property = null;
         let associatedEntity = null;
+
+        // Exclude properties which are on the blacklist
+        if (blacklist.includes(key)) {
+            return { ...acc };
+        }
 
         // If there is a given entity schema definition, validate the property against the schema.
         if (entityProperties !== null) {
@@ -282,7 +288,7 @@ function getArrayChangeSet(baseArray, compareArray, entitySchemaName = null) {
  * @returns {string[]}
  */
 function getPropertyBlacklist() {
-    return ['createdAt', 'updatedAt', 'tenantId', 'versionId'];
+    return ['createdAt', 'updatedAt', 'childCount', 'tenantId', 'versionId'];
 }
 
 function hasNoChanges(diff) {

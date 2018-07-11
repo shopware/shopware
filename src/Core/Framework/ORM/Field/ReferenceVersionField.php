@@ -55,14 +55,19 @@ class ReferenceVersionField extends FkField
         $this->versionReference = $definition;
     }
 
+    public function getVersionReference(): string
+    {
+        return $this->versionReference;
+    }
+
     /**
      * {@inheritdoc}
      */
-    public function __invoke(EntityExistence $existence, KeyValuePair $kvPair): \Generator
+    protected function invoke(EntityExistence $existence, KeyValuePair $data): \Generator
     {
         if ($this->definition === $this->versionReference) {
             //parent inheritance with versioning
-            $value = $kvPair->getValue() ?? Defaults::LIVE_VERSION;
+            $value = $data->getValue() ?? Defaults::LIVE_VERSION;
         } elseif ($this->writeContext->has($this->versionReference, 'versionId')) {
             $value = $this->writeContext->get($this->versionReference, 'versionId');
         } else {
@@ -70,10 +75,5 @@ class ReferenceVersionField extends FkField
         }
 
         yield $this->storageName => Uuid::fromStringToBytes($value);
-    }
-
-    public function getVersionReference(): string
-    {
-        return $this->versionReference;
     }
 }

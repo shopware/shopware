@@ -27,11 +27,6 @@ class StructField extends Field implements AssociationInterface
         $this->setFlags(new ReadOnly(), new Deferred());
     }
 
-    public function __invoke(EntityExistence $existence, KeyValuePair $data): \Generator
-    {
-        throw new \Exception('Struct fields can be invoked in write context');
-    }
-
     public function loadInBasic(): bool
     {
         return $this->inBasic;
@@ -40,5 +35,10 @@ class StructField extends Field implements AssociationInterface
     public function getReferenceClass(): string
     {
         return $this->structClass;
+    }
+
+    protected function invoke(EntityExistence $existence, KeyValuePair $data): \Generator
+    {
+        throw new \Exception('Struct fields can not be invoked in write context');
     }
 }

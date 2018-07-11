@@ -25,6 +25,7 @@
 namespace Shopware\Core\Framework;
 
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Touchpoint\TouchpointStruct;
 
@@ -95,6 +96,8 @@ class Context extends Struct
         $this->fallbackLanguageId = $fallbackLanguageId;
         $this->versionId = $versionId;
         $this->currencyFactor = $currencyFactor;
+
+        $this->addExtension('write_protection', new ArrayStruct());
     }
 
     public static function createDefaultContext(string $tenantId): self

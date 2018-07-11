@@ -54,10 +54,25 @@ class ReferenceField extends Field implements StorageAware
         parent::__construct($propertyName);
     }
 
+    public function getReferenceField(): string
+    {
+        return $this->referenceField;
+    }
+
+    public function getStorageName(): string
+    {
+        return $this->storageName;
+    }
+
+    public function getExtractPriority(): int
+    {
+        return 80;
+    }
+
     /**
      * {@inheritdoc}
      */
-    public function __invoke(EntityExistence $existence, KeyValuePair $data): \Generator
+    protected function invoke(EntityExistence $existence, KeyValuePair $data): \Generator
     {
         $key = $data->getKey();
         $value = $data->getValue();
@@ -81,20 +96,5 @@ class ReferenceField extends Field implements StorageAware
         $fkField = $this->definition::getFields()->getByStorageName($this->storageName);
 
         yield $fkField->getPropertyName() => $id;
-    }
-
-    public function getReferenceField(): string
-    {
-        return $this->referenceField;
-    }
-
-    public function getStorageName(): string
-    {
-        return $this->storageName;
-    }
-
-    public function getExtractPriority(): int
-    {
-        return 80;
     }
 }

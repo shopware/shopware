@@ -57,10 +57,23 @@ class JsonField extends Field implements StorageAware
         parent::__construct($propertyName);
     }
 
+    public function getStorageName(): string
+    {
+        return $this->storageName;
+    }
+
+    /**
+     * @return Field[]
+     */
+    public function getPropertyMapping(): array
+    {
+        return $this->propertyMapping;
+    }
+
     /**
      * {@inheritdoc}
      */
-    public function __invoke(EntityExistence $existence, KeyValuePair $data): \Generator
+    protected function invoke(EntityExistence $existence, KeyValuePair $data): \Generator
     {
         $key = $data->getKey();
         $value = $data->getValue();
@@ -80,19 +93,6 @@ class JsonField extends Field implements StorageAware
         }
 
         yield $this->storageName => $value;
-    }
-
-    public function getStorageName(): string
-    {
-        return $this->storageName;
-    }
-
-    /**
-     * @return Field[]
-     */
-    public function getPropertyMapping(): array
-    {
-        return $this->propertyMapping;
     }
 
     /**

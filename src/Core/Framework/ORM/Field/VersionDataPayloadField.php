@@ -19,7 +19,7 @@ class VersionDataPayloadField extends JsonField
      *
      * @return \Generator
      */
-    public function __invoke(EntityExistence $existence, KeyValuePair $data): \Generator
+    protected function invoke(EntityExistence $existence, KeyValuePair $data): \Generator
     {
         yield $this->storageName => $data->getValue();
     }

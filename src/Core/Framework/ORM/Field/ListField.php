@@ -62,10 +62,31 @@ class ListField extends JsonField
         $this->fieldType = $fieldType;
     }
 
+    public function getFieldType(): ?string
+    {
+        return $this->fieldType;
+    }
+
+    public function getInsertConstraints(): array
+    {
+        $constraints = parent::getInsertConstraints();
+        $constraints[] = new Type('array');
+
+        return $constraints;
+    }
+
+    public function getUpdateConstraints(): array
+    {
+        $constraints = parent::getInsertConstraints();
+        $constraints[] = new Type('array');
+
+        return $constraints;
+    }
+
     /**
      * {@inheritdoc}
      */
-    public function __invoke(EntityExistence $existence, KeyValuePair $data): \Generator
+    protected function invoke(EntityExistence $existence, KeyValuePair $data): \Generator
     {
         $key = $data->getKey();
         $value = $data->getValue();
@@ -87,27 +108,6 @@ class ListField extends JsonField
         }
 
         yield $this->storageName => $value;
-    }
-
-    public function getFieldType(): ?string
-    {
-        return $this->fieldType;
-    }
-
-    public function getInsertConstraints(): array
-    {
-        $constraints = parent::getInsertConstraints();
-        $constraints[] = new Type('array');
-
-        return $constraints;
-    }
-
-    public function getUpdateConstraints(): array
-    {
-        $constraints = parent::getInsertConstraints();
-        $constraints[] = new Type('array');
-
-        return $constraints;
     }
 
     private function validateTypes(array $values): void

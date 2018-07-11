@@ -76,7 +76,7 @@ class WriteCommandQueue
 
         $notAlreadyOrderedIdentifiers = [];
         foreach ($identifierOrder as $identifier) {
-            if ($identifier === $definition || array_search($identifier, $this->order) === false) {
+            if ($identifier === $definition || array_search($identifier, $this->order, true) === false) {
                 $notAlreadyOrderedIdentifiers[] = $identifier;
             }
         }
@@ -171,11 +171,12 @@ class WriteCommandQueue
     {
         $commands = $this->getCommandsInOrder();
 
-        return array_filter(
-            $commands,
-            function (WriteCommandInterface $command) use ($definition, $primaryKey) {
-                return $command->getDefinition() === $definition && $command->getPrimaryKey() == $primaryKey;
+        $filtered = [];
+        foreach ($commands as $command) {
+            if ($command->getDefinition() === $definition && $command->getPrimaryKey() == $primaryKey) {
+                $filtered[] = $command;
             }
-        );
+        }
+        return $filtered;
     }
 }

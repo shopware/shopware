@@ -128,15 +128,13 @@ class DataStack
      */
     public function getResultAsArray(): array
     {
-        $resultPairs = array_filter($this->data, function (KeyValuePair $kvPair) {
-            return !$kvPair->isRaw();
-        });
-
-        $result = [];
-        foreach ($resultPairs as $kvPair) {
-            $result[$kvPair->getKey()] = $kvPair->getValue();
+        $resultPairs = [];
+        foreach ($this->data as $kvPair) {
+            if (!$kvPair->isRaw()) {
+                $resultPairs[$kvPair->getKey()] = $kvPair->getValue();
+            }
         }
 
-        return $result;
+        return $resultPairs;
     }
 }

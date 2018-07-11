@@ -21,7 +21,8 @@
                               :disabled="disabled ? 'disabled' : false"
                               @input="onInput"
                               @change="onChange"
-                              v-bind="$attrs">
+                              v-bind="$attrs"
+                              v-on="additionalEventListeners">
                     </textarea>
                 {% endblock %}
 
@@ -37,7 +38,8 @@
                                     @input="onInput"
                                     @change="onChange"
                                     v-if="$slots.options && $slots.options.length"
-                                    v-bind="$attrs">
+                                    v-bind="$attrs"
+                                    v-on="additionalEventListeners">
 
                                 {% block sw_field_input_select_field_placeholder_option %}
                                     <option class="sw-field__placeholder-option" v-if="placeholder" :value="null">{{ placeholder }}</option>
@@ -85,7 +87,8 @@
                                                        :checked="currentValue === option.value ? 'checked' : false"
                                                        @input="onInput"
                                                        @change="onChange"
-                                                       v-bind="$attrs">
+                                                       v-bind="$attrs"
+                                                       v-on="additionalEventListeners">
 
                                                 <div class="sw-field__radio-state"></div>
                                             </div>
@@ -111,7 +114,8 @@
                                    :checked="currentValue ? 'checked' : false"
                                    @input="onInput"
                                    @change="onChange"
-                                   v-bind="$attrs">
+                                   v-bind="$attrs"
+                                   v-on="additionalEventListeners">
                         {% endblock %}
 
                         {% block sw_field_input_checkbox_state %}
@@ -134,7 +138,8 @@
                                    :checked="currentValue ? 'checked' : false"
                                    @input="onInput"
                                    @change="onChange"
-                                   v-bind="$attrs">
+                                   v-bind="$attrs"
+                                   v-on="additionalEventListeners">
                         {% endblock %}
 
                         {% block sw_field_input_switch_state %}
@@ -155,7 +160,8 @@
                            :disabled="disabled ? 'disabled' : false"
                            @input="onInput"
                            @change="onChange"
-                           v-bind="$attrs">
+                           v-bind="$attrs"
+                           v-on="additionalEventListeners">
                 {% endblock %}
 
                 <!-- Password -->
@@ -170,7 +176,8 @@
                                    :disabled="disabled ? 'disabled' : false"
                                    @input="onInput"
                                    @change="onChange"
-                                   v-bind="$attrs">
+                                   v-bind="$attrs"
+                                   v-on="additionalEventListeners">
                         {% endblock %}
 
                         {% block sw_field_toggle_password_visibility %}
@@ -200,7 +207,8 @@
                            :disabled="disabled ? 'disabled' : false"
                            @input="onInput"
                            @change="onChange"
-                           v-bind="$attrs">
+                           v-bind="$attrs"
+                           v-on="additionalEventListeners">
                 {% endblock %}
 
                 <!-- Suffix -->

@@ -359,5 +359,13 @@
       "contextMenuConfirmPayment": "Confirm payment",
       "messageEmpty": "No orders yet"
     }
+  },
+
+  "sw-media-grid-item": {
+    "contextMenu": {
+      "details": "Details",
+      "move": "Move",
+      "delete": "Delete"
+    }
   }
 }

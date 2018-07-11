@@ -359,5 +359,13 @@
       "contextMenuConfirmPayment": "Zahlung bestätigen",
       "messageEmpty": "Noch keine Bestellungen"
     }
+  },
+
+  "sw-media-grid-item": {
+    "contextMenu": {
+      "details": "Information",
+      "edit": "Verschieben",
+      "delete": "Löschen"
+    }
   }
 }

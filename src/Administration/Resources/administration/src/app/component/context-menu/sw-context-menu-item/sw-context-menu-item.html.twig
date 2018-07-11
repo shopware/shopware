@@ -4,7 +4,7 @@
                      :to="routerLink"
                      class="sw-context-menu-item"
                      :class="contextMenuItemStyles"
-                     v-on="$listeners">
+                     v-on="contextListeners">
             {% block sw_context_menu_item_icon %}
                 <slot name="icon">
                     {% block sw_context_menu_item_slot_icon %}
@@ -25,7 +25,7 @@
         <div v-else
              class="sw-context-menu-item"
              :class="contextMenuItemStyles"
-             v-on="$listeners">
+             v-on="contextListeners">
             {% block sw_context_menu_item_icon %}
                 <slot name="icon">
                     {% block sw_context_menu_item_slot_icon %}

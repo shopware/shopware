@@ -150,6 +150,10 @@ function parseDataStructure(json) {
         data.links = json.links;
     }
 
+    if (json.aggregations && Object.keys(json.aggregations).length) {
+        data.aggregations = json.aggregations;
+    }
+
     return data;
 }
 

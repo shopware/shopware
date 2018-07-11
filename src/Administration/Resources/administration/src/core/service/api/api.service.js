@@ -52,10 +52,7 @@ class ApiService {
         }
 
         return this.httpClient
-            .get(this.getApiBasePath(), {
-                params,
-                headers
-            })
+            .get(this.getApiBasePath(), { params, headers })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });

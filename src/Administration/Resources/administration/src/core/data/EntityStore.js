@@ -40,9 +40,11 @@ class EntityStore {
      * Get an entity by its id.
      *
      * @param {String} id
+     * @param {Object} additionalParams
+     * @param {Object} additionalHeaders
      * @return {Object}
      */
-    getById(id) {
+    getById(id, additionalParams = {}, additionalHeaders = {}) {
         if (this.store[id]) {
             return this.store[id];
         }
@@ -50,7 +52,7 @@ class EntityStore {
         this.createEntityInStore(id);
 
         this.store[id].isLoading = true;
-        this.apiService.getById(id).then((response) => {
+        this.apiService.getById(id, additionalParams, additionalHeaders).then((response) => {
             this.store[id].initData(response.data);
             this.store[id].isLoading = false;
         });

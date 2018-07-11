@@ -512,7 +512,7 @@ class StorefrontCartControllerTest extends ApiTestCase
 
         $this->customerRepository->create([
             [
-                'touchpointId' => $context->getTouchpointId(),
+                'touchpointId' => $context->getSourceContext()->getTouchpointId(),
                 'defaultShippingAddress' => [
                     'id' => $addressId,
                     'firstName' => 'not',

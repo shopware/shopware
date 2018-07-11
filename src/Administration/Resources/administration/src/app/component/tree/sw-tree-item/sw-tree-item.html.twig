@@ -1,48 +1,22 @@
 {% block sw_tree_item %}
-    <div class="sw-tree-item" :class="{ 'is--dragging': isDragging, 'is--sortable': sortable }">
+    <div class="sw-tree-item" :class="styling">
 
         {% block sw_tree_item_element %}
             <div class="sw-tree-item__element" v-on="sortable ? { pointerenter: onMouseEnter } : {}">
                 {% block sw_tree_item_element_leaf_icon %}
-                    <div class="sw-tree-item__leaf" v-if="isLeaf">
-                        <sw-icon name="small-documentation-map-closed"></sw-icon>
-                    </div>
+                    <div class="sw-tree-item__leaf" v-if="item.childCount <= 0"></div>
                 {% endblock %}
 
                 {% block sw_tree_item_element_toggle %}
-                    <div class="sw-tree-item__toggle" @click="collapseTreeItem(item)" v-else>
+                    <div class="sw-tree-item__toggle" @click="openTreeItem(); getTreeItemChildren(item)" v-else>
 
                         {% block sw_tree_item_element_toggle_loader %}
-                            <sw-loader v-if="isLoading" size="18"></sw-loader>
+                            <sw-loader v-if="isLoading" size="14"></sw-loader>
                         {% endblock %}
 
                         {% block sw_tree_item_element_toggle_icon %}
-                            <sw-icon :name="collapsed ? 'small-arrow-small-down' : 'small-arrow-small-right'" size="18" v-else></sw-icon>
+                            <sw-icon :name="opened ? 'small-arrow-small-down' : 'small-arrow-small-right'" size="18" v-else></sw-icon>
                         {% endblock %}
-                    </div>
-                {% endblock %}
-
-                {% block sw_tree_item_element_grip %}
-                    <div class="sw-tree-item__grip">
-                        <sw-icon name="default-action-more-vertical" small></sw-icon>
-                    </div>
-                {% endblock %}
-
-                {% block sw_tree_item_element_content %}
-                    <div class="sw-tree-item__content" v-on="sortable ? { pointerdown: onDragStart } : {}">
-                        <slot name="content" :item="item">
-                            {% block sw_tree_item_slot_content %}
-                                {{ item.data.name }}
-                            {% endblock %}
-                        </slot>
-                    </div>
-                {% endblock %}
-
-                {% block sw_tree_item_element_actions %}
-                    <div class="sw-tree-item__actions">
-                        <slot name="actions" :item="item">
-                            {% block sw_tree_item_slot_actions %}{% endblock %}
-                        </slot>
                     </div>
                 {% endblock %}
 
@@ -51,22 +25,60 @@
                         <sw-field type="checkbox"></sw-field>
                     </div>
                 {% endblock %}
+
+                {% block sw_tree_item_element_grip %}
+                    <div class="sw-tree-item__icon">
+                        <sw-icon name="default-documentation-map-open" small v-if="opened"></sw-icon>
+                        <sw-icon name="default-documentation-map-closed" small v-else></sw-icon>
+                    </div>
+                {% endblock %}
+
+                {% block sw_tree_item_element_content %}
+                    <div class="sw-tree-item__content" v-on="sortable ? { pointerdown: onDragStart } : {}">
+                        <slot name="content" :item="item" :openTreeItem="openTreeItem">
+                            {% block sw_tree_item_slot_content %}
+                                <span class="sw-tree-item__label">{{ item.data.name }}</span>
+                                <span class="sw-tree-item__child-count" v-if="item.childCount > 0">{{ item.childCount }}</span>
+                            {% endblock %}
+                        </slot>
+                    </div>
+                {% endblock %}
+
+                {% block sw_tree_item_element_actions %}
+                    <div class="sw-tree-item__actions">
+                        <slot name="actions" :item="item" :openTreeItem="openTreeItem">
+                            {% block sw_tree_item_slot_actions %}{% endblock %}
+                        </slot>
+                    </div>
+                {% endblock %}
             </div>
         {% endblock %}
 
         {% block sw_tree_item_children_transition %}
             <transition name="fade">
                 {% block sw_tree_item_children_content %}
-                    <div class="sw-tree-item__children" v-if="collapsed && item.children.length > 0">
+                    <div class="sw-tree-item__children" v-if="opened && item.children.length > 0">
                         {% block sw_tree_item_children_items %}
                             <sw-tree-item v-for="child in item.children" :key="child.id" :item="child" :sortable="sortable" :draggedItem="draggedItem">
-                                <template slot="actions" slot-scope="childScope" v-if="$scopedSlots.actions">
-                                    <sw-vnode-renderer :node="$scopedSlots.actions(childScope)"></sw-vnode-renderer>
-                                </template>
+                                {% block sw_tree_item_children_items_slots %}
+                                    <template slot="content" slot-scope="{ item, openTreeItem }">
+                                        {% block sw_tree_item_children_items_slot_content %}
+                                            <sw-vnode-renderer :node="$scopedSlots.content({ item, openTreeItem })" v-if="$scopedSlots.content"></sw-vnode-renderer>
+                                            {% block sw_tree_item_children_items_slot_content_default %}
+                                                <template v-else>
+                                                    <span class="sw-tree-item__label">{{ item.data.name }}</span>
+                                                    <span class="sw-tree-item__child-count" v-if="item.childCount > 0">{{ item.childCount }}</span>
+                                                </template>
+                                            {% endblock %}
+                                        {% endblock %}
+                                    </template>
 
-                                <template slot="content" slot-scope="childScope" v-if="$scopedSlots.content">
-                                    <sw-vnode-renderer :node="$scopedSlots.content(childScope)"></sw-vnode-renderer>
-                                </template>
+                                    <template slot="actions" slot-scope="{ item, openTreeItem }">
+                                        {% block sw_tree_item_children_items_slot_actions %}
+                                            <sw-vnode-renderer :node="$scopedSlots.actions({ item, openTreeItem })" v-if="$scopedSlots.actions"></sw-vnode-renderer>
+                                        {% endblock %}
+                                    </template>
+                                {% endblock %}
                             </sw-tree-item>
                         {% endblock %}
                     </div>

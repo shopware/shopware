@@ -30,6 +30,12 @@ Component.register('sw-tree', {
             default: 'position'
         },
 
+        childCountProperty: {
+            type: String,
+            required: false,
+            default: 'childCount'
+        },
+
         sortable: {
             type: Boolean,
             required: false,
@@ -91,7 +97,9 @@ Component.register('sw-tree', {
                 treeItems.push({
                     data: item,
                     id: item.id,
+                    parentId: parentId,
                     position: item[this.positionProperty],
+                    childCount: item[this.childCountProperty],
                     children: this.getTreeItems(item.id)
                 });
             });
@@ -106,6 +114,7 @@ Component.register('sw-tree', {
         },
 
         startDrag(draggedComponent) {
+            draggedComponent.opened = false;
             this.draggedItem = draggedComponent.item;
         },
 
@@ -133,7 +142,7 @@ Component.register('sw-tree', {
             }
 
             if (dragItem[this.positionProperty] < dropItem[this.positionProperty]) {
-                if (!droppedComponent.collapsed) {
+                if (!droppedComponent.opened) {
                     this.moveItemsUp(dragItem, dropItem);
                 }
             } else if (dragItem[this.positionProperty] >= dropItem[this.positionProperty]) {

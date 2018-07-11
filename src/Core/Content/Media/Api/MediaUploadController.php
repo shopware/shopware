@@ -58,6 +58,7 @@ class MediaUploadController extends Controller
 
         $tempFile = tempnam(sys_get_temp_dir(), '');
 
+        $context->getExtension('write_protection')->set('write_media', true);
         try {
             $contentLength = $this->fetchFile($request, $contentType, $tempFile);
             $contentType = mime_content_type($tempFile);

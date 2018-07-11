@@ -29,12 +29,12 @@ class MediaStruct extends Entity
     protected $userId;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $mimeType;
 
     /**
-     * @var int
+     * @var int|null
      */
     protected $fileSize;
 
@@ -118,7 +118,7 @@ class MediaStruct extends Entity
         $this->userId = $userId;
     }
 
-    public function getMimeType(): string
+    public function getMimeType(): ?string
     {
         return $this->mimeType;
     }
@@ -128,7 +128,7 @@ class MediaStruct extends Entity
         $this->mimeType = $mimeType;
     }
 
-    public function getFileSize(): int
+    public function getFileSize(): ?int
     {
         return $this->fileSize;
     }

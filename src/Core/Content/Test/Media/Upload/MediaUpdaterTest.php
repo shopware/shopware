@@ -70,6 +70,8 @@ class MediaUpdaterTest extends KernelTestCase
         $mediaId = Uuid::uuid4();
 
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context->getExtension('write_protection')->set('write_media', true);
+
         $this->repository->create(
             [
                 [
@@ -108,6 +110,7 @@ class MediaUpdaterTest extends KernelTestCase
         $mediaId = Uuid::uuid4();
 
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context->getExtension('write_protection')->set('write_media', true);
 
         $this->mediaUpdater->persistFileToMedia($tempFile, $mediaId->getHex(), $mimeType, 10, $context);
     }

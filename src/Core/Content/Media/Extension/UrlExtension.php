@@ -29,9 +29,11 @@ class UrlExtension implements EventSubscriberInterface
     public function mediaLoaded(EntityLoadedEvent $event): void
     {
         foreach ($event->getEntities() as $media) {
-            $media->addExtension('links', new ArrayStruct([
-                'url' => $this->urlGenerator->getUrl($media->getId(), $media->getMimeType()),
-            ]));
+            if ($media->getMimeType()) {
+                $media->addExtension('links', new ArrayStruct([
+                    'url' => $this->urlGenerator->getUrl($media->getId(), $media->getMimeType()),
+                ]));
+            }
         }
     }
 }

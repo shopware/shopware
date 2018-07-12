@@ -38,7 +38,6 @@ use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\NotRule;
 use Shopware\Core\Framework\Rule\CurrencyRule;
 use Shopware\Core\Framework\Rule\DateRangeRule;
-use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
@@ -437,17 +436,19 @@ class DemodataCommand extends ContainerAwareCommand
         }
 
         $context = Context::createDefaultContext($this->tenantId);
+        $context->getExtension('write_protection')->set('write_media', true);
 
         for ($i = 0; $i < $count; ++$i) {
             $product = $this->createSimpleProduct($categories, $manufacturer, $rules);
 
             if ($withMedia) {
                 $imagePath = $this->getRandomImage($product['name']);
+                $mediaId = Uuid::uuid4()->getHex();
                 $product['media'] = [
                     [
                         'isCover' => true,
                         'media' => [
-                            'fileName' => $product['id'] . '.' . pathinfo($imagePath, PATHINFO_EXTENSION),
+                            'id' => $mediaId,
                             'mimeType' => mime_content_type($imagePath),
                             'fileSize' => filesize($imagePath),
                             'albumId' => $albumId,
@@ -457,7 +458,7 @@ class DemodataCommand extends ContainerAwareCommand
                 ];
 
                 $mediaFile = fopen($imagePath, 'rb');
-                $this->filesystem->writeStream($product['id'] . '.' . pathinfo($imagePath, PATHINFO_EXTENSION), $mediaFile);
+                $this->filesystem->writeStream($mediaId . '.' . pathinfo($imagePath, PATHINFO_EXTENSION), $mediaFile);
                 fclose($mediaFile);
             }
 
@@ -479,9 +480,9 @@ class DemodataCommand extends ContainerAwareCommand
             if ($isConfigurator) {
                 $this->io->progressAdvance();
 
-                $this->productRepository->upsert([$product], Context::createDefaultContext($this->tenantId));
+                $this->productRepository->upsert([$product], $context);
 
-                $variantEvent = $this->variantGenerator->generate($product['id'], Context::createDefaultContext($this->tenantId));
+                $variantEvent = $this->variantGenerator->generate($product['id'], $context);
                 $productEvents = $variantEvent->getEventByDefinition(ProductDefinition::class);
                 $variantProductIds = $productEvents->getIds();
 
@@ -489,13 +490,14 @@ class DemodataCommand extends ContainerAwareCommand
                 foreach ($variantProductIds as $y => $variantProductId) {
                     $imagePath = $this->getRandomImage($product['name'] . ' #' . $y);
 
+                    $mediaId = Uuid::uuid4()->getHex();
                     $variantImagePayload[] = [
                         'id' => $variantProductId,
                         'media' => [
                             [
                                 'isCover' => true,
                                 'media' => [
-                                    'fileName' => $variantProductId . '.' . pathinfo($imagePath, PATHINFO_EXTENSION),
+                                    'id' => $mediaId,
                                     'mimeType' => mime_content_type($imagePath),
                                     'fileSize' => filesize($imagePath),
                                     'albumId' => $albumId,
@@ -506,11 +508,11 @@ class DemodataCommand extends ContainerAwareCommand
                     ];
 
                     $mediaFile = fopen($imagePath, 'rb');
-                    $this->filesystem->writeStream($variantProductId . '.' . pathinfo($imagePath, PATHINFO_EXTENSION), $mediaFile);
+                    $this->filesystem->writeStream($mediaId . '.' . pathinfo($imagePath, PATHINFO_EXTENSION), $mediaFile);
                     fclose($mediaFile);
                 }
 
-                $this->productRepository->update($variantImagePayload, Context::createDefaultContext($this->tenantId));
+                $this->productRepository->update($variantImagePayload, $context);
 
                 continue;
             }

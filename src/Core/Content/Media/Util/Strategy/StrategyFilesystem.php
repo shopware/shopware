@@ -47,12 +47,16 @@ class StrategyFilesystem extends AbstractFilesystem
 
     public function preparePath(string $path): string
     {
-        return $this->strategy->encode($path);
+        $parts = pathinfo($path);
+
+        return $this->strategy->encode($parts['filename']) . '.' . $parts['extension'];
     }
 
     public function stripPath(string $path): string
     {
-        return $this->strategy->decode($path);
+        $parts = pathinfo($path);
+
+        return $this->strategy->decode($parts['filename']) . '.' . $parts['extension'];
     }
 
     /**

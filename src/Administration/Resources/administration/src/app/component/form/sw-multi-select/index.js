@@ -17,7 +17,8 @@ Component.register('sw-multi-select', {
             default: ''
         },
         value: {
-            type: Array
+            type: Array,
+            required: true
         },
         label: {
             type: String,
@@ -51,11 +52,15 @@ Component.register('sw-multi-select', {
             type: Boolean,
             required: false,
             default: false
+        },
+        store: {
+            required: true
         }
     },
 
     data() {
         return {
+            initialSelection: false,
             searchTerm: '',
             isExpanded: false,
             results: [],
@@ -86,7 +91,14 @@ Component.register('sw-multi-select', {
     },
 
     watch: {
-        searchTerm: 'onSearchTermChange'
+        searchTerm: 'onSearchTermChange',
+        value() {
+            if (this.initialSelection) {
+                return;
+            }
+            this.initialSelection = true;
+            this.loadSelections();
+        }
     },
 
     created() {
@@ -125,7 +137,9 @@ Component.register('sw-multi-select', {
 
             const criteria = CriteriaFactory.nested(
                 'AND',
-                CriteriaFactory.terms(`${this.entityName}.id`, this.value)
+                CriteriaFactory.terms(`${this.entityName}.id`, this.value.map((item) => {
+                    return item.id;
+                }))
             );
 
             this.serviceProvider.getList(0, this.value.length, {
@@ -246,10 +260,10 @@ Component.register('sw-multi-select', {
                 return;
             }
 
-            this.selections.push({ id: result.id, name: result.name });
+            this.selections.push(result);
             this.searchTerm = '';
 
-            this.$emit('input', this.selections.map((item) => item.id));
+            this.emitChanges(this.selections);
 
             this.setFocus();
         },
@@ -279,7 +293,7 @@ Component.register('sw-multi-select', {
 
             this.selections = this.selections.filter((entry) => entry.id !== id);
 
-            this.$emit('input', this.selections);
+            this.emitChanges(this.selections);
 
             this.setFocus();
         },
@@ -293,9 +307,33 @@ Component.register('sw-multi-select', {
                 return;
             }
 
-            const lastSelectionId = this.selections.slice(-1)[0].id;
+            const lastSelectionId = this.selections[this.selections.length - 1].id;
 
             this.dismissSelection(lastSelectionId);
+        },
+
+        emitChanges(items) {
+            const itemIds = items.map((item) => item.id);
+
+            Object.keys(this.store.store).forEach((id) => {
+                const entity = this.store.store[id];
+                if (itemIds.includes(id)) {
+                    this.store.addAddition(entity);
+                } else {
+                    this.store.store[id].delete();
+                }
+            });
+
+            items.forEach((item) => {
+                const id = item.id;
+                const storeEntity = this.store.store[id];
+
+                if (!storeEntity) {
+                    this.store.addAddition(item);
+                }
+            });
+
+            this.$emit('input', this.selections);
         }
     }
 });

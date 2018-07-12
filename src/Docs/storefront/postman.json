@@ -138,7 +138,7 @@
 				],
 				"body": {},
 				"url": {
-					"raw": "http://shopware.development/storefront-api/checkout",
+					"raw": "http://shopware.development/storefront-api/checkout/cart",
 					"protocol": "http",
 					"host": [
 						"shopware",
@@ -146,7 +146,8 @@
 					],
 					"path": [
 						"storefront-api",
-						"checkout"
+						"checkout",
+						"cart"
 					]
 				}
 			},
@@ -174,7 +175,7 @@
 				],
 				"body": {},
 				"url": {
-					"raw": "http://shopware.development/storefront-api/checkout",
+					"raw": "http://shopware.development/storefront-api/checkout/cart",
 					"protocol": "http",
 					"host": [
 						"shopware",
@@ -182,7 +183,8 @@
 					],
 					"path": [
 						"storefront-api",
-						"checkout"
+						"checkout",
+						"cart"
 					]
 				}
 			},
@@ -214,10 +216,10 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\"identifier\":\"b5719dba30e84f4187248ce0b75ca68b\",\"type\":\"product\",\"quantity\":1,\"payload\":{\"id\":\"b5719dba30e84f4187248ce0b75ca68b\"}}"
+					"raw": "{\"type\":\"product\",\"quantity\":1,\"payload\":{\"id\":\"b5719dba30e84f4187248ce0b75ca68b\"}}"
 				},
 				"url": {
-					"raw": "http://shopware.development/storefront-api/checkout/add",
+					"raw": "http://shopware.development/storefront-api/checkout/cart/line-item/b5719dba30e84f4187248ce0b75ca68b",
 					"protocol": "http",
 					"host": [
 						"shopware",
@@ -226,7 +228,9 @@
 					"path": [
 						"storefront-api",
 						"checkout",
-						"add"
+						"cart",
+						"line-item",
+						"b5719dba30e84f4187248ce0b75ca68b"
 					]
 				}
 			},
@@ -254,7 +258,7 @@
 				],
 				"body": {},
 				"url": {
-					"raw": "http://shopware.development/storefront-api/checkout/add-product/b5719dba30e84f4187248ce0b75ca68b",
+					"raw": "http://shopware.development/storefront-api/checkout/cart/product/b5719dba30e84f4187248ce0b75ca68b",
 					"protocol": "http",
 					"host": [
 						"shopware",
@@ -263,7 +267,8 @@
 					"path": [
 						"storefront-api",
 						"checkout",
-						"add-product",
+						"cart",
+						"product",
 						"b5719dba30e84f4187248ce0b75ca68b"
 					]
 				}
@@ -283,7 +288,7 @@
 						}
 					]
 				},
-				"method": "PUT",
+				"method": "PATCH",
 				"header": [
 					{
 						"key": "x-sw-context-token",
@@ -294,12 +299,9 @@
 						"value": "application/json"
 					}
 				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\"quantity\": 10}"
-				},
+				"body": {},
 				"url": {
-					"raw": "http://shopware.development/storefront-api/checkout/set-quantity/b5719dba30e84f4187248ce0b75ca68b",
+					"raw": "http://shopware.development/storefront-api/checkout/cart/line-item/b5719dba30e84f4187248ce0b75ca68b/quantity/10",
 					"protocol": "http",
 					"host": [
 						"shopware",
@@ -308,8 +310,11 @@
 					"path": [
 						"storefront-api",
 						"checkout",
-						"set-quantity",
-						"b5719dba30e84f4187248ce0b75ca68b"
+						"cart",
+						"line-item",
+						"b5719dba30e84f4187248ce0b75ca68b",
+						"quantity",
+						"10"
 					]
 				}
 			},
@@ -344,7 +349,7 @@
 					"raw": ""
 				},
 				"url": {
-					"raw": "http://shopware.development/storefront-api/checkout/b5719dba30e84f4187248ce0b75ca68b",
+					"raw": "http://shopware.development/storefront-api/checkout/cart/line-item/b5719dba30e84f4187248ce0b75ca68b",
 					"protocol": "http",
 					"host": [
 						"shopware",
@@ -353,6 +358,8 @@
 					"path": [
 						"storefront-api",
 						"checkout",
+						"cart",
+						"line-item",
 						"b5719dba30e84f4187248ce0b75ca68b"
 					]
 				}

@@ -81,12 +81,12 @@
 To be able to control the shopping cart of Shopware via the Storefront API, the route `/storefront-api/checkout` can be used. 
 
 ## Create a new cart
-This route is used to create a new shopping cart. This is necessary to get a new context token for the checkout API which identify a persisted shopping cart.
+This route is used to create a new shopping cart. This is necessary to get a new context token for the checkout API which identifies a persisted shopping cart.
 
 ### Request
 ```
 curl -X POST \
-  http://shopware.development/storefront-api/checkout \
+  http://shopware.development/storefront-api/checkout/cart \
   -H 'Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjVlMWUzOGIyNjI0MjAzM2U1NmEzNGExMjJmMjA4NWM5MWVkMjFkMzI3MGI5MTk4NzJkZjRmMTgwYzM0OTgxODM4ZmMwNjE4ZjMzM2RkN2ZmIn0.eyJhdWQiOiJmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZiIsImp0aSI6IjVlMWUzOGIyNjI0MjAzM2U1NmEzNGExMjJmMjA4NWM5MWVkMjFkMzI3MGI5MTk4NzJkZjRmMTgwYzM0OTgxODM4ZmMwNjE4ZjMzM2RkN2ZmIiwiaWF0IjoxNTMwODY3NTEzLCJuYmYiOjE1MzA4Njc1MTMsImV4cCI6MTUzMDg3MTExMywic3ViIjoiIiwic2NvcGVzIjpbXX0.Rk0r2FFUPe14h830DCIgB-QcnDvf9KSAuxNGNpLFfW6KD_cRAdSX3JQm0sju4L0YgUugyXPZZLsLHkSmMP-yWD4t87EI_f2ODJl99ak7RWXzA_MF7e0LsE9knvApR3BIJavxVPjNWjSyvt6QvPNALAcGK5yamjdVRTUooHEmgSOKLHKOoYtUIOEUqRzU_q9UdHELN3UUDa3vZfqmPxBflsG0G5EhnSSpHMJrVZ3rwPu0vRCJ3anS1nfl3xeohSoxlooRv2iOsl2B_xkbLGYu2JpY9-eiWKkHIFaLHMtAvIIsHhOrfzM2hQyKhQh7niwkJYpcyEh1l7nZ6q7MhaSKqw' \
   -H 'Cache-Control: no-cache'
 ```
@@ -98,15 +98,15 @@ curl -X POST \
 }
 ```
 
-The created shopping cart is now available under this token. All further requests for this shopping cart have to send this token.
+The created shopping cart is now available via this token. All further requests for this shopping cart have to send this token.
 
 ## Read cart
-To read out a shopping cart, the `/storefront-api/checkout` route can be addressed by GET. It is important, as with all other described example requests, that the `x-sw-context-token` is also sent.
+To read out a shopping cart, the `/storefront-api/checkout/cart` route can be addressed by GET. It is important, as with all other described example requests, that the `x-sw-context-token` is also sent.
 
 ### Request
 ```
 curl -X GET \
-  http://shopware.development/storefront-api/checkout \
+  http://shopware.development/storefront-api/checkout/cart \
   -H 'Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjVlMWUzOGIyNjI0MjAzM2U1NmEzNGExMjJmMjA4NWM5MWVkMjFkMzI3MGI5MTk4NzJkZjRmMTgwYzM0OTgxODM4ZmMwNjE4ZjMzM2RkN2ZmIn0.eyJhdWQiOiJmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZiIsImp0aSI6IjVlMWUzOGIyNjI0MjAzM2U1NmEzNGExMjJmMjA4NWM5MWVkMjFkMzI3MGI5MTk4NzJkZjRmMTgwYzM0OTgxODM4ZmMwNjE4ZjMzM2RkN2ZmIiwiaWF0IjoxNTMwODY3NTEzLCJuYmYiOjE1MzA4Njc1MTMsImV4cCI6MTUzMDg3MTExMywic3ViIjoiIiwic2NvcGVzIjpbXX0.Rk0r2FFUPe14h830DCIgB-QcnDvf9KSAuxNGNpLFfW6KD_cRAdSX3JQm0sju4L0YgUugyXPZZLsLHkSmMP-yWD4t87EI_f2ODJl99ak7RWXzA_MF7e0LsE9knvApR3BIJavxVPjNWjSyvt6QvPNALAcGK5yamjdVRTUooHEmgSOKLHKOoYtUIOEUqRzU_q9UdHELN3UUDa3vZfqmPxBflsG0G5EhnSSpHMJrVZ3rwPu0vRCJ3anS1nfl3xeohSoxlooRv2iOsl2B_xkbLGYu2JpY9-eiWKkHIFaLHMtAvIIsHhOrfzM2hQyKhQh7niwkJYpcyEh1l7nZ6q7MhaSKqw' \
   -H 'Cache-Control: no-cache' \
   -H 'x-sw-context-token: c439592b53ab4e769987bfe5ceb021ed'
@@ -462,17 +462,16 @@ curl -X GET \
 ```
 
 ## Add line item to cart
-To add a line item to the shopping cart, the route POST `/storefront-api/checkout/add` can be used. This route allows you to put all kinds of items into the shopping cart, regardless of whether it's an item from Shopware or a plugin.
+To add a line item to the shopping cart, the route POST `/storefront-api/checkout/cart/line-item/{id}` can be used. This route allows you to put all kinds of items into the shopping cart, regardless of whether it's an item from Shopware or a plugin.
 
 ```
 curl -X POST \
-  http://shopware.development/storefront-api/checkout/add \
+  http://shopware.development/storefront-api/checkout/cart/line-item/b5719dba30e84f4187248ce0b75ca68b \
   -H 'Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjVlMWUzOGIyNjI0MjAzM2U1NmEzNGExMjJmMjA4NWM5MWVkMjFkMzI3MGI5MTk4NzJkZjRmMTgwYzM0OTgxODM4ZmMwNjE4ZjMzM2RkN2ZmIn0.eyJhdWQiOiJmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZiIsImp0aSI6IjVlMWUzOGIyNjI0MjAzM2U1NmEzNGExMjJmMjA4NWM5MWVkMjFkMzI3MGI5MTk4NzJkZjRmMTgwYzM0OTgxODM4ZmMwNjE4ZjMzM2RkN2ZmIiwiaWF0IjoxNTMwODY3NTEzLCJuYmYiOjE1MzA4Njc1MTMsImV4cCI6MTUzMDg3MTExMywic3ViIjoiIiwic2NvcGVzIjpbXX0.Rk0r2FFUPe14h830DCIgB-QcnDvf9KSAuxNGNpLFfW6KD_cRAdSX3JQm0sju4L0YgUugyXPZZLsLHkSmMP-yWD4t87EI_f2ODJl99ak7RWXzA_MF7e0LsE9knvApR3BIJavxVPjNWjSyvt6QvPNALAcGK5yamjdVRTUooHEmgSOKLHKOoYtUIOEUqRzU_q9UdHELN3UUDa3vZfqmPxBflsG0G5EhnSSpHMJrVZ3rwPu0vRCJ3anS1nfl3xeohSoxlooRv2iOsl2B_xkbLGYu2JpY9-eiWKkHIFaLHMtAvIIsHhOrfzM2hQyKhQh7niwkJYpcyEh1l7nZ6q7MhaSKqw' \
   -H 'Cache-Control: no-cache' \
   -H 'Content-Type: application/json' \
   -H 'x-sw-context-token: c439592b53ab4e769987bfe5ceb021ed' \
   -d '{
-	"identifier": "b5719dba30e84f4187248ce0b75ca68b",
 	"type": "product",
 	"quantity": 1,
 	"payload": {
@@ -486,40 +485,34 @@ To add a product to the shopping cart, there is a separate route which abstracts
 
 ```
 curl -X POST \
-  http://shopware.development/storefront-api/checkout/add-product/b5719dba30e84f4187248ce0b75ca68b \
+  http://shopware.development/storefront-api/checkout/cart/product/b5719dba30e84f4187248ce0b75ca68b \
   -H 'Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjVlMWUzOGIyNjI0MjAzM2U1NmEzNGExMjJmMjA4NWM5MWVkMjFkMzI3MGI5MTk4NzJkZjRmMTgwYzM0OTgxODM4ZmMwNjE4ZjMzM2RkN2ZmIn0.eyJhdWQiOiJmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZiIsImp0aSI6IjVlMWUzOGIyNjI0MjAzM2U1NmEzNGExMjJmMjA4NWM5MWVkMjFkMzI3MGI5MTk4NzJkZjRmMTgwYzM0OTgxODM4ZmMwNjE4ZjMzM2RkN2ZmIiwiaWF0IjoxNTMwODY3NTEzLCJuYmYiOjE1MzA4Njc1MTMsImV4cCI6MTUzMDg3MTExMywic3ViIjoiIiwic2NvcGVzIjpbXX0.Rk0r2FFUPe14h830DCIgB-QcnDvf9KSAuxNGNpLFfW6KD_cRAdSX3JQm0sju4L0YgUugyXPZZLsLHkSmMP-yWD4t87EI_f2ODJl99ak7RWXzA_MF7e0LsE9knvApR3BIJavxVPjNWjSyvt6QvPNALAcGK5yamjdVRTUooHEmgSOKLHKOoYtUIOEUqRzU_q9UdHELN3UUDa3vZfqmPxBflsG0G5EhnSSpHMJrVZ3rwPu0vRCJ3anS1nfl3xeohSoxlooRv2iOsl2B_xkbLGYu2JpY9-eiWKkHIFaLHMtAvIIsHhOrfzM2hQyKhQh7niwkJYpcyEh1l7nZ6q7MhaSKqw' \
   -H 'Cache-Control: no-cache' \
   -H 'x-sw-context-token: c439592b53ab4e769987bfe5ceb021ed'
 ```
 
 ## Change line item quantity
-Line items which added via api, can be changed in quantity by sending a PUT request to `storefront-api/checkout/set-quantity/{identifier}`.
+Line items which added via API, can be changed in quantity by sending a PATCH request to `storefront-api/checkout/cart/line-item/{id]/quantity/{quantity}`.
 
 ```
-curl -X PUT \
-  http://shopware.development/storefront-api/checkout/set-quantity/b5719dba30e84f4187248ce0b75ca68b \
+curl -X PATCH \
+  http://shopware.development/storefront-api/checkout/cart/line-item/b5719dba30e84f4187248ce0b75ca68b/quantity/10 \
   -H 'Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImJkNWIyMTBjZWIwNWU2ZmNiNWQ4ZDdjYmViODdjMWIxMmMxNWQ2NmZjYzQxMDlmOTkwM2Y4MzI0OGRiYWM4NWQzMTU3ODg2ZjI2ZjM2YzI4In0.eyJhdWQiOiJmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZiIsImp0aSI6ImJkNWIyMTBjZWIwNWU2ZmNiNWQ4ZDdjYmViODdjMWIxMmMxNWQ2NmZjYzQxMDlmOTkwM2Y4MzI0OGRiYWM4NWQzMTU3ODg2ZjI2ZjM2YzI4IiwiaWF0IjoxNTMwODc4NTE0LCJuYmYiOjE1MzA4Nzg1MTQsImV4cCI6MTUzMDg4MjExNCwic3ViIjoiIiwic2NvcGVzIjpbXX0.bDQpOgWj6iFJS9sd_WtyCkqC1Xverqg6l_l57upDEt03kcQcbh1fevSutitpMD1hoE4xxj7GqxOJ2zf-czP8mrtf7AQSIKgDq-WWggUrNQGs_yAe5JhKcOUgHN1LXxjS22XcvCnBY530dVVXFtZf7Web-qi7T3Hw-zDbSz147UGqlamaguijHj9gKv1Mz9I8yijMDP1tCrRzfMCt8mi90nFrzgwzllNBSTItPpca0RHBINuRCCS2dnS9q32bTgszmCxtoO0eCSuU__5-Cu9Pl0Yjm8My9lvsnAc1itiH0f2bbOfGljwAsUB_HpSCZwFdir94LTZiZG6qF21kvnPhJA' \
   -H 'Cache-Control: no-cache' \
   -H 'Content-Type: application/json' \
-  -H 'x-sw-context-token: c439592b53ab4e769987bfe5ceb021ed' \
-  -d '{
-	"quantity": 10
-}'
+  -H 'x-sw-context-token: c439592b53ab4e769987bfe5ceb021ed'
 ``` 
 
 ## Delete a line item
-Elements which explicitly added to the shopping cart can also be deleted via the API. For items which dynamically added by the system, such as payment surcharges, it is not possible.
+Elements explicitly added to the shopping cart can also be deleted via the API. For items which dynamically added by the system, such as payment surcharges, this is not possible.
  
 ```
 curl -X DELETE \
-  http://shopware.development/storefront-api/checkout/b5719dba30e84f4187248ce0b75ca68b \
+  http://shopware.development/storefront-api/checkout/line-item/b5719dba30e84f4187248ce0b75ca68b \
   -H 'Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImJkNWIyMTBjZWIwNWU2ZmNiNWQ4ZDdjYmViODdjMWIxMmMxNWQ2NmZjYzQxMDlmOTkwM2Y4MzI0OGRiYWM4NWQzMTU3ODg2ZjI2ZjM2YzI4In0.eyJhdWQiOiJmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZiIsImp0aSI6ImJkNWIyMTBjZWIwNWU2ZmNiNWQ4ZDdjYmViODdjMWIxMmMxNWQ2NmZjYzQxMDlmOTkwM2Y4MzI0OGRiYWM4NWQzMTU3ODg2ZjI2ZjM2YzI4IiwiaWF0IjoxNTMwODc4NTE0LCJuYmYiOjE1MzA4Nzg1MTQsImV4cCI6MTUzMDg4MjExNCwic3ViIjoiIiwic2NvcGVzIjpbXX0.bDQpOgWj6iFJS9sd_WtyCkqC1Xverqg6l_l57upDEt03kcQcbh1fevSutitpMD1hoE4xxj7GqxOJ2zf-czP8mrtf7AQSIKgDq-WWggUrNQGs_yAe5JhKcOUgHN1LXxjS22XcvCnBY530dVVXFtZf7Web-qi7T3Hw-zDbSz147UGqlamaguijHj9gKv1Mz9I8yijMDP1tCrRzfMCt8mi90nFrzgwzllNBSTItPpca0RHBINuRCCS2dnS9q32bTgszmCxtoO0eCSuU__5-Cu9Pl0Yjm8My9lvsnAc1itiH0f2bbOfGljwAsUB_HpSCZwFdir94LTZiZG6qF21kvnPhJA' \
   -H 'Cache-Control: no-cache' \
   -H 'Content-Type: application/json' \
-  -H 'x-sw-context-token: c439592b53ab4e769987bfe5ceb021ed' \
-  -d '{
-	"quantity": 10
-}'
+  -H 'x-sw-context-token: c439592b53ab4e769987bfe5ceb021ed'
 ```
 
 ## Customer login
@@ -537,6 +530,8 @@ curl -X POST \
 	"password": "shopware"
 }'
 ```
+
+Notice: This request does not require the `x-sw-context-token`.
 
 ## Create order for cart
 Once the customer is logged in, an order can be created for the shopping cart:
@@ -1199,7 +1194,7 @@ The created order is returned as a response:
 $curl = curl_init();
 
 curl_setopt_array($curl, array(
-  CURLOPT_URL => "http://shopware.development/storefront-api/checkout",
+  CURLOPT_URL => "http://shopware.development/storefront-api/checkout/cart",
   CURLOPT_RETURNTRANSFER => true,
   CURLOPT_ENCODING => "",
   CURLOPT_MAXREDIRS => 10,
@@ -1233,7 +1228,7 @@ if ($err) {
 $curl = curl_init();
 
 curl_setopt_array($curl, array(
-  CURLOPT_URL => "http://shopware.development/storefront-api/checkout",
+  CURLOPT_URL => "http://shopware.development/storefront-api/checkout/cart",
   CURLOPT_RETURNTRANSFER => true,
   CURLOPT_ENCODING => "",
   CURLOPT_MAXREDIRS => 10,
@@ -1267,14 +1262,14 @@ if ($err) {
 $curl = curl_init();
 
 curl_setopt_array($curl, array(
-  CURLOPT_URL => "http://shopware.development/storefront-api/checkout/add",
+  CURLOPT_URL => "http://shopware.development/storefront-api/checkout/cart/line-item/b5719dba30e84f4187248ce0b75ca68b",
   CURLOPT_RETURNTRANSFER => true,
   CURLOPT_ENCODING => "",
   CURLOPT_MAXREDIRS => 10,
   CURLOPT_TIMEOUT => 30,
   CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
   CURLOPT_CUSTOMREQUEST => "POST",
-  CURLOPT_POSTFIELDS => "{\n\t\"identifier\": \"b5719dba30e84f4187248ce0b75ca68b\",\n\t\"type\": \"product\",\n\t\"quantity\": 1,\n\t\"payload\": {\n\t\t\"id\": \"b5719dba30e84f4187248ce0b75ca68b\"\n\t}\n}",
+  CURLOPT_POSTFIELDS => "{\n\t\"type\": \"product\",\n\t\"quantity\": 1,\n\t\"payload\": {\n\t\t\"id\": \"b5719dba30e84f4187248ce0b75ca68b\"\n\t}\n}",
   CURLOPT_HTTPHEADER => array(
     "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjVlMWUzOGIyNjI0MjAzM2U1NmEzNGExMjJmMjA4NWM5MWVkMjFkMzI3MGI5MTk4NzJkZjRmMTgwYzM0OTgxODM4ZmMwNjE4ZjMzM2RkN2ZmIn0.eyJhdWQiOiJmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZiIsImp0aSI6IjVlMWUzOGIyNjI0MjAzM2U1NmEzNGExMjJmMjA4NWM5MWVkMjFkMzI3MGI5MTk4NzJkZjRmMTgwYzM0OTgxODM4ZmMwNjE4ZjMzM2RkN2ZmIiwiaWF0IjoxNTMwODY3NTEzLCJuYmYiOjE1MzA4Njc1MTMsImV4cCI6MTUzMDg3MTExMywic3ViIjoiIiwic2NvcGVzIjpbXX0.Rk0r2FFUPe14h830DCIgB-QcnDvf9KSAuxNGNpLFfW6KD_cRAdSX3JQm0sju4L0YgUugyXPZZLsLHkSmMP-yWD4t87EI_f2ODJl99ak7RWXzA_MF7e0LsE9knvApR3BIJavxVPjNWjSyvt6QvPNALAcGK5yamjdVRTUooHEmgSOKLHKOoYtUIOEUqRzU_q9UdHELN3UUDa3vZfqmPxBflsG0G5EhnSSpHMJrVZ3rwPu0vRCJ3anS1nfl3xeohSoxlooRv2iOsl2B_xkbLGYu2JpY9-eiWKkHIFaLHMtAvIIsHhOrfzM2hQyKhQh7niwkJYpcyEh1l7nZ6q7MhaSKqw",
     "Cache-Control: no-cache",
@@ -1303,7 +1298,7 @@ if ($err) {
 $curl = curl_init();
 
 curl_setopt_array($curl, array(
-  CURLOPT_URL => "http://shopware.development/storefront-api/checkout/add-product/b5719dba30e84f4187248ce0b75ca68b",
+  CURLOPT_URL => "http://shopware.development/storefront-api/checkout/cart/product/b5719dba30e84f4187248ce0b75ca68b",
   CURLOPT_RETURNTRANSFER => true,
   CURLOPT_ENCODING => "",
   CURLOPT_MAXREDIRS => 10,
@@ -1337,14 +1332,13 @@ if ($err) {
 $curl = curl_init();
 
 curl_setopt_array($curl, array(
-  CURLOPT_URL => "http://shopware.development/storefront-api/checkout/set-quantity/b5719dba30e84f4187248ce0b75ca68b",
+  CURLOPT_URL => "http://shopware.development/storefront-api/checkout/cart/line-item/b5719dba30e84f4187248ce0b75ca68b/quantity/10",
   CURLOPT_RETURNTRANSFER => true,
   CURLOPT_ENCODING => "",
   CURLOPT_MAXREDIRS => 10,
   CURLOPT_TIMEOUT => 30,
   CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-  CURLOPT_CUSTOMREQUEST => "PUT",
-  CURLOPT_POSTFIELDS => "{\n\t\"quantity\": 10\n}",
+  CURLOPT_CUSTOMREQUEST => "PATCH",
   CURLOPT_HTTPHEADER => array(
     "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImJkNWIyMTBjZWIwNWU2ZmNiNWQ4ZDdjYmViODdjMWIxMmMxNWQ2NmZjYzQxMDlmOTkwM2Y4MzI0OGRiYWM4NWQzMTU3ODg2ZjI2ZjM2YzI4In0.eyJhdWQiOiJmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZiIsImp0aSI6ImJkNWIyMTBjZWIwNWU2ZmNiNWQ4ZDdjYmViODdjMWIxMmMxNWQ2NmZjYzQxMDlmOTkwM2Y4MzI0OGRiYWM4NWQzMTU3ODg2ZjI2ZjM2YzI4IiwiaWF0IjoxNTMwODc4NTE0LCJuYmYiOjE1MzA4Nzg1MTQsImV4cCI6MTUzMDg4MjExNCwic3ViIjoiIiwic2NvcGVzIjpbXX0.bDQpOgWj6iFJS9sd_WtyCkqC1Xverqg6l_l57upDEt03kcQcbh1fevSutitpMD1hoE4xxj7GqxOJ2zf-czP8mrtf7AQSIKgDq-WWggUrNQGs_yAe5JhKcOUgHN1LXxjS22XcvCnBY530dVVXFtZf7Web-qi7T3Hw-zDbSz147UGqlamaguijHj9gKv1Mz9I8yijMDP1tCrRzfMCt8mi90nFrzgwzllNBSTItPpca0RHBINuRCCS2dnS9q32bTgszmCxtoO0eCSuU__5-Cu9Pl0Yjm8My9lvsnAc1itiH0f2bbOfGljwAsUB_HpSCZwFdir94LTZiZG6qF21kvnPhJA",
     "Cache-Control: no-cache",
@@ -1373,14 +1367,13 @@ if ($err) {
 $curl = curl_init();
 
 curl_setopt_array($curl, array(
-  CURLOPT_URL => "http://shopware.development/storefront-api/checkout/b5719dba30e84f4187248ce0b75ca68b",
+  CURLOPT_URL => "http://shopware.development/storefront-api/checkout/cart/line-item/b5719dba30e84f4187248ce0b75ca68b",
   CURLOPT_RETURNTRANSFER => true,
   CURLOPT_ENCODING => "",
   CURLOPT_MAXREDIRS => 10,
   CURLOPT_TIMEOUT => 30,
   CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
   CURLOPT_CUSTOMREQUEST => "DELETE",
-  CURLOPT_POSTFIELDS => "{\n\t\"quantity\": 10\n}",
   CURLOPT_HTTPHEADER => array(
     "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImJkNWIyMTBjZWIwNWU2ZmNiNWQ4ZDdjYmViODdjMWIxMmMxNWQ2NmZjYzQxMDlmOTkwM2Y4MzI0OGRiYWM4NWQzMTU3ODg2ZjI2ZjM2YzI4In0.eyJhdWQiOiJmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZiIsImp0aSI6ImJkNWIyMTBjZWIwNWU2ZmNiNWQ4ZDdjYmViODdjMWIxMmMxNWQ2NmZjYzQxMDlmOTkwM2Y4MzI0OGRiYWM4NWQzMTU3ODg2ZjI2ZjM2YzI4IiwiaWF0IjoxNTMwODc4NTE0LCJuYmYiOjE1MzA4Nzg1MTQsImV4cCI6MTUzMDg4MjExNCwic3ViIjoiIiwic2NvcGVzIjpbXX0.bDQpOgWj6iFJS9sd_WtyCkqC1Xverqg6l_l57upDEt03kcQcbh1fevSutitpMD1hoE4xxj7GqxOJ2zf-czP8mrtf7AQSIKgDq-WWggUrNQGs_yAe5JhKcOUgHN1LXxjS22XcvCnBY530dVVXFtZf7Web-qi7T3Hw-zDbSz147UGqlamaguijHj9gKv1Mz9I8yijMDP1tCrRzfMCt8mi90nFrzgwzllNBSTItPpca0RHBINuRCCS2dnS9q32bTgszmCxtoO0eCSuU__5-Cu9Pl0Yjm8My9lvsnAc1itiH0f2bbOfGljwAsUB_HpSCZwFdir94LTZiZG6qF21kvnPhJA",
     "Cache-Control: no-cache",
@@ -1488,7 +1481,7 @@ headers = {
     'Postman-Token': "b534e95a-9ca2-4baf-b097-966496b99040"
     }
 
-conn.request("POST", "storefront-api,checkout", headers=headers)
+conn.request("POST", "storefront-api,checkout,cart", headers=headers)
 
 res = conn.getresponse()
 data = res.read()
@@ -1509,7 +1502,7 @@ headers = {
     'Postman-Token': "100aaac3-66db-4101-a9ec-635f684de616"
     }
 
-conn.request("GET", "storefront-api,checkout", headers=headers)
+conn.request("GET", "storefront-api,checkout,cart", headers=headers)
 
 res = conn.getresponse()
 data = res.read()
@@ -1523,7 +1516,7 @@ import http.client
 
 conn = http.client.HTTPConnection("shopware,development")
 
-payload = "{\"identifier\":\"b5719dba30e84f4187248ce0b75ca68b\",\"type\":\"product\",\"quantity\":1,\"payload\":{\"id\":\"b5719dba30e84f4187248ce0b75ca68b\"}}"
+payload = "{\"type\":\"product\",\"quantity\":1,\"payload\":{\"id\":\"b5719dba30e84f4187248ce0b75ca68b\"}}"
 
 headers = {
     'x-sw-context-token': "c439592b53ab4e769987bfe5ceb021ed",
@@ -1533,7 +1526,7 @@ headers = {
     'Postman-Token': "ddce440b-e6d3-4629-bc0d-5f1e49ff87a8"
     }
 
-conn.request("POST", "storefront-api,checkout,add", payload, headers)
+conn.request("POST", "storefront-api,checkout,cart,line-item,b5719dba30e84f4187248ce0b75ca68b", payload, headers)
 
 res = conn.getresponse()
 data = res.read()
@@ -1554,7 +1547,7 @@ headers = {
     'Postman-Token': "bcd4bef9-24a4-4eb9-affc-aca26f9c4d3a"
     }
 
-conn.request("POST", "storefront-api,checkout,add-product,b5719dba30e84f4187248ce0b75ca68b", headers=headers)
+conn.request("POST", "storefront-api,checkout,cart/product,b5719dba30e84f4187248ce0b75ca68b", headers=headers)
 
 res = conn.getresponse()
 data = res.read()
@@ -1568,8 +1561,6 @@ import http.client
 
 conn = http.client.HTTPConnection("shopware,development")
 
-payload = "{\"quantity\": 10}"
-
 headers = {
     'x-sw-context-token': "c439592b53ab4e769987bfe5ceb021ed",
     'Content-Type': "application/json",
@@ -1578,7 +1569,7 @@ headers = {
     'Postman-Token': "377618e1-bc96-40d1-b7ef-4a591bf7fc1c"
     }
 
-conn.request("PUT", "storefront-api,checkout,set-quantity,b5719dba30e84f4187248ce0b75ca68b", payload, headers)
+conn.request("PATCH", "storefront-api,checkout,cart,line-item,b5719dba30e84f4187248ce0b75ca68b,quantity,10", headers=headers)
 
 res = conn.getresponse()
 data = res.read()
@@ -1661,7 +1652,7 @@ print(data.decode("utf-8"))
 OkHttpClient client = new OkHttpClient();
 
 Request request = new Request.Builder()
-  .url("http://shopware.development/storefront-api/checkout")
+  .url("http://shopware.development/storefront-api/checkout/cart")
   .post(null)
   .addHeader("x-sw-context-token", "c439592b53ab4e769987bfe5ceb021ed")
   .addHeader("Authorization", "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjVlMWUzOGIyNjI0MjAzM2U1NmEzNGExMjJmMjA4NWM5MWVkMjFkMzI3MGI5MTk4NzJkZjRmMTgwYzM0OTgxODM4ZmMwNjE4ZjMzM2RkN2ZmIn0.eyJhdWQiOiJmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZiIsImp0aSI6IjVlMWUzOGIyNjI0MjAzM2U1NmEzNGExMjJmMjA4NWM5MWVkMjFkMzI3MGI5MTk4NzJkZjRmMTgwYzM0OTgxODM4ZmMwNjE4ZjMzM2RkN2ZmIiwiaWF0IjoxNTMwODY3NTEzLCJuYmYiOjE1MzA4Njc1MTMsImV4cCI6MTUzMDg3MTExMywic3ViIjoiIiwic2NvcGVzIjpbXX0.Rk0r2FFUPe14h830DCIgB-QcnDvf9KSAuxNGNpLFfW6KD_cRAdSX3JQm0sju4L0YgUugyXPZZLsLHkSmMP-yWD4t87EI_f2ODJl99ak7RWXzA_MF7e0LsE9knvApR3BIJavxVPjNWjSyvt6QvPNALAcGK5yamjdVRTUooHEmgSOKLHKOoYtUIOEUqRzU_q9UdHELN3UUDa3vZfqmPxBflsG0G5EhnSSpHMJrVZ3rwPu0vRCJ3anS1nfl3xeohSoxlooRv2iOsl2B_xkbLGYu2JpY9-eiWKkHIFaLHMtAvIIsHhOrfzM2hQyKhQh7niwkJYpcyEh1l7nZ6q7MhaSKqw")
@@ -1677,7 +1668,7 @@ Response response = client.newCall(request).execute();
 OkHttpClient client = new OkHttpClient();
 
 Request request = new Request.Builder()
-  .url("http://shopware.development/storefront-api/checkout")
+  .url("http://shopware.development/storefront-api/checkout/cart")
   .get()
   .addHeader("x-sw-context-token", "c439592b53ab4e769987bfe5ceb021ed")
   .addHeader("Authorization", "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImJkNWIyMTBjZWIwNWU2ZmNiNWQ4ZDdjYmViODdjMWIxMmMxNWQ2NmZjYzQxMDlmOTkwM2Y4MzI0OGRiYWM4NWQzMTU3ODg2ZjI2ZjM2YzI4In0.eyJhdWQiOiJmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZiIsImp0aSI6ImJkNWIyMTBjZWIwNWU2ZmNiNWQ4ZDdjYmViODdjMWIxMmMxNWQ2NmZjYzQxMDlmOTkwM2Y4MzI0OGRiYWM4NWQzMTU3ODg2ZjI2ZjM2YzI4IiwiaWF0IjoxNTMwODc4NTE0LCJuYmYiOjE1MzA4Nzg1MTQsImV4cCI6MTUzMDg4MjExNCwic3ViIjoiIiwic2NvcGVzIjpbXX0.bDQpOgWj6iFJS9sd_WtyCkqC1Xverqg6l_l57upDEt03kcQcbh1fevSutitpMD1hoE4xxj7GqxOJ2zf-czP8mrtf7AQSIKgDq-WWggUrNQGs_yAe5JhKcOUgHN1LXxjS22XcvCnBY530dVVXFtZf7Web-qi7T3Hw-zDbSz147UGqlamaguijHj9gKv1Mz9I8yijMDP1tCrRzfMCt8mi90nFrzgwzllNBSTItPpca0RHBINuRCCS2dnS9q32bTgszmCxtoO0eCSuU__5-Cu9Pl0Yjm8My9lvsnAc1itiH0f2bbOfGljwAsUB_HpSCZwFdir94LTZiZG6qF21kvnPhJA")
@@ -1693,9 +1684,9 @@ Response response = client.newCall(request).execute();
 OkHttpClient client = new OkHttpClient();
 
 MediaType mediaType = MediaType.parse("application/json");
-RequestBody body = RequestBody.create(mediaType, "{\"identifier\":\"b5719dba30e84f4187248ce0b75ca68b\",\"type\":\"product\",\"quantity\":1,\"payload\":{\"id\":\"b5719dba30e84f4187248ce0b75ca68b\"}}");
+RequestBody body = RequestBody.create(mediaType, "{\"type\":\"product\",\"quantity\":1,\"payload\":{\"id\":\"b5719dba30e84f4187248ce0b75ca68b\"}}");
 Request request = new Request.Builder()
-  .url("http://shopware.development/storefront-api/checkout/add")
+  .url("http://shopware.development/storefront-api/checkout/cart/line-item/b5719dba30e84f4187248ce0b75ca68b")
   .post(body)
   .addHeader("x-sw-context-token", "c439592b53ab4e769987bfe5ceb021ed")
   .addHeader("Content-Type", "application/json")
@@ -1712,7 +1703,7 @@ Response response = client.newCall(request).execute();
 OkHttpClient client = new OkHttpClient();
 
 Request request = new Request.Builder()
-  .url("http://shopware.development/storefront-api/checkout/add-product/b5719dba30e84f4187248ce0b75ca68b")
+  .url("http://shopware.development/storefront-api/checkout/cart/product/b5719dba30e84f4187248ce0b75ca68b")
   .post(null)
   .addHeader("x-sw-context-token", "c439592b53ab4e769987bfe5ceb021ed")
   .addHeader("Authorization", "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImJkNWIyMTBjZWIwNWU2ZmNiNWQ4ZDdjYmViODdjMWIxMmMxNWQ2NmZjYzQxMDlmOTkwM2Y4MzI0OGRiYWM4NWQzMTU3ODg2ZjI2ZjM2YzI4In0.eyJhdWQiOiJmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZiIsImp0aSI6ImJkNWIyMTBjZWIwNWU2ZmNiNWQ4ZDdjYmViODdjMWIxMmMxNWQ2NmZjYzQxMDlmOTkwM2Y4MzI0OGRiYWM4NWQzMTU3ODg2ZjI2ZjM2YzI4IiwiaWF0IjoxNTMwODc4NTE0LCJuYmYiOjE1MzA4Nzg1MTQsImV4cCI6MTUzMDg4MjExNCwic3ViIjoiIiwic2NvcGVzIjpbXX0.bDQpOgWj6iFJS9sd_WtyCkqC1Xverqg6l_l57upDEt03kcQcbh1fevSutitpMD1hoE4xxj7GqxOJ2zf-czP8mrtf7AQSIKgDq-WWggUrNQGs_yAe5JhKcOUgHN1LXxjS22XcvCnBY530dVVXFtZf7Web-qi7T3Hw-zDbSz147UGqlamaguijHj9gKv1Mz9I8yijMDP1tCrRzfMCt8mi90nFrzgwzllNBSTItPpca0RHBINuRCCS2dnS9q32bTgszmCxtoO0eCSuU__5-Cu9Pl0Yjm8My9lvsnAc1itiH0f2bbOfGljwAsUB_HpSCZwFdir94LTZiZG6qF21kvnPhJA")
@@ -1728,10 +1719,8 @@ Response response = client.newCall(request).execute();
 OkHttpClient client = new OkHttpClient();
 
 MediaType mediaType = MediaType.parse("application/json");
-RequestBody body = RequestBody.create(mediaType, "{\"quantity\": 10}");
 Request request = new Request.Builder()
-  .url("http://shopware.development/storefront-api/checkout/set-quantity/b5719dba30e84f4187248ce0b75ca68b")
-  .put(body)
+  .url("http://shopware.development/storefront-api/checkout/cart/line-item/b5719dba30e84f4187248ce0b75ca68b/quantity/10")
   .addHeader("x-sw-context-token", "c439592b53ab4e769987bfe5ceb021ed")
   .addHeader("Content-Type", "application/json")
   .addHeader("Authorization", "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImJkNWIyMTBjZWIwNWU2ZmNiNWQ4ZDdjYmViODdjMWIxMmMxNWQ2NmZjYzQxMDlmOTkwM2Y4MzI0OGRiYWM4NWQzMTU3ODg2ZjI2ZjM2YzI4In0.eyJhdWQiOiJmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZiIsImp0aSI6ImJkNWIyMTBjZWIwNWU2ZmNiNWQ4ZDdjYmViODdjMWIxMmMxNWQ2NmZjYzQxMDlmOTkwM2Y4MzI0OGRiYWM4NWQzMTU3ODg2ZjI2ZjM2YzI4IiwiaWF0IjoxNTMwODc4NTE0LCJuYmYiOjE1MzA4Nzg1MTQsImV4cCI6MTUzMDg4MjExNCwic3ViIjoiIiwic2NvcGVzIjpbXX0.bDQpOgWj6iFJS9sd_WtyCkqC1Xverqg6l_l57upDEt03kcQcbh1fevSutitpMD1hoE4xxj7GqxOJ2zf-czP8mrtf7AQSIKgDq-WWggUrNQGs_yAe5JhKcOUgHN1LXxjS22XcvCnBY530dVVXFtZf7Web-qi7T3Hw-zDbSz147UGqlamaguijHj9gKv1Mz9I8yijMDP1tCrRzfMCt8mi90nFrzgwzllNBSTItPpca0RHBINuRCCS2dnS9q32bTgszmCxtoO0eCSuU__5-Cu9Pl0Yjm8My9lvsnAc1itiH0f2bbOfGljwAsUB_HpSCZwFdir94LTZiZG6qF21kvnPhJA")
@@ -1747,7 +1736,7 @@ Response response = client.newCall(request).execute();
 OkHttpClient client = new OkHttpClient();
 
 Request request = new Request.Builder()
-  .url("http://shopware.development/storefront-api/checkout/b5719dba30e84f4187248ce0b75ca68b")
+  .url("http://shopware.development/storefront-api/checkout/cart/line-item/b5719dba30e84f4187248ce0b75ca68b")
   .delete(null)
   .addHeader("x-sw-context-token", "c439592b53ab4e769987bfe5ceb021ed")
   .addHeader("Content-Type", "application/json")
@@ -1810,7 +1799,7 @@ xhr.addEventListener("readystatechange", function () {
   }
 });
 
-xhr.open("POST", "http://shopware.development/storefront-api/checkout");
+xhr.open("POST", "http://shopware.development/storefront-api/checkout/cart");
 xhr.setRequestHeader("x-sw-context-token", "c439592b53ab4e769987bfe5ceb021ed");
 xhr.setRequestHeader("Authorization", "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjVlMWUzOGIyNjI0MjAzM2U1NmEzNGExMjJmMjA4NWM5MWVkMjFkMzI3MGI5MTk4NzJkZjRmMTgwYzM0OTgxODM4ZmMwNjE4ZjMzM2RkN2ZmIn0.eyJhdWQiOiJmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZiIsImp0aSI6IjVlMWUzOGIyNjI0MjAzM2U1NmEzNGExMjJmMjA4NWM5MWVkMjFkMzI3MGI5MTk4NzJkZjRmMTgwYzM0OTgxODM4ZmMwNjE4ZjMzM2RkN2ZmIiwiaWF0IjoxNTMwODY3NTEzLCJuYmYiOjE1MzA4Njc1MTMsImV4cCI6MTUzMDg3MTExMywic3ViIjoiIiwic2NvcGVzIjpbXX0.Rk0r2FFUPe14h830DCIgB-QcnDvf9KSAuxNGNpLFfW6KD_cRAdSX3JQm0sju4L0YgUugyXPZZLsLHkSmMP-yWD4t87EI_f2ODJl99ak7RWXzA_MF7e0LsE9knvApR3BIJavxVPjNWjSyvt6QvPNALAcGK5yamjdVRTUooHEmgSOKLHKOoYtUIOEUqRzU_q9UdHELN3UUDa3vZfqmPxBflsG0G5EhnSSpHMJrVZ3rwPu0vRCJ3anS1nfl3xeohSoxlooRv2iOsl2B_xkbLGYu2JpY9-eiWKkHIFaLHMtAvIIsHhOrfzM2hQyKhQh7niwkJYpcyEh1l7nZ6q7MhaSKqw");
 xhr.setRequestHeader("Cache-Control", "no-cache");
@@ -1832,7 +1821,7 @@ xhr.addEventListener("readystatechange", function () {
   }
 });
 
-xhr.open("GET", "http://shopware.development/storefront-api/checkout");
+xhr.open("GET", "http://shopware.development/storefront-api/checkout/cart");
 xhr.setRequestHeader("x-sw-context-token", "c439592b53ab4e769987bfe5ceb021ed");
 xhr.setRequestHeader("Authorization", "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImJkNWIyMTBjZWIwNWU2ZmNiNWQ4ZDdjYmViODdjMWIxMmMxNWQ2NmZjYzQxMDlmOTkwM2Y4MzI0OGRiYWM4NWQzMTU3ODg2ZjI2ZjM2YzI4In0.eyJhdWQiOiJmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZiIsImp0aSI6ImJkNWIyMTBjZWIwNWU2ZmNiNWQ4ZDdjYmViODdjMWIxMmMxNWQ2NmZjYzQxMDlmOTkwM2Y4MzI0OGRiYWM4NWQzMTU3ODg2ZjI2ZjM2YzI4IiwiaWF0IjoxNTMwODc4NTE0LCJuYmYiOjE1MzA4Nzg1MTQsImV4cCI6MTUzMDg4MjExNCwic3ViIjoiIiwic2NvcGVzIjpbXX0.bDQpOgWj6iFJS9sd_WtyCkqC1Xverqg6l_l57upDEt03kcQcbh1fevSutitpMD1hoE4xxj7GqxOJ2zf-czP8mrtf7AQSIKgDq-WWggUrNQGs_yAe5JhKcOUgHN1LXxjS22XcvCnBY530dVVXFtZf7Web-qi7T3Hw-zDbSz147UGqlamaguijHj9gKv1Mz9I8yijMDP1tCrRzfMCt8mi90nFrzgwzllNBSTItPpca0RHBINuRCCS2dnS9q32bTgszmCxtoO0eCSuU__5-Cu9Pl0Yjm8My9lvsnAc1itiH0f2bbOfGljwAsUB_HpSCZwFdir94LTZiZG6qF21kvnPhJA");
 xhr.setRequestHeader("Cache-Control", "no-cache");
@@ -1844,7 +1833,6 @@ xhr.send(data);
 #### Add line item to cart
 ```
 var data = JSON.stringify({
-  "identifier": "b5719dba30e84f4187248ce0b75ca68b",
   "type": "product",
   "quantity": 1,
   "payload": {
@@ -1861,7 +1849,7 @@ xhr.addEventListener("readystatechange", function () {
   }
 });
 
-xhr.open("POST", "http://shopware.development/storefront-api/checkout/add");
+xhr.open("POST", "http://shopware.development/storefront-api/checkout/cart/line-item/b5719dba30e84f4187248ce0b75ca68b");
 xhr.setRequestHeader("x-sw-context-token", "c439592b53ab4e769987bfe5ceb021ed");
 xhr.setRequestHeader("Content-Type", "application/json");
 xhr.setRequestHeader("Authorization", "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjVlMWUzOGIyNjI0MjAzM2U1NmEzNGExMjJmMjA4NWM5MWVkMjFkMzI3MGI5MTk4NzJkZjRmMTgwYzM0OTgxODM4ZmMwNjE4ZjMzM2RkN2ZmIn0.eyJhdWQiOiJmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZiIsImp0aSI6IjVlMWUzOGIyNjI0MjAzM2U1NmEzNGExMjJmMjA4NWM5MWVkMjFkMzI3MGI5MTk4NzJkZjRmMTgwYzM0OTgxODM4ZmMwNjE4ZjMzM2RkN2ZmIiwiaWF0IjoxNTMwODY3NTEzLCJuYmYiOjE1MzA4Njc1MTMsImV4cCI6MTUzMDg3MTExMywic3ViIjoiIiwic2NvcGVzIjpbXX0.Rk0r2FFUPe14h830DCIgB-QcnDvf9KSAuxNGNpLFfW6KD_cRAdSX3JQm0sju4L0YgUugyXPZZLsLHkSmMP-yWD4t87EI_f2ODJl99ak7RWXzA_MF7e0LsE9knvApR3BIJavxVPjNWjSyvt6QvPNALAcGK5yamjdVRTUooHEmgSOKLHKOoYtUIOEUqRzU_q9UdHELN3UUDa3vZfqmPxBflsG0G5EhnSSpHMJrVZ3rwPu0vRCJ3anS1nfl3xeohSoxlooRv2iOsl2B_xkbLGYu2JpY9-eiWKkHIFaLHMtAvIIsHhOrfzM2hQyKhQh7niwkJYpcyEh1l7nZ6q7MhaSKqw");
@@ -1884,7 +1872,7 @@ xhr.addEventListener("readystatechange", function () {
   }
 });
 
-xhr.open("POST", "http://shopware.development/storefront-api/checkout/add-product/b5719dba30e84f4187248ce0b75ca68b");
+xhr.open("POST", "http://shopware.development/storefront-api/checkout/cart/product/b5719dba30e84f4187248ce0b75ca68b");
 xhr.setRequestHeader("x-sw-context-token", "c439592b53ab4e769987bfe5ceb021ed");
 xhr.setRequestHeader("Authorization", "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImJkNWIyMTBjZWIwNWU2ZmNiNWQ4ZDdjYmViODdjMWIxMmMxNWQ2NmZjYzQxMDlmOTkwM2Y4MzI0OGRiYWM4NWQzMTU3ODg2ZjI2ZjM2YzI4In0.eyJhdWQiOiJmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZiIsImp0aSI6ImJkNWIyMTBjZWIwNWU2ZmNiNWQ4ZDdjYmViODdjMWIxMmMxNWQ2NmZjYzQxMDlmOTkwM2Y4MzI0OGRiYWM4NWQzMTU3ODg2ZjI2ZjM2YzI4IiwiaWF0IjoxNTMwODc4NTE0LCJuYmYiOjE1MzA4Nzg1MTQsImV4cCI6MTUzMDg4MjExNCwic3ViIjoiIiwic2NvcGVzIjpbXX0.bDQpOgWj6iFJS9sd_WtyCkqC1Xverqg6l_l57upDEt03kcQcbh1fevSutitpMD1hoE4xxj7GqxOJ2zf-czP8mrtf7AQSIKgDq-WWggUrNQGs_yAe5JhKcOUgHN1LXxjS22XcvCnBY530dVVXFtZf7Web-qi7T3Hw-zDbSz147UGqlamaguijHj9gKv1Mz9I8yijMDP1tCrRzfMCt8mi90nFrzgwzllNBSTItPpca0RHBINuRCCS2dnS9q32bTgszmCxtoO0eCSuU__5-Cu9Pl0Yjm8My9lvsnAc1itiH0f2bbOfGljwAsUB_HpSCZwFdir94LTZiZG6qF21kvnPhJA");
 xhr.setRequestHeader("Cache-Control", "no-cache");
@@ -1895,9 +1883,7 @@ xhr.send(data);
 
 #### Change line item quantity
 ```
-var data = JSON.stringify({
-  "quantity": 10
-});
+var data = null;
 
 var xhr = new XMLHttpRequest();
 xhr.withCredentials = true;
@@ -1908,7 +1894,7 @@ xhr.addEventListener("readystatechange", function () {
   }
 });
 
-xhr.open("PUT", "http://shopware.development/storefront-api/checkout/set-quantity/b5719dba30e84f4187248ce0b75ca68b");
+xhr.open("PATCH", "http://shopware.development/storefront-api/checkout/cart/line-item/b5719dba30e84f4187248ce0b75ca68b/quantity/10");
 xhr.setRequestHeader("x-sw-context-token", "c439592b53ab4e769987bfe5ceb021ed");
 xhr.setRequestHeader("Content-Type", "application/json");
 xhr.setRequestHeader("Authorization", "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImJkNWIyMTBjZWIwNWU2ZmNiNWQ4ZDdjYmViODdjMWIxMmMxNWQ2NmZjYzQxMDlmOTkwM2Y4MzI0OGRiYWM4NWQzMTU3ODg2ZjI2ZjM2YzI4In0.eyJhdWQiOiJmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZiIsImp0aSI6ImJkNWIyMTBjZWIwNWU2ZmNiNWQ4ZDdjYmViODdjMWIxMmMxNWQ2NmZjYzQxMDlmOTkwM2Y4MzI0OGRiYWM4NWQzMTU3ODg2ZjI2ZjM2YzI4IiwiaWF0IjoxNTMwODc4NTE0LCJuYmYiOjE1MzA4Nzg1MTQsImV4cCI6MTUzMDg4MjExNCwic3ViIjoiIiwic2NvcGVzIjpbXX0.bDQpOgWj6iFJS9sd_WtyCkqC1Xverqg6l_l57upDEt03kcQcbh1fevSutitpMD1hoE4xxj7GqxOJ2zf-czP8mrtf7AQSIKgDq-WWggUrNQGs_yAe5JhKcOUgHN1LXxjS22XcvCnBY530dVVXFtZf7Web-qi7T3Hw-zDbSz147UGqlamaguijHj9gKv1Mz9I8yijMDP1tCrRzfMCt8mi90nFrzgwzllNBSTItPpca0RHBINuRCCS2dnS9q32bTgszmCxtoO0eCSuU__5-Cu9Pl0Yjm8My9lvsnAc1itiH0f2bbOfGljwAsUB_HpSCZwFdir94LTZiZG6qF21kvnPhJA");
@@ -1931,7 +1917,7 @@ xhr.addEventListener("readystatechange", function () {
   }
 });
 
-xhr.open("DELETE", "http://shopware.development/storefront-api/checkout/b5719dba30e84f4187248ce0b75ca68b");
+xhr.open("DELETE", "http://shopware.development/storefront-api/checkout/cart/line-item/b5719dba30e84f4187248ce0b75ca68b");
 xhr.setRequestHeader("x-sw-context-token", "c439592b53ab4e769987bfe5ceb021ed");
 xhr.setRequestHeader("Content-Type", "application/json");
 xhr.setRequestHeader("Authorization", "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImJkNWIyMTBjZWIwNWU2ZmNiNWQ4ZDdjYmViODdjMWIxMmMxNWQ2NmZjYzQxMDlmOTkwM2Y4MzI0OGRiYWM4NWQzMTU3ODg2ZjI2ZjM2YzI4In0.eyJhdWQiOiJmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZiIsImp0aSI6ImJkNWIyMTBjZWIwNWU2ZmNiNWQ4ZDdjYmViODdjMWIxMmMxNWQ2NmZjYzQxMDlmOTkwM2Y4MzI0OGRiYWM4NWQzMTU3ODg2ZjI2ZjM2YzI4IiwiaWF0IjoxNTMwODc4NTE0LCJuYmYiOjE1MzA4Nzg1MTQsImV4cCI6MTUzMDg4MjExNCwic3ViIjoiIiwic2NvcGVzIjpbXX0.bDQpOgWj6iFJS9sd_WtyCkqC1Xverqg6l_l57upDEt03kcQcbh1fevSutitpMD1hoE4xxj7GqxOJ2zf-czP8mrtf7AQSIKgDq-WWggUrNQGs_yAe5JhKcOUgHN1LXxjS22XcvCnBY530dVVXFtZf7Web-qi7T3Hw-zDbSz147UGqlamaguijHj9gKv1Mz9I8yijMDP1tCrRzfMCt8mi90nFrzgwzllNBSTItPpca0RHBINuRCCS2dnS9q32bTgszmCxtoO0eCSuU__5-Cu9Pl0Yjm8My9lvsnAc1itiH0f2bbOfGljwAsUB_HpSCZwFdir94LTZiZG6qF21kvnPhJA");
@@ -1997,7 +1983,7 @@ xhr.send(data);
 var settings = {
   "async": true,
   "crossDomain": true,
-  "url": "http://shopware.development/storefront-api/checkout",
+  "url": "http://shopware.development/storefront-api/checkout/cart",
   "method": "POST",
   "headers": {
     "x-sw-context-token": "c439592b53ab4e769987bfe5ceb021ed",
@@ -2017,7 +2003,7 @@ $.ajax(settings).done(function (response) {
 var settings = {
   "async": true,
   "crossDomain": true,
-  "url": "http://shopware.development/storefront-api/checkout",
+  "url": "http://shopware.development/storefront-api/checkout/cart",
   "method": "GET",
   "headers": {
     "x-sw-context-token": "c439592b53ab4e769987bfe5ceb021ed",
@@ -2037,7 +2023,7 @@ $.ajax(settings).done(function (response) {
 var settings = {
   "async": true,
   "crossDomain": true,
-  "url": "http://shopware.development/storefront-api/checkout/add",
+  "url": "http://shopware.development/storefront-api/checkout/cart/line-item/b5719dba30e84f4187248ce0b75ca68b",
   "method": "POST",
   "headers": {
     "x-sw-context-token": "c439592b53ab4e769987bfe5ceb021ed",
@@ -2047,7 +2033,7 @@ var settings = {
     "Postman-Token": "5c7c5e45-0052-4cc6-b066-5a3554366e6a"
   },
   "processData": false,
-  "data": "{\"identifier\":\"b5719dba30e84f4187248ce0b75ca68b\",\"type\":\"product\",\"quantity\":1,\"payload\":{\"id\":\"b5719dba30e84f4187248ce0b75ca68b\"}}"
+  "data": "{\"type\":\"product\",\"quantity\":1,\"payload\":{\"id\":\"b5719dba30e84f4187248ce0b75ca68b\"}}"
 }
 
 $.ajax(settings).done(function (response) {
@@ -2060,7 +2046,7 @@ $.ajax(settings).done(function (response) {
 var settings = {
   "async": true,
   "crossDomain": true,
-  "url": "http://shopware.development/storefront-api/checkout/add-product/b5719dba30e84f4187248ce0b75ca68b",
+  "url": "http://shopware.development/storefront-api/checkout/cart/product/b5719dba30e84f4187248ce0b75ca68b",
   "method": "POST",
   "headers": {
     "x-sw-context-token": "c439592b53ab4e769987bfe5ceb021ed",
@@ -2080,17 +2066,15 @@ $.ajax(settings).done(function (response) {
 var settings = {
   "async": true,
   "crossDomain": true,
-  "url": "http://shopware.development/storefront-api/checkout/set-quantity/b5719dba30e84f4187248ce0b75ca68b",
-  "method": "PUT",
+  "url": "http://shopware.development/storefront-api/checkout/cart/line-item/b5719dba30e84f4187248ce0b75ca68b/quantity/10",
+  "method": "PATCH",
   "headers": {
     "x-sw-context-token": "c439592b53ab4e769987bfe5ceb021ed",
     "Content-Type": "application/json",
     "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImJkNWIyMTBjZWIwNWU2ZmNiNWQ4ZDdjYmViODdjMWIxMmMxNWQ2NmZjYzQxMDlmOTkwM2Y4MzI0OGRiYWM4NWQzMTU3ODg2ZjI2ZjM2YzI4In0.eyJhdWQiOiJmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZiIsImp0aSI6ImJkNWIyMTBjZWIwNWU2ZmNiNWQ4ZDdjYmViODdjMWIxMmMxNWQ2NmZjYzQxMDlmOTkwM2Y4MzI0OGRiYWM4NWQzMTU3ODg2ZjI2ZjM2YzI4IiwiaWF0IjoxNTMwODc4NTE0LCJuYmYiOjE1MzA4Nzg1MTQsImV4cCI6MTUzMDg4MjExNCwic3ViIjoiIiwic2NvcGVzIjpbXX0.bDQpOgWj6iFJS9sd_WtyCkqC1Xverqg6l_l57upDEt03kcQcbh1fevSutitpMD1hoE4xxj7GqxOJ2zf-czP8mrtf7AQSIKgDq-WWggUrNQGs_yAe5JhKcOUgHN1LXxjS22XcvCnBY530dVVXFtZf7Web-qi7T3Hw-zDbSz147UGqlamaguijHj9gKv1Mz9I8yijMDP1tCrRzfMCt8mi90nFrzgwzllNBSTItPpca0RHBINuRCCS2dnS9q32bTgszmCxtoO0eCSuU__5-Cu9Pl0Yjm8My9lvsnAc1itiH0f2bbOfGljwAsUB_HpSCZwFdir94LTZiZG6qF21kvnPhJA",
     "Cache-Control": "no-cache",
     "Postman-Token": "11197464-7680-478d-bf09-0c7e33b5370e"
-  },
-  "processData": false,
-  "data": "{\"quantity\": 10}"
+  }
 }
 
 $.ajax(settings).done(function (response) {
@@ -2103,7 +2087,7 @@ $.ajax(settings).done(function (response) {
 var settings = {
   "async": true,
   "crossDomain": true,
-  "url": "http://shopware.development/storefront-api/checkout/b5719dba30e84f4187248ce0b75ca68b",
+  "url": "http://shopware.development/storefront-api/checkout/cart/line-item/b5719dba30e84f4187248ce0b75ca68b",
   "method": "DELETE",
   "headers": {
     "x-sw-context-token": "c439592b53ab4e769987bfe5ceb021ed",
@@ -2177,7 +2161,8 @@ var options = {
   ],
   "path": [
     "storefront-api",
-    "checkout"
+    "checkout",
+    "cart"
   ],
   "headers": {
     "x-sw-context-token": "c439592b53ab4e769987bfe5ceb021ed",
@@ -2215,7 +2200,8 @@ var options = {
   ],
   "path": [
     "storefront-api",
-    "checkout"
+    "checkout",
+    "cart"
   ],
   "headers": {
     "x-sw-context-token": "c439592b53ab4e769987bfe5ceb021ed",
@@ -2254,7 +2240,9 @@ var options = {
   "path": [
     "storefront-api",
     "checkout",
-    "add"
+    "cart",
+    "line-item",
+    "b5719dba30e84f4187248ce0b75ca68b"
   ],
   "headers": {
     "x-sw-context-token": "c439592b53ab4e769987bfe5ceb021ed",
@@ -2278,8 +2266,7 @@ var req = http.request(options, function (res) {
   });
 });
 
-req.write(JSON.stringify({ identifier: 'b5719dba30e84f4187248ce0b75ca68b',
-  type: 'product',
+req.write(JSON.stringify({ type: 'product',
   quantity: 1,
   payload: { id: 'b5719dba30e84f4187248ce0b75ca68b' } }));
 req.end();
@@ -2298,7 +2285,8 @@ var options = {
   "path": [
     "storefront-api",
     "checkout",
-    "add-product",
+    "cart",
+    "product",
     "b5719dba30e84f4187248ce0b75ca68b"
   ],
   "headers": {
@@ -2330,7 +2318,7 @@ req.end();
 var http = require("http");
 
 var options = {
-  "method": "PUT",
+  "method": "PATCH",
   "hostname": [
     "shopware",
     "development"
@@ -2338,8 +2326,11 @@ var options = {
   "path": [
     "storefront-api",
     "checkout",
-    "set-quantity",
+    "cart",
     "b5719dba30e84f4187248ce0b75ca68b"
+    "quantity",
+    "quantity",
+    "10",
   ],
   "headers": {
     "x-sw-context-token": "c439592b53ab4e769987bfe5ceb021ed",
@@ -2380,6 +2371,7 @@ var options = {
   "path": [
     "storefront-api",
     "checkout",
+    "line-item",
     "b5719dba30e84f4187248ce0b75ca68b"
   ],
   "headers": {
@@ -2502,7 +2494,7 @@ import (
 
 func main() {
 
-	url := "http://shopware.development/storefront-api/checkout"
+	url := "http://shopware.development/storefront-api/checkout/cart"
 
 	req, _ := http.NewRequest("POST", url, nil)
 
@@ -2534,7 +2526,7 @@ import (
 
 func main() {
 
-	url := "http://shopware.development/storefront-api/checkout"
+	url := "http://shopware.development/storefront-api/checkout/cart"
 
 	req, _ := http.NewRequest("GET", url, nil)
 
@@ -2567,9 +2559,9 @@ import (
 
 func main() {
 
-	url := "http://shopware.development/storefront-api/checkout/add"
+	url := "http://shopware.development/storefront-api/checkout/cart/line-item/b5719dba30e84f4187248ce0b75ca68b"
 
-	payload := strings.NewReader("{\"identifier\":\"b5719dba30e84f4187248ce0b75ca68b\",\"type\":\"product\",\"quantity\":1,\"payload\":{\"id\":\"b5719dba30e84f4187248ce0b75ca68b\"}}")
+	payload := strings.NewReader("{\"type\":\"product\",\"quantity\":1,\"payload\":{\"id\":\"b5719dba30e84f4187248ce0b75ca68b\"}}")
 
 	req, _ := http.NewRequest("POST", url, payload)
 
@@ -2602,7 +2594,7 @@ import (
 
 func main() {
 
-	url := "http://shopware.development/storefront-api/checkout/add-product/b5719dba30e84f4187248ce0b75ca68b"
+	url := "http://shopware.development/storefront-api/checkout/cart/product/b5719dba30e84f4187248ce0b75ca68b"
 
 	req, _ := http.NewRequest("POST", url, nil)
 
@@ -2635,11 +2627,9 @@ import (
 
 func main() {
 
-	url := "http://shopware.development/storefront-api/checkout/set-quantity/b5719dba30e84f4187248ce0b75ca68b"
+	url := "http://shopware.development/storefront-api/checkout/cart/line-item/b5719dba30e84f4187248ce0b75ca68b/quantity/10"
 
-	payload := strings.NewReader("{\"quantity\": 10}")
-
-	req, _ := http.NewRequest("PUT", url, payload)
+	req, _ := http.NewRequest("PATCH", url, nil)
 
 	req.Header.Add("x-sw-context-token", "c439592b53ab4e769987bfe5ceb021ed")
 	req.Header.Add("Content-Type", "application/json")
@@ -2670,7 +2660,7 @@ import (
 
 func main() {
 
-	url := "http://shopware.development/storefront-api/checkout/b5719dba30e84f4187248ce0b75ca68b"
+	url := "http://shopware.development/storefront-api/checkout/cart/line-item/b5719dba30e84f4187248ce0b75ca68b"
 
 	req, _ := http.NewRequest("DELETE", url, nil)
 

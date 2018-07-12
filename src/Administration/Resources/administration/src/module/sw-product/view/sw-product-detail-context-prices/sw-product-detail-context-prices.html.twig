@@ -80,7 +80,7 @@
                         {% endblock %}
 
                         {% block sw_product_detail_prices_price_matrix_grid %}
-                            <sw-grid :items="currencyRule.prices" :selectable="false">
+                            <sw-grid :items="currencyRule.prices" :selectable="false" v-if="isLoaded">
                                 <template slot="columns" slot-scope="{ item }">
                                     {% block sw_product_detail_prices_price_matrix_grid_columns %}
 

@@ -2,13 +2,34 @@
  * @module core/data/EntityStore
  */
 import { Application, Entity } from 'src/core/shopware';
-import utils from 'src/core/service/util.service';
+import utils, { types } from 'src/core/service/util.service';
 import EntityProxy from './EntityProxy';
 
+/**
+ * The entity store is like a repository and contains multiple entities. It can be used to fetch a list of entities as
+ * well as sync the changed entities to the remote server.
+ *
+ * @class
+ */
 class EntityStore {
-    constructor(entityName, apiServiceName, EntityClass = EntityProxy) {
+    /**
+     * Initializes the entity store.
+     *
+     * @constructor
+     * @param {String} entityName
+     * @param {ApiService|String} apiService
+     * @param {any} [EntityClass = EntityProxy]
+     */
+    constructor(entityName, apiService, EntityClass = EntityProxy) {
         this.entityName = entityName;
-        this.apiServiceName = apiServiceName;
+
+        if (types.isString(apiService)) {
+            const serviceContainer = Application.getContainer('service');
+            this._apiService = serviceContainer[apiService];
+        } else {
+            this._apiService = apiService;
+        }
+
         this.EntityClass = EntityClass;
 
         this.store = {};
@@ -22,7 +43,7 @@ class EntityStore {
      * @return {Object}
      */
     getById(id) {
-        if (this.store[id] && (this.store[id].isDetail || this.store[id].isNew)) {
+        if (this.store[id]) {
             return this.store[id];
         }
 
@@ -32,14 +53,13 @@ class EntityStore {
         this.apiService.getById(id).then((response) => {
             this.store[id].initData(response.data);
             this.store[id].isLoading = false;
-            this.store[id].isDetail = true;
         });
 
         return this.store[id];
     }
 
     /**
-     * Get A list of entities.
+     * Get a list of entities.
      *
      * @param {Number} offset
      * @param {Number} limit
@@ -69,17 +89,20 @@ class EntityStore {
         return this.apiService.getList(offset, limit, params).then((response) => {
             const newItems = response.data;
             const total = response.meta.total;
-            const items = [];
 
-            newItems.forEach((item) => {
+            const items = newItems.map((item) => {
                 if (this.store[item.id]) {
                     this.store[item.id].initData(item);
-                } else {
-                    this.store[item.id] = new this.EntityClass(this.entityName, this.apiServiceName, item);
+                    return this.getById(item.id);
                 }
-
-                items.push(this.store[item.id]);
+                const entity = this.create(item.id, item);
+                return this.add(entity);
             });
+
+            // Hook for associations, when a store has a $parent property, we're filling it up with the items
+            if (this.$parent && this.$type) {
+                this.populateParentEntity(items);
+            }
 
             this.isLoading = false;
 
@@ -88,27 +111,119 @@ class EntityStore {
     }
 
     /**
+     * Populates the parent entity with new items.
+     *
+     * @param {Array} items
+     * @returns {Array}
+     */
+    populateParentEntity(items) {
+        const parent = this.$parent.draft[this.$type];
+
+        if (parent) {
+            parent.splice(0, parent.length);
+            parent.push(...items);
+        }
+
+        return items;
+    }
+
+    /**
      * Create a new empty local entity.
      *
      * @param {String} id
-     * @return {Object}
+     * @param {Object} [entityData = {}]
+     * @return {EntityProxy}
      */
-    create(id = utils.createId()) {
+    create(id = utils.createId(), entityData = {}) {
         if (typeof this.store[id] !== 'undefined') {
             return this.store[id];
         }
 
-        return this.createEntityInStore(id, { isNew: true });
+        entityData = Object.assign({ isNew: true }, entityData);
+
+        return this.createEntityInStore(id, {}, entityData);
+    }
+
+    /**
+     * Adds an entity to the store
+     *
+     * @param {EntityProxy} entity
+     * @returns {Boolean|EntityProxy}
+     */
+    add(entity) {
+        const id = entity.id;
+
+        if (!id || !id.length) {
+            return false;
+        }
+
+        this.store[id] = Object.assign(entity, { $store: this });
+        return this.store[id];
+    }
+
+    /**
+     * Adds a relationship to the store
+     *
+     * @param {EntityProxy} data
+     * @returns {Boolean|EntityProxy}
+     */
+    addAddition(data) {
+        const id = data.id;
+
+        if (!id || !id.length) {
+            return false;
+        }
+
+        return this.createEntityInStore(id, {}, Object.assign(data, { isAddition: true }));
+    }
+
+    /**
+     * Removes the given record from the store
+     *
+     * @param {EntityProxy} entity
+     * @returns {Boolean}
+     */
+    remove(entity) {
+        const id = entity.id;
+
+        return this.removeById(id);
+    }
+
+    /**
+     * Removes the entity from the store using the given id.
+     *
+     * @param {String} id
+     * @returns {Boolean}
+     */
+    removeById(id) {
+        if (!this.store[id]) {
+            return false;
+        }
+
+        delete this.store[id];
+        return true;
+    }
+
+    /**
+     * Removes all items from the store.
+     *
+     * @returns {Boolean}
+     */
+    removeAll() {
+        this.store = {};
+
+        return true;
     }
 
     /**
      * Sync all entities in the store to the server.
      *
-     * @param {Array} itemIds
-     * @return {Promise}
+     * @param {Boolean} [deletionsOnly = false]
+     * @param {Array} [itemIds = []]
+     * @return {Promise<T>}
      */
-    sync(itemIds = []) {
-        const syncCue = this.getSyncCue(itemIds);
+    sync(deletionsOnly = false, itemIds = []) {
+        const syncCue = this.getSyncCue(deletionsOnly, itemIds);
 
         this.isLoading = true;
 
@@ -120,10 +235,11 @@ class EntityStore {
     /**
      * Builds up the promise cue for a sync with the server.
      *
-     * @param {Array} itemIds
+     * @param {Boolean} [deletionsOnly = false]
+     * @param {Array} [itemIds = []]
      * @return {Array}
      */
-    getSyncCue(itemIds = []) {
+    getSyncCue(deletionsOnly = false, itemIds = []) {
         const syncCue = [];
 
         Object.keys(this.store).forEach((id) => {
@@ -131,9 +247,12 @@ class EntityStore {
                 return;
             }
 
-            if (this.store[id].isDeleted) {
+            const entry = this.getById(id);
+            const changes = entry.getChanges();
+
+            if (entry.isDeleted) {
                 syncCue.push(new Promise((resolve, reject) => {
-                    this.store[id].delete(true)
+                    entry.delete(true)
                         .then((response) => {
                             resolve(response);
                         })
@@ -141,9 +260,9 @@ class EntityStore {
                             reject(response);
                         });
                 }));
-            } else if (this.store[id].isNew || this.store[id].hasChanges()) {
+            } else if (Object.keys(changes).length && !deletionsOnly) {
                 syncCue.push(new Promise((resolve, reject) => {
-                    this.store[id].save()
+                    entry.save()
                         .then((response) => {
                             resolve(response);
                         })
@@ -162,19 +281,33 @@ class EntityStore {
      *
      * @private
      * @param {String} id
-     * @param {Object} entityOpts
-     * @param {Object} storeOpts
-     * @return {Object}
+     * @param {Object} [storeOpts = {}]
+     * @param {Object} [entityOpts = {}]
+     * @return {EntityProxy}
      */
     createEntityInStore(id = utils.createId(), storeOpts = {}, entityOpts = {}) {
         const entity = Entity.getRawEntityObject(this.entityName, true);
+
         Object.assign(entity, entityOpts);
         entity.id = id;
 
-        this.store[id] = new this.EntityClass(this.entityName, this.apiServiceName, entity);
+        this.store[id] = new this.EntityClass(this.entityName, this.apiService, entity);
+        this.store[id].$store = this;
         Object.assign(this.store[id], storeOpts);
 
         return this.store[id];
+    }
+
+    /**
+     * Returns the changed entity ids.
+     *
+     * @returns {Array<String>}
+     */
+    getChangedIds() {
+        return Object.keys(this.store).filter((entityKey) => {
+            const entity = this.store[entityKey];
+            return Object.keys(entity.getChanges()).length;
+        });
     }
 
     /**
@@ -183,8 +316,17 @@ class EntityStore {
      * @return {Object}
      */
     get apiService() {
-        const serviceContainer = Application.getContainer('service');
-        return serviceContainer[this.apiServiceName];
+        return this._apiService;
+    }
+
+    /**
+     * Setter for the api service.
+     *
+     * @param {ApiService} service
+     * @returns {void}
+     */
+    set apiService(service) {
+        this._apiService = service;
     }
 }
 

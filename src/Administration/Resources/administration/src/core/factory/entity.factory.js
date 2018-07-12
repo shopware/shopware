@@ -2,13 +2,15 @@
  * @module core/factory/entity
  */
 import { warn } from 'src/core/service/utils/debug.utils';
+import { hasOwnProperty } from 'src/core/service/utils/object.utils';
 
 export default {
     addEntityDefinition,
     getEntityDefinition,
     getDefinitionRegistry,
     getRawEntityObject,
-    getRequiredProperties
+    getRequiredProperties,
+    getAssociatedProperties
 };
 
 /**
@@ -114,4 +116,23 @@ function getRequiredProperties(entityName) {
 
     const definition = entityDefinitions.get(entityName);
     return definition.required;
+}
+
+/**
+ * Returns the associated properties of an entity.
+ *
+ * @param {String} entityName
+ * @returns {Array}
+ */
+function getAssociatedProperties(entityName) {
+    const definition = entityDefinitions.get(entityName);
+
+    return Object.keys(definition.properties).reduce((accumulator, propName) => {
+        const prop = definition.properties[propName];
+        if (prop.type === 'array' && hasOwnProperty(prop, 'entity')) {
+            accumulator.push(propName);
+        }
+
+        return accumulator;
+    }, []);
 }

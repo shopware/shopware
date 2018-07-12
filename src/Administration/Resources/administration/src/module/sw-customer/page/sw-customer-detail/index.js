@@ -1,5 +1,4 @@
 import { Component, Mixin, State } from 'src/core/shopware';
-import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-customer-detail.html.twig';
 import './sw-customer-detail.less';
 
@@ -33,10 +32,6 @@ Component.register('sw-customer-detail', {
             return State.getStore('customer');
         },
 
-        customerAddressStore() {
-            return State.getStore('customer_address');
-        },
-
         customerGroupStore() {
             return State.getStore('customer_group');
         },
@@ -47,6 +42,10 @@ Component.register('sw-customer-detail', {
 
         touchpointStore() {
             return State.getStore('touchpoint');
+        },
+
+        customerAddressStore() {
+            return this.customer.getAssociationStore('addresses');
         },
 
         paymentMethodStore() {
@@ -81,18 +80,10 @@ Component.register('sw-customer-detail', {
             if (this.$route.params.id) {
                 this.customerId = this.$route.params.id;
                 this.customer = this.customerStore.getById(this.customerId);
-                const criteria = [];
-                const addressParams = {
-                    limit: 100,
+
+                this.customerAddressStore.getList({
+                    limit: 10,
                     offset: 0
-                };
-
-                // todo this is a temporary solution for association loading
-                criteria.push(CriteriaFactory.term('customerId', this.customerId));
-                addressParams.criteria = CriteriaFactory.nested('AND', ...criteria);
-
-                this.customerAddressStore.getList(addressParams).then((response) => {
-                    this.addresses = response.items;
                 });
 
                 this.touchpointStore.getList({ offset: 0, limit: 100 }).then((response) => {
@@ -128,8 +119,6 @@ Component.register('sw-customer-detail', {
                     title: titleSaveSuccess,
                     message: messageSaveSuccess
                 });
-            }).catch((exception) => {
-                console.log(exception);
             });
         },
 

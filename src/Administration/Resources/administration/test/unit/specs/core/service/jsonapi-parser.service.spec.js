@@ -60,6 +60,8 @@ describe('core/service/jsonapi-parser.service.js', () => {
         }));
 
         expect(JSON.stringify(validJsonApiParser)).is.equal(JSON.stringify({
+            links: null,
+            errors: null,
             data: [{
                 id: 1,
                 type: 'article',
@@ -74,6 +76,7 @@ describe('core/service/jsonapi-parser.service.js', () => {
                     name: 'Peter'
                 }
             }],
+            associations: {},
             parsed: true
         }));
     });

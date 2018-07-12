@@ -17,16 +17,40 @@ Component.register('sw-order-delivery', {
             type: String,
             required: false
         },
-        isLoading: {
-            type: Boolean,
-            required: false
-        },
         order: {
             type: Object,
             required: true,
             default() {
                 return {};
             }
+        }
+    },
+
+    data() {
+        return {
+            isLoading: false
+        };
+    },
+
+    computed: {
+        positionsStore() {
+            return this.delivery.getAssociationStore('positions');
+        }
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
+    methods: {
+        createdComponent() {
+            this.isLoading = true;
+            this.positionsStore.getList({
+                offset: 0,
+                limit: 50
+            }).then(() => {
+                this.isLoading = false;
+            });
         }
     }
 });

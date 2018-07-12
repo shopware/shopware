@@ -42,6 +42,11 @@ Component.register('sw-product-detail', {
                 this.productId = this.$route.params.id;
                 this.product = this.productStore.getById(this.productId);
 
+                this.product.getAssociationStore('categories').getList({
+                    offset: 0,
+                    limit: 50
+                });
+
                 this.manufacturerStore.getList({ offset: 0, limit: 100 }).then((response) => {
                     this.manufacturers = response.items;
                 });

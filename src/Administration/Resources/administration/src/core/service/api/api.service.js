@@ -22,10 +22,10 @@ class ApiService {
     /**
      * Gets a list from the configured API end point using the offset & limit.
      *
-     * @param {Number} [offset]
-     * @param {Number} [limit]
-     * @param {Object} additionalParams
-     * @param {Object} additionalHeaders
+     * @param {Number} offset
+     * @param {Number} limit
+     * @param {Object} [additionalParams={}]
+     * @param {Object} [additionalHeaders={}]
      * @returns {Promise<T>}
      */
     getList(offset, limit, additionalParams = {}, additionalHeaders = {}) {
@@ -101,7 +101,7 @@ class ApiService {
             return Promise.reject(new Error('Missing required argument: id'));
         }
 
-        const params = Object.assign({ _response: 'detail' }, additionalParams);
+        const params = Object.assign({}, additionalParams);
         const headers = this.getBasicHeaders(additionalHeaders);
 
         return this.httpClient
@@ -150,7 +150,7 @@ class ApiService {
      * @returns {Promise<T>}
      */
     create(payload, additionalParams = {}, additionalHeaders = {}) {
-        const params = Object.assign({ _response: 'detail' }, additionalParams);
+        const params = Object.assign({}, additionalParams);
         const headers = this.getBasicHeaders(additionalHeaders);
 
         return this.httpClient

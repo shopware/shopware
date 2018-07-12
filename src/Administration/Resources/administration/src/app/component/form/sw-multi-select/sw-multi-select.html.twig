@@ -22,7 +22,7 @@
                     <li v-for="entry in filteredEntries"
                         class="list--entry"
                         :data-id="entry.id"
-                        @click="onSelectEntry(entry.id)">
+                        @click="onSelectEntry(entry)">
                         {{ entry.name }}
                     </li>
                 </ul>

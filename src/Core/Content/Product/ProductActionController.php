@@ -23,7 +23,7 @@ class ProductActionController extends Controller
     }
 
     /**
-     * @Route("/api/v1/product/{productId}/actions/generate-variants", name="api.product.actions.generate-variants")
+     * @Route("/api/v{version}/product/{productId}/actions/generate-variants", name="api.product.actions.generate-variants")
      * @Method({"POST"})
      *
      * @param Request $request

@@ -1,10 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Framework\Translation;
 
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Core\System\Snippet\SnippetDefinition;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -23,7 +22,7 @@ class TranslatorCacheInvalidate implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            EntityWrittenContainerEvent::NAME => 'invalidate'
+            EntityWrittenContainerEvent::NAME => 'invalidate',
         ];
     }
 

@@ -25,6 +25,7 @@
 namespace Shopware\Core\Content\Media\Util;
 
 use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
+use Shopware\Core\Content\Media\Upload\MediaUpdater;
 use Shopware\Core\Content\Media\Util\Strategy\StrategyInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -55,7 +56,7 @@ class UrlGenerator implements UrlGeneratorInterface
     /**
      * {@inheritdoc}
      */
-    public function getUrl(string $filename): string
+    public function getUrl(string $filename, string $mimeType): string
     {
         if (!$this->baseUrl) {
             $this->baseUrl = $this->createFallbackMediaUrl();
@@ -67,7 +68,7 @@ class UrlGenerator implements UrlGeneratorInterface
 
         $filename = $this->strategy->encode($filename);
 
-        return $this->baseUrl . '/' . $filename;
+        return $this->baseUrl . '/' . $filename . MediaUpdater::ALLOWED_MIME_TYPES[$mimeType];
     }
 
     private function normalizeBaseUrl(string $mediaUrl = null): ?string

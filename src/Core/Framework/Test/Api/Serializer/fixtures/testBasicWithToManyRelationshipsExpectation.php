@@ -59,7 +59,6 @@ return [
             'type' => 'media',
             'attributes' => [
                 'albumId' => 'c83a7721-270a-4add-82fd-e60b1dd0c47e',
-                'fileName' => 'teaser.jpg',
                 'mimeType' => 'image/jpg',
                 'fileSize' => 93889,
                 'metaData' => null,

@@ -6,7 +6,6 @@ return [
         'type' => 'media',
         'attributes' => [
             'albumId' => '6f51622e-b381-4c75-ae02-63cece27ce72',
-            'fileName' => 'teaser.jpg',
             'mimeType' => 'image/jpg',
             'fileSize' => 93889,
             'metaData' => null,

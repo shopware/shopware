@@ -29,17 +29,12 @@ class MediaStruct extends Entity
     protected $userId;
 
     /**
-     * @var string
-     */
-    protected $fileName;
-
-    /**
-     * @var string
+     * @var string|null
      */
     protected $mimeType;
 
     /**
-     * @var int
+     * @var int|null
      */
     protected $fileSize;
 
@@ -123,17 +118,7 @@ class MediaStruct extends Entity
         $this->userId = $userId;
     }
 
-    public function getFileName(): string
-    {
-        return $this->fileName;
-    }
-
-    public function setFileName(string $fileName): void
-    {
-        $this->fileName = $fileName;
-    }
-
-    public function getMimeType(): string
+    public function getMimeType(): ?string
     {
         return $this->mimeType;
     }
@@ -143,7 +128,7 @@ class MediaStruct extends Entity
         $this->mimeType = $mimeType;
     }
 
-    public function getFileSize(): int
+    public function getFileSize(): ?int
     {
         return $this->fileSize;
     }

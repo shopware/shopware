@@ -28,6 +28,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
+use Shopware\Core\Framework\ORM\Write\Flag\WriteProtected;
 use Shopware\Core\System\User\UserDefinition;
 
 class MediaDefinition extends EntityDefinition
@@ -50,10 +51,9 @@ class MediaDefinition extends EntityDefinition
 
             new FkField('user_id', 'userId', UserDefinition::class),
 
-            (new StringField('file_name', 'fileName'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
-            (new StringField('mime_type', 'mimeType'))->setFlags(new Required(), new SearchRanking(self::LOW_SEARCH_RAKING)),
-            (new IntField('file_size', 'fileSize'))->setFlags(new Required()),
-            new LongTextField('meta_data', 'metaData'),
+            (new StringField('mime_type', 'mimeType'))->setFlags(new SearchRanking(self::LOW_SEARCH_RAKING), new WriteProtected('write_media')),
+            (new IntField('file_size', 'fileSize'))->setFlags(new WriteProtected('write_media')),
+            (new LongTextField('meta_data', 'metaData'))->setFlags(new WriteProtected('write_media')),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
             (new TranslatedField(new LongTextField('description', 'description')))->setFlags(new SearchRanking(self::LOW_SEARCH_RAKING)),

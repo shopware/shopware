@@ -49,5 +49,6 @@ class System extends Bundle
         $loader->load('unit.xml');
         $loader->load('user.xml');
         $loader->load('language.xml');
+        $loader->load('integration.xml');
     }
 }

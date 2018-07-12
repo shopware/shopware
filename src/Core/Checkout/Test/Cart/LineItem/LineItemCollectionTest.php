@@ -255,7 +255,7 @@ class LineItemCollectionTest extends TestCase
     }
 
     /**
-     * @expectedException \RuntimeException
+     * @expectedException \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
      */
     public function testCartThrowsExceptionOnLineItemCollision(): void
     {

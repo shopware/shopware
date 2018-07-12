@@ -144,6 +144,10 @@ class CheckoutRuleLoader
             $previous->getLineItems()->count() !== $current->getLineItems()->count()
             ||
             $previous->getPrice()->getTotalPrice() !== $current->getPrice()->getTotalPrice()
+            ||
+            $previous->getLineItems()->getKeys() !== $current->getLineItems()->getKeys()
+            ||
+            $previous->getLineItems()->getTypes() !== $current->getLineItems()->getTypes()
         ;
     }
 }

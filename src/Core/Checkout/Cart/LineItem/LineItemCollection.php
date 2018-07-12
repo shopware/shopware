@@ -130,6 +130,15 @@ class LineItemCollection extends Collection
         );
     }
 
+    public function getTypes(): array
+    {
+        return $this->fmap(
+            function (LineItem $lineItem) {
+                return $lineItem->getType();
+            }
+        );
+    }
+
     protected function getKey(LineItem $element): string
     {
         return $element->getKey();

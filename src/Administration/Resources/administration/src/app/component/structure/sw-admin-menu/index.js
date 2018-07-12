@@ -34,7 +34,7 @@ Component.register('sw-admin-menu', {
         },
 
         userActionsToggleIcon() {
-            return this.isUserActionsActive ? 'small-arrow-medium-up' : 'small-arrow-medium-down';
+            return this.isUserActionsActive ? 'small-arrow-medium-down' : 'small-arrow-medium-up';
         },
 
         scrollbarOffsetStyle() {
@@ -52,7 +52,20 @@ Component.register('sw-admin-menu', {
     methods: {
         openSubMenu(entry, currentTarget) {
             this.subMenuOpen = !this.subMenuOpen;
+
+            if (this.isExpanded) {
+                this.flyoutEntries = [];
+            }
+
             this.changeActiveItem(currentTarget.querySelector('.sw-admin-menu__navigation-link'));
+        },
+
+        /**
+         * TODO: Implement leaving item
+         */
+        leaveItem(entry, currentTarget) {
+            console.log(entry);
+            console.log(currentTarget);
         },
 
         changeActiveItem(target) {
@@ -67,8 +80,22 @@ Component.register('sw-admin-menu', {
             target.classList.add(activeClasses[0]);
         },
 
+        isActiveItem(menuItem) {
+            return this.isExpanded &&
+                (menuItem.classList.contains('sw-admin-menu__navigation-link-active') ||
+                 menuItem.classList.contains('router-link-active'));
+        },
+
         openFlyout(entry, currentTarget) {
             if (!currentTarget) {
+                return false;
+            }
+
+            this.flyoutEntries = [];
+
+            const menuItem = currentTarget.querySelector('.sw-admin-menu__navigation-link');
+
+            if (this.isActiveItem(menuItem)) {
                 return false;
             }
 
@@ -76,8 +103,7 @@ Component.register('sw-admin-menu', {
             this.flyoutLabel = entry.label;
 
             if (!this.isExpanded) {
-                const listItem = currentTarget.querySelector('.sw-admin-menu__navigation-link');
-                this.changeActiveItem(listItem);
+                this.changeActiveItem(menuItem);
             }
 
             this.flyoutStyle = {

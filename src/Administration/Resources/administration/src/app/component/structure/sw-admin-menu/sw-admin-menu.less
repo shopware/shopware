@@ -39,6 +39,10 @@
         .sw-admin-menu__headline {
             width: @sw-admin-menu-width-expanded;
         }
+
+        .sw-admin-menu__flyout {
+            left: 300px;
+        }
     }
 
     .sw-admin-menu__header-shop-name,
@@ -161,6 +165,7 @@
         font-weight: 600;
         line-height: 24px;
         cursor: pointer;
+        transition: 0.3s padding ease;
 
         &:hover,
         &.router-link-active,
@@ -204,7 +209,6 @@
             padding-top: 0;
             padding-bottom: 0;
             font-weight: normal;
-            transition: 0.3s padding ease;
 
             &:hover {
                 background-color: @sw-admin-menu-color-hover;
@@ -229,7 +233,9 @@
         left: 80px;
 
         .sw-admin-menu__navigation-link {
-            padding: 8px 30px;
+            padding: 0 30px;
+            height: 48px;
+            line-height: 48px;
             font-weight: normal;
 
             &:hover {
@@ -375,5 +381,17 @@
                 display: none;
             }
         }
+    }
+
+    .flyout-enter-active,
+    .flyout-leave-active {
+        transition: all .15s;
+        transform: translateX(0);
+    }
+
+    .flyout-enter,
+    .flyout-leave-to {
+        opacity: 0;
+        transform: translateX(-10px);
     }
 }

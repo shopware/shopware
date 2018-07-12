@@ -24,24 +24,23 @@
 
 namespace Shopware\Core\Checkout\Cart\Exception;
 
-class NotImplementedException extends \Exception
+use Shopware\Core\Framework\ShopwareHttpException;
+use Symfony\Component\HttpFoundation\Response;
+use Throwable;
+
+class MissingLineItemPriceException extends ShopwareHttpException
 {
-    /**
-     * @var string
-     */
-    protected $class;
+    protected $code = 'CART-MISSING-PRICE-DEFINITION';
 
-    public function __construct(string $class)
+    public function __construct(string $identifier, int $code = 0, Throwable $previous = null)
     {
-        parent::__construct(
-            sprintf('Cart bundle requires an implementation for class %s', $class)
-        );
+        $message = sprintf('Line item %s contains no price definition or already calculated price', $identifier);
 
-        $this->class = $class;
+        parent::__construct($message, $code, $previous);
     }
 
-    public function getClass(): string
+    public function getStatusCode(): int
     {
-        return $this->class;
+        return Response::HTTP_CONFLICT;
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Shopware\Core\Checkout\Cart;
 
 use Shopware\Core\Checkout\Cart\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Exception\MissingLineItemPriceException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator;
@@ -55,8 +56,6 @@ class Calculator
 
         $calculated = new LineItemCollection();
 
-        /** @var LineItemCollection $lineItems */
-        /** @var LineItem $original */
         foreach ($lineItems as $original) {
             $lineItem = LineItem::createFrom($original);
 
@@ -128,6 +127,6 @@ class Calculator
             return $this->priceCalculator->calculate($definition, $context);
         }
 
-        throw new \RuntimeException(sprintf('No price definition and no price given for elements %s', $lineItem->getKey()));
+        throw new MissingLineItemPriceException($lineItem->getKey());
     }
 }

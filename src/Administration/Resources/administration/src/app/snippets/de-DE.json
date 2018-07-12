@@ -27,6 +27,13 @@
     },
     "sw-modal": {
       "labelClose": "Schließen"
+    },
+    "sw-media-grid-item": {
+      "contextMenu": {
+        "details": "Information",
+        "move": "Verschieben",
+        "delete": "Löschen"
+      }
     }
   },
   "sw-login": {
@@ -358,14 +365,6 @@
       "contextMenuDelete": "Bestellung löschen",
       "contextMenuConfirmPayment": "Zahlung bestätigen",
       "messageEmpty": "Noch keine Bestellungen"
-    }
-  },
-
-  "sw-media-grid-item": {
-    "contextMenu": {
-      "details": "Information",
-      "edit": "Verschieben",
-      "delete": "Löschen"
     }
   }
 }

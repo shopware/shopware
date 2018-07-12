@@ -1,52 +1,60 @@
 {%  block sw_media_grid_item %}
 <div :class="mediaItemClass"
-     @click="doSelectItem($event)">
+     @click="doSelectItem($event)"
+     @dblclick.prevent="startInlineEdit">
     <slot>
         {% block sw_media_grid_item_content %}
             <div :class="mediaItemContentClass">
                 {% block sw_media_grid_item_content_selection %}
                     <div :class="mediaItemCheckboxClass"
                          v-if="!showInline">
-                        <sw-field type="checkbox"
-                                  :value="selected">
-                        </sw-field>
+                        <sw-field type="checkbox" :value="selected"></sw-field>
                     </div>
                 {% endblock %}
 
                 {% block sw_media_grid_item_content_preview %}
                     <div class="sw-media-grid-item-preview">
-                        <img :src="mediaItem.mediaFile"
-                             class="centeredPreview">
+                        <img :src="mediaItem.mediaFile" class="centeredPreview">
                     </div>
                 {% endblock %}
 
                 {% block sw_media_grid_item_content_item_name %}
-                    <div class="media-grid-item__content__name-container">
+                    <div class="media-grid-item__name-container">
                         <input type="text"
-                               class="sw-media-grid-item-fieldname"
-                               :value="mediaItem.fileName">
+                               ref="inputItemName"
+                               tabindex="-1"
+                               :value="mediaItem.name"
+                               disabled="true"
+                               @keydown.enter="signalItemNameChange"
+                               @keydown.esc="cancelInlineEdit"
+                               @blur="cancelInlineEdit">
                     </div>
                 {% endblock %}
 
                 {% block sw_media_grid_item_content_details %}
-                    <div class="sw-media-grid-item__content--isList__details"
-                         v-if="showInline">
+                    <div class="sw-media-grid-item__details" v-if="showInline">
                         some day here will be details listed
                     </div>
                 {% endblock %}
 
                 {% block sw_media_grid_item_content_context_menu %}
-                    <div class="sw-media-grid-item__content__context-button">
+                    <div class="sw-media-grid-item__context-button">
                         <sw-context-button>
-                            <sw-context-menu-item :disabled="true" >
-                                {{ $tc('sw-media-grid-item.contextMenu.details') }}
-                            </sw-context-menu-item>
-                            <sw-context-menu-item :disabled="true">
-                                {{ $tc('sw-media-grid-item.contextMenu.move') }}
-                            </sw-context-menu-item>
-                            <sw-context-menu-item :variant="'danger'"  :disabled="true">
-                                {{ $tc('sw-media-grid-item.contextMenu.delete') }}
-                            </sw-context-menu-item>
+                            {% block sw_media_grid_item_content_context_menu_item_details %}
+                                <sw-context-menu-item :disabled="true" >
+                                    {{ $tc('sw-media-grid-item.contextMenu.details') }}
+                                </sw-context-menu-item>
+                            {% endblock %}
+                            {% block sw_media_grid_item_content_context_menu_move %}
+                                <sw-context-menu-item :disabled="true">
+                                    {{ $tc('sw-media-grid-item.contextMenu.move') }}
+                                </sw-context-menu-item>
+                            {% endblock %}
+                            {% block sw_media_grid_item_content_context_menu_delete %}
+                                <sw-context-menu-item variant="danger" :disabled="true">
+                                    {{ $tc('sw-media-grid-item.contextMenu.delete') }}
+                                </sw-context-menu-item>
+                            {% endblock %}
                         </sw-context-button>
                     </div>
                 {% endblock %}

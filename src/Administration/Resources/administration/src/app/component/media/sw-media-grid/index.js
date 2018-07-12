@@ -15,7 +15,7 @@ Component.register('sw-media-grid', {
                 return [gridStyles.MEDIA_GRID_TYPE_LIST, gridStyles.MEDIA_GRID_TYPE_GRID].includes(value);
             }
         },
-        thumbnailSize: {
+        gridColumnWidth: {
             required: false,
             default: 128,
             type: Number,
@@ -49,9 +49,7 @@ Component.register('sw-media-grid', {
             if (this.showItemsInline) {
                 columnDefinition = '100%';
             } else {
-                // add magical 24 = 2px border 10px padding for each left and right
-                const columnWidth = 24 + this.thumbnailSize;
-                columnDefinition = `repeat(auto-fit, ${columnWidth}px)`;
+                columnDefinition = `repeat(auto-fit, ${this.gridColumnWidth}px)`;
             }
 
             return {
@@ -72,9 +70,11 @@ Component.register('sw-media-grid', {
                 return false;
             }
 
-            return this.selection.find((element) => {
+            const index = this.selection.findIndex((element) => {
                 return (element.id === mediaItem.id);
-            }) !== undefined;
+            });
+
+            return index > -1;
         },
         addToSelection(mediaItem) {
             if (!this.isItemSelected(mediaItem)) {

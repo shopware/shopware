@@ -6,7 +6,9 @@ Component.register('sw-media-grid-item', {
     template,
 
     data() {
-        return {};
+        return {
+            fromBlur: false
+        };
     },
 
     props: {
@@ -39,30 +41,59 @@ Component.register('sw-media-grid-item', {
         },
         mediaItemContentClass() {
             return {
-                'sw-media-grid-item__content--isGrid': !this.showInline,
                 'sw-media-grid-item__content': true,
-                'sw-media-grid-item__content--isList': this.showInline
+                'is--grid': !this.showInline,
+                'is--list': this.showInline
             };
         },
         mediaItemCheckboxClass() {
             return {
-                'sw-media-grid-item__content__checkbox': true,
-                'sw-media-grid-item__content__checkbox--is-visible': this.showCheckbox
+                'sw-media-grid-item__checkbox': true,
+                'checkbox-is--visible': this.showCheckbox
             };
         }
     },
 
     methods: {
         doSelectItem(event) {
-            if (!this.selected ||
-                event.target.type === 'text' ||
-                ['SVG', 'BUTTON'].includes(event.target.tagName.toUpperCase())
-            ) {
-                this.$emit('media-item-add-to-selection', this.mediaItem);
+            if (!this.$refs.inputItemName.disabled) {
                 return;
             }
 
+            if (this.fromBlur) {
+                this.fromBlur = false;
+                return;
+            }
+
+            if (!this.selected ||
+                ['SVG', 'BUTTON'].includes(event.target.tagName.toUpperCase())
+            ) {
+                this.selectItem();
+                return;
+            }
+
+            this.removeSelection();
+        },
+        selectItem() {
+            this.$emit('media-item-add-to-selection', this.mediaItem);
+        },
+        removeSelection() {
             this.$emit('media-item-remove-from-selection', this.mediaItem);
+        },
+        startInlineEdit() {
+            const input = this.$refs.inputItemName;
+
+            input.disabled = false;
+            this.selectItem();
+            input.focus();
+        },
+        cancelInlineEdit() {
+            this.fromBlur = true;
+            this.$refs.inputItemName.value = this.mediaItem.name;
+            this.$refs.inputItemName.disabled = true;
+        },
+        signalItemNameChange() {
+            this.$emit('media-item-name-changed', this.mediaItem);
         }
     }
 });

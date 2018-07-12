@@ -2,14 +2,13 @@
 <div class="sw-media-grid">
     <slot name="content">
         {% block sw_media_grid_slot_content %}
-            <div class="sw-media-grid-content"
+            <div class="sw-media-grid__content"
                  :style="mediaColumnDefinitions"
                  @click.self="clearSelection">
-                <template v-for="mediaItem in mediaItems">
                     {% block sw_media_grid_content_cell %}
-                    <div class="sw-media-grid-content__cell">
+                    <div class="sw-media-grid-content__cell"
+                         v-for="mediaItem in mediaItems" :key="mediaItem.key" >
                         <sw-media-grid-item
-                                :key="mediaItem.id"
                                 :showInline="showItemsInline"
                                 :selected="isItemSelected(mediaItem)"
                                 :mediaItem="mediaItem"
@@ -19,7 +18,6 @@
                         </sw-media-grid-item>
                     </div>
                     {% endblock %}
-                </template>
             </div>
         {% endblock %}
     </slot>

@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Product\Cart\Struct\ProductFetchDefinition;
+use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductStruct;
 use Shopware\Core\Framework\Struct\StructCollection;
@@ -110,7 +111,7 @@ class ProductCollector implements CollectorInterface
 
             /** @var ProductStruct $product */
             if (!$product) {
-                throw new \RuntimeException(sprintf('No product data found for line item %s', $lineItem->getKey()));
+                throw new ProductNotFoundException($id);
             }
 
             if (!$lineItem->getLabel()) {

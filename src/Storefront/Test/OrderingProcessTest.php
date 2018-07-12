@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Test;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
+use Shopware\Core\Checkout\Order\OrderStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
@@ -69,7 +70,9 @@ class OrderingProcessTest extends ApiTestCase
         $orderId = $this->payOrder();
         self::assertTrue(Uuid::isValid($orderId));
 
-        $order = $this->orderRepository->read(new ReadCriteria([$orderId]), Context::createDefaultContext(Defaults::TENANT_ID))->get($orderId);
+        /** @var OrderStruct $order */
+        $order = $this->orderRepository->read(new ReadCriteria([$orderId]), Context::createDefaultContext(Defaults::TENANT_ID))
+            ->get($orderId);
 
         self::assertEquals(Defaults::PAYMENT_METHOD_PAID_IN_ADVANCE, $order->getPaymentMethodId());
         self::assertEquals(25, $order->getAmountTotal());

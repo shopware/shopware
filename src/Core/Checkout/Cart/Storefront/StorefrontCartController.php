@@ -4,13 +4,9 @@ namespace Shopware\Core\Checkout\Cart\Storefront;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Core\Checkout\Cart\Cart\CartPersisterInterface;
 use Shopware\Core\Checkout\Cart\Cart\Cart;
-use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\Order\OrderPersisterInterface;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Content\Product\Cart\ProductCollector;
@@ -98,8 +94,8 @@ class StorefrontCartController extends Controller
      * @Route("/storefront-api/checkout/cart/product/{id}", name="storefront.api.checkout.cart.product.add")
      * @Method({"POST"})
      *
-     * @param string $id
-     * @param Request $request
+     * @param string          $id
+     * @param Request         $request
      * @param CheckoutContext $context
      *
      * @return JsonResponse
@@ -122,13 +118,13 @@ class StorefrontCartController extends Controller
      * @Route("/storefront-api/checkout/cart/line-item/{id}", name="storefront.api.checkout.cart.line-item.add")
      * @Method({"POST"})
      *
-     * @param string $id
-     * @param Request $request
+     * @param string          $id
+     * @param Request         $request
      * @param CheckoutContext $context
      *
-     * @return JsonResponse
-     *
      * @throws MissingParameterException
+     *
+     * @return JsonResponse
      */
     public function addLineItem(string $id, Request $request, CheckoutContext $context): JsonResponse
     {
@@ -156,29 +152,37 @@ class StorefrontCartController extends Controller
      * @Route("/storefront-api/checkout/cart/line-item/{id}", name="storefront.api.checkout.cart.line-item.delete")
      * @Method({"DELETE"})
      *
-     * @param string $id
+     * @param string          $id
      * @param CheckoutContext $context
+     *
+     * @throws LineItemNotFoundException
      *
      * @return JsonResponse
      */
     public function removeLineItem(string $id, CheckoutContext $context): JsonResponse
     {
+        $cart = $this->service->getCart($context);
+
+        if (!$cart->has($id)) {
+            throw new LineItemNotFoundException($id);
+        }
+
         $cart = $this->service->remove($id, $context);
 
         return new JsonResponse($this->serialize($cart));
     }
 
     /**
-     * @Route("/storefront-api/checkout/cart/line-item/{key}/quantity/{quantity}", name="storefront.api.checkout.cart.line-item.quatity.update")
+     * @Route("/storefront-api/checkout/cart/line-item/{id}/quantity/{quantity}", name="storefront.api.checkout.cart.line-item.quatity.update")
      * @Method({"PATCH"})
      *
-     * @param string $id
-     * @param int $quantity
+     * @param string          $id
+     * @param int             $quantity
      * @param CheckoutContext $context
      *
-     * @return JsonResponse
-     *
      * @throws LineItemNotFoundException
+     *
+     * @return JsonResponse
      */
     public function setLineItemQuantity(string $id, int $quantity, CheckoutContext $context): JsonResponse
     {
@@ -197,13 +201,13 @@ class StorefrontCartController extends Controller
      * @Route("/storefront-api/checkout/cart/line-item/{id}", name="storefront.api.checkout.cart.line-item.update")
      * @Method({"PATCH"})
      *
-     * @param string $id
-     * @param Request $request
+     * @param string          $id
+     * @param Request         $request
      * @param CheckoutContext $context
      *
-     * @return JsonResponse
-     *
      * @throws LineItemNotFoundException
+     *
+     * @return JsonResponse
      */
     public function updateLineItem(string $id, Request $request, CheckoutContext $context): JsonResponse
     {

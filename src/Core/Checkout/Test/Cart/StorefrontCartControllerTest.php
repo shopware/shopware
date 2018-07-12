@@ -11,6 +11,7 @@ use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Test\Api\ApiTestCase;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Client;
+use Symfony\Component\HttpFoundation\Response;
 
 class StorefrontCartControllerTest extends ApiTestCase
 {
@@ -61,17 +62,13 @@ class StorefrontCartControllerTest extends ApiTestCase
         $this->addProduct($client, $productId);
 
         $content = json_decode($client->getResponse()->getContent(), true);
+        static::assertSame(Response::HTTP_NOT_FOUND, $client->getResponse()->getStatusCode());
 
-        $this->assertNotEmpty($content);
-        $this->assertArrayHasKey('data', $content);
-        $cart = $content['data'];
-
-        $this->assertArrayHasKey('price', $cart);
-        $this->assertEquals(0, $cart['price']['totalPrice']);
-        $this->assertCount(0, $cart['lineItems']);
+        static::assertNotEmpty($content);
+        static::assertArrayHasKey('errors', $content);
     }
 
-    public function testAddProduct()
+    public function testAddProduct(): void
     {
         $productId = Uuid::uuid4()->getHex();
         $this->productRepository->create([
@@ -225,10 +222,10 @@ class StorefrontCartControllerTest extends ApiTestCase
         $cart = $this->getCart($client);
 
         $this->assertNotEmpty($cart);
-        $this->assertCount(2, $cart['calculatedLineItems']);
+        $this->assertCount(2, $cart['lineItems']);
 
-        foreach ($cart['calculatedLineItems'] as $lineItem) {
-            if ($lineItem['identifier'] === $productId1) {
+        foreach ($cart['lineItems'] as $lineItem) {
+            if ($lineItem['key'] === $productId1) {
                 $this->assertEquals(10, $lineItem['quantity']);
             }
         }
@@ -330,7 +327,13 @@ class StorefrontCartControllerTest extends ApiTestCase
         static::assertNotEmpty($cart);
         static::assertArrayHasKey('errors', $cart);
 
-        static::assertTrue(array_key_exists('CART-LINE-ITEM-NOT-FOUND', array_flip(array_column($cart['errors'], 'code'))));
+        static::assertTrue(
+            array_key_exists(
+                'CART-LINE-ITEM-NOT-FOUND',
+                array_flip(array_column($cart['errors'], 'code'))
+            ),
+            print_r($cart, true)
+        );
     }
 
     public function testMergeSameProduct()
@@ -586,7 +589,7 @@ class StorefrontCartControllerTest extends ApiTestCase
             [],
             [],
             json_encode([
-                'quantity' => $quantity
+                'quantity' => $quantity,
             ])
         );
     }

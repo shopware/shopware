@@ -63,7 +63,7 @@ class FileFetcher
      *
      * @return resource
      */
-    private function openStream($source, string $mode)
+    private function openStream(string $source, string $mode)
     {
         $inputStream = fopen($source, $mode);
 

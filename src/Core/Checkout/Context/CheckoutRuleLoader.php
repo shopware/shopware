@@ -16,6 +16,7 @@ use Shopware\Core\Framework\ORM\Search\Criteria;
 
 class CheckoutRuleLoader
 {
+    private const MAX_ITERATION = 5;
     /**
      * @var CartPersisterInterface
      */
@@ -83,7 +84,7 @@ class CheckoutRuleLoader
         $iteration = 1;
 
         while (!$valid) {
-            if ($iteration > 5) {
+            if ($iteration > self::MAX_ITERATION) {
                 break;
             }
 

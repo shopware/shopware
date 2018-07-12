@@ -51,11 +51,7 @@ class Calculator
 
     private function calculateLineItems(Cart $cart, LineItemCollection $lineItems, CheckoutContext $context): LineItemCollection
     {
-        $lineItems->sort(
-            function (LineItem $a, LineItem $b) {
-                return $b->getPriority() <=> $a->getPriority();
-            }
-        );
+        $lineItems->sortByPriority();
 
         $calculated = new LineItemCollection();
 

@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Cart\LineItem;
 
+use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Framework\Struct\Collection;
 
@@ -40,9 +41,7 @@ class LineItemCollection extends Collection
         $exists = $this->get($lineItem->getKey());
 
         if ($exists && $exists->getType() !== $lineItem->getType()) {
-            throw new \RuntimeException(
-                sprintf('Line item with key %s already exists with different type', $exists->getType())
-            );
+            throw new MixedLineItemTypeException($lineItem->getKey(), $exists->getType());
         }
 
         if ($exists) {
@@ -111,6 +110,15 @@ class LineItemCollection extends Collection
     public function current(): LineItem
     {
         return parent::current();
+    }
+
+    public function sortByPriority(): void
+    {
+        $this->sort(
+            function (LineItem $a, LineItem $b) {
+                return $b->getPriority() <=> $a->getPriority();
+            }
+        );
     }
 
     public function filterGoods(): self

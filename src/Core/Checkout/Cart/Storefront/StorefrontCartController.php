@@ -27,7 +27,7 @@ class StorefrontCartController extends Controller
     /**
      * @var CartService
      */
-    private $service;
+    private $cartService;
 
     /**
      * @var RepositoryInterface
@@ -53,7 +53,7 @@ class StorefrontCartController extends Controller
         $this->orderRepository = $orderRepository;
         $this->serializer = $serializer;
         $this->contextPersister = $contextPersister;
-        $this->service = $service;
+        $this->cartService = $service;
     }
 
     /**
@@ -66,7 +66,7 @@ class StorefrontCartController extends Controller
      */
     public function getCart(CheckoutContext $context): JsonResponse
     {
-        $cart = $this->service->getCart($context);
+        $cart = $this->cartService->getCart($context);
 
         return new JsonResponse($this->serialize($cart));
     }
@@ -81,7 +81,7 @@ class StorefrontCartController extends Controller
      */
     public function createCart(CheckoutContext $context): JsonResponse
     {
-        $this->service->createNew($context);
+        $this->cartService->createNew($context);
 
         return new JsonResponse(
             [PlatformRequest::HEADER_CONTEXT_TOKEN => $context->getToken()],
@@ -109,7 +109,7 @@ class StorefrontCartController extends Controller
         $lineItem = (new LineItem($id, ProductCollector::LINE_ITEM_TYPE, $quantity))
             ->setPayload($payload);
 
-        $cart = $this->service->add($lineItem, $context);
+        $cart = $this->cartService->add($lineItem, $context);
 
         return new JsonResponse($this->serialize($cart));
     }
@@ -143,7 +143,7 @@ class StorefrontCartController extends Controller
         $lineItem = (new LineItem($id, $type, $quantity))
             ->setPayload($payload);
 
-        $cart = $this->service->add($lineItem, $context);
+        $cart = $this->cartService->add($lineItem, $context);
 
         return new JsonResponse($this->serialize($cart));
     }
@@ -161,13 +161,13 @@ class StorefrontCartController extends Controller
      */
     public function removeLineItem(string $id, CheckoutContext $context): JsonResponse
     {
-        $cart = $this->service->getCart($context);
+        $cart = $this->cartService->getCart($context);
 
         if (!$cart->has($id)) {
             throw new LineItemNotFoundException($id);
         }
 
-        $cart = $this->service->remove($id, $context);
+        $cart = $this->cartService->remove($id, $context);
 
         return new JsonResponse($this->serialize($cart));
     }
@@ -186,13 +186,13 @@ class StorefrontCartController extends Controller
      */
     public function setLineItemQuantity(string $id, int $quantity, CheckoutContext $context): JsonResponse
     {
-        $cart = $this->service->getCart($context);
+        $cart = $this->cartService->getCart($context);
 
         if (!$cart->has($id)) {
             throw new LineItemNotFoundException($id);
         }
 
-        $cart = $this->service->changeQuantity($id, $quantity, $context);
+        $cart = $this->cartService->changeQuantity($id, $quantity, $context);
 
         return new JsonResponse($this->serialize($cart));
     }
@@ -211,7 +211,7 @@ class StorefrontCartController extends Controller
      */
     public function updateLineItem(string $id, Request $request, CheckoutContext $context): JsonResponse
     {
-        $cart = $this->service->getCart($context);
+        $cart = $this->cartService->getCart($context);
 
         if (!$cart->has($id)) {
             throw new LineItemNotFoundException($id);
@@ -220,7 +220,7 @@ class StorefrontCartController extends Controller
         $quantity = $request->request->getInt('quantity', null);
 
         if ($quantity) {
-            $cart = $this->service->changeQuantity($id, $quantity, $context);
+            $cart = $this->cartService->changeQuantity($id, $quantity, $context);
         }
 
         return new JsonResponse($this->serialize($cart));
@@ -236,7 +236,7 @@ class StorefrontCartController extends Controller
      */
     public function createOrder(CheckoutContext $context): JsonResponse
     {
-        $orderId = $this->service->order($context);
+        $orderId = $this->cartService->order($context);
 
         $criteria = new ReadCriteria([$orderId]);
         $order = $this->orderRepository->read($criteria, $context->getContext());

@@ -97,6 +97,8 @@ class EntityForeignKeyResolver
      * @param string                  $class
      * @param Context                 $context
      *
+     * @throws \Shopware\Core\Framework\Exception\InvalidUuidException
+     *
      * @return array
      */
     private function fetch(string $definition, array $ids, string $class, Context $context): array
@@ -142,7 +144,7 @@ class EntityForeignKeyResolver
                 $this->queryHelper->resolveField($cascade, $definition, $root, $query, $context);
 
                 $query->addSelect(
-                    'GROUP_CONCAT(HEX(' .
+                    'GROUP_CONCAT(DISTINCT HEX(' .
                     EntityDefinitionQueryHelper::escape($alias) . '.id)' .
                     ' SEPARATOR \'||\')  as ' . EntityDefinitionQueryHelper::escape($alias)
                 );
@@ -154,7 +156,7 @@ class EntityForeignKeyResolver
                 $this->queryHelper->resolveField($cascade, $definition, $root, $query, $context);
 
                 $query->addSelect(
-                    'GROUP_CONCAT(HEX(' .
+                    'GROUP_CONCAT(DISTINCT HEX(' .
                     EntityDefinitionQueryHelper::escape($mappingAlias) . '.' . $cascade->getMappingReferenceColumn() .
                     ') SEPARATOR \'||\')  as ' . EntityDefinitionQueryHelper::escape($alias)
                 );
@@ -165,7 +167,7 @@ class EntityForeignKeyResolver
                 $this->queryHelper->resolveField($cascade, $definition, $root, $query, $context);
 
                 $query->addSelect(
-                    'GROUP_CONCAT(HEX(' .
+                    'GROUP_CONCAT(DISTINCT HEX(' .
                     EntityDefinitionQueryHelper::escape($alias) . '.id)' .
                     ' SEPARATOR \'||\')  as ' . EntityDefinitionQueryHelper::escape($alias)
                 );

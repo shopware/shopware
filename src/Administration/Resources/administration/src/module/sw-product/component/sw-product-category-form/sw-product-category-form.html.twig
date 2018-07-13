@@ -7,6 +7,7 @@
                           name="catalogId"
                           :label="$tc('sw-product.categoryForm.labelCatalog')"
                           :placeholder="$tc('sw-product.categoryForm.placeholderCatalog')"
+                          validation="required"
                           v-model="product.catalogId">
                     <option slot="options" value="ffffffffffffffffffffffffffffffff">
                         {{ $tc('sw-product.categoryForm.optionDefaultCatalog') }}

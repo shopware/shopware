@@ -15,6 +15,9 @@
     </php>
 
     <testsuites>
+        <testsuite name="Administration Testsuite">
+            <directory>src/Administration/Test</directory>
+        </testsuite>
         <testsuite name="Core Testsuite">
             <directory>src/Core/**/Test</directory>
         </testsuite>
@@ -25,6 +28,7 @@
 
     <filter>
         <whitelist>
+            <directory suffix=".php">./src/Administration</directory>
             <directory suffix=".php">./src/Core</directory>
             <directory suffix=".php">./src/Storefront</directory>
         </whitelist>

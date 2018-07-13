@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 
+use ReflectionClass;
 use Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface;
 use Shopware\Core\Framework\ORM\DefinitionRegistry;
 use Shopware\Core\Framework\ORM\EntityDefinition;
@@ -21,6 +22,7 @@ use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
 use Shopware\Core\Framework\ORM\Field\TenantIdField;
 use Shopware\Core\Framework\ORM\Field\VersionField;
+use Shopware\Core\Framework\ORM\MappingEntityDefinition;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\HttpFoundation\Response;
@@ -97,9 +99,11 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
             /* @var EntityDefinition $definition */
             try {
-                $definition::getRepositoryClass();
-            } catch (\Exception $e) {
-                //mapping tables has no repository, skip them
+                $class = new ReflectionClass($definition);
+                if ($class->isSubclassOf(MappingEntityDefinition::class)) {
+                    continue;
+                }
+            } catch (\ReflectionException $e) {
                 continue;
             }
 
@@ -458,10 +462,10 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                                                         [
                                                             'type' => 'object',
                                                             'properties' => [
-                                                                'first' => ['example' => $path . '?page[limit]=25'],
-                                                                'last' => ['example' => $path . '?page[limit]=25&page[offset]=250'],
-                                                                'next' => ['example' => $path . '?page[limit]=25&page[offset]=75'],
-                                                                'prev' => ['example' => $path . '?page[limit]=25&page[offset]=25'],
+                                                                'first' => ['example' => $path . '?limit=25'],
+                                                                'last' => ['example' => $path . '?limit=25&offset=250'],
+                                                                'next' => ['example' => $path . '?limit=25&offset=75'],
+                                                                'prev' => ['example' => $path . '?limit=25&offset=25'],
                                                             ],
                                                         ],
                                                     ],
@@ -693,7 +697,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
     {
         return [
             [
-                'name' => 'page[limit]',
+                'name' => 'limit',
                 'in' => 'query',
                 'schema' => [
                     'type' => 'integer',
@@ -701,7 +705,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 'description' => 'Max amount of resources to be returned',
             ],
             [
-                'name' => 'page[offset]',
+                'name' => 'offset',
                 'in' => 'query',
                 'schema' => [
                     'type' => 'integer',

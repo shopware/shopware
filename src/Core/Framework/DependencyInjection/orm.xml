@@ -232,7 +232,7 @@
         </service>
 
         <service id="version.repository" class="Shopware\Core\Framework\ORM\EntityRepository" public="true">
-            <argument>Shopware\Core\Framework\ORM\Version\Definition\VersionDefinition</argument>
+            <argument>Shopware\Core\Framework\Version\VersionDefinition</argument>
             <argument type="service" id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\VersionManager"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntitySearcherInterface"/>
@@ -241,7 +241,7 @@
         </service>
 
         <service id="version_commit.repository" class="Shopware\Core\Framework\ORM\EntityRepository" public="true">
-            <argument>Shopware\Core\Framework\ORM\Version\Definition\VersionCommitDefinition</argument>
+            <argument>Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitDefinition</argument>
             <argument type="service" id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\VersionManager"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntitySearcherInterface"/>
@@ -250,7 +250,7 @@
         </service>
 
         <service id="version_commit_data.repository" class="Shopware\Core\Framework\ORM\EntityRepository" public="true">
-            <argument>Shopware\Core\Framework\ORM\Version\Definition\VersionCommitDataDefinition</argument>
+            <argument>Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition</argument>
             <argument type="service" id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\VersionManager"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntitySearcherInterface"/>

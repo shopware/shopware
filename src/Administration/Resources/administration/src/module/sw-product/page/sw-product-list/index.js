@@ -12,6 +12,7 @@ Component.register('sw-product-list', {
     data() {
         return {
             products: [],
+            showDeleteModal: false,
             isLoading: false
         };
     },
@@ -81,6 +82,21 @@ Component.register('sw-product-list', {
                 this.isLoading = false;
 
                 return this.products;
+            });
+        },
+
+        onDeleteProduct(id) {
+            this.showDeleteModal = id;
+        },
+
+        onCloseDeleteModal() {
+            this.showDeleteModal = false;
+        },
+
+        onConfirmDelete(id) {
+            return this.productStore.getById(id).delete(true).then(() => {
+                this.showDeleteModal = false;
+                this.getList();
             });
         }
     }

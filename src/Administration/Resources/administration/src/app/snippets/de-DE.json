@@ -291,6 +291,8 @@
       "textProductOverview": "Produkte",
       "textTotalProducts": "Keine Produkte | ein Produkt | {count} Produkte",
       "buttonAddProduct": "Produkt anlegen",
+      "buttonCancel": "Abbrechen",
+      "buttonDelete": "Löschen",
       "columnName": "Name",
       "columnManufacturer": "Hersteller",
       "columnActive": "Aktiv",
@@ -300,14 +302,18 @@
       "contextMenuEdit": "Bearbeiten",
       "contextMenuDelete": "Löschen",
       "contextMenuDuplicate": "Duplizieren",
-      "messageEmpty": "Noch keine Produkte"
+      "messageEmpty": "Noch keine Produkte",
+      "modalTitleDelete": "Produkte",
+      "textDeleteConfirm": "Möchten Sie das Produkt \"{name}\" wirklich löschen?"
     },
     "detail": {
       "textHeadline": "Neues Produkt",
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern",
       "tabGeneral": "Allgemein",
-      "tabAdvancedPrices": "Erweiterte Preise"
+      "tabAdvancedPrices": "Erweiterte Preise",
+      "titleSaveSuccess": "Produkte",
+      "messageSaveSuccess": "Das Produkt \"{name}\" wurde erfolgreich gespeichert."
     }
   },
   "sw-manufacturer": {

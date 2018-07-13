@@ -1,9 +1,13 @@
-import { Component, State } from 'src/core/shopware';
+import { Component, Mixin, State } from 'src/core/shopware';
 import template from './sw-product-detail.html.twig';
 import './sw-product-detail.less';
 
 Component.register('sw-product-detail', {
     template,
+
+    mixins: [
+        Mixin.getByName('notification')
+    ],
 
     data() {
         return {
@@ -62,7 +66,15 @@ Component.register('sw-product-detail', {
         },
 
         onSave() {
-            this.product.save();
+            const productName = this.product.name;
+            const titleSaveSuccess = this.$tc('sw-product.detail.titleSaveSuccess');
+            const messageSaveSuccess = this.$tc('sw-product.detail.messageSaveSuccess', 0, { name: productName });
+            this.product.save().then(() => {
+                this.createNotificationSuccess({
+                    title: titleSaveSuccess,
+                    message: messageSaveSuccess
+                });
+            });
         }
     }
 });

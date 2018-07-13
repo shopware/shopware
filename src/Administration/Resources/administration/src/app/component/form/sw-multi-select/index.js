@@ -54,6 +54,7 @@ Component.register('sw-multi-select', {
             default: false
         },
         store: {
+            type: Object,
             required: true
         }
     },
@@ -216,10 +217,10 @@ Component.register('sw-multi-select', {
             this.activeResultPosition = this.activeResultPosition + 1;
 
             const swMultiSelectEl = this.$refs.swMultiSelect;
-            const activeItem = swMultiSelectEl.querySelector('.is--selected');
+            const activeItem = swMultiSelectEl.querySelector('.is--active');
             const itemHeight = swMultiSelectEl.querySelector('.sw-multi-select__result-item').offsetHeight;
             const activeItemPosition = activeItem.offsetTop + itemHeight;
-            let resultContainerHeight = this.$refs.swMultiSelect.querySelector('.sw-multi-select__results').offsetHeight;
+            let resultContainerHeight = swMultiSelectEl.querySelector('.sw-multi-select__results').offsetHeight;
 
             resultContainerHeight -= itemHeight;
 
@@ -269,7 +270,7 @@ Component.register('sw-multi-select', {
         },
 
         addSelectionOnEnter() {
-            const activeItem = this.$refs.swMultiSelect.querySelector('.is--selected');
+            const activeItem = this.$refs.swMultiSelect.querySelector('.is--active');
             const id = activeItem.dataset.id;
 
             if (!id) {
@@ -282,7 +283,6 @@ Component.register('sw-multi-select', {
                 return;
             }
 
-            // TODO: First array item?
             this.addSelection(result[0]);
         },
 

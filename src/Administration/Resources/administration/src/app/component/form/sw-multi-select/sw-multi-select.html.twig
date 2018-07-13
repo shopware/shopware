@@ -20,14 +20,18 @@
                                       tag="ul"
                                       class="sw-multi-select__selections"
                                       mode="out-in">
+
                         {% block sw_multi_select_selection_item %}
                             <li class="sw-multi-select__selection-item"
                                 v-for="selection in displaySelections"
                                 :key="selection.id"
                                 :data-id="selection.id">
-                                {% block sw_multi_select_selection_text %}
+
+                                {% block sw_multi_select_selection_text_holder %}
                                     <span class="sw-multi-select__selection-text">
-                                        {{ selection.name }}
+                                        {% block sw_multi_select_selection_text %}
+                                            {{ selection.name }}
+                                        {% endblock %}
                                     </span>
                                 {% endblock %}
 
@@ -73,13 +77,16 @@
                                         {% block sw_multi_select_result_item %}
                                             <li v-for="(result, index) in filteredResults"
                                                 class="sw-multi-select__result-item"
-                                                :class="{ 'is--selected': (index === activeResultPosition) }"
+                                                :class="{ 'is--active': (index === activeResultPosition) }"
                                                 :data-id="result.id"
                                                 @mouseover="setActiveResultPosition(index)"
                                                 @click="addSelection(result)">
-                                                {% block sw_multi_select_result_item_text %}
+
+                                                {% block sw_multi_select_result_item_text_holder %}
                                                     <span class="sw-multi-select__result-item-text">
-                                                        {{ result.name }}
+                                                        {% block sw_multi_select_result_item_text %}
+                                                            {{ result.name }}
+                                                        {% endblock %}
                                                     </span>
                                                 {% endblock %}
 
@@ -109,14 +116,11 @@
                                         {% endblock %}
                                     </div>
                                 {% endblock %}
-
                             </div>
                         {% endblock %}
                     </transition>
                 {% endblock %}
-
             </div>
         {% endblock %}
-
     </div>
 {% endblock %}

@@ -1,16 +1,27 @@
 {% block sw_customer_list %}
     <sw-page class="sw-customer-list">
+
         {% block sw_customer_list_smart_bar_header %}
             <template slot="smart-bar-header">
-                {% block sw_customer_list_smart_bar_header_slot %}
-                    <h2>{{ $tc('sw-customer.list.textCustomers') }} <span v-if="!isLoading">({{ $tc('sw-customer.list.textCustomersTotal', total, { count: total }) }})</span></h2>
+                {% block sw_customer_list_smart_bar_header_title %}
+                    <h2>
+                        {% block sw_customer_list_smart_bar_header_title_text %}
+                            {{ $tc('sw-customer.list.textCustomers') }}
+                        {% endblock %}
+
+                        {% block sw_customer_list_smart_bar_header_amount %}
+                            <span v-if="!isLoading" class="sw-page__smart-bar-amount">
+                                ({{ total }})
+                            </span>
+                        {% endblock %}
+                    </h2>
                 {% endblock %}
             </template>
         {% endblock %}
 
         {% block sw_customer_list_smart_bar_actions %}
             <template slot="smart-bar-actions">
-                {% block sw_customer_list_smart_bar_actions_slot %}
+                {% block sw_customer_list_smart_bar_actions_add %}
                     <sw-button variant="primary" link="sw.customer.create">
                         {{ $tc('sw-customer.list.buttonAddCustomer') }}
                     </sw-button>

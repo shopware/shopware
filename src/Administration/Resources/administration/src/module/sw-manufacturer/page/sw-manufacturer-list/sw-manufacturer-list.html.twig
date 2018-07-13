@@ -1,9 +1,20 @@
 {% block sw_manufacturer_list %}
     <sw-page class="sw-manufacturer-list">
-        {% block sw_manufacturer_list_header %}
+
+        {% block sw_manufacturer_list_smart_bar_header %}
             <template slot="smart-bar-header">
-                {% block sw_manufacturer_list_smart_bar_header %}
-                    <h2>{{ $tc('sw-manufacturer.list.textManufacturerOverview') }} <span v-if="!isLoading">({{ $tc('sw-manufacturer.list.textTotalManufacturer', total, { count: total }) }})</span></h2>
+                {% block sw_manufacturer_list_smart_bar_header_title %}
+                    <h2>
+                        {% block sw_manufacturer_list_smart_bar_header_title_text %}
+                            {{ $tc('sw-manufacturer.list.textManufacturerOverview') }}
+                        {% endblock %}
+
+                        {% block sw_manufacturer_list_smart_bar_header_amount %}
+                            <span v-if="!isLoading" class="sw-page__smart-bar-amount">
+                                ({{ total }})
+                            </span>
+                        {% endblock %}
+                    </h2>
                 {% endblock %}
             </template>
         {% endblock %}

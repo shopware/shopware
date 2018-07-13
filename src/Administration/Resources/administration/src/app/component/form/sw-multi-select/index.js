@@ -74,14 +74,6 @@ Component.register('sw-multi-select', {
     },
 
     computed: {
-        filteredResults() {
-            return this.results;
-        },
-
-        displaySelections() {
-            return this.selections;
-        },
-
         multiSelectClasses() {
             return {
                 'has--error': this.hasError,
@@ -205,12 +197,15 @@ Component.register('sw-multi-select', {
 
             this.activeResultPosition = this.activeResultPosition - 1;
 
-            const itemHeight = this.$refs.swMultiSelect.querySelector('.sw-multi-select__result-item').offsetHeight;
-            this.$refs.swMultiSelect.querySelector('.sw-multi-select__results').scrollTop -= itemHeight;
+            const swMultiSelectEl = this.$refs.swMultiSelect;
+            const resultItem = swMultiSelectEl.querySelector('.sw-multi-select__result-item');
+            const resultContainer = swMultiSelectEl.querySelector('.sw-multi-select__results');
+
+            resultContainer.scrollTop -= resultItem.offsetHeight;
         },
 
         navigateDownResults() {
-            if (this.activeResultPosition === this.filteredResults.length - 1) {
+            if (this.activeResultPosition === this.results.length - 1) {
                 return;
             }
 
@@ -220,12 +215,13 @@ Component.register('sw-multi-select', {
             const activeItem = swMultiSelectEl.querySelector('.is--active');
             const itemHeight = swMultiSelectEl.querySelector('.sw-multi-select__result-item').offsetHeight;
             const activeItemPosition = activeItem.offsetTop + itemHeight;
-            let resultContainerHeight = swMultiSelectEl.querySelector('.sw-multi-select__results').offsetHeight;
+            const resultContainer = swMultiSelectEl.querySelector('.sw-multi-select__results');
+            let resultContainerHeight = resultContainer.offsetHeight;
 
             resultContainerHeight -= itemHeight;
 
             if (activeItemPosition > resultContainerHeight) {
-                swMultiSelectEl.querySelector('.sw-multi-select__results').scrollTop += itemHeight;
+                resultContainer.scrollTop += itemHeight;
             }
         },
 

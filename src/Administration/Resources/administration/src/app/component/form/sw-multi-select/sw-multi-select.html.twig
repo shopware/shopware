@@ -23,7 +23,7 @@
 
                         {% block sw_multi_select_selection_item %}
                             <li class="sw-multi-select__selection-item"
-                                v-for="selection in displaySelections"
+                                v-for="selection in selections"
                                 :key="selection.id"
                                 :data-id="selection.id">
 
@@ -73,9 +73,9 @@
                             <div class="sw-multi-select__results" v-if="isExpanded">
 
                                 {% block sw_multi_select_results_list %}
-                                    <ul v-if="filteredResults.length > 0" class="sw-multi-select__results-list">
+                                    <ul v-if="results.length > 0" class="sw-multi-select__results-list">
                                         {% block sw_multi_select_result_item %}
-                                            <li v-for="(result, index) in filteredResults"
+                                            <li v-for="(result, index) in results"
                                                 class="sw-multi-select__result-item"
                                                 :class="{ 'is--active': (index === activeResultPosition) }"
                                                 :data-id="result.id"

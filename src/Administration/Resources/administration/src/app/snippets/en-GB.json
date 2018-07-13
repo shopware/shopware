@@ -284,6 +284,8 @@
       "textProductOverview": "Products",
       "textTotalProducts": "No products | one product | {count} products",
       "buttonAddProduct": "Add product",
+      "buttonCancel": "Cancel",
+      "buttonDelete": "Delete",
       "columnName": "Name",
       "columnManufacturer": "Manufacturer",
       "columnActive": "Active",
@@ -293,7 +295,9 @@
       "contextMenuEdit": "Edit",
       "contextMenuDelete": "Delete",
       "contextMenuDuplicate": "Duplicate",
-      "messageEmpty": "No products yet"
+      "messageEmpty": "No products yet",
+      "modalTitleDelete": "Product",
+      "textDeleteConfirm": "Do you really want to delete the product \"{name}\"?"
     },
     "detail": {
       "textHeadline": "New product",

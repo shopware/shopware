@@ -300,7 +300,9 @@
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern",
       "tabGeneral": "Allgemein",
-      "tabAdvancedPrices": "Erweiterte Preise"
+      "tabAdvancedPrices": "Erweiterte Preise",
+      "titleSaveSuccess": "Produkte",
+      "messageSaveSuccess": "Das Produkt \"{name}\" wurde erfolgreich gespeichert."
     }
   },
   "sw-manufacturer": {

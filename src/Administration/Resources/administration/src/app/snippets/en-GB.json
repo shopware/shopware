@@ -300,7 +300,9 @@
       "buttonCancel": "Cancel",
       "buttonSave": "Save",
       "tabGeneral": "General",
-      "tabAdvancedPrices": "Advanced pricing"
+      "tabAdvancedPrices": "Advanced pricing",
+      "titleSaveSuccess": "Products",
+      "messageSaveSuccess": "The product \"{name}\" was saved successfully."
     }
   },
   "sw-manufacturer": {

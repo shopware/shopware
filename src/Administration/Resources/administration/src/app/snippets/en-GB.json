@@ -27,6 +27,13 @@
     },
     "sw-modal": {
       "labelClose": "Close"
+    },
+    "sw-media-grid-item": {
+      "contextMenu": {
+        "details": "Details",
+        "move": "Move",
+        "delete": "Delete"
+      }
     }
   },
   "sw-login": {

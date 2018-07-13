@@ -39,6 +39,9 @@ Component.register('sw-context-menu-item', {
                 'is--disabled': this.disabled,
                 'sw-context-menu-item--icon': this.icon
             };
+        },
+        contextListeners() {
+            return this.disabled ? {} : this.$listeners;
         }
     }
 });

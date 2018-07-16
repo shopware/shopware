@@ -67,6 +67,9 @@ class EnrichmentTest extends KernelTestCase
     {
         $id = Uuid::uuid4()->getHex();
 
+        $context = $this->context->getContext();
+        $context->getExtension('write_protection')->set('write_media', true);
+
         $this->repository->create([
             [
                 'id' => $id,
@@ -90,7 +93,7 @@ class EnrichmentTest extends KernelTestCase
                     ],
                 ],
             ],
-        ], $this->context->getContext());
+        ], $context);
 
         $cart = new Cart('test', 'test');
         $cart->add(
@@ -123,6 +126,9 @@ class EnrichmentTest extends KernelTestCase
     {
         $id = Uuid::uuid4()->getHex();
 
+        $context = $this->context->getContext();
+        $context->getExtension('write_protection')->set('write_media', true);
+
         $this->repository->create([
             [
                 'id' => $id,
@@ -146,7 +152,7 @@ class EnrichmentTest extends KernelTestCase
                     ],
                 ],
             ],
-        ], $this->context->getContext());
+        ], $context);
 
         $cart = new Cart('test', 'test');
         $cart->add(

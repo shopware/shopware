@@ -57,9 +57,9 @@ class ProductCollector implements CollectorInterface
         $definitions->add(new ProductFetchDefinition($ids));
     }
 
-    public function collect(StructCollection $discountDefinitions, StructCollection $data, Cart $cart, CheckoutContext $context): void
+    public function collect(StructCollection $fetchDefinitions, StructCollection $data, Cart $cart, CheckoutContext $context): void
     {
-        $productDefinitions = $discountDefinitions->filterInstance(ProductFetchDefinition::class);
+        $productDefinitions = $fetchDefinitions->filterInstance(ProductFetchDefinition::class);
 
         if ($productDefinitions->count() <= 0) {
             return;

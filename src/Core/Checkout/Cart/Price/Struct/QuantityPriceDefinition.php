@@ -28,7 +28,7 @@ namespace Shopware\Core\Checkout\Cart\Price\Struct;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\Struct\Struct;
 
-class QuantityPriceDefinition extends Struct implements PriceDefinition
+class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
 {
     /** @var float */
     protected $price;

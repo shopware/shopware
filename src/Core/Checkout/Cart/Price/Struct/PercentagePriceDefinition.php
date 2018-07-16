@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Cart\Price\Struct;
 
 use Shopware\Core\Framework\Rule\Rule;
 
-class PercentagePriceDefinition implements PriceDefinition
+class PercentagePriceDefinition implements PriceDefinitionInterface
 {
     /**
      * @var float

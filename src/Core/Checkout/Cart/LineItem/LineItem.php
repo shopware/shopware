@@ -26,13 +26,13 @@ declare(strict_types=1);
 namespace Shopware\Core\Checkout\Cart\LineItem;
 
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
+use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Price\Struct\Price;
-use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 
 class LineItem extends Struct
 {
@@ -115,9 +115,9 @@ class LineItem extends Struct
     public function __construct(string $key, string $type, int $quantity = 1, int $priority = self::GOODS_PRIORITY)
     {
         $this->key = $key;
-        $this->quantity = $quantity;
         $this->type = $type;
         $this->priority = $priority;
+        $this->setQuantity($quantity);
     }
 
     public static function createFrom(Struct $object)
@@ -198,12 +198,12 @@ class LineItem extends Struct
         return $this;
     }
 
-    public function getPriceDefinition(): ?PriceDefinition
+    public function getPriceDefinition(): ?PriceDefinitionInterface
     {
         return $this->priceDefinition;
     }
 
-    public function setPriceDefinition(?PriceDefinition $priceDefinition): self
+    public function setPriceDefinition(?PriceDefinitionInterface $priceDefinition): self
     {
         $this->priceDefinition = $priceDefinition;
 

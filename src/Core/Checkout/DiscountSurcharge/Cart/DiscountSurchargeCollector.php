@@ -58,9 +58,9 @@ class DiscountSurchargeCollector implements CollectorInterface
         $definitions->add(new DiscountSurchargeFetchDefinition($ruleIds), self::DATA_KEY);
     }
 
-    public function collect(StructCollection $definitions, StructCollection $data, Cart $cart, CheckoutContext $context): void
+    public function collect(StructCollection $fetchDefinitions, StructCollection $data, Cart $cart, CheckoutContext $context): void
     {
-        $discountDefinitions = $definitions->filterInstance(DiscountSurchargeFetchDefinition::class);
+        $discountDefinitions = $fetchDefinitions->filterInstance(DiscountSurchargeFetchDefinition::class);
 
         if ($discountDefinitions->count() === 0) {
             return;

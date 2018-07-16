@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Cart\Price\Struct;
 
 use Shopware\Core\Framework\Rule\Rule;
 
-class AbsolutePriceDefinition implements PriceDefinition
+class AbsolutePriceDefinition implements PriceDefinitionInterface
 {
     /**
      * @var float

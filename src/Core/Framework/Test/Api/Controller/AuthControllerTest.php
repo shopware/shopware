@@ -148,7 +148,7 @@ class AuthControllerTest extends ApiTestCase
             'name' => $username,
             'email' => 'admin@example.com',
             'username' => $username,
-            'password' => password_hash($password, PASSWORD_ARGON2I),
+            'password' => password_hash($password, PASSWORD_BCRYPT),
             'locale_id' => Uuid::fromStringToBytes('7b52d9dd-2b06-40ec-90be-9f57edf29be7'),
             'locale_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
             'locale_tenant_id' => Uuid::fromHexToBytes(Defaults::TENANT_ID),
@@ -216,7 +216,7 @@ class AuthControllerTest extends ApiTestCase
             'tenant_id' => Uuid::fromHexToBytes(Defaults::TENANT_ID),
             'label' => 'test integration',
             'access_key' => $accessKey,
-            'secret_access_key' => password_hash($secretKey, PASSWORD_ARGON2I),
+            'secret_access_key' => password_hash($secretKey, PASSWORD_BCRYPT),
             'write_access' => 1,
             'created_at' => (new \DateTime())->format('Y-m-d H:i:s'),
         ]);

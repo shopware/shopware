@@ -19,6 +19,7 @@ return [
                 'mediaAlbumVersionId' => null,
                 'catalogId' => null,
                 'tenantId' => null,
+                'links' => null,
             ],
             'links' => [
                 'self' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870',
@@ -82,6 +83,7 @@ return [
                 'mediaAlbumVersionId' => null,
                 'catalogId' => null,
                 'tenantId' => null,
+                'links' => null,
             ],
             'relationships' => [
                 'album' => [

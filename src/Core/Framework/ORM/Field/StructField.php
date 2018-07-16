@@ -7,7 +7,7 @@ use Shopware\Core\Framework\ORM\Write\EntityExistence;
 use Shopware\Core\Framework\ORM\Write\Flag\Deferred;
 use Shopware\Core\Framework\ORM\Write\Flag\ReadOnly;
 
-class StructField extends Field implements AssociationInterface
+class StructField extends Field
 {
     /**
      * @var bool

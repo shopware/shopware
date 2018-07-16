@@ -37,7 +37,7 @@
 
                                 {% block sw_multi_select_selection_dismiss %}
                                     <button class="sw-multi-select__selection-dismiss"
-                                            title="Delete"
+                                            :title="$tc('global.sw-multi-select.buttonDismiss')"
                                             @click.prevent="dismissSelection(selection.id)">
                                         {% block sw_multi_select_selection_dismiss_icon %}
                                             <sw-icon name="small-default-x-line-medium"></sw-icon>
@@ -55,6 +55,7 @@
                                            type="text"
                                            :placeholder="placeholder"
                                            v-model="searchTerm"
+                                           @input="onSearchTermChange"
                                            @focus="openResultList"
                                            @keydown.delete="dismissLastSelection">
                                 {% endblock %}

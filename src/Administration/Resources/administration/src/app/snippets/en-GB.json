@@ -36,7 +36,8 @@
       }
     },
     "sw-multi-select": {
-      "messageNoResults": "No Results found for \"{term}\"."
+      "messageNoResults": "No Results found for \"{term}\".",
+      "buttonDismiss": "Dismiss"
     }
   },
   "sw-login": {

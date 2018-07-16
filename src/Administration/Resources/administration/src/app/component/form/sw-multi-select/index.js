@@ -1,4 +1,5 @@
 import { Component } from 'src/core/shopware';
+import utils from 'src/core/service/util.service';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import './sw-multi-select.less';
 import template from './sw-multi-select.html.twig';
@@ -38,11 +39,6 @@ Component.register('sw-multi-select', {
             required: false,
             default: 200
         },
-        searchDelayTime: {
-            type: Number,
-            required: false,
-            default: 400
-        },
         entityName: {
             type: String,
             required: false,
@@ -68,8 +64,7 @@ Component.register('sw-multi-select', {
             selections: [],
             activeResultPosition: 0,
             isLoading: false,
-            hasError: false,
-            timeout: null
+            hasError: false
         };
     },
 
@@ -84,7 +79,6 @@ Component.register('sw-multi-select', {
     },
 
     watch: {
-        searchTerm: 'onSearchTermChange',
         value() {
             if (this.initialSelection) {
                 return;
@@ -144,14 +138,12 @@ Component.register('sw-multi-select', {
         },
 
         loadResults() {
-            this.timeout = setTimeout(() => {
-                this.serviceProvider.getList(0, this.resultsLimit, { term: this.searchTerm }).then((response) => {
-                    this.results = response.data;
-                    this.isLoading = false;
+            this.serviceProvider.getList(0, this.resultsLimit, { term: this.searchTerm }).then((response) => {
+                this.results = response.data;
+                this.isLoading = false;
 
-                    this.scrollToResultsTop();
-                });
-            }, this.searchDelayTime);
+                this.scrollToResultsTop();
+            });
         },
 
         loadPreviewResults() {
@@ -173,18 +165,19 @@ Component.register('sw-multi-select', {
         },
 
         onSearchTermChange() {
-            this.activeResultPosition = 0;
             this.isLoading = true;
 
-            clearTimeout(this.timeout);
+            this.doSearch();
+        },
 
+        doSearch: utils.debounce(function debouncedSearch() {
             if (this.searchTerm.length > 0) {
                 this.loadResults();
             } else {
                 this.loadPreviewResults();
                 this.scrollToResultsTop();
             }
-        },
+        }, 400),
 
         setActiveResultPosition(index) {
             this.activeResultPosition = index;
@@ -226,6 +219,7 @@ Component.register('sw-multi-select', {
         },
 
         scrollToResultsTop() {
+            this.activeResultPosition = 0;
             this.$refs.swMultiSelect.querySelector('.sw-multi-select__results').scrollTop = 0;
         },
 

@@ -171,7 +171,7 @@ class AuditLogSearchTest extends KernelTestCase
                AND c.version_id = :version
              WHERE entity_name = :entity 
              AND JSON_EXTRACT(entity_id, '$.id') = :id
-             ORDER BY ai",
+             ORDER BY auto_increment",
             [
                 'entity' => $entity,
                 'id' => $id,

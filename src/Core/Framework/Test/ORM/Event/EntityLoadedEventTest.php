@@ -176,11 +176,6 @@ class TestDefinition extends EntityDefinition
         return 'test';
     }
 
-    public static function getRepositoryClass(): string
-    {
-        return '';
-    }
-
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([

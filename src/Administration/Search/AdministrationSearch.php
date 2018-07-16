@@ -17,6 +17,7 @@ use Shopware\Core\Framework\ORM\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\ORM\Search\Term\SearchTermInterpreter;
 use Shopware\Core\Framework\Struct\ArrayStruct;
+use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataCollection;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class AdministrationSearch
@@ -104,7 +105,7 @@ class AdministrationSearch
      */
     private function searchDefinition(string $definition, string $term, Context $context): EntitySearchResult
     {
-        $repository = $this->container->get($definition::getRepositoryClass());
+        $repository = $this->container->get($definition::getEntityName() . '.repository');
 
         $pattern = $this->interpreter->interpret($term, $context);
 
@@ -143,7 +144,8 @@ class AdministrationSearch
         $criteria->addSorting(new FieldSorting('version_commit_data.autoIncrement', 'DESC'));
         $criteria->setLimit(100);
 
-        $changes = $this->changesRepository->search($criteria, $context);
+        /** @var VersionCommitDataCollection $changes */
+        $changes = $this->changesRepository->search($criteria, $context)->getEntities();
 
         foreach ($results as $definition => $entities) {
             $definitionChanges = $changes->filterByEntity($definition);

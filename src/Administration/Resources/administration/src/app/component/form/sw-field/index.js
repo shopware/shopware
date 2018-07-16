@@ -1,4 +1,5 @@
 import { Component, Mixin, State } from 'src/core/shopware';
+import utils from 'src/core/service/util.service';
 import template from './sw-field.html.twig';
 import './sw-field.less';
 
@@ -19,10 +20,6 @@ Component.register('sw-field', {
             type: String,
             required: false,
             default: 'text'
-        },
-        name: {
-            type: String,
-            required: false
         },
         label: {
             type: String,
@@ -81,6 +78,10 @@ Component.register('sw-field', {
     computed: {
         hasSuffix() {
             return this.suffix.length || !!this.$slots.suffix;
+        },
+
+        name() {
+            return `sw-field--${utils.createId()}`;
         },
 
         errorStore() {

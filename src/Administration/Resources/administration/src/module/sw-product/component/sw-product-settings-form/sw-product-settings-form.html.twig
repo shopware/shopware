@@ -6,7 +6,6 @@
 
                 {% block sw_product_settings_form_create_date_field %}
                     <sw-field type="datetime"
-                              name="createdAt"
                               :label="$tc('sw-product.settingsForm.labelCreatedAt')"
                               :placeholder="$tc('sw-product.settingsForm.placeholderCreatedAt')"
                               v-model="product.createdAt">
@@ -16,7 +15,6 @@
 
                 {% block sw_product_settings_form_release_date_field %}
                     <sw-field type="datetime"
-                              name="releaseDate"
                               :label="$tc('sw-product.settingsForm.labelReleaseDate')"
                               :placeholder="$tc('sw-product.settingsForm.placeholderReleaseDate')"
                               v-model="product.releaseDate">
@@ -28,7 +26,6 @@
             <sw-container grid="1fr 1fr 1fr 1fr" gap="0px 30px">
                 {% block sw_product_settings_form_width_field %}
                     <sw-field type="number"
-                              name="width"
                               :label="$tc('sw-product.settingsForm.labelWidth')"
                               :placeholder="$tc('sw-product.settingsForm.placeholderWidth')"
                               suffix="mm"
@@ -39,7 +36,6 @@
 
                 {% block sw_product_settings_form_height_field %}
                     <sw-field type="number"
-                              name="height"
                               :label="$tc('sw-product.settingsForm.labelHeight')"
                               :placeholder="$tc('sw-product.settingsForm.placeholderHeight')"
                               suffix="mm"
@@ -50,7 +46,6 @@
 
                 {% block sw_product_settings_form_length_field %}
                     <sw-field type="number"
-                              name="length"
                               :label="$tc('sw-product.settingsForm.labelLength')"
                               :placeholder="$tc('sw-product.settingsForm.placeholderLength')"
                               suffix="mm"
@@ -61,7 +56,6 @@
 
                 {% block sw_product_settings_form_weight_field %}
                     <sw-field type="number"
-                              name="weight"
                               :label="$tc('sw-product.settingsForm.labelWeight')"
                               :placeholder="$tc('sw-product.settingsForm.placeholderWeight')"
                               suffix="kg"
@@ -76,7 +70,6 @@
 
                     {% block sw_product_settings_form_min_purchase_field %}
                         <sw-field type="number"
-                                  name="minPurchase"
                                   :label="$tc('sw-product.settingsForm.labelMinPurchase')"
                                   :placeholder="$tc('sw-product.settingsForm.placeholderMinPurchase')"
                                   v-model="product.minPurchase">
@@ -85,7 +78,6 @@
 
                     {% block sw_product_settings_form_max_purchase_field %}
                         <sw-field type="number"
-                                  name="maxPurchase"
                                   :label="$tc('sw-product.settingsForm.labelMaxPurchase')"
                                   :placeholder="$tc('sw-product.settingsForm.placeholderMaxPurchase')"
                                   v-model="product.maxPurchase">
@@ -95,7 +87,6 @@
 
                 {% block sw_product_settings_form_ean_field %}
                     <sw-field type="text"
-                              name="ean"
                               :label="$tc('sw-product.settingsForm.labelEan')"
                               :placeholder="$tc('sw-product.settingsForm.placeholderEan')"
                               v-model="product.ean">
@@ -106,7 +97,6 @@
             <sw-container grid="1fr 1fr" gap="0px 30px">
                 {% block sw_product_settings_form_pseudo_sales_field %}
                     <sw-field type="number"
-                              name="pseudoSales"
                               :label="$tc('sw-product.settingsForm.labelPseudoSales')"
                               :placeholder="$tc('sw-product.settingsForm.placeholderPseudoSales')"
                               v-model="product.pseudoSales">
@@ -116,7 +106,6 @@
                 <sw-container grid="1fr 1fr" gap="0px 30px" align="center">
                     {% block sw_product_settings_form_shipping_free_field %}
                         <sw-field type="checkbox"
-                                  name="shippingFree"
                                   :label="$tc('sw-product.settingsForm.labelShippingFree')"
                                   v-model="product.shippingFree">
                         </sw-field>
@@ -124,7 +113,6 @@
 
                     {% block sw_product_settings_form_mark_as_topseller_field %}
                         <sw-field type="checkbox"
-                                  name="markAsTopseller"
                                   :label="$tc('sw-product.settingsForm.labelMarkAsTopseller')"
                                   v-model="product.markAsTopseller">
                         </sw-field>

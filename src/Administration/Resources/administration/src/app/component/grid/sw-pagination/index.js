@@ -83,6 +83,10 @@ Component.register('sw-pagination', {
             });
         },
 
+        onPageSizeChange() {
+            this.firstPage();
+        },
+
         firstPage() {
             this.currentPage = 1;
             this.pageChange();

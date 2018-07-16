@@ -39,6 +39,12 @@ Component.register('sw-customer-list', {
 
             this.customers = [];
 
+            // Use the customer number as the default sorting
+            if (!params.sortBy && !params.sortDirection) {
+                params.sortBy = 'number';
+                params.sortDirection = 'DESC';
+            }
+
             return this.customerStore.getList(params).then((response) => {
                 this.total = response.total;
                 this.customers = response.items;

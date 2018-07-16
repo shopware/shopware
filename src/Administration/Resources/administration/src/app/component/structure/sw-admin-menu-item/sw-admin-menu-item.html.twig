@@ -4,7 +4,7 @@
         @click="$emit('listItemClicked', entry, $event.currentTarget)"
         @mouseover="$emit('menuItemChanged', entry, $event.currentTarget)">
 
-        {% block sw_admin_menu_item_link %}
+        {% block sw_admin_menu_item_router_link %}
             <router-link class="sw-admin-menu__navigation-link" :to="{ name: entry.path }" v-if="entry.path">
 
                 {% block sw_admin_menu_item_icon %}
@@ -22,7 +22,32 @@
                     </span>
                 {% endblock %}
             </router-link>
+        {% endblock %}
 
+        {% block sw_admin_menu_item_external_link %}
+            <a v-else-if="entry.link"
+               :href="entry.link"
+               :target="entry.target"
+               :title="$tc(entry.label)"
+               class="sw-admin-menu__navigation-link">
+                {% block sw_admin_menu_item_icon %}
+                    <sw-icon v-if="displayIcon"
+                             size="20px"
+                             class="sw-admin-menu__navigation-link-icon"
+                             :name="getIconName(entry.icon)"
+                             :style="{ 'color': entry.color }">
+                    </sw-icon>
+                {% endblock %}
+
+                {% block sw_admin_menu_item_text %}
+                    <span :class="collapsibleText ? 'collapsible-text' : ''">
+                            {{ $tc(entry.label) }}
+                        </span>
+                {% endblock %}
+            </a>
+        {% endblock %}
+
+        {% block sw_admin_menu_item_navigation_link %}
             <span class="sw-admin-menu__navigation-link"
                   :class="startupClass" v-else>
                 {% block sw_admin_menu_item_icon %}

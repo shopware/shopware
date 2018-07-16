@@ -2,7 +2,7 @@
     <div class="sw-grid" :class="gridClasses">
         <slot name="content">
             {% block sw_grid_slot_content %}
-                <div class="sw-grid__content" :class="{ 'sw-grid__content--header': header, 'sw-grid__content--pagination': pagination }">
+                <div class="sw-grid__content" :class="gridContentClasses">
 
                     <slot name="header" v-if="header">
                         {% block sw_grid_slot_header %}
@@ -76,7 +76,7 @@
                     </slot>
 
                     {% block sw_grid_pagination %}
-                        <div class="sw-grid__pagination" v-if="pagination">
+                        <div class="sw-grid__pagination" v-if="hasPaginationSlot">
                             <slot name="pagination">{% block sw_grid_slot_pagination %}{% endblock %}</slot>
                         </div>
                     {% endblock %}

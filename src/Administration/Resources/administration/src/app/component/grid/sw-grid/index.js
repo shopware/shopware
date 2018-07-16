@@ -37,12 +37,6 @@ Component.register('sw-grid', {
             default: true
         },
 
-        pagination: {
-            type: Boolean,
-            required: false,
-            default: false
-        },
-
         sortBy: {
             type: String,
             required: false
@@ -89,12 +83,23 @@ Component.register('sw-grid', {
             return `sw-grid--${this.variant}`;
         },
 
+        hasPaginationSlot() {
+            return !!this.$slots.pagination;
+        },
+
         gridClasses() {
             return {
                 'sw-grid--sidebar': this.sidebar,
                 'sw-grid--fullpage': this.isFullpage,
                 'sw-grid--table': this.table,
                 [this.sizeClass]: true
+            };
+        },
+
+        gridContentClasses() {
+            return {
+                'sw-grid__content--header': this.header,
+                'sw-grid__content--pagination': this.hasPaginationSlot
             };
         },
 

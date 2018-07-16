@@ -1,4 +1,5 @@
 import { warn } from 'src/core/service/utils/debug.utils';
+import { hasOwnProperty } from 'src/core/service/utils/object.utils';
 
 /**
  * The flat tree converts a collection of flat objects into a data tree hierarchy.
@@ -56,6 +57,19 @@ class FlatTree {
      */
     add(node) {
         const nodeIdentifier = node.id || node.path;
+
+        if (!nodeIdentifier) {
+            warn(
+                'FlatTree',
+                'The node needs an "id" or "path" property. Abort registration.',
+                node
+            );
+            return this;
+        }
+
+        if (hasOwnProperty(node, 'link') && !hasOwnProperty(node, 'target')) {
+            node.target = '_self';
+        }
 
         if (this._registeredNodes.has(nodeIdentifier)) {
             warn(

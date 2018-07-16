@@ -40,7 +40,6 @@
                         {% block sw_login_user_field %}
                             <sw-field :class="{ 'has--error' : authStore.errorTitle.length && authStore.errorMessage.length }"
                                       v-model="authStore.username"
-                                      name="username"
                                       :label="$tc('sw-login.index.labelUsername')"
                                       :placeholder="$tc('sw-login.index.placeholderUsername')">
                             </sw-field>
@@ -49,7 +48,6 @@
                         {% block sw_login_password_field %}
                             <sw-field :class="{ 'has--error' : authStore.errorTitle.length && authStore.errorMessage.length }"
                                       v-model="authStore.password"
-                                      name="password"
                                       :label="$tc('sw-login.index.labelPassword')"
                                       :placeholder="$tc('sw-login.index.placeholderPassword')"
                                       type="password">

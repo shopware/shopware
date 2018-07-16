@@ -51,12 +51,12 @@
                         </sw-container>
 
                         {% block sw_manufacturer_detail_base_info_field_description %}
-                            <sw-field type="textarea"
+                            <sw-text-editor
                                       :label="$tc('sw-manufacturer.detail.labelDescription')"
                                       :placeholder="$tc('sw-manufacturer.detail.placeholderDescription')"
                                       name="description"
                                       v-model="manufacturer.description">
-                            </sw-field>
+                            </sw-text-editor>
                         {% endblock %}
 
                         {% block sw_manufacturer_detail_base_info_field_link %}

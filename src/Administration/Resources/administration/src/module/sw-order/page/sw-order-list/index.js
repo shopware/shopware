@@ -50,6 +50,12 @@ Component.register('sw-order-list', {
 
             this.orders = [];
 
+            // Use the order date as the default sorting
+            if (!params.sortBy && !params.sortDirection) {
+                params.sortBy = 'date';
+                params.sortDirection = 'DESC';
+            }
+
             return this.orderStore.getList(params).then((response) => {
                 this.total = response.total;
                 this.orders = response.items;

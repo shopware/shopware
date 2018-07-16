@@ -151,6 +151,13 @@ abstract class Field extends Struct
         return $this;
     }
 
+    public function addFlags(Flag ...$flags): self
+    {
+        $this->flags = array_merge($this->flags, $flags);
+
+        return $this;
+    }
+
     /**
      * @param string $class
      *

@@ -112,10 +112,10 @@ class EntityProxy {
         if (Object.keys(changes).length) {
             this.draft = Object.assign(deepCopyObject(data), this.draft);
         } else {
-            this.draft = deepCopyObject(data);
+            this.draft = Object.assign(this.draft, deepCopyObject(data));
         }
 
-        this.original = deepCopyObject(data);
+        this.original = Object.assign(this.original, deepCopyObject(data));
 
         return this;
     }

@@ -1,34 +1,51 @@
 import { Component } from 'src/core/shopware';
-import template from './sw-media-grid.twig';
-import gridStyles from '../gridStyles';
+import mediaGridPreviewTypes from '../mediaGridPreviewTypes';
+import template from './sw-media-grid.html.twig';
 import './sw-media-grid.less';
-import '../sw-media-grid-item';
 
 Component.register('sw-media-grid', {
     template,
 
     props: {
-        mediaGridStyle: {
+        previewType: {
             required: true,
             type: String,
             validator(value) {
-                return [gridStyles.MEDIA_GRID_TYPE_LIST, gridStyles.MEDIA_GRID_TYPE_GRID].includes(value);
+                return [
+                    mediaGridPreviewTypes.MEDIA_GRID_PREVIEW_TYPE_LIST,
+                    mediaGridPreviewTypes.MEDIA_GRID_PREVIEW_TYPE_GRID
+                ].includes(value);
             }
+        },
+        previewComponent: {
+            require: true,
+            type: String
+        },
+        items: {
+            required: true,
+            type: Array
+        },
+        idField: {
+            required: false,
+            default: 'id',
+            type: String
+        },
+        editable: {
+            required: false,
+            type: Boolean,
+            default: false
+        },
+        selectable: {
+            required: false,
+            type: Boolean,
+            default: true
         },
         gridColumnWidth: {
             required: false,
-            default: 128,
             type: Number,
+            default: 200,
             validator(value) {
                 return value > 0;
-            }
-        },
-        mediaItems: {
-            required: true,
-            type: Array,
-            validator() {
-                /* TODO @SE: add validation for media-entity */
-                return true;
             }
         }
     },
@@ -40,13 +57,10 @@ Component.register('sw-media-grid', {
     },
 
     computed: {
-        showItemsInline() {
-            return this.mediaGridStyle === gridStyles.MEDIA_GRID_TYPE_LIST;
-        },
         mediaColumnDefinitions() {
             let columnDefinition;
 
-            if (this.showItemsInline) {
+            if (this.previewType === mediaGridPreviewTypes.MEDIA_GRID_PREVIEW_TYPE_LIST) {
                 columnDefinition = '100%';
             } else {
                 columnDefinition = `repeat(auto-fit, ${this.gridColumnWidth}px)`;
@@ -56,8 +70,17 @@ Component.register('sw-media-grid', {
                 'grid-template-columns': columnDefinition
             };
         },
-        showCheckboxes() {
-            return this.selection.length > 0;
+        showSelectedIndicator() {
+            return this.selectable && this.selection.length > 0;
+        },
+        containerOptions() {
+            return {
+                previewType: this.previewType,
+                selectionInProgress: this.showSelectedIndicator,
+                previewSize: this.gridColumnWidth,
+                selectable: this.selectable,
+                editable: this.editable
+            };
         }
     },
 
@@ -65,26 +88,37 @@ Component.register('sw-media-grid', {
         clearSelection() {
             this.selection = [];
         },
-        isItemSelected(mediaItem) {
+        isItemSelected(item) {
             if (this.selection.length === 0) {
                 return false;
             }
 
             const index = this.selection.findIndex((element) => {
-                return (element.id === mediaItem.id);
+                return (element[this.idField] === item[this.idField]);
             });
 
             return index > -1;
         },
-        addToSelection(mediaItem) {
-            if (!this.isItemSelected(mediaItem)) {
-                this.selection.push(mediaItem);
+        addToSelection(item) {
+            if (!this.selectable) {
+                return;
+            }
+
+            if (!this.isItemSelected(item)) {
+                this.selection.push(item);
             }
         },
-        removeFromSelection(mediaItem) {
+        removeFromSelection(item) {
             this.selection = this.selection.filter((element) => {
-                return !(element.id === mediaItem.id);
+                return !(element[this.idField] === item[this.idField]);
             });
+        },
+        forwardItemEvent(mediaItemEvent) {
+            this.$emit(mediaItemEvent);
+        },
+        forwardBatchEvent(mediaItemEvent) {
+            mediaItemEvent.selection = this.selection;
+            this.$emit(mediaItemEvent);
         }
     }
 });

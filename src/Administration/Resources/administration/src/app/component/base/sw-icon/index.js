@@ -17,7 +17,7 @@ Component.register('sw-icon', {
             required: false
         },
         size: {
-            type: String,
+            type: [String, Number],
             required: false
         },
         title: {

@@ -1,22 +1,21 @@
 @import "~less/variables";
 
-@sw-media-grid-cell-color-highlight: @color-cadet-blue;
+@media-grid-cell-color-highlight: @color-cadet-blue;
 
-.sw-media-grid {
+.media-grid {
     width: 100%;
     justify-self: stretch;
     overflow-x: hidden;
     overflow-y: auto;
 
-    .sw-media-grid__content {
+    .media-grid__content {
         display: grid;
-        grid-gap: 10px 10px;
         justify-items: stretch;
-        justify-content: center;
+        justify-content: space-evenly;
         grid-auto-flow: row;
 
-        .sw-media-grid-content__cell:hover {
-            background-color: @sw-media-grid-cell-color-highlight;
+        .media-grid-content__cell:hover {
+            background-color: @media-grid-cell-color-highlight;
             border-radius: 5px;
         }
     }

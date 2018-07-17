@@ -31,6 +31,7 @@
     "sw-media-grid-item": {
       "contextMenu": {
         "details": "Information",
+        "edit": "Bearbeiten",
         "move": "Verschieben",
         "delete": "Löschen"
       }
@@ -411,6 +412,16 @@
       "labelShippingCosts": "Versandkosten",
       "buttonMerge": "Lieferung zusammenfügen",
       "buttonDelete": "Löschen"
+    }
+  },
+  "sw-mediamanager": {
+    "general": {
+      "mainMenuItemGeneral": "Mediamanager",
+      "descriptionTextModule": "Modul zum Verwalten von Mediendateien"
+    },
+    "rootview": {
+      "jumpIntoCatalogue": "In Ordneransicht wechseln",
+      "showCatalogueDetails": "Katalogdetails anzeigen"
     }
   }
 }

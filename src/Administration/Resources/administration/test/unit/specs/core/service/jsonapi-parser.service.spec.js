@@ -77,6 +77,7 @@ describe('core/service/jsonapi-parser.service.js', () => {
                 }
             }],
             associations: {},
+            aggregations: null,
             parsed: true
         }));
     });

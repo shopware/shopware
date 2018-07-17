@@ -108,7 +108,8 @@ function parseDataStructure(json) {
         links: null,
         errors: null,
         data: null,
-        associations: null
+        associations: null,
+        aggregations: null
     };
 
     // Errors will be returned right away, we don't need to convert anything

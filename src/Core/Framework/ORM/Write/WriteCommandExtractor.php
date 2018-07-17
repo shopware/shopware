@@ -31,6 +31,7 @@ use Shopware\Core\Framework\ORM\Field\Field;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\ORM\Field\ReferenceField;
+use Shopware\Core\Framework\ORM\Field\UpdatedAtField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Command\InsertCommand;
 use Shopware\Core\Framework\ORM\Write\Command\UpdateCommand;
@@ -129,7 +130,7 @@ class WriteCommandExtractor
 
                 $create = !$existence->exists() || $existence->childChangedToParent();
 
-                if (!$create) {
+                if (!$create && !$field instanceof UpdatedAtField) {
                     //update statement
                     continue;
                 }
@@ -226,6 +227,7 @@ class WriteCommandExtractor
                 $sorted[] = $field;
             }
         }
+
         return $sorted;
     }
 
@@ -339,6 +341,7 @@ class WriteCommandExtractor
 
     /**
      * @param Field[] $fields
+     *
      * @return Field[]
      */
     private function getMainFields(array $fields): array

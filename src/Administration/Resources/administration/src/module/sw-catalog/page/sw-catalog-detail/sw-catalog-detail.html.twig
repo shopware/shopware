@@ -159,7 +159,7 @@
                                                                             {% endblock %}
 
                                                                             {% block sw_catalog_detail_categories_tree_items_item_actions_delete %}
-                                                                                <sw-context-menu-item icon="small-default-x-line-medium" variant="danger">
+                                                                                <sw-context-menu-item icon="small-default-x-line-medium" variant="danger" @click="onDeleteCategory(item)">
                                                                                     {{ $tc('sw-catalog.detail.contextButtonDeleteCategory') }}
                                                                                 </sw-context-menu-item>
                                                                             {% endblock %}

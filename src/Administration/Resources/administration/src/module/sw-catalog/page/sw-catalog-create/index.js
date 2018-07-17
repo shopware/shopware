@@ -23,14 +23,8 @@ Component.extend('sw-catalog-create', 'sw-catalog-detail', {
         },
 
         onSave() {
-            this.isLoading = true;
-
-            return this.catalog.save().then((catalog) => {
-                return this.categoryStore.sync().then(() => {
-                    this.$router.push({ name: 'sw.catalog.detail', params: { id: catalog.id } });
-                });
-            }).catch(() => {
-                this.isLoading = false;
+            this.$super.onSave().then((catalog) => {
+                this.$router.push({ name: 'sw.catalog.detail', params: { id: catalog.id } });
             });
         }
     }

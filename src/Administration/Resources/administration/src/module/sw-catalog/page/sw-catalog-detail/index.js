@@ -157,6 +157,10 @@ Component.register('sw-catalog-detail', {
             this.currentEditCategory = null;
         },
 
+        onDeleteCategory(item) {
+            item.data.delete();
+        },
+
         searchCategories(searchTerm) {
             let parentId = false;
 
@@ -170,13 +174,22 @@ Component.register('sw-catalog-detail', {
 
         onSave() {
             this.isLoading = true;
+            const associatedCategoryStore = this.catalog.getAssociationStore('categories');
 
-            return this.categoryStore.sync().then(() => {
-                return this.catalog.save().then(() => {
-                    this.isLoading = false;
-                });
-            }).catch(() => {
+            Object.keys(this.categoryStore.store).forEach((id) => {
+                const category = this.categoryStore.store[id];
+
+                if (!category.catalogId === this.catalogId) {
+                    return;
+                }
+
+                associatedCategoryStore.add(category);
+            });
+
+            return this.catalog.save().then((response) => {
                 this.isLoading = false;
+
+                return response;
             });
         }
     }

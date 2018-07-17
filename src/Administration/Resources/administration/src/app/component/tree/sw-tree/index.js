@@ -86,6 +86,10 @@ Component.register('sw-tree', {
             const treeItems = [];
 
             this.items.forEach((item) => {
+                if (item.isDeleted) {
+                    return;
+                }
+
                 if (parentId === false && typeof this.items.find(i => i.id === item.parentId) !== 'undefined') {
                     return;
                 }

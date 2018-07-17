@@ -49,7 +49,11 @@ class EntityStore {
             return this.store[id];
         }
 
-        this.createEntityInStore(id);
+        const entity = Entity.getRawEntityObject(this.entityName, true);
+        entity.id = id;
+
+        this.store[id] = new this.EntityClass(this.entityName, this.apiService, entity);
+        this.store[id].$store = this;
 
         this.store[id].isLoading = true;
         this.apiService.getById(id, additionalParams, additionalHeaders).then((response) => {
@@ -101,7 +105,8 @@ class EntityStore {
                     this.store[item.id].initData(item);
                     return this.getById(item.id);
                 }
-                const entity = this.create(item.id, item);
+
+                const entity = new this.EntityClass(this.entityName, this.apiService, item);
                 return this.add(entity);
             });
 
@@ -138,16 +143,26 @@ class EntityStore {
      *
      * @param {String} id
      * @param {Object} [entityData = {}]
+     * @param {Boolean} [isAddition = false]
      * @return {EntityProxy}
      */
-    create(id = utils.createId(), entityData = {}) {
+    create(id = utils.createId(), entityData = {}, isAddition = false) {
         if (typeof this.store[id] !== 'undefined') {
             return this.store[id];
         }
 
-        entityData = Object.assign({ isNew: true }, entityData);
+        const entity = Entity.getRawEntityObject(this.entityName, true);
 
-        return this.createEntityInStore(id, {}, entityData);
+        Object.assign(entity, entityData);
+        entity.id = id;
+
+        this.store[id] = new this.EntityClass(this.entityName, this.apiService, entity);
+
+        this.store[id].isNew = true;
+        this.store[id].isAddition = isAddition;
+        this.store[id].$store = this;
+
+        return this.store[id];
     }
 
     /**
@@ -163,24 +178,31 @@ class EntityStore {
             return false;
         }
 
-        this.store[id] = Object.assign(entity, { $store: this });
+        entity.$store = this;
+
+        this.store[id] = entity;
         return this.store[id];
     }
 
     /**
      * Adds a relationship to the store
      *
-     * @param {EntityProxy} data
+     * @param {EntityProxy} entity
      * @returns {Boolean|EntityProxy}
      */
-    addAddition(data) {
-        const id = data.id;
+    addAddition(entity) {
+        const id = entity.id;
 
         if (!id || !id.length) {
             return false;
         }
 
-        return this.createEntityInStore(id, {}, Object.assign(data, { isAddition: true }));
+        entity.$store = this;
+
+        this.store[id] = entity;
+        this.store[id].isAddition = true;
+
+        return this.store[id];
     }
 
     /**
@@ -283,28 +305,6 @@ class EntityStore {
     }
 
     /**
-     * Helper function to create new entities in the store.
-     *
-     * @private
-     * @param {String} id
-     * @param {Object} [storeOpts = {}]
-     * @param {Object} [entityOpts = {}]
-     * @return {EntityProxy}
-     */
-    createEntityInStore(id = utils.createId(), storeOpts = {}, entityOpts = {}) {
-        const entity = Entity.getRawEntityObject(this.entityName, true);
-
-        Object.assign(entity, entityOpts);
-        entity.id = id;
-
-        this.store[id] = new this.EntityClass(this.entityName, this.apiService, entity);
-        this.store[id].$store = this;
-        Object.assign(this.store[id], storeOpts);
-
-        return this.store[id];
-    }
-
-    /**
      * Returns the changed entity ids.
      *
      * @returns {Array<String>}
@@ -319,7 +319,7 @@ class EntityStore {
     /**
      * Getter for the api service.
      *
-     * @return {Object}
+     * @return {ApiService}
      */
     get apiService() {
         return this._apiService;

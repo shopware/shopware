@@ -158,7 +158,7 @@ class EntityProxy {
             // When the association gets data on the initial call, we're adding them straight away
             if (hasOwnProperty(this.draft, name) && this.draft[name].length) {
                 this.draft[name].forEach((item) => {
-                    const entity = store.create(item.id, Object.assign(item, { isNew: false }));
+                    const entity = new EntityProxy(this.entityName, this.apiService, item);
                     store.add(entity);
                 });
             }
@@ -174,7 +174,8 @@ class EntityProxy {
     }
 
     /**
-     * Returns an association stores if it exists. Otherwise it will return a falsy value.
+     * Returns an association store if it exists.
+     * Otherwise it will return a falsy value.
      *
      * @param {String} storeName
      * @returns {Boolean|EntityStore}
@@ -225,6 +226,7 @@ class EntityProxy {
      */
     save(syncAssociations = true, changesetIncludeAssociations = false) {
         const changeset = this.getChanges(changesetIncludeAssociations);
+        const associationCue = [];
 
         // Apply the association changes to the changeset, so we're just having one request to update associations
         if (syncAssociations) {
@@ -232,6 +234,10 @@ class EntityProxy {
                 Object.keys(associationStore.store).forEach((entityId) => {
                     const storeEntity = associationStore.store[entityId];
                     const changes = storeEntity.getChanges();
+
+                    if (storeEntity.isDeleted) {
+                        return;
+                    }
 
                     if (!storeEntity.isAddition && !Object.keys(changes).length) {
                         return;
@@ -248,17 +254,15 @@ class EntityProxy {
         }
 
         /**
-         * The association stores will be automatically synced (deletions only), the rest will be send using the main
-         * entry using the generated changeset.
+         * The association stores will be automatically synced (deletions only),
+         * the rest will be send using the main entry using the generated changeset.
          */
         if (syncAssociations) {
             this.associationStores.forEach((store) => {
-                store.sync(true);
+                associationCue.push(new Promise((resolve, reject) => {
+                    store.sync(true).then(resolve).catch(reject);
+                }));
             });
-        }
-
-        if (!Object.keys(changeset).length) {
-            return Promise.resolve(this.exposedData);
         }
 
         this.isLoading = true;
@@ -266,23 +270,59 @@ class EntityProxy {
         if (this.isNew) {
             changeset.id = this.id;
 
-            return this.apiService.create(changeset)
-                .then((response) => {
-                    this.isLoading = false;
-
-                    if (response.data) {
-                        this.initData(response.data);
+            if (syncAssociations && associationCue.length) {
+                return Promise.all(associationCue).then(() => {
+                    if (!Object.keys(changeset).length) {
+                        return Promise.resolve(this.exposedData);
                     }
 
-                    return Promise.resolve(this.exposedData);
-                })
-                .catch((exception) => {
-                    this.isLoading = false;
-                    return Promise.reject(this.handleException(exception));
+                    return this.sendCreateRequest(changeset);
                 });
+            }
+
+            if (!Object.keys(changeset).length) {
+                return Promise.resolve(this.exposedData);
+            }
+
+            return this.sendCreateRequest(changeset);
         }
 
-        return this.apiService.updateById(this.id, changeset)
+        if (syncAssociations && associationCue.length) {
+            return Promise.all(associationCue).then(() => {
+                if (!Object.keys(changeset).length) {
+                    return Promise.resolve(this.exposedData);
+                }
+
+                return this.sendUpdateRequest(changeset);
+            });
+        }
+
+        if (!Object.keys(changeset).length) {
+            return Promise.resolve(this.exposedData);
+        }
+
+        return this.sendUpdateRequest(changeset);
+    }
+
+    sendCreateRequest(changeset) {
+        return this.apiService.create(changeset, { _response: true })
+            .then((response) => {
+                this.isLoading = false;
+
+                if (response.data) {
+                    this.initData(response.data);
+                }
+
+                return Promise.resolve(this.exposedData);
+            })
+            .catch((exception) => {
+                this.isLoading = false;
+                return Promise.reject(this.handleException(exception));
+            });
+    }
+
+    sendUpdateRequest(changeset) {
+        return this.apiService.updateById(this.id, changeset, { _response: true })
             .then((response) => {
                 this.isLoading = false;
 

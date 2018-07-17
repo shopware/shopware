@@ -98,7 +98,7 @@ class ApiService {
             return Promise.reject(new Error('Missing required argument: id'));
         }
 
-        const params = Object.assign({}, additionalParams);
+        const params = additionalParams;
         const headers = this.getBasicHeaders(additionalHeaders);
 
         return this.httpClient
@@ -147,7 +147,7 @@ class ApiService {
      * @returns {Promise<T>}
      */
     create(payload, additionalParams = {}, additionalHeaders = {}) {
-        const params = Object.assign({}, additionalParams);
+        const params = additionalParams;
         const headers = this.getBasicHeaders(additionalHeaders);
 
         return this.httpClient

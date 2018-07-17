@@ -179,18 +179,6 @@ class EntityAggregator implements EntityAggregatorInterface
             return $query->execute()->fetch(\PDO::FETCH_ASSOC);
         }
 
-        if ($aggregation instanceof StatsAggregation) {
-            $query->select([
-                'COUNT(' . $accessor . ')' . ' as `count`',
-                'AVG(' . $accessor . ')' . ' as `avg`',
-                'SUM(' . $accessor . ')' . ' as `sum`',
-                'MIN(' . $accessor . ')' . ' as `min`',
-                'MAX(' . $accessor . ')' . ' as `max`',
-            ]);
-
-            return $query->execute()->fetch(\PDO::FETCH_ASSOC);
-        }
-
         if ($aggregation instanceof CardinalityAggregation) {
             $query->select([$accessor]);
             $query->groupBy($accessor);

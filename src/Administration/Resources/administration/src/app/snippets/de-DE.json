@@ -68,6 +68,12 @@
       "buttonLogin": "Anmelden"
     }
   },
+  "sw-image": {
+    "context": {
+      "buttonAsCover": "Als Cover nutzen",
+      "buttonDelete": "Löschen"
+    }
+  },
   "sw-customer": {
     "general": {
       "mainMenuItemGeneral": "Kunden",
@@ -371,6 +377,9 @@
       "tabAdvancedPrices": "Erweiterte Preise",
       "titleSaveSuccess": "Produkte",
       "messageSaveSuccess": "Das Produkt \"{name}\" wurde erfolgreich gespeichert."
+    },
+    "file-upload": {
+      "buttonUpload": "Datei hochladen"
     }
   },
   "sw-manufacturer": {

@@ -288,7 +288,13 @@ function getArrayChangeSet(baseArray, compareArray, entitySchemaName = null) {
  * @returns {string[]}
  */
 function getPropertyBlacklist() {
-    return ['createdAt', 'updatedAt', 'childCount', 'tenantId', 'versionId', 'extensions'];
+    return [
+        'createdAt', 'updatedAt',
+        'childCount', 'tenantId',
+        'versionId', 'extensions',
+        'mimeType', 'metaData',
+        'fileSize'
+    ];
 }
 
 function hasNoChanges(diff) {

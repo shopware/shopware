@@ -12,6 +12,7 @@ import { currency, date } from './utils/format.utils';
 import domUtils from './utils/dom.utils';
 import stringUtils from './utils/string.utils';
 import typesUtils from './utils/types.utils';
+import fileReaderUtils from './utils/file-reader.utils';
 
 export const object = {
     deepCopyObject: deepCopyObject,
@@ -51,6 +52,12 @@ export const types = {
     isBoolean: typesUtils.isBoolean
 };
 
+export const fileReader = {
+    readAsArrayBuffer: fileReaderUtils.readFileAsArrayBuffer,
+    readAsDataURL: fileReaderUtils.readFileAsDataURL,
+    readAsText: fileReaderUtils.readFileAsText
+};
+
 export default {
     createId,
     throttle,
@@ -60,7 +67,8 @@ export default {
     format,
     dom,
     string,
-    types
+    types,
+    fileReader
 };
 
 /**

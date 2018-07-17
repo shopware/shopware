@@ -3,6 +3,7 @@ import './base/sw-user-card';
 import './base/sw-card-section';
 import './base/sw-button';
 import './base/sw-icon';
+import './base/sw-image';
 import './base/sw-alert';
 import './base/sw-avatar';
 import './base/sw-container';

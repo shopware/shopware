@@ -1,0 +1,16 @@
+{% block sw_image %}
+    <div class="sw-image" :class="swImageClasses">
+        {% block sw_product_media_item_image %}
+            <img class="sw-image__image" :src="url" :alt="altText">
+        {% endblock %}
+        {% block sw_product_media_item_tooltip %}
+            <div class="sw-image__tooltip">{{ altText }}</div>
+        {% endblock %}
+        <sw-context-button class="sw-image__context-button">
+            {% block sw_product_media_item_contex %}
+                <sw-context-menu-item v-if="!isCover" @click="$emit('sw-image-cover')">{{ $tc('sw-image.context.buttonAsCover') }}</sw-context-menu-item>
+                <sw-context-menu-item variant="danger" @click="$emit('sw-image-delete')">{{ $tc('sw-image.context.buttonDelete') }}</sw-context-menu-item>
+            {% endblock %}
+        </sw-context-button>
+    </div>
+{% endblock %}

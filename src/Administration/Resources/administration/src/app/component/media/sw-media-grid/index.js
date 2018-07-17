@@ -1,5 +1,4 @@
 import { Component } from 'src/core/shopware';
-import mediaGridPreviewTypes from '../mediaGridPreviewTypes';
 import template from './sw-media-grid.html.twig';
 import './sw-media-grid.less';
 
@@ -12,8 +11,8 @@ Component.register('sw-media-grid', {
             type: String,
             validator(value) {
                 return [
-                    mediaGridPreviewTypes.MEDIA_GRID_PREVIEW_TYPE_LIST,
-                    mediaGridPreviewTypes.MEDIA_GRID_PREVIEW_TYPE_GRID
+                    'media-grid-preview-as-grid',
+                    'media-grid-preview-as-list'
                 ].includes(value);
             }
         },
@@ -60,9 +59,13 @@ Component.register('sw-media-grid', {
         mediaColumnDefinitions() {
             let columnDefinition;
 
-            if (this.previewType === mediaGridPreviewTypes.MEDIA_GRID_PREVIEW_TYPE_LIST) {
+            switch (this.previewType) {
+            case 'media-grid-preview-as-list':
                 columnDefinition = '100%';
-            } else {
+                break;
+
+            case 'media-grid-preview-as-grid':
+            default:
                 columnDefinition = `repeat(auto-fit, ${this.gridColumnWidth}px)`;
             }
 

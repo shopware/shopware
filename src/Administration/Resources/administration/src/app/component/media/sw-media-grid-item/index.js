@@ -1,5 +1,4 @@
 import { Component } from 'src/core/shopware';
-import mediaGridPreviewTypes from '../mediaGridPreviewTypes';
 import template from './sw-media-grid-item.html.twig';
 import './sw-media-grid-item.less';
 
@@ -21,34 +20,30 @@ Component.register('sw-media-grid-item', {
         }
     },
 
-    data() {
-        return {};
-    },
-
     computed: {
         isListItemPreview() {
-            return this.containerOptions.previewType === mediaGridPreviewTypes.MEDIA_GRID_PREVIEW_TYPE_LIST;
+            return this.containerOptions.previewType === 'media-grid-preview-as-list';
         },
         itemTitle() {
             return this.item.name;
         },
-        mediaItemClass() {
+        mediaItemClasses() {
             return {
                 'sw-media-grid-item': true,
-                'sw-media-grid-item--selected': this.selected
+                'is--selected': this.selected
             };
         },
-        mediaItemContentClass() {
+        mediaItemContentClasses() {
             return {
                 'sw-media-grid-item__content': true,
                 'is--grid': !this.isListItemPreview,
                 'is--list': this.isListItemPreview
             };
         },
-        mediaItemCheckboxClass() {
+        selectedIndicatorClasses() {
             return {
                 'sw-media-grid-item__selected-indicator': true,
-                'selected-indicator-is--visible': this.containerOptions.selectionInProgress
+                'selected-indicator--visible': this.containerOptions.selectionInProgress
             };
         },
         gridItemListeners() {

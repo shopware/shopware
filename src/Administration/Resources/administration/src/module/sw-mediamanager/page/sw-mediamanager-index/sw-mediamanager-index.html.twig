@@ -1,0 +1,52 @@
+{% block sw_mediamanager_index %}
+    <sw-page class="sw-mediamanager-index">
+        <template slot="content">
+            {% block sw_mediamanager_index_page_content %}
+                <div class="sw-mediamanager-index__page">
+                    {% block sw_mediamanager_index_content %}
+                        <div class="sw-mediamanager-index__content">
+                            {% block sw_mediamanager_index_catalogs %}
+                                {% block sw_mediamanager_index_catalogs_title %}
+                                    <h3>{{ $tc('sw-mediamanager.index.catalogs') }}</h3>
+                                {% endblock %}
+
+                                {% block sw_mediamanager_index_catalogs_grid %}
+                                    <sw-media-grid previewType="media-grid-preview-as-grid"
+                                                   previewComponent="sw-media-grid-catalog-item"
+                                                   :selectable="false"
+                                                   :items="catalogs">
+                                    </sw-media-grid>
+                                {% endblock %}
+
+                                {% block sw_mediamanager_index_catalogs_divider %}
+                                    <hr class="sw-mediamanager-index__divider">
+                                {% endblock %}
+                            {% endblock %}
+
+                            {% block sw_mediamanager_index_last_added_items %}
+                                {% block sw_mediamanager_index_last_added_items_title %}
+                                    <h3>{{ $tc('sw-mediamanager.index.lastAdded') }}</h3>
+                                {% endblock %}
+
+                                {% block sw_mediamanager_index_last_added_items_grid %}
+                                    <sw-media-grid previewType="media-grid-preview-as-grid"
+                                           previewComponent="sw-media-grid-media-item"
+                                           :editable="true"
+                                           :selectable="true"
+                                           :items="lastAddedMediaItems">
+                                    </sw-media-grid>
+                                {% endblock %}
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+
+                    {% block sw_mediamanager_index_sidebar %}
+                        <div class="sw-mediamanager-index__sidebar">
+                            <sw-mediamanager-sidebar></sw-mediamanager-sidebar>
+                        </div>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        </template>
+    </sw-page>
+{% endblock %}

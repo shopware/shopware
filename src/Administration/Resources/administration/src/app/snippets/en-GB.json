@@ -419,9 +419,22 @@
       "mainMenuItemGeneral": "Mediamanager",
       "descriptionTextModule": "Module to manage your media data"
     },
-    "rootview": {
-      "jumpIntoCatalogue": "Switch to folder view",
-      "showCatalogueDetails": "Show Catalogue details"
+    "catalogItem": {
+      "showCatalogContent": "Show contents",
+      "showCatalogDetails": "Show Catalogue details"
+    },
+    "index": {
+      "catalogs": "Catalogues",
+      "lastAdded": "Last added"
+    },
+    "sidebar": {
+      "actions": {
+        "quickInfo": "Quickinfo",
+        "filter": "Filter",
+        "move": "Move",
+        "delete": "Delete",
+        "more": "More"
+      }
     }
   }
 }

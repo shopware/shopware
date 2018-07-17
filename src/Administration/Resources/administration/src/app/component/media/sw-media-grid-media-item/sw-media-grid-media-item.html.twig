@@ -1,14 +1,14 @@
-{% block sw_media_grid_item_content_preview %}
-    {#<img :src="item.url" class="centeredPreview">#}
+{% block sw_media_grid_item_preview %}
+    <img :src="item.links.url" class="sw-media-grid-item__image-preview">
 {% endblock %}
 
-{% block sw_media_grid_item_content_item_name %}
+{% block sw_media_grid_item_name %}
     <input v-if="containerOptions.editable"
         type="text"
         ref="inputItemName"
         tabindex="-1"
         :value="item.name"
-        disabled="true"
+        :disabled="true"
         @keydown.enter="signalItemNameChange"
         @keydown.esc="cancelInlineEdit"
         @blur="cancelInlineEditFromBlur">

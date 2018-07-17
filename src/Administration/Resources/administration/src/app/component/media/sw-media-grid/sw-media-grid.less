@@ -2,21 +2,21 @@
 
 @media-grid-cell-color-highlight: @color-cadet-blue;
 
-.media-grid {
+.sw-media-grid {
     width: 100%;
     justify-self: stretch;
     overflow-x: hidden;
     overflow-y: auto;
 
-    .media-grid__content {
+    .sw-media-grid__content {
         display: grid;
         justify-items: stretch;
-        justify-content: space-evenly;
+        grid-row-gap: 10px;
         grid-auto-flow: row;
+    }
 
-        .media-grid-content__cell:hover {
-            background-color: @media-grid-cell-color-highlight;
-            border-radius: 5px;
-        }
+    .sw-media-grid__content-cell:hover {
+        background-color: @media-grid-cell-color-highlight;
+        border-radius: 5px;
     }
 }

@@ -419,9 +419,22 @@
       "mainMenuItemGeneral": "Mediamanager",
       "descriptionTextModule": "Modul zum Verwalten von Mediendateien"
     },
-    "rootview": {
-      "jumpIntoCatalogue": "In Ordneransicht wechseln",
-      "showCatalogueDetails": "Katalogdetails anzeigen"
+    "catalogItem": {
+      "showCatalogContent": "Inhalt anzeigen",
+      "showCatalogDetails": "Katalogdetails anzeigen"
+    },
+    "index": {
+      "catalogs": "Kataloge",
+      "lastAdded": "Zuletzt hinzugefügt"
+    },
+    "sidebar": {
+      "actions": {
+        "quickInfo": "Information",
+        "filter": "Filter",
+        "move": "Verschieben",
+        "delete": "Löschen",
+        "more": "Mehr"
+      }
     }
   }
 }

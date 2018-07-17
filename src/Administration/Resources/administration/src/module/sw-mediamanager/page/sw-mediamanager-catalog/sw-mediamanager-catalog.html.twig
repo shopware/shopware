@@ -1,0 +1,48 @@
+{% block sw_mediamanager_catalog %}
+    <sw-page class="sw-mediamanager-catalog">
+        <template slot="content">
+            {% block sw_mediamanager_catalog_page_content %}
+                <div class="sw-mediamanager-catalog__page-content">
+                    {% block sw_mediamanager_catalog_content_container %}
+                        <div class="sw-mediamanager-catalog__content-container">
+                            {% block sw_mediamanager_catalog_content %}
+                                <div class="sw-mediamanager-catalog__content">
+                                    {% block sw_mediamanager_catalog_display_options_bar %}
+                                        <div class="sw-mediamanager-catalog__display-options-bar">
+                                        </div>
+                                    {% endblock %}
+
+                                    {% block sw_mediamanager_catalog_media_grid %}
+                                        <sw-media-grid
+                                            class="sw-mediamanager-catalog__media-grid"
+                                            :previewType="previewType"
+                                            previewComponent="sw-media-grid-media-item"
+                                            :selectable="true"
+                                            :editable="true"
+                                            :items="mediaItems">
+                                        </sw-media-grid>
+                                    {% endblock %}
+
+                                    {% block sw_mediamanager_catalog_pagination %}
+                                    <sw-pagination
+                                        :offset="offset"
+                                        :limit="limit"
+                                        :total="total"
+                                        @page-change="onPageChange">
+                                    </sw-pagination>
+                                    {% endblock %}
+                                </div>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+
+                    {% block sw_mediamanager_catalog_sidebar %}
+                        <div class="sw-mediamanager-catalog__sidebar">
+                            <sw-mediamanager-sidebar></sw-mediamanager-sidebar>
+                        </div>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        </template>
+    </sw-page>
+{% endblock %}

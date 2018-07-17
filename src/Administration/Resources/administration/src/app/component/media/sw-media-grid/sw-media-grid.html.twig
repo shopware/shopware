@@ -1,24 +1,25 @@
-{% block sw_preview_listing %}
-<div class="media-grid">
-    <slot name="content">
-        {% block sw_preview_listing_slot_content %}
-            <div class="media-grid__content"
-                 :style="mediaColumnDefinitions"
-                 @click.self="clearSelection">
-                    {% block sw_preview_listing_content_cell %}
-                    <div class="media-grid-content__cell"
-                         v-for="item in items" :key="item.key" >
-                        <component :is="previewComponent"
-                                :selected="isItemSelected(item)"
-                                :item="item"
-                                :containerOptions="containerOptions"
-                                @media-item-add-to-selection="addToSelection"
-                                @media-item-remove-from-selection="removeFromSelection">
-                        </component>
-                    </div>
-                    {% endblock %}
-            </div>
-        {% endblock %}
-    </slot>
-</div>
+{% block sw_media_grid %}
+    <div class="sw-media-grid">
+        <slot name="content">
+            {% block sw_media_grid_slot_content %}
+                <div class="sw-media-grid__content"
+                     :style="mediaColumnDefinitions"
+                     @click.self="clearSelection">
+                        {% block sw_media_grid_content_cell %}
+                            <div class="sw-media-grid__content-cell"
+                                 v-for="item in items"
+                                 :key="item.key" >
+                                <component :is="previewComponent"
+                                        :selected="isItemSelected(item)"
+                                        :item="item"
+                                        :containerOptions="containerOptions"
+                                        @media-item-add-to-selection="addToSelection"
+                                        @media-item-remove-from-selection="removeFromSelection">
+                                </component>
+                            </div>
+                        {% endblock %}
+                </div>
+            {% endblock %}
+        </slot>
+    </div>
 {% endblock %}

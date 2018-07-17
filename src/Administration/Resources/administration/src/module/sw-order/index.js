@@ -54,6 +54,7 @@ Module.register('sw-order', {
         id: 'sw-order',
         label: 'sw-order.general.mainMenuItemGeneral',
         color: '#A092F0',
+        path: 'sw.order.index',
         icon: 'default-shopping-paper-bag'
     }, {
         path: 'sw.order.index',

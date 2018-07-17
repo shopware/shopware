@@ -158,15 +158,6 @@ class SearchCriteriaBuilder
                 $part = substr($part, 1);
             }
 
-            $subParts = explode('.', $part);
-
-            /** @var string|EntityDefinition $definition */
-            $root = $definition::getEntityName();
-
-            if ($subParts[0] !== $root) {
-                $part = $definition::getEntityName() . '.' . $part;
-            }
-
             $sorting[] = new FieldSorting($part, $direction);
         }
 

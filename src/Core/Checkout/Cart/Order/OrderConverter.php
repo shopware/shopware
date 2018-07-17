@@ -16,7 +16,6 @@ use Shopware\Core\Checkout\Order\Exception\CustomerHasNoActiveBillingAddressExce
 use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Struct\Uuid;
 
 class OrderConverter

@@ -114,17 +114,6 @@ abstract class EntityDefinition
 
     public static function getDefaults(EntityExistence $existence): array
     {
-//        if (!$existence->exists() && static::getFields()->has('createdAt')) {
-//            return [
-//                'createdAt' => (new \DateTime())->format('Y-m-d H:i:s'),
-//            ];
-//        }
-//        if ($existence->exists() && static::getFields()->has('updatedAt')) {
-//            return [
-//                'updatedAt' => (new \DateTime())->format('Y-m-d H:i:s'),
-//            ];
-//        }
-
         return [];
     }
 

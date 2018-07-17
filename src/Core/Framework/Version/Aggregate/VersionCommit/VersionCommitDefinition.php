@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Version\Aggregate\VersionCommit;
 
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Field\BoolField;
-use Shopware\Core\Framework\ORM\Field\DateField;
+use Shopware\Core\Framework\ORM\Field\CreatedAtField;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\IdField;
 use Shopware\Core\Framework\ORM\Field\IntField;
@@ -45,7 +45,7 @@ class VersionCommitDefinition extends EntityDefinition
             (new IntField('auto_increment', 'autoIncrement'))->setFlags(new ReadOnly()),
             new BoolField('is_merge', 'isMerge'),
             (new StringField('message', 'message'))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
-            (new DateField('created_at', 'createdAt'))->setFlags(new Required()),
+            new CreatedAtField(),
             (new OneToManyAssociationField('data', VersionCommitDataDefinition::class, 'version_commit_id', true))->setFlags(new CascadeDelete()),
             new ManyToOneAssociationField('version', 'version_id', VersionDefinition::class, false),
         ]);

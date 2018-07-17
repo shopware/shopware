@@ -5,12 +5,14 @@ namespace Shopware\Core\Framework\Plugin;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Field\BoolField;
+use Shopware\Core\Framework\ORM\Field\CreatedAtField;
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\IdField;
 use Shopware\Core\Framework\ORM\Field\LongTextField;
 use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\Field\TenantIdField;
+use Shopware\Core\Framework\ORM\Field\UpdatedAtField;
 use Shopware\Core\Framework\ORM\Field\VersionField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
@@ -40,7 +42,8 @@ class PluginDefinition extends EntityDefinition
             (new BoolField('capability_secure_uninstall', 'capabilitySecureUninstall'))->setFlags(new Required()),
             new LongTextField('description', 'description'),
             new LongTextField('description_long', 'descriptionLong'),
-            new DateField('created_at', 'createdAt'),
+            new CreatedAtField(),
+            new UpdatedAtField(),
             new DateField('installation_date', 'installationDate'),
             new DateField('update_date', 'updateDate'),
             new DateField('refresh_date', 'refreshDate'),
@@ -54,7 +57,6 @@ class PluginDefinition extends EntityDefinition
             new DateField('store_date', 'storeDate'),
             new StringField('update_source', 'updateSource'),
             new StringField('update_version', 'updateVersion'),
-            new DateField('updated_at', 'updatedAt'),
             (new OneToManyAssociationField('paymentMethods', PaymentMethodDefinition::class, 'plugin_id', false, 'id'))->setFlags(new CascadeDelete()),
         ]);
     }

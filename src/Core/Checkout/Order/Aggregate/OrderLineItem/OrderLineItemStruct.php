@@ -123,7 +123,7 @@ class OrderLineItemStruct extends Entity
         $this->totalPrice = $totalPrice;
     }
 
-    public function getLabel() : string
+    public function getLabel(): string
     {
         return $this->label;
     }

@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Version\Aggregate\VersionCommitData;
 
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\Field\DateField;
+use Shopware\Core\Framework\ORM\Field\CreatedAtField;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\IdField;
 use Shopware\Core\Framework\ORM\Field\IntField;
@@ -44,7 +44,7 @@ class VersionCommitDataDefinition extends EntityDefinition
             (new JsonField('entity_id', 'entityId'))->setFlags(new Required()),
             (new StringField('action', 'action'))->setFlags(new Required(), new SearchRanking(self::LOW_SEARCH_RAKING)),
             (new VersionDataPayloadField('payload', 'payload'))->setFlags(new Required(), new SearchRanking(self::LOW_SEARCH_RAKING)),
-            (new DateField('created_at', 'createdAt'))->setFlags(new Required()),
+            new CreatedAtField(),
         ]);
     }
 

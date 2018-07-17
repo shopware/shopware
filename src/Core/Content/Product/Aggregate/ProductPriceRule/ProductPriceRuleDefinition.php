@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductPriceRule;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\Field\DateField;
+use Shopware\Core\Framework\ORM\Field\CreatedAtField;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\IdField;
 use Shopware\Core\Framework\ORM\Field\IntField;
@@ -13,6 +13,7 @@ use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\ORM\Field\PriceField;
 use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
 use Shopware\Core\Framework\ORM\Field\TenantIdField;
+use Shopware\Core\Framework\ORM\Field\UpdatedAtField;
 use Shopware\Core\Framework\ORM\Field\VersionField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
@@ -41,8 +42,8 @@ class ProductPriceRuleDefinition extends EntityDefinition
             (new PriceField('price', 'price'))->setFlags(new Required()),
             (new IntField('quantity_start', 'quantityStart'))->setFlags(new Required()),
             new IntField('quantity_end', 'quantityEnd'),
-            (new DateField('created_at', 'createdAt'))->setFlags(new Required()),
-            new DateField('updated_at', 'updatedAt'),
+            new CreatedAtField(),
+            new UpdatedAtField(),
             (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false, 'id'))->setFlags(new ReverseInherited('priceRules')),
             new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, false),
             new ManyToOneAssociationField('rule', 'rule_id', RuleDefinition::class, false),

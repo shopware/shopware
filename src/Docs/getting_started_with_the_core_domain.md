@@ -684,7 +684,7 @@ public static function getFields(): FieldCollection
         new BoolField('active', 'active'),
         new IntField('stock', 'stock'),
         new FloatField('weight', 'weight'),
-        new DateField('created_at', 'createdAt'),
+        new CreatedAtField(),
     ]);
 }
 ```

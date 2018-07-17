@@ -214,10 +214,10 @@
     "basicForm": {
       "labelTitle": "Titel",
       "labelDescription": "Beschreibung",
-      "labelProductNumber": "Artikelnummer",
+      "labelProductNumber": "Produktnummer",
       "labelManufacturer": "Hersteller",
-      "placeholderTitle": "Gebe deinen Artikel-Namen ein...",
-      "placeholderDescription": "Gebe deine Artikel-Beschreibung ein...",
+      "placeholderTitle": "Gebe deinen Produkt-Namen ein...",
+      "placeholderDescription": "Gebe deine Produkt-Beschreibung ein...",
       "placeholderProductNumber": "Gebe deine Produkt-Nummer ein...",
       "placeholderManufacturer": "Gebe deinen Produkt-Hersteller ein..."
     },

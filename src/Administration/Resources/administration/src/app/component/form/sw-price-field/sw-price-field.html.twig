@@ -3,7 +3,6 @@
 
         {% block sw_price_field_gross %}
             <sw-field type="number"
-                      name="priceGross"
                       :label="$tc('global.sw-price-field.labelPriceGross')"
                       :suffix="currency.symbol"
                       min="0.00"
@@ -25,7 +24,6 @@
 
         {% block sw_price_field_net %}
             <sw-field type="number"
-                      name="priceNet"
                       :label="$tc('global.sw-price-field.labelPriceNet')"
                       :suffix="currency.symbol"
                       min="0.00"

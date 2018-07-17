@@ -28,7 +28,7 @@ class ApiService {
      * @param {Object} [additionalHeaders={}]
      * @returns {Promise<T>}
      */
-    getList(offset, limit, additionalParams = {}, additionalHeaders = {}) {
+    getList({ offset, limit, additionalParams = {}, additionalHeaders = {} }) {
         const headers = this.getBasicHeaders(additionalHeaders);
         let params = {};
 

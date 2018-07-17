@@ -7,7 +7,7 @@ import utils from 'src/core/service/util.service';
 class ErrorStore {
     constructor() {
         this.errors = {
-            system: {}
+            system: []
         };
 
         this.formErrors = {};

@@ -34,7 +34,6 @@
                 <div class="sw-manufacturer-list__content">
                     {% block sw_manufacturer_list_grid %}
                         <sw-grid :items="manufacturers"
-                                 :pagination="true"
                                  :sortBy="sortBy"
                                  :sortDirection="sortDirection"
                                  :sidebar="true"
@@ -85,7 +84,7 @@
                                                             dataIndex="description"
                                                             truncate
                                                             sortable>
-                                                {{ item.description | truncate }}
+                                                {{ item.description | striphtml | truncate }}
                                             </sw-grid-column>
                                         {% endblock %}
 

@@ -86,7 +86,11 @@ class EntityStore {
 
         this.isLoading = true;
 
-        return this.apiService.getList(offset, limit, params).then((response) => {
+        return this.apiService.getList({
+            offset,
+            limit,
+            additionalParams: params
+        }).then((response) => {
             const newItems = response.data;
             const total = response.meta.total;
 

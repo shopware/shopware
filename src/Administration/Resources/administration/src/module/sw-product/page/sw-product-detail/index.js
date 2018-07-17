@@ -49,9 +49,6 @@ Component.register('sw-product-detail', {
                 this.product.getAssociationStore('categories').getList({
                     offset: 0,
                     limit: 50
-                }).then((response) => {
-                    // TODO: Find a better way to handle timing issues
-                    this.product.categories.push(...response.items);
                 });
 
                 this.manufacturerStore.getList({ offset: 0, limit: 100 }).then((response) => {

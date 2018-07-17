@@ -260,8 +260,8 @@ Component.register('sw-multi-select', {
         },
 
         addSelectionOnEnter() {
-            const activeItem = this.$refs.swMultiSelect.querySelector('.is--active');
-            const id = activeItem.dataset.id;
+            const activeItem = this.results[this.activeResultPosition];
+            const id = activeItem.id;
 
             if (!id) {
                 return;
@@ -304,22 +304,24 @@ Component.register('sw-multi-select', {
 
         emitChanges(items) {
             const itemIds = items.map((item) => item.id);
+            const associationStore = this.store;
 
-            Object.keys(this.store.store).forEach((id) => {
-                const entity = this.store.store[id];
+            Object.keys(associationStore.store).forEach((id) => {
+                const associationEntity = associationStore.store[id];
+
                 if (itemIds.includes(id)) {
-                    this.store.addAddition(entity);
+                    associationStore.addAddition(associationEntity);
                 } else {
-                    this.store.store[id].delete();
+                    associationStore.store[id].delete();
                 }
             });
 
             items.forEach((item) => {
                 const id = item.id;
-                const storeEntity = this.store.store[id];
+                const associationEntity = associationStore.store[id];
 
-                if (!storeEntity) {
-                    this.store.addAddition(item);
+                if (!associationEntity) {
+                    associationStore.addAddition(item);
                 }
             });
 

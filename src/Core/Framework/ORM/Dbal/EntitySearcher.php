@@ -57,7 +57,6 @@ class EntitySearcher implements EntitySearcherInterface
         ]);
 
         $query = $this->buildQueryByCriteria($query, $this->queryHelper, $this->queryParser, $definition, $criteria, $context);
-
         $this->addGroupBy($this->queryHelper, $definition, $criteria, $query, $context);
 
         //add pagination

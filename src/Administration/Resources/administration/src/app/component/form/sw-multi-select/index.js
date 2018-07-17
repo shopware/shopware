@@ -1,8 +1,12 @@
 import { Component } from 'src/core/shopware';
+import utils from 'src/core/service/util.service';
+import CriteriaFactory from 'src/core/factory/criteria.factory';
 import './sw-multi-select.less';
 import template from './sw-multi-select.html.twig';
 
 Component.register('sw-multi-select', {
+    template,
+
     props: {
         serviceProvider: {
             type: Object,
@@ -13,12 +17,9 @@ Component.register('sw-multi-select', {
             required: false,
             default: ''
         },
-        values: {
+        value: {
             type: Array,
-            required: true,
-            default() {
-                return [];
-            }
+            required: true
         },
         label: {
             type: String,
@@ -27,84 +28,304 @@ Component.register('sw-multi-select', {
         id: {
             type: String,
             required: true
+        },
+        previewResultsLimit: {
+            type: Number,
+            required: false,
+            default: 20
+        },
+        resultsLimit: {
+            type: Number,
+            required: false,
+            default: 200
+        },
+        entityName: {
+            type: String,
+            required: false,
+            default: 'category'
+        },
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+        store: {
+            type: Object,
+            required: true
         }
     },
 
     data() {
         return {
+            initialSelection: false,
             searchTerm: '',
             isExpanded: false,
-            entries: []
+            results: [],
+            selections: [],
+            activeResultPosition: 0,
+            isLoading: false,
+            hasError: false
         };
     },
 
     computed: {
-        // Client side filtered
-        filteredEntries() {
-            const searchTerm = this.searchTerm.toLowerCase();
-            return this.entries.filter((entry) => {
-                const entryName = entry.name.toLowerCase();
-                return entryName.indexOf(searchTerm) !== -1;
-            });
-        },
-
-        displayValues() {
-            return this.entries.filter((entry) => {
-                const isValue = this.values.find(value => value.id === entry.id);
-                return (typeof isValue !== 'undefined');
-            });
-        },
-
-        stringifyValues() {
-            return this.values.join('|');
+        multiSelectClasses() {
+            return {
+                'has--error': this.hasError,
+                'is--disabled': this.disabled,
+                'is--expanded': this.isExpanded
+            };
         }
     },
 
     watch: {
-        searchTerm: 'onSearchTermChange'
-    },
-
-    created() {
-        // Get data from the service provider
-        this.serviceProvider.getList(0, 500).then((response) => {
-            this.entries = response.data;
-        });
-    },
-
-    methods: {
-        getCategoryEntry(id) {
-            return this.entries.find((entry) => {
-                return entry.id === id;
-            });
-        },
-
-        onDismissEntry(id) {
-            // Remove the field from the value attribute of the hidden field
-            this.values = this.values.filter((entry) => entry.id !== id);
-
-            // Emit change for v-model support
-            this.$emit('input', this.values);
-        },
-
-        onSearchTermChange() {
-            this.isExpanded = this.searchTerm.length > 3 && this.filteredEntries.length > 0;
-        },
-
-        onSelectEntry(entry) {
-            if (!entry) {
+        value() {
+            if (this.initialSelection) {
                 return;
             }
-
-            // Update values array
-            this.values.push(entry);
-
-            // Reset search term to reset the filtered list and collapse the drop down
-            this.searchTerm = '';
-
-            // Emit change for v-model support
-            this.$emit('input', this.values);
+            this.initialSelection = true;
+            this.loadSelections();
         }
     },
 
-    template
+    created() {
+        this.createdComponent();
+    },
+
+    destroyed() {
+        this.destroyedComponent();
+    },
+
+    methods: {
+        createdComponent() {
+            this.loadPreviewResults();
+            this.loadSelections();
+            this.addEventListeners();
+        },
+
+        destroyedComponent() {
+            this.removeEventListeners();
+        },
+
+        addEventListeners() {
+            document.addEventListener('click', this.closeOnClickOutside);
+        },
+
+        removeEventListeners() {
+            document.removeEventListener('click', this.closeOnClickOutside);
+        },
+
+        loadSelections() {
+            if (!this.value.length) {
+                return;
+            }
+
+            this.isLoading = true;
+
+            const criteria = CriteriaFactory.nested(
+                'AND',
+                CriteriaFactory.terms(`${this.entityName}.id`, this.value.map((item) => {
+                    return item.id;
+                }))
+            );
+
+            this.serviceProvider.getList(0, this.value.length, {
+                filter: [criteria.getQuery()]
+            }).then((response) => {
+                this.selections = response.data;
+                this.isLoading = false;
+            });
+        },
+
+        loadResults() {
+            this.serviceProvider.getList(0, this.resultsLimit, { term: this.searchTerm }).then((response) => {
+                this.results = response.data;
+                this.isLoading = false;
+
+                this.scrollToResultsTop();
+            });
+        },
+
+        loadPreviewResults() {
+            this.isLoading = true;
+
+            this.serviceProvider.getList(0, this.previewResultsLimit).then((response) => {
+                this.results = response.data;
+                this.isLoading = false;
+            });
+        },
+
+        openResultList() {
+            this.isExpanded = true;
+        },
+
+        closeResultList() {
+            this.isExpanded = false;
+            this.$refs.swMultiSelectInput.blur();
+        },
+
+        onSearchTermChange() {
+            this.isLoading = true;
+
+            this.doSearch();
+        },
+
+        doSearch: utils.debounce(function debouncedSearch() {
+            if (this.searchTerm.length > 0) {
+                this.loadResults();
+            } else {
+                this.loadPreviewResults();
+                this.scrollToResultsTop();
+            }
+        }, 400),
+
+        setActiveResultPosition(index) {
+            this.activeResultPosition = index;
+        },
+
+        navigateUpResults() {
+            if (this.activeResultPosition === 0) {
+                return;
+            }
+
+            this.activeResultPosition = this.activeResultPosition - 1;
+
+            const swMultiSelectEl = this.$refs.swMultiSelect;
+            const resultItem = swMultiSelectEl.querySelector('.sw-multi-select__result-item');
+            const resultContainer = swMultiSelectEl.querySelector('.sw-multi-select__results');
+
+            resultContainer.scrollTop -= resultItem.offsetHeight;
+        },
+
+        navigateDownResults() {
+            if (this.activeResultPosition === this.results.length - 1) {
+                return;
+            }
+
+            this.activeResultPosition = this.activeResultPosition + 1;
+
+            const swMultiSelectEl = this.$refs.swMultiSelect;
+            const activeItem = swMultiSelectEl.querySelector('.is--active');
+            const itemHeight = swMultiSelectEl.querySelector('.sw-multi-select__result-item').offsetHeight;
+            const activeItemPosition = activeItem.offsetTop + itemHeight;
+            const resultContainer = swMultiSelectEl.querySelector('.sw-multi-select__results');
+            let resultContainerHeight = resultContainer.offsetHeight;
+
+            resultContainerHeight -= itemHeight;
+
+            if (activeItemPosition > resultContainerHeight) {
+                resultContainer.scrollTop += itemHeight;
+            }
+        },
+
+        scrollToResultsTop() {
+            this.activeResultPosition = 0;
+            this.$refs.swMultiSelect.querySelector('.sw-multi-select__results').scrollTop = 0;
+        },
+
+        setFocus() {
+            this.$refs.swMultiSelectInput.focus();
+        },
+
+        closeOnClickOutside(event) {
+            const target = event.target;
+
+            if (target.closest('.sw-multi-select') === null) {
+                this.isExpanded = false;
+                this.activeResultPosition = 0;
+            }
+        },
+
+        isInSelections(result) {
+            return !this.selections.every((item) => {
+                return item.id !== result.id;
+            });
+        },
+
+        addSelection(result) {
+            if (!result.id || !result.name) {
+                return;
+            }
+
+            if (this.isInSelections(result)) {
+                return;
+            }
+
+            this.selections.push(result);
+            this.searchTerm = '';
+
+            this.emitChanges(this.selections);
+
+            this.setFocus();
+        },
+
+        addSelectionOnEnter() {
+            const activeItem = this.results[this.activeResultPosition];
+            const id = activeItem.id;
+
+            if (!id) {
+                return;
+            }
+
+            const result = this.results.filter((entry) => entry.id === id);
+
+            if (!result.length) {
+                return;
+            }
+
+            this.addSelection(result[0]);
+        },
+
+        dismissSelection(id) {
+            if (!id) {
+                return;
+            }
+
+            this.selections = this.selections.filter((entry) => entry.id !== id);
+
+            this.emitChanges(this.selections);
+
+            this.setFocus();
+        },
+
+        dismissLastSelection() {
+            if (this.searchTerm.length > 0) {
+                return;
+            }
+
+            if (!this.selections.length) {
+                return;
+            }
+
+            const lastSelectionId = this.selections[this.selections.length - 1].id;
+
+            this.dismissSelection(lastSelectionId);
+        },
+
+        emitChanges(items) {
+            const itemIds = items.map((item) => item.id);
+            const associationStore = this.store;
+
+            Object.keys(associationStore.store).forEach((id) => {
+                const associationEntity = associationStore.store[id];
+
+                if (itemIds.includes(id)) {
+                    associationStore.addAddition(associationEntity);
+                } else {
+                    associationStore.store[id].delete();
+                }
+            });
+
+            items.forEach((item) => {
+                const id = item.id;
+                const associationEntity = associationStore.store[id];
+
+                if (!associationEntity) {
+                    associationStore.addAddition(item);
+                }
+            });
+
+            this.$emit('input', this.selections);
+        }
+    }
 });

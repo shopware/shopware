@@ -20,6 +20,10 @@ Component.register('sw-notifications', {
         notificationsGap: {
             type: String,
             default: '20px'
+        },
+        notificationsTopGap: {
+            type: String,
+            default: '165px'
         }
     },
 
@@ -47,7 +51,7 @@ Component.register('sw-notifications', {
             }
 
             return {
-                top: notificationsGap,
+                top: this.notificationsTopGap,
                 right: notificationsGap,
                 bottom: 'auto',
                 left: 'auto'

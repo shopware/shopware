@@ -34,6 +34,10 @@
         "move": "Verschieben",
         "delete": "Löschen"
       }
+    },
+    "sw-multi-select": {
+      "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden.",
+      "buttonDismiss": "Entfernen"
     }
   },
   "sw-login": {
@@ -220,7 +224,7 @@
       "labelCatalog": "Katalog",
       "labelCategory": "Kategorie",
       "placeholderCatalog": "Wähle einen Produkt-Katalog aus...",
-      "placeholderCategory": "Wähle deine Produkt-Kategorien aus...",
+      "placeholderCategory": "Tippe, um Kategorien zu suchen...",
       "optionDefaultCatalog": "Standard Katalog"
     },
     "priceForm": {

@@ -20,8 +20,7 @@
                                  :label="$tc('sw-product.categoryForm.labelCategory')"
                                  :placeholder="$tc('sw-product.categoryForm.placeholderCategory')"
                                  :serviceProvider="categoryService"
-                                 :values="product.categories"
-                                 @input="onInputCategories"
+                                 :store="categoriesStore"
                                  v-model="product.categories">
                 </sw-multi-select>
             {% endblock %}

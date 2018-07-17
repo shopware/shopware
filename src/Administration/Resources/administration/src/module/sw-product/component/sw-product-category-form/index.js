@@ -22,15 +22,5 @@ Component.register('sw-product-category-form', {
         categoriesStore() {
             return this.product.getAssociationStore('categories');
         }
-    },
-
-    methods: {
-        onInputCategories(items) {
-            this.categoriesStore.removeAll();
-
-            items.forEach((item) => {
-                this.categoriesStore.addRelationship(item);
-            });
-        }
     }
 });

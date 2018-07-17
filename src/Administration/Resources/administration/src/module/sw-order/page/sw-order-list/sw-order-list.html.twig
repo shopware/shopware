@@ -3,15 +3,15 @@
 
         {% block sw_order_list_smart_bar_header %}
             <template slot="smart-bar-header">
-                {% block sw_order_list_smart_bar_header_slot %}
+                {% block sw_order_list_smart_bar_header_title %}
                     <h2>
-                        {% block sw_order_list_smart_bar_header_title %}
+                        {% block sw_order_list_smart_bar_header_title_text %}
                             {{ $tc('sw-order.list.textOrders') }}
                         {% endblock %}
 
-                        {% block sw_order_list_smart_bar_header_title_counter %}
-                            <span v-if="!isLoading">
-                                ({{ $tc('sw-order.list.textOrdersTotal', total, { count: total }) }})
+                        {% block sw_order_list_smart_bar_header_amount %}
+                            <span v-if="!isLoading" class="sw-page__smart-bar-amount">
+                                ({{ total }})
                             </span>
                         {% endblock %}
                     </h2>

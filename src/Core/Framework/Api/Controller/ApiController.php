@@ -160,18 +160,18 @@ class ApiController extends Controller
             $parent = array_pop($pathSegments);
         }
 
+        $association = $child['field'];
+
+        $parentDefinition = $parent['definition'];
+
+        $definition = $child['definition'];
+
         $criteria = $this->searchCriteriaBuilder->handleRequest(
             $request,
             $criteria,
             $definition,
             $context
         );
-
-        $association = $child['field'];
-
-        $parentDefinition = $parent['definition'];
-
-        $definition = $child['definition'];
 
         if ($association instanceof ManyToManyAssociationField) {
             /*

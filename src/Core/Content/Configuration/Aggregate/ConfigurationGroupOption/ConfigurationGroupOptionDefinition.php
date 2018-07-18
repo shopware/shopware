@@ -11,6 +11,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceDefinit
 use Shopware\Core\Content\Product\Aggregate\ProductVariation\ProductVariationDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Field\CreatedAtField;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\IdField;
 use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
@@ -21,6 +22,7 @@ use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\Field\TenantIdField;
 use Shopware\Core\Framework\ORM\Field\TranslatedField;
 use Shopware\Core\Framework\ORM\Field\TranslationsAssociationField;
+use Shopware\Core\Framework\ORM\Field\UpdatedAtField;
 use Shopware\Core\Framework\ORM\Field\VersionField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
@@ -47,6 +49,8 @@ class ConfigurationGroupOptionDefinition extends EntityDefinition
             new StringField('color_hex_code', 'colorHexCode'),
             new FkField('media_id', 'mediaId', MediaDefinition::class),
             new ReferenceVersionField(MediaDefinition::class),
+            new CreatedAtField(),
+            new UpdatedAtField(),
             new ManyToOneAssociationField('group', 'configuration_group_id', ConfigurationGroupDefinition::class, true),
             (new TranslationsAssociationField('translations', ConfigurationGroupOptionTranslationDefinition::class, 'configuration_group_option_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
             (new OneToManyAssociationField('productConfigurators', ProductConfiguratorDefinition::class, 'configuration_group_option_id', false, 'id'))->setFlags(new CascadeDelete()),

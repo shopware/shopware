@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\ORM;
 
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Schema\Column;
 use Shopware\Core\Framework\ORM\Field\AssociationInterface;
 use Shopware\Core\Framework\ORM\Field\Field;
 use Shopware\Core\Framework\ORM\Field\FkField;
@@ -13,6 +15,7 @@ use Shopware\Core\Framework\ORM\Field\TenantIdField;
 use Shopware\Core\Framework\ORM\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\ORM\Field\VersionField;
 use Shopware\Core\Framework\ORM\Write\Flag\Extension;
+use Shopware\Core\Framework\ORM\Write\Flag\Inherited;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 
@@ -31,20 +34,26 @@ class DefinitionValidator
      */
     protected $registry;
 
-    public function __construct(DefinitionRegistry $registry)
+    /**
+     * @var Connection
+     */
+    private $connection;
+
+    public function __construct(DefinitionRegistry $registry, Connection $connection)
     {
         $this->registry = $registry;
+        $this->connection = $connection;
     }
 
     public function validate()
     {
         $violations = [];
 
+        /** @var string|EntityDefinition $definition */
         foreach ($this->registry->getElements() as $definition) {
             $violations[$definition] = [];
         }
 
-        /** @var string|EntityDefinition $definition */
         foreach ($this->registry->getElements() as $definition) {
             $instance = new $definition();
 
@@ -61,6 +70,8 @@ class DefinitionValidator
             }
 
             $violations = array_merge_recursive($violations, $this->validateAssociations($definition));
+
+            $violations = array_merge_recursive($violations, $this->validateSchema($definition));
         }
 
         $violations = array_filter($violations, function ($vio) {
@@ -366,5 +377,45 @@ class DefinitionValidator
         }
 
         return $violations;
+    }
+
+    /**
+     * @param string|EntityDefinition $definition
+     *
+     * @return array
+     */
+    private function validateSchema(string $definition): array
+    {
+        $manager = $this->connection->getSchemaManager();
+
+        $columns = $manager->listTableColumns($definition::getEntityName());
+
+        $violations = [];
+
+        /** @var Column $column */
+        foreach ($columns as $column) {
+            if (strpos($column->getName(), '_tenant_id') !== false) {
+                continue;
+            }
+
+            $field = $definition::getFields()->getByStorageName($column->getName());
+
+            if ($field) {
+                continue;
+            }
+
+            $association = $definition::getFields()->get($column->getName());
+
+            if ($association instanceof AssociationInterface && $association->is(Inherited::class)) {
+                continue;
+            }
+
+            $violations[] = sprintf(
+                'Column %s has no configured field',
+                $column->getName()
+            );
+        }
+
+        return [$definition => $violations];
     }
 }

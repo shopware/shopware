@@ -15,6 +15,7 @@ use Shopware\Core\Framework\ORM\Field\TenantIdField;
 use Shopware\Core\Framework\ORM\Field\TranslatedField;
 use Shopware\Core\Framework\ORM\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\ORM\Field\UpdatedAtField;
+use Shopware\Core\Framework\ORM\Field\VersionField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
@@ -31,6 +32,7 @@ class OrderTransactionStateDefinition extends EntityDefinition
     {
         return new FieldCollection([
             new TenantIdField(),
+            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new IntField('position', 'position'))->setFlags(new Required()),
             (new BoolField('has_mail', 'hasMail'))->setFlags(new Required()),

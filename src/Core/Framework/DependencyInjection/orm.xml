@@ -17,6 +17,7 @@
 
         <service class="Shopware\Core\Framework\ORM\DefinitionValidator" id="Shopware\Core\Framework\ORM\DefinitionValidator">
             <argument id="Shopware\Core\Framework\ORM\DefinitionRegistry" type="service"/>
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
         </service>
 
         <service class="Shopware\Core\Framework\ORM\Search\Term\Tokenizer" id="Shopware\Core\Framework\ORM\Search\Term\Tokenizer"/>

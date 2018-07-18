@@ -4,6 +4,7 @@ namespace Shopware\Administration\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Administration\Search\AdministrationSearch;
+use Shopware\Core\Framework\Api\Response\Type\JsonType;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Twig\TemplateFinder;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -56,6 +57,8 @@ class AdministrationController extends Controller
 
         $result = $this->search->search($term, $page, $limit, $context, $context->getSourceContext()->getUserId());
 
-        return new JsonResponse($result);
+        $result = json_decode(json_encode($result), true);
+
+        return new JsonResponse(JsonType::format($result));
     }
 }

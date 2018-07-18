@@ -112,8 +112,8 @@ EOF;
         static::assertInstanceOf(\DateTime::class, $entity->get('createdAt'));
 
         static::assertEquals(
-            $date->format('Y-m-d H:i:s.v'),
-            $entity->get('createdAt')->format('Y-m-d H:i:s.v')
+            $date->format(Defaults::DATE_FORMAT),
+            $entity->get('createdAt')->format(Defaults::DATE_FORMAT)
         );
     }
 

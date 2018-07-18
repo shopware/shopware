@@ -7,6 +7,7 @@ use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStruct;
 use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
 use Shopware\Core\Checkout\Payment\Exception\TokenExpiredException;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Util\Random;
@@ -44,7 +45,7 @@ class PaymentTransactionTokenFactory implements PaymentTransactionTokenFactoryIn
                 'order_transaction_id' => Uuid::fromStringToBytes($transaction->getId()),
                 'order_transaction_tenant_id' => $tenantId,
                 'order_transaction_version_id' => $versionId,
-                'expires' => $expires->format('Y-m-d H:i:s'),
+                'expires' => $expires->format(Defaults::DATE_FORMAT),
             ]
         );
 

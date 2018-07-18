@@ -124,7 +124,7 @@ class ApiTestCase extends WebTestCase
             'locale_version_id' => Uuid::fromStringToBytes(Defaults::LIVE_VERSION),
             'locale_tenant_id' => Uuid::fromHexToBytes(Defaults::TENANT_ID),
             'active' => 1,
-            'created_at' => (new \DateTime())->format('Y-m-d H:i:s.v'),
+            'created_at' => (new \DateTime())->format(Defaults::DATE_FORMAT),
         ]);
 
         $this->apiUsernames[] = $username;
@@ -179,7 +179,7 @@ class ApiTestCase extends WebTestCase
             'catalog_ids' => json_encode([Defaults::CATALOG]),
             'currency_ids' => json_encode([Defaults::CURRENCY]),
             'language_ids' => json_encode([Defaults::LANGUAGE]),
-            'created_at' => (new \DateTime())->format('Y-m-d H:i:s.v'),
+            'created_at' => (new \DateTime())->format(Defaults::DATE_FORMAT),
         ]);
 
         $this->touchpoints[] = $touchpoint->getHex();

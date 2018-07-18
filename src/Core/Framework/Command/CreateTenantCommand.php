@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Command;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
@@ -1098,6 +1099,6 @@ class CreateTenantCommand extends ContainerAwareCommand
 
     private function now(): string
     {
-        return (new \DateTime())->format('Y-m-d H:i:s.v');
+        return (new \DateTime())->format(Defaults::DATE_FORMAT);
     }
 }

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Plugin;
 
 use Doctrine\DBAL\Connection;
 use Psr\Container\ContainerInterface;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Framework;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
@@ -112,8 +113,8 @@ class PluginManager
             $plugin->setInstallationDate(new \DateTime());
             $plugin->setUpdateDate(new \DateTime());
 
-            $updates['installation_date'] = $plugin->getInstallationDate()->format('Y-m-d H:i:s');
-            $updates['update_date'] = $plugin->getUpdateDate()->format('Y-m-d H:i:s');
+            $updates['installation_date'] = $plugin->getInstallationDate()->format(Defaults::DATE_FORMAT);
+            $updates['update_date'] = $plugin->getUpdateDate()->format(Defaults::DATE_FORMAT);
 
             $connection->update('plugin', $updates, ['name' => $plugin->getName()]);
         });
@@ -191,7 +192,7 @@ class PluginManager
                 'version' => $context->getUpdateVersion(),
                 'update_version' => null,
                 'update_source' => null,
-                'update_date' => $plugin->getUpdateDate()->format('Y-m-d H:i:s'),
+                'update_date' => $plugin->getUpdateDate()->format(Defaults::DATE_FORMAT),
             ];
 
             $connection->update('plugin', $updates, ['name' => $plugin->getName()]);
@@ -297,7 +298,7 @@ class PluginManager
                 'capability_install' => true,
                 'capability_enable' => true,
                 'capability_secure_uninstall' => true,
-                'refresh_date' => $refreshDate->format('Y-m-d H:i:s'),
+                'refresh_date' => $refreshDate->format(Defaults::DATE_FORMAT),
                 'changes' => array_key_exists('changelog', $info) ? json_encode($info['changelog']) : null,
             ];
 
@@ -308,11 +309,11 @@ class PluginManager
                     $data['update_version'] = $info['version'];
                 }
 
-                $data['refresh_date'] = $refreshDate->format('Y-m-d H:i:s');
+                $data['refresh_date'] = $refreshDate->format(Defaults::DATE_FORMAT);
                 $this->connection->update('plugin', $data, ['name' => $pluginName]);
             } else {
                 $data['id'] = $pluginName;
-                $data['created_at'] = $refreshDate->format('Y-m-d H:i:s');
+                $data['created_at'] = $refreshDate->format(Defaults::DATE_FORMAT);
                 $data['active'] = 0;
 
                 $this->connection->insert('plugin', $data);

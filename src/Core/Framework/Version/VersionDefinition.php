@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Version;
 
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Field\CreatedAtField;
 use Shopware\Core\Framework\ORM\Field\IdField;
@@ -53,7 +54,7 @@ class VersionDefinition extends EntityDefinition
     public static function getDefaults(EntityExistence $existence): array
     {
         return [
-            'name' => sprintf('Draft (%s)', date('Y-m-d H:i:s')),
+            'name' => sprintf('Draft (%s)', date(Defaults::DATE_FORMAT)),
             'createdAt' => date(\DateTime::ATOM),
         ];
     }

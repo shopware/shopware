@@ -24,6 +24,8 @@
 
 namespace Shopware\Core\Framework\Migration;
 
+use Shopware\Core\Defaults;
+
 /**
  * Shopware\Core migration manager
  *
@@ -216,7 +218,7 @@ class Manager
         $stmt = $this->connection->prepare($sql);
         $stmt->execute([
             ':version' => $migration->getVersion(),
-            ':date' => date('Y-m-d H:i:s'),
+            ':date' => date(Defaults::DATE_FORMAT),
             ':name' => $migration->getLabel(),
         ]);
 
@@ -244,7 +246,7 @@ class Manager
         $stmt = $this->connection->prepare($sql);
         $stmt->execute([
             ':version' => $migration->getVersion(),
-            ':date' => date('Y-m-d H:i:s'),
+            ':date' => date(Defaults::DATE_FORMAT),
         ]);
     }
 

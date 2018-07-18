@@ -381,7 +381,7 @@ class VersionManager
 
         $commitId = Uuid::uuid4();
 
-        $date = (new \DateTime())->format('Y-m-d H:i:s');
+        $date = (new \DateTime())->format(Defaults::DATE_FORMAT);
 
         $tenantId = Uuid::fromStringToBytes($writeContext->getContext()->getTenantId());
 

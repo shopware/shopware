@@ -95,6 +95,23 @@ Component.register('sw-field', {
 
         hasErrorCls() {
             return !this.isValid || this.hasError;
+        },
+
+        additionalEventListeners() {
+            const listeners = {};
+
+            /**
+             * Do not pass "change" or "input" event listeners to the form elements
+             * because the component implements its own listeners for this event types.
+             * The callback methods will emit the corresponding event to the parent.
+             */
+            Object.keys(this.$listeners).forEach((key) => {
+                if (!['change', 'input'].includes(key)) {
+                    listeners[key] = this.$listeners[key];
+                }
+            });
+
+            return listeners;
         }
     },
 

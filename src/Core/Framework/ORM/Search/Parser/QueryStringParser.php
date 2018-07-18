@@ -26,7 +26,7 @@ class QueryStringParser
                     throw new InvalidFilterQueryException('Parameter "field" for term filter is missing.', $path . '/field');
                 }
 
-                if (!isset($query['value']) || $query['value'] === '') {
+                if (!array_key_exists('value', $query) || $query['value'] === '') {
                     throw new InvalidFilterQueryException('Parameter "value" for term filter is missing.', $path . '/value');
                 }
 

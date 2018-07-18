@@ -108,7 +108,8 @@ function parseDataStructure(json) {
         links: null,
         errors: null,
         data: null,
-        associations: null
+        associations: null,
+        aggregations: null
     };
 
     // Errors will be returned right away, we don't need to convert anything
@@ -148,6 +149,10 @@ function parseDataStructure(json) {
 
     if (json.links && Object.keys(json.links).length) {
         data.links = json.links;
+    }
+
+    if (json.aggregations && Object.keys(json.aggregations).length) {
+        data.aggregations = json.aggregations;
     }
 
     return data;

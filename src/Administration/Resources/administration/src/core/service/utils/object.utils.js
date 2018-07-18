@@ -123,6 +123,7 @@ export function getObjectChangeSet(baseObject, compareObject, entitySchemaName =
 
     let entitySchema = null;
     let entityProperties = null;
+    const blacklist = getPropertyBlacklist();
 
     if (entitySchemaName !== null) {
         entitySchema = Shopware.Entity.getDefinition(entitySchemaName) || null;
@@ -151,6 +152,11 @@ export function getObjectChangeSet(baseObject, compareObject, entitySchemaName =
         let property = null;
         let associatedEntity = null;
 
+        // Exclude properties which are on the blacklist
+        if (blacklist.includes(key)) {
+            return { ...acc };
+        }
+
         // If there is a given entity schema definition, validate the property against the schema.
         if (entityProperties !== null) {
             // When the property is not a part of the definition, it will not be considered.
@@ -166,7 +172,7 @@ export function getObjectChangeSet(baseObject, compareObject, entitySchemaName =
             }
 
             // If the type of the property is one of the json fields, it will get special treatment.
-            if (isJsonFieldProp(property.type)) {
+            if (isJsonFieldProp(property, key)) {
                 return handleJsonFieldProp(b[key], c[key], acc, key);
             }
         }
@@ -282,15 +288,15 @@ function getArrayChangeSet(baseArray, compareArray, entitySchemaName = null) {
  * @returns {string[]}
  */
 function getPropertyBlacklist() {
-    return ['createdAt', 'updatedAt', 'tenantId', 'versionId'];
+    return ['createdAt', 'updatedAt', 'childCount', 'tenantId', 'versionId', 'extensions'];
 }
 
 function hasNoChanges(diff) {
     return type.isObject(diff) && type.isEmpty(diff) && !type.isDate(diff);
 }
 
-function isJsonFieldProp(propertyType) {
-    return ['json_object', 'json_array'].includes(propertyType);
+function isJsonFieldProp(property) {
+    return ['object', 'array'].includes(property.type) && !property.entity;
 }
 
 function handleArrayProp(baseProp, compareProp, accumulator, propName, entitySchemaName = null) {
@@ -312,6 +318,13 @@ function handleJsonFieldProp(baseProp, compareProp, accumulator, propName) {
         }
 
         const jsonObject = Object.assign(jsonObjectDiff, compareProp);
+        const blacklist = getPropertyBlacklist();
+
+        Object.keys(jsonObject).forEach((key) => {
+            if (blacklist.includes(key)) {
+                delete jsonObject[key];
+            }
+        });
 
         return { ...accumulator, [propName]: jsonObject };
     }

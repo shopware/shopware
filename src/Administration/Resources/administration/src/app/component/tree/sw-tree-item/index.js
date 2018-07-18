@@ -27,7 +27,7 @@ Component.register('sw-tree-item', {
 
     data() {
         return {
-            collapsed: false,
+            opened: false,
             selected: false,
             isLeaf: false,
             isLoading: false,
@@ -46,22 +46,41 @@ Component.register('sw-tree-item', {
             }
 
             return this.draggedItem.data.id === this.item.data.id;
+        },
+
+        styling() {
+            return {
+                'is--dragging': this.isDragging,
+                'is--sortable': this.sortable,
+                'is--opened': this.opened,
+                'is--no-children': this.item.childCount <= 0
+            };
         }
     },
 
     updated() {
-        if (this.item.children.length > 0) {
-            this.isLoading = false;
-        }
+        this.updatedComponent();
     },
 
     methods: {
-        collapseTreeItem(treeItem) {
-            if (this.isDragging || this.isLoading) {
+        updatedComponent() {
+            if (this.item.children.length > 0) {
+                this.isLoading = false;
+            }
+        },
+
+        openTreeItem(open = !this.opened) {
+            if (this.isDragging) {
                 return;
             }
 
-            this.collapsed = !this.collapsed;
+            this.opened = open;
+        },
+
+        getTreeItemChildren(treeItem) {
+            if (this.isDragging || this.isLoading) {
+                return;
+            }
 
             if (treeItem.children.length <= 0) {
                 this.isLoading = true;
@@ -75,7 +94,7 @@ Component.register('sw-tree-item', {
         },
 
         onDragStart(event) {
-            if (this.isDragging || this.isLoading) {
+            if (this.isDragging || this.isLoading || !this.sortable) {
                 return;
             }
 

@@ -196,6 +196,7 @@
       "fieldLabelName": "Catalogue name",
       "fieldPlaceholderAddCategory": "Add new category",
       "buttonAddCategory": "Add",
+      "contextButtonEditCategory": "Edit",
       "contextButtonDeleteCategory": "Delete",
       "contextButtonAddChildCategory": "New child category"
     },

@@ -66,7 +66,7 @@ class AuditLogSearchTest extends KernelTestCase
         $repo->upsert([
             [
                 'id' => $this->userId,
-                'localeId' => '7b52d9dd-2b06-40ec-90be-9f57edf29be7',
+                'localeId' => '20080911ffff4fffafffffff19830531',
                 'name' => 'test-user',
                 'username' => 'test-user',
                 'email' => Uuid::uuid4()->getHex() . '@example.com',

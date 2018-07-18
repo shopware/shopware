@@ -34,7 +34,7 @@ The corresponding client_id and client_secret are generated when a touchpoint is
 
 ```
 (9/11) Starting
-> php bin/console touchpoint:create --tenant-id=ffffffffffffffffffffffffffffffff --id=ffffffffffffffffffffffffffffffff
+> php bin/console touchpoint:create --tenant-id=20080911ffff4fffafffffff19830531 --id=20080911ffff4fffafffffff19830531
 
       [OK] Touchpoint has been created successfully.
 

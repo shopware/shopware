@@ -4,21 +4,27 @@ namespace Shopware\Core;
 
 final class Defaults
 {
-    public const TENANT_ID = 'ffffffffffffffffffffffffffffffff';
+    public const TENANT_ID = '20080911ffff4fffafffffff19830531';
 
-    public const TOUCHPOINT = 'ffffffffffffffffffffffffffffffff';
+    public const TOUCHPOINT = '20080911ffff4fffafffffff19830531';
 
-    public const LANGUAGE = 'ffffffffffffffffffffffffffffffff';
+    public const LANGUAGE = '20080911ffff4fffafffffff19830531';
 
-    public const FALLBACK_CUSTOMER_GROUP = '3294e6f6372b415fac7371cbc191548f';
+    public const FALLBACK_CUSTOMER_GROUP = '20080911ffff4fffafffffff19830531';
+
+    public const LIVE_VERSION = '20080911ffff4fffafffffff19830531';
+
+    public const CATALOG = '20080911ffff4fffafffffff19830531';
+
+    public const CURRENCY = '20080911ffff4fffafffffff19830531';
+
+    public const COUNTRY = '20080911ffff4fffafffffff19830531';
+
+    public const SHIPPING_METHOD = '20080911ffff4fffafffffff19830531';
+
+    public const LOCALE = '20080911ffff4fffafffffff19830531';
 
     public const ORDER_STATE_OPEN = '1194a493806742c9b85e61f1f2cf9be8';
-
-    public const LIVE_VERSION = 'ffffffffffffffffffffffffffffffff';
-
-    public const CATALOG = 'ffffffffffffffffffffffffffffffff';
-
-    public const CURRENCY = '4c8eba11bd3546d786afbed481a6e665';
 
     public const ORDER_TRANSACTION_COMPLETED = '60025b03849340ba8d1abf7e58aa2b9f';
 
@@ -35,12 +41,6 @@ final class Defaults
     public const PAYMENT_METHOD_PAID_IN_ADVANCE = '47160b00cd064b0188176451f9f3c247';
 
     public const PAYMENT_METHOD_SEPA = 'a6ddadce4cb441f3976a32505049f037';
-
-    public const COUNTRY = 'bd5e2dcf547e4df6bb1ff58a554bc69e';
-
-    public const SHIPPING_METHOD = '417beeb2dddf45d1b90188fd211343c3';
-
-    public const LOCALE = '7b52d9dd2b0640ec90be9f57edf29be7';
 
     public const DATE_FORMAT = 'Y-m-d H:i:s.v';
 }

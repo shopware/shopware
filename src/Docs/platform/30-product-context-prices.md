@@ -6,10 +6,10 @@ After configuring the context rule, you can provide a new record for the `\Shopw
 
 ```json
 {
-    "currencyId" : "ffffffffffffffffffffffffffffffff",
+    "currencyId" : "20080911ffff4fffafffffff19830531",
     "quantityStart" : 1,
     "quantityEnd" : 1,
-    "contextRuleId" : "ffffffffffffffffffffffffffffffff",
+    "contextRuleId" : "20080911ffff4fffafffffff19830531",
     "price": {"gross" : 19.89, "net" : 16.69}
 }
 ```

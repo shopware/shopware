@@ -80,8 +80,8 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
     {
         $builder = $this->connection->createQueryBuilder();
         $user = $builder->select([
-                '"ffffffffffffffffffffffffffffffff" as languageId', //'user.languageId',
-                '"4c8eba11bd3546d786afbed481a6e665" as currencyId', //'user.currencyId',
+                '"20080911ffff4fffafffffff19830531" as languageId', //'user.languageId',
+                '"20080911ffff4fffafffffff19830531" as currencyId', //'user.currencyId',
                 /*'user.tenant_id'*/
             ])
             ->from('user')

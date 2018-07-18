@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\ORM;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\Index;
 use Shopware\Core\Framework\ORM\Field\AssociationInterface;
 use Shopware\Core\Framework\ORM\Field\Field;
 use Shopware\Core\Framework\ORM\Field\FkField;
@@ -219,7 +220,7 @@ class DefinitionValidator
             return [];
         }
 
-        /** @var AssociationInterface $association */
+        /** @var AssociationInterface|Field $association */
         foreach ($associations as $association) {
             $key = $definition::getEntityName() . '.' . $association->getPropertyName();
 
@@ -436,6 +437,34 @@ class DefinitionValidator
                 'Column %s has no configured field',
                 $column->getName()
             );
+        }
+
+        $indices = $manager->listTableIndexes($definition::getEntityName());
+
+        $uniques = array_filter($indices, function (Index $index) {
+            return $index->isUnique();
+        });
+
+        $tenantAware = $definition::isTenantAware();
+
+        if ($tenantAware) {
+            foreach ($uniques as $unique) {
+                if (\in_array('tenant_id', $unique->getColumns(), true)) {
+                    continue;
+                }
+                if ($unique->getColumns() === ['auto_increment']) {
+                    continue;
+                }
+                if ($definition::getEntityName() === 'plugin') {
+                    continue;
+                }
+
+                $violations[] = sprintf(
+                    'Unique index %s of table %s not contains `tenant_id`',
+                    $unique->getName(),
+                    $definition::getEntityName()
+                );
+            }
         }
 
         return [$definition => $violations];

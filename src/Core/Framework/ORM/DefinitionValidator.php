@@ -84,7 +84,7 @@ class DefinitionValidator
     public function getNotices(): array
     {
         $notices = [];
-        /** @var string|EntityDefinition $definition */
+        /** @var string $definition */
         foreach ($this->registry->getElements() as $definition) {
             $notices[$definition] = [];
         }
@@ -105,9 +105,31 @@ class DefinitionValidator
             }
         }
 
+        $notices = array_merge_recursive($notices, $this->findNotRegisteredTables());
+
         return array_filter($notices, function ($vio) {
             return !empty($vio);
         });
+    }
+
+    private function findNotRegisteredTables(): array
+    {
+        $tables = $this->connection->getSchemaManager()->listTables();
+
+        $violations = [];
+
+        foreach ($tables as $table) {
+            try {
+                $this->registry->get($table->getName());
+            } catch (Exception\DefinitionNotFoundException $e) {
+                $violations[] = sprintf(
+                    'Table %s has no configured definition',
+                    $table->getName()
+                );
+            }
+        }
+
+        return [DefinitionRegistry::class => $violations];
     }
 
     private function findStructNotices(string $struct, string $definition): array

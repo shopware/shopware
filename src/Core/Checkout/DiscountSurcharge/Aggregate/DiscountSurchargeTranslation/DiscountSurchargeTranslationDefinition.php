@@ -4,9 +4,11 @@ namespace Shopware\Core\Checkout\DiscountSurcharge\Aggregate\DiscountSurchargeTr
 
 use Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Field\CreatedAtField;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\ORM\Field\StringField;
+use Shopware\Core\Framework\ORM\Field\UpdatedAtField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
@@ -24,8 +26,9 @@ class DiscountSurchargeTranslationDefinition extends EntityDefinition
         return new FieldCollection([
             (new FkField('discount_surcharge_id', 'discountSurchargeId', DiscountSurchargeDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->setFlags(new PrimaryKey(), new Required()),
-
             (new StringField('name', 'name'))->setFlags(new Required()),
+            new CreatedAtField(),
+            new UpdatedAtField(),
             new ManyToOneAssociationField('discountSurcharge', 'discount_surcharge_id', DiscountSurchargeDefinition::class, false),
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, false),
         ]);

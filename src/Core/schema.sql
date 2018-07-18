@@ -438,7 +438,7 @@ CREATE TABLE `customer` (
   `first_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `last_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `password` varchar(1024) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `email` varchar(70) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(250) COLLATE utf8mb4_unicode_ci NOT NULL,
   `title` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `encoder` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'md5',
   `active` tinyint(1) NOT NULL DEFAULT '1',

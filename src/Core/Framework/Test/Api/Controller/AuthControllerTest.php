@@ -153,6 +153,7 @@ class AuthControllerTest extends ApiTestCase
             'locale_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
             'locale_tenant_id' => Uuid::fromHexToBytes(Defaults::TENANT_ID),
             'active' => 1,
+            'created_at' => (new \DateTime())->format('Y-m-d H:i:s.v'),
         ]);
 
         $this->apiUsernames[] = $username;

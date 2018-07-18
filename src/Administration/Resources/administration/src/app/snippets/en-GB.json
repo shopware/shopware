@@ -8,6 +8,12 @@
       "textProjectName": "Admin prototype"
     },
     "sw-field": {
+      "notification": {
+        "notificationCopySuccessTitle": "Successful",
+        "notificationCopySuccessMessage": "The text has been copied to clipboard ",
+        "notificationCopyFailureTitle": "Failure",
+        "notificationCopyFailureMessage": "The text could not be copied to clipboard"
+      },
       "titleShowPassword": "Show password",
       "titleHidePassword": "Hide password"
     },
@@ -203,6 +209,39 @@
     },
     "create": {
       "headlineNewCatalog": "New catalogue"
+    }
+  },
+  "sw-integration": {
+    "general": {
+      "mainMenuItemIndex": "Integrations",
+      "headlineIntegrations": "Integrations",
+      "buttonCreateIntegration": "Add integration",
+      "introHeadlineIntegrations": "Welcome to the integration management",
+      "introDescriptionIntegrations": "Some english text."
+    },
+    "list": {
+      "contextMenuEdit": "Edit",
+      "contextMenuDelete": "Delete"
+    },
+    "detail": {
+      "deleteModalTitle": "Delete",
+      "detailModalTitle": "Integration",
+      "confirmDelete" : "Are you sure, you want to delete the integration?",
+      "buttonApply": "Save",
+      "buttonCancel": "Cancel",
+      "buttonDelete": "Delete",
+      "buttonCreateNewApiKeys": "Create new keys",
+      "labelFieldLabel": "Name",
+      "idFieldLabel": "ID",
+      "secretFieldLabel": "Secret",
+      "secretHelpText": "The integration secret is encrypted after saving and can no longer be viewed",
+      "writeAccessFieldLabel": "Write access",
+      "titleSaveSuccess": "Integration",
+      "messageSaveSuccess": "Integration saved successful",
+      "titleSaveError": "Something went wrong",
+      "messageSaveError": "We have been informed",
+      "titleCreateNewError": "Something went wrong",
+      "messageCreateNewError": "We have been informed."
     }
   },
   "sw-product": {

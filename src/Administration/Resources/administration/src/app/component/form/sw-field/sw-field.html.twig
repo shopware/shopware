@@ -1,5 +1,5 @@
 {% block sw_field %}
-    <div :class="['sw-field', `sw-field--${type}`, hasErrorCls ? 'has--error' : '', hasSuffix ? 'has--suffix': '', disabled ? 'is--disabled' : '']">
+    <div :class="['sw-field', `sw-field--${type}`, hasErrorCls ? 'has--error' : '', hasSuffix || copyAble ? 'has--suffix': '', disabled ? 'is--disabled' : '']">
 
         <!-- Label -->
         {% block sw_field_label %}
@@ -180,8 +180,9 @@
                                    v-on="additionalEventListeners">
                         {% endblock %}
 
+
                         {% block sw_field_toggle_password_visibility %}
-                            <span @click="onTogglePasswordVisibility"
+                            <span v-if="passwordToggleAble" @click="onTogglePasswordVisibility"
                                   :title="showPassword ? $tc('global.sw-field.titleHidePassword') : $tc('global.sw-field.titleShowPassword')"
                                   class="sw-field__toggle-password-visibility">
                                 {% block sw_field_hide_password_icon %}
@@ -199,6 +200,7 @@
                 <!-- Default Input -->
                 {% block sw_field_input_default %}
                     <input v-else
+                           ref="textfield"
                            :type="type"
                            :name="name"
                            :id="name"
@@ -219,6 +221,17 @@
                                 {{ suffix }}
                             {% endblock %}
                         </slot>
+                    </span>
+                {% endblock %}
+
+                <!-- CopyAble -->
+                {% block sw_field_input_copySuffix %}
+                    <span v-if="copyAble && type === 'text'" class="sw-field__suffix" @click="copyToClipboard">
+                            {% block sw_field_button_copySuffix %}
+                                <sw-button>
+                                    <sw-icon name="small-copy"></sw-icon>
+                                </sw-button>
+                            {% endblock %}
                     </span>
                 {% endblock %}
             </div>

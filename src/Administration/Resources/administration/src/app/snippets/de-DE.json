@@ -8,6 +8,12 @@
       "textProjectName": "Admin Prototype"
     },
     "sw-field": {
+      "notification": {
+        "notificationCopySuccessTitle": "Erfolgreich",
+        "notificationCopySuccessMessage": "Der text wurde in die Zwischenablage kopiert",
+        "notificationCopyFailureTitle": "Fehlgeschlagen",
+        "notificationCopyFailureMessage": "Der text konnte nicht in die Zwischenablage kopiert werden"
+      },
       "titleShowPassword": "Passwort anzeigen",
       "titleHidePassword": "Passwort verbergen"
     },
@@ -203,6 +209,39 @@
     },
     "create": {
       "headlineNewCatalog": "Neuer Katalog"
+    }
+  },
+  "sw-integration": {
+    "general": {
+      "mainMenuItemIndex": "Integrationen",
+      "headlineIntegrations": "Integrationen",
+      "buttonCreateIntegration": "Integration anlegen",
+      "introHeadlineIntegrations": "Willkommen in der Integrationsverwaltung!",
+      "introDescriptionIntegrations": "Alle Informationen, wie Produkte, Seiten oder Medien werden in einem Katalog abgelegt. Alle Daten eines Kataloges können in Kategorien strukturiert werden. Du kannst einen Katalog dazu benutzen, um Deine Produkte und Inhalte auf einem oder mehreren Verkaufskanälen auszuspielen. Man kann außerdem weitere Kataloge anlegen, um z.B. neue Sortimente besser zu verwalten."
+    },
+    "list": {
+      "contextMenuEdit": "Bearbeiten",
+      "contextMenuDelete": "Löschen"
+    },
+    "detail": {
+      "deleteModalTitle": "Löschen",
+      "detailModalTitle": "Integration",
+      "confirmDelete" : "Möchtest Du diese Integration wirklich löschen?",
+      "buttonApply": "Speichern",
+      "buttonCancel": "Abbrechen",
+      "buttonDelete": "Löschen",
+      "buttonCreateNewApiKeys": "Api Zugangsdaten neu generieren",
+      "labelFieldLabel": "Name",
+      "idFieldLabel": "ID",
+      "secretFieldLabel": "Secret",
+      "secretHelpText": "Das Integrations Secret wird nach dem Speichern Verschlüsselt und kann nicht mehr eingesehen werden",
+      "writeAccessFieldLabel": "Schreibberechtigung",
+      "titleSaveSuccess": "Integration",
+      "messageSaveSuccess": "Integration erfolgreich gespeichert",
+      "titleSaveError": "Ups! Ein Fehler ist aufgetreten!",
+      "messageSaveError": "Wir wurden bereits über das Problem informiert und arbeiten an einer Lösung, bitte versuchen Sie es in Kürze erneut.",
+      "titleCreateNewError": "Ups! Ein Fehler ist aufgetreten!",
+      "messageCreateNewError": "Wir wurden bereits über das Problem informiert und arbeiten an einer Lösung, bitte versuchen Sie es in Kürze erneut."
     }
   },
   "sw-product": {

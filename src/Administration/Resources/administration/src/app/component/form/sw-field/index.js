@@ -7,7 +7,8 @@ Component.register('sw-field', {
     template,
 
     mixins: [
-        Mixin.getByName('validation')
+        Mixin.getByName('validation'),
+        Mixin.getByName('notification')
     ],
 
     /**
@@ -62,6 +63,16 @@ Component.register('sw-field', {
             default: () => {
                 return [];
             }
+        },
+        copyAble: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+        passwordToggleAble: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
 
@@ -123,6 +134,7 @@ Component.register('sw-field', {
 
     created() {
         this.currentValue = this.convertValueType(this.value);
+
 
         if (this.$vnode.data && this.$vnode.data.model) {
             this.boundExpression = this.$vnode.data.model.expression;
@@ -210,6 +222,33 @@ Component.register('sw-field', {
 
         onTogglePasswordVisibility() {
             this.showPassword = !this.showPassword;
+        },
+
+        copyToClipboard() {
+            const el = this.$refs.textfield;
+            if (this.disabled) {
+                el.removeAttribute('disabled');
+            }
+
+            el.select();
+
+            try {
+                document.execCommand('copy');
+                this.createNotificationInfo({
+                    title: this.$tc('global.sw-field.notification.notificationCopySuccessTitle'),
+                    message: this.$tc('global.sw-field.notification.notificationCopySuccessMessage')
+                });
+            } catch (err) {
+                this.createNotificationError({
+                    title: this.$tc('global.sw-field.notification.notificationCopyFailureTitle'),
+                    message: this.$tc('global.sw-field.notification.notificationCopyFailureMessage')
+                });
+            }
+
+            window.getSelection().removeAllRanges();
+            if (this.disabled) {
+                el.setAttribute('disabled', 'disabled');
+            }
         }
     }
 });

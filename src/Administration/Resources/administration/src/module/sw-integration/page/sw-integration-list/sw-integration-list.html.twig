@@ -1,0 +1,185 @@
+{% block sw_integration_list %}
+    <sw-page class="sw-integration-list">
+        <div class="sw-integration-list__smart-bar">
+            <template slot="smart-bar-header">
+
+                    {% block sw_integration_list_smart_bar_header %}
+                        <h2>{{ $tc('sw-integration.general.headlineIntegrations') }}</h2>
+                    {% endblock %}
+            </template>
+
+            <template slot="smart-bar-actions">
+                {% block sw_integration_list_smart_bar_actions %}
+                    <sw-button @click="onShowDetailModal()"
+                               variant="primary">
+                        {{ $tc('sw-integration.general.buttonCreateIntegration') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
+        </div>
+
+        <template slot="content">
+            <div class="sw-integration-list__content">
+                <sw-card-view class="sw-integration-list__content">
+                    {% block sw_integration_list_content %}
+                        {% block sw_integration_list_introduction %}
+                            <sw-card :intro="true"
+                                     class="sw-integration-list__overview">
+                                <h3>{{ $tc('sw-integration.general.introHeadlineIntegrations') }}</h3>
+                                <p>{{ $tc('sw-integration.general.introDescriptionIntegrations') }}</p>
+                            </sw-card>
+                        {% endblock %}
+
+                        {% block sw_integration_list_overview %}
+                            <sw-card :isLoading="isLoading" class="sw-integration-list__overview">
+                                {% block sw_integration_list_overview_inner %}
+                                    {% block sw_integration_list_detail_modal %}
+                                        <sw-modal v-if="currentIntegration"
+                                              :title="$tc('sw-integration.detail.detailModalTitle')"
+                                              @closeModal="onCloseDetailModal">
+                                        {% block sw_integration_list_detail_modal_inner %}
+
+                                            <sw-container grid="1fr 1fr" gap="30px 30px">
+                                                {% block sw_integration_list_detail_modal_inner_field_label %}
+                                                    <sw-field :label="$tc('sw-integration.detail.labelFieldLabel')"
+                                                              name="integration.label"
+                                                              v-model="currentIntegration.label">
+                                                    </sw-field>
+                                                {% endblock %}
+
+                                                {% block sw_integration_list_detail_modal_inner_field_writeaccess %}
+                                                    <sw-field :label="$tc('sw-integration.detail.writeAccessFieldLabel')"
+                                                              type="checkbox"
+                                                              name="integration.writeAccess"
+                                                              value="boolean"
+                                                              v-model="currentIntegration.writeAccess">
+                                                    </sw-field>
+                                                {% endblock %}
+                                            </sw-container>
+
+                                            {% block sw_integration_list_detail_modal_inner_field_accesskey %}
+                                                <sw-field :label="$tc('sw-integration.detail.idFieldLabel')"
+                                                          name="integration.id"
+                                                          :disabled="true"
+                                                          v-model="currentIntegration.accessKey"
+                                                          :copyAble="true">
+                                                </sw-field>
+                                            {% endblock %}
+
+
+                                            {% block sw_integration_list_detail_modal_inner_helptext %}
+                                                <p class="">
+                                                    {{ $tc('sw-integration.detail.secretHelpText') }}
+                                                </p>
+                                            {% endblock %}
+
+                                            {% block sw_integration_list_detail_modal_inner_field_secretaccesskey %}
+                                                <sw-field v-if="showSecretAccessKey"
+                                                          :label="$tc('sw-integration.detail.secretFieldLabel')"
+                                                          name="integration.secret"
+                                                          :disabled="true"
+                                                          v-model="currentIntegration.secretAccessKey"
+                                                          :copyAble="true">
+                                                </sw-field>
+
+
+                                                <template v-else>
+                                                    <sw-field :label="$tc('sw-integration.detail.secretFieldLabel')"
+                                                              name="integration.secret"
+                                                              type="password"
+                                                              :passwordToggleAble="false"
+                                                              :disabled="true"
+                                                              v-model="currentIntegration.secretAccessKey">
+                                                    </sw-field>
+
+                                                    <sw-button @click="onGenerateKeys"
+                                                               variant="danger">
+                                                        {{ $tc('sw-integration.detail.buttonCreateNewApiKeys') }}
+                                                    </sw-button>
+                                                </template>
+                                            {% endblock %}
+
+                                            {% block sw_integration_list_detail_modal_inner_footer %}
+                                                <template slot="modal-footer">
+                                                    <sw-button size="small" @click="onCloseDetailModal">
+                                                        {{ $tc('sw-integration.detail.buttonCancel') }}
+                                                    </sw-button>
+                                                    <sw-button size="small"
+                                                               variant="primary"
+                                                               @click="onSaveIntegration">
+                                                        {{ $tc('sw-integration.detail.buttonApply') }}
+                                                    </sw-button>
+                                                </template>
+                                            {% endblock %}
+                                        {% endblock %}
+                                    </sw-modal>
+                                    {% endblock %}
+
+                                    {% block sw_integration_list_grid %}
+                                        <sw-grid :items="integrations" :selectable="false" :header="false" :table="true">
+                                            {% block sw_integration_list_grid_inner %}
+                                                <template slot="columns" slot-scope="{ item }">
+                                                    {% block sw_integration_list_grid_inner_slot_columns %}
+                                                        {% block sw_integration_list_grid_inner_slot_columns_icon %}
+                                                            <sw-grid-column flex="minmax(50px, 50px)" dataIndex="icon">
+                                                                <sw-icon name="default-device-video-camera" size="30px"></sw-icon>
+                                                            </sw-grid-column>
+                                                        {% endblock %}
+
+                                                        {% block sw_integration_list_grid_inner_slot_columns_label %}
+                                                            <sw-grid-column flex="minmax(150px, 1fr)" dataIndex="label">
+                                                                {{ item.label }}
+                                                            </sw-grid-column>
+                                                        {% endblock %}
+                                                        {% block sw_integration_list_grid_inner_slot_columns_actions %}
+                                                            <sw-grid-column flex="minmax(100px, 100px)" dataIndex="actions" >
+                                                                <sw-context-button>
+                                                                    <sw-context-menu-item @click="onShowDetailModal(item.id)">
+                                                                        {{ $tc('sw-integration.list.contextMenuEdit') }}
+                                                                    </sw-context-menu-item>
+                                                                    <sw-context-menu-item variant="danger" @click="showDeleteModal = item.id">
+                                                                        {{ $tc('sw-integration.list.contextMenuDelete') }}
+                                                                    </sw-context-menu-item>
+                                                                </sw-context-button>
+                                                            </sw-grid-column>
+                                                        {% endblock %}
+
+                                                        {% block sw_integration_list_grid_inner_slot_delete_modal %}
+                                                            <sw-modal v-if="showDeleteModal === item.id"
+                                                                      :title="$tc('sw-integration.detail.deleteModalTitle')"
+                                                                      @closeModal="onCloseDeleteModal">
+                                                                {% block sw_integration_list_grid_inner_slot_delete_modal_confirmtext %}
+                                                                    <p>
+                                                                        {{ $tc('sw-integration.detail.confirmDelete') }}
+                                                                        {{ item.label }}
+                                                                    </p>
+                                                                {% endblock %}
+
+                                                                {% block sw_integration_list_grid_inner_slot_delete_modal_footer %}
+                                                                    <template slot="modal-footer">
+                                                                        <sw-button size="small" @click="onCloseDeleteModal">
+                                                                            {{ $tc('sw-integration.detail.buttonCancel') }}
+                                                                        </sw-button>
+                                                                        <sw-button size="small"
+                                                                                   variant="primary"
+                                                                                   @click="onConfirmDelete(item.id)">
+                                                                            {{ $tc('sw-integration.detail.buttonDelete') }}
+                                                                        </sw-button>
+                                                                    </template>
+                                                                {% endblock %}
+                                                            </sw-modal>
+                                                        {% endblock %}
+                                                    {% endblock %}
+                                                </template>
+                                            {% endblock %}
+                                        </sw-grid>
+                                    {% endblock %}
+                                {% endblock %}
+                            </sw-card>
+                        {% endblock %}
+                    {% endblock %}
+                </sw-card-view>
+            </div>
+        </template>
+    </sw-page>
+{% endblock %}

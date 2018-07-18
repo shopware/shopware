@@ -19,7 +19,7 @@ Component.register('sw-button', {
                 if (!value.length) {
                     return true;
                 }
-                return ['primary', 'ghost'].includes(value);
+                return ['primary', 'ghost', 'danger'].includes(value);
             }
         },
         size: {

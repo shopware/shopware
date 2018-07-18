@@ -10,6 +10,11 @@ Component.register('sw-card', {
             type: String,
             required: false
         },
+        intro: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
         isLoading: {
             type: Boolean,
             required: false,
@@ -26,7 +31,8 @@ Component.register('sw-card', {
         cardClasses() {
             return {
                 'sw-card--tabs': !!this.$slots.tabs,
-                'sw-card--grid': !!this.$slots.grid
+                'sw-card--grid': !!this.$slots.grid,
+                'sw-card--intro': !!this.$props.intro
             };
         }
     }

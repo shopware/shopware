@@ -2,17 +2,17 @@
 
 namespace Shopware\Core\Framework\Test\Api\Serializer;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumStruct;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\Api\Serializer\JsonApiEncoder;
 use Shopware\Core\Framework\Struct\Serializer\StructDecoder;
 use Shopware\Core\Framework\Struct\Serializer\StructNormalizer;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Serializer\Exception\BadMethodCallException;
 use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 
-class JsonApiEncoderTest extends TestCase
+class JsonApiEncoderTest extends KernelTestCase
 {
     /**
      * @var JsonApiEncoder
@@ -26,6 +26,7 @@ class JsonApiEncoderTest extends TestCase
 
     public function setUp()
     {
+        self::bootKernel();
         $this->encoder = new JsonApiEncoder(new StructDecoder());
         $this->structNormalizer = new StructNormalizer();
     }

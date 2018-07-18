@@ -2,12 +2,16 @@
 
 namespace Shopware\Core\Content\Media\Extension;
 
+use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\Util\UrlGeneratorInterface;
+use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Event\EntityLoadedEvent;
-use Shopware\Core\Framework\Struct\ArrayStruct;
+use Shopware\Core\Framework\ORM\Field\StructField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Write\Flag\Extension;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class UrlExtension implements EventSubscriberInterface
+class UrlExtension implements EventSubscriberInterface, EntityExtensionInterface
 {
     /**
      * @var UrlGeneratorInterface
@@ -17,6 +21,18 @@ class UrlExtension implements EventSubscriberInterface
     public function __construct(UrlGeneratorInterface $urlGenerator)
     {
         $this->urlGenerator = $urlGenerator;
+    }
+
+    public function extendFields(FieldCollection $collection): void
+    {
+        $collection->add(
+            (new StructField('links', MediaLinksStruct::class, true))->addFlags(new Extension())
+        );
+    }
+
+    public function getDefinitionClass(): string
+    {
+        return MediaDefinition::class;
     }
 
     public static function getSubscribedEvents()
@@ -29,11 +45,13 @@ class UrlExtension implements EventSubscriberInterface
     public function mediaLoaded(EntityLoadedEvent $event): void
     {
         foreach ($event->getEntities() as $media) {
-            if ($media->getMimeType()) {
-                $media->addExtension('links', new ArrayStruct([
-                    'url' => $this->urlGenerator->getUrl($media->getId(), $media->getMimeType()),
-                ]));
+            if (!$media->getMimeType()) {
+                continue;
             }
+
+            $url = $this->urlGenerator->getUrl($media->getId(), $media->getMimeType());
+
+            $media->addExtension('links', new MediaLinksStruct($url));
         }
     }
 }

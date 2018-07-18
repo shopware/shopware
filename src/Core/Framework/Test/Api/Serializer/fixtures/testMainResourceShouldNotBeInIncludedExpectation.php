@@ -71,6 +71,7 @@ return [
                 'mediaAlbumVersionId' => null,
                 'catalogId' => null,
                 'tenantId' => null,
+                'links' => null,
             ],
             'relationships' => [
                 'album' => [

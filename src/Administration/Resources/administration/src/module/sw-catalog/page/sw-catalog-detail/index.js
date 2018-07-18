@@ -81,21 +81,25 @@ Component.register('sw-catalog-detail', {
 
         getAggregations() {
             const aggregateParams = {
-                aggregations: {
-                    productCount: {
-                        count: { field: 'catalog.products.id' }
+                offset: 0,
+                limit: 1,
+                additionalParams: {
+                    aggregations: {
+                        productCount: {
+                            count: { field: 'catalog.products.id' }
+                        },
+                        categoryCount: {
+                            count: { field: 'catalog.categories.id' }
+                        },
+                        mediaCount: {
+                            count: { field: 'catalog.media.id' }
+                        }
                     },
-                    categoryCount: {
-                        count: { field: 'catalog.categories.id' }
-                    },
-                    mediaCount: {
-                        count: { field: 'catalog.media.id' }
-                    }
-                },
-                filter: [CriteriaFactory.term('id', this.catalogId).getQuery()]
+                    filter: [CriteriaFactory.term('id', this.catalogId).getQuery()]
+                }
             };
 
-            return this.catalogService.getList(0, 1, aggregateParams).then((response) => {
+            return this.catalogService.getList(aggregateParams).then((response) => {
                 this.aggregations = response.aggregations;
             });
         },

@@ -24,6 +24,7 @@ use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\ORM\Search\SearchCriteriaBuilder;
 use Shopware\Core\Framework\ORM\Write\EntityWriterInterface;
@@ -123,130 +124,22 @@ class ApiController extends Controller
         return $this->responseFactory->createDetailResponse($entity, (string) $definition, $request, $context);
     }
 
+    public function search(Request $request, Context $context, string $path): Response
+    {
+        $result = $this->fetchListing($request, $context, $path);
+
+        $definition = $this->getDefinitionOfPath($path);
+
+        return $this->responseFactory->createListingResponse($result, $definition, $request, $context);
+    }
+
     public function list(Request $request, Context $context, string $path): Response
     {
-        $pathSegments = $this->buildEntityPath($path);
+        $result = $this->fetchListing($request, $context, $path);
 
-        $first = array_shift($pathSegments);
+        $definition = $this->getDefinitionOfPath($path);
 
-        /** @var EntityDefinition|string $definition */
-        $definition = $first['definition'];
-
-        if (!$definition) {
-            throw new NotFoundHttpException('The requested entity does not exist.');
-        }
-
-        $repository = $this->getRepository($definition, $request);
-
-        $criteria = new Criteria();
-
-        if (empty($pathSegments)) {
-            $criteria = $this->searchCriteriaBuilder->handleRequest(
-                $request,
-                $criteria,
-                $definition,
-                $context
-            );
-
-            $data = $repository->search($criteria, $context);
-
-            return $this->responseFactory->createListingResponse($data, (string) $definition, $request, $context);
-        }
-
-        $child = array_pop($pathSegments);
-        $parent = $first;
-
-        if (!empty($pathSegments)) {
-            $parent = array_pop($pathSegments);
-        }
-
-        $criteria = $this->searchCriteriaBuilder->handleRequest(
-            $request,
-            $criteria,
-            $definition,
-            $context
-        );
-
-        $association = $child['field'];
-
-        $parentDefinition = $parent['definition'];
-
-        $definition = $child['definition'];
-
-        if ($association instanceof ManyToManyAssociationField) {
-            /*
-             * Example:
-             * route:           /api/product/SW1/categories
-             * $definition:     \Shopware\Core\Content\Category\CategoryDefinition
-             */
-            $definition = $association->getReferenceDefinition();
-
-            //fetch inverse association definition for filter
-            $reverse = $definition::getFields()->filter(
-                function (Field $field) use ($association) {
-                    return $field instanceof ManyToManyAssociationField && $association->getMappingDefinition() === $field->getMappingDefinition();
-                }
-            );
-
-            //contains now the inverse side association: category.products
-            $reverse = $reverse->first();
-
-            /* @var ManyToManyAssociationField $reverse */
-            $criteria->addFilter(
-                new TermQuery(
-                    sprintf('%s.%s.id', $definition::getEntityName(), $reverse->getPropertyName()),
-                    $parent['value']
-                )
-            );
-        } elseif ($association instanceof OneToManyAssociationField) {
-            /*
-             * Example
-             * Route:           /api/product/SW1/prices
-             * $definition:     \Shopware\Core\Content\Product\Definition\ProductPriceDefinition
-             */
-
-            //get foreign key definition of reference
-            $foreignKey = $definition::getFields()->getByStorageName(
-                $association->getReferenceField()
-            );
-
-            $criteria->addFilter(
-                new TermQuery(
-                //add filter to parent value: prices.productId = SW1
-                    $definition::getEntityName() . '.' . $foreignKey->getPropertyName(),
-                    $parent['value']
-                )
-            );
-        } elseif ($association instanceof ManyToOneAssociationField) {
-            /*
-             * Example
-             * Route:           /api/product/SW1/manufacturer
-             * $definition:     \Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition
-             */
-
-            //get inverse association to filter to parent value
-            $reverse = $definition::getFields()->filter(
-                function (Field $field) use ($parentDefinition) {
-                    return $field instanceof OneToManyAssociationField && $parentDefinition === $field->getReferenceClass();
-                }
-            );
-            $reverse = $reverse->first();
-
-            /* @var OneToManyAssociationField $reverse */
-            $criteria->addFilter(
-                new TermQuery(
-                //filter inverse association to parent value:  manufacturer.products.id = SW1
-                    sprintf('%s.%s.id', $definition::getEntityName(), $reverse->getPropertyName()),
-                    $parent['value']
-                )
-            );
-        }
-
-        $repository = $this->getRepository($definition, $request);
-
-        $result = $repository->search($criteria, $context);
-
-        return $this->responseFactory->createListingResponse($result, (string) $definition, $request, $context);
+        return $this->responseFactory->createListingResponse($result, $definition, $request, $context);
     }
 
     public function create(Request $request, Context $context, string $path): Response
@@ -346,9 +239,10 @@ class ApiController extends Controller
         throw new \RuntimeException(sprintf('Unsupported association for field %s', $association->getPropertyName()));
     }
 
-    public function search(Request $request, Context $context, string $path): Response
+    private function fetchListing(Request $request, Context $context, string $path): EntitySearchResult
     {
         $pathSegments = $this->buildEntityPath($path);
+
         $first = array_shift($pathSegments);
 
         /** @var EntityDefinition|string $definition */
@@ -360,23 +254,126 @@ class ApiController extends Controller
 
         $repository = $this->getRepository($definition, $request);
 
-        if (!empty($pathSegments)) {
-            throw new \RuntimeException('Only entities are supported');
-        }
-
         $criteria = new Criteria();
 
-        $data = $repository->search(
-            $this->searchCriteriaBuilder->handleRequest(
-                $request,
-                $criteria,
-                $definition,
-                $context
-            ),
-            $context
-        );
+        if (empty($pathSegments)) {
+            $criteria = $this->searchCriteriaBuilder->handleRequest($request, $criteria, $definition, $context);
 
-        return $this->responseFactory->createListingResponse($data, (string) $definition, $request, $context);
+            return $repository->search($criteria, $context);
+        }
+
+        $child = array_pop($pathSegments);
+        $parent = $first;
+
+        if (!empty($pathSegments)) {
+            $parent = array_pop($pathSegments);
+        }
+
+        $association = $child['field'];
+
+        $parentDefinition = $parent['definition'];
+
+        $definition = $child['definition'];
+        if ($association instanceof ManyToManyAssociationField) {
+            $definition = $association->getReferenceDefinition();
+        }
+
+        $criteria = $this->searchCriteriaBuilder->handleRequest($request, $criteria, $definition, $context);
+
+        if ($association instanceof ManyToManyAssociationField) {
+            //fetch inverse association definition for filter
+            $reverse = $definition::getFields()->filter(
+                function (Field $field) use ($association) {
+                    return $field instanceof ManyToManyAssociationField && $association->getMappingDefinition() === $field->getMappingDefinition();
+                }
+            );
+
+            //contains now the inverse side association: category.products
+            $reverse = $reverse->first();
+
+            /* @var ManyToManyAssociationField $reverse */
+            $criteria->addFilter(
+                new TermQuery(
+                    sprintf('%s.%s.id', $definition::getEntityName(), $reverse->getPropertyName()),
+                    $parent['value']
+                )
+            );
+        } elseif ($association instanceof OneToManyAssociationField) {
+            /*
+             * Example
+             * Route:           /api/product/SW1/prices
+             * $definition:     \Shopware\Core\Content\Product\Definition\ProductPriceDefinition
+             */
+
+            //get foreign key definition of reference
+            $foreignKey = $definition::getFields()->getByStorageName(
+                $association->getReferenceField()
+            );
+
+            $criteria->addFilter(
+                new TermQuery(
+                //add filter to parent value: prices.productId = SW1
+                    $definition::getEntityName() . '.' . $foreignKey->getPropertyName(),
+                    $parent['value']
+                )
+            );
+        } elseif ($association instanceof ManyToOneAssociationField) {
+            /*
+             * Example
+             * Route:           /api/product/SW1/manufacturer
+             * $definition:     \Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition
+             */
+
+            //get inverse association to filter to parent value
+            $reverse = $definition::getFields()->filter(
+                function (Field $field) use ($parentDefinition) {
+                    return $field instanceof OneToManyAssociationField && $parentDefinition === $field->getReferenceClass();
+                }
+            );
+            $reverse = $reverse->first();
+
+            /* @var OneToManyAssociationField $reverse */
+            $criteria->addFilter(
+                new TermQuery(
+                //filter inverse association to parent value:  manufacturer.products.id = SW1
+                    sprintf('%s.%s.id', $definition::getEntityName(), $reverse->getPropertyName()),
+                    $parent['value']
+                )
+            );
+        }
+
+        $repository = $this->getRepository($definition, $request);
+
+        return $repository->search($criteria, $context);
+    }
+
+    private function getDefinitionOfPath(string $path): string
+    {
+        $pathSegments = $this->buildEntityPath($path);
+
+        $first = array_shift($pathSegments);
+
+        /** @var EntityDefinition|string $definition */
+        $definition = $first['definition'];
+
+        if (empty($pathSegments)) {
+            return $definition;
+        }
+
+        $child = array_pop($pathSegments);
+
+        $association = $child['field'];
+
+        if ($association instanceof ManyToManyAssociationField) {
+            /*
+             * Example:
+             * route:           /api/product/SW1/categories
+             * $definition:     \Shopware\Core\Content\Category\CategoryDefinition
+             */
+            return $association->getReferenceDefinition();
+        }
+
+        return $child['definition'];
     }
 
     private function write(Request $request, Context $context, string $path, string $type): Response

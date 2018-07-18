@@ -10,7 +10,7 @@ class AccessKeyHelper
     private const INTEGRATION_IDENTIFIER = 'SWIA';
     private const TOUCHPOINT_IDENTIFIER = 'SWTP';
 
-    private static $mapping = [
+    public static $mapping = [
         self::USER_IDENTIFIER => 'user',
         self::INTEGRATION_IDENTIFIER => 'integration',
         self::TOUCHPOINT_IDENTIFIER => 'touchpoint',

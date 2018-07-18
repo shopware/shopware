@@ -226,6 +226,7 @@ class WriteCommandExtractor
                 $sorted[] = $field;
             }
         }
+
         return $sorted;
     }
 
@@ -339,6 +340,7 @@ class WriteCommandExtractor
 
     /**
      * @param Field[] $fields
+     *
      * @return Field[]
      */
     private function getMainFields(array $fields): array

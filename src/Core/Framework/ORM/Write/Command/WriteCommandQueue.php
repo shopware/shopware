@@ -177,6 +177,7 @@ class WriteCommandQueue
                 $filtered[] = $command;
             }
         }
+
         return $filtered;
     }
 }

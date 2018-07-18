@@ -191,7 +191,7 @@ class EntityProxy {
     /**
      * Lists all available association stores.
      *
-     * @returns {IterableIterator<[EntityStore]>}
+     * @returns {IterableIterator<EntityStore>}
      */
     listAssociationStores() {
         return this.associationStores.entries();

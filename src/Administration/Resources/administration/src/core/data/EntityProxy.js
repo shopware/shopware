@@ -361,7 +361,11 @@ class EntityProxy {
         this.draft = {};
         this.isDeleted = true;
 
-        if (directDeletion) {
+        if (this.isAddition && this.$store) {
+            this.remove();
+        }
+
+        if (directDeletion && !this.isAddition) {
             return this.apiService.delete(this.id).then(() => {
                 if (this.$store && this.$store[this.id]) {
                     this.remove();

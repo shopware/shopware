@@ -24,6 +24,8 @@
 
 namespace Shopware\Core\Framework\ORM\Write\ValueTransformer;
 
+use Shopware\Core\Defaults;
+
 class ValueTransformerDate implements ValueTransformer
 {
     /**
@@ -35,6 +37,6 @@ class ValueTransformerDate implements ValueTransformer
             throw new \InvalidArgumentException('Unable to format date');
         }
 
-        return $phpValue->format('Y-m-d H:i:s');
+        return $phpValue->format(Defaults::DATE_FORMAT);
     }
 }

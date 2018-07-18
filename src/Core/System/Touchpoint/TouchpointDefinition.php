@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Field\BoolField;
-use Shopware\Core\Framework\ORM\Field\DateField;
+use Shopware\Core\Framework\ORM\Field\CreatedAtField;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\IdField;
 use Shopware\Core\Framework\ORM\Field\JsonField;
@@ -19,6 +19,7 @@ use Shopware\Core\Framework\ORM\Field\PasswordField;
 use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
 use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\Field\TenantIdField;
+use Shopware\Core\Framework\ORM\Field\UpdatedAtField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
@@ -57,8 +58,8 @@ class TouchpointDefinition extends EntityDefinition
             new JsonField('configuration', 'configuration'),
             new BoolField('active', 'active'),
             new StringField('tax_calculation_type', 'taxCalculationType'),
-            new DateField('created_at', 'createdAt'),
-            new DateField('updated_at', 'updatedAt'),
+            new CreatedAtField(),
+            new UpdatedAtField(),
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, true),
             new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, true),
             new ManyToOneAssociationField('paymentMethod', 'payment_method_id', PaymentMethodDefinition::class, false),

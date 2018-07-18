@@ -38,6 +38,36 @@ class ConfigurationGroupStruct extends Entity
      */
     protected $translations;
 
+    /**
+     * @var \DateTime
+     */
+    protected $createdAt;
+
+    /**
+     * @var \DateTime|null
+     */
+    protected $updatedAt;
+
+    public function getCreatedAt(): \DateTime
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTime $createdAt): void
+    {
+        $this->createdAt = $createdAt;
+    }
+
+    public function getUpdatedAt(): ?\DateTime
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTime $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
+    }
+
     public function getName(): string
     {
         return $this->name;

@@ -5,13 +5,14 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\Field\DateField;
+use Shopware\Core\Framework\ORM\Field\CreatedAtField;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\FloatField;
 use Shopware\Core\Framework\ORM\Field\IdField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
 use Shopware\Core\Framework\ORM\Field\TenantIdField;
+use Shopware\Core\Framework\ORM\Field\UpdatedAtField;
 use Shopware\Core\Framework\ORM\Field\VersionField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
@@ -40,8 +41,8 @@ class OrderDeliveryPositionDefinition extends EntityDefinition
             (new FloatField('unit_price', 'unitPrice'))->setFlags(new Required()),
             (new FloatField('total_price', 'totalPrice'))->setFlags(new Required()),
             (new FloatField('quantity', 'quantity'))->setFlags(new Required()),
-            new DateField('created_at', 'createdAt'),
-            new DateField('updated_at', 'updatedAt'),
+            new CreatedAtField(),
+            new UpdatedAtField(),
             new ManyToOneAssociationField('orderDelivery', 'order_delivery_id', OrderDeliveryDefinition::class, false),
             new ManyToOneAssociationField('orderLineItem', 'order_line_item_id', OrderLineItemDefinition::class, true),
         ]);

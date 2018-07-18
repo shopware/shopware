@@ -123,7 +123,7 @@ class CartPersister implements CartPersisterInterface
             'line_item_count' => $cart->getCalculatedLineItems()->count(),
             'calculated' => $this->serializer->serialize($cart, 'json'),
             'container' => $this->serializer->serialize($cart->getCart(), 'json'),
-            'created_at' => (new \DateTime())->format('Y-m-d H:i:s'),
+            'created_at' => (new \DateTime())->format(Defaults::DATE_FORMAT),
         ];
 
         $this->connection->insert('cart', $data);

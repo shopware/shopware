@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\ORM;
 
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\Index;
 use Shopware\Core\Framework\ORM\Field\AssociationInterface;
 use Shopware\Core\Framework\ORM\Field\Field;
 use Shopware\Core\Framework\ORM\Field\FkField;
@@ -13,6 +16,7 @@ use Shopware\Core\Framework\ORM\Field\TenantIdField;
 use Shopware\Core\Framework\ORM\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\ORM\Field\VersionField;
 use Shopware\Core\Framework\ORM\Write\Flag\Extension;
+use Shopware\Core\Framework\ORM\Write\Flag\Inherited;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 
@@ -31,20 +35,26 @@ class DefinitionValidator
      */
     protected $registry;
 
-    public function __construct(DefinitionRegistry $registry)
+    /**
+     * @var Connection
+     */
+    private $connection;
+
+    public function __construct(DefinitionRegistry $registry, Connection $connection)
     {
         $this->registry = $registry;
+        $this->connection = $connection;
     }
 
     public function validate()
     {
         $violations = [];
 
+        /** @var string|EntityDefinition $definition */
         foreach ($this->registry->getElements() as $definition) {
             $violations[$definition] = [];
         }
 
-        /** @var string|EntityDefinition $definition */
         foreach ($this->registry->getElements() as $definition) {
             $instance = new $definition();
 
@@ -61,6 +71,8 @@ class DefinitionValidator
             }
 
             $violations = array_merge_recursive($violations, $this->validateAssociations($definition));
+
+            $violations = array_merge_recursive($violations, $this->validateSchema($definition));
         }
 
         $violations = array_filter($violations, function ($vio) {
@@ -73,7 +85,7 @@ class DefinitionValidator
     public function getNotices(): array
     {
         $notices = [];
-        /** @var string|EntityDefinition $definition */
+        /** @var string $definition */
         foreach ($this->registry->getElements() as $definition) {
             $notices[$definition] = [];
         }
@@ -94,9 +106,31 @@ class DefinitionValidator
             }
         }
 
+        $notices = array_merge_recursive($notices, $this->findNotRegisteredTables());
+
         return array_filter($notices, function ($vio) {
             return !empty($vio);
         });
+    }
+
+    private function findNotRegisteredTables(): array
+    {
+        $tables = $this->connection->getSchemaManager()->listTables();
+
+        $violations = [];
+
+        foreach ($tables as $table) {
+            try {
+                $this->registry->get($table->getName());
+            } catch (Exception\DefinitionNotFoundException $e) {
+                $violations[] = sprintf(
+                    'Table %s has no configured definition',
+                    $table->getName()
+                );
+            }
+        }
+
+        return [DefinitionRegistry::class => $violations];
     }
 
     private function findStructNotices(string $struct, string $definition): array
@@ -186,7 +220,7 @@ class DefinitionValidator
             return [];
         }
 
-        /** @var AssociationInterface $association */
+        /** @var AssociationInterface|Field $association */
         foreach ($associations as $association) {
             $key = $definition::getEntityName() . '.' . $association->getPropertyName();
 
@@ -366,5 +400,73 @@ class DefinitionValidator
         }
 
         return $violations;
+    }
+
+    /**
+     * @param string|EntityDefinition $definition
+     *
+     * @return array
+     */
+    private function validateSchema(string $definition): array
+    {
+        $manager = $this->connection->getSchemaManager();
+
+        $columns = $manager->listTableColumns($definition::getEntityName());
+
+        $violations = [];
+
+        /** @var Column $column */
+        foreach ($columns as $column) {
+            if (strpos($column->getName(), '_tenant_id') !== false) {
+                continue;
+            }
+
+            $field = $definition::getFields()->getByStorageName($column->getName());
+
+            if ($field) {
+                continue;
+            }
+
+            $association = $definition::getFields()->get($column->getName());
+
+            if ($association instanceof AssociationInterface && $association->is(Inherited::class)) {
+                continue;
+            }
+
+            $violations[] = sprintf(
+                'Column %s has no configured field',
+                $column->getName()
+            );
+        }
+
+        $indices = $manager->listTableIndexes($definition::getEntityName());
+
+        $uniques = array_filter($indices, function (Index $index) {
+            return $index->isUnique();
+        });
+
+        $tenantAware = $definition::isTenantAware();
+
+        if ($tenantAware) {
+            foreach ($uniques as $unique) {
+                if (\in_array('tenant_id', $unique->getColumns(), true)) {
+                    continue;
+                }
+                if ($unique->getColumns() === ['auto_increment']) {
+                    continue;
+                }
+                if ($definition::getEntityName() === 'plugin') {
+                    continue;
+                }
+
+                $violations[] = sprintf(
+                    'Unique index %s of table %s not contains `tenant_id`',
+                    $unique->getName(),
+                    $definition::getEntityName()
+                );
+            }
+        }
+
+        return [$definition => $violations];
     }
 }

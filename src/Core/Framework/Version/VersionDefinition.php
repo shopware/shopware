@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Framework\Version;
 
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\Field\DateField;
+use Shopware\Core\Framework\ORM\Field\CreatedAtField;
 use Shopware\Core\Framework\ORM\Field\IdField;
 use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\Field\TenantIdField;
+use Shopware\Core\Framework\ORM\Field\UpdatedAtField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\EntityExistence;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
@@ -33,8 +35,8 @@ class VersionDefinition extends EntityDefinition
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
-            new DateField('created_at', 'createdAt'),
-            new DateField('updated_at', 'updatedAt'),
+            new CreatedAtField(),
+            new UpdatedAtField(),
             new OneToManyAssociationField('commits', VersionCommitDefinition::class, 'version_id', true),
         ]);
     }
@@ -52,7 +54,7 @@ class VersionDefinition extends EntityDefinition
     public static function getDefaults(EntityExistence $existence): array
     {
         return [
-            'name' => sprintf('Draft (%s)', date('Y-m-d H:i:s')),
+            'name' => sprintf('Draft (%s)', date(Defaults::DATE_FORMAT)),
             'createdAt' => date(\DateTime::ATOM),
         ];
     }

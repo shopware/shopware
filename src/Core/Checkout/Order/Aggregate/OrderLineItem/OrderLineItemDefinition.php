@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderLineItem;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\Field\DateField;
+use Shopware\Core\Framework\ORM\Field\CreatedAtField;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\FloatField;
 use Shopware\Core\Framework\ORM\Field\IdField;
@@ -15,6 +15,7 @@ use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
 use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\Field\TenantIdField;
+use Shopware\Core\Framework\ORM\Field\UpdatedAtField;
 use Shopware\Core\Framework\ORM\Field\VersionField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
@@ -47,8 +48,8 @@ class OrderLineItemDefinition extends EntityDefinition
             new StringField('description', 'description'),
             new StringField('parent_id', 'parentId'),
             new StringField('type', 'type'),
-            new DateField('created_at', 'createdAt'),
-            new DateField('updated_at', 'updatedAt'),
+            new CreatedAtField(),
+            new UpdatedAtField(),
             new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, false),
             (new OneToManyAssociationField('orderDeliveryPositions', OrderDeliveryPositionDefinition::class, 'order_line_item_id', false, 'id'))->setFlags(new CascadeDelete(), new ReadOnly()),
         ]);

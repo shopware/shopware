@@ -580,8 +580,8 @@ class WriterTest extends KernelTestCase
                         'name' => 'shopware AG',
                         'link' => 'https://shopware.com',
                     ],
-                    'created_at' => (new \DateTime())->format('Y-m-d H:i:s'),
-                    'updated_at' => (new \DateTime())->format('Y-m-d H:i:s'),
+                    'created_at' => (new \DateTime())->format(Defaults::DATE_FORMAT),
+                    'updated_at' => (new \DateTime())->format(Defaults::DATE_FORMAT),
                 ],
             ],
             $this->createWriteContext()

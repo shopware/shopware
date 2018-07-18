@@ -16,7 +16,6 @@ use Shopware\Core\Checkout\Order\Exception\CustomerHasNoActiveBillingAddressExce
 use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Struct\Uuid;
 
 class OrderConverter
@@ -60,7 +59,7 @@ class OrderConverter
 
         $data = [
             'id' => Uuid::uuid4()->getHex(),
-            'date' => (new \DateTime())->format('Y-m-d H:i:s'),
+            'date' => (new \DateTime())->format(Defaults::DATE_FORMAT),
             'amountTotal' => $calculatedCart->getPrice()->getTotalPrice(),
             'amountNet' => $calculatedCart->getPrice()->getNetPrice(),
             'positionPrice' => $calculatedCart->getPrice()->getPositionPrice(),
@@ -183,8 +182,8 @@ class OrderConverter
     private function convertDelivery(Delivery $delivery, array $lineItems): array
     {
         $deliveryData = [
-            'shippingDateEarliest' => $delivery->getDeliveryDate()->getEarliest()->format('Y-m-d H:i:s'),
-            'shippingDateLatest' => $delivery->getDeliveryDate()->getLatest()->format('Y-m-d H:i:s'),
+            'shippingDateEarliest' => $delivery->getDeliveryDate()->getEarliest()->format(Defaults::DATE_FORMAT),
+            'shippingDateLatest' => $delivery->getDeliveryDate()->getLatest()->format(Defaults::DATE_FORMAT),
             'shippingMethodId' => $delivery->getShippingMethod()->getId(),
             'shippingAddress' => $this->convertAddress($delivery->getLocation()->getAddress()),
             'orderStateId' => Defaults::ORDER_STATE_OPEN,

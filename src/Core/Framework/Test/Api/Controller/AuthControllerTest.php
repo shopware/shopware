@@ -153,6 +153,7 @@ class AuthControllerTest extends ApiTestCase
             'locale_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
             'locale_tenant_id' => Uuid::fromHexToBytes(Defaults::TENANT_ID),
             'active' => 1,
+            'created_at' => (new \DateTime())->format(Defaults::DATE_FORMAT),
         ]);
 
         $this->apiUsernames[] = $username;
@@ -218,7 +219,7 @@ class AuthControllerTest extends ApiTestCase
             'access_key' => $accessKey,
             'secret_access_key' => password_hash($secretKey, PASSWORD_BCRYPT),
             'write_access' => 1,
-            'created_at' => (new \DateTime())->format('Y-m-d H:i:s'),
+            'created_at' => (new \DateTime())->format(Defaults::DATE_FORMAT),
         ]);
 
         /**

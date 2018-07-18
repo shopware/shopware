@@ -86,7 +86,7 @@ abstract class Collection extends Struct implements \Countable, \ArrayAccess, \I
     /**
      * @param string $class
      *
-     * @return static
+     * @return Collection
      */
     public function filterInstance(string $class)
     {

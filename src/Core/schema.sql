@@ -30,8 +30,8 @@ CREATE TABLE `touchpoint` (
   `country_tenant_id` binary(16) NOT NULL,
   `active` tinyint(1) NOT NULL DEFAULT '1',
   `tax_calculation_type` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'vertical',
-  `created_at` datetime,
-  `updated_at` datetime,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`id`, `tenant_id`),
   INDEX `access_key` (`access_key`),
   CHECK (JSON_VALID(`catalog_ids`)),
@@ -71,7 +71,7 @@ CREATE TABLE `cart` (
   `customer_version_id` binary(16) DEFAULT NULL,
   `touchpoint_id` binary(16) NOT NULL,
   `touchpoint_tenant_id` binary(16) NOT NULL,
-  `created_at` datetime NOT NULL,
+  `created_at` datetime(3) NOT NULL,
   CHECK (JSON_VALID(`container`)),
   CHECK (JSON_VALID(`calculated`)),
   PRIMARY KEY `token` (`token`, `name`, `tenant_id`),
@@ -111,8 +111,8 @@ CREATE TABLE `category` (
   `sorting_ids` longtext COLLATE utf8mb4_unicode_ci,
   `facet_ids` longtext COLLATE utf8mb4_unicode_ci,
   `child_count` int(11) unsigned NOT NULL DEFAULT '0',
-  `created_at` datetime,
-  `updated_at` datetime,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`id`, `version_id`, `tenant_id`),
   KEY `position` (`position`),
   KEY `level` (`level`),
@@ -138,6 +138,8 @@ CREATE TABLE `category_translation` (
   `meta_description` mediumtext COLLATE utf8mb4_unicode_ci,
   `cms_headline` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `cms_description` mediumtext COLLATE utf8mb4_unicode_ci,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`category_id`, `category_version_id`, `category_tenant_id`, `language_id`, `language_tenant_id`),
   CONSTRAINT `category_translation_ibfk_1` FOREIGN KEY (`language_id`, `category_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `category_translation_ibfk_2` FOREIGN KEY (`category_id`, `category_version_id`, `language_tenant_id`) REFERENCES `category` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -152,6 +154,8 @@ CREATE TABLE `configuration_group` (
   `position` int(11) NOT NULL DEFAULT '0',
   `filterable` tinyint(1) NOT NULL DEFAULT '0',
   `comparable` tinyint(1) NOT NULL DEFAULT '0',
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`id`, `version_id`, `tenant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -163,6 +167,8 @@ CREATE TABLE `configuration_group_translation` (
   `language_id` binary(16) NOT NULL,
   `language_tenant_id` binary(16) NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`configuration_group_id`, `configuration_group_version_id`, `configuration_group_tenant_id`, `language_id`, `language_tenant_id`),
   CONSTRAINT `configuration_group_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `configuration_group_translation_ibfk_2` FOREIGN KEY (`configuration_group_id`, `configuration_group_version_id`, `configuration_group_tenant_id`) REFERENCES `configuration_group` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -180,6 +186,8 @@ CREATE TABLE `configuration_group_option` (
   `media_id` binary(16) NULL DEFAULT NULL,
   `media_tenant_id` binary(16) NULL DEFAULT NULL,
   `media_version_id` binary(16) NULL DEFAULT NULL,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`id`, `version_id`, `tenant_id`),
   CONSTRAINT `fk_configuration_group_option.configuration_group_id` FOREIGN KEY (`configuration_group_id`, `configuration_group_version_id`, `configuration_group_tenant_id`) REFERENCES `configuration_group` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_configuration_group_option.media_id` FOREIGN KEY (`media_id`, `media_version_id`, `media_tenant_id`) REFERENCES `media` (`id`, `version_id`, `tenant_id`) ON DELETE SET NULL ON UPDATE CASCADE
@@ -193,6 +201,8 @@ CREATE TABLE `configuration_group_option_translation` (
   `language_id` binary(16) NOT NULL,
   `language_tenant_id` binary(16) NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`configuration_group_option_id`, `configuration_group_option_version_id`, `configuration_group_option_tenant_id`, `language_id`, `language_tenant_id`),
   CONSTRAINT `configuration_group_option_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `configuration_group_option_translation_ibfk_2` FOREIGN KEY (`configuration_group_option_id`, `configuration_group_option_version_id`, `configuration_group_option_tenant_id`) REFERENCES `configuration_group_option` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -237,6 +247,8 @@ CREATE TABLE `product_configurator` (
   `configuration_group_option_version_id` binary(16) NOT NULL,
   `price` LONGTEXT NULL,
   `prices` LONGTEXT NULL DEFAULT NULL,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`id`, `version_id`, `tenant_id`),
   CONSTRAINT `fk_product_configurator.product_id` FOREIGN KEY (`product_id`, `product_version_id`, `product_tenant_id`) REFERENCES `product` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_product_configurator.configuration_group_option_id` FOREIGN KEY (`configuration_group_option_id`, `configuration_group_option_version_id`, `configuration_group_option_tenant_id`) REFERENCES `configuration_group_option` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -258,6 +270,8 @@ CREATE TABLE `product_service` (
   `tax_version_id` binary(16) NOT NULL,
   `price` LONGTEXT NULL,
   `prices` LONGTEXT NULL DEFAULT NULL,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`id`, `version_id`, `tenant_id`),
   CONSTRAINT `fk_product_service.product_id` FOREIGN KEY (`product_id`, `product_version_id`, `product_tenant_id`) REFERENCES `product` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_product_service.configuration_group_option_id` FOREIGN KEY (`configuration_group_option_id`, `configuration_group_option_version_id`, `configuration_group_option_tenant_id`) REFERENCES `configuration_group_option` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -282,8 +296,8 @@ CREATE TABLE `country` (
   `country_area_id` binary(16) NULL,
   `country_area_tenant_id` binary(16) NULL,
   `country_area_version_id` binary(16) NULL,
-  `created_at` datetime,
-  `updated_at` datetime,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`id`, `version_id`, `tenant_id`),
   CONSTRAINT `fk_area_country.country_area_id` FOREIGN KEY (`country_area_id`, `country_area_version_id`, `country_area_tenant_id`) REFERENCES `country_area` (`id`, `version_id`, `tenant_id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -294,8 +308,8 @@ CREATE TABLE `country_area` (
   `tenant_id` binary(16) NOT NULL,
   `version_id` binary(16) NOT NULL,
   `active` tinyint(1) NOT NULL DEFAULT '1',
-  `created_at` datetime,
-  `updated_at` datetime,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`id`, `version_id`, `tenant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -307,6 +321,8 @@ CREATE TABLE `country_area_translation` (
   `language_id` binary(16) NOT NULL,
   `language_tenant_id` binary(16) NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`country_area_id`, `country_area_version_id`, `country_area_tenant_id`, `language_id`, `language_tenant_id`),
   CONSTRAINT `country_area_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `country_area_translation_ibfk_2` FOREIGN KEY (`country_area_id`, `country_area_version_id`, `country_area_tenant_id`) REFERENCES `country_area` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -324,8 +340,8 @@ CREATE TABLE `country_state` (
   `short_code` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `position` int(11) NOT NULL DEFAULT '1',
   `active` tinyint(1) NOT NULL DEFAULT '1',
-  `created_at` datetime,
-  `updated_at` datetime,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`id`, `version_id`, `tenant_id`),
   CONSTRAINT `fk_area_country_state.country_id` FOREIGN KEY (`country_id`, `country_version_id`, `country_tenant_id`) REFERENCES `country` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -339,6 +355,8 @@ CREATE TABLE `country_state_translation` (
   `language_id` binary(16) NOT NULL,
   `language_tenant_id` binary(16) NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`country_state_id`, `country_state_version_id`, `country_state_tenant_id`, `language_id`, `language_tenant_id`),
   CONSTRAINT `country_state_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `country_state_translation_ibfk_2` FOREIGN KEY (`country_state_id`, `country_state_version_id`, `country_state_tenant_id`) REFERENCES `country_state` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -353,6 +371,8 @@ CREATE TABLE `country_translation` (
   `language_id` binary(16) NOT NULL,
   `language_tenant_id` binary(16) NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`country_id`, `country_version_id`, `country_tenant_id`, `language_id`, `language_tenant_id`),
   CONSTRAINT `country_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `country_translation_ibfk_2` FOREIGN KEY (`country_id`, `country_version_id`, `country_tenant_id`) REFERENCES `country` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -369,8 +389,8 @@ CREATE TABLE `currency` (
   `symbol` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `symbol_position` int(11) unsigned NOT NULL DEFAULT '0',
   `position` int(11) NOT NULL DEFAULT '1',
-  `created_at` datetime,
-  `updated_at` datetime,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
    PRIMARY KEY (`id`, `version_id`, `tenant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -384,6 +404,8 @@ CREATE TABLE `currency_translation` (
   `language_tenant_id` binary(16) NOT NULL,
   `short_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`currency_id`, `currency_version_id`, `currency_tenant_id`, `language_id`, `language_tenant_id`),
   CONSTRAINT `currency_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `currency_translation_ibfk_2` FOREIGN KEY (`currency_id`, `currency_version_id`, `currency_tenant_id`) REFERENCES `currency` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -416,14 +438,14 @@ CREATE TABLE `customer` (
   `first_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `last_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `password` varchar(1024) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `email` varchar(70) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(250) COLLATE utf8mb4_unicode_ci NOT NULL,
   `title` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `encoder` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'md5',
   `active` tinyint(1) NOT NULL DEFAULT '1',
   `account_mode` int(11) NOT NULL DEFAULT '0',
   `confirmation_key` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `first_login` date DEFAULT NULL,
-  `last_login` datetime DEFAULT NULL,
+  `last_login` datetime(3) DEFAULT NULL,
   `session_id` varchar(128) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `newsletter` tinyint(1) NOT NULL DEFAULT '0',
   `validation` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT '',
@@ -431,10 +453,10 @@ CREATE TABLE `customer` (
   `referer` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `internal_comment` mediumtext COLLATE utf8mb4_unicode_ci,
   `failed_logins` int(11) NOT NULL DEFAULT '0',
-  `locked_until` datetime DEFAULT NULL,
+  `locked_until` datetime(3) DEFAULT NULL,
   `birthday` date DEFAULT NULL,
-  `created_at` datetime,
-  `updated_at` datetime,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`id`, `version_id`, `tenant_id`),
   UNIQUE `email` (`email`, `tenant_id`, `version_id`),
   UNIQUE `auto_increment` (`auto_increment`),
@@ -478,8 +500,8 @@ CREATE TABLE `customer_address` (
   `phone_number` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `additional_address_line1` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `additional_address_line2` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `created_at` datetime,
-  `updated_at` datetime,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
    PRIMARY KEY (`id`, `version_id`, `tenant_id`),
    CONSTRAINT `fk_customer_address.country_id` FOREIGN KEY (`country_id`, `country_version_id`, `country_tenant_id`) REFERENCES `country` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
    CONSTRAINT `fk_customer_address.country_state_id` FOREIGN KEY (`country_state_id`, `country_state_version_id`, `country_state_tenant_id`) REFERENCES `country_state` (`id`, `version_id`, `tenant_id`) ON DELETE SET NULL ON UPDATE CASCADE,
@@ -498,8 +520,8 @@ CREATE TABLE `customer_group` (
   `percentage_global_discount` double DEFAULT NULL,
   `minimum_order_amount` double DEFAULT NULL,
   `minimum_order_amount_surcharge` double DEFAULT NULL,
-  `created_at` datetime,
-  `updated_at` datetime,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`id`, `version_id`, `tenant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -514,8 +536,8 @@ CREATE TABLE `customer_group_discount` (
   `customer_group_version_id` binary(16) NOT NULL,
   `percentage_discount` double NOT NULL,
   `minimum_cart_amount` double NOT NULL,
-  `created_at` datetime,
-  `updated_at` datetime,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`id`, `version_id`, `tenant_id`),
   CONSTRAINT `fk_customer_group_discount.customer_group_id` FOREIGN KEY (`customer_group_id`, `customer_group_version_id`, `customer_group_tenant_id`) REFERENCES `customer_group` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -529,6 +551,8 @@ CREATE TABLE `customer_group_translation` (
   `language_id` binary(16) NOT NULL,
   `language_tenant_id` binary(16) NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`customer_group_id`, `customer_group_version_id`, `customer_group_tenant_id`, `language_id`, `language_tenant_id`),
   CONSTRAINT `customer_group_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `customer_group_translation_ibfk_2` FOREIGN KEY (`customer_group_id`, `customer_group_version_id`, `customer_group_tenant_id`) REFERENCES `customer_group` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -546,8 +570,8 @@ CREATE TABLE `listing_facet` (
   `deletable` tinyint(1) unsigned NOT NULL DEFAULT '1',
   `position` int(11) NOT NULL DEFAULT '1',
   `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `created_at` datetime,
-  `updated_at` datetime,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`id`, `version_id`, `tenant_id`),
   UNIQUE KEY `unique_identifier` (`unique_key`, `version_id`, `tenant_id`),
   KEY `sorting` (`display_in_categories`,`position`)
@@ -562,6 +586,8 @@ CREATE TABLE `listing_facet_translation` (
   `language_id` binary(16) NOT NULL,
   `language_tenant_id` binary(16) NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`listing_facet_id`, `listing_facet_version_id`, `listing_facet_tenant_id`, `language_id`, `language_tenant_id`),
   CONSTRAINT `listing_facet_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `listing_facet_translation_ibfk_2` FOREIGN KEY (`listing_facet_id`, `listing_facet_version_id`, `listing_facet_tenant_id`) REFERENCES `listing_facet` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -578,8 +604,8 @@ CREATE TABLE `listing_sorting` (
   `display_in_categories` tinyint(1) unsigned NOT NULL DEFAULT '1',
   `position` int(11) NOT NULL DEFAULT '1',
   `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `created_at` datetime,
-  `updated_at` datetime,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`id`, `version_id`, `tenant_id`),
   UNIQUE KEY `uniqueKey` (`unique_key`, `tenant_id`),
   KEY `sorting` (`display_in_categories`,`position`)
@@ -594,6 +620,8 @@ CREATE TABLE `listing_sorting_translation` (
   `language_id` binary(16) NOT NULL,
   `language_tenant_id` binary(16) NOT NULL,
   `label` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`listing_sorting_id`, `listing_sorting_version_id`, `listing_sorting_tenant_id`, `language_id`, `language_tenant_id`),
   CONSTRAINT `listing_sorting_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `listing_sorting_translation_ibfk_2` FOREIGN KEY (`listing_sorting_id`, `listing_sorting_version_id`, `listing_sorting_tenant_id`) REFERENCES `listing_sorting` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -606,8 +634,8 @@ CREATE TABLE `locale` (
   `tenant_id` binary(16) NOT NULL,
   `version_id` binary(16) NOT NULL,
   `code` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `created_at` datetime,
-  `updated_at` datetime,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`id`, `version_id`, `tenant_id`),
   UNIQUE KEY `locale` (`code`, `version_id`, `tenant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -621,6 +649,8 @@ CREATE TABLE `locale_translation` (
   `language_tenant_id` binary(16) NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `territory` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`locale_id`, `locale_version_id`, `locale_tenant_id`, `language_id`, `language_tenant_id`),
   CONSTRAINT `locale_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `locale_translation_ibfk_2` FOREIGN KEY (`locale_id`, `locale_version_id`, `locale_tenant_id`) REFERENCES `locale` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -641,8 +671,8 @@ CREATE TABLE `media` (
   `mime_type` varchar(50) COLLATE utf8mb4_unicode_ci NULL,
   `file_size` int(10) unsigned NULL,
   `meta_data` text COLLATE utf8mb4_unicode_ci,
-  `created_at` datetime,
-  `updated_at` datetime,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
    PRIMARY KEY (`id`, `version_id`, `tenant_id`),
    CONSTRAINT `fk_media.media_album_id` FOREIGN KEY (`media_album_id`, `media_album_version_id`, `media_album_tenant_id`) REFERENCES `media_album` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
    CONSTRAINT `fk_media.user_id` FOREIGN KEY (`user_id`, `user_tenant_id`) REFERENCES `user` (`id`, `tenant_id`) ON DELETE SET NULL ON UPDATE CASCADE,
@@ -667,8 +697,8 @@ CREATE TABLE `media_album` (
   `thumbnail_high_dpi` tinyint(1) NOT NULL DEFAULT '1',
   `thumbnail_quality` int(11) DEFAULT NULL,
   `thumbnail_high_dpi_quality` int(11) DEFAULT NULL,
-  `created_at` datetime,
-  `updated_at` datetime,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`id`, `version_id`, `tenant_id`),
   CONSTRAINT `fk_album.parent_id` FOREIGN KEY (`parent_id`, `parent_version_id`, `parent_tenant_id`) REFERENCES `media_album` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_album.catalog_id` FOREIGN KEY (`catalog_id`, `catalog_tenant_id`) REFERENCES `catalog` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -685,6 +715,8 @@ CREATE TABLE `media_album_translation` (
   `catalog_id` binary(16) NOT NULL,
   `catalog_tenant_id` binary(16) NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`media_album_id`, `media_album_version_id`, `media_album_tenant_id`, `language_id`, `language_tenant_id`),
   CONSTRAINT `media_album_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `media_album_translation_ibfk_2` FOREIGN KEY (`media_album_id`, `media_album_version_id`, `media_album_tenant_id`) REFERENCES `media_album` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -703,6 +735,8 @@ CREATE TABLE `media_translation` (
   `catalog_tenant_id` binary(16) NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `description` text COLLATE utf8mb4_unicode_ci,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`media_id`, `media_version_id`, `media_tenant_id`, `language_id`, `language_tenant_id`),
   CONSTRAINT `media_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `media_translation_ibfk_2` FOREIGN KEY (`media_id`, `media_version_id`, `media_tenant_id`) REFERENCES `media` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -733,14 +767,14 @@ CREATE TABLE `order` (
   `billing_address_id` binary(16) NOT NULL,
   `billing_address_tenant_id` binary(16) NOT NULL,
   `billing_address_version_id` binary(16) NOT NULL,
-  `order_date` datetime NOT NULL,
+  `order_date` datetime(3) NOT NULL,
   `amount_total` double NOT NULL,
   `position_price` double NOT NULL,
   `shipping_total` double NOT NULL,
   `is_net` tinyint(1) NOT NULL,
   `is_tax_free` tinyint(1) NOT NULL,
-  `created_at` datetime,
-  `updated_at` datetime,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
    PRIMARY KEY (`id`, `version_id`, `tenant_id`),
    UNIQUE `auto_increment` (`auto_increment`),
    CONSTRAINT `fk_order.billing_address_id` FOREIGN KEY (`billing_address_id`, `billing_address_version_id`, `billing_address_tenant_id`) REFERENCES `order_address` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
@@ -776,8 +810,8 @@ CREATE TABLE `order_address` (
   `phone_number` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `additional_address_line1` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `additional_address_line2` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `created_at` datetime,
-  `updated_at` datetime,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`id`, `version_id`, `tenant_id`),
   CONSTRAINT `fk_order_address.country_id` FOREIGN KEY (`country_id`, `country_version_id`, `country_tenant_id`) REFERENCES `country` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_order_address.country_state_id` FOREIGN KEY (`country_state_id`, `country_state_version_id`, `country_state_tenant_id`) REFERENCES `country_state` (`id`, `version_id`, `tenant_id`) ON DELETE SET NULL ON UPDATE CASCADE
@@ -804,8 +838,8 @@ CREATE TABLE `order_delivery` (
   `tracking_code` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `shipping_date_earliest` date NOT NULL,
   `shipping_date_latest` date NOT NULL,
-  `created_at` datetime,
-  `updated_at` datetime,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`id`, `version_id`, `tenant_id`),
   CONSTRAINT `fk_order_delivery.order_id` FOREIGN KEY (`order_id`, `order_version_id`, `order_tenant_id`) REFERENCES `order` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_order_delivery.order_state_id` FOREIGN KEY (`order_state_id`, `order_state_version_id`, `order_state_tenant_id`) REFERENCES `order_state` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
@@ -828,8 +862,8 @@ CREATE TABLE `order_delivery_position` (
   `unit_price` double NOT NULL,
   `total_price` double NOT NULL,
   `quantity` double NOT NULL,
-  `created_at` datetime,
-  `updated_at` datetime,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`id`, `version_id`, `tenant_id`),
   CONSTRAINT `fk_order_delivery_position.order_delivery_id` FOREIGN KEY (`order_delivery_id`, `order_delivery_version_id`, `order_delivery_tenant_id`) REFERENCES `order_delivery` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_order_delivery_position.order_line_item_id` FOREIGN KEY (`order_line_item_id`, `order_line_item_version_id`, `order_line_item_tenant_id`) REFERENCES `order_line_item` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -853,8 +887,8 @@ CREATE TABLE `order_line_item` (
   `unit_price` double NOT NULL,
   `total_price` double NOT NULL,
   `type` varchar(42) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `created_at` datetime,
-  `updated_at` datetime,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`id`, `version_id`, `tenant_id`),
   CONSTRAINT `fk_order_line_item.order_id` FOREIGN KEY (`order_id`, `order_version_id`, `order_tenant_id`) REFERENCES `order` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -867,8 +901,8 @@ CREATE TABLE `order_state` (
   `version_id` binary(16) NOT NULL,
   `position` int(11) NOT NULL DEFAULT '1',
   `has_mail` tinyint(1) NOT NULL DEFAULT '0',
-  `created_at` datetime,
-  `updated_at` datetime,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`id`, `version_id`, `tenant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -881,6 +915,8 @@ CREATE TABLE `order_state_translation` (
   `language_id` binary(16) NOT NULL,
   `language_tenant_id` binary(16) NOT NULL,
   `description` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`order_state_id`, `order_state_version_id`, `order_state_tenant_id`, `language_id`, `language_tenant_id`),
   CONSTRAINT `order_state_translation_ibfk_1` FOREIGN KEY (`language_id`, `order_state_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `order_state_translation_ibfk_2` FOREIGN KEY (`order_state_id`, `order_state_version_id`, `order_state_tenant_id`) REFERENCES `order_state` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -909,8 +945,8 @@ CREATE TABLE `payment_method` (
   `mobile_inactive` tinyint(1) NOT NULL DEFAULT '0',
   `risk_rules` longtext COLLATE utf8mb4_unicode_ci,
   `plugin_id` VARCHAR(250) DEFAULT NULL,
-  `created_at` datetime,
-  `updated_at` datetime,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`id`, `version_id`, `tenant_id`),
   UNIQUE KEY `name` (`technical_name`, `version_id`, `tenant_id`),
   CONSTRAINT `fk_payment_method.plugin_id` FOREIGN KEY (`plugin_id`) REFERENCES `plugin` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -926,6 +962,8 @@ CREATE TABLE `payment_method_translation` (
   `language_tenant_id` binary(16) NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `additional_description` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`payment_method_id`, `payment_method_version_id`, `payment_method_tenant_id`, `language_id`, `language_tenant_id`),
   CONSTRAINT `payment_method_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `payment_method_translation_ibfk_2` FOREIGN KEY (`payment_method_id`, `payment_method_version_id`, `payment_method_tenant_id`) REFERENCES `payment_method` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -942,7 +980,7 @@ CREATE TABLE `payment_token` (
   `order_transaction_id` binary(16) NOT NULL,
   `order_transaction_tenant_id` binary(16) NOT NULL,
   `order_transaction_version_id` binary(16) NOT NULL,
-  `expires` datetime NOT NULL,
+  `expires` datetime(3) NOT NULL,
   PRIMARY KEY (`id`, `tenant_id`),
   UNIQUE KEY `token` (`token`, `tenant_id`),
   CONSTRAINT `fk_payment_token.payment_method_id` FOREIGN KEY (`payment_method_id`, `payment_method_version_id`, `payment_method_tenant_id`) REFERENCES `payment_method` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -957,9 +995,9 @@ CREATE TABLE `plugin` (
   `description` mediumtext COLLATE utf8mb4_unicode_ci,
   `description_long` mediumtext COLLATE utf8mb4_unicode_ci,
   `active` tinyint(1) NOT NULL,
-  `installation_date` datetime DEFAULT NULL,
-  `update_date` datetime DEFAULT NULL,
-  `refresh_date` datetime DEFAULT NULL,
+  `installation_date` datetime(3) DEFAULT NULL,
+  `update_date` datetime(3) DEFAULT NULL,
+  `refresh_date` datetime(3) DEFAULT NULL,
   `author` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `copyright` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `license` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -968,15 +1006,15 @@ CREATE TABLE `plugin` (
   `changes` mediumtext COLLATE utf8mb4_unicode_ci,
   `link` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `store_version` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `store_date` datetime DEFAULT NULL,
+  `store_date` datetime(3) DEFAULT NULL,
   `capability_update` tinyint(1) NOT NULL,
   `capability_install` tinyint(1) NOT NULL,
   `capability_enable` tinyint(1) NOT NULL,
   `update_source` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `update_version` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `capability_secure_uninstall` tinyint(1) NOT NULL,
-  `created_at` datetime,
-  `updated_at` datetime,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1041,9 +1079,9 @@ CREATE TABLE `product` (
   `length` decimal(10,3) unsigned DEFAULT NULL,
   `template` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `allow_notification` tinyint(1) unsigned DEFAULT NULL,
-  `release_date` datetime DEFAULT NULL,
-  `created_at` datetime DEFAULT NULL,
-  `updated_at` datetime,
+  `release_date` datetime(3) DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3),
   CHECK (JSON_VALID(`category_tree`)),
   CHECK (JSON_VALID(`listing_prices`)),
   CHECK (JSON_VALID(`price`)),
@@ -1074,8 +1112,8 @@ CREATE TABLE `product_price_rule` (
   `price` LONGTEXT NOT NULL,
   `quantity_start` INT(11) NOT NULL,
   `quantity_end` INT(11) NULL DEFAULT NULL,
-  `created_at` datetime NOT NULL,
-  `updated_at` datetime NULL DEFAULT NULL,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3) NULL DEFAULT NULL,
   PRIMARY KEY (`id`, `version_id`, `tenant_id`),
   CONSTRAINT `fk_product_price_rule.product_id` FOREIGN KEY (`product_id`, `product_version_id`, `product_tenant_id`) REFERENCES `product` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_product_price_rule.currency_id` FOREIGN KEY (`currency_id`, `currency_version_id`, `currency_tenant_id`) REFERENCES `currency` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -1090,8 +1128,8 @@ CREATE TABLE `product_category` (
   `category_id` binary(16) NOT NULL,
   `category_tenant_id` binary(16) NOT NULL,
   `category_version_id` binary(16) NOT NULL,
-  `created_at` datetime,
-  `updated_at` datetime,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`product_id`, `product_version_id`, `product_tenant_id`, `category_id`, `category_version_id`, `category_tenant_id`),
   CONSTRAINT `fk_product_category.category_id` FOREIGN KEY (`category_id`, `category_version_id`, `category_tenant_id`) REFERENCES `category` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_product_category.product_id` FOREIGN KEY (`product_id`, `product_version_id`, `product_tenant_id`) REFERENCES `product` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -1138,8 +1176,8 @@ CREATE TABLE `product_manufacturer` (
   `media_id` binary(16) DEFAULT NULL,
   `media_tenant_id` binary(16) DEFAULT NULL,
   `media_version_id` binary(16) DEFAULT NULL,
-  `created_at` datetime,
-  `updated_at` datetime,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
    PRIMARY KEY (`id`, `version_id`, `tenant_id`),
    CONSTRAINT `fk_product_manufacturer.media_id` FOREIGN KEY (`media_id`, `media_version_id`, `media_tenant_id`) REFERENCES `media` (`id`, `version_id`, `tenant_id`) ON DELETE SET NULL ON UPDATE CASCADE,
    CONSTRAINT `fk_product_manufacturer.catalog_id` FOREIGN KEY (`catalog_id`, `catalog_tenant_id`) REFERENCES `catalog` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -1160,6 +1198,8 @@ CREATE TABLE `product_manufacturer_translation` (
   `meta_title` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `meta_description` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `meta_keywords` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`product_manufacturer_id`, `product_manufacturer_version_id`, `product_manufacturer_tenant_id`,`language_id`, `language_tenant_id`),
   CONSTRAINT `product_manufacturer_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `product_manufacturer_translation_ibfk_2` FOREIGN KEY (`product_manufacturer_id`, `product_manufacturer_version_id`, `product_manufacturer_tenant_id`) REFERENCES `product_manufacturer` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -1181,8 +1221,8 @@ CREATE TABLE `product_media` (
   `media_id` binary(16) NOT NULL,
   `media_tenant_id` binary(16) NOT NULL,
   `media_version_id` binary(16) NOT NULL,
-  `created_at` datetime,
-  `updated_at` datetime,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`id`, `version_id`, `tenant_id`),
   CONSTRAINT `fk_product_media.media_id` FOREIGN KEY (`media_id`, `media_version_id`, `media_tenant_id`) REFERENCES `media` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_product_media.product_id` FOREIGN KEY (`product_id`, `product_version_id`, `product_tenant_id`) REFERENCES `product` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -1205,6 +1245,8 @@ CREATE TABLE `product_translation` (
   `description_long` mediumtext COLLATE utf8mb4_unicode_ci,
   `meta_title` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `pack_unit` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`product_id`, `language_id`, `product_version_id`, `language_tenant_id`, `product_tenant_id`),
   CONSTRAINT `fk_product_trans.language_id` FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_product_trans.product_id` FOREIGN KEY (`product_id`, `product_version_id`, `product_tenant_id`) REFERENCES `product` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -1214,8 +1256,8 @@ CREATE TABLE `product_translation` (
 DROP TABLE IF EXISTS `schema_version`;
 CREATE TABLE `schema_version` (
   `version` varchar(14) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `start_date` datetime NOT NULL,
-  `complete_date` datetime DEFAULT NULL,
+  `start_date` datetime(3) NOT NULL,
+  `complete_date` datetime(3) DEFAULT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `error_msg` longtext COLLATE utf8mb4_unicode_ci
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1230,8 +1272,8 @@ CREATE TABLE `language` (
   `locale_id` binary(16) NOT NULL,
   `locale_tenant_id` binary(16) NOT NULL,
   `locale_version_id` binary(16) NOT NULL,
-  `created_at` datetime,
-  `updated_at` datetime,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`id`, `tenant_id`),
   CONSTRAINT `fk_language.parent_id` FOREIGN KEY (`parent_id`, `parent_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_language.locale_id` FOREIGN KEY (`locale_id`, `locale_version_id`, `locale_tenant_id`) REFERENCES `locale` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -1251,8 +1293,8 @@ CREATE TABLE `seo_url` (
   `seo_path_info` varchar(750) COLLATE 'utf8mb4_unicode_ci' NOT NULL,
   `is_canonical` tinyint(1) NOT NULL DEFAULT '0',
   `is_modified` tinyint(1) NOT NULL DEFAULT '0',
-  `created_at` datetime,
-  `updated_at` datetime,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`id`, `version_id`, `tenant_id`),
   INDEX `seo_routing` (`version_id`, `touchpoint_id`, `seo_path_info`, `tenant_id`),
   INDEX `entity_canonical_url` (`touchpoint_id`, `foreign_key`, `name`, `is_canonical`, `tenant_id`),
@@ -1307,8 +1349,8 @@ CREATE TABLE `shipping_method` (
   `bind_sql` mediumtext COLLATE utf8mb4_unicode_ci,
   `status_link` mediumtext COLLATE utf8mb4_unicode_ci,
   `calculation_sql` mediumtext COLLATE utf8mb4_unicode_ci,
-  `created_at` datetime,
-  `updated_at` datetime,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
    PRIMARY KEY (`id`, `version_id`, `tenant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1324,8 +1366,8 @@ CREATE TABLE `shipping_method_price` (
   `quantity_from` decimal(10,3) unsigned NOT NULL,
   `price` decimal(10,2) NOT NULL,
   `factor` decimal(10,2) NOT NULL,
-  `created_at` datetime,
-  `updated_at` datetime,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`id`, `version_id`, `tenant_id`),
   UNIQUE KEY `shipping_method_uuid_quantity_from` (`shipping_method_id`, `quantity_from`, `version_id`, `tenant_id`),
   CONSTRAINT `fk_shipping_method_price.shipping_method_id` FOREIGN KEY (`shipping_method_id`, `shipping_method_version_id`, `shipping_method_tenant_id`) REFERENCES `shipping_method` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -1341,194 +1383,12 @@ CREATE TABLE `shipping_method_translation` (
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `description` mediumtext COLLATE utf8mb4_unicode_ci,
   `comment` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`shipping_method_id`, `shipping_method_version_id`, `shipping_method_tenant_id`, `language_id`, `language_tenant_id`),
   CONSTRAINT `shipping_method_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `shipping_method_translation_ibfk_2` FOREIGN KEY (`shipping_method_id`, `shipping_method_version_id`, `shipping_method_tenant_id`) REFERENCES `shipping_method` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
-DROP TABLE IF EXISTS `shop`;
-CREATE TABLE `shop` (
-  `id` binary(16) NOT NULL,
-  `tenant_id` binary(16) NOT NULL,
-  `version_id` binary(16) NOT NULL,
-  `catalog_ids` LONGTEXT NOT NULL,
-  `host` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `base_path` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `base_url` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `shop_template_id` binary(16) NOT NULL,
-  `shop_template_tenant_id` binary(16) NOT NULL,
-  `shop_template_version_id` binary(16) NOT NULL,
-  `document_template_id` binary(16) NOT NULL,
-  `document_template_tenant_id` binary(16) NOT NULL,
-  `document_template_version_id` binary(16) NOT NULL,
-  `category_id` binary(16) NOT NULL,
-  `category_tenant_id` binary(16) NOT NULL,
-  `category_version_id` binary(16) NOT NULL,
-  `locale_id` binary(16) NOT NULL,
-  `locale_tenant_id` binary(16) NOT NULL,
-  `locale_version_id` binary(16) NOT NULL,
-  `currency_id` binary(16) NOT NULL,
-  `currency_tenant_id` binary(16) NOT NULL,
-  `currency_version_id` binary(16) NOT NULL,
-  `customer_group_id` binary(16) NOT NULL,
-  `customer_group_tenant_id` binary(16) NOT NULL,
-  `customer_group_version_id` binary(16) NOT NULL,
-  `fallback_translation_id` binary(16) DEFAULT NULL,
-  `fallback_translation_tenant_id` binary(16) DEFAULT NULL,
-  `fallback_translation_version_id` binary(16) DEFAULT NULL,
-  `payment_method_id` binary(16) NOT NULL,
-  `payment_method_tenant_id` binary(16) NOT NULL,
-  `payment_method_version_id` binary(16) NOT NULL,
-  `shipping_method_id` binary(16) NOT NULL,
-  `shipping_method_tenant_id` binary(16) NOT NULL,
-  `shipping_method_version_id` binary(16) NOT NULL,
-  `country_id` binary(16) NOT NULL,
-  `country_tenant_id` binary(16) NOT NULL,
-  `country_version_id` binary(16) NOT NULL,
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `title` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `position` int(11) NOT NULL,
-  `hosts` text COLLATE utf8mb4_unicode_ci,
-  `is_secure` tinyint(1) unsigned NOT NULL DEFAULT '1',
-  `customer_scope` tinyint(1) NOT NULL DEFAULT '0',
-  `is_default` tinyint(1) unsigned NOT NULL DEFAULT '0',
-  `active` tinyint(1) NOT NULL DEFAULT '1',
-  `tax_calculation_type` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'vertical',
-  `created_at` datetime,
-  `updated_at` datetime,
-  CHECK (JSON_VALID(`catalog_ids`)),
-  PRIMARY KEY (`id`, `version_id`, `tenant_id`),
-  KEY `host` (`host`),
-  CONSTRAINT `fk_shop.category_id` FOREIGN KEY (`category_id`, `category_version_id`, `category_tenant_id`) REFERENCES `category` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `fk_shop.country_id` FOREIGN KEY (`country_id`, `country_version_id`, `country_tenant_id`) REFERENCES `country` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `fk_shop.currency_id` FOREIGN KEY (`currency_id`, `currency_version_id`, `currency_tenant_id`) REFERENCES `currency` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `fk_shop.customer_group_id` FOREIGN KEY (`customer_group_id`, `customer_group_version_id`, `customer_group_tenant_id`) REFERENCES `customer_group` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `fk_shop.document_template_id` FOREIGN KEY (`document_template_id`, `document_template_version_id`, `document_template_tenant_id`) REFERENCES `shop_template` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `fk_shop.fallback_translation_id` FOREIGN KEY (`fallback_translation_id`, `fallback_translation_version_id`, `fallback_translation_tenant_id`) REFERENCES `shop` (`id`, `version_id`, `tenant_id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `fk_shop.locale_id` FOREIGN KEY (`locale_id`, `locale_version_id`, `locale_tenant_id`) REFERENCES `locale` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `fk_shop.payment_method_id` FOREIGN KEY (`payment_method_id`, `payment_method_version_id`, `payment_method_tenant_id`) REFERENCES `payment_method` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `fk_shop.shipping_method_id` FOREIGN KEY (`shipping_method_id`, `shipping_method_version_id`, `shipping_method_tenant_id`) REFERENCES `shipping_method` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `fk_shop.shop_template_id` FOREIGN KEY (`shop_template_id`, `shop_template_version_id`, `shop_template_tenant_id`) REFERENCES `shop_template` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-DROP TABLE IF EXISTS `shop_template`;
-CREATE TABLE `shop_template` (
-  `id` binary(16) NOT NULL,
-  `tenant_id` binary(16) NOT NULL,
-  `version_id` binary(16) NOT NULL,
-  `template` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `description` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `author` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `license` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `esi` tinyint(1) unsigned NOT NULL DEFAULT '1',
-  `style_support` tinyint(1) unsigned NOT NULL DEFAULT '1',
-  `version` int(11) unsigned NOT NULL DEFAULT '0',
-  `emotion` tinyint(1) unsigned NOT NULL,
-  `plugin_id` VARCHAR(250) DEFAULT NULL,
-  `parent_id` binary(16) DEFAULT NULL,
-  `parent_tenant_id` binary(16) DEFAULT NULL,
-  `parent_version_id` binary(16) DEFAULT NULL,
-  `created_at` datetime,
-  `updated_at` datetime,
-  PRIMARY KEY (`id`, `version_id`, `tenant_id`),
-  UNIQUE KEY `basename` (`template`, `version_id`, `tenant_id`),
-  CONSTRAINT `fk_shop_template.parent_id` FOREIGN KEY (`parent_id`, `parent_version_id`, `parent_tenant_id`) REFERENCES `shop_template` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_shop_template.plugin_id` FOREIGN KEY (`plugin_id`) REFERENCES `plugin` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
-DROP TABLE IF EXISTS `shop_template_config_form`;
-CREATE TABLE `shop_template_config_form` (
-  `id` binary(16) NOT NULL,
-  `tenant_id` binary(16) NOT NULL,
-  `version_id` binary(16) NOT NULL,
-  `type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `title` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `options` text COLLATE utf8mb4_unicode_ci,
-  `parent_id` binary(16) DEFAULT NULL,
-  `parent_tenant_id` binary(16) DEFAULT NULL,
-  `parent_version_id` binary(16) DEFAULT NULL,
-  `shop_template_id` binary(16) NOT NULL,
-  `shop_template_tenant_id` binary(16) NOT NULL,
-  `shop_template_version_id` binary(16) NOT NULL,
-  `created_at` datetime,
-  `updated_at` datetime,
-  PRIMARY KEY (`id`, `version_id`, `tenant_id`),
-  CONSTRAINT `fk_shop_template_config_form.parent_id` FOREIGN KEY (`parent_id`, `parent_version_id`, `parent_tenant_id`) REFERENCES `shop_template_config_form` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_shop_template_config_form.shop_template_id` FOREIGN KEY (`shop_template_id`, `shop_template_version_id`, `shop_template_tenant_id`) REFERENCES `shop_template` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
-DROP TABLE IF EXISTS `shop_template_config_form_field`;
-CREATE TABLE `shop_template_config_form_field` (
-  `id` binary(16) NOT NULL,
-  `tenant_id` binary(16) NOT NULL,
-  `version_id` binary(16) NOT NULL,
-  `shop_template_id` binary(16) NOT NULL,
-  `shop_template_tenant_id` binary(16) NOT NULL,
-  `shop_template_version_id` binary(16) NOT NULL,
-  `shop_template_config_form_id` binary(16) NOT NULL,
-  `shop_template_config_form_tenant_id` binary(16) NOT NULL,
-  `shop_template_config_form_version_id` binary(16) NOT NULL,
-  `type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `position` int(11) NOT NULL DEFAULT '0',
-  `default_value` text COLLATE utf8mb4_unicode_ci,
-  `selection` text COLLATE utf8mb4_unicode_ci,
-  `field_label` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `support_text` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `allow_blank` tinyint(1) NOT NULL DEFAULT '1',
-  `attributes` text COLLATE utf8mb4_unicode_ci,
-  `less_compatible` tinyint(1) NOT NULL DEFAULT '1',
-  `created_at` datetime,
-  `updated_at` datetime,
-  PRIMARY KEY (`id`, `version_id`, `tenant_id`),
-  UNIQUE KEY `template_id_name` (`name`, `version_id`, `tenant_id`),
-  CONSTRAINT `fk_shop_template_cff.shop_template_config_form_id` FOREIGN KEY (`shop_template_config_form_id`, `shop_template_config_form_version_id`, `shop_template_config_form_tenant_id`) REFERENCES `shop_template_config_form` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_shop_template_config_form_field.shop_template_id` FOREIGN KEY (`shop_template_id`, `shop_template_version_id`, `shop_template_tenant_id`) REFERENCES `shop_template` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
-DROP TABLE IF EXISTS `shop_template_config_form_field_value`;
-CREATE TABLE `shop_template_config_form_field_value` (
-  `id` binary(16) NOT NULL,
-  `tenant_id` binary(16) NOT NULL,
-  `version_id` binary(16) NOT NULL,
-  `value` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `shop_template_config_form_field_id` binary(16) NOT NULL,
-  `shop_template_config_form_field_tenant_id` binary(16) NOT NULL,
-  `shop_template_config_form_field_version_id` binary(16) NOT NULL,
-  `shop_id` binary(16) NOT NULL,
-  `shop_tenant_id` binary(16) NOT NULL,
-  `shop_version_id` binary(16) NOT NULL,
-  `created_at` datetime,
-  `updated_at` datetime,
-  PRIMARY KEY (`id`, `version_id`, `tenant_id`),
-  CONSTRAINT `fk_shop_template_cffv.shop_id` FOREIGN KEY (`shop_id`, `shop_version_id`, `shop_tenant_id`) REFERENCES `shop` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_shop_template_cffv.shop_template_config_form_field_id` FOREIGN KEY (`shop_template_config_form_field_id`, `shop_template_config_form_field_version_id`, `shop_template_config_form_field_tenant_id`) REFERENCES `shop_template_config_form_field` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
-DROP TABLE IF EXISTS `shop_template_config_preset`;
-CREATE TABLE `shop_template_config_preset` (
-  `id` binary(16) NOT NULL,
-  `tenant_id` binary(16) NOT NULL,
-  `version_id` binary(16) NOT NULL,
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `description` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `element_values` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `shop_template_id` binary(16) NOT NULL,
-  `shop_template_tenant_id` binary(16) NOT NULL,
-  `shop_template_version_id` binary(16) NOT NULL,
-  `created_at` datetime,
-  `updated_at` datetime,
-  PRIMARY KEY (`id`, `version_id`, `tenant_id`),
-  CONSTRAINT `fk_shop_template_config_preset.shop_template_id` FOREIGN KEY (`shop_template_id`, `shop_template_version_id`, `shop_template_tenant_id`) REFERENCES `shop_template` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 
 DROP TABLE IF EXISTS `snippet`;
 CREATE TABLE `snippet` (
@@ -1538,8 +1398,8 @@ CREATE TABLE `snippet` (
   `language_tenant_id` binary(16) NOT NULL,
   `translation_key` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `value` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `created_at` datetime,
-  `updated_at` datetime,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`id`, `tenant_id`),
   UNIQUE (`tenant_id`, `language_id`, `translation_key`),
   CONSTRAINT `fk_snippet.language_id` FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -1553,8 +1413,8 @@ CREATE TABLE `tax` (
   `version_id` binary(16) NOT NULL,
   `tax_rate` decimal(10,2) NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `created_at` datetime,
-  `updated_at` datetime,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`id`, `version_id`, `tenant_id`),
   KEY `tax` (`tax_rate`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1582,8 +1442,8 @@ CREATE TABLE `tax_area_rule` (
   `customer_group_id` binary(16) NOT NULL,
   `customer_group_tenant_id` binary(16) NOT NULL,
   `customer_group_version_id` binary(16) NOT NULL,
-  `created_at` datetime,
-  `updated_at` datetime,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`id`, `version_id`, `tenant_id`),
   CONSTRAINT `fk_tax_area_rule.country_area_id` FOREIGN KEY (`country_area_id`, `country_area_version_id`, `country_area_tenant_id`) REFERENCES `country_area` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_tax_area_rule.country_id` FOREIGN KEY (`country_id`, `country_version_id`, `country_tenant_id`) REFERENCES `country` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -1601,6 +1461,8 @@ CREATE TABLE `tax_area_rule_translation` (
   `language_id` binary(16) NOT NULL,
   `language_tenant_id` binary(16) NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`tax_area_rule_id`, `tax_area_rule_version_id`, `tax_area_rule_tenant_id`,`language_id`, `language_tenant_id`),
   CONSTRAINT `tax_area_rule_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `tax_area_rule_translation_ibfk_2` FOREIGN KEY (`tax_area_rule_id`, `tax_area_rule_version_id`, `tax_area_rule_tenant_id`) REFERENCES `tax_area_rule` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -1612,8 +1474,8 @@ CREATE TABLE `order_transaction_state` (
   `version_id` binary(16) NOT NULL,
   `position` int(11) NOT NULL,
   `has_mail` tinyint NOT NULL,
-  `created_at` datetime,
-  `updated_at` datetime,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
    PRIMARY KEY (`id`, `version_id`, `tenant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1625,6 +1487,8 @@ CREATE TABLE `order_transaction_state_translation` (
   `language_tenant_id` binary(16) NOT NULL,
   `language_version_id` binary(16) NOT NULL,
   `description` varchar(255) NOT NULL,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`order_transaction_state_id`, `language_id`, `order_transaction_state_tenant_id`, `language_tenant_id`),
   CONSTRAINT `order_transaction_state_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_version_id`, `language_tenant_id`) REFERENCES `shop` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `order_transaction_state_translation_ibfk_2` FOREIGN KEY (`order_transaction_state_id`, `order_transaction_state_version_id`, `order_transaction_state_tenant_id`) REFERENCES `order_transaction_state` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -1645,8 +1509,8 @@ CREATE TABLE `order_transaction` (
   `order_transaction_state_tenant_id` binary(16) NOT NULL,
   `order_transaction_state_version_id` binary(16) NOT NULL,
   `amount` longtext NOT NULL,
-  `created_at` datetime,
-  `updated_at` datetime,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`id`, `version_id`, `tenant_id`),
   CONSTRAINT `fk_order_transaction.order_id` FOREIGN KEY (`order_id`, `order_version_id`, `order_tenant_id`) REFERENCES `order` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_order_transaction.payment_method_id` FOREIGN KEY (`payment_method_id`, `payment_method_version_id`, `payment_method_tenant_id`) REFERENCES `payment_method` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
@@ -1658,11 +1522,10 @@ CREATE TABLE `unit` (
   `id` binary(16) NOT NULL,
   `tenant_id` binary(16) NOT NULL,
   `version_id` binary(16) NOT NULL,
-  `created_at` datetime,
-  `updated_at` datetime,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`id`, `version_id`, `tenant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 
 DROP TABLE IF EXISTS `unit_translation`;
 CREATE TABLE `unit_translation` (
@@ -1673,11 +1536,12 @@ CREATE TABLE `unit_translation` (
   `language_tenant_id` binary(16) NOT NULL,
   `short_code` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`unit_id`,`language_id`, `unit_version_id`, `language_tenant_id`, `unit_tenant_id`),
   CONSTRAINT `unit_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `unit_translation_ibfk_2` FOREIGN KEY (`unit_id`, `unit_version_id`, `unit_tenant_id`) REFERENCES `unit` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user` (
@@ -1685,17 +1549,17 @@ CREATE TABLE `user` (
   `tenant_id` binary(16) NOT NULL,
   `username` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `last_login` datetime DEFAULT NULL,
+  `last_login` datetime(3) DEFAULT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `email` varchar(120) COLLATE utf8mb4_unicode_ci NOT NULL,
   `active` tinyint(1) NOT NULL DEFAULT '0',
   `failed_logins` int(11) NOT NULL DEFAULT '0',
-  `locked_until` datetime DEFAULT NULL,
+  `locked_until` datetime(3) DEFAULT NULL,
   `locale_id` binary(16) NOT NULL,
   `locale_version_id` binary(16) NOT NULL,
   `locale_tenant_id` binary(16) NOT NULL,
-  `created_at` datetime,
-  `updated_at` datetime,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`id`, `tenant_id`),
   CONSTRAINT `fk_user.locale_id` FOREIGN KEY (`locale_id`, `locale_version_id`, `locale_tenant_id`) REFERENCES `locale` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1709,8 +1573,8 @@ CREATE TABLE `user_access_key` (
   `write_access` tinyint(1) NOT NULL,
   `access_key` varchar(255) NOT NULL,
   `secret_access_key` varchar(255) NOT NULL,
-  `created_at` datetime NOT NULL,
-  `last_usage_at` datetime NULL,
+  `created_at` datetime(3) NOT NULL,
+  `last_usage_at` datetime(3) NULL,
   PRIMARY KEY (`id`, `tenant_id`),
   INDEX `user_id_user_tenant_id` (`user_id`, `user_tenant_id`),
   INDEX `access_key` (`access_key`),
@@ -1724,8 +1588,8 @@ CREATE TABLE `rule` (
   `name` varchar(500) NOT NULL,
   `priority` int(11) NOT NULL,
   `payload` longtext NOT NULL,
-  `created_at` datetime NOT NULL,
-  `updated_at` datetime NULL DEFAULT NULL,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3) NULL DEFAULT NULL,
   PRIMARY KEY (`id`, `tenant_id`),
   CHECK (JSON_VALID (`payload`))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1739,8 +1603,8 @@ CREATE TABLE `discount_surcharge` (
   `filter_rule` LONGTEXT NOT NULL,
   `type` VARCHAR(255),
   `amount` FLOAT,
-  `created_at` DATETIME NOT NULL,
-  `updated_at` DATETIME NULL DEFAULT NULL,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3) NULL DEFAULT NULL,
    PRIMARY KEY (`id`, `tenant_id`),
    CHECK (JSON_VALID (`filter_rule`)),
    CONSTRAINT `fk_discount_surcharge.rule_id` FOREIGN KEY (`rule_id`, rule_tenant_id) REFERENCES `rule` (`id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE
@@ -1753,6 +1617,8 @@ CREATE TABLE `discount_surcharge_translation` (
   `language_id` BINARY(16) NOT NULL,
   `language_tenant_id` BINARY(16) NOT NULL,
   `name` VARCHAR(500) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`discount_surcharge_id`, `discount_surcharge_tenant_id`, `language_id`, `language_tenant_id`),
   CONSTRAINT `discount_surcharge_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `discount_surcharge_translation_ibfk_2` FOREIGN KEY (`discount_surcharge_id`, `discount_surcharge_tenant_id`) REFERENCES `discount_surcharge` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -1763,8 +1629,8 @@ CREATE TABLE `version` (
   `id` binary(16) NOT NULL,
   `tenant_id` binary(16) NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `created_at` datetime NOT NULL,
-  `updated_at` datetime DEFAULT NULL,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
   PRIMARY KEY (`id`, `tenant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1781,7 +1647,7 @@ CREATE TABLE `version_commit` (
   `integration_tenant_id` binary(16) DEFAULT NULL,
   `version_id` binary(16) NOT NULL,
   `version_tenant_id` binary(16) NOT NULL,
-  `created_at` datetime NOT NULL,
+  `created_at` datetime(3) NOT NULL,
   PRIMARY KEY (`id`, `tenant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1800,7 +1666,7 @@ CREATE TABLE `version_commit_data` (
   `user_tenant_id` binary(16) DEFAULT NULL,
   `integration_id` binary(16) DEFAULT NULL,
   `integration_tenant_id` binary(16) DEFAULT NULL,
-  `created_at` datetime NOT NULL,
+  `created_at` datetime(3) NOT NULL,
   CHECK (JSON_VALID (`entity_id`)),
   CHECK (JSON_VALID (`payload`)),
   PRIMARY KEY (`id`, `tenant_id`),
@@ -1812,8 +1678,8 @@ CREATE TABLE `catalog` (
   `id` binary(16) NOT NULL,
   `tenant_id` binary(16) NOT NULL,
   `name` varchar(255) NOT NULL,
-  `created_at` datetime,
-  `updated_at` datetime,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
   PRIMARY KEY (`id`, `tenant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1846,9 +1712,9 @@ CREATE TABLE `integration` (
   `access_key` varchar(255) NOT NULL,
   `secret_access_key` varchar(255) NOT NULL,
   `label` varchar(255) NOT NULL,
-  `created_at` datetime NOT NULL,
-  `updated_at` datetime,
-  `last_usage_at` datetime,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
+  `last_usage_at` datetime(3),
   PRIMARY KEY (`id`, `tenant_id`),
   INDEX `access_key` (`access_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Language;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationCollection;
+use Shopware\Core\Checkout\DiscountSurcharge\Aggregate\DiscountSurchargeTranslation\DiscountSurchargeTranslationCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderStateTranslation\OrderStateTranslationCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionStateTranslation\OrderTransactionStateTranslationCollection;
 use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationCollection;
@@ -185,6 +186,11 @@ class LanguageStruct extends Entity
      * @var ConfigurationGroupOptionTranslationCollection|null
      */
     protected $configurationGroupOptionTranslations;
+
+    /**
+     * @var DiscountSurchargeTranslationCollection|null
+     */
+    protected $discountsurchargeTranslations;
 
     /**
      * @var ProductSearchKeywordCollection|null
@@ -524,5 +530,15 @@ class LanguageStruct extends Entity
     public function setSnippets(SnippetCollection $snippets): void
     {
         $this->snippets = $snippets;
+    }
+
+    public function getDiscountsurchargeTranslations(): ?DiscountSurchargeTranslationCollection
+    {
+        return $this->discountsurchargeTranslations;
+    }
+
+    public function setDiscountsurchargeTranslations(DiscountSurchargeTranslationCollection $discountsurchargeTranslations): void
+    {
+        $this->discountsurchargeTranslations = $discountsurchargeTranslations;
     }
 }

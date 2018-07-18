@@ -6,12 +6,14 @@ use Shopware\Core\Content\Catalog\CatalogDefinition;
 use Shopware\Core\Content\Catalog\ORM\CatalogField;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Field\CreatedAtField;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\LongTextField;
 use Shopware\Core\Framework\ORM\Field\LongTextWithHtmlField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
 use Shopware\Core\Framework\ORM\Field\StringField;
+use Shopware\Core\Framework\ORM\Field\UpdatedAtField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
@@ -39,6 +41,8 @@ class ProductTranslationDefinition extends EntityDefinition
             new LongTextWithHtmlField('description_long', 'descriptionLong'),
             new StringField('meta_title', 'metaTitle'),
             new StringField('pack_unit', 'packUnit'),
+            new CreatedAtField(),
+            new UpdatedAtField(),
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false),
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, false),
             new ManyToOneAssociationField('catalog', 'catalog_id', CatalogDefinition::class, false, 'id'),

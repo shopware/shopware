@@ -41,4 +41,6 @@ final class Defaults
     public const SHIPPING_METHOD = '417beeb2dddf45d1b90188fd211343c3';
 
     public const LOCALE = '7b52d9dd2b0640ec90be9f57edf29be7';
+
+    public const DATE_FORMAT = 'Y-m-d H:i:s.v';
 }

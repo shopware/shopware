@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Language;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationDefinition;
+use Shopware\Core\Checkout\DiscountSurcharge\Aggregate\DiscountSurchargeTranslation\DiscountSurchargeTranslationDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderStateTranslation\OrderStateTranslationDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionStateTranslation\OrderTransactionStateTranslationDefinition;
 use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationDefinition;
@@ -17,7 +18,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKe
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Field\ChildrenAssociationField;
-use Shopware\Core\Framework\ORM\Field\DateField;
+use Shopware\Core\Framework\ORM\Field\CreatedAtField;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\IdField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
@@ -27,6 +28,7 @@ use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
 use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\Field\TenantIdField;
 use Shopware\Core\Framework\ORM\Field\TranslationsAssociationField;
+use Shopware\Core\Framework\ORM\Field\UpdatedAtField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
@@ -60,8 +62,8 @@ class LanguageDefinition extends EntityDefinition
             (new FkField('locale_id', 'localeId', LocaleDefinition::class))->setFlags(new Required()),
             new ReferenceVersionField(LocaleDefinition::class),
             (new StringField('name', 'name'))->setFlags(new Required()),
-            new DateField('created_at', 'createdAt'),
-            new DateField('updated_at', 'updatedAt'),
+            new CreatedAtField(),
+            new UpdatedAtField(),
             new ManyToOneAssociationField('parent', 'parent_id', LanguageDefinition::class, false),
             new ManyToOneAssociationField('locale', 'locale_id', LocaleDefinition::class, true),
             new ChildrenAssociationField(self::class),
@@ -88,6 +90,7 @@ class LanguageDefinition extends EntityDefinition
             (new TranslationsAssociationField('unitTranslations', UnitTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('configurationGroupTranslations', ConfigurationGroupTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('configurationGroupOptionTranslations', ConfigurationGroupOptionTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new TranslationsAssociationField('discountsurchargeTranslations', DiscountSurchargeTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('productSearchKeywords', ProductSearchKeywordDefinition::class, 'language_id', false, 'id'))->setFlags(new CascadeDelete()),
         ]);
     }

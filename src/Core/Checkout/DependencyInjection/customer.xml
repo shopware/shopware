@@ -9,6 +9,10 @@
             <tag name="shopware.entity.definition" entity="customer"/>
         </service>
 
+        <service class="Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationDefinition" id="shopware.core.checkout.customer.aggregate.customer_group_translation.customer_group_translation_definition">
+            <tag name="shopware.entity.definition" entity="customer_group_translation"/>
+        </service>
+
         <service class="Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition" id="Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition">
             <tag name="shopware.entity.definition" entity="customer_address"/>
         </service>

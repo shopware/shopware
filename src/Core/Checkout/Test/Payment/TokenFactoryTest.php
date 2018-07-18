@@ -174,7 +174,7 @@ class TokenFactoryTest extends KernelTestCase
 
         $order = [
             'id' => $orderId,
-            'date' => (new \DateTime())->format('Y-m-d H:i:s'),
+            'date' => (new \DateTime())->format(Defaults::DATE_FORMAT),
             'amountTotal' => 100,
             'amountNet' => 100,
             'positionPrice' => 100,

@@ -207,8 +207,8 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
                 'seo_path_info' => $seoUrl,
                 'is_canonical' => 1,
                 'is_modified' => 0,
-                'created_at' => $timestamp->format('Y-m-d H:i:s'),
-                'updated_at' => $timestamp->format('Y-m-d H:i:s'),
+                'created_at' => $timestamp->format(Defaults::DATE_FORMAT),
+                'updated_at' => $timestamp->format(Defaults::DATE_FORMAT),
             ];
 
             $insertQuery->addInsert(SeoUrlDefinition::getEntityName(), $data);

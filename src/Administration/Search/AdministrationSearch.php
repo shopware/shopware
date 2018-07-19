@@ -11,7 +11,6 @@ use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
-use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\Framework\ORM\Search\IdSearchResult;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
@@ -48,57 +47,26 @@ class AdministrationSearch
         $this->searchBuilder = $searchBuilder;
     }
 
-    public function search(string $term, int $page, int $limit, Context $context, string $userId): array
+    public function search(string $term, int $limit, Context $context, string $userId): array
     {
-        $definitions = [
-            ProductDefinition::class,
-            OrderDefinition::class,
-            CustomerDefinition::class,
-        ];
-
-        $results = [];
-
-        $total = 0;
-        //fetch best matches for defined definitions
-        foreach ($definitions as $definition) {
-            $result = $this->searchDefinition($definition, $term, $context);
-            $total += $result->getTotal();
-            $results[$definition] = $result;
-        }
+        $results = $this->searchEntities($term, $context);
 
         //apply audit log for each entity, which considers which data the user working with
         $results = $this->applyAuditLog($results, $userId, $context);
 
-        $grouped = $this->sortEntities($page, $limit, $results);
+        $grouped = $this->sortEntities($limit, $results);
 
         $results = $this->fetchEntities($context, $grouped);
 
         return [
             'data' => array_values($results),
-            'total' => $total,
         ];
-    }
-
-    /**
-     * @param string|EntityDefinition $definition
-     * @param string                  $term
-     * @param Context                 $context
-     *
-     * @return EntitySearchResult
-     */
-    private function searchDefinition(string $definition, string $term, Context $context): IdSearchResult
-    {
-        $repository = $this->container->get($definition::getEntityName() . '.repository');
-
-        $criteria = $this->searchBuilder->build($term, $definition, $context);
-
-        /* @var RepositoryInterface $repository */
-        return $repository->searchIds($criteria, $context);
     }
 
     /**
      * @param IdSearchResult[] $results
      * @param string           $userId
+     * @param Context          $context
      *
      * @return array
      */
@@ -172,7 +140,7 @@ class AdministrationSearch
             $repository = $this->container->get($definition::getEntityName() . '.repository');
 
             /** @var EntityCollection $entities */
-            $entities = $repository->read(new ReadCriteria(array_keys($rows)), $context);
+            $entities = $repository->read(new ReadCriteria(\array_keys($rows)), $context);
 
             foreach ($entities as $entity) {
                 $entity->addExtension(
@@ -190,20 +158,16 @@ class AdministrationSearch
         return $results;
     }
 
-    private function sortEntities(int $page, int $limit, array $results): array
+    private function sortEntities(int $limit, array $results): array
     {
         //create flat result to sort all elements descending by score
         $flat = $this->createFlatResult($results);
-        usort(
-            $flat,
-            function (array $a, array $b) {
-                return $b['_score'] <=> $a['_score'];
-            }
-        );
+        \usort($flat, function (array $a, array $b) {
+            return $b['_score'] <=> $a['_score'];
+        });
 
         //create internal paging for best matches
-        $offset = ($page - 1) * $limit;
-        $flat = array_slice($flat, $offset, $limit);
+        $flat = \array_slice($flat, 0, $limit);
 
         //group best hits to send one read request per definition
         $grouped = [];
@@ -213,5 +177,30 @@ class AdministrationSearch
         }
 
         return $grouped;
+    }
+
+    private function searchEntities(string $term, Context $context): array
+    {
+        $definitions = [
+            ProductDefinition::class,
+            OrderDefinition::class,
+            CustomerDefinition::class,
+        ];
+
+        $results = [];
+
+        //fetch best matches for defined definitions
+        foreach ($definitions as $definition) {
+            /* @var RepositoryInterface $repository */
+            $repository = $this->container->get($definition::getEntityName() . '.repository');
+
+            $criteria = $this->searchBuilder->build($term, $definition, $context);
+
+            $result = $repository->searchIds($criteria, $context);
+
+            $results[$definition] = $result;
+        }
+
+        return $results;
     }
 }

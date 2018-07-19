@@ -52,10 +52,9 @@ class AdministrationController extends Controller
     public function search(Request $request, Context $context): JsonResponse
     {
         $term = $request->query->get('term');
-        $page = $request->query->getInt('page', 1);
         $limit = $request->query->getInt('limit', 20);
 
-        $result = $this->search->search($term, $page, $limit, $context, $context->getSourceContext()->getUserId());
+        $result = $this->search->search($term, $limit, $context, $context->getSourceContext()->getUserId());
 
         $result = json_decode(json_encode($result), true);
 

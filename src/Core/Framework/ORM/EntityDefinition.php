@@ -39,6 +39,11 @@ abstract class EntityDefinition
 
     abstract public static function getEntityName(): string;
 
+    public static function useKeywordSearch(): bool
+    {
+        return false;
+    }
+
     public static function getFields(): FieldCollection
     {
         if (isset(static::$fields[static::class])) {

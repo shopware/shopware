@@ -6,7 +6,6 @@ use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\ORM\EntityCollection;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
@@ -16,9 +15,8 @@ use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\Framework\ORM\Search\IdSearchResult;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
+use Shopware\Core\Framework\ORM\Search\SearchBuilder;
 use Shopware\Core\Framework\ORM\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
-use Shopware\Core\Framework\ORM\Search\Term\SearchTermInterpreter;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataCollection;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -31,30 +29,23 @@ class AdministrationSearch
     private $container;
 
     /**
-     * @var SearchTermInterpreter
-     */
-    private $interpreter;
-
-    /**
-     * @var EntityScoreQueryBuilder
-     */
-    private $scoreBuilder;
-
-    /**
      * @var RepositoryInterface
      */
     private $changesRepository;
 
+    /**
+     * @var SearchBuilder
+     */
+    private $searchBuilder;
+
     public function __construct(
         ContainerInterface $container,
-        SearchTermInterpreter $interpreter,
-        EntityScoreQueryBuilder $scoreBuilder,
+        SearchBuilder $searchBuilder,
         RepositoryInterface $changesRepository
     ) {
         $this->container = $container;
-        $this->interpreter = $interpreter;
-        $this->scoreBuilder = $scoreBuilder;
         $this->changesRepository = $changesRepository;
+        $this->searchBuilder = $searchBuilder;
     }
 
     public function search(string $term, int $page, int $limit, Context $context, string $userId): array
@@ -130,15 +121,7 @@ class AdministrationSearch
     {
         $repository = $this->container->get($definition::getEntityName() . '.repository');
 
-        $pattern = $this->interpreter->interpret($term, $context);
-
-        $queries = $this->scoreBuilder->buildScoreQueries($pattern, $definition, $definition::getEntityName());
-
-        $criteria = new Criteria();
-        $criteria->setLimit(5);
-        foreach ($queries as $query) {
-            $criteria->addQuery($query);
-        }
+        $criteria = $this->searchBuilder->build($term, $definition, $context);
 
         /* @var RepositoryInterface $repository */
         return $repository->searchIds($criteria, $context);

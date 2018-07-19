@@ -30,6 +30,12 @@
 
         <service class="Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder" id="Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder" public="true"/>
 
+        <service class="Shopware\Core\Framework\ORM\Search\SearchBuilder" id="Shopware\Core\Framework\ORM\Search\SearchBuilder">
+            <argument id="Shopware\Core\Framework\ORM\Search\Term\SearchTermInterpreter" type="service"/>
+            <argument id="Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder" type="service"/>
+            <argument id="Shopware\Core\Content\Product\Util\KeywordSearchTermInterpreter" type="service"/>
+        </service>
+
         <service class="Shopware\Core\Framework\ORM\Search\SearchCriteriaBuilder" id="Shopware\Core\Framework\ORM\Search\SearchCriteriaBuilder">
             <argument id="Shopware\Core\Framework\ORM\Search\Term\SearchTermInterpreter" type="service"/>
             <argument id="Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder" type="service"/>

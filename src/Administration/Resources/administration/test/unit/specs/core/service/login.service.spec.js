@@ -4,122 +4,116 @@ import MockAdapter from 'axios-mock-adapter';
 import LoginService from 'src/core/service/login.service';
 
 const httpMock = new MockAdapter(axios);
-let loginService;
+let mockedLoginService;
+
+const realLoginService = Shopware.Application.getContainer('service').loginService;
 
 describe('core/service/login.service.js', () => {
     // Create a new instance of the service for each test
     beforeEach(() => {
-        loginService = new LoginService(axios);
+        mockedLoginService = new LoginService(axios);
     });
 
     // Resets the mocking adapter
     afterEach(() => {
         httpMock.reset();
-        loginService.clearBearerAuthentication();
+        mockedLoginService.clearBearerAuthentication();
     });
 
-    xit('should request the token and expiry date from the server', () => {
-        httpMock.onPost('/oauth/token').reply(() => {
-            return [200, {
-                access_token: 'foobar',
-                expiry: 3600
-            }];
-        });
-
-        return loginService.loginByUsername('demo', 'demo').then((response) => {
+    it('should request the token and expiry date from the server', () => {
+        return realLoginService.loginByUsername('admin', 'shopware').then((response) => {
             expect(response.status).to.equal(200);
-            expect(response.data.access_token).to.equal('foobar');
             expect(response.data.expiry).to.equal(3600);
         });
     });
 
     it('should store the bearer authentication object in the localStorage', () => {
-        const authObject = loginService.setBearerAuthentication(
+        const authObject = mockedLoginService.setBearerAuthentication(
             'foobar',
             9999999999
         );
-        const localStorageObject = JSON.parse(localStorage.getItem(loginService.getLocalStorageKey()));
+        const localStorageObject = JSON.parse(localStorage.getItem(mockedLoginService.getLocalStorageKey()));
 
         expect(localStorageObject).to.deep.equal(authObject);
     });
 
     it('should get the bearer authentication object from the localStorage', () => {
-        const authObject = loginService.setBearerAuthentication(
+        const authObject = mockedLoginService.setBearerAuthentication(
             'foobar',
             9999999999
         );
-        const localStorageObject = loginService.getBearerAuthentication();
+        const localStorageObject = mockedLoginService.getBearerAuthentication();
 
         expect(localStorageObject).to.deep.equal(authObject);
     });
 
     it('should clear the localStorage entry', () => {
-        const authObject = loginService.setBearerAuthentication(
+        const authObject = mockedLoginService.setBearerAuthentication(
             'foobar',
             9999999999
         );
 
-        const localStorageObject = JSON.parse(localStorage.getItem(loginService.getLocalStorageKey()));
+        const localStorageObject = JSON.parse(localStorage.getItem(mockedLoginService.getLocalStorageKey()));
 
         expect(localStorageObject).to.deep.equal(authObject);
 
-        loginService.clearBearerAuthentication();
-        const clearedObject = localStorage.getItem(loginService.getLocalStorageKey());
+        mockedLoginService.clearBearerAuthentication();
+        const clearedObject = localStorage.getItem(mockedLoginService.getLocalStorageKey());
 
         expect(clearedObject).to.equal(null);
     });
 
     it('should provide the bearer token', () => {
-        const authObject = loginService.setBearerAuthentication(
+        const authObject = mockedLoginService.setBearerAuthentication(
             'foobar',
             9999999999
         );
-        const token = loginService.getToken();
+        const token = mockedLoginService.getToken();
 
         expect(token).to.equal(authObject.token);
     });
 
     it('should provide the expiry date', () => {
-        const authObject = loginService.setBearerAuthentication(
+        const authObject = mockedLoginService.setBearerAuthentication(
             'foobar',
             9999999999
         );
-        const expiry = loginService.getExpiry();
+        const expiry = mockedLoginService.getExpiry();
 
         expect(expiry).to.equal(authObject.expiry);
     });
 
     it('should validate the expiry date', () => {
-        loginService.setBearerAuthentication(
+        mockedLoginService.setBearerAuthentication(
             'foobar',
             9999999999
         );
-        const expiry = loginService.getExpiry();
+        const expiry = mockedLoginService.getExpiry();
 
-        expect(loginService.validateExpiry(expiry)).to.equal(true);
+        expect(mockedLoginService.validateExpiry(expiry)).to.equal(true);
     });
 
     it('should provide the localStorage key', () => {
-        const key = loginService.getLocalStorageKey();
+        const key = mockedLoginService.getLocalStorageKey();
 
         expect(key).to.equal('bearerAuth');
     });
 
     it('should set a new the localStorage key', () => {
-        loginService.setLocalStorageKey('newStorageKey', false);
+        mockedLoginService.setLocalStorageKey('newStorageKey', false);
 
-        expect(loginService.getLocalStorageKey()).to.equal('newStorageKey');
+        expect(mockedLoginService.getLocalStorageKey()).to.equal('newStorageKey');
     });
 
     it('should set a new the localStorage key and clear the previous entry', () => {
-        loginService.setBearerAuthentication(
+        mockedLoginService.setBearerAuthentication(
             'foobar',
             9999999999
         );
-        const oldKey = loginService.getLocalStorageKey();
-        const newKey = loginService.setLocalStorageKey('newStorageKey');
+        const oldKey = mockedLoginService.getLocalStorageKey();
+        const newKey = mockedLoginService.setLocalStorageKey('newStorageKey');
 
-        const authObject = loginService.setBearerAuthentication(
+        const authObject = mockedLoginService.setBearerAuthentication(
             'foobar',
             9999999999
         );

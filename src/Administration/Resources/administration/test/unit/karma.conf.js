@@ -15,7 +15,7 @@ module.exports = function (config) {
         //    http://karma-runner.github.io/0.13/config/browsers.html
         // 2. add it to the `browsers` array below.
         browsers: ['ChromeHeadlessNoSandbox'],
-        frameworks: ['mocha', 'sinon-chai', 'chai'],
+        frameworks: ['mocha', 'sinon-chai'],
         reporters: ['spec', 'coverage', 'junit'],
         files: [
             './index.js'

@@ -1,10 +1,107 @@
 @import "~less/variables";
+@sw-search-bar-results-border-color:    @color-steam-cloud;
+@sw-search-bar-background-color:    @color-white;
 
 .sw-search-bar {
-    display: block;
+    display: flex;
     width: 100%;
     height: 80px;
-    background: @color-white;
+    background: @sw-search-bar-background-color;
     z-index: 500;
     border-bottom: 1px solid @color-steam-cloud;
+    align-content: center;
+
+    .sw-search-bar__form {
+        padding: 15px;
+        position: relative;
+        text-align: center;
+        width: 800px;
+        margin: 0 auto;
+
+        .sw-icon {
+            position: absolute;
+            top: 50%;
+            margin-top: -8px;
+            left: 35px;
+            color: @color-gutenberg;
+        }
+    }
+
+    .sw-field {
+        margin-bottom: 0;
+        text-align: center;
+        display: inline-block;
+
+        input {
+            line-height: 30px;
+            padding-left: 50px;
+        }
+    }
+
+    .sw-search-bar__controls {
+        width: 100px;
+    }
+
+    .sw-search-bar__results {
+        border: 1px solid @sw-search-bar-results-border-color;
+        overflow: auto;
+        position: absolute;
+        width: 800px;
+        height: 372px;
+        margin: 20px auto;
+        right: 408px;
+        top: 50px;
+        background-color: rgba(255, 255, 255, 0.9);
+        z-index: 800;
+    }
+
+    .sw-search-bar__results-list {
+        width: 800px;
+        margin: 20px auto;
+        padding: 0;
+        list-style: none;
+    }
+
+    .sw-alert {
+        width: 800px;
+        max-width: 800px;
+        margin: 20px auto;
+    }
+
+    .sw-search-bar__result-item {
+        border-radius: 4px;
+        cursor: pointer;
+
+        &:hover {
+            background: @color-light-gray;
+        }
+
+        .item {
+            padding: 8px 15px;
+
+            &:after {
+                content:" ";
+                display:table;
+                clear:both;
+            }
+        }
+
+        .sw-icon {
+            float: left;
+            margin-right: 20px;
+        }
+
+        .label {
+            color: darken(@color-gutenberg, 20%);
+            font-size: 16px;
+            font-weight: 600;
+            float: left;
+        }
+
+        .type {
+            color: lighten(@color-gutenberg, 5%);
+            font-size: 15px;
+            float: right;
+        }
+    }
 }

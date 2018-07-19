@@ -1,3 +1,36 @@
 <div class="sw-search-bar">
+    <div class="sw-search-bar__controls">
+        {#controls_before#}
+    </div>
+    <form class="sw-search-bar__form">
+        <sw-icon name="small-search" small></sw-icon>
+        <sw-field placeholder="Finde Producte, Kunden, Einkaufwelten, Module"
+                  @input="openSearchSuggestions($event)">
+        </sw-field>
+    </form>
+    <div class="sw-search-bar__controls">
+        {#controls_after#}
+    </div>
 
+    <div v-if="isSearchOpened" class="sw-search-bar__results">
+        <sw-alert v-if="!searchResults.length" variant="warning" title="Keine Ergebnisse">
+            Es konnte leider nichts gefunden werden.
+        </sw-alert>
+
+        <ul v-else class="sw-search-bar__results-list">
+            <li v-for="result in searchResults" class="sw-search-bar__result-item">
+                <div v-if="result.type === 'customer'" class="item">
+                    <sw-icon name="default-building-shop" size="20px" color="#F88962"></sw-icon>
+                    <span class="label">{{ result.entity.firstName }} {{ result.entity.lastName }}</span>
+                    <span class="type">Kunde</span>
+                </div>
+
+                <div v-else-if="result.type === 'product'" class="item">
+                    <sw-icon name="default-symbol-products" size="20px" color="#7ad5c8"></sw-icon>
+                    <span class="label">{{ result.entity.name }}</span>
+                    <span class="type">Produkt</span>
+                </div>
+            </li>
+        </ul>
+    </div>
 </div>

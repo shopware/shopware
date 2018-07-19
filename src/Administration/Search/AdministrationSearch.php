@@ -69,40 +69,9 @@ class AdministrationSearch
         //apply audit log for each entity, which considers which data the user working with
         $results = $this->applyAuditLog($results, $userId, $context);
 
-        //create flat result to sort all elements descending by score
-        $flat = $this->createFlatResult($results);
-        usort($flat, function (array $a, array $b) {
-            return $b['_score'] <=> $a['_score'];
-        });
+        $grouped = $this->sortEntities($page, $limit, $results);
 
-        //create internal paging for best matches
-        $offset = ($page - 1) * $limit;
-        $flat = array_slice($flat, $offset, $limit);
-
-        //group best hits to send one read request per definition
-        $grouped = [];
-        foreach ($flat as $row) {
-            $definition = $row['definition'];
-            $grouped[$definition][$row['primary_key']] = $row['_score'];
-        }
-
-        $results = [];
-        foreach ($grouped as $definition => $rows) {
-            /** @var string|EntityDefinition $definition */
-            $repository = $this->container->get($definition::getEntityName() . '.repository');
-
-            /** @var EntityCollection $entities */
-            $entities = $repository->read(new ReadCriteria(array_keys($rows)), $context);
-
-            foreach ($entities as $entity) {
-                $entity->addExtension(
-                    'search',
-                    new ArrayStruct(['_score' => $rows[$entity->getId()]])
-                );
-
-                $results[] = $entity;
-            }
-        }
+        $results = $this->fetchEntities($context, $grouped);
 
         return [
             'data' => array_values($results),
@@ -193,5 +162,56 @@ class AdministrationSearch
         }
 
         return $flat;
+    }
+
+    private function fetchEntities(Context $context, array $grouped): array
+    {
+        $results = [];
+        foreach ($grouped as $definition => $rows) {
+            /** @var string|EntityDefinition $definition */
+            $repository = $this->container->get($definition::getEntityName() . '.repository');
+
+            /** @var EntityCollection $entities */
+            $entities = $repository->read(new ReadCriteria(array_keys($rows)), $context);
+
+            foreach ($entities as $entity) {
+                $entity->addExtension(
+                    'search',
+                    new ArrayStruct(['_score' => $rows[$entity->getId()]])
+                );
+
+                $results[] = [
+                    'type' => $definition::getEntityName(),
+                    'entity' => $entity,
+                ];
+            }
+        }
+
+        return $results;
+    }
+
+    private function sortEntities(int $page, int $limit, array $results): array
+    {
+        //create flat result to sort all elements descending by score
+        $flat = $this->createFlatResult($results);
+        usort(
+            $flat,
+            function (array $a, array $b) {
+                return $b['_score'] <=> $a['_score'];
+            }
+        );
+
+        //create internal paging for best matches
+        $offset = ($page - 1) * $limit;
+        $flat = array_slice($flat, $offset, $limit);
+
+        //group best hits to send one read request per definition
+        $grouped = [];
+        foreach ($flat as $row) {
+            $definition = $row['definition'];
+            $grouped[$definition][$row['primary_key']] = $row['_score'];
+        }
+
+        return $grouped;
     }
 }

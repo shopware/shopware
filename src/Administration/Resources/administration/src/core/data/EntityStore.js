@@ -147,10 +147,6 @@ class EntityStore {
      * @return {EntityProxy}
      */
     create(id = utils.createId(), entityData = {}, isAddition = false) {
-        if (typeof this.store[id] !== 'undefined') {
-            return this.store[id];
-        }
-
         const entity = Entity.getRawEntityObject(this.entityName, true);
 
         Object.assign(entity, entityData);

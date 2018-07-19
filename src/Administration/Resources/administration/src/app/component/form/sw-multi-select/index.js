@@ -129,8 +129,12 @@ Component.register('sw-multi-select', {
                 }))
             );
 
-            this.serviceProvider.getList(0, this.value.length, {
-                filter: [criteria.getQuery()]
+            this.serviceProvider.getList({
+                offset: 0,
+                limit: this.value.length,
+                additionalParams: {
+                    filter: [criteria.getQuery()]
+                }
             }).then((response) => {
                 this.selections = response.data;
                 this.isLoading = false;
@@ -138,7 +142,13 @@ Component.register('sw-multi-select', {
         },
 
         loadResults() {
-            this.serviceProvider.getList(0, this.resultsLimit, { term: this.searchTerm }).then((response) => {
+            this.serviceProvider.getList({
+                offset: 0,
+                limit: this.resultsLimit,
+                additionalParams: {
+                    term: this.searchTerm
+                }
+            }).then((response) => {
                 this.results = response.data;
                 this.isLoading = false;
 
@@ -149,7 +159,7 @@ Component.register('sw-multi-select', {
         loadPreviewResults() {
             this.isLoading = true;
 
-            this.serviceProvider.getList(0, this.previewResultsLimit).then((response) => {
+            this.serviceProvider.getList({ offset: 0, limit: this.previewResultsLimit }).then((response) => {
                 this.results = response.data;
                 this.isLoading = false;
             });
@@ -321,7 +331,7 @@ Component.register('sw-multi-select', {
                 const associationEntity = associationStore.store[id];
 
                 if (!associationEntity) {
-                    associationStore.addAddition(item);
+                    associationStore.create(id, item, true);
                 }
             });
 

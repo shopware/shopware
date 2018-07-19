@@ -1,0 +1,47 @@
+{%  block sw_media_grid_item %}
+    <div :class="mediaItemClasses"
+         v-on="gridItemListeners">
+        {% block sw_media_grid_item_content %}
+            <div :class="mediaItemContentClasses">
+                {% block sw_media_grid_item_selection_condition %}
+                    <div :class="selectedIndicatorClasses"
+                         v-if="containerOptions.selectable && !isListItemPreview">
+                        {% block sw_media_grid_item_selected_indicator %}
+                            <sw-field type="checkbox" :value="selected"></sw-field>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+
+                {% block sw_media_grid_item_preview_container %}
+                    <div class="sw-media-grid-item__preview">
+                        {% block sw_media_grid_item_preview %}{% endblock %}
+                    </div>
+                {% endblock %}
+
+                {% block sw_media_grid_item_name_container %}
+                    <div class="sw-media-grid-item__name-container">
+                        {% block sw_media_grid_item_name %}
+                            <div class="sw-media-grid-item__name">
+                                {{ itemTitle }}
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+
+                {% block sw_media_grid_item_details_condition %}
+                    <div v-if="isListItemPreview">
+                        {% block sw_media_grid_item_details%}{% endblock %}
+                    </div>
+                {% endblock %}
+
+                {% block sw_media_grid_item_context_menu %}
+                    <div class="sw-media-grid-item__context-button">
+                        <sw-context-button>
+                            {% block sw_media_grid_item_context_items%}{% endblock %}
+                        </sw-context-button>
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

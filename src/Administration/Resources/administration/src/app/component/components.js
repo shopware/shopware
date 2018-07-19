@@ -49,3 +49,5 @@ import './structure/sw-admin-menu';
 import './structure/sw-search-bar';
 
 import './media/sw-media-grid';
+import './media/sw-media-grid-item';
+import './media/sw-media-grid-media-item';

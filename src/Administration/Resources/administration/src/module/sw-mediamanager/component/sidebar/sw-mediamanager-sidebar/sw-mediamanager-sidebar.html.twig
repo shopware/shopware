@@ -1,0 +1,51 @@
+{% block sw_mediamanager_sidebar %}
+    <div class="sw-mediamanager-sidebar">
+        <sw-sidebar slot="sidebar">
+            {% block sw_mediamanager_sidebar_container %}
+                <div class="sw-mediamanager-sidebar__item-container">
+                    {% block sw_mediamanager_sidebar_items_top %}
+                        <div class="sw-mediamanager-sidebar__items-top">
+                            {% block sw_mediamanager_sidebar_actions_quickinfo %}
+                                <sw-sidebar-item icon="default-action-document-view"
+                                                 :title="$tc('sw-mediamanager.sidebar.actions.quickInfo')"
+                                                 :disabled="true">
+                                </sw-sidebar-item>
+                            {% endblock %}
+                            {% block sw_mediamanager_sidebar_actions_filter %}
+                                <sw-sidebar-item icon="default-action-filter"
+                                                 :title="$tc('sw-mediamanager.sidebar.actions.filter')"
+                                                 :disabled="true">
+                                </sw-sidebar-item>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+
+                    {% block sw_mediamanager_sidebar_items_bottom %}
+                        <div class="sw-mediamanager-sidebar__items-bottom">
+                            {% block sw_mediamanager_sidebar_actions_move_file %}
+                                <sw-sidebar-item icon="default-action-move-file"
+                                                 :title="$tc('sw-mediamanager.sidebar.actions.move')"
+                                                 :disabled="true">
+                                </sw-sidebar-item>
+                            {% endblock %}
+
+                            {% block sw_mediamanager_sidebar_actions_delete_file %}
+                                <sw-sidebar-item icon="default-action-trash"
+                                                 :title="$tc('sw-mediamanager.sidebar.actions.delete')"
+                                                 :disabled="true">
+                                </sw-sidebar-item>
+                            {% endblock %}
+
+                            {% block sw_mediamanager_sidebar_actions_settings %}
+                                <sw-sidebar-item icon="default-action-settings"
+                                                 :title="$tc('sw-mediamanager.sidebar.actions.more')"
+                                                 :disabled="true">
+                                </sw-sidebar-item>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        </sw-sidebar>
+    </div>
+{% endblock %}

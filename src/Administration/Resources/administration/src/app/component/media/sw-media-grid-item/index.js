@@ -1,70 +1,63 @@
 import { Component } from 'src/core/shopware';
-import template from './sw-media-grid-item.twig';
+import template from './sw-media-grid-item.html.twig';
 import './sw-media-grid-item.less';
 
 Component.register('sw-media-grid-item', {
     template,
 
-    data() {
-        return {
-            fromBlur: false
-        };
-    },
-
     props: {
-        showInline: {
-            required: false,
-            type: Boolean,
-            default: false
-        },
         selected: {
             type: Boolean,
             required: true
         },
-        mediaItem: {
+        item: {
             required: true,
             type: Object
         },
-        showCheckbox: {
-            required: false,
-            type: Boolean,
-            default: false
+        containerOptions: {
+            required: true,
+            type: Object
         }
     },
 
     computed: {
-        mediaItemClass() {
+        isListItemPreview() {
+            return this.containerOptions.previewType === 'media-grid-preview-as-list';
+        },
+        itemTitle() {
+            return this.item.name;
+        },
+        mediaItemClasses() {
             return {
                 'sw-media-grid-item': true,
-                'sw-media-grid-item--selected': this.selected
+                'is--selected': this.selected
             };
         },
-        mediaItemContentClass() {
+        mediaItemContentClasses() {
             return {
                 'sw-media-grid-item__content': true,
-                'is--grid': !this.showInline,
-                'is--list': this.showInline
+                'is--grid': !this.isListItemPreview,
+                'is--list': this.isListItemPreview
             };
         },
-        mediaItemCheckboxClass() {
+        selectedIndicatorClasses() {
             return {
-                'sw-media-grid-item__checkbox': true,
-                'checkbox-is--visible': this.showCheckbox
+                'sw-media-grid-item__selected-indicator': true,
+                'selected-indicator--visible': this.containerOptions.selectionInProgress
+            };
+        },
+        gridItemListeners() {
+            return {
+                click: this.doMainAction
             };
         }
     },
 
     methods: {
+        doMainAction(event) {
+            this.doSelectItem(event);
+        },
         doSelectItem(event) {
-            if (!this.$refs.inputItemName.disabled) {
-                return;
-            }
-
-            if (this.fromBlur) {
-                this.fromBlur = false;
-                return;
-            }
-
             if (!this.selected ||
                 ['SVG', 'BUTTON'].includes(event.target.tagName.toUpperCase())
             ) {
@@ -72,28 +65,30 @@ Component.register('sw-media-grid-item', {
                 return;
             }
 
-            this.removeSelection();
+            this.removeFromSelection();
         },
         selectItem() {
-            this.$emit('media-item-add-to-selection', this.mediaItem);
+            this.$emit('media-item-add-to-selection', this.item);
         },
-        removeSelection() {
-            this.$emit('media-item-remove-from-selection', this.mediaItem);
+        removeFromSelection() {
+            this.$emit('media-item-remove-from-selection', this.item);
         },
-        startInlineEdit() {
-            const input = this.$refs.inputItemName;
-
-            input.disabled = false;
-            this.selectItem();
-            input.focus();
+        emitItemChangeEvent(event, action, parameters) {
+            this.emitMediaGridItemEvent(event, action, false, parameters);
         },
-        cancelInlineEdit() {
-            this.fromBlur = true;
-            this.$refs.inputItemName.value = this.mediaItem.name;
-            this.$refs.inputItemName.disabled = true;
+        emitBatchEvent(event, action, parameters) {
+            this.emitMediaGridItemEvent(event, action, true, parameters);
         },
-        signalItemNameChange() {
-            this.$emit('media-item-name-changed', this.mediaItem);
+        emitMediaGridItemEvent(originalDomEvent, actionName, isBatch, parameters) {
+            this.$emit('media-grid-item-event', {
+                originalDomEvent: originalDomEvent,
+                context: {
+                    action: actionName,
+                    isBatch: isBatch
+                },
+                target: this.item,
+                parameters: parameters
+            });
         }
     }
 });

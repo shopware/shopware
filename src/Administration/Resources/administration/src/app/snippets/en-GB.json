@@ -31,6 +31,7 @@
     "sw-media-grid-item": {
       "contextMenu": {
         "details": "Details",
+        "edit": "Edit",
         "move": "Move",
         "delete": "Delete"
       }
@@ -411,6 +412,29 @@
       "labelShippingCosts": "Shipping costs",
       "buttonMerge": "Merge order",
       "buttonDelete": "Delete"
+    }
+  },
+  "sw-mediamanager": {
+    "general": {
+      "mainMenuItemGeneral": "Mediamanager",
+      "descriptionTextModule": "Module to manage your media data"
+    },
+    "catalogItem": {
+      "showCatalogContent": "Show contents",
+      "showCatalogDetails": "Show Catalogue details"
+    },
+    "index": {
+      "catalogs": "Catalogues",
+      "lastAdded": "Last added"
+    },
+    "sidebar": {
+      "actions": {
+        "quickInfo": "Quickinfo",
+        "filter": "Filter",
+        "move": "Move",
+        "delete": "Delete",
+        "more": "More"
+      }
     }
   }
 }

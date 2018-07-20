@@ -145,8 +145,10 @@ class AdministrationSearch
             /** @var string|EntityDefinition $definition */
             $repository = $this->container->get($definition::getEntityName() . '.repository');
 
+            $criteria = new ReadCriteria(\array_keys($rows));
+
             /** @var EntityCollection $entities */
-            $entities = $repository->read(new ReadCriteria(\array_keys($rows)), $context);
+            $entities = $repository->read($criteria, $context);
 
             foreach ($entities as $entity) {
                 $score = (float) $rows[$entity->getId()];

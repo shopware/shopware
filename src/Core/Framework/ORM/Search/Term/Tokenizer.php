@@ -25,6 +25,10 @@ class Tokenizer implements TokenizerInterface
             $filtered[$tag] = 1;
         }
 
+        if (empty($filtered)) {
+            return $tags;
+        }
+
         return array_keys($filtered);
     }
 }

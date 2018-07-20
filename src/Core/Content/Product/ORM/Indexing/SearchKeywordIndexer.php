@@ -276,7 +276,6 @@ class SearchKeywordIndexer implements IndexerInterface
                     'version_id' => $versionId,
                     'entity' => $entityName,
                     'entity_id' => $entityId,
-                    'entity_tenant_id' => $tenantId,
                     'language_id' => $languageId,
                     'language_tenant_id' => $tenantId,
                     'keyword' => $keyword,

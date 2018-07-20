@@ -531,8 +531,12 @@ class EntityReader implements EntityReaderInterface
 
     private function loadOneToManyWithoutPagination(string $definition, OneToManyAssociationField $association, Context $context, EntityCollection $collection, Criteria $fieldCriteria): void
     {
+        $ref = $association->getReferenceClass()::getFields()->getByStorageName(
+            $association->getReferenceField()
+        );
+
         /** @var string|EntityDefinition $definition */
-        $propertyName = $this->getDomainName($definition::getEntityName()) . 'Id';
+        $propertyName = $ref->getPropertyName();
         if ($association instanceof ChildrenAssociationField) {
             $propertyName = 'parentId';
         }

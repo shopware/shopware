@@ -65,18 +65,25 @@ class KeywordSearchTermInterpreter
             'normal' => [],
             'reversed' => [],
         ];
-        foreach ($tokens as $index => $token) {
-            $slopSize = strlen($token) > 4 ? 2 : 1;
-            $length = strlen($token);
 
-            for ($i = 1; $i <= $length - 1; ++$i) {
+        foreach ($tokens as $index => $token) {
+            $slopSize = \strlen($token) > 4 ? 2 : 1;
+            $length = \strlen($token);
+
+            if (\strlen($token) <= 2) {
+                $slops['normal'][] = $token . '%';
+                $slops['reversed'][] = $token . '%';
+                continue;
+            }
+
+            for ($i = 1; $i <= $length - 2; ++$i) {
                 for ($i2 = 1; $i2 <= $slopSize; ++$i2) {
                     $placeholder = '';
                     for ($i3 = 1; $i3 <= $slopSize + 1; ++$i3) {
                         $slops['normal'][] =
-                            substr($token, 0, $i) .
+                            \substr($token, 0, $i) .
                             $placeholder .
-                            substr($token, $i + $i2)
+                            \substr($token, $i + $i2)
                             . '%'
                         ;
                         $placeholder .= '_';
@@ -85,14 +92,14 @@ class KeywordSearchTermInterpreter
             }
 
             $token = strrev($token);
-            for ($i = 1; $i <= $length - 1; ++$i) {
+            for ($i = 1; $i <= $length - 2; ++$i) {
                 for ($i2 = 1; $i2 <= $slopSize; ++$i2) {
                     $placeholder = '';
                     for ($i3 = 1; $i3 <= $slopSize + 1; ++$i3) {
                         $slops['reversed'][] =
-                            substr($token, 0, $i) .
+                            \substr($token, 0, $i) .
                             $placeholder .
-                            substr($token, $i + $i2)
+                            \substr($token, $i + $i2)
                             . '%'
                         ;
                         $placeholder .= '_';
@@ -135,7 +142,6 @@ class KeywordSearchTermInterpreter
     private function score(array $tokens, array $matches): array
     {
         $scoring = [];
-
         foreach ($matches as $keyword) {
             $distance = null;
             $bestHit = '';
@@ -159,6 +165,9 @@ class KeywordSearchTermInterpreter
 
             $longLeft = substr($longTerm, 1);
             $shortLeft = substr($shortTerm, 1);
+
+            $longLeft = !empty($longLeft) ? $longLeft : $longTerm;
+            $shortLeft = !empty($shortLeft) ? $shortLeft : $shortTerm;
 
             if ($keyword === $bestHit) {
                 //exact hit

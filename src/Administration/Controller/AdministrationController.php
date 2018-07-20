@@ -40,7 +40,7 @@ class AdministrationController extends Controller
     }
 
     /**
-     * @Route("/api/admin/search", name="administration.search")
+     * @Route("/api/v{version}/admin/search", name="administration.search")
      *
      * @param Request $request
      *

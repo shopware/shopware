@@ -1,3 +1,11 @@
+import authHelper from '../../auth-helper';
+
+before((done) => {
+    authHelper().then(() => {
+        done();
+    });
+});
+
 describe('core/common.js', () => {
     it('should contain the necessary methods for the module factory', () => {
         expect(Shopware.Module).to.have.property('register');

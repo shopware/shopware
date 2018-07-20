@@ -36,7 +36,7 @@
             <argument id="Shopware\Core\Content\Product\Util\KeywordSearchTermInterpreter" type="service"/>
         </service>
 
-        <service class="Shopware\Core\Framework\ORM\Search\SearchCriteriaBuilder" id="Shopware\Core\Framework\ORM\Search\SearchCriteriaBuilder">
+        <service class="Shopware\Core\Framework\ORM\Search\RequestCriteriaBuilder" id="Shopware\Core\Framework\ORM\Search\RequestCriteriaBuilder">
             <argument id="Shopware\Core\Framework\ORM\Search\Term\SearchTermInterpreter" type="service"/>
             <argument id="Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder" type="service"/>
         </service>

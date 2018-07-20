@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Exception\InvalidUuidException;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
-use Shopware\Core\Framework\ORM\Search\SearchCriteriaBuilder;
+use Shopware\Core\Framework\ORM\Search\RequestCriteriaBuilder;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -30,14 +30,14 @@ class StorefrontCategoryController extends Controller
     private $responseFactory;
 
     /**
-     * @var SearchCriteriaBuilder
+     * @var RequestCriteriaBuilder
      */
     private $criteriaBuilder;
 
     public function __construct(
         RepositoryInterface $repository,
         ResponseFactory $responseFactory,
-        SearchCriteriaBuilder $criteriaBuilder
+        RequestCriteriaBuilder $criteriaBuilder
     ) {
         $this->repository = $repository;
         $this->responseFactory = $responseFactory;

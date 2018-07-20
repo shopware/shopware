@@ -26,7 +26,7 @@ use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Core\Framework\ORM\Search\SearchCriteriaBuilder;
+use Shopware\Core\Framework\ORM\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\ORM\Write\EntityWriterInterface;
 use Shopware\Core\Framework\ORM\Write\WriteContext;
 use Shopware\Core\PlatformRequest;
@@ -68,7 +68,7 @@ class ApiController extends Controller
     private $entityWriter;
 
     /**
-     * @var SearchCriteriaBuilder
+     * @var RequestCriteriaBuilder
      */
     private $searchCriteriaBuilder;
 
@@ -77,7 +77,7 @@ class ApiController extends Controller
         Serializer $serializer,
         ResponseFactory $responseFactory,
         EntityWriterInterface $entityWriter,
-        SearchCriteriaBuilder $searchCriteriaBuilder
+        RequestCriteriaBuilder $searchCriteriaBuilder
     ) {
         $this->definitionRegistry = $definitionRegistry;
         $this->serializer = $serializer;

@@ -27,7 +27,7 @@ use Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\ORM\Search\Term\SearchTermInterpreter;
 use Symfony\Component\HttpFoundation\Request;
 
-class SearchCriteriaBuilder
+class RequestCriteriaBuilder
 {
     /**
      * @var SearchTermInterpreter

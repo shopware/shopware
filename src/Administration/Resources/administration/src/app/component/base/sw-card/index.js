@@ -10,7 +10,7 @@ Component.register('sw-card', {
             type: String,
             required: false
         },
-        intro: {
+        hero: {
             type: Boolean,
             required: false,
             default: false
@@ -32,7 +32,7 @@ Component.register('sw-card', {
             return {
                 'sw-card--tabs': !!this.$slots.tabs,
                 'sw-card--grid': !!this.$slots.grid,
-                'sw-card--intro': !!this.$props.intro
+                'sw-card--hero': !!this.$props.hero
             };
         }
     }

@@ -1,5 +1,5 @@
 {% block sw_field %}
-    <div :class="['sw-field', `sw-field--${type}`, hasErrorCls ? 'has--error' : '', hasSuffix || copyAble ? 'has--suffix': '', disabled ? 'is--disabled' : '']">
+    <div class="sw-field" :class="fieldClasses">
 
         <!-- Label -->
         {% block sw_field_label %}

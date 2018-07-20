@@ -1,32 +1,28 @@
 {% block sw_integration_list %}
     <sw-page class="sw-integration-list">
-        <div class="sw-integration-list__smart-bar">
-            <template slot="smart-bar-header">
+        <template slot="smart-bar-header">
+            {% block sw_integration_list_smart_bar_header %}
+                <h2>{{ $tc('sw-integration.general.headlineIntegrations') }}</h2>
+            {% endblock %}
+        </template>
 
-                    {% block sw_integration_list_smart_bar_header %}
-                        <h2>{{ $tc('sw-integration.general.headlineIntegrations') }}</h2>
-                    {% endblock %}
-            </template>
-
-            <template slot="smart-bar-actions">
-                {% block sw_integration_list_smart_bar_actions %}
-                    <sw-button @click="onShowDetailModal()"
-                               variant="primary">
-                        {{ $tc('sw-integration.general.buttonCreateIntegration') }}
-                    </sw-button>
-                {% endblock %}
-            </template>
-        </div>
+        <template slot="smart-bar-actions">
+            {% block sw_integration_list_smart_bar_actions %}
+                <sw-button @click="onShowDetailModal()" variant="primary">
+                    {{ $tc('sw-integration.general.buttonCreateIntegration') }}
+                </sw-button>
+            {% endblock %}
+        </template>
 
         <template slot="content">
             <div class="sw-integration-list__content">
                 <sw-card-view class="sw-integration-list__content">
                     {% block sw_integration_list_content %}
                         {% block sw_integration_list_introduction %}
-                            <sw-card :intro="true"
+                            <sw-card :hero="true"
                                      class="sw-integration-list__overview">
-                                <h3>{{ $tc('sw-integration.general.introHeadlineIntegrations') }}</h3>
-                                <p>{{ $tc('sw-integration.general.introDescriptionIntegrations') }}</p>
+                                <h3>{{ $tc('sw-integration.general.heroHeadlineIntegrations') }}</h3>
+                                <p>{{ $tc('sw-integration.general.heroDescriptionIntegrations') }}</p>
                             </sw-card>
                         {% endblock %}
 
@@ -43,6 +39,7 @@
                                                 {% block sw_integration_list_detail_modal_inner_field_label %}
                                                     <sw-field :label="$tc('sw-integration.detail.labelFieldLabel')"
                                                               name="integration.label"
+                                                              validation="required"
                                                               v-model="currentIntegration.label">
                                                     </sw-field>
                                                 {% endblock %}
@@ -68,47 +65,43 @@
 
 
                                             {% block sw_integration_list_detail_modal_inner_helptext %}
-                                                <p class="">
+                                                <p class="sw-integration-list-detail-modal__helptext">
                                                     {{ $tc('sw-integration.detail.secretHelpText') }}
                                                 </p>
                                             {% endblock %}
 
                                             {% block sw_integration_list_detail_modal_inner_field_secretaccesskey %}
-                                                <sw-field v-if="showSecretAccessKey"
+                                                <sw-field :type="secretAccessKeyFieldType"
                                                           :label="$tc('sw-integration.detail.secretFieldLabel')"
                                                           name="integration.secret"
                                                           :disabled="true"
                                                           v-model="currentIntegration.secretAccessKey"
-                                                          :copyAble="true">
+                                                          :passwordToggleAble="false"
+                                                          :copyAble="showSecretAccessKey">
+
                                                 </sw-field>
 
-
-                                                <template v-else>
-                                                    <sw-field :label="$tc('sw-integration.detail.secretFieldLabel')"
-                                                              name="integration.secret"
-                                                              type="password"
-                                                              :passwordToggleAble="false"
-                                                              :disabled="true"
-                                                              v-model="currentIntegration.secretAccessKey">
-                                                    </sw-field>
-
-                                                    <sw-button @click="onGenerateKeys"
-                                                               variant="danger">
-                                                        {{ $tc('sw-integration.detail.buttonCreateNewApiKeys') }}
-                                                    </sw-button>
-                                                </template>
+                                                <sw-button v-if="!showSecretAccessKey" @click="onGenerateKeys"
+                                                           variant="danger">
+                                                    {{ $tc('sw-integration.detail.buttonCreateNewApiKeys') }}
+                                                </sw-button>
                                             {% endblock %}
 
                                             {% block sw_integration_list_detail_modal_inner_footer %}
                                                 <template slot="modal-footer">
-                                                    <sw-button size="small" @click="onCloseDetailModal">
-                                                        {{ $tc('sw-integration.detail.buttonCancel') }}
-                                                    </sw-button>
-                                                    <sw-button size="small"
-                                                               variant="primary"
-                                                               @click="onSaveIntegration">
-                                                        {{ $tc('sw-integration.detail.buttonApply') }}
-                                                    </sw-button>
+                                                    {% block sw_integration_list_detail_modal_inner_footer_cancel %}
+                                                        <sw-button size="small" @click="onCloseDetailModal">
+                                                            {{ $tc('sw-integration.detail.buttonCancel') }}
+                                                        </sw-button>
+                                                    {% endblock %}
+
+                                                    {% block sw_integration_list_detail_modal_inner_footer_apply %}
+                                                        <sw-button size="small"
+                                                                   variant="primary"
+                                                                   @click="onSaveIntegration">
+                                                            {{ $tc('sw-integration.detail.buttonApply') }}
+                                                        </sw-button>
+                                                    {% endblock %}
                                                 </template>
                                             {% endblock %}
                                         {% endblock %}
@@ -134,12 +127,16 @@
                                                         {% block sw_integration_list_grid_inner_slot_columns_actions %}
                                                             <sw-grid-column flex="minmax(100px, 100px)" dataIndex="actions" >
                                                                 <sw-context-button>
-                                                                    <sw-context-menu-item @click="onShowDetailModal(item.id)">
-                                                                        {{ $tc('sw-integration.list.contextMenuEdit') }}
-                                                                    </sw-context-menu-item>
-                                                                    <sw-context-menu-item variant="danger" @click="showDeleteModal = item.id">
-                                                                        {{ $tc('sw-integration.list.contextMenuDelete') }}
-                                                                    </sw-context-menu-item>
+                                                                    {% block sw_integration_list_grid_inner_slot_columns_actions_edit %}
+                                                                        <sw-context-menu-item @click="onShowDetailModal(item.id)">
+                                                                            {{ $tc('sw-integration.list.contextMenuEdit') }}
+                                                                        </sw-context-menu-item>
+                                                                    {% endblock %}
+                                                                    {% block sw_integration_list_grid_inner_slot_columns_actions_delete %}
+                                                                        <sw-context-menu-item variant="danger" @click="showDeleteModal = item.id">
+                                                                            {{ $tc('sw-integration.list.contextMenuDelete') }}
+                                                                        </sw-context-menu-item>
+                                                                    {% endblock %}
                                                                 </sw-context-button>
                                                             </sw-grid-column>
                                                         {% endblock %}

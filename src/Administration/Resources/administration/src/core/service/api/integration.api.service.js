@@ -13,8 +13,8 @@ class IntegrationApiService extends ApiService {
     /**
      * Get the generated access key and secret access key from the API
      *
-     * @param {Object} additionalParams
-     * @param {Object} additionalHeaders
+     * @param {Object} [additionalParams = {}]
+     * @param {Object} [additionalHeaders = {}]
      * @returns {Promise<T>}
      */
     generateKey(additionalParams = {}, additionalHeaders = {}) {

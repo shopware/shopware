@@ -1,5 +1,4 @@
 import { Component, Mixin, State } from 'src/core/shopware';
-// import { object } from 'src/core/service/util.service';
 import template from './sw-integration-list.html.twig';
 import './sw-integration-list.less';
 
@@ -25,6 +24,9 @@ Component.register('sw-integration-list', {
     computed: {
         integrationStore() {
             return State.getStore('integration');
+        },
+        secretAccessKeyFieldType() {
+            return this.showSecretAccessKey ? 'text' : 'password';
         }
     },
 
@@ -69,17 +71,18 @@ Component.register('sw-integration-list', {
         createIntegration() {
             if (!this.currentIntegration.label || this.currentIntegration.label.length < 0) {
                 this.createSavedErrorNotification();
-            } else {
-                this.currentIntegration.save().then(() => {
-                    this.createSavedSuccessNotification();
-                    this.integrations.push(this.currentIntegration);
-                }).catch(() => {
-                    this.createSavedErrorNotification();
-                }).finally(() => {
-                    this.currentIntegration.isNew = false;
-                    this.onCloseDetailModal();
-                });
+                return;
             }
+
+            this.currentIntegration.save().then(() => {
+                this.createSavedSuccessNotification();
+                this.integrations.push(this.currentIntegration);
+            }).catch(() => {
+                this.createSavedErrorNotification();
+            }).finally(() => {
+                this.currentIntegration.isNew = false;
+                this.onCloseDetailModal();
+            });
         },
 
         createSavedSuccessNotification() {

@@ -216,8 +216,8 @@
       "mainMenuItemIndex": "Integrations",
       "headlineIntegrations": "Integrations",
       "buttonCreateIntegration": "Add integration",
-      "introHeadlineIntegrations": "Welcome to the integration management",
-      "introDescriptionIntegrations": "Some english text."
+      "heroHeadlineIntegrations": "Welcome to the integration management",
+      "heroDescriptionIntegrations": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet."
     },
     "list": {
       "contextMenuEdit": "Edit",
@@ -230,7 +230,7 @@
       "buttonApply": "Save",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete",
-      "buttonCreateNewApiKeys": "Create new keys",
+      "buttonCreateNewApiKeys": "Create new API keys",
       "labelFieldLabel": "Name",
       "idFieldLabel": "ID",
       "secretFieldLabel": "Secret",

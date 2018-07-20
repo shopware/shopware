@@ -1,8 +1,5 @@
 import { Module } from 'src/core/shopware';
 import './page/sw-integration-list';
-// import './page/sw-catalog-list';
-// import './page/sw-catalog-detail';
-// import './page/sw-catalog-create';
 
 Module.register('sw-integration', {
     type: 'core',

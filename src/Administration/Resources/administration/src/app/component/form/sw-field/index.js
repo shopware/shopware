@@ -123,6 +123,15 @@ Component.register('sw-field', {
             });
 
             return listeners;
+        },
+        fieldClasses() {
+            return [
+                `sw-field--${this.type}`,
+                {
+                    'has--error': !!this.hasErrorCls,
+                    'has--suffix': !!(this.hasSuffix || this.$props.copyAble),
+                    'is--disabled': !!this.$props.disabled
+                }];
         }
     },
 
@@ -134,7 +143,6 @@ Component.register('sw-field', {
 
     created() {
         this.currentValue = this.convertValueType(this.value);
-
 
         if (this.$vnode.data && this.$vnode.data.model) {
             this.boundExpression = this.$vnode.data.model.expression;

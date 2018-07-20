@@ -10,9 +10,9 @@
     "sw-field": {
       "notification": {
         "notificationCopySuccessTitle": "Erfolgreich",
-        "notificationCopySuccessMessage": "Der text wurde in die Zwischenablage kopiert",
+        "notificationCopySuccessMessage": "Der Text wurde in die Zwischenablage kopiert",
         "notificationCopyFailureTitle": "Fehlgeschlagen",
-        "notificationCopyFailureMessage": "Der text konnte nicht in die Zwischenablage kopiert werden"
+        "notificationCopyFailureMessage": "Der Text konnte nicht in die Zwischenablage kopiert werden"
       },
       "titleShowPassword": "Passwort anzeigen",
       "titleHidePassword": "Passwort verbergen"
@@ -216,8 +216,8 @@
       "mainMenuItemIndex": "Integrationen",
       "headlineIntegrations": "Integrationen",
       "buttonCreateIntegration": "Integration anlegen",
-      "introHeadlineIntegrations": "Willkommen in der Integrationsverwaltung!",
-      "introDescriptionIntegrations": "Alle Informationen, wie Produkte, Seiten oder Medien werden in einem Katalog abgelegt. Alle Daten eines Kataloges können in Kategorien strukturiert werden. Du kannst einen Katalog dazu benutzen, um Deine Produkte und Inhalte auf einem oder mehreren Verkaufskanälen auszuspielen. Man kann außerdem weitere Kataloge anlegen, um z.B. neue Sortimente besser zu verwalten."
+      "heroHeadlineIntegrations": "Willkommen in der Integrationsverwaltung!",
+      "heroDescriptionIntegrations": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet."
     },
     "list": {
       "contextMenuEdit": "Bearbeiten",
@@ -230,7 +230,7 @@
       "buttonApply": "Speichern",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen",
-      "buttonCreateNewApiKeys": "Api Zugangsdaten neu generieren",
+      "buttonCreateNewApiKeys": "API Zugangsdaten neu generieren",
       "labelFieldLabel": "Name",
       "idFieldLabel": "ID",
       "secretFieldLabel": "Secret",

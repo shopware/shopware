@@ -320,6 +320,12 @@ class ApplicationBootstrapper {
         this.instantiateInitializers(container).then(() => {
             const router = container.router.getRouterInstance();
             const view = container.view;
+            const contextService = container.contextService;
+
+            // We're in a test environment, we're not needing an application root
+            if (contextService.environment === 'testing') {
+                return;
+            }
 
             this.applicationRoot = view.createInstance(
                 '#app',

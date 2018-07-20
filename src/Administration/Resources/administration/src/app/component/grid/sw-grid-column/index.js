@@ -52,7 +52,7 @@ Component.register('sw-grid-column', {
         registerColumn() {
             const hasColumn = this.$parent.columns.findIndex((column) => column.label === this.label);
 
-            if (hasColumn !== -1) {
+            if (hasColumn !== -1 && this.label) {
                 return;
             }
 

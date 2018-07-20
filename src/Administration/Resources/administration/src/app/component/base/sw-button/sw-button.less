@@ -5,6 +5,8 @@
 @sw-button-default-color-border:     @color-steam-cloud;
 @sw-button-primary-color-background: @color-shopware-blue;
 @sw-button-primary-color-text:       @color-white;
+@sw-button-danger-color-background:  @color-crimson;
+@sw-button-danger-color-text:        @color-white;
 @sw-button-ghost-color:              @color-shopware-blue;
 @sw-button-ghost-color-text-hover:   @color-white;
 @sw-button-transition:               all 0.15s ease-out;
@@ -84,6 +86,34 @@
         &:disabled,
         &.sw-button--disabled {
             background: lighten(@sw-button-primary-color-background, 20%);
+        }
+    }
+
+    &.sw-button--danger {
+        background: @sw-button-danger-color-background;
+        color: @sw-button-danger-color-text;
+        line-height: 36px;
+        border: 0 none;
+
+        &.sw-button--small {
+            line-height: 28px;
+        }
+
+        &.sw-button--large {
+            line-height: 44px;
+        }
+
+        &:hover {
+            background: darken(@sw-button-danger-color-background, 10%);
+        }
+
+        &:active {
+            background: darken(@sw-button-danger-color-background, 15%);
+        }
+
+        &:disabled,
+        &.sw-button--disabled {
+            background: lighten(@sw-button-danger-color-background, 20%);
         }
     }
 

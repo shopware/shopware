@@ -1,20 +1,20 @@
 import ApiService from './api.service';
 
 /**
- * Gateway for the API end point "application"
+ * Gateway for the API end point "integration"
  * @class
  * @extends ApiService
  */
-class TouchpointApiService extends ApiService {
-    constructor(httpClient, loginService, apiEndpoint = 'touchpoint') {
+class IntegrationApiService extends ApiService {
+    constructor(httpClient, loginService, apiEndpoint = 'integration') {
         super(httpClient, loginService, apiEndpoint);
     }
 
     /**
      * Get the generated access key and secret access key from the API
      *
-     * @param {Object} additionalParams
-     * @param {Object} additionalHeaders
+     * @param {Object} [additionalParams = {}]
+     * @param {Object} [additionalHeaders = {}]
      * @returns {Promise<T>}
      */
     generateKey(additionalParams = {}, additionalHeaders = {}) {
@@ -32,4 +32,4 @@ class TouchpointApiService extends ApiService {
     }
 }
 
-export default TouchpointApiService;
+export default IntegrationApiService;

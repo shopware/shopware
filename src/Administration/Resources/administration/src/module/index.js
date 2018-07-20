@@ -5,3 +5,4 @@ import 'module/sw-customer';
 import 'module/sw-manufacturer';
 import 'module/sw-order';
 import 'module/sw-mediamanager';
+import 'module/sw-integration';

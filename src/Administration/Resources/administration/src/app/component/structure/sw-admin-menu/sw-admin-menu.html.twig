@@ -51,13 +51,13 @@
 
                                 {% block sw_admin_menu_navigation_main_items %}
                                     <sw-admin-menu-item v-for="entry in mainMenuEntries"
-                                                     @menuItemChanged="openFlyout"
-                                                     @listItemClicked="openSubMenu"
-                                                     @leaveMenuItem="leaveItem"
-                                                     :sidebarExpanded="isExpanded"
-                                                     :entry="entry"
-                                                     :key="entry.id || entry.path"
-                                                     :class="entry.label">
+                                                        @menuItemHovered="openFlyout"
+                                                        @menuItemClicked="openSubMenu"
+                                                        @menuItemMouseLeft="leaveItem"
+                                                        :sidebarExpanded="isExpanded"
+                                                        :entry="entry"
+                                                        :key="entry.id || entry.path"
+                                                        :class="entry.label">
                                     </sw-admin-menu-item>
                                 {% endblock %}
 
@@ -159,28 +159,33 @@
             </div>
         {% endblock %}
 
-        {% block sw_admin_menu_flyout %}
+        {% block sw_admin_menu_flyout_transition %}
             <transition name="flyout">
-                <div v-if="flyoutEntries.length" class="sw-admin-menu__flyout" :style="flyoutStyle" @mouseleave="closeFlyout">
+                {% block sw_admin_menu_flyout %}
+                    <div v-if="flyoutEntries.length"
+                         class="sw-admin-menu__flyout"
+                         :style="flyoutStyle"
+                         @mouseleave="closeFlyout">
 
-                    {% block sw_admin_menu_flyout_label %}
-                        <div v-if="!isExpanded" class="sw-admin-menu__flyout-label">
-                            {{ $tc(flyoutLabel) }}
-                        </div>
-                    {% endblock %}
+                        {% block sw_admin_menu_flyout_label %}
+                            <div v-if="!isExpanded" class="sw-admin-menu__flyout-label">
+                                {{ $tc(flyoutLabel) }}
+                            </div>
+                        {% endblock %}
 
-                    {% block sw_admin_menu_flyout_list %}
-                        <ul v-if="flyoutEntries" class="sw-admin-menu__flyout-list">
-                            <sw-admin-menu-item v-for="entry in flyoutEntries"
-                                             :entry="entry"
-                                             :key="entry.id || entry.path"
-                                             :collapsibleText="false"
-                                             :displayIcon="false"
-                                             @listItemClicked="closeFlyout">
-                            </sw-admin-menu-item>
-                        </ul>
-                    {% endblock %}
-                </div>
+                        {% block sw_admin_menu_flyout_list %}
+                            <ul v-if="flyoutEntries" class="sw-admin-menu__flyout-list">
+                                <sw-admin-menu-item v-for="entry in flyoutEntries"
+                                                    :entry="entry"
+                                                    :key="entry.id || entry.path"
+                                                    :collapsibleText="false"
+                                                    :displayIcon="false"
+                                                    @listItemClicked="closeFlyout">
+                                </sw-admin-menu-item>
+                            </ul>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
             </transition>
         {% endblock %}
 

@@ -1,9 +1,9 @@
 {% block sw_admin_menu_item %}
     <li class="sw-admin-menu__navigation-list-item"
         :class="getItemName(entry.id || entry.path)"
-        @click="$emit('listItemClicked', entry, $event.currentTarget)"
-        @mouseover="$emit('menuItemChanged', entry, $event.currentTarget)"
-        @mouseleave="$emit('leaveMenuItem', entry, $event.currentTarget)">
+        @click="$emit('menuItemClicked', entry, $event.currentTarget)"
+        @mouseover="$emit('menuItemHovered', entry, $event.currentTarget)"
+        @mouseleave="$emit('menuItemMouseLeft', entry, $event.currentTarget)">
 
         {% block sw_admin_menu_item_router_link %}
             <router-link v-if="entry.path"

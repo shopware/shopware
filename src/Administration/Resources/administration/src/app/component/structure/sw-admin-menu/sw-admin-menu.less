@@ -8,6 +8,7 @@
 @sw-admin-menu-width-flyout:            220px;
 @sw-admin-menu-z-index-flyout:          500;
 @sw-admin-menu-transition:              .4s cubic-bezier(.50,.32,.01,1);
+@sw-admin-menu-sub-menu-transition:     .35s cubic-bezier(.50,.32,.01,1);
 @sw-admin-menu-color-active:            lighten(@color-gradient-dark-gray-start, 3%);
 @sw-admin-menu-color-hover:             lighten(@color-gradient-dark-gray-start, 6%);
 @sw-admin-menu-shop-status-ok:          @color-emerald;
@@ -72,7 +73,6 @@
         right: 0;
         width: 8px;
         height: 8px;
-        cursor: help;
     }
 
     .sw-admin-menu__header-logo {
@@ -165,7 +165,6 @@
         font-weight: 600;
         line-height: 24px;
         cursor: pointer;
-        transition: 0.3s padding ease;
 
         &:hover,
         &.router-link-active,
@@ -175,12 +174,13 @@
 
         &.router-link-active + .sw-admin-menu__sub-navigation-list,
         &.sw-admin-menu__navigation-link-active + .sw-admin-menu__sub-navigation-list {
-            height: auto;
             opacity: 1;
 
             .sw-admin-menu__navigation-link {
                 padding-top: 8px;
                 padding-bottom: 8px;
+                height: 40px;
+                opacity: 1;
             }
         }
     }
@@ -188,7 +188,7 @@
     .sw-admin-menu__navigation-link-icon {
         color: @sw-admin-menu-color-text-secondary;
         width: 20px;
-        margin: 0 20px 0 0;
+        margin: 0 24px 0 0;
         vertical-align: middle;
         position: relative;
         top: -2px;
@@ -196,19 +196,22 @@
 
     .sw-admin-menu__sub-navigation-list {
         background: @sw-admin-menu-color-active;
-        transition: 0.3s all ease;
+        transition: all @sw-admin-menu-sub-menu-transition;
+        display: block;
         list-style: none;
         margin: 0;
         padding: 0;
         overflow: hidden;
-        height: 0;
         opacity: 0;
 
         .sw-admin-menu__navigation-link {
-            padding-left: 73px;
+            padding-left: 77px;
             padding-top: 0;
             padding-bottom: 0;
             font-weight: normal;
+            transition: all @sw-admin-menu-sub-menu-transition;
+            opacity: 0;
+            height: 0;
 
             &:hover {
                 background-color: @sw-admin-menu-color-hover;
@@ -263,7 +266,7 @@
         color: @sw-admin-menu-color-text-secondary;
         font-family: @font-family-default;
         display: block;
-        padding: 12px 30px;
+        padding: 12px 32px;
         text-decoration: none;
         font-size: 14px;
         line-height: 24px;

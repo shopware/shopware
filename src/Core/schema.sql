@@ -1133,34 +1133,33 @@ CREATE TABLE `product_category` (
   CONSTRAINT `fk_product_category.product_id` FOREIGN KEY (`product_id`, `product_version_id`, `product_tenant_id`) REFERENCES `product` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-DROP TABLE IF EXISTS `search_keyword`;
-CREATE TABLE `search_keyword` (
+DROP TABLE IF EXISTS `search_dictionary`;
+CREATE TABLE `search_dictionary` (
   `tenant_id` binary(16) NOT NULL,
+  `scope` varchar(100) NOT NULL,
   `keyword` varchar(500) NOT NULL,
   `reversed` varchar(500) NOT NULL,
   `version_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,
   `language_tenant_id` binary(16) NOT NULL,
-  PRIMARY KEY `language_keyword` (`keyword`, `language_id`, `version_id`, `tenant_id`, `language_tenant_id`),
-  CONSTRAINT `fk_search_keyword.language_id` FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
+  PRIMARY KEY `language_keyword` (`keyword`, `scope`, `language_id`, `version_id`, `tenant_id`, `language_tenant_id`),
+  CONSTRAINT `fk_search_dictionary.language_id` FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-DROP TABLE IF EXISTS `product_search_keyword`;
-CREATE TABLE `product_search_keyword` (
+DROP TABLE IF EXISTS `search_document`;
+CREATE TABLE `search_document` (
   `id` binary(16) NOT NULL,
   `tenant_id` binary(16) NOT NULL,
   `version_id` binary(16) NOT NULL,
   `keyword` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL,
   `language_id` binary(16) NOT NULL,
   `language_tenant_id` binary(16) NOT NULL,
-  `product_id` binary(16) NOT NULL,
-  `product_tenant_id` binary(16) NOT NULL,
-  `product_version_id` binary(16) NOT NULL,
+  `entity` varchar(100) NOT NULL,
+  `entity_id` binary(16) NOT NULL,
   `ranking` float NOT NULL,
   PRIMARY KEY (`id`, `version_id`, `tenant_id`),
-  CONSTRAINT `fk_product_search_keyword.product_id` FOREIGN KEY (`product_id`, `product_version_id`, `product_tenant_id`) REFERENCES `product` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_product_search_keyword.language_id` FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  UNIQUE KEY (`language_id`, `keyword`, `product_id`, `ranking`, `version_id`, `tenant_id`)
+  CONSTRAINT `fk_search_document.language_id` FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  UNIQUE KEY (`language_id`, `keyword`, `entity`, `entity_id`, `ranking`, `version_id`, `tenant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `product_manufacturer`;

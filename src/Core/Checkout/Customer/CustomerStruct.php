@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupStruct;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodStruct;
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\Search\SearchDocumentCollection;
 use Shopware\Core\System\Touchpoint\TouchpointStruct;
 
 class CustomerStruct extends Entity
@@ -216,6 +217,11 @@ class CustomerStruct extends Entity
      * @var int
      */
     protected $autoIncrement;
+
+    /**
+     * @var SearchDocumentCollection|null
+     */
+    protected $searchKeywords;
 
     public function getGroupId(): string
     {
@@ -634,5 +640,15 @@ class CustomerStruct extends Entity
     public function setAutoIncrement(int $autoIncrement): void
     {
         $this->autoIncrement = $autoIncrement;
+    }
+
+    public function getSearchKeywords(): ?SearchDocumentCollection
+    {
+        return $this->searchKeywords;
+    }
+
+    public function setSearchKeywords(?SearchDocumentCollection $searchKeywords): void
+    {
+        $this->searchKeywords = $searchKeywords;
     }
 }

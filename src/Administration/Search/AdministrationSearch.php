@@ -5,6 +5,7 @@ namespace Shopware\Administration\Search;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\Util\KeywordSearchTermInterpreter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\EntityCollection;
 use Shopware\Core\Framework\ORM\EntityDefinition;
@@ -12,9 +13,9 @@ use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
-use Shopware\Core\Framework\ORM\Search\SearchBuilder;
 use Shopware\Core\Framework\ORM\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataCollection;
@@ -33,18 +34,18 @@ class AdministrationSearch
     private $changesRepository;
 
     /**
-     * @var SearchBuilder
+     * @var KeywordSearchTermInterpreter
      */
-    private $searchBuilder;
+    private $interpreter;
 
     public function __construct(
         ContainerInterface $container,
-        SearchBuilder $searchBuilder,
+        KeywordSearchTermInterpreter $interpreter,
         RepositoryInterface $changesRepository
     ) {
         $this->container = $container;
         $this->changesRepository = $changesRepository;
-        $this->searchBuilder = $searchBuilder;
+        $this->interpreter = $interpreter;
     }
 
     public function search(string $term, int $limit, Context $context, string $userId): array
@@ -107,6 +108,8 @@ class AdministrationSearch
                     $score = 1 + ($entityChanges->count() / 10);
                 }
 
+                $row['_score'] = $row['_score'] ?? 1;
+
                 $row['_score'] *= $score;
             }
         }
@@ -125,6 +128,9 @@ class AdministrationSearch
         foreach ($results as $definition => $result) {
             foreach ($result->getData() as $entity) {
                 $entity['definition'] = $definition;
+
+                $entity['_score'] = $entity['_score'] ?? 1;
+
                 $flat[] = $entity;
             }
         }
@@ -143,13 +149,13 @@ class AdministrationSearch
             $entities = $repository->read(new ReadCriteria(\array_keys($rows)), $context);
 
             foreach ($entities as $entity) {
-                $entity->addExtension(
-                    'search',
-                    new ArrayStruct(['_score' => $rows[$entity->getId()]])
-                );
+                $score = (float) $rows[$entity->getId()];
+
+                $entity->addExtension('search', new ArrayStruct(['_score' => $score]));
 
                 $results[] = [
                     'type' => $definition::getEntityName(),
+                    'score' => $score,
                     'entity' => $entity,
                 ];
             }
@@ -173,6 +179,7 @@ class AdministrationSearch
         $grouped = [];
         foreach ($flat as $row) {
             $definition = $row['definition'];
+
             $grouped[$definition][$row['primary_key']] = $row['_score'];
         }
 
@@ -191,16 +198,42 @@ class AdministrationSearch
 
         //fetch best matches for defined definitions
         foreach ($definitions as $definition) {
-            /* @var RepositoryInterface $repository */
-            $repository = $this->container->get($definition::getEntityName() . '.repository');
-
-            $criteria = $this->searchBuilder->build($term, $definition, $context);
-
-            $result = $repository->searchIds($criteria, $context);
-
-            $results[$definition] = $result;
+            $results[$definition] = $this->searchEntity($term, $definition, $context);
         }
 
         return $results;
+    }
+
+    private function searchEntity(string $term, string $definition, Context $context): IdSearchResult
+    {
+        $criteria = new Criteria();
+        $criteria->setLimit(15);
+
+        /** @var string|EntityDefinition $definition */
+        $pattern = $this->interpreter->interpret($term, $definition::getEntityName(), $context);
+
+        $keywordField = $definition::getEntityName() . '.searchKeywords.keyword';
+        $rankingField = $definition::getEntityName() . '.searchKeywords.ranking';
+        $languageField = $definition::getEntityName() . '.searchKeywords.languageId';
+
+        $queries = [];
+        foreach ($pattern->getTerms() as $searchTerm) {
+            $criteria->addQuery(
+                new ScoreQuery(
+                    new TermQuery($keywordField, $searchTerm->getTerm()),
+                    $searchTerm->getScore(),
+                    $rankingField
+                )
+            );
+        }
+
+        $criteria->addQueries($queries);
+        $criteria->addFilter(new TermsQuery($keywordField, array_values($pattern->getAllTerms())));
+        $criteria->addFilter(new TermQuery($languageField, $context->getLanguageId()));
+
+        /* @var RepositoryInterface $repository */
+        $repository = $this->container->get($definition::getEntityName() . '.repository');
+
+        return $repository->searchIds($criteria, $context);
     }
 }

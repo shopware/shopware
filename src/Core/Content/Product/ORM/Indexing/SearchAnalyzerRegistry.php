@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Content\Product\ORM\Indexing;
 
-use Shopware\Core\Content\Product\ProductStruct;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Entity;
 
-class ProductSearchAnalyzerRegistry
+class SearchAnalyzerRegistry
 {
     /**
-     * @var ProductSearchAnalyzerInterface[]
+     * @var SearchAnalyzerInterface[]
      */
     protected $analyzers;
 
@@ -17,12 +17,12 @@ class ProductSearchAnalyzerRegistry
         $this->analyzers = $analyzers;
     }
 
-    public function analyze(ProductStruct $product, Context $context): array
+    public function analyze(string $definition, Entity $entity, Context $context): array
     {
         $collection = [];
 
         foreach ($this->analyzers as $analyzer) {
-            $keywords = $analyzer->analyze($product, $context);
+            $keywords = $analyzer->analyze($definition, $entity, $context);
 
             foreach ($keywords as $keyword => $ranking) {
                 $before = 0;

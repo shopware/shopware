@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Subscriber;
 
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\Util\KeywordSearchTermInterpreter;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ORM\Search\Query\ScoreQuery;
@@ -67,7 +68,7 @@ class SearchTermSubscriber implements EventSubscriberInterface
         /** @var SearchPageRequest $request */
         $term = $request->getSearchTerm();
 
-        $pattern = $this->interpreter->interpret($term, $event->getContext());
+        $pattern = $this->interpreter->interpret($term, ProductDefinition::getEntityName(), $event->getContext());
 
         $queries = [];
         foreach ($pattern->getTerms() as $term) {

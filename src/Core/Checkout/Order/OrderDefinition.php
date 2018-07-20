@@ -20,12 +20,12 @@ use Shopware\Core\Framework\ORM\Field\IntField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
+use Shopware\Core\Framework\ORM\Field\SearchKeywordAssociationField;
 use Shopware\Core\Framework\ORM\Field\TenantIdField;
 use Shopware\Core\Framework\ORM\Field\UpdatedAtField;
 use Shopware\Core\Framework\ORM\Field\VersionField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
-use Shopware\Core\Framework\ORM\Write\Flag\DelayedLoad;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\ReadOnly;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
@@ -35,6 +35,11 @@ use Shopware\Core\System\Touchpoint\TouchpointDefinition;
 
 class OrderDefinition extends EntityDefinition
 {
+    public static function useKeywordSearch(): bool
+    {
+        return true;
+    }
+
     public static function getEntityName(): string
     {
         return 'order';
@@ -74,15 +79,16 @@ class OrderDefinition extends EntityDefinition
             (new BoolField('is_tax_free', 'isTaxFree'))->setFlags(new Required()),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new ManyToOneAssociationField('customer', 'customer_id', CustomerDefinition::class, true))->setFlags(new SearchRanking(self::ASSOCIATION_SEARCH_RANKING), new DelayedLoad()),
+            (new ManyToOneAssociationField('customer', 'customer_id', CustomerDefinition::class, true))->setFlags(new SearchRanking(0.9)),
             new ManyToOneAssociationField('state', 'order_state_id', OrderStateDefinition::class, true),
-            (new ManyToOneAssociationField('paymentMethod', 'payment_method_id', PaymentMethodDefinition::class, true))->setFlags(new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
+            new ManyToOneAssociationField('paymentMethod', 'payment_method_id', PaymentMethodDefinition::class, true),
             new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, true),
             new ManyToOneAssociationField('touchpoint', 'touchpoint_id', TouchpointDefinition::class, true),
             (new ManyToOneAssociationField('billingAddress', 'billing_address_id', OrderAddressDefinition::class, true))->setFlags(new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
             (new OneToManyAssociationField('deliveries', OrderDeliveryDefinition::class, 'order_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new OneToManyAssociationField('lineItems', OrderLineItemDefinition::class, 'order_id', false, 'id'))->setFlags(new CascadeDelete(), new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
             (new OneToManyAssociationField('transactions', OrderTransactionDefinition::class, 'order_id', false, 'id'))->setFlags(new CascadeDelete()),
+            new SearchKeywordAssociationField(),
         ]);
     }
 

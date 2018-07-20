@@ -13,7 +13,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductDatasheet\ProductDatasheetDef
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVariation\ProductVariationDefinition;
@@ -36,6 +35,7 @@ use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\PriceField;
 use Shopware\Core\Framework\ORM\Field\PriceRulesJsonField;
 use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
+use Shopware\Core\Framework\ORM\Field\SearchKeywordAssociationField;
 use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\Field\TenantIdField;
 use Shopware\Core\Framework\ORM\Field\TranslatedField;
@@ -58,6 +58,11 @@ class ProductDefinition extends EntityDefinition
     public static function getEntityName(): string
     {
         return 'product';
+    }
+
+    public static function useKeywordSearch(): bool
+    {
+        return true;
     }
 
     public static function isInheritanceAware(): bool
@@ -151,7 +156,7 @@ class ProductDefinition extends EntityDefinition
 
             //not inherited associations
             (new ManyToManyAssociationField('categoriesRo', CategoryDefinition::class, ProductCategoryTreeDefinition::class, false, 'product_id', 'category_id'))->setFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('searchKeywords', ProductSearchKeywordDefinition::class, 'product_id', false, 'id'))->setFlags(new CascadeDelete()),
+            new SearchKeywordAssociationField(),
             (new TranslationsAssociationField('translations', ProductTranslationDefinition::class, 'product_id', false, 'id'))->setFlags(new Inherited(), new CascadeDelete(), new Required()),
             (new ProductCoverField('cover', true))->setFlags(new ReadOnly()),
 

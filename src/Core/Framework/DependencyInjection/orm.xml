@@ -151,6 +151,10 @@
             <tag name="shopware.entity.field_resolver" priority="-50"/>
         </service>
 
+        <service class="Shopware\Core\Framework\ORM\Dbal\FieldResolver\SearchKeywordAssociationFieldResolver" id="shopware.core.framework.orm.dbal.field_resolver.search_keyword_association_field_resolver">
+            <tag name="shopware.entity.field_resolver" priority="-30"/>
+        </service>
+
         <service class="Shopware\Core\Framework\ORM\Dbal\FieldResolver\ManyToManyAssociationFieldResolver" id="Shopware\Core\Framework\ORM\Dbal\FieldResolver\ManyToManyAssociationFieldResolver">
             <tag name="shopware.entity.field_resolver" priority="-50"/>
         </service>
@@ -215,7 +219,7 @@
         </service>
 
         <service class="Shopware\Core\Framework\ORM\Dbal\Indexing\InheritanceIndexer" id="Shopware\Core\Framework\ORM\Dbal\Indexing\InheritanceIndexer">
-            <tag name="shopware.dbal_indexing.indexer" priority="1500"/>
+            <!--<tag name="shopware.dbal_indexing.indexer" priority="1500"/>-->
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\DefinitionRegistry"/>
             <argument type="service" id="event_dispatcher"/>
@@ -634,8 +638,8 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service id="product_search_keyword.repository" class="Shopware\Core\Framework\ORM\EntityRepository" public="true">
-            <argument>Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordDefinition</argument>
+        <service id="search_document.repository" class="Shopware\Core\Framework\ORM\EntityRepository" public="true">
+            <argument>Shopware\Core\Framework\Search\SearchDocumentDefinition</argument>
             <argument type="service" id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\VersionManager"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntitySearcherInterface"/>

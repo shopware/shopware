@@ -5,6 +5,11 @@ namespace Shopware\Core\Framework\ORM\Search\Term;
 class SearchPattern
 {
     /**
+     * @var string
+     */
+    protected $scope;
+
+    /**
      * @var SearchTerm
      */
     protected $original;
@@ -14,9 +19,10 @@ class SearchPattern
      */
     protected $terms = [];
 
-    public function __construct(SearchTerm $original)
+    public function __construct(SearchTerm $original, string $scope)
     {
         $this->original = $original;
+        $this->scope = $scope;
     }
 
     public function getOriginal(): SearchTerm
@@ -45,5 +51,10 @@ class SearchPattern
         }
 
         return $terms;
+    }
+
+    public function getScope(): string
+    {
+        return $this->scope;
     }
 }

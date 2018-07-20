@@ -18,6 +18,7 @@ use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\PasswordField;
 use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
+use Shopware\Core\Framework\ORM\Field\SearchKeywordAssociationField;
 use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\Field\TenantIdField;
 use Shopware\Core\Framework\ORM\Field\UpdatedAtField;
@@ -36,6 +37,11 @@ class CustomerDefinition extends EntityDefinition
     public static function getEntityName(): string
     {
         return 'customer';
+    }
+
+    public static function useKeywordSearch(): bool
+    {
+        return true;
     }
 
     public static function defineFields(): FieldCollection
@@ -79,7 +85,7 @@ class CustomerDefinition extends EntityDefinition
             new StringField('validation', 'validation'),
             new BoolField('affiliate', 'affiliate'),
             new StringField('referer', 'referer'),
-            (new LongTextField('internal_comment', 'internalComment'))->setFlags(new SearchRanking(self::LOW_SEARCH_RAKING)),
+            new LongTextField('internal_comment', 'internalComment'),
             new IntField('failed_logins', 'failedLogins'),
             new DateField('locked_until', 'lockedUntil'),
             new DateField('birthday', 'birthday'),
@@ -93,6 +99,7 @@ class CustomerDefinition extends EntityDefinition
             new ManyToOneAssociationField('defaultShippingAddress', 'default_shipping_address_id', CustomerAddressDefinition::class, true),
             (new OneToManyAssociationField('addresses', CustomerAddressDefinition::class, 'customer_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new OneToManyAssociationField('orders', OrderDefinition::class, 'customer_id', false, 'id'))->setFlags(new RestrictDelete()),
+            new SearchKeywordAssociationField(),
         ]);
     }
 

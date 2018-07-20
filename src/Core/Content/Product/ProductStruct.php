@@ -16,13 +16,13 @@ use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaStruct;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleStruct;
-use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\Pricing\PriceRuleCollection;
 use Shopware\Core\Framework\Pricing\PriceStruct;
+use Shopware\Core\Framework\Search\SearchDocumentCollection;
 use Shopware\Core\System\Tax\TaxStruct;
 use Shopware\Core\System\Unit\UnitStruct;
 
@@ -304,7 +304,7 @@ class ProductStruct extends Entity
     protected $media;
 
     /**
-     * @var ProductSearchKeywordCollection|null
+     * @var SearchDocumentCollection|null
      */
     protected $searchKeywords;
 
@@ -996,12 +996,12 @@ class ProductStruct extends Entity
         $this->media = $media;
     }
 
-    public function getSearchKeywords(): ?ProductSearchKeywordCollection
+    public function getSearchKeywords(): ?SearchDocumentCollection
     {
         return $this->searchKeywords;
     }
 
-    public function setSearchKeywords(ProductSearchKeywordCollection $searchKeywords): void
+    public function setSearchKeywords(SearchDocumentCollection $searchKeywords): void
     {
         $this->searchKeywords = $searchKeywords;
     }

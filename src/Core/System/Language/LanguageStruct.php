@@ -14,9 +14,9 @@ use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\
 use Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\MediaAlbumTranslationCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\Search\SearchDocumentCollection;
 use Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\CountryAreaTranslationCollection;
 use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationCollection;
 use Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationCollection;
@@ -193,9 +193,9 @@ class LanguageStruct extends Entity
     protected $discountsurchargeTranslations;
 
     /**
-     * @var ProductSearchKeywordCollection|null
+     * @var SearchDocumentCollection|null
      */
-    protected $productSearchKeywords;
+    protected $searchDocuments;
 
     /**
      * @var SnippetCollection|null
@@ -512,14 +512,14 @@ class LanguageStruct extends Entity
         $this->configurationGroupOptionTranslations = $configurationGroupOptionTranslations;
     }
 
-    public function getProductSearchKeywords(): ?ProductSearchKeywordCollection
+    public function getSearchDocuments(): ?SearchDocumentCollection
     {
-        return $this->productSearchKeywords;
+        return $this->searchDocuments;
     }
 
-    public function setProductSearchKeywords(ProductSearchKeywordCollection $productSearchKeywords): void
+    public function setSearchDocuments(SearchDocumentCollection $searchDocuments): void
     {
-        $this->productSearchKeywords = $productSearchKeywords;
+        $this->searchDocuments = $searchDocuments;
     }
 
     public function getSnippets(): ?SnippetCollection

@@ -34,22 +34,23 @@ class KeywordSearchTermInterpreter
         $this->logger = $logger;
     }
 
-    public function interpret(string $word, Context $context): SearchPattern
+    public function interpret(string $word, string $scope, Context $context): SearchPattern
     {
         $tokens = $this->tokenizer->tokenize($word);
 
         $slops = $this->slop($tokens);
 
-        $matches = $this->fetchKeywords($context, $slops);
+        $matches = $this->fetchKeywords($context, $scope, $slops);
 
-        $scoring = $this->score($tokens, $matches, $context);
+        $scoring = $this->score($tokens, $matches);
 
         $scoring = \array_slice($scoring, 0, 10);
 
         foreach ($scoring as $match) {
             $this->logger->info('Search match: ' . $match['keyword'], $match);
         }
-        $pattern = new SearchPattern(new SearchTerm($word));
+
+        $pattern = new SearchPattern(new SearchTerm($word), $scope);
 
         foreach ($scoring as $match) {
             $pattern->addTerm(new SearchTerm($match['keyword'], $match['score']));
@@ -103,11 +104,11 @@ class KeywordSearchTermInterpreter
         return $slops;
     }
 
-    private function fetchKeywords(Context $context, array $slops): array
+    private function fetchKeywords(Context $context, string $scope, array $slops): array
     {
         $query = $this->connection->createQueryBuilder();
         $query->select('keyword');
-        $query->from('search_keyword');
+        $query->from('search_dictionary');
 
         $counter = 0;
         $wheres = [];
@@ -122,14 +123,16 @@ class KeywordSearchTermInterpreter
             $query->setParameter('reg' . $counter, $slop);
         }
 
+        $query->andWhere('scope = :scope');
         $query->andWhere('(' . implode(' OR ', $wheres) . ')');
         $query->andWhere('language_id = :language');
         $query->setParameter('language', Uuid::fromStringToBytes($context->getLanguageId()));
+        $query->setParameter('scope', $scope);
 
         return $query->execute()->fetchAll(\PDO::FETCH_COLUMN);
     }
 
-    private function score(array $tokens, array $matches, Context $context): array
+    private function score(array $tokens, array $matches): array
     {
         $scoring = [];
 

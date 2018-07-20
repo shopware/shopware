@@ -10,7 +10,6 @@
             <tag name="twig.extension" />
 
             <argument type="service" id="request_stack" />
-            <argument type="service" id="Shopware\Storefront\Theme\ThemeConfigReader" />
         </service>
 
         <service class="Shopware\Storefront\Page\Search\KeywordSearchTermInterpreter" id="Shopware\Storefront\Page\Search\KeywordSearchTermInterpreter" public="true">
@@ -20,10 +19,6 @@
         </service>
 
         <!-- Twig / Theme -->
-        <service class="Shopware\Storefront\Theme\ThemeConfigReader" id="Shopware\Storefront\Theme\ThemeConfigReader">
-            <argument type="service" id="Doctrine\DBAL\Connection" />
-        </service>
-
         <service class="Shopware\Storefront\Navigation\NavigationService" id="Shopware\Storefront\Navigation\NavigationService" public="true">
             <argument type="service" id="category.repository"/>
         </service>

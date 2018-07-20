@@ -8,7 +8,8 @@ Component.register('sw-integration-list', {
     template,
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
+        Mixin.getByName('listing')
     ],
 
     data() {
@@ -30,17 +31,25 @@ Component.register('sw-integration-list', {
         }
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     methods: {
-        createdComponent() {
+        getList() {
             this.isLoading = true;
+            const params = this.getListingParams();
 
-            this.integrationStore.getList({ offset: 0, limit: 100 }).then((response) => {
+            this.integrations = [];
+
+            // Use the integration label as the default sorting
+            if (!params.sortBy && !params.sortDirection) {
+                params.sortBy = 'label';
+                params.sortDirection = 'ASC';
+            }
+
+            return this.integrationStore.getList(params).then((response) => {
+                this.total = response.total;
                 this.integrations = response.items;
                 this.isLoading = false;
+
+                return this.integrations;
             });
         },
 

@@ -169,6 +169,16 @@
                                                     {% endblock %}
                                                 </template>
                                             {% endblock %}
+                                            <template slot="pagination">
+                                                {% block sw_integration_list_grid_pagination %}
+                                                    <sw-pagination :offset="offset"
+                                                                   :limit="limit"
+                                                                   :total="total"
+                                                                   :total-visible="7"
+                                                                   @page-change="onPageChange">
+                                                    </sw-pagination>
+                                                {% endblock %}
+                                            </template>
                                         </sw-grid>
                                     {% endblock %}
                                 {% endblock %}

@@ -79,7 +79,7 @@ EOF;
             'name' => 'test',
             'price' => ['gross' => 15],
             'manufacturer' => ['name' => 'test'],
-            'tax' => ['name' => 'test', 'rate' => 15],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
             'categories' => [
                 ['id' => $id->getHex(), 'name' => 'asd'],
             ],
@@ -109,7 +109,7 @@ EOF;
             'name' => 'test',
             'price' => ['foo' => 'bar'],
             'manufacturer' => ['name' => 'test'],
-            'tax' => ['name' => 'test', 'rate' => 15],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
             'categories' => [
                 ['id' => $id->getHex(), 'name' => 'asd'],
             ],
@@ -147,7 +147,7 @@ EOF;
             'name' => 'test',
             'price' => ['gross' => 15, 'net' => 'strings are not allowed'],
             'manufacturer' => ['name' => 'test'],
-            'tax' => ['name' => 'test', 'rate' => 15],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
             'categories' => [
                 ['id' => $id->getHex(), 'name' => 'asd'],
             ],
@@ -177,7 +177,7 @@ EOF;
             'name' => 'test',
             'price' => ['gross' => 15, 'net' => 13.2, 'fail' => 'me'],
             'manufacturer' => ['name' => 'test'],
-            'tax' => ['name' => 'test', 'rate' => 15],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
             'categories' => [
                 ['id' => $id->getHex(), 'name' => 'asd'],
             ],

@@ -114,7 +114,7 @@ class DiscountSurchargeTest extends KernelTestCase
         /** @var PercentageTaxRule $taxRule */
         $taxRule = $calculatedCart->getPrice()->getTaxRules()->get(19);
         $this->assertInstanceOf(PercentageTaxRule::class, $taxRule);
-        $this->assertEquals(19, $taxRule->getRate());
+        $this->assertEquals(19, $taxRule->getTaxRate());
         $this->assertEquals(100, $taxRule->getPercentage());
     }
 
@@ -160,7 +160,7 @@ class DiscountSurchargeTest extends KernelTestCase
         /** @var PercentageTaxRule $taxRule */
         $taxRule = $calculatedCart->getPrice()->getTaxRules()->get(19);
         $this->assertInstanceOf(PercentageTaxRule::class, $taxRule);
-        $this->assertEquals(19, $taxRule->getRate());
+        $this->assertEquals(19, $taxRule->getTaxRate());
         $this->assertEquals(100, $taxRule->getPercentage());
         $this->assertNull($lineItem);
     }
@@ -209,7 +209,7 @@ class DiscountSurchargeTest extends KernelTestCase
         /** @var PercentageTaxRule $taxRule */
         $taxRule = $calculatedCart->getPrice()->getTaxRules()->get(19);
         $this->assertInstanceOf(PercentageTaxRule::class, $taxRule);
-        $this->assertEquals(19, $taxRule->getRate());
+        $this->assertEquals(19, $taxRule->getTaxRate());
         $this->assertEquals(100, $taxRule->getPercentage());
 
         $this->assertInstanceOf(CalculatedLineItem::class, $lineItem);
@@ -279,7 +279,7 @@ class DiscountSurchargeTest extends KernelTestCase
         /** @var PercentageTaxRule $taxRule */
         $taxRule = $lineItem->getPrice()->getTaxRules()->get(19);
         $this->assertInstanceOf(PercentageTaxRule::class, $taxRule);
-        $this->assertEquals(19, $taxRule->getRate());
+        $this->assertEquals(19, $taxRule->getTaxRate());
         $this->assertEquals(100, $taxRule->getPercentage());
         $this->assertCount(1, $lineItem->getPrice()->getTaxRules()->getElements());
     }
@@ -420,7 +420,7 @@ class DiscountSurchargeTest extends KernelTestCase
         /** @var PercentageTaxRule $taxRule */
         $taxRule = $lineItem->getPrice()->getTaxRules()->get(19);
         $this->assertInstanceOf(PercentageTaxRule::class, $taxRule);
-        $this->assertEquals(19, $taxRule->getRate());
+        $this->assertEquals(19, $taxRule->getTaxRate());
         $this->assertEquals(60, $taxRule->getPercentage());
 
         $this->assertArrayHasKey(7, $lineItem->getPrice()->getCalculatedTaxes());
@@ -433,7 +433,7 @@ class DiscountSurchargeTest extends KernelTestCase
         /** @var PercentageTaxRule $taxRule */
         $taxRule = $lineItem->getPrice()->getTaxRules()->get(7);
         $this->assertInstanceOf(PercentageTaxRule::class, $taxRule);
-        $this->assertEquals(7, $taxRule->getRate());
+        $this->assertEquals(7, $taxRule->getTaxRate());
         $this->assertEquals(40, $taxRule->getPercentage());
     }
 
@@ -492,7 +492,7 @@ class DiscountSurchargeTest extends KernelTestCase
             'name' => $name,
             'manufacturer' => ['name' => 'test'],
             'price' => ['gross' => $grossPrice, 'net' => $netPrice],
-            'tax' => ['name' => 'test', 'rate' => $taxRate],
+            'tax' => ['name' => 'test', 'taxRate' => $taxRate],
         ];
         self::$productRepository->upsert([$data], self::$context);
 

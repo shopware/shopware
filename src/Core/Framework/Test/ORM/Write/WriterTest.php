@@ -176,7 +176,7 @@ class WriterTest extends KernelTestCase
                 'id' => $productId->getHex(),
                 'name' => 'test 1',
                 'price' => ['gross' => 10, 'net' => 9],
-                'tax' => ['name' => 'test', 'rate' => 5],
+                'tax' => ['name' => 'test', 'taxRate' => 5],
                 'manufacturer' => ['name' => 'test'],
                 'categories' => [
                     ['id' => $categoryId->getHex(), 'name' => 'test'],
@@ -227,7 +227,7 @@ class WriterTest extends KernelTestCase
                 'id' => $productId->getHex(),
                 'name' => 'test 1',
                 'price' => ['gross' => 10, 'net' => 8.10],
-                'tax' => ['name' => 'test', 'rate' => 5],
+                'tax' => ['name' => 'test', 'taxRate' => 5],
                 'manufacturer' => ['name' => 'test'],
                 'categories' => [
                     ['id' => $categoryId->getHex(), 'name' => 'test'],
@@ -237,7 +237,7 @@ class WriterTest extends KernelTestCase
                 'id' => $productId2->getHex(),
                 'name' => 'test 1',
                 'price' => ['gross' => 10, 'net' => 8.10],
-                'tax' => ['name' => 'test', 'rate' => 5],
+                'tax' => ['name' => 'test', 'taxRate' => 5],
                 'manufacturer' => ['name' => 'test'],
                 'categories' => [
                     ['id' => $categoryId->getHex()],
@@ -246,7 +246,7 @@ class WriterTest extends KernelTestCase
             [
                 'name' => 'test 1',
                 'price' => ['gross' => 10, 'net' => 8.10],
-                'tax' => ['name' => 'test', 'rate' => 5],
+                'tax' => ['name' => 'test', 'taxRate' => 5],
                 'manufacturer' => ['name' => 'test'],
                 'categories' => [
                     ['name' => 'test'],
@@ -287,7 +287,7 @@ class WriterTest extends KernelTestCase
                     'name' => 'test',
                     'price' => ['gross' => 10, 'net' => 8.10],
                     'the_unknown_field' => 'do nothing?',
-                    'tax' => ['name' => 'test', 'rate' => 5],
+                    'tax' => ['name' => 'test', 'taxRate' => 5],
                     'manufacturer' => ['id' => Uuid::uuid4()->getHex(), 'link' => 'https://shopware.com', 'name' => 'shopware AG'],
                     'mode' => 0,
                     'lastStock' => true,
@@ -317,7 +317,7 @@ class WriterTest extends KernelTestCase
             [
                 [
                     'the_unknown_field' => 'do nothing?',
-                    'tax' => ['name' => 'test', 'rate' => 5],
+                    'tax' => ['name' => 'test', 'taxRate' => 5],
                     'name' => 'foo',
                     'price' => ['gross' => 10, 'net' => 8.10],
                     'manufacturer' => ['id' => Uuid::uuid4()->getHex(), 'link' => 'https://shopware.com', 'name' => 'shopware AG'],
@@ -341,7 +341,7 @@ class WriterTest extends KernelTestCase
                     'name' => 'ConfiguratorTest',
                     'description' => 'A test article',
                     'descriptionLong' => '<p>I\'m a <b>test article</b></p>',
-                    'tax' => ['name' => 'test', 'rate' => 5],
+                    'tax' => ['name' => 'test', 'taxRate' => 5],
                     'manufacturer' => ['id' => Uuid::uuid4()->getHex(), 'link' => 'https://shopware.com', 'name' => 'shopware AG'],
                     'updatedAt' => new \DateTime(),
                     'mode' => 0,
@@ -382,7 +382,7 @@ class WriterTest extends KernelTestCase
                     'id' => $this->id,
                     'name' => '_THE_TITLE_',
                     'the_unknown_field' => 'do nothing?',
-                    'tax' => ['name' => 'test', 'rate' => 5],
+                    'tax' => ['name' => 'test', 'taxRate' => 5],
                     'description' => '<p>no html</p>',
                     'descriptionLong' => '<p>html</p>',
                     'availableFrom' => new \DateTime('2011-01-01T15:03:01.012345Z'),
@@ -574,7 +574,7 @@ class WriterTest extends KernelTestCase
                     'id' => $this->id,
                     'name' => 'Test product',
                     'price' => ['gross' => 10, 'net' => 8.10],
-                    'tax' => ['name' => 'test', 'rate' => 5],
+                    'tax' => ['name' => 'test', 'taxRate' => 5],
                     'manufacturer' => [
                         'id' => Uuid::uuid4()->getHex(),
                         'name' => 'shopware AG',

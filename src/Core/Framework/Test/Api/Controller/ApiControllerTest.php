@@ -21,7 +21,7 @@ class ApiControllerTest extends ApiTestCase
         $data = [
             'id' => $id,
             'name' => $id,
-            'tax' => ['name' => 'test', 'rate' => 10],
+            'tax' => ['name' => 'test', 'taxRate' => 10],
             'manufacturer' => ['name' => 'test'],
             'price' => ['gross' => 50, 'net' => 25],
         ];
@@ -88,7 +88,7 @@ class ApiControllerTest extends ApiTestCase
         $data = [
             'id' => $id,
             'name' => $id,
-            'tax' => ['name' => 'test', 'rate' => 10],
+            'tax' => ['name' => 'test', 'taxRate' => 10],
             'manufacturer' => ['name' => 'test'],
             'price' => ['gross' => 50, 'net' => 25],
         ];
@@ -129,7 +129,7 @@ class ApiControllerTest extends ApiTestCase
         $data = [
             'id' => $id,
             'name' => $id,
-            'tax' => ['name' => 'test', 'rate' => 10],
+            'tax' => ['name' => 'test', 'taxRate' => 10],
             'manufacturer' => ['name' => 'test'],
             'price' => ['gross' => 50, 'net' => 25],
         ];
@@ -170,7 +170,7 @@ class ApiControllerTest extends ApiTestCase
         $data = [
             'id' => $id->getHex(),
             'name' => $id->getHex(),
-            'tax' => ['name' => 'test', 'rate' => 10],
+            'tax' => ['name' => 'test', 'taxRate' => 10],
             'manufacturer' => ['name' => 'test'],
             'price' => ['gross' => 50, 'net' => 25],
         ];
@@ -254,7 +254,7 @@ class ApiControllerTest extends ApiTestCase
             'id' => $id->getHex(),
             'name' => 'Test',
             'price' => ['gross' => 50, 'net' => 25],
-            'tax' => ['name' => 'test', 'rate' => 10],
+            'tax' => ['name' => 'test', 'taxRate' => 10],
             'manufacturer' => ['name' => 'test'],
             'categories' => [
                 ['id' => $category->getHex(), 'name' => 'Test'],
@@ -284,7 +284,7 @@ class ApiControllerTest extends ApiTestCase
     {
         $id = Uuid::uuid4();
 
-        $data = ['id' => $id->getHex(), 'name' => $id->getHex(), 'rate' => 50];
+        $data = ['id' => $id->getHex(), 'name' => $id->getHex(), 'taxRate' => 50];
 
         // create without response
         $this->apiClient->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/tax', [], [], [], json_encode($data));
@@ -314,7 +314,7 @@ class ApiControllerTest extends ApiTestCase
         $data = [
             'id' => $id,
             'name' => 'Cotton Shirt',
-            'tax' => ['name' => 'test', 'rate' => 10],
+            'tax' => ['name' => 'test', 'taxRate' => 10],
             'manufacturer' => ['name' => 'Shopware AG'],
             'price' => ['gross' => 50, 'net' => 25],
         ];
@@ -404,7 +404,7 @@ class ApiControllerTest extends ApiTestCase
             'name' => 'price test',
             'price' => ['gross' => 15, 'net' => 10],
             'manufacturer' => ['name' => 'test'],
-            'tax' => ['name' => 'test', 'rate' => 15],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
             'priceRules' => [
                 [
                     'id' => $ruleA,
@@ -474,7 +474,7 @@ class ApiControllerTest extends ApiTestCase
             'name' => 'price test',
             'price' => ['gross' => 15, 'net' => 10],
             'manufacturer' => ['name' => 'test'],
-            'tax' => ['name' => 'test', 'rate' => 15],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
             'priceRules' => [
                 [
                     'id' => $ruleA,
@@ -534,7 +534,7 @@ class ApiControllerTest extends ApiTestCase
             'name' => 'price test',
             'price' => ['gross' => 15, 'net' => 10],
             'manufacturer' => ['name' => 'test'],
-            'tax' => ['name' => 'test', 'rate' => 15],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
             'categories' => [
                 ['id' => $categoryA, 'name' => 'A'],
                 ['id' => $categoryB, 'name' => 'B'],
@@ -582,7 +582,7 @@ class ApiControllerTest extends ApiTestCase
         $data = [
             'id' => $id,
             'name' => 'Wool Shirt',
-            'tax' => ['name' => 'test', 'rate' => 10],
+            'tax' => ['name' => 'test', 'taxRate' => 10],
             'manufacturer' => ['name' => 'Shopware AG'],
             'price' => ['gross' => 8300, 'net' => 8300],
         ];
@@ -616,7 +616,7 @@ class ApiControllerTest extends ApiTestCase
         $data = [
             'id' => $productA,
             'name' => 'Wool Shirt',
-            'tax' => ['name' => 'test', 'rate' => 10],
+            'tax' => ['name' => 'test', 'taxRate' => 10],
             'manufacturer' => ['name' => $manufacturerName],
             'price' => ['gross' => 8300, 'net' => 8300],
             'stock' => 50,
@@ -628,7 +628,7 @@ class ApiControllerTest extends ApiTestCase
         $data = [
             'id' => $productB,
             'name' => 'Wool Shirt 2',
-            'tax' => ['name' => 'test', 'rate' => 10],
+            'tax' => ['name' => 'test', 'taxRate' => 10],
             'manufacturer' => ['name' => $manufacturerName],
             'price' => ['gross' => 8300, 'net' => 8300],
             'stock' => 100,

@@ -52,7 +52,7 @@ class ProductApiTest extends ApiTestCase
             'name' => 'price test',
             'price' => ['gross' => 15, 'net' => 10],
             'manufacturer' => ['name' => 'test'],
-            'tax' => ['name' => 'test', 'rate' => 15],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
             'priceRules' => [
                 [
                     'id' => $id,
@@ -165,7 +165,7 @@ class ProductApiTest extends ApiTestCase
             'name' => 'price test',
             'price' => ['gross' => 15, 'net' => 10],
             'manufacturer' => ['name' => 'test'],
-            'tax' => ['name' => 'test', 'rate' => 15],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
             'descriptionLong' => $description,
         ];
 

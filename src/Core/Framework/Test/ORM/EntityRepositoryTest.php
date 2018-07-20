@@ -157,14 +157,14 @@ class EntityRepositoryTest extends KernelTestCase
                 [
                     'id' => $id,
                     'name' => 'Test',
-                    'tax' => ['name' => 'test', 'rate' => 5],
+                    'tax' => ['name' => 'test', 'taxRate' => 5],
                     'manufacturer' => ['name' => 'test'],
                     'price' => ['gross' => 10, 'net' => 5],
                 ],
                 [
                     'id' => $id2,
                     'name' => 'Test',
-                    'tax' => ['name' => 'test', 'rate' => 5],
+                    'tax' => ['name' => 'test', 'taxRate' => 5],
                     'manufacturer' => ['name' => 'test'],
                     'price' => ['gross' => 10, 'net' => 5],
                 ],
@@ -233,7 +233,7 @@ class EntityRepositoryTest extends KernelTestCase
                 [
                     'id' => $id,
                     'name' => 'Test',
-                    'tax' => ['name' => 'test', 'rate' => 5],
+                    'tax' => ['name' => 'test', 'taxRate' => 5],
                     'manufacturer' => ['name' => 'test'],
                     'price' => ['gross' => 10, 'net' => 5],
                     'priceRules' => [
@@ -263,7 +263,7 @@ class EntityRepositoryTest extends KernelTestCase
                 [
                     'id' => $id2,
                     'name' => 'Test',
-                    'tax' => ['name' => 'test', 'rate' => 5],
+                    'tax' => ['name' => 'test', 'taxRate' => 5],
                     'manufacturer' => ['name' => 'test'],
                     'price' => ['gross' => 10, 'net' => 5],
                     'priceRules' => [

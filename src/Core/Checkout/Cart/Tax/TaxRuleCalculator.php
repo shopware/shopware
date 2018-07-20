@@ -52,17 +52,17 @@ class TaxRuleCalculator implements TaxRuleCalculatorInterface
 
     public function calculateTaxFromGrossPrice(float $gross, TaxRuleInterface $rule): CalculatedTax
     {
-        $calculatedTax = $gross / ((100 + $rule->getRate()) / 100) * ($rule->getRate() / 100);
+        $calculatedTax = $gross / ((100 + $rule->getTaxRate()) / 100) * ($rule->getTaxRate() / 100);
         $calculatedTax = $this->rounding->round($calculatedTax);
 
-        return new CalculatedTax($calculatedTax, $rule->getRate(), $gross);
+        return new CalculatedTax($calculatedTax, $rule->getTaxRate(), $gross);
     }
 
     public function calculateTaxFromNetPrice(float $net, TaxRuleInterface $rule): CalculatedTax
     {
-        $calculatedTax = $net * ($rule->getRate() / 100);
+        $calculatedTax = $net * ($rule->getTaxRate() / 100);
         $calculatedTax = $this->rounding->round($calculatedTax);
 
-        return new CalculatedTax($calculatedTax, $rule->getRate(), $net);
+        return new CalculatedTax($calculatedTax, $rule->getTaxRate(), $net);
     }
 }

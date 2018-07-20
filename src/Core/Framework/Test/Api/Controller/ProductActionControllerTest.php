@@ -36,7 +36,7 @@ class ProductActionControllerTest extends ApiTestCase
         $data = [
             'id' => $id,
             'name' => 'test',
-            'tax' => ['name' => 'test', 'rate' => 15],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
             'price' => ['gross' => 10, 'net' => 9],
             'manufacturer' => ['name' => 'test'],
             'configurators' => [

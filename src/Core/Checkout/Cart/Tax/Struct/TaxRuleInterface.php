@@ -27,5 +27,5 @@ namespace Shopware\Core\Checkout\Cart\Tax\Struct;
 
 interface TaxRuleInterface extends \JsonSerializable
 {
-    public function getRate(): float;
+    public function getTaxRate(): float;
 }

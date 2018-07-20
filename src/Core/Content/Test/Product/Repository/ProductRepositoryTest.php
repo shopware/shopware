@@ -75,7 +75,7 @@ class ProductRepositoryTest extends KernelTestCase
             'name' => 'test',
             'price' => ['gross' => 15, 'net' => 10],
             'manufacturer' => ['name' => 'test'],
-            'tax' => ['name' => 'test', 'rate' => 15],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
             'categories' => [
                 ['id' => $id->getHex(), 'name' => 'asd'],
             ],
@@ -102,14 +102,14 @@ class ProductRepositoryTest extends KernelTestCase
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['name' => 'test'],
-                'tax' => ['rate' => 19, 'name' => 'without id'],
+                'tax' => ['taxRate' => 19, 'name' => 'without id'],
             ],
             [
                 'id' => Uuid::uuid4()->getHex(),
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['name' => 'test'],
-                'tax' => ['id' => $tax, 'rate' => 17, 'name' => 'with id'],
+                'tax' => ['id' => $tax, 'taxRate' => 17, 'name' => 'with id'],
             ],
             [
                 'id' => Uuid::uuid4()->getHex(),
@@ -123,7 +123,7 @@ class ProductRepositoryTest extends KernelTestCase
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['name' => 'test'],
-                'tax' => ['id' => $tax, 'rate' => 18],
+                'tax' => ['id' => $tax, 'taxRate' => 18],
             ],
         ];
 
@@ -137,7 +137,7 @@ class ProductRepositoryTest extends KernelTestCase
         $this->assertInstanceOf(ProductStruct::class, $product);
         $this->assertInstanceOf(TaxStruct::class, $product->getTax());
         $this->assertEquals('without id', $product->getTax()->getName());
-        $this->assertEquals(19, $product->getTax()->getRate());
+        $this->assertEquals(19, $product->getTax()->getTaxRate());
 
         $product = $products->get($ids[1]);
         $this->assertInstanceOf(ProductStruct::class, $product);
@@ -145,7 +145,7 @@ class ProductRepositoryTest extends KernelTestCase
         $this->assertEquals($tax, $product->getTaxId());
         $this->assertEquals($tax, $product->getTax()->getId());
         $this->assertEquals('with id', $product->getTax()->getName());
-        $this->assertEquals(18, $product->getTax()->getRate());
+        $this->assertEquals(18, $product->getTax()->getTaxRate());
 
         $product = $products->get($ids[2]);
         $this->assertInstanceOf(ProductStruct::class, $product);
@@ -153,7 +153,7 @@ class ProductRepositoryTest extends KernelTestCase
         $this->assertEquals($tax, $product->getTaxId());
         $this->assertEquals($tax, $product->getTax()->getId());
         $this->assertEquals('with id', $product->getTax()->getName());
-        $this->assertEquals(18, $product->getTax()->getRate());
+        $this->assertEquals(18, $product->getTax()->getTaxRate());
 
         $product = $products->get($ids[2]);
         $this->assertInstanceOf(ProductStruct::class, $product);
@@ -161,7 +161,7 @@ class ProductRepositoryTest extends KernelTestCase
         $this->assertEquals($tax, $product->getTaxId());
         $this->assertEquals($tax, $product->getTax()->getId());
         $this->assertEquals('with id', $product->getTax()->getName());
-        $this->assertEquals(18, $product->getTax()->getRate());
+        $this->assertEquals(18, $product->getTax()->getTaxRate());
     }
 
     public function testWriteProductWithDifferentManufacturerStructures()
@@ -173,28 +173,28 @@ class ProductRepositoryTest extends KernelTestCase
                 'id' => Uuid::uuid4()->getHex(),
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9],
-                'tax' => ['rate' => 17, 'name' => 'test'],
+                'tax' => ['taxRate' => 17, 'name' => 'test'],
                 'manufacturer' => ['name' => 'without id'],
             ],
             [
                 'id' => Uuid::uuid4()->getHex(),
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9],
-                'tax' => ['rate' => 17, 'name' => 'test'],
+                'tax' => ['taxRate' => 17, 'name' => 'test'],
                 'manufacturer' => ['id' => $manufacturerId, 'name' => 'with id'],
             ],
             [
                 'id' => Uuid::uuid4()->getHex(),
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9],
-                'tax' => ['rate' => 17, 'name' => 'test'],
+                'tax' => ['taxRate' => 17, 'name' => 'test'],
                 'manufacturerId' => $manufacturerId,
             ],
             [
                 'id' => Uuid::uuid4()->getHex(),
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9],
-                'tax' => ['rate' => 17, 'name' => 'test'],
+                'tax' => ['taxRate' => 17, 'name' => 'test'],
                 'manufacturer' => ['id' => $manufacturerId, 'link' => 'test'],
             ],
         ];
@@ -248,7 +248,7 @@ class ProductRepositoryTest extends KernelTestCase
                 'id' => $id->getHex(),
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9],
-                'tax' => ['name' => 'test', 'rate' => 19],
+                'tax' => ['name' => 'test', 'taxRate' => 19],
                 'manufacturer' => ['name' => 'test'],
             ],
         ], Context::createDefaultContext(Defaults::TENANT_ID));
@@ -296,7 +296,7 @@ class ProductRepositoryTest extends KernelTestCase
             'name' => 'price test',
             'price' => ['gross' => 15, 'net' => 10],
             'manufacturer' => ['name' => 'test'],
-            'tax' => ['name' => 'test', 'rate' => 15],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
             'priceRules' => [
                 [
                     'id' => $ruleA,
@@ -358,7 +358,7 @@ class ProductRepositoryTest extends KernelTestCase
                 'name' => 'price test 1',
                 'price' => ['gross' => 500, 'net' => 400],
                 'manufacturer' => ['name' => 'test'],
-                'tax' => ['name' => 'test', 'rate' => 15],
+                'tax' => ['name' => 'test', 'taxRate' => 15],
                 'priceRules' => [
                     [
                         'currencyId' => Defaults::CURRENCY,
@@ -373,7 +373,7 @@ class ProductRepositoryTest extends KernelTestCase
                 'name' => 'price test 2',
                 'price' => ['gross' => 500, 'net' => 400],
                 'manufacturer' => ['name' => 'test'],
-                'tax' => ['name' => 'test', 'rate' => 15],
+                'tax' => ['name' => 'test', 'taxRate' => 15],
                 'priceRules' => [
                     [
                         'currencyId' => Defaults::CURRENCY,
@@ -388,7 +388,7 @@ class ProductRepositoryTest extends KernelTestCase
                 'name' => 'price test 3',
                 'price' => ['gross' => 500, 'net' => 400],
                 'manufacturer' => ['name' => 'test'],
-                'tax' => ['name' => 'test', 'rate' => 15],
+                'tax' => ['name' => 'test', 'taxRate' => 15],
                 'priceRules' => [
                     [
                         'currencyId' => Defaults::CURRENCY,
@@ -453,7 +453,7 @@ class ProductRepositoryTest extends KernelTestCase
                 'id' => $parentId,
                 'name' => $parentName,
                 'price' => $parentPrice,
-                'tax' => ['name' => 'test', 'rate' => 15],
+                'tax' => ['name' => 'test', 'taxRate' => 15],
                 'manufacturer' => ['name' => 'test'],
             ],
 
@@ -513,7 +513,7 @@ class ProductRepositoryTest extends KernelTestCase
         $id = Uuid::uuid4()->getHex();
 
         $data = [
-            ['id' => $id, 'name' => 'Insert', 'price' => ['gross' => 10, 'net' => 9], 'tax' => ['name' => 'test', 'rate' => 10], 'manufacturer' => ['name' => 'test']],
+            ['id' => $id, 'name' => 'Insert', 'price' => ['gross' => 10, 'net' => 9], 'tax' => ['name' => 'test', 'taxRate' => 10], 'manufacturer' => ['name' => 'test']],
             ['id' => $id, 'name' => 'Update', 'price' => ['gross' => 12, 'net' => 10]],
         ];
 
@@ -538,7 +538,7 @@ class ProductRepositoryTest extends KernelTestCase
         $child = Uuid::uuid4()->getHex();
 
         $data = [
-            ['id' => $id, 'name' => 'Insert', 'price' => ['gross' => 10, 'net' => 9], 'tax' => ['name' => 'test', 'rate' => 10], 'manufacturer' => ['name' => 'test']],
+            ['id' => $id, 'name' => 'Insert', 'price' => ['gross' => 10, 'net' => 9], 'tax' => ['name' => 'test', 'taxRate' => 10], 'manufacturer' => ['name' => 'test']],
             ['id' => $child, 'parentId' => $id, 'name' => 'Update', 'price' => ['gross' => 12, 'net' => 11]],
         ];
 
@@ -578,7 +578,7 @@ class ProductRepositoryTest extends KernelTestCase
                 'parentId' => null,
                 'name' => 'Child transformed to parent',
                 'price' => ['gross' => 13, 'net' => 12],
-                'tax' => ['name' => 'test', 'rate' => 15],
+                'tax' => ['name' => 'test', 'taxRate' => 15],
                 'manufacturer' => ['name' => 'test3'],
             ],
         ];
@@ -598,7 +598,7 @@ class ProductRepositoryTest extends KernelTestCase
         $this->assertEquals('Child transformed to parent', $product->getName());
         $this->assertEquals(13, $product->getPrice()->getGross());
         $this->assertEquals('test3', $product->getManufacturer()->getName());
-        $this->assertEquals(15, $product->getTax()->getRate());
+        $this->assertEquals(15, $product->getTax()->getTaxRate());
     }
 
     public function testSwitchVariantToFullProductWithoutName(): void
@@ -609,7 +609,7 @@ class ProductRepositoryTest extends KernelTestCase
         $child = Uuid::uuid4()->getHex();
 
         $data = [
-            ['id' => $id, 'name' => 'Insert', 'price' => ['gross' => 10, 'net' => 9], 'tax' => ['name' => 'test', 'rate' => 10], 'manufacturer' => ['name' => 'test']],
+            ['id' => $id, 'name' => 'Insert', 'price' => ['gross' => 10, 'net' => 9], 'tax' => ['name' => 'test', 'taxRate' => 10], 'manufacturer' => ['name' => 'test']],
             ['id' => $child, 'parentId' => $id, 'price' => ['gross' => 12, 'net' => 11]],
         ];
 
@@ -650,7 +650,7 @@ class ProductRepositoryTest extends KernelTestCase
                 'parentId' => null,
                 'name' => 'Child transformed to parent',
                 'price' => ['gross' => 13, 'net' => 12],
-                'tax' => ['name' => 'test', 'rate' => 15],
+                'tax' => ['name' => 'test', 'taxRate' => 15],
                 'manufacturer' => ['name' => 'test3'],
             ],
         ];
@@ -670,7 +670,7 @@ class ProductRepositoryTest extends KernelTestCase
         $this->assertEquals('Child transformed to parent', $product->getName());
         $this->assertEquals(13, $product->getPrice()->getGross());
         $this->assertEquals('test3', $product->getManufacturer()->getName());
-        $this->assertEquals(15, $product->getTax()->getRate());
+        $this->assertEquals(15, $product->getTax()->getTaxRate());
     }
 
     public function testVariantInheritanceWithTax()
@@ -688,14 +688,14 @@ class ProductRepositoryTest extends KernelTestCase
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['name' => 'test'],
                 'name' => 'parent',
-                'tax' => ['id' => $parentTax, 'rate' => 13, 'name' => 'green'],
+                'tax' => ['id' => $parentTax, 'taxRate' => 13, 'name' => 'green'],
             ],
 
             //price should be inherited
             ['id' => $redId, 'parentId' => $parentId],
 
             //name should be inherited
-            ['id' => $greenId, 'parentId' => $parentId, 'tax' => ['id' => $greenTax, 'rate' => 13, 'name' => 'green']],
+            ['id' => $greenId, 'parentId' => $parentId, 'tax' => ['id' => $greenTax, 'taxRate' => 13, 'name' => 'green']],
         ];
 
         $this->repository->create($products, Context::createDefaultContext(Defaults::TENANT_ID));
@@ -741,7 +741,7 @@ class ProductRepositoryTest extends KernelTestCase
     public function testWriteProductWithSameTaxes()
     {
         $this->connection->executeUpdate('DELETE FROM tax');
-        $tax = ['id' => Uuid::uuid4()->getHex(), 'rate' => 19, 'name' => 'test'];
+        $tax = ['id' => Uuid::uuid4()->getHex(), 'taxRate' => 19, 'name' => 'test'];
 
         $data = [
             ['name' => 'test', 'tax' => $tax, 'price' => ['gross' => 10, 'net' => 9], 'manufacturer' => ['name' => 'test']],
@@ -774,7 +774,7 @@ class ProductRepositoryTest extends KernelTestCase
                 'name' => 'T-shirt',
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['name' => 'test'],
-                'tax' => ['name' => 'test', 'rate' => 15],
+                'tax' => ['name' => 'test', 'taxRate' => 15],
                 'media' => [
                     [
                         'id' => $parentMedia,
@@ -863,7 +863,7 @@ class ProductRepositoryTest extends KernelTestCase
                 'id' => $parentId,
                 'name' => 'T-shirt',
                 'price' => ['gross' => 10, 'net' => 9],
-                'tax' => ['name' => 'test', 'rate' => 15],
+                'tax' => ['name' => 'test', 'taxRate' => 15],
                 'manufacturer' => ['name' => 'test'],
                 'categories' => [
                     ['id' => $parentCategory, 'name' => 'parent'],
@@ -937,7 +937,7 @@ class ProductRepositoryTest extends KernelTestCase
                 'id' => $parentId,
                 'name' => $parentName,
                 'manufacturer' => ['name' => 'test'],
-                'tax' => ['name' => 'test', 'rate' => 15],
+                'tax' => ['name' => 'test', 'taxRate' => 15],
                 'price' => $parentPrice,
             ],
 
@@ -981,7 +981,7 @@ class ProductRepositoryTest extends KernelTestCase
             [
                 'id' => $parentId,
                 'manufacturer' => ['name' => 'test'],
-                'tax' => ['name' => 'test', 'rate' => 15],
+                'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => $parentName,
                 'price' => $parentPrice,
             ],
@@ -1027,7 +1027,7 @@ class ProductRepositoryTest extends KernelTestCase
         $products = [
             [
                 'id' => $parentId,
-                'tax' => ['name' => 'test', 'rate' => 15],
+                'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => $parentName,
                 'price' => $parentPrice,
                 'manufacturer' => ['name' => 'test'],
@@ -1082,7 +1082,7 @@ class ProductRepositoryTest extends KernelTestCase
         $products = [
             [
                 'id' => $parentId,
-                'tax' => ['name' => 'test', 'rate' => 15],
+                'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'Parent',
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['name' => 'test'],
@@ -1134,7 +1134,7 @@ class ProductRepositoryTest extends KernelTestCase
         $products = [
             [
                 'id' => $parentId,
-                'tax' => ['name' => 'test', 'rate' => 15],
+                'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => $parentName,
                 'price' => $parentPrice,
                 'manufacturer' => [
@@ -1181,7 +1181,7 @@ class ProductRepositoryTest extends KernelTestCase
                 'products' => [
                     [
                         'id' => $productId,
-                        'tax' => ['name' => 'test', 'rate' => 15],
+                        'tax' => ['name' => 'test', 'taxRate' => 15],
                         'name' => 'test',
                         'price' => ['gross' => 10, 'net' => 9],
                         'manufacturer' => ['name' => 'test'],
@@ -1219,7 +1219,7 @@ class ProductRepositoryTest extends KernelTestCase
                     [
                         'id' => $productId,
                         'name' => 'test',
-                        'tax' => ['name' => 'test', 'rate' => 15],
+                        'tax' => ['name' => 'test', 'taxRate' => 15],
                         'manufacturerId' => $manufacturerId,
                         'price' => ['gross' => 10, 'net' => 9],
                     ],
@@ -1253,7 +1253,7 @@ class ProductRepositoryTest extends KernelTestCase
         $data = [
             'id' => $id,
             'name' => 'test',
-            'tax' => ['name' => 'test', 'rate' => 15],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
             'price' => ['gross' => 10, 'net' => 9],
             'manufacturer' => ['name' => 'test'],
             'datasheet' => [
@@ -1304,7 +1304,7 @@ class ProductRepositoryTest extends KernelTestCase
         $data = [
             'id' => $id,
             'name' => 'test',
-            'tax' => ['name' => 'test', 'rate' => 15],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
             'price' => ['gross' => 10, 'net' => 9],
             'manufacturer' => ['name' => 'test'],
             'variations' => [
@@ -1355,7 +1355,7 @@ class ProductRepositoryTest extends KernelTestCase
         $data = [
             'id' => $id,
             'name' => 'test',
-            'tax' => ['name' => 'test', 'rate' => 15],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
             'price' => ['gross' => 10, 'net' => 9],
             'manufacturer' => ['name' => 'test'],
             'configurators' => [
@@ -1417,14 +1417,14 @@ class ProductRepositoryTest extends KernelTestCase
         $data = [
             'id' => $id,
             'name' => 'Test product service: ' . (new \DateTime())->format(\DateTime::ATOM),
-            'tax' => ['name' => 'test', 'rate' => 15],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
             'price' => ['gross' => 10, 'net' => 9],
             'manufacturer' => ['name' => 'test'],
             'services' => [
                 [
                     'id' => $redId,
                     'price' => ['gross' => 50, 'net' => 25],
-                    'tax' => ['name' => 'high', 'rate' => 100],
+                    'tax' => ['name' => 'high', 'taxRate' => 100],
                     'option' => [
                         'id' => $redId,
                         'name' => 'red',
@@ -1434,7 +1434,7 @@ class ProductRepositoryTest extends KernelTestCase
                 [
                     'id' => $blueId,
                     'price' => ['gross' => 100, 'net' => 90],
-                    'tax' => ['name' => 'low', 'rate' => 1],
+                    'tax' => ['name' => 'low', 'taxRate' => 1],
                     'option' => [
                         'id' => $blueId,
                         'name' => 'blue',
@@ -1464,8 +1464,8 @@ class ProductRepositoryTest extends KernelTestCase
         $this->assertEquals(new PriceStruct(25, 50), $red->getPrice());
         $this->assertEquals(new PriceStruct(90, 100), $blue->getPrice());
 
-        $this->assertEquals(100, $red->getTax()->getRate());
-        $this->assertEquals(1, $blue->getTax()->getRate());
+        $this->assertEquals(100, $red->getTax()->getTaxRate());
+        $this->assertEquals(1, $blue->getTax()->getTaxRate());
 
         $this->assertEquals('red', $red->getOption()->getName());
         $this->assertEquals('blue', $blue->getOption()->getName());
@@ -1491,7 +1491,7 @@ class ProductRepositoryTest extends KernelTestCase
             'name' => 'price test',
             'price' => ['gross' => 15, 'net' => 10],
             'manufacturer' => ['name' => 'test'],
-            'tax' => ['name' => 'test', 'rate' => 15],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
             'priceRules' => [
                 [
                     'currencyId' => Defaults::CURRENCY,
@@ -1556,7 +1556,7 @@ class ProductRepositoryTest extends KernelTestCase
             'name' => 'price test',
             'price' => ['gross' => 15, 'net' => 10],
             'manufacturer' => ['name' => 'test'],
-            'tax' => ['name' => 'test', 'rate' => 15],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
             'priceRules' => [
                 [
                     'id' => $id,

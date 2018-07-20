@@ -110,7 +110,7 @@ class Generator extends TestCase
             $tax = new TaxStruct();
             $tax->setId('49260353-68e3-4d9f-a695-e017d7a231b9');
             $tax->setName('test');
-            $tax->setRate(19.0);
+            $tax->setTaxRate(19.0);
 
             $taxes = new TaxCollection([$tax]);
         }

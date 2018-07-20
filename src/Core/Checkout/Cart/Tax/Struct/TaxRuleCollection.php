@@ -82,6 +82,6 @@ class TaxRuleCollection extends Collection
 
     protected function getKey(TaxRuleInterface $element): string
     {
-        return (string) $element->getRate();
+        return (string) $element->getTaxRate();
     }
 }

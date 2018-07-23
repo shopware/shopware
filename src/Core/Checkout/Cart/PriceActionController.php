@@ -90,7 +90,7 @@ class PriceActionController extends Controller
 
         $definition = new PriceDefinition(
             $price,
-            new TaxRuleCollection([new PercentageTaxRule($tax->getRate(), 100)]),
+            new TaxRuleCollection([new PercentageTaxRule($tax->getTaxRate(), 100)]),
             $quantity,
             $preCalculated
         );

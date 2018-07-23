@@ -59,7 +59,7 @@ class ManyToManyAssociationFieldTest extends KernelTestCase
             'name' => 'test',
             'price' => ['gross' => 15, 'net' => 10],
             'manufacturer' => ['name' => 'test'],
-            'tax' => ['name' => 'test', 'rate' => 15],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
             'categories' => [
                 ['id' => $categoryId->getHex()],
             ],
@@ -85,7 +85,7 @@ class ManyToManyAssociationFieldTest extends KernelTestCase
             'name' => 'test',
             'price' => ['gross' => 15, 'net' => 10],
             'manufacturer' => ['name' => 'test'],
-            'tax' => ['name' => 'test', 'rate' => 15],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
             'categories' => [
                 ['id' => $id->getHex(), 'name' => 'asd'],
             ],

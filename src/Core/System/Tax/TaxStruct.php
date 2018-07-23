@@ -12,7 +12,7 @@ class TaxStruct extends Entity
     /**
      * @var float
      */
-    protected $rate;
+    protected $taxRate;
 
     /**
      * @var string
@@ -44,14 +44,14 @@ class TaxStruct extends Entity
      */
     protected $productServices;
 
-    public function getRate(): float
+    public function getTaxRate(): float
     {
-        return $this->rate;
+        return $this->taxRate;
     }
 
-    public function setRate(float $rate): void
+    public function setTaxRate(float $taxRate): void
     {
-        $this->rate = $rate;
+        $this->taxRate = $taxRate;
     }
 
     public function getName(): string

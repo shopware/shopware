@@ -20,7 +20,7 @@ class PriceActionControllerTest extends ApiTestCase
     /**
      * @var RepositoryInterface
      */
-    private $repository;
+    private $taxRepository;
 
     /**
      * @var Serializer
@@ -31,7 +31,7 @@ class PriceActionControllerTest extends ApiTestCase
     {
         parent::setUp();
 
-        $this->repository = $this->getContainer()->get('tax.repository');
+        $this->taxRepository = $this->getContainer()->get('tax.repository');
         $this->serializer = $this->getContainer()->get('serializer');
     }
 
@@ -75,8 +75,8 @@ class PriceActionControllerTest extends ApiTestCase
     public function testNetToGross()
     {
         $taxId = Uuid::uuid4()->getHex();
-        $this->repository->create([
-            ['id' => $taxId, 'rate' => 19, 'name' => 'test'],
+        $this->taxRepository->create([
+            ['id' => $taxId, 'taxRate' => 19, 'name' => 'test'],
         ], Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID));
 
         $price = $this->sendRequest([
@@ -103,8 +103,8 @@ class PriceActionControllerTest extends ApiTestCase
     public function testNetToNet()
     {
         $taxId = Uuid::uuid4()->getHex();
-        $this->repository->create([
-            ['id' => $taxId, 'rate' => 19, 'name' => 'test'],
+        $this->taxRepository->create([
+            ['id' => $taxId, 'taxRate' => 19, 'name' => 'test'],
         ], Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID));
 
         $price = $this->sendRequest([
@@ -132,8 +132,8 @@ class PriceActionControllerTest extends ApiTestCase
     public function testGrossToGross()
     {
         $taxId = Uuid::uuid4()->getHex();
-        $this->repository->create([
-            ['id' => $taxId, 'rate' => 19, 'name' => 'test'],
+        $this->taxRepository->create([
+            ['id' => $taxId, 'taxRate' => 19, 'name' => 'test'],
         ], Context::createDefaultContext(Defaults::TENANT_ID));
 
         $price = $this->sendRequest([
@@ -160,8 +160,8 @@ class PriceActionControllerTest extends ApiTestCase
     public function testNetToGrossWithQuantity()
     {
         $taxId = Uuid::uuid4()->getHex();
-        $this->repository->create([
-            ['id' => $taxId, 'rate' => 19, 'name' => 'test'],
+        $this->taxRepository->create([
+            ['id' => $taxId, 'taxRate' => 19, 'name' => 'test'],
         ], Context::createDefaultContext(Defaults::TENANT_ID));
 
         $price = $this->sendRequest([
@@ -190,8 +190,8 @@ class PriceActionControllerTest extends ApiTestCase
     public function testGrossToGrossWithQuantity()
     {
         $taxId = Uuid::uuid4()->getHex();
-        $this->repository->create([
-            ['id' => $taxId, 'rate' => 19, 'name' => 'test'],
+        $this->taxRepository->create([
+            ['id' => $taxId, 'taxRate' => 19, 'name' => 'test'],
         ], Context::createDefaultContext(Defaults::TENANT_ID));
 
         $price = $this->sendRequest([
@@ -220,8 +220,8 @@ class PriceActionControllerTest extends ApiTestCase
     public function testGrossToNet()
     {
         $taxId = Uuid::uuid4()->getHex();
-        $this->repository->create([
-            ['id' => $taxId, 'rate' => 19, 'name' => 'test'],
+        $this->taxRepository->create([
+            ['id' => $taxId, 'taxRate' => 19, 'name' => 'test'],
         ], Context::createDefaultContext(Defaults::TENANT_ID));
 
         $price = $this->sendRequest([
@@ -267,7 +267,7 @@ class PriceActionControllerTest extends ApiTestCase
                 }, $data['calculatedTaxes'])
             ),
             new TaxRuleCollection(array_map(function ($row) {
-                return new PercentageTaxRule($row['rate'], $row['percentage']);
+                return new PercentageTaxRule($row['taxRate'], $row['percentage']);
             }, $data['taxRules'])),
             $data['quantity']
         );

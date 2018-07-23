@@ -905,7 +905,7 @@ class ProductStruct extends Entity
     public function getTaxRuleCollection()
     {
         return new TaxRuleCollection([
-            new PercentageTaxRule($this->getTax()->getRate(), 100),
+            new PercentageTaxRule($this->getTax()->getTaxRate(), 100),
         ]);
     }
 

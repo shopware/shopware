@@ -365,7 +365,7 @@ class SearchCriteriaBuilderTest extends ApiTestCase
             'name' => 'Test',
             'price' => ['gross' => 10, 'net' => 9],
             'manufacturer' => ['id' => Uuid::uuid4()->getHex(), 'name' => 'test'],
-            'tax' => ['id' => Uuid::uuid4()->getHex(), 'rate' => 17, 'name' => 'with id'],
+            'tax' => ['id' => Uuid::uuid4()->getHex(), 'taxRate' => 17, 'name' => 'with id'],
         ];
 
         $parameters = array_merge($defaults, $parameters);

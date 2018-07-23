@@ -63,7 +63,7 @@ class VersioningTest extends KernelTestCase
         $taxData = [
             'id' => $uuid,
             'name' => 'foo tax',
-            'rate' => 20,
+            'taxRate' => 20,
             'tenantId' => Defaults::TENANT_ID,
         ];
 
@@ -90,7 +90,7 @@ class VersioningTest extends KernelTestCase
         $taxData = [
             'id' => $uuid,
             'name' => 'foo tax',
-            'rate' => 20,
+            'taxRate' => 20,
             'areaRules' => [
                 [
                     'id' => $ruleId,
@@ -110,7 +110,7 @@ class VersioningTest extends KernelTestCase
             'id' => $uuid,
             'versionId' => Defaults::LIVE_VERSION,
             'name' => 'foo tax',
-            'rate' => 20,
+            'taxRate' => 20,
             'tenantId' => Defaults::TENANT_ID,
         ];
         $payload = json_decode($changes[0]['payload'], true);
@@ -158,7 +158,7 @@ class VersioningTest extends KernelTestCase
         $taxData = [
             'id' => $uuid->getHex(),
             'name' => 'foo tax',
-            'rate' => 20,
+            'taxRate' => 20,
         ];
 
         $this->taxRepository->create([$taxData], $context);
@@ -194,7 +194,7 @@ class VersioningTest extends KernelTestCase
         $taxData = [
             'id' => $uuid->getHex(),
             'name' => 'foo tax',
-            'rate' => 20,
+            'taxRate' => 20,
             'areaRules' => [
                 [
                     'id' => $ruleId->getHex(),
@@ -246,7 +246,7 @@ class VersioningTest extends KernelTestCase
     {
         $uuid = Uuid::uuid4();
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
-        $taxData = ['id' => $uuid->getHex(), 'name' => 'foo tax', 'rate' => 20];
+        $taxData = ['id' => $uuid->getHex(), 'name' => 'foo tax', 'taxRate' => 20];
         $this->taxRepository->create([$taxData], $context);
 
         $changes = $this->getVersionData(TaxDefinition::getEntityName(), $uuid->getHex(), Defaults::LIVE_VERSION);
@@ -302,7 +302,7 @@ class VersioningTest extends KernelTestCase
     {
         $uuid = Uuid::uuid4();
         $liveVersionContext = Context::createDefaultContext(Defaults::TENANT_ID);
-        $taxData = ['id' => $uuid->getHex(), 'name' => 'foo tax', 'rate' => 20];
+        $taxData = ['id' => $uuid->getHex(), 'name' => 'foo tax', 'taxRate' => 20];
         $this->taxRepository->create([$taxData], $liveVersionContext);
 
         $changes = $this->getVersionData(TaxDefinition::getEntityName(), $uuid->getHex(), Defaults::LIVE_VERSION);
@@ -363,7 +363,7 @@ class VersioningTest extends KernelTestCase
     {
         $uuid = Uuid::uuid4();
         $liveVersionContext = Context::createDefaultContext(Defaults::TENANT_ID);
-        $taxData = ['id' => $uuid->getHex(), 'name' => 'foo tax', 'rate' => 5];
+        $taxData = ['id' => $uuid->getHex(), 'name' => 'foo tax', 'taxRate' => 5];
         $this->taxRepository->create([$taxData], $liveVersionContext);
 
         $versionId = $this->taxRepository->createVersion($uuid->getHex(), $liveVersionContext, 'testMerge version');
@@ -377,7 +377,7 @@ class VersioningTest extends KernelTestCase
         $this->assertEquals(5, $tax['tax_rate']);
 
         $versionContext = $liveVersionContext->createWithVersionId($versionId->getHex());
-        $this->taxRepository->update([['id' => $uuid->getHex(), 'name' => 'new merged name', 'rate' => 4]], $versionContext);
+        $this->taxRepository->update([['id' => $uuid->getHex(), 'name' => 'new merged name', 'taxRate' => 4]], $versionContext);
 
         $tax = $this->connection->fetchAssoc('SELECT * FROM tax WHERE id = :id AND version_id = :version', [
             'id' => $uuid->getBytes(),
@@ -387,7 +387,7 @@ class VersioningTest extends KernelTestCase
         $this->assertEquals(4, $tax['tax_rate']);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('tax.rate', 4));
+        $criteria->addFilter(new TermQuery('tax.taxRate', 4));
 
         $result = $this->taxRepository->searchIds($criteria, $liveVersionContext);
         $this->assertEquals(0, $result->getTotal());
@@ -395,7 +395,7 @@ class VersioningTest extends KernelTestCase
         $result = $this->taxRepository->searchIds($criteria, $versionContext);
         $this->assertEquals(1, $result->getTotal());
 
-        $taxData = ['name' => 'foo tax', 'rate' => 4];
+        $taxData = ['name' => 'foo tax', 'taxRate' => 4];
         $this->taxRepository->create([$taxData], $liveVersionContext);
 
         $result = $this->taxRepository->searchIds($criteria, $versionContext);
@@ -412,7 +412,7 @@ class VersioningTest extends KernelTestCase
         $taxData = [
             'id' => $uuid->getHex(),
             'name' => 'foo tax',
-            'rate' => 5,
+            'taxRate' => 5,
             'areaRules' => [
                 [
                     'id' => $uuid->getHex(),
@@ -443,7 +443,7 @@ class VersioningTest extends KernelTestCase
         $this->taxRepository->upsert([
             [
                 'id' => $uuid->getHex(),
-                'rate' => 15,
+                'taxRate' => 15,
                 'areaRules' => [
                     ['id' => $uuid->getHex(), 'taxRate' => 16],
                 ],
@@ -465,7 +465,7 @@ class VersioningTest extends KernelTestCase
         $tax = $liveTax->get($uuid->getHex());
 
         /* @var TaxStruct $tax */
-        $this->assertEquals(5, $tax->getRate());
+        $this->assertEquals(5, $tax->getTaxRate());
         $this->assertCount(1, $tax->getAreaRules());
         $this->assertEquals(6, $tax->getAreaRules()->get($uuid->getHex())->getTaxRate());
 
@@ -477,7 +477,7 @@ class VersioningTest extends KernelTestCase
         $tax = $versionTax->get($uuid->getHex());
 
         /* @var TaxStruct $tax */
-        $this->assertEquals(15, $tax->getRate());
+        $this->assertEquals(15, $tax->getTaxRate());
         $this->assertCount(1, $tax->getAreaRules());
         $this->assertEquals(16, $tax->getAreaRules()->get($uuid->getHex())->getTaxRate());
 
@@ -489,7 +489,7 @@ class VersioningTest extends KernelTestCase
         $tax = $liveTax->get($uuid->getHex());
 
         /* @var TaxStruct $tax */
-        $this->assertEquals(15, $tax->getRate());
+        $this->assertEquals(15, $tax->getTaxRate());
         $this->assertCount(1, $tax->getAreaRules());
         $this->assertEquals(16, $tax->getAreaRules()->get($uuid->getHex())->getTaxRate());
 
@@ -499,7 +499,7 @@ class VersioningTest extends KernelTestCase
         $tax = $liveTax->get($uuid->getHex());
 
         /* @var TaxStruct $tax */
-        $this->assertEquals(15, $tax->getRate());
+        $this->assertEquals(15, $tax->getTaxRate());
         $this->assertCount(1, $tax->getAreaRules());
         $this->assertEquals(16, $tax->getAreaRules()->get($uuid->getHex())->getTaxRate());
     }
@@ -515,7 +515,7 @@ class VersioningTest extends KernelTestCase
                 'name' => 'parent',
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['name' => 'test'],
-                'tax' => ['rate' => 18, 'name' => 'test'],
+                'tax' => ['taxRate' => 18, 'name' => 'test'],
             ],
             [
                 'id' => $variantId->getHex(),
@@ -593,7 +593,7 @@ class VersioningTest extends KernelTestCase
 
         $liveContext = Context::createDefaultContext(Defaults::TENANT_ID);
 
-        $this->taxRepository->create([['id' => $id->getHex(), 'name' => 'test', 'rate' => 15]], $liveContext);
+        $this->taxRepository->create([['id' => $id->getHex(), 'name' => 'test', 'taxRate' => 15]], $liveContext);
 
         $this->productRepository->create([
             [
@@ -610,7 +610,7 @@ class VersioningTest extends KernelTestCase
         $versionContext = $liveContext->createWithVersionId($versionId);
 
         $this->taxRepository->update([
-            ['id' => $id->getHex(), 'rate' => 19],
+            ['id' => $id->getHex(), 'taxRate' => 19],
         ], $versionContext);
 
         $this->taxRepository->merge($versionId, $liveContext);
@@ -641,7 +641,7 @@ class VersioningTest extends KernelTestCase
                 'name' => 'product test',
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['name' => 'test'],
-                'tax' => ['name' => 'test', 'rate' => 19],
+                'tax' => ['name' => 'test', 'taxRate' => 19],
                 'categories' => [
                     ['id' => $category, 'parentId' => $parentCategoryId, 'name' => 'TEST cat'],
                 ],
@@ -650,7 +650,7 @@ class VersioningTest extends KernelTestCase
                 'name' => 'product test',
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['name' => 'test'],
-                'tax' => ['name' => 'test', 'rate' => 19],
+                'tax' => ['name' => 'test', 'taxRate' => 19],
                 'categories' => [
                     ['id' => $category],
                 ],

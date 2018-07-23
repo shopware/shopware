@@ -338,7 +338,7 @@ class CatalogTest extends KernelTestCase
                     'name' => 'product catalog 1',
                     'price' => ['gross' => 10, 'net' => 10],
                     'manufacturer' => ['id' => $manufacturerId->getHex(), 'name' => 'catalog manufacturer', 'catalogId' => $catalogId],
-                    'tax' => ['id' => $taxId->getHex(), 'name' => '10%', 'rate' => 10],
+                    'tax' => ['id' => $taxId->getHex(), 'name' => '10%', 'taxRate' => 10],
                 ],
                 [
                     'id' => $productId2->getHex(),
@@ -346,7 +346,7 @@ class CatalogTest extends KernelTestCase
                     'name' => 'product catalog 2',
                     'price' => ['gross' => 20, 'net' => 20],
                     'manufacturer' => ['id' => $manufacturerId->getHex(), 'name' => 'catalog manufacturer', 'catalogId' => $catalogId],
-                    'tax' => ['id' => $taxId->getHex(), 'name' => '10%', 'rate' => 10],
+                    'tax' => ['id' => $taxId->getHex(), 'name' => '10%', 'taxRate' => 10],
                 ],
             ],
         ];
@@ -404,7 +404,7 @@ class CatalogTest extends KernelTestCase
                     'name' => 'product catalog 1',
                     'price' => ['gross' => 10, 'net' => 10],
                     'manufacturer' => ['id' => $manufacturerId->getHex(), 'name' => 'catalog manufacturer', 'catalogId' => $catalogId],
-                    'tax' => ['id' => $taxId->getHex(), 'name' => '10%', 'rate' => 10],
+                    'tax' => ['id' => $taxId->getHex(), 'name' => '10%', 'taxRate' => 10],
                 ],
                 [
                     'id' => $productId2->getHex(),
@@ -412,7 +412,7 @@ class CatalogTest extends KernelTestCase
                     'name' => 'product catalog 2',
                     'price' => ['gross' => 10, 'net' => 10],
                     'manufacturer' => ['id' => $manufacturerId->getHex(), 'name' => 'catalog manufacturer', 'catalogId' => $catalogId],
-                    'tax' => ['id' => $taxId->getHex(), 'name' => '10%', 'rate' => 10],
+                    'tax' => ['id' => $taxId->getHex(), 'name' => '10%', 'taxRate' => 10],
                 ],
             ],
         ];

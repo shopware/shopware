@@ -66,7 +66,7 @@ class EntityReaderTest extends KernelTestCase
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['name' => 'test'],
                 'name' => 'parent',
-                'tax' => ['id' => $parentTax, 'rate' => 13, 'name' => 'green'],
+                'tax' => ['id' => $parentTax, 'taxRate' => 13, 'name' => 'green'],
             ],
             [
                 'id' => $redId,
@@ -76,7 +76,7 @@ class EntityReaderTest extends KernelTestCase
             [
                 'id' => $greenId,
                 'parentId' => $parentId,
-                'tax' => ['id' => $greenTax, 'rate' => 13, 'name' => 'green'],
+                'tax' => ['id' => $greenTax, 'taxRate' => 13, 'name' => 'green'],
             ],
         ];
 
@@ -128,7 +128,7 @@ class EntityReaderTest extends KernelTestCase
                 'name' => 'price test',
                 'price' => ['gross' => 15, 'net' => 10],
                 'manufacturer' => ['name' => 'test'],
-                'tax' => ['name' => 'test', 'rate' => 15],
+                'tax' => ['name' => 'test', 'taxRate' => 15],
                 'priceRules' => [
                     [
                         'currencyId' => Defaults::CURRENCY,
@@ -194,7 +194,7 @@ class EntityReaderTest extends KernelTestCase
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['name' => 'test'],
                 'name' => 'parent',
-                'tax' => ['id' => $parentTax, 'rate' => 13, 'name' => 'green'],
+                'tax' => ['id' => $parentTax, 'taxRate' => 13, 'name' => 'green'],
             ],
             [
                 'id' => $redId,
@@ -635,7 +635,7 @@ class EntityReaderTest extends KernelTestCase
             'active' => true,
             'manufacturer' => ['name' => 'test'],
             'name' => 'test',
-            'tax' => ['rate' => 13, 'name' => 'green'],
+            'tax' => ['taxRate' => 13, 'name' => 'green'],
         ];
 
         $product2 = [
@@ -644,7 +644,7 @@ class EntityReaderTest extends KernelTestCase
             'active' => false,
             'manufacturer' => ['name' => 'test'],
             'name' => 'test',
-            'tax' => ['rate' => 13, 'name' => 'green'],
+            'tax' => ['taxRate' => 13, 'name' => 'green'],
         ];
 
         $product3 = [
@@ -653,7 +653,7 @@ class EntityReaderTest extends KernelTestCase
             'active' => false,
             'manufacturer' => ['name' => 'test'],
             'name' => 'test',
-            'tax' => ['rate' => 13, 'name' => 'green'],
+            'tax' => ['taxRate' => 13, 'name' => 'green'],
         ];
 
         $repository = self::$container->get('category.repository');
@@ -698,7 +698,7 @@ class EntityReaderTest extends KernelTestCase
             'active' => true,
             'manufacturer' => ['name' => 'test'],
             'name' => 'test',
-            'tax' => ['rate' => 13, 'name' => 'green'],
+            'tax' => ['taxRate' => 13, 'name' => 'green'],
         ];
 
         $product2 = [
@@ -707,7 +707,7 @@ class EntityReaderTest extends KernelTestCase
             'active' => false,
             'manufacturer' => ['name' => 'test'],
             'name' => 'test',
-            'tax' => ['rate' => 13, 'name' => 'green'],
+            'tax' => ['taxRate' => 13, 'name' => 'green'],
         ];
 
         $product3 = [
@@ -716,7 +716,7 @@ class EntityReaderTest extends KernelTestCase
             'active' => false,
             'manufacturer' => ['name' => 'test'],
             'name' => 'test',
-            'tax' => ['rate' => 13, 'name' => 'green'],
+            'tax' => ['taxRate' => 13, 'name' => 'green'],
         ];
 
         $repository = self::$container->get('category.repository');
@@ -772,7 +772,7 @@ class EntityReaderTest extends KernelTestCase
             'active' => true,
             'manufacturer' => ['name' => 'test'],
             'name' => 'test',
-            'tax' => ['rate' => 13, 'name' => 'green'],
+            'tax' => ['taxRate' => 13, 'name' => 'green'],
         ];
 
         $product2 = [
@@ -781,7 +781,7 @@ class EntityReaderTest extends KernelTestCase
             'active' => false,
             'manufacturer' => ['name' => 'test'],
             'name' => 'test',
-            'tax' => ['rate' => 13, 'name' => 'green'],
+            'tax' => ['taxRate' => 13, 'name' => 'green'],
         ];
 
         $product3 = [
@@ -790,7 +790,7 @@ class EntityReaderTest extends KernelTestCase
             'active' => false,
             'manufacturer' => ['name' => 'test'],
             'name' => 'test',
-            'tax' => ['rate' => 13, 'name' => 'green'],
+            'tax' => ['taxRate' => 13, 'name' => 'green'],
         ];
 
         $repository = self::$container->get('category.repository');
@@ -842,7 +842,7 @@ class EntityReaderTest extends KernelTestCase
             'active' => true,
             'manufacturer' => ['name' => 'test'],
             'name' => 'A',
-            'tax' => ['rate' => 13, 'name' => 'green'],
+            'tax' => ['taxRate' => 13, 'name' => 'green'],
         ];
 
         $product2 = [
@@ -851,7 +851,7 @@ class EntityReaderTest extends KernelTestCase
             'active' => false,
             'manufacturer' => ['name' => 'test'],
             'name' => 'B',
-            'tax' => ['rate' => 13, 'name' => 'green'],
+            'tax' => ['taxRate' => 13, 'name' => 'green'],
         ];
 
         $product3 = [
@@ -860,7 +860,7 @@ class EntityReaderTest extends KernelTestCase
             'active' => false,
             'manufacturer' => ['name' => 'test'],
             'name' => 'C',
-            'tax' => ['rate' => 13, 'name' => 'green'],
+            'tax' => ['taxRate' => 13, 'name' => 'green'],
         ];
 
         $repository = self::$container->get('category.repository');
@@ -947,7 +947,7 @@ class EntityReaderTest extends KernelTestCase
                 'active' => true,
                 'manufacturer' => ['name' => 'test'],
                 'name' => 'test',
-                'tax' => ['rate' => 13, 'name' => 'green'],
+                'tax' => ['taxRate' => 13, 'name' => 'green'],
                 'categories' => [
                     ['name' => 'test1'],
                     ['name' => 'test2'],
@@ -966,7 +966,7 @@ class EntityReaderTest extends KernelTestCase
                 'active' => false,
                 'manufacturer' => ['name' => 'test'],
                 'name' => 'test',
-                'tax' => ['rate' => 13, 'name' => 'green'],
+                'tax' => ['taxRate' => 13, 'name' => 'green'],
                 'categories' => [
                     ['name' => 'test10'],
                     ['name' => 'test11'],
@@ -1014,7 +1014,7 @@ class EntityReaderTest extends KernelTestCase
                 'active' => true,
                 'manufacturer' => ['name' => 'test'],
                 'name' => 'test',
-                'tax' => ['rate' => 13, 'name' => 'green'],
+                'tax' => ['taxRate' => 13, 'name' => 'green'],
             ],
             [
                 'id' => $id2,
@@ -1022,7 +1022,7 @@ class EntityReaderTest extends KernelTestCase
                 'active' => false,
                 'manufacturer' => ['name' => 'test'],
                 'name' => 'test',
-                'tax' => ['rate' => 13, 'name' => 'green'],
+                'tax' => ['taxRate' => 13, 'name' => 'green'],
             ],
         ];
 
@@ -1052,7 +1052,7 @@ class EntityReaderTest extends KernelTestCase
                 'active' => true,
                 'manufacturer' => ['name' => 'test'],
                 'name' => 'B',
-                'tax' => ['rate' => 13, 'name' => 'green'],
+                'tax' => ['taxRate' => 13, 'name' => 'green'],
             ],
             [
                 'id' => $id2,
@@ -1060,7 +1060,7 @@ class EntityReaderTest extends KernelTestCase
                 'active' => false,
                 'manufacturer' => ['name' => 'test'],
                 'name' => 'A',
-                'tax' => ['rate' => 13, 'name' => 'green'],
+                'tax' => ['taxRate' => 13, 'name' => 'green'],
             ],
         ];
 

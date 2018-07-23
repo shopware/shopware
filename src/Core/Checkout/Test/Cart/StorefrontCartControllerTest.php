@@ -17,7 +17,7 @@ class StorefrontCartControllerTest extends ApiTestCase
     /**
      * @var RepositoryInterface
      */
-    private $repository;
+    private $productRepository;
 
     /**
      * @var RepositoryInterface
@@ -46,7 +46,7 @@ class StorefrontCartControllerTest extends ApiTestCase
         $this->storefrontApiClient->setServerParameter('CONTENT_TYPE', 'application/json');
 
         $this->connection = $this->getContainer()->get(Connection::class);
-        $this->repository = $this->getContainer()->get('product.repository');
+        $this->productRepository = $this->getContainer()->get('product.repository');
         $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->taxId = Uuid::uuid4()->getHex();
         $this->manufacturerId = Uuid::uuid4()->getHex();
@@ -74,14 +74,14 @@ class StorefrontCartControllerTest extends ApiTestCase
     public function testAddProduct()
     {
         $productId = Uuid::uuid4()->getHex();
-        $this->repository->create([
+        $this->productRepository->create([
             [
                 'id' => $productId,
                 'name' => 'Test',
                 'catalogId' => Defaults::CATALOG,
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
-                'tax' => ['id' => $this->taxId, 'rate' => 17, 'name' => 'with id'],
+                'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
             ],
         ], Context:: createDefaultContext(Defaults::TENANT_ID));
 
@@ -109,14 +109,14 @@ class StorefrontCartControllerTest extends ApiTestCase
         $productId1 = Uuid::uuid4()->getHex();
         $productId2 = Uuid::uuid4()->getHex();
 
-        $this->repository->create([
+        $this->productRepository->create([
             [
                 'id' => $productId1,
                 'name' => 'Test 1',
                 'catalogId' => Defaults::CATALOG,
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
-                'tax' => ['id' => $this->taxId, 'rate' => 17, 'name' => 'with id'],
+                'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
             ],
             [
                 'id' => $productId2,
@@ -147,14 +147,14 @@ class StorefrontCartControllerTest extends ApiTestCase
         $productId1 = Uuid::uuid4()->getHex();
         $productId2 = Uuid::uuid4()->getHex();
 
-        $this->repository->create([
+        $this->productRepository->create([
             [
                 'id' => $productId1,
                 'name' => 'Test 1',
                 'catalogId' => Defaults::CATALOG,
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
-                'tax' => ['id' => $this->taxId, 'rate' => 17, 'name' => 'with id'],
+                'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
             ],
             [
                 'id' => $productId2,
@@ -193,14 +193,14 @@ class StorefrontCartControllerTest extends ApiTestCase
         $productId1 = Uuid::uuid4()->getHex();
         $productId2 = Uuid::uuid4()->getHex();
 
-        $this->repository->create([
+        $this->productRepository->create([
             [
                 'id' => $productId1,
                 'name' => 'Test 1',
                 'catalogId' => Defaults::CATALOG,
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
-                'tax' => ['id' => $this->taxId, 'rate' => 17, 'name' => 'with id'],
+                'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
             ],
             [
                 'id' => $productId2,
@@ -239,14 +239,14 @@ class StorefrontCartControllerTest extends ApiTestCase
         $productId1 = Uuid::uuid4()->getHex();
         $productId2 = Uuid::uuid4()->getHex();
 
-        $this->repository->create([
+        $this->productRepository->create([
             [
                 'id' => $productId1,
                 'name' => 'Test 1',
                 'catalogId' => Defaults::CATALOG,
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
-                'tax' => ['id' => $this->taxId, 'rate' => 17, 'name' => 'with id'],
+                'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
             ],
             [
                 'id' => $productId2,
@@ -280,14 +280,14 @@ class StorefrontCartControllerTest extends ApiTestCase
         $productId1 = Uuid::uuid4()->getHex();
         $productId2 = Uuid::uuid4()->getHex();
 
-        $this->repository->create([
+        $this->productRepository->create([
             [
                 'id' => $productId1,
                 'name' => 'Test 1',
                 'catalogId' => Defaults::CATALOG,
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
-                'tax' => ['id' => $this->taxId, 'rate' => 17, 'name' => 'with id'],
+                'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
             ],
             [
                 'id' => $productId2,
@@ -338,14 +338,14 @@ class StorefrontCartControllerTest extends ApiTestCase
         $productId1 = Uuid::uuid4()->getHex();
         $productId2 = Uuid::uuid4()->getHex();
 
-        $this->repository->create([
+        $this->productRepository->create([
             [
                 'id' => $productId1,
                 'name' => 'Test 1',
                 'catalogId' => Defaults::CATALOG,
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
-                'tax' => ['id' => $this->taxId, 'rate' => 17, 'name' => 'with id'],
+                'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
             ],
             [
                 'id' => $productId2,
@@ -393,14 +393,14 @@ class StorefrontCartControllerTest extends ApiTestCase
     public function testAddProductUsingGenericLineItemRoute()
     {
         $productId = Uuid::uuid4()->getHex();
-        $this->repository->create([
+        $this->productRepository->create([
             [
                 'id' => $productId,
                 'name' => 'Test',
                 'catalogId' => Defaults::CATALOG,
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
-                'tax' => ['id' => $this->taxId, 'rate' => 17, 'name' => 'with id'],
+                'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
             ],
         ], Context:: createDefaultContext(Defaults::TENANT_ID));
 
@@ -429,14 +429,14 @@ class StorefrontCartControllerTest extends ApiTestCase
         $productId = Uuid::uuid4()->getHex();
         $context = Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID);
 
-        $this->repository->create([
+        $this->productRepository->create([
             [
                 'id' => $productId,
                 'name' => 'Test',
                 'catalogId' => Defaults::CATALOG,
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
-                'tax' => ['id' => $this->taxId, 'rate' => 17, 'name' => 'with id'],
+                'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
             ],
         ], $context);
 

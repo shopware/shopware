@@ -48,7 +48,7 @@ class ProductControllerTest extends ApiTestCase
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['id' => $manufacturerId, 'name' => 'test'],
-                'tax' => ['id' => $taxId, 'rate' => 17, 'name' => 'with id'],
+                'tax' => ['id' => $taxId, 'taxRate' => 17, 'name' => 'with id'],
             ],
         ], Context::createDefaultContext(Defaults::TENANT_ID));
 
@@ -86,7 +86,7 @@ class ProductControllerTest extends ApiTestCase
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['id' => $manufacturerId, 'name' => 'test'],
-                'tax' => ['id' => $taxId, 'rate' => 17, 'name' => 'with id'],
+                'tax' => ['id' => $taxId, 'taxRate' => 17, 'name' => 'with id'],
             ],
         ], Context::createDefaultContext(Defaults::TENANT_ID));
 
@@ -100,6 +100,6 @@ class ProductControllerTest extends ApiTestCase
         $this->assertEquals(10, $content['data']['price']['gross']);
         $this->assertEquals('test', $content['data']['manufacturer']['name']);
         $this->assertEquals('with id', $content['data']['tax']['name']);
-        $this->assertEquals(17, $content['data']['tax']['rate']);
+        $this->assertEquals(17, $content['data']['tax']['taxRate']);
     }
 }

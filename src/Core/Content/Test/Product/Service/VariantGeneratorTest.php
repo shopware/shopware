@@ -60,7 +60,7 @@ class VariantGeneratorTest extends KernelTestCase
             'id' => $id,
             'name' => 'test',
             'price' => ['gross' => 10, 'net' => 10],
-            'tax' => ['name' => 'test', 'rate' => 19],
+            'tax' => ['name' => 'test', 'taxRate' => 19],
             'manufacturer' => ['name' => 'test'],
             'configurators' => [
                 [
@@ -130,7 +130,7 @@ class VariantGeneratorTest extends KernelTestCase
             'id' => $id,
             'name' => 'test',
             'price' => ['gross' => 50, 'net' => 25],
-            'tax' => ['name' => 'test', 'rate' => 19],
+            'tax' => ['name' => 'test', 'taxRate' => 19],
             'manufacturer' => ['name' => 'test'],
             'configurators' => [
                 [
@@ -211,7 +211,7 @@ class VariantGeneratorTest extends KernelTestCase
             'id' => $id,
             'name' => 'test',
             'price' => ['gross' => 50, 'net' => 25],
-            'tax' => ['name' => 'test', 'rate' => 19],
+            'tax' => ['name' => 'test', 'taxRate' => 19],
             'manufacturer' => ['name' => 'test'],
             'configurators' => [
                 [
@@ -276,7 +276,7 @@ class VariantGeneratorTest extends KernelTestCase
             'id' => $id,
             'name' => 'Variant Generator',
             'price' => ['gross' => 50, 'net' => 25],
-            'tax' => ['name' => 'test', 'rate' => 19],
+            'tax' => ['name' => 'test', 'taxRate' => 19],
             'manufacturer' => ['name' => 'test'],
             'configurators' => $this->generateConfiguratorData([
                 'size' => ['xl', 'xxl', 'l', 's', 'm', 'ms'],

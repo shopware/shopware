@@ -36,7 +36,7 @@ class SyncControllerTest extends ApiTestCase
                 'payload' => [
                     'id' => $id1->getHex(),
                     'manufacturer' => ['name' => 'test'],
-                    'tax' => ['name' => 'test', 'rate' => 15],
+                    'tax' => ['name' => 'test', 'taxRate' => 15],
                     'name' => 'CREATE-1',
                     'price' => ['gross' => 50, 'net' => 25],
                 ],
@@ -48,7 +48,7 @@ class SyncControllerTest extends ApiTestCase
                     'id' => $id2->getHex(),
                     'manufacturer' => ['name' => 'test'],
                     'name' => 'CREATE-2',
-                    'tax' => ['name' => 'test', 'rate' => 15],
+                    'tax' => ['name' => 'test', 'taxRate' => 15],
                     'price' => ['gross' => 50, 'net' => 25],
                 ],
             ],
@@ -83,7 +83,7 @@ class SyncControllerTest extends ApiTestCase
                 'payload' => [
                     'id' => $id,
                     'active' => true,
-                    'tax' => ['name' => 'test', 'rate' => 15],
+                    'tax' => ['name' => 'test', 'taxRate' => 15],
                     'name' => 'CREATE-1',
                     'manufacturer' => ['name' => 'test'],
                     'price' => ['gross' => 50, 'net' => 25],
@@ -95,7 +95,7 @@ class SyncControllerTest extends ApiTestCase
                 'payload' => [
                     'id' => $id,
                     'manufacturer' => ['name' => 'test'],
-                    'tax' => ['name' => 'test', 'rate' => 15],
+                    'tax' => ['name' => 'test', 'taxRate' => 15],
                     'active' => false,
                     'price' => ['gross' => 50, 'net' => 25],
                 ],
@@ -135,7 +135,7 @@ class SyncControllerTest extends ApiTestCase
                 'entity' => ProductDefinition::getEntityName(),
                 'payload' => [
                     'id' => $productId,
-                    'tax' => ['name' => 'test', 'rate' => 15],
+                    'tax' => ['name' => 'test', 'taxRate' => 15],
                     'name' => 'PROD-1',
                     'price' => ['gross' => 50, 'net' => 25],
                     'manufacturer' => ['name' => 'test'],
@@ -182,7 +182,7 @@ class SyncControllerTest extends ApiTestCase
                     'name' => 'PROD-1',
                     'manufacturer' => ['name' => 'test'],
                     'price' => ['gross' => 50, 'net' => 25],
-                    'tax' => ['name' => 'test', 'rate' => 15],
+                    'tax' => ['name' => 'test', 'taxRate' => 15],
                     'categories' => [
                         ['id' => $category, 'name' => 'NESTED-CAT-1'],
                     ],
@@ -194,7 +194,7 @@ class SyncControllerTest extends ApiTestCase
                 'payload' => [
                     'id' => $product2,
                     'name' => 'PROD-2',
-                    'tax' => ['name' => 'test', 'rate' => 15],
+                    'tax' => ['name' => 'test', 'taxRate' => 15],
                     'price' => ['gross' => 50, 'net' => 25],
                     'manufacturer' => ['name' => 'test'],
                     'categories' => [
@@ -239,7 +239,7 @@ class SyncControllerTest extends ApiTestCase
                 'payload' => [
                     'id' => $product->getHex(),
                     'name' => 'PROD-1',
-                    'tax' => ['name' => 'test', 'rate' => 15],
+                    'tax' => ['name' => 'test', 'taxRate' => 15],
                     'price' => ['gross' => 50, 'net' => 25],
                     'manufacturer' => ['name' => 'test'],
                 ],
@@ -249,7 +249,7 @@ class SyncControllerTest extends ApiTestCase
                 'entity' => ProductDefinition::getEntityName(),
                 'payload' => [
                     'id' => $product2->getHex(),
-                    'tax' => ['name' => 'test', 'rate' => 15],
+                    'tax' => ['name' => 'test', 'taxRate' => 15],
                     'name' => 'PROD-2',
                     'price' => ['gross' => 50, 'net' => 25],
                     'manufacturer' => ['name' => 'test'],

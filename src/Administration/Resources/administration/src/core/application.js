@@ -312,19 +312,19 @@ class ApplicationBootstrapper {
      * Creates the application root and injects the provider container into the
      * view instance to keep the dependency injection of Vue.js in place.
      *
-     * @returns {module:core/application.ApplicationBootstrapper}
+     * @returns {Promise<module:core/application.ApplicationBootstrapper>}
      */
     createApplicationRoot() {
         const container = this.getContainer('init');
 
-        this.instantiateInitializers(container).then(() => {
+        return this.instantiateInitializers(container).then(() => {
             const router = container.router.getRouterInstance();
             const view = container.view;
             const contextService = container.contextService;
 
             // We're in a test environment, we're not needing an application root
             if (contextService.environment === 'testing') {
-                return;
+                return this;
             }
 
             this.applicationRoot = view.createInstance(
@@ -332,9 +332,9 @@ class ApplicationBootstrapper {
                 router,
                 this.getContainer('service')
             );
-        });
 
-        return this;
+            return this;
+        });
     }
 
     /**

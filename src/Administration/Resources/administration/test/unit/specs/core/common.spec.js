@@ -1,8 +1,11 @@
 import authHelper from '../../auth-helper';
 
-before((done) => {
-    authHelper().then(() => {
-        done();
+before(function beforeAllHook(done) {
+    this.timeout(50000);
+    Shopware.Application.start(() => {
+        authHelper().then(() => {
+            done();
+        });
     });
 });
 

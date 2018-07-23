@@ -4,8 +4,6 @@ import Vue from 'vue';
 require('src/core/common.js');
 require('src/app/main.js');
 
-Shopware.Application.start();
-
 Vue.config.productionTip = false;
 
 // require all test files (files that ends with .spec.js)

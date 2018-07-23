@@ -12,9 +12,9 @@ class CanonicalUrlExtension implements EntityExtensionInterface
 {
     public function extendFields(FieldCollection $collection): void
     {
-        $collection->add(
-            new CanonicalUrlAssociationField('canonicalUrl', 'id', true, DetailPageSeoUrlIndexer::ROUTE_NAME)
-        );
+//        $collection->add(
+//            new CanonicalUrlAssociationField('canonicalUrl', 'id', true, DetailPageSeoUrlIndexer::ROUTE_NAME)
+//        );
     }
 
     public function getDefinitionClass(): string

@@ -237,8 +237,8 @@ class AdministrationSearch
             )
         );
 
-//        $criteria->addFilter(new TermsQuery($keywordField, array_values($pattern->getAllTerms())));
-//        $criteria->addFilter(new TermQuery($languageField, $context->getLanguageId()));
+        $criteria->addFilter(new TermsQuery($keywordField, array_values($pattern->getAllTerms())));
+        $criteria->addFilter(new TermQuery($languageField, $context->getLanguageId()));
 
         /* @var RepositoryInterface $repository */
         $repository = $this->container->get($definition::getEntityName() . '.repository');

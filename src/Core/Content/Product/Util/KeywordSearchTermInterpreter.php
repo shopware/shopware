@@ -42,21 +42,47 @@ class KeywordSearchTermInterpreter
 
         $matches = $this->fetchKeywords($context, $scope, $slops);
 
+        $combines = $this->permute($tokens);
+
+        foreach ($combines as $token) {
+            $tokens[] = $token;
+        }
+
         $scoring = $this->score($tokens, $matches);
 
-        $scoring = \array_slice($scoring, 0, 10);
+        $scoring = \array_slice($scoring, 0, 15);
 
-        foreach ($scoring as $match) {
-            $this->logger->info('Search match: ' . $match['keyword'], $match);
+        foreach ($scoring as $keyword => $score) {
+            $this->logger->info('Search match: ' . $keyword . ' with score ' . (float) $score);
         }
 
         $pattern = new SearchPattern(new SearchTerm($word), $scope);
 
-        foreach ($scoring as $match) {
-            $pattern->addTerm(new SearchTerm($match['keyword'], $match['score']));
+        foreach ($scoring as $keyword => $score) {
+            $pattern->addTerm(new SearchTerm($keyword, $score));
         }
 
         return $pattern;
+    }
+
+    private function permute($arg): array
+    {
+        $array = \is_string($arg) ? str_split($arg) : $arg;
+
+        if (\count($array) === 1) {
+            return $array;
+        }
+
+        $result = [];
+        foreach ($array as $key => $item) {
+            $nested = $this->permute(array_diff_key($array, [$key => $item]));
+
+            foreach ($nested as $p) {
+                $result[] = $item . ' ' . $p;
+            }
+        }
+
+        return $result;
     }
 
     private function slop(array $tokens): array
@@ -76,7 +102,8 @@ class KeywordSearchTermInterpreter
                 continue;
             }
 
-            for ($i = 1; $i <= $length - 2; ++$i) {
+            $steps = 2;
+            for ($i = 1; $i <= $length - 2; $i += $steps) {
                 for ($i2 = 1; $i2 <= $slopSize; ++$i2) {
                     $placeholder = '';
                     for ($i3 = 1; $i3 <= $slopSize + 1; ++$i3) {
@@ -92,7 +119,7 @@ class KeywordSearchTermInterpreter
             }
 
             $token = strrev($token);
-            for ($i = 1; $i <= $length - 2; ++$i) {
+            for ($i = 1; $i <= $length - 2; $i += $steps) {
                 for ($i2 = 1; $i2 <= $slopSize; ++$i2) {
                     $placeholder = '';
                     for ($i3 = 1; $i3 <= $slopSize + 1; ++$i3) {
@@ -142,61 +169,38 @@ class KeywordSearchTermInterpreter
     private function score(array $tokens, array $matches): array
     {
         $scoring = [];
-        foreach ($matches as $keyword) {
-            $distance = null;
-            $bestHit = '';
+        foreach ($matches as $match) {
+            $score = 1;
+
+            $matchSegments = $this->tokenizer->tokenize($match);
+
+            if (\count($matchSegments) > 1) {
+                $score += \count($matchSegments) * 4;
+            }
+
             foreach ($tokens as $token) {
-                $levenshtein = levenshtein($keyword, $token);
-
-                if ($distance === null) {
-                    $distance = $levenshtein;
-                    $bestHit = $token;
+                $levenshtein = levenshtein($match, $token);
+                if ($levenshtein === 0) {
+                    $score += 6;
+                    continue;
                 }
-                if ($levenshtein < $distance) {
-                    $distance = $levenshtein;
-                    $bestHit = $token;
+
+                if ($levenshtein <= 2) {
+                    $score += 3;
+                    continue;
+                }
+
+                if ($levenshtein <= 5) {
+                    ++$score;
+                    continue;
                 }
             }
 
-            ++$distance;
-
-            $longTerm = max($bestHit, $keyword);
-            $shortTerm = min($bestHit, $keyword);
-
-            $longLeft = substr($longTerm, 1);
-            $shortLeft = substr($shortTerm, 1);
-
-            $longLeft = !empty($longLeft) ? $longLeft : $longTerm;
-            $shortLeft = !empty($shortLeft) ? $shortLeft : $shortTerm;
-
-            if ($keyword === $bestHit) {
-                //exact hit
-                $score = 0.8;
-            } elseif (strpos($longTerm, $shortTerm) === 0) {
-                //starts with
-                $score = 0.5;
-            } elseif (strpos($longLeft, $shortLeft) === 0) {
-                //first character not match
-                $score = 0.1;
-            } else {
-                $score = 1 / $distance / 10;
-            }
-
-            $scoreMatch = [
-                'keyword' => $keyword,
-                'similar' => similar_text($bestHit, $keyword),
-                'distance' => $distance,
-                'token' => $bestHit,
-                'score' => $score,
-                'longer' => $longTerm,
-                'shorter' => $shortTerm,
-            ];
-
-            $scoring[] = $scoreMatch;
+            $scoring[$match] = $score / 10;
         }
 
-        usort($scoring, function (array $a, array $b) {
-            return $b['score'] <=> $a['score'];
+        uasort($scoring, function ($a, $b) {
+            return $b <=> $a;
         });
 
         return $scoring;

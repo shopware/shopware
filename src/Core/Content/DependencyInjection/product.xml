@@ -84,7 +84,7 @@
             <argument type="service" id="product.repository"/>
         </service>
 
-        <service class="Shopware\Core\Content\Product\Util\KeywordSearchTermInterpreter" id="Shopware\Core\Content\Product\Util\KeywordSearchTermInterpreter">
+        <service class="Shopware\Core\Content\Product\Util\KeywordSearchTermInterpreter" id="Shopware\Core\Content\Product\Util\KeywordSearchTermInterpreter" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\Search\Term\Tokenizer"/>
             <argument type="service" id="logger"/>

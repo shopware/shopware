@@ -39,7 +39,7 @@
             <argument id="touchpoint.repository" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument type="service" id="Shopware\Core\Content\Product\Util\EventIdExtractor"/>
-            <tag name="shopware.dbal_indexing.indexer"/>
+            <!--<tag name="shopware.dbal_indexing.indexer"/>-->
         </service>
 
         <service class="Shopware\Storefront\DbalIndexing\SeoUrl\ListingPageSeoUrlIndexer" id="Shopware\Storefront\DbalIndexing\SeoUrl\ListingPageSeoUrlIndexer">
@@ -50,7 +50,7 @@
             <argument id="touchpoint.repository" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument type="service" id="Shopware\Core\Content\Product\Util\EventIdExtractor"/>
-            <tag name="shopware.dbal_indexing.indexer"/>
+            <!--<tag name="shopware.dbal_indexing.indexer"/>-->
         </service>
 
         <service id="Shopware\Storefront\Page\Checkout\PaymentMethodLoader">

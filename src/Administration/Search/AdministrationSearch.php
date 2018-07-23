@@ -13,6 +13,7 @@ use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Search\Query\MatchQuery;
 use Shopware\Core\Framework\ORM\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
@@ -218,7 +219,6 @@ class AdministrationSearch
         $rankingField = $definition::getEntityName() . '.searchKeywords.ranking';
         $languageField = $definition::getEntityName() . '.searchKeywords.languageId';
 
-        $queries = [];
         foreach ($pattern->getTerms() as $searchTerm) {
             $criteria->addQuery(
                 new ScoreQuery(
@@ -229,9 +229,16 @@ class AdministrationSearch
             );
         }
 
-        $criteria->addQueries($queries);
-        $criteria->addFilter(new TermsQuery($keywordField, array_values($pattern->getAllTerms())));
-        $criteria->addFilter(new TermQuery($languageField, $context->getLanguageId()));
+        $criteria->addQuery(
+            new ScoreQuery(
+                new MatchQuery($keywordField, $pattern->getOriginal()->getTerm()),
+                $pattern->getOriginal()->getScore(),
+                $rankingField
+            )
+        );
+
+//        $criteria->addFilter(new TermsQuery($keywordField, array_values($pattern->getAllTerms())));
+//        $criteria->addFilter(new TermQuery($languageField, $context->getLanguageId()));
 
         /* @var RepositoryInterface $repository */
         $repository = $this->container->get($definition::getEntityName() . '.repository');

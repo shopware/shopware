@@ -108,7 +108,7 @@
             <argument id="event_dispatcher" type="service"/>
             <argument id="Shopware\Core\Content\Product\Util\EventIdExtractor" type="service"/>
             <argument id="Doctrine\DBAL\Connection" type="service"/>
-            <!--<tag name="shopware.dbal_indexing.indexer" priority="900"/>-->
+            <tag name="shopware.dbal_indexing.indexer" priority="900"/>
         </service>
 
         <service class="Shopware\Core\Content\Product\ORM\Indexing\ProductDatasheetIndexer" id="Shopware\Core\Content\Product\ORM\Indexing\ProductDatasheetIndexer">
@@ -116,14 +116,14 @@
             <argument id="Doctrine\DBAL\Connection" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="Shopware\Core\Content\Product\Util\EventIdExtractor" type="service"/>
-            <!--<tag name="shopware.dbal_indexing.indexer" priority="400"/>-->
+            <tag name="shopware.dbal_indexing.indexer" priority="400"/>
         </service>
 
         <service class="Shopware\Core\Content\Product\ORM\Indexing\ProductListingPriceIndexer" id="Shopware\Core\Content\Product\ORM\Indexing\ProductListingPriceIndexer">
             <argument id="event_dispatcher" type="service"/>
             <argument id="Shopware\Core\Content\Product\Util\EventIdExtractor" type="service"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <!--<tag name="shopware.dbal_indexing.indexer" priority="300"/>-->
+            <tag name="shopware.dbal_indexing.indexer" priority="300"/>
         </service>
 
         <service class="Shopware\Core\Content\Product\ORM\Indexing\SearchKeywordIndexer" id="Shopware\Core\Content\Product\ORM\Indexing\SearchKeywordIndexer" public="true">
@@ -153,7 +153,7 @@
             <argument id="Shopware\Core\Content\Category\Util\CategoryPathBuilder" type="service"/>
             <argument id="Shopware\Core\Content\Product\Util\EventIdExtractor" type="service"/>
             <argument id="category.repository" type="service"/>
-            <!--<tag name="shopware.dbal_indexing.indexer" priority="1000"/>-->
+            <tag name="shopware.dbal_indexing.indexer" priority="1000"/>
         </service>
 
     </services>

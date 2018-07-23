@@ -83,8 +83,10 @@ class LanguageAnalyzer implements SearchAnalyzerInterface
             }
         }
 
-        return $tokens;
-//        return $this->filter->filter($tokens, $context);
+//        return $tokens;
+        $filtered = $this->filter->filter($tokens, $context);
+
+        return $filtered;
     }
 
     private function mergeTokens(array $existing, array $new, float $ranking): array

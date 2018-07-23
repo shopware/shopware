@@ -94,10 +94,9 @@ class RequestCriteriaBuilder
         }
 
         if (isset($payload['term'])) {
-            $pattern = $this->searchTermInterpreter->interpret(
-                (string) $payload['term'],
-                $context
-            );
+            $term = trim((string) $payload['term']);
+
+            $pattern = $this->searchTermInterpreter->interpret($term, $context);
 
             /** @var EntityDefinition|string $definition */
             $queries = $this->entityScoreQueryBuilder->buildScoreQueries(

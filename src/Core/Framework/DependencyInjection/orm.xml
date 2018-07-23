@@ -206,7 +206,6 @@
             <tag name="shopware.dbal_indexing.indexer" priority="1000"/>
         </service>
 
-
         <service class="Shopware\Core\Framework\ORM\Dbal\Indexing\IndexerRegistry" id="Shopware\Core\Framework\ORM\Dbal\Indexing\IndexerRegistry">
             <argument type="tagged" tag="shopware.dbal_indexing.indexer"/>
             <tag name="kernel.event_subscriber"/>
@@ -219,7 +218,7 @@
         </service>
 
         <service class="Shopware\Core\Framework\ORM\Dbal\Indexing\InheritanceIndexer" id="Shopware\Core\Framework\ORM\Dbal\Indexing\InheritanceIndexer">
-            <!--<tag name="shopware.dbal_indexing.indexer" priority="1500"/>-->
+            <tag name="shopware.dbal_indexing.indexer" priority="1500"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\DefinitionRegistry"/>
             <argument type="service" id="event_dispatcher"/>

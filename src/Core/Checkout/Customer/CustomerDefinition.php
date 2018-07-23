@@ -69,7 +69,7 @@ class CustomerDefinition extends EntityDefinition
 
             (new StringField('customer_number', 'number'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
             (new StringField('salutation', 'salutation'))->setFlags(new Required()),
-            (new StringField('first_name', 'firstName'))->setFlags(new Required(), new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
+            (new StringField('first_name', 'firstName'))->setFlags(new Required(), new SearchRanking(self::LOW_SEARCH_RAKING)),
             (new StringField('last_name', 'lastName'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
             (new PasswordField('password', 'password'))->setFlags(new Required()),
             (new StringField('email', 'email'))->setFlags(new Required(), new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
@@ -95,7 +95,7 @@ class CustomerDefinition extends EntityDefinition
             new ManyToOneAssociationField('defaultPaymentMethod', 'default_payment_method_id', PaymentMethodDefinition::class, true),
             new ManyToOneAssociationField('touchpoint', 'touchpoint_id', TouchpointDefinition::class, true),
             new ManyToOneAssociationField('lastPaymentMethod', 'last_payment_method_id', PaymentMethodDefinition::class, true),
-            new ManyToOneAssociationField('defaultBillingAddress', 'default_billing_address_id', CustomerAddressDefinition::class, true),
+            (new ManyToOneAssociationField('defaultBillingAddress', 'default_billing_address_id', CustomerAddressDefinition::class, true))->setFlags(new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
             new ManyToOneAssociationField('defaultShippingAddress', 'default_shipping_address_id', CustomerAddressDefinition::class, true),
             (new OneToManyAssociationField('addresses', CustomerAddressDefinition::class, 'customer_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new OneToManyAssociationField('orders', OrderDefinition::class, 'customer_id', false, 'id'))->setFlags(new RestrictDelete()),

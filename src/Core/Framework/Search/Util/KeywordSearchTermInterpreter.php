@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Product\Util;
+namespace Shopware\Core\Framework\Search\Util;
 
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;

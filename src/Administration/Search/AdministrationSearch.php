@@ -5,7 +5,7 @@ namespace Shopware\Administration\Search;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\Util\KeywordSearchTermInterpreter;
+use Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\ORM\EntityCollection;
@@ -36,7 +36,7 @@ class AdministrationSearch
     private $changesRepository;
 
     /**
-     * @var KeywordSearchTermInterpreter
+     * @var \Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreter
      */
     private $interpreter;
 

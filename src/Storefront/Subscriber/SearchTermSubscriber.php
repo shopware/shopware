@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Subscriber;
 
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\Util\KeywordSearchTermInterpreter;
+use Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreter;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ORM\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
@@ -22,7 +22,7 @@ class SearchTermSubscriber implements EventSubscriberInterface
     public const TERM_PARAMETER = 'search';
 
     /**
-     * @var KeywordSearchTermInterpreter
+     * @var \Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreter
      */
     private $interpreter;
 

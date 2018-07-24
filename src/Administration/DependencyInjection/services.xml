@@ -14,8 +14,9 @@
         <service class="Shopware\Administration\Search\AdministrationSearch"
                  id="Shopware\Administration\Search\AdministrationSearch"
                  public="true">
+
             <argument id="service_container" type="service"/>
-            <argument id="Shopware\Core\Content\Product\Util\KeywordSearchTermInterpreter" type="service" />
+            <argument id="Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreter" type="service" />
             <argument id="version_commit_data.repository" type="service"/>
         </service>
 

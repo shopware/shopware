@@ -1,6 +1,6 @@
 <?php
 
-namespace Shopware\Core\Content\Product\Util;
+namespace Shopware\Core\Framework\Search\Util;
 
 class Permute
 {

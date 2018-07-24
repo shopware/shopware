@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Product\ORM\Indexing;
+namespace Shopware\Core\Framework\Search\ORM\Indexing;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
@@ -14,13 +14,14 @@ use Shopware\Core\Framework\ORM\Dbal\Common\LastIdQuery;
 use Shopware\Core\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\ORM\Dbal\Indexing\IndexerInterface;
 use Shopware\Core\Framework\ORM\DefinitionRegistry;
-use Shopware\Core\Framework\ORM\EntityCollection;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityRepository;
 use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\ORM\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\Search\Util\SearchAnalyzerRegistry;
 use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -145,20 +146,22 @@ class SearchKeywordIndexer implements IndexerInterface
 
     public function refresh(EntityWrittenContainerEvent $event): void
     {
-//        $productEvent = $event->getEventByDefinition(ProductDefinition::class);
-//        if (!$productEvent) {
-//            return;
-//        }
-//
-//        $context = $productEvent->getContext();
-//        $products = $this->productRepository->read(new ReadCriteria($productEvent->getIds()), $context);
-//
-//        $queue = new MultiInsertQueryQueue($this->connection, 250, false, true);
-//        foreach ($products as $product) {
-//            $keywords = $this->analyzerRegistry->analyze($product, $context);
-//            $this->updateQueryQueue($queue, $context, $product->getId(), $keywords, self::TABLE, self::DOCUMENT_TABLE);
-//        }
-//        $queue->execute();
+        $events = $event->getEvents();
+
+        if (!$events) {
+            return;
+        }
+
+        /** @var EntityWrittenEvent $nested */
+        foreach ($events as $nested) {
+            $definition = $nested->getDefinition();
+
+            if (!$definition::useKeywordSearch()) {
+                continue;
+            }
+
+            $this->indexEntities($definition, $nested->getContext(), $nested->getIds(), self::DICTIONARY, self::DOCUMENT_TABLE);
+        }
     }
 
     public static function stringReverse($keyword)
@@ -178,9 +181,6 @@ class SearchKeywordIndexer implements IndexerInterface
                 continue;
             }
 
-            /** @var EntityRepository $repository */
-            $repository = $this->container->get($definition::getEntityName() . '.repository');
-
             $iterator = $this->createIterator($definition, $context->getTenantId());
 
             $this->eventDispatcher->dispatch(
@@ -199,13 +199,11 @@ class SearchKeywordIndexer implements IndexerInterface
                     return Uuid::fromBytesToHex($id);
                 }, $ids);
 
-                $entities = $repository->read(new ReadCriteria($ids), $context);
-
-                $this->indexEntities($definition, $context, $entities, $table, $documentTable);
+                $this->indexEntities($definition, $context, $ids, $table, $documentTable);
 
                 $this->eventDispatcher->dispatch(
                     ProgressAdvancedEvent::NAME,
-                    new ProgressAdvancedEvent($entities->count())
+                    new ProgressAdvancedEvent(count($ids))
                 );
             }
 
@@ -237,8 +235,15 @@ class SearchKeywordIndexer implements IndexerInterface
         return new LastIdQuery($query);
     }
 
-    private function indexEntities(string $definition, Context $context, EntityCollection $entities, string $table, string $documentTable): void
+    private function indexEntities(string $definition, Context $context, array $ids, string $table, string $documentTable): void
     {
+        /** @var EntityRepository $repository */
+        /** @var EntityDefinition $definition */
+
+        $repository = $this->container->get($definition::getEntityName() . '.repository');
+
+        $entities = $repository->read(new ReadCriteria($ids), $context);
+
         $queue = new MultiInsertQueryQueue($this->connection, 250, false, true);
 
         $languageId = $this->connection->quote(Uuid::fromStringToBytes($context->getLanguageId()));

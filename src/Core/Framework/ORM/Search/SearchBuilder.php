@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\ORM\Search;
 
-use Shopware\Core\Content\Product\Util\KeywordSearchTermInterpreter;
+use Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreter;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\EntityDefinition;

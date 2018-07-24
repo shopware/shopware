@@ -33,7 +33,35 @@
         <service class="Shopware\Core\Framework\ORM\Search\SearchBuilder" id="Shopware\Core\Framework\ORM\Search\SearchBuilder">
             <argument id="Shopware\Core\Framework\ORM\Search\Term\SearchTermInterpreter" type="service"/>
             <argument id="Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder" type="service"/>
-            <argument id="Shopware\Core\Content\Product\Util\KeywordSearchTermInterpreter" type="service"/>
+            <argument id="Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreter" type="service"/>
+        </service>
+
+        <service class="Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreter" id="Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreter" public="true">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Search\Term\Tokenizer"/>
+            <argument type="service" id="logger"/>
+        </service>
+
+        <service class="Shopware\Core\Framework\Search\Util\LanguageAnalyzer" id="Shopware\Core\Framework\Search\Util\LanguageAnalyzer">
+            <argument id="Shopware\Core\Framework\ORM\Search\Term\Tokenizer" type="service"/>
+            <argument id="Shopware\Core\Framework\ORM\Search\Term\StopWordFilter" type="service"/>
+            <tag name="shopware.search_analyzer"/>
+        </service>
+
+        <service class="Shopware\Core\Framework\Search\Util\SearchAnalyzerRegistry" id="Shopware\Core\Framework\Search\Util\SearchAnalyzerRegistry" public="true">
+            <argument type="tagged" tag="shopware.search_analyzer"/>
+        </service>
+
+        <service class="Shopware\Core\Framework\Search\ORM\Indexing\SearchKeywordIndexer" id="Shopware\Core\Framework\Search\ORM\Indexing\SearchKeywordIndexer" public="true">
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
+            <argument type="service" id="service_container" />
+            <argument type="service" id="Shopware\Core\Framework\ORM\DefinitionRegistry" />
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Search\Util\SearchAnalyzerRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Dbal\Common\IndexTableOperator"/>
+            <argument type="service" id="language.repository"/>
+            <argument type="service" id="catalog.repository"/>
+            <tag name="shopware.dbal_indexing.indexer" priority="200"/>
         </service>
 
         <service class="Shopware\Core\Framework\ORM\Search\RequestCriteriaBuilder" id="Shopware\Core\Framework\ORM\Search\RequestCriteriaBuilder">

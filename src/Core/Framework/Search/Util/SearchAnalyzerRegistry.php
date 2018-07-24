@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Product\ORM\Indexing;
+namespace Shopware\Core\Framework\Search\Util;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Entity;

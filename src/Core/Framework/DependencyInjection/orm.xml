@@ -65,8 +65,7 @@
         </service>
 
         <service class="Shopware\Core\Framework\ORM\Search\RequestCriteriaBuilder" id="Shopware\Core\Framework\ORM\Search\RequestCriteriaBuilder">
-            <argument id="Shopware\Core\Framework\ORM\Search\Term\SearchTermInterpreter" type="service"/>
-            <argument id="Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder" type="service"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Search\SearchBuilder"/>
         </service>
 
         <service class="Shopware\Core\Framework\ORM\ExtensionRegistry" id="Shopware\Core\Framework\ORM\ExtensionRegistry" public="true">

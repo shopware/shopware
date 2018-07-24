@@ -188,7 +188,7 @@
 
         <service class="Shopware\Storefront\Subscriber\SearchTermSubscriber" id="Shopware\Storefront\Subscriber\SearchTermSubscriber">
             <tag name="kernel.event_subscriber"/>
-            <argument type="service" id="Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreter"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Search\SearchBuilder"/>
         </service>
 
         <!--Entity field resolver -->

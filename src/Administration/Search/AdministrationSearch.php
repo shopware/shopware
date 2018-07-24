@@ -5,6 +5,7 @@ namespace Shopware\Administration\Search;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\ORM\Search\SearchBuilder;
 use Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Entity;
@@ -36,18 +37,18 @@ class AdministrationSearch
     private $changesRepository;
 
     /**
-     * @var \Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreter
+     * @var SearchBuilder
      */
-    private $interpreter;
+    private $searchBuilder;
 
     public function __construct(
         ContainerInterface $container,
-        KeywordSearchTermInterpreter $interpreter,
+        SearchBuilder $searchBuilder,
         RepositoryInterface $changesRepository
     ) {
         $this->container = $container;
         $this->changesRepository = $changesRepository;
-        $this->interpreter = $interpreter;
+        $this->searchBuilder = $searchBuilder;
     }
 
     public function search(string $term, int $limit, Context $context, string $userId): array
@@ -202,48 +203,18 @@ class AdministrationSearch
 
         //fetch best matches for defined definitions
         foreach ($definitions as $definition) {
-            $results[$definition] = $this->searchEntity($term, $definition, $context);
+            /** @var string|EntityDefinition $definition */
+            $criteria = new Criteria();
+            $criteria->setLimit(15);
+
+            $this->searchBuilder->build($criteria, $term, $definition, $context);
+
+            /* @var RepositoryInterface $repository */
+            $repository = $this->container->get($definition::getEntityName() . '.repository');
+
+            $results[$definition] = $repository->searchIds($criteria, $context);
         }
 
         return $results;
-    }
-
-    private function searchEntity(string $term, string $definition, Context $context): IdSearchResult
-    {
-        $criteria = new Criteria();
-        $criteria->setLimit(15);
-
-        /** @var string|EntityDefinition $definition */
-        $pattern = $this->interpreter->interpret($term, $definition::getEntityName(), $context);
-
-        $keywordField = $definition::getEntityName() . '.searchKeywords.keyword';
-        $rankingField = $definition::getEntityName() . '.searchKeywords.ranking';
-        $languageField = $definition::getEntityName() . '.searchKeywords.languageId';
-
-        foreach ($pattern->getTerms() as $searchTerm) {
-            $criteria->addQuery(
-                new ScoreQuery(
-                    new TermQuery($keywordField, $searchTerm->getTerm()),
-                    $searchTerm->getScore(),
-                    $rankingField
-                )
-            );
-        }
-
-        $criteria->addQuery(
-            new ScoreQuery(
-                new MatchQuery($keywordField, $pattern->getOriginal()->getTerm()),
-                $pattern->getOriginal()->getScore(),
-                $rankingField
-            )
-        );
-
-        $criteria->addFilter(new TermsQuery($keywordField, array_values($pattern->getAllTerms())));
-        $criteria->addFilter(new TermQuery($languageField, $context->getLanguageId()));
-
-        /* @var RepositoryInterface $repository */
-        $repository = $this->container->get($definition::getEntityName() . '.repository');
-
-        return $repository->searchIds($criteria, $context);
     }
 }

@@ -3,16 +3,15 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\ORM\Search;
 
-use Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreter;
-use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Search\Query\MatchQuery;
 use Shopware\Core\Framework\ORM\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
+use Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreter;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\ORM\Search\Term\SearchTermInterpreter;
-use Shopware\Storefront\Subscriber\SearchTermSubscriber;
 
 class SearchBuilder
 {
@@ -41,49 +40,44 @@ class SearchBuilder
         $this->keywordInterpreter = $keywordInterpreter;
     }
 
-    public function build(string $term, string $definition, Context $context): Criteria
+    public function build(Criteria $criteria, string $term, string $definition, Context $context): void
     {
-        $pattern = $this->interpreter->interpret($term, $context);
-
         /** @var string|EntityDefinition $definition */
-        $queries = $this->scoreBuilder->buildScoreQueries($pattern, $definition, $definition::getEntityName());
+        if (!$definition::useKeywordSearch()) {
+            $pattern = $this->interpreter->interpret($term, $context);
 
-        $criteria = new Criteria();
-        $criteria->setLimit(5);
+            $queries = $this->scoreBuilder->buildScoreQueries($pattern, $definition, $definition::getEntityName());
 
-        foreach ($queries as $query) {
-            $criteria->addQuery($query);
+            $criteria->addQueries($queries);
+
+            return;
         }
 
-        return $criteria;
-    }
+        $pattern = $this->keywordInterpreter->interpret($term, $definition::getEntityName(), $context);
 
-    private function keywordSearch($term, Context $context): Criteria
-    {
-        $pattern = $this->keywordInterpreter->interpret($term, $context);
+        $keywordField = $definition::getEntityName() . '.searchKeywords.keyword';
+        $rankingField = $definition::getEntityName() . '.searchKeywords.ranking';
+        $languageField = $definition::getEntityName() . '.searchKeywords.languageId';
 
-        $criteria = new Criteria();
-        $criteria->setLimit(5);
-
-        $queries = [];
-
-        foreach ($pattern->getTerms() as $termPattern) {
-            $query = new TermQuery(SearchTermSubscriber::KEYWORD_FIELD, $termPattern->getTerm());
-            $queries[] = new ScoreQuery($query, $termPattern->getScore(), SearchTermSubscriber::BOOSTING_FIELD);
+        foreach ($pattern->getTerms() as $searchTerm) {
+            $criteria->addQuery(
+                new ScoreQuery(
+                    new TermQuery($keywordField, $searchTerm->getTerm()),
+                    $searchTerm->getScore(),
+                    $rankingField
+                )
+            );
         }
 
-        foreach ($queries as $query) {
-            $criteria->addQuery($query);
-        }
-
-        $criteria->addFilter(
-            new TermsQuery(SearchTermSubscriber::KEYWORD_FIELD, array_values($pattern->getAllTerms()))
+        $criteria->addQuery(
+            new ScoreQuery(
+                new MatchQuery($keywordField, $pattern->getOriginal()->getTerm()),
+                $pattern->getOriginal()->getScore(),
+                $rankingField
+            )
         );
 
-        $criteria->addFilter(
-            new TermQuery(SearchTermSubscriber::LANGUAGE_FIELD, Defaults::LANGUAGE)
-        );
-
-        return $criteria;
+        $criteria->addFilter(new TermsQuery($keywordField, array_values($pattern->getAllTerms())));
+        $criteria->addFilter(new TermQuery($languageField, $context->getLanguageId()));
     }
 }

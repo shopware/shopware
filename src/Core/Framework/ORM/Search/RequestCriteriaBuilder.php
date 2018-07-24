@@ -23,28 +23,18 @@ use Shopware\Core\Framework\ORM\Search\Query\NestedQuery;
 use Shopware\Core\Framework\ORM\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\ORM\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
-use Shopware\Core\Framework\ORM\Search\Term\SearchTermInterpreter;
 use Symfony\Component\HttpFoundation\Request;
 
 class RequestCriteriaBuilder
 {
     /**
-     * @var SearchTermInterpreter
+     * @var SearchBuilder
      */
-    private $searchTermInterpreter;
+    private $searchBuilder;
 
-    /**
-     * @var EntityScoreQueryBuilder
-     */
-    private $entityScoreQueryBuilder;
-
-    public function __construct(
-        SearchTermInterpreter $searchTermInterpreter,
-        EntityScoreQueryBuilder $entityScoreQueryBuilder
-    ) {
-        $this->searchTermInterpreter = $searchTermInterpreter;
-        $this->entityScoreQueryBuilder = $entityScoreQueryBuilder;
+    public function __construct(SearchBuilder $searchBuilder)
+    {
+        $this->searchBuilder = $searchBuilder;
     }
 
     public function handleRequest(Request $request, Criteria $criteria, string $definition, Context $context): Criteria
@@ -96,16 +86,7 @@ class RequestCriteriaBuilder
         if (isset($payload['term'])) {
             $term = trim((string) $payload['term']);
 
-            $pattern = $this->searchTermInterpreter->interpret($term, $context);
-
-            /** @var EntityDefinition|string $definition */
-            $queries = $this->entityScoreQueryBuilder->buildScoreQueries(
-                $pattern,
-                $definition,
-                $definition::getEntityName()
-            );
-
-            $criteria->addQueries($queries);
+            $this->searchBuilder->build($criteria, $term, $definition, $context);
         }
 
         if (isset($payload['sort'])) {

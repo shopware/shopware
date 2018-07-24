@@ -3,11 +3,11 @@
 namespace Shopware\Storefront\Subscriber;
 
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreter;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ORM\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
+use Shopware\Core\Framework\ORM\Search\SearchBuilder;
 use Shopware\Storefront\Event\ListingEvents;
 use Shopware\Storefront\Event\ListingPageRequestEvent;
 use Shopware\Storefront\Event\PageCriteriaCreatedEvent;
@@ -16,19 +16,16 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class SearchTermSubscriber implements EventSubscriberInterface
 {
-    public const KEYWORD_FIELD = 'product.searchKeywords.keyword';
-    public const BOOSTING_FIELD = 'product.searchKeywords.ranking';
-    public const LANGUAGE_FIELD = 'product.searchKeywords.languageId';
     public const TERM_PARAMETER = 'search';
 
     /**
-     * @var \Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreter
+     * @var SearchBuilder
      */
-    private $interpreter;
+    private $searchBuilder;
 
-    public function __construct(KeywordSearchTermInterpreter $interpreter)
+    public function __construct(SearchBuilder $searchBuilder)
     {
-        $this->interpreter = $interpreter;
+        $this->searchBuilder = $searchBuilder;
     }
 
     public static function getSubscribedEvents()
@@ -59,33 +56,18 @@ class SearchTermSubscriber implements EventSubscriberInterface
 
     public function buildCriteria(PageCriteriaCreatedEvent $event): void
     {
+        /** @var SearchPageRequest $request */
         $request = $event->getRequest();
 
         if (!$event->getRequest() instanceof SearchPageRequest) {
             return;
         }
 
-        /** @var SearchPageRequest $request */
-        $term = $request->getSearchTerm();
-
-        $pattern = $this->interpreter->interpret($term, ProductDefinition::getEntityName(), $event->getContext());
-
-        $queries = [];
-        foreach ($pattern->getTerms() as $term) {
-            $query = new TermQuery(self::KEYWORD_FIELD, $term->getTerm());
-            $queries[] = new ScoreQuery($query, $term->getScore(), self::BOOSTING_FIELD);
-        }
-
-        foreach ($queries as $query) {
-            $event->getCriteria()->addQuery($query);
-        }
-
-        $event->getCriteria()->addFilter(
-            new TermsQuery(self::KEYWORD_FIELD, array_values($pattern->getAllTerms()))
-        );
-
-        $event->getCriteria()->addFilter(
-            new TermQuery(self::LANGUAGE_FIELD, Defaults::LANGUAGE)
+        $this->searchBuilder->build(
+            $event->getCriteria(),
+            $request->getSearchTerm(),
+            ProductDefinition::class,
+            $event->getContext()
         );
     }
 }

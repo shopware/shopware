@@ -469,7 +469,7 @@ class DiscountSurchargeTest extends KernelTestCase
                 'name' => $name,
                 'manufacturer' => ['name' => 'test'],
                 'price' => ['gross' => $grossPrice, 'net' => $netPrice],
-                'tax' => ['name' => 'test', 'rate' => $taxRate],
+                'tax' => ['name' => 'test', 'taxRate' => $taxRate],
             ],
         ], Context::createDefaultContext(Defaults::TENANT_ID));
 

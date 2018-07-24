@@ -77,7 +77,7 @@ class EnrichmentTest extends KernelTestCase
                 'description' => 'Missing description',
                 'price' => ['gross' => 15, 'net' => 15],
                 'manufacturer' => ['name' => 'test'],
-                'tax' => ['name' => 'test', 'rate' => 15],
+                'tax' => ['name' => 'test', 'taxRate' => 15],
                 'media' => [
                     [
                         'id' => $id,
@@ -136,7 +136,7 @@ class EnrichmentTest extends KernelTestCase
                 'description' => 'Missing description',
                 'price' => ['gross' => 15, 'net' => 15],
                 'manufacturer' => ['name' => 'test'],
-                'tax' => ['name' => 'test', 'rate' => 15],
+                'tax' => ['name' => 'test', 'taxRate' => 15],
                 'media' => [
                     [
                         'id' => $id,

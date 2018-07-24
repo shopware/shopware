@@ -507,7 +507,7 @@ class StorefrontCartControllerTest extends ApiTestCase
                 'catalogId' => Defaults::CATALOG,
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
-                'tax' => ['id' => $this->taxId, 'rate' => 17, 'name' => 'with id'],
+                'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
             ],
         ], $this->context);
 

@@ -32,6 +32,7 @@
                :target="entry.target"
                :title="$tc(entry.label)"
                class="sw-admin-menu__navigation-link">
+
                 {% block sw_admin_menu_item_icon %}
                     <sw-icon v-if="displayIcon"
                              size="20px"
@@ -51,6 +52,7 @@
 
         {% block sw_admin_menu_item_navigation_link %}
             <span v-else class="sw-admin-menu__navigation-link">
+
                 {% block sw_admin_menu_item_icon %}
                     <sw-icon v-if="displayIcon"
                              size="20px"

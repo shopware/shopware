@@ -62,20 +62,18 @@ Component.register('sw-admin-menu', {
 
         changeActiveItem(target) {
             const mainMenuElement = target.parentNode.parentNode;
-            const activeClasses = ['sw-admin-menu__navigation-link-active', 'router-link-active'];
+            const activeClass = 'router-link-active';
             const listElements = mainMenuElement.querySelectorAll('.sw-admin-menu__navigation-link');
 
             listElements.forEach((listItem) => {
-                listItem.classList.remove(...activeClasses);
+                listItem.classList.remove(activeClass);
             });
 
-            target.classList.add(activeClasses[0]);
+            target.classList.add(activeClass);
         },
 
         isActiveItem(menuItem) {
-            return this.isExpanded &&
-                (menuItem.classList.contains('sw-admin-menu__navigation-link-active') ||
-                 menuItem.classList.contains('router-link-active'));
+            return this.isExpanded && menuItem.classList.contains('router-link-active');
         },
 
         openFlyout(entry, currentTarget) {

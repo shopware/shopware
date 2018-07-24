@@ -172,6 +172,7 @@
   "sw-catalog": {
     "general": {
       "mainMenuItemIndex": "Kataloge",
+      "mainMenuItemList": "Übersicht",
       "mainMenuItemCreate": "Katalog anlegen",
       "headlineCatalogs": "Kataloge",
       "introHeadlineCatalogs": "Willkommen in der Katalogverwaltung",

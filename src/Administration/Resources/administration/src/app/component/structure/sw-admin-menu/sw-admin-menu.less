@@ -173,13 +173,11 @@
         cursor: pointer;
 
         &:hover,
-        &.router-link-active,
-        &.sw-admin-menu__navigation-link-active {
+        &.router-link-active {
             background: @sw-admin-menu-color-active;
         }
 
-        &.router-link-active + .sw-admin-menu__sub-navigation-list,
-        &.sw-admin-menu__navigation-link-active + .sw-admin-menu__sub-navigation-list {
+        &.router-link-active + .sw-admin-menu__sub-navigation-list {
             opacity: 1;
 
             .sw-admin-menu__navigation-link {

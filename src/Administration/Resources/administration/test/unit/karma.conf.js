@@ -27,7 +27,6 @@ module.exports = function (config) {
             './index.js': ['webpack', 'sourcemap']
         },
         webpack: webpackConfig,
-        browserDisconnectTimeout: 50000,
         webpackMiddleware: {
             noInfo: true
         },

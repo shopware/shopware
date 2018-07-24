@@ -1,9 +1,10 @@
-import authHelper from '../../auth-helper';
-
-before(function beforeAllHook(done) {
-    this.timeout(50000);
-    Shopware.Application.start(() => {
-        authHelper().then(() => {
+before(function beforeHook(done) { // eslint-disable-line eslint prefer-arrow-callback
+    this.timeout(5000);
+    Shopware.Application.start().then(() => {
+        const AuthStore = Shopware.State.getStore('auth');
+        AuthStore.username = 'admin';
+        AuthStore.password = 'shopware';
+        AuthStore.loginUserWithPassword().then(() => {
             done();
         });
     });

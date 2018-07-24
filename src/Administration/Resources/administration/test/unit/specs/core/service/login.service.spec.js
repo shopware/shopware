@@ -9,6 +9,7 @@ describe('core/service/login.service.js', () => {
     });
 
     it('should request the token and expiry date from the server', (done) => {
+        console.warn('loginService.loginByUsername.spec');
         loginService.loginByUsername('admin', 'shopware').then((response) => {
             const data = response.data;
             expect(response.status).to.be.equal(200);

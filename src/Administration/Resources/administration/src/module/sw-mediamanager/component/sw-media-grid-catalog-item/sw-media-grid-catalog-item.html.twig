@@ -1,22 +1,23 @@
 {% block sw_media_grid_item_selection_identifier %}{% endblock %}
 
 {% block sw_media_grid_item_preview %}
-        <sw-icon class="sw-media-grid-item__catalog-item"
-                 name="default-documentation-map-closed"
-                 color="#189EFF"
-                 size="50%">
-        </sw-icon>
+    <sw-icon class="sw-media-grid-item__catalog-item"
+        name="default-package-closed"
+        color="#FF85C2"
+        size="50%">
+    </sw-icon>
 {% endblock %}
 
 {% block sw_media_grid_item_context_items%}
     {% block sw_media_grid_catalog_item_show_content_button %}
-    <sw-context-menu-item :routerLink="{ name: 'sw.mediamanager.catalog-content', params: { id: item.id } }">
+        <sw-context-menu-item :routerLink="{ name: 'sw.mediamanager.catalog-content', params: { id: item.id } }">
             {{ $tc('sw-mediamanager.catalogItem.showCatalogContent') }}
-    </sw-context-menu-item>
+        </sw-context-menu-item>
     {% endblock %}
+
     {% block sw_media_grid_catalog_item_show_catalog_button %}
-    <sw-context-menu-item :routerLink="{ name: 'sw.catalog.detail', params: { id: item.id } }">
+        <sw-context-menu-item :routerLink="{ name: 'sw.catalog.detail', params: { id: item.id } }">
             {{ $tc('sw-mediamanager.catalogItem.showCatalogDetails') }}
-    </sw-context-menu-item>
+        </sw-context-menu-item>
     {% endblock %}
 {% endblock %}

@@ -29,20 +29,17 @@ Component.register('sw-media-grid-item', {
         },
         mediaItemClasses() {
             return {
-                'sw-media-grid-item': true,
                 'is--selected': this.selected
             };
         },
         mediaItemContentClasses() {
             return {
-                'sw-media-grid-item__content': true,
                 'is--grid': !this.isListItemPreview,
                 'is--list': this.isListItemPreview
             };
         },
         selectedIndicatorClasses() {
             return {
-                'sw-media-grid-item__selected-indicator': true,
                 'selected-indicator--visible': this.containerOptions.selectionInProgress
             };
         },
@@ -54,40 +51,29 @@ Component.register('sw-media-grid-item', {
     },
 
     methods: {
-        doMainAction(event) {
-            this.doSelectItem(event);
+        doMainAction(originalDomEvent) {
+            this.doSelectItem(originalDomEvent);
         },
-        doSelectItem(event) {
+        doSelectItem(originalDomEvent) {
             if (!this.selected ||
-                ['SVG', 'BUTTON'].includes(event.target.tagName.toUpperCase())
+                ['SVG', 'BUTTON'].includes(originalDomEvent.target.tagName.toUpperCase())
             ) {
-                this.selectItem();
+                this.selectItem(originalDomEvent);
                 return;
             }
 
-            this.removeFromSelection();
+            this.removeFromSelection(originalDomEvent);
         },
-        selectItem() {
-            this.$emit('media-item-add-to-selection', this.item);
+        selectItem(originalDomEvent) {
+            this.$emit('sw-media-grid-item-selection-add', {
+                originalDomEvent,
+                item: this.item
+            });
         },
-        removeFromSelection() {
-            this.$emit('media-item-remove-from-selection', this.item);
-        },
-        emitItemChangeEvent(event, action, parameters) {
-            this.emitMediaGridItemEvent(event, action, false, parameters);
-        },
-        emitBatchEvent(event, action, parameters) {
-            this.emitMediaGridItemEvent(event, action, true, parameters);
-        },
-        emitMediaGridItemEvent(originalDomEvent, actionName, isBatch, parameters) {
-            this.$emit('media-grid-item-event', {
-                originalDomEvent: originalDomEvent,
-                context: {
-                    action: actionName,
-                    isBatch: isBatch
-                },
-                target: this.item,
-                parameters: parameters
+        removeFromSelection(originalDomEvent) {
+            this.$emit('sw-media-grid-item-selection-remove', {
+                originalDomEvent,
+                item: this.item
             });
         }
     }

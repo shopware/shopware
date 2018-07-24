@@ -4,7 +4,7 @@
             {% block sw_media_grid_slot_content %}
                 <div class="sw-media-grid__content"
                      :style="mediaColumnDefinitions"
-                     @click.self="clearSelection">
+                     @click.self="emitSelectionCleared">
                         {% block sw_media_grid_content_cell %}
                             <div class="sw-media-grid__content-cell"
                                  v-for="item in items"
@@ -13,8 +13,9 @@
                                         :selected="isItemSelected(item)"
                                         :item="item"
                                         :containerOptions="containerOptions"
-                                        @media-item-add-to-selection="addToSelection"
-                                        @media-item-remove-from-selection="removeFromSelection">
+                                        @sw-media-grid-item-selection-add="addToSelection"
+                                        @sw-media-grid-item-selection-remove="removeFromSelection"
+                                        v-on="$listeners">
                                 </component>
                             </div>
                         {% endblock %}

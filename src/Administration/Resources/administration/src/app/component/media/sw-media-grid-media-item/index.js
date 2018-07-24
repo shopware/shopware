@@ -31,7 +31,7 @@ Component.extend('sw-media-grid-media-item', 'sw-media-grid-item', {
     },
 
     methods: {
-        doMainAction(event) {
+        doMainAction(originalDomEvent) {
             if (this.containerOptions.editable) {
                 if (!this.$refs.inputItemName.disabled) {
                     return;
@@ -42,7 +42,7 @@ Component.extend('sw-media-grid-media-item', 'sw-media-grid-item', {
                     return;
                 }
             }
-            this.doSelectItem(event);
+            this.doSelectItem(originalDomEvent);
         },
         startInlineEdit() {
             if (this.containerOptions.editable) {
@@ -61,9 +61,11 @@ Component.extend('sw-media-grid-media-item', 'sw-media-grid-item', {
             this.$refs.inputItemName.value = this.item.name;
             this.$refs.inputItemName.disabled = true;
         },
-        signalItemChanges(event) {
-            this.emitItemChangeEvent(event, 'changed-name', {
-                name: this.$refs.inputItemName.value
+        emitNameChanged(originalDomEvent) {
+            this.$emit('sw-media-grid-media-item-change-name', {
+                originalDomEvent,
+                item: this.item,
+                newName: this.$refs.inputItemName.value
             });
         }
     }

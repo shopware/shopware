@@ -87,9 +87,24 @@ Component.register('sw-media-grid', {
         }
     },
 
+    watch: {
+        items() {
+            this.clearSelection();
+        }
+    },
+
     methods: {
+        getSelection() {
+            return this.selection;
+        },
         clearSelection() {
             this.selection = [];
+        },
+        emitSelectionCleared(originalDomEvent) {
+            this.clearSelection();
+            this.$emit('sw-media-grid-selection-clear', {
+                originalDomEvent
+            });
         },
         isItemSelected(item) {
             if (this.selection.length === 0) {
@@ -102,26 +117,27 @@ Component.register('sw-media-grid', {
 
             return index > -1;
         },
-        addToSelection(item) {
-            if (!this.selectable) {
-                return;
+        addToSelection({ originalDomEvent, item }) {
+            if (this.selectable) {
+                if (!this.isItemSelected(item)) {
+                    this.selection.push(item);
+                }
             }
 
-            if (!this.isItemSelected(item)) {
-                this.selection.push(item);
-            }
+            this.$emit('sw-media-grid-item-selection-add', {
+                originalDomEvent,
+                item
+            });
         },
-        removeFromSelection(item) {
+        removeFromSelection({ originalDomEvent, item }) {
             this.selection = this.selection.filter((element) => {
                 return !(element[this.idField] === item[this.idField]);
             });
-        },
-        forwardItemEvent(mediaItemEvent) {
-            this.$emit(mediaItemEvent);
-        },
-        forwardBatchEvent(mediaItemEvent) {
-            mediaItemEvent.selection = this.selection;
-            this.$emit(mediaItemEvent);
+
+            this.$emit('sw-media-grid-item-selection-add', {
+                originalDomEvent,
+                item
+            });
         }
     }
 });

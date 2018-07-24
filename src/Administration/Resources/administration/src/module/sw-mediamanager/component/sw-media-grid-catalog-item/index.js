@@ -16,10 +16,6 @@ Component.extend('sw-media-grid-catalog-item', 'sw-media-grid-item', {
         }
     },
 
-    data() {
-        return {};
-    },
-
     computed: {
         gridItemListeners() {
             return {

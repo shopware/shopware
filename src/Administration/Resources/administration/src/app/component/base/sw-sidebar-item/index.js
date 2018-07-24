@@ -30,21 +30,30 @@ Component.register('sw-sidebar-item', {
     },
 
     computed: {
+        sidebarItemClasses() {
+            return {
+                'is--active': this.isExpanded,
+                'is--disabled': this.disabled
+            };
+        },
         hasDefaultSlot() {
             return !!this.$slots.default;
         }
     },
 
     created() {
-        this.$parent.items[this.panelId] = this;
+        this.componentCreated();
     },
 
     methods: {
-        toggleContentPanel() {
+        componentCreated() {
+            this.$parent.items[this.panelId] = this;
+        },
+        toggleContentPanel(event) {
             if (this.disabled) {
                 return;
             }
-            this.$emit('click', this);
+            this.$emit('click', event);
 
             // The panel is just a button which can be clicked by the user
             if (!this.hasDefaultSlot) {

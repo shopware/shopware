@@ -253,8 +253,15 @@ class SearchKeywordIndexer implements IndexerInterface
 
             $entityId = $this->connection->quote(Uuid::fromStringToBytes($entity->getId()));
 
+            $total = \array_sum($keywords);
+
+            //allow max ranking of 1000 per entity, this allows to compare entity searches and small documents with big documents
+            $perPoint = 1000 / $total;
+
             foreach ($keywords as $keyword => $ranking) {
                 $reversed = static::stringReverse($keyword);
+
+                $ranking = $perPoint * $ranking;
 
                 $keyword = $this->connection->quote($keyword);
                 $reversed = $this->connection->quote($reversed);

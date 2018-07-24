@@ -42,15 +42,15 @@ class KeywordSearchTermInterpreter
 
         $matches = $this->fetchKeywords($context, $scope, $slops);
 
-        $combines = $this->permute($tokens);
-
+        $combines = Permute::permute($tokens);
         foreach ($combines as $token) {
             $tokens[] = $token;
         }
+        $tokens = array_keys(array_flip($tokens));
 
         $scoring = $this->score($tokens, $matches);
 
-        $scoring = \array_slice($scoring, 0, 15);
+        $scoring = \array_slice($scoring, 0, 8);
 
         foreach ($scoring as $keyword => $score) {
             $this->logger->info('Search match: ' . $keyword . ' with score ' . (float) $score);
@@ -187,11 +187,6 @@ class KeywordSearchTermInterpreter
 
                 if ($levenshtein <= 2) {
                     $score += 3;
-                    continue;
-                }
-
-                if ($levenshtein <= 5) {
-                    ++$score;
                     continue;
                 }
             }

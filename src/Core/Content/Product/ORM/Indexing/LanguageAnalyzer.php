@@ -35,12 +35,15 @@ class LanguageAnalyzer implements SearchAnalyzerInterface
 
     private function analyzeEntity(string $definition, Entity $entity, Context $context, ?float $multiplier = null): array
     {
-        $allowsRecursiv = false;
+        $allowsRecursive = false;
         if ($multiplier === null) {
-            $allowsRecursiv = true;
+            $allowsRecursive = true;
         }
 
+        $multiplier = $multiplier ?? 1.0;
+
         $tokens = [];
+
         /** @var string|EntityDefinition $definition */
         $fields = $definition::getSearchFields();
 
@@ -57,13 +60,14 @@ class LanguageAnalyzer implements SearchAnalyzerInterface
                 $fieldTokens = $this->tokenizer->tokenize((string) $value);
 
                 $score = $flag ? $flag->getRanking() : 100;
+                $score *= $multiplier;
 
                 $tokens = $this->mergeTokens($tokens, $fieldTokens, $score);
 
                 continue;
             }
 
-            if (!$allowsRecursiv) {
+            if (!$allowsRecursive) {
                 continue;
             }
 
@@ -83,10 +87,7 @@ class LanguageAnalyzer implements SearchAnalyzerInterface
             }
         }
 
-//        return $tokens;
-        $filtered = $this->filter->filter($tokens, $context);
-
-        return $filtered;
+        return $this->filter->filter($tokens, $context);
     }
 
     private function mergeTokens(array $existing, array $new, float $ranking): array

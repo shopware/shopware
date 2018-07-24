@@ -46,4 +46,9 @@ class Entity extends Struct
     {
         $this->tenantId = $tenantId;
     }
+
+    public function __toString()
+    {
+        return $this->getId();
+    }
 }

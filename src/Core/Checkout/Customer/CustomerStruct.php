@@ -223,6 +223,11 @@ class CustomerStruct extends Entity
      */
     protected $searchKeywords;
 
+    public function __toString()
+    {
+        return $this->getFirstName() . ' ' . $this->getLastName();
+    }
+
     public function getGroupId(): string
     {
         return $this->groupId;

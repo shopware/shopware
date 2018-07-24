@@ -1159,7 +1159,8 @@ CREATE TABLE `search_document` (
   `ranking` float NOT NULL,
   PRIMARY KEY (`id`, `version_id`, `tenant_id`),
   CONSTRAINT `fk_search_document.language_id` FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  UNIQUE KEY (`language_id`, `keyword`, `entity`, `entity_id`, `ranking`, `version_id`, `tenant_id`)
+  UNIQUE KEY (`language_id`, `keyword`, `entity`, `entity_id`, `ranking`, `version_id`, `tenant_id`),
+  INDEX (`version_id`, `tenant_id`, `entity_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `product_manufacturer`;

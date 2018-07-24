@@ -353,6 +353,11 @@ class ProductStruct extends Entity
         $this->priceRules = new ProductPriceRuleCollection();
     }
 
+    public function __toString()
+    {
+        return (string) $this->getName();
+    }
+
     public function getParentId(): ?string
     {
         return $this->parentId;

@@ -79,7 +79,7 @@ class OrderDefinition extends EntityDefinition
             (new BoolField('is_tax_free', 'isTaxFree'))->setFlags(new Required()),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new ManyToOneAssociationField('customer', 'customer_id', CustomerDefinition::class, true))->setFlags(new SearchRanking(0.9)),
+            (new ManyToOneAssociationField('customer', 'customer_id', CustomerDefinition::class, true))->setFlags(new SearchRanking(0.5)),
             new ManyToOneAssociationField('state', 'order_state_id', OrderStateDefinition::class, true),
             new ManyToOneAssociationField('paymentMethod', 'payment_method_id', PaymentMethodDefinition::class, true),
             new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, true),

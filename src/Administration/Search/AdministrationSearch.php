@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\Util\KeywordSearchTermInterpreter;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\ORM\EntityCollection;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
@@ -52,7 +53,7 @@ class AdministrationSearch
     public function search(string $term, int $limit, Context $context, string $userId): array
     {
         $results = $this->searchEntities($term, $context);
-
+        
         //apply audit log for each entity, which considers which data the user working with
         $results = $this->applyAuditLog($results, $userId, $context);
 
@@ -109,9 +110,9 @@ class AdministrationSearch
                     $score = 1 + ($entityChanges->count() / 10);
                 }
 
-                $row['_score'] = $row['_score'] ?? 1;
+                $row['score'] = $row['score'] ?? 1;
 
-                $row['_score'] *= $score;
+                $row['score'] *= $score;
             }
         }
 
@@ -130,7 +131,7 @@ class AdministrationSearch
             foreach ($result->getData() as $entity) {
                 $entity['definition'] = $definition;
 
-                $entity['_score'] = $entity['_score'] ?? 1;
+                $entity['score'] = $entity['score'] ?? 1;
 
                 $flat[] = $entity;
             }
@@ -154,7 +155,7 @@ class AdministrationSearch
             foreach ($entities as $entity) {
                 $score = (float) $rows[$entity->getId()];
 
-                $entity->addExtension('search', new ArrayStruct(['_score' => $score]));
+                $entity->addExtension('search', new ArrayStruct(['score' => $score]));
 
                 $results[] = [
                     'type' => $definition::getEntityName(),
@@ -172,7 +173,7 @@ class AdministrationSearch
         //create flat result to sort all elements descending by score
         $flat = $this->createFlatResult($results);
         \usort($flat, function (array $a, array $b) {
-            return $b['_score'] <=> $a['_score'];
+            return $b['score'] <=> $a['score'];
         });
 
         //create internal paging for best matches
@@ -183,7 +184,7 @@ class AdministrationSearch
         foreach ($flat as $row) {
             $definition = $row['definition'];
 
-            $grouped[$definition][$row['primary_key']] = $row['_score'];
+            $grouped[$definition][$row['primary_key']] = $row['score'];
         }
 
         return $grouped;

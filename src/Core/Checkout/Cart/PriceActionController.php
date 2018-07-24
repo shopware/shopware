@@ -6,7 +6,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
-use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\PercentageTaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\Api\Response\Type\JsonType;
@@ -88,7 +88,7 @@ class PriceActionController extends Controller
             $calculator = $this->netCalculator;
         }
 
-        $definition = new PriceDefinition(
+        $definition = new QuantityPriceDefinition(
             $price,
             new TaxRuleCollection([new PercentageTaxRule($tax->getTaxRate(), 100)]),
             $quantity,

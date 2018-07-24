@@ -175,7 +175,7 @@ class TaxRuleCollectionTest extends TestCase
 
         $collection->removeElement($toRemove);
 
-        $this->assertEquals(
+        static::assertEquals(
             new TaxRuleCollection([
                 new TaxRule(19),
                 new TaxRule(17),

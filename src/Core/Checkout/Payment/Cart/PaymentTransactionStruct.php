@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Payment\Cart;
 
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Checkout\Order\OrderStruct;
 use Shopware\Core\Checkout\Payment\PaymentMethodStruct;
 use Shopware\Core\Framework\Struct\Struct;
@@ -21,7 +21,7 @@ class PaymentTransactionStruct extends Struct
     protected $order;
 
     /**
-     * @var CalculatedPrice
+     * @var Price
      */
     protected $amount;
 
@@ -49,7 +49,7 @@ class PaymentTransactionStruct extends Struct
         string $transactionId,
         string $paymentMethodId,
         OrderStruct $order,
-        CalculatedPrice $amount,
+        Price $amount,
         string $returnUrl
     ) {
         $this->transactionId = $transactionId;
@@ -76,9 +76,9 @@ class PaymentTransactionStruct extends Struct
     }
 
     /**
-     * @return CalculatedPrice
+     * @return Price
      */
-    public function getAmount(): CalculatedPrice
+    public function getAmount(): Price
     {
         return $this->amount;
     }

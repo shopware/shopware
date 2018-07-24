@@ -19,7 +19,7 @@
         <h1 style="text-align: center;">Warenkorb Übersicht</h1>
 
         {# If articles are in the basket... #}
-        {% if cart.calculatedLineItems.count > 0 %}
+        {% if cart.lineItems.count > 0 %}
             {# Add article informations #}
             {% block frontend_checkout_add_article %}{% endblock %}
 
@@ -79,9 +79,9 @@
 
                                 {# Basket items #}
                                 {% block frontend_checkout_cart_item %}
-                                    {% for calculatedLineItem in cart.calculatedLineItems %}
+                                    {% for lineItem in cart.lineItems %}
                                         {% sw_include 'frontend/checkout/cart/cart-item.html.twig' with {
-                                            'lineItem': calculatedLineItem,
+                                            'lineItem': lineItem,
                                             'depth': 0
                                         } %}
 

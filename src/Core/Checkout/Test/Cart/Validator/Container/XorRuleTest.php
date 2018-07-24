@@ -42,7 +42,7 @@ class XorRuleTest extends TestCase
             new FalseRule(),
         ]);
 
-        $this->assertEquals(
+        static::assertEquals(
             new Match(true),
             $rule->match(
                 new CheckoutRuleScope(
@@ -59,7 +59,7 @@ class XorRuleTest extends TestCase
             new FalseRule(),
         ]);
 
-        $this->assertEquals(
+        static::assertEquals(
             new Match(false),
             $rule->match(
                 new CheckoutRuleScope(
@@ -77,7 +77,7 @@ class XorRuleTest extends TestCase
             new FalseRule(),
         ]);
 
-        $this->assertEquals(
+        static::assertEquals(
             new Match(false),
             $rule->match(
                 new CheckoutRuleScope(

@@ -25,7 +25,7 @@
 namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\Context;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\CheckoutContext;
@@ -39,18 +39,18 @@ class ShippingCountryRuleTest extends TestCase
     {
         $rule = new ShippingCountryRule(['SWAG-AREA-COUNTRY-ID-1'], ShippingCountryRule::OPERATOR_EQ);
 
-        $cart = $this->createMock(CalculatedCart::class);
+        $cart = $this->createMock(Cart::class);
 
         $context = $this->createMock(CheckoutContext::class);
 
         $country = new CountryStruct();
         $country->setId('SWAG-AREA-COUNTRY-ID-1');
 
-        $context->expects($this->any())
+        $context->expects(static::any())
             ->method('getShippingLocation')
-            ->will($this->returnValue(ShippingLocation::createFromCountry($country)));
+            ->will(static::returnValue(ShippingLocation::createFromCountry($country)));
 
-        $this->assertTrue(
+        static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
@@ -59,18 +59,18 @@ class ShippingCountryRuleTest extends TestCase
     {
         $rule = new ShippingCountryRule(['SWAG-AREA-COUNTRY-ID-1'], ShippingCountryRule::OPERATOR_NEQ);
 
-        $cart = $this->createMock(CalculatedCart::class);
+        $cart = $this->createMock(Cart::class);
 
         $context = $this->createMock(CheckoutContext::class);
 
         $country = new CountryStruct();
         $country->setId('SWAG-AREA-COUNTRY-ID-1');
 
-        $context->expects($this->any())
+        $context->expects(static::any())
             ->method('getShippingLocation')
-            ->will($this->returnValue(ShippingLocation::createFromCountry($country)));
+            ->will(static::returnValue(ShippingLocation::createFromCountry($country)));
 
-        $this->assertFalse(
+        static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
@@ -79,18 +79,18 @@ class ShippingCountryRuleTest extends TestCase
     {
         $rule = new ShippingCountryRule(['SWAG-AREA-COUNTRY-ID-1', 'SWAG-AREA-COUNTRY-ID-2', 'SWAG-AREA-COUNTRY-ID-3'], ShippingCountryRule::OPERATOR_EQ);
 
-        $cart = $this->createMock(CalculatedCart::class);
+        $cart = $this->createMock(Cart::class);
 
         $context = $this->createMock(CheckoutContext::class);
 
         $country = new CountryStruct();
         $country->setId('SWAG-AREA-COUNTRY-ID-2');
 
-        $context->expects($this->any())
+        $context->expects(static::any())
             ->method('getShippingLocation')
-            ->will($this->returnValue(ShippingLocation::createFromCountry($country)));
+            ->will(static::returnValue(ShippingLocation::createFromCountry($country)));
 
-        $this->assertTrue(
+        static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
@@ -99,18 +99,18 @@ class ShippingCountryRuleTest extends TestCase
     {
         $rule = new ShippingCountryRule(['SWAG-AREA-COUNTRY-ID-1', 'SWAG-AREA-COUNTRY-ID-2', 'SWAG-AREA-COUNTRY-ID-3'], ShippingCountryRule::OPERATOR_NEQ);
 
-        $cart = $this->createMock(CalculatedCart::class);
+        $cart = $this->createMock(Cart::class);
 
         $context = $this->createMock(CheckoutContext::class);
 
         $country = new CountryStruct();
         $country->setId('SWAG-AREA-COUNTRY-ID-2');
 
-        $context->expects($this->any())
+        $context->expects(static::any())
             ->method('getShippingLocation')
-            ->will($this->returnValue(ShippingLocation::createFromCountry($country)));
+            ->will(static::returnValue(ShippingLocation::createFromCountry($country)));
 
-        $this->assertFalse(
+        static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
@@ -126,16 +126,16 @@ class ShippingCountryRuleTest extends TestCase
     {
         $rule = new ShippingCountryRule(['SWAG-AREA-COUNTRY-ID-1', 'SWAG-AREA-COUNTRY-ID-2', 'SWAG-AREA-COUNTRY-ID-3'], $operator);
 
-        $cart = $this->createMock(CalculatedCart::class);
+        $cart = $this->createMock(Cart::class);
 
         $context = $this->createMock(CheckoutContext::class);
 
         $country = new CountryStruct();
         $country->setId('SWAG-AREA-COUNTRY-ID-2');
 
-        $context->expects($this->any())
+        $context->expects(static::any())
             ->method('getShippingLocation')
-            ->will($this->returnValue(ShippingLocation::createFromCountry($country)));
+            ->will(static::returnValue(ShippingLocation::createFromCountry($country)));
 
         $rule->match(new CartRuleScope($cart, $context))->matches();
     }
@@ -144,22 +144,22 @@ class ShippingCountryRuleTest extends TestCase
     {
         $rule = new ShippingCountryRule(['SWAG-AREA-COUNTRY-ID-1', 'SWAG-AREA-COUNTRY-ID-2', 'SWAG-AREA-COUNTRY-ID-3'], ShippingCountryRule::OPERATOR_GTE);
 
-        $cart = $this->createMock(CalculatedCart::class);
+        $cart = $this->createMock(Cart::class);
 
         $context = $this->createMock(CheckoutContext::class);
 
         $country = new CountryStruct();
         $country->setId('SWAG-AREA-COUNTRY-ID-2');
 
-        $context->expects($this->any())
+        $context->expects(static::any())
             ->method('getShippingLocation')
-            ->will($this->returnValue(ShippingLocation::createFromCountry($country)));
+            ->will(static::returnValue(ShippingLocation::createFromCountry($country)));
 
         try {
             $rule->match(new CartRuleScope($cart, $context));
         } catch (UnsupportedOperatorException $e) {
-            $this->assertSame(ShippingCountryRule::OPERATOR_GTE, $e->getOperator());
-            $this->assertSame(ShippingCountryRule::class, $e->getClass());
+            static::assertSame(ShippingCountryRule::OPERATOR_GTE, $e->getOperator());
+            static::assertSame(ShippingCountryRule::class, $e->getClass());
         }
     }
 

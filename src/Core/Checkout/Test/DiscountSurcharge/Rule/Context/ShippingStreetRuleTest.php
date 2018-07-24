@@ -25,7 +25,7 @@
 namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\Context;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\CheckoutContext;
@@ -40,19 +40,20 @@ class ShippingStreetRuleTest extends TestCase
     {
         $rule = new ShippingStreetRule('example street');
 
-        $cart = $this->createMock(CalculatedCart::class);
+        $cart = $this->createMock(Cart::class);
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $context->expects($this->any())
+        $context->expects(static::any())
             ->method('getShippingLocation')
-            ->will($this->returnValue(
+            ->will(
+                static::returnValue(
                 ShippingLocation::createFromAddress(
                     $this->createAddress('example street')
                 )
             ));
 
-        $this->assertTrue(
+        static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
@@ -61,19 +62,20 @@ class ShippingStreetRuleTest extends TestCase
     {
         $rule = new ShippingStreetRule('ExaMple StreEt');
 
-        $cart = $this->createMock(CalculatedCart::class);
+        $cart = $this->createMock(Cart::class);
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $context->expects($this->any())
+        $context->expects(static::any())
             ->method('getShippingLocation')
-            ->will($this->returnValue(
+            ->will(
+                static::returnValue(
                 ShippingLocation::createFromAddress(
                     $this->createAddress('example street')
                 )
             ));
 
-        $this->assertTrue(
+        static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
@@ -82,19 +84,20 @@ class ShippingStreetRuleTest extends TestCase
     {
         $rule = new ShippingStreetRule('example street');
 
-        $cart = $this->createMock(CalculatedCart::class);
+        $cart = $this->createMock(Cart::class);
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $context->expects($this->any())
+        $context->expects(static::any())
             ->method('getShippingLocation')
-            ->will($this->returnValue(
+            ->will(
+                static::returnValue(
                 ShippingLocation::createFromAddress(
                     $this->createAddress('test street')
                 )
             ));
 
-        $this->assertFalse(
+        static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
@@ -103,19 +106,20 @@ class ShippingStreetRuleTest extends TestCase
     {
         $rule = new ShippingStreetRule('ExaMple StreEt');
 
-        $cart = $this->createMock(CalculatedCart::class);
+        $cart = $this->createMock(Cart::class);
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $context->expects($this->any())
+        $context->expects(static::any())
             ->method('getShippingLocation')
-            ->will($this->returnValue(
+            ->will(
+                static::returnValue(
                 ShippingLocation::createFromCountry(
                     new CountryStruct()
                 )
             ));
 
-        $this->assertFalse(
+        static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }

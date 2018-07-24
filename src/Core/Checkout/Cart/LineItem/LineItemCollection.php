@@ -25,18 +25,26 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Cart\LineItem;
 
+use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Framework\Struct\Collection;
 
 class LineItemCollection extends Collection
 {
     /**
-     * @var LineItemInterface[]
+     * @var LineItem[]
      */
     protected $elements = [];
 
-    public function add(LineItemInterface $lineItem): void
+    public function add(LineItem $lineItem): void
     {
-        if ($exists = $this->get($lineItem->getIdentifier())) {
+        $exists = $this->get($lineItem->getKey());
+
+        if ($exists && $exists->getType() !== $lineItem->getType()) {
+            throw new MixedLineItemTypeException($lineItem->getKey(), $exists->getType());
+        }
+
+        if ($exists) {
             $exists->setQuantity($lineItem->getQuantity() + $exists->getQuantity());
 
             return;
@@ -50,17 +58,17 @@ class LineItemCollection extends Collection
         parent::doRemoveByKey($identifier);
     }
 
-    public function removeElement(LineItemInterface $lineItem): void
+    public function removeElement(LineItem $lineItem): void
     {
         parent::doRemoveByKey($this->getKey($lineItem));
     }
 
-    public function exists(LineItemInterface $lineItem): bool
+    public function exists(LineItem $lineItem): bool
     {
         return parent::has($this->getKey($lineItem));
     }
 
-    public function get(string $identifier): ? LineItemInterface
+    public function get(string $identifier): ? LineItem
     {
         if ($this->has($identifier)) {
             return $this->elements[$identifier];
@@ -72,7 +80,7 @@ class LineItemCollection extends Collection
     public function filterType(string $type): self
     {
         return $this->filter(
-            function (LineItemInterface $lineItem) use ($type) {
+            function (LineItem $lineItem) use ($type) {
                 return $lineItem->getType() === $type;
             }
         );
@@ -85,13 +93,73 @@ class LineItemCollection extends Collection
         });
     }
 
-    public function getIdentifiers(): array
+    public function getPrices(): PriceCollection
     {
-        return $this->getKeys();
+        return new PriceCollection(
+            $this->fmap(function (LineItem $lineItem) {
+                return $lineItem->getPrice();
+            })
+        );
     }
 
-    protected function getKey(LineItemInterface $element): string
+    public function getFlat(): array
     {
-        return $element->getIdentifier();
+        return $this->buildFlat($this->getElements());
+    }
+
+    public function current(): LineItem
+    {
+        return parent::current();
+    }
+
+    public function sortByPriority(): void
+    {
+        $this->sort(
+            function (LineItem $a, LineItem $b) {
+                return $b->getPriority() <=> $a->getPriority();
+            }
+        );
+    }
+
+    public function filterGoods(): self
+    {
+        return $this->filter(
+            function (LineItem $lineItem) {
+                return $lineItem->isGood();
+            }
+        );
+    }
+
+    public function getTypes(): array
+    {
+        return $this->fmap(
+            function (LineItem $lineItem) {
+                return $lineItem->getType();
+            }
+        );
+    }
+
+    protected function getKey(LineItem $element): string
+    {
+        return $element->getKey();
+    }
+
+    private function buildFlat(array $lineItems): array
+    {
+        $flat = [];
+        foreach ($lineItems as $lineItem) {
+            $flat[] = $lineItem;
+            if (!$lineItem->getChildren()) {
+                continue;
+            }
+
+            $nested = $this->buildFlat($lineItem->getChildren()->getElements());
+
+            foreach ($nested as $nest) {
+                $flat[] = $nest;
+            }
+        }
+
+        return $flat;
     }
 }

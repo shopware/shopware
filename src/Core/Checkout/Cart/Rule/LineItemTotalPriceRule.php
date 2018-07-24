@@ -31,37 +31,37 @@ class LineItemTotalPriceRule extends Rule
     public function match(
         RuleScope $scope
     ): Match {
-        if (!$scope instanceof CalculatedLineItemScope) {
+        if (!$scope instanceof LineItemScope) {
             return new Match(
                 false,
-                ['Invalid Match Context. CalculatedLineItemScope expected']
+                ['Invalid Match Context. LineItemScope expected']
             );
         }
 
-        $calculatedLineItem = $scope->getCalculatedLineItem();
+        $lineItem = $scope->getLineItem();
 
         switch ($this->operator) {
             case self::OPERATOR_GTE:
                 return new Match(
-                    $calculatedLineItem->getPrice()->getTotalPrice() >= $this->amount,
+                    $lineItem->getPrice()->getTotalPrice() >= $this->amount,
                     ['LineItem total price too low']
                 );
 
             case self::OPERATOR_LTE:
                 return new Match(
-                    $calculatedLineItem->getPrice()->getTotalPrice() <= $this->amount,
+                    $lineItem->getPrice()->getTotalPrice() <= $this->amount,
                     ['LineItem total price too high']
                 );
 
             case self::OPERATOR_EQ:
                 return new Match(
-                    $calculatedLineItem->getPrice()->getTotalPrice() == $this->amount,
+                    $lineItem->getPrice()->getTotalPrice() == $this->amount,
                     ['LineItem total price is not equal']
                 );
 
             case self::OPERATOR_NEQ:
                 return new Match(
-                    $calculatedLineItem->getPrice()->getTotalPrice() != $this->amount,
+                    $lineItem->getPrice()->getTotalPrice() != $this->amount,
                     ['LineItem total price is equal']
                 );
 

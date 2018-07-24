@@ -2,10 +2,9 @@
 
 namespace Shopware\Storefront\Page\Account;
 
-use JsonSerializable;
 use Shopware\Core\Framework\Struct\Struct;
 
-class EmailSaveRequest extends Struct implements JsonSerializable
+class EmailSaveRequest extends Struct
 {
     /** @var string|null */
     protected $email;

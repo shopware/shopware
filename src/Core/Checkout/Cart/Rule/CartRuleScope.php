@@ -2,25 +2,25 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
-use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 
 class CartRuleScope extends CheckoutRuleScope
 {
     /**
-     * @var CalculatedCart
+     * @var Cart
      */
-    protected $calculatedCart;
+    protected $cart;
 
-    public function __construct(CalculatedCart $calculatedCart, CheckoutContext $context)
+    public function __construct(Cart $cart, CheckoutContext $context)
     {
         parent::__construct($context);
-        $this->calculatedCart = $calculatedCart;
+        $this->cart = $cart;
     }
 
-    public function getCalculatedCart(): CalculatedCart
+    public function getCart(): Cart
     {
-        return $this->calculatedCart;
+        return $this->cart;
     }
 }

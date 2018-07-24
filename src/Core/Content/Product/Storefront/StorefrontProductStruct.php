@@ -2,24 +2,24 @@
 
 namespace Shopware\Core\Content\Product\Storefront;
 
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\Price;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Content\Product\ProductStruct as ApiStruct;
 
 class StorefrontProductStruct extends ApiStruct
 {
     /**
-     * @var CalculatedPrice
+     * @var Price
      */
     protected $calculatedListingPrice;
 
     /**
-     * @var CalculatedPriceCollection
+     * @var PriceCollection
      */
     protected $calculatedPriceRules;
 
     /**
-     * @var CalculatedPrice
+     * @var Price
      */
     protected $calculatedPrice;
 
@@ -32,32 +32,32 @@ class StorefrontProductStruct extends ApiStruct
         return $this->getStock() >= $this->getMinPurchase();
     }
 
-    public function getCalculatedListingPrice(): CalculatedPrice
+    public function getCalculatedListingPrice(): Price
     {
         return $this->calculatedListingPrice;
     }
 
-    public function setCalculatedListingPrice(CalculatedPrice $calculatedListingPrice): void
+    public function setCalculatedListingPrice(Price $calculatedListingPrice): void
     {
         $this->calculatedListingPrice = $calculatedListingPrice;
     }
 
-    public function setCalculatedPriceRules(CalculatedPriceCollection $prices): void
+    public function setCalculatedPriceRules(PriceCollection $prices): void
     {
         $this->calculatedPriceRules = $prices;
     }
 
-    public function getCalculatedPriceRules(): CalculatedPriceCollection
+    public function getCalculatedPriceRules(): PriceCollection
     {
         return $this->calculatedPriceRules;
     }
 
-    public function getCalculatedPrice(): CalculatedPrice
+    public function getCalculatedPrice(): Price
     {
         return $this->calculatedPrice;
     }
 
-    public function setCalculatedPrice(CalculatedPrice $calculatedPrice): void
+    public function setCalculatedPrice(Price $calculatedPrice): void
     {
         $this->calculatedPrice = $calculatedPrice;
     }

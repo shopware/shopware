@@ -71,10 +71,10 @@ class TaxCalculatorTest extends TestCase
         try {
             $calculator->calculateGross(1, $rules);
         } catch (\Exception $e) {
-            $this->assertInstanceOf(TaxRuleNotSupportedException::class, $e);
+            static::assertInstanceOf(TaxRuleNotSupportedException::class, $e);
 
             /* @var TaxRuleNotSupportedException $e */
-            $this->assertSame($rule, $e->getTaxRule());
+            static::assertSame($rule, $e->getTaxRule());
         }
     }
 

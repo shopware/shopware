@@ -79,7 +79,10 @@ class SyncController extends Controller
                             $context
                         );
 
-                        foreach ($generic->getEvents() as $event) {
+                        $events = $generic->getEvents();
+
+                        foreach ($events as $event) {
+                            /** @var string $eventDefinition */
                             $eventDefinition = $event->getDefinition();
 
                             if (array_key_exists($eventDefinition, $result)) {

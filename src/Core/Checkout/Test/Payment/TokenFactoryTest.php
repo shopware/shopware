@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Test\Payment;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactory;
@@ -74,7 +74,7 @@ class TokenFactoryTest extends KernelTestCase
     {
         $transactionId = $this->prepare();
 
-        $transactions = $this->orderTransactionRepository->read(new ReadCriteria([$transactionId]), Context:: createDefaultContext(
+        $transactions = $this->orderTransactionRepository->read(new ReadCriteria([$transactionId]), Context::createDefaultContext(
             Defaults::TENANT_ID));
 
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
@@ -98,7 +98,7 @@ class TokenFactoryTest extends KernelTestCase
     {
         $transactionId = $this->prepare();
 
-        $transactions = $this->orderTransactionRepository->read(new ReadCriteria([$transactionId]), Context:: createDefaultContext(
+        $transactions = $this->orderTransactionRepository->read(new ReadCriteria([$transactionId]), Context::createDefaultContext(
             Defaults::TENANT_ID));
 
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
@@ -123,7 +123,7 @@ class TokenFactoryTest extends KernelTestCase
     {
         $transactionId = $this->prepare();
 
-        $transactions = $this->orderTransactionRepository->read(new ReadCriteria([$transactionId]), Context:: createDefaultContext(
+        $transactions = $this->orderTransactionRepository->read(new ReadCriteria([$transactionId]), Context::createDefaultContext(
             Defaults::TENANT_ID));
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
 
@@ -156,7 +156,7 @@ class TokenFactoryTest extends KernelTestCase
             'orderId' => $orderId,
             'paymentMethodId' => self::PAYMENT_METHOD_INVOICE,
             'orderTransactionStateId' => Defaults::ORDER_TRANSACTION_OPEN,
-            'amount' => new CalculatedPrice(100, 100, new CalculatedTaxCollection(), new TaxRuleCollection(), 1),
+            'amount' => new Price(100, 100, new CalculatedTaxCollection(), new TaxRuleCollection(), 1),
             'payload' => '{}',
         ];
 

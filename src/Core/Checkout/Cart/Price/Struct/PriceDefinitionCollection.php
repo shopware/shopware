@@ -25,17 +25,16 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Cart\Price\Struct;
 
-use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\Struct\Collection;
 
 class PriceDefinitionCollection extends Collection
 {
     /**
-     * @var PriceDefinition[]
+     * @var PriceDefinitionInterface[]
      */
     protected $elements = [];
 
-    public function add(PriceDefinition $price): void
+    public function add(PriceDefinitionInterface $price): void
     {
         parent::doAdd($price);
     }
@@ -45,27 +44,12 @@ class PriceDefinitionCollection extends Collection
         parent::doRemoveByKey($key);
     }
 
-    public function get(int $key): ? PriceDefinition
+    public function get(int $key): ? PriceDefinitionInterface
     {
         if ($this->has($key)) {
             return $this->elements[$key];
         }
 
         return null;
-    }
-
-    public function getTaxRules(): TaxRuleCollection
-    {
-        $rules = new TaxRuleCollection([]);
-        foreach ($this->elements as $price) {
-            $rules = $rules->merge($price->getTaxRules());
-        }
-
-        return $rules;
-    }
-
-    public function merge(self $definitions): self
-    {
-        return $this->doMerge($definitions);
     }
 }

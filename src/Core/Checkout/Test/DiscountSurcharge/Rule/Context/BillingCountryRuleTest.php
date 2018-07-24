@@ -25,7 +25,7 @@
 namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\Context;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
@@ -39,7 +39,7 @@ class BillingCountryRuleTest extends TestCase
     {
         $rule = new BillingCountryRule(['SWAG-AREA-COUNTRY-ID-1']);
 
-        $cart = $this->createMock(CalculatedCart::class);
+        $cart = $this->createMock(Cart::class);
 
         $context = $this->createMock(CheckoutContext::class);
 
@@ -53,11 +53,11 @@ class BillingCountryRuleTest extends TestCase
         $customer = new CustomerStruct();
         $customer->setDefaultBillingAddress($billing);
 
-        $context->expects($this->any())
+        $context->expects(static::any())
             ->method('getCustomer')
-            ->will($this->returnValue($customer));
+            ->will(static::returnValue($customer));
 
-        $this->assertTrue(
+        static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
@@ -66,7 +66,7 @@ class BillingCountryRuleTest extends TestCase
     {
         $rule = new BillingCountryRule(['SWAG-AREA-COUNTRY-ID-2']);
 
-        $cart = $this->createMock(CalculatedCart::class);
+        $cart = $this->createMock(Cart::class);
 
         $context = $this->createMock(CheckoutContext::class);
 
@@ -80,11 +80,11 @@ class BillingCountryRuleTest extends TestCase
         $customer = new CustomerStruct();
         $customer->setDefaultBillingAddress($billing);
 
-        $context->expects($this->any())
+        $context->expects(static::any())
             ->method('getCustomer')
-            ->will($this->returnValue($customer));
+            ->will(static::returnValue($customer));
 
-        $this->assertFalse(
+        static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
@@ -93,7 +93,7 @@ class BillingCountryRuleTest extends TestCase
     {
         $rule = new BillingCountryRule(['SWAG-AREA-COUNTRY-ID-1', 'SWAG-AREA-COUNTRY-ID-3', 'SWAG-AREA-COUNTRY-ID-2']);
 
-        $cart = $this->createMock(CalculatedCart::class);
+        $cart = $this->createMock(Cart::class);
 
         $context = $this->createMock(CheckoutContext::class);
 
@@ -107,11 +107,11 @@ class BillingCountryRuleTest extends TestCase
         $customer = new CustomerStruct();
         $customer->setDefaultBillingAddress($billing);
 
-        $context->expects($this->any())
+        $context->expects(static::any())
             ->method('getCustomer')
-            ->will($this->returnValue($customer));
+            ->will(static::returnValue($customer));
 
-        $this->assertTrue(
+        static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
@@ -120,15 +120,15 @@ class BillingCountryRuleTest extends TestCase
     {
         $rule = new BillingCountryRule(['SWAG-AREA-COUNTRY-ID-1', 'SWAG-AREA-COUNTRY-ID-3', 'SWAG-AREA-COUNTRY-ID-2']);
 
-        $cart = $this->createMock(CalculatedCart::class);
+        $cart = $this->createMock(Cart::class);
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $context->expects($this->any())
+        $context->expects(static::any())
             ->method('getCustomer')
-            ->will($this->returnValue(null));
+            ->will(static::returnValue(null));
 
-        $this->assertFalse(
+        static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }

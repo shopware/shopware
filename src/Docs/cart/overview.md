@@ -278,8 +278,8 @@ Interactions with Shopware\Core are defined in the CartBridge.
 
 ## Price calculations
 At the moment, the `Cart` contains the following calculation classes:
-* `\Shopware\Core\Checkout\Cart\Price\PriceCalculator`
-    * Calculates a total price for a provided `PriceDefinition`
+* `\Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator`
+    * Calculates a total price for a provided `QuantityPriceDefinition`
     * Calculates the gross/net unit price and total price
     * Uses tax calculation services for including/excluding taxes
 

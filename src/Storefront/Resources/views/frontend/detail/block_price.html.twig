@@ -44,7 +44,7 @@
                                 {% for key, price in product.calculatedPriceRules %}
                                     {% set next = product.calculatedPriceRules[key+1]  %}
 
-                                    {# @var price \Shopware\Core\Checkout\Cart\CalculatedPrice\Struct\CalculatedPrice #}
+                                    {# @var price \Shopware\Core\Checkout\Cart\Price\Struct\Price #}
                                     {% block frontend_detail_data_block_prices %}
                                         <tr class="block-prices--row {{ cycle(cylceClasses, loop.index) }}" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
                                             {% block frontend_detail_data_block_prices_table_body_row %}

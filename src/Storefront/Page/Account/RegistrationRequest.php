@@ -2,10 +2,9 @@
 
 namespace Shopware\Storefront\Page\Account;
 
-use JsonSerializable;
 use Shopware\Core\Framework\Struct\Struct;
 
-class RegistrationRequest extends Struct implements JsonSerializable
+class RegistrationRequest extends Struct
 {
     /** @var string|null */
     protected $customerType;

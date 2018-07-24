@@ -46,9 +46,9 @@ class RuleCollectionTest extends TestCase
             ]),
         ]);
 
-        $this->assertTrue($collection->has(FalseRule::class));
-        $this->assertTrue($collection->has(OrRule::class));
-        $this->assertEquals(
+        static::assertTrue($collection->has(FalseRule::class));
+        static::assertTrue($collection->has(OrRule::class));
+        static::assertEquals(
             new RuleCollection([
                 new FalseRule(),
             ]),

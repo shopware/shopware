@@ -31,14 +31,14 @@ class LineItemUnitPriceRule extends Rule
     public function match(
         RuleScope $scope
     ): Match {
-        if (!$scope instanceof CalculatedLineItemScope) {
+        if (!$scope instanceof LineItemScope) {
             return new Match(
                 false,
-                ['Invalid Match Context. CalculatedLineItemScope expected']
+                ['Invalid Match Context. LineItemScope expected']
             );
         }
 
-        $unitPrice = $scope->getCalculatedLineItem()->getPrice()->getUnitPrice();
+        $unitPrice = $scope->getLineItem()->getPrice()->getUnitPrice();
         switch ($this->operator) {
             case self::OPERATOR_GTE:
 

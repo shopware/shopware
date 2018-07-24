@@ -2,10 +2,9 @@
 
 namespace Shopware\Storefront\Page\Account;
 
-use JsonSerializable;
 use Shopware\Core\Framework\Struct\Struct;
 
-class AddressSaveRequest extends Struct implements JsonSerializable
+class AddressSaveRequest extends Struct
 {
     /** @var string|null */
     protected $id;

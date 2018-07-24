@@ -25,14 +25,18 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Cart\Storefront;
 
+use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Cart\CartPersisterInterface;
-use Shopware\Core\Checkout\Cart\Cart\CircularCartCalculation;
-use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
+use Shopware\Core\Checkout\Cart\Enrichment;
+use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotRemoveableException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
+use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
-use Shopware\Core\Checkout\Cart\LineItem\LineItemInterface;
 use Shopware\Core\Checkout\Cart\Order\OrderPersisterInterface;
+use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 
@@ -41,9 +45,9 @@ class CartService
     public const CART_NAME = 'shopware';
 
     /**
-     * @var CircularCartCalculation
+     * @var Processor
      */
-    private $calculation;
+    private $processor;
 
     /**
      * @var CartPersisterInterface
@@ -56,73 +60,79 @@ class CartService
     private $orderPersister;
 
     /**
-     * @var Cart
+     * @var Cart|null
      */
     private $cart;
 
     /**
-     * @var CalculatedCart|null
+     * @var Enrichment
      */
-    private $calculated;
+    private $enrichment;
 
     public function __construct(
-        CircularCartCalculation $calculation,
+        Enrichment $enrichment,
+        Processor $processor,
         CartPersisterInterface $persister,
         OrderPersisterInterface $orderPersister
     ) {
-        $this->calculation = $calculation;
+        $this->processor = $processor;
         $this->persister = $persister;
         $this->orderPersister = $orderPersister;
+        $this->enrichment = $enrichment;
     }
 
-    public function setCalculated(CalculatedCart $calculatedCart): void
+    public function setCart(Cart $cart): void
     {
-        $this->cart = $calculatedCart->getCart();
-        $this->calculated = $calculatedCart;
+        $this->cart = $cart;
     }
 
-    public function createNew(CheckoutContext $context): CalculatedCart
+    public function createNew(CheckoutContext $context): Cart
     {
         $this->createNewCart($context);
 
-        return $this->getCalculatedCart($context);
+        return $this->getCart($context);
     }
 
-    public function getCalculatedCart(CheckoutContext $context): CalculatedCart
+    public function getCart(CheckoutContext $context): Cart
     {
-        if ($this->calculated) {
-            return $this->calculated;
+        if ($this->cart) {
+            return $this->cart;
         }
 
-        $container = $this->getCart($context);
+        $cart = $this->loadOrCreateCart($context);
 
-        return $this->calculate($container, $context);
+        return $this->calculate($cart, $context);
     }
 
-    public function add(LineItemInterface $item, CheckoutContext $context): void
+    /**
+     * @throws MixedLineItemTypeException
+     */
+    public function add(LineItem $item, CheckoutContext $context): Cart
     {
-        $cart = $this->getCart($context);
+        $cart = $this->loadOrCreateCart($context);
 
-        $cart->getLineItems()->add($item);
+        $cart->add($item);
 
-        $this->calculate($cart, $context);
+        return $this->calculate($cart, $context);
     }
 
-    public function fill(LineItemCollection $lineItems, CheckoutContext $context): void
+    public function fill(LineItemCollection $lineItems, CheckoutContext $context): Cart
     {
-        $cart = $this->getCart($context);
+        $cart = $this->loadOrCreateCart($context);
 
         $cart->getLineItems()->fill($lineItems->getElements());
 
-        $this->calculate($cart, $context);
+        return $this->calculate($cart, $context);
     }
 
     /**
      * @throws LineItemNotFoundException
+     * @throws LineItemNotStackableException
+     * @throws InvalidQuantityException
      */
-    public function changeQuantity(string $identifier, int $quantity, CheckoutContext $context): void
+    public function changeQuantity(string $identifier, int $quantity, CheckoutContext $context): Cart
     {
-        $cart = $this->getCart($context);
+        $cart = $this->loadOrCreateCart($context);
 
         if (!$lineItem = $cart->getLineItems()->get($identifier)) {
             throw new LineItemNotFoundException($identifier);
@@ -130,20 +140,26 @@ class CartService
 
         $lineItem->setQuantity($quantity);
 
-        $this->calculate($cart, $context);
+        return $this->calculate($cart, $context);
     }
 
-    public function remove(string $identifier, CheckoutContext $context): void
+    /**
+     * @throws LineItemNotFoundException
+     * @throws LineItemNotRemoveableException
+     */
+    public function remove(string $identifier, CheckoutContext $context): Cart
     {
-        $cart = $this->getCart($context);
-        $cart->getLineItems()->remove($identifier);
-        $this->calculate($cart, $context);
+        $cart = $this->loadOrCreateCart($context);
+
+        $cart->remove($identifier);
+
+        return $this->calculate($cart, $context);
     }
 
     public function order(CheckoutContext $context): string
     {
         $events = $this->orderPersister->persist(
-            $this->getCalculatedCart($context),
+            $this->getCart($context),
             $context
         );
 
@@ -155,7 +171,7 @@ class CartService
         return array_shift($ids);
     }
 
-    public function getCart(CheckoutContext $context): Cart
+    private function loadOrCreateCart(CheckoutContext $context): Cart
     {
         if ($this->cart) {
             return $this->cart;
@@ -174,29 +190,29 @@ class CartService
         }
     }
 
-    private function calculate(Cart $cart, CheckoutContext $context): CalculatedCart
+    private function calculate(Cart $cart, CheckoutContext $context): Cart
     {
-        $calculated = $this->calculation->calculate($cart, $context);
+        $cart = $this->enrichment->enrich($cart, $context);
 
-        $this->save($calculated, $context);
+        $cart = $this->processor->process($cart, $context);
 
-        $this->calculated = $calculated;
+        $this->save($cart, $context);
 
-        return $calculated;
+        $this->cart = $cart;
+
+        return $cart;
     }
 
-    private function save(CalculatedCart $calculatedCart, CheckoutContext $context): void
+    private function save(Cart $cart, CheckoutContext $context): void
     {
-        $this->persister->save($calculatedCart, $context);
-
-        $this->cart = $calculatedCart->getCart();
+        $this->persister->save($cart, $context);
+        $this->cart = $cart;
     }
 
     private function createNewCart(CheckoutContext $context): Cart
     {
         $this->persister->delete($context->getToken(), self::CART_NAME, $context);
-        $this->cart = Cart::createNew(self::CART_NAME, $context->getToken());
-        $this->calculated = null;
+        $this->cart = new Cart(self::CART_NAME, $context->getToken());
 
         return $this->cart;
     }

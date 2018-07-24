@@ -244,7 +244,7 @@ class CalculatedTaxCollectionTest extends TestCase
 
         $collection->removeElement($toRemove);
 
-        $this->assertEquals(
+        static::assertEquals(
             new CalculatedTaxCollection([
                 new CalculatedTax(5.50, 19, 1),
                 new CalculatedTax(5.50, 17, 1),

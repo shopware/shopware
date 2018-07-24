@@ -2,10 +2,9 @@
 
 namespace Shopware\Storefront\Page\Account;
 
-use JsonSerializable;
 use Shopware\Core\Framework\Struct\Struct;
 
-class LoginRequest extends Struct implements JsonSerializable
+class LoginRequest extends Struct
 {
     /** @var string|null */
     protected $email;

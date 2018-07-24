@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Storefront;
 
-use Shopware\Core\Checkout\Cart\Price\PriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionStruct;
 use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceStruct;
@@ -21,11 +21,11 @@ class StorefrontProductRepository
     private $repository;
 
     /**
-     * @var PriceCalculator
+     * @var QuantityPriceCalculator
      */
     private $priceCalculator;
 
-    public function __construct(RepositoryInterface $repository, PriceCalculator $priceCalculator)
+    public function __construct(RepositoryInterface $repository, QuantityPriceCalculator $priceCalculator)
     {
         $this->repository = $repository;
         $this->priceCalculator = $priceCalculator;

@@ -86,8 +86,6 @@ class TouchpointCreateCommand extends ContainerAwareCommand
             'name' => $input->getOption('name'),
         ];
 
-        $idBin = Uuid::fromHexToBytes($id);
-
         try {
             $this->touchpointRepository->create([$data], Context::createDefaultContext($tenantId));
 

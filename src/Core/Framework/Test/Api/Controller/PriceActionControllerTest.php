@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Api\Controller;
 
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\PercentageTaxRule;
@@ -86,7 +86,7 @@ class PriceActionControllerTest extends ApiTestCase
         ]);
 
         $this->assertEquals(
-            new CalculatedPrice(
+            new Price(
                 11.9,
                 11.9,
                 new CalculatedTaxCollection([
@@ -115,7 +115,7 @@ class PriceActionControllerTest extends ApiTestCase
         ]);
 
         $this->assertEquals(
-            new CalculatedPrice(
+            new Price(
                 10,
                 10,
                 new CalculatedTaxCollection([
@@ -143,7 +143,7 @@ class PriceActionControllerTest extends ApiTestCase
         ]);
 
         $this->assertEquals(
-            new CalculatedPrice(
+            new Price(
                 11.9,
                 11.9,
                 new CalculatedTaxCollection([
@@ -172,7 +172,7 @@ class PriceActionControllerTest extends ApiTestCase
         ]);
 
         $this->assertEquals(
-            new CalculatedPrice(
+            new Price(
                 11.9,
                 23.8,
                 new CalculatedTaxCollection([
@@ -202,7 +202,7 @@ class PriceActionControllerTest extends ApiTestCase
         ]);
 
         $this->assertEquals(
-            new CalculatedPrice(
+            new Price(
                 10,
                 20,
                 new CalculatedTaxCollection([
@@ -232,7 +232,7 @@ class PriceActionControllerTest extends ApiTestCase
         ]);
 
         $this->assertEquals(
-            new CalculatedPrice(
+            new Price(
                 11.9,
                 11.9,
                 new CalculatedTaxCollection([
@@ -246,7 +246,7 @@ class PriceActionControllerTest extends ApiTestCase
         );
     }
 
-    private function sendRequest(array $data): CalculatedPrice
+    private function sendRequest(array $data): Price
     {
         $this->apiClient->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/price/actions/calculate', [], [], [], json_encode($data));
 
@@ -258,7 +258,7 @@ class PriceActionControllerTest extends ApiTestCase
 
         $data = $response['data'];
 
-        return new CalculatedPrice(
+        return new Price(
             $data['unitPrice'],
             $data['totalPrice'],
             new CalculatedTaxCollection(

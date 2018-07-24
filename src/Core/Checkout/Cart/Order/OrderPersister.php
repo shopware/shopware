@@ -24,7 +24,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Order;
 
-use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
@@ -47,9 +47,9 @@ class OrderPersister implements OrderPersisterInterface
         $this->converter = $converter;
     }
 
-    public function persist(CalculatedCart $calculatedCart, CheckoutContext $context): EntityWrittenContainerEvent
+    public function persist(Cart $cart, CheckoutContext $context): EntityWrittenContainerEvent
     {
-        $order = $this->converter->convert($calculatedCart, $context);
+        $order = $this->converter->convert($cart, $context);
 
         return $this->repository->create([$order], $context->getContext());
     }

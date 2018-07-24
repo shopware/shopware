@@ -66,8 +66,8 @@ class CatalogField extends FkField
         $restriction = $this->writeContext->getContext()->getCatalogIds();
 
         //user has restricted catalog access
-        if (is_array($restriction)) {
-            $this->validateCatalog($restriction, $value, $existence);
+        if (\is_array($restriction)) {
+            $this->validateCatalog($restriction, $value);
         }
 
         //write catalog id of current object to write context
@@ -80,7 +80,7 @@ class CatalogField extends FkField
         yield 'catalog_tenant_id' => Uuid::fromStringToBytes($this->writeContext->getContext()->getTenantId());
     }
 
-    private function validateCatalog(array $restrictedCatalogs, $catalogId, EntityExistence $existence): void
+    private function validateCatalog(array $restrictedCatalogs, $catalogId): void
     {
         $violationList = new ConstraintViolationList();
         $violations = $this->validator->validate($catalogId, [new Choice(['choices' => $restrictedCatalogs])]);

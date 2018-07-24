@@ -4,13 +4,14 @@ namespace Shopware\Core\Checkout\Test\Cart;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
-use Shopware\Core\Content\Product\Cart\ProductProcessor;
+use Shopware\Core\Content\Product\Cart\ProductCollector;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Test\Api\ApiTestCase;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Client;
+use Symfony\Component\HttpFoundation\Response;
 
 class StorefrontCartControllerTest extends ApiTestCase
 {
@@ -23,6 +24,16 @@ class StorefrontCartControllerTest extends ApiTestCase
      * @var RepositoryInterface
      */
     private $customerRepository;
+
+    /**
+     * @var RepositoryInterface
+     */
+    private $mediaRepository;
+
+    /**
+     * @var RepositoryInterface
+     */
+    private $mediaAlbumRepository;
 
     /**
      * @var string
@@ -39,6 +50,11 @@ class StorefrontCartControllerTest extends ApiTestCase
      */
     private $connection;
 
+    /**
+     * @var Context
+     */
+    private $context;
+
     protected function setUp()
     {
         parent::setUp();
@@ -48,8 +64,11 @@ class StorefrontCartControllerTest extends ApiTestCase
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->mediaRepository = $this->getContainer()->get('media.repository');
+        $this->mediaAlbumRepository = $this->getContainer()->get('media_album.repository');
         $this->taxId = Uuid::uuid4()->getHex();
         $this->manufacturerId = Uuid::uuid4()->getHex();
+        $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
     }
 
     public function testAddNonExistingProduct()
@@ -61,17 +80,13 @@ class StorefrontCartControllerTest extends ApiTestCase
         $this->addProduct($client, $productId);
 
         $content = json_decode($client->getResponse()->getContent(), true);
+        static::assertSame(Response::HTTP_NOT_FOUND, $client->getResponse()->getStatusCode());
 
-        $this->assertNotEmpty($content);
-        $this->assertArrayHasKey('data', $content);
-        $cart = $content['data'];
-
-        $this->assertArrayHasKey('price', $cart);
-        $this->assertEquals(0, $cart['price']['totalPrice']);
-        $this->assertCount(0, $cart['calculatedLineItems']);
+        static::assertNotEmpty($content);
+        static::assertArrayHasKey('errors', $content);
     }
 
-    public function testAddProduct()
+    public function testAddProduct(): void
     {
         $productId = Uuid::uuid4()->getHex();
         $this->productRepository->create([
@@ -83,25 +98,25 @@ class StorefrontCartControllerTest extends ApiTestCase
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
             ],
-        ], Context:: createDefaultContext(Defaults::TENANT_ID));
+        ], $this->context);
 
         $client = $this->createCart();
 
         $this->addProduct($client, $productId);
-        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $content = json_decode($client->getResponse()->getContent(), true);
 
-        $this->assertNotEmpty($content);
-        $this->assertArrayHasKey('data', $content);
+        static::assertNotEmpty($content);
+        static::assertArrayHasKey('data', $content);
         $cart = $content['data'];
 
-        $this->assertArrayHasKey('price', $cart);
-        $this->assertEquals(10, $cart['price']['totalPrice']);
-        $this->assertCount(1, $cart['calculatedLineItems']);
+        static::assertArrayHasKey('price', $cart);
+        static::assertEquals(10, $cart['price']['totalPrice']);
+        static::assertCount(1, $cart['lineItems']);
 
-        $product = array_shift($cart['calculatedLineItems']);
-        $this->assertEquals($productId, $product['identifier']);
+        $product = array_shift($cart['lineItems']);
+        static::assertEquals($productId, $product['key']);
     }
 
     public function testAddMultipleProducts()
@@ -126,20 +141,20 @@ class StorefrontCartControllerTest extends ApiTestCase
                 'manufacturerId' => $this->manufacturerId,
                 'taxId' => $this->taxId,
             ],
-        ], Context:: createDefaultContext(Defaults::TENANT_ID));
+        ], $this->context);
 
         $client = $this->createCart();
 
         $this->addProduct($client, $productId1);
-        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $this->addProduct($client, $productId2);
-        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $cart = $this->getCart($client);
 
-        $this->assertNotEmpty($cart);
-        $this->assertCount(2, $cart['calculatedLineItems']);
+        static::assertNotEmpty($cart);
+        static::assertCount(2, $cart['lineItems']);
     }
 
     public function testChangeQuantity()
@@ -164,31 +179,31 @@ class StorefrontCartControllerTest extends ApiTestCase
                 'manufacturerId' => $this->manufacturerId,
                 'taxId' => $this->taxId,
             ],
-        ], Context:: createDefaultContext(Defaults::TENANT_ID));
+        ], $this->context);
 
         $client = $this->createCart();
 
         $this->addProduct($client, $productId1);
-        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $this->addProduct($client, $productId2);
-        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $this->changeQuantity($client, $productId1, 10);
 
         $cart = $this->getCart($client);
 
-        $this->assertNotEmpty($cart);
-        $this->assertCount(2, $cart['calculatedLineItems']);
+        static::assertNotEmpty($cart);
+        static::assertCount(2, $cart['lineItems']);
 
-        foreach ($cart['calculatedLineItems'] as $lineItem) {
-            if ($lineItem['identifier'] === $productId1) {
-                $this->assertEquals(10, $lineItem['quantity']);
+        foreach ($cart['lineItems'] as $lineItem) {
+            if ($lineItem['key'] === $productId1) {
+                static::assertEquals(10, $lineItem['quantity']);
             }
         }
     }
 
-    public function testUpdateLineItem()
+    public function testChangeLineItemQuantity()
     {
         $productId1 = Uuid::uuid4()->getHex();
         $productId2 = Uuid::uuid4()->getHex();
@@ -210,7 +225,7 @@ class StorefrontCartControllerTest extends ApiTestCase
                 'manufacturerId' => $this->manufacturerId,
                 'taxId' => $this->taxId,
             ],
-        ], Context:: createDefaultContext(Defaults::TENANT_ID));
+        ], $this->context);
 
         $client = $this->createCart();
 
@@ -220,15 +235,15 @@ class StorefrontCartControllerTest extends ApiTestCase
         $this->addProduct($client, $productId2);
         $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
-        $this->updateLineItem($client, $productId1, 10);
+        $this->updateLineItemQuantity($client, $productId1, 10);
 
         $cart = $this->getCart($client);
 
         $this->assertNotEmpty($cart);
-        $this->assertCount(2, $cart['calculatedLineItems']);
+        $this->assertCount(2, $cart['lineItems']);
 
-        foreach ($cart['calculatedLineItems'] as $lineItem) {
-            if ($lineItem['identifier'] === $productId1) {
+        foreach ($cart['lineItems'] as $lineItem) {
+            if ($lineItem['key'] === $productId1) {
                 $this->assertEquals(10, $lineItem['quantity']);
             }
         }
@@ -256,7 +271,7 @@ class StorefrontCartControllerTest extends ApiTestCase
                 'manufacturerId' => $this->manufacturerId,
                 'taxId' => $this->taxId,
             ],
-        ], Context:: createDefaultContext(Defaults::TENANT_ID));
+        ], $this->context);
 
         $client = $this->createCart();
 
@@ -297,25 +312,25 @@ class StorefrontCartControllerTest extends ApiTestCase
                 'manufacturerId' => $this->manufacturerId,
                 'taxId' => $this->taxId,
             ],
-        ], Context:: createDefaultContext(Defaults::TENANT_ID));
+        ], $this->context);
 
         $client = $this->createCart();
 
         $this->addProduct($client, $productId1);
-        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $this->addProduct($client, $productId2);
-        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $this->removeLineItem($client, $productId1);
 
         $cart = $this->getCart($client);
 
-        $this->assertNotEmpty($cart);
-        $this->assertCount(1, $cart['calculatedLineItems']);
+        static::assertNotEmpty($cart);
+        static::assertCount(1, $cart['lineItems']);
 
-        $identifiers = array_column($cart['calculatedLineItems'], 'identifier');
-        $this->assertNotContains($productId1, $identifiers);
+        $keys = array_column($cart['lineItems'], 'key');
+        static::assertNotContains($productId1, $keys);
     }
 
     public function testRemoveNonExistingLineItem()
@@ -327,10 +342,16 @@ class StorefrontCartControllerTest extends ApiTestCase
 
         $cart = $this->getCart($client);
 
-        $this->assertNotEmpty($cart);
-        $this->assertArrayHasKey('errors', $cart);
+        static::assertNotEmpty($cart);
+        static::assertArrayHasKey('errors', $cart);
 
-        $this->assertTrue(array_key_exists('CART-LINE-ITEM-NOT-FOUND', array_flip(array_column($cart['errors'], 'code'))));
+        static::assertTrue(
+            array_key_exists(
+                'CART-LINE-ITEM-NOT-FOUND',
+                array_flip(array_column($cart['errors'], 'code'))
+            ),
+            print_r($cart, true)
+        );
     }
 
     public function testMergeSameProduct()
@@ -355,37 +376,37 @@ class StorefrontCartControllerTest extends ApiTestCase
                 'manufacturerId' => $this->manufacturerId,
                 'taxId' => $this->taxId,
             ],
-        ], Context:: createDefaultContext(Defaults::TENANT_ID));
+        ], $this->context);
 
         $client = $this->createCart();
 
         //add product 1 three times with quantity 1
         $this->addProduct($client, $productId1);
-        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $this->addProduct($client, $productId1);
-        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $this->addProduct($client, $productId1);
-        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         //add product 2 one time with quantity 1 and one time with quantity 10
         $this->addProduct($client, $productId2);
-        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $this->addProduct($client, $productId2, 10);
-        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $cart = $this->getCart($client);
 
-        $this->assertNotEmpty($cart);
-        $this->assertCount(2, $cart['calculatedLineItems']);
+        static::assertNotEmpty($cart);
+        static::assertCount(2, $cart['lineItems']);
 
-        foreach ($cart['calculatedLineItems'] as $lineItem) {
-            if ($lineItem['identifier'] === $productId1) {
-                $this->assertEquals(3, $lineItem['quantity']);
+        foreach ($cart['lineItems'] as $lineItem) {
+            if ($lineItem['key'] === $productId1) {
+                static::assertEquals(3, $lineItem['quantity']);
             } else {
-                $this->assertEquals(11, $lineItem['quantity']);
+                static::assertEquals(11, $lineItem['quantity']);
             }
         }
     }
@@ -402,26 +423,180 @@ class StorefrontCartControllerTest extends ApiTestCase
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
             ],
-        ], Context:: createDefaultContext(Defaults::TENANT_ID));
+        ], $this->context);
+
+        $albumId = Uuid::uuid4()->getHex();
+        $this->mediaAlbumRepository->create([
+            [
+                'id' => $albumId,
+                'name' => 'Products',
+            ],
+        ], $this->context);
+
+        $mediaId = Uuid::uuid4()->getHex();
+        $coverName = 'My custom line item name';
+        $this->mediaRepository->create([
+            [
+                'id' => $mediaId,
+                'albumId' => $albumId,
+                'name' => $coverName,
+            ],
+        ], $this->context);
 
         $client = $this->createCart();
 
-        $client->request('POST', '/storefront-api/checkout/cart/line-item/' . $productId, [], [], [], json_encode(['type' => ProductProcessor::TYPE_PRODUCT]));
+        $quantity = 10;
+        $type = ProductCollector::LINE_ITEM_TYPE;
+        $stackable = true;
+        $removeable = true;
+        $priority = 500;
+        $label = 'My custom label';
+        $description = 'My custom description';
 
-        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $client->request(
+            'POST',
+            '/storefront-api/checkout/cart/line-item/' . $productId,
+            [
+                'type' => $type,
+                'quantity' => $quantity,
+                'stackable' => $stackable,
+                'removeable' => $removeable,
+                'priority' => $priority,
+                'label' => $label,
+                'description' => $description,
+                'coverId' => $mediaId,
+            ]
+        );
+
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $content = json_decode($client->getResponse()->getContent(), true);
 
-        $this->assertNotEmpty($content);
-        $this->assertArrayHasKey('data', $content);
+        static::assertNotEmpty($content);
+        static::assertArrayHasKey('data', $content);
         $cart = $content['data'];
 
-        $this->assertArrayHasKey('price', $cart);
-        $this->assertEquals(10, $cart['price']['totalPrice']);
-        $this->assertCount(1, $cart['calculatedLineItems']);
+        static::assertArrayHasKey('price', $cart);
+        static::assertEquals(100, $cart['price']['totalPrice']);
+        static::assertCount(1, $cart['lineItems']);
 
-        $product = array_shift($cart['calculatedLineItems']);
-        $this->assertEquals($productId, $product['identifier']);
+        $product = array_shift($cart['lineItems']);
+
+        static::assertEquals($productId, $product['key']);
+        static::assertEquals($type, $product['type']);
+        static::assertEquals($quantity, $product['quantity']);
+
+        static::assertEquals($stackable, $product['stackable']);
+        static::assertEquals($removeable, $product['removeable']);
+        static::assertEquals($priority, $product['priority']);
+        static::assertEquals($label, $product['label']);
+        static::assertEquals($description, $product['description']);
+
+        static::assertEquals($mediaId, $product['cover']['id']);
+        static::assertEquals($coverName, $product['cover']['name']);
+        static::assertEquals($albumId, $product['cover']['albumId']);
+    }
+
+    public function testUpdateLineItem()
+    {
+        $productId = Uuid::uuid4()->getHex();
+        $this->productRepository->create([
+            [
+                'id' => $productId,
+                'name' => 'Test',
+                'catalogId' => Defaults::CATALOG,
+                'price' => ['gross' => 10, 'net' => 9],
+                'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
+                'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
+            ],
+        ], $this->context);
+
+        $client = $this->createCart();
+
+        $type = ProductCollector::LINE_ITEM_TYPE;
+
+        $client->request(
+            'POST',
+            '/storefront-api/checkout/cart/line-item/' . $productId,
+            [
+                'type' => $type,
+                'stackable' => true,
+            ]
+        );
+
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+
+        $content = json_decode($client->getResponse()->getContent(), true);
+
+        static::assertNotEmpty($content);
+        static::assertArrayHasKey('data', $content);
+        $cart = $content['data'];
+
+        static::assertArrayHasKey('price', $cart);
+        static::assertEquals(10, $cart['price']['totalPrice']);
+        static::assertCount(1, $cart['lineItems']);
+
+        $albumId = Uuid::uuid4()->getHex();
+        $this->mediaAlbumRepository->create([
+            [
+                'id' => $albumId,
+                'name' => 'Products',
+            ],
+        ], $this->context);
+
+        $mediaId = Uuid::uuid4()->getHex();
+        $coverName = 'My custom line item name';
+        $this->mediaRepository->create([
+            [
+                'id' => $mediaId,
+                'albumId' => $albumId,
+                'name' => $coverName,
+            ],
+        ], $this->context);
+
+        $quantity = 10;
+        $stackable = true;
+        $removeable = true;
+        $priority = 500;
+        $label = 'My custom label';
+        $description = 'My custom description';
+
+        $client->request(
+            'PATCH',
+            '/storefront-api/checkout/cart/line-item/' . $productId,
+            [
+                'quantity' => $quantity,
+                'stackable' => $stackable,
+                'removeable' => $removeable,
+                'priority' => $priority,
+                'label' => $label,
+                'description' => $description,
+                'coverId' => $mediaId,
+            ]
+        );
+
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+
+        $content = json_decode($client->getResponse()->getContent(), true);
+
+        static::assertNotEmpty($content);
+        static::assertArrayHasKey('data', $content);
+        $cart = $content['data'];
+        $product = array_shift($cart['lineItems']);
+
+        static::assertEquals($productId, $product['key']);
+        static::assertEquals($type, $product['type']);
+        static::assertEquals($quantity, $product['quantity']);
+
+        static::assertEquals($stackable, $product['stackable']);
+        static::assertEquals($removeable, $product['removeable']);
+        static::assertEquals($priority, $product['priority']);
+        static::assertEquals($label, $product['label']);
+        static::assertEquals($description, $product['description']);
+
+        static::assertEquals($mediaId, $product['cover']['id']);
+        static::assertEquals($coverName, $product['cover']['name']);
+        static::assertEquals($albumId, $product['cover']['albumId']);
     }
 
     public function testOrderProcess()
@@ -481,21 +656,21 @@ class StorefrontCartControllerTest extends ApiTestCase
         $client = $this->createCart();
 
         $this->addProduct($client, $productId);
-        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $this->login($client, $mail, $password);
-        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $this->order($client);
-        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $order = json_decode($client->getResponse()->getContent(), true);
-        $this->assertArrayHasKey('data', $order);
+        static::assertArrayHasKey('data', $order);
 
         $order = $order['data'];
-        $this->assertNotEmpty($order);
+        static::assertNotEmpty($order);
 
-        $this->assertEquals($mail, $order['customer']['email']);
+        static::assertEquals($mail, $order['customer']['email']);
     }
 
     public function testOrderProcessWithEmptyCart()
@@ -542,15 +717,15 @@ class StorefrontCartControllerTest extends ApiTestCase
         $client = $this->createCart();
 
         $this->login($client, $mail, $password);
-        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $this->order($client);
-        $this->assertSame(400, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(400, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $response = json_decode($client->getResponse()->getContent(), true);
-        $this->assertArrayHasKey('errors', $response);
+        static::assertArrayHasKey('errors', $response);
 
-        $this->assertTrue(array_key_exists('CART-EMPTY', array_flip(array_column($response['errors'], 'code'))));
+        static::assertTrue(array_key_exists('CART-EMPTY', array_flip(array_column($response['errors'], 'code'))));
     }
 
     private function createCart(): Client
@@ -558,7 +733,7 @@ class StorefrontCartControllerTest extends ApiTestCase
         $this->storefrontApiClient->request('POST', '/storefront-api/checkout/cart');
         $response = $this->storefrontApiClient->getResponse();
 
-        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        static::assertEquals(200, $response->getStatusCode(), $response->getContent());
 
         $content = json_decode($response->getContent(), true);
 
@@ -570,7 +745,7 @@ class StorefrontCartControllerTest extends ApiTestCase
 
     private function getCart(Client $client)
     {
-        $this->storefrontApiClient->request('GET', '/storefront-api/checkout');
+        $this->storefrontApiClient->request('GET', '/storefront-api/checkout/cart');
 
         $cart = json_decode($client->getResponse()->getContent(), true);
 
@@ -582,13 +757,9 @@ class StorefrontCartControllerTest extends ApiTestCase
         $client->request(
             'POST',
             '/storefront-api/checkout/cart/product/' . $id,
-            [],
-            [],
-            [],
-            json_encode([
+            [
                 'quantity' => $quantity,
-                'payload' => ['id' => $id],
-            ])
+            ]
         );
     }
 
@@ -597,9 +768,9 @@ class StorefrontCartControllerTest extends ApiTestCase
         $client->request('PATCH', sprintf('/storefront-api/checkout/cart/line-item/%s/quantity/%s', $lineItemId, $quantity));
     }
 
-    private function updateLineItem(Client $client, string $lineItemId, $quantity): void
+    private function updateLineItemQuantity(Client $client, string $lineItemId, $quantity): void
     {
-        $client->request('PATCH', sprintf('/storefront-api/checkout/cart/line-item/%s', $lineItemId), [], [], [], json_encode(['quantity' => $quantity]));
+        $client->request('PATCH', sprintf('/storefront-api/checkout/cart/line-item/%s', $lineItemId), ['quantity' => $quantity]);
     }
 
     private function removeLineItem(Client $client, string $lineItemId): void
@@ -614,9 +785,9 @@ class StorefrontCartControllerTest extends ApiTestCase
 
     private function login(Client $client, string $email, string $password)
     {
-        $client->request('POST', '/storefront-api/customer/login', [], [], [], json_encode([
+        $client->request('POST', '/storefront-api/customer/login', [
             'username' => $email,
             'password' => $password,
-        ]));
+        ]);
     }
 }

@@ -2,10 +2,9 @@
 
 namespace Shopware\Storefront\Page\Account;
 
-use JsonSerializable;
 use Shopware\Core\Framework\Struct\Struct;
 
-class ProfileSaveRequest extends Struct implements JsonSerializable
+class ProfileSaveRequest extends Struct
 {
     /** @var string|null */
     protected $firstName;

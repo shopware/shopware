@@ -24,7 +24,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
-use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemInterface;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
@@ -34,7 +34,7 @@ class LineItemsInCartRule extends Rule
     /**
      * @var string[]
      */
-    private $identifiers;
+    protected $identifiers;
 
     /**
      * @param string[] $identifiers
@@ -54,9 +54,9 @@ class LineItemsInCartRule extends Rule
             );
         }
 
-        $elements = $scope->getCalculatedCart()->getCalculatedLineItems()->getFlatElements();
-        $identifiers = array_map(function (CalculatedLineItemInterface $element) {
-            return $element->getIdentifier();
+        $elements = $scope->getCart()->getLineItems()->getFlat();
+        $identifiers = array_map(function (LineItem $element) {
+            return $element->getKey();
         }, $elements);
 
         return new Match(

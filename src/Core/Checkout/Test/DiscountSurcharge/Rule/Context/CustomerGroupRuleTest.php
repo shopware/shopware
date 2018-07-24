@@ -25,7 +25,7 @@
 namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\Context;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupStruct;
@@ -37,18 +37,18 @@ class CustomerGroupRuleTest extends TestCase
     {
         $rule = new CustomerGroupRule(['SWAG-CUSTOMER-GROUP-ID-1']);
 
-        $cart = $this->createMock(CalculatedCart::class);
+        $cart = $this->createMock(Cart::class);
 
         $group = new CustomerGroupStruct();
         $group->setId('SWAG-CUSTOMER-GROUP-ID-1');
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $context->expects($this->any())
+        $context->expects(static::any())
             ->method('getCurrentCustomerGroup')
-            ->will($this->returnValue($group));
+            ->will(static::returnValue($group));
 
-        $this->assertTrue(
+        static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
@@ -57,18 +57,18 @@ class CustomerGroupRuleTest extends TestCase
     {
         $rule = new CustomerGroupRule(['SWAG-CUSTOMER-GROUP-ID-2', 'SWAG-CUSTOMER-GROUP-ID-3', 'SWAG-CUSTOMER-GROUP-ID-1']);
 
-        $cart = $this->createMock(CalculatedCart::class);
+        $cart = $this->createMock(Cart::class);
 
         $group = new CustomerGroupStruct();
         $group->setId('SWAG-CUSTOMER-GROUP-ID-3');
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $context->expects($this->any())
+        $context->expects(static::any())
             ->method('getCurrentCustomerGroup')
-            ->will($this->returnValue($group));
+            ->will(static::returnValue($group));
 
-        $this->assertTrue(
+        static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
@@ -77,18 +77,18 @@ class CustomerGroupRuleTest extends TestCase
     {
         $rule = new CustomerGroupRule(['SWAG-CUSTOMER-GROUP-ID-2', 'SWAG-CUSTOMER-GROUP-ID-3', 'SWAG-CUSTOMER-GROUP-ID-1']);
 
-        $cart = $this->createMock(CalculatedCart::class);
+        $cart = $this->createMock(Cart::class);
 
         $group = new CustomerGroupStruct();
         $group->setId('SWAG-CUSTOMER-GROUP-ID-5');
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $context->expects($this->any())
+        $context->expects(static::any())
             ->method('getCurrentCustomerGroup')
-            ->will($this->returnValue($group));
+            ->will(static::returnValue($group));
 
-        $this->assertFalse(
+        static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }

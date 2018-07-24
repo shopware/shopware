@@ -25,19 +25,14 @@
 namespace Shopware\Core\Checkout\Test\Cart\Common;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
+use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
-use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\Price;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxAmountCalculator;
@@ -49,9 +44,6 @@ use Shopware\Core\Checkout\Customer\CustomerStruct;
 use Shopware\Core\Checkout\Payment\PaymentMethodStruct;
 use Shopware\Core\Checkout\Shipping\ShippingMethodStruct;
 use Shopware\Core\Content\Product\Cart\ProductGateway;
-use Shopware\Core\Content\Product\Cart\ProductProcessor;
-use Shopware\Core\Content\Product\Cart\Struct\CalculatedProduct;
-use Shopware\Core\Content\Product\ProductStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryArea\CountryAreaStruct;
@@ -209,7 +201,7 @@ class Generator extends TestCase
     }
 
     /**
-     * @param PriceDefinition[] $priceDefinitions indexed by product number
+     * @param QuantityPriceDefinition[] $priceDefinitions indexed by product number
      *
      * @return \PHPUnit_Framework_MockObject_MockObject|ProductGateway
      */
@@ -223,36 +215,24 @@ class Generator extends TestCase
         return $mock;
     }
 
-    public static function createCalculatedCart(): CalculatedCart
+    public static function createCart(): Cart
     {
-        return new CalculatedCart(
-            new Cart('test', 'test', new LineItemCollection(), new ErrorCollection()),
-            new CalculatedLineItemCollection([
-                self::createCalculatedProduct('A', 10, 27),
-                new TestLineItem('B', null, 5),
-            ]),
-            new CartPrice(275, 275, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS),
-            new DeliveryCollection()
-        );
-    }
+        $cart = new Cart('test', 'test');
+        $cart->setLineItems(
+            new LineItemCollection([
+                (new LineItem('A', 'product', 27))
+                    ->setPrice(new Price(10, 270, new CalculatedTaxCollection(), new TaxRuleCollection(), 27)),
 
-    public static function createCalculatedProduct(
-        string $identifier,
-        float $price,
-        int $quantity,
-        ?ProductStruct $productStruct = null
-    ): CalculatedProduct {
-        $product = $productStruct ?? new ProductStruct();
-
-        return new CalculatedProduct(
-            new LineItem($identifier, ProductProcessor::TYPE_PRODUCT, $quantity),
-            new CalculatedPrice($price, $price * $quantity, new CalculatedTaxCollection(), new TaxRuleCollection(), $quantity),
-            $identifier,
-            $quantity,
-            new DeliveryDate(new \DateTime(), new \DateTime()),
-            new DeliveryDate(new \DateTime(), new \DateTime()),
-            $product
+                (new LineItem('B', 'test', 5))
+                    ->setGood(false)
+                    ->setPrice(new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())),
+            ])
         );
+        $cart->setPrice(
+            new CartPrice(275, 275, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS)
+        );
+
+        return $cart;
     }
 
     private function createTaxDetector($useGross, $isNetDelivery)

@@ -111,8 +111,8 @@ class AuditLogSearchTest extends KernelTestCase
         $second = $result['data'][1];
         self::assertInstanceOf(ProductStruct::class, $second);
 
-        $firstScore = $first->getExtension('search')->get('_score');
-        $secondScore = $second->getExtension('search')->get('_score');
+        $firstScore = $first->getExtension('search')->get('score');
+        $secondScore = $second->getExtension('search')->get('score');
 
         self::assertSame($secondScore, $firstScore);
 
@@ -155,8 +155,8 @@ class AuditLogSearchTest extends KernelTestCase
         self::assertSame($first->getId(), $productId2);
         self::assertSame($second->getId(), $p1);
 
-        $firstScore = $first->getExtension('search')->get('_score');
-        $secondScore = $second->getExtension('search')->get('_score');
+        $firstScore = $first->getExtension('search')->get('score');
+        $secondScore = $second->getExtension('search')->get('score');
 
         self::assertTrue($firstScore > $secondScore);
     }

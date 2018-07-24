@@ -42,7 +42,7 @@ class ProductSearchScoringTest extends KernelTestCase
 
     public function testScoringExtensionExists()
     {
-        $pattern = new SearchPattern(new SearchTerm('test'));
+        $pattern = new SearchPattern(new SearchTerm('test'), 'product');
         $builder = new EntityScoreQueryBuilder();
         $queries = $builder->buildScoreQueries($pattern, ProductDefinition::class, ProductDefinition::getEntityName());
 
@@ -64,8 +64,8 @@ class ProductSearchScoringTest extends KernelTestCase
             $extension = $entity->getExtension('search');
 
             $this->assertInstanceOf(ArrayStruct::class, $extension);
-            $this->assertArrayHasKey('_score', $extension);
-            $this->assertGreaterThan(0, (float) $extension['_score']);
+            $this->assertArrayHasKey('score', $extension);
+            $this->assertGreaterThan(0, (float) $extension['score']);
         }
     }
 }

@@ -68,9 +68,9 @@ class CurrencyRepositoryTest extends KernelTestCase
         );
 
         $this->assertTrue(
-            $result->getDataFieldOfId($recordA, '_score')
+            $result->getDataFieldOfId($recordA, 'score')
             >
-            $result->getDataFieldOfId($recordB, '_score')
+            $result->getDataFieldOfId($recordB, 'score')
         );
     }
 }

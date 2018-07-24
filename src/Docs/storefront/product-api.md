@@ -95,9 +95,9 @@ A typical result of this route looks as follow:
                 "self": "http://shopware.development/api/v0/product/b5719dba30e84f4187248ce0b75ca68b"
             },
             "attributes": {
-                "tenantId": "ffffffffffffffffffffffffffffffff",
+                "tenantId": "20080911ffff4fffafffffff19830531",
                 "versionId": null,
-                "catalogId": "ffffffffffffffffffffffffffffffff",
+                "catalogId": "20080911ffff4fffafffffff19830531",
                 "parentId": null,
                 "parentVersionId": null,
                 "autoIncrement": 16,
@@ -298,7 +298,7 @@ A typical result of this route looks as follow:
                 "self": "http://shopware.development/api/v0/tax/4926035368e34d9fa695e017d7a231b9"
             },
             "attributes": {
-                "tenantId": "ffffffffffffffffffffffffffffffff",
+                "tenantId": "20080911ffff4fffafffffff19830531",
                 "versionId": null,
                 "rate": 19,
                 "name": "19%",
@@ -333,9 +333,9 @@ A typical result of this route looks as follow:
                 "self": "http://shopware.development/api/v0/product-manufacturer/ea2367de87d04461ac332236b66cb331"
             },
             "attributes": {
-                "tenantId": "ffffffffffffffffffffffffffffffff",
+                "tenantId": "20080911ffff4fffafffffff19830531",
                 "versionId": null,
-                "catalogId": "ffffffffffffffffffffffffffffffff",
+                "catalogId": "20080911ffff4fffafffffff19830531",
                 "mediaId": null,
                 "mediaVersionId": null,
                 "link": "http://wieland.com/aliquam-animi-animi-repudiandae-unde-officiis.html",

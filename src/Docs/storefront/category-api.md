@@ -96,9 +96,9 @@ A typical result of this route looks as follow:
                 "self": "http://shopware.development/api/v0/category/8ed905942b074107acdbc1e8ae08c376"
             },
             "attributes": {
-                "tenantId": "ffffffffffffffffffffffffffffffff",
+                "tenantId": "20080911ffff4fffafffffff19830531",
                 "versionId": null,
-                "catalogId": "ffffffffffffffffffffffffffffffff",
+                "catalogId": "20080911ffff4fffafffffff19830531",
                 "parentId": "af22fa927d1b42f1baea28b737fa3072",
                 "parentVersionId": null,
                 "mediaId": null,

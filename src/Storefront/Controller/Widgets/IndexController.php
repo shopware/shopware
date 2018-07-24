@@ -83,7 +83,7 @@ class IndexController extends StorefrontController
     private function getCurrencies(CheckoutContext $context): EntitySearchResult
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new TermsQuery('currency.id', ['4c8eba11bd3546d786afbed481a6e665', '2824ea63db6741109e2378ddcc9cec84']));
+        $criteria->addFilter(new TermsQuery('currency.id', ['20080911ffff4fffafffffff19830531', '2824ea63db6741109e2378ddcc9cec84']));
 
         return $this->currencyRepository->search($criteria, $context->getContext());
     }

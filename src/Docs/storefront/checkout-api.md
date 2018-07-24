@@ -316,8 +316,8 @@ curl -X GET \
                         "orderAddresses": null,
                         "customerAddresses": null,
                         "touchpoints": null,
-                        "id": "bd5e2dcf547e4df6bb1ff58a554bc69e",
-                        "tenantId": "ffffffffffffffffffffffffffffffff",
+                        "id": "20080911ffff4fffafffffff19830531",
+                        "tenantId": "20080911ffff4fffafffffff19830531",
                         "extensions": {
                             "translated": {
                                 "name": true
@@ -368,8 +368,8 @@ curl -X GET \
                     "translations": null,
                     "orderDeliveries": null,
                     "touchpoints": null,
-                    "id": "417beeb2dddf45d1b90188fd211343c3",
-                    "tenantId": "ffffffffffffffffffffffffffffffff",
+                    "id": "20080911ffff4fffafffffff19830531",
+                    "tenantId": "20080911ffff4fffafffffff19830531",
                     "extensions": {
                         "translated": {
                             "name": true,
@@ -551,8 +551,8 @@ The created order is returned as a response:
         "customerId": "ee81c3809a3f4f71a7f27c24a326f726",
         "stateId": "1194a493806742c9b85e61f1f2cf9be8",
         "paymentMethodId": "47160b00cd064b0188176451f9f3c247",
-        "currencyId": "4c8eba11bd3546d786afbed481a6e665",
-        "touchpointId": "ffffffffffffffffffffffffffffffff",
+        "currencyId": "20080911ffff4fffafffffff19830531",
+        "touchpointId": "20080911ffff4fffafffffff19830531",
         "billingAddressId": "97a9404ef6c744a9bf3a10b9b393619c",
         "date": "2018-07-06T12:09:25+00:00",
         "amountTotal": 488,
@@ -563,9 +563,9 @@ The created order is returned as a response:
         "createdAt": "2018-07-06T12:09:25+00:00",
         "updatedAt": null,
         "customer": {
-            "groupId": "3294e6f6372b415fac7371cbc191548f",
+            "groupId": "20080911ffff4fffafffffff19830531",
             "defaultPaymentMethodId": "47160b00cd064b0188176451f9f3c247",
-            "touchpointId": "ffffffffffffffffffffffffffffffff",
+            "touchpointId": "20080911ffff4fffafffffff19830531",
             "lastPaymentMethodId": null,
             "defaultBillingAddressId": "a18b1fc617564025895a911808c4c58e",
             "defaultShippingAddressId": "4d3318e90be645d388221f48ecd78cbb",
@@ -607,8 +607,8 @@ The created order is returned as a response:
                 "translations": null,
                 "taxAreaRules": null,
                 "customers": null,
-                "id": "3294e6f6372b415fac7371cbc191548f",
-                "tenantId": "ffffffffffffffffffffffffffffffff",
+                "id": "20080911ffff4fffafffffff19830531",
+                "tenantId": "20080911ffff4fffafffffff19830531",
                 "extensions": {
                     "translated": {
                         "name": true
@@ -646,7 +646,7 @@ The created order is returned as a response:
                 "customers": null,
                 "touchpoints": null,
                 "id": "47160b00cd064b0188176451f9f3c247",
-                "tenantId": "ffffffffffffffffffffffffffffffff",
+                "tenantId": "20080911ffff4fffafffffff19830531",
                 "extensions": {
                     "translated": {
                         "name": true,
@@ -656,23 +656,23 @@ The created order is returned as a response:
                 "versionId": null
             },
             "touchpoint": {
-                "languageId": "ffffffffffffffffffffffffffffffff",
-                "currencyId": "4c8eba11bd3546d786afbed481a6e665",
+                "languageId": "20080911ffff4fffafffffff19830531",
+                "currencyId": "20080911ffff4fffafffffff19830531",
                 "paymentMethodId": "e84976ace9ab4928a3dcc387b66dbaa6",
-                "shippingMethodId": "417beeb2dddf45d1b90188fd211343c3",
-                "countryId": "bd5e2dcf547e4df6bb1ff58a554bc69e",
+                "shippingMethodId": "20080911ffff4fffafffffff19830531",
+                "countryId": "20080911ffff4fffafffffff19830531",
                 "type": "storefront_api",
                 "name": "Storefront API endpoint",
                 "accessKey": "b1FTZGVSd2xoSmRBWnhlZldnOVhEZTBXandRb2M0VXA",
                 "secretAccessKey": "$argon2i$v=19$m=1024,t=2,p=2$MTU3QmVaZ0hqOGhQRGpYVQ$Wq1BN48pRXyI+RTn7wBjcHpwtzrptrqXiBfc6uwmh50",
                 "catalogIds": [
-                    "ffffffffffffffffffffffffffffffff"
+                    "20080911ffff4fffafffffff19830531"
                 ],
                 "currencyIds": [
-                    "4c8eba11bd3546d786afbed481a6e665"
+                    "20080911ffff4fffafffffff19830531"
                 ],
                 "languageIds": [
-                    "ffffffffffffffffffffffffffffffff"
+                    "20080911ffff4fffafffffff19830531"
                 ],
                 "configuration": [],
                 "active": true,
@@ -693,8 +693,8 @@ The created order is returned as a response:
                     "orders": null,
                     "touchpoints": null,
                     "productPriceRules": null,
-                    "id": "4c8eba11bd3546d786afbed481a6e665",
-                    "tenantId": "ffffffffffffffffffffffffffffffff",
+                    "id": "20080911ffff4fffafffffff19830531",
+                    "tenantId": "20080911ffff4fffafffffff19830531",
                     "extensions": {
                         "translated": {
                             "shortName": true,
@@ -720,7 +720,7 @@ The created order is returned as a response:
                         "users": null,
                         "languages": null,
                         "id": "2f3663edb7614308a60188c21c7963d5",
-                        "tenantId": "ffffffffffffffffffffffffffffffff",
+                        "tenantId": "20080911ffff4fffafffffff19830531",
                         "extensions": {
                             "translated": {
                                 "name": true,
@@ -755,8 +755,8 @@ The created order is returned as a response:
                     "configurationGroupOptionTranslations": null,
                     "productSearchKeywords": null,
                     "snippets": null,
-                    "id": "ffffffffffffffffffffffffffffffff",
-                    "tenantId": "ffffffffffffffffffffffffffffffff",
+                    "id": "20080911ffff4fffafffffff19830531",
+                    "tenantId": "20080911ffff4fffafffffff19830531",
                     "extensions": []
                 },
                 "paymentMethod": null,
@@ -764,8 +764,8 @@ The created order is returned as a response:
                 "country": null,
                 "orders": null,
                 "customers": null,
-                "id": "ffffffffffffffffffffffffffffffff",
-                "tenantId": "ffffffffffffffffffffffffffffffff",
+                "id": "20080911ffff4fffafffffff19830531",
+                "tenantId": "20080911ffff4fffafffffff19830531",
                 "extensions": [],
                 "currencyVersionId": null,
                 "paymentMethodVersionId": null,
@@ -815,7 +815,7 @@ The created order is returned as a response:
                     "customerAddresses": null,
                     "touchpoints": null,
                     "id": "ffe61e1c99154f9597014a310ab5482d",
-                    "tenantId": "ffffffffffffffffffffffffffffffff",
+                    "tenantId": "20080911ffff4fffafffffff19830531",
                     "extensions": {
                         "translated": {
                             "name": true
@@ -827,7 +827,7 @@ The created order is returned as a response:
                 "countryState": null,
                 "customer": null,
                 "id": "a18b1fc617564025895a911808c4c58e",
-                "tenantId": "ffffffffffffffffffffffffffffffff",
+                "tenantId": "20080911ffff4fffafffffff19830531",
                 "extensions": [],
                 "versionId": null,
                 "customerVersionId": null,
@@ -876,7 +876,7 @@ The created order is returned as a response:
                     "customerAddresses": null,
                     "touchpoints": null,
                     "id": "ffe61e1c99154f9597014a310ab5482d",
-                    "tenantId": "ffffffffffffffffffffffffffffffff",
+                    "tenantId": "20080911ffff4fffafffffff19830531",
                     "extensions": {
                         "translated": {
                             "name": true
@@ -888,7 +888,7 @@ The created order is returned as a response:
                 "countryState": null,
                 "customer": null,
                 "id": "4d3318e90be645d388221f48ecd78cbb",
-                "tenantId": "ffffffffffffffffffffffffffffffff",
+                "tenantId": "20080911ffff4fffafffffff19830531",
                 "extensions": [],
                 "versionId": null,
                 "customerVersionId": null,
@@ -901,7 +901,7 @@ The created order is returned as a response:
             "orders": null,
             "autoIncrement": 51,
             "id": "ee81c3809a3f4f71a7f27c24a326f726",
-            "tenantId": "ffffffffffffffffffffffffffffffff",
+            "tenantId": "20080911ffff4fffafffffff19830531",
             "extensions": [],
             "versionId": null,
             "customerGroupVersionId": null,
@@ -918,7 +918,7 @@ The created order is returned as a response:
             "orders": null,
             "orderDeliveries": null,
             "id": "1194a493806742c9b85e61f1f2cf9be8",
-            "tenantId": "ffffffffffffffffffffffffffffffff",
+            "tenantId": "20080911ffff4fffafffffff19830531",
             "extensions": {
                 "translated": {
                     "description": true
@@ -956,7 +956,7 @@ The created order is returned as a response:
             "customers": null,
             "touchpoints": null,
             "id": "47160b00cd064b0188176451f9f3c247",
-            "tenantId": "ffffffffffffffffffffffffffffffff",
+            "tenantId": "20080911ffff4fffafffffff19830531",
             "extensions": {
                 "translated": {
                     "name": true,
@@ -979,8 +979,8 @@ The created order is returned as a response:
             "orders": null,
             "touchpoints": null,
             "productPriceRules": null,
-            "id": "4c8eba11bd3546d786afbed481a6e665",
-            "tenantId": "ffffffffffffffffffffffffffffffff",
+            "id": "20080911ffff4fffafffffff19830531",
+            "tenantId": "20080911ffff4fffafffffff19830531",
             "extensions": {
                 "translated": {
                     "shortName": true,
@@ -990,23 +990,23 @@ The created order is returned as a response:
             "versionId": null
         },
         "touchpoint": {
-            "languageId": "ffffffffffffffffffffffffffffffff",
-            "currencyId": "4c8eba11bd3546d786afbed481a6e665",
+            "languageId": "20080911ffff4fffafffffff19830531",
+            "currencyId": "20080911ffff4fffafffffff19830531",
             "paymentMethodId": "e84976ace9ab4928a3dcc387b66dbaa6",
-            "shippingMethodId": "417beeb2dddf45d1b90188fd211343c3",
-            "countryId": "bd5e2dcf547e4df6bb1ff58a554bc69e",
+            "shippingMethodId": "20080911ffff4fffafffffff19830531",
+            "countryId": "20080911ffff4fffafffffff19830531",
             "type": "storefront_api",
             "name": "Storefront API endpoint",
             "accessKey": "b1FTZGVSd2xoSmRBWnhlZldnOVhEZTBXandRb2M0VXA",
             "secretAccessKey": "$argon2i$v=19$m=1024,t=2,p=2$MTU3QmVaZ0hqOGhQRGpYVQ$Wq1BN48pRXyI+RTn7wBjcHpwtzrptrqXiBfc6uwmh50",
             "catalogIds": [
-                "ffffffffffffffffffffffffffffffff"
+                "20080911ffff4fffafffffff19830531"
             ],
             "currencyIds": [
-                "4c8eba11bd3546d786afbed481a6e665"
+                "20080911ffff4fffafffffff19830531"
             ],
             "languageIds": [
-                "ffffffffffffffffffffffffffffffff"
+                "20080911ffff4fffafffffff19830531"
             ],
             "configuration": [],
             "active": true,
@@ -1027,8 +1027,8 @@ The created order is returned as a response:
                 "orders": null,
                 "touchpoints": null,
                 "productPriceRules": null,
-                "id": "4c8eba11bd3546d786afbed481a6e665",
-                "tenantId": "ffffffffffffffffffffffffffffffff",
+                "id": "20080911ffff4fffafffffff19830531",
+                "tenantId": "20080911ffff4fffafffffff19830531",
                 "extensions": {
                     "translated": {
                         "shortName": true,
@@ -1054,7 +1054,7 @@ The created order is returned as a response:
                     "users": null,
                     "languages": null,
                     "id": "2f3663edb7614308a60188c21c7963d5",
-                    "tenantId": "ffffffffffffffffffffffffffffffff",
+                    "tenantId": "20080911ffff4fffafffffff19830531",
                     "extensions": {
                         "translated": {
                             "name": true,
@@ -1089,8 +1089,8 @@ The created order is returned as a response:
                 "configurationGroupOptionTranslations": null,
                 "productSearchKeywords": null,
                 "snippets": null,
-                "id": "ffffffffffffffffffffffffffffffff",
-                "tenantId": "ffffffffffffffffffffffffffffffff",
+                "id": "20080911ffff4fffafffffff19830531",
+                "tenantId": "20080911ffff4fffafffffff19830531",
                 "extensions": []
             },
             "paymentMethod": null,
@@ -1098,8 +1098,8 @@ The created order is returned as a response:
             "country": null,
             "orders": null,
             "customers": null,
-            "id": "ffffffffffffffffffffffffffffffff",
-            "tenantId": "ffffffffffffffffffffffffffffffff",
+            "id": "20080911ffff4fffafffffff19830531",
+            "tenantId": "20080911ffff4fffafffffff19830531",
             "extensions": [],
             "currencyVersionId": null,
             "paymentMethodVersionId": null,
@@ -1147,7 +1147,7 @@ The created order is returned as a response:
                 "customerAddresses": null,
                 "touchpoints": null,
                 "id": "ffe61e1c99154f9597014a310ab5482d",
-                "tenantId": "ffffffffffffffffffffffffffffffff",
+                "tenantId": "20080911ffff4fffafffffff19830531",
                 "extensions": {
                     "translated": {
                         "name": true
@@ -1160,7 +1160,7 @@ The created order is returned as a response:
             "orders": null,
             "orderDeliveries": null,
             "id": "97a9404ef6c744a9bf3a10b9b393619c",
-            "tenantId": "ffffffffffffffffffffffffffffffff",
+            "tenantId": "20080911ffff4fffafffffff19830531",
             "extensions": [],
             "versionId": null,
             "countryVersionId": null,
@@ -1171,7 +1171,7 @@ The created order is returned as a response:
         "transactions": null,
         "autoIncrement": 51,
         "id": "fb5722980c0c4b9691fb55bf0ce732c5",
-        "tenantId": "ffffffffffffffffffffffffffffffff",
+        "tenantId": "20080911ffff4fffafffffff19830531",
         "extensions": [],
         "versionId": null,
         "customerVersionId": null,

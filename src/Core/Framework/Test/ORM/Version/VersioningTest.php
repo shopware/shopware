@@ -125,13 +125,13 @@ class VersioningTest extends KernelTestCase
             'taxId' => $uuid,
             'taxRate' => 99,
             'active' => 1,
-            'customerGroupId' => '3294e6f6372b415fac7371cbc191548f',
-            'taxVersionId' => 'ffffffffffffffffffffffffffffffff',
-            'customerGroupVersionId' => 'ffffffffffffffffffffffffffffffff',
-            'countryVersionId' => 'ffffffffffffffffffffffffffffffff',
-            'countryAreaVersionId' => 'ffffffffffffffffffffffffffffffff',
-            'countryStateVersionId' => 'ffffffffffffffffffffffffffffffff',
-            'tenantId' => 'ffffffffffffffffffffffffffffffff',
+            'customerGroupId' => '20080911ffff4fffafffffff19830531',
+            'taxVersionId' => '20080911ffff4fffafffffff19830531',
+            'customerGroupVersionId' => '20080911ffff4fffafffffff19830531',
+            'countryVersionId' => '20080911ffff4fffafffffff19830531',
+            'countryAreaVersionId' => '20080911ffff4fffafffffff19830531',
+            'countryStateVersionId' => '20080911ffff4fffafffffff19830531',
+            'tenantId' => '20080911ffff4fffafffffff19830531',
         ];
         $payload = json_decode($changes[0]['payload'], true);
         unset($payload['createdAt']);

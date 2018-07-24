@@ -29,6 +29,12 @@ class Tokenizer implements TokenizerInterface
             return $tags;
         }
 
-        return array_keys($filtered);
+        $tags = array_keys($filtered);
+
+        foreach ($tags as &$tag) {
+            $tag = (string) $tag;
+        }
+
+        return $tags;
     }
 }

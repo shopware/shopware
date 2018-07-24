@@ -59,7 +59,7 @@ class KeywordSearchTermInterpreter
         $pattern = new SearchPattern(new SearchTerm($word), $scope);
 
         foreach ($scoring as $keyword => $score) {
-            $pattern->addTerm(new SearchTerm($keyword, $score));
+            $pattern->addTerm(new SearchTerm((string) $keyword, $score));
         }
 
         return $pattern;

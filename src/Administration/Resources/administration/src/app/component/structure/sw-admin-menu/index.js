@@ -53,7 +53,7 @@ Component.register('sw-admin-menu', {
         openSubMenu(entry, currentTarget) {
             this.subMenuOpen = !this.subMenuOpen;
 
-            if (this.isExpanded || this.flyoutEntries) {
+            if (this.isExpanded) {
                 this.flyoutEntries = [];
             }
 

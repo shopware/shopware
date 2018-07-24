@@ -430,12 +430,6 @@
         font-size: @sw-field-font-size;
         color: @sw-field-color-text;
         transition: @sw-field-transition;
-
-        .sw-button {
-            background: none;
-            border: none;
-            padding: unset;
-        }
     }
 
     .sw-field__help {
@@ -499,5 +493,10 @@
         .sw-field__suffix {
             color: @sw-field-color-error;
         }
+    }
+
+    .sw-field__copy-button {
+        border-radius: 0 @sw-field-border-radius @sw-field-border-radius 0;
+        border-left: 0 none;
     }
 }

@@ -16,6 +16,7 @@ Component.register('sw-integration-list', {
         return {
             integrations: [],
             isLoading: false,
+            isModalLoading: false,
             showDeleteModal: null,
             currentIntegration: null,
             showSecretAccessKey: false
@@ -67,6 +68,7 @@ Component.register('sw-integration-list', {
         },
 
         updateIntegration(integration) {
+            this.isModalLoading = true;
             Object.assign(integration, this.currentIntegration);
             integration.save().then(() => {
                 this.createSavedSuccessNotification();
@@ -83,9 +85,14 @@ Component.register('sw-integration-list', {
                 return;
             }
 
+            this.isModalLoading = true;
+
             this.currentIntegration.save().then(() => {
                 this.createSavedSuccessNotification();
                 this.integrations.push(this.currentIntegration);
+                if (this.total === 0) {
+                    this.total = 1;
+                }
             }).catch(() => {
                 this.createSavedErrorNotification();
             }).finally(() => {
@@ -112,11 +119,13 @@ Component.register('sw-integration-list', {
             if (!this.currentIntegration) {
                 return;
             }
+            this.isModalLoading = true;
 
             this.integrationService.generateKey().then((response) => {
                 this.currentIntegration.accessKey = response.accessKey;
                 this.currentIntegration.secretAccessKey = response.secretAccessKey;
                 this.showSecretAccessKey = true;
+                this.isModalLoading = false;
             }).catch(() => {
                 this.createNotificationError({
                     title: this.$tc('sw-integration.detail.titleCreateNewError'),
@@ -140,6 +149,7 @@ Component.register('sw-integration-list', {
         onCloseDetailModal() {
             this.currentIntegration = null;
             this.showSecretAccessKey = false;
+            this.isModalLoading = false;
         },
 
         onCloseDeleteModal() {
@@ -154,6 +164,9 @@ Component.register('sw-integration-list', {
             return this.integrationStore.store[id].delete(true).then(() => {
                 this.integrations = this.integrations.filter(a => a.id !== id);
                 this.onCloseDeleteModal();
+                if (this.total === 1) {
+                    this.total = 0;
+                }
             });
         }
     }

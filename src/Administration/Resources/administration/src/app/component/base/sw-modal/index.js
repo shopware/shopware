@@ -26,6 +26,11 @@ Component.register('sw-modal', {
                 }
                 return ['default', 'small', 'large', 'full'].includes(value);
             }
+        },
+        isLoading: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 

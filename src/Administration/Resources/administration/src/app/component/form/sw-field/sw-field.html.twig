@@ -226,13 +226,13 @@
 
                 <!-- CopyAble -->
                 {% block sw_field_input_copySuffix %}
-                    <span v-if="copyAble && type === 'text'" class="sw-field__suffix" @click="copyToClipboard">
-                            {% block sw_field_button_copySuffix %}
-                                <sw-button>
-                                    <sw-icon name="small-copy"></sw-icon>
-                                </sw-button>
-                            {% endblock %}
-                    </span>
+                    <sw-button v-if="copyAble && type === 'text'"
+                               class="sw-field__copy-button"
+                               @click="copyToClipboard">
+                        {% block sw_field_button_copySuffix %}
+                            <sw-icon name="small-copy" size="16px"></sw-icon>
+                        {% endblock %}
+                    </sw-button>
                 {% endblock %}
             </div>
         {% endblock %}

@@ -216,12 +216,13 @@
       "mainMenuItemIndex": "Integrationen",
       "headlineIntegrations": "Integrationen",
       "buttonCreateIntegration": "Integration anlegen",
-      "heroHeadlineIntegrations": "Willkommen in der Integrationsverwaltung!",
-      "heroDescriptionIntegrations": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet."
+      "heroHeadlineIntegrations": "Willkommen in der Integrationsverwaltung",
+      "heroDescriptionIntegrations": "Shopware bietet eine leistungsstarke API um andere Systeme und Anwendungen nahtlos in Deine eigenen Prozesse zu integrieren. Damit ein anderes System mit Shopware kommunizieren kann, benötigt man entsprechende Sicherheitsschlüssel, damit die Anwendung sich authentifizieren kann. Hier kannst Du einzelne Zugänge für jede spezifische Anwendung erstellen. So kannst Du später außerdem sehen, welche Änderungen von welcher Anwendung durchgeführt wurden."
     },
     "list": {
       "contextMenuEdit": "Bearbeiten",
-      "contextMenuDelete": "Löschen"
+      "contextMenuDelete": "Löschen",
+      "messageEmpty": "Noch keine Integrationen"
     },
     "detail": {
       "deleteModalTitle": "Löschen",
@@ -233,9 +234,10 @@
       "buttonCreateNewApiKeys": "API Zugangsdaten neu generieren",
       "labelFieldLabel": "Name",
       "idFieldLabel": "ID",
-      "secretFieldLabel": "Secret",
-      "secretHelpText": "Das Integrations Secret wird nach dem Speichern Verschlüsselt und kann nicht mehr eingesehen werden",
-      "writeAccessFieldLabel": "Schreibberechtigung",
+      "secretFieldLabel": "Sicherheitsschlüssel",
+      "secretHelpText": "Der angezeigte Sicherheitsschlüssel wird nach dem Speichern nicht mehr einsehbar sein. Bitte kopiere Dir den Schlüssel zur Verwendung in den Quellcode Deiner Anwendung. Solltest Du den Schlüssel einmal verloren haben, kannst Du natürlich jeder Zeit einen neuen für die Anwendung generieren.",
+      "secretHelpTextTitle": "Wichtig!",
+      "writeAccessFieldLabel": "Schreibrechte",
       "titleSaveSuccess": "Integration",
       "messageSaveSuccess": "Integration erfolgreich gespeichert",
       "titleSaveError": "Ups! Ein Fehler ist aufgetreten!",

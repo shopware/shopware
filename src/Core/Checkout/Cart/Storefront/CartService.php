@@ -28,7 +28,11 @@ namespace Shopware\Core\Checkout\Cart\Storefront;
 use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Cart\CartPersisterInterface;
 use Shopware\Core\Checkout\Cart\Enrichment;
+use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotRemoveableException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
+use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Order\OrderPersisterInterface;
@@ -100,6 +104,9 @@ class CartService
         return $this->calculate($cart, $context);
     }
 
+    /**
+     * @throws MixedLineItemTypeException
+     */
     public function add(LineItem $item, CheckoutContext $context): Cart
     {
         $cart = $this->loadOrCreateCart($context);
@@ -118,6 +125,11 @@ class CartService
         return $this->calculate($cart, $context);
     }
 
+    /**
+     * @throws LineItemNotFoundException
+     * @throws LineItemNotStackableException
+     * @throws InvalidQuantityException
+     */
     public function changeQuantity(string $identifier, int $quantity, CheckoutContext $context): Cart
     {
         $cart = $this->loadOrCreateCart($context);
@@ -131,11 +143,15 @@ class CartService
         return $this->calculate($cart, $context);
     }
 
+    /**
+     * @throws LineItemNotFoundException
+     * @throws LineItemNotRemoveableException
+     */
     public function remove(string $identifier, CheckoutContext $context): Cart
     {
         $cart = $this->loadOrCreateCart($context);
 
-        $cart->getLineItems()->remove($identifier);
+        $cart->remove($identifier);
 
         return $this->calculate($cart, $context);
     }

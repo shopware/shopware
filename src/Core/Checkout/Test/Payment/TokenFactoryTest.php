@@ -74,7 +74,7 @@ class TokenFactoryTest extends KernelTestCase
     {
         $transactionId = $this->prepare();
 
-        $transactions = $this->orderTransactionRepository->read(new ReadCriteria([$transactionId]), Context:: createDefaultContext(
+        $transactions = $this->orderTransactionRepository->read(new ReadCriteria([$transactionId]), Context::createDefaultContext(
             Defaults::TENANT_ID));
 
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
@@ -98,7 +98,7 @@ class TokenFactoryTest extends KernelTestCase
     {
         $transactionId = $this->prepare();
 
-        $transactions = $this->orderTransactionRepository->read(new ReadCriteria([$transactionId]), Context:: createDefaultContext(
+        $transactions = $this->orderTransactionRepository->read(new ReadCriteria([$transactionId]), Context::createDefaultContext(
             Defaults::TENANT_ID));
 
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
@@ -123,7 +123,7 @@ class TokenFactoryTest extends KernelTestCase
     {
         $transactionId = $this->prepare();
 
-        $transactions = $this->orderTransactionRepository->read(new ReadCriteria([$transactionId]), Context:: createDefaultContext(
+        $transactions = $this->orderTransactionRepository->read(new ReadCriteria([$transactionId]), Context::createDefaultContext(
             Defaults::TENANT_ID));
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
 

@@ -22,19 +22,19 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\CalculatedLineItem;
+namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\LineItem;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
-use Shopware\Core\Checkout\Cart\Rule\LineItemWithQuantityRule;
+use Shopware\Core\Checkout\Cart\Rule\LineItemUnitPriceRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Rule\Rule;
 
-class LineItemWithQuantityRuleTest extends TestCase
+class LineItemUnitPriceRuleTest extends TestCase
 {
     /**
      * @var LineItem
@@ -45,13 +45,15 @@ class LineItemWithQuantityRuleTest extends TestCase
     {
         parent::setUp();
 
-        $this->lineItem = (new LineItem('A', 'product', 2))
-            ->setPrice(new Price(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection(), 2));
+        $this->lineItem = (new LineItem('A', 'product'))
+            ->setPrice(
+                new Price(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection())
+            );
     }
 
     public function testRuleWithExactAmountMatch(): void
     {
-        $rule = new LineItemWithQuantityRule('A', 2);
+        $rule = new LineItemUnitPriceRule(100);
 
         $context = $this->createMock(CheckoutContext::class);
 
@@ -62,7 +64,7 @@ class LineItemWithQuantityRuleTest extends TestCase
 
     public function testRuleWithExactAmountNotMatch(): void
     {
-        $rule = new LineItemWithQuantityRule('A', 0);
+        $rule = new LineItemUnitPriceRule(99);
 
         $context = $this->createMock(CheckoutContext::class);
 
@@ -73,7 +75,7 @@ class LineItemWithQuantityRuleTest extends TestCase
 
     public function testRuleWithLowerThanEqualExactAmountMatch(): void
     {
-        $rule = new LineItemWithQuantityRule('A', 2, Rule::OPERATOR_LTE);
+        $rule = new LineItemUnitPriceRule(100, Rule::OPERATOR_LTE);
 
         $context = $this->createMock(CheckoutContext::class);
 
@@ -84,7 +86,7 @@ class LineItemWithQuantityRuleTest extends TestCase
 
     public function testRuleWithLowerThanEqualAmountMatch(): void
     {
-        $rule = new LineItemWithQuantityRule('A', 3, Rule::OPERATOR_LTE);
+        $rule = new LineItemUnitPriceRule(101, Rule::OPERATOR_LTE);
 
         $context = $this->createMock(CheckoutContext::class);
 
@@ -95,7 +97,7 @@ class LineItemWithQuantityRuleTest extends TestCase
 
     public function testRuleWithLowerThanEqualAmountNotMatch(): void
     {
-        $rule = new LineItemWithQuantityRule('A', 1, Rule::OPERATOR_LTE);
+        $rule = new LineItemUnitPriceRule(99, Rule::OPERATOR_LTE);
 
         $context = $this->createMock(CheckoutContext::class);
 
@@ -106,7 +108,7 @@ class LineItemWithQuantityRuleTest extends TestCase
 
     public function testRuleWithGreaterThanEqualExactAmountMatch(): void
     {
-        $rule = new LineItemWithQuantityRule('A', 2, Rule::OPERATOR_GTE);
+        $rule = new LineItemUnitPriceRule(100, Rule::OPERATOR_GTE);
 
         $context = $this->createMock(CheckoutContext::class);
 
@@ -117,7 +119,7 @@ class LineItemWithQuantityRuleTest extends TestCase
 
     public function testRuleWithGreaterThanEqualMatch(): void
     {
-        $rule = new LineItemWithQuantityRule('A', 1, Rule::OPERATOR_GTE);
+        $rule = new LineItemUnitPriceRule(99, Rule::OPERATOR_GTE);
 
         $context = $this->createMock(CheckoutContext::class);
 
@@ -128,7 +130,7 @@ class LineItemWithQuantityRuleTest extends TestCase
 
     public function testRuleWithGreaterThanEqualNotMatch(): void
     {
-        $rule = new LineItemWithQuantityRule('A', 3, Rule::OPERATOR_GTE);
+        $rule = new LineItemUnitPriceRule(101, Rule::OPERATOR_GTE);
 
         $context = $this->createMock(CheckoutContext::class);
 
@@ -139,7 +141,7 @@ class LineItemWithQuantityRuleTest extends TestCase
 
     public function testRuleWithNotEqualMatch(): void
     {
-        $rule = new LineItemWithQuantityRule('A', 1, Rule::OPERATOR_NEQ);
+        $rule = new LineItemUnitPriceRule(101, Rule::OPERATOR_NEQ);
 
         $context = $this->createMock(CheckoutContext::class);
 
@@ -150,7 +152,7 @@ class LineItemWithQuantityRuleTest extends TestCase
 
     public function testRuleWithNotEqualNotMatch(): void
     {
-        $rule = new LineItemWithQuantityRule('A', 2, Rule::OPERATOR_NEQ);
+        $rule = new LineItemUnitPriceRule(100, Rule::OPERATOR_NEQ);
 
         $context = $this->createMock(CheckoutContext::class);
 

@@ -26,10 +26,15 @@ namespace Shopware\Core\Checkout\Test\Cart\Cart;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Exception\InvalidChildQuantityException;
+use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotRemoveableException;
+use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 
-class CalculatedCartTest extends TestCase
+class CartTest extends TestCase
 {
     public function testEmptyCartHasNoGoods(): void
     {
@@ -43,10 +48,12 @@ class CalculatedCartTest extends TestCase
         $cart->add(
             (new LineItem('A', 'test'))
                 ->setGood(true)
+                ->setStackable(true)
         );
         $cart->add(
             (new LineItem('A', 'test'))
                 ->setGood(false)
+                ->setStackable(true)
         );
 
         static::assertCount(1, $cart->getLineItems()->filterGoods());
@@ -82,5 +89,28 @@ class CalculatedCartTest extends TestCase
 
         static::assertCount(4, $cart->getLineItems()->getFlat());
         static::assertCount(2, $cart->getLineItems());
+    }
+
+    /**
+     * @throws InvalidChildQuantityException
+     * @throws InvalidQuantityException
+     * @throws MixedLineItemTypeException
+     * @throws LineItemNotFoundException
+     * @throws LineItemNotRemoveableException
+     */
+    public function testRemoveNonRemovableLineItemFromCart()
+    {
+        $cart = new Cart('test', 'test');
+
+        $lineItem = new LineItem('A', 'test');
+        $lineItem->setRemoveable(false);
+
+        $cart->add($lineItem);
+
+        static::expectException(LineItemNotRemoveableException::class);
+
+        $cart->remove($lineItem->getKey());
+
+        static::assertCount(1, $cart->getLineItems());
     }
 }

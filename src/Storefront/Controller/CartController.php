@@ -3,7 +3,11 @@
 namespace Shopware\Storefront\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotRemoveableException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
+use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Storefront\CartService;
 use Shopware\Core\Checkout\CheckoutContext;
@@ -28,11 +32,6 @@ class CartController extends StorefrontController
     public const ROUTE_CHECKOUT_CONFIRM = 'checkout_confirm';
 
     /**
-     * ONLY WORK IN PROGRESS
-     */
-    public const USER_LOGGED_IN = true;
-
-    /**
      * @var CartService
      */
     private $cartService;
@@ -53,6 +52,8 @@ class CartController extends StorefrontController
     /**
      * @Route("/cart/addProduct", name="cart_add_product", options={"seo"="false"})
      * @Method({"POST"})
+     *
+     * @throws MixedLineItemTypeException
      */
     public function addProduct(Request $request, CheckoutContext $context): Response
     {
@@ -83,13 +84,17 @@ class CartController extends StorefrontController
     /**
      * @Route("/cart/addLineItem", name="cart_add_line_item", options={"seo"="false"})
      * @Method({"POST"})
+     *
+     * @throws MixedLineItemTypeException
      */
     public function addLineItem(Request $request, CheckoutContext $context): Response
     {
         $identifier = $request->request->get('identifier');
-        $quantity = $request->request->getInt('quantity');
+        $quantity = $request->request->getInt('quantity', 1);
         $target = $request->request->get('target');
         $type = $request->request->get('type');
+        $removeable = $request->request->getBoolean('removeable', null);
+        $stackable = $request->request->getBoolean('stackable', null);
 
         if (!($identifier && $quantity && $type)) {
             return new JsonResponse([
@@ -98,7 +103,17 @@ class CartController extends StorefrontController
             ]);
         }
 
-        $this->addLineItemToCart($identifier, $quantity, $type, $context);
+        $lineItem = new LineItem($identifier, $type, $quantity);
+        $lineItem->setPayload(['id' => $identifier]);
+
+        if ($removeable !== null) {
+            $lineItem->setRemoveable($removeable);
+        }
+        if ($stackable !== null) {
+            $lineItem->setStackable($removeable);
+        }
+
+        $this->cartService->add($lineItem, $context);
 
         return $this->conditionalResponse($request, $target);
     }
@@ -106,6 +121,9 @@ class CartController extends StorefrontController
     /**
      * @Route("/cart/removeLineItem", name="cart_delete_line_item", options={"seo"="false"})
      * @Method({"POST"})
+     *
+     * @throws LineItemNotFoundException
+     * @throws LineItemNotRemoveableException
      */
     public function removeLineItem(Request $request, CheckoutContext $context): Response
     {
@@ -134,11 +152,14 @@ class CartController extends StorefrontController
     /**
      * @Route("/cart/setLineItemQuantity", name="cart_set_line_item_quantity", options={"seo"="false"})
      * @Method({"POST"})
+     *
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
      */
     public function setLineItemQuantity(Request $request, CheckoutContext $context): Response
     {
         $identifier = $request->request->get('identifier');
-        $quantity = $request->request->getInt('quantity');
+        $quantity = $request->request->getInt('quantity', 1);
         $target = $request->request->get('target');
 
         if (!($identifier && $quantity)) {
@@ -215,15 +236,9 @@ class CartController extends StorefrontController
         return $this->redirectToRoute(self::ROUTE_CHECKOUT_CART);
     }
 
-    private function addLineItemToCart(string $identifier, int $quantity, string $type, CheckoutContext $context)
-    {
-        $this->cartService->add(
-            (new LineItem($identifier, $type, $quantity))
-                ->setPayload(['id' => $identifier]),
-            $context
-        );
-    }
-
+    /**
+     * @throws MixedLineItemTypeException
+     */
     private function addProductToCart(CheckoutContext $context, string $identifier, int $quantity, array $services = []): void
     {
         $key = $identifier;
@@ -232,11 +247,12 @@ class CartController extends StorefrontController
             $key = $identifier . '-' . implode('-', $services);
         }
 
-        $this->cartService->add(
-            (new LineItem($key, ProductCollector::LINE_ITEM_TYPE, $quantity))
-                ->setPayload(['id' => $identifier, 'services' => $services]),
-            $context
-        );
+        $lineItem = new LineItem($key, ProductCollector::LINE_ITEM_TYPE, $quantity);
+        $lineItem->setPayload(['id' => $identifier, 'services' => $services])
+            ->setStackable(true)
+            ->setRemoveable(true);
+
+        $this->cartService->add($lineItem, $context);
     }
 
     private function acceptsHTML(Request $request): bool

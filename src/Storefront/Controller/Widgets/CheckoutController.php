@@ -51,7 +51,7 @@ class CheckoutController extends StorefrontController
         $cart = $this->cartService->getCart($context);
 
         return $this->render('@Storefront/widgets/checkout/info.html.twig', [
-            'cartQuantity' => $cart->getCalculatedLineItems()->filterGoods()->count(),
+            'cartQuantity' => $cart->getLineItems()->filterGoods()->count(),
             'cartAmount' => $cart->getPrice()->getTotalPrice(),
             'sNotesQuantity' => 0,
             'sUserLoggedIn' => false,

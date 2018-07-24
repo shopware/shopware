@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\CalculatedCart;
+namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\Cart;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart\Cart;

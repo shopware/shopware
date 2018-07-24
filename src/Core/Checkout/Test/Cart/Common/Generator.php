@@ -215,7 +215,7 @@ class Generator extends TestCase
         return $mock;
     }
 
-    public static function createCalculatedCart(): Cart
+    public static function createCart(): Cart
     {
         $cart = new Cart('test', 'test');
         $cart->setLineItems(

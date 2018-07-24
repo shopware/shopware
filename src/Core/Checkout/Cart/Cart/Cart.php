@@ -27,6 +27,9 @@ namespace Shopware\Core\Checkout\Cart\Cart;
 
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotRemoveableException;
+use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -134,6 +137,9 @@ class Cart extends Struct
         $this->deliveries = $deliveries;
     }
 
+    /**
+     * @throws MixedLineItemTypeException
+     */
     public function addLineItems(LineItemCollection $lineItems): void
     {
         foreach ($lineItems as $lineItem) {
@@ -165,6 +171,9 @@ class Cart extends Struct
         $this->price = $price;
     }
 
+    /**
+     * @throws MixedLineItemTypeException
+     */
     public function add(LineItem $lineItem): self
     {
         $this->lineItems->add($lineItem);
@@ -180,6 +189,23 @@ class Cart extends Struct
     public function has(string $lineItemKey)
     {
         return $this->lineItems->has($lineItemKey);
+    }
+
+    /**
+     * @throws LineItemNotFoundException
+     * @throws LineItemNotRemoveableException
+     */
+    public function remove(string $key)
+    {
+        if (!$this->has($key)) {
+            throw new LineItemNotFoundException($key);
+        }
+
+        if (!$this->get($key)->isRemoveable()) {
+            throw new LineItemNotRemoveableException($key);
+        }
+
+        $this->lineItems->remove($key);
     }
 
     public function getTransactions(): TransactionCollection

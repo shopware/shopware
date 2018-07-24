@@ -21,7 +21,7 @@ class EnrichmentTest extends KernelTestCase
     /**
      * @var EntityRepository
      */
-    protected $repository;
+    protected $productRepository;
 
     /**
      * @var Enrichment
@@ -48,7 +48,7 @@ class EnrichmentTest extends KernelTestCase
         self::bootKernel();
         parent::setUp();
 
-        $this->repository = self::$container->get('product.repository');
+        $this->productRepository = self::$container->get('product.repository');
         $this->factory = self::$container->get(CheckoutContextFactory::class);
         $this->context = $this->factory->create(Defaults::TENANT_ID, Defaults::TENANT_ID, Defaults::TOUCHPOINT);
         $this->enrichment = self::$container->get(Enrichment::class);
@@ -70,7 +70,7 @@ class EnrichmentTest extends KernelTestCase
         $context = $this->context->getContext();
         $context->getExtension('write_protection')->set('write_media', true);
 
-        $this->repository->create([
+        $this->productRepository->create([
             [
                 'id' => $id,
                 'name' => 'Missing label',
@@ -86,7 +86,7 @@ class EnrichmentTest extends KernelTestCase
                         'media' => [
                             'name' => 'test',
                             'album' => ['name' => 'test'],
-                            'mimeType' => 'A',
+                            'mimeType' => 'image/jpeg',
                             'fileName' => 'test',
                             'fileSize' => 0,
                         ],
@@ -129,7 +129,7 @@ class EnrichmentTest extends KernelTestCase
         $context = $this->context->getContext();
         $context->getExtension('write_protection')->set('write_media', true);
 
-        $this->repository->create([
+        $this->productRepository->create([
             [
                 'id' => $id,
                 'name' => 'Missing label',
@@ -145,7 +145,7 @@ class EnrichmentTest extends KernelTestCase
                         'media' => [
                             'name' => 'test',
                             'album' => ['name' => 'test'],
-                            'mimeType' => 'A',
+                            'mimeType' => 'image/jpeg',
                             'fileName' => 'test',
                             'fileSize' => 0,
                         ],

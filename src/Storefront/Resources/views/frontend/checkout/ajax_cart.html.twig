@@ -39,11 +39,11 @@
         {% block frontend_checkout_ajax_cart_item_container %}
             <div class="item--container">
                 {% block frontend_checkout_ajax_cart_item_container_inner %}
-                    {% if cart.calculatedLineItems.count > 0 %}
-                        {% for lineItem in cart.calculatedLineItems %}
+                    {% if cart.lineItems.count > 0 %}
+                        {% for lineItem in cart.lineItems %}
                             {% block frontend_checkout_ajax_cart_row %}
                                 {% sw_include '@Storefront/frontend/checkout/cart/ajax_cart-item.html.twig' with {
-                                    'calculatedLineItem': lineItem,
+                                    'lineItem': lineItem,
                                     'depth': 0
                                 } %}
                             {% endblock %}
@@ -64,7 +64,7 @@
         {% endblock %}
 
         {% block frontend_checkout_ajax_cart_prices_container %}
-            {% if cart.calculatedLineItems.count > 0 %}
+            {% if cart.lineItems.count > 0 %}
                 <div class="prices--container">
                     {% block frontend_checkout_ajax_cart_prices_container_inner %}
                         <div class="prices--articles">

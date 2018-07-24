@@ -4,8 +4,9 @@ declare(strict_types=1);
 namespace Shopware\Core\Checkout\Cart\Price\Struct;
 
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Struct\Struct;
 
-class PercentagePriceDefinition implements PriceDefinitionInterface
+class PercentagePriceDefinition extends Struct implements PriceDefinitionInterface
 {
     /**
      * @var float
@@ -19,7 +20,7 @@ class PercentagePriceDefinition implements PriceDefinitionInterface
      */
     protected $filter;
 
-    public function __construct(float $percentage, ?Rule $filter)
+    public function __construct(float $percentage, ?Rule $filter = null)
     {
         $this->percentage = $percentage;
         $this->filter = $filter;

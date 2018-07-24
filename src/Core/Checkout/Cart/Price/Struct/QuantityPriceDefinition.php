@@ -75,4 +75,9 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
     {
         return $this->isCalculated;
     }
+
+    public function setQuantity(int $quantity): void
+    {
+        $this->quantity = $quantity;
+    }
 }

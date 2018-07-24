@@ -93,11 +93,7 @@ class Calculator
 
     private function calculatePrice(Cart $cart, LineItem $lineItem, CheckoutContext $context, LineItemCollection $calculated): Price
     {
-        if ($lineItem->getPrice()) {
-            return $lineItem->getPrice();
-        }
-
-        if ($lineItem->getChildren()) {
+        if ($lineItem->hasChildren()) {
             $children = $this->calculateLineItems($cart, $lineItem->getChildren(), $context);
 
             $lineItem->setChildren($children);
@@ -124,6 +120,8 @@ class Calculator
         }
 
         if ($definition instanceof QuantityPriceDefinition) {
+            $definition->setQuantity($lineItem->getQuantity());
+
             return $this->priceCalculator->calculate($definition, $context);
         }
 

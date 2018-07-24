@@ -130,7 +130,7 @@
                     {% endblock %}
 
                     {# Article items #}
-                    {% for calculatedLineItem in cart.calculatedLineItems %}
+                    {% for lineItem in cart.lineItems %}
                         {% block frontend_checkout_finish_item %}
                             {% sw_include "frontend/checkout/finish/finish-item.html.twig" with {'isLast': loop.last} %}
                         {% endblock %}

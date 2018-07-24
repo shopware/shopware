@@ -33,8 +33,8 @@ class LineItemWrapperRule extends Rule
             return new Match(false, ['Invalid match context. CartRuleScope required.']);
         }
 
-        foreach ($scope->getCart()->getCalculatedLineItems() as $lineItem) {
-            $context = new LineItemScope($lineItem, $scope->getContext());
+        foreach ($scope->getCart()->getLineItems() as $lineItem) {
+            $context = new LineItemScope($lineItem, $scope->getCheckoutContext());
             $match = $this->container->match($context);
             if ($match->matches()) {
                 return $match;

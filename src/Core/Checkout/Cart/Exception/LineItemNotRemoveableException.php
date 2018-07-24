@@ -28,13 +28,13 @@ use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
-class LineItemNotFoundException extends ShopwareHttpException
+class LineItemNotRemoveableException extends ShopwareHttpException
 {
-    protected $code = 'CART-LINE-ITEM-NOT-FOUND';
+    protected $code = 'CART-LINE-ITEM-NOT-REMOVEABLE';
 
     public function __construct(string $identifier, int $code = 0, Throwable $previous = null)
     {
-        $message = sprintf('Line item with identifier %s not found', $identifier);
+        $message = sprintf('Line item with identifier %s cannot be removed', $identifier);
 
         parent::__construct($message, $code, $previous);
     }

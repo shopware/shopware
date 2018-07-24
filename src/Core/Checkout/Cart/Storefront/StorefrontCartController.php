@@ -5,12 +5,18 @@ namespace Shopware\Core\Checkout\Cart\Storefront;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Core\Checkout\Cart\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemCoverNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotRemoveableException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
+use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Content\Product\Cart\ProductCollector;
 use Shopware\Core\Framework\Api\Response\Type\JsonType;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Exception\MissingParameterException;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
@@ -35,6 +41,11 @@ class StorefrontCartController extends Controller
     private $orderRepository;
 
     /**
+     * @var RepositoryInterface
+     */
+    private $mediaRepository;
+
+    /**
      * @var Serializer
      */
     private $serializer;
@@ -47,6 +58,7 @@ class StorefrontCartController extends Controller
     public function __construct(
         CartService $service,
         RepositoryInterface $orderRepository,
+        RepositoryInterface $mediaRepository,
         Serializer $serializer,
         CheckoutContextPersister $contextPersister
     ) {
@@ -54,15 +66,12 @@ class StorefrontCartController extends Controller
         $this->serializer = $serializer;
         $this->contextPersister = $contextPersister;
         $this->cartService = $service;
+        $this->mediaRepository = $mediaRepository;
     }
 
     /**
      * @Route("/storefront-api/checkout/cart", name="storefront.api.checkout.cart.get")
      * @Method({"GET"})
-     *
-     * @param CheckoutContext $context
-     *
-     * @return JsonResponse
      */
     public function getCart(CheckoutContext $context): JsonResponse
     {
@@ -74,10 +83,6 @@ class StorefrontCartController extends Controller
     /**
      * @Route("/storefront-api/checkout/cart", name="storefront.api.checkout.cart.create")
      * @Method({"POST"})
-     *
-     * @param CheckoutContext $context
-     *
-     * @return JsonResponse
      */
     public function createCart(CheckoutContext $context): JsonResponse
     {
@@ -94,11 +99,8 @@ class StorefrontCartController extends Controller
      * @Route("/storefront-api/checkout/cart/product/{id}", name="storefront.api.checkout.cart.product.add")
      * @Method({"POST"})
      *
-     * @param string          $id
-     * @param Request         $request
-     * @param CheckoutContext $context
-     *
-     * @return JsonResponse
+     * @throws MixedLineItemTypeException
+     * @throws InvalidQuantityException
      */
     public function addProduct(string $id, Request $request, CheckoutContext $context): JsonResponse
     {
@@ -107,7 +109,9 @@ class StorefrontCartController extends Controller
         $payload = array_replace_recursive(['id' => $id], $payload);
 
         $lineItem = (new LineItem($id, ProductCollector::LINE_ITEM_TYPE, $quantity))
-            ->setPayload($payload);
+            ->setPayload($payload)
+            ->setRemoveable(true)
+            ->setStackable(true);
 
         $cart = $this->cartService->add($lineItem, $context);
 
@@ -118,20 +122,19 @@ class StorefrontCartController extends Controller
      * @Route("/storefront-api/checkout/cart/line-item/{id}", name="storefront.api.checkout.cart.line-item.add")
      * @Method({"POST"})
      *
-     * @param string          $id
-     * @param Request         $request
-     * @param CheckoutContext $context
-     *
      * @throws MissingParameterException
-     *
-     * @return JsonResponse
+     * @throws MixedLineItemTypeException
+     * @throws InvalidQuantityException
+     * @throws LineItemCoverNotFoundException
+     * @throws LineItemNotFoundException
+     * @throws LineItemNotStackableException
      */
     public function addLineItem(string $id, Request $request, CheckoutContext $context): JsonResponse
     {
-        $quantity = $request->request->getInt('quantity', 1);
+        // todo support price definition (NEXT-528)
         $type = $request->request->getAlnum('type', null);
-        $payload = $request->request->get('payload', []);
-        $payload = array_replace_recursive(['id' => $id], $payload);
+        $quantity = $request->request->getInt('quantity', 1);
+        $request->request->remove('quantity');
 
         if (!$type) {
             throw new MissingParameterException('type');
@@ -140,8 +143,8 @@ class StorefrontCartController extends Controller
             throw new MissingParameterException('id');
         }
 
-        $lineItem = (new LineItem($id, $type, $quantity))
-            ->setPayload($payload);
+        $lineItem = new LineItem($id, $type, $quantity);
+        $this->updateLineItemByRequest($lineItem, $request, $context->getContext());
 
         $cart = $this->cartService->add($lineItem, $context);
 
@@ -152,12 +155,8 @@ class StorefrontCartController extends Controller
      * @Route("/storefront-api/checkout/cart/line-item/{id}", name="storefront.api.checkout.cart.line-item.delete")
      * @Method({"DELETE"})
      *
-     * @param string          $id
-     * @param CheckoutContext $context
-     *
      * @throws LineItemNotFoundException
-     *
-     * @return JsonResponse
+     * @throws LineItemNotRemoveableException
      */
     public function removeLineItem(string $id, CheckoutContext $context): JsonResponse
     {
@@ -176,13 +175,9 @@ class StorefrontCartController extends Controller
      * @Route("/storefront-api/checkout/cart/line-item/{id}/quantity/{quantity}", name="storefront.api.checkout.cart.line-item.quatity.update")
      * @Method({"PATCH"})
      *
-     * @param string          $id
-     * @param int             $quantity
-     * @param CheckoutContext $context
-     *
      * @throws LineItemNotFoundException
-     *
-     * @return JsonResponse
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
      */
     public function setLineItemQuantity(string $id, int $quantity, CheckoutContext $context): JsonResponse
     {
@@ -201,13 +196,10 @@ class StorefrontCartController extends Controller
      * @Route("/storefront-api/checkout/cart/line-item/{id}", name="storefront.api.checkout.cart.line-item.update")
      * @Method({"PATCH"})
      *
-     * @param string          $id
-     * @param Request         $request
-     * @param CheckoutContext $context
-     *
+     * @throws InvalidQuantityException
      * @throws LineItemNotFoundException
-     *
-     * @return JsonResponse
+     * @throws LineItemNotStackableException
+     * @throws LineItemCoverNotFoundException
      */
     public function updateLineItem(string $id, Request $request, CheckoutContext $context): JsonResponse
     {
@@ -217,11 +209,9 @@ class StorefrontCartController extends Controller
             throw new LineItemNotFoundException($id);
         }
 
-        $quantity = $request->request->getInt('quantity', null);
+        $lineItem = $this->cartService->getCart($context)->getLineItems()->get($id);
 
-        if ($quantity) {
-            $cart = $this->cartService->changeQuantity($id, $quantity, $context);
-        }
+        $this->updateLineItemByRequest($lineItem, $request, $context->getContext());
 
         return new JsonResponse($this->serialize($cart));
     }
@@ -229,10 +219,6 @@ class StorefrontCartController extends Controller
     /**
      * @Route("/storefront-api/checkout/order", name="storefront.api.checkout.order")
      * @Method({"POST"})
-     *
-     * @param CheckoutContext $context
-     *
-     * @return JsonResponse
      */
     public function createOrder(CheckoutContext $context): JsonResponse
     {
@@ -246,6 +232,60 @@ class StorefrontCartController extends Controller
         return new JsonResponse(
             $this->serialize($order->get($orderId))
         );
+    }
+
+    /**
+     * @throws InvalidQuantityException
+     * @throws LineItemCoverNotFoundException
+     * @throws LineItemNotStackableException
+     */
+    private function updateLineItemByRequest(LineItem $lineItem, Request $request, Context $context)
+    {
+        $quantity = $request->request->get('quantity', null);
+        $payload = $request->request->get('payload', []);
+        $payload = array_replace_recursive(['id' => $lineItem->getKey()], $payload);
+        $stackable = $request->request->get('stackable', null);
+        $removeable = $request->request->get('removeable', null);
+        $priority = $request->request->get('priority', null);
+        $label = $request->request->get('label', null);
+        $description = $request->request->get('description', null);
+        $coverId = $request->request->get('coverId', null);
+
+        $lineItem->setPayload($payload);
+
+        if ($quantity) {
+            $lineItem->setQuantity($quantity);
+        }
+
+        if ($stackable !== null) {
+            $lineItem->setStackable($stackable);
+        }
+
+        if ($removeable !== null) {
+            $lineItem->setRemoveable($removeable);
+        }
+
+        if ($priority !== null) {
+            $lineItem->setPriority($priority);
+        }
+
+        if ($label !== null) {
+            $lineItem->setLabel($label);
+        }
+
+        if ($description !== null) {
+            $lineItem->setDescription($description);
+        }
+
+        if ($coverId !== null) {
+            $cover = $this->mediaRepository->read(new ReadCriteria([$coverId]), $context)->get($coverId);
+
+            if (!$cover) {
+                throw new LineItemCoverNotFoundException($coverId, $lineItem->getKey());
+            }
+
+            $lineItem->setCover($cover);
+        }
     }
 
     private function serialize($data): array

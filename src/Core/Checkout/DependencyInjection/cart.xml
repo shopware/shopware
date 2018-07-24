@@ -99,6 +99,7 @@
         <service class="Shopware\Core\Checkout\Cart\Storefront\StorefrontCartController" id="Shopware\Core\Checkout\Cart\Storefront\StorefrontCartController" public="true">
             <argument id="Shopware\Core\Checkout\Cart\Storefront\CartService" type="service"/>
             <argument type="service" id="order.repository"/>
+            <argument type="service" id="media.repository"/>
             <argument type="service" id="serializer"/>
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>
         </service>

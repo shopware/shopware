@@ -532,7 +532,7 @@ class StorefrontCustomerControllerTest extends ApiTestCase
     {
         return $this->customerRepository->read(
             new ReadCriteria([$userID]),
-            Context:: createDefaultContext(Defaults::TENANT_ID)
+            Context::createDefaultContext(Defaults::TENANT_ID)
         )->get($userID);
     }
 
@@ -540,7 +540,7 @@ class StorefrontCustomerControllerTest extends ApiTestCase
     {
         return $this->customerAddressRepository->read(
             new ReadCriteria([$addressId]),
-            Context:: createDefaultContext(Defaults::TENANT_ID)
+            Context::createDefaultContext(Defaults::TENANT_ID)
         )->get($addressId);
     }
 

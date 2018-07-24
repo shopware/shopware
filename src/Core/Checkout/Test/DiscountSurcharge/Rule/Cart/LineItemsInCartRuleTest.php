@@ -22,36 +22,49 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\CalculatedLineItem;
+namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\Cart;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\Rule\LineItemOfTypeRule;
-use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
+use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
+use Shopware\Core\Checkout\Cart\Rule\LineItemsInCartRule;
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Content\Product\Cart\ProductCollector;
+use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 
-class LineItemOfTypeRuleTest extends TestCase
+class LineItemsInCartRuleTest extends TestCase
 {
-    public function testRuleWithProductTypeMatch(): void
+    public function testRuleWithExactLineItemsMatch(): void
     {
-        $rule = new LineItemOfTypeRule(ProductCollector::LINE_ITEM_TYPE);
+        $rule = new LineItemsInCartRule(['A', 'B']);
 
+        $cart = Generator::createCart();
         $context = $this->createMock(CheckoutContext::class);
 
         static::assertTrue(
-            $rule->match(new LineItemScope(new LineItem('A', 'product'), $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
 
-    public function testRuleWithProductTypeNotMatch(): void
+    public function testRuleWithLineItemsNotMatch(): void
     {
-        $rule = new LineItemOfTypeRule('voucher');
+        $rule = new LineItemsInCartRule(['C', 'D']);
 
+        $cart = Generator::createCart();
         $context = $this->createMock(CheckoutContext::class);
 
         static::assertFalse(
-            $rule->match(new LineItemScope(new LineItem('A', 'product'), $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))->matches()
+        );
+    }
+
+    public function testRuleWithLineItemSubsetMatch(): void
+    {
+        $rule = new LineItemsInCartRule(['B']);
+
+        $cart = Generator::createCart();
+        $context = $this->createMock(CheckoutContext::class);
+
+        static::assertTrue(
+            $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
 }

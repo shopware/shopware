@@ -47,7 +47,7 @@ class LineItemWithQuantityRule extends Rule
         if ($scope->getLineItem()->getKey() !== $this->id) {
             return new Match(
                 false,
-                ['CalculatedLineItem id does not match']
+                ['LineItem id does not match']
             );
         }
 

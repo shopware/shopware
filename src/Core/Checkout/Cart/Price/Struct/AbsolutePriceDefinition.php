@@ -4,8 +4,9 @@ declare(strict_types=1);
 namespace Shopware\Core\Checkout\Cart\Price\Struct;
 
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Struct\Struct;
 
-class AbsolutePriceDefinition implements PriceDefinitionInterface
+class AbsolutePriceDefinition extends Struct implements PriceDefinitionInterface
 {
     /**
      * @var float
@@ -19,7 +20,7 @@ class AbsolutePriceDefinition implements PriceDefinitionInterface
      */
     protected $filter;
 
-    public function __construct(float $price, ?Rule $filter)
+    public function __construct(float $price, ?Rule $filter = null)
     {
         $this->price = $price;
         $this->filter = $filter;

@@ -854,8 +854,13 @@ class DemodataCommand extends ContainerAwareCommand
 
     private function createOrders(int $limit, string $tenantId)
     {
-        $products = $this->connection->fetchAll('SELECT LOWER(HEX(id)) as id, price FROM product LIMIT 500');
-
+        $products = $this->connection->fetchAll('
+        SELECT LOWER(HEX(product.id)) AS id,
+               product.price,
+               trans.name
+        FROM product
+        LEFT JOIN product_translation trans ON product.id = trans.product_id
+        LIMIT 500');
         $customerIds = $this->connection->fetchAll('SELECT LOWER(HEX(id)) as id FROM customer LIMIT 200');
         $customerIds = array_column($customerIds, 'id');
 
@@ -886,7 +891,8 @@ class DemodataCommand extends ContainerAwareCommand
 
                 return (new LineItem($id, ProductCollector::LINE_ITEM_TYPE, $quantity))
                     ->setPayload(['id' => $id])
-                    ->setPriceDefinition($price);
+                    ->setPriceDefinition($price)
+                    ->setLabel($product['name']);
             },
             $products
         );

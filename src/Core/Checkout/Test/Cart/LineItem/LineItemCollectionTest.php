@@ -54,14 +54,14 @@ class LineItemCollectionTest extends TestCase
     public function testCollectionStacksSameIdentifier(): void
     {
         $collection = new LineItemCollection([
-            new LineItem('A', 'a', 1),
-            new LineItem('A', 'a', 2),
-            new LineItem('A', 'a', 3),
+            (new LineItem('A', 'a', 1))->setStackable(true),
+            (new LineItem('A', 'a', 2))->setStackable(true),
+            (new LineItem('A', 'a', 3))->setStackable(true),
         ]);
 
         static::assertEquals(
             new LineItemCollection([
-                new LineItem('A', 'a', 6),
+                (new LineItem('A', 'a', 6))->setStackable(true),
             ]),
             $collection
         );
@@ -241,14 +241,14 @@ class LineItemCollectionTest extends TestCase
     public function testCollectionSumsQuantityOfSameKey(): void
     {
         $collection = new LineItemCollection([
-            new LineItem('A', 'test'),
-            new LineItem('A', 'test', 2),
-            new LineItem('A', 'test', 3),
+            (new LineItem('A', 'test'))->setStackable(true),
+            (new LineItem('A', 'test', 2))->setStackable(true),
+            (new LineItem('A', 'test', 3))->setStackable(true),
         ]);
 
         static::assertEquals(
             new LineItemCollection([
-                new LineItem('A', 'test', 6),
+                (new LineItem('A', 'test', 6))->setStackable(true),
             ]),
             $collection
         );

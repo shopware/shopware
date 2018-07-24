@@ -1,15 +1,15 @@
 {% sw_extends '@Storefront/frontend/checkout/cart/cart-item.html.twig' %}
 
 {% block frontend_checkout_cart_item_details_title %}
-    {% set detailUrl = path('detail_page', { 'id': calculatedLineItem.identifier }) %}
-    {% if calculatedLineItem.extensions.canonicalUrl %}
-        {% set detailUrl = calculatedLineItem.extensions.canonicalUrl.url %}
+    {% set detailUrl = path('detail_page', { 'id': lineItem.key }) %}
+    {% if lineItem.extensions.canonicalUrl %}
+        {% set detailUrl = lineItem.extensions.canonicalUrl.url %}
     {% endif %}
 
     <a class="item--link"
        href="{{ detailUrl }}"
-       title="{{ calculatedLineItem.label|truncate(160) }}">
-        <span class="item--quantity">{{ calculatedLineItem.quantity }}x</span>
+       title="{{ lineItem.label|truncate(160) }}">
+        <span class="item--quantity">{{ lineItem.quantity }}x</span>
         {{ parent() }}
     </a>
 {% endblock %}
@@ -24,7 +24,7 @@
 
         <a href="{{ deleteUrl }}"
            class="btn is--small action--remove"
-           data-identifier="{{ calculatedLineItem.identifier }}"
+           data-identifier="{{ lineItem.key }}"
            title="{% trans %}frontend.checkout.ajax_cart.AjaxCartRemoveArticle{% endtrans %}">
             <i class="icon--cross"></i>
         </a>

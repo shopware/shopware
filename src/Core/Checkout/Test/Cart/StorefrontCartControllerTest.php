@@ -26,6 +26,16 @@ class StorefrontCartControllerTest extends ApiTestCase
     private $customerRepository;
 
     /**
+     * @var RepositoryInterface
+     */
+    private $mediaRepository;
+
+    /**
+     * @var RepositoryInterface
+     */
+    private $mediaAlbumRepository;
+
+    /**
      * @var string
      */
     private $taxId;
@@ -40,6 +50,11 @@ class StorefrontCartControllerTest extends ApiTestCase
      */
     private $connection;
 
+    /**
+     * @var Context
+     */
+    private $context;
+
     protected function setUp()
     {
         parent::setUp();
@@ -49,8 +64,11 @@ class StorefrontCartControllerTest extends ApiTestCase
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->mediaRepository = $this->getContainer()->get('media.repository');
+        $this->mediaAlbumRepository = $this->getContainer()->get('media_album.repository');
         $this->taxId = Uuid::uuid4()->getHex();
         $this->manufacturerId = Uuid::uuid4()->getHex();
+        $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
     }
 
     public function testAddNonExistingProduct()
@@ -80,7 +98,7 @@ class StorefrontCartControllerTest extends ApiTestCase
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
             ],
-        ], Context:: createDefaultContext(Defaults::TENANT_ID));
+        ], $this->context);
 
         $client = $this->createCart();
 
@@ -123,7 +141,7 @@ class StorefrontCartControllerTest extends ApiTestCase
                 'manufacturerId' => $this->manufacturerId,
                 'taxId' => $this->taxId,
             ],
-        ], Context:: createDefaultContext(Defaults::TENANT_ID));
+        ], $this->context);
 
         $client = $this->createCart();
 
@@ -161,7 +179,7 @@ class StorefrontCartControllerTest extends ApiTestCase
                 'manufacturerId' => $this->manufacturerId,
                 'taxId' => $this->taxId,
             ],
-        ], Context:: createDefaultContext(Defaults::TENANT_ID));
+        ], $this->context);
 
         $client = $this->createCart();
 
@@ -185,7 +203,7 @@ class StorefrontCartControllerTest extends ApiTestCase
         }
     }
 
-    public function testUpdateLineItem()
+    public function testChangeLineItemQuantity()
     {
         $productId1 = Uuid::uuid4()->getHex();
         $productId2 = Uuid::uuid4()->getHex();
@@ -207,7 +225,7 @@ class StorefrontCartControllerTest extends ApiTestCase
                 'manufacturerId' => $this->manufacturerId,
                 'taxId' => $this->taxId,
             ],
-        ], Context:: createDefaultContext(Defaults::TENANT_ID));
+        ], $this->context);
 
         $client = $this->createCart();
 
@@ -217,7 +235,7 @@ class StorefrontCartControllerTest extends ApiTestCase
         $this->addProduct($client, $productId2);
         $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
-        $this->updateLineItem($client, $productId1, 10);
+        $this->updateLineItemQuantity($client, $productId1, 10);
 
         $cart = $this->getCart($client);
 
@@ -253,7 +271,7 @@ class StorefrontCartControllerTest extends ApiTestCase
                 'manufacturerId' => $this->manufacturerId,
                 'taxId' => $this->taxId,
             ],
-        ], Context:: createDefaultContext(Defaults::TENANT_ID));
+        ], $this->context);
 
         $client = $this->createCart();
 
@@ -294,7 +312,7 @@ class StorefrontCartControllerTest extends ApiTestCase
                 'manufacturerId' => $this->manufacturerId,
                 'taxId' => $this->taxId,
             ],
-        ], Context:: createDefaultContext(Defaults::TENANT_ID));
+        ], $this->context);
 
         $client = $this->createCart();
 
@@ -358,7 +376,7 @@ class StorefrontCartControllerTest extends ApiTestCase
                 'manufacturerId' => $this->manufacturerId,
                 'taxId' => $this->taxId,
             ],
-        ], Context:: createDefaultContext(Defaults::TENANT_ID));
+        ], $this->context);
 
         $client = $this->createCart();
 
@@ -405,11 +423,106 @@ class StorefrontCartControllerTest extends ApiTestCase
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
             ],
-        ], Context:: createDefaultContext(Defaults::TENANT_ID));
+        ], $this->context);
+
+        $albumId = Uuid::uuid4()->getHex();
+        $this->mediaAlbumRepository->create([
+            [
+                'id' => $albumId,
+                'name' => 'Products',
+            ],
+        ], $this->context);
+
+        $mediaId = Uuid::uuid4()->getHex();
+        $coverName = 'My custom line item name';
+        $this->mediaRepository->create([
+            [
+                'id' => $mediaId,
+                'albumId' => $albumId,
+                'name' => $coverName,
+            ],
+        ], $this->context);
 
         $client = $this->createCart();
 
-        $client->request('POST', '/storefront-api/checkout/cart/line-item/' . $productId, [], [], [], json_encode(['type' => ProductCollector::LINE_ITEM_TYPE]));
+        $quantity = 10;
+        $type = ProductCollector::LINE_ITEM_TYPE;
+        $stackable = true;
+        $removeable = true;
+        $priority = 500;
+        $label = 'My custom label';
+        $description = 'My custom description';
+
+        $client->request(
+            'POST',
+            '/storefront-api/checkout/cart/line-item/' . $productId,
+            [
+                'type' => $type,
+                'quantity' => $quantity,
+                'stackable' => $stackable,
+                'removeable' => $removeable,
+                'priority' => $priority,
+                'label' => $label,
+                'description' => $description,
+                'coverId' => $mediaId,
+            ]
+        );
+
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+
+        $content = json_decode($client->getResponse()->getContent(), true);
+
+        static::assertNotEmpty($content);
+        static::assertArrayHasKey('data', $content);
+        $cart = $content['data'];
+
+        static::assertArrayHasKey('price', $cart);
+        static::assertEquals(100, $cart['price']['totalPrice']);
+        static::assertCount(1, $cart['lineItems']);
+
+        $product = array_shift($cart['lineItems']);
+
+        static::assertEquals($productId, $product['key']);
+        static::assertEquals($type, $product['type']);
+        static::assertEquals($quantity, $product['quantity']);
+
+        static::assertEquals($stackable, $product['stackable']);
+        static::assertEquals($removeable, $product['removeable']);
+        static::assertEquals($priority, $product['priority']);
+        static::assertEquals($label, $product['label']);
+        static::assertEquals($description, $product['description']);
+
+        static::assertEquals($mediaId, $product['cover']['id']);
+        static::assertEquals($coverName, $product['cover']['name']);
+        static::assertEquals($albumId, $product['cover']['albumId']);
+    }
+
+    public function testUpdateLineItem()
+    {
+        $productId = Uuid::uuid4()->getHex();
+        $this->productRepository->create([
+            [
+                'id' => $productId,
+                'name' => 'Test',
+                'catalogId' => Defaults::CATALOG,
+                'price' => ['gross' => 10, 'net' => 9],
+                'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
+                'tax' => ['id' => $this->taxId, 'rate' => 17, 'name' => 'with id'],
+            ],
+        ], $this->context);
+
+        $client = $this->createCart();
+
+        $type = ProductCollector::LINE_ITEM_TYPE;
+
+        $client->request(
+            'POST',
+            '/storefront-api/checkout/cart/line-item/' . $productId,
+            [
+                'type' => $type,
+                'stackable' => true,
+            ]
+        );
 
         static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
@@ -423,8 +536,67 @@ class StorefrontCartControllerTest extends ApiTestCase
         static::assertEquals(10, $cart['price']['totalPrice']);
         static::assertCount(1, $cart['lineItems']);
 
+        $albumId = Uuid::uuid4()->getHex();
+        $this->mediaAlbumRepository->create([
+            [
+                'id' => $albumId,
+                'name' => 'Products',
+            ],
+        ], $this->context);
+
+        $mediaId = Uuid::uuid4()->getHex();
+        $coverName = 'My custom line item name';
+        $this->mediaRepository->create([
+            [
+                'id' => $mediaId,
+                'albumId' => $albumId,
+                'name' => $coverName,
+            ],
+        ], $this->context);
+
+        $quantity = 10;
+        $stackable = true;
+        $removeable = true;
+        $priority = 500;
+        $label = 'My custom label';
+        $description = 'My custom description';
+
+        $client->request(
+            'PATCH',
+            '/storefront-api/checkout/cart/line-item/' . $productId,
+            [
+                'quantity' => $quantity,
+                'stackable' => $stackable,
+                'removeable' => $removeable,
+                'priority' => $priority,
+                'label' => $label,
+                'description' => $description,
+                'coverId' => $mediaId,
+            ]
+        );
+
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+
+        $content = json_decode($client->getResponse()->getContent(), true);
+
+        static::assertNotEmpty($content);
+        static::assertArrayHasKey('data', $content);
+        $cart = $content['data'];
         $product = array_shift($cart['lineItems']);
+
         static::assertEquals($productId, $product['key']);
+        static::assertEquals($type, $product['type']);
+        static::assertEquals($quantity, $product['quantity']);
+
+        static::assertEquals($stackable, $product['stackable']);
+        static::assertEquals($removeable, $product['removeable']);
+        static::assertEquals($priority, $product['priority']);
+        static::assertEquals($label, $product['label']);
+        static::assertEquals($description, $product['description']);
+
+        static::assertEquals($mediaId, $product['cover']['id']);
+        static::assertEquals($coverName, $product['cover']['name']);
+        static::assertEquals($albumId, $product['cover']['albumId']);
     }
 
     public function testOrderProcess()
@@ -585,12 +757,9 @@ class StorefrontCartControllerTest extends ApiTestCase
         $client->request(
             'POST',
             '/storefront-api/checkout/cart/product/' . $id,
-            [],
-            [],
-            [],
-            json_encode([
+            [
                 'quantity' => $quantity,
-            ])
+            ]
         );
     }
 
@@ -599,9 +768,9 @@ class StorefrontCartControllerTest extends ApiTestCase
         $client->request('PATCH', sprintf('/storefront-api/checkout/cart/line-item/%s/quantity/%s', $lineItemId, $quantity));
     }
 
-    private function updateLineItem(Client $client, string $lineItemId, $quantity): void
+    private function updateLineItemQuantity(Client $client, string $lineItemId, $quantity): void
     {
-        $client->request('PATCH', sprintf('/storefront-api/checkout/cart/line-item/%s', $lineItemId), [], [], [], json_encode(['quantity' => $quantity]));
+        $client->request('PATCH', sprintf('/storefront-api/checkout/cart/line-item/%s', $lineItemId), ['quantity' => $quantity]);
     }
 
     private function removeLineItem(Client $client, string $lineItemId): void
@@ -616,9 +785,9 @@ class StorefrontCartControllerTest extends ApiTestCase
 
     private function login(Client $client, string $email, string $password)
     {
-        $client->request('POST', '/storefront-api/customer/login', [], [], [], json_encode([
+        $client->request('POST', '/storefront-api/customer/login', [
             'username' => $email,
             'password' => $password,
-        ]));
+        ]);
     }
 }

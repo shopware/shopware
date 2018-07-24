@@ -22,7 +22,7 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\CalculatedLineItem;
+namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\LineItem;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;

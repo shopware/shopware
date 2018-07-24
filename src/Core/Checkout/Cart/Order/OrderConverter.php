@@ -5,8 +5,8 @@ namespace Shopware\Core\Checkout\Cart\Order;
 use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
-use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction;
 use Shopware\Core\Checkout\CheckoutContext;
@@ -120,7 +120,7 @@ class OrderConverter
     {
         $children = $lineItem->getChildren();
 
-        if (!$children) {
+        if (!$lineItem->hasChildren()) {
             return [];
         }
 
@@ -131,7 +131,7 @@ class OrderConverter
             $row['id'] = Uuid::uuid4()->getHex();
             $data[] = $row;
 
-            if (!$child->getChildren()) {
+            if (!$child->hasChildren()) {
                 continue;
             }
 

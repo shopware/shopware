@@ -26,7 +26,10 @@ declare(strict_types=1);
 namespace Shopware\Core\Checkout\Cart\LineItem;
 
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
+use Shopware\Core\Checkout\Cart\Exception\InvalidChildQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
+use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
@@ -68,7 +71,7 @@ class LineItem extends Struct
     protected $payload;
 
     /**
-     * @var QuantityPriceDefinition|null
+     * @var PriceDefinitionInterface|null
      */
     protected $priceDefinition;
 
@@ -103,7 +106,7 @@ class LineItem extends Struct
     protected $deliveryInformation;
 
     /**
-     * @var LineItemCollection|null
+     * @var LineItemCollection
      */
     protected $children;
 
@@ -112,14 +115,35 @@ class LineItem extends Struct
      */
     protected $requirement;
 
+    /**
+     * @var bool
+     */
+    protected $removeable = false;
+
+    /**
+     * @var bool
+     */
+    protected $stackable = false;
+
+    /**
+     * @throws InvalidQuantityException
+     */
     public function __construct(string $key, string $type, int $quantity = 1, int $priority = self::GOODS_PRIORITY)
     {
         $this->key = $key;
         $this->type = $type;
         $this->priority = $priority;
-        $this->setQuantity($quantity);
+        $this->children = new LineItemCollection();
+
+        if ($quantity < 1) {
+            throw new InvalidQuantityException($quantity);
+        }
+        $this->quantity = $quantity;
     }
 
+    /**
+     * @throws InvalidQuantityException
+     */
     public static function createFrom(Struct $object)
     {
         /** @var LineItem $object */
@@ -163,12 +187,22 @@ class LineItem extends Struct
 
     /**
      * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
      */
     public function setQuantity(int $quantity): self
     {
         if ($quantity < 1) {
-            throw new InvalidQuantityException((string) $quantity);
+            throw new InvalidQuantityException($quantity);
         }
+
+        if (!$this->isStackable()) {
+            throw new LineItemNotStackableException($this->key);
+        }
+
+        if ($this->hasChildren()) {
+            $this->refreshChildQuantity($this->children, $this->quantity, $quantity);
+        }
+
         $this->quantity = $quantity;
 
         return $this;
@@ -282,14 +316,37 @@ class LineItem extends Struct
         return $this;
     }
 
-    public function getChildren(): ?LineItemCollection
+    public function getChildren(): LineItemCollection
     {
         return $this->children;
     }
 
-    public function setChildren(?LineItemCollection $children): self
+    /**
+     * @throws InvalidChildQuantityException
+     */
+    public function setChildren(LineItemCollection $children): self
     {
+        foreach ($children as $child) {
+            $this->validateChildQuantity($child);
+        }
         $this->children = $children;
+
+        return $this;
+    }
+
+    public function hasChildren(): bool
+    {
+        return $this->children->count() > 0;
+    }
+
+    /**
+     * @throws MixedLineItemTypeException
+     * @throws InvalidChildQuantityException
+     */
+    public function addChild(LineItem $child): self
+    {
+        $this->validateChildQuantity($child);
+        $this->children->add($child);
 
         return $this;
     }
@@ -304,5 +361,63 @@ class LineItem extends Struct
     public function getRequirement(): ?Rule
     {
         return $this->requirement;
+    }
+
+    public function isRemoveable(): bool
+    {
+        return $this->removeable;
+    }
+
+    public function setRemoveable(bool $removeable): LineItem
+    {
+        $this->removeable = $removeable;
+
+        return $this;
+    }
+
+    public function isStackable(): bool
+    {
+        return $this->stackable;
+    }
+
+    public function setStackable(bool $stackable): LineItem
+    {
+        $this->stackable = $stackable;
+
+        return $this;
+    }
+
+    /**
+     * @throws InvalidQuantityException
+     */
+    private function refreshChildQuantity(?LineItemCollection $lineItems, int $oldParentQuantity, int $newParentQuantity)
+    {
+        foreach ($lineItems as $lineItem) {
+            if (!$lineItem->isStackable()) {
+                continue;
+            }
+
+            $newQuantity = intdiv($lineItem->getQuantity(), $oldParentQuantity) * $newParentQuantity;
+
+            if ($lineItem->hasChildren()) {
+                $this->refreshChildQuantity($lineItem->getChildren(), $lineItem->getQuantity(), $newQuantity);
+            }
+
+            $lineItem->quantity = $newQuantity;
+            $priceDefinition = $lineItem->getPriceDefinition();
+            if ($priceDefinition && $priceDefinition instanceof QuantityPriceDefinition) {
+                $priceDefinition->setQuantity($lineItem->getQuantity());
+            }
+        }
+    }
+
+    /**
+     * @throws InvalidChildQuantityException
+     */
+    private function validateChildQuantity(LineItem $child): void
+    {
+        if ($child->getQuantity() % $this->getQuantity() !== 0) {
+            throw new InvalidChildQuantityException($child->getQuantity(), $this->getQuantity());
+        }
     }
 }

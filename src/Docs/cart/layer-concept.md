@@ -32,7 +32,7 @@ $context = $this->get('shopware.storefront.context.storefront_context_service')-
 
 $cart  = $calculator->calculate($container, $context);
 
-$product = $cart->getCalculatedLineItems()->get('SW1000');
+$product = $cart->getLineItems()->get('SW1000');
 $product->getPrice();
 ```
 *Example to get the calculated product*

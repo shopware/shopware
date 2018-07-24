@@ -9,6 +9,7 @@
 @sw-admin-menu-z-index-flyout:          500;
 @sw-admin-menu-transition:              .4s cubic-bezier(.50,.32,.01,1);
 @sw-admin-menu-sub-menu-transition:     .35s cubic-bezier(.50,.32,.01,1);
+@sw-admin-menu-flyout-transition:       .2s cubic-bezier(.50,.32,.01,1);
 @sw-admin-menu-color-active:            lighten(@color-gradient-dark-gray-start, 3%);
 @sw-admin-menu-color-hover:             lighten(@color-gradient-dark-gray-start, 6%);
 @sw-admin-menu-shop-status-ok:          @color-emerald;
@@ -42,7 +43,7 @@
         }
 
         .sw-admin-menu__flyout {
-            left: 300px;
+            left: @sw-admin-menu-width-expanded;
         }
     }
 
@@ -392,13 +393,13 @@
 
     .flyout-enter-active,
     .flyout-leave-active {
-        transition: all .15s;
+        transition: all @sw-admin-menu-flyout-transition;
         transform: translateX(0);
     }
 
     .flyout-enter,
     .flyout-leave-to {
         opacity: 0;
-        transform: translateX(-10px);
+        transform: translateX(-8px);
     }
 }

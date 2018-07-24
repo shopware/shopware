@@ -53,26 +53,18 @@ Component.register('sw-admin-menu', {
         openSubMenu(entry, currentTarget) {
             this.subMenuOpen = !this.subMenuOpen;
 
-            if (this.isExpanded) {
+            if (this.isExpanded || this.flyoutEntries) {
                 this.flyoutEntries = [];
             }
 
             this.changeActiveItem(currentTarget.querySelector('.sw-admin-menu__navigation-link'));
         },
 
-        /**
-         * TODO: Implement leaving item
-         */
-        leaveItem(entry, currentTarget) {
-            console.log(entry);
-            console.log(currentTarget);
-        },
-
         changeActiveItem(target) {
             const mainMenuElement = target.parentNode.parentNode;
             const activeClasses = ['sw-admin-menu__navigation-link-active', 'router-link-active'];
-
             const listElements = mainMenuElement.querySelectorAll('.sw-admin-menu__navigation-link');
+
             listElements.forEach((listItem) => {
                 listItem.classList.remove(...activeClasses);
             });

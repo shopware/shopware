@@ -26,12 +26,11 @@
                         {% endblock %}
 
                         {% block sw_admin_menu_header_shop_status %}
-                            <sw-color-badge variant="success"
-                                            data-tooltip="check"
-                                            title="Shop status: OK"
-                                            :rounded="true"
-                                            class="sw-admin-menu__shop-status">
-                            </sw-color-badge>
+                            <div class="sw-admin-menu__shop-status" title="Shop status: OK">
+                                {% block sw_admin_menu_header_shop_status_badge %}
+                                    <sw-color-badge variant="success" :rounded="true"></sw-color-badge>
+                                {% endblock %}
+                            </div>
                         {% endblock %}
 
                     </div>
@@ -53,7 +52,6 @@
                                     <sw-admin-menu-item v-for="entry in mainMenuEntries"
                                                         @menuItemHovered="openFlyout"
                                                         @menuItemClicked="openSubMenu"
-                                                        @menuItemMouseLeft="leaveItem"
                                                         :sidebarExpanded="isExpanded"
                                                         :entry="entry"
                                                         :key="entry.id || entry.path"
@@ -180,7 +178,7 @@
                                                     :key="entry.id || entry.path"
                                                     :collapsibleText="false"
                                                     :displayIcon="false"
-                                                    @listItemClicked="closeFlyout">
+                                                    @menuItemClicked="closeFlyout">
                                 </sw-admin-menu-item>
                             </ul>
                         {% endblock %}

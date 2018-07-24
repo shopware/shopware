@@ -478,5 +478,10 @@
         "more": "More"
       }
     }
+  },
+  "sw-search-bar": {
+    "general": {
+      "textNoSearchResults": "Could not find any results"
+    }
   }
 }

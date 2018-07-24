@@ -1,6 +1,12 @@
 {% block sw_customer_list %}
     <sw-page class="sw-customer-list">
 
+        {% block sw_order_list_search_bar_type %}
+            <template slot="search-bar-type">
+                {{ $tc('sw-customer.general.mainMenuItemGeneral') }}:
+            </template>
+        {% endblock %}
+
         {% block sw_customer_list_smart_bar_header %}
             <template slot="smart-bar-header">
                 {% block sw_customer_list_smart_bar_header_title %}

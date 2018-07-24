@@ -1,0 +1,38 @@
+@import "~less/variables";
+
+.sw-search-bar-item {
+    cursor: pointer;
+
+    &:hover {
+        background: @color-light-gray;
+    }
+
+    .item {
+        padding: 8px 15px;
+
+        // @todo: Use flex
+        &:after {
+            content:" ";
+            display:table;
+            clear:both;
+        }
+    }
+
+    .sw-icon {
+        float: left;
+        margin-right: 20px;
+    }
+
+    .label {
+        color: darken(@color-gutenberg, 20%);
+        font-size: 16px;
+        font-weight: 600;
+        float: left;
+    }
+
+    .type {
+        color: lighten(@color-gutenberg, 5%);
+        font-size: 15px;
+        float: right;
+    }
+}

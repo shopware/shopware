@@ -2,35 +2,38 @@
     <div class="sw-search-bar__controls">
         {#controls_before#}
     </div>
-    <form class="sw-search-bar__form">
-        <sw-icon name="small-search" small></sw-icon>
-        <sw-field placeholder="Finde Producte, Kunden, Einkaufwelten, Module"
-                  @input="openSearchSuggestions($event)">
-        </sw-field>
-    </form>
+    <div class="sw-search-bar__holder">
+        <div class="sw-search-bar__field" :class="{ 'is--active': isActive }">
+
+
+            <span v-if="useTypeSearch" class="sw-search-bar__type" :style="searchTypeColor">
+                <slot name="search-type"></slot>
+            </span>
+
+            <slot name="search-input">
+                <input class="sw-search-bar__input"
+                       placeholder="Finde Producte, Kunden, Einkaufwelten, Module"
+                       v-model="searchTerm"
+                       @input="onSearchTermChange"
+                       @focus="onFocusInput"
+                       @blur="onBlur"
+                       @keydown="onKeydownInput">
+            </slot>
+
+            <sw-icon name="small-search" small></sw-icon>
+        </div>
+    </div>
     <div class="sw-search-bar__controls">
         {#controls_after#}
     </div>
 
-    <div v-if="isSearchOpened" class="sw-search-bar__results">
+    <div v-if="showResultsContainer" class="sw-search-bar__results">
         <sw-alert v-if="!searchResults.length" variant="warning" title="Keine Ergebnisse">
-            Es konnte leider nichts gefunden werden.
+            {{ tc('sw-search-bar.general.textNoSearchResults') }}
         </sw-alert>
 
         <ul v-else class="sw-search-bar__results-list">
-            <li v-for="result in searchResults" class="sw-search-bar__result-item">
-                <div v-if="result.type === 'customer'" class="item">
-                    <sw-icon name="default-building-shop" size="20px" color="#F88962"></sw-icon>
-                    <span class="label">{{ result.entity.firstName }} {{ result.entity.lastName }}</span>
-                    <span class="type">Kunde</span>
-                </div>
-
-                <div v-else-if="result.type === 'product'" class="item">
-                    <sw-icon name="default-symbol-products" size="20px" color="#7ad5c8"></sw-icon>
-                    <span class="label">{{ result.entity.name }}</span>
-                    <span class="type">Produkt</span>
-                </div>
-            </li>
+            <sw-search-bar-item v-for="item in searchResults" :item="item" :key="item.id"></sw-search-bar-item>
         </ul>
     </div>
 </div>

@@ -1,0 +1,13 @@
+<li class="sw-search-bar-item">
+    <div v-if="item.type === 'customer'" class="item">
+        <sw-icon name="default-building-shop" size="20px" color="#F88962"></sw-icon>
+        <span class="label">{{ item.entity.firstName }} {{ item.entity.lastName }}</span>
+        <span class="type">Kunde</span>
+    </div>
+
+    <div v-else-if="item.type === 'product'" class="item">
+        <sw-icon name="default-symbol-products" size="20px" color="#7ad5c8"></sw-icon>
+        <span class="label">{{ item.entity.name }}</span>
+        <span class="type">Produkt</span>
+    </div>
+</li>

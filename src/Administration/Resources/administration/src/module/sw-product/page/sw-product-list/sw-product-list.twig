@@ -1,6 +1,12 @@
 {% block sw_product_list %}
     <sw-page class="sw-product-list">
 
+        {% block sw_order_list_search_bar_type %}
+            <template slot="search-bar-type">
+                {{ $tc('sw-product.general.mainMenuItemGeneral') }}:
+            </template>
+        {% endblock %}
+
         {% block sw_product_list_smart_bar_header %}
             <template slot="smart-bar-header">
                 {% block sw_product_list_smart_bar_header_title %}
@@ -147,7 +153,7 @@
                                                 </sw-context-button>
                                             </sw-grid-column>
                                         {% endblock %}
-                                    
+
                                     {% endblock %}
 
                                     {% block sw_product_list_delete_modal %}
@@ -160,7 +166,7 @@
                                                     {{ $tc('sw-product.list.textDeleteConfirm', 0, { name: item.name }) }}
                                                 </p>
                                             {% endblock %}
-    
+
                                             {% block sw_product_list_delete_modal_footer %}
                                                 <template slot="modal-footer">
                                                     {% block sw_product_list_delete_modal_cancel %}

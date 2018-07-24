@@ -73,6 +73,7 @@ Module.register('sw-product', {
         id: 'sw-product',
         label: 'sw-product.general.mainMenuItemGeneral',
         color: '#57D9A3',
+        path: 'sw.product.index',
         icon: 'default-symbol-products'
     }, {
         path: 'sw.product.index',

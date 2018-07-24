@@ -26,7 +26,11 @@
                         {% endblock %}
 
                         {% block sw_admin_menu_header_shop_status %}
-                            <sw-color-badge variant="success" data-tooltip="check" title="Shop status: OK" :rounded="true" class="sw-admin-menu__shop-status"></sw-color-badge>
+                            <div class="sw-admin-menu__shop-status" title="Shop status: OK">
+                                {% block sw_admin_menu_header_shop_status_badge %}
+                                    <sw-color-badge variant="success" :rounded="true"></sw-color-badge>
+                                {% endblock %}
+                            </div>
                         {% endblock %}
 
                     </div>
@@ -46,12 +50,12 @@
 
                                 {% block sw_admin_menu_navigation_main_items %}
                                     <sw-admin-menu-item v-for="entry in mainMenuEntries"
-                                                     v-on:menuItemChanged="openFlyout"
-                                                     v-on:listItemClicked="openSubMenu"
-                                                     :sidebarExpanded="isExpanded"
-                                                     :entry="entry"
-                                                     :key="entry.id || entry.path"
-                                                     :class="entry.label">
+                                                        @menuItemHovered="openFlyout"
+                                                        @menuItemClicked="openSubMenu"
+                                                        :sidebarExpanded="isExpanded"
+                                                        :entry="entry"
+                                                        :key="entry.id || entry.path"
+                                                        :class="entry.label">
                                     </sw-admin-menu-item>
                                 {% endblock %}
 
@@ -126,7 +130,8 @@
                                             <a href="#" class="sw-admin-menu__navigation-link" @click.prevent="onChangeLanguage">
                                                 <sw-icon class="sw-admin-menu__navigation-link-icon"
                                                          name="default-location-flag"
-                                                         small></sw-icon>
+                                                         small>
+                                                </sw-icon>
                                                 {{ $tc('global.sw-admin-menu.linkChangeLanguage') }}
                                             </a>
                                         </li>
@@ -152,29 +157,34 @@
             </div>
         {% endblock %}
 
-        {% block sw_admin_menu_flyout %}
-            <template v-if="!isExpanded && flyoutEntries.length">
-                <div class="sw-admin-menu__flyout" :style="flyoutStyle" @mouseleave="closeFlyout">
+        {% block sw_admin_menu_flyout_transition %}
+            <transition name="flyout">
+                {% block sw_admin_menu_flyout %}
+                    <div v-if="flyoutEntries.length"
+                         class="sw-admin-menu__flyout"
+                         :style="flyoutStyle"
+                         @mouseleave="closeFlyout">
 
-                    {% block sw_admin_menu_flyout_label %}
-                        <div class="sw-admin-menu__flyout-label">
-                            {{ $tc(flyoutLabel) }}
-                        </div>
-                    {% endblock %}
+                        {% block sw_admin_menu_flyout_label %}
+                            <div v-if="!isExpanded" class="sw-admin-menu__flyout-label">
+                                {{ $tc(flyoutLabel) }}
+                            </div>
+                        {% endblock %}
 
-                    {% block sw_admin_menu_flyout_list %}
-                        <ul v-if="flyoutEntries" class="sw-admin-menu__flyout-list">
-                            <sw-admin-menu-item v-for="entry in flyoutEntries"
-                                             :entry="entry"
-                                             :key="entry.id || entry.path"
-                                             :collapsibleText="false"
-                                             :displayIcon="false">
-                            </sw-admin-menu-item>
-                        </ul>
-                    {% endblock %}
-                </div>
-            </template>
+                        {% block sw_admin_menu_flyout_list %}
+                            <ul v-if="flyoutEntries" class="sw-admin-menu__flyout-list">
+                                <sw-admin-menu-item v-for="entry in flyoutEntries"
+                                                    :entry="entry"
+                                                    :key="entry.id || entry.path"
+                                                    :collapsibleText="false"
+                                                    :displayIcon="false"
+                                                    @menuItemClicked="closeFlyout">
+                                </sw-admin-menu-item>
+                            </ul>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </transition>
         {% endblock %}
-
     </aside>
 {% endblock %}

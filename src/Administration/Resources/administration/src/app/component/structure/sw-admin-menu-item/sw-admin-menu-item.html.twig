@@ -1,11 +1,13 @@
 {% block sw_admin_menu_item %}
     <li class="sw-admin-menu__navigation-list-item"
         :class="getItemName(entry.id || entry.path)"
-        @click="$emit('listItemClicked', entry, $event.currentTarget)"
-        @mouseover="$emit('menuItemChanged', entry, $event.currentTarget)">
+        @click="$emit('menuItemClicked', entry, $event.currentTarget)"
+        @mouseover="$emit('menuItemHovered', entry, $event.currentTarget)">
 
         {% block sw_admin_menu_item_router_link %}
-            <router-link class="sw-admin-menu__navigation-link" :to="{ name: entry.path }" v-if="entry.path">
+            <router-link v-if="entry.path"
+                         class="sw-admin-menu__navigation-link"
+                         :to="{ name: entry.path }">
 
                 {% block sw_admin_menu_item_icon %}
                     <sw-icon v-if="displayIcon"
@@ -30,6 +32,7 @@
                :target="entry.target"
                :title="$tc(entry.label)"
                class="sw-admin-menu__navigation-link">
+
                 {% block sw_admin_menu_item_icon %}
                     <sw-icon v-if="displayIcon"
                              size="20px"
@@ -41,28 +44,28 @@
 
                 {% block sw_admin_menu_item_text %}
                     <span :class="collapsibleText ? 'collapsible-text' : ''">
-                            {{ $tc(entry.label) }}
-                        </span>
+                        {{ $tc(entry.label) }}
+                    </span>
                 {% endblock %}
             </a>
         {% endblock %}
 
         {% block sw_admin_menu_item_navigation_link %}
-            <span class="sw-admin-menu__navigation-link"
-                  :class="startupClass" v-else>
+            <span v-else class="sw-admin-menu__navigation-link">
+
                 {% block sw_admin_menu_item_icon %}
                     <sw-icon v-if="displayIcon"
-                         size="20px"
-                         class="sw-admin-menu__navigation-link-icon"
-                         :name="getIconName(entry.icon)"
-                         :style="{ 'color': entry.color }">
+                             size="20px"
+                             class="sw-admin-menu__navigation-link-icon"
+                             :name="getIconName(entry.icon)"
+                             :style="{ 'color': entry.color }">
                     </sw-icon>
                 {% endblock %}
 
                 {% block sw_admin_menu_item_text %}
                      <span :class="collapsibleText ? 'collapsible-text' : ''">
                         {{ $tc(entry.label) }}
-                    </span>
+                     </span>
                 {% endblock %}
             </span>
         {% endblock %}

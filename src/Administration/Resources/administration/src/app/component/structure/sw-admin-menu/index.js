@@ -34,7 +34,7 @@ Component.register('sw-admin-menu', {
         },
 
         userActionsToggleIcon() {
-            return this.isUserActionsActive ? 'small-arrow-medium-up' : 'small-arrow-medium-down';
+            return this.isUserActionsActive ? 'small-arrow-medium-down' : 'small-arrow-medium-up';
         },
 
         scrollbarOffsetStyle() {
@@ -52,19 +52,28 @@ Component.register('sw-admin-menu', {
     methods: {
         openSubMenu(entry, currentTarget) {
             this.subMenuOpen = !this.subMenuOpen;
+
+            if (this.isExpanded) {
+                this.flyoutEntries = [];
+            }
+
             this.changeActiveItem(currentTarget.querySelector('.sw-admin-menu__navigation-link'));
         },
 
         changeActiveItem(target) {
             const mainMenuElement = target.parentNode.parentNode;
-            const activeClasses = ['sw-admin-menu__navigation-link-active', 'router-link-active'];
-
+            const activeClass = 'router-link-active';
             const listElements = mainMenuElement.querySelectorAll('.sw-admin-menu__navigation-link');
+
             listElements.forEach((listItem) => {
-                listItem.classList.remove(...activeClasses);
+                listItem.classList.remove(activeClass);
             });
 
-            target.classList.add(activeClasses[0]);
+            target.classList.add(activeClass);
+        },
+
+        isActiveItem(menuItem) {
+            return this.isExpanded && menuItem.classList.contains('router-link-active');
         },
 
         openFlyout(entry, currentTarget) {
@@ -72,12 +81,19 @@ Component.register('sw-admin-menu', {
                 return false;
             }
 
+            this.flyoutEntries = [];
+
+            const menuItem = currentTarget.querySelector('.sw-admin-menu__navigation-link');
+
+            if (this.isActiveItem(menuItem)) {
+                return false;
+            }
+
             this.flyoutEntries = entry.children;
             this.flyoutLabel = entry.label;
 
             if (!this.isExpanded) {
-                const listItem = currentTarget.querySelector('.sw-admin-menu__navigation-link');
-                this.changeActiveItem(listItem);
+                this.changeActiveItem(menuItem);
             }
 
             this.flyoutStyle = {

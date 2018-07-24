@@ -178,6 +178,7 @@
   "sw-catalog": {
     "general": {
       "mainMenuItemIndex": "Catalogues",
+      "mainMenuItemList": "Overview",
       "mainMenuItemCreate": "Create catalogue",
       "headlineCatalogs": "Catalogues",
       "introHeadlineCatalogs": "Welcome to the catalogue management",

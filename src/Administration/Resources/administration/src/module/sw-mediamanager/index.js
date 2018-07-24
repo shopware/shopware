@@ -11,7 +11,7 @@ Module.register('sw-mediamanager', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#ef734a',
-    icon: 'text-editor-media',
+    icon: 'default-object-image',
 
     routes: {
         index: {
@@ -32,7 +32,7 @@ Module.register('sw-mediamanager', {
         id: 'sw-mediamanager',
         label: 'sw-mediamanager.general.mainMenuItemGeneral',
         color: '#ef734a',
-        icon: 'text-editor-media',
+        icon: 'default-object-image',
         path: 'sw.mediamanager.index'
     }]
 });

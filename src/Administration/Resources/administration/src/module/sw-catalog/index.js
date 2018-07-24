@@ -36,13 +36,18 @@ Module.register('sw-catalog', {
     },
 
     navigation: [{
+        id: 'sw-catalog',
         path: 'sw.catalog.index',
         label: 'sw-catalog.general.mainMenuItemIndex',
         color: '#FF85C2',
         icon: 'default-package-closed'
     }, {
+        path: 'sw.catalog.index',
+        parent: 'sw-catalog',
+        label: 'sw-catalog.general.mainMenuItemList'
+    }, {
         path: 'sw.catalog.create',
-        parent: 'sw.catalog.index',
+        parent: 'sw-catalog',
         label: 'sw-catalog.general.mainMenuItemCreate',
         color: '#FF85C2'
     }]

@@ -273,6 +273,7 @@ class EntityProxy {
             if (syncAssociations && associationCue.length) {
                 return Promise.all(associationCue).then(() => {
                     if (!Object.keys(changeset).length) {
+                        this.isLoading = false;
                         return Promise.resolve(this.exposedData);
                     }
 
@@ -281,6 +282,7 @@ class EntityProxy {
             }
 
             if (!Object.keys(changeset).length) {
+                this.isLoading = false;
                 return Promise.resolve(this.exposedData);
             }
 
@@ -290,6 +292,7 @@ class EntityProxy {
         if (syncAssociations && associationCue.length) {
             return Promise.all(associationCue).then(() => {
                 if (!Object.keys(changeset).length) {
+                    this.isLoading = false;
                     return Promise.resolve(this.exposedData);
                 }
 
@@ -298,6 +301,7 @@ class EntityProxy {
         }
 
         if (!Object.keys(changeset).length) {
+            this.isLoading = false;
             return Promise.resolve(this.exposedData);
         }
 

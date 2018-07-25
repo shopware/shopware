@@ -52,9 +52,10 @@ Component.register('sw-price-field', {
             }
         },
 
-        taxRate() {
-            // ToDo: Does not trigger value update!?
-            this.price.net = this.convertGrossToNet(this.price.gross);
+        'taxRate.taxRate': function taxRateWatcher() {
+            if (this.locked === true) {
+                this.price.net = this.convertGrossToNet(this.price.gross);
+            }
         }
     },
 
@@ -104,11 +105,11 @@ Component.register('sw-price-field', {
         },
 
         getMathTaxRate() {
-            if (!this.taxRate || !this.taxRate.rate) {
+            if (!this.taxRate || !this.taxRate.taxRate) {
                 return 1;
             }
 
-            return (this.taxRate.rate / 100) + 1;
+            return (this.taxRate.taxRate / 100) + 1;
         }
     }
 });

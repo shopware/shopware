@@ -12,10 +12,10 @@ use Shopware\Core\Framework\ORM\Write\Flag\Inherited;
 
 class SearchKeywordAssociationFieldResolver implements FieldResolverInterface
 {
-    public function resolve(string $definition, string $root, Field $field, QueryBuilder $query, Context $context, EntityDefinitionQueryHelper $queryHelper, bool $raw): void
+    public function resolve(string $definition, string $root, Field $field, QueryBuilder $query, Context $context, EntityDefinitionQueryHelper $queryHelper, bool $raw): bool
     {
         if (!$field instanceof SearchKeywordAssociationField) {
-            return;
+            return false;
         }
 
         $query->addState(EntityDefinitionQueryHelper::HAS_TO_MANY_JOIN);
@@ -27,7 +27,7 @@ class SearchKeywordAssociationFieldResolver implements FieldResolverInterface
 
         $alias = $root . '.' . $field->getPropertyName();
         if ($query->hasState($alias)) {
-            return;
+            return true;
         }
         $query->addState($alias);
 
@@ -61,5 +61,7 @@ class SearchKeywordAssociationFieldResolver implements FieldResolverInterface
         );
 
         $query->setParameter($entityKey, $definition::getEntityName());
+
+        return true;
     }
 }

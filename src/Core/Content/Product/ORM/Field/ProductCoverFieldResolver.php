@@ -19,9 +19,9 @@ class ProductCoverFieldResolver implements FieldResolverInterface
         Context $context,
         EntityDefinitionQueryHelper $queryHelper,
         bool $raw
-    ): void {
+    ): bool {
         if (!$field instanceof ProductCoverField) {
-            return;
+            return false;
         }
 
         $table = ProductMediaDefinition::getEntityName();

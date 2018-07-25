@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Api\Entity\Dbal;
 
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\ORM\Dbal\FieldResolver\FieldResolverInterface;
@@ -14,28 +15,23 @@ use Shopware\Storefront\Api\Seo\SeoUrlDefinition;
 
 class CanonicalUrlAssociationFieldResolver implements FieldResolverInterface
 {
-    public function resolve(
-        string $definition,
-        string $root,
-        Field $field,
-        QueryBuilder $query,
-        Context $context,
-        EntityDefinitionQueryHelper $queryHelper,
-        bool $raw
-    ): void {
+    public function resolve(string $definition, string $root, Field $field, QueryBuilder $query, Context $context, EntityDefinitionQueryHelper $queryHelper, bool $raw): bool
+    {
         if (!$field instanceof CanonicalUrlAssociationField) {
-            return;
+            return false;
         }
 
         if ($context->getSourceContext()->getOrigin() !== SourceContext::ORIGIN_STOREFRONT_API) {
-            return;
+            $touchpointId = Uuid::fromHexToBytes(Defaults::TOUCHPOINT);
+        } else {
+            $touchpointId = Uuid::fromHexToBytes($context->getSourceContext()->getTouchpointId());
         }
 
         $table = SeoUrlDefinition::getEntityName();
         $alias = $root . '.' . $field->getPropertyName();
 
         if ($query->hasState($alias)) {
-            return;
+            return true;
         }
 
         $query->addState($alias);
@@ -56,12 +52,15 @@ class CanonicalUrlAssociationFieldResolver implements FieldResolverInterface
                 array_keys($parameters),
                 array_values($parameters),
                 '#alias#.`touchpoint_id` = :touchpointId
-                 AND #root#.#source_column# = #alias#.#reference_column# 
+                 AND #alias#.#reference_column# = #root#.#source_column#  
                  AND #alias#.name = :' . $key . '
-                 AND #alias#.is_canonical = 1'
+                 AND #alias#.is_canonical = 1
+                 AND #alias#.tenant_id = :tenant'
             )
         );
         $query->setParameter($key, $field->getRouteName());
-        $query->setParameter('touchpointId', Uuid::fromHexToBytes($context->getSourceContext()->getTouchpointId()));
+        $query->setParameter('touchpointId', $touchpointId);
+
+        return true;
     }
 }

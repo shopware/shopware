@@ -20,22 +20,24 @@ class TranslationFieldResolver implements FieldResolverInterface
         Context $context,
         EntityDefinitionQueryHelper $queryHelper,
         bool $raw
-    ): void {
+    ): bool {
         if (!$field instanceof TranslatedField) {
-            return;
+            return false;
         }
 
         $this->joinTranslationTable($root, $definition, $query, $context);
 
         /** @var string|EntityDefinition $definition */
         if (!$definition::isInheritanceAware() || $raw) {
-            return;
+            return true;
         }
 
         /** @var EntityDefinition $definition */
         $alias = $root . '.parent';
 
         $this->joinTranslationTable($alias, $definition, $query, $context);
+
+        return true;
     }
 
     private function joinTranslationTable(string $root, string $definition, QueryBuilder $query, Context $context): void

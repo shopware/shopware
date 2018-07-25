@@ -22,9 +22,9 @@ class OneToManyAssociationFieldResolver implements FieldResolverInterface
         Context $context,
         EntityDefinitionQueryHelper $queryHelper,
         bool $raw
-    ): void {
+    ): bool {
         if (!$field instanceof OneToManyAssociationField) {
-            return;
+            return false;
         }
 
         $query->addState(EntityDefinitionQueryHelper::HAS_TO_MANY_JOIN);
@@ -36,7 +36,7 @@ class OneToManyAssociationFieldResolver implements FieldResolverInterface
 
         $alias = $root . '.' . $field->getPropertyName();
         if ($query->hasState($alias)) {
-            return;
+            return true;
         }
         $query->addState($alias);
 
@@ -91,14 +91,16 @@ class OneToManyAssociationFieldResolver implements FieldResolverInterface
         );
 
         if ($definition === $reference) {
-            return;
+            return true;
         }
 
         if (!$reference::isInheritanceAware()) {
-            return;
+            return true;
         }
 
         $parent = $reference::getFields()->get('parent');
         $queryHelper->resolveField($parent, $reference, $alias, $query, $context);
+
+        return true;
     }
 }

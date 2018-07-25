@@ -4,9 +4,9 @@ import template from './sw-search-bar.html.twig';
 import './sw-search-bar.less';
 
 Component.register('sw-search-bar', {
-    inject: ['searchService'],
-
     template,
+
+    inject: ['searchService'],
 
     data() {
         return {
@@ -58,7 +58,6 @@ Component.register('sw-search-bar', {
 
         onBlur() {
             this.isActive = false;
-            this.showResultsContainer = false;
         },
 
         onSearchTermChange() {
@@ -69,8 +68,8 @@ Component.register('sw-search-bar', {
             }
         },
 
-        onKeydownInput(key) {
-            if (this.searchTerm.length === 0 && key.code === 'Backspace') {
+        resetSearchType() {
+            if (this.searchTerm.length === 0) {
                 this.useSearchTypeWhenSet = false;
             }
         },
@@ -83,12 +82,11 @@ Component.register('sw-search-bar', {
         doGlobalSearch: utils.debounce(function debouncedSearch() {
             const searchTerm = this.searchTerm.trim();
             this.isLoading = true;
+
             if (searchTerm && searchTerm.length > 0) {
                 this.loadResults(searchTerm);
             } else {
                 this.showResultsContainer = false;
-                this.loadPreviewResults();
-                // this.scrollToResultsTop();
             }
         }, 400),
 
@@ -98,10 +96,6 @@ Component.register('sw-search-bar', {
                 this.isLoading = false;
             });
             this.showResultsContainer = true;
-        },
-
-        loadPreviewResults() {
-            console.log('test');
         }
     }
 });

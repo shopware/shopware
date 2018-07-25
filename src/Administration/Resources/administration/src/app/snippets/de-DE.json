@@ -45,6 +45,15 @@
     "sw-multi-select": {
       "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden.",
       "buttonDismiss": "Entfernen"
+    },
+    "sw-search-bar": {
+      "textNoSearchResults": "Es wurden keine Ergebnisse gefunden",
+      "placeholderSearchField": "Finde Produkte, Kunden, CMS Seiten, Module"
+    },
+    "sw-search-bar-item": {
+      "typeLabelCustomer": "Kunde",
+      "typeLabelProduct": "Produkt",
+      "typeLabelOrder": "Bestellung"
     }
   },
   "sw-login": {
@@ -477,11 +486,6 @@
         "delete": "Löschen",
         "more": "Mehr"
       }
-    }
-  },
-  "sw-search-bar": {
-    "general": {
-      "textNoSearchResults": "Es konnte leider nichts gefunden werden"
     }
   }
 }

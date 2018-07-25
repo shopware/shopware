@@ -1,38 +1,43 @@
 @import "~less/variables";
 
+@sw-search-bar-item-border-radius:          @border-radius-default;
+@sw-search-bar-item-color-label:            @color-gutenberg;
+@sw-search-bar-item-color-type:             darken(@color-light-gray, 25%);
+@sw-search-bar-item-hover-color-background: lighten(@color-shopware-blue, 40%);
+@sw-search-bar-item-label-hover-color-text: @color-shopware-blue;
+
 .sw-search-bar-item {
-    cursor: pointer;
+    border-radius: @sw-search-bar-item-border-radius;
 
-    &:hover {
-        background: @color-light-gray;
-    }
-
-    .item {
+    .sw-search-bar-item__link {
         padding: 8px 15px;
-
-        // @todo: Use flex
-        &:after {
-            content:" ";
-            display:table;
-            clear:both;
-        }
+        border-radius: @sw-search-bar-item-border-radius;
+        display: flex;
+        text-decoration: none;
     }
 
     .sw-icon {
-        float: left;
         margin-right: 20px;
     }
 
-    .label {
-        color: darken(@color-gutenberg, 20%);
-        font-size: 16px;
-        font-weight: 600;
-        float: left;
+    .sw-search-bar-item__label {
+        color: @sw-search-bar-item-color-label;
+        font-size: 15px;
     }
 
-    .type {
-        color: lighten(@color-gutenberg, 5%);
-        font-size: 15px;
-        float: right;
+    .sw-search-bar-item__type {
+        color: @sw-search-bar-item-color-type;
+        font-size: 13px;
+        margin-left: auto;
+    }
+
+    &:hover {
+        .sw-search-bar-item__link {
+            background: @sw-search-bar-item-hover-color-background;
+        }
+
+        .sw-search-bar-item__label {
+            color: @sw-search-bar-item-label-hover-color-text;
+        }
     }
 }

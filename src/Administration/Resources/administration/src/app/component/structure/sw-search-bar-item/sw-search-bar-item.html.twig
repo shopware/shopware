@@ -1,13 +1,70 @@
-<li class="sw-search-bar-item">
-    <div v-if="item.type === 'customer'" class="item">
-        <sw-icon name="default-building-shop" size="20px" color="#F88962"></sw-icon>
-        <span class="label">{{ item.entity.firstName }} {{ item.entity.lastName }}</span>
-        <span class="type">Kunde</span>
-    </div>
+{% block sw_search_bar_item %}
+    <li class="sw-search-bar-item">
 
-    <div v-else-if="item.type === 'product'" class="item">
-        <sw-icon name="default-symbol-products" size="20px" color="#7ad5c8"></sw-icon>
-        <span class="label">{{ item.entity.name }}</span>
-        <span class="type">Produkt</span>
-    </div>
-</li>
+        {% block sw_search_bar_item_customer %}
+            <router-link v-if="item.type === 'customer'"
+                         class="sw-search-bar-item__link"
+                         :to="{ name: 'sw.customer.detail.base', params: { id: item.entity.id } }">
+                {% block sw_search_bar_item_customer_icon %}
+                    <sw-icon name="default-avatar-multiple" size="20px" color="#F88962"></sw-icon>
+                {% endblock %}
+
+                {% block sw_search_bar_item_customer_label %}
+                    <span class="sw-search-bar-item__label">
+                        {{ item.entity.firstName }} {{ item.entity.lastName }}
+                    </span>
+                {% endblock %}
+
+                {% block sw_search_bar_item_customer_type %}
+                    <span class="sw-search-bar-item__type">
+                        {{ $tc('global.sw-search-bar-item.typeLabelCustomer') }}
+                    </span>
+                {% endblock %}
+            </router-link>
+        {% endblock %}
+
+        {% block sw_search_bar_item_product %}
+            <router-link v-else-if="item.type === 'product'"
+                         class="sw-search-bar-item__link"
+                         :to="{ name: 'sw.product.detail.base', params: { id: item.entity.id } }">
+                {% block sw_search_bar_item_product_icon %}
+                    <sw-icon name="default-symbol-products" size="20px" color="#7ad5c8"></sw-icon>
+                {% endblock %}
+
+                {% block sw_search_bar_item_product_label %}
+                    <span class="sw-search-bar-item__label">
+                        {{ item.entity.name }}
+                    </span>
+                {% endblock %}
+
+                {% block sw_search_bar_item_product_type %}
+                    <span class="sw-search-bar-item__type">
+                        {{ $tc('global.sw-search-bar-item.typeLabelProduct') }}
+                    </span>
+                {% endblock %}
+            </router-link>
+        {% endblock %}
+
+        {% block sw_search_bar_item_order %}
+            <router-link v-else-if="item.type === 'order'"
+                         class="sw-search-bar-item__link"
+                         :to="{ name: 'sw.order.detail.base', params: { id: item.entity.id } }">
+                {% block sw_search_bar_item_order_icon %}
+                    <sw-icon name="default-shopping-paper-bag" size="20px" color="#a092f0"></sw-icon>
+                {% endblock %}
+
+                {% block sw_search_bar_item_order_label %}
+                    <span class="sw-search-bar-item__label">
+                        {{ item.entity.customer.firstName }} {{ item.entity.customer.lastName }}
+                    </span>
+                {% endblock %}
+
+                {% block sw_search_bar_item_order_type %}
+                    <span class="sw-search-bar-item__type">
+                        {{ $tc('global.sw-search-bar-item.typeLabelOrder') }}
+                    </span>
+                {% endblock %}
+            </router-link>
+        {% endblock %}
+    </li>
+{% endblock %}

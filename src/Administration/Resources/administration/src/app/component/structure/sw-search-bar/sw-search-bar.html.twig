@@ -1,39 +1,61 @@
-<div class="sw-search-bar">
-    <div class="sw-search-bar__controls">
-        {#controls_before#}
+{% block sw_search_bar %}
+    <div class="sw-search-bar">
+
+        {% block sw_search_bar_container %}
+            <div class="sw-search-bar__container">
+
+                {% block sw_search_bar_field %}
+                    <div class="sw-search-bar__field" :class="{ 'is--active': isActive }">
+
+                        {% block sw_search_bar_type %}
+                            <span v-if="useTypeSearch" class="sw-search-bar__type" :style="searchTypeColor">
+                                <slot name="search-type">
+                                    {% block sw_search_bar_slot_type %}{% endblock %}
+                                </slot>
+                            </span>
+                        {% endblock %}
+
+                        {% block sw_search_bar_input %}
+                            <slot name="search-input">
+                                {% block sw_search_bar_slot_input %}
+                                    <input class="sw-search-bar__input"
+                                           :placeholder="$tc('global.sw-search-bar.placeholderSearchField')"
+                                           v-model="searchTerm"
+                                           @input="onSearchTermChange"
+                                           @focus="onFocusInput"
+                                           @blur="onBlur"
+                                           @keydown.delete="resetSearchType">
+                                {% endblock %}
+                            </slot>
+                        {% endblock %}
+
+                        {% block sw_search_bar_icon %}
+                            <sw-icon name="small-search" small></sw-icon>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+
+                {% block sw_search_bar_results %}
+                    <div v-if="showResultsContainer" class="sw-search-bar__results">
+
+                        {% block sw_search_bar_results_empty_message %}
+                            <sw-alert v-if="!searchResults.length" variant="info">
+                                {% block sw_search_bar_results_empty_message_text %}
+                                    {{ $tc('global.sw-search-bar.textNoSearchResults') }}
+                                {% endblock %}
+                            </sw-alert>
+                        {% endblock %}
+
+                        {% block sw_search_bar_results_list %}
+                            <ul v-else class="sw-search-bar__results-list">
+                                {% block sw_search_bar_results_items %}
+                                    <sw-search-bar-item v-for="item in searchResults" :item="item" :key="item.id"></sw-search-bar-item>
+                                {% endblock %}
+                            </ul>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
     </div>
-    <div class="sw-search-bar__holder">
-        <div class="sw-search-bar__field" :class="{ 'is--active': isActive }">
-
-
-            <span v-if="useTypeSearch" class="sw-search-bar__type" :style="searchTypeColor">
-                <slot name="search-type"></slot>
-            </span>
-
-            <slot name="search-input">
-                <input class="sw-search-bar__input"
-                       placeholder="Finde Producte, Kunden, Einkaufwelten, Module"
-                       v-model="searchTerm"
-                       @input="onSearchTermChange"
-                       @focus="onFocusInput"
-                       @blur="onBlur"
-                       @keydown="onKeydownInput">
-            </slot>
-
-            <sw-icon name="small-search" small></sw-icon>
-        </div>
-    </div>
-    <div class="sw-search-bar__controls">
-        {#controls_after#}
-    </div>
-
-    <div v-if="showResultsContainer" class="sw-search-bar__results">
-        <sw-alert v-if="!searchResults.length" variant="warning" title="Keine Ergebnisse">
-            {{ tc('sw-search-bar.general.textNoSearchResults') }}
-        </sw-alert>
-
-        <ul v-else class="sw-search-bar__results-list">
-            <sw-search-bar-item v-for="item in searchResults" :item="item" :key="item.id"></sw-search-bar-item>
-        </ul>
-    </div>
-</div>
+{% endblock %}

@@ -61,6 +61,7 @@ class AuditLogSearchTest extends KernelTestCase
         ');
 
         $this->userId = Uuid::uuid4()->getHex();
+        $this->context->getSourceContext()->setUserId($this->userId);
 
         $repo = self::$container->get('user.repository');
         $repo->upsert([
@@ -85,34 +86,28 @@ class AuditLogSearchTest extends KernelTestCase
 
     public function testProductRanking()
     {
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
-
-        $p1 = Uuid::uuid4()->getHex();
+        $productId1 = Uuid::uuid4()->getHex();
         $productId2 = Uuid::uuid4()->getHex();
 
         $this->productRepository->upsert([
-            ['id' => $p1, 'name' => 'test product 1', 'price' => ['gross' => 10, 'net' => 9], 'tax' => ['name' => 'test', 'taxRate' => 5], 'manufacturer' => ['name' => 'test']],
+            ['id' => $productId1, 'name' => 'test product 1', 'price' => ['gross' => 10, 'net' => 9], 'tax' => ['name' => 'test', 'taxRate' => 5], 'manufacturer' => ['name' => 'test']],
             ['id' => $productId2, 'name' => 'test product 2', 'price' => ['gross' => 10, 'net' => 9], 'tax' => ['name' => 'test', 'taxRate' => 5], 'manufacturer' => ['name' => 'test']],
-            ['id' => Uuid::uuid4()->getHex(), 'name' => 'notmatch', 'price' => ['gross' => 10, 'net' => 9], 'tax' => ['name' => 'test', 'taxRate' => 5], 'manufacturer' => ['name' => 'test']],
-            ['id' => Uuid::uuid4()->getHex(), 'name' => 'notmatch', 'price' => ['gross' => 10, 'net' => 9], 'tax' => ['name' => 'test', 'taxRate' => 5], 'manufacturer' => ['name' => 'test']],
-        ], $context);
+            ['id' => Uuid::uuid4()->getHex(), 'name' => 'notmatch', 'price' => ['gross' => 10, 'net' => 9], 'tax' => ['name' => 'notmatch', 'taxRate' => 5], 'manufacturer' => ['name' => 'notmatch']],
+            ['id' => Uuid::uuid4()->getHex(), 'name' => 'notmatch', 'price' => ['gross' => 10, 'net' => 9], 'tax' => ['name' => 'notmatch', 'taxRate' => 5], 'manufacturer' => ['name' => 'notmatch']],
+        ], $this->context);
 
-        $result = $this->search->search('product', 1, 20, $context, $this->userId);
-
-        //no audit log exists? product 1 was insert first and should match first
-        self::assertEquals(2, $result['total']);
-        self::assertCount(2, $result['data']);
+        $result = $this->search->search('test product', 20, $this->context, $this->userId);
 
         /** @var ProductStruct $first */
-        $first = $result['data'][0];
+        $first = $result['data'][0]['entity'];
         self::assertInstanceOf(ProductStruct::class, $first);
 
         /** @var ProductStruct $second */
-        $second = $result['data'][1];
+        $second = $result['data'][1]['entity'];
         self::assertInstanceOf(ProductStruct::class, $second);
 
-        $firstScore = $first->getExtension('search')->get('score');
-        $secondScore = $second->getExtension('search')->get('score');
+        $firstScore = $first->getExtension('search')->get('_score');
+        $secondScore = $second->getExtension('search')->get('_score');
 
         self::assertSame($secondScore, $firstScore);
 
@@ -121,44 +116,31 @@ class AuditLogSearchTest extends KernelTestCase
             ['id' => $productId2, 'price' => ['gross' => 20, 'net' => 1]],
             ['id' => $productId2, 'price' => ['gross' => 25, 'net' => 1]],
             ['id' => $productId2, 'price' => ['gross' => 30, 'net' => 1]],
-        ], Context::createDefaultContext(Defaults::TENANT_ID));
+        ], $this->context);
 
         $changes = $this->getVersionData(ProductDefinition::getEntityName(), $productId2, Defaults::LIVE_VERSION);
         $this->assertNotEmpty($changes);
 
-        $this->connection->executeUpdate('UPDATE version_commit_data SET user_id = NULL');
-        $this->connection->executeUpdate(
-            "UPDATE version_commit_data SET user_id = :user
-             WHERE entity_name = :entity 
-             AND JSON_EXTRACT(entity_id, '$.id') = :id",
-            [
-                'id' => $productId2,
-                'entity' => ProductDefinition::getEntityName(),
-                'user' => Uuid::fromStringToBytes($this->userId),
-            ]
-        );
+        $result = $this->search->search('test product', 20, $this->context, $this->userId);
 
-        $result = $this->search->search('product', 1, 20, $context, $this->userId);
-
-        self::assertEquals(2, $result['total']);
         self::assertCount(2, $result['data']);
 
         /** @var ProductStruct $first */
-        $first = $result['data'][0];
+        $first = $result['data'][0]['entity'];
         self::assertInstanceOf(ProductStruct::class, $first);
 
         /** @var ProductStruct $second */
-        $second = $result['data'][1];
+        $second = $result['data'][1]['entity'];
         self::assertInstanceOf(ProductStruct::class, $second);
 
         // `product-2` should now be boosted
         self::assertSame($first->getId(), $productId2);
-        self::assertSame($second->getId(), $p1);
+        self::assertSame($second->getId(), $productId1);
 
-        $firstScore = $first->getExtension('search')->get('score');
-        $secondScore = $second->getExtension('search')->get('score');
+        $firstScore = $result['data'][0]['_score'];
+        $secondScore = $result['data'][1]['_score'];
 
-        self::assertTrue($firstScore > $secondScore);
+        self::assertTrue($firstScore > $secondScore, print_r($firstScore . ' < ' . $secondScore, true));
     }
 
     private function getVersionData(string $entity, string $id, string $versionId): array

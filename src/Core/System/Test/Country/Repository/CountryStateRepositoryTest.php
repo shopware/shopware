@@ -74,9 +74,9 @@ class CountryStateRepositoryTest extends KernelTestCase
         );
 
         $this->assertTrue(
-            $result->getDataFieldOfId($recordA, 'score')
+            $result->getDataFieldOfId($recordA, '_score')
             >
-            $result->getDataFieldOfId($recordB, 'score')
+            $result->getDataFieldOfId($recordB, '_score')
         );
     }
 }

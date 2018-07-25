@@ -25,7 +25,7 @@ class TokenizerTest extends TestCase
         return [
             [
                 'shopware AG',
-                ['shopware', 'ag'],
+                ['shopware'],
             ],
             [
                 'Österreicher Essen',

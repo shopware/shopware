@@ -24,7 +24,8 @@ class EntityScoreBuilderTest extends TestCase
         $builder = new EntityScoreQueryBuilder();
 
         $pattern = new SearchPattern(
-            new SearchTerm('term', 1)
+            new SearchTerm('term', 1),
+            'product'
         );
 
         $queries = $builder->buildScoreQueries($pattern, ScoreBuilderTestDefinition::class, 'test');
@@ -47,7 +48,8 @@ class EntityScoreBuilderTest extends TestCase
         $builder = new EntityScoreQueryBuilder();
 
         $pattern = new SearchPattern(
-            new SearchTerm('term', 1)
+            new SearchTerm('term', 1),
+            'product'
         );
         $pattern->addTerm(
             new SearchTerm('test', 0.1)
@@ -81,7 +83,8 @@ class EntityScoreBuilderTest extends TestCase
         $builder = new EntityScoreQueryBuilder();
 
         $pattern = new SearchPattern(
-            new SearchTerm('term', 1)
+            new SearchTerm('term', 1),
+            'product'
         );
 
         $queries = $builder->buildScoreQueries($pattern, OnlyTranslatedFieldDefinition::class, 'test');

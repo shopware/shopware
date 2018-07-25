@@ -67,10 +67,10 @@ class CustomerDefinition extends EntityDefinition
 
             (new IntField('auto_increment', 'autoIncrement'))->setFlags(new ReadOnly()),
 
-            (new StringField('customer_number', 'number'))->setFlags(new Required(), new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
+            (new StringField('customer_number', 'number'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
             (new StringField('salutation', 'salutation'))->setFlags(new Required()),
             (new StringField('first_name', 'firstName'))->setFlags(new Required(), new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
-            (new StringField('last_name', 'lastName'))->setFlags(new Required(), new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
+            (new StringField('last_name', 'lastName'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
 
             (new PasswordField('password', 'password'))->setFlags(new Required()),
             (new StringField('email', 'email'))->setFlags(new Required(), new SearchRanking(self::MIDDLE_SEARCH_RANKING)),

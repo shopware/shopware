@@ -29,7 +29,7 @@ class KeywordSearchTermInterpreterTest extends KernelTestCase
         $this->connection = self::$container->get(Connection::class);
         $this->interpreter = self::$container->get(KeywordSearchTermInterpreterInterface::class);
         $this->connection->beginTransaction();
-        $this->connection->executeUpdate('DELETE FROM search_keyword');
+        $this->connection->executeUpdate('DELETE FROM search_dictionary');
 
         $this->setupKeywords();
     }
@@ -57,6 +57,8 @@ class KeywordSearchTermInterpreterTest extends KernelTestCase
             return $term->getTerm();
         }, $matches->getTerms());
 
+        sort($expected);
+        sort($keywords);
         self::assertEquals($expected, $keywords);
     }
 
@@ -65,11 +67,11 @@ class KeywordSearchTermInterpreterTest extends KernelTestCase
         return [
             [
                 'zeichn',
-                ['zeichnet', 'zeichen', 'zweichnet', 'gezeichnet', 'ausgezeichnet', 'verkehrzeichennetzwerk'],
+                ['zeichnet', 'zeichen', 'zweichnet'],
             ],
             [
                 'zeichent',
-                ['zeichen', 'zeichnet', 'gezeichnet', 'ausgezeichnet', 'verkehrzeichennetzwerk'],
+                ['ausgezeichnet', 'gezeichnet', 'zeichnet'],
             ],
             [
                 'Büronetz',
@@ -125,8 +127,9 @@ class KeywordSearchTermInterpreterTest extends KernelTestCase
         foreach ($keywords as $keyword) {
             preg_match_all('/./us', $keyword, $ar);
 
-            $this->connection->insert('search_keyword', [
+            $this->connection->insert('search_dictionary', [
                 'tenant_id' => $tenantId,
+                'scope' => 'product',
                 'keyword' => $keyword,
                 'reversed' => implode('', array_reverse($ar[0])),
                 'version_id' => $versionId,

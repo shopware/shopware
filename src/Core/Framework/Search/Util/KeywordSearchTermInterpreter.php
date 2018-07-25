@@ -192,6 +192,11 @@ class KeywordSearchTermInterpreter implements KeywordSearchTermInterpreterInterf
                     $score += 3;
                     continue;
                 }
+
+                if ($levenshtein <= 3) {
+                    $score += 2;
+                    continue;
+                }
             }
 
             $scoring[$match] = $score / 10;

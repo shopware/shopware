@@ -35,8 +35,7 @@ class IdSearchResult extends Struct
     public function __construct(int $total, array $data, Criteria $criteria, Context $context)
     {
         $this->total = $total;
-        $this->ids = array_keys($data);
-        $this->data = $data;
+        $this->setData($data);
         $this->criteria = $criteria;
         $this->context = $context;
     }
@@ -87,5 +86,11 @@ class IdSearchResult extends Struct
         }
 
         return null;
+    }
+
+    public function setData(array $data): void
+    {
+        $this->ids = array_keys($data);
+        $this->data = $data;
     }
 }

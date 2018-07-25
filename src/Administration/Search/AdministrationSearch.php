@@ -90,28 +90,33 @@ class AdministrationSearch
         /** @var VersionCommitDataCollection $changes */
         $changes = $this->changesRepository->search($criteria, $context)->getEntities();
 
-        foreach ($results as $definition => $entities) {
+        foreach ($results as $definition => &$entities) {
             $definitionChanges = $changes->filterByEntity($definition);
 
             if ($definitionChanges->count() <= 0) {
                 continue;
             }
 
-            foreach ($entities->getData() as &$row) {
+            $rows = [];
+            foreach ($entities->getData() as $key => $row) {
                 $id = $row['primary_key'];
 
                 $entityChanges = $definitionChanges->filterByEntityPrimary($definition, ['id' => $id]);
 
-                $score = 1.1;
+                $score = 1.05;
                 if ($entityChanges->count() > 0) {
                     $score = 1 + ($entityChanges->count() / 10);
                 }
 
-                $row['score'] = $row['score'] ?? 1;
+                $row['_score'] = $row['_score'] ?? 1;
+                $row['_score'] *= $score;
 
-                $row['score'] *= $score;
+                $rows[$key] = $row;
             }
+            $entities->setData($rows);
         }
+
+        error_log(print_r($results[ProductDefinition::class], true) . "\n", 3, '/var/log/test.log');
 
         return $results;
     }
@@ -128,7 +133,7 @@ class AdministrationSearch
             foreach ($result->getData() as $entity) {
                 $entity['definition'] = $definition;
 
-                $entity['score'] = $entity['score'] ?? 1;
+                $entity['_score'] = $entity['_score'] ?? 1;
 
                 $flat[] = $entity;
             }
@@ -152,11 +157,11 @@ class AdministrationSearch
             foreach ($entities as $entity) {
                 $score = (float) $rows[$entity->getId()];
 
-                $entity->addExtension('search', new ArrayStruct(['score' => $score]));
+                $entity->addExtension('search', new ArrayStruct(['_score' => $score]));
 
                 $results[] = [
                     'type' => $definition::getEntityName(),
-                    'score' => $score,
+                    '_score' => $score,
                     'entity' => $entity,
                 ];
             }
@@ -170,9 +175,10 @@ class AdministrationSearch
         //create flat result to sort all elements descending by score
         $flat = $this->createFlatResult($results);
         \usort($flat, function (array $a, array $b) {
-            return $b['score'] <=> $a['score'];
+            return $b['_score'] <=> $a['_score'];
         });
 
+        error_log(print_r($flat, true) . "\n", 3, '/var/log/test.log');
         //create internal paging for best matches
         $flat = \array_slice($flat, 0, $limit);
 
@@ -181,7 +187,7 @@ class AdministrationSearch
         foreach ($flat as $row) {
             $definition = $row['definition'];
 
-            $grouped[$definition][$row['primary_key']] = $row['score'];
+            $grouped[$definition][$row['primary_key']] = $row['_score'];
         }
 
         return $grouped;

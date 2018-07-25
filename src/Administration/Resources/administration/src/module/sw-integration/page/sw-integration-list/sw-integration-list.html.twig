@@ -38,26 +38,22 @@
                                                 <sw-container grid="1fr 1fr" gap="30px 30px">
                                                     {% block sw_integration_list_detail_modal_inner_field_label %}
                                                         <sw-field :label="$tc('sw-integration.detail.labelFieldLabel')"
-                                                                  name="integration.label"
                                                                   validation="required"
                                                                   v-model="currentIntegration.label">
                                                         </sw-field>
                                                     {% endblock %}
 
                                                     {% block sw_integration_list_detail_modal_inner_field_writeaccess %}
-                                                        <sw-field
-                                                                :label="$tc('sw-integration.detail.writeAccessFieldLabel')"
-                                                                type="checkbox"
-                                                                name="integration.writeAccess"
-                                                                value="boolean"
-                                                                v-model="currentIntegration.writeAccess">
+                                                        <sw-field :label="$tc('sw-integration.detail.writeAccessFieldLabel')"
+                                                                  type="checkbox"
+                                                                  value="boolean"
+                                                                  v-model="currentIntegration.writeAccess">
                                                         </sw-field>
                                                     {% endblock %}
                                                 </sw-container>
 
                                                 {% block sw_integration_list_detail_modal_inner_field_accesskey %}
                                                     <sw-field :label="$tc('sw-integration.detail.idFieldLabel')"
-                                                              name="integration.id"
                                                               :disabled="true"
                                                               v-model="currentIntegration.accessKey"
                                                               :copyAble="true">
@@ -67,7 +63,6 @@
                                                 {% block sw_integration_list_detail_modal_inner_field_secretaccesskey %}
                                                     <sw-field :type="secretAccessKeyFieldType"
                                                               :label="$tc('sw-integration.detail.secretFieldLabel')"
-                                                              name="integration.secret"
                                                               :disabled="true"
                                                               v-model="currentIntegration.secretAccessKey"
                                                               :passwordToggleAble="false"

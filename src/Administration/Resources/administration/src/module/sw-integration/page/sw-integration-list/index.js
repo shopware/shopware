@@ -90,9 +90,7 @@ Component.register('sw-integration-list', {
             this.currentIntegration.save().then(() => {
                 this.createSavedSuccessNotification();
                 this.integrations.push(this.currentIntegration);
-                if (this.total === 0) {
-                    this.total = 1;
-                }
+                this.getList();
             }).catch(() => {
                 this.createSavedErrorNotification();
             }).finally(() => {
@@ -163,10 +161,8 @@ Component.register('sw-integration-list', {
 
             return this.integrationStore.store[id].delete(true).then(() => {
                 this.integrations = this.integrations.filter(a => a.id !== id);
+                this.getList();
                 this.onCloseDeleteModal();
-                if (this.total === 1) {
-                    this.total = 0;
-                }
             });
         }
     }

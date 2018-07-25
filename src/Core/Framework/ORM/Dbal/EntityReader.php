@@ -13,6 +13,7 @@ use Shopware\Core\Framework\ORM\Field\Field;
 use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\ORM\Field\SearchKeywordAssociationField;
 use Shopware\Core\Framework\ORM\Field\TranslatedField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
@@ -20,6 +21,7 @@ use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\ORM\Search\Parser\SqlQueryParser;
+use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
 use Shopware\Core\Framework\ORM\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\ORM\Write\FieldAware\StorageAware;
@@ -517,6 +519,10 @@ class EntityReader implements EntityReaderInterface
         $fieldCriteria = $criteria->getAssociation(
             $definition::getEntityName() . '.' . $association->getPropertyName()
         );
+
+        if ($association instanceof SearchKeywordAssociationField) {
+            $fieldCriteria->addFilter(new TermQuery('search_document.entity', $definition::getEntityName()));
+        }
 
         //association should not be paginated > load data over foreign key condition
         if (!$fieldCriteria->getLimit()) {

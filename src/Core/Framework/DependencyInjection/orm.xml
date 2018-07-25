@@ -33,13 +33,21 @@
         <service class="Shopware\Core\Framework\ORM\Search\SearchBuilder" id="Shopware\Core\Framework\ORM\Search\SearchBuilder">
             <argument id="Shopware\Core\Framework\ORM\Search\Term\SearchTermInterpreter" type="service"/>
             <argument id="Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder" type="service"/>
-            <argument id="Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreter" type="service"/>
+            <argument id="Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreterInterface" type="service"/>
         </service>
 
-        <service class="Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreter" id="Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreter" public="true">
+        <service class="Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreter" id="Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreterInterface" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\Search\Term\Tokenizer"/>
             <argument type="service" id="logger"/>
+        </service>
+
+        <service class="Shopware\Core\Framework\Search\Util\CachedKeywordSearchTermInterpreter"
+                 id="Shopware\Core\Framework\Search\Util\CachedKeywordSearchTermInterpreter"
+                 decorates="Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreterInterface">
+
+            <argument id="Shopware\Core\Framework\Search\Util\CachedKeywordSearchTermInterpreter.inner" type="service"/>
+            <argument id="shopware.cache" type="service"/>
         </service>
 
         <service class="Shopware\Core\Framework\Search\Util\LanguageAnalyzer" id="Shopware\Core\Framework\Search\Util\LanguageAnalyzer">

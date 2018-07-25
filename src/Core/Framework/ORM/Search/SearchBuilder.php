@@ -3,15 +3,15 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\ORM\Search;
 
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Search\Query\MatchQuery;
 use Shopware\Core\Framework\ORM\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
-use Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreter;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\ORM\Search\Term\SearchTermInterpreter;
+use Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreterInterface;
 
 class SearchBuilder
 {
@@ -26,14 +26,14 @@ class SearchBuilder
     private $scoreBuilder;
 
     /**
-     * @var KeywordSearchTermInterpreter
+     * @var KeywordSearchTermInterpreterInterface
      */
     private $keywordInterpreter;
 
     public function __construct(
         SearchTermInterpreter $interpreter,
         EntityScoreQueryBuilder $scoreBuilder,
-        KeywordSearchTermInterpreter $keywordInterpreter
+        KeywordSearchTermInterpreterInterface $keywordInterpreter
     ) {
         $this->interpreter = $interpreter;
         $this->scoreBuilder = $scoreBuilder;

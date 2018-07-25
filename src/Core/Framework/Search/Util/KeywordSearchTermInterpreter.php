@@ -10,7 +10,7 @@ use Shopware\Core\Framework\ORM\Search\Term\SearchTerm;
 use Shopware\Core\Framework\ORM\Search\Term\TokenizerInterface;
 use Shopware\Core\Framework\Struct\Uuid;
 
-class KeywordSearchTermInterpreter
+class KeywordSearchTermInterpreter implements KeywordSearchTermInterpreterInterface
 {
     /**
      * @var Connection
@@ -158,9 +158,12 @@ class KeywordSearchTermInterpreter
         }
 
         $query->andWhere('scope = :scope');
-        $query->andWhere('(' . implode(' OR ', $wheres) . ')');
         $query->andWhere('language_id = :language');
+        $query->andWhere('tenant_id = :tenant');
+        $query->andWhere('(' . implode(' OR ', $wheres) . ')');
+
         $query->setParameter('language', Uuid::fromStringToBytes($context->getLanguageId()));
+        $query->setParameter('tenant', Uuid::fromStringToBytes($context->getTenantId()));
         $query->setParameter('scope', $scope);
 
         return $query->execute()->fetchAll(\PDO::FETCH_COLUMN);

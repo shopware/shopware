@@ -1143,7 +1143,8 @@ CREATE TABLE `search_dictionary` (
   `language_id` binary(16) NOT NULL,
   `language_tenant_id` binary(16) NOT NULL,
   PRIMARY KEY `language_keyword` (`keyword`, `scope`, `language_id`, `version_id`, `tenant_id`, `language_tenant_id`),
-  CONSTRAINT `fk_search_dictionary.language_id` FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `fk_search_dictionary.language_id` FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  INDEX `scope_language_id` (`scope`, `language_id`, `tenant_id`)
 );
 
 DROP TABLE IF EXISTS `search_document`;

@@ -27,6 +27,10 @@ class ProductCoverFieldResolver implements FieldResolverInterface
         $table = ProductMediaDefinition::getEntityName();
         $alias = $root . '.' . $field->getPropertyName();
 
+        if ($query->hasState($alias)) {
+            return true;
+        }
+
         $query->addState($alias);
 
         $mapping = [
@@ -47,5 +51,7 @@ class ProductCoverFieldResolver implements FieldResolverInterface
                  AND #alias#.is_cover = 1'
             )
         );
+
+        return true;
     }
 }

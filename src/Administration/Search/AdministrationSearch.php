@@ -116,8 +116,6 @@ class AdministrationSearch
             $entities->setData($rows);
         }
 
-        error_log(print_r($results[ProductDefinition::class], true) . "\n", 3, '/var/log/test.log');
-
         return $results;
     }
 
@@ -178,7 +176,6 @@ class AdministrationSearch
             return $b['_score'] <=> $a['_score'];
         });
 
-        error_log(print_r($flat, true) . "\n", 3, '/var/log/test.log');
         //create internal paging for best matches
         $flat = \array_slice($flat, 0, $limit);
 

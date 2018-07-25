@@ -218,11 +218,12 @@
       "headlineIntegrations": "Integrations",
       "buttonCreateIntegration": "Add integration",
       "heroHeadlineIntegrations": "Welcome to the integration management",
-      "heroDescriptionIntegrations": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet."
+      "heroDescriptionIntegrations": "Shopware offers a powerful API for integrating third-party systems perfectly into your processes. To communicate with Shopware the external application needs a security key for authentication. Here you can create individual keys for a specific application. This also offers the possibility to see all changes made by each external application separately."
     },
     "list": {
       "contextMenuEdit": "Edit",
-      "contextMenuDelete": "Delete"
+      "contextMenuDelete": "Delete",
+      "messageEmpty": "No integrations yet"
     },
     "detail": {
       "deleteModalTitle": "Delete",
@@ -234,8 +235,9 @@
       "buttonCreateNewApiKeys": "Create new API keys",
       "labelFieldLabel": "Name",
       "idFieldLabel": "ID",
-      "secretFieldLabel": "Secret",
-      "secretHelpText": "The integration secret is encrypted after saving and can no longer be viewed",
+      "secretFieldLabel": "Secret key",
+      "secretHelpText": "The shown secret key will no longer be visible after saving. To use the key please copy it to the source code of your application. In case you lost the key, you can generate a new one for the application at any time.",
+      "secretHelpTextTitle": "Important!",
       "writeAccessFieldLabel": "Write access",
       "titleSaveSuccess": "Integration",
       "messageSaveSuccess": "Integration saved successful",

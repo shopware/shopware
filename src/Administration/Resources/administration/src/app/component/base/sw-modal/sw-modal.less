@@ -2,6 +2,7 @@
 
 @sw-modal-color-backdrop:             rgba(0, 0, 0, 0.4);
 @sw-modal-z-index:                    1000;
+@sw-modal-loader-z-index:             1010;
 @sw-modal-dialog-color-background:    @color-white;
 @sw-modal-footer-color-background:    @color-light-gray;
 @sw-modal-color-text:                 @color-gutenberg;
@@ -100,6 +101,7 @@
 
     .sw-modal__body {
         padding: 20px 30px;
+        position:relative;
     }
 
     .sw-modal__footer {
@@ -108,6 +110,10 @@
         background-color: @sw-modal-footer-color-background;
         border-radius: 0 0 @sw-modal-border-radius @sw-modal-border-radius;
         text-align: right;
+    }
+
+    .sw-loader {
+        z-index: @sw-modal-loader-z-index;
     }
 }
 

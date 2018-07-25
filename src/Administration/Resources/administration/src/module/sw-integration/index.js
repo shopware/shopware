@@ -8,7 +8,7 @@ Module.register('sw-integration', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#14D7A5',
-    icon: 'default-package-closed',
+    icon: 'default-device-server',
 
     routes: {
         index: {

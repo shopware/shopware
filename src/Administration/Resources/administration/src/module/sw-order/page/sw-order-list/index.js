@@ -22,6 +22,12 @@ Component.register('sw-order-list', {
         }
     },
 
+    created() {
+        this.$root.$on('search', (term) => {
+            this.onSearch(term);
+        });
+    },
+
     methods: {
         onEdit(order) {
             if (order && order.id) {

@@ -45,6 +45,15 @@
     "sw-multi-select": {
       "messageNoResults": "No Results found for \"{term}\".",
       "buttonDismiss": "Dismiss"
+    },
+    "sw-search-bar": {
+      "textNoSearchResults": "Could not find any results",
+      "placeholderSearchField": "Find products, customers, orders"
+    },
+    "sw-search-bar-item": {
+      "typeLabelCustomer": "Customer",
+      "typeLabelProduct": "Product",
+      "typeLabelOrder": "Order"
     }
   },
   "sw-login": {

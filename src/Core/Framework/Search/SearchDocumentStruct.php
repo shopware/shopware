@@ -1,12 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword;
+namespace Shopware\Core\Framework\Search;
 
-use Shopware\Core\Content\Product\ProductStruct;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\System\Language\LanguageStruct;
 
-class ProductSearchKeywordStruct extends Entity
+class SearchDocumentStruct extends Entity
 {
     /**
      * @var string
@@ -21,17 +20,17 @@ class ProductSearchKeywordStruct extends Entity
     /**
      * @var string
      */
-    protected $productId;
+    protected $entity;
+
+    /**
+     * @var string
+     */
+    protected $entityId;
 
     /**
      * @var float
      */
     protected $ranking;
-
-    /**
-     * @var ProductStruct|null
-     */
-    protected $product;
 
     /**
      * @var LanguageStruct|null
@@ -68,14 +67,14 @@ class ProductSearchKeywordStruct extends Entity
         $this->languageId = $languageId;
     }
 
-    public function getProductId(): string
+    public function getEntityId(): string
     {
-        return $this->productId;
+        return $this->entityId;
     }
 
-    public function setProductId(string $productId): void
+    public function setEntityId(string $entityId): void
     {
-        $this->productId = $productId;
+        $this->entityId = $entityId;
     }
 
     public function getRanking(): float
@@ -88,13 +87,13 @@ class ProductSearchKeywordStruct extends Entity
         $this->ranking = $ranking;
     }
 
-    public function getProduct(): ?ProductStruct
+    public function getEntity(): string
     {
-        return $this->product;
+        return $this->entity;
     }
 
-    public function setProduct(ProductStruct $product): void
+    public function setEntity(string $entity): void
     {
-        $this->product = $product;
+        $this->entity = $entity;
     }
 }

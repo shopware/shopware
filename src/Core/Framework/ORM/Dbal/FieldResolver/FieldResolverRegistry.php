@@ -22,7 +22,11 @@ class FieldResolverRegistry
     public function resolve(string $definition, string $root, Field $field, QueryBuilder $query, Context $context, EntityDefinitionQueryHelper $queryHelper, $raw = false): void
     {
         foreach ($this->resolvers as $resolver) {
-            $resolver->resolve($definition, $root, $field, $query, $context, $queryHelper, $raw);
+            $handled = $resolver->resolve($definition, $root, $field, $query, $context, $queryHelper, $raw);
+
+            if ($handled) {
+                return;
+            }
         }
     }
 }

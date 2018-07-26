@@ -26,7 +26,7 @@ class StopWordFilter implements SearchFilterInterface
     {
         $words = $this->loadWords();
 
-        $tokens = $this->filterWords($tokens, $words);
+        $tokens = array_diff_key($tokens, $words);
 
         $tokens = $this->filterLength($tokens);
 
@@ -47,20 +47,17 @@ class StopWordFilter implements SearchFilterInterface
         return $this->words = array_merge($fallback, $words);
     }
 
-    private function filterWords(array $tokens, array $words): array
-    {
-        $tokens = array_flip($tokens);
-        $tokens = array_diff_key($tokens, $words);
-
-        return array_keys($tokens);
-    }
-
     private function filterLength(array $tokens): array
     {
-        return array_filter($tokens, function ($token) {
-            $token = (string) $token;
+        $filtered = [];
 
-            return \strlen($token) > 3;
-        });
+        foreach ($tokens as $word => $ranking) {
+            $word = (string) $word;
+            if (\strlen($word) >= 3) {
+                $filtered[$word] = $ranking;
+            }
+        }
+
+        return $filtered;
     }
 }

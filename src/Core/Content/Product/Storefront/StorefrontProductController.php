@@ -10,7 +10,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Api\Response\ResponseFactory;
 use Shopware\Core\Framework\Exception\InvalidUuidException;
 use Shopware\Core\Framework\ORM\Search\Criteria;
-use Shopware\Core\Framework\ORM\Search\SearchCriteriaBuilder;
+use Shopware\Core\Framework\ORM\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -29,14 +29,14 @@ class StorefrontProductController extends Controller
     private $responseFactory;
 
     /**
-     * @var SearchCriteriaBuilder
+     * @var RequestCriteriaBuilder
      */
     private $criteriaBuilder;
 
     public function __construct(
         StorefrontProductRepository $repository,
         ResponseFactory $responseFactory,
-        SearchCriteriaBuilder $criteriaBuilder
+        RequestCriteriaBuilder $criteriaBuilder
     ) {
         $this->repository = $repository;
         $this->responseFactory = $responseFactory;

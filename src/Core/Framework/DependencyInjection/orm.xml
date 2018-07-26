@@ -30,9 +30,50 @@
 
         <service class="Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder" id="Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder" public="true"/>
 
-        <service class="Shopware\Core\Framework\ORM\Search\SearchCriteriaBuilder" id="Shopware\Core\Framework\ORM\Search\SearchCriteriaBuilder">
+        <service class="Shopware\Core\Framework\ORM\Search\SearchBuilder" id="Shopware\Core\Framework\ORM\Search\SearchBuilder">
             <argument id="Shopware\Core\Framework\ORM\Search\Term\SearchTermInterpreter" type="service"/>
             <argument id="Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder" type="service"/>
+            <argument id="Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreterInterface" type="service"/>
+        </service>
+
+        <service class="Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreter" id="Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreterInterface" public="true">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Search\Term\Tokenizer"/>
+            <argument type="service" id="logger"/>
+        </service>
+
+        <service class="Shopware\Core\Framework\Search\Util\CachedKeywordSearchTermInterpreter"
+                 id="Shopware\Core\Framework\Search\Util\CachedKeywordSearchTermInterpreter"
+                 decorates="Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreterInterface">
+
+            <argument id="Shopware\Core\Framework\Search\Util\CachedKeywordSearchTermInterpreter.inner" type="service"/>
+            <argument id="shopware.cache" type="service"/>
+        </service>
+
+        <service class="Shopware\Core\Framework\Search\Util\LanguageAnalyzer" id="Shopware\Core\Framework\Search\Util\LanguageAnalyzer">
+            <argument id="Shopware\Core\Framework\ORM\Search\Term\Tokenizer" type="service"/>
+            <argument id="Shopware\Core\Framework\ORM\Search\Term\StopWordFilter" type="service"/>
+            <tag name="shopware.search_analyzer"/>
+        </service>
+
+        <service class="Shopware\Core\Framework\Search\Util\SearchAnalyzerRegistry" id="Shopware\Core\Framework\Search\Util\SearchAnalyzerRegistry" public="true">
+            <argument type="tagged" tag="shopware.search_analyzer"/>
+        </service>
+
+        <service class="Shopware\Core\Framework\Search\ORM\Indexing\SearchKeywordIndexer" id="Shopware\Core\Framework\Search\ORM\Indexing\SearchKeywordIndexer" public="true">
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
+            <argument type="service" id="service_container" />
+            <argument type="service" id="Shopware\Core\Framework\ORM\DefinitionRegistry" />
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Search\Util\SearchAnalyzerRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Dbal\Common\IndexTableOperator"/>
+            <argument type="service" id="language.repository"/>
+            <argument type="service" id="catalog.repository"/>
+            <tag name="shopware.dbal_indexing.indexer" priority="200"/>
+        </service>
+
+        <service class="Shopware\Core\Framework\ORM\Search\RequestCriteriaBuilder" id="Shopware\Core\Framework\ORM\Search\RequestCriteriaBuilder">
+            <argument type="service" id="Shopware\Core\Framework\ORM\Search\SearchBuilder"/>
         </service>
 
         <service class="Shopware\Core\Framework\ORM\ExtensionRegistry" id="Shopware\Core\Framework\ORM\ExtensionRegistry" public="true">
@@ -145,6 +186,10 @@
             <tag name="shopware.entity.field_resolver" priority="-50"/>
         </service>
 
+        <service class="Shopware\Core\Framework\ORM\Dbal\FieldResolver\SearchKeywordAssociationFieldResolver" id="shopware.core.framework.orm.dbal.field_resolver.search_keyword_association_field_resolver">
+            <tag name="shopware.entity.field_resolver" priority="-30"/>
+        </service>
+
         <service class="Shopware\Core\Framework\ORM\Dbal\FieldResolver\ManyToManyAssociationFieldResolver" id="Shopware\Core\Framework\ORM\Dbal\FieldResolver\ManyToManyAssociationFieldResolver">
             <tag name="shopware.entity.field_resolver" priority="-50"/>
         </service>
@@ -195,7 +240,6 @@
             <argument type="service" id="Shopware\Core\Framework\ORM\DefinitionRegistry"/>
             <tag name="shopware.dbal_indexing.indexer" priority="1000"/>
         </service>
-
 
         <service class="Shopware\Core\Framework\ORM\Dbal\Indexing\IndexerRegistry" id="Shopware\Core\Framework\ORM\Dbal\Indexing\IndexerRegistry">
             <argument type="tagged" tag="shopware.dbal_indexing.indexer"/>
@@ -628,8 +672,8 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service id="product_search_keyword.repository" class="Shopware\Core\Framework\ORM\EntityRepository" public="true">
-            <argument>Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordDefinition</argument>
+        <service id="search_document.repository" class="Shopware\Core\Framework\ORM\EntityRepository" public="true">
+            <argument>Shopware\Core\Framework\Search\SearchDocumentDefinition</argument>
             <argument type="service" id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\VersionManager"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntitySearcherInterface"/>

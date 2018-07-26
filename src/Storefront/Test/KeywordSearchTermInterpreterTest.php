@@ -7,7 +7,7 @@ use Ramsey\Uuid\Uuid;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Search\Term\SearchTerm;
-use Shopware\Storefront\Page\Search\KeywordSearchTermInterpreter;
+use Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreterInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class KeywordSearchTermInterpreterTest extends KernelTestCase
@@ -18,7 +18,7 @@ class KeywordSearchTermInterpreterTest extends KernelTestCase
     private $connection;
 
     /**
-     * @var KeywordSearchTermInterpreter
+     * @var KeywordSearchTermInterpreterInterface
      */
     private $interpreter;
 
@@ -27,9 +27,9 @@ class KeywordSearchTermInterpreterTest extends KernelTestCase
         self::bootKernel();
 
         $this->connection = self::$container->get(Connection::class);
-        $this->interpreter = self::$container->get(KeywordSearchTermInterpreter::class);
+        $this->interpreter = self::$container->get(KeywordSearchTermInterpreterInterface::class);
         $this->connection->beginTransaction();
-        $this->connection->executeUpdate('DELETE FROM search_keyword');
+        $this->connection->executeUpdate('DELETE FROM search_dictionary');
 
         $this->setupKeywords();
     }
@@ -51,12 +51,14 @@ class KeywordSearchTermInterpreterTest extends KernelTestCase
     {
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
 
-        $matches = $this->interpreter->interpret($term, $context);
+        $matches = $this->interpreter->interpret($term, 'product', $context);
 
         $keywords = array_map(function (SearchTerm $term) {
             return $term->getTerm();
         }, $matches->getTerms());
 
+        sort($expected);
+        sort($keywords);
         self::assertEquals($expected, $keywords);
     }
 
@@ -65,11 +67,11 @@ class KeywordSearchTermInterpreterTest extends KernelTestCase
         return [
             [
                 'zeichn',
-                ['zeichnet', 'zeichen', 'zweichnet', 'gezeichnet', 'ausgezeichnet', 'verkehrzeichennetzwerk'],
+                ['zeichnet', 'zeichen', 'zweichnet'],
             ],
             [
                 'zeichent',
-                ['zeichen', 'zeichnet', 'gezeichnet', 'ausgezeichnet', 'verkehrzeichennetzwerk'],
+                ['ausgezeichnet', 'gezeichnet', 'zeichnet'],
             ],
             [
                 'Büronetz',
@@ -125,8 +127,9 @@ class KeywordSearchTermInterpreterTest extends KernelTestCase
         foreach ($keywords as $keyword) {
             preg_match_all('/./us', $keyword, $ar);
 
-            $this->connection->insert('search_keyword', [
+            $this->connection->insert('search_dictionary', [
                 'tenant_id' => $tenantId,
+                'scope' => 'product',
                 'keyword' => $keyword,
                 'reversed' => implode('', array_reverse($ar[0])),
                 'version_id' => $versionId,

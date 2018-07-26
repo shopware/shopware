@@ -47,6 +47,7 @@ import './structure/sw-card-view';
 import './structure/sw-admin-menu-item';
 import './structure/sw-admin-menu';
 import './structure/sw-search-bar';
+import './structure/sw-search-bar-item';
 
 import './media/sw-media-grid';
 import './media/sw-media-grid-item';

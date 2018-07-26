@@ -12,14 +12,28 @@ class Tokenizer implements TokenizerInterface
         $string = strip_tags($string);
         $string = trim(preg_replace("/[^\pL_0-9]/u", ' ', $string));
 
-        $tags = array_unique(explode(' ', $string));
-        $tags = array_map('trim', $tags);
+        $tags = explode(' ', $string);
 
-        $tags = array_filter(
-            array_filter($tags, function ($tag) {
-                return strlen($tag) >= 2;
-            })
-        );
+        $filtered = [];
+        foreach ($tags as $tag) {
+            $tag = \trim($tag);
+
+            if (\strlen($tag) < 3) {
+                continue;
+            }
+
+            $filtered[$tag] = 1;
+        }
+
+        if (empty($filtered)) {
+            return $tags;
+        }
+
+        $tags = array_keys($filtered);
+
+        foreach ($tags as &$tag) {
+            $tag = (string) $tag;
+        }
 
         return $tags;
     }

@@ -42,19 +42,29 @@ class MultiInsertQueryQueue
         $this->useReplace = $useReplace;
     }
 
-    public function addInsert(string $table, array $data, array $types = []): void
+    public function addInsert(string $table, array $data, ?array $types = null, bool $quoted = false): void
     {
+        $columns = [];
+
         foreach ($data as $key => &$value) {
+            $columns[] = $key;
+
+            if ($quoted) {
+                continue;
+            }
+
             $type = \PDO::PARAM_STR;
-            if (array_key_exists($key, $types)) {
+
+            if ($types !== null && isset($types[$key])) {
                 $type = $types[$key];
             }
+
             $value = $this->connection->quote($value, $type);
         }
 
         $this->inserts[$table][] = [
             'data' => $data,
-            'columns' => array_keys($data),
+            'columns' => $columns,
             'types' => $types,
         ];
     }

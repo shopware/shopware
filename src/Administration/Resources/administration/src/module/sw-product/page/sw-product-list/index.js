@@ -35,6 +35,12 @@ Component.register('sw-product-list', {
         }
     },
 
+    created() {
+        this.$root.$on('search', (term) => {
+            this.onSearch(term);
+        });
+    },
+
     filters: {
         stockColorVariant(value) {
             if (value > 25) {

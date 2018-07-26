@@ -129,20 +129,19 @@ class CustomerRepositoryTest extends KernelTestCase
 
         static::assertCount(4, $result->getIds());
 
-        static::assertEquals(
+        static::assertGreaterThan(
             $result->getDataFieldOfId($recordA, '_score'),
             $result->getDataFieldOfId($recordB, '_score')
         );
 
-        static::assertEquals(
-            $result->getDataFieldOfId($recordC, '_score'),
-            $result->getDataFieldOfId($recordD, '_score')
+        static::assertGreaterThan(
+            $result->getDataFieldOfId($recordD, '_score'),
+            $result->getDataFieldOfId($recordC, '_score')
         );
 
-        static::assertTrue(
+        static::assertGreaterThan(
+            $result->getDataFieldOfId($recordA, '_score'),
             $result->getDataFieldOfId($recordC, '_score')
-            >
-            $result->getDataFieldOfId($recordA, '_score')
         );
     }
 }

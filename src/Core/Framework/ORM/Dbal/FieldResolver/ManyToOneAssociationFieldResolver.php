@@ -23,33 +23,35 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
         Context $context,
         EntityDefinitionQueryHelper $queryHelper,
         bool $raw
-    ): void {
+    ): bool {
         if (!$field instanceof ManyToOneAssociationField) {
-            return;
+            return false;
         }
 
         /** @var EntityDefinition|string $reference */
         $reference = $field->getReferenceClass();
         $alias = $root . '.' . $field->getPropertyName();
         if ($query->hasState($alias)) {
-            return;
+            return true;
         }
         $query->addState($alias);
 
         $this->join($definition, $root, $field, $query, $context, $queryHelper);
 
         if ($definition === $reference) {
-            return;
+            return true;
         }
 
         if (!$reference::isInheritanceAware()) {
-            return;
+            return true;
         }
 
         /** @var ManyToOneAssociationField $parent */
         $parent = $reference::getFields()->get('parent');
 
         $queryHelper->resolveField($parent, $reference, $alias, $query, $context);
+
+        return true;
     }
 
     private function join(string $definition, string $root, ManyToOneAssociationField $field, QueryBuilder $query, Context $context, EntityDefinitionQueryHelper $queryHelper): void

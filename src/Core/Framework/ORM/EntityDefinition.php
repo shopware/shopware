@@ -12,6 +12,7 @@ use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\ORM\Write\EntityExistence;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\ReadOnly;
+use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 
 abstract class EntityDefinition
@@ -27,6 +28,11 @@ abstract class EntityDefinition
     protected static $fields = [];
 
     /**
+     * @var array[]
+     */
+    protected static $searchFields = [];
+
+    /**
      * @var EntityExtensionInterface[][]
      */
     protected static $extensions = [];
@@ -38,6 +44,33 @@ abstract class EntityDefinition
     }
 
     abstract public static function getEntityName(): string;
+
+    public static function useKeywordSearch(): bool
+    {
+        return false;
+    }
+
+    /**
+     * @return Field[]
+     */
+    public static function getSearchFields(): array
+    {
+        if (isset(static::$searchFields[static::class])) {
+            return static::$searchFields[static::class];
+        }
+
+        $fields = static::getFields()->fmap(
+            function (Field $field) {
+                if ($field->is(SearchRanking::class)) {
+                    return $field;
+                }
+
+                return null;
+            }
+        );
+
+        return static::$searchFields[static::class] = $fields;
+    }
 
     public static function getFields(): FieldCollection
     {

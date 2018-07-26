@@ -18,6 +18,7 @@ use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\PasswordField;
 use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
+use Shopware\Core\Framework\ORM\Field\SearchKeywordAssociationField;
 use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\Field\TenantIdField;
 use Shopware\Core\Framework\ORM\Field\UpdatedAtField;
@@ -36,6 +37,11 @@ class CustomerDefinition extends EntityDefinition
     public static function getEntityName(): string
     {
         return 'customer';
+    }
+
+    public static function useKeywordSearch(): bool
+    {
+        return true;
     }
 
     public static function defineFields(): FieldCollection
@@ -64,9 +70,10 @@ class CustomerDefinition extends EntityDefinition
             (new StringField('customer_number', 'number'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
             (new StringField('salutation', 'salutation'))->setFlags(new Required()),
             (new StringField('first_name', 'firstName'))->setFlags(new Required(), new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
-            (new StringField('last_name', 'lastName'))->setFlags(new Required(), new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
+            (new StringField('last_name', 'lastName'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
+
             (new PasswordField('password', 'password'))->setFlags(new Required()),
-            (new StringField('email', 'email'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
+            (new StringField('email', 'email'))->setFlags(new Required(), new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
             new StringField('title', 'title'),
             new StringField('encoder', 'encoder'),
             new BoolField('active', 'active'),
@@ -79,7 +86,7 @@ class CustomerDefinition extends EntityDefinition
             new StringField('validation', 'validation'),
             new BoolField('affiliate', 'affiliate'),
             new StringField('referer', 'referer'),
-            (new LongTextField('internal_comment', 'internalComment'))->setFlags(new SearchRanking(self::LOW_SEARCH_RAKING)),
+            new LongTextField('internal_comment', 'internalComment'),
             new IntField('failed_logins', 'failedLogins'),
             new DateField('locked_until', 'lockedUntil'),
             new DateField('birthday', 'birthday'),
@@ -89,10 +96,11 @@ class CustomerDefinition extends EntityDefinition
             new ManyToOneAssociationField('defaultPaymentMethod', 'default_payment_method_id', PaymentMethodDefinition::class, true),
             new ManyToOneAssociationField('touchpoint', 'touchpoint_id', TouchpointDefinition::class, true),
             new ManyToOneAssociationField('lastPaymentMethod', 'last_payment_method_id', PaymentMethodDefinition::class, true),
-            new ManyToOneAssociationField('defaultBillingAddress', 'default_billing_address_id', CustomerAddressDefinition::class, true),
+            (new ManyToOneAssociationField('defaultBillingAddress', 'default_billing_address_id', CustomerAddressDefinition::class, true))->setFlags(new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
             new ManyToOneAssociationField('defaultShippingAddress', 'default_shipping_address_id', CustomerAddressDefinition::class, true),
             (new OneToManyAssociationField('addresses', CustomerAddressDefinition::class, 'customer_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new OneToManyAssociationField('orders', OrderDefinition::class, 'customer_id', false, 'id'))->setFlags(new RestrictDelete()),
+            new SearchKeywordAssociationField(),
         ]);
     }
 

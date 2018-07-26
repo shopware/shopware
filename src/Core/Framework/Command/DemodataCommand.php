@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Command;
 
-use Bezhanov\Faker\Provider\Commerce;
 use bheller\ImagesGenerator\ImagesGeneratorProvider;
 use Doctrine\DBAL\Connection;
 use Faker\Factory;
@@ -31,6 +30,7 @@ use Shopware\Core\Content\Product\Util\VariantGenerator;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Faker\Commerce;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Write\EntityWriterInterface;

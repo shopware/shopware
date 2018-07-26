@@ -19,13 +19,17 @@ class ProductCoverFieldResolver implements FieldResolverInterface
         Context $context,
         EntityDefinitionQueryHelper $queryHelper,
         bool $raw
-    ): void {
+    ): bool {
         if (!$field instanceof ProductCoverField) {
-            return;
+            return false;
         }
 
         $table = ProductMediaDefinition::getEntityName();
         $alias = $root . '.' . $field->getPropertyName();
+
+        if ($query->hasState($alias)) {
+            return true;
+        }
 
         $query->addState($alias);
 
@@ -47,5 +51,7 @@ class ProductCoverFieldResolver implements FieldResolverInterface
                  AND #alias#.is_cover = 1'
             )
         );
+
+        return true;
     }
 }

@@ -17,5 +17,5 @@ interface FieldResolverInterface
         Context $context,
         EntityDefinitionQueryHelper $queryHelper,
         bool $raw
-    ): void;
+    ): bool;
 }

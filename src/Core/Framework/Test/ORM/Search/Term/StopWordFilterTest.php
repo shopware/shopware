@@ -24,7 +24,14 @@ class StopWordFilterTest extends TestCase
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
 
         $filter = new StopWordFilter();
+
+        $tokens = array_flip($tokens);
+
         $filtered = $filter->filter($tokens, $context);
+
+        $filtered = array_flip($filtered);
+        $filtered = array_values($filtered);
+
         $this->assertSame($expected, $filtered);
     }
 

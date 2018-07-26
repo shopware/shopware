@@ -16,6 +16,12 @@ Component.register('sw-customer-list', {
         };
     },
 
+    created() {
+        this.$root.$on('search', (term) => {
+            this.onSearch(term);
+        });
+    },
+
     computed: {
         customerStore() {
             return Shopware.State.getStore('customer');

@@ -12,12 +12,6 @@
             <argument type="service" id="request_stack" />
         </service>
 
-        <service class="Shopware\Storefront\Page\Search\KeywordSearchTermInterpreter" id="Shopware\Storefront\Page\Search\KeywordSearchTermInterpreter" public="true">
-            <argument id="Doctrine\DBAL\Connection" type="service"/>
-            <argument id="Shopware\Core\Framework\ORM\Search\Term\Tokenizer" type="service"/>
-            <argument id="logger" type="service"/>
-        </service>
-
         <!-- Twig / Theme -->
         <service class="Shopware\Storefront\Navigation\NavigationService" id="Shopware\Storefront\Navigation\NavigationService" public="true">
             <argument type="service" id="category.repository"/>
@@ -188,7 +182,7 @@
 
         <service class="Shopware\Storefront\Subscriber\SearchTermSubscriber" id="Shopware\Storefront\Subscriber\SearchTermSubscriber">
             <tag name="kernel.event_subscriber"/>
-            <argument type="service" id="Shopware\Core\Content\Product\Util\KeywordSearchTermInterpreter"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Search\SearchBuilder"/>
         </service>
 
         <!--Entity field resolver -->

@@ -23,9 +23,9 @@ class ManyToManyAssociationFieldResolver implements FieldResolverInterface
         Context $context,
         EntityDefinitionQueryHelper $queryHelper,
         bool $raw
-    ): void {
+    ): bool {
         if (!$field instanceof ManyToManyAssociationField) {
-            return;
+            return false;
         }
         $query->addState(EntityDefinitionQueryHelper::HAS_TO_MANY_JOIN);
 
@@ -36,7 +36,7 @@ class ManyToManyAssociationFieldResolver implements FieldResolverInterface
         $mappingAlias = $root . '.' . $field->getPropertyName() . '.mapping';
 
         if ($query->hasState($mappingAlias)) {
-            return;
+            return true;
         }
         $query->addState($mappingAlias);
 
@@ -128,16 +128,18 @@ class ManyToManyAssociationFieldResolver implements FieldResolverInterface
         );
 
         if ($definition === $reference) {
-            return;
+            return true;
         }
 
         if (!$reference::isInheritanceAware()) {
-            return;
+            return true;
         }
 
         /** @var ManyToOneAssociationField $parent */
         $parent = $reference::getFields()->get('parent');
 
         $queryHelper->resolveField($parent, $reference, $alias, $query, $context);
+
+        return true;
     }
 }

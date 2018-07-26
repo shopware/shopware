@@ -16,6 +16,11 @@ class Entity extends Struct
      */
     protected $tenantId;
 
+    public function __toString()
+    {
+        return $this->getId();
+    }
+
     public function getId(): string
     {
         return $this->id;

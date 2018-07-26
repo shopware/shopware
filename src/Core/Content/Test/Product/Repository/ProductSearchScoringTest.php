@@ -42,7 +42,7 @@ class ProductSearchScoringTest extends KernelTestCase
 
     public function testScoringExtensionExists()
     {
-        $pattern = new SearchPattern(new SearchTerm('test'));
+        $pattern = new SearchPattern(new SearchTerm('test'), 'product');
         $builder = new EntityScoreQueryBuilder();
         $queries = $builder->buildScoreQueries($pattern, ProductDefinition::class, ProductDefinition::getEntityName());
 

@@ -50,7 +50,7 @@ class VariantGenerator
         }
         $combinations = $this->buildCombinations($configurator);
         if ($offset !== null && $limit !== null) {
-            $combinations = array_slice($combinations, $offset, $limit);
+            $combinations = \array_slice($combinations, $offset, $limit);
         }
 
         $variants = [];
@@ -61,7 +61,7 @@ class VariantGenerator
 
             $options = $configurator->filter(
                 function (ProductConfiguratorStruct $config) use ($combination) {
-                    return in_array($config->getOptionId(), $combination, true);
+                    return \in_array($config->getOptionId(), $combination, true);
                 }
             );
 
@@ -110,7 +110,7 @@ class VariantGenerator
         if (isset($val)) {
             $group[] = $val;
         }
-        if ($i >= count($data)) {
+        if ($i >= \count($data)) {
             $all[] = $group;
         } else {
             foreach ($data[$i] as $v) {

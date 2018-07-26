@@ -177,10 +177,10 @@ Component.register('sw-multi-select', {
         onSearchTermChange() {
             this.isLoading = true;
 
-            this.doSearch();
+            this.doGlobalSearch();
         },
 
-        doSearch: utils.debounce(function debouncedSearch() {
+        doGlobalSearch: utils.debounce(function debouncedSearch() {
             if (this.searchTerm.length > 0) {
                 this.loadResults();
             } else {

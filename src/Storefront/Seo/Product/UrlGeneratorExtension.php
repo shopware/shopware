@@ -9,6 +9,7 @@ use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\Deferred;
 use Shopware\Core\Framework\ORM\Write\Flag\ReadOnly;
 use Shopware\Storefront\Api\Seo\SeoUrlDefinition;
+use Shopware\Storefront\Api\Seo\SeoUrlStruct;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -51,6 +52,7 @@ class UrlGeneratorExtension implements EntityExtensionInterface, EventSubscriber
             return;
         }
 
+        /** @var SeoUrlStruct $seoUrl */
         foreach ($event->getEntities() as $seoUrl) {
             $seoUrl->setUrl($request->getSchemeAndHttpHost() . $request->getBaseUrl() . '/' . $seoUrl->getSeoPathInfo());
         }

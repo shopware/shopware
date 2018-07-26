@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\ORM\Search;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Exception\InvalidAggregationQueryException;
 use Shopware\Core\Framework\ORM\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\ORM\Exception\InvalidLimitQueryException;
@@ -23,28 +22,18 @@ use Shopware\Core\Framework\ORM\Search\Query\NestedQuery;
 use Shopware\Core\Framework\ORM\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\ORM\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
-use Shopware\Core\Framework\ORM\Search\Term\SearchTermInterpreter;
 use Symfony\Component\HttpFoundation\Request;
 
-class SearchCriteriaBuilder
+class RequestCriteriaBuilder
 {
     /**
-     * @var SearchTermInterpreter
+     * @var SearchBuilder
      */
-    private $searchTermInterpreter;
+    private $searchBuilder;
 
-    /**
-     * @var EntityScoreQueryBuilder
-     */
-    private $entityScoreQueryBuilder;
-
-    public function __construct(
-        SearchTermInterpreter $searchTermInterpreter,
-        EntityScoreQueryBuilder $entityScoreQueryBuilder
-    ) {
-        $this->searchTermInterpreter = $searchTermInterpreter;
-        $this->entityScoreQueryBuilder = $entityScoreQueryBuilder;
+    public function __construct(SearchBuilder $searchBuilder)
+    {
+        $this->searchBuilder = $searchBuilder;
     }
 
     public function handleRequest(Request $request, Criteria $criteria, string $definition, Context $context): Criteria
@@ -94,19 +83,9 @@ class SearchCriteriaBuilder
         }
 
         if (isset($payload['term'])) {
-            $pattern = $this->searchTermInterpreter->interpret(
-                (string) $payload['term'],
-                $context
-            );
+            $term = trim((string) $payload['term']);
 
-            /** @var EntityDefinition|string $definition */
-            $queries = $this->entityScoreQueryBuilder->buildScoreQueries(
-                $pattern,
-                $definition,
-                $definition::getEntityName()
-            );
-
-            $criteria->addQueries($queries);
+            $this->searchBuilder->build($criteria, $term, $definition, $context);
         }
 
         if (isset($payload['sort'])) {

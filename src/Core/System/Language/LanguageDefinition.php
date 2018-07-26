@@ -14,7 +14,6 @@ use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\
 use Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\MediaAlbumTranslationDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Field\ChildrenAssociationField;
@@ -33,6 +32,7 @@ use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\Framework\Search\SearchDocumentDefinition;
 use Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\CountryAreaTranslationDefinition;
 use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationDefinition;
 use Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationDefinition;
@@ -91,7 +91,7 @@ class LanguageDefinition extends EntityDefinition
             (new TranslationsAssociationField('configurationGroupTranslations', ConfigurationGroupTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('configurationGroupOptionTranslations', ConfigurationGroupOptionTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('discountsurchargeTranslations', DiscountSurchargeTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField('productSearchKeywords', ProductSearchKeywordDefinition::class, 'language_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new TranslationsAssociationField('searchDocuments', SearchDocumentDefinition::class, 'language_id', false, 'id'))->setFlags(new CascadeDelete()),
         ]);
     }
 

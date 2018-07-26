@@ -124,7 +124,7 @@ class EntityDefinitionQueryHelper
         $prefix = $root . '.';
 
         if (strpos($fieldName, $prefix) === 0) {
-            $fieldName = substr($fieldName, strlen($prefix));
+            $fieldName = substr($fieldName, \strlen($prefix));
         }
 
         /** @var EntityDefinition $definition */

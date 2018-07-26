@@ -3,10 +3,6 @@
 namespace Shopware\Storefront\Subscriber;
 
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Defaults;
-use Shopware\Core\Framework\ORM\Search\Query\ScoreQuery;
-use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
 use Shopware\Core\Framework\ORM\Search\SearchBuilder;
 use Shopware\Storefront\Event\ListingEvents;
 use Shopware\Storefront\Event\ListingPageRequestEvent;

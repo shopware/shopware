@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\ORM\Search;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Exception\InvalidAggregationQueryException;
 use Shopware\Core\Framework\ORM\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\ORM\Exception\InvalidLimitQueryException;

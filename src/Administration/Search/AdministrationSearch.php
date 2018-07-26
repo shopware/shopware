@@ -90,54 +90,33 @@ class AdministrationSearch
         /** @var VersionCommitDataCollection $changes */
         $changes = $this->changesRepository->search($criteria, $context)->getEntities();
 
-        foreach ($results as $definition => &$entities) {
+        $formatted = [];
+
+        foreach ($results as $definition => $entities) {
             $definitionChanges = $changes->filterByEntity($definition);
 
-            if ($definitionChanges->count() <= 0) {
-                continue;
-            }
-
-            $rows = [];
             foreach ($entities->getData() as $key => $row) {
                 $id = $row['primary_key'];
 
                 $entityChanges = $definitionChanges->filterByEntityPrimary($definition, ['id' => $id]);
 
-                $score = 1.05;
+                $score = 1;
+
                 if ($entityChanges->count() > 0) {
                     $score = 1 + ($entityChanges->count() / 10);
+                } else if ($definitionChanges->count() > 0) {
+                    $score = 1.05;
                 }
 
                 $row['_score'] = $row['_score'] ?? 1;
                 $row['_score'] *= $score;
+                $row['definition'] = $definition;
 
-                $rows[$key] = $row;
-            }
-            $entities->setData($rows);
-        }
-
-        return $results;
-    }
-
-    /**
-     * @param IdSearchResult[] $results
-     *
-     * @return array
-     */
-    private function createFlatResult($results): array
-    {
-        $flat = [];
-        foreach ($results as $definition => $result) {
-            foreach ($result->getData() as $entity) {
-                $entity['definition'] = $definition;
-
-                $entity['_score'] = $entity['_score'] ?? 1;
-
-                $flat[] = $entity;
+                $formatted[] = $row;
             }
         }
 
-        return $flat;
+        return $formatted;
     }
 
     private function fetchEntities(Context $context, array $grouped): array
@@ -171,17 +150,16 @@ class AdministrationSearch
     private function sortEntities(int $limit, array $results): array
     {
         //create flat result to sort all elements descending by score
-        $flat = $this->createFlatResult($results);
-        \usort($flat, function (array $a, array $b) {
+        \usort($results, function (array $a, array $b) {
             return $b['_score'] <=> $a['_score'];
         });
 
         //create internal paging for best matches
-        $flat = \array_slice($flat, 0, $limit);
+        $results = \array_slice($results, 0, $limit);
 
         //group best hits to send one read request per definition
         $grouped = [];
-        foreach ($flat as $row) {
+        foreach ($results as $row) {
             $definition = $row['definition'];
 
             $grouped[$definition][$row['primary_key']] = $row['_score'];

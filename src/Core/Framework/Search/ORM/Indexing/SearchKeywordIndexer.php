@@ -241,7 +241,6 @@ class SearchKeywordIndexer implements IndexerInterface
     {
         /** @var EntityRepository $repository */
         /** @var EntityDefinition $definition */
-
         $repository = $this->container->get($definition::getEntityName() . '.repository');
 
         $entities = $repository->read(new ReadCriteria($ids), $context);

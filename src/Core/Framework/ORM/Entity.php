@@ -16,6 +16,11 @@ class Entity extends Struct
      */
     protected $tenantId;
 
+    public function __toString()
+    {
+        return $this->getId();
+    }
+
     public function getId(): string
     {
         return $this->id;
@@ -45,10 +50,5 @@ class Entity extends Struct
     public function setTenantId(string $tenantId): void
     {
         $this->tenantId = $tenantId;
-    }
-
-    public function __toString()
-    {
-        return $this->getId();
     }
 }

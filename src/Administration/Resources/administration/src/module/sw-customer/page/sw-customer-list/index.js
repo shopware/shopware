@@ -16,6 +16,25 @@ Component.register('sw-customer-list', {
         };
     },
 
+    // TODO: Just for testing
+    created() {
+        console.log(this.$device);
+
+        this.$device.resize(() => {
+            console.log('Resize fired. Current viewportWith: ', this.$device.windowWidth);
+
+            if (this.$device.windowWidth < 500) {
+                console.log('Smaller than 500px');
+            }
+        });
+
+        if (this.$device.windowWidth < 1200) {
+            console.log('smaller than 1200');
+        } else {
+            console.log('bigger than 1200');
+        }
+    },
+
     computed: {
         customerStore() {
             return Shopware.State.getStore('customer');

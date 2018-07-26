@@ -1,5 +1,6 @@
 import { Component } from 'src/core/shopware';
 import utils from 'src/core/service/util.service';
+import dom from 'src/core/service/utils/dom.utils';
 import template from './sw-search-bar.html.twig';
 import './sw-search-bar.less';
 
@@ -14,7 +15,8 @@ Component.register('sw-search-bar', {
             useSearchTypeWhenSet: true,
             searchTerm: '',
             results: [],
-            isActive: false
+            isActive: false,
+            scrollbarOffset: 0
         };
     },
 
@@ -39,14 +41,26 @@ Component.register('sw-search-bar', {
 
         showSearchResults() {
             return this.showResultsContainer && !this.useTypeSearch;
+        },
+
+        searchBarStyles() {
+            return {
+                paddingRight: `${this.scrollbarOffset}px`
+            };
+        },
+
+        searchBarFieldClasses() {
+            return {
+                'is--active': this.isActive
+            };
         }
     },
 
-    methods: {
-        tc(name) {
-            return this.$tc(name);
-        },
+    updated() {
+        this.setScrollbarOffset();
+    },
 
+    methods: {
         onFocusInput() {
             this.isActive = true;
             if (this.useTypeSearch) {
@@ -96,6 +110,11 @@ Component.register('sw-search-bar', {
                 this.isLoading = false;
             });
             this.showResultsContainer = true;
+        },
+
+        setScrollbarOffset() {
+            const swPageContent = document.querySelector('.sw-page__content').firstChild;
+            this.scrollbarOffset = dom.getScrollbarWidth(swPageContent);
         }
     }
 });

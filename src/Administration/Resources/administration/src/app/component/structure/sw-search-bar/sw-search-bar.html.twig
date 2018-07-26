@@ -1,11 +1,11 @@
 {% block sw_search_bar %}
-    <div class="sw-search-bar">
+    <div class="sw-search-bar" :style="searchBarStyles">
 
         {% block sw_search_bar_container %}
             <div class="sw-search-bar__container">
 
                 {% block sw_search_bar_field %}
-                    <div class="sw-search-bar__field" :class="{ 'is--active': isActive }">
+                    <div class="sw-search-bar__field" :class="searchBarFieldClasses">
 
                         {% block sw_search_bar_type %}
                             <span v-if="useTypeSearch" class="sw-search-bar__type" :style="searchTypeColor">

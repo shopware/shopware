@@ -7,68 +7,76 @@
 @sw-page-smart-bar-headline-font-weight:    600;
 
 .sw-page {
+    width: 100%;
+    height: 100%;
     display: grid;
-    grid-template-rows: 70px auto;
+    grid-template-rows: auto 1fr;
+    position: relative;
+
+    .sw-page__container {
+        display: grid;
+        grid-template-rows: 70px auto;
+    }
 
     .sw-page__smart-bar {
         height: 70px;
         position: relative;
         background: @sw-page-smart-bar-background-color;
         border-bottom: 2px solid @sw-page-smart-bar-border-color;
+    }
 
-        .smart-bar__back-btn {
-            width: 54px;
-            height: 24px;
+    .smart-bar__back-btn {
+        width: 54px;
+        height: 24px;
+        line-height: 24px;
+        display: grid;
+        grid-template-columns: 30px 24px;
+        position: absolute;
+        top: 22px;
+        left: 20px;
+
+        .sw-icon.icons--small-arrow-large-left {
             line-height: 24px;
-            display: grid;
-            grid-template-columns: 30px 24px;
-            position: absolute;
-            top: 22px;
-            left: 20px;
+            margin: auto;
+        }
+    }
 
-            .sw-icon.icons--small-arrow-large-left {
-                line-height: 24px;
-                margin: auto;
+    .smart-bar__content {
+        max-width: 880px;
+        padding: 0 40px;
+        height: 100%;
+        line-height: 64px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 50% 50%;
+    }
+
+    .smart-bar__header h2 {
+        line-height: 70px;
+        color: @sw-page-smart-bar-headline-color;
+        font-size: @sw-page-smart-bar-headline-font-size;
+        font-weight: @sw-page-smart-bar-headline-font-weight;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-bottom: 0;
+    }
+
+    .smart-bar__actions {
+        text-align: right;
+        white-space: nowrap;
+
+        .sw-button {
+            margin-right: 5px;
+
+            &:last-child {
+                margin-right: 0;
             }
         }
+    }
 
-        .smart-bar__content {
-            max-width: 880px;
-            padding: 0 40px;
-            height: 100%;
-            line-height: 64px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 50% 50%;
-        }
-
-        .smart-bar__header h2 {
-            line-height: 70px;
-            color: @sw-page-smart-bar-headline-color;
-            font-size: @sw-page-smart-bar-headline-font-size;
-            font-weight: @sw-page-smart-bar-headline-font-weight;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            margin-bottom: 0;
-        }
-
-        .smart-bar__actions {
-            text-align: right;
-            white-space: nowrap;
-
-            .sw-button {
-                margin-right: 5px;
-
-                &:last-child {
-                    margin-right: 0;
-                }
-            }
-        }
-
-        .sw-page__smart-bar-amount {
-            font-weight: normal;
-        }
+    .sw-page__smart-bar-amount {
+        font-weight: normal;
     }
 
     .sw-page__content {

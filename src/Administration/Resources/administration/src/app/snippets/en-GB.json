@@ -48,7 +48,7 @@
     },
     "sw-search-bar": {
       "textNoSearchResults": "Could not find any results",
-      "placeholderSearchField": "Find products, customers, CMS pages, modules"
+      "placeholderSearchField": "Find products, customers, orders"
     },
     "sw-search-bar-item": {
       "typeLabelCustomer": "Customer",

@@ -98,16 +98,18 @@ class SearchKeywordIndexer implements IndexerInterface
         $this->indexTableOperator->createTable(self::DICTIONARY, $timestamp);
         $this->indexTableOperator->createTable(self::DOCUMENT_TABLE, $timestamp);
 
-        $table = $this->indexTableOperator->getIndexName(self::DICTIONARY, $timestamp);
-        $documentTable = $this->indexTableOperator->getIndexName(self::DOCUMENT_TABLE, $timestamp);
+        $dictionary = $this->indexTableOperator->getIndexName(self::DICTIONARY, $timestamp);
+        $document = $this->indexTableOperator->getIndexName(self::DOCUMENT_TABLE, $timestamp);
 
-        $this->connection->executeUpdate('ALTER TABLE `' . $table . '` ADD PRIMARY KEY `language_keyword` (`keyword`, `scope`, `language_id`, `version_id`, `tenant_id`, `language_tenant_id`);');
-        $this->connection->executeUpdate('ALTER TABLE `' . $table . '` ADD INDEX `keyword` (`keyword`, `language_id`, `language_tenant_id`, `tenant_id`);');
-        $this->connection->executeUpdate('ALTER TABLE `' . $table . '` ADD FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE');
+        $this->connection->executeUpdate('ALTER TABLE `' . $dictionary . '` ADD PRIMARY KEY `language_keyword` (`keyword`, `scope`, `language_id`, `version_id`, `tenant_id`, `language_tenant_id`);');
+        $this->connection->executeUpdate('ALTER TABLE `' . $dictionary . '` ADD INDEX `keyword` (`keyword`, `language_id`, `language_tenant_id`, `tenant_id`);');
+        $this->connection->executeUpdate('ALTER TABLE `' . $dictionary . '` ADD FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE');
+        $this->connection->executeUpdate('ALTER TABLE `' . $dictionary . '` ADD INDEX `scope_language_id` (`scope`, `language_id`, `tenant_id`);');
 
-        $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD PRIMARY KEY (`id`, `version_id`, `tenant_id`);');
-        $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD UNIQUE  KEY (`language_id`, `keyword`, `entity`, `entity_id`, `ranking`, `version_id`, `tenant_id`);');
-        $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE');
+        $this->connection->executeUpdate('ALTER TABLE `' . $document . '` ADD PRIMARY KEY (`id`, `version_id`, `tenant_id`);');
+        $this->connection->executeUpdate('ALTER TABLE `' . $document . '` ADD UNIQUE  KEY (`language_id`, `keyword`, `entity`, `entity_id`, `ranking`, `version_id`, `tenant_id`);');
+        $this->connection->executeUpdate('ALTER TABLE `' . $document . '` ADD FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE');
+        $this->connection->executeUpdate('ALTER TABLE `' . $document . '` ADD INDEX (`version_id`, `tenant_id`, `entity_id`)');
 
         $languages = $this->languageRepository->search(new Criteria(), Context::createDefaultContext($tenantId));
         $catalogIds = $this->catalogRepository->searchIds(new Criteria(), Context::createDefaultContext($tenantId));
@@ -130,17 +132,17 @@ class SearchKeywordIndexer implements IndexerInterface
             $this->indexContext($context, $timestamp);
         }
 
-        $this->connection->transactional(function () use ($table, $documentTable, $tenantId) {
+        $this->connection->transactional(function () use ($dictionary, $document, $tenantId) {
             $tenantId = Uuid::fromStringToBytes($tenantId);
 
             $this->connection->executeUpdate('DELETE FROM ' . self::DOCUMENT_TABLE . ' WHERE tenant_id = :tenant', ['tenant' => $tenantId]);
             $this->connection->executeUpdate('DELETE FROM ' . self::DICTIONARY . ' WHERE tenant_id = :tenant', ['tenant' => $tenantId]);
 
-            $this->connection->executeUpdate('REPLACE INTO ' . self::DOCUMENT_TABLE . ' SELECT * FROM ' . $documentTable);
-            $this->connection->executeUpdate('REPLACE INTO ' . self::DICTIONARY . ' SELECT * FROM ' . $table);
+            $this->connection->executeUpdate('REPLACE INTO ' . self::DOCUMENT_TABLE . ' SELECT * FROM ' . $document);
+            $this->connection->executeUpdate('REPLACE INTO ' . self::DICTIONARY . ' SELECT * FROM ' . $dictionary);
 
-            $this->connection->executeUpdate('DROP TABLE ' . $table);
-            $this->connection->executeUpdate('DROP TABLE ' . $documentTable);
+            $this->connection->executeUpdate('DROP TABLE ' . $dictionary);
+            $this->connection->executeUpdate('DROP TABLE ' . $document);
         });
     }
 

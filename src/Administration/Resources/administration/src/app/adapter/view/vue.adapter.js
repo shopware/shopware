@@ -4,11 +4,11 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import VueI18n from 'vue-i18n';
+import DeviceHelper from 'src/core/plugins/device-helper.plugin';
 import { Component, Mixin } from 'src/core/shopware';
 import { warn } from 'src/core/service/utils/debug.utils';
 
 import 'src/app/component/components';
-import DeviceHelper from 'src/core/helper/device.helper';
 
 /**
  * Contains the global Vue.js components
@@ -53,7 +53,6 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
         initDirectives();
         initFilters();
         initInheritance();
-        initDeviceManagement();
 
         const i18n = initLocales();
         const components = getComponents();
@@ -155,6 +154,7 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
     function initPlugins() {
         Vue.use(VueRouter);
         Vue.use(VueI18n);
+        Vue.use(DeviceHelper);
     }
 
     /**
@@ -213,22 +213,6 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
             locale: currentLocale,
             fallbackLocale: 'en-GB',
             messages
-        });
-    }
-
-    /**
-     * Extend Vue prototype with general device management.
-     *
-     * @memberOf module:app/adapter/view/vue
-     * @returns {DeviceHelper}
-     */
-    function initDeviceManagement() {
-        Object.defineProperties(Vue.prototype, {
-            $device: {
-                get() {
-                    return new DeviceHelper();
-                }
-            }
         });
     }
 

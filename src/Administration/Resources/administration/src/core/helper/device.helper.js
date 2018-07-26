@@ -1,58 +1,117 @@
-class DeviceHelper {
-    constructor() {
-        // TODO: Evaluate DeviceHelper class
-        this._userAgent = navigator.userAgent;
-        this._windowWidth = window.innerWidth;
-        this._windowHeight = window.innerHeight;
-        this._devicePixelRatio = window.devicePixelRatio;
-        this._screenWidth = window.screen.width;
-        this._screenHeight = window.screen.height;
-        this._screenOrientation = window.screen.orientation.type;
-    }
+/**
+ * @module core/helper/device
+ */
+import utils from 'src/core/service/util.service';
 
-    // TODO: Improve event
-    resize(callback) {
-        window.addEventListener('resize', callback);
-        return this;
-    }
+/**
+ * The DeviceHelper provides methods to get device and browser information like the current viewport size.
+ * The helper methods can be accessed with "this.$device" in every Vue component.
+ *
+ * @constructor
+ */
+function DeviceHelper() {
+    this.listeners = [];
 
-    get userAgent() {
-        return this._userAgent;
-    }
-
-    get windowWidth() {
-        return this._windowWidth;
-    }
-
-    get windowHeight() {
-        return this._windowHeight;
-    }
-
-    get devicePixelRatio() {
-        return this._devicePixelRatio;
-    }
-
-    get screenWidth() {
-        return this._screenWidth;
-    }
-
-    get screenHeight() {
-        return this._screenHeight;
-    }
-
-    get screenOrientation() {
-        return this._screenOrientation;
-    }
+    window.addEventListener('resize', this.onResize.bind(this));
 }
 
-export default DeviceHelper;
+/**
+ * @type {Function}
+ */
+DeviceHelper.prototype.onResize = utils.debounce(function debouncedResize(event) {
+    this.listeners.forEach((listener) => {
+        listener.call(window, event);
+    });
+}, 100);
 
-// export default function DeviceHelper() {
-//     return {
-//         getUserAgent
-//     };
-//
-//     function getUserAgent() {
-//         return navigator.userAgent;
-//     }
-// }
+/**
+ * @param callback
+ * @returns {number}
+ */
+DeviceHelper.prototype.resize = function deviceResize(callback) {
+    this.listeners.push(callback);
+    return this.listeners.length - 1;
+};
+
+/**
+ * Returns the user agent string.
+ *
+ * @returns {string}
+ */
+DeviceHelper.prototype.getUserAgent = function deviceUserAgent() {
+    return window.navigator.userAgent;
+};
+
+/**
+ * Returns the current viewport with in pixels.
+ *
+ * @returns {number}
+ */
+DeviceHelper.prototype.getViewportWidth = function deviceViewportWidth() {
+    return window.innerWidth;
+};
+
+/**
+ * Returns the current viewport height in pixels.
+ *
+ * @returns {number}
+ */
+DeviceHelper.prototype.getViewportHeight = function deviceViewportHeight() {
+    return window.innerHeight;
+};
+
+/**
+ * Returns the pixel ratio of the device as a number.
+ *
+ * @returns {number}
+ */
+DeviceHelper.prototype.getDevicePixelRatio = function devicePixelRatio() {
+    return window.devicePixelRatio;
+};
+
+/**
+ * Returns the device screen width in pixels.
+ *
+ * @returns {number}
+ */
+DeviceHelper.prototype.getScreenWidth = function deviceScreenWidth() {
+    return window.screen.width;
+};
+
+/**
+ * Returns the device screen height in pixels.
+ *
+ * @returns {number}
+ */
+DeviceHelper.prototype.getScreenHeight = function deviceScreenHeight() {
+    return window.screen.height;
+};
+
+/**
+ * Returns information about the screen orientation.
+ *
+ * @returns {object}
+ */
+DeviceHelper.prototype.getScreenOrientation = function deviceScreenOrientation() {
+    return window.screen.orientation;
+};
+
+/**
+ * Returns the current browser language as a string.
+ *
+ * @returns {string}
+ */
+DeviceHelper.prototype.getBrowserLanguage = function deviceBrowserLanguage() {
+    return window.navigator.language;
+};
+
+/**
+ * Returns the current platform (e.g. "Win32") as a string.
+ *
+ * @returns {string}
+ */
+DeviceHelper.prototype.getPlatform = function devicePlatform() {
+    return window.navigator.platform;
+};
+
+export default DeviceHelper;

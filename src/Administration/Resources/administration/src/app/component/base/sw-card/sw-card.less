@@ -27,13 +27,26 @@
     }
 
     &.sw-card--hero {
-        .sw-card__content{
+        .sw-card__content {
             background: none;
             border: none;
             text-align: center;
+
             h3 {
                 font-size: 30px;
             }
+        }
+    }
+
+    &.sw-card--large {
+        max-width: 1330px;
+
+        .sw-card__title {
+            width: auto;
+            position: relative;
+            top: 0;
+            left: 0;
+            text-align: left;
         }
     }
 
@@ -59,6 +72,10 @@
         border-radius: @sw-card-border-radius;
         border: 1px solid @sw-card-color-border;
         position: relative;
+
+        @media screen and (max-width: 800px) {
+            padding: 15px;
+        }
 
         h1, h2, h3, h4, h5, h6 {
             font-weight: normal;

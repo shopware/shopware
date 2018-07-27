@@ -17,6 +17,10 @@ Component.register('sw-login', {
         };
     },
 
+    mounted() {
+        this.mountedComponent();
+    },
+
     computed: {
         authStore() {
             return State.getStore('auth');
@@ -24,6 +28,12 @@ Component.register('sw-login', {
     },
 
     methods: {
+        mountedComponent() {
+            const usernameField = this.$refs.swLoginUsernameField.$el.querySelector('input');
+
+            usernameField.focus();
+        },
+
         loginUserWithPassword() {
             this.isLoading = true;
 

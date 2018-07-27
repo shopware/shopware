@@ -24,6 +24,11 @@ Component.register('sw-card', {
             type: String,
             required: false,
             default: ''
+        },
+        large: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -32,7 +37,8 @@ Component.register('sw-card', {
             return {
                 'sw-card--tabs': !!this.$slots.tabs,
                 'sw-card--grid': !!this.$slots.grid,
-                'sw-card--hero': !!this.$props.hero
+                'sw-card--hero': !!this.$props.hero,
+                'sw-card--large': this.large
             };
         }
     }

@@ -41,7 +41,8 @@
                             <sw-field :class="{ 'has--error' : authStore.errorTitle.length && authStore.errorMessage.length }"
                                       v-model="authStore.username"
                                       :label="$tc('sw-login.index.labelUsername')"
-                                      :placeholder="$tc('sw-login.index.placeholderUsername')">
+                                      :placeholder="$tc('sw-login.index.placeholderUsername')"
+                                      ref="swLoginUsernameField">
                             </sw-field>
                         {% endblock %}
 

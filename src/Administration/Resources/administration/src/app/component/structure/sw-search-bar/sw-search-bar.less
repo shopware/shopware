@@ -17,10 +17,14 @@
     align-content: center;
 
     .sw-search-bar__container {
-        padding: 15px 40px;
-        max-width: 880px;
+        padding: 15px 0;
+        max-width: 800px;
         margin: 0 auto;
         position: relative;
+
+        @media screen and (max-width: 1360px) {
+            padding: 15px;
+        }
     }
 
     .sw-search-bar__field {
@@ -75,8 +79,8 @@
     .sw-search-bar__results {
         height: 340px;
         position: absolute;
-        right: 40px;
-        left: 40px;
+        right: 0;
+        left: 0;
         top: 73px;
         z-index: @sw-search-bar-results-z-index;
         padding: 25px;
@@ -86,6 +90,11 @@
         border: 1px solid @sw-search-bar-border-color;
         border-radius: @sw-search-bar-border-radius;
         box-shadow: @sw-search-bar-results-box-shadow;
+
+        @media screen and (max-width: 1360px) {
+            right: 15px;
+            left: 15px;
+        }
     }
 
     .sw-search-bar__results-list {

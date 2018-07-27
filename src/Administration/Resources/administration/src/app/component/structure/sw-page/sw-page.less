@@ -35,6 +35,10 @@
         top: 22px;
         left: 20px;
 
+        @media screen and (max-width: 1360px) {
+            display: none;
+        }
+
         .sw-icon.icons--small-arrow-large-left {
             line-height: 24px;
             margin: auto;
@@ -42,13 +46,16 @@
     }
 
     .smart-bar__content {
-        max-width: 880px;
-        padding: 0 40px;
+        max-width: 800px;
         height: 100%;
         line-height: 64px;
         margin: 0 auto;
         display: grid;
         grid-template-columns: 50% 50%;
+
+        @media screen and (max-width: 1360px) {
+            padding: 0 15px;
+        }
     }
 
     .smart-bar__header h2 {

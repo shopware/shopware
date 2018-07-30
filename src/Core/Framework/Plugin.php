@@ -31,11 +31,13 @@ use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
+use Shopware\Core\Kernel;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
+use Symfony\Component\Routing\RouteCollectionBuilder;
 
 class Plugin extends Bundle
 {
@@ -117,6 +119,15 @@ class Plugin extends Bundle
     {
         $this->registerFilesystem($container, 'private');
         $this->registerFilesystem($container, 'public');
+    }
+
+    public function configureRoutes(RouteCollectionBuilder $routes, string $environment): void
+    {
+        $confDir = $this->getPath() . '/Resources';
+
+        $routes->import($confDir . '/{routes}/*' . Kernel::CONFIG_EXTS, '/', 'glob');
+        $routes->import($confDir . '/{routes}/' . $environment . '/**/*' . Kernel::CONFIG_EXTS, '/', 'glob');
+        $routes->import($confDir . '/{routes}' . Kernel::CONFIG_EXTS, '/', 'glob');
     }
 
     public function getContainerPrefix(): string

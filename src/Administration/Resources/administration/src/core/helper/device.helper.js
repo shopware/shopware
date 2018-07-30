@@ -19,17 +19,18 @@ function DeviceHelper() {
  * @type {Function}
  */
 DeviceHelper.prototype.onResize = utils.debounce(function debouncedResize(event) {
-    this.listeners.forEach((listener) => {
-        listener.call(window, event);
+    this.listeners.forEach((listenerObject) => {
+        listenerObject.callback.call(listenerObject.scope, event);
     });
 }, 100);
 
 /**
- * @param callback
+ * @param {Function} callback
+ * @param {Any} scope
  * @returns {number}
  */
-DeviceHelper.prototype.resize = function deviceResize(callback) {
-    this.listeners.push(callback);
+DeviceHelper.prototype.resize = function deviceResize(callback, scope = window) {
+    this.listeners.push({ callback, scope });
     return this.listeners.length - 1;
 };
 

@@ -4,6 +4,7 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import VueI18n from 'vue-i18n';
+import DeviceHelper from 'src/core/plugins/device-helper.plugin';
 import { Component, Mixin } from 'src/core/shopware';
 import { warn } from 'src/core/service/utils/debug.utils';
 
@@ -153,6 +154,7 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
     function initPlugins() {
         Vue.use(VueRouter);
         Vue.use(VueI18n);
+        Vue.use(DeviceHelper);
     }
 
     /**

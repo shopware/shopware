@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ORM\Search;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Exception\InvalidAggregationQueryException;
 use Shopware\Core\Framework\ORM\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\ORM\Exception\InvalidLimitQueryException;
@@ -65,16 +66,16 @@ class RequestCriteriaBuilder
         }
 
         if (isset($payload['filter'])) {
-            $this->addFilter($payload, $criteria, $searchException);
+            $this->addFilter($definition, $payload, $criteria, $searchException);
         }
 
         if (isset($payload['post-filter'])) {
-            $this->addPostFilter($payload, $criteria, $searchException);
+            $this->addPostFilter($definition, $payload, $criteria, $searchException);
         }
 
         if (isset($payload['query']) && is_array($payload['query'])) {
             foreach ($payload['query'] as $query) {
-                $parsedQuery = QueryStringParser::fromArray($query['query'], $searchException);
+                $parsedQuery = QueryStringParser::fromArray($definition, $query['query'], $searchException);
                 $score = $query['score'] ?? 1;
                 $scoreField = $query['scoreField'] ?? null;
 
@@ -93,7 +94,7 @@ class RequestCriteriaBuilder
         }
 
         if (isset($payload['aggregations'])) {
-            $this->buildAggregations($payload, $criteria, $searchException);
+            $this->buildAggregations($definition, $payload, $criteria, $searchException);
         }
 
         $searchException->tryToThrow();
@@ -101,7 +102,7 @@ class RequestCriteriaBuilder
         return $criteria;
     }
 
-    private function parseSorting(array $sorting): array
+    private function parseSorting(string $definition, array $sorting): array
     {
         $sortings = [];
         foreach ($sorting as $sort) {
@@ -113,7 +114,7 @@ class RequestCriteriaBuilder
                 $order = FieldSorting::ASCENDING;
             }
 
-            $sortings[] = new FieldSorting($sort['field'], $order);
+            $sortings[] = new FieldSorting($this->buildFieldName($definition, $sort['field']), $order);
         }
 
         return $sortings;
@@ -137,13 +138,13 @@ class RequestCriteriaBuilder
                 $part = substr($part, 1);
             }
 
-            $sorting[] = new FieldSorting($part, $direction);
+            $sorting[] = new FieldSorting($this->buildFieldName($definition, $part), $direction);
         }
 
         return $sorting;
     }
 
-    private function parseSimpleFilter(array $filters, SearchRequestException $searchRequestException): NestedQuery
+    private function parseSimpleFilter(string $definition, array $filters, SearchRequestException $searchRequestException): NestedQuery
     {
         $queries = [];
 
@@ -161,13 +162,13 @@ class RequestCriteriaBuilder
                 continue;
             }
 
-            $queries[] = new TermQuery($field, $value);
+            $queries[] = new TermQuery($this->buildFieldName($definition, $field), $value);
         }
 
         return new NestedQuery($queries);
     }
 
-    private function buildAggregations(array $payload, Criteria $criteria, SearchRequestException $searchRequestException): void
+    private function buildAggregations(string $definition, array $payload, Criteria $criteria, SearchRequestException $searchRequestException): void
     {
         if (!is_array($payload['aggregations'])) {
             throw new InvalidAggregationQueryException('The aggregations parameter has to be a list of aggregations.');
@@ -197,7 +198,7 @@ class RequestCriteriaBuilder
                     continue;
                 }
 
-                $field = $aggregation['field'];
+                $field = $this->buildFieldName($definition, $aggregation['field']);
                 switch ($type) {
                     case 'avg':
                         $criteria->addAggregation(new AvgAggregation($field, $name));
@@ -290,7 +291,7 @@ class RequestCriteriaBuilder
         $criteria->setLimit($limit);
     }
 
-    private function addFilter(array $payload, Criteria $criteria, SearchRequestException $searchException): void
+    private function addFilter(string $definition, array $payload, Criteria $criteria, SearchRequestException $searchException): void
     {
         if (!is_array($payload['filter'])) {
             $searchException->add(new InvalidFilterQueryException('The filter parameter has to be a list of filters.'), '/filter');
@@ -301,7 +302,7 @@ class RequestCriteriaBuilder
         if ($this->hasNumericIndex($payload['filter'])) {
             foreach ($payload['filter'] as $index => $query) {
                 try {
-                    $filter = QueryStringParser::fromArray($query, $searchException, '/filter/' . $index);
+                    $filter = QueryStringParser::fromArray($definition, $query, $searchException, '/filter/' . $index);
                     $criteria->addFilter($filter);
                 } catch (InvalidFilterQueryException $ex) {
                     $searchException->add($ex, $ex->getPath());
@@ -311,10 +312,10 @@ class RequestCriteriaBuilder
             return;
         }
 
-        $criteria->addFilter($this->parseSimpleFilter($payload['filter'], $searchException));
+        $criteria->addFilter($this->parseSimpleFilter($definition, $payload['filter'], $searchException));
     }
 
-    private function addPostFilter(array $payload, Criteria $criteria, SearchRequestException $searchException): void
+    private function addPostFilter(string $definition, array $payload, Criteria $criteria, SearchRequestException $searchException): void
     {
         if (!is_array($payload['post-filter'])) {
             $searchException->add(new InvalidFilterQueryException('The filter parameter has to be a list of filters.'), '/post-filter');
@@ -325,7 +326,7 @@ class RequestCriteriaBuilder
         if ($this->hasNumericIndex($payload['post-filter'])) {
             foreach ($payload['post-filter'] as $index => $query) {
                 try {
-                    $filter = QueryStringParser::fromArray($query, $searchException, '/post-filter/' . $index);
+                    $filter = QueryStringParser::fromArray($definition, $query, $searchException, '/post-filter/' . $index);
                     $criteria->addPostFilter($filter);
                 } catch (InvalidFilterQueryException $ex) {
                     $searchException->add($ex, $ex->getPath());
@@ -335,7 +336,13 @@ class RequestCriteriaBuilder
             return;
         }
 
-        $criteria->addPostFilter($this->parseSimpleFilter($payload['post-filter'], $searchException));
+        $criteria->addPostFilter(
+            $this->parseSimpleFilter(
+                $definition,
+                $payload['post-filter'],
+                $searchException
+            )
+        );
     }
 
     private function hasNumericIndex(array $data): bool
@@ -346,7 +353,7 @@ class RequestCriteriaBuilder
     private function addSorting(array $payload, Criteria $criteria, string $definition, SearchRequestException $searchException): void
     {
         if (is_array($payload['sort'])) {
-            $criteria->addSortings($this->parseSorting($payload['sort']));
+            $criteria->addSortings($this->parseSorting($definition, $payload['sort']));
 
             return;
         }
@@ -357,5 +364,17 @@ class RequestCriteriaBuilder
         } catch (InvalidSortQueryException $ex) {
             $searchException->add($ex, '/sort');
         }
+    }
+
+    private function buildFieldName(string $definition, string $fieldName): string
+    {
+        /** @var EntityDefinition $definition */
+        $prefix = $definition::getEntityName() . '.';
+
+        if (strpos($fieldName, $prefix) === false) {
+            return $prefix . $fieldName;
+        }
+
+        return $fieldName;
     }
 }

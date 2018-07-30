@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\ORM\Search\Parser;
 
+use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\ORM\Exception\SearchRequestException;
 use Shopware\Core\Framework\ORM\Search\Query\MatchQuery;
@@ -14,7 +15,7 @@ use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
 
 class QueryStringParser
 {
-    public static function fromArray(array $query, SearchRequestException $exception, string $path = ''): Query
+    public static function fromArray(string $definition, array $query, SearchRequestException $exception, string $path = ''): Query
     {
         if (empty($query['type'])) {
             throw new InvalidFilterQueryException('Value for filter type is required.');
@@ -30,7 +31,7 @@ class QueryStringParser
                     throw new InvalidFilterQueryException('Parameter "value" for term filter is missing.', $path . '/value');
                 }
 
-                return new TermQuery($query['field'], $query['value']);
+                return new TermQuery(self::buildFieldName($definition, $query['field']), $query['value']);
             case 'nested':
                 $queries = [];
                 $operator = 'AND';
@@ -41,7 +42,7 @@ class QueryStringParser
 
                 foreach ($query['queries'] as $index => $subQuery) {
                     try {
-                        $queries[] = self::fromArray($subQuery, $exception, $path . '/queries/' . $index);
+                        $queries[] = self::fromArray($definition, $subQuery, $exception, $path . '/queries/' . $index);
                     } catch (InvalidFilterQueryException $ex) {
                         $exception->add($ex, $ex->getPath());
                         continue;
@@ -58,16 +59,16 @@ class QueryStringParser
                     throw new InvalidFilterQueryException('Parameter "value" for match filter is missing.', $path . '/value');
                 }
 
-                return new MatchQuery($query['field'], $query['value']);
+                return new MatchQuery(self::buildFieldName($definition, $query['field']), $query['value']);
             case 'not':
                 return new NotQuery(
-                    array_map(function (array $query) use ($path) {
-                        return self::fromArray($query, $path);
+                    array_map(function (array $query) use ($path, $exception, $definition) {
+                        return self::fromArray($definition, $query, $exception, $path);
                     }, $query['queries']),
                     array_key_exists('operator', $query) ? $query['operator'] : 'AND'
                 );
             case 'range':
-                return new RangeQuery($query['field'], $query['parameters']);
+                return new RangeQuery(self::buildFieldName($definition, $query['field']), $query['parameters']);
             case 'terms':
                 if (empty($query['field'])) {
                     throw new InvalidFilterQueryException('Parameter "field" for terms filter is missing.', $path . '/field');
@@ -90,7 +91,7 @@ class QueryStringParser
                     throw new InvalidFilterQueryException('Parameter "value" for terms filter does not contain any value.', $path . '/value');
                 }
 
-                return new TermsQuery($query['field'], $values);
+                return new TermsQuery(self::buildFieldName($definition, $query['field']), $values);
         }
 
         throw new InvalidFilterQueryException(sprintf('Unsupported query type: %s', $query['type']), $path . '/type');
@@ -142,5 +143,17 @@ class QueryStringParser
             default:
                 throw new \RuntimeException(sprintf('Unsupported query type %s', get_class($query)));
         }
+    }
+
+    private static function buildFieldName(string $definition, string $fieldName): string
+    {
+        /** @var EntityDefinition $definition */
+        $prefix = $definition::getEntityName() . '.';
+
+        if (strpos($fieldName, $prefix) === false) {
+            return $prefix . $fieldName;
+        }
+
+        return $fieldName;
     }
 }

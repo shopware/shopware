@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\ORM\Search\Parser;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\ORM\Exception\SearchRequestException;
 use Shopware\Core\Framework\ORM\Search\Parser\QueryStringParser;
@@ -15,13 +16,13 @@ class QueryStringParserTest extends TestCase
     public function testWithUnsupportedFormat(): void
     {
         $this->expectException(InvalidFilterQueryException::class);
-        QueryStringParser::fromArray(['type' => 'foo'], new SearchRequestException());
+        QueryStringParser::fromArray(ProductDefinition::class, ['type' => 'foo'], new SearchRequestException());
     }
 
     public function testInvalidParameters(): void
     {
         $this->expectException(InvalidFilterQueryException::class);
-        QueryStringParser::fromArray(['foo' => 'bar'], new SearchRequestException());
+        QueryStringParser::fromArray(ProductDefinition::class, ['foo' => 'bar'], new SearchRequestException());
     }
 
     /**
@@ -37,11 +38,11 @@ class QueryStringParserTest extends TestCase
         }
 
         /** @var TermQuery $result */
-        $result = QueryStringParser::fromArray($filter, new SearchRequestException());
+        $result = QueryStringParser::fromArray(ProductDefinition::class, $filter, new SearchRequestException());
 
         $this->assertInstanceOf(TermQuery::class, $result);
 
-        $this->assertEquals($result->getField(), $filter['field']);
+        $this->assertEquals($result->getField(), 'product.' . $filter['field']);
         $this->assertEquals($result->getValue(), $filter['value']);
     }
 
@@ -73,11 +74,11 @@ class QueryStringParserTest extends TestCase
         }
 
         /** @var TermQuery $result */
-        $result = QueryStringParser::fromArray($filter, new SearchRequestException());
+        $result = QueryStringParser::fromArray(ProductDefinition::class, $filter, new SearchRequestException());
 
         $this->assertInstanceOf(MatchQuery::class, $result);
 
-        $this->assertEquals($result->getField(), $filter['field']);
+        $this->assertEquals($result->getField(), 'product.' . $filter['field']);
         $this->assertEquals($result->getValue(), $filter['value']);
     }
 
@@ -109,7 +110,7 @@ class QueryStringParserTest extends TestCase
         }
 
         /** @var TermsQuery $result */
-        $result = QueryStringParser::fromArray($filter, new SearchRequestException());
+        $result = QueryStringParser::fromArray(ProductDefinition::class, $filter, new SearchRequestException());
 
         $this->assertInstanceOf(TermsQuery::class, $result);
 
@@ -122,7 +123,7 @@ class QueryStringParserTest extends TestCase
             $expectedValue = [$expectedValue];
         }
 
-        $this->assertEquals($result->getField(), $filter['field']);
+        $this->assertEquals($result->getField(), 'product.' . $filter['field']);
         $this->assertEquals($result->getValue(), $expectedValue);
     }
 

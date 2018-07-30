@@ -20,6 +20,12 @@ export default {
             }
         });
 
+        Vue.mixin({
+            destroyed() {
+                this.$device.removeResizeListener(this);
+            }
+        });
+
         pluginInstalled = true;
 
         return true;

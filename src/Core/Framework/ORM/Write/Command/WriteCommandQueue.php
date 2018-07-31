@@ -24,6 +24,9 @@
 
 namespace Shopware\Core\Framework\ORM\Write\Command;
 
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\System\Language\LanguageDefinition;
+
 class WriteCommandQueue
 {
     /**
@@ -61,6 +64,8 @@ class WriteCommandQueue
 
         $this->order = $identifierOrder;
 
+        $this->order = $this->moveTranslationAfterLanguage($this->order);
+
         foreach ($identifierOrder as $identifier) {
             $this->commands[$identifier] = [];
         }
@@ -83,10 +88,12 @@ class WriteCommandQueue
 
         $localIndex = array_search($definition, $this->order);
         $this->order = array_merge(
-            array_slice($this->order, 0, $localIndex),
+            \array_slice($this->order, 0, $localIndex),
             $notAlreadyOrderedIdentifiers,
-            array_slice($this->order, $localIndex + 1)
+            \array_slice($this->order, $localIndex + 1)
         );
+
+        $this->order = $this->moveTranslationAfterLanguage($this->order);
 
         foreach ($this->order as $identifier) {
             if (isset($this->commands[$identifier])) {
@@ -179,5 +186,39 @@ class WriteCommandQueue
         }
 
         return $filtered;
+    }
+
+    /**
+     * @param array $order
+     *
+     * @return array
+     */
+    private function moveTranslationAfterLanguage(array $order): array
+    {
+        $flipped = \array_flip($order);
+
+        if (!isset($flipped[LanguageDefinition::class])) {
+            return $order;
+        }
+
+        $translations = [];
+
+        /** @var string|EntityDefinition $definition */
+        foreach ($order as $index => $definition) {
+            $translations[$definition::getTranslationDefinitionClass()] = 1;
+        }
+
+        $translations = array_intersect_key($flipped, $translations);
+        foreach ($translations as $definition => $index) {
+            unset($order[$index]);
+        }
+
+        $order = array_values($order);
+
+        foreach ($translations as $definition => $index) {
+            $order[] = $definition;
+        }
+
+        return $order;
     }
 }

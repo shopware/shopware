@@ -261,6 +261,10 @@ class SearchKeywordIndexer implements IndexerInterface
 
             $total = \array_sum($keywords);
 
+            if (empty($keywords)) {
+                continue;
+            }
+
             //allow max ranking of 1000 per entity, this allows to compare entity searches and small documents with big documents
             $perPoint = 1000 / $total;
 

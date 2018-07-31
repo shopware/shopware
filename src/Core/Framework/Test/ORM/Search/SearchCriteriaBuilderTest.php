@@ -9,27 +9,36 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\Test\Api\ApiTestCase;
+use Shopware\Core\PlatformRequest;
 
 class SearchCriteriaBuilderTest extends ApiTestCase
 {
-    /**
-     * @var RepositoryInterface
-     */
-    private $productRepository;
-
     /**
      * @var Connection
      */
     private $connection;
 
+    /**
+     * @var RepositoryInterface
+     */
+    private $manufacturerRepository;
+
+    /**
+     * @var string
+     */
+    private $url;
+
     protected function setUp()
     {
         parent::setUp();
 
-        $this->productRepository = self::$container->get('product.repository');
+        $this->manufacturerRepository = self::$container->get('product_manufacturer.repository');
         $this->connection = self::$container->get(Connection::class);
         $this->connection->beginTransaction();
+        $this->url = '/api/v' . PlatformRequest::API_VERSION;
+
         $this->connection->executeUpdate('DELETE FROM product');
+        $this->connection->executeUpdate('DELETE FROM product_manufacturer');
     }
 
     public function tearDown()
@@ -43,33 +52,30 @@ class SearchCriteriaBuilderTest extends ApiTestCase
      */
     public function testListFetchCount(): void
     {
-        $manufacturerId = Uuid::uuid4()->getHex();
-        $payload = ['manufacturer' => ['id' => $manufacturerId, 'name' => 'foobar']];
-
         for ($i = 0; $i < 35; ++$i) {
-            $this->createProduct($payload);
+            $this->createManufacturer(['link' => 'test']);
         }
 
         // no count, equals to fetched entities
-        $this->storefrontApiClient->request('GET', '/storefront-api/product', ['fetch-count' => Criteria::FETCH_COUNT_NONE, 'filter' => ['product.manufacturer.id' => $manufacturerId], 'limit' => 5]);
-        $this->assertSame(200, $this->storefrontApiClient->getResponse()->getStatusCode(), $this->storefrontApiClient->getResponse()->getContent());
-        $content = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
+        $this->apiClient->request('GET', $this->url . '/product-manufacturer', ['fetch-count' => Criteria::FETCH_COUNT_NONE, 'filter' => ['product_manufacturer.link' => 'test'], 'limit' => 5]);
+        static::assertSame(200, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
+        $content = \json_decode($this->apiClient->getResponse()->getContent(), true);
 
-        $this->assertEquals(5, $content['total']);
+        static::assertEquals(5, $content['meta']['total'], print_r($content, true));
 
         // calculates all matching rows
-        $this->storefrontApiClient->request('GET', '/storefront-api/product', ['fetch-count' => Criteria::FETCH_COUNT_TOTAL, 'filter' => ['product.manufacturer.id' => $manufacturerId], 'limit' => 5]);
-        $this->assertSame(200, $this->storefrontApiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
+        $this->apiClient->request('GET', $this->url . '/product-manufacturer', ['fetch-count' => Criteria::FETCH_COUNT_TOTAL, 'filter' => ['product_manufacturer.link' => 'test'], 'limit' => 5]);
+        static::assertSame(200, $this->apiClient->getResponse()->getStatusCode());
+        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
 
-        $this->assertEquals(35, $content['total']);
+        static::assertEquals(35, $content['meta']['total']);
 
         // returns the count of 5 next pages plus 1 if there are more
-        $this->storefrontApiClient->request('GET', '/storefront-api/product', ['fetch-count' => Criteria::FETCH_COUNT_NEXT_PAGES, 'filter' => ['product.manufacturer.id' => $manufacturerId], 'limit' => 5]);
-        $this->assertSame(200, $this->storefrontApiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
+        $this->apiClient->request('GET', $this->url . '/product-manufacturer', ['fetch-count' => Criteria::FETCH_COUNT_NEXT_PAGES, 'filter' => ['product_manufacturer.link' => 'test'], 'limit' => 5]);
+        static::assertSame(200, $this->apiClient->getResponse()->getStatusCode());
+        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
 
-        $this->assertEquals(31, $content['total']);
+        static::assertEquals(31, $content['meta']['total']);
     }
 
     /**
@@ -77,106 +83,106 @@ class SearchCriteriaBuilderTest extends ApiTestCase
      */
     public function testSortingAscending(): void
     {
-        $this->createProduct(['stock' => 10]);
-        $this->createProduct(['stock' => 20]);
-        $this->createProduct(['stock' => 30]);
+        $this->createManufacturer(['link' => 'a']);
+        $this->createManufacturer(['link' => 'b']);
+        $this->createManufacturer(['link' => 'c']);
 
-        $this->storefrontApiClient->request('GET', '/storefront-api/product', ['sort' => 'product.stock']);
-        $this->assertSame(200, $this->storefrontApiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
+        $this->apiClient->request('GET', $this->url . '/product-manufacturer', ['sort' => 'product_manufacturer.link']);
+        static::assertSame(200, $this->apiClient->getResponse()->getStatusCode());
+        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
 
-        $this->assertEquals(10, $content['data'][0]['stock']);
-        $this->assertEquals(20, $content['data'][1]['stock']);
-        $this->assertEquals(30, $content['data'][2]['stock']);
+        static::assertEquals('a', $content['data'][0]['attributes']['link']);
+        static::assertEquals('b', $content['data'][1]['attributes']['link']);
+        static::assertEquals('c', $content['data'][2]['attributes']['link']);
     }
 
     public function testSortingDescending(): void
     {
-        $this->createProduct(['stock' => 10]);
-        $this->createProduct(['stock' => 20]);
-        $this->createProduct(['stock' => 30]);
+        $this->createManufacturer(['link' => 'a']);
+        $this->createManufacturer(['link' => 'b']);
+        $this->createManufacturer(['link' => 'c']);
 
-        $this->storefrontApiClient->request('GET', '/storefront-api/product', ['sort' => '-product.stock']);
-        $this->assertSame(200, $this->storefrontApiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
+        $this->apiClient->request('GET', $this->url . '/product-manufacturer', ['sort' => '-product_manufacturer.link']);
+        static::assertSame(200, $this->apiClient->getResponse()->getStatusCode());
+        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
 
-        $this->assertEquals(30, $content['data'][0]['stock']);
-        $this->assertEquals(20, $content['data'][1]['stock']);
-        $this->assertEquals(10, $content['data'][2]['stock']);
+        static::assertEquals('c', $content['data'][0]['attributes']['link']);
+        static::assertEquals('b', $content['data'][1]['attributes']['link']);
+        static::assertEquals('a', $content['data'][2]['attributes']['link']);
     }
 
     public function testMultipleSorting(): void
     {
-        $product1 = $this->createProduct(['stock' => 10, 'minStock' => 10]);
-        $product2 = $this->createProduct(['stock' => 20, 'minStock' => 20]);
-        $product3 = $this->createProduct(['stock' => 20, 'minStock' => 30]);
+        $manufacturer1 = $this->createManufacturer(['link' => 'a', 'description' => 'a']);
+        $manufacturer2 = $this->createManufacturer(['link' => 'b', 'description' => 'a']);
+        $manufacturer3 = $this->createManufacturer(['link' => 'b', 'description' => 'c']);
 
         /*
          * Sort by stock ASC, minStock ASC
          */
-        $this->storefrontApiClient->request('GET', '/storefront-api/product', ['sort' => 'product.stock,product.minStock']);
-        $this->assertSame(200, $this->storefrontApiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
+        $this->apiClient->request('GET', $this->url . '/product-manufacturer', ['sort' => 'product_manufacturer.link,product_manufacturer.description']);
+        static::assertSame(200, $this->apiClient->getResponse()->getStatusCode());
+        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
 
-        $expectedSort = [$product1, $product2, $product3];
+        $expectedSort = [$manufacturer1, $manufacturer2, $manufacturer3];
         $actualSort = array_column($content['data'], 'id');
 
-        $this->assertEquals($expectedSort, $actualSort);
+        static::assertEquals($expectedSort, $actualSort);
 
         /*
          * Sort by stock ASC, minStock DESC
          */
-        $this->storefrontApiClient->request('GET', '/storefront-api/product', ['sort' => 'product.stock,-product.minStock']);
-        $this->assertSame(200, $this->storefrontApiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
+        $this->apiClient->request('GET', $this->url . '/product-manufacturer', ['sort' => 'product_manufacturer.link,-product_manufacturer.description']);
+        static::assertSame(200, $this->apiClient->getResponse()->getStatusCode());
+        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
 
-        $expectedSort = [$product1, $product3, $product2];
+        $expectedSort = [$manufacturer1, $manufacturer3, $manufacturer2];
         $actualSort = array_column($content['data'], 'id');
 
-        $this->assertEquals($expectedSort, $actualSort);
+        static::assertEquals($expectedSort, $actualSort);
 
         /*
          * Sort by stock DESC, minStock ASC
          */
-        $this->storefrontApiClient->request('GET', '/storefront-api/product', ['sort' => '-product.stock,product.minStock']);
-        $this->assertSame(200, $this->storefrontApiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
+        $this->apiClient->request('GET', $this->url . '/product-manufacturer', ['sort' => '-product_manufacturer.link,product_manufacturer.description']);
+        static::assertSame(200, $this->apiClient->getResponse()->getStatusCode());
+        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
 
-        $expectedSort = [$product2, $product3, $product1];
+        $expectedSort = [$manufacturer2, $manufacturer3, $manufacturer1];
         $actualSort = array_column($content['data'], 'id');
 
-        $this->assertEquals($expectedSort, $actualSort);
+        static::assertEquals($expectedSort, $actualSort);
 
         /*
          * Sort by stock DESC, minStock DESC
          */
-        $this->storefrontApiClient->request('GET', '/storefront-api/product', ['sort' => '-product.stock,-product.minStock']);
-        $this->assertSame(200, $this->storefrontApiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
+        $this->apiClient->request('GET', $this->url . '/product-manufacturer', ['sort' => '-product_manufacturer.link,-product_manufacturer.description']);
+        static::assertSame(200, $this->apiClient->getResponse()->getStatusCode());
+        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
 
-        $expectedSort = [$product3, $product2, $product1];
+        $expectedSort = [$manufacturer3, $manufacturer2, $manufacturer1];
         $actualSort = array_column($content['data'], 'id');
 
-        $this->assertEquals($expectedSort, $actualSort);
+        static::assertEquals($expectedSort, $actualSort);
     }
 
     public function testSortingWithInvalidField(): void
     {
-        $this->storefrontApiClient->request('GET', '/storefront-api/product', ['sort' => 'product.unknown']);
-        $this->assertSame(400, $this->storefrontApiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
+        $this->apiClient->request('GET', $this->url . '/product', ['sort' => 'product.unknown']);
+        static::assertSame(400, $this->apiClient->getResponse()->getStatusCode());
+        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
 
-        $this->assertEquals('Field "unknown" in entity "product" was not found.', $content['errors'][0]['detail']);
+        static::assertEquals('Field "unknown" in entity "product" was not found.', $content['errors'][0]['detail']);
     }
 
     public function testSortingWithEmptyField(): void
     {
-        $this->storefrontApiClient->request('GET', '/storefront-api/product', ['sort' => '']);
-        $this->assertSame(400, $this->storefrontApiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
+        $this->apiClient->request('GET', $this->url . '/product', ['sort' => '']);
+        static::assertSame(400, $this->apiClient->getResponse()->getStatusCode());
+        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
 
-        $this->assertEquals('A value for the sort parameter is required.', $content['errors'][0]['detail']);
-        $this->assertEquals('/sort', $content['errors'][0]['source']['pointer']);
+        static::assertEquals('A value for the sort parameter is required.', $content['errors'][0]['detail']);
+        static::assertEquals('/sort', $content['errors'][0]['source']['pointer']);
     }
 
     /**
@@ -184,76 +190,70 @@ class SearchCriteriaBuilderTest extends ApiTestCase
      */
     public function testOffset(): void
     {
-        $manufacturerId = Uuid::uuid4()->getHex();
-        $payload = ['manufacturer' => ['id' => $manufacturerId, 'name' => 'foobar']];
-
         $ids = [];
         for ($i = 0; $i < 20; ++$i) {
-            $ids[] = $this->createProduct($payload);
+            $ids[] = $this->createManufacturer(['link' => 'testOffset']);
         }
 
-        $this->storefrontApiClient->request('GET', '/storefront-api/product', ['offset' => 10, 'filter' => ['product.manufacturer.id' => $manufacturerId], 'sort' => 'product.id']);
-        $this->assertSame(200, $this->storefrontApiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
+        $this->apiClient->request('GET', $this->url . '/product-manufacturer', ['offset' => 10, 'filter' => ['product_manufacturer.link' => 'testOffset'], 'sort' => 'product_manufacturer.id']);
+        static::assertSame(200, $this->apiClient->getResponse()->getStatusCode());
+        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
 
         sort($ids);
 
         $expectedIds = array_slice($ids, 10);
         $actualIds = array_column($content['data'], 'id');
 
-        $this->assertEquals($expectedIds, $actualIds);
+        static::assertEquals($expectedIds, $actualIds);
     }
 
     public function testOffsetWithNumericString(): void
     {
-        $manufacturerId = Uuid::uuid4()->getHex();
-        $payload = ['manufacturer' => ['id' => $manufacturerId, 'name' => 'foobar']];
-
         $ids = [];
         for ($i = 0; $i < 20; ++$i) {
-            $ids[] = $this->createProduct($payload);
+            $ids[] = $this->createManufacturer(['link' => 'testOffsetWithNumericString']);
         }
 
-        $this->storefrontApiClient->request('GET', '/storefront-api/product', ['offset' => '10', 'filter' => ['product.manufacturer.id' => $manufacturerId], 'sort' => 'product.id']);
-        $this->assertSame(200, $this->storefrontApiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
+        $this->apiClient->request('GET', $this->url . '/product-manufacturer', ['offset' => '10', 'filter' => ['product_manufacturer.link' => 'testOffsetWithNumericString'], 'sort' => 'product_manufacturer.id']);
+        static::assertSame(200, $this->apiClient->getResponse()->getStatusCode());
+        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
 
         sort($ids);
 
         $expectedIds = array_slice($ids, 10);
         $actualIds = array_column($content['data'], 'id');
 
-        $this->assertEquals($expectedIds, $actualIds);
+        static::assertEquals($expectedIds, $actualIds);
     }
 
     public function testNegativeOffset(): void
     {
-        $this->storefrontApiClient->request('GET', '/storefront-api/product', ['offset' => -1]);
-        $this->assertSame(400, $this->storefrontApiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
+        $this->apiClient->request('GET', $this->url . '/product', ['offset' => -1]);
+        static::assertSame(400, $this->apiClient->getResponse()->getStatusCode());
+        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
 
-        $this->assertEquals('The offset parameter must be a positive integer. Given: -1', $content['errors'][0]['detail']);
-        $this->assertEquals('/offset', $content['errors'][0]['source']['pointer']);
+        static::assertEquals('The offset parameter must be a positive integer. Given: -1', $content['errors'][0]['detail']);
+        static::assertEquals('/offset', $content['errors'][0]['source']['pointer']);
     }
 
     public function testNonIntegerOffset(): void
     {
-        $this->storefrontApiClient->request('GET', '/storefront-api/product', ['offset' => 'foo']);
-        $this->assertSame(400, $this->storefrontApiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
+        $this->apiClient->request('GET', $this->url . '/product', ['offset' => 'foo']);
+        static::assertSame(400, $this->apiClient->getResponse()->getStatusCode());
+        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
 
-        $this->assertEquals('The offset parameter must be a positive integer. Given: foo', $content['errors'][0]['detail']);
-        $this->assertEquals('/offset', $content['errors'][0]['source']['pointer']);
+        static::assertEquals('The offset parameter must be a positive integer. Given: foo', $content['errors'][0]['detail']);
+        static::assertEquals('/offset', $content['errors'][0]['source']['pointer']);
     }
 
     public function testEmptyOffset(): void
     {
-        $this->storefrontApiClient->request('GET', '/storefront-api/product', ['offset' => '']);
-        $this->assertSame(400, $this->storefrontApiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
+        $this->apiClient->request('GET', $this->url . '/product', ['offset' => '']);
+        static::assertSame(400, $this->apiClient->getResponse()->getStatusCode());
+        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
 
-        $this->assertEquals('The offset parameter must be a positive integer. Given: (empty)', $content['errors'][0]['detail']);
-        $this->assertEquals('/offset', $content['errors'][0]['source']['pointer']);
+        static::assertEquals('The offset parameter must be a positive integer. Given: (empty)', $content['errors'][0]['detail']);
+        static::assertEquals('/offset', $content['errors'][0]['source']['pointer']);
     }
 
     /**
@@ -261,71 +261,65 @@ class SearchCriteriaBuilderTest extends ApiTestCase
      */
     public function testLimit(): void
     {
-        $manufacturerId = Uuid::uuid4()->getHex();
-        $payload = ['manufacturer' => ['id' => $manufacturerId, 'name' => 'foobar']];
-
         for ($i = 0; $i < 10; ++$i) {
-            $this->createProduct($payload);
+            $this->createManufacturer(['link' => 'testLimit']);
         }
 
-        $this->storefrontApiClient->request('GET', '/storefront-api/product', ['limit' => 5, 'filter' => ['product.manufacturer.id' => $manufacturerId], 'sort' => 'product.id']);
-        $this->assertSame(200, $this->storefrontApiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
+        $this->apiClient->request('GET', $this->url . '/product-manufacturer', ['limit' => 5, 'filter' => ['product_manufacturer.link' => 'testLimit'], 'sort' => 'product_manufacturer.id']);
+        static::assertSame(200, $this->apiClient->getResponse()->getStatusCode());
+        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
 
-        $this->assertCount(5, $content['data']);
+        static::assertCount(5, $content['data']);
     }
 
     public function testLimitWithNumericString(): void
     {
-        $manufacturerId = Uuid::uuid4()->getHex();
-        $payload = ['manufacturer' => ['id' => $manufacturerId, 'name' => 'foobar']];
-
         for ($i = 0; $i < 10; ++$i) {
-            $this->createProduct($payload);
+            $this->createManufacturer(['link' => 'testLimitWithNumericString']);
         }
 
-        $this->storefrontApiClient->request('GET', '/storefront-api/product', ['limit' => '5', 'filter' => ['product.manufacturer.id' => $manufacturerId], 'sort' => 'product.id']);
-        $this->assertSame(200, $this->storefrontApiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
+        $this->apiClient->request('GET', $this->url . '/product-manufacturer', ['limit' => '5', 'filter' => ['product_manufacturer.link' => 'testLimitWithNumericString'], 'sort' => 'product_manufacturer.id']);
+        static::assertSame(200, $this->apiClient->getResponse()->getStatusCode());
+        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
 
-        $this->assertCount(5, $content['data']);
+        static::assertCount(5, $content['data']);
     }
 
     public function testNegativeLimit(): void
     {
-        $this->storefrontApiClient->request('GET', '/storefront-api/product', ['limit' => 0]);
-        $this->assertSame(400, $this->storefrontApiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
+        $this->apiClient->request('GET', $this->url . '/product', ['limit' => 0]);
+        static::assertSame(400, $this->apiClient->getResponse()->getStatusCode());
+        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
 
-        $this->assertEquals('The limit parameter must be a positive integer greater or equals than 1. Given: 0', $content['errors'][0]['detail']);
-        $this->assertEquals('/limit', $content['errors'][0]['source']['pointer']);
+        static::assertEquals('The limit parameter must be a positive integer greater or equals than 1. Given: 0', $content['errors'][0]['detail']);
+        static::assertEquals('/limit', $content['errors'][0]['source']['pointer']);
 
-        $this->storefrontApiClient->request('GET', '/storefront-api/product', ['limit' => -1]);
-        $this->assertSame(400, $this->storefrontApiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
+        $this->apiClient->request('GET', $this->url . '/product', ['limit' => -1]);
+        static::assertSame(400, $this->apiClient->getResponse()->getStatusCode());
+        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
 
-        $this->assertEquals('The limit parameter must be a positive integer greater or equals than 1. Given: -1', $content['errors'][0]['detail']);
-        $this->assertEquals('/limit', $content['errors'][0]['source']['pointer']);
+        static::assertEquals('The limit parameter must be a positive integer greater or equals than 1. Given: -1', $content['errors'][0]['detail']);
+        static::assertEquals('/limit', $content['errors'][0]['source']['pointer']);
     }
 
     public function testNonIntegerLimit(): void
     {
-        $this->storefrontApiClient->request('GET', '/storefront-api/product', ['limit' => 'foo']);
-        $this->assertSame(400, $this->storefrontApiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
+        $this->apiClient->request('GET', $this->url . '/product', ['limit' => 'foo']);
+        static::assertSame(400, $this->apiClient->getResponse()->getStatusCode());
+        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
 
-        $this->assertEquals('The limit parameter must be a positive integer greater or equals than 1. Given: foo', $content['errors'][0]['detail']);
-        $this->assertEquals('/limit', $content['errors'][0]['source']['pointer']);
+        static::assertEquals('The limit parameter must be a positive integer greater or equals than 1. Given: foo', $content['errors'][0]['detail']);
+        static::assertEquals('/limit', $content['errors'][0]['source']['pointer']);
     }
 
     public function testEmptyLimit(): void
     {
-        $this->storefrontApiClient->request('GET', '/storefront-api/product', ['limit' => '']);
-        $this->assertSame(400, $this->storefrontApiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
+        $this->apiClient->request('GET', $this->url . '/product', ['limit' => '']);
+        static::assertSame(400, $this->apiClient->getResponse()->getStatusCode());
+        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
 
-        $this->assertEquals('The limit parameter must be a positive integer greater or equals than 1. Given: (empty)', $content['errors'][0]['detail']);
-        $this->assertEquals('/limit', $content['errors'][0]['source']['pointer']);
+        static::assertEquals('The limit parameter must be a positive integer greater or equals than 1. Given: (empty)', $content['errors'][0]['detail']);
+        static::assertEquals('/limit', $content['errors'][0]['source']['pointer']);
     }
 
     public function testMultipleErrorStack(): void
@@ -343,34 +337,28 @@ class SearchCriteriaBuilderTest extends ApiTestCase
             ],
         ];
 
-        $this->storefrontApiClient->request('GET', '/storefront-api/product', $query);
-        $this->assertSame(400, $this->storefrontApiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
+        $this->apiClient->request('GET', $this->url . '/product', $query);
+        static::assertSame(400, $this->apiClient->getResponse()->getStatusCode());
+        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
 
-        $this->assertCount(6, $content['errors'], print_r($content['errors'], true));
-        $this->assertEquals('/offset', $content['errors'][0]['source']['pointer']);
-        $this->assertEquals('/limit', $content['errors'][1]['source']['pointer']);
-        $this->assertEquals('/filter/0/type', $content['errors'][2]['source']['pointer']);
-        $this->assertEquals('/filter/1/value', $content['errors'][3]['source']['pointer']);
-        $this->assertEquals('/filter/2/queries/0/type', $content['errors'][4]['source']['pointer']);
-        $this->assertEquals('/filter/2/queries/1/field', $content['errors'][5]['source']['pointer']);
+        static::assertCount(6, $content['errors'], print_r($content['errors'], true));
+        static::assertEquals('/offset', $content['errors'][0]['source']['pointer']);
+        static::assertEquals('/limit', $content['errors'][1]['source']['pointer']);
+        static::assertEquals('/filter/0/type', $content['errors'][2]['source']['pointer']);
+        static::assertEquals('/filter/1/value', $content['errors'][3]['source']['pointer']);
+        static::assertEquals('/filter/2/queries/0/type', $content['errors'][4]['source']['pointer']);
+        static::assertEquals('/filter/2/queries/1/field', $content['errors'][5]['source']['pointer']);
     }
 
-    private function createProduct(array $parameters = []): string
+    private function createManufacturer(array $parameters = []): string
     {
         $id = Uuid::uuid4()->getHex();
 
-        $defaults = [
-            'id' => $id,
-            'name' => 'Test',
-            'price' => ['gross' => 10, 'net' => 9],
-            'manufacturer' => ['id' => Uuid::uuid4()->getHex(), 'name' => 'test'],
-            'tax' => ['id' => Uuid::uuid4()->getHex(), 'taxRate' => 17, 'name' => 'with id'],
-        ];
+        $defaults = ['id' => $id, 'name' => 'Test'];
 
         $parameters = array_merge($defaults, $parameters);
 
-        $this->productRepository->create([$parameters], Context::createDefaultContext(Defaults::TENANT_ID));
+        $this->manufacturerRepository->create([$parameters], Context::createDefaultContext(Defaults::TENANT_ID));
 
         return $id;
     }

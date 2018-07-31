@@ -15,11 +15,11 @@ return [
                 'updatedAt' => '2017-11-21T11:25:34+00:00',
                 'name' => 'Lagerkorn-5,0klein',
                 'description' => null,
-                'versionId' => null,
-                'mediaAlbumVersionId' => null,
                 'catalogId' => null,
                 'tenantId' => null,
-                'links' => null,
+                'extensions' => [
+                    'links' => null,
+                ]
             ],
             'links' => [
                 'self' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870',
@@ -79,11 +79,11 @@ return [
                 'updatedAt' => '2017-11-21T11:25:34+00:00',
                 'name' => 'Jasmine-Lotus-Cover',
                 'description' => null,
-                'versionId' => null,
-                'mediaAlbumVersionId' => null,
                 'catalogId' => null,
                 'tenantId' => null,
-                'links' => null,
+                'extensions' => [
+                    'links' => null,
+                ]
             ],
             'relationships' => [
                 'album' => [
@@ -147,8 +147,6 @@ return [
                 'createdAt' => '2018-01-15T08:01:16+00:00',
                 'updatedAt' => null,
                 'name' => 'Manufacturer',
-                'versionId' => null,
-                'parentVersionId' => null,
                 'catalogId' => null,
                 'tenantId' => null,
             ],

@@ -16,8 +16,6 @@ return [
             'thumbnailHighDpiQuality' => 60,
             'createdAt' => '2018-01-15T08:01:16+00:00',
             'updatedAt' => null,
-            'versionId' => null,
-            'parentVersionId' => null,
             'catalogId' => null,
             'tenantId' => null,
         ],
@@ -67,11 +65,11 @@ return [
                 'createdAt' => '2012-08-15T00:00:00+00:00',
                 'updatedAt' => '2017-11-21T11:25:34+00:00',
                 'description' => null,
-                'versionId' => null,
-                'mediaAlbumVersionId' => null,
                 'catalogId' => null,
                 'tenantId' => null,
-                'links' => null,
+                'extensions' => [
+                    'links' => null,
+                ]
             ],
             'relationships' => [
                 'album' => [

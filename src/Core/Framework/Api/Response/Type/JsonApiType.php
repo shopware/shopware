@@ -4,22 +4,22 @@ namespace Shopware\Core\Framework\Api\Response\Type;
 
 use Shopware\Core\Framework\Api\Response\JsonApiResponse;
 use Shopware\Core\Framework\Api\Response\ResponseTypeInterface;
+use Shopware\Core\Framework\Api\Serializer\JsonApiEncoder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Serializer\Serializer;
 
 class JsonApiType implements ResponseTypeInterface
 {
     /**
-     * @var Serializer
+     * @var JsonApiEncoder
      */
     private $serializer;
 
-    public function __construct(Serializer $serializer)
+    public function __construct(JsonApiEncoder $serializer)
     {
         $this->serializer = $serializer;
     }
@@ -45,16 +45,16 @@ class JsonApiType implements ResponseTypeInterface
             ],
         ];
 
-        $response = $this->serializer->serialize(
+        $response = $this->serializer->encode(
+            $definition,
             $entity,
-            'jsonapi',
-            [
-                'uri' => $baseUrl . '/api/v' . $this->getVersion($request),
-                'data' => $rootNode,
-                'definition' => $definition,
-                'basic' => false,
-            ]
+            $context,
+            $baseUrl . '/api/v' . $this->getVersion($request)
         );
+
+        $response = json_decode($response, true);
+        $response = array_merge($response, $rootNode);
+        $response = json_encode($response);
 
         return new JsonApiResponse($response, JsonApiResponse::HTTP_OK, $headers, true);
     }
@@ -71,11 +71,10 @@ class JsonApiType implements ResponseTypeInterface
 
         $rootNode['links']['self'] = $request->getUri();
 
-        if ($searchResult->getCriteria()->fetchCount()) {
-            $rootNode['meta'] = [
-                'total' => $searchResult->getTotal(),
-            ];
-        }
+        $rootNode['meta'] = [
+            'fetchCount' => $searchResult->getCriteria()->fetchCount(),
+            'total' => $searchResult->getTotal(),
+        ];
 
         if ($searchResult && $searchResult->getAggregations()) {
             $aggregations = [];
@@ -86,16 +85,16 @@ class JsonApiType implements ResponseTypeInterface
             $rootNode['aggregations'] = $aggregations;
         }
 
-        $response = $this->serializer->serialize(
+        $response = $this->serializer->encode(
+            $definition,
             $searchResult,
-            'jsonapi',
-            [
-                'uri' => $baseUrl . '/api/v' . $this->getVersion($request),
-                'data' => $rootNode,
-                'definition' => $definition,
-                'basic' => true,
-            ]
+            $context,
+            $baseUrl . '/api/v' . $this->getVersion($request)
         );
+
+        $response = json_decode($response, true);
+        $response = array_merge($response, $rootNode);
+        $response = json_encode($response);
 
         return new JsonApiResponse($response, JsonApiResponse::HTTP_OK, [], true);
     }

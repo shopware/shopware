@@ -16,8 +16,6 @@ return [
             'createdAt' => '2018-01-15T08:01:16+00:00',
             'updatedAt' => null,
             'name' => 'Manufacturer',
-            'versionId' => null,
-            'parentVersionId' => null,
             'catalogId' => null,
             'tenantId' => null,
         ],
@@ -67,11 +65,11 @@ return [
                 'updatedAt' => '2017-11-21T11:25:34+00:00',
                 'name' => '2',
                 'description' => null,
-                'versionId' => null,
-                'mediaAlbumVersionId' => null,
                 'catalogId' => null,
                 'tenantId' => null,
-                'links' => null,
+                'extensions' => [
+                    'links' => null,
+                ]
             ],
             'links' => [
                 'self' => '/api/media/548faa1f-7846-436c-8594-4f4aea792d96',

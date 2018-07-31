@@ -5,12 +5,13 @@ namespace Shopware\Core\Framework\Test\Api\Serializer;
 use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumStruct;
 use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
 use Shopware\Core\Framework\Api\Serializer\JsonApiEncoder;
-use Shopware\Core\Framework\Struct\Serializer\StructDecoder;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\Serializer\StructNormalizer;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\Serializer\Exception\BadMethodCallException;
-use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 
 class JsonApiEncoderTest extends KernelTestCase
 {
@@ -27,15 +28,7 @@ class JsonApiEncoderTest extends KernelTestCase
     public function setUp()
     {
         self::bootKernel();
-        $this->encoder = new JsonApiEncoder(new StructDecoder());
-        $this->structNormalizer = new StructNormalizer();
-    }
-
-    public function testSupportFormat(): void
-    {
-        $this->assertTrue($this->encoder->supportsEncoding('jsonapi'));
-        $this->assertFalse($this->encoder->supportsEncoding('JSONAPI'));
-        $this->assertFalse($this->encoder->supportsEncoding('yml'));
+        $this->encoder = new JsonApiEncoder();
     }
 
     public function emptyInputProvider(): array
@@ -54,29 +47,14 @@ class JsonApiEncoderTest extends KernelTestCase
      * @dataProvider emptyInputProvider
      *
      * @param mixed $input
+     *
+     * @throws UnsupportedEncoderInputException
      */
     public function testEncodeWithEmptyInput($input): void
     {
-        $this->expectException(UnexpectedValueException::class);
-        $this->expectExceptionMessage('Input is not iterable.');
+        $this->expectException(UnsupportedEncoderInputException::class);
 
-        $this->encoder->encode($input, 'jsonapi');
-    }
-
-    public function testEncodeWithoutDefinition(): void
-    {
-        $this->expectException(BadMethodCallException::class);
-        $this->expectExceptionMessage('The context key "definition" is required and must be an instance of Shopware\Core\Framework\ORM\EntityDefinition.');
-
-        $this->encoder->encode([], 'jsonapi', ['uri' => '/api']);
-    }
-
-    public function testEncodeWithoutBasicContext(): void
-    {
-        $this->expectException(BadMethodCallException::class);
-        $this->expectExceptionMessage('The context key "basic" is required to indicate which type of struct should be encoded.');
-
-        $this->encoder->encode([], 'jsonapi', ['uri' => '/api', 'definition' => MediaAlbumDefinition::class]);
+        $this->encoder->encode(ProductDefinition::class, $input, Context::createDefaultContext(Defaults::TENANT_ID), '/api');
     }
 
     public function testEncodeStruct(): void
@@ -92,8 +70,6 @@ class JsonApiEncoderTest extends KernelTestCase
         $struct->setThumbnailHighDpi(true);
         $struct->setThumbnailHighDpiQuality(60);
 
-        $struct = $this->structNormalizer->normalize($struct);
-
         $expected = [
             'data' => [
                 'id' => '1d23c1b0-15bf-43fb-97e8-9008cf42d6fe',
@@ -110,8 +86,6 @@ class JsonApiEncoderTest extends KernelTestCase
                     'thumbnailHighDpiQuality' => 60,
                     'createdAt' => '2018-01-15T08:01:16+00:00',
                     'updatedAt' => null,
-                    'versionId' => null,
-                    'parentVersionId' => null,
                     'catalogId' => null,
                     'tenantId' => null,
                 ],
@@ -148,13 +122,8 @@ class JsonApiEncoderTest extends KernelTestCase
             'included' => [],
         ];
 
-        $this->assertEquals(
-            $expected,
-            json_decode(
-                $this->encoder->encode($struct, 'jsonapi', ['uri' => '/api', 'definition' => MediaAlbumDefinition::class, 'basic' => true]),
-                true
-            )
-        );
+        $actual = $this->encoder->encode(MediaAlbumDefinition::class, $struct, Context::createDefaultContext(Defaults::TENANT_ID), '/api');
+        static::assertEquals($expected, json_decode($actual, true));
     }
 
     public function testEncodeStructWithEmptyRelation(): void
@@ -170,8 +139,6 @@ class JsonApiEncoderTest extends KernelTestCase
         $struct->setThumbnailHighDpi(true);
         $struct->setThumbnailHighDpiQuality(60);
 
-        $struct = $this->structNormalizer->normalize($struct);
-
         $expected = [
             'data' => [
                 'id' => '1d23c1b0-15bf-43fb-97e8-9008cf42d6fe',
@@ -188,8 +155,6 @@ class JsonApiEncoderTest extends KernelTestCase
                     'thumbnailHighDpiQuality' => 60,
                     'createdAt' => '2018-01-15T08:01:16+00:00',
                     'updatedAt' => null,
-                    'versionId' => null,
-                    'parentVersionId' => null,
                     'catalogId' => null,
                     'tenantId' => null,
                 ],
@@ -226,39 +191,27 @@ class JsonApiEncoderTest extends KernelTestCase
             'included' => [],
         ];
 
-        $this->assertEquals(
-            $expected,
-            json_decode($this->encoder->encode($struct, 'jsonapi', ['uri' => '/api', 'definition' => MediaAlbumDefinition::class, 'basic' => false]), true)
-        );
+        $actual = $this->encoder->encode(MediaAlbumDefinition::class, $struct, Context::createDefaultContext(Defaults::TENANT_ID), '/api');
+        static::assertEquals($expected, json_decode($actual, true));
     }
 
     public function testEncodeStructWithToOneRelationship(): void
     {
         $struct = include __DIR__ . '/fixtures/testBasicWithToOneRelationship.php';
         $expected = include __DIR__ . '/fixtures/testBasicWithToOneRelationshipExpectation.php';
-        $struct = $this->structNormalizer->normalize($struct);
 
-        $this->assertEquals(
-            $expected,
-            json_decode($this->encoder->encode($struct, 'jsonapi', ['uri' => '/api', 'definition' => MediaDefinition::class, 'basic' => true]), true)
-        );
+        $actual = $this->encoder->encode(MediaDefinition::class, $struct, Context::createDefaultContext(Defaults::TENANT_ID), '/api');
+        static::assertEquals($expected, json_decode($actual, true));
     }
 
     public function testEncodeStructWithToManyRelationships(): void
     {
         $struct = include __DIR__ . '/fixtures/testBasicWithToManyRelationships.php';
         $expected = include __DIR__ . '/fixtures/testBasicWithToManyRelationshipsExpectation.php';
-        $struct = $this->structNormalizer->normalize($struct);
 
-        $result = json_decode($this->encoder->encode($struct, 'jsonapi', ['uri' => '/api', 'definition' => MediaAlbumDefinition::class, 'basic' => false]), true);
+        $actual = $this->encoder->encode(MediaAlbumDefinition::class, $struct, Context::createDefaultContext(Defaults::TENANT_ID), '/api');
 
-        $this->assertEquals($expected['data'], $result['data']);
-
-        $this->assertCount(\count($expected['included']), $result['included']);
-        $this->assertEquals($expected['included'], $result['included']);
-        foreach ($expected['included'] as $include) {
-            $this->assertContains($include, $result['included']);
-        }
+        static::assertEquals($expected, json_decode($actual, true));
     }
 
     public function testEncodeCollectionWithToOneRelationship(): void
@@ -266,23 +219,16 @@ class JsonApiEncoderTest extends KernelTestCase
         $collection = include __DIR__ . '/fixtures/testCollectionWithToOneRelationship.php';
         $expected = include __DIR__ . '/fixtures/testCollectionWithToOneRelationshipExpectation.php';
 
-        $collection = $this->structNormalizer->normalize($collection);
-
-        $this->assertEquals(
-            $expected,
-            json_decode($this->encoder->encode($collection, 'jsonapi', ['uri' => '/api', 'definition' => MediaDefinition::class, 'basic' => true]), true)
-        );
+        $actual = $this->encoder->encode(MediaDefinition::class, $collection, Context::createDefaultContext(Defaults::TENANT_ID), '/api');
+        static::assertEquals($expected, json_decode($actual, true));
     }
 
     public function testEncodeMainResourceShouldNotBeInIncluded(): void
     {
         $struct = include __DIR__ . '/fixtures/testMainResourceShouldNotBeInIncluded.php';
         $expected = include __DIR__ . '/fixtures/testMainResourceShouldNotBeInIncludedExpectation.php';
-        $struct = $this->structNormalizer->normalize($struct);
 
-        $this->assertEquals(
-            $expected,
-            json_decode($this->encoder->encode($struct, 'jsonapi', ['uri' => '/api', 'definition' => MediaAlbumDefinition::class, 'basic' => false]), true)
-        );
+        $actual = $this->encoder->encode(MediaAlbumDefinition::class, $struct, Context::createDefaultContext(Defaults::TENANT_ID), '/api');
+        static::assertEquals($expected, json_decode($actual, true));
     }
 }

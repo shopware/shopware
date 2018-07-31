@@ -628,7 +628,7 @@ class StorefrontCustomerControllerTest extends TestCase
         static::assertEquals(200, $response->getStatusCode(), $response->getContent());
 
         // add product
-        $this->getStorefrontClient()->request('POST', '/storefront-api/checkout/cart/product/' . $productId);
+        $this->getStorefrontClient()->request('POST', '/storefront-api/checkout/cart/product', ['id' => $productId]);
         static::assertSame(200, $this->getStorefrontClient()->getResponse()->getStatusCode(), $this->getStorefrontClient()->getResponse()->getContent());
 
         // finish checkout

@@ -29,7 +29,7 @@ class PageRequestTest extends TestCase
 
     public function testPageRequestExtension(): void
     {
-        $checkoutContext = Generator::createContext();
+        $checkoutContext = Generator::createCheckoutContext();
 
         $extension = new MyCustomExtension('property value');
 

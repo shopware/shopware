@@ -1,6 +1,6 @@
 {# Add product using the sku #}
 {% block frontend_checkout_cart_footer_add_product %}
-<form method="post" action="{{ path('cart_add_product') }}" class="table--add-product add-product--form block-group">
+<form method="post" action="{{ path('cart.product.add') }}" class="table--add-product add-product--form block-group">
 
     {% block frontend_checkout_cart_footer_add_product_field %}
     {#<input name="number" class="add-product--field block" type="text" placeholder="{s name='CheckoutFooterAddProductPlaceholder' namespace='frontend/checkout/cart_footer_left'}{/s}" />#}

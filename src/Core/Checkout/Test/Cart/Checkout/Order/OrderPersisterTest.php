@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\CartBridge\Order;
+namespace Shopware\Core\Checkout\Test\Cart\Checkout\Order;
 
 use Faker\Factory;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -12,25 +12,46 @@ use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\Price;
+use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
 use Shopware\Core\Checkout\Customer\CustomerStruct;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 class OrderPersisterTest extends TestCase
 {
     use KernelTestBehaviour;
 
+    /**
+     * @var OrderPersister
+     */
+    private $orderPersister;
+
+    /**
+     * @var Processor
+     */
+    private $cartProcessor;
+
+    /**
+     * @var OrderConverter
+     */
+    private $orderConverter;
+
+    public function setUp()
+    {
+        $this->orderPersister = $this->getContainer()->get(OrderPersister::class);
+        $this->cartProcessor = $this->getContainer()->get(Processor::class);
+        $this->orderConverter = $this->getContainer()->get(OrderConverter::class);
+    }
+
     public function testSave(): void
     {
-        $checkoutContext = $this->getCheckoutContext();
-
-        $cart = new Cart('A', 'a-b-c');
+        $cart = new Cart('A', Uuid::uuid4()->getHex());
         $cart->add(
             (new LineItem('test', 'test'))
                 ->setPrice(new Price(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()))
@@ -40,33 +61,25 @@ class OrderPersisterTest extends TestCase
         $repository = $this->createMock(EntityRepository::class);
         $repository->expects(static::once())->method('create');
 
-        $converter = new OrderConverter(new TaxDetector());
-        $persister = new OrderPersister($repository, $converter);
+        $persister = new OrderPersister($repository, $this->orderConverter);
 
-        $persister->persist($cart, $checkoutContext);
+        $persister->persist($cart, $this->getCheckoutContext());
     }
 
     public function testSaveWithMissingLabel(): void
     {
-        $cartProcessor = $this->getContainer()->get('Shopware\Core\Checkout\Cart\Processor');
-
         $cart = new Cart('A', 'a-b-c');
         $cart->add(
             (new LineItem('test', 'test'))
                 ->setPriceDefinition(new AbsolutePriceDefinition(1))
         );
 
-        $processedCart = $cartProcessor->process($cart, Generator::createContext());
-
-        $repository = $this->createMock(EntityRepository::class);
-
-        $converter = new OrderConverter(new TaxDetector());
-        $persister = new OrderPersister($repository, $converter);
+        $processedCart = $this->cartProcessor->process($cart, Generator::createCheckoutContext());
 
         self::expectException(InvalidCartException::class);
         self::expectExceptionMessageRegExp('/.*Line item "test" incomplete\. Property "label" missing\..*/');
 
-        $persister->persist($processedCart, $this->getCheckoutContext());
+        $this->orderPersister->persist($processedCart, $this->getCheckoutContext());
     }
 
     private function getCustomer(): CustomerStruct

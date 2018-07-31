@@ -62,6 +62,11 @@ class OrderStruct extends Entity
     protected $amountTotal;
 
     /**
+     * @var float|null
+     */
+    protected $amountNet;
+
+    /**
      * @var float
      */
     protected $positionPrice;
@@ -239,6 +244,16 @@ class OrderStruct extends Entity
     public function setAmountTotal(float $amountTotal): void
     {
         $this->amountTotal = $amountTotal;
+    }
+
+    public function getAmountNet(): float
+    {
+        return $this->amountNet;
+    }
+
+    public function setAmountNet(float $amountNet): void
+    {
+        $this->amountNet = $amountNet;
     }
 
     public function getPositionPrice(): float

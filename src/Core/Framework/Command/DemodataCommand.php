@@ -972,7 +972,7 @@ class DemodataCommand extends Command
 
             $cart = $this->processor->process($cart, $context);
 
-            $payload[] = $this->orderConverter->convert($cart, $context);
+            $payload[] = $this->orderConverter->convertToOrder($cart, $context);
 
             if (\count($payload) >= 20) {
                 $this->writer->upsert(OrderDefinition::class, $payload, $this->getContext());

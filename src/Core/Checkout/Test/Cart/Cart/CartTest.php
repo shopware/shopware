@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Exception\InvalidChildQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotRemoveableException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotRemovableException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -74,18 +74,18 @@ class CartTest extends TestCase
      * @throws InvalidQuantityException
      * @throws MixedLineItemTypeException
      * @throws LineItemNotFoundException
-     * @throws LineItemNotRemoveableException
+     * @throws LineItemNotRemovableException
      */
     public function testRemoveNonRemovableLineItemFromCart(): void
     {
         $cart = new Cart('test', 'test');
 
         $lineItem = new LineItem('A', 'test');
-        $lineItem->setRemoveable(false);
+        $lineItem->setRemovable(false);
 
         $cart->add($lineItem);
 
-        $this->expectException(LineItemNotRemoveableException::class);
+        $this->expectException(LineItemNotRemovableException::class);
 
         $cart->remove($lineItem->getKey());
 

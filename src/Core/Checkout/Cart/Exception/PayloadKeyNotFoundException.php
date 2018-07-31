@@ -6,13 +6,13 @@ use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
-class LineItemNotRemoveableException extends ShopwareHttpException
+class PayloadKeyNotFoundException extends ShopwareHttpException
 {
-    protected $code = 'CART-LINE-ITEM-NOT-REMOVEABLE';
+    protected $code = 'PAYLOAD-KEY-NOT-FOUND';
 
-    public function __construct(string $identifier, int $code = 0, Throwable $previous = null)
+    public function __construct(string $key, string $lineItemId, int $code = 0, Throwable $previous = null)
     {
-        $message = sprintf('Line item with identifier %s cannot be removed', $identifier);
+        $message = sprintf('Payload key `%s` in line item `%s` not found', $key, $lineItemId);
 
         parent::__construct($message, $code, $previous);
     }

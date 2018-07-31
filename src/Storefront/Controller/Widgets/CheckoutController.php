@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller\Widgets;
 
+use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Storefront\CartService;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Storefront\Controller\StorefrontController;
@@ -22,10 +23,12 @@ class CheckoutController extends StorefrontController
 
     /**
      * @Route("/widgets/checkout/info", name="widgets/checkout/info", methods={"GET"})
+     *
+     * @throws CartTokenNotFoundException
      */
     public function infoAction(CheckoutContext $context): Response
     {
-        $cart = $this->cartService->getCart($context);
+        $cart = $this->cartService->getCart($context->getToken(), $context);
 
         return $this->render('@Storefront/widgets/checkout/info.html.twig', [
             'cartQuantity' => $cart->getLineItems()->filterGoods()->count(),

@@ -183,7 +183,7 @@
             {% if depth == 0 %}
                 <div class="panel--td column--actions right">
                     {% block frontnend_checkout_cart_item_delete_form %}
-                        <form action="{{ path('cart_delete_line_item') }}" method="post">
+                        <form action="{{ path('cart.line_item.delete') }}" method="post">
                             <button type="submit" class="btn is--small column--actions-link"
                                     title="{% trans %}frontend.checkout.cart_item.CartItemLinkDelete{% endtrans %}">
                                 <i class="icon--cross"></i>

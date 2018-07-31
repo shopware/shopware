@@ -49,7 +49,7 @@ class PriceCalculatorTest extends TestCase
 
         $lineItemPrice = $calculator->calculate(
             $priceDefinition,
-            Generator::createContext()
+            Generator::createCheckoutContext()
         );
 
         static::assertEquals($expected, $lineItemPrice);

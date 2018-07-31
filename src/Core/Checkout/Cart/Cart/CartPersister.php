@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\Exception\CartDeserializeFailedException;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\Serializer\SerializerInterface;
 
@@ -28,11 +29,11 @@ class CartPersister implements CartPersisterInterface
         $this->serializer = $serializer;
     }
 
-    public function load(string $token, string $name, CheckoutContext $context): Cart
+    public function load(string $token, CheckoutContext $context): Cart
     {
         $content = $this->connection->fetchColumn(
-            'SELECT `cart`.`cart` FROM cart WHERE `token` = :token AND `name` = :name AND tenant_id = :tenant',
-            ['token' => $token, 'name' => $name, 'tenant' => Uuid::fromHexToBytes($context->getTenantId())]
+            'SELECT `cart`.`cart` FROM cart WHERE `token` = :token AND tenant_id = :tenant',
+            ['token' => $token, 'tenant' => Uuid::fromHexToBytes($context->getTenantId())]
         );
 
         if ($content === false) {
@@ -47,16 +48,19 @@ class CartPersister implements CartPersisterInterface
         return $cart;
     }
 
+    /**
+     * @throws InvalidUuidException
+     */
     public function save(Cart $cart, CheckoutContext $context): void
     {
         //prevent empty carts
         if ($cart->getLineItems()->count() <= 0) {
-            $this->delete($context->getToken(), $cart->getName(), $context);
+            $this->delete($cart->getToken(), $context);
 
             return;
         }
 
-        $this->delete($context->getToken(), $cart->getName(), $context);
+        $this->delete($cart->getToken(), $context);
 
         $liveVersion = Uuid::fromStringToBytes(Defaults::LIVE_VERSION);
 
@@ -67,7 +71,7 @@ class CartPersister implements CartPersisterInterface
         $data = [
             'version_id' => $liveVersion,
             'tenant_id' => $tenantId,
-            'token' => $context->getToken(),
+            'token' => $cart->getToken(),
             'name' => $cart->getName(),
             'currency_id' => Uuid::fromStringToBytes($context->getCurrency()->getId()),
             'currency_tenant_id' => $tenantId,
@@ -95,20 +99,14 @@ class CartPersister implements CartPersisterInterface
         $this->connection->insert('cart', $data);
     }
 
-    public function delete(string $token, ?string $name = null, CheckoutContext $context): void
+    /**
+     * @throws InvalidUuidException
+     */
+    public function delete(string $token, CheckoutContext $context): void
     {
-        if ($name === null) {
-            $this->connection->executeUpdate(
+        $this->connection->executeUpdate(
                 'DELETE FROM cart WHERE `token` = :token AND tenant_id = :tenant',
                 ['token' => $token, 'tenant' => Uuid::fromHexToBytes($context->getTenantId())]
             );
-
-            return;
-        }
-
-        $this->connection->executeUpdate(
-            'DELETE FROM cart WHERE `token` = :token AND `name` = :name AND tenant_id = :tenant',
-            ['token' => $token, 'name' => $name, 'tenant' => Uuid::fromHexToBytes($context->getTenantId())]
-        );
     }
 }

@@ -110,7 +110,7 @@ class LineItem extends Struct
     /**
      * @var bool
      */
-    protected $removeable = false;
+    protected $removable = false;
 
     /**
      * @var bool
@@ -191,7 +191,7 @@ Optional `Shopware\Core\Content\Media\MediaStruct` to define a cover picture.
 Optional `Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation` to define delivery dates, 
 weight and stock for a line item.
 
-### Removeable
+### Removable
 Boolean value which defines if a line item can be removed from the cart. Set to false by default.
 
 ### Stackable

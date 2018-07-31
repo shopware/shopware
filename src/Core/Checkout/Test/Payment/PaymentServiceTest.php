@@ -82,7 +82,7 @@ class PaymentServiceTest extends TestCase
     public function testHandlePaymentByOrderWithInvalidOrderId(): void
     {
         $orderId = Uuid::uuid4()->getHex();
-        $checkoutContext = Generator::createContext();
+        $checkoutContext = Generator::createCheckoutContext();
         $this->expectException(InvalidOrderException::class);
         $this->paymentService->handlePaymentByOrder(
             $orderId,
@@ -144,8 +144,7 @@ class PaymentServiceTest extends TestCase
 
     private function getCheckoutContext(string $paymentMethodId): CheckoutContext
     {
-        return Generator::createContext(
-            null,
+        return Generator::createCheckoutContext(
             null,
             null,
             null,

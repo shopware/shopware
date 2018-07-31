@@ -55,7 +55,7 @@ class SearchCriteriaBuilderTest extends TestCase
         // no count, equals to fetched entities
         $this->getClient()->request('GET', $this->url . '/product-manufacturer', ['total-count-mode' => Criteria::TOTAL_COUNT_MODE_NONE, 'filter' => ['product_manufacturer.link' => 'test'], 'limit' => 5]);
         static::assertSame(200, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
-        $content = \json_decode($this->getClient()->getResponse()->getContent(), true);
+        $content = json_decode($this->getClient()->getResponse()->getContent(), true);
 
         static::assertEquals(5, $content['meta']['total'], print_r($content, true));
 

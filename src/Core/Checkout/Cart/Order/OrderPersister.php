@@ -6,7 +6,6 @@ use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidCartException;
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Order\Exception\CustomerHasNoActiveBillingAddressException;
 use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -32,7 +31,6 @@ class OrderPersister implements OrderPersisterInterface
 
     /**
      * @throws CustomerNotLoggedInException
-     * @throws CustomerHasNoActiveBillingAddressException
      * @throws DeliveryWithoutAddressException
      * @throws EmptyCartException
      * @throws InvalidCartException
@@ -43,7 +41,7 @@ class OrderPersister implements OrderPersisterInterface
             throw new InvalidCartException($cart->getErrors());
         }
 
-        $order = $this->converter->convert($cart, $context);
+        $order = $this->converter->convertToOrder($cart, $context);
 
         return $this->repository->create([$order], $context->getContext());
     }

@@ -20,7 +20,7 @@
 
 {% block frontnend_checkout_cart_item_delete_form %}
     <div class="action--container">
-        {% set deleteUrl = path('cart_delete_line_item') %}
+        {% set deleteUrl = path('cart.line_item.delete') %}
 
         <a href="{{ deleteUrl }}"
            class="btn is--small action--remove"

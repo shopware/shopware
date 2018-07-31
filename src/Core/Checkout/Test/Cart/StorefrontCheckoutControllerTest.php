@@ -95,7 +95,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         $mail = Uuid::uuid4()->getHex();
         $password = 'shopware';
 
-        $this->createCutomer($addressId, $mail, $password, $context);
+        $this->createCustomer($addressId, $mail, $password, $context);
 
         $client = $this->createCart();
 
@@ -149,7 +149,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         $mail = Uuid::uuid4()->getHex();
         $password = 'shopware';
 
-        $this->createCutomer($addressId, $mail, $password, $context);
+        $this->createCustomer($addressId, $mail, $password, $context);
 
         $client = $this->createCart($yenStorefrontClient);
 
@@ -341,7 +341,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         $mail = Uuid::uuid4()->getHex();
         $password = 'shopware';
 
-        $this->createCutomer($addressId, $mail, $password, $context);
+        $this->createCustomer($addressId, $mail, $password, $context);
 
         $firstName = 'Max';
         $lastName = 'Mustmann';
@@ -418,7 +418,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         $mail = Uuid::uuid4()->getHex();
         $password = 'shopware';
 
-        $this->createCutomer($addressId, $mail, $password, $context);
+        $this->createCustomer($addressId, $mail, $password, $context);
 
         $client = $this->createCart();
 
@@ -463,7 +463,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         $mail = Uuid::uuid4()->getHex();
         $password = 'shopware';
 
-        $this->createCutomer($addressId, $mail, $password, $context);
+        $this->createCustomer($addressId, $mail, $password, $context);
 
         $client = $this->createCart();
 
@@ -479,7 +479,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         static::assertTrue(array_key_exists('CART-EMPTY', array_flip(array_column($response['errors'], 'code'))));
     }
 
-    public function testDeepLinkGuestOrderWithoutAcceessKey(): void
+    public function testDeepLinkGuestOrderWithoutAccessKey(): void
     {
         $expectedOrder = $this->createGuestOrder();
 
@@ -496,7 +496,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         static::assertArraySubset($expectedOrder, $actualOrder);
     }
 
-    public function testDeepLinkGuestOrderWithAcceessKey(): void
+    public function testDeepLinkGuestOrderWithAccessKey(): void
     {
         $expectedOrder = $this->createGuestOrder();
 
@@ -620,7 +620,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         return $order;
     }
 
-    private function createCutomer(string $addressId, string $mail, string $password, Context $context): void
+    private function createCustomer(string $addressId, string $mail, string $password, Context $context): void
     {
         $this->connection->executeUpdate('DELETE FROM customer WHERE email = :mail', [
             'mail' => $mail,
@@ -681,8 +681,9 @@ class StorefrontCheckoutControllerTest extends TestCase
     {
         $client->request(
             'POST',
-            '/storefront-api/checkout/cart/product/' . $id,
+            '/storefront-api/checkout/cart/product',
             [
+                'id' => $id,
                 'quantity' => $quantity,
             ]
         );

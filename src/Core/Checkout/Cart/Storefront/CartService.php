@@ -5,9 +5,10 @@ namespace Shopware\Core\Checkout\Cart\Storefront;
 use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Cart\CartPersisterInterface;
 use Shopware\Core\Checkout\Cart\Enrichment;
+use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotRemoveableException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotRemovableException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
@@ -24,8 +25,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
 class CartService
 {
-    public const CART_NAME = 'shopware';
-
+    public const STOREFRONT = 'storefront';
     /**
      * @var Processor
      */
@@ -42,9 +42,9 @@ class CartService
     private $orderPersister;
 
     /**
-     * @var Cart|null
+     * @var Cart[]
      */
-    private $cart;
+    private $cart = [];
 
     /**
      * @var Enrichment
@@ -72,23 +72,33 @@ class CartService
 
     public function setCart(Cart $cart): void
     {
-        $this->cart = $cart;
+        $this->cart[$cart->getToken()] = $cart;
     }
 
-    public function createNew(CheckoutContext $context): Cart
+    /**
+     * @throws CartTokenNotFoundException
+     */
+    public function createNew(string $token, string $name = self::STOREFRONT): Cart
     {
-        $this->createNewCart($context);
+        $cart = new Cart($name, $token);
 
-        return $this->getCart($context);
+        return $this->cart[$cart->getToken()] = $cart;
     }
 
-    public function getCart(CheckoutContext $context, bool $caching = true): Cart
+    /**
+     * @throws CartTokenNotFoundException
+     */
+    public function getCart(string $token, CheckoutContext $context, string $name = self::STOREFRONT, bool $caching = true): Cart
     {
-        if ($this->cart && $caching) {
-            return $this->cart;
+        if (isset($this->cart[$token]) && $caching) {
+            return $this->cart[$token];
         }
 
-        $cart = $this->loadOrCreateCart($context);
+        try {
+            $cart = $this->persister->load($token, $context);
+        } catch (CartTokenNotFoundException $e) {
+            $cart = $this->createNew($token, $name);
+        }
 
         return $this->calculate($cart, $context);
     }
@@ -96,17 +106,15 @@ class CartService
     /**
      * @throws MixedLineItemTypeException
      */
-    public function add(LineItem $item, CheckoutContext $context): Cart
+    public function add(Cart $cart, LineItem $item, CheckoutContext $context): Cart
     {
-        $cart = $this->loadOrCreateCart($context);
         $cart->add($item);
 
         return $this->calculate($cart, $context);
     }
 
-    public function fill(LineItemCollection $lineItems, CheckoutContext $context): Cart
+    public function fill(Cart $cart, LineItemCollection $lineItems, CheckoutContext $context): Cart
     {
-        $cart = $this->loadOrCreateCart($context);
         $cart->getLineItems()->fill($lineItems->getElements());
 
         return $this->calculate($cart, $context);
@@ -116,11 +124,10 @@ class CartService
      * @throws LineItemNotFoundException
      * @throws LineItemNotStackableException
      * @throws InvalidQuantityException
+     * @throws CartTokenNotFoundException
      */
-    public function changeQuantity(string $identifier, int $quantity, CheckoutContext $context): Cart
+    public function changeQuantity(Cart $cart, string $identifier, int $quantity, CheckoutContext $context): Cart
     {
-        $cart = $this->loadOrCreateCart($context);
-
         if (!$lineItem = $cart->getLineItems()->get($identifier)) {
             throw new LineItemNotFoundException($identifier);
         }
@@ -132,24 +139,26 @@ class CartService
 
     /**
      * @throws LineItemNotFoundException
-     * @throws LineItemNotRemoveableException
+     * @throws LineItemNotRemovableException
+     * @throws CartTokenNotFoundException
      */
-    public function remove(string $identifier, CheckoutContext $context): Cart
+    public function remove(Cart $cart, string $identifier, CheckoutContext $context): Cart
     {
-        $cart = $this->loadOrCreateCart($context);
         $cart->remove($identifier);
 
         return $this->calculate($cart, $context);
     }
 
-    public function order(CheckoutContext $context): string
+    /**
+     * @throws CartTokenNotFoundException
+     */
+    public function order(Cart $cart, CheckoutContext $context): string
     {
-        $events = $this->orderPersister->persist(
-            $this->getCart($context, false),
-            $context
-        );
+        $calculatedCart = $this->calculate($cart, $context);
+        $events = $this->orderPersister->persist($calculatedCart, $context);
 
-        $this->createNewCart($context);
+        $this->persister->delete($context->getToken(), $context);
+        unset($this->cart[$calculatedCart->getToken()]);
 
         $event = $events->getEventByDefinition(OrderDefinition::class);
         $ids = $event->getIds();
@@ -175,45 +184,21 @@ class CartService
         return $orders->first();
     }
 
-    private function loadOrCreateCart(CheckoutContext $context): Cart
+    public function recalculate(Cart $cart, CheckoutContext $context): Cart
     {
-        if ($this->cart) {
-            return $this->cart;
-        }
-
-        try {
-            // try to access existing cart, identified by session token
-            return $this->cart = $this->persister->load(
-                $context->getToken(),
-                self::CART_NAME,
-                $context
-            );
-        } catch (\Exception $e) {
-            // token not found, create new cart
-            return $this->cart = $this->createNewCart($context);
-        }
+        return $this->calculate($cart, $context);
     }
 
     private function calculate(Cart $cart, CheckoutContext $context): Cart
     {
         $cart = $this->enrichment->enrich($cart, $context);
+
         $cart = $this->processor->process($cart, $context);
-        $this->save($cart, $context);
 
-        return $this->cart = $cart;
-    }
-
-    private function save(Cart $cart, CheckoutContext $context): void
-    {
         $this->persister->save($cart, $context);
-        $this->cart = $cart;
-    }
 
-    private function createNewCart(CheckoutContext $context): Cart
-    {
-        $this->persister->delete($context->getToken(), self::CART_NAME, $context);
-        $this->cart = new Cart(self::CART_NAME, $context->getToken());
+        $this->cart[$cart->getToken()] = $cart;
 
-        return $this->cart;
+        return $cart;
     }
 }

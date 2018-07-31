@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Routing;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\PlatformRequest;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
 class SalesChannelRequestContextResolver implements RequestContextResolverInterface
@@ -43,7 +44,25 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
         $tenantId = $master->headers->get(PlatformRequest::HEADER_TENANT_ID);
         $salesChannelId = $master->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
 
-        //sub requests can use the context of the master request
+        // sub requests can use the context of the master request
+        if ($master->attributes->has(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT)) {
+            $context = $master->attributes->get(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT);
+        } else {
+            $context = $this->contextService->get($tenantId, $salesChannelId, $contextToken);
+        }
+
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context->getContext());
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT, $context);
+    }
+
+    public function handleCheckoutContext(
+        Request $request,
+        Request $master,
+        string $tenantId,
+        string $salesChannelId,
+        string $contextToken)
+    {
+        // sub requests can use the context of the master request
         if ($master->attributes->has(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT)) {
             $context = $master->attributes->get(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT);
         } else {

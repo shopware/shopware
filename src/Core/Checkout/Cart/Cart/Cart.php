@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotRemoveableException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotRemovableException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -170,7 +170,7 @@ class Cart extends Struct
 
     /**
      * @throws LineItemNotFoundException
-     * @throws LineItemNotRemoveableException
+     * @throws LineItemNotRemovableException
      */
     public function remove(string $key): void
     {
@@ -178,8 +178,8 @@ class Cart extends Struct
             throw new LineItemNotFoundException($key);
         }
 
-        if (!$this->get($key)->isRemoveable()) {
-            throw new LineItemNotRemoveableException($key);
+        if (!$this->get($key)->isRemovable()) {
+            throw new LineItemNotRemovableException($key);
         }
 
         $this->lineItems->remove($key);

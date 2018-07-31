@@ -1,7 +1,7 @@
 {% block frontend_detail_buy %}
     {# @var product \Shopware\Core\Content\Product\Struct\StorefrontProductDetailStruct #}
 
-    {% set url = url('cart_add_product', {'target': 'checkout_cart' }) %}
+    {% set url = url('cart.product.add', {'target': 'checkout_cart' }) %}
 
     <form name="addToCart"
           method="post"
@@ -10,7 +10,7 @@
           data-add-article="true"
           data-eventName="submit"
           {% if shopware.theme.offcanvasCart %}
-              {% set url = path('cart_add_product') %}
+              {% set url = path('cart.product.add') %}
               data-showModal="false"
               data-addArticleUrl="{{ url }}"
           {% endif %}>

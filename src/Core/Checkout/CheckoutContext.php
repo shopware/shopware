@@ -26,6 +26,11 @@ use Shopware\Core\System\Tax\TaxCollection;
 class CheckoutContext extends Struct
 {
     /**
+     * @var string
+     */
+    protected $tenantId;
+
+    /**
      * Unique token for context, e.g. stored in session or provided in request headers
      *
      * @var string
@@ -108,11 +113,6 @@ class CheckoutContext extends Struct
      * @var Context|null
      */
     private $context;
-
-    /**
-     * @var string
-     */
-    private $tenantId;
 
     public function __construct(
         string $tenantId,

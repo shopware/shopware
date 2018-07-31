@@ -61,7 +61,6 @@ class StructNormalizerTest extends TestCase
                 ['_class' => \get_class($struct), 'extensions' => [], 'foo' => 'bar'],
             ],
             'extensions' => [],
-            '_pointer' => 0,
         ];
 
         static::assertEquals(
@@ -140,7 +139,7 @@ class StructNormalizerTest extends TestCase
     public function testDenormalizeShouldThrowWithNonProvidedConstructorParameters(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Required constructor Parameter Missing: "$name".');
+        $this->expectExceptionMessage('Required constructor parameter missing: "$name".');
 
         $this->normalizer->denormalize(['_class' => ConstructorStruct::class]);
     }

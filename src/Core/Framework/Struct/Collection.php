@@ -9,12 +9,9 @@ abstract class Collection extends Struct implements \Countable, \ArrayAccess, \I
      */
     protected $elements = [];
 
-    protected $_pointer;
-
     public function __construct(array $elements = [])
     {
         $this->fill($elements);
-        $this->_pointer = 0;
     }
 
     public function fill(array $elements): void
@@ -25,7 +22,6 @@ abstract class Collection extends Struct implements \Countable, \ArrayAccess, \I
     public function clear()
     {
         $this->elements = [];
-        $this->_pointer = 0;
     }
 
     public function count(): int
@@ -59,8 +55,6 @@ abstract class Collection extends Struct implements \Countable, \ArrayAccess, \I
     }
 
     /**
-     * @param string $class
-     *
      * @return Collection
      */
     public function filterInstance(string $class)
@@ -126,31 +120,27 @@ abstract class Collection extends Struct implements \Countable, \ArrayAccess, \I
 
     public function current()
     {
-        $tmp = array_values($this->elements);
-
-        return $tmp[$this->_pointer];
+        return current($this->elements);
     }
 
     public function next()
     {
-        ++$this->_pointer;
+        return next($this->elements);
     }
 
     public function key()
     {
-        return $this->_pointer;
-    }
-
-    public function valid()
-    {
-        $tmp = array_values($this->elements);
-
-        return isset($tmp[$this->_pointer]);
+        return key($this->elements);
     }
 
     public function rewind()
     {
-        $this->_pointer = 0;
+        reset($this->elements);
+    }
+
+    public function valid()
+    {
+        return isset($this->elements[key($this->elements)]);
     }
 
     protected function doAdd($element): void

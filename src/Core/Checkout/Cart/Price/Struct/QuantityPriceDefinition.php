@@ -7,13 +7,19 @@ use Shopware\Core\Framework\Struct\Struct;
 
 class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
 {
-    /** @var float */
+    /**
+     * @var float
+     */
     protected $price;
 
-    /** @var TaxRuleCollection */
+    /**
+     * @var TaxRuleCollection
+     */
     protected $taxRules;
 
-    /** @var int */
+    /**
+     * @var int
+     */
     protected $quantity;
 
     /**

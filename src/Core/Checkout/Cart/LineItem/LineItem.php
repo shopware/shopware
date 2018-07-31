@@ -4,9 +4,11 @@ namespace Shopware\Core\Checkout\Cart\LineItem;
 
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\Exception\InvalidChildQuantityException;
+use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
+use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
 use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
@@ -21,6 +23,8 @@ class LineItem extends Struct
     public const VOUCHER_PRIORITY = 50;
 
     public const DISCOUNT_PRIORITY = 25;
+
+    public const PAYLOAD_LIMIT = 500;
 
     /**
      * @var string
@@ -45,7 +49,7 @@ class LineItem extends Struct
     /**
      * @var array
      */
-    protected $payload;
+    protected $payload = [];
 
     /**
      * @var PriceDefinitionInterface|null
@@ -95,7 +99,7 @@ class LineItem extends Struct
     /**
      * @var bool
      */
-    protected $removeable = false;
+    protected $removable = false;
 
     /**
      * @var bool
@@ -118,6 +122,9 @@ class LineItem extends Struct
         $this->quantity = $quantity;
     }
 
+    /**
+     * @throws InvalidQuantityException
+     */
     public static function createFromLineItem(LineItem $lineItem): self
     {
         $self = new static($lineItem->key, $lineItem->type, $lineItem->quantity, $lineItem->priority);
@@ -176,6 +183,10 @@ class LineItem extends Struct
             $this->refreshChildQuantity($this->children, $this->quantity, $quantity);
         }
 
+        if ($this->priceDefinition instanceof QuantityPriceDefinition) {
+            $this->price = null;
+        }
+
         $this->quantity = $quantity;
 
         return $this;
@@ -198,9 +209,58 @@ class LineItem extends Struct
         return $this->payload;
     }
 
+    /**
+     * @throws PayloadKeyNotFoundException
+     */
+    public function getPayloadValue(string $key): string
+    {
+        if (!$this->hasPayloadValue($key)) {
+            throw new PayloadKeyNotFoundException($key, $this->getKey());
+        }
+
+        return $this->payload[$key];
+    }
+
+    public function hasPayloadValue(string $key): bool
+    {
+        return isset($this->payload[$key]);
+    }
+
+    /**
+     * @throws PayloadKeyNotFoundException
+     */
+    public function removePayloadValue(string $key)
+    {
+        if (!$this->hasPayloadValue($key)) {
+            throw new PayloadKeyNotFoundException($key, $this->getKey());
+        }
+        unset($this->payload[$key]);
+    }
+
+    /**
+     * @throws InvalidPayloadException
+     */
+    public function setPayloadValue(string $key, $value): self
+    {
+        if (!is_string($key) || strlen($key) > self::PAYLOAD_LIMIT ||
+            !is_scalar($value) || strlen((string) $value) > self::PAYLOAD_LIMIT
+        ) {
+            throw new InvalidPayloadException($key, $this->getKey());
+        }
+
+        $this->payload[$key] = $value;
+
+        return $this;
+    }
+
+    /**
+     * @throws InvalidPayloadException
+     */
     public function setPayload(array $payload): self
     {
-        $this->payload = $payload;
+        foreach ($payload as $key => $value) {
+            $this->setPayloadValue($key, $value);
+        }
 
         return $this;
     }
@@ -336,14 +396,14 @@ class LineItem extends Struct
         return $this->requirement;
     }
 
-    public function isRemoveable(): bool
+    public function isRemovable(): bool
     {
-        return $this->removeable;
+        return $this->removable;
     }
 
-    public function setRemoveable(bool $removeable): LineItem
+    public function setRemovable(bool $removable): LineItem
     {
-        $this->removeable = $removeable;
+        $this->removable = $removable;
 
         return $this;
     }

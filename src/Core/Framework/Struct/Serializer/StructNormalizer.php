@@ -116,7 +116,10 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
 
             if (!array_key_exists($name, $arguments)) {
                 if (!$constructorParam->isOptional()) {
-                    throw new InvalidArgumentException(sprintf('Required constructor Parameter Missing: "$%s".', $name));
+                    throw new InvalidArgumentException(sprintf(
+                        'Required constructor parameter missing: "$%s". 
+                         Please check if the property is protected and not private.',
+                        $name));
                 }
 
                 $params[] = $constructorParam->getDefaultValue();

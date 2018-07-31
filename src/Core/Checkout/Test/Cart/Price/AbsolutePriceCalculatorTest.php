@@ -57,7 +57,7 @@ class AbsolutePriceCalculatorTest extends TestCase
         $calculatedPrice = $calculator->calculate(
             $price,
             $prices,
-            Generator::createContext()
+            Generator::createCheckoutContext()
         );
         static::assertEquals($expected, $calculatedPrice);
         static::assertEquals($expected->getCalculatedTaxes(), $calculatedPrice->getCalculatedTaxes());

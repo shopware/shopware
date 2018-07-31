@@ -59,13 +59,13 @@ class ProductSearchScoringTest extends KernelTestCase
 
         /** @var Entity $entity */
         foreach ($result as $entity) {
-            $this->assertArrayHasKey('search', $entity->getExtensions());
+            static::assertArrayHasKey('search', $entity->getExtensions());
             /** @var ArrayStruct $extension */
             $extension = $entity->getExtension('search');
 
-            $this->assertInstanceOf(ArrayStruct::class, $extension);
-            $this->assertArrayHasKey('_score', $extension);
-            $this->assertGreaterThan(0, (float) $extension['_score']);
+            static::assertInstanceOf(ArrayStruct::class, $extension);
+            static::assertArrayHasKey('_score', $extension);
+            static::assertGreaterThan(0, (float) $extension['_score']);
         }
     }
 }

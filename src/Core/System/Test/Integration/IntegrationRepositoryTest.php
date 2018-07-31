@@ -56,7 +56,7 @@ class IntegrationRepositoryTest extends KernelTestCase
 
         $entities = $this->repository->read(new ReadCriteria([$id]), $context);
 
-        $this->assertEquals(1, $entities->count());
-        $this->assertEquals('My app', $entities->first()->getLabel());
+        static::assertEquals(1, $entities->count());
+        static::assertEquals('My app', $entities->first()->getLabel());
     }
 }

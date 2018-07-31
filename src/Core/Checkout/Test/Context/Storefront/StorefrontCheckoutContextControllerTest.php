@@ -52,10 +52,10 @@ class StorefrontCheckoutContextControllerTest extends ApiTestCase
          * Shipping method
          */
         $this->storefrontApiClient->request('PUT', '/storefront-api/context', ['shippingMethodId' => $testId]);
-        $this->assertSame(400, $this->storefrontApiClient->getResponse()->getStatusCode());
+        static::assertSame(400, $this->storefrontApiClient->getResponse()->getStatusCode());
         $content = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
 
-        $this->assertEquals(
+        static::assertEquals(
             sprintf('Shipping method with id %s not found', $testId),
             $content['errors'][0]['detail'] ?? null
         );
@@ -64,10 +64,10 @@ class StorefrontCheckoutContextControllerTest extends ApiTestCase
          * Payment method
          */
         $this->storefrontApiClient->request('PUT', '/storefront-api/context', ['paymentMethodId' => $testId]);
-        $this->assertSame(400, $this->storefrontApiClient->getResponse()->getStatusCode());
+        static::assertSame(400, $this->storefrontApiClient->getResponse()->getStatusCode());
         $content = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
 
-        $this->assertEquals(
+        static::assertEquals(
             sprintf('Payment method with id %s not found', $testId),
             $content['errors'][0]['detail'] ?? null
         );
@@ -81,10 +81,10 @@ class StorefrontCheckoutContextControllerTest extends ApiTestCase
          * Billing address
          */
         $this->storefrontApiClient->request('PUT', '/storefront-api/context', ['billingAddressId' => $testId]);
-        $this->assertSame(403, $this->storefrontApiClient->getResponse()->getStatusCode());
+        static::assertSame(403, $this->storefrontApiClient->getResponse()->getStatusCode());
         $content = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
 
-        $this->assertEquals(
+        static::assertEquals(
             'Customer is not logged in',
             $content['errors'][0]['detail'] ?? null
         );
@@ -93,10 +93,10 @@ class StorefrontCheckoutContextControllerTest extends ApiTestCase
          * Shipping address
          */
         $this->storefrontApiClient->request('PUT', '/storefront-api/context', ['shippingAddressId' => $testId]);
-        $this->assertSame(403, $this->storefrontApiClient->getResponse()->getStatusCode());
+        static::assertSame(403, $this->storefrontApiClient->getResponse()->getStatusCode());
         $content = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
 
-        $this->assertEquals(
+        static::assertEquals(
             'Customer is not logged in',
             $content['errors'][0]['detail'] ?? null
         );
@@ -112,10 +112,10 @@ class StorefrontCheckoutContextControllerTest extends ApiTestCase
          * Billing address
          */
         $this->storefrontApiClient->request('PUT', '/storefront-api/context', ['billingAddressId' => $testId]);
-        $this->assertSame(400, $this->storefrontApiClient->getResponse()->getStatusCode());
+        static::assertSame(400, $this->storefrontApiClient->getResponse()->getStatusCode());
         $content = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
 
-        $this->assertEquals(
+        static::assertEquals(
             sprintf('Customer address with id %s not found', $testId),
             $content['errors'][0]['detail'] ?? null
         );
@@ -124,10 +124,10 @@ class StorefrontCheckoutContextControllerTest extends ApiTestCase
          * Shipping address
          */
         $this->storefrontApiClient->request('PUT', '/storefront-api/context', ['shippingAddressId' => $testId]);
-        $this->assertSame(400, $this->storefrontApiClient->getResponse()->getStatusCode());
+        static::assertSame(400, $this->storefrontApiClient->getResponse()->getStatusCode());
         $content = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
 
-        $this->assertEquals(
+        static::assertEquals(
             sprintf('Customer address with id %s not found', $testId),
             $content['errors'][0]['detail'] ?? null
         );
@@ -143,13 +143,13 @@ class StorefrontCheckoutContextControllerTest extends ApiTestCase
          * Billing address
          */
         $this->storefrontApiClient->request('PUT', '/storefront-api/context', ['billingAddressId' => $billingId]);
-        $this->assertSame(200, $this->storefrontApiClient->getResponse()->getStatusCode());
+        static::assertSame(200, $this->storefrontApiClient->getResponse()->getStatusCode());
 
         /*
          * Shipping address
          */
         $this->storefrontApiClient->request('PUT', '/storefront-api/context', ['shippingAddressId' => $shippingId]);
-        $this->assertSame(200, $this->storefrontApiClient->getResponse()->getStatusCode());
+        static::assertSame(200, $this->storefrontApiClient->getResponse()->getStatusCode());
     }
 
     private function createCustomerAndLogin(?string $email = null, string $password = 'shopware'): string

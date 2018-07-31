@@ -42,7 +42,7 @@ class PriceActionControllerTest extends ApiTestCase
         $response = $this->apiClient->getResponse()->getContent();
         $response = json_decode($response, true);
 
-        $this->assertArrayHasKey('errors', $response);
+        static::assertArrayHasKey('errors', $response);
     }
 
     public function testTaxIdMissingException()
@@ -55,7 +55,7 @@ class PriceActionControllerTest extends ApiTestCase
 
         $response = json_decode($response, true);
 
-        $this->assertArrayHasKey('errors', $response);
+        static::assertArrayHasKey('errors', $response);
     }
 
     public function testTaxNotFoundException()
@@ -69,7 +69,7 @@ class PriceActionControllerTest extends ApiTestCase
 
         $response = json_decode($response, true);
 
-        $this->assertArrayHasKey('errors', $response);
+        static::assertArrayHasKey('errors', $response);
     }
 
     public function testNetToGross()
@@ -85,7 +85,7 @@ class PriceActionControllerTest extends ApiTestCase
             'calculated' => false,
         ]);
 
-        $this->assertEquals(
+        static::assertEquals(
             new Price(
                 11.9,
                 11.9,
@@ -114,7 +114,7 @@ class PriceActionControllerTest extends ApiTestCase
             'calculated' => false,
         ]);
 
-        $this->assertEquals(
+        static::assertEquals(
             new Price(
                 10,
                 10,
@@ -142,7 +142,7 @@ class PriceActionControllerTest extends ApiTestCase
             'calculated' => true,
         ]);
 
-        $this->assertEquals(
+        static::assertEquals(
             new Price(
                 11.9,
                 11.9,
@@ -171,7 +171,7 @@ class PriceActionControllerTest extends ApiTestCase
             'calculated' => false,
         ]);
 
-        $this->assertEquals(
+        static::assertEquals(
             new Price(
                 11.9,
                 23.8,
@@ -201,7 +201,7 @@ class PriceActionControllerTest extends ApiTestCase
             'calculated' => true,
         ]);
 
-        $this->assertEquals(
+        static::assertEquals(
             new Price(
                 10,
                 20,
@@ -231,7 +231,7 @@ class PriceActionControllerTest extends ApiTestCase
             'calculated' => true,
         ]);
 
-        $this->assertEquals(
+        static::assertEquals(
             new Price(
                 11.9,
                 11.9,
@@ -254,7 +254,7 @@ class PriceActionControllerTest extends ApiTestCase
 
         $response = json_decode($response, true);
 
-        $this->assertArrayHasKey('data', $response);
+        static::assertArrayHasKey('data', $response);
 
         $data = $response['data'];
 

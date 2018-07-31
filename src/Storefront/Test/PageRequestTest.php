@@ -41,11 +41,12 @@ class PageRequestTest extends KernelTestCase
 
         // array merge recrusive
         $customerRepository = $this->createMock(EntityRepository::class);
-        $customerRepository->expects($this->once())
+        $customerRepository->expects(static::once())
             ->method('update')
-            ->will($this->returnCallback(
+            ->will(
+                static::returnCallback(
                 function ($data) use ($originalData) {
-                    $this->assertEquals($originalData, $data);
+                    static::assertEquals($originalData, $data);
 
                     return $this->createMock(EntityWrittenContainerEvent::class);
                 }

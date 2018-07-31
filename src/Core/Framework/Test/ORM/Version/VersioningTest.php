@@ -70,7 +70,7 @@ class VersioningTest extends KernelTestCase
         $this->taxRepository->create([$taxData], $context);
 
         $changes = $this->getVersionData(TaxDefinition::getEntityName(), $uuid, Defaults::LIVE_VERSION);
-        $this->assertCount(1, $changes, sprintf('Change for entity_id "%s" was not created.', $uuid));
+        static::assertCount(1, $changes, sprintf('Change for entity_id "%s" was not created.', $uuid));
 
         $change = array_shift($changes);
 
@@ -78,7 +78,7 @@ class VersioningTest extends KernelTestCase
 
         $payload = json_decode($change['payload'], true);
         unset($payload['createdAt']);
-        $this->assertEquals($taxData, $payload);
+        static::assertEquals($taxData, $payload);
     }
 
     public function testVersionChangeOnInsertWithSubresources(): void
@@ -105,7 +105,7 @@ class VersioningTest extends KernelTestCase
         $this->taxRepository->create([$taxData], $context);
 
         $changes = $this->getVersionData(TaxDefinition::getEntityName(), $uuid, Defaults::LIVE_VERSION);
-        $this->assertCount(1, $changes);
+        static::assertCount(1, $changes);
         $taxChange = [
             'id' => $uuid,
             'versionId' => Defaults::LIVE_VERSION,
@@ -115,10 +115,10 @@ class VersioningTest extends KernelTestCase
         ];
         $payload = json_decode($changes[0]['payload'], true);
         unset($payload['createdAt']);
-        $this->assertEquals($taxChange, $payload);
+        static::assertEquals($taxChange, $payload);
 
         $changes = $this->getVersionData(TaxAreaRuleDefinition::getEntityName(), $ruleId, Defaults::LIVE_VERSION);
-        $this->assertCount(1, $changes);
+        static::assertCount(1, $changes);
         $taxAreaChange = [
             'id' => $ruleId,
             'versionId' => Defaults::LIVE_VERSION,
@@ -135,10 +135,10 @@ class VersioningTest extends KernelTestCase
         ];
         $payload = json_decode($changes[0]['payload'], true);
         unset($payload['createdAt']);
-        $this->assertEquals($taxAreaChange, $payload);
+        static::assertEquals($taxAreaChange, $payload);
 
         $changes = $this->getTranslationVersionData(TaxAreaRuleTranslationDefinition::getEntityName(), Defaults::LANGUAGE, 'taxAreaRuleId', $ruleId, Defaults::LIVE_VERSION);
-        $this->assertCount(1, $changes);
+        static::assertCount(1, $changes);
         $taxAreaTranslationChange = [
             'taxAreaRuleId' => $ruleId,
             'name' => 'required',
@@ -148,7 +148,7 @@ class VersioningTest extends KernelTestCase
         $payload = json_decode($changes[0]['payload'], true);
         unset($payload['createdAt']);
 
-        $this->assertEquals($taxAreaTranslationChange, $payload);
+        static::assertEquals($taxAreaTranslationChange, $payload);
     }
 
     public function testCreateNewVersion(): void
@@ -165,7 +165,7 @@ class VersioningTest extends KernelTestCase
 
         $versionId = $this->taxRepository->createVersion($uuid->getHex(), $context, 'testCreateVersionWithoutRelations version');
 
-        $this->assertNotEmpty($versionId);
+        static::assertNotEmpty($versionId);
 
         $versionId = Uuid::fromString($versionId);
 
@@ -177,12 +177,12 @@ class VersioningTest extends KernelTestCase
             ]
         );
 
-        $this->assertNotFalse($tax, 'Tax clone was not created.');
+        static::assertNotFalse($tax, 'Tax clone was not created.');
 
-        $this->assertEquals($uuid->getBytes(), $tax['id']);
-        $this->assertEquals($versionId->getBytes(), $tax['version_id']);
-        $this->assertEquals('foo tax', $tax['name']);
-        $this->assertEquals(20, $tax['tax_rate']);
+        static::assertEquals($uuid->getBytes(), $tax['id']);
+        static::assertEquals($versionId->getBytes(), $tax['version_id']);
+        static::assertEquals('foo tax', $tax['name']);
+        static::assertEquals(20, $tax['tax_rate']);
     }
 
     public function testCreateNewVersionWithSubresources(): void
@@ -210,7 +210,7 @@ class VersioningTest extends KernelTestCase
 
         $versionId = $this->taxRepository->createVersion($uuid->getHex(), $context, 'testCreateVersionWithSubresources version');
 
-        $this->assertNotEmpty($versionId);
+        static::assertNotEmpty($versionId);
 
         $versionId = Uuid::fromString($versionId);
 
@@ -230,16 +230,16 @@ class VersioningTest extends KernelTestCase
             ]
         );
 
-        $this->assertNotFalse($tax, 'Tax clone was not created.');
-        $this->assertCount(1, $taxRules, 'Tax area rule clones were not created.');
+        static::assertNotFalse($tax, 'Tax clone was not created.');
+        static::assertCount(1, $taxRules, 'Tax area rule clones were not created.');
 
-        $this->assertEquals($uuid->getBytes(), $tax['id']);
-        $this->assertEquals($versionId->getBytes(), $tax['version_id']);
-        $this->assertEquals('foo tax', $tax['name']);
-        $this->assertEquals(20, $tax['tax_rate']);
+        static::assertEquals($uuid->getBytes(), $tax['id']);
+        static::assertEquals($versionId->getBytes(), $tax['version_id']);
+        static::assertEquals('foo tax', $tax['name']);
+        static::assertEquals(20, $tax['tax_rate']);
 
-        $this->assertEquals($uuid->getBytes(), $taxRules[0]['tax_id']);
-        $this->assertEquals($versionId->getBytes(), $taxRules[0]['version_id']);
+        static::assertEquals($uuid->getBytes(), $taxRules[0]['tax_id']);
+        static::assertEquals($versionId->getBytes(), $taxRules[0]['version_id']);
     }
 
     public function testMergeVersions(): void
@@ -250,14 +250,14 @@ class VersioningTest extends KernelTestCase
         $this->taxRepository->create([$taxData], $context);
 
         $changes = $this->getVersionData(TaxDefinition::getEntityName(), $uuid->getHex(), Defaults::LIVE_VERSION);
-        $this->assertCount(1, $changes);
+        static::assertCount(1, $changes);
 
         $versionId = $this->taxRepository->createVersion($uuid->getHex(), $context, 'testMerge version');
         $versionId = Uuid::fromString($versionId);
 
         $changes = $this->getVersionData(TaxDefinition::getEntityName(), $uuid->getHex(), $versionId->getHex());
-        $this->assertCount(1, $changes);
-        $this->assertEquals('clone', $changes[0]['action']);
+        static::assertCount(1, $changes);
+        static::assertEquals('clone', $changes[0]['action']);
 
         $versionContext = $context->createWithVersionId($versionId->getHex());
         $this->taxRepository->update([['id' => $uuid->getHex(), 'name' => 'new merged name']], $versionContext);
@@ -266,12 +266,12 @@ class VersioningTest extends KernelTestCase
             'id' => $uuid->getBytes(),
             'version' => Uuid::fromString(Defaults::LIVE_VERSION)->getBytes(),
         ]);
-        $this->assertEquals('foo tax', $row['name']);
+        static::assertEquals('foo tax', $row['name']);
 
         $changes = $this->getVersionData(TaxDefinition::getEntityName(), $uuid->getHex(), $versionId->getHex());
-        $this->assertCount(2, $changes);
-        $this->assertEquals('clone', $changes[0]['action']);
-        $this->assertEquals('update', $changes[1]['action']);
+        static::assertCount(2, $changes);
+        static::assertEquals('clone', $changes[0]['action']);
+        static::assertEquals('update', $changes[1]['action']);
 
         $this->taxRepository->merge($versionId->getHex(), $context);
 
@@ -280,22 +280,22 @@ class VersioningTest extends KernelTestCase
             'version' => Uuid::fromString(Defaults::LIVE_VERSION)->getBytes(),
         ]);
 
-        $this->assertEquals('new merged name', $row['name']);
+        static::assertEquals('new merged name', $row['name']);
 
         $row = $this->connection->fetchAssoc('SELECT * FROM version WHERE id = :id', ['id' => $versionId->getBytes()]);
-        $this->assertEmpty($row);
+        static::assertEmpty($row);
 
         $row = $this->connection->fetchAssoc('SELECT * FROM version_commit WHERE version_id = :id', ['id' => $versionId->getBytes()]);
-        $this->assertEmpty($row);
+        static::assertEmpty($row);
 
         $changes = $this->getVersionData(TaxDefinition::getEntityName(), $uuid->getHex(), $versionId->getHex());
-        $this->assertEmpty($changes);
+        static::assertEmpty($changes);
 
         $changes = $this->getVersionData(TaxDefinition::getEntityName(), $uuid->getHex(), Defaults::LIVE_VERSION);
-        $this->assertCount(2, $changes);
+        static::assertCount(2, $changes);
 
-        $this->assertEquals('insert', $changes[0]['action']);
-        $this->assertEquals('update', $changes[1]['action']);
+        static::assertEquals('insert', $changes[0]['action']);
+        static::assertEquals('update', $changes[1]['action']);
     }
 
     public function testReadConsiderVersion(): void
@@ -306,57 +306,57 @@ class VersioningTest extends KernelTestCase
         $this->taxRepository->create([$taxData], $liveVersionContext);
 
         $changes = $this->getVersionData(TaxDefinition::getEntityName(), $uuid->getHex(), Defaults::LIVE_VERSION);
-        $this->assertCount(1, $changes);
+        static::assertCount(1, $changes);
 
         $versionId = $this->taxRepository->createVersion($uuid->getHex(), $liveVersionContext, 'testMerge version');
         $versionId = Uuid::fromString($versionId);
 
         $changes = $this->getVersionData(TaxDefinition::getEntityName(), $uuid->getHex(), $versionId->getHex());
-        $this->assertCount(1, $changes);
-        $this->assertEquals('clone', $changes[0]['action']);
+        static::assertCount(1, $changes);
+        static::assertEquals('clone', $changes[0]['action']);
 
         $versionContext = $liveVersionContext->createWithVersionId($versionId->getHex());
         $this->taxRepository->update([['id' => $uuid->getHex(), 'name' => 'new merged name']], $versionContext);
 
         $basic = $this->taxRepository->read(new ReadCriteria([$uuid->getHex()]), $liveVersionContext);
-        $this->assertCount(1, $basic);
-        $this->assertTrue($basic->has($uuid->getHex()));
+        static::assertCount(1, $basic);
+        static::assertTrue($basic->has($uuid->getHex()));
         $tax = $basic->get($uuid->getHex());
-        $this->assertEquals('foo tax', $tax->getName());
+        static::assertEquals('foo tax', $tax->getName());
 
         $basic = $this->taxRepository->read(new ReadCriteria([$uuid->getHex()]), $versionContext);
-        $this->assertCount(1, $basic);
-        $this->assertTrue($basic->has($uuid->getHex()));
+        static::assertCount(1, $basic);
+        static::assertTrue($basic->has($uuid->getHex()));
         $tax = $basic->get($uuid->getHex());
-        $this->assertEquals('new merged name', $tax->getName());
+        static::assertEquals('new merged name', $tax->getName());
 
         $row = $this->connection->fetchAssoc('SELECT * FROM tax WHERE id = :id AND version_id = :version', [
             'id' => $uuid->getBytes(),
             'version' => Uuid::fromString(Defaults::LIVE_VERSION)->getBytes(),
         ]);
-        $this->assertEquals('foo tax', $row['name']);
+        static::assertEquals('foo tax', $row['name']);
 
         $changes = $this->getVersionData(TaxDefinition::getEntityName(), $uuid->getHex(), $versionId->getHex());
-        $this->assertCount(2, $changes);
-        $this->assertEquals('clone', $changes[0]['action']);
-        $this->assertEquals('update', $changes[1]['action']);
+        static::assertCount(2, $changes);
+        static::assertEquals('clone', $changes[0]['action']);
+        static::assertEquals('update', $changes[1]['action']);
 
         $this->taxRepository->merge($versionId->getHex(), $liveVersionContext);
 
         $basic = $this->taxRepository->read(new ReadCriteria([$uuid->getHex()]), $liveVersionContext);
-        $this->assertCount(1, $basic);
-        $this->assertTrue($basic->has($uuid->getHex()));
+        static::assertCount(1, $basic);
+        static::assertTrue($basic->has($uuid->getHex()));
         $tax = $basic->get($uuid->getHex());
-        $this->assertEquals('new merged name', $tax->getName());
+        static::assertEquals('new merged name', $tax->getName());
 
         $basic = $this->taxRepository->read(new ReadCriteria([$uuid->getHex()]), $versionContext);
-        $this->assertCount(1, $basic);
+        static::assertCount(1, $basic);
 
         $row = $this->connection->fetchAssoc('SELECT * FROM tax WHERE id = :id AND version_id = :version', [
             'id' => $uuid->getBytes(),
             'version' => Uuid::fromString($versionId)->getBytes(),
         ]);
-        $this->assertEmpty($row);
+        static::assertEmpty($row);
     }
 
     public function testSearcherConsidersVersionFallback(): void
@@ -373,8 +373,8 @@ class VersioningTest extends KernelTestCase
             'id' => $uuid->getBytes(),
             'version' => $versionId->getBytes(),
         ]);
-        $this->assertNotEmpty($tax);
-        $this->assertEquals(5, $tax['tax_rate']);
+        static::assertNotEmpty($tax);
+        static::assertEquals(5, $tax['tax_rate']);
 
         $versionContext = $liveVersionContext->createWithVersionId($versionId->getHex());
         $this->taxRepository->update([['id' => $uuid->getHex(), 'name' => 'new merged name', 'taxRate' => 4]], $versionContext);
@@ -383,26 +383,26 @@ class VersioningTest extends KernelTestCase
             'id' => $uuid->getBytes(),
             'version' => $versionId->getBytes(),
         ]);
-        $this->assertNotEmpty($tax);
-        $this->assertEquals(4, $tax['tax_rate']);
+        static::assertNotEmpty($tax);
+        static::assertEquals(4, $tax['tax_rate']);
 
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('tax.taxRate', 4));
 
         $result = $this->taxRepository->searchIds($criteria, $liveVersionContext);
-        $this->assertEquals(0, $result->getTotal());
+        static::assertEquals(0, $result->getTotal());
 
         $result = $this->taxRepository->searchIds($criteria, $versionContext);
-        $this->assertEquals(1, $result->getTotal());
+        static::assertEquals(1, $result->getTotal());
 
         $taxData = ['name' => 'foo tax', 'taxRate' => 4];
         $this->taxRepository->create([$taxData], $liveVersionContext);
 
         $result = $this->taxRepository->searchIds($criteria, $versionContext);
-        $this->assertEquals(2, $result->getTotal());
+        static::assertEquals(2, $result->getTotal());
 
         $result = $this->taxRepository->searchIds($criteria, $liveVersionContext);
-        $this->assertEquals(1, $result->getTotal());
+        static::assertEquals(1, $result->getTotal());
     }
 
     public function testOneToManyVersioning(): void
@@ -425,18 +425,18 @@ class VersioningTest extends KernelTestCase
         $this->taxRepository->create([$taxData], $liveVersionContext);
 
         $changes = $this->getVersionData(TaxDefinition::getEntityName(), $uuid->getHex(), Defaults::LIVE_VERSION);
-        $this->assertCount(1, $changes);
+        static::assertCount(1, $changes);
 
         $changes = $this->getVersionData(TaxAreaRuleDefinition::getEntityName(), $uuid->getHex(), Defaults::LIVE_VERSION);
-        $this->assertCount(1, $changes);
+        static::assertCount(1, $changes);
 
         $versionId = $this->taxRepository->createVersion($uuid->getHex(), $liveVersionContext);
 
         $changes = $this->getVersionData(TaxDefinition::getEntityName(), $uuid->getHex(), $versionId);
-        $this->assertCount(1, $changes);
+        static::assertCount(1, $changes);
 
         $changes = $this->getVersionData(TaxAreaRuleDefinition::getEntityName(), $uuid->getHex(), $versionId);
-        $this->assertCount(1, $changes);
+        static::assertCount(1, $changes);
 
         $versionContext = $liveVersionContext->createWithVersionId($versionId);
 
@@ -451,57 +451,57 @@ class VersioningTest extends KernelTestCase
         ], $versionContext);
 
         $changes = $this->getVersionData(TaxDefinition::getEntityName(), $uuid->getHex(), $versionId);
-        $this->assertCount(2, $changes);
+        static::assertCount(2, $changes);
 
         $changes = $this->getVersionData(TaxAreaRuleDefinition::getEntityName(), $uuid->getHex(), $versionId);
-        $this->assertCount(2, $changes);
+        static::assertCount(2, $changes);
 
         $criteria = new ReadCriteria([$uuid->getHex()]);
         $criteria->addAssociation('tax.areaRules');
 
         $liveTax = $this->taxRepository->read($criteria, $liveVersionContext);
-        $this->assertCount(1, $liveTax);
-        $this->assertTrue($liveTax->has($uuid->getHex()));
+        static::assertCount(1, $liveTax);
+        static::assertTrue($liveTax->has($uuid->getHex()));
         $tax = $liveTax->get($uuid->getHex());
 
         /* @var TaxStruct $tax */
-        $this->assertEquals(5, $tax->getTaxRate());
-        $this->assertCount(1, $tax->getAreaRules());
-        $this->assertEquals(6, $tax->getAreaRules()->get($uuid->getHex())->getTaxRate());
+        static::assertEquals(5, $tax->getTaxRate());
+        static::assertCount(1, $tax->getAreaRules());
+        static::assertEquals(6, $tax->getAreaRules()->get($uuid->getHex())->getTaxRate());
 
         $criteria = new ReadCriteria([$uuid->getHex()]);
         $criteria->addAssociation('tax.areaRules');
         $versionTax = $this->taxRepository->read($criteria, $versionContext);
-        $this->assertCount(1, $versionTax);
-        $this->assertTrue($versionTax->has($uuid->getHex()));
+        static::assertCount(1, $versionTax);
+        static::assertTrue($versionTax->has($uuid->getHex()));
         $tax = $versionTax->get($uuid->getHex());
 
         /* @var TaxStruct $tax */
-        $this->assertEquals(15, $tax->getTaxRate());
-        $this->assertCount(1, $tax->getAreaRules());
-        $this->assertEquals(16, $tax->getAreaRules()->get($uuid->getHex())->getTaxRate());
+        static::assertEquals(15, $tax->getTaxRate());
+        static::assertCount(1, $tax->getAreaRules());
+        static::assertEquals(16, $tax->getAreaRules()->get($uuid->getHex())->getTaxRate());
 
         $this->taxRepository->merge($versionId, $liveVersionContext);
 
         $liveTax = $this->taxRepository->read($criteria, $liveVersionContext);
-        $this->assertCount(1, $liveTax);
-        $this->assertTrue($liveTax->has($uuid->getHex()));
+        static::assertCount(1, $liveTax);
+        static::assertTrue($liveTax->has($uuid->getHex()));
         $tax = $liveTax->get($uuid->getHex());
 
         /* @var TaxStruct $tax */
-        $this->assertEquals(15, $tax->getTaxRate());
-        $this->assertCount(1, $tax->getAreaRules());
-        $this->assertEquals(16, $tax->getAreaRules()->get($uuid->getHex())->getTaxRate());
+        static::assertEquals(15, $tax->getTaxRate());
+        static::assertCount(1, $tax->getAreaRules());
+        static::assertEquals(16, $tax->getAreaRules()->get($uuid->getHex())->getTaxRate());
 
         $liveTax = $this->taxRepository->read($criteria, $versionContext);
-        $this->assertCount(1, $liveTax);
-        $this->assertTrue($liveTax->has($uuid->getHex()));
+        static::assertCount(1, $liveTax);
+        static::assertTrue($liveTax->has($uuid->getHex()));
         $tax = $liveTax->get($uuid->getHex());
 
         /* @var TaxStruct $tax */
-        $this->assertEquals(15, $tax->getTaxRate());
-        $this->assertCount(1, $tax->getAreaRules());
-        $this->assertEquals(16, $tax->getAreaRules()->get($uuid->getHex())->getTaxRate());
+        static::assertEquals(15, $tax->getTaxRate());
+        static::assertCount(1, $tax->getAreaRules());
+        static::assertEquals(16, $tax->getAreaRules()->get($uuid->getHex())->getTaxRate());
     }
 
     public function testVersioningWithProductInheritance(): void
@@ -538,15 +538,15 @@ class VersioningTest extends KernelTestCase
             'version' => Uuid::fromString($variantVersionId)->getBytes(),
         ]);
 
-        $this->assertEquals(['gross' => 20, 'net' => 19], json_decode($variant['price'], true));
+        static::assertEquals(['gross' => 20, 'net' => 19], json_decode($variant['price'], true));
 
         $variants = $this->productRepository->read(new ReadCriteria([$variantId->getHex()]), $versionContext);
-        $this->assertCount(1, $variants);
-        $this->assertTrue($variants->has($variantId->getHex()));
+        static::assertCount(1, $variants);
+        static::assertTrue($variants->has($variantId->getHex()));
 
         $variant = $variants->get($variantId->getHex());
-        $this->assertEquals(new PriceStruct(19, 20), $variant->getPrice());
-        $this->assertEquals('parent', $variant->getName());
+        static::assertEquals(new PriceStruct(19, 20), $variant->getPrice());
+        static::assertEquals('parent', $variant->getName());
 
         $this->productRepository->createVersion($productId->getHex(), $liveContext, 'test parent', $variantVersionId);
 
@@ -555,10 +555,10 @@ class VersioningTest extends KernelTestCase
         ], $versionContext);
 
         $changes = $this->getVersionData(ProductDefinition::getEntityName(), $productId->getHex(), $variantVersionId);
-        $this->assertCount(2, $changes);
+        static::assertCount(2, $changes);
 
         $changes = $this->getTranslationVersionData(ProductTranslationDefinition::getEntityName(), Defaults::LANGUAGE, 'productId', $productId->getHex(), $variantVersionId);
-        $this->assertCount(2, $changes);
+        static::assertCount(2, $changes);
 
         $product = $this->connection->fetchAssoc(
             'SELECT * FROM product_translation WHERE product_id = :id AND product_version_id = :version AND language_id = :language',
@@ -568,23 +568,23 @@ class VersioningTest extends KernelTestCase
                 'language' => Uuid::fromString($versionContext->getLanguageId())->getBytes(),
             ]
         );
-        $this->assertEquals('parent version', $product['name']);
+        static::assertEquals('parent version', $product['name']);
 
         $variants = $this->productRepository->read(new ReadCriteria([$productId->getHex()]), $versionContext);
-        $this->assertCount(1, $variants);
-        $this->assertTrue($variants->has($productId->getHex()));
+        static::assertCount(1, $variants);
+        static::assertTrue($variants->has($productId->getHex()));
 
         $variant = $variants->get($productId->getHex());
-        $this->assertEquals(25, $variant->getPrice()->getGross());
-        $this->assertEquals('parent version', $variant->getName());
+        static::assertEquals(25, $variant->getPrice()->getGross());
+        static::assertEquals('parent version', $variant->getName());
 
         $variants = $this->productRepository->read(new ReadCriteria([$variantId->getHex()]), $versionContext);
-        $this->assertCount(1, $variants);
-        $this->assertTrue($variants->has($variantId->getHex()));
+        static::assertCount(1, $variants);
+        static::assertTrue($variants->has($variantId->getHex()));
 
         $variant = $variants->get($variantId->getHex());
-        $this->assertEquals(20, $variant->getPrice()->getGross());
-        $this->assertEquals('parent version', $variant->getName());
+        static::assertEquals(20, $variant->getPrice()->getGross());
+        static::assertEquals('parent version', $variant->getName());
     }
 
     public function testTaxRestrictions(): void
@@ -620,7 +620,7 @@ class VersioningTest extends KernelTestCase
             'version' => Uuid::fromString(Defaults::LIVE_VERSION)->getBytes(),
         ]);
 
-        $this->assertEquals(19, $tax['tax_rate']);
+        static::assertEquals(19, $tax['tax_rate']);
     }
 
     public function testCampaign(): void
@@ -672,85 +672,85 @@ class VersioningTest extends KernelTestCase
         $this->productRepository->update([$update], $versionContext);
 
         $changes = $this->getVersionData(ProductDefinition::getEntityName(), $product1->getHex(), $versionId);
-        $this->assertCount(2, $changes);
+        static::assertCount(2, $changes);
 
         $changes = $this->getVersionData(ProductDefinition::getEntityName(), $product2->getHex(), $versionId);
-        $this->assertCount(2, $changes);
+        static::assertCount(2, $changes);
 
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('product.categories.id', $category));
         $criteria->addFilter(new RangeQuery('product.price', [RangeQuery::GTE => 100]));
 
         $search = $this->productRepository->searchIds($criteria, $versionContext);
-        $this->assertCount(2, $search->getIds());
-        $this->assertContains($product1->getHex(), $search->getIds());
-        $this->assertContains($product2->getHex(), $search->getIds());
+        static::assertCount(2, $search->getIds());
+        static::assertContains($product1->getHex(), $search->getIds());
+        static::assertContains($product2->getHex(), $search->getIds());
 
         $notExisting = Uuid::uuid4()->getHex();
         $notExistingContext = $versionContext->createWithVersionId($notExisting);
 
         $search = $this->productRepository->searchIds($criteria, $notExistingContext);
-        $this->assertCount(0, $search->getIds());
+        static::assertCount(0, $search->getIds());
 
         $search = $this->productRepository->searchIds($criteria, $liveContext);
-        $this->assertCount(0, $search->getIds());
+        static::assertCount(0, $search->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('product.categories.id', $category));
         $criteria->addFilter(new TermQuery('product.price', 10));
 
         $search = $this->productRepository->searchIds($criteria, $liveContext);
-        $this->assertCount(2, $search->getIds());
-        $this->assertContains($product1->getHex(), $search->getIds());
-        $this->assertContains($product2->getHex(), $search->getIds());
+        static::assertCount(2, $search->getIds());
+        static::assertContains($product1->getHex(), $search->getIds());
+        static::assertContains($product2->getHex(), $search->getIds());
 
         $search = $this->productRepository->searchIds($criteria, $notExistingContext);
-        $this->assertCount(2, $search->getIds());
-        $this->assertContains($product1->getHex(), $search->getIds());
-        $this->assertContains($product2->getHex(), $search->getIds());
+        static::assertCount(2, $search->getIds());
+        static::assertContains($product1->getHex(), $search->getIds());
+        static::assertContains($product2->getHex(), $search->getIds());
 
         //MERGE
         $this->productRepository->merge($versionId, $liveContext);
 
         $changes = $this->getVersionData(ProductDefinition::getEntityName(), $product1->getHex(), $versionId);
-        $this->assertEmpty($changes);
+        static::assertEmpty($changes);
 
         $changes = $this->getVersionData(ProductDefinition::getEntityName(), $product2->getHex(), $versionId);
-        $this->assertEmpty($changes);
+        static::assertEmpty($changes);
 
         $changes = $this->getVersionData(ProductDefinition::getEntityName(), $product1->getHex(), Defaults::LIVE_VERSION);
-        $this->assertCount(2, $changes);
-        $this->assertEquals('insert', $changes[0]['action']);
-        $this->assertEquals('update', $changes[1]['action']);
+        static::assertCount(2, $changes);
+        static::assertEquals('insert', $changes[0]['action']);
+        static::assertEquals('update', $changes[1]['action']);
 
         $changes = $this->getVersionData(ProductDefinition::getEntityName(), $product2->getHex(), Defaults::LIVE_VERSION);
-        $this->assertCount(2, $changes);
-        $this->assertEquals('insert', $changes[0]['action']);
-        $this->assertEquals('update', $changes[1]['action']);
+        static::assertCount(2, $changes);
+        static::assertEquals('insert', $changes[0]['action']);
+        static::assertEquals('update', $changes[1]['action']);
 
         $changes = $this->getVersionData(ProductDefinition::getEntityName(), $product2->getHex(), $versionId);
-        $this->assertEmpty($changes);
+        static::assertEmpty($changes);
 
         $product = $this->connection->fetchAssoc(
             'SELECT * FROM product WHERE id = :id AND version_id = :version',
             ['id' => $product1->getBytes(), 'version' => Uuid::fromString(Defaults::LIVE_VERSION)->getBytes()]
         );
-        $this->assertEquals(['gross' => 100, 'net' => 9], json_decode($product['price'], true));
+        static::assertEquals(['gross' => 100, 'net' => 9], json_decode($product['price'], true));
 
         $product = $this->connection->fetchAssoc(
             'SELECT * FROM product WHERE id = :id AND version_id = :version',
             ['id' => $product2->getBytes(), 'version' => Uuid::fromString(Defaults::LIVE_VERSION)->getBytes()]
         );
-        $this->assertEquals(['gross' => 200, 'net' => 9], json_decode($product['price'], true));
+        static::assertEquals(['gross' => 200, 'net' => 9], json_decode($product['price'], true));
 
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('product.categories.id', $category));
         $criteria->addFilter(new RangeQuery('product.price', [RangeQuery::GTE => 100]));
 
         $search = $this->productRepository->searchIds($criteria, $liveContext);
-        $this->assertCount(2, $search->getIds());
-        $this->assertContains($product1->getHex(), $search->getIds());
-        $this->assertContains($product2->getHex(), $search->getIds());
+        static::assertCount(2, $search->getIds());
+        static::assertContains($product1->getHex(), $search->getIds());
+        static::assertContains($product2->getHex(), $search->getIds());
     }
 
     private function getVersionData(string $entity, string $id, string $versionId): array

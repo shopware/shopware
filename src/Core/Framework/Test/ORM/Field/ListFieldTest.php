@@ -59,9 +59,9 @@ EOF;
 
         $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable`');
 
-        $this->assertCount(1, $data);
-        $this->assertEquals($id->getBytes(), $data[0]['id']);
-        $this->assertNull($data[0]['data']);
+        static::assertCount(1, $data);
+        static::assertEquals($id->getBytes(), $data[0]['id']);
+        static::assertNull($data[0]['data']);
     }
 
     public function testEmptyList(): void
@@ -78,9 +78,9 @@ EOF;
 
         $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable`');
 
-        $this->assertCount(1, $data);
-        $this->assertEquals($id->getBytes(), $data[0]['id']);
-        $this->assertEquals('[]', $data[0]['data']);
+        static::assertCount(1, $data);
+        static::assertEquals($id->getBytes(), $data[0]['id']);
+        static::assertEquals('[]', $data[0]['data']);
     }
 
     public function testWithData(): void
@@ -97,9 +97,9 @@ EOF;
 
         $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable`');
 
-        $this->assertCount(1, $data);
-        $this->assertEquals($id->getBytes(), $data[0]['id']);
-        $this->assertEquals('["foo","bar","loo"]', $data[0]['data']);
+        static::assertCount(1, $data);
+        static::assertEquals($id->getBytes(), $data[0]['id']);
+        static::assertEquals('["foo","bar","loo"]', $data[0]['data']);
     }
 
     public function testListType(): void
@@ -118,20 +118,20 @@ EOF;
         } catch (WriteStackException $ex) {
         }
 
-        $this->assertInstanceOf(WriteStackException::class, $ex);
-        $this->assertCount(3, $ex->getExceptions());
+        static::assertInstanceOf(WriteStackException::class, $ex);
+        static::assertCount(3, $ex->getExceptions());
 
         $fieldException = $ex->getExceptions()[0];
-        $this->assertEquals(InvalidFieldException::class, get_class($fieldException));
-        $this->assertEquals('/data/0', $fieldException->getPath());
+        static::assertEquals(InvalidFieldException::class, get_class($fieldException));
+        static::assertEquals('/data/0', $fieldException->getPath());
 
         $fieldException = $ex->getExceptions()[1];
-        $this->assertEquals(InvalidFieldException::class, get_class($fieldException));
-        $this->assertEquals('/data/1', $fieldException->getPath());
+        static::assertEquals(InvalidFieldException::class, get_class($fieldException));
+        static::assertEquals('/data/1', $fieldException->getPath());
 
         $fieldException = $ex->getExceptions()[2];
-        $this->assertEquals(InvalidFieldException::class, get_class($fieldException));
-        $this->assertEquals('/data/3', $fieldException->getPath());
+        static::assertEquals(InvalidFieldException::class, get_class($fieldException));
+        static::assertEquals('/data/3', $fieldException->getPath());
     }
 
     protected function createWriteContext(): WriteContext

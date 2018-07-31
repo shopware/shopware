@@ -94,10 +94,10 @@ class MediaDeletedSubscriberTest extends KernelTestCase
 
         $path = $this->strategy->encode($mediaId->getHex());
 
-        $this->assertTrue($this->filesystem->has('media/' . $path . MediaUpdater::ALLOWED_MIME_TYPES[$mimeType]));
+        static::assertTrue($this->filesystem->has('media/' . $path . MediaUpdater::ALLOWED_MIME_TYPES[$mimeType]));
 
         $this->repository->delete([['id' => $mediaId->getHex()]], $context);
 
-        $this->assertFalse($this->filesystem->has('media/' . $path . MediaUpdater::ALLOWED_MIME_TYPES[$mimeType]));
+        static::assertFalse($this->filesystem->has('media/' . $path . MediaUpdater::ALLOWED_MIME_TYPES[$mimeType]));
     }
 }

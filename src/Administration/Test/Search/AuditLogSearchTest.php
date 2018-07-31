@@ -119,7 +119,7 @@ class AuditLogSearchTest extends KernelTestCase
         ], $this->context);
 
         $changes = $this->getVersionData(ProductDefinition::getEntityName(), $productId2, Defaults::LIVE_VERSION);
-        $this->assertNotEmpty($changes);
+        static::assertNotEmpty($changes);
 
         $result = $this->search->search('test product', 20, $this->context, $this->userId);
 

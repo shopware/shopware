@@ -32,7 +32,7 @@ class StopWordFilterTest extends TestCase
         $filtered = array_flip($filtered);
         $filtered = array_values($filtered);
 
-        $this->assertSame($expected, $filtered);
+        static::assertSame($expected, $filtered);
     }
 
     public function cases()

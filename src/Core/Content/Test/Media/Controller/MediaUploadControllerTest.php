@@ -66,7 +66,7 @@ class MediaUploadControllerTest extends ApiTestCase
     public function testUploadFromBinary(): void
     {
         $path = $this->strategy->encode($this->mediaId);
-        $this->assertFalse($this->filesystem->has('media/' . $path . '.png'));
+        static::assertFalse($this->filesystem->has('media/' . $path . '.png'));
 
         $this->apiClient->request(
             'POST',
@@ -81,18 +81,18 @@ class MediaUploadControllerTest extends ApiTestCase
         );
         $response = $this->apiClient->getResponse();
 
-        $this->assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
 
-        $this->assertNotEmpty($response->headers->get('Location'));
-        $this->assertEquals('http://localhost/api/v' . PlatformRequest::API_VERSION . '/media/' . $this->mediaId, $response->headers->get('Location'));
+        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertEquals('http://localhost/api/v' . PlatformRequest::API_VERSION . '/media/' . $this->mediaId, $response->headers->get('Location'));
 
-        $this->assertTrue($this->filesystem->has('media/' . $path . '.png'));
+        static::assertTrue($this->filesystem->has('media/' . $path . '.png'));
     }
 
     public function testUploadFromURL(): void
     {
         $path = $this->strategy->encode($this->mediaId);
-        $this->assertFalse($this->filesystem->has('media/' . $path . '.jpg'));
+        static::assertFalse($this->filesystem->has('media/' . $path . '.jpg'));
 
         $url = getenv('APP_URL');
 
@@ -113,10 +113,10 @@ class MediaUploadControllerTest extends ApiTestCase
 
         unlink($target);
 
-        $this->assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
 
-        $this->assertNotEmpty($response->headers->get('Location'));
-        $this->assertEquals('http://localhost/api/v' . PlatformRequest::API_VERSION . '/media/' . $this->mediaId, $response->headers->get('Location'));
-        $this->assertTrue($this->filesystem->has('media/' . $path . '.png'));
+        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertEquals('http://localhost/api/v' . PlatformRequest::API_VERSION . '/media/' . $this->mediaId, $response->headers->get('Location'));
+        static::assertTrue($this->filesystem->has('media/' . $path . '.png'));
     }
 }

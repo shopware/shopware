@@ -55,14 +55,14 @@ class StorefrontCategoryControllerTest extends ApiTestCase
 
         $response = $this->storefrontApiClient->getResponse();
 
-        $this->assertSame(200, $response->getStatusCode());
+        static::assertSame(200, $response->getStatusCode());
 
         $content = json_decode($response->getContent(), true);
 
-        $this->assertNotEmpty($content);
-        $this->assertArrayHasKey('data', $content);
-        $this->assertArrayHasKey('total', $content);
-        $this->assertGreaterThanOrEqual(1, $content['total']);
+        static::assertNotEmpty($content);
+        static::assertArrayHasKey('data', $content);
+        static::assertArrayHasKey('total', $content);
+        static::assertGreaterThanOrEqual(1, $content['total']);
     }
 
     public function testCategoryDetailRoute()
@@ -77,13 +77,13 @@ class StorefrontCategoryControllerTest extends ApiTestCase
 
         $response = $this->storefrontApiClient->getResponse();
 
-        $this->assertSame(200, $response->getStatusCode());
+        static::assertSame(200, $response->getStatusCode());
 
         $content = json_decode($response->getContent(), true);
 
-        $this->assertNotEmpty($content);
-        $this->assertArrayHasKey('data', $content);
-        $this->assertSame('Test category', $content['data']['name']);
+        static::assertNotEmpty($content);
+        static::assertArrayHasKey('data', $content);
+        static::assertSame('Test category', $content['data']['name']);
     }
 
     public function testSortingOnListRoute()
@@ -102,16 +102,16 @@ class StorefrontCategoryControllerTest extends ApiTestCase
 
         $response = $this->storefrontApiClient->getResponse();
         $content = json_decode($response->getContent(), true);
-        $this->assertNotEmpty($content);
+        static::assertNotEmpty($content);
         $ids = array_column($content['data'], 'id');
-        $this->assertSame([$categoryA, $categoryB, $categoryC], $ids);
+        static::assertSame([$categoryA, $categoryB, $categoryC], $ids);
 
         $this->storefrontApiClient->request('GET', '/storefront-api/category?sort=-name');
         $response = $this->storefrontApiClient->getResponse();
         $content = json_decode($response->getContent(), true);
-        $this->assertNotEmpty($content);
+        static::assertNotEmpty($content);
         $ids = array_column($content['data'], 'id');
-        $this->assertSame([$categoryC, $categoryB, $categoryA], $ids);
+        static::assertSame([$categoryC, $categoryB, $categoryA], $ids);
     }
 
     public function testTermOnListRoute()
@@ -130,12 +130,12 @@ class StorefrontCategoryControllerTest extends ApiTestCase
 
         $response = $this->storefrontApiClient->getResponse();
         $content = json_decode($response->getContent(), true);
-        $this->assertNotEmpty($content);
-        $this->assertSame(2, $content['total']);
+        static::assertNotEmpty($content);
+        static::assertSame(2, $content['total']);
 
         $ids = array_column($content['data'], 'id');
-        $this->assertContains($categoryC, $ids);
-        $this->assertContains($categoryB, $ids);
+        static::assertContains($categoryC, $ids);
+        static::assertContains($categoryB, $ids);
     }
 
     public function testFilterOnListRoute()
@@ -161,11 +161,11 @@ class StorefrontCategoryControllerTest extends ApiTestCase
 
         $response = $this->storefrontApiClient->getResponse();
         $content = json_decode($response->getContent(), true);
-        $this->assertNotEmpty($content);
-        $this->assertSame(1, $content['total']);
+        static::assertNotEmpty($content);
+        static::assertSame(1, $content['total']);
 
         $ids = array_column($content['data'], 'id');
-        $this->assertContains($categoryC, $ids);
+        static::assertContains($categoryC, $ids);
     }
 
     public function testSwagQLForListRoute()
@@ -196,11 +196,11 @@ class StorefrontCategoryControllerTest extends ApiTestCase
 
         $response = $this->storefrontApiClient->getResponse();
         $content = json_decode($response->getContent(), true);
-        $this->assertSame(200, $response->getStatusCode());
-        $this->assertSame(2, $content['total']);
+        static::assertSame(200, $response->getStatusCode());
+        static::assertSame(2, $content['total']);
         $ids = array_column($content['data'], 'id');
-        $this->assertContains($categoryA, $ids);
-        $this->assertContains($categoryB, $ids);
+        static::assertContains($categoryA, $ids);
+        static::assertContains($categoryB, $ids);
 
         $body = [
             'filter' => [
@@ -219,10 +219,10 @@ class StorefrontCategoryControllerTest extends ApiTestCase
         $response = $this->storefrontApiClient->getResponse();
         $content = json_decode($response->getContent(), true);
 
-        $this->assertSame(200, $response->getStatusCode());
-        $this->assertSame(2, $content['total']);
+        static::assertSame(200, $response->getStatusCode());
+        static::assertSame(2, $content['total']);
         $ids = array_column($content['data'], 'id');
-        $this->assertSame([$categoryA, $categoryC], $ids);
+        static::assertSame([$categoryA, $categoryC], $ids);
 
         $body = [
             'filter' => [
@@ -241,13 +241,13 @@ class StorefrontCategoryControllerTest extends ApiTestCase
         $response = $this->storefrontApiClient->getResponse();
         $content = json_decode($response->getContent(), true);
 
-        $this->assertSame(200, $response->getStatusCode());
-        $this->assertSame(3, $content['total']);
+        static::assertSame(200, $response->getStatusCode());
+        static::assertSame(3, $content['total']);
         $ids = array_column($content['data'], 'id');
 
-        $this->assertContains($categoryA, $ids);
-        $this->assertContains($categoryB, $ids);
-        $this->assertContains($categoryC, $ids);
+        static::assertContains($categoryA, $ids);
+        static::assertContains($categoryB, $ids);
+        static::assertContains($categoryC, $ids);
 
         $body = [
             'post-filter' => [
@@ -264,22 +264,22 @@ class StorefrontCategoryControllerTest extends ApiTestCase
         $response = $this->storefrontApiClient->getResponse();
         $content = json_decode($response->getContent(), true);
 
-        $this->assertSame(200, $response->getStatusCode());
-        $this->assertSame(2, $content['total']);
+        static::assertSame(200, $response->getStatusCode());
+        static::assertSame(2, $content['total']);
 
         $ids = array_column($content['data'], 'id');
 
-        $this->assertContains($categoryA, $ids);
-        $this->assertContains($categoryC, $ids);
+        static::assertContains($categoryA, $ids);
+        static::assertContains($categoryC, $ids);
 
-        $this->assertArrayHasKey('aggregations', $content);
-        $this->assertArrayHasKey('category-names', $content['aggregations']);
+        static::assertArrayHasKey('aggregations', $content);
+        static::assertArrayHasKey('category-names', $content['aggregations']);
 
         usort($content['aggregations']['category-names'], function ($a, $b) {
             return $a['key'] <=> $b['key'];
         });
 
-        $this->assertEquals(
+        static::assertEquals(
             [
                 ['key' => 'A', 'count' => '2'],
                 ['key' => 'B', 'count' => '1'],
@@ -296,13 +296,13 @@ class StorefrontCategoryControllerTest extends ApiTestCase
         $this->storefrontApiClient->request('GET', '/storefront-api/category/' . $id);
         $response = $this->storefrontApiClient->getResponse();
 
-        $this->assertSame(404, $response->getStatusCode());
+        static::assertSame(404, $response->getStatusCode());
         $content = json_decode($response->getContent(), true);
 
-        $this->assertNotEmpty($content);
-        $this->assertArrayHasKey('errors', $content);
-        $this->assertEquals($content['errors'][0]['code'], CategoryNotFoundException::CODE);
-        $this->assertEquals($content['errors'][0]['status'], 404);
-        $this->assertStringMatchesFormat('Category %s not found', $content['errors'][0]['detail']);
+        static::assertNotEmpty($content);
+        static::assertArrayHasKey('errors', $content);
+        static::assertEquals($content['errors'][0]['code'], CategoryNotFoundException::CODE);
+        static::assertEquals($content['errors'][0]['status'], 404);
+        static::assertStringMatchesFormat('Category %s not found', $content['errors'][0]['detail']);
     }
 }

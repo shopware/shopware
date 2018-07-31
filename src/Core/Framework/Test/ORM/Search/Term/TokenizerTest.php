@@ -17,7 +17,7 @@ class TokenizerTest extends TestCase
     {
         $interpreter = new Tokenizer();
         $tokens = $interpreter->tokenize($term);
-        $this->assertSame($expected, $tokens);
+        static::assertSame($expected, $tokens);
     }
 
     public function cases()

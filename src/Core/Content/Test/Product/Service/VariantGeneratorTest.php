@@ -88,13 +88,13 @@ class VariantGeneratorTest extends KernelTestCase
 
         $productWritten = $writtenEvent->getEventByDefinition(ProductDefinition::class);
 
-        $this->assertCount(2, $productWritten->getIds());
+        static::assertCount(2, $productWritten->getIds());
 
         $criteria = new ReadCriteria($productWritten->getIds());
         $criteria->addAssociation('product.variations');
         $variants = $this->repository->read($criteria, Context::createDefaultContext(Defaults::TENANT_ID));
 
-        $this->assertCount(2, $variants);
+        static::assertCount(2, $variants);
 
         /** @var ProductStruct $red */
         $red = $variants->filter(function (ProductStruct $detail) use ($redId) {
@@ -106,14 +106,14 @@ class VariantGeneratorTest extends KernelTestCase
             return in_array($blueId, $detail->getVariations()->getIds(), true);
         })->first();
 
-        $this->assertEquals('test blue', $blue->getName());
-        $this->assertEquals('test red', $red->getName());
+        static::assertEquals('test blue', $blue->getName());
+        static::assertEquals('test red', $red->getName());
 
-        $this->assertInstanceOf(ProductStruct::class, $red);
-        $this->assertInstanceOf(ProductStruct::class, $blue);
+        static::assertInstanceOf(ProductStruct::class, $red);
+        static::assertInstanceOf(ProductStruct::class, $blue);
 
-        $this->assertEquals(new PriceStruct(35, 60), $red->getPrice());
-        $this->assertEquals(new PriceStruct(100, 110), $blue->getPrice());
+        static::assertEquals(new PriceStruct(35, 60), $red->getPrice());
+        static::assertEquals(new PriceStruct(100, 110), $blue->getPrice());
     }
 
     public function testMultiDimension()
@@ -170,34 +170,34 @@ class VariantGeneratorTest extends KernelTestCase
 
         $productWritten = $writtenEvent->getEventByDefinition(ProductDefinition::class);
 
-        $this->assertCount(4, $productWritten->getIds());
+        static::assertCount(4, $productWritten->getIds());
 
         $variants = $this->repository->read(new ReadCriteria($productWritten->getIds()), Context::createDefaultContext(
             Defaults::TENANT_ID));
-        $this->assertCount(4, $variants);
+        static::assertCount(4, $variants);
 
         $parent = $this->repository->read(new ReadCriteria([$id]), Context::createDefaultContext(Defaults::TENANT_ID))
             ->get($id);
 
         $filtered = $variants->filterByVariationIds([$redId, $bigId]);
-        $this->assertCount(1, $filtered);
-        $this->assertEquals('test red big', $filtered->first()->getName());
+        static::assertCount(1, $filtered);
+        static::assertEquals('test red big', $filtered->first()->getName());
 
         $filtered = $variants->filterByVariationIds([$blueId, $bigId]);
-        $this->assertCount(1, $filtered);
-        $this->assertEquals('test blue big', $filtered->first()->getName());
+        static::assertCount(1, $filtered);
+        static::assertEquals('test blue big', $filtered->first()->getName());
 
         $filtered = $variants->filterByVariationIds([$redId, $smallId]);
-        $this->assertCount(1, $filtered);
-        $this->assertEquals('test red small', $filtered->first()->getName());
+        static::assertCount(1, $filtered);
+        static::assertEquals('test red small', $filtered->first()->getName());
 
         $filtered = $variants->filterByVariationIds([$blueId, $smallId]);
-        $this->assertCount(1, $filtered);
-        $this->assertEquals('test blue small', $filtered->first()->getName());
+        static::assertCount(1, $filtered);
+        static::assertEquals('test blue small', $filtered->first()->getName());
 
         foreach ($variants as $variant) {
-            $this->assertEquals($id, $variant->getParentId());
-            $this->assertEquals($parent->getPrice(), $variant->getPrice());
+            static::assertEquals($id, $variant->getParentId());
+            static::assertEquals($parent->getPrice(), $variant->getPrice());
         }
     }
 
@@ -245,15 +245,15 @@ class VariantGeneratorTest extends KernelTestCase
 
         $writtenEvent = $this->generator->generate($id, Context::createDefaultContext(Defaults::TENANT_ID), 0, 1);
         $productWritten = $writtenEvent->getEventByDefinition(ProductDefinition::class);
-        $this->assertCount(1, $productWritten->getIds());
+        static::assertCount(1, $productWritten->getIds());
 
         $variants = $this->repository->read(new ReadCriteria($productWritten->getIds()), Context::createDefaultContext(
             Defaults::TENANT_ID));
-        $this->assertCount(1, $variants);
+        static::assertCount(1, $variants);
 
         $writtenEvent = $this->generator->generate($id, Context::createDefaultContext(Defaults::TENANT_ID), 1, 1);
         $productWritten = $writtenEvent->getEventByDefinition(ProductDefinition::class);
-        $this->assertCount(1, $productWritten->getIds());
+        static::assertCount(1, $productWritten->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('product.parentId', $id));
@@ -263,8 +263,8 @@ class VariantGeneratorTest extends KernelTestCase
             ->get($id);
 
         foreach ($variants as $variant) {
-            $this->assertEquals($id, $variant->getParentId());
-            $this->assertEquals($parent->getPrice(), $variant->getPrice());
+            static::assertEquals($id, $variant->getParentId());
+            static::assertEquals($parent->getPrice(), $variant->getPrice());
         }
     }
 }

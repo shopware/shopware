@@ -63,7 +63,7 @@ class CatalogTest extends KernelTestCase
 
         $catalogId = $this->connection->fetchColumn('SELECT catalog_id FROM category WHERE id = :id', ['id' => $id->getBytes()]);
 
-        $this->assertEquals(Defaults::CATALOG, Uuid::fromBytesToHex($catalogId));
+        static::assertEquals(Defaults::CATALOG, Uuid::fromBytesToHex($catalogId));
     }
 
     public function testCreateWithCatalogProvidedButNotInContext(): void
@@ -83,7 +83,7 @@ class CatalogTest extends KernelTestCase
 
         $createdCatalogId = $this->connection->fetchColumn('SELECT catalog_id FROM category WHERE id = :id', ['id' => $id->getBytes()]);
 
-        $this->assertEquals($catalogId, Uuid::fromBytesToHex($createdCatalogId));
+        static::assertEquals($catalogId, Uuid::fromBytesToHex($createdCatalogId));
     }
 
     public function testWithCatalogProvided(): void
@@ -103,7 +103,7 @@ class CatalogTest extends KernelTestCase
 
         $createdCatalogId = $this->connection->fetchColumn('SELECT catalog_id FROM category WHERE id = :id', ['id' => $id->getBytes()]);
 
-        $this->assertEquals($catalogId, Uuid::fromBytesToHex($createdCatalogId));
+        static::assertEquals($catalogId, Uuid::fromBytesToHex($createdCatalogId));
     }
 
     public function testReadWithEmptyCatalogContext(): void
@@ -133,11 +133,11 @@ class CatalogTest extends KernelTestCase
 
         // verify category has been created correctly
         $createdCategory = $this->connection->fetchAssoc('SELECT id, catalog_id FROM category WHERE id = :id', ['id' => $id->getBytes()]);
-        $this->assertEquals($id->getHex(), Uuid::fromBytesToHex($createdCategory['id']));
-        $this->assertEquals($catalogId, Uuid::fromBytesToHex($createdCategory['catalog_id']));
+        static::assertEquals($id->getHex(), Uuid::fromBytesToHex($createdCategory['id']));
+        static::assertEquals($catalogId, Uuid::fromBytesToHex($createdCategory['catalog_id']));
 
         $categories = $this->categoryRepository->read(new ReadCriteria([$id->getHex()]), $readContext);
-        $this->assertEquals(0, $categories->count(), 'Category could be fetched but should not.');
+        static::assertEquals(0, $categories->count(), 'Category could be fetched but should not.');
     }
 
     public function testReadWithDefaultCatalogContext(): void
@@ -156,11 +156,11 @@ class CatalogTest extends KernelTestCase
 
         // verify category has been created correctly
         $createdCategory = $this->connection->fetchAssoc('SELECT id, catalog_id FROM category WHERE id = :id', ['id' => $id->getBytes()]);
-        $this->assertEquals($id->getHex(), Uuid::fromBytesToHex($createdCategory['id']));
-        $this->assertEquals($catalogId, Uuid::fromBytesToHex($createdCategory['catalog_id']));
+        static::assertEquals($id->getHex(), Uuid::fromBytesToHex($createdCategory['id']));
+        static::assertEquals($catalogId, Uuid::fromBytesToHex($createdCategory['catalog_id']));
 
         $categories = $this->categoryRepository->read(new ReadCriteria([$id->getHex()]), $context);
-        $this->assertEquals(0, $categories->count(), 'Category could be fetched but should not.');
+        static::assertEquals(0, $categories->count(), 'Category could be fetched but should not.');
     }
 
     public function testReadWithCorrectCatalogContext(): void
@@ -181,11 +181,11 @@ class CatalogTest extends KernelTestCase
 
         // verify category has been created correctly
         $createdCategory = $this->connection->fetchAssoc('SELECT id, catalog_id FROM category WHERE id = :id', ['id' => $id->getBytes()]);
-        $this->assertEquals($id->getHex(), Uuid::fromBytesToHex($createdCategory['id']));
-        $this->assertEquals($catalogId, Uuid::fromBytesToHex($createdCategory['catalog_id']));
+        static::assertEquals($id->getHex(), Uuid::fromBytesToHex($createdCategory['id']));
+        static::assertEquals($catalogId, Uuid::fromBytesToHex($createdCategory['catalog_id']));
 
         $categories = $this->categoryRepository->read(new ReadCriteria([$id->getHex()]), $context);
-        $this->assertEquals(1, $categories->count(), 'Category was not fetched but should be.');
+        static::assertEquals(1, $categories->count(), 'Category was not fetched but should be.');
     }
 
     public function testReadWithMultipleCatalogs(): void
@@ -221,7 +221,7 @@ class CatalogTest extends KernelTestCase
         );
 
         $foundCategories = $this->categoryRepository->read(new ReadCriteria(array_column($categories, 'id')), $context);
-        $this->assertEquals(2, $foundCategories->count());
+        static::assertEquals(2, $foundCategories->count());
 
         // read with default and another two enabled catalogs
         $context = new Context(
@@ -234,7 +234,7 @@ class CatalogTest extends KernelTestCase
         );
 
         $foundCategories = $this->categoryRepository->read(new ReadCriteria(array_column($categories, 'id')), $context);
-        $this->assertEquals(3, $foundCategories->count());
+        static::assertEquals(3, $foundCategories->count());
     }
 
     public function testToOneRead(): void
@@ -286,19 +286,19 @@ class CatalogTest extends KernelTestCase
         );
 
         $foundIds = array_column($createdCategory, 'id');
-        $this->assertContains($ids[0], $foundIds);
-        $this->assertContains($ids[1], $foundIds);
-        $this->assertContains($ids[2], $foundIds);
-        $this->assertEquals(Uuid::fromStringToBytes($catalogId), array_unique(array_column($createdCategory, 'catalog_id'))[0]);
+        static::assertContains($ids[0], $foundIds);
+        static::assertContains($ids[1], $foundIds);
+        static::assertContains($ids[2], $foundIds);
+        static::assertEquals(Uuid::fromStringToBytes($catalogId), array_unique(array_column($createdCategory, 'catalog_id'))[0]);
 
         $criteria = new ReadCriteria([$parentId->getHex()]);
         $criteria->addAssociation('children');
         $categories = $this->categoryRepository->read($criteria, $context);
 
-        $this->assertEquals(1, $categories->count(), 'Category was not fetched but should be.');
-        $this->assertEquals(2, $categories->first()->getChildren()->count());
+        static::assertEquals(1, $categories->count(), 'Category was not fetched but should be.');
+        static::assertEquals(2, $categories->first()->getChildren()->count());
 
-        $this->assertEquals(
+        static::assertEquals(
             [
                 $id->getHex() => $id->getHex(),
                 $id2->getHex() => $id2->getHex(),
@@ -355,23 +355,23 @@ class CatalogTest extends KernelTestCase
 
         // verify category has been created correctly
         $createdCategory = $this->connection->fetchAssoc('SELECT id, catalog_id FROM category WHERE id = :id', ['id' => $categoryId->getBytes()]);
-        $this->assertEquals($categoryId->getBytes(), $createdCategory['id']);
-        $this->assertEquals(Uuid::fromStringToBytes($catalogId), $createdCategory['catalog_id']);
+        static::assertEquals($categoryId->getBytes(), $createdCategory['id']);
+        static::assertEquals(Uuid::fromStringToBytes($catalogId), $createdCategory['catalog_id']);
 
         // verify product mapping has been created correctly
         $products = $this->connection->fetchAll('SELECT product_id, category_id FROM product_category WHERE category_id = :id', ['id' => $categoryId->getBytes()]);
-        $this->assertContains($categoryId->getBytes(), array_column($products, 'category_id'));
-        $this->assertContains($productId1->getBytes(), array_column($products, 'product_id'));
-        $this->assertContains($productId2->getBytes(), array_column($products, 'product_id'));
+        static::assertContains($categoryId->getBytes(), array_column($products, 'category_id'));
+        static::assertContains($productId1->getBytes(), array_column($products, 'product_id'));
+        static::assertContains($productId2->getBytes(), array_column($products, 'product_id'));
 
         // should work with context used to create the entities
         $products = $this->productRepository->read(new ReadCriteria([$productId1->getHex(), $productId2->getHex()]), $context);
-        $this->assertEquals(2, $products->count(), 'Products were not fetched correctly');
+        static::assertEquals(2, $products->count(), 'Products were not fetched correctly');
 
         // should not work as catalog differs from the default
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
         $products = $this->productRepository->read(new ReadCriteria([$productId1->getHex(), $productId2->getHex()]), $context);
-        $this->assertEquals(0, $products->count(), 'Products should not be fetched');
+        static::assertEquals(0, $products->count(), 'Products should not be fetched');
     }
 
     public function testSearch()
@@ -421,26 +421,26 @@ class CatalogTest extends KernelTestCase
 
         // verify category has been created correctly
         $createdCategory = $this->connection->fetchAssoc('SELECT id, catalog_id FROM category WHERE id = :id', ['id' => $categoryId->getBytes()]);
-        $this->assertEquals($categoryId->getBytes(), $createdCategory['id']);
-        $this->assertEquals(Uuid::fromStringToBytes($catalogId), $createdCategory['catalog_id']);
+        static::assertEquals($categoryId->getBytes(), $createdCategory['id']);
+        static::assertEquals(Uuid::fromStringToBytes($catalogId), $createdCategory['catalog_id']);
 
         // verify product mapping has been created correctly
         $products = $this->connection->fetchAll('SELECT product_id, category_id FROM product_category WHERE category_id = :id', ['id' => $categoryId->getBytes()]);
-        $this->assertContains($categoryId->getBytes(), array_column($products, 'category_id'));
-        $this->assertContains($productId1->getBytes(), array_column($products, 'product_id'));
-        $this->assertContains($productId2->getBytes(), array_column($products, 'product_id'));
+        static::assertContains($categoryId->getBytes(), array_column($products, 'category_id'));
+        static::assertContains($productId1->getBytes(), array_column($products, 'product_id'));
+        static::assertContains($productId2->getBytes(), array_column($products, 'product_id'));
 
         // should work with context used to create the entities
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('product.categories.id', $categoryId->getHex()));
 
         $products = $this->productRepository->search($criteria, $context);
-        $this->assertEquals(2, $products->count(), 'Products were not fetched correctly');
+        static::assertEquals(2, $products->count(), 'Products were not fetched correctly');
 
         // should not work as catalog differs from the default
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
         $products = $this->productRepository->search($criteria, $context);
-        $this->assertEquals(0, $products->count(), 'Products should not be fetched');
+        static::assertEquals(0, $products->count(), 'Products should not be fetched');
     }
 
     private function createCatalog(Context $context): string

@@ -66,10 +66,10 @@ class ChildCountIndexerTest extends KernelTestCase
 
         $categories = $this->categoryRepository->read(new ReadCriteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
 
-        $this->assertEquals(2, $categories->get($categoryA)->getChildCount());
-        $this->assertEquals(0, $categories->get($categoryB)->getChildCount());
-        $this->assertEquals(1, $categories->get($categoryC)->getChildCount());
-        $this->assertEquals(0, $categories->get($categoryD)->getChildCount());
+        static::assertEquals(2, $categories->get($categoryA)->getChildCount());
+        static::assertEquals(0, $categories->get($categoryB)->getChildCount());
+        static::assertEquals(1, $categories->get($categoryC)->getChildCount());
+        static::assertEquals(0, $categories->get($categoryD)->getChildCount());
 
         $this->categoryRepository->update([[
             'id' => $categoryD,
@@ -85,10 +85,10 @@ class ChildCountIndexerTest extends KernelTestCase
 
         $categories = $this->categoryRepository->read(new ReadCriteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
 
-        $this->assertEquals(3, $categories->get($categoryA)->getChildCount());
-        $this->assertEquals(0, $categories->get($categoryB)->getChildCount());
-        $this->assertEquals(0, $categories->get($categoryC)->getChildCount());
-        $this->assertEquals(0, $categories->get($categoryD)->getChildCount());
+        static::assertEquals(3, $categories->get($categoryA)->getChildCount());
+        static::assertEquals(0, $categories->get($categoryB)->getChildCount());
+        static::assertEquals(0, $categories->get($categoryC)->getChildCount());
+        static::assertEquals(0, $categories->get($categoryD)->getChildCount());
     }
 
     public function testChildCountCategoryMovingMultipleCategories()
@@ -112,11 +112,11 @@ class ChildCountIndexerTest extends KernelTestCase
             $this->context
         );
 
-        $this->assertEquals(2, $categories->get($categoryA)->getChildCount());
-        $this->assertEquals(1, $categories->get($categoryB)->getChildCount());
-        $this->assertEquals(0, $categories->get($categoryC)->getChildCount());
-        $this->assertEquals(1, $categories->get($categoryD)->getChildCount());
-        $this->assertEquals(0, $categories->get($categoryE)->getChildCount());
+        static::assertEquals(2, $categories->get($categoryA)->getChildCount());
+        static::assertEquals(1, $categories->get($categoryB)->getChildCount());
+        static::assertEquals(0, $categories->get($categoryC)->getChildCount());
+        static::assertEquals(1, $categories->get($categoryD)->getChildCount());
+        static::assertEquals(0, $categories->get($categoryE)->getChildCount());
 
         $this->categoryRepository->update([
             [
@@ -145,11 +145,11 @@ class ChildCountIndexerTest extends KernelTestCase
             $this->context
         );
 
-        $this->assertEquals(2, $categories->get($categoryA)->getChildCount());
-        $this->assertEquals(0, $categories->get($categoryB)->getChildCount());
-        $this->assertEquals(2, $categories->get($categoryC)->getChildCount());
-        $this->assertEquals(0, $categories->get($categoryD)->getChildCount());
-        $this->assertEquals(0, $categories->get($categoryE)->getChildCount());
+        static::assertEquals(2, $categories->get($categoryA)->getChildCount());
+        static::assertEquals(0, $categories->get($categoryB)->getChildCount());
+        static::assertEquals(2, $categories->get($categoryC)->getChildCount());
+        static::assertEquals(0, $categories->get($categoryD)->getChildCount());
+        static::assertEquals(0, $categories->get($categoryE)->getChildCount());
     }
 
     public function testChildCountIndexer()
@@ -182,17 +182,17 @@ class ChildCountIndexerTest extends KernelTestCase
 
         $categories = $this->categoryRepository->read(new ReadCriteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
         foreach ($categories as $category) {
-            $this->assertEquals(0, $category->getChildCount());
+            static::assertEquals(0, $category->getChildCount());
         }
 
         $this->childCountIndexer->index(new \DateTime(), $this->context->getTenantId());
 
         $categories = $this->categoryRepository->read(new ReadCriteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
 
-        $this->assertEquals(2, $categories->get($categoryA)->getChildCount());
-        $this->assertEquals(0, $categories->get($categoryB)->getChildCount());
-        $this->assertEquals(1, $categories->get($categoryC)->getChildCount());
-        $this->assertEquals(0, $categories->get($categoryD)->getChildCount());
+        static::assertEquals(2, $categories->get($categoryA)->getChildCount());
+        static::assertEquals(0, $categories->get($categoryB)->getChildCount());
+        static::assertEquals(1, $categories->get($categoryC)->getChildCount());
+        static::assertEquals(0, $categories->get($categoryD)->getChildCount());
     }
 
     private function createCategory(string $parentId = null)

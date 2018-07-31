@@ -60,9 +60,9 @@ EOF;
 
         $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable`');
 
-        $this->assertCount(1, $data);
-        $this->assertEquals($id->getBytes(), $data[0]['id']);
-        $this->assertNull($data[0]['data']);
+        static::assertCount(1, $data);
+        static::assertEquals($id->getBytes(), $data[0]['id']);
+        static::assertNull($data[0]['data']);
     }
 
     public function testWithNonStructClass(): void
@@ -81,15 +81,15 @@ EOF;
         } catch (WriteStackException $ex) {
         }
 
-        $this->assertInstanceOf(WriteStackException::class, $ex);
-        $this->assertCount(1, $ex->getExceptions());
+        static::assertInstanceOf(WriteStackException::class, $ex);
+        static::assertCount(1, $ex->getExceptions());
 
         $fieldException = $ex->getExceptions()[0];
-        $this->assertEquals(InvalidFieldException::class, get_class($fieldException));
-        $this->assertEquals('/data', $fieldException->getPath());
+        static::assertEquals(InvalidFieldException::class, get_class($fieldException));
+        static::assertEquals('/data', $fieldException->getPath());
 
         $messages = $fieldException->toArray();
-        $this->assertEquals('The object must be of type "\Shopware\Core\Framework\Struct\Struct" to be persisted in a ObjectField.', $messages[0]['message']);
+        static::assertEquals('The object must be of type "\Shopware\Core\Framework\Struct\Struct" to be persisted in a ObjectField.', $messages[0]['message']);
     }
 
     public function testWithStruct(): void
@@ -108,9 +108,9 @@ EOF;
 
         $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable`');
 
-        $this->assertCount(1, $data);
-        $this->assertEquals($id->getBytes(), $data[0]['id']);
-        $this->assertEquals('{"_class":"Shopware\\\\Core\\\\Framework\\\\Pricing\\\\PriceStruct","net":10,"gross":20,"extensions":[]}', $data[0]['data']);
+        static::assertCount(1, $data);
+        static::assertEquals($id->getBytes(), $data[0]['id']);
+        static::assertEquals('{"_class":"Shopware\\\\Core\\\\Framework\\\\Pricing\\\\PriceStruct","net":10,"gross":20,"extensions":[]}', $data[0]['data']);
     }
 
     protected function createWriteContext(): WriteContext

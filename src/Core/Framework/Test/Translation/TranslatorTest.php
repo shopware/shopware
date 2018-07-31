@@ -55,7 +55,7 @@ class TranslatorTest extends KernelTestCase
 
     public function testPassthru(): void
     {
-        $this->assertEquals(
+        static::assertEquals(
             'Realized with Shopware',
             $this->translator->getCatalogue('en_GB')->get('frontend.index.footer.IndexCopyright')
         );
@@ -78,7 +78,7 @@ class TranslatorTest extends KernelTestCase
         self::$container->get(RequestStack::class)->push($request);
 
         // get overwritten string
-        $this->assertEquals(
+        static::assertEquals(
             $snippet['value'],
             $this->translator->getCatalogue('en_GB')->get('frontend.index.footer.IndexCopyright')
         );
@@ -123,14 +123,14 @@ class TranslatorTest extends KernelTestCase
         self::$container->get(RequestStack::class)->push($request);
 
         // get default snippet because of default context
-        $this->assertEquals(
+        static::assertEquals(
             $snippets[1]['value'],
             $this->translator->getCatalogue('en_GB')->get('frontend.index.footer.IndexCopyright')
         );
 
         // remove old faked request
         $oldRequest = self::$container->get(RequestStack::class)->pop();
-        $this->assertSame($request, $oldRequest);
+        static::assertSame($request, $oldRequest);
 
         /**
          * Inherited language overwrite
@@ -153,14 +153,14 @@ class TranslatorTest extends KernelTestCase
         self::$container->get(RequestStack::class)->push($request);
 
         // get overwritten string because changed languages
-        $this->assertEquals(
+        static::assertEquals(
             $snippets[0]['value'],
             $this->translator->getCatalogue('en_GB')->get('frontend.index.footer.IndexCopyright')
         );
 
         // remove old faked request
         $oldRequest = self::$container->get(RequestStack::class)->pop();
-        $this->assertSame($request, $oldRequest);
+        static::assertSame($request, $oldRequest);
 
         /**
          * Fallback to hard-coded snippets
@@ -181,7 +181,7 @@ class TranslatorTest extends KernelTestCase
         self::$container->get(RequestStack::class)->push($request);
 
         // get overwritten string because changed languages
-        $this->assertEquals(
+        static::assertEquals(
             'Realized with Shopware',
             $this->translator->getCatalogue('en_GB')->get('frontend.index.footer.IndexCopyright')
         );

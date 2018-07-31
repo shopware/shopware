@@ -31,7 +31,7 @@ class PasswordFieldTest extends KernelTestCase
 
     public function testGetStorage(): void
     {
-        $this->assertEquals('password', $this->field->getStorageName());
+        static::assertEquals('password', $this->field->getStorageName());
     }
 
     public function testNullableField(): void
@@ -42,7 +42,7 @@ class PasswordFieldTest extends KernelTestCase
 
         $payload = iterator_to_array($field($existence, $kvPair));
 
-        $this->assertEquals($kvPair->getValue(), $payload['password']);
+        static::assertEquals($kvPair->getValue(), $payload['password']);
     }
 
     public function testEncoding(): void
@@ -53,8 +53,8 @@ class PasswordFieldTest extends KernelTestCase
 
         $payload = iterator_to_array($field($existence, $kvPair));
 
-        $this->assertNotEquals($kvPair->getValue(), $payload['password']);
-        $this->assertTrue(password_verify($kvPair->getValue(), $payload['password']));
+        static::assertNotEquals($kvPair->getValue(), $payload['password']);
+        static::assertTrue(password_verify($kvPair->getValue(), $payload['password']));
     }
 
     public function testValueIsRequiredOnInsert(): void
@@ -71,8 +71,8 @@ class PasswordFieldTest extends KernelTestCase
         } catch (InvalidFieldException $exception) {
         }
 
-        $this->assertInstanceOf(InvalidFieldException::class, $exception);
-        $this->assertNotNull($exception->getViolations()->findByCodes(NotBlank::IS_BLANK_ERROR));
+        static::assertInstanceOf(InvalidFieldException::class, $exception);
+        static::assertNotNull($exception->getViolations()->findByCodes(NotBlank::IS_BLANK_ERROR));
     }
 
     public function testValueIsRequiredOnUpdate(): void
@@ -89,7 +89,7 @@ class PasswordFieldTest extends KernelTestCase
         } catch (InvalidFieldException $exception) {
         }
 
-        $this->assertInstanceOf(InvalidFieldException::class, $exception);
-        $this->assertNotNull($exception->getViolations()->findByCodes(NotBlank::IS_BLANK_ERROR));
+        static::assertInstanceOf(InvalidFieldException::class, $exception);
+        static::assertNotNull($exception->getViolations()->findByCodes(NotBlank::IS_BLANK_ERROR));
     }
 }

@@ -21,9 +21,9 @@ class JsonApiDecoderTest extends TestCase
 
     public function testSupportFormat(): void
     {
-        $this->assertTrue($this->decoder->supportsDecoding('jsonapi'));
-        $this->assertFalse($this->decoder->supportsDecoding('JSONAPI'));
-        $this->assertFalse($this->decoder->supportsDecoding('yml'));
+        static::assertTrue($this->decoder->supportsDecoding('jsonapi'));
+        static::assertFalse($this->decoder->supportsDecoding('JSONAPI'));
+        static::assertFalse($this->decoder->supportsDecoding('yml'));
     }
 
     public function emptyInputProvider(): array
@@ -225,7 +225,7 @@ class JsonApiDecoderTest extends TestCase
             ],
         ];
 
-        $this->assertEquals($expected, $this->decoder->decode(json_encode($json), 'jsonapi'));
+        static::assertEquals($expected, $this->decoder->decode(json_encode($json), 'jsonapi'));
     }
 
     public function testDecodeStructWithRelationships(): void
@@ -288,7 +288,7 @@ class JsonApiDecoderTest extends TestCase
             ],
         ];
 
-        $this->assertEquals($expected, $this->decoder->decode(json_encode($json), 'jsonapi'));
+        static::assertEquals($expected, $this->decoder->decode(json_encode($json), 'jsonapi'));
     }
 
     public function testDecodeStructWithToManyRelationships(): void
@@ -393,7 +393,7 @@ class JsonApiDecoderTest extends TestCase
             ],
         ];
 
-        $this->assertEquals($expected, $this->decoder->decode(json_encode($json), 'jsonapi'));
+        static::assertEquals($expected, $this->decoder->decode(json_encode($json), 'jsonapi'));
     }
 
     public function testDecodeCollectionOfIncludedRelationships(): void
@@ -533,7 +533,7 @@ class JsonApiDecoderTest extends TestCase
             ],
         ];
 
-        $this->assertEquals($expected, $this->decoder->decode(json_encode($json), 'jsonapi'));
+        static::assertEquals($expected, $this->decoder->decode(json_encode($json), 'jsonapi'));
     }
 
     public function testDecodeCollection(): void
@@ -694,6 +694,6 @@ class JsonApiDecoderTest extends TestCase
             ],
         ];
 
-        $this->assertEquals($expected, $this->decoder->decode(json_encode($json), 'jsonapi'));
+        static::assertEquals($expected, $this->decoder->decode(json_encode($json), 'jsonapi'));
     }
 }

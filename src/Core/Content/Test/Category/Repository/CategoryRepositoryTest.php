@@ -58,7 +58,7 @@ class CategoryRepositoryTest extends KernelTestCase
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
-        $this->assertCount(2, $exists);
+        static::assertCount(2, $exists);
 
         $child = $this->connection->fetchAll(
             'SELECT * FROM category WHERE id IN (:ids) AND tenant_id = :tenant',
@@ -67,21 +67,21 @@ class CategoryRepositoryTest extends KernelTestCase
         );
         $child = array_shift($child);
 
-        $this->assertEquals($parentId->getBytes(), $child['parent_id']);
+        static::assertEquals($parentId->getBytes(), $child['parent_id']);
 
         $result = $this->repository->delete(
             [['id' => $parentId->getHex()]],
             Context::createDefaultContext(Defaults::TENANT_ID)
         );
 
-        $this->assertInstanceOf(EntityWrittenContainerEvent::class, $result);
+        static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
 
         /** @var EntityWrittenContainerEvent $result */
         $event = $result->getEventByDefinition(CategoryDefinition::class);
 
-        $this->assertInstanceOf(EntityDeletedEvent::class, $event);
+        static::assertInstanceOf(EntityDeletedEvent::class, $event);
 
-        $this->assertEquals(
+        static::assertEquals(
             [$parentId->getHex(), $childId->getHex()],
             $event->getIds()
         );
@@ -92,7 +92,7 @@ class CategoryRepositoryTest extends KernelTestCase
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
-        $this->assertEmpty($exists);
+        static::assertEmpty($exists);
     }
 
     public function testDeleteChildCategory()
@@ -110,7 +110,7 @@ class CategoryRepositoryTest extends KernelTestCase
             ['ids' => [$parentId->getBytes(), $childId->getBytes()]],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
-        $this->assertCount(2, $exists);
+        static::assertCount(2, $exists);
 
         $child = $this->connection->fetchAll(
             'SELECT * FROM category WHERE id IN (:ids)',
@@ -118,32 +118,32 @@ class CategoryRepositoryTest extends KernelTestCase
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
         $child = array_shift($child);
-        $this->assertEquals($parentId->getBytes(), $child['parent_id']);
+        static::assertEquals($parentId->getBytes(), $child['parent_id']);
 
         $result = $this->repository->delete(
             [['id' => $childId->getHex()]],
             Context::createDefaultContext(Defaults::TENANT_ID)
         );
 
-        $this->assertInstanceOf(EntityWrittenContainerEvent::class, $result);
+        static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
         $event = $result->getEventByDefinition(CategoryDefinition::class);
 
-        $this->assertInstanceOf(EntityDeletedEvent::class, $event);
-        $this->assertEquals([$childId->getHex()], $event->getIds());
+        static::assertInstanceOf(EntityDeletedEvent::class, $event);
+        static::assertEquals([$childId->getHex()], $event->getIds());
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM category WHERE id IN (:ids)',
             ['ids' => [$childId->getBytes()]],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
-        $this->assertEmpty($exists);
+        static::assertEmpty($exists);
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM category WHERE id IN (:ids)',
             ['ids' => [$parentId->getBytes()]],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
-        $this->assertNotEmpty($exists);
+        static::assertNotEmpty($exists);
     }
 
     public function testWriterConsidersDeleteParent()
@@ -162,7 +162,7 @@ class CategoryRepositoryTest extends KernelTestCase
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
-        $this->assertCount(2, $exists);
+        static::assertCount(2, $exists);
 
         $child = $this->connection->fetchAll(
             'SELECT * FROM category WHERE id IN (:ids)',
@@ -171,19 +171,19 @@ class CategoryRepositoryTest extends KernelTestCase
         );
         $child = array_shift($child);
 
-        $this->assertEquals($parentId->getBytes(), $child['parent_id']);
+        static::assertEquals($parentId->getBytes(), $child['parent_id']);
 
         $result = $this->repository->delete([
             ['id' => $parentId->getHex()],
         ], Context::createDefaultContext(Defaults::TENANT_ID));
 
-        $this->assertInstanceOf(EntityWrittenContainerEvent::class, $result);
+        static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
 
         $event = $result->getEventByDefinition(CategoryDefinition::class);
-        $this->assertInstanceOf(EntityDeletedEvent::class, $event);
+        static::assertInstanceOf(EntityDeletedEvent::class, $event);
 
-        $this->assertContains($parentId->getHex(), $event->getIds());
-        $this->assertContains($childId->getHex(), $event->getIds(), 'Category children id did not detected by delete');
+        static::assertContains($parentId->getHex(), $event->getIds());
+        static::assertContains($childId->getHex(), $event->getIds(), 'Category children id did not detected by delete');
     }
 
     public function testSearchRanking()
@@ -211,14 +211,14 @@ class CategoryRepositoryTest extends KernelTestCase
 
         $result = $this->repository->searchIds($criteria, Context::createDefaultContext(Defaults::TENANT_ID));
 
-        $this->assertCount(2, $result->getIds());
+        static::assertCount(2, $result->getIds());
 
-        $this->assertEquals(
+        static::assertEquals(
             [$recordA, $recordB],
             $result->getIds()
         );
 
-        $this->assertTrue(
+        static::assertTrue(
             $result->getDataFieldOfId($recordA, '_score')
             >
             $result->getDataFieldOfId($recordB, '_score')

@@ -89,6 +89,9 @@
     "jdorn/sql-formatter": {
         "version": "v1.2.17"
     },
+    "johnkary/phpunit-speedtrap": {
+        "version": "v3.0.0"
+    },
     "lcobucci/jwt": {
         "version": "3.2.2"
     },

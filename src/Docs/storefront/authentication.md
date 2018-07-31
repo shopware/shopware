@@ -141,7 +141,6 @@ Request request = new Request.Builder()
   .post(body)
   .addHeader("Content-Type", "application/json")
   .addHeader("Cache-Control", "no-cache")
-  .addHeader("Postman-Token", "cf1b7a2b-9669-4d3f-918a-622001ff6c45")
   .build();
 
 Response response = client.newCall(request).execute();
@@ -261,7 +260,6 @@ func main() {
 
      req.Header.Add("Content-Type", "application/json")
      req.Header.Add("Cache-Control", "no-cache")
-     req.Header.Add("Postman-Token", "aa7f2672-b02f-4d80-b444-a9c1821bb205")
 
      res, _ := http.DefaultClient.Do(req)
 

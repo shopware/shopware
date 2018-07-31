@@ -54,7 +54,7 @@ class JsonApiEncoderTest extends KernelTestCase
     {
         $this->expectException(UnsupportedEncoderInputException::class);
 
-        $this->encoder->encode(ProductDefinition::class, $input, Context::createDefaultContext(Defaults::TENANT_ID), '');
+        $this->encoder->encode(ProductDefinition::class, $input, Context::createDefaultContext(Defaults::TENANT_ID), '/api');
     }
 
     public function testEncodeStruct(): void
@@ -122,7 +122,7 @@ class JsonApiEncoderTest extends KernelTestCase
             'included' => [],
         ];
 
-        $actual = $this->encoder->encode(MediaAlbumDefinition::class, $struct, Context::createDefaultContext(Defaults::TENANT_ID), '');
+        $actual = $this->encoder->encode(MediaAlbumDefinition::class, $struct, Context::createDefaultContext(Defaults::TENANT_ID), '/api');
         static::assertEquals($expected, json_decode($actual, true));
     }
 
@@ -191,7 +191,7 @@ class JsonApiEncoderTest extends KernelTestCase
             'included' => [],
         ];
 
-        $actual = $this->encoder->encode(MediaAlbumDefinition::class, $struct, Context::createDefaultContext(Defaults::TENANT_ID), '');
+        $actual = $this->encoder->encode(MediaAlbumDefinition::class, $struct, Context::createDefaultContext(Defaults::TENANT_ID), '/api');
         static::assertEquals($expected, json_decode($actual, true));
     }
 
@@ -200,7 +200,7 @@ class JsonApiEncoderTest extends KernelTestCase
         $struct = include __DIR__ . '/fixtures/testBasicWithToOneRelationship.php';
         $expected = include __DIR__ . '/fixtures/testBasicWithToOneRelationshipExpectation.php';
 
-        $actual = $this->encoder->encode(MediaDefinition::class, $struct, Context::createDefaultContext(Defaults::TENANT_ID), '');
+        $actual = $this->encoder->encode(MediaDefinition::class, $struct, Context::createDefaultContext(Defaults::TENANT_ID), '/api');
         static::assertEquals($expected, json_decode($actual, true));
     }
 
@@ -209,7 +209,7 @@ class JsonApiEncoderTest extends KernelTestCase
         $struct = include __DIR__ . '/fixtures/testBasicWithToManyRelationships.php';
         $expected = include __DIR__ . '/fixtures/testBasicWithToManyRelationshipsExpectation.php';
 
-        $actual = $this->encoder->encode(MediaAlbumDefinition::class, $struct, Context::createDefaultContext(Defaults::TENANT_ID), '');
+        $actual = $this->encoder->encode(MediaAlbumDefinition::class, $struct, Context::createDefaultContext(Defaults::TENANT_ID), '/api');
 
         static::assertEquals($expected, json_decode($actual, true));
     }
@@ -219,7 +219,7 @@ class JsonApiEncoderTest extends KernelTestCase
         $collection = include __DIR__ . '/fixtures/testCollectionWithToOneRelationship.php';
         $expected = include __DIR__ . '/fixtures/testCollectionWithToOneRelationshipExpectation.php';
 
-        $actual = $this->encoder->encode(MediaDefinition::class, $collection, Context::createDefaultContext(Defaults::TENANT_ID), '');
+        $actual = $this->encoder->encode(MediaDefinition::class, $collection, Context::createDefaultContext(Defaults::TENANT_ID), '/api');
         static::assertEquals($expected, json_decode($actual, true));
     }
 
@@ -228,7 +228,7 @@ class JsonApiEncoderTest extends KernelTestCase
         $struct = include __DIR__ . '/fixtures/testMainResourceShouldNotBeInIncluded.php';
         $expected = include __DIR__ . '/fixtures/testMainResourceShouldNotBeInIncludedExpectation.php';
 
-        $actual = $this->encoder->encode(MediaAlbumDefinition::class, $struct, Context::createDefaultContext(Defaults::TENANT_ID), '');
+        $actual = $this->encoder->encode(MediaAlbumDefinition::class, $struct, Context::createDefaultContext(Defaults::TENANT_ID), '/api');
         static::assertEquals($expected, json_decode($actual, true));
     }
 }

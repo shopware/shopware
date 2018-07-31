@@ -71,7 +71,7 @@ class JsonApiEncoder
         $uriName = $this->camelCaseToSnailCase($definition::getEntityName());
 
         $self = $uriName . '/' . $entity->getId();
-        $serialized->addLink('self', $url . '/api/' . $self);
+        $serialized->addLink('self', $url . '/' . $self);
 
         /** @var Field $field */
         foreach ($fields as $propertyName => $field) {
@@ -122,7 +122,7 @@ class JsonApiEncoder
                     [
                         'data' => $foreignKey,
                         'links' => [
-                            'related' => $url . '/api/' . $self . '/' . $this->camelCaseToSnailCase($propertyName),
+                            'related' => $url . '/' . $self . '/' . $this->camelCaseToSnailCase($propertyName),
                         ],
                     ]
                 );
@@ -153,7 +153,7 @@ class JsonApiEncoder
                     [
                         'data' => $foreignKey,
                         'links' => [
-                            'related' => $url . '/api/' . $self . '/' . $this->camelCaseToSnailCase($propertyName),
+                            'related' => $url . '/' . $self . '/' . $this->camelCaseToSnailCase($propertyName),
                         ],
                     ]
                 );
@@ -184,7 +184,7 @@ class JsonApiEncoder
                     [
                         'data' => $foreignKey,
                         'links' => [
-                            'related' => $url . '/api/' . $self . '/' . $this->camelCaseToSnailCase($propertyName),
+                            'related' => $url . '/' . $self . '/' . $this->camelCaseToSnailCase($propertyName),
                         ],
                     ]
                 );

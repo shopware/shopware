@@ -49,7 +49,7 @@ class JsonApiType implements ResponseTypeInterface
             $definition,
             $entity,
             $context,
-            $baseUrl . '/api/v' . $this->getVersion($request) . '/'
+            $baseUrl . '/api/v' . $this->getVersion($request)
         );
 
         $response = json_decode($response, true);
@@ -90,7 +90,7 @@ class JsonApiType implements ResponseTypeInterface
             $definition,
             $searchResult,
             $context,
-            $baseUrl . '/api/v' . $this->getVersion($request) . '/'
+            $baseUrl . '/api/v' . $this->getVersion($request)
         );
 
         $response = json_decode($response, true);

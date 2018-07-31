@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Checkout\Context\Storefront;
 
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
@@ -19,6 +17,7 @@ use Shopware\Storefront\Exception\AddressNotFoundException;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Serializer;
 
 class StorefrontCheckoutContextController extends Controller
@@ -63,8 +62,7 @@ class StorefrontCheckoutContextController extends Controller
     }
 
     /**
-     * @Route("/storefront-api/context", name="storefront.api.context.update")
-     * @Method({"PUT"})
+     * @Route("/storefront-api/context", name="storefront.api.context.update", methods={"PUT"})
      *
      * @throws AddressNotFoundException
      * @throws CustomerNotLoggedInException

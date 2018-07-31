@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\DefinitionRegistry;
 use Shopware\Core\Framework\ORM\Event\EntityWrittenEvent;
@@ -14,6 +12,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Serializer;
 
 class SyncController extends Controller
@@ -39,8 +38,7 @@ class SyncController extends Controller
     }
 
     /**
-     * @Route("/api/sync", name="sync.api")
-     * @Method({"POST"})
+     * @Route("/api/sync", name="sync.api", methods={"POST"})
      *
      * @param Request $request
      * @param Context $context

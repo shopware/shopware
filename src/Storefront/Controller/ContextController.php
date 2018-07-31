@@ -2,8 +2,6 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
@@ -13,6 +11,7 @@ use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Routing\Annotation\Route;
 
 class ContextController extends StorefrontController
 {
@@ -49,8 +48,7 @@ class ContextController extends StorefrontController
     }
 
     /**
-     * @Route("/context/update", name="context_update")
-     * @Method("POST")
+     * @Route("/context/update", name="context_update", methods={"POST"})
      */
     public function setCurrency(Request $request, CheckoutContext $context)
     {

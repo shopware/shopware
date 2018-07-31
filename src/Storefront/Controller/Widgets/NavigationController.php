@@ -24,20 +24,18 @@
 
 namespace Shopware\Storefront\Controller\Widgets;
 
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Storefront\Controller\StorefrontController;
 use Shopware\Storefront\DbalIndexing\SeoUrl\ListingPageSeoUrlIndexer;
 use Shopware\Storefront\Navigation\NavigationService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
 class NavigationController extends StorefrontController
 {
     /**
-     * @Route("/widgets/navigation/navigation", name="widgets/navigation/main")
-     * @Method({"GET"})
+     * @Route("/widgets/navigation/navigation", name="widgets/navigation/main", methods={"GET"})
      *
      * @param CheckoutContext $context
      *
@@ -61,8 +59,7 @@ class NavigationController extends StorefrontController
     }
 
     /**
-     * @Route("/widgets/navigation/sidebar", name="widgets/navigation/sidebar")
-     * @Method({"GET"})
+     * @Route("/widgets/navigation/sidebar", name="widgets/navigation/sidebar", methods={"GET"})
      *
      * @param CheckoutContext $context
      *

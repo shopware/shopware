@@ -2,9 +2,6 @@
 
 namespace Shopware\Core\Checkout\Cart\Storefront;
 
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemCoverNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
@@ -24,6 +21,7 @@ use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Serializer;
 
 class StorefrontCartController extends Controller
@@ -70,8 +68,7 @@ class StorefrontCartController extends Controller
     }
 
     /**
-     * @Route("/storefront-api/checkout/cart", name="storefront.api.checkout.cart.get")
-     * @Method({"GET"})
+     * @Route("/storefront-api/checkout/cart", name="storefront.api.checkout.cart.get", methods={"GET"})
      */
     public function getCart(CheckoutContext $context): JsonResponse
     {
@@ -81,8 +78,7 @@ class StorefrontCartController extends Controller
     }
 
     /**
-     * @Route("/storefront-api/checkout/cart", name="storefront.api.checkout.cart.create")
-     * @Method({"POST"})
+     * @Route("/storefront-api/checkout/cart", name="storefront.api.checkout.cart.create", methods={"POST"})
      */
     public function createCart(CheckoutContext $context): JsonResponse
     {
@@ -96,8 +92,7 @@ class StorefrontCartController extends Controller
     }
 
     /**
-     * @Route("/storefront-api/checkout/cart/product/{id}", name="storefront.api.checkout.cart.product.add")
-     * @Method({"POST"})
+     * @Route("/storefront-api/checkout/cart/product/{id}", name="storefront.api.checkout.cart.product.add", methods={"POST"})
      *
      * @throws MixedLineItemTypeException
      * @throws InvalidQuantityException
@@ -119,8 +114,7 @@ class StorefrontCartController extends Controller
     }
 
     /**
-     * @Route("/storefront-api/checkout/cart/line-item/{id}", name="storefront.api.checkout.cart.line-item.add")
-     * @Method({"POST"})
+     * @Route("/storefront-api/checkout/cart/line-item/{id}", name="storefront.api.checkout.cart.line-item.add", methods={"POST"})
      *
      * @throws MissingParameterException
      * @throws MixedLineItemTypeException
@@ -152,8 +146,7 @@ class StorefrontCartController extends Controller
     }
 
     /**
-     * @Route("/storefront-api/checkout/cart/line-item/{id}", name="storefront.api.checkout.cart.line-item.delete")
-     * @Method({"DELETE"})
+     * @Route("/storefront-api/checkout/cart/line-item/{id}", name="storefront.api.checkout.cart.line-item.delete", methods={"DELETE"})
      *
      * @throws LineItemNotFoundException
      * @throws LineItemNotRemoveableException
@@ -172,8 +165,7 @@ class StorefrontCartController extends Controller
     }
 
     /**
-     * @Route("/storefront-api/checkout/cart/line-item/{id}/quantity/{quantity}", name="storefront.api.checkout.cart.line-item.quatity.update")
-     * @Method({"PATCH"})
+     * @Route("/storefront-api/checkout/cart/line-item/{id}/quantity/{quantity}", name="storefront.api.checkout.cart.line-item.quatity.update", methods={"PATCH"})
      *
      * @throws LineItemNotFoundException
      * @throws InvalidQuantityException
@@ -193,8 +185,7 @@ class StorefrontCartController extends Controller
     }
 
     /**
-     * @Route("/storefront-api/checkout/cart/line-item/{id}", name="storefront.api.checkout.cart.line-item.update")
-     * @Method({"PATCH"})
+     * @Route("/storefront-api/checkout/cart/line-item/{id}", name="storefront.api.checkout.cart.line-item.update", methods={"PATCH"})
      *
      * @throws InvalidQuantityException
      * @throws LineItemNotFoundException
@@ -217,8 +208,7 @@ class StorefrontCartController extends Controller
     }
 
     /**
-     * @Route("/storefront-api/checkout/order", name="storefront.api.checkout.order")
-     * @Method({"POST"})
+     * @Route("/storefront-api/checkout/order", name="storefront.api.checkout.order", methods={"POST"})
      */
     public function createOrder(CheckoutContext $context): JsonResponse
     {

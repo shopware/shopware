@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Content\Category\Storefront;
 
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
@@ -16,6 +14,7 @@ use Shopware\Core\Framework\ORM\Search\RequestCriteriaBuilder;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
 class StorefrontCategoryController extends Controller
 {
@@ -69,8 +68,7 @@ class StorefrontCategoryController extends Controller
     }
 
     /**
-     * @Route("/storefront-api/category/{categoryId}", name="storefront.api.category.detail")
-     * @Method({"GET"})
+     * @Route("/storefront-api/category/{categoryId}", name="storefront.api.category.detail", methods={"GET"})
      *
      * @throws CategoryNotFoundException
      * @throws InvalidUuidException

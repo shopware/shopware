@@ -2,7 +2,6 @@
 
 namespace Shopware\Administration\Controller;
 
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Administration\Search\AdministrationSearch;
 use Shopware\Core\Framework\Api\Response\Type\JsonType;
 use Shopware\Core\Framework\Context;
@@ -10,6 +9,7 @@ use Shopware\Core\Framework\Twig\TemplateFinder;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 
 class AdministrationController extends Controller
 {

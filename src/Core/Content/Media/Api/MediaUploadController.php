@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Content\Media\Api;
 
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\Upload\FileFetcher;
 use Shopware\Core\Content\Media\Upload\MediaUpdater;
@@ -12,6 +10,7 @@ use Shopware\Core\Framework\Context;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
 class MediaUploadController extends Controller
 {
@@ -43,8 +42,7 @@ class MediaUploadController extends Controller
     }
 
     /**
-     * @Route("/api/v{version}/media/{mediaId}/actions/upload", name="api.media.actions.upload")
-     * @Method({"POST"})
+     * @Route("/api/v{version}/media/{mediaId}/actions/upload", name="api.media.actions.upload", methods={"POST"})
      *
      * @param Request $request
      * @param string  $mediaId

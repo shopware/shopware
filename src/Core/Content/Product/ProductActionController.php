@@ -2,13 +2,12 @@
 
 namespace Shopware\Core\Content\Product;
 
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Core\Content\Product\Util\VariantGenerator;
 use Shopware\Core\Framework\Context;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 
 class ProductActionController extends Controller
 {
@@ -23,8 +22,7 @@ class ProductActionController extends Controller
     }
 
     /**
-     * @Route("/api/v{version}/product/{productId}/actions/generate-variants", name="api.product.actions.generate-variants")
-     * @Method({"POST"})
+     * @Route("/api/v{version}/product/{productId}/actions/generate-variants", name="api.product.actions.generate-variants", methods={"POST"})
      *
      * @param Request $request
      * @param string  $productId

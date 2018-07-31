@@ -2,17 +2,15 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Routing\Annotation\Route;
 
 class AccessKeyController extends Controller
 {
     /**
-     * @Route("/api/v{version}/integration/actions/generate-key", name="api.integration.actions.generate.key")
-     * @Method({"GET"})
+     * @Route("/api/v{version}/integration/actions/generate-key", name="api.integration.actions.generate.key", methods={"GET"})
      *
      * @return JsonResponse
      */
@@ -25,8 +23,7 @@ class AccessKeyController extends Controller
     }
 
     /**
-     * @Route("/api/v{version}/user/actions/generate-key", name="api.user.actions.generate.key")
-     * @Method({"GET"})
+     * @Route("/api/v{version}/user/actions/generate-key", name="api.user.actions.generate.key", methods={"GET"})
      *
      * @return JsonResponse
      */
@@ -39,8 +36,7 @@ class AccessKeyController extends Controller
     }
 
     /**
-     * @Route("/api/v{version}/touchpoint/actions/generate-key", name="api.touchpoint.actions.generate.key")
-     * @Method({"GET"})
+     * @Route("/api/v{version}/touchpoint/actions/generate-key", name="api.touchpoint.actions.generate.key", methods={"GET"})
      *
      * @return JsonResponse
      */

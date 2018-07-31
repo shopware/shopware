@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Checkout\Cart;
 
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
@@ -17,6 +15,7 @@ use Shopware\Core\System\Tax\TaxStruct;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Serializer;
 
 class PriceActionController extends Controller
@@ -54,8 +53,7 @@ class PriceActionController extends Controller
     }
 
     /**
-     * @Route("/api/v{version}/price/actions/calculate", name="api.price.actions.calculate")
-     * @Method({"POST"})
+     * @Route("/api/v{version}/price/actions/calculate", name="api.price.actions.calculate", methods={"POST"})
      *
      * @param Request $request
      * @param Context $context

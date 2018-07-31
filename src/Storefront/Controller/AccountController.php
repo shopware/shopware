@@ -2,8 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
@@ -27,6 +26,7 @@ use Shopware\Storefront\Page\Checkout\PaymentMethodLoader;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
 
@@ -98,8 +98,7 @@ class AccountController extends StorefrontController
     }
 
     /**
-     * @Route("/account/login", name="account_login")
-     * @Method({"GET"})
+     * @Route("/account/login", name="account_login", methods={"GET"})
      */
     public function login(Request $request, CheckoutContext $context): Response
     {
@@ -162,8 +161,7 @@ class AccountController extends StorefrontController
     }
 
     /**
-     * @Route("/account/saveRegistration", name="account_save_registration")
-     * @Method({"POST"})
+     * @Route("/account/saveRegistration", name="account_save_registration", methods={"POST"})
      */
     public function saveRegistration(RegistrationRequest $registrationRequest, Request $request, CheckoutContext $context): Response
     {
@@ -190,8 +188,7 @@ class AccountController extends StorefrontController
     }
 
     /**
-     * @Route("/account/payment", name="account_payment", options={"seo"="false"})
-     * @Method({"GET"})
+     * @Route("/account/payment", name="account_payment", options={"seo"="false"}, methods={"GET"})
      */
     public function paymentOverview(Request $request, CheckoutContext $context): Response
     {
@@ -203,8 +200,7 @@ class AccountController extends StorefrontController
     }
 
     /**
-     * @Route("/account/savePayment", name="account_save_payment", options={"seo"="false"})
-     * @Method({"POST"})
+     * @Route("/account/savePayment", name="account_save_payment", options={"seo"="false"}, methods={"POST"})
      */
     public function savePayment(Request $request, CheckoutContext $context): Response
     {
@@ -227,7 +223,6 @@ class AccountController extends StorefrontController
 
     /**
      * @Route("/account/orders", name="account_orders", options={"seo"="false"}, methods={"GET"})
-     * @Method({"GET"})
      */
     public function orderOverview(Request $request, CheckoutContext $context): Response
     {
@@ -268,8 +263,7 @@ class AccountController extends StorefrontController
     }
 
     /**
-     * @Route("/account/saveProfile", name="account_save_profile")
-     * @Method({"POST"})
+     * @Route("/account/saveProfile", name="account_save_profile", methods={"POST"})
      */
     public function saveProfile(ProfileSaveRequest $profileSaveRequest, CheckoutContext $context): Response
     {
@@ -324,8 +318,7 @@ class AccountController extends StorefrontController
     }
 
     /**
-     * @Route("/account/address", name="address_index", options={"seo"="false"})
-     * @Method({"GET"})
+     * @Route("/account/address", name="address_index", options={"seo"="false"}, methods={"GET"})
      */
     public function addressOverview(CheckoutContext $context)
     {
@@ -347,8 +340,7 @@ class AccountController extends StorefrontController
     }
 
     /**
-     * @Route("/account/address/save", name="address_save", options={"seo"="false"})
-     * @Method({"POST"})
+     * @Route("/account/address/save", name="address_save", options={"seo"="false"}, methods={"POST"})
      *
      * @throws CustomerNotLoggedInException
      * @throws InvalidUuidException
@@ -394,8 +386,7 @@ class AccountController extends StorefrontController
     }
 
     /**
-     * @Route("/account/address/delete_confirm", name="address_delete_confirm", options={"seo"="false"})
-     * @Method({"GET"})
+     * @Route("/account/address/delete_confirm", name="address_delete_confirm", options={"seo"="false"}, methods={"GET"})
      */
     public function deleteAddressConfirm(Request $request, CheckoutContext $context): Response
     {
@@ -408,8 +399,7 @@ class AccountController extends StorefrontController
     }
 
     /**
-     * @Route("/account/address/delete", name="address_delete", options={"seo"="false"})
-     * @Method({"POST"})
+     * @Route("/account/address/delete", name="address_delete", options={"seo"="false"}, methods={"POST"})
      *
      * @throws CustomerNotLoggedInException
      */
@@ -424,8 +414,7 @@ class AccountController extends StorefrontController
     }
 
     /**
-     * @Route("/account/address/setDefaultBillingAddress", name="address_set_default_billing", options={"seo"="false"})
-     * @Method({"POST"})
+     * @Route("/account/address/setDefaultBillingAddress", name="address_set_default_billing", options={"seo"="false"}, methods={"POST"})
      *
      * @throws CustomerNotLoggedInException
      */
@@ -441,8 +430,7 @@ class AccountController extends StorefrontController
     }
 
     /**
-     * @Route("/account/address/setDefaultShippingAddress", name="address_set_default_shipping", options={"seo"="false"})
-     * @Method({"POST"})
+     * @Route("/account/address/setDefaultShippingAddress", name="address_set_default_shipping", options={"seo"="false"}, methods={"POST"})
      *
      * @throws CustomerNotLoggedInException
      */
@@ -458,8 +446,7 @@ class AccountController extends StorefrontController
     }
 
     /**
-     * @Route("/account/address/ajaxSelection", name="address_ajax_selection", options={"seo"="false"})
-     * @Method({"GET"})
+     * @Route("/account/address/ajaxSelection", name="address_ajax_selection", options={"seo"="false"}, methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
      */
@@ -490,8 +477,7 @@ class AccountController extends StorefrontController
     }
 
     /**
-     * @Route("/account/address/ajaxEditor", name="address_ajax_editor", options={"seo"="false"})
-     * @Method("GET")
+     * @Route("/account/address/ajaxEditor", name="address_ajax_editor", options={"seo"="false"}, methods={"GET"})
      */
     public function addressAjaxEdit(Request $request, CheckoutContext $context): Response
     {
@@ -509,8 +495,7 @@ class AccountController extends StorefrontController
     }
 
     /**
-     * @Route("/account/address/ajaxSave", name="address_ajax_save", options={"seo"="false"})
-     * @Method("POST")
+     * @Route("/account/address/ajaxSave", name="address_ajax_save", options={"seo"="false"}, methods={"POST"})
      *
      * @throws CustomerNotLoggedInException
      */

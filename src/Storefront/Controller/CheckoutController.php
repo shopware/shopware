@@ -2,8 +2,6 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Core\Checkout\Cart\Storefront\CartService;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
@@ -28,6 +26,7 @@ use Shopware\Storefront\Page\Checkout\PaymentMethodLoader;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Serializer;
 
 class CheckoutController extends StorefrontController
@@ -130,8 +129,7 @@ class CheckoutController extends StorefrontController
     }
 
     /**
-     * @Route("/checkout/saveShippingPayment", name="checkout_save_shipping_payment", options={"seo"="false"})
-     * @Method({"POST"})
+     * @Route("/checkout/saveShippingPayment", name="checkout_save_shipping_payment", options={"seo"="false"}, methods={"POST"})
      *
      * @throws UnknownPaymentMethodException
      */
@@ -249,8 +247,7 @@ class CheckoutController extends StorefrontController
     }
 
     /**
-     * @Route("/checkout/finish", name="checkout_finish", options={"seo"="false"})
-     * @Method({"GET"})
+     * @Route("/checkout/finish", name="checkout_finish", options={"seo"="false"}, methods={"GET"})
      *
      * @throws \Exception
      */

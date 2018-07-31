@@ -33,7 +33,9 @@
                                            previewComponent="sw-media-grid-media-item"
                                            :editable="true"
                                            :selectable="true"
-                                           :items="lastAddedMediaItems">
+                                           :items="lastAddedMediaItems"
+                                           ref="gridLastAdded"
+                                           v-on="mediamanagerMediaGridListener">
                                     </sw-media-grid>
                                 {% endblock %}
                             {% endblock %}
@@ -42,7 +44,10 @@
 
                     {% block sw_mediamanager_index_sidebar %}
                         <div class="sw-mediamanager-index__sidebar">
-                            <sw-mediamanager-sidebar></sw-mediamanager-sidebar>
+                            <sw-mediamanager-sidebar
+                                :item="lastSelectedItem"
+                                v-on="mediamanagerSidebarListener">
+                            </sw-mediamanager-sidebar>
                         </div>
                     {% endblock %}
                 </div>

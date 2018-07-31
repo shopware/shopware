@@ -9,7 +9,7 @@
         tabindex="-1"
         :value="item.name"
         :disabled="true"
-        @keydown.enter="signalItemNameChange"
+        @keydown.enter="emitNameChanged"
         @keydown.esc="cancelInlineEdit"
         @blur="cancelInlineEditFromBlur">
     <div v-else>

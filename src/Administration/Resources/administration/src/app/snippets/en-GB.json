@@ -482,9 +482,26 @@
       "actions": {
         "quickInfo": "Quickinfo",
         "filter": "Filter",
+        "settings": "Settings"
+      },
+      "quickinfo": {
+        "actions": "Actions",
+        "replace": "Replace",
+        "download": "Download",
         "move": "Move",
         "delete": "Delete",
-        "more": "More"
+        "copyLink": "Copy link",
+        "more": "More",
+        "preview": "Preview",
+        "metadata": "Meta data",
+        "nothingSelected": "There is no item selected"
+      },
+      "metadata": {
+        "fileName": "Name",
+        "mimeType": "MIME-Type",
+        "fileSize": "Size",
+        "createdAt": "Uploaded at",
+        "url": "URL"
       }
     }
   }

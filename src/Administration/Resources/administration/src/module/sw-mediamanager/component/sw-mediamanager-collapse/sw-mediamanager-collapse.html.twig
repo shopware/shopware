@@ -1,0 +1,15 @@
+{% block sw_collapse_panel_header_slot %}
+    <div class="sw-mediamanager-collapse__header">
+        {% block sw_mediamanager_collapse_title %}
+            <div class="sw-mediamanager-collapse__title">
+                {{ title }}
+            </div>
+        {% endblock %}
+        {% block sw_mediamanager_collapse_buttons %}
+            <div class="sw-mediamanager-collapse__indicator">
+                <sw-icon name="small-arrow-small-right" class="sw-mediamanager-collapse__button" :class="expandButtonClass"></sw-icon>
+                <sw-icon name="small-arrow-small-down" class="sw-mediamanager-collapse__button" :class="collapseButtonClass"></sw-icon>
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

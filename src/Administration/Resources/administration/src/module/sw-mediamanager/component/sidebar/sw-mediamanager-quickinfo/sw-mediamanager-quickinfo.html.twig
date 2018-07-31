@@ -1,0 +1,122 @@
+{% block sw_mediamanager_quickinfo %}
+    <div class="sw-mediamanager-quickinfo">
+        <template v-if="itemIsAvailable">
+            {% block sw_mediamanager_quickinfo_quickactions %}
+                <sw-mediamanager-collapse
+                    class="sw-mediamanager-quickinfo-collapse"
+                    :title="$tc('sw-mediamanager.sidebar.quickinfo.actions')"
+                    :expandOnLoading="true">
+
+                    <template slot="content">
+                        {% block sw_mediamanager_quickinfo_quickactions_content %}
+                            <div class="sw-mediamanager-quickinfo__collapse-content sw-mediamanager-quickinfo__two-columns">
+                                {% block sw_mediamanager_quickinfo_quickactions_replace %}
+                                    <div class="sw-mediamanager-quickinfo__quickaction"
+                                         @click="emitQuickAction($event, 'replace-item')">
+                                        <sw-icon small name="default-action-cloud-upload"
+                                                 class="sw-mediamanager-quickinfo__quickactions-icon"></sw-icon>
+                                        {{ $tc('sw-mediamanager.sidebar.quickinfo.replace') }}
+                                    </div>
+                                {% endblock %}
+
+                                {% block sw_mediamanager_quickinfo_quickactions_download %}
+                                    <a class="sw-mediamanager-quickinfo__quickaction" :href="this.item.links.url" download>
+                                        <sw-icon small name="default-action-cloud-download"
+                                                 class="sw-mediamanager-quickinfo__quickactions-icon"></sw-icon>
+                                        {{ $tc('sw-mediamanager.sidebar.quickinfo.download') }}
+                                    </a>
+                                {% endblock %}
+
+                                {% block sw_mediamanager_quickinfo_quickactions_move %}
+                                    <div class="sw-mediamanager-quickinfo__quickaction"
+                                         @click="emitQuickAction($event, 'move-item')">
+                                        <sw-icon small name="default-action-move-file"
+                                                 class="sw-mediamanager-quickinfo__quickactions-icon"></sw-icon>
+                                        {{ $tc('sw-mediamanager.sidebar.quickinfo.move') }}
+                                    </div>
+                                {% endblock %}
+
+                                {% block sw_mediamanager_quickinfo_quickactions_delete %}
+                                    <div class="sw-mediamanager-quickinfo__quickaction"
+                                         @click="emitQuickAction($event, 'remove-item')">
+                                        <sw-icon small name="default-action-trash"
+                                                 class="sw-mediamanager-quickinfo__quickactions-icon"></sw-icon>
+                                        {{ $tc('sw-mediamanager.sidebar.quickinfo.delete') }}
+                                    </div>
+                                {% endblock %}
+
+                                {% block sw_mediamanager_quickinfo_quickactions_copy_link %}
+                                    <div class="sw-mediamanager-quickinfo__quickaction"
+                                         @click="copyLinkToClipboard">
+                                        <sw-icon small name="default-web-link"
+                                                 class="sw-mediamanager-quickinfo__quickactions-icon"></sw-icon>
+                                        {{ $tc('sw-mediamanager.sidebar.quickinfo.copyLink') }}
+                                    </div>
+                                {% endblock %}
+
+                                {% block sw_mediamanager_quickinfo_quickactions_more %}
+                                    <div class="sw-mediamanager-quickinfo__quickaction">
+                                        <sw-icon small name="default-action-more-horizontal"
+                                                 class="sw-mediamanager-quickinfo__quickactions-icon"></sw-icon>
+                                        {{ $tc('sw-mediamanager.sidebar.quickinfo.more') }}
+                                    </div>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    </template>
+
+                </sw-mediamanager-collapse>
+            {% endblock %}
+
+            {% block sw_mediamanager_quickinfo_preview %}
+                <sw-mediamanager-collapse
+                    class="sw-mediamanager-quickinfo-collapse"
+                    :expandOnLoading="true"
+                    :title="$tc('sw-mediamanager.sidebar.quickinfo.preview')">
+
+                    <template slot="content">
+                        {% block sw_mediamanager_quickinfo_preview_content %}
+                            <div class="sw-mediamanager-quickinfo__collapse-content">
+                                <div class="sw-mediamanager-quickinfo__preview">
+                                    <img :src="item.links.url" class="sw-mediamanager-quickinfo__image">
+                                </div>
+                            </div>
+                        {% endblock %}
+                    </template>
+
+                </sw-mediamanager-collapse>
+            {% endblock %}
+
+            {% block sw_mediamanager_quickinfo_metadata %}
+                <sw-mediamanager-collapse
+                    class="sw-mediamanager-quickinfo-collapse"
+                    :expandOnLoading="true"
+                    :title="$tc('sw-mediamanager.sidebar.quickinfo.metadata')">
+
+                    <template slot="content">
+                        {% block sw_mediamanager_quickinfo_metadata_content %}
+                            <div class="sw-mediamanager-quickinfo__collapse-content sw-mediamanager-quickinfo__two-columns">
+                                <template v-for="(value, key) in getMetadata">
+                                    {% block sw_mediamanager_quickinfo_metadata_attribute %}
+                                        <div class="sw-mediamanager-quickinfo__metadata-description">{{ $tc('sw-mediamanager.sidebar.metadata.' + key) }}:</div>
+                                    {% endblock %}
+                                    {% block sw_mediamanager_quickinfo_metadata_value %}
+                                        <div class="sw-mediamanager-quickinfo__metadata-value">{{ value }}</div>
+                                    {% endblock %}
+                                </template>
+                            </div>
+                        {% endblock %}
+                    </template>
+
+                </sw-mediamanager-collapse>
+            {% endblock %}
+        </template>
+        <template v-else>
+            {% block sw_mediamanager_quickinfo_no_item_selected %}
+                <sw-alert variant="warning" :showIcon="false">
+                    {{ $tc('sw-mediamanager.sidebar.quickinfo.nothingSelected') }}
+                </sw-alert>
+            {% endblock %}
+        </template>
+    </div>
+{% endblock %}

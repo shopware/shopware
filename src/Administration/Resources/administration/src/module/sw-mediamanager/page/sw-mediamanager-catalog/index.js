@@ -1,4 +1,7 @@
 import { Component, State, Mixin } from 'src/core/shopware';
+import CriteriaFactory from 'src/core/factory/criteria.factory';
+import mediamanagerMediaGridListener from '../../mixin/mediagrid.listener.mixin';
+import mediamanagerSidebarListener from '../../mixin/sibebar.listener.mixin';
 import template from './sw-mediamanager-catalog.html.twig';
 import './sw-mediamanager-catalog.less';
 
@@ -6,7 +9,9 @@ Component.register('sw-mediamanager-catalog', {
     template,
 
     mixins: [
-        Mixin.getByName('listing')
+        Mixin.getByName('listing'),
+        mediamanagerMediaGridListener,
+        mediamanagerSidebarListener
     ],
 
     data() {
@@ -15,9 +20,7 @@ Component.register('sw-mediamanager-catalog', {
             previewType: 'media-grid-preview-as-grid',
             catalogs: [],
             mediaItems: [],
-            total: 0,
-            offset: 0,
-            limit: 50
+            lastSelectedItem: null
         };
     },
 
@@ -45,15 +48,14 @@ Component.register('sw-mediamanager-catalog', {
                 this.catalogs = response.items;
             });
 
-            this.getList();
-
             this.isLoading = false;
         },
         getList() {
             this.isLoading = true;
             const params = this.getListingParams();
+            const catalogId = this.$route.params.id;
 
-            this.mediaItems = [];
+            params.criteria = CriteriaFactory.term('catalogId', catalogId);
 
             return this.mediaItemStore.getList(params).then((response) => {
                 this.total = response.total;
@@ -63,11 +65,23 @@ Component.register('sw-mediamanager-catalog', {
                 return this.mediaItems;
             });
         },
-        switchToGridView() {
-            this.previewType = 'media-grid-preview-as-grid';
+        getLastSelectedItem() {
+            const selection = this.$refs.mediaGrid.selection;
+
+            if (selection.length === 0) {
+                this.lastSelectedItem = null;
+                return;
+            }
+            this.lastSelectedItem = selection[selection.length - 1];
         },
-        switchToListView() {
-            this.previewType = 'media-grid-preview-as-list';
+        handleMediaGridSelectionRemoved() {
+            this.getLastSelectedItem();
+        },
+        handleMediaGridItemSelected() {
+            this.getLastSelectedItem();
+        },
+        handleMediaGridItemUnselected() {
+            this.getLastSelectedItem();
         }
     }
 });

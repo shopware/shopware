@@ -32,7 +32,22 @@ function getScrollbarWidth(element) {
     return (element.offsetWidth - element.scrollWidth);
 }
 
+/**
+ * uses the browser's copy function to copy a string
+ *
+ * @param {string} stringToCopy
+ */
+function copyToClipboard(stringToCopy) {
+    const tempTextArea = document.createElement('textarea');
+    tempTextArea.value = stringToCopy;
+    document.body.appendChild(tempTextArea);
+    tempTextArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(tempTextArea);
+}
+
 export default {
     getScrollbarHeight,
-    getScrollbarWidth
+    getScrollbarWidth,
+    copyToClipboard
 };

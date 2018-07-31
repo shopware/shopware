@@ -1,0 +1,22 @@
+@import "~less/variables";
+
+@color-quickinfo-collapse-divider:   @color-steam-cloud;
+@color-quickinfo-header:             @color-gutenberg;
+
+
+.sw-collapse {
+    .sw-mediamanager-collapse__header {
+        display: grid;
+        grid-template-columns: auto 24px;
+
+        padding: 16px 25px;
+        color: @color-quickinfo-header;
+        border-bottom: 1px solid @color-quickinfo-collapse-divider;
+    }
+
+    .sw-mediamanager-collapse__button {
+        &.is--hidden {
+            display: none;
+        }
+    }
+}

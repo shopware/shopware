@@ -15,6 +15,7 @@ import './base/sw-modal';
 import './base/sw-address';
 import './base/sw-empty-state';
 import './base/sw-description-list';
+import './base/sw-collapse';
 
 import './utils/sw-loader';
 import './utils/sw-notifications';

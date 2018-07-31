@@ -24,16 +24,14 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
 class CsrfTokenController extends Controller
 {
     /**
-     * @Route("/csrftoken", name="csrftoken")
-     * @Method({"GET"})
+     * @Route("/csrftoken", name="csrftoken", methods={"GET"})
      */
     public function index()
     {

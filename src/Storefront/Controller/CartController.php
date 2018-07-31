@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotRemoveableException;
@@ -50,8 +49,7 @@ class CartController extends StorefrontController
     }
 
     /**
-     * @Route("/cart/addProduct", name="cart_add_product", options={"seo"="false"})
-     * @Method({"POST"})
+     * @Route("/cart/addProduct", name="cart_add_product", options={"seo"="false"}, methods={"POST"})
      *
      * @throws MixedLineItemTypeException
      */
@@ -82,8 +80,7 @@ class CartController extends StorefrontController
     }
 
     /**
-     * @Route("/cart/addLineItem", name="cart_add_line_item", options={"seo"="false"})
-     * @Method({"POST"})
+     * @Route("/cart/addLineItem", name="cart_add_line_item", options={"seo"="false"}, methods={"POST"})
      *
      * @throws MixedLineItemTypeException
      */
@@ -119,8 +116,7 @@ class CartController extends StorefrontController
     }
 
     /**
-     * @Route("/cart/removeLineItem", name="cart_delete_line_item", options={"seo"="false"})
-     * @Method({"POST"})
+     * @Route("/cart/removeLineItem", name="cart_delete_line_item", options={"seo"="false"}, methods={"POST"})
      *
      * @throws LineItemNotFoundException
      * @throws LineItemNotRemoveableException
@@ -150,8 +146,7 @@ class CartController extends StorefrontController
     }
 
     /**
-     * @Route("/cart/setLineItemQuantity", name="cart_set_line_item_quantity", options={"seo"="false"})
-     * @Method({"POST"})
+     * @Route("/cart/setLineItemQuantity", name="cart_set_line_item_quantity", options={"seo"="false"}, methods={"POST"})
      *
      * @throws InvalidQuantityException
      * @throws LineItemNotStackableException
@@ -182,8 +177,7 @@ class CartController extends StorefrontController
     }
 
     /**
-     * @Route("/cart/getAmount", name="cart_get_amount", options={"seo"="false"})
-     * @Method({"POST"})
+     * @Route("/cart/getAmount", name="cart_get_amount", options={"seo"="false"}, methods={"POST"})
      *
      * @throws \Exception
      */
@@ -203,8 +197,7 @@ class CartController extends StorefrontController
     }
 
     /**
-     * @Route("/cart/getCart", name="cart_get_cart", options={"seo"="false"})
-     * @Method({"POST"})
+     * @Route("/cart/getCart", name="cart_get_cart", options={"seo"="false"}, methods={"POST"})
      *
      * @throws \Exception
      */

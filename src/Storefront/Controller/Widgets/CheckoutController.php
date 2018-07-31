@@ -24,11 +24,10 @@
 
 namespace Shopware\Storefront\Controller\Widgets;
 
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Core\Checkout\Cart\Storefront\CartService;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Storefront\Controller\StorefrontController;
+use Symfony\Component\Routing\Annotation\Route;
 
 class CheckoutController extends StorefrontController
 {
@@ -43,8 +42,7 @@ class CheckoutController extends StorefrontController
     }
 
     /**
-     * @Route("/widgets/checkout/info", name="widgets/checkout/info")
-     * @Method({"GET"})
+     * @Route("/widgets/checkout/info", name="widgets/checkout/info", methods={"GET"})
      */
     public function infoAction(CheckoutContext $context)
     {

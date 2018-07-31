@@ -24,14 +24,13 @@
 
 namespace Shopware\Storefront\Controller\Widgets;
 
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
 use Shopware\Storefront\Controller\StorefrontController;
+use Symfony\Component\Routing\Annotation\Route;
 
 class IndexController extends StorefrontController
 {
@@ -52,8 +51,7 @@ class IndexController extends StorefrontController
     }
 
     /**
-     * @Route("/widgets/index/shopMenu", name="widgets/shopMenu")
-     * @Method({"GET"})
+     * @Route("/widgets/index/shopMenu", name="widgets/shopMenu", methods={"GET"})
      *
      * @param CheckoutContext $context
      *

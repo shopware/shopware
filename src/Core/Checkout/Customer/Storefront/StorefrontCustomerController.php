@@ -2,13 +2,11 @@
 
 namespace Shopware\Core\Checkout\Customer\Storefront;
 
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
-use Shopware\Core\Checkout\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Framework\Api\Response\ResponseFactory;
 use Shopware\Core\Framework\Api\Response\Type\JsonType;
 use Shopware\Core\Framework\Exception\InvalidUuidException;
@@ -31,6 +29,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Serializer\Serializer;
 
@@ -83,8 +82,7 @@ class StorefrontCustomerController extends Controller
     }
 
     /**
-     * @Route("/storefront-api/customer/login", name="storefront.api.customer.login")
-     * @Method({"POST"})
+     * @Route("/storefront-api/customer/login", name="storefront.api.customer.login", methods={"POST"})
      */
     public function login(Request $request, CheckoutContext $context): JsonResponse
     {
@@ -119,8 +117,7 @@ class StorefrontCustomerController extends Controller
     }
 
     /**
-     * @Route("/storefront-api/customer/logout", name="storefront.api.customer.logout")
-     * @Method({"POST"})
+     * @Route("/storefront-api/customer/logout", name="storefront.api.customer.logout", methods={"POST"})
      */
     public function logout(CheckoutContext $context): JsonResponse
     {
@@ -138,8 +135,7 @@ class StorefrontCustomerController extends Controller
     }
 
     /**
-     * @Route("/storefront-api/customer/default-billing-address/{id}", name="storefront.api.customer.default_billing_address.update")
-     * @Method({"PUT"})
+     * @Route("/storefront-api/customer/default-billing-address/{id}", name="storefront.api.customer.default_billing_address.update", methods={"PUT"})
      *
      * @throws AddressNotFoundException
      * @throws CustomerNotLoggedInException
@@ -153,8 +149,7 @@ class StorefrontCustomerController extends Controller
     }
 
     /**
-     * @Route("/storefront-api/customer/orders", name="storefront.api.customer.orders.get")
-     * @Method({"GET"})
+     * @Route("/storefront-api/customer/orders", name="storefront.api.customer.orders.get", methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
      */
@@ -176,8 +171,7 @@ class StorefrontCustomerController extends Controller
     }
 
     /**
-     * @Route("/storefront-api/customer", name="storefront.api.customer.create")
-     * @Method({"POST"})
+     * @Route("/storefront-api/customer", name="storefront.api.customer.create", methods={"POST"})
      */
     public function register(Request $request, CheckoutContext $context): JsonResponse
     {
@@ -191,8 +185,7 @@ class StorefrontCustomerController extends Controller
     }
 
     /**
-     * @Route("/storefront-api/customer/email", name="storefront.api.customer.email.update")
-     * @Method({"PUT"})
+     * @Route("/storefront-api/customer/email", name="storefront.api.customer.email.update", methods={"PUT"})
      */
     public function saveEmail(Request $request, CheckoutContext $context): JsonResponse
     {
@@ -210,8 +203,7 @@ class StorefrontCustomerController extends Controller
     }
 
     /**
-     * @Route("/storefront-api/customer/password", name="storefront.api.customer.password.update")
-     * @Method({"PUT"})
+     * @Route("/storefront-api/customer/password", name="storefront.api.customer.password.update", methods={"PUT"})
      */
     public function savePassword(Request $request, CheckoutContext $context): JsonResponse
     {
@@ -233,8 +225,7 @@ class StorefrontCustomerController extends Controller
     }
 
     /**
-     * @Route("/storefront-api/customer/profile", name="storefront.api.customer.profile.update")
-     * @Method({"PUT"})
+     * @Route("/storefront-api/customer/profile", name="storefront.api.customer.profile.update", methods={"PUT"})
      */
     public function saveProfile(Request $request, CheckoutContext $context): JsonResponse
     {
@@ -252,8 +243,7 @@ class StorefrontCustomerController extends Controller
     }
 
     /**
-     * @Route("/storefront-api/customer", name="storefront.api.customer.detail.get")
-     * @Method({"GET"})
+     * @Route("/storefront-api/customer", name="storefront.api.customer.detail.get", methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
      */
@@ -268,8 +258,7 @@ class StorefrontCustomerController extends Controller
     }
 
     /**
-     * @Route("/storefront-api/customer/addresses", name="storefront.api.customer.addresses.get")
-     * @Method({"GET"})
+     * @Route("/storefront-api/customer/addresses", name="storefront.api.customer.addresses.get", methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
      */
@@ -281,8 +270,7 @@ class StorefrontCustomerController extends Controller
     }
 
     /**
-     * @Route("/storefront-api/customer/address/{id}", name="storefront.api.customer.address.get")
-     * @Method({"GET"})
+     * @Route("/storefront-api/customer/address/{id}", name="storefront.api.customer.address.get", methods={"GET"})
      *
      * @throws AddressNotFoundException
      * @throws CustomerNotLoggedInException
@@ -297,8 +285,7 @@ class StorefrontCustomerController extends Controller
 
     /**
     /**
-     * @Route("/storefront-api/customer/address", name="storefront.api.customer.address.create")
-     * @Method({"POST"})
+     * @Route("/storefront-api/customer/address", name="storefront.api.customer.address.create", methods={"POST"})
      *
      * @throws AddressNotFoundException
      * @throws CustomerNotLoggedInException
@@ -317,8 +304,7 @@ class StorefrontCustomerController extends Controller
     }
 
     /**
-     * @Route("/storefront-api/customer/address/{id}", name="storefront.api.customer.address.delete")
-     * @Method({"DELETE"})
+     * @Route("/storefront-api/customer/address/{id}", name="storefront.api.customer.address.delete", methods={"DELETE"})
      *
      * @throws AddressNotFoundException
      * @throws CustomerNotLoggedInException
@@ -332,8 +318,7 @@ class StorefrontCustomerController extends Controller
     }
 
     /**
-     * @Route("/storefront-api/customer/default-shipping-address/{id}", name="storefront.api.customer.default_shipping_address.update")
-     * @Method({"PUT"})
+     * @Route("/storefront-api/customer/default-shipping-address/{id}", name="storefront.api.customer.default_shipping_address.update", methods={"PUT"})
      *
      * @throws CustomerNotLoggedInException
      * @throws InvalidUuidException

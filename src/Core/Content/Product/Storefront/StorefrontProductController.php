@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Content\Product\Storefront;
 
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -15,6 +13,7 @@ use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
 class StorefrontProductController extends Controller
 {
@@ -68,8 +67,7 @@ class StorefrontProductController extends Controller
     }
 
     /**
-     * @Route("/storefront-api/product/{productId}", name="storefront.api.product.detail")
-     * @Method({"GET"})
+     * @Route("/storefront-api/product/{productId}", name="storefront.api.product.detail", methods={"GET"})
      *
      * @throws ProductNotFoundException
      * @throws InvalidUuidException

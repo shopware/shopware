@@ -24,8 +24,6 @@
 
 namespace Shopware\Storefront\Controller\Widgets;
 
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Product\Storefront\StorefrontProductRepository;
 use Shopware\Core\Framework\ORM\Search\Criteria;
@@ -35,6 +33,7 @@ use Shopware\Storefront\Page\Listing\ListingPageRequest;
 use Shopware\Storefront\Page\Search\SearchPageLoader;
 use Shopware\Storefront\Page\Search\SearchPageRequest;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Routing\Annotation\Route;
 
 class ListingController extends StorefrontController
 {
@@ -64,8 +63,7 @@ class ListingController extends StorefrontController
     }
 
     /**
-     * @Route("/widgets/listing/top_seller", name="widgets_top_seller")
-     * @Method({"GET"})
+     * @Route("/widgets/listing/top_seller", name="widgets_top_seller", methods={"GET"})
      */
     public function topSellerAction(CheckoutContext $context)
     {
@@ -80,8 +78,7 @@ class ListingController extends StorefrontController
     }
 
     /**
-     * @Route("/widgets/listing/list/{categoryId}", name="widgets_listing_list")
-     * @Method({"GET"})
+     * @Route("/widgets/listing/list/{categoryId}", name="widgets_listing_list", methods={"GET"})
      */
     public function listAction(string $categoryId, ListingPageRequest $request, CheckoutContext $context)
     {
@@ -105,8 +102,7 @@ class ListingController extends StorefrontController
     }
 
     /**
-     * @Route("/widgets/listing/search", name="widgets_listing_search")
-     * @Method({"GET"})
+     * @Route("/widgets/listing/search", name="widgets_listing_search", methods={"GET"})
      */
     public function searchAction(SearchPageRequest $request, CheckoutContext $context)
     {

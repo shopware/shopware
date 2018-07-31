@@ -94,6 +94,11 @@ class MediaUploadControllerTest extends ApiTestCase
         $path = $this->strategy->encode($this->mediaId);
         $this->assertFalse($this->filesystem->has('media/' . $path . '.jpg'));
 
+        $url = getenv('APP_URL');
+
+        $target = self::$container->getParameter('kernel.project_dir') . '/public/shopware-logo.png';
+        copy(__DIR__ . '/../fixtures/shopware-logo.png', $target);
+
         $this->apiClient->request(
             'POST',
             "/api/v1/media/{$this->mediaId}/actions/upload",
@@ -102,15 +107,16 @@ class MediaUploadControllerTest extends ApiTestCase
             [
                 'HTTP_CONTENT-TYPE' => 'application/json',
             ],
-            json_encode(['url' => 'https://de.shopware.com/press/company/Shopware_Jamaica.jpg'])
+            json_encode(['url' => $url . '/shopware-logo.png'])
         );
         $response = $this->apiClient->getResponse();
+
+        unlink($target);
 
         $this->assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
 
         $this->assertNotEmpty($response->headers->get('Location'));
         $this->assertEquals('http://localhost/api/v' . PlatformRequest::API_VERSION . '/media/' . $this->mediaId, $response->headers->get('Location'));
-
-        $this->assertTrue($this->filesystem->has('media/' . $path . '.jpg'));
+        $this->assertTrue($this->filesystem->has('media/' . $path . '.png'));
     }
 }

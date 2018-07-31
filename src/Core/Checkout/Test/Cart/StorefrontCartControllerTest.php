@@ -160,7 +160,6 @@ class StorefrontCartControllerTest extends ApiTestCase
     public function testChangeQuantity()
     {
         $productId1 = Uuid::uuid4()->getHex();
-        $productId2 = Uuid::uuid4()->getHex();
 
         $this->productRepository->create([
             [
@@ -171,22 +170,11 @@ class StorefrontCartControllerTest extends ApiTestCase
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
             ],
-            [
-                'id' => $productId2,
-                'name' => 'Test 2',
-                'catalogId' => Defaults::CATALOG,
-                'price' => ['gross' => 20, 'net' => 9],
-                'manufacturerId' => $this->manufacturerId,
-                'taxId' => $this->taxId,
-            ],
         ], $this->context);
 
         $client = $this->createCart();
 
         $this->addProduct($client, $productId1);
-        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
-
-        $this->addProduct($client, $productId2);
         static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $this->changeQuantity($client, $productId1, 10);
@@ -194,19 +182,15 @@ class StorefrontCartControllerTest extends ApiTestCase
         $cart = $this->getCart($client);
 
         static::assertNotEmpty($cart);
-        static::assertCount(2, $cart['lineItems']);
+        static::assertCount(1, $cart['lineItems']);
 
-        foreach ($cart['lineItems'] as $lineItem) {
-            if ($lineItem['key'] === $productId1) {
-                static::assertEquals(10, $lineItem['quantity']);
-            }
-        }
+        $lineItem = array_shift($cart['lineItems']);
+        static::assertEquals(10, $lineItem['quantity']);
     }
 
     public function testChangeLineItemQuantity()
     {
         $productId1 = Uuid::uuid4()->getHex();
-        $productId2 = Uuid::uuid4()->getHex();
 
         $this->productRepository->create([
             [
@@ -217,22 +201,11 @@ class StorefrontCartControllerTest extends ApiTestCase
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
             ],
-            [
-                'id' => $productId2,
-                'name' => 'Test 2',
-                'catalogId' => Defaults::CATALOG,
-                'price' => ['gross' => 20, 'net' => 9],
-                'manufacturerId' => $this->manufacturerId,
-                'taxId' => $this->taxId,
-            ],
         ], $this->context);
 
         $client = $this->createCart();
 
         $this->addProduct($client, $productId1);
-        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
-
-        $this->addProduct($client, $productId2);
         $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $this->updateLineItemQuantity($client, $productId1, 10);
@@ -240,19 +213,15 @@ class StorefrontCartControllerTest extends ApiTestCase
         $cart = $this->getCart($client);
 
         $this->assertNotEmpty($cart);
-        $this->assertCount(2, $cart['lineItems']);
+        $this->assertCount(1, $cart['lineItems']);
 
-        foreach ($cart['lineItems'] as $lineItem) {
-            if ($lineItem['key'] === $productId1) {
-                $this->assertEquals(10, $lineItem['quantity']);
-            }
-        }
+        $lineItem = array_shift($cart['lineItems']);
+        $this->assertEquals(10, $lineItem['quantity']);
     }
 
     public function testChangeWithInvalidQuantity()
     {
         $productId1 = Uuid::uuid4()->getHex();
-        $productId2 = Uuid::uuid4()->getHex();
 
         $this->productRepository->create([
             [
@@ -263,22 +232,11 @@ class StorefrontCartControllerTest extends ApiTestCase
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
             ],
-            [
-                'id' => $productId2,
-                'name' => 'Test 2',
-                'catalogId' => Defaults::CATALOG,
-                'price' => ['gross' => 20, 'net' => 9],
-                'manufacturerId' => $this->manufacturerId,
-                'taxId' => $this->taxId,
-            ],
         ], $this->context);
 
         $client = $this->createCart();
 
         $this->addProduct($client, $productId1);
-        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
-
-        $this->addProduct($client, $productId2);
         $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $this->changeQuantity($client, $productId1, -1);
@@ -387,9 +345,6 @@ class StorefrontCartControllerTest extends ApiTestCase
         $this->addProduct($client, $productId1);
         static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
-        $this->addProduct($client, $productId1);
-        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
-
         //add product 2 one time with quantity 1 and one time with quantity 10
         $this->addProduct($client, $productId2);
         static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
@@ -404,7 +359,7 @@ class StorefrontCartControllerTest extends ApiTestCase
 
         foreach ($cart['lineItems'] as $lineItem) {
             if ($lineItem['key'] === $productId1) {
-                static::assertEquals(3, $lineItem['quantity']);
+                static::assertEquals(2, $lineItem['quantity']);
             } else {
                 static::assertEquals(11, $lineItem['quantity']);
             }

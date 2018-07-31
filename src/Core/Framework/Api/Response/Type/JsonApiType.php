@@ -71,11 +71,9 @@ class JsonApiType implements ResponseTypeInterface
 
         $rootNode['links']['self'] = $request->getUri();
 
-        if ($searchResult->getCriteria()->fetchCount()) {
-            $rootNode['meta'] = [
-                'total' => $searchResult->getTotal(),
-            ];
-        }
+        $rootNode['meta'] = [
+            'total' => $searchResult->getTotal(),
+        ];
 
         if ($searchResult && $searchResult->getAggregations()) {
             $aggregations = [];

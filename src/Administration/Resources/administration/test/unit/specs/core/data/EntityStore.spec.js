@@ -151,7 +151,7 @@ describe('core/data/EntityStore.js', () => {
     it('should an add entity to the store', () => {
         const store = new EntityStore('currency', 'currencyService');
 
-        const entity = new EntityProxy('currency',  'currencyService', {
+        const entity = new EntityProxy('currency', 'currencyService', {
             factor: 6844.41,
             symbol: 'Ƀ',
             shortName: 'BTC',

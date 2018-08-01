@@ -20,7 +20,6 @@ To be able to send a request against the Storefront API, an oAuth authentication
 POST /storefront-api/oauth/token HTTP/1.1
 Host: shopware.development
 Content-Type: application/json
-Cache-Control: no-cache
 
 {
      "client_id": "b1FTZGVSd2xoSmRBWnhlZldnOVhEZTBXandRb2M0VXA",
@@ -79,7 +78,6 @@ curl_setopt_array($curl, array(
         "grant_type" => "client_credentials"
     )),
     CURLOPT_HTTPHEADER => array(
-        "Cache-Control: no-cache",
         "Content-Type: application/json"
     ),
 ));
@@ -100,7 +98,6 @@ if ($err) {
 ```
 curl -X POST \
   http://shopware.development/storefront-api/oauth/token \
-  -H 'Cache-Control: no-cache' \
   -H 'Content-Type: application/json' \
   -d '{
      "client_id": "b1FTZGVSd2xoSmRBWnhlZldnOVhEZTBXandRb2M0VXA",
@@ -118,8 +115,7 @@ conn = http.client.HTTPConnection("shopware,development")
 payload = "{ \"client_id\": \"b1FTZGVSd2xoSmRBWnhlZldnOVhEZTBXandRb2M0VXA\", \"client_secret\": \"d2J0a0RZdUxCRkRDQmpOQmlINk5NZEQyS3gyNUQ5ZzJHSThQQU5BYm1VQmpSVU12VjIxUg\", \"grant_type\": \"client_credentials\"\n}"
 
 headers = {
-    'Content-Type': "application/json",
-    'Cache-Control': "no-cache"
+    'Content-Type': "application/json"
 }
 
 conn.request("POST", "storefront-api,oauth,token", payload, headers)
@@ -140,7 +136,6 @@ Request request = new Request.Builder()
   .url("http://shopware.development/storefront-api/oauth/token")
   .post(body)
   .addHeader("Content-Type", "application/json")
-  .addHeader("Cache-Control", "no-cache")
   .build();
 
 Response response = client.newCall(request).execute();
@@ -165,7 +160,6 @@ xhr.addEventListener("readystatechange", function () {
 
 xhr.open("POST", "http://shopware.development/storefront-api/oauth/token");
 xhr.setRequestHeader("Content-Type", "application/json");
-xhr.setRequestHeader("Cache-Control", "no-cache");
 
 xhr.send(data);
 ```
@@ -179,8 +173,7 @@ var settings = {
   "url": "http://shopware.development/storefront-api/oauth/token",
   "method": "POST",
   "headers": {
-    "Content-Type": "application/json",
-    "Cache-Control": "no-cache"
+    "Content-Type": "application/json"
   },
   "processData": false,
   "data": {
@@ -215,8 +208,7 @@ var options = {
     "token"
   ],
   "headers": {
-    "Content-Type": "application/json",
-    "Cache-Control": "no-cache"
+    "Content-Type": "application/json"
   }
 };
 
@@ -259,7 +251,6 @@ func main() {
      req, _ := http.NewRequest("POST", url, payload)
 
      req.Header.Add("Content-Type", "application/json")
-     req.Header.Add("Cache-Control", "no-cache")
 
      res, _ := http.DefaultClient.Do(req)
 

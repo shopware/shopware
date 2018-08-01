@@ -277,8 +277,6 @@ class StorefrontCustomerControllerTest extends ApiTestCase
 
     public function testRegister()
     {
-        $countryStateId = '9f834bad88204d9896f31993624ac74c';
-
         $personal = [
             'salutation' => 'Mr.',
             'firstName' => 'Max',
@@ -301,7 +299,6 @@ class StorefrontCustomerControllerTest extends ApiTestCase
             'billingVatId' => 'DE999999999',
             'billingAdditionalAddressLine1' => 'Additional address line 1',
             'billingAdditionalAddressLine2' => 'Additional address line 2',
-            'billingCountryState' => $countryStateId,
         ];
 
         $shipping = [
@@ -316,7 +313,6 @@ class StorefrontCustomerControllerTest extends ApiTestCase
             'shippingPhone' => '987654321',
             'shippingAdditionalAddressLine1' => 'Additional address line 01',
             'shippingAdditionalAddressLine2' => 'Additional address line 02',
-            'shippingCountryState' => $countryStateId,
         ];
 
         $this->storefrontApiClient->request('POST', '/storefront-api/customer', [], [], [],
@@ -328,7 +324,7 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         $response = $this->storefrontApiClient->getResponse();
         $content = json_decode($response->getContent(), true);
 
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), print_r($response->getContent(), true));
         static::assertNotEmpty($content);
 
         $uuid = $content['data'];
@@ -367,7 +363,6 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         static::assertEquals($billing['billingVatId'], $billingAddress->getVatId());
         static::assertEquals($billing['billingAdditionalAddressLine1'], $billingAddress->getAdditionalAddressLine1());
         static::assertEquals($billing['billingAdditionalAddressLine2'], $billingAddress->getAdditionalAddressLine2());
-        static::assertEquals($billing['billingCountryState'], $billingAddress->getCountryStateId());
 
         // verify shipping address
         $shippingAddress = $customer->getDefaultShippingAddress();
@@ -382,7 +377,6 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         static::assertEquals($shipping['shippingPhone'], $shippingAddress->getPhoneNumber());
         static::assertEquals($shipping['shippingAdditionalAddressLine1'], $shippingAddress->getAdditionalAddressLine1());
         static::assertEquals($shipping['shippingAdditionalAddressLine2'], $shippingAddress->getAdditionalAddressLine2());
-        static::assertEquals($shipping['shippingCountryState'], $shippingAddress->getCountryStateId());
     }
 
     public function testChangeEmail()
@@ -390,16 +384,13 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         $customerId = $this->createCustomerAndLogin();
 
         $mail = 'test@exapmle.com';
-        $this->storefrontApiClient->request('PUT', '/storefront-api/customer/email', [], [], [],
-            json_encode([
-                'email' => $mail,
-            ]));
+        $this->storefrontApiClient->request('PUT', '/storefront-api/customer/email', ['email' => $mail]);
         $response = $this->storefrontApiClient->getResponse();
         $content = json_decode($response->getContent(), true);
+        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($content, true));
 
         $actualMail = $this->readCustomer($customerId)->getEmail();
 
-        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
         static::assertNull($content);
         static::assertEquals($mail, $actualMail);
     }

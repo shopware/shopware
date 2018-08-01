@@ -109,10 +109,17 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Processor"/>
         </service>
 
+        <service class="Shopware\Core\Framework\Provisioning\TenantProvisioner" id="Shopware\Core\Framework\Provisioning\TenantProvisioner">
+            <argument type="service" id="Doctrine\DBAL\Connection" />
+        </service>
+
+        <service class="Shopware\Core\Framework\Provisioning\UserProvisioner" id="Shopware\Core\Framework\Provisioning\UserProvisioner">
+            <argument type="service" id="Doctrine\DBAL\Connection" />
+        </service>
+
         <service class="Shopware\Core\Framework\Command\CreateTenantCommand" id="Shopware\Core\Framework\Command\CreateTenantCommand">
             <tag name="console.command" command="framework:create:tenant"/>
-            <argument>framework:create:tenant</argument>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\Provisioning\TenantProvisioner"/>
         </service>
 
         <!-- Serializer -->

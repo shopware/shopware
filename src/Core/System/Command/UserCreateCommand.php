@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\Framework\Provisioning\UserProvisioner;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -20,15 +21,14 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class UserCreateCommand extends Command
 {
     /**
-     * @var RepositoryInterface
+     * @var UserProvisioner
      */
-    private $userRepository;
+    private $userProvisioner;
 
-    public function __construct(RepositoryInterface $userRepository)
+    public function __construct(UserProvisioner $userProvisioner)
     {
-        parent::__construct(null);
-
-        $this->userRepository = $userRepository;
+        parent::__construct();
+        $this->userProvisioner = $userProvisioner;
     }
 
     /**
@@ -70,60 +70,8 @@ class UserCreateCommand extends Command
             $password = $io->askQuestion($passwordQuestion);
         }
 
-        if ($this->userExists($username, $tenantId)) {
-            $io->error(sprintf('User with username "%s" already exists.', $username));
-            exit(1);
-        }
-
-        list($accessKey, $secretAccessKey) = $this->createUser($username, $password, $tenantId);
+        $this->userProvisioner->provision($tenantId, $username, $password);
 
         $io->success(sprintf('User "%s" successfully created.', $username));
-        $io->table(
-            ['Key', 'Value'],
-            [
-                ['Username', $username],
-                ['Access key', $accessKey],
-                ['Secret Access key', $secretAccessKey],
-            ]
-        );
-    }
-
-    private function userExists(string $username, string $tenantId): bool
-    {
-        $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('user.username', $username));
-
-        $result = $this->userRepository->searchIds($criteria, Context::createDefaultContext($tenantId));
-
-        return $result->getTotal() > 0;
-    }
-
-    private function createUser(string $username, string $password, string $tenantId): array
-    {
-        $accessKey = AccessKeyHelper::generateAccessKey('user');
-        $secretAccessKey = AccessKeyHelper::generateSecretAccessKey();
-
-        $context = Context::createDefaultContext($tenantId);
-
-        $this->userRepository->create([
-            [
-                'id' => Uuid::uuid4()->getHex(),
-                'name' => $username,
-                'email' => 'admin@example.com',
-                'username' => $username,
-                'password' => $password,
-                'localeId' => Defaults::LOCALE,
-                'active' => true,
-                'accessKeys' => [
-                    [
-                        'accessKey' => $accessKey,
-                        'secretAccessKey' => $secretAccessKey,
-                        'writeAccess' => true,
-                    ],
-                ],
-            ],
-        ], $context);
-
-        return [$accessKey, $secretAccessKey];
     }
 }

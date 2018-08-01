@@ -1529,12 +1529,11 @@ CREATE TABLE `order_transaction_state_translation` (
   `order_transaction_state_version_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,
   `language_tenant_id` binary(16) NOT NULL,
-  `language_version_id` binary(16) NOT NULL,
   `description` varchar(255) NOT NULL,
   `created_at` datetime(3) NOT NULL,
   `updated_at` datetime(3),
   PRIMARY KEY (`order_transaction_state_id`, `language_id`, `order_transaction_state_tenant_id`, `language_tenant_id`),
-  CONSTRAINT `order_transaction_state_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_version_id`, `language_tenant_id`) REFERENCES `shop` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `order_transaction_state_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `order_transaction_state_translation_ibfk_2` FOREIGN KEY (`order_transaction_state_id`, `order_transaction_state_version_id`, `order_transaction_state_tenant_id`) REFERENCES `order_transaction_state` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

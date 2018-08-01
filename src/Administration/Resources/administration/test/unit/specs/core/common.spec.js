@@ -1,5 +1,5 @@
 before(function beforeHook(done) { // eslint-disable-line eslint prefer-arrow-callback
-    this.timeout(5000);
+    this.timeout(20000);
     Shopware.Application.start().then(() => {
         const AuthStore = Shopware.State.getStore('auth');
         AuthStore.username = 'admin';

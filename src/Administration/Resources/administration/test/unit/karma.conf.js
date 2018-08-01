@@ -6,6 +6,9 @@ const webpackConfig = require('../../build/webpack.test.conf');
 const process = require('process');
 const path = require('path');
 
+// Set the correct path to the chrome executable
+process.env.CHROME_BIN = require('puppeteer').executablePath();
+
 const artifactsPath = path.join(__dirname, '../../../../../../../../../build/artifacts');
 
 module.exports = function (config) {

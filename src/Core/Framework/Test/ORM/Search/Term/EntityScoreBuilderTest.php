@@ -30,7 +30,7 @@ class EntityScoreBuilderTest extends TestCase
 
         $queries = $builder->buildScoreQueries($pattern, ScoreBuilderTestDefinition::class, 'test');
 
-        $this->assertEquals(
+        static::assertEquals(
             [
                 new ScoreQuery(new TermQuery('test.name', 'term'), 100),
                 new ScoreQuery(new MatchQuery('test.name', 'term'), 50),
@@ -57,7 +57,7 @@ class EntityScoreBuilderTest extends TestCase
 
         $queries = $builder->buildScoreQueries($pattern, ScoreBuilderTestDefinition::class, 'test');
 
-        $this->assertEquals(
+        static::assertEquals(
             [
                 new ScoreQuery(new TermQuery('test.name', 'term'), 100),
                 new ScoreQuery(new MatchQuery('test.name', 'term'), 50),
@@ -89,7 +89,7 @@ class EntityScoreBuilderTest extends TestCase
 
         $queries = $builder->buildScoreQueries($pattern, OnlyTranslatedFieldDefinition::class, 'test');
 
-        $this->assertEquals(
+        static::assertEquals(
             [
                 new ScoreQuery(new TermQuery('test.name', 'term'), 1),
                 new ScoreQuery(new MatchQuery('test.name', 'term'), 0.5),

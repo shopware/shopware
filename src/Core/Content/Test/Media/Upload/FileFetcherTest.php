@@ -26,7 +26,7 @@ class FileFetcherTest extends TestCase
     {
         $tempFile = tempnam(sys_get_temp_dir(), '');
         $request = $this->createMock(Request::class);
-        $request->expects($this->once())
+        $request->expects(static::once())
             ->method('getContent')
             ->willReturn(fopen(self::TEST_IMAGE, 'r'));
 
@@ -36,8 +36,8 @@ class FileFetcherTest extends TestCase
             $this->fileFetcher->fetchRequestData($request, $tempFile, 'image/png', $fileSize);
             $mimeType = mime_content_type($tempFile);
 
-            $this->assertEquals('image/png', $mimeType);
-            $this->assertTrue(file_exists($tempFile));
+            static::assertEquals('image/png', $mimeType);
+            static::assertTrue(file_exists($tempFile));
         } finally {
             unlink($tempFile);
         }
@@ -50,7 +50,7 @@ class FileFetcherTest extends TestCase
 
         $tempFile = tempnam(sys_get_temp_dir(), '');
         $request = $this->createMock(Request::class);
-        $request->expects($this->once())
+        $request->expects(static::once())
             ->method('getContent')
             ->willReturn(fopen(self::TEST_IMAGE, 'r'));
 
@@ -66,7 +66,7 @@ class FileFetcherTest extends TestCase
 
         $tempFile = tempnam(sys_get_temp_dir(), '');
         $request = $this->createMock(Request::class);
-        $request->expects($this->once())
+        $request->expects(static::once())
             ->method('getContent')
             ->willReturn(fopen(self::TEST_IMAGE, 'r'));
 
@@ -83,9 +83,9 @@ class FileFetcherTest extends TestCase
             $writtenBytes = $this->fileFetcher->fetchFileFromURL($tempFile, $url);
             $mimeType = mime_content_type($tempFile);
 
-            $this->assertEquals('image/jpeg', $mimeType);
-            $this->assertGreaterThan(0, $writtenBytes);
-            $this->assertTrue(file_exists($tempFile));
+            static::assertEquals('image/jpeg', $mimeType);
+            static::assertGreaterThan(0, $writtenBytes);
+            static::assertTrue(file_exists($tempFile));
         } finally {
             unlink($tempFile);
         }

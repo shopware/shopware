@@ -64,9 +64,9 @@ EOF;
 
         $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable`');
 
-        $this->assertCount(1, $data);
-        $this->assertEquals($id->getBytes(), $data[0]['id']);
-        $this->assertNull($data[0]['data']);
+        static::assertCount(1, $data);
+        static::assertEquals($id->getBytes(), $data[0]['id']);
+        static::assertNull($data[0]['data']);
     }
 
     public function testMissingProperty(): void
@@ -91,12 +91,12 @@ EOF;
         } catch (WriteStackException $ex) {
         }
 
-        $this->assertInstanceOf(WriteStackException::class, $ex);
-        $this->assertCount(1, $ex->getExceptions());
+        static::assertInstanceOf(WriteStackException::class, $ex);
+        static::assertCount(1, $ex->getExceptions());
 
         $fieldException = $ex->getExceptions()[0];
-        $this->assertEquals(InvalidFieldException::class, get_class($fieldException));
-        $this->assertEquals('/price/net', $fieldException->getPath());
+        static::assertEquals(InvalidFieldException::class, get_class($fieldException));
+        static::assertEquals('/price/net', $fieldException->getPath());
     }
 
     public function testMultipleMissingProperties(): void
@@ -121,20 +121,20 @@ EOF;
         } catch (WriteStackException $ex) {
         }
 
-        $this->assertInstanceOf(WriteStackException::class, $ex);
-        $this->assertCount(3, $ex->getExceptions());
+        static::assertInstanceOf(WriteStackException::class, $ex);
+        static::assertCount(3, $ex->getExceptions());
 
         $fieldException = $ex->getExceptions()[0];
-        $this->assertEquals(UnexpectedFieldException::class, get_class($fieldException));
-        $this->assertEquals('/price/foo', $fieldException->getPath());
+        static::assertEquals(UnexpectedFieldException::class, get_class($fieldException));
+        static::assertEquals('/price/foo', $fieldException->getPath());
 
         $fieldException = $ex->getExceptions()[1];
-        $this->assertEquals(InvalidFieldException::class, get_class($fieldException));
-        $this->assertEquals('/price/gross', $fieldException->getPath());
+        static::assertEquals(InvalidFieldException::class, get_class($fieldException));
+        static::assertEquals('/price/gross', $fieldException->getPath());
 
         $fieldException = $ex->getExceptions()[2];
-        $this->assertEquals(InvalidFieldException::class, get_class($fieldException));
-        $this->assertEquals('/price/net', $fieldException->getPath());
+        static::assertEquals(InvalidFieldException::class, get_class($fieldException));
+        static::assertEquals('/price/net', $fieldException->getPath());
     }
 
     public function testPropertyTypes(): void
@@ -159,12 +159,12 @@ EOF;
         } catch (WriteStackException $ex) {
         }
 
-        $this->assertInstanceOf(WriteStackException::class, $ex);
-        $this->assertCount(1, $ex->getExceptions());
+        static::assertInstanceOf(WriteStackException::class, $ex);
+        static::assertCount(1, $ex->getExceptions());
 
         $fieldException = $ex->getExceptions()[0];
-        $this->assertEquals(InvalidFieldException::class, get_class($fieldException));
-        $this->assertEquals('/price/net', $fieldException->getPath());
+        static::assertEquals(InvalidFieldException::class, get_class($fieldException));
+        static::assertEquals('/price/net', $fieldException->getPath());
     }
 
     public function testUnexpectedFieldShouldThrowException(): void
@@ -189,12 +189,12 @@ EOF;
         } catch (WriteStackException $ex) {
         }
 
-        $this->assertInstanceOf(WriteStackException::class, $ex);
-        $this->assertCount(1, $ex->getExceptions());
+        static::assertInstanceOf(WriteStackException::class, $ex);
+        static::assertCount(1, $ex->getExceptions());
 
         $fieldException = $ex->getExceptions()[0];
-        $this->assertEquals(UnexpectedFieldException::class, get_class($fieldException));
-        $this->assertEquals('/price/fail', $fieldException->getPath());
+        static::assertEquals(UnexpectedFieldException::class, get_class($fieldException));
+        static::assertEquals('/price/fail', $fieldException->getPath());
     }
 
     public function testWithoutMappingShouldAcceptAnyKey(): void
@@ -216,11 +216,11 @@ EOF;
         $this->getWriter()->insert(VersionCommitDataDefinition::class, [$data], $context);
 
         $entityId = $this->connection->fetchColumn('SELECT entity_id FROM version_commit_data WHERE id = :id', ['id' => $id->getBytes()]);
-        $this->assertNotEmpty($entityId);
+        static::assertNotEmpty($entityId);
 
         $entityId = json_decode($entityId, true);
 
-        $this->assertEquals(
+        static::assertEquals(
             $data['entityId'],
             $entityId
         );
@@ -250,20 +250,20 @@ EOF;
         } catch (WriteStackException $ex) {
         }
 
-        $this->assertInstanceOf(WriteStackException::class, $ex);
-        $this->assertCount(3, $ex->getExceptions());
+        static::assertInstanceOf(WriteStackException::class, $ex);
+        static::assertCount(3, $ex->getExceptions());
 
         $fieldException = $ex->getExceptions()[0];
-        $this->assertEquals(InvalidFieldException::class, get_class($fieldException));
-        $this->assertEquals('/data/gross', $fieldException->getPath());
+        static::assertEquals(InvalidFieldException::class, get_class($fieldException));
+        static::assertEquals('/data/gross', $fieldException->getPath());
 
         $fieldException = $ex->getExceptions()[1];
-        $this->assertEquals(InvalidFieldException::class, get_class($fieldException));
-        $this->assertEquals('/data/foo/bar', $fieldException->getPath());
+        static::assertEquals(InvalidFieldException::class, get_class($fieldException));
+        static::assertEquals('/data/foo/bar', $fieldException->getPath());
 
         $fieldException = $ex->getExceptions()[2];
-        $this->assertEquals(InvalidFieldException::class, get_class($fieldException));
-        $this->assertEquals('/data/foo/baz/deep', $fieldException->getPath());
+        static::assertEquals(InvalidFieldException::class, get_class($fieldException));
+        static::assertEquals('/data/foo/baz/deep', $fieldException->getPath());
     }
 
     protected function createWriteContext(): WriteContext

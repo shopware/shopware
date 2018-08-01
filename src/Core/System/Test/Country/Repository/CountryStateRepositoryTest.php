@@ -66,14 +66,14 @@ class CountryStateRepositoryTest extends KernelTestCase
 
         $result = $this->repository->searchIds($criteria, Context::createDefaultContext(Defaults::TENANT_ID));
 
-        $this->assertCount(2, $result->getIds());
+        static::assertCount(2, $result->getIds());
 
-        $this->assertEquals(
+        static::assertEquals(
             [$recordA, $recordB],
             $result->getIds()
         );
 
-        $this->assertTrue(
+        static::assertTrue(
             $result->getDataFieldOfId($recordA, '_score')
             >
             $result->getDataFieldOfId($recordB, '_score')

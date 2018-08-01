@@ -97,13 +97,13 @@ EOF;
         } catch (WriteStackException $ex) {
         }
 
-        $this->assertInstanceOf(WriteStackException::class, $ex);
-        $this->assertCount(1, $ex->getExceptions());
-        $this->assertEquals('This field is write-protected.', $this->getValidationExceptionMessage($ex));
+        static::assertInstanceOf(WriteStackException::class, $ex);
+        static::assertCount(1, $ex->getExceptions());
+        static::assertEquals('This field is write-protected.', $this->getValidationExceptionMessage($ex));
 
         $fieldException = $ex->getExceptions()[0];
-        $this->assertEquals(InsufficientWritePermissionException::class, get_class($fieldException));
-        $this->assertEquals('/protected', $fieldException->getPath());
+        static::assertEquals(InsufficientWritePermissionException::class, get_class($fieldException));
+        static::assertEquals('/protected', $fieldException->getPath());
     }
 
     public function testWriteWithoutProtectedField(): void
@@ -119,9 +119,9 @@ EOF;
 
         $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable`');
 
-        $this->assertCount(1, $data);
-        $this->assertEquals($id->getBytes(), $data[0]['id']);
-        $this->assertEmpty($data[0]['protected']);
+        static::assertCount(1, $data);
+        static::assertEquals($id->getBytes(), $data[0]['id']);
+        static::assertEmpty($data[0]['protected']);
     }
 
     public function testWriteWithPermission(): void
@@ -139,9 +139,9 @@ EOF;
 
         $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable`');
 
-        $this->assertCount(1, $data);
-        $this->assertEquals($id->getBytes(), $data[0]['id']);
-        $this->assertEquals('foobar', $data[0]['protected']);
+        static::assertCount(1, $data);
+        static::assertEquals($id->getBytes(), $data[0]['id']);
+        static::assertEquals('foobar', $data[0]['protected']);
     }
 
     public function testWriteManyToOneWithoutPermission(): void
@@ -162,13 +162,13 @@ EOF;
         } catch (WriteStackException $ex) {
         }
 
-        $this->assertInstanceOf(WriteStackException::class, $ex);
-        $this->assertCount(1, $ex->getExceptions());
-        $this->assertEquals('This field is write-protected.', $this->getValidationExceptionMessage($ex, 'relation'));
+        static::assertInstanceOf(WriteStackException::class, $ex);
+        static::assertCount(1, $ex->getExceptions());
+        static::assertEquals('This field is write-protected.', $this->getValidationExceptionMessage($ex, 'relation'));
 
         $fieldException = $ex->getExceptions()[0];
-        $this->assertEquals(InsufficientWritePermissionException::class, get_class($fieldException));
-        $this->assertEquals('/relation', $fieldException->getPath());
+        static::assertEquals(InsufficientWritePermissionException::class, get_class($fieldException));
+        static::assertEquals('/relation', $fieldException->getPath());
     }
 
     public function testWriteManyToOneWithPermission(): void
@@ -188,9 +188,9 @@ EOF;
 
         $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable`');
 
-        $this->assertCount(1, $data);
-        $this->assertEquals($id->getBytes(), $data[0]['id']);
-        $this->assertEquals($id->getBytes(), $data[0]['relation_id']);
+        static::assertCount(1, $data);
+        static::assertEquals($id->getBytes(), $data[0]['id']);
+        static::assertEquals($id->getBytes(), $data[0]['relation_id']);
     }
 
     public function testWriteOneToManyWithoutPermission(): void
@@ -213,13 +213,13 @@ EOF;
         } catch (WriteStackException $ex) {
         }
 
-        $this->assertInstanceOf(WriteStackException::class, $ex);
-        $this->assertCount(1, $ex->getExceptions());
-        $this->assertEquals('This field is write-protected.', $this->getValidationExceptionMessage($ex, 'wp'));
+        static::assertInstanceOf(WriteStackException::class, $ex);
+        static::assertCount(1, $ex->getExceptions());
+        static::assertEquals('This field is write-protected.', $this->getValidationExceptionMessage($ex, 'wp'));
 
         $fieldException = $ex->getExceptions()[0];
-        $this->assertEquals(InsufficientWritePermissionException::class, get_class($fieldException));
-        $this->assertEquals('/wp', $fieldException->getPath());
+        static::assertEquals(InsufficientWritePermissionException::class, get_class($fieldException));
+        static::assertEquals('/wp', $fieldException->getPath());
     }
 
     public function testWriteOneToManyWithPermission(): void
@@ -242,8 +242,8 @@ EOF;
 
         $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable`');
 
-        $this->assertCount(1, $data);
-        $this->assertEquals($id->getBytes(), $data[0]['relation_id']);
+        static::assertCount(1, $data);
+        static::assertEquals($id->getBytes(), $data[0]['relation_id']);
     }
 
     public function testWriteManyToManyWithoutPermission(): void
@@ -267,13 +267,13 @@ EOF;
         } catch (WriteStackException $ex) {
         }
 
-        $this->assertInstanceOf(WriteStackException::class, $ex);
-        $this->assertCount(1, $ex->getExceptions());
-        $this->assertEquals('This field is write-protected.', $this->getValidationExceptionMessage($ex, 'relations'));
+        static::assertInstanceOf(WriteStackException::class, $ex);
+        static::assertCount(1, $ex->getExceptions());
+        static::assertEquals('This field is write-protected.', $this->getValidationExceptionMessage($ex, 'relations'));
 
         $fieldException = $ex->getExceptions()[0];
-        $this->assertEquals(InsufficientWritePermissionException::class, get_class($fieldException));
-        $this->assertEquals('/relations', $fieldException->getPath());
+        static::assertEquals(InsufficientWritePermissionException::class, get_class($fieldException));
+        static::assertEquals('/relations', $fieldException->getPath());
     }
 
     public function testWriteManyToManyWithPermission(): void
@@ -296,9 +296,9 @@ EOF;
 
         $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable_reference`');
 
-        $this->assertCount(1, $data);
-        $this->assertEquals($id->getBytes(), $data[0]['wp_id']);
-        $this->assertEquals($id2->getBytes(), $data[0]['relation_id']);
+        static::assertCount(1, $data);
+        static::assertEquals($id->getBytes(), $data[0]['wp_id']);
+        static::assertEquals($id2->getBytes(), $data[0]['relation_id']);
     }
 
     public function testWriteTranslationWithoutPermission(): void
@@ -317,13 +317,13 @@ EOF;
         } catch (WriteStackException $ex) {
         }
 
-        $this->assertInstanceOf(WriteStackException::class, $ex);
-        $this->assertCount(1, $ex->getExceptions());
-        $this->assertEquals('This field is write-protected.', $this->getValidationExceptionMessage($ex));
+        static::assertInstanceOf(WriteStackException::class, $ex);
+        static::assertCount(1, $ex->getExceptions());
+        static::assertEquals('This field is write-protected.', $this->getValidationExceptionMessage($ex));
 
         $fieldException = $ex->getExceptions()[0];
-        $this->assertEquals(InsufficientWritePermissionException::class, get_class($fieldException));
-        $this->assertEquals('/protected', $fieldException->getPath());
+        static::assertEquals(InsufficientWritePermissionException::class, get_class($fieldException));
+        static::assertEquals('/protected', $fieldException->getPath());
     }
 
     public function testWriteTranslationWithPermission(): void
@@ -341,9 +341,9 @@ EOF;
 
         $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable_translation`');
 
-        $this->assertCount(1, $data);
-        $this->assertEquals($id->getBytes(), $data[0]['wp_id']);
-        $this->assertEquals('foobar', $data[0]['protected']);
+        static::assertCount(1, $data);
+        static::assertEquals($id->getBytes(), $data[0]['wp_id']);
+        static::assertEquals('foobar', $data[0]['protected']);
     }
 
     protected function createWriteContext(): WriteContext

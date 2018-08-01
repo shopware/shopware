@@ -58,19 +58,19 @@ class ProductControllerTest extends ApiTestCase
 
         $content = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
 
-        $this->assertNotEmpty($content);
-        $this->assertArrayHasKey('total', $content);
-        $this->assertArrayHasKey('data', $content);
-        $this->assertGreaterThan(0, $content['total']);
-        $this->assertNotEmpty($content['data']);
+        static::assertNotEmpty($content);
+        static::assertArrayHasKey('total', $content);
+        static::assertArrayHasKey('data', $content);
+        static::assertGreaterThan(0, $content['total']);
+        static::assertNotEmpty($content['data']);
 
         foreach ($content['data'] as $product) {
-            $this->assertArrayHasKey('calculatedListingPrice', $product);
-            $this->assertArrayHasKey('calculatedPriceRules', $product);
-            $this->assertArrayHasKey('calculatedPrice', $product);
-            $this->assertArrayHasKey('price', $product);
-            $this->assertArrayHasKey('name', $product);
-            $this->assertArrayHasKey('id', $product);
+            static::assertArrayHasKey('calculatedListingPrice', $product);
+            static::assertArrayHasKey('calculatedPriceRules', $product);
+            static::assertArrayHasKey('calculatedPrice', $product);
+            static::assertArrayHasKey('price', $product);
+            static::assertArrayHasKey('name', $product);
+            static::assertArrayHasKey('id', $product);
         }
     }
 
@@ -96,10 +96,10 @@ class ProductControllerTest extends ApiTestCase
 
         $content = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
 
-        $this->assertEquals($productId, $content['data']['id']);
-        $this->assertEquals(10, $content['data']['price']['gross']);
-        $this->assertEquals('test', $content['data']['manufacturer']['name']);
-        $this->assertEquals('with id', $content['data']['tax']['name']);
-        $this->assertEquals(17, $content['data']['tax']['taxRate']);
+        static::assertEquals($productId, $content['data']['id']);
+        static::assertEquals(10, $content['data']['price']['gross']);
+        static::assertEquals('test', $content['data']['manufacturer']['name']);
+        static::assertEquals('with id', $content['data']['tax']['name']);
+        static::assertEquals(17, $content['data']['tax']['taxRate']);
     }
 }

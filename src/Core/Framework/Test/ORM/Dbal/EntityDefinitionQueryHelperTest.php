@@ -83,7 +83,7 @@ class EntityDefinitionQueryHelperTest extends TestCase
             JsonObjectTestDefinition::getEntityName()
         );
 
-        $this->assertInstanceOf(ObjectField::class, $field);
+        static::assertInstanceOf(ObjectField::class, $field);
     }
 }
 

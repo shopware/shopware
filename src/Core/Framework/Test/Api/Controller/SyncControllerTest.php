@@ -60,16 +60,16 @@ class SyncControllerTest extends ApiTestCase
         self::assertSame(200, $response->getStatusCode(), $response->getContent());
 
         $this->apiClient->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id1->getHex());
-        $this->assertSame(Response::HTTP_OK, $this->apiClient->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $this->apiClient->getResponse()->getStatusCode());
 
         $this->apiClient->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id2->getHex());
-        $this->assertSame(Response::HTTP_OK, $this->apiClient->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $this->apiClient->getResponse()->getStatusCode());
 
         $this->apiClient->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id1->getHex());
-        $this->assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode());
 
         $this->apiClient->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id2->getHex());
-        $this->assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode());
     }
 
     public function testInsertAndUpdateSameEntity(): void
@@ -106,13 +106,13 @@ class SyncControllerTest extends ApiTestCase
         self::assertSame(200, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
 
         $this->apiClient->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id);
-        $this->assertSame(Response::HTTP_OK, $this->apiClient->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $this->apiClient->getResponse()->getStatusCode());
 
         $responseData = json_decode($this->apiClient->getResponse()->getContent(), true);
-        $this->assertEquals(false, $responseData['data']['attributes']['active']);
+        static::assertEquals(false, $responseData['data']['attributes']['active']);
 
         $this->apiClient->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id);
-        $this->assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode());
     }
 
     public function testInsertAndLinkEntities(): void
@@ -154,17 +154,17 @@ class SyncControllerTest extends ApiTestCase
         $this->apiClient->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $productId . '/categories');
         $responseData = json_decode($this->apiClient->getResponse()->getContent(), true);
 
-        $this->assertSame(Response::HTTP_OK, $this->apiClient->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $this->apiClient->getResponse()->getStatusCode());
         $categories = array_column($responseData['data'], 'id');
 
-        $this->assertContains($categoryId, $categories);
-        $this->assertCount(1, $categories, 'Category Ids should not contain: ' . print_r(array_diff($categories, [$categoryId]), true));
+        static::assertContains($categoryId, $categories);
+        static::assertCount(1, $categories, 'Category Ids should not contain: ' . print_r(array_diff($categories, [$categoryId]), true));
 
         $this->apiClient->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/category/' . $categoryId);
-        $this->assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
+        static::assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
 
         $this->apiClient->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $productId);
-        $this->assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
+        static::assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
     }
 
     public function testNestedInsertAndLinkAfter(): void
@@ -209,22 +209,22 @@ class SyncControllerTest extends ApiTestCase
         $this->apiClient->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $product . '/categories');
         $responseData = json_decode($this->apiClient->getResponse()->getContent(), true);
         $categories = array_column($responseData['data'], 'id');
-        $this->assertContains($category, $categories);
-        $this->assertCount(1, $categories);
+        static::assertContains($category, $categories);
+        static::assertCount(1, $categories);
 
         $this->apiClient->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $product2 . '/categories');
         $responseData = json_decode($this->apiClient->getResponse()->getContent(), true);
 
         $categories = array_column($responseData['data'], 'id');
-        $this->assertContains($category, $categories);
-        $this->assertCount(1, $categories);
+        static::assertContains($category, $categories);
+        static::assertCount(1, $categories);
 
         $this->apiClient->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/category/' . $category . '/products/');
         $responseData = json_decode($this->apiClient->getResponse()->getContent(), true);
         $products = array_column($responseData['data'], 'id');
 
-        $this->assertContains($product, $products);
-        $this->assertContains($product2, $products);
+        static::assertContains($product, $products);
+        static::assertContains($product2, $products);
     }
 
     public function testMultiDelete(): void
@@ -264,7 +264,7 @@ class SyncControllerTest extends ApiTestCase
             ['id' => [$product->getBytes(), $product2->getBytes()]],
             ['id' => Connection::PARAM_STR_ARRAY]
         );
-        $this->assertCount(2, $exists);
+        static::assertCount(2, $exists);
 
         $data = [
             [
@@ -286,6 +286,6 @@ class SyncControllerTest extends ApiTestCase
             ['id' => [$product->getBytes(), $product2->getBytes()]],
             ['id' => Connection::PARAM_STR_ARRAY]
         );
-        $this->assertEmpty($exists);
+        static::assertEmpty($exists);
     }
 }

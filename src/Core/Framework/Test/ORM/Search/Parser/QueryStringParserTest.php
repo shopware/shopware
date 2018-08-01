@@ -40,10 +40,10 @@ class QueryStringParserTest extends TestCase
         /** @var TermQuery $result */
         $result = QueryStringParser::fromArray(ProductDefinition::class, $filter, new SearchRequestException());
 
-        $this->assertInstanceOf(TermQuery::class, $result);
+        static::assertInstanceOf(TermQuery::class, $result);
 
-        $this->assertEquals($result->getField(), 'product.' . $filter['field']);
-        $this->assertEquals($result->getValue(), $filter['value']);
+        static::assertEquals($result->getField(), 'product.' . $filter['field']);
+        static::assertEquals($result->getValue(), $filter['value']);
     }
 
     public function termQueryDataProvider(): array
@@ -76,10 +76,10 @@ class QueryStringParserTest extends TestCase
         /** @var TermQuery $result */
         $result = QueryStringParser::fromArray(ProductDefinition::class, $filter, new SearchRequestException());
 
-        $this->assertInstanceOf(MatchQuery::class, $result);
+        static::assertInstanceOf(MatchQuery::class, $result);
 
-        $this->assertEquals($result->getField(), 'product.' . $filter['field']);
-        $this->assertEquals($result->getValue(), $filter['value']);
+        static::assertEquals($result->getField(), 'product.' . $filter['field']);
+        static::assertEquals($result->getValue(), $filter['value']);
     }
 
     public function matchQueryDataProvider(): array
@@ -112,7 +112,7 @@ class QueryStringParserTest extends TestCase
         /** @var TermsQuery $result */
         $result = QueryStringParser::fromArray(ProductDefinition::class, $filter, new SearchRequestException());
 
-        $this->assertInstanceOf(TermsQuery::class, $result);
+        static::assertInstanceOf(TermsQuery::class, $result);
 
         $expectedValue = $filter['value'];
         if (is_string($expectedValue)) {
@@ -123,8 +123,8 @@ class QueryStringParserTest extends TestCase
             $expectedValue = [$expectedValue];
         }
 
-        $this->assertEquals($result->getField(), 'product.' . $filter['field']);
-        $this->assertEquals($result->getValue(), $expectedValue);
+        static::assertEquals($result->getField(), 'product.' . $filter['field']);
+        static::assertEquals($result->getValue(), $expectedValue);
     }
 
     public function termsQueryDataProvider(): array

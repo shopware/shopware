@@ -206,17 +206,17 @@ class StorefrontCartControllerTest extends ApiTestCase
         $client = $this->createCart();
 
         $this->addProduct($client, $productId1);
-        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $this->updateLineItemQuantity($client, $productId1, 10);
 
         $cart = $this->getCart($client);
 
-        $this->assertNotEmpty($cart);
-        $this->assertCount(1, $cart['lineItems']);
+        static::assertNotEmpty($cart);
+        static::assertCount(1, $cart['lineItems']);
 
         $lineItem = array_shift($cart['lineItems']);
-        $this->assertEquals(10, $lineItem['quantity']);
+        static::assertEquals(10, $lineItem['quantity']);
     }
 
     public function testChangeWithInvalidQuantity()
@@ -237,15 +237,15 @@ class StorefrontCartControllerTest extends ApiTestCase
         $client = $this->createCart();
 
         $this->addProduct($client, $productId1);
-        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $this->changeQuantity($client, $productId1, -1);
 
         $cart = $this->getCart($client);
 
-        $this->assertNotEmpty($cart);
-        $this->assertArrayHasKey('errors', $cart);
-        $this->assertEquals('CART-INVALID-QUANTITY', $cart['errors'][0]['code']);
+        static::assertNotEmpty($cart);
+        static::assertArrayHasKey('errors', $cart);
+        static::assertEquals('CART-INVALID-QUANTITY', $cart['errors'][0]['code']);
     }
 
     public function testRemoveLineItem()

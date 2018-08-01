@@ -48,7 +48,7 @@ class VersionTest extends ApiTestCase
     public function testNonVersionRoutesAreUnprotected(string $method, string $url): void
     {
         $this->unauthorizedClient->request($method, $url);
-        $this->assertNotEquals(
+        static::assertNotEquals(
             Response::HTTP_UNAUTHORIZED,
             $this->unauthorizedClient->getResponse()->getStatusCode(),
             'Route should not be protected. (URL: ' . $url . ')'
@@ -58,7 +58,7 @@ class VersionTest extends ApiTestCase
     public function testAuthShouldNotBeProtected(): void
     {
         $this->unauthorizedClient->request('POST', '/api/oauth/token');
-        $this->assertEquals(
+        static::assertEquals(
             Response::HTTP_BAD_REQUEST,
             $this->unauthorizedClient->getResponse()->getStatusCode(),
             'Route should be protected. (URL: /api/oauth/token)'
@@ -66,8 +66,8 @@ class VersionTest extends ApiTestCase
 
         $response = json_decode($this->unauthorizedClient->getResponse()->getContent(), true);
 
-        $this->assertEquals('The authorization grant type is not supported by the authorization server.', $response['errors'][0]['title']);
-        $this->assertEquals('Check that all required parameters have been provided', $response['errors'][0]['detail']);
+        static::assertEquals('The authorization grant type is not supported by the authorization server.', $response['errors'][0]['title']);
+        static::assertEquals('Check that all required parameters have been provided', $response['errors'][0]['detail']);
     }
 
     /**
@@ -76,7 +76,7 @@ class VersionTest extends ApiTestCase
     public function testVersionRoutesAreProtected(string $method, string $url): void
     {
         $this->unauthorizedClient->request($method, $url);
-        $this->assertEquals(
+        static::assertEquals(
             Response::HTTP_UNAUTHORIZED,
             $this->unauthorizedClient->getResponse()->getStatusCode(),
             'Route should be protected. (URL: ' . $url . ')'

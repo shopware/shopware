@@ -45,11 +45,11 @@ class OrderingProcessTest extends ApiTestCase
 
     public function testOrderingProcess(): void
     {
-        $this->markTestSkipped('Storefront not fully implemented yet.');
+        static::markTestSkipped('Storefront not fully implemented yet.');
 
         $email = Uuid::uuid4()->toString() . '@shopware.com';
         $customerId = $this->createCustomer($email, 'test1234');
-        $this->assertNotEmpty($customerId, 'Customer was not created.');
+        static::assertNotEmpty($customerId, 'Customer was not created.');
 
         $this->loginUser($email, 'test1234');
 
@@ -117,7 +117,7 @@ class OrderingProcessTest extends ApiTestCase
         $this->storefrontApiClient->request('POST', '/cart/addProduct', $data);
         $response = $this->storefrontApiClient->getResponse();
 
-        $this->assertEquals(200, $response->getStatusCode(), print_r($response->getContent(), true));
+        static::assertEquals(200, $response->getStatusCode(), print_r($response->getContent(), true));
 
         $content = json_decode($response->getContent(), true);
 
@@ -205,7 +205,7 @@ class OrderingProcessTest extends ApiTestCase
         /** @var Response $response */
         $response = $this->storefrontApiClient->getResponse();
 
-        $this->assertStringEndsWith('/account', (string) $response->headers->get('Location'), $response->getContent());
+        static::assertStringEndsWith('/account', (string) $response->headers->get('Location'), $response->getContent());
     }
 
     private function changePaymentMethod(string $paymentMethodId)
@@ -218,7 +218,7 @@ class OrderingProcessTest extends ApiTestCase
 
         /** @var Response $response */
         $response = $this->storefrontApiClient->getResponse();
-        $this->assertStringEndsWith('/checkout/confirm', $response->headers->get('Location'));
+        static::assertStringEndsWith('/checkout/confirm', $response->headers->get('Location'));
     }
 
     private function payOrder(): string
@@ -237,7 +237,7 @@ class OrderingProcessTest extends ApiTestCase
 
     private function getOrderIdByResponse(Response $response): string
     {
-        $this->assertTrue($response->headers->has('location'), print_r($response->getContent(), true));
+        static::assertTrue($response->headers->has('location'), print_r($response->getContent(), true));
         $location = $response->headers->get('location');
         $query = parse_url($location, PHP_URL_QUERY);
         $parsedQuery = [];

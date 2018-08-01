@@ -28,7 +28,7 @@ class EntityLoadedEventTest extends TestCase
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
         $event = new EntityLoadedEvent(TestDefinition::class, new EntityCollection([$root]), $context);
 
-        $this->assertEquals(
+        static::assertEquals(
             new NestedEventCollection([
                 new EntityLoadedEvent(
                     TestDefinition::class,
@@ -51,7 +51,7 @@ class EntityLoadedEventTest extends TestCase
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
         $event = new EntityLoadedEvent(TestDefinition::class, new EntityCollection([$root]), $context);
 
-        $this->assertEquals(
+        static::assertEquals(
             new NestedEventCollection([
                 new EntityLoadedEvent(
                     TestDefinition::class,
@@ -64,7 +64,7 @@ class EntityLoadedEventTest extends TestCase
 
         $event = new EntityLoadedEvent(TestDefinition::class, new EntityCollection([$c]), $context);
 
-        $this->assertEquals(
+        static::assertEquals(
             new NestedEventCollection([
                 new EntityLoadedEvent(
                     TestDefinition::class,
@@ -86,7 +86,7 @@ class EntityLoadedEventTest extends TestCase
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
         $event = new EntityLoadedEvent(TestDefinition::class, new EntityCollection([$entity]), $context);
 
-        $this->assertEquals(
+        static::assertEquals(
             new NestedEventCollection([
                 new EntityLoadedEvent(
                     TestDefinition::class,
@@ -110,7 +110,7 @@ class EntityLoadedEventTest extends TestCase
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
         $event = new EntityLoadedEvent(TestDefinition::class, new EntityCollection([$entity]), $context);
 
-        $this->assertEquals(
+        static::assertEquals(
             new NestedEventCollection([
                 new EntityLoadedEvent(
                     TestDefinition::class,
@@ -132,7 +132,7 @@ class EntityLoadedEventTest extends TestCase
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
         $event = new EntityLoadedEvent(TestDefinition::class, new EntityCollection([$entity]), $context);
 
-        $this->assertEquals(
+        static::assertEquals(
             new NestedEventCollection([
                 new EntityLoadedEvent(
                     TestDefinition::class,
@@ -156,7 +156,7 @@ class EntityLoadedEventTest extends TestCase
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
         $event = new EntityLoadedEvent(TestDefinition::class, new EntityCollection([$entity]), $context);
 
-        $this->assertEquals(
+        static::assertEquals(
             new NestedEventCollection([
                 new EntityLoadedEvent(
                     TestDefinition::class,

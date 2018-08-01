@@ -96,7 +96,7 @@ class MediaUpdaterTest extends KernelTestCase
 
         $path = $this->strategy->encode($mediaId->getHex());
 
-        $this->assertTrue($this->filesystem->has('media/' . $path . MediaUpdater::ALLOWED_MIME_TYPES[$mimeType]));
+        static::assertTrue($this->filesystem->has('media/' . $path . MediaUpdater::ALLOWED_MIME_TYPES[$mimeType]));
         $this->filesystem->delete('media/' . $path . MediaUpdater::ALLOWED_MIME_TYPES[$mimeType]);
     }
 

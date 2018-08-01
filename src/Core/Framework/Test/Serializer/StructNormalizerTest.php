@@ -22,13 +22,13 @@ class StructNormalizerTest extends TestCase
 
     public function testSupportFormat()
     {
-        $this->assertTrue($this->normalizer->supportsNormalization(new TestStruct()));
-        $this->assertFalse($this->normalizer->supportsNormalization('string'));
-        $this->assertFalse($this->normalizer->supportsNormalization(1));
-        $this->assertFalse($this->normalizer->supportsNormalization(null));
-        $this->assertFalse($this->normalizer->supportsNormalization(false));
-        $this->assertFalse($this->normalizer->supportsNormalization(['array']));
-        $this->assertFalse($this->normalizer->supportsNormalization(new \stdClass()));
+        static::assertTrue($this->normalizer->supportsNormalization(new TestStruct()));
+        static::assertFalse($this->normalizer->supportsNormalization('string'));
+        static::assertFalse($this->normalizer->supportsNormalization(1));
+        static::assertFalse($this->normalizer->supportsNormalization(null));
+        static::assertFalse($this->normalizer->supportsNormalization(false));
+        static::assertFalse($this->normalizer->supportsNormalization(['array']));
+        static::assertFalse($this->normalizer->supportsNormalization(new \stdClass()));
     }
 
     public function testNormalizationOfSimpleStruct()
@@ -42,7 +42,7 @@ class StructNormalizerTest extends TestCase
             'foo' => 'bar',
         ];
 
-        $this->assertEquals(
+        static::assertEquals(
             $expected,
             $this->normalizer->normalize($struct)
         );
@@ -64,7 +64,7 @@ class StructNormalizerTest extends TestCase
             '_pointer' => 0,
         ];
 
-        $this->assertEquals(
+        static::assertEquals(
             $expected,
             $this->normalizer->normalize($collection)
         );
@@ -72,26 +72,26 @@ class StructNormalizerTest extends TestCase
 
     public function testDenormalizationSupport()
     {
-        $this->assertTrue(
+        static::assertTrue(
             $this->normalizer->supportsDenormalization([
                 '_class' => TestStruct::class,
                 'foo' => 'bar',
             ], 'array')
         );
 
-        $this->assertFalse($this->normalizer->supportsDenormalization('string', 'array'));
-        $this->assertFalse($this->normalizer->supportsDenormalization(1, 'array'));
-        $this->assertFalse($this->normalizer->supportsDenormalization(null, 'array'));
-        $this->assertFalse($this->normalizer->supportsDenormalization(false, 'array'));
-        $this->assertFalse($this->normalizer->supportsDenormalization(['array'], 'array'));
-        $this->assertFalse($this->normalizer->supportsDenormalization(new \stdClass(), 'array'));
+        static::assertFalse($this->normalizer->supportsDenormalization('string', 'array'));
+        static::assertFalse($this->normalizer->supportsDenormalization(1, 'array'));
+        static::assertFalse($this->normalizer->supportsDenormalization(null, 'array'));
+        static::assertFalse($this->normalizer->supportsDenormalization(false, 'array'));
+        static::assertFalse($this->normalizer->supportsDenormalization(['array'], 'array'));
+        static::assertFalse($this->normalizer->supportsDenormalization(new \stdClass(), 'array'));
     }
 
     public function testDenormalizeDate()
     {
         $date = date_create_from_format('Y-m-d H:i:s', date('Y-m-d H:i:s'));
 
-        $this->assertEquals(
+        static::assertEquals(
             $date,
             $this->normalizer->denormalize($date->format(\DateTime::ATOM))
         );
@@ -114,7 +114,7 @@ class StructNormalizerTest extends TestCase
      */
     public function testDenormalizeShouldReturnNonArrays($input)
     {
-        $this->assertEquals($input, $this->normalizer->denormalize($input));
+        static::assertEquals($input, $this->normalizer->denormalize($input));
     }
 
     public function testDenormalizeShouldThrowIfNonStructGiven()
@@ -134,7 +134,7 @@ class StructNormalizerTest extends TestCase
 
         $struct = new ConstructorStruct('Peter');
 
-        $this->assertEquals($struct, $this->normalizer->denormalize($structNormalized));
+        static::assertEquals($struct, $this->normalizer->denormalize($structNormalized));
     }
 
     public function testDenormalizeShouldThrowWithNonProvidedConstructorParameters()
@@ -155,7 +155,7 @@ class StructNormalizerTest extends TestCase
         $struct = new TestStruct();
         $struct->setFoo('bar');
 
-        $this->assertEquals($struct, $this->normalizer->denormalize($structNormalized));
+        static::assertEquals($struct, $this->normalizer->denormalize($structNormalized));
     }
 
     public function testDenormalizeWithSubobjects()
@@ -184,7 +184,7 @@ class StructNormalizerTest extends TestCase
         $struct->setSubClasses([$subStruct, $subStruct2]);
         $struct->setMeta(['keyA' => 'valueA', 'keyB' => 'valueB']);
 
-        $this->assertEquals($struct, $this->normalizer->denormalize($structNormalized));
+        static::assertEquals($struct, $this->normalizer->denormalize($structNormalized));
     }
 
     public function testDenormalizeWithNonExistingClass()

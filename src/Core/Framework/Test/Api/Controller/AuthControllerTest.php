@@ -18,15 +18,15 @@ class AuthControllerTest extends ApiTestCase
         $client->setServerParameter('HTTP_Authorization', '');
         $client->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/tax');
 
-        $this->assertEquals(401, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertEquals(401, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $response = json_decode($client->getResponse()->getContent(), true);
 
-        $this->assertArrayHasKey('errors', $response);
-        $this->assertCount(1, $response['errors']);
-        $this->assertEquals(401, $response['errors'][0]['status']);
-        $this->assertEquals('The resource owner or authorization server denied the request.', $response['errors'][0]['title']);
-        $this->assertEquals('The JWT string must have two dots', $response['errors'][0]['detail']);
+        static::assertArrayHasKey('errors', $response);
+        static::assertCount(1, $response['errors']);
+        static::assertEquals(401, $response['errors'][0]['status']);
+        static::assertEquals('The resource owner or authorization server denied the request.', $response['errors'][0]['title']);
+        static::assertEquals('The JWT string must have two dots', $response['errors'][0]['detail']);
     }
 
     public function testCreateTokenWithInvalidCredentials(): void
@@ -46,14 +46,14 @@ class AuthControllerTest extends ApiTestCase
         ]);
         $client->request('POST', '/api/oauth/token', $authPayload);
 
-        $this->assertEquals(401, $client->getResponse()->getStatusCode());
+        static::assertEquals(401, $client->getResponse()->getStatusCode());
 
         $response = json_decode($client->getResponse()->getContent(), true);
 
-        $this->assertArrayHasKey('errors', $response);
-        $this->assertCount(1, $response['errors']);
-        $this->assertEquals(401, $response['errors'][0]['status']);
-        $this->assertEquals('The user credentials were incorrect.', $response['errors'][0]['title']);
+        static::assertArrayHasKey('errors', $response);
+        static::assertCount(1, $response['errors']);
+        static::assertEquals(401, $response['errors'][0]['status']);
+        static::assertEquals('The user credentials were incorrect.', $response['errors'][0]['title']);
     }
 
     public function testAccessWithInvalidToken(): void
@@ -67,15 +67,15 @@ class AuthControllerTest extends ApiTestCase
         ]);
         $client->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/tax');
 
-        $this->assertEquals(401, $client->getResponse()->getStatusCode());
+        static::assertEquals(401, $client->getResponse()->getStatusCode());
 
         $response = json_decode($client->getResponse()->getContent(), true);
 
-        $this->assertArrayHasKey('errors', $response);
-        $this->assertCount(1, $response['errors']);
-        $this->assertEquals(401, $response['errors'][0]['status']);
-        $this->assertEquals('The resource owner or authorization server denied the request.', $response['errors'][0]['title']);
-        $this->assertEquals('The JWT string must have two dots', $response['errors'][0]['detail']);
+        static::assertArrayHasKey('errors', $response);
+        static::assertCount(1, $response['errors']);
+        static::assertEquals(401, $response['errors'][0]['status']);
+        static::assertEquals('The resource owner or authorization server denied the request.', $response['errors'][0]['title']);
+        static::assertEquals('The JWT string must have two dots', $response['errors'][0]['detail']);
     }
 
     public function testAccessWithExpiredToken(): void
@@ -84,24 +84,24 @@ class AuthControllerTest extends ApiTestCase
         $client->setServerParameter('HTTP_Authorization', 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjBkZmFhOTJkMWNkYTJiZmUyNGMwOGU4MmNhZmExMDY4N2I2ZWEzZTI0MjE4NjcxMmM0YjI3NTA4Y2NjNWQ0MzI3MWQxODYzODA1NDYwYzQ0In0.eyJhdWQiOiJhZG1pbmlzdHJhdGlvbiIsImp0aSI6IjBkZmFhOTJkMWNkYTJiZmUyNGMwOGU4MmNhZmExMDY4N2I2ZWEzZTI0MjE4NjcxMmM0YjI3NTA4Y2NjNWQ0MzI3MWQxODYzODA1NDYwYzQ0IiwiaWF0IjoxNTI5NDM2MTkyLCJuYmYiOjE1Mjk0MzYxOTIsImV4cCI6MTUyOTQzOTc5Miwic3ViIjoiNzI2MWQyNmMzZTM2NDUxMDk1YWZhN2MwNWY4NzMyYjUiLCJzY29wZXMiOlsid3JpdGUiLCJ3cml0ZSJdfQ.DBYbAWNpwxGL6QngLidboGbr2nmlAwjYcJIqN02sRnZNNFexy9V6uyQQ-8cJ00anwxKhqBovTzHxtXBMhZ47Ix72hxNWLjauKxQlsHAbgIKBDRbJO7QxgOU8gUnSQiXzRzKoX6XBOSHXFSUJ239lF4wai7621aCNFyEvlwf1JZVILsLjVkyIBhvuuwyIPbpEETui19BBaJ0eQZtjXtpzjsWNq1ibUCQvurLACnNxmXIj8xkSNenoX5B4p3R1gbDFuxaNHkGgsrQTwkDtmZxqCb3_0AgFL3XX0mpO5xsIJAI_hLHDPvv5m0lTQgMRrlgNdfE7ecI4GLHMkDmjWoNx_A');
         $client->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/tax');
 
-        $this->assertEquals(401, $client->getResponse()->getStatusCode());
+        static::assertEquals(401, $client->getResponse()->getStatusCode());
 
         $response = json_decode($client->getResponse()->getContent(), true);
 
-        $this->assertArrayHasKey('errors', $response);
-        $this->assertCount(1, $response['errors']);
-        $this->assertEquals(401, $response['errors'][0]['status']);
+        static::assertArrayHasKey('errors', $response);
+        static::assertCount(1, $response['errors']);
+        static::assertEquals(401, $response['errors'][0]['status']);
     }
 
     public function testAccessProtectedResourceWithToken(): void
     {
         $this->apiClient->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/tax');
 
-        $this->assertEquals(200, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
+        static::assertEquals(200, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
 
         $response = json_decode($this->apiClient->getResponse()->getContent(), true);
 
-        $this->assertArrayNotHasKey('errors', $response);
+        static::assertArrayNotHasKey('errors', $response);
     }
 
     public function testInvalidRefreshToken(): void
@@ -122,12 +122,12 @@ class AuthControllerTest extends ApiTestCase
         $client->request('POST', '/api/oauth/token', $refreshPayload);
         $response = json_decode($client->getResponse()->getContent(), true);
 
-        $this->assertEquals(Response::HTTP_UNAUTHORIZED, $client->getResponse()->getStatusCode(), print_r($client->getResponse()->getContent(), true));
-        $this->assertArrayHasKey('errors', $response);
-        $this->assertCount(1, $response['errors']);
-        $this->assertEquals(401, $response['errors'][0]['status']);
-        $this->assertEquals('The refresh token is invalid.', $response['errors'][0]['title']);
-        $this->assertEquals('Cannot decrypt the refresh token', $response['errors'][0]['detail']);
+        static::assertEquals(Response::HTTP_UNAUTHORIZED, $client->getResponse()->getStatusCode(), print_r($client->getResponse()->getContent(), true));
+        static::assertArrayHasKey('errors', $response);
+        static::assertCount(1, $response['errors']);
+        static::assertEquals(401, $response['errors'][0]['status']);
+        static::assertEquals('The refresh token is invalid.', $response['errors'][0]['title']);
+        static::assertEquals('Cannot decrypt the refresh token', $response['errors'][0]['detail']);
     }
 
     public function testRefreshToken(): void
@@ -172,8 +172,8 @@ class AuthControllerTest extends ApiTestCase
 
         $data = json_decode($client->getResponse()->getContent(), true);
 
-        $this->assertArrayHasKey('access_token', $data, 'No token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error'));
-        $this->assertArrayHasKey('refresh_token', $data, 'No refresh_token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error'));
+        static::assertArrayHasKey('access_token', $data, 'No token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error'));
+        static::assertArrayHasKey('refresh_token', $data, 'No refresh_token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error'));
 
         /**
          * Issue new token with the refresh_token
@@ -186,8 +186,8 @@ class AuthControllerTest extends ApiTestCase
 
         $client->request('POST', '/api/oauth/token', $refreshPayload);
         $data = json_decode($client->getResponse()->getContent(), true);
-        $this->assertArrayHasKey('access_token', $data, 'No token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error'));
-        $this->assertArrayHasKey('refresh_token', $data, 'No refresh_token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error'));
+        static::assertArrayHasKey('access_token', $data, 'No token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error'));
+        static::assertArrayHasKey('refresh_token', $data, 'No refresh_token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error'));
 
         /*
          * Try access with new token
@@ -195,9 +195,9 @@ class AuthControllerTest extends ApiTestCase
         $client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['access_token']));
         $client->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/tax');
 
-        $this->assertEquals(200, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
+        static::assertEquals(200, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
         $response = json_decode($this->apiClient->getResponse()->getContent(), true);
-        $this->assertArrayNotHasKey('errors', $response);
+        static::assertArrayNotHasKey('errors', $response);
     }
 
     public function testIntegrationAuth(): void
@@ -234,7 +234,7 @@ class AuthControllerTest extends ApiTestCase
         $client->request('POST', '/api/oauth/token', $authPayload);
         $data = json_decode($client->getResponse()->getContent(), true);
 
-        $this->assertArrayHasKey('access_token', $data, 'No token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error'));
+        static::assertArrayHasKey('access_token', $data, 'No token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error'));
 
         /*
          * Access protected routes
@@ -242,6 +242,6 @@ class AuthControllerTest extends ApiTestCase
         $client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['access_token']));
         $client->request('GET', '/api/v1/tax');
 
-        $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
+        static::assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
     }
 }

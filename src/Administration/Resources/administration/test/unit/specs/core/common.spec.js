@@ -1,5 +1,6 @@
-before(function beforeHook(done) { // eslint-disable-line eslint-prefer-arrow-callback
-    this.timeout(50000);
+import { beforeAsync } from '../../async-helper';
+
+beforeAsync((done) => {
     Shopware.Application.start().then(() => {
         const AuthStore = Shopware.State.getStore('auth');
         AuthStore.username = 'admin';
@@ -8,7 +9,7 @@ before(function beforeHook(done) { // eslint-disable-line eslint-prefer-arrow-ca
             done();
         });
     });
-});
+}, 60000);
 
 describe('core/common.js', () => {
     it('should contain the necessary methods for the module factory', () => {

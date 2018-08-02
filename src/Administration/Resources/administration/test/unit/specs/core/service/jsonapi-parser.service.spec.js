@@ -1,4 +1,9 @@
 import jsonApiParserService from 'src/core/service/jsonapi-parser.service';
+import { Application } from 'src/core/shopware';
+import EntityProxy from 'src/core/data/EntityProxy';
+import CriteriaFactory from 'src/core/factory/criteria.factory';
+
+import { itAsync } from '../../../async-helper';
 
 describe('core/service/jsonapi-parser.service.js', () => {
     it('should reject when we are providing an array, number, undefined or null', () => {
@@ -80,5 +85,93 @@ describe('core/service/jsonapi-parser.service.js', () => {
             aggregations: null,
             parsed: true
         }));
+    });
+
+    itAsync('should ensure the right object structure got returned from the api using a search call', (done) => {
+        const serviceContainer = Application.getContainer('service');
+        const productService = serviceContainer.productService;
+
+        const headers = productService.getBasicHeaders();
+        const params = {
+            term: 'Awesome'
+        };
+
+        productService.httpClient.post(`${productService.getApiBasePath(null, 'search')}`, params, { headers })
+            .then((response) => {
+                const data = response.data;
+
+                expect(data.aggregations).to.be.an('array');
+                expect(data.data).to.be.an('array');
+                expect(data.included).to.be.an('array');
+
+                expect(data.links).to.be.an('object');
+                expect(data.links.first).to.be.a('string');
+                expect(data.links.last).to.be.a('string');
+                expect(data.links.self).to.be.a('string');
+
+                expect(data.meta).to.be.an('object');
+                expect(data.meta.fetchCount).to.be.a('number');
+                expect(data.meta.total).to.be.a('number');
+                done();
+            });
+    });
+
+    itAsync('should ensure the right object structure got returned from the api using an aggregation call', (done) => {
+        // generate catalog proxy and save it on the server
+        const serviceContainer = Application.getContainer('service');
+        const catalogService = serviceContainer.catalogService;
+
+        const catalogEntity = new EntityProxy('catalog', 'catalogService');
+        const catalogId = catalogEntity.id;
+        catalogEntity.name = 'KarmaUnitCatalog';
+
+        const headers = catalogService.getBasicHeaders();
+        const params = {
+            offset: 0,
+            limit: 1,
+            aggregations: {
+                productCount: {
+                    count: { field: 'catalog.products.id' }
+                },
+                categoryCount: {
+                    count: { field: 'catalog.categories.id' }
+                },
+                mediaCount: {
+                    count: { field: 'catalog.media.id' }
+                }
+            },
+            filter: [
+                CriteriaFactory.term('id', catalogId).getQuery()
+            ]
+        };
+
+        catalogEntity.save().then(() => {
+            catalogService.httpClient.post(`${catalogService.getApiBasePath(null, 'search')}`, params, { headers })
+                .then((response) => {
+                    const data = response.data;
+
+                    expect(data.aggregations).to.be.an('object');
+
+                    expect(data.aggregations).to.deep.include({
+                        productCount: { count: '0' },
+                        categoryCount: { count: '0' },
+                        mediaCount: { count: '0' }
+                    });
+
+                    expect(data.data.length).to.be.equal(1);
+
+                    expect(data.links).to.be.an('object');
+                    expect(data.links.first).to.be.a('string');
+                    expect(data.links.last).to.be.a('string');
+                    expect(data.links.self).to.be.a('string');
+
+                    expect(data.meta.fetchCount).to.be.a('number');
+                    expect(data.meta.total).to.be.a('number');
+
+                    expect(data.meta.fetchCount).to.be.equal(1);
+                    expect(data.meta.total).to.be.equal(1);
+                    done();
+                });
+        });
     });
 });

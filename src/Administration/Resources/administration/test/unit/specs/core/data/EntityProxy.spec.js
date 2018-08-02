@@ -2,6 +2,7 @@
 
 import EntityProxy from 'src/core/data/EntityProxy';
 import utils from 'src/core/service/util.service';
+import { itAsync } from '../../../async-helper';
 
 const State = Shopware.State;
 
@@ -145,7 +146,7 @@ describe('core/data/EntityProxy.js', () => {
         expect(changesWithAssociations.categories).to.be.an('array');
     });
 
-    it('should save the entity', (done) => {
+    itAsync('should save the entity', (done) => {
         const productEntity = new EntityProxy('product', 'productService');
 
         const taxEntity = new EntityProxy('tax', 'taxService', {
@@ -210,7 +211,7 @@ describe('core/data/EntityProxy.js', () => {
         expect(productEntity.remove()).to.be.equal(false);
     });
 
-    it('should delete the entity (direct delete)', (done) => {
+    itAsync('should delete the entity (direct delete)', (done) => {
         const taxEntity = new EntityProxy('tax', 'taxService');
 
         taxEntity.name = 'Insane tax rate';

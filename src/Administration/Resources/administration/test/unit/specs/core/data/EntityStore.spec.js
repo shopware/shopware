@@ -2,6 +2,8 @@ import EntityStore from 'src/core/data/EntityStore';
 import EntityProxy from 'src/core/data/EntityProxy';
 import ApiService from 'src/core/service/api/api.service';
 
+import { itAsync } from '../../../async-helper';
+
 const Entity = Shopware.Entity;
 const State = Shopware.State;
 const Application = Shopware.Application;
@@ -61,7 +63,7 @@ describe('core/data/EntityStore.js', () => {
         expect(entity.id).to.be.equal(newEntity.id);
     });
 
-    it('should load an entry from the remote server when it is not in the store', (done) => {
+    itAsync('should load an entry from the remote server when it is not in the store', (done) => {
         const store = new EntityStore('currency', 'currencyService');
 
         // Create a new entry
@@ -84,7 +86,7 @@ describe('core/data/EntityStore.js', () => {
         });
     });
 
-    it('should get a list with using an offset and limit', (done) => {
+    itAsync('should get a list with using an offset and limit', (done) => {
         const store = new EntityStore('currency', 'currencyService');
 
         store.getList({
@@ -97,7 +99,7 @@ describe('core/data/EntityStore.js', () => {
         });
     });
 
-    it('should get a list with a specific term', (done) => {
+    itAsync('should get a list with a specific term', (done) => {
         const store = new EntityStore('currency', 'currencyService');
 
         // Create a new entry
@@ -119,14 +121,16 @@ describe('core/data/EntityStore.js', () => {
         });
     });
 
-    it('should accept a sort by and sort direction parameter', () => {
+    itAsync('should accept a sort by and sort direction parameter', (done) => {
         const store = new EntityStore('currency', 'currencyService');
 
-        return store.getList({
+        store.getList({
             offset: 0,
             limit: 10,
             sortBy: 'currency.name',
             sortDirection: 'ASC'
+        }).then(() => {
+            done();
         });
     });
 

@@ -82,7 +82,11 @@ describe('core/data/EntityStore.js', () => {
 
             entity.delete(true).then(() => {
                 done();
+            }).catch((err) => {
+                done(err);
             });
+        }).catch((err) => {
+            done(err);
         });
     });
 
@@ -96,6 +100,8 @@ describe('core/data/EntityStore.js', () => {
             // We're having two currencies when running the `psh initpsh`
             expect(response.items.length).to.be.equal(2);
             done();
+        }).catch((err) => {
+            done(err);
         });
     });
 
@@ -117,6 +123,8 @@ describe('core/data/EntityStore.js', () => {
             }).then((response) => {
                 expect(response.items.length).to.be.equal(1);
                 done();
+            }).catch((err) => {
+                done(err);
             });
         });
     });
@@ -131,6 +139,8 @@ describe('core/data/EntityStore.js', () => {
             sortDirection: 'ASC'
         }).then(() => {
             done();
+        }).catch((err) => {
+            done(err);
         });
     });
 

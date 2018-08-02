@@ -22,7 +22,7 @@ export function afterEachAsync(fn, timeout = 1000) {
     });
 }
 
-export function itAsync(title, fn, timeout = 10000) {
+export function itAsync(title, fn, timeout = 15000) {
     it(title, function asyncItHook(done) {
         const context = this;
         context.timeout(timeout);

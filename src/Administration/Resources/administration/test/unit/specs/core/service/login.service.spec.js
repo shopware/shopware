@@ -1,3 +1,5 @@
+import { itAsync } from '../../../async-helper';
+
 let loginService;
 
 describe('core/service/login.service.js', () => {
@@ -8,7 +10,7 @@ describe('core/service/login.service.js', () => {
         loginService.clearBearerAuthentication();
     });
 
-    it('should request the token and expiry date from the server', (done) => {
+    itAsync('should request the token and expiry date from the server', (done) => {
         loginService.loginByUsername('admin', 'shopware').then((response) => {
             const data = response.data;
             expect(response.status).to.be.equal(200);

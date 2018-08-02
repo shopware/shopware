@@ -113,6 +113,9 @@ describe('core/service/jsonapi-parser.service.js', () => {
                 expect(data.meta.fetchCount).to.be.a('number');
                 expect(data.meta.total).to.be.a('number');
                 done();
+            })
+            .catch((err) => {
+                done(err);
             });
     });
 
@@ -171,7 +174,12 @@ describe('core/service/jsonapi-parser.service.js', () => {
                     expect(data.meta.fetchCount).to.be.equal(1);
                     expect(data.meta.total).to.be.equal(1);
                     done();
+                })
+                .catch((err) => {
+                    done(err);
                 });
+        }).catch((err) => {
+            done(err);
         });
     });
 });

@@ -7,7 +7,11 @@ beforeAsync((done) => {
         AuthStore.password = 'shopware';
         AuthStore.loginUserWithPassword().then(() => {
             done();
+        }).catch((err) => {
+            done(err);
         });
+    }).catch((err) => {
+        done(err);
     });
 }, 60000);
 

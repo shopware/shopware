@@ -49,7 +49,6 @@ describe('core/data/EntityProxy.js', () => {
         expect(productWithoutIdEntity.allowNotification).to.be.equal(false);
     });
 
-
     it('should create an entity with initial data with association keys', () => {
         const categoryEntity = new EntityProxy('category', 'categoryService', {
             id: utils.createId(),
@@ -92,7 +91,6 @@ describe('core/data/EntityProxy.js', () => {
 
         categoryEntity.name =  'Example category Edited';
         expect(Object.keys(categoryEntity.getChanges()).length).to.be.equal(1);
-
     });
 
     it('should generate association stores for the entity', () => {
@@ -192,8 +190,12 @@ describe('core/data/EntityProxy.js', () => {
                     net: 11
                 });
                 done();
+            }).catch((err) => {
+                done(err);
             });
-        });
+        }).catch((err) => {
+            done(err);
+        })
     });
 
     it('should remove itself from the store', () => {
@@ -220,7 +222,11 @@ describe('core/data/EntityProxy.js', () => {
         taxEntity.save().then(() => {
             taxEntity.delete(true).then(() => {
                 done();
+            }).catch((err) => {
+                done(err);
             });
+        }).catch((err) => {
+            done(err);
         });
     });
 

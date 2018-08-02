@@ -2,22 +2,11 @@
 
 import EntityProxy from 'src/core/data/EntityProxy';
 import utils from 'src/core/service/util.service';
-import { itAsync, beforeEachAsync } from '../../../async-helper';
+import { itAsync } from '../../../async-helper';
 
 const State = Shopware.State;
 
 describe('core/data/EntityProxy.js', () => {
-    beforeEachAsync((done) => {
-        const AuthStore = Shopware.State.getStore('auth');
-        AuthStore.username = 'admin';
-        AuthStore.password = 'shopware';
-        AuthStore.loginUserWithPassword().then(() => {
-            done();
-        }).catch((err) => {
-            done(err);
-        });
-    });
-
     it('should create an entity without initial data (empty entity should be created)', () => {
         const productEntity = new EntityProxy('product', 'productService');
 

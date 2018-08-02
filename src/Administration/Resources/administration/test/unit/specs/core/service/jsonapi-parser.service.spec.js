@@ -3,20 +3,9 @@ import { Application } from 'src/core/shopware';
 import EntityProxy from 'src/core/data/EntityProxy';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 
-import { beforeEachAsync, itAsync } from '../../../async-helper';
+import { itAsync } from '../../../async-helper';
 
 describe('core/service/jsonapi-parser.service.js', () => {
-    beforeEachAsync((done) => {
-        const AuthStore = Shopware.State.getStore('auth');
-        AuthStore.username = 'admin';
-        AuthStore.password = 'shopware';
-        AuthStore.loginUserWithPassword().then(() => {
-            done();
-        }).catch((err) => {
-            done(err);
-        });
-    });
-
     it('should reject when we are providing an array, number, undefined or null', () => {
         const arrayParser = jsonApiParserService([1, 2, 3]);
         expect(arrayParser).is.equal(null);

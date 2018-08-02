@@ -2,7 +2,21 @@
 
 namespace Shopware\Core\Content\Media\Exception;
 
-class EmptyMediaFilenameException extends \RuntimeException
+use Shopware\Core\Framework\ShopwareHttpException;
+use Symfony\Component\HttpFoundation\Response;
+use Throwable;
+
+class EmptyMediaFilenameException extends ShopwareHttpException
 {
-    public $message = 'A valid path must be provided.';
+    protected $code = 'EMPTY_MEDIA_FILE_EXCEPTION';
+
+    public function __construct(int $code = 0, Throwable $previous = null)
+    {
+        parent::__construct('A valid Filename must be provided', $code, $previous);
+    }
+
+    public function getStatusCode(): int
+    {
+        return Response::HTTP_BAD_REQUEST;
+    }
 }

@@ -98,11 +98,6 @@ class DemodataCommand extends ContainerAwareCommand
     private $tenantId;
 
     /**
-     * @var RepositoryInterface
-     */
-    private $albumRepository;
-
-    /**
      * Images to be deleted after generating data
      *
      * @var string[]
@@ -157,7 +152,6 @@ class DemodataCommand extends ContainerAwareCommand
         $this->productRepository = $container->get('product.repository');
         $this->ruleRepository = $container->get('rule.repository');
         $this->categoryRepository = $container->get('category.repository');
-        $this->albumRepository = $container->get('media_album.repository');
         $this->taxRepository = $container->get('tax.repository');
         $this->orderConverter = $orderConverter;
         $this->connection = $connection;
@@ -424,10 +418,6 @@ class DemodataCommand extends ContainerAwareCommand
         $payload = [];
         $productImages = [];
 
-        $albumId = Uuid::uuid4()->getHex();
-        $this->io->section('Creating default media album.');
-        $this->albumRepository->create([['id' => $albumId, 'name' => 'Products']], Context::createDefaultContext($this->tenantId));
-
         $this->io->section(sprintf('Generating %d products...', $count));
         $this->io->progressStart($count);
 
@@ -473,7 +463,6 @@ class DemodataCommand extends ContainerAwareCommand
                             'id' => $mediaId,
                             'mimeType' => mime_content_type($imagePath),
                             'fileSize' => filesize($imagePath),
-                            'albumId' => $albumId,
                             'name' => 'Product image of ' . $product['name'],
                         ],
                     ],
@@ -520,7 +509,6 @@ class DemodataCommand extends ContainerAwareCommand
                                     'id' => $mediaId,
                                     'mimeType' => mime_content_type($imagePath),
                                     'fileSize' => filesize($imagePath),
-                                    'albumId' => $albumId,
                                     'name' => 'Product image of ' . $product['name'],
                                 ],
                             ],

@@ -85,7 +85,6 @@ class EnrichmentTest extends KernelTestCase
                         'isCover' => true,
                         'media' => [
                             'name' => 'test',
-                            'album' => ['name' => 'test'],
                             'mimeType' => 'image/jpeg',
                             'fileName' => 'test',
                             'fileSize' => 0,
@@ -144,7 +143,6 @@ class EnrichmentTest extends KernelTestCase
                         'isCover' => true,
                         'media' => [
                             'name' => 'test',
-                            'album' => ['name' => 'test'],
                             'mimeType' => 'image/jpeg',
                             'fileName' => 'test',
                             'fileSize' => 0,

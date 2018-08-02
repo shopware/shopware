@@ -60,7 +60,8 @@
     "symfony/browser-kit": "4.1.2",
     "symfony/phpunit-bridge": "4.1.2",
     "symfony/var-dumper": "4.1.2",
-    "johnkary/phpunit-speedtrap": "3.0.0"
+    "johnkary/phpunit-speedtrap": "3.0.0",
+    "league/flysystem-memory": "^1.0"
   },
   "conflicts": {
     "symfony/symfony": "*"

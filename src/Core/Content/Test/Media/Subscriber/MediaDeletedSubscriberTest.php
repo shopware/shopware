@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Test\Media\Subscriber;
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\Media\Upload\MediaUpdater;
+use Shopware\Core\Content\Media\Util\MimeType;
 use Shopware\Core\Content\Media\Util\Strategy\StrategyInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -37,15 +38,11 @@ class MediaDeletedSubscriberTest extends KernelTestCase
     /** @var FilesystemInterface */
     private $filesystem;
 
-    /** @var RepositoryInterface */
-    private $albumRepository;
-
     public function setUp()
     {
         self::bootKernel();
         $this->mediaUpdater = self::$container->get(MediaUpdater::class);
         $this->repository = self::$container->get('media.repository');
-        $this->albumRepository = self::$container->get('media_album.repository');
         $this->connection = self::$container->get(Connection::class);
         $this->strategy = self::$container->get(StrategyInterface::class);
         $this->filesystem = self::$container->get('shopware.filesystem.public');
@@ -75,10 +72,6 @@ class MediaDeletedSubscriberTest extends KernelTestCase
                 [
                     'id' => $mediaId->getHex(),
                     'name' => 'test file',
-                    'album' => [
-                        'id' => Uuid::uuid4()->getHex(),
-                        'name' => 'test',
-                    ],
                 ],
             ],
             $context
@@ -94,10 +87,10 @@ class MediaDeletedSubscriberTest extends KernelTestCase
 
         $path = $this->strategy->encode($mediaId->getHex());
 
-        static::assertTrue($this->filesystem->has('media/' . $path . MediaUpdater::ALLOWED_MIME_TYPES[$mimeType]));
+        static::assertTrue($this->filesystem->has('media/' . $path . MimeType::getExtension($mimeType)));
 
         $this->repository->delete([['id' => $mediaId->getHex()]], $context);
 
-        static::assertFalse($this->filesystem->has('media/' . $path . MediaUpdater::ALLOWED_MIME_TYPES[$mimeType]));
+        static::assertFalse($this->filesystem->has('media/' . $path . MimeType::getExtension($mimeType)));
     }
 }

@@ -12,9 +12,12 @@ class MediaLinksStruct extends Struct
      */
     protected $url;
 
-    public function __construct(string $url)
+    protected $thumbnailUrls;
+
+    public function __construct(string $url, array $thumbnailUrls = [])
     {
         $this->url = $url;
+        $this->thumbnailUrls = $thumbnailUrls;
     }
 
     public function getUrl(): string
@@ -25,5 +28,15 @@ class MediaLinksStruct extends Struct
     public function setUrl(string $url): void
     {
         $this->url = $url;
+    }
+
+    public function getThumbnailUrls(): array
+    {
+        return $this->thumbnailUrls;
+    }
+
+    public function setThumbnailUrls(array $thumbnailUrls): void
+    {
+        $this->thumbnailUrls = $thumbnailUrls;
     }
 }

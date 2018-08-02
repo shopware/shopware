@@ -255,6 +255,10 @@ class EntityHydrator
                 return new PriceRuleCollection($structs);
 
             case $field instanceof ObjectField:
+                if ($value === null) {
+                    return null;
+                }
+
                 return $this->serializer->deserialize($value, '', 'json');
 
             case $field instanceof ListField:

@@ -2,15 +2,14 @@
 
 namespace Shopware\Core\Framework\Test\Api\Serializer;
 
-use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumDefinition;
-use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumStruct;
 use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
 use Shopware\Core\Framework\Api\Serializer\JsonApiEncoder;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Struct\Serializer\StructNormalizer;
+use Shopware\Core\System\User\UserDefinition;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class JsonApiEncoderTest extends KernelTestCase
@@ -19,11 +18,6 @@ class JsonApiEncoderTest extends KernelTestCase
      * @var JsonApiEncoder
      */
     private $encoder;
-
-    /**
-     * @var StructNormalizer
-     */
-    private $structNormalizer;
 
     public function setUp()
     {
@@ -59,62 +53,68 @@ class JsonApiEncoderTest extends KernelTestCase
 
     public function testEncodeStruct(): void
     {
-        $struct = new MediaAlbumStruct();
+        $struct = new MediaStruct();
         $struct->setId('1d23c1b0-15bf-43fb-97e8-9008cf42d6fe');
         $struct->setName('Manufacturer');
-        $struct->setPosition(12);
+        $struct->setMimeType('image/png');
+        $struct->setFileSize(310818);
+
+        $struct->setDescription('A media object description');
+
         $struct->setCreatedAt(date_create_from_format(\DateTime::ATOM, '2018-01-15T08:01:16+00:00'));
-        $struct->setCreateThumbnails(true);
-        $struct->setThumbnailSize('200x200');
-        $struct->setThumbnailQuality(90);
-        $struct->setThumbnailHighDpi(true);
-        $struct->setThumbnailHighDpiQuality(60);
 
         $expected = [
             'data' => [
                 'id' => '1d23c1b0-15bf-43fb-97e8-9008cf42d6fe',
-                'type' => 'media_album',
+                'type' => 'media',
                 'attributes' => [
-                    'parentId' => null,
                     'name' => 'Manufacturer',
-                    'position' => 12,
-                    'createThumbnails' => true,
-                    'thumbnailSize' => '200x200',
-                    'icon' => null,
-                    'thumbnailHighDpi' => true,
-                    'thumbnailQuality' => 90,
-                    'thumbnailHighDpiQuality' => 60,
+                    'description' => 'A media object description',
+                    'mimeType' => 'image/png',
+                    'fileSize' => 310818,
+                    'metaData' => null,
                     'createdAt' => '2018-01-15T08:01:16+00:00',
                     'updatedAt' => null,
                     'catalogId' => null,
                     'tenantId' => null,
+                    'userId' => null,
+                    'extensions' => [
+                        'links' => null,
+                    ],
+                    'thumbnails' => null,
                 ],
                 'links' => [
-                    'self' => '/api/media-album/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe',
+                    'self' => '/api/media/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe',
                 ],
                 'relationships' => [
-                    'parent' => [
-                        'data' => null,
-                        'links' => [
-                            'related' => '/api/media-album/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/parent',
-                        ],
-                    ],
-                    'media' => [
-                        'data' => [],
-                        'links' => [
-                            'related' => '/api/media-album/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/media',
-                        ],
-                    ],
-                    'children' => [
-                        'data' => [],
-                        'links' => [
-                            'related' => '/api/media-album/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/children',
-                        ],
-                    ],
                     'catalog' => [
                         'data' => null,
                         'links' => [
-                            'related' => '/api/media-album/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/catalog',
+                            'related' => '/api/media/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/catalog',
+                        ],
+                    ],
+                    'user' => [
+                        'data' => null,
+                        'links' => [
+                            'related' => '/api/media/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/user',
+                        ],
+                    ],
+                    'categories' => [
+                        'data' => [],
+                        'links' => [
+                            'related' => '/api/media/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/categories',
+                        ],
+                    ],
+                    'productManufacturers' => [
+                        'data' => [],
+                        'links' => [
+                            'related' => '/api/media/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/product-manufacturers',
+                        ],
+                    ],
+                    'productMedia' => [
+                        'data' => [],
+                        'links' => [
+                            'related' => '/api/media/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/product-media',
                         ],
                     ],
                 ],
@@ -122,76 +122,7 @@ class JsonApiEncoderTest extends KernelTestCase
             'included' => [],
         ];
 
-        $actual = $this->encoder->encode(MediaAlbumDefinition::class, $struct, Context::createDefaultContext(Defaults::TENANT_ID), '/api');
-        static::assertEquals($expected, json_decode($actual, true));
-    }
-
-    public function testEncodeStructWithEmptyRelation(): void
-    {
-        $struct = new MediaAlbumStruct();
-        $struct->setId('1d23c1b0-15bf-43fb-97e8-9008cf42d6fe');
-        $struct->setName('Manufacturer');
-        $struct->setPosition(12);
-        $struct->setCreatedAt(date_create_from_format(\DateTime::ATOM, '2018-01-15T08:01:16+00:00'));
-        $struct->setCreateThumbnails(true);
-        $struct->setThumbnailSize('200x200');
-        $struct->setThumbnailQuality(90);
-        $struct->setThumbnailHighDpi(true);
-        $struct->setThumbnailHighDpiQuality(60);
-
-        $expected = [
-            'data' => [
-                'id' => '1d23c1b0-15bf-43fb-97e8-9008cf42d6fe',
-                'type' => 'media_album',
-                'attributes' => [
-                    'parentId' => null,
-                    'name' => 'Manufacturer',
-                    'position' => 12,
-                    'createThumbnails' => true,
-                    'thumbnailSize' => '200x200',
-                    'icon' => null,
-                    'thumbnailHighDpi' => true,
-                    'thumbnailQuality' => 90,
-                    'thumbnailHighDpiQuality' => 60,
-                    'createdAt' => '2018-01-15T08:01:16+00:00',
-                    'updatedAt' => null,
-                    'catalogId' => null,
-                    'tenantId' => null,
-                ],
-                'links' => [
-                    'self' => '/api/media-album/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe',
-                ],
-                'relationships' => [
-                    'media' => [
-                        'links' => [
-                            'related' => '/api/media-album/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/media',
-                        ],
-                        'data' => [],
-                    ],
-                    'parent' => [
-                        'links' => [
-                            'related' => '/api/media-album/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/parent',
-                        ],
-                        'data' => null,
-                    ],
-                    'children' => [
-                        'links' => [
-                            'related' => '/api/media-album/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/children',
-                        ],
-                        'data' => [],
-                    ],
-                    'catalog' => [
-                        'data' => null,
-                        'links' => [
-                            'related' => '/api/media-album/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/catalog',
-                        ],
-                    ],
-                ],
-            ],
-            'included' => [],
-        ];
-
-        $actual = $this->encoder->encode(MediaAlbumDefinition::class, $struct, Context::createDefaultContext(Defaults::TENANT_ID), '/api');
+        $actual = $this->encoder->encode(MediaDefinition::class, $struct, Context::createDefaultContext(Defaults::TENANT_ID), '/api');
         static::assertEquals($expected, json_decode($actual, true));
     }
 
@@ -209,7 +140,7 @@ class JsonApiEncoderTest extends KernelTestCase
         $struct = include __DIR__ . '/fixtures/testBasicWithToManyRelationships.php';
         $expected = include __DIR__ . '/fixtures/testBasicWithToManyRelationshipsExpectation.php';
 
-        $actual = $this->encoder->encode(MediaAlbumDefinition::class, $struct, Context::createDefaultContext(Defaults::TENANT_ID), '/api');
+        $actual = $this->encoder->encode(UserDefinition::class, $struct, Context::createDefaultContext(Defaults::TENANT_ID), '/api');
 
         static::assertEquals($expected, json_decode($actual, true));
     }
@@ -228,7 +159,8 @@ class JsonApiEncoderTest extends KernelTestCase
         $struct = include __DIR__ . '/fixtures/testMainResourceShouldNotBeInIncluded.php';
         $expected = include __DIR__ . '/fixtures/testMainResourceShouldNotBeInIncludedExpectation.php';
 
-        $actual = $this->encoder->encode(MediaAlbumDefinition::class, $struct, Context::createDefaultContext(Defaults::TENANT_ID), '/api');
+        $actual = $this->encoder->encode(UserDefinition::class, $struct, Context::createDefaultContext(Defaults::TENANT_ID), '/api');
+
         static::assertEquals($expected, json_decode($actual, true));
     }
 }

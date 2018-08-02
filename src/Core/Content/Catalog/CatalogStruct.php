@@ -4,8 +4,6 @@ namespace Shopware\Core\Content\Catalog;
 
 use DateTime;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationCollection;
-use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumCollection;
-use Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\MediaAlbumTranslationCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
@@ -47,16 +45,6 @@ class CatalogStruct extends Entity
      * @var MediaCollection|null
      */
     protected $media;
-
-    /**
-     * @var MediaAlbumCollection|null
-     */
-    protected $mediaAlbum;
-
-    /**
-     * @var MediaAlbumTranslationCollection|null
-     */
-    protected $mediaAlbumTranslations;
 
     /**
      * @var MediaTranslationCollection|null
@@ -151,26 +139,6 @@ class CatalogStruct extends Entity
     public function setMedia(MediaCollection $media): void
     {
         $this->media = $media;
-    }
-
-    public function getMediaAlbum(): ?MediaAlbumCollection
-    {
-        return $this->mediaAlbum;
-    }
-
-    public function setMediaAlbum(MediaAlbumCollection $mediaAlbum): void
-    {
-        $this->mediaAlbum = $mediaAlbum;
-    }
-
-    public function getMediaAlbumTranslations(): ?MediaAlbumTranslationCollection
-    {
-        return $this->mediaAlbumTranslations;
-    }
-
-    public function setMediaAlbumTranslations(MediaAlbumTranslationCollection $mediaAlbumTranslations): void
-    {
-        $this->mediaAlbumTranslations = $mediaAlbumTranslations;
     }
 
     public function getMediaTranslations(): ?MediaTranslationCollection

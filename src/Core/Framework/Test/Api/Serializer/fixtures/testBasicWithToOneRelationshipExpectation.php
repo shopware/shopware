@@ -5,11 +5,10 @@ return [
         'id' => '548faa1f-7846-436c-8594-4f4aea792d96',
         'type' => 'media',
         'attributes' => [
-            'albumId' => '6f51622e-b381-4c75-ae02-63cece27ce72',
+            'userId' => '6f51622e-b381-4c75-ae02-63cece27ce72',
             'mimeType' => 'image/jpg',
             'fileSize' => 93889,
             'metaData' => null,
-            'userId' => null,
             'createdAt' => '2012-08-31T00:00:00+00:00',
             'updatedAt' => '2017-11-21T11:25:34+00:00',
             'name' => '2',
@@ -17,24 +16,19 @@ return [
             'catalogId' => null,
             'tenantId' => null,
             'extensions' => [
-                'links' => null
+                'links' => null,
             ],
+            'thumbnails' => null,
         ],
         'links' => [
             'self' => '/api/media/548faa1f-7846-436c-8594-4f4aea792d96',
         ],
         'relationships' => [
-            'album' => [
+            'user' => [
                 'data' => [
                     'id' => '6f51622e-b381-4c75-ae02-63cece27ce72',
-                    'type' => 'media_album',
+                    'type' => 'user',
                 ],
-                'links' => [
-                    'related' => '/api/media/548faa1f-7846-436c-8594-4f4aea792d96/album',
-                ],
-            ],
-            'user' => [
-                'data' => null,
                 'links' => [
                     'related' => '/api/media/548faa1f-7846-436c-8594-4f4aea792d96/user',
                 ],
@@ -68,48 +62,41 @@ return [
     'included' => [
         [
             'id' => '6f51622e-b381-4c75-ae02-63cece27ce72',
-            'type' => 'media_album',
+            'type' => 'user',
             'attributes' => [
-                'parentId' => null,
-                'position' => 12,
-                'createThumbnails' => true,
-                'thumbnailSize' => '200x200',
-                'icon' => 'sprite-blue-folder',
-                'thumbnailHighDpi' => true,
-                'thumbnailQuality' => 90,
-                'thumbnailHighDpiQuality' => 60,
+                'localeId' => null,
+                'username' => 'user1',
+                'password' => 'password',
+                'email' => 'user1@shop.de',
+                'lastLogin' => '2018-01-15T08:01:16+00:00',
+                'active' => true,
+                'failedLogins' => 0,
+                'lockedUntil' => null,
+                'name' => 'Manufacturer',
                 'createdAt' => '2018-01-15T08:01:16+00:00',
                 'updatedAt' => null,
-                'name' => 'Manufacturer',
-                'catalogId' => null,
                 'tenantId' => null,
             ],
             'links' => [
-                'self' => '/api/media-album/6f51622e-b381-4c75-ae02-63cece27ce72',
+                'self' => '/api/user/6f51622e-b381-4c75-ae02-63cece27ce72',
             ],
             'relationships' => [
                 'media' => [
                     'links' => [
-                        'related' => '/api/media-album/6f51622e-b381-4c75-ae02-63cece27ce72/media',
+                        'related' => '/api/user/6f51622e-b381-4c75-ae02-63cece27ce72/media',
                     ],
                     'data' => [],
                 ],
-                'parent' => [
+                'accessKeys' => [
                     'links' => [
-                        'related' => '/api/media-album/6f51622e-b381-4c75-ae02-63cece27ce72/parent',
-                    ],
-                    'data' => null,
-                ],
-                'children' => [
-                    'links' => [
-                        'related' => '/api/media-album/6f51622e-b381-4c75-ae02-63cece27ce72/children',
+                        'related' => '/api/user/6f51622e-b381-4c75-ae02-63cece27ce72/access-keys',
                     ],
                     'data' => [],
                 ],
-                'catalog' => [
+                'locale' => [
                     'data' => null,
                     'links' => [
-                        'related' => '/api/media-album/6f51622e-b381-4c75-ae02-63cece27ce72/catalog',
+                        'related' => '/api/user/6f51622e-b381-4c75-ae02-63cece27ce72/locale',
                     ],
                 ],
             ],

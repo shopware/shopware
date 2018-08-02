@@ -31,11 +31,6 @@ class StorefrontCartControllerTest extends ApiTestCase
     private $mediaRepository;
 
     /**
-     * @var RepositoryInterface
-     */
-    private $mediaAlbumRepository;
-
-    /**
      * @var string
      */
     private $taxId;
@@ -65,7 +60,6 @@ class StorefrontCartControllerTest extends ApiTestCase
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->mediaRepository = $this->getContainer()->get('media.repository');
-        $this->mediaAlbumRepository = $this->getContainer()->get('media_album.repository');
         $this->taxId = Uuid::uuid4()->getHex();
         $this->manufacturerId = Uuid::uuid4()->getHex();
         $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
@@ -380,20 +374,11 @@ class StorefrontCartControllerTest extends ApiTestCase
             ],
         ], $this->context);
 
-        $albumId = Uuid::uuid4()->getHex();
-        $this->mediaAlbumRepository->create([
-            [
-                'id' => $albumId,
-                'name' => 'Products',
-            ],
-        ], $this->context);
-
         $mediaId = Uuid::uuid4()->getHex();
         $coverName = 'My custom line item name';
         $this->mediaRepository->create([
             [
                 'id' => $mediaId,
-                'albumId' => $albumId,
                 'name' => $coverName,
             ],
         ], $this->context);
@@ -449,7 +434,6 @@ class StorefrontCartControllerTest extends ApiTestCase
 
         static::assertEquals($mediaId, $product['cover']['id']);
         static::assertEquals($coverName, $product['cover']['name']);
-        static::assertEquals($albumId, $product['cover']['albumId']);
     }
 
     public function testUpdateLineItem()
@@ -491,20 +475,11 @@ class StorefrontCartControllerTest extends ApiTestCase
         static::assertEquals(10, $cart['price']['totalPrice']);
         static::assertCount(1, $cart['lineItems']);
 
-        $albumId = Uuid::uuid4()->getHex();
-        $this->mediaAlbumRepository->create([
-            [
-                'id' => $albumId,
-                'name' => 'Products',
-            ],
-        ], $this->context);
-
         $mediaId = Uuid::uuid4()->getHex();
         $coverName = 'My custom line item name';
         $this->mediaRepository->create([
             [
                 'id' => $mediaId,
-                'albumId' => $albumId,
                 'name' => $coverName,
             ],
         ], $this->context);
@@ -551,7 +526,6 @@ class StorefrontCartControllerTest extends ApiTestCase
 
         static::assertEquals($mediaId, $product['cover']['id']);
         static::assertEquals($coverName, $product['cover']['name']);
-        static::assertEquals($albumId, $product['cover']['albumId']);
     }
 
     public function testOrderProcess()

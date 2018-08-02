@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace Shopware\Core\Framework\Test\ORM\Write;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\MediaAlbumTranslationDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
@@ -132,11 +131,6 @@ class TranslationTest extends KernelTestCase
         $languages = $result->getEventByDefinition(LanguageDefinition::class);
         $this->assertCount(1, array_unique($languages->getIds()));
         $this->assertContains('f32f19ca62994c4bbd004296b35a5c24', $languages->getIds());
-
-        $translations = $result->getEventByDefinition(MediaAlbumTranslationDefinition::class);
-        $this->assertCount(1, $translations->getIds());
-        $translations = array_column($translations->getPayload(), 'languageId');
-        $this->assertContains('f32f19ca62994c4bbd004296b35a5c24', $translations);
 
         $translations = $result->getEventByDefinition(MediaTranslationDefinition::class);
         $this->assertCount(1, $translations->getIds());

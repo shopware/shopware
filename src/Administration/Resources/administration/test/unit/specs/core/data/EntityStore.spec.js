@@ -93,13 +93,23 @@ describe('core/data/EntityStore.js', () => {
     itAsync('should get a list with using an offset and limit', (done) => {
         const store = new EntityStore('currency', 'currencyService');
 
-        store.getList({
-            offset: 0,
-            limit: 3
-        }).then((response) => {
-            // We're having two currencies when running the `psh initpsh`
-            expect(response.items.length).to.be.equal(2);
-            done();
+        // Create a new entry
+        const entity = store.create();
+        entity.factor = 6844.41;
+        entity.symbol = 'Ƀ';
+        entity.shortName = 'BTC';
+        entity.name = 'Bitcoin';
+
+        entity.save().then(() => {
+            store.getList({
+                offset: 0,
+                limit: 3
+            }).then((response) => {
+                expect(response.items.length).to.be.equal(1);
+                done();
+            }).catch((err) => {
+                done(err);
+            });
         }).catch((err) => {
             done(err);
         });
@@ -126,6 +136,8 @@ describe('core/data/EntityStore.js', () => {
             }).catch((err) => {
                 done(err);
             });
+        }).catch((err) => {
+            done(err);
         });
     });
 

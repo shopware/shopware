@@ -1,10 +1,18 @@
-import { itAsync } from '../../../async-helper';
+import { beforeEachAsync, itAsync } from '../../../async-helper';
 
 let loginService;
 
 describe('core/service/login.service.js', () => {
-    beforeEach(() => {
+    beforeEachAsync((done) => {
         loginService = Shopware.Application.getContainer('service').loginService;
+        const AuthStore = Shopware.State.getStore('auth');
+        AuthStore.username = 'admin';
+        AuthStore.password = 'shopware';
+        AuthStore.loginUserWithPassword().then(() => {
+            done();
+        }).catch((err) => {
+            done(err);
+        });
     });
     afterEach(() => {
         loginService.clearBearerAuthentication();

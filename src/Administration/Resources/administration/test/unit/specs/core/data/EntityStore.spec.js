@@ -2,13 +2,24 @@ import EntityStore from 'src/core/data/EntityStore';
 import EntityProxy from 'src/core/data/EntityProxy';
 import ApiService from 'src/core/service/api/api.service';
 
-import { itAsync } from '../../../async-helper';
+import { beforeEachAsync, itAsync } from '../../../async-helper';
 
 const Entity = Shopware.Entity;
 const State = Shopware.State;
 const Application = Shopware.Application;
 
 describe('core/data/EntityStore.js', () => {
+    beforeEachAsync((done) => {
+        const AuthStore = Shopware.State.getStore('auth');
+        AuthStore.username = 'admin';
+        AuthStore.password = 'shopware';
+        AuthStore.loginUserWithPassword().then(() => {
+            done();
+        }).catch((err) => {
+            done(err);
+        });
+    });
+
     it('should be iterate over the entities and create entity stores for each entity', () => {
         const definitions = Entity.getDefinitionRegistry();
         const definitionKeys = [...definitions.keys()];

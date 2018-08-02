@@ -170,8 +170,6 @@ describe('core/data/EntityProxy.js', () => {
 
         productEntity.name = 'Sample product';
         productEntity.catalogId = catalogEntity.id;
-        productEntity.taxId = taxEntity.id;
-        productEntity.manufacturerId = manufacturerEntity.id;
         productEntity.price = {
             gross: 12,
             net: 11
@@ -190,12 +188,12 @@ describe('core/data/EntityProxy.js', () => {
                     net: 11
                 });
                 done();
-            }).catch((err) => {
-                done(err);
+            }).catch(function (error) {
+                done(error);
             });
-        }).catch((err) => {
-            done(err);
-        })
+        }).catch(function (error) {
+            done(error);
+        });
     });
 
     it('should remove itself from the store', () => {

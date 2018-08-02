@@ -389,7 +389,7 @@ class EntityProxy {
      * @return {Object}
      */
     handleException(exception) {
-        if (exception.response.data && exception.response.data.errors) {
+        if (exception.response && exception.response.data && exception.response.data.errors) {
             exception.response.data.errors.forEach((error) => {
                 this.addError(error);
             });

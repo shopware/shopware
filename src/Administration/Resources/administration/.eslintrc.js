@@ -77,7 +77,10 @@ module.exports = {
             'allowAfterSuper': true
         }],
 
-        "prefer-destructuring": [ 'off', { 'object': true, 'array': false } ],
+        'prefer-destructuring': [ 'off', { 'object': true, 'array': false } ],
+
+        'operator-linebreak': 0,
+        'import/no-cycle': 0,
 
         // allow optionalDependencies
         'import/no-extraneous-dependencies': ['error', {

@@ -3,6 +3,7 @@ const webpack = require('webpack');
 const config = require('../config');
 const merge = require('webpack-merge');
 const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 let baseWebpackConfig = require('./webpack.base.conf');
 
@@ -11,6 +12,7 @@ baseWebpackConfig = utils.iteratePluginDefinitions(baseWebpackConfig, pluginList
 baseWebpackConfig = utils.injectIncludePathsToLoader(baseWebpackConfig, utils.getIncludePaths());
 
 let mergedWebpackConfig = merge(baseWebpackConfig, {
+    mode: 'development',
     node: {
         __filename: true
     },
@@ -22,6 +24,9 @@ let mergedWebpackConfig = merge(baseWebpackConfig, {
     plugins: [
         new webpack.DefinePlugin({
             'process.env': config.dev.env
+        }),
+        new MiniCssExtractPlugin({
+            filename: utils.assetsPath('css/[name].css')
         }),
         // https://github.com/glenjamin/webpack-hot-middleware#installation--usage
         new webpack.HotModuleReplacementPlugin(),

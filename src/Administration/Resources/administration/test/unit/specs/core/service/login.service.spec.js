@@ -10,7 +10,7 @@ describe('core/service/login.service.js', () => {
     // Create a new instance of the service for each test
     beforeEach(() => {
         loginService = new LoginService(axios);
-    });
+    });login
 
     // Resets the mocking adapter
     afterEach(() => {

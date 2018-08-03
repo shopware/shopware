@@ -6,7 +6,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ORM\Field\AssociationInterface;
 use Shopware\Core\Framework\ORM\Field\Field;
 use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
-use Shopware\Core\Framework\ORM\Field\SubresourceField;
 use Shopware\Core\Framework\ORM\Field\VersionField;
 use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
@@ -315,7 +314,7 @@ class VersionManager
                 continue;
             }
 
-            if ($field instanceof SubresourceField) {
+            if ($field instanceof AssociationInterface) {
                 foreach ($payload[$key] as $index => $associationItem) {
                     $payload[$key][$index] = $this->removeVersion($field->getReferenceClass(), $associationItem);
                 }
@@ -411,9 +410,10 @@ class VersionManager
 
         $commands = [$insert];
 
-        /*
-         * @var string|EntityDefinition
-         * @var array                   $item
+
+        /**
+         * @var string|EntityDefinition $definition
+         * @var array $items
          */
         foreach ($writtenEvents as $definition => $items) {
             if (strpos('version', $definition::getEntityName()) === 0) {

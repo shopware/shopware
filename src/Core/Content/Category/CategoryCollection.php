@@ -49,20 +49,6 @@ class CategoryCollection extends EntityCollection
         });
     }
 
-    public function getProductStreamIds(): array
-    {
-        return $this->fmap(function (CategoryStruct $category) {
-            return $category->getProductStreamId();
-        });
-    }
-
-    public function filterByProductStreamId(string $id): self
-    {
-        return $this->filter(function (CategoryStruct $category) use ($id) {
-            return $category->getProductStreamId() === $id;
-        });
-    }
-
     public function getSortingIds(): array
     {
         return $this->fmap(function (CategoryStruct $category) {

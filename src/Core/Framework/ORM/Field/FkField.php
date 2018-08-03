@@ -131,7 +131,7 @@ class FkField extends Field implements StorageAware
     /**
      * @param Constraint[] $constraints
      * @param string       $fieldName
-     * @param $value
+     * @param mixed        $value
      */
     private function validate(array $constraints, string $fieldName, $value): void
     {

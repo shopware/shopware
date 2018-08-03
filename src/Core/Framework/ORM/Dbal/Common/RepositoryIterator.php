@@ -65,10 +65,14 @@ class RepositoryIterator
     public function fetch(): ?EntitySearchResult
     {
         $this->criteria->setFetchCount(Criteria::FETCH_COUNT_NONE);
+
+        /** @var EntitySearchResult $result */
         $result = $this->repository->search($this->criteria, $this->context);
+
+        // increase offset for next iteration
         $this->criteria->setOffset($this->criteria->getOffset() + $this->criteria->getLimit());
 
-        if (empty($result->getIdResult()->getIds())) {
+        if (empty($result->getIds())) {
             return null;
         }
 

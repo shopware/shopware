@@ -54,7 +54,7 @@ class CountryCollection extends EntityCollection
         $this->sortByPositionAndName();
         foreach ($this->elements as $country) {
             if ($country->getStates()) {
-                $country->getStates()->getEntities()->sortByPositionAndName();
+                $country->getStates()->sortByPositionAndName();
             }
         }
     }

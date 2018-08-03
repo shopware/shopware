@@ -38,11 +38,11 @@ class SubresourceField extends Field
     protected $referenceClass;
 
     /**
-     * @var
+     * @var string
      */
     protected $possibleKey;
 
-    public function __construct(string $propertyName, string $referenceClass, $possibleKey = null)
+    public function __construct(string $propertyName, string $referenceClass, ?string $possibleKey = null)
     {
         $this->referenceClass = $referenceClass;
         $this->possibleKey = $possibleKey;

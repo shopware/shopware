@@ -11,7 +11,6 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Product\Cart\Struct\ProductFetchDefinition;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductCollection;
-use Shopware\Core\Content\Product\ProductStruct;
 use Shopware\Core\Framework\Struct\StructCollection;
 
 class ProductCollector implements CollectorInterface
@@ -85,6 +84,7 @@ class ProductCollector implements CollectorInterface
             return;
         }
 
+        /** @var ProductCollection $products */
         $products = $data->get(self::DATA_KEY);
 
         $flat = array_filter(
@@ -106,10 +106,8 @@ class ProductCollector implements CollectorInterface
 
             $id = $lineItem->getPayload()['id'];
 
-            /** @var ProductCollection $products */
             $product = $products->get($id);
 
-            /** @var ProductStruct $product */
             if (!$product) {
                 throw new ProductNotFoundException($id);
             }

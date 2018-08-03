@@ -32,7 +32,6 @@ use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\ORM\Field\ReferenceField;
 use Shopware\Core\Framework\ORM\Field\UpdatedAtField;
-use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Command\InsertCommand;
 use Shopware\Core\Framework\ORM\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\ORM\Write\Command\WriteCommandQueue;
@@ -201,9 +200,9 @@ class WriteCommandExtractor
     }
 
     /**
-     * @param string|EntityDefinition $definition
+     * @param EntityDefinition|string $definition
      *
-     * @return FieldCollection
+     * @return Field[]
      */
     private function getFieldsInWriteOrder(string $definition): array
     {
@@ -236,7 +235,7 @@ class WriteCommandExtractor
      * @param string|EntityDefinition $definition
      * @param FieldExceptionStack     $exceptionStack
      * @param FieldExtenderCollection $extender
-     * @param FieldCollection         $fields
+     * @param Field[]                 $fields
      *
      * @return array
      */
@@ -293,9 +292,9 @@ class WriteCommandExtractor
      * To extract the primary key data of the ProductCategoryDefinition it is required to extract first the product
      * and category association and their foreign key fields.
      *
-     * @param FieldCollection $fields
+     * @param Field[] $fields
      *
-     * @return FieldCollection
+     * @return Field[]
      */
     private function getFieldsForPrimaryKeyMapping(array $fields): array
     {

@@ -116,7 +116,7 @@ class Context extends Struct
         return new self(
             $salesChannel->getTenantId(),
             $sourceContext,
-            $salesChannel->getCatalogIds(),
+            $salesChannel->getCatalogs()->getIds(),
             [],
             $salesChannel->getCurrencyId(),
             $salesChannel->getLanguageId(),

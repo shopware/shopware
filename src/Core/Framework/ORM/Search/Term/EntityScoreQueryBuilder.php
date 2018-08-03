@@ -34,6 +34,7 @@ class EntityScoreQueryBuilder
         $queries = [];
         /** @var Field $field */
         foreach ($fields->getElements() as $field) {
+            /** @var SearchRanking $flag */
             $flag = $field->getFlag(SearchRanking::class);
 
             $ranking = 1 * $multiplier;

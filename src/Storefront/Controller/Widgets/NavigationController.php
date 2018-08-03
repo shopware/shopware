@@ -29,6 +29,7 @@ use Shopware\Storefront\Controller\StorefrontController;
 use Shopware\Storefront\DbalIndexing\SeoUrl\ListingPageSeoUrlIndexer;
 use Shopware\Storefront\Navigation\NavigationService;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -43,7 +44,9 @@ class NavigationController extends StorefrontController
      */
     public function navigationAction(CheckoutContext $context): ?Response
     {
-        $request = $this->get('request_stack')->getMasterRequest();
+        /** @var RequestStack $requestStack */
+        $requestStack = $this->get('request_stack');
+        $request = $requestStack->getMasterRequest();
 
         if (!$request) {
             return null;
@@ -51,7 +54,9 @@ class NavigationController extends StorefrontController
 
         $navigationId = $this->getNavigationId($request);
 
-        $navigation = $this->get(NavigationService::class)->load($navigationId, $context->getContext());
+        /** @var NavigationService $navigationService */
+        $navigationService = $this->get(NavigationService::class);
+        $navigation = $navigationService->load($navigationId, $context->getContext());
 
         return $this->render('@Storefront/widgets/navigation/navigation.html.twig', [
             'navigation' => $navigation,
@@ -67,7 +72,9 @@ class NavigationController extends StorefrontController
      */
     public function sidebarAction(CheckoutContext $context): ?Response
     {
-        $request = $this->get('request_stack')->getMasterRequest();
+        /** @var RequestStack $requestStack */
+        $requestStack = $this->get('request_stack');
+        $request = $requestStack->getMasterRequest();
 
         if (!$request) {
             return null;
@@ -75,7 +82,9 @@ class NavigationController extends StorefrontController
 
         $navigationId = $this->getNavigationId($request);
 
-        $navigation = $this->get(NavigationService::class)->load($navigationId, $context->getContext());
+        /** @var NavigationService $navigationService */
+        $navigationService = $this->get(NavigationService::class);
+        $navigation = $navigationService->load($navigationId, $context->getContext());
 
         return $this->render('@Storefront/widgets/navigation/sidebar.html.twig', [
             'navigation' => $navigation,

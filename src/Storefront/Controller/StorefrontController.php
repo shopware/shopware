@@ -30,6 +30,7 @@ use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 
 abstract class StorefrontController extends Controller
@@ -58,7 +59,10 @@ abstract class StorefrontController extends Controller
             $view = implode('/', $view);
         }
 
-        return $this->get(TemplateFinder::class)->find($view, true);
+        /** @var TemplateFinder $templateFinder */
+        $templateFinder = $this->get(TemplateFinder::class);
+
+        return $templateFinder->find($view, true);
     }
 
     /**
@@ -66,7 +70,9 @@ abstract class StorefrontController extends Controller
      */
     protected function denyAccessUnlessLoggedIn(): void
     {
-        $request = $this->get('request_stack')->getMasterRequest();
+        /** @var RequestStack $requestStack */
+        $requestStack = $this->get('request_stack');
+        $request = $requestStack->getMasterRequest();
 
         if (!$request) {
             return;

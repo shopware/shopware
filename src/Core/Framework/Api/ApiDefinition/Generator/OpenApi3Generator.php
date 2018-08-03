@@ -783,12 +783,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         ];
     }
 
-    /**
-     * @param $schemaName
-     *
-     * @return array
-     */
-    private function getDetailResponse($schemaName): array
+    private function getDetailResponse(string $schemaName): array
     {
         return [
             'description' => 'Detail of ' . $schemaName,

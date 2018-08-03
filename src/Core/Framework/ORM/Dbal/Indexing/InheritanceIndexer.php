@@ -131,6 +131,7 @@ class InheritanceIndexer implements IndexerInterface
         FieldCollection $associations,
         Context $context
     ): void {
+        /* @var string|EntityDefinition $definition */
         $tenantId = Uuid::fromHexToBytes($context->getTenantId());
         $versionId = Uuid::fromHexToBytes($context->getVersionId());
 
@@ -138,13 +139,11 @@ class InheritanceIndexer implements IndexerInterface
             return Uuid::fromHexToBytes($id);
         }, $ids);
 
-        /* @var string|EntityDefinition $definition */
+        /** @var AssociationInterface $association */
         foreach ($associations as $association) {
             if ($association instanceof ManyToManyAssociationField) {
-                /** @var ManyToManyAssociationField $association */
                 $reference = $association->getMappingDefinition();
             } else {
-                /** @var OneToManyAssociationField $association */
                 $reference = $association->getReferenceClass();
             }
 
@@ -186,6 +185,7 @@ class InheritanceIndexer implements IndexerInterface
         FieldCollection $associations,
         Context $context
     ): void {
+        /** @var string|EntityDefinition $definition */
         $tenantId = Uuid::fromHexToBytes($context->getTenantId());
         $versionId = Uuid::fromHexToBytes($context->getVersionId());
 
@@ -193,8 +193,7 @@ class InheritanceIndexer implements IndexerInterface
             return Uuid::fromHexToBytes($id);
         }, $ids);
 
-        /* @var string|EntityDefinition $definition */
-        /** @var Field|ManyToOneAssociationField $association */
+        /** @var ManyToOneAssociationField $association */
         foreach ($associations as $association) {
             $parameters = [
                 '#root#' => EntityDefinitionQueryHelper::escape($definition::getEntityName()),

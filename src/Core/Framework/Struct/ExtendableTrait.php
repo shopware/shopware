@@ -42,9 +42,6 @@ trait ExtendableTrait
     /**
      * Adds a new extension struct into the class storage.
      * The passed name is used as unique identifier and has to be stored too.
-     *
-     * @param string $name
-     * @param Struct $extension
      */
     public function addExtension(string $name, Struct $extension): void
     {
@@ -64,10 +61,6 @@ trait ExtendableTrait
     /**
      * Returns a single extension struct element of this class.
      * The passed name is used as unique identifier.
-     *
-     * @param $name
-     *
-     * @return null|Struct
      */
     public function getExtension(string $name): ?Struct
     {
@@ -81,10 +74,6 @@ trait ExtendableTrait
     /**
      * Helper function which checks if an associated
      * extension exists.
-     *
-     * @param $name
-     *
-     * @return bool
      */
     public function hasExtension(string $name): bool
     {
@@ -107,7 +96,7 @@ trait ExtendableTrait
         $this->extensions = $extensions;
     }
 
-    public function removeExtension(string $name)
+    public function removeExtension(string $name): void
     {
         if (isset($this->extensions[$name])) {
             unset($this->extensions[$name]);

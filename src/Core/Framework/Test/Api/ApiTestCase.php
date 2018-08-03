@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Client;
@@ -66,9 +67,12 @@ class ApiTestCase extends WebTestCase
 
     public function tearDown()
     {
+        /** @var Connection $connection */
+        $connection = self::$container->get(Connection::class);
+
         try {
-            self::$container->get(Connection::class)->executeQuery('DELETE FROM user WHERE username IN (:usernames)', ['usernames' => $this->apiUsernames], ['usernames' => Connection::PARAM_STR_ARRAY]);
-            self::$container->get(Connection::class)->executeQuery('DELETE FROM sales_channel WHERE id IN (:salesChannelIds)', ['salesChannelIds' => $this->salesChannelIds], ['salesChannelIds' => Connection::PARAM_STR_ARRAY]);
+            $connection->executeQuery('DELETE FROM user WHERE username IN (:usernames)', ['usernames' => $this->apiUsernames], ['usernames' => Connection::PARAM_STR_ARRAY]);
+            $connection->executeQuery('DELETE FROM sales_channel WHERE id IN (:salesChannelIds)', ['salesChannelIds' => $this->salesChannelIds], ['salesChannelIds' => Connection::PARAM_STR_ARRAY]);
         } catch (\Exception $ex) {
         }
 
@@ -114,7 +118,9 @@ class ApiTestCase extends WebTestCase
         $username = Uuid::uuid4()->getHex();
         $password = Uuid::uuid4()->getHex();
 
-        self::$container->get(Connection::class)->insert('user', [
+        /** @var Connection $connection */
+        $connection = self::$container->get(Connection::class);
+        $connection->insert('user', [
             'id' => Uuid::uuid4()->getBytes(),
             'tenant_id' => Uuid::fromHexToBytes(Defaults::TENANT_ID),
             'name' => $username,
@@ -152,8 +158,8 @@ class ApiTestCase extends WebTestCase
         $salesChannelId = Uuid::uuid4();
         $accessKey = AccessKeyHelper::generateAccessKey('sales-channel');
 
+        /** @var RepositoryInterface $salesChannelRepository */
         $salesChannelRepository = self::$container->get('sales_channel.repository');
-
         $salesChannelRepository->upsert([[
             'id' => $salesChannelId->getHex(),
             'typeId' => Defaults::SALES_CHANNEL_STOREFRONT_API,

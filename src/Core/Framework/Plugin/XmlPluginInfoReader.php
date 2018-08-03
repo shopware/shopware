@@ -97,7 +97,7 @@ class XmlPluginInfoReader
 
     /**
      * @param \DOMNode $node
-     * @param $name
+     * @param mixed    $name
      *
      * @return null|\DOMElement
      */
@@ -128,15 +128,15 @@ class XmlPluginInfoReader
     }
 
     /**
-     * @param $requiredPlugins
+     * @param \DOMNode $requiredPlugins
      *
      * @return array
      */
-    private function parseRequiredPlugins($requiredPlugins)
+    private function parseRequiredPlugins(\DOMNode $requiredPlugins)
     {
-        $requiredPlugins = $this->getChildren($requiredPlugins, 'requiredPlugin');
+        $resolvedPlugins = $this->getChildren($requiredPlugins, 'requiredPlugin');
         $plugins = [];
-        foreach ($requiredPlugins as $requiredPlugin) {
+        foreach ($resolvedPlugins as $requiredPlugin) {
             $plugins[] = [
                 'pluginName' => $requiredPlugin->getAttribute('pluginName'),
                 'minVersion' => $requiredPlugin->getAttribute('minVersion'),

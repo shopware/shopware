@@ -24,28 +24,14 @@ class OrderTransactionStateCollection extends EntityCollection
     public function getOrderTransactionStateIds(): array
     {
         return $this->fmap(function (OrderTransactionStateStruct $orderTransactionState) {
-            return $orderTransactionState->getOrderTransactionStateId();
+            return $orderTransactionState->getId();
         });
     }
 
     public function filterByOrderTransactionStateId(string $id): self
     {
         return $this->filter(function (OrderTransactionStateStruct $orderTransactionState) use ($id) {
-            return $orderTransactionState->getOrderTransactionStateId() === $id;
-        });
-    }
-
-    public function getLanguageIds(): array
-    {
-        return $this->fmap(function (OrderTransactionStateStruct $orderTransactionState) {
-            return $orderTransactionState->getLanguageId();
-        });
-    }
-
-    public function filterByLanguageId(string $id): self
-    {
-        return $this->filter(function (OrderTransactionStateStruct $orderTransactionState) use ($id) {
-            return $orderTransactionState->getLanguageId() === $id;
+            return $orderTransactionState->getId() === $id;
         });
     }
 

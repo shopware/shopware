@@ -41,13 +41,6 @@ class AdministrationController extends Controller
 
     /**
      * @Route("/api/v{version}/admin/search", name="administration.search")
-     *
-     * @param Request $request
-     *
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
-     *
-     * @return JsonResponse
      */
     public function search(Request $request, Context $context): JsonResponse
     {

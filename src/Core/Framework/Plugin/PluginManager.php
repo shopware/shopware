@@ -78,11 +78,6 @@ class PluginManager
         return $this->hydrate($plugin);
     }
 
-    /**
-     * @param Plugin|Plugin $plugin
-     *
-     * @return InstallContext
-     */
     public function installPlugin(PluginStruct $plugin): InstallContext
     {
         $pluginBootstrap = $this->getPluginBootstrap($plugin->getName());
@@ -122,15 +117,7 @@ class PluginManager
         return $context;
     }
 
-    /**
-     * @param Plugin $plugin
-     * @param bool   $removeUserData
-     *
-     * @throws PluginNotInstalledException
-     *
-     * @return UninstallContext
-     */
-    public function uninstallPlugin(PluginStruct $plugin, $removeUserData = true): Context\UninstallContext
+    public function uninstallPlugin(PluginStruct $plugin, bool $removeUserData = true): Context\UninstallContext
     {
         $pluginBootstrap = $this->getPluginBootstrap($plugin->getName());
 
@@ -161,11 +148,6 @@ class PluginManager
         return $context;
     }
 
-    /**
-     * @param Plugin $plugin
-     *
-     * @return UpdateContext
-     */
     public function updatePlugin(PluginStruct $plugin): Context\UpdateContext
     {
         $pluginBootstrap = $this->getPluginBootstrap($plugin->getName());
@@ -201,13 +183,6 @@ class PluginManager
         return $context;
     }
 
-    /**
-     * @param Plugin $plugin
-     *
-     * @throws PluginNotInstalledException
-     *
-     * @return ActivateContext
-     */
     public function activatePlugin(PluginStruct $plugin): Context\ActivateContext
     {
         $pluginBootstrap = $this->getPluginBootstrap($plugin->getName());
@@ -232,14 +207,6 @@ class PluginManager
         return $context;
     }
 
-    /**
-     * @param Plugin|Plugin $plugin
-     *
-     * @throws PluginNotActivatedException
-     * @throws PluginNotInstalledException
-     *
-     * @return DeactivateContext
-     */
     public function deactivatePlugin(PluginStruct $plugin): Context\DeactivateContext
     {
         $pluginBootstrap = $this->getPluginBootstrap($plugin->getName());
@@ -362,12 +329,7 @@ class PluginManager
         return version_compare($updateVersion, $currentVersion, '>');
     }
 
-    /**
-     * @param $databasePlugin
-     *
-     * @return Plugin
-     */
-    private function hydrate($databasePlugin): PluginStruct
+    private function hydrate(array $databasePlugin): PluginStruct
     {
         $plugin = new PluginStruct();
 

@@ -137,6 +137,9 @@ class EntityForeignKeyResolver
 
     private function joinCascades(string $definition, FieldCollection $cascades, string $root, QueryBuilder $query, string $class, Context $context): void
     {
+        /**
+         * @var AssociationInterface $cascade
+         */
         foreach ($cascades as $cascade) {
             $alias = $root . '.' . $cascade->getPropertyName();
 

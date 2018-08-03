@@ -121,7 +121,7 @@ class WriteContext
     }
 
     /**
-     * @param string|EntityDefinition $definition
+     * @param EntityDefinition|string $definition
      * @param array                   $raw
      *
      * @return bool

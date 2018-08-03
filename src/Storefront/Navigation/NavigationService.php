@@ -2,12 +2,14 @@
 
 namespace Shopware\Storefront\Navigation;
 
+use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryStruct;
 use Shopware\Core\Content\Category\Util\Tree\TreeBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
 
@@ -40,10 +42,12 @@ class NavigationService
         $criteria->addFilter(new TermQuery('category.parentId', null));
         $criteria->addFilter(new TermQuery('category.active', true));
 
+        /** @var EntitySearchResult $rootCategories */
         $rootCategories = $this->repository->search($criteria, $context);
         $rootIds = [];
 
         if ($categoryId) {
+            /** @var CategoryStruct $activeCategory */
             $activeCategory = $this->repository->read(new ReadCriteria([$categoryId]), $context)->get($categoryId);
 
             if ($activeCategory) {
@@ -67,10 +71,17 @@ class NavigationService
             })->first();
         }
 
-        $tree = TreeBuilder::buildTree(null, $rootCategories->getEntities()->sortByPosition()->sortByName());
+        /** @var CategoryCollection $categories */
+        $categories = $rootCategories->getEntities();
+
+        $tree = TreeBuilder::buildTree(null, $categories->sortByPosition()->sortByName());
+
+        /** @var CategoryCollection $leaves */
+        $leaves = $leafCategories->getEntities();
+        $leaves->sortByPosition()->sortByName();
 
         foreach ($tree as $index => $rootItem) {
-            $rootItem->addChildren(...TreeBuilder::buildTree($rootItem->getCategory()->getId(), $leafCategories->getEntities()->sortByPosition()->sortByName()));
+            $rootItem->addChildren(...TreeBuilder::buildTree($rootItem->getCategory()->getId(), $leaves));
         }
 
         return $this->navigation[$applicationId] = new Navigation($activeCategory, $tree);

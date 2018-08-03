@@ -139,9 +139,8 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
             unset($arguments[$name]);
         }
 
-        $instance = $reflectionClass->newInstanceArgs($params);
-
         /* @var Struct $instance */
+        $instance = $reflectionClass->newInstanceArgs($params);
         $instance->assign($arguments);
 
         return $instance;

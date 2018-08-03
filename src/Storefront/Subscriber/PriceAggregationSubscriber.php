@@ -6,6 +6,7 @@ use Shopware\Core\Framework\ORM\Search\Aggregation\AggregationResult;
 use Shopware\Core\Framework\ORM\Search\Aggregation\StatsAggregation;
 use Shopware\Core\Framework\ORM\Search\Query\NestedQuery;
 use Shopware\Core\Framework\ORM\Search\Query\NotQuery;
+use Shopware\Core\Framework\ORM\Search\Query\Query;
 use Shopware\Core\Framework\ORM\Search\Query\RangeQuery;
 use Shopware\Storefront\Event\ListingEvents;
 use Shopware\Storefront\Event\ListingPageLoadedEvent;

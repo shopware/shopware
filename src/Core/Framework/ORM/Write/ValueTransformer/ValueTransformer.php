@@ -27,7 +27,7 @@ namespace Shopware\Core\Framework\ORM\Write\ValueTransformer;
 interface ValueTransformer
 {
     /**
-     * @param $phpValue
+     * @param mixed $phpValue
      *
      * @return int|float|string
      */

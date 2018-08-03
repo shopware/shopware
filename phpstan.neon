@@ -1,5 +1,8 @@
 parameters:
-	excludes_analyse:
-		- %rootDir%/../../src/Core/Content/Media/Util/*
-		- %rootDir%/../../src/Core/Content/Media/Commands/MediaCleanupCommand.php
-		- %rootDir%/../../src/Core/Profiling/Cart/CircularCartCalculationTracer.php
+    reportUnmatchedIgnoredErrors: false
+    excludes_analyse:
+        - %rootDir%/../../src/**/*Test.php
+        - %rootDir%/../../src/Core/Framework/Command/DemodataCommand.php
+    ignoreErrors:
+        - '#PHPDoc tag @param for parameter.*EntityDefinition.*is not subtype of native type string#'
+        - '#PHPDoc tag @return with type.*EntityDefinition.*is not subtype of native type string#'

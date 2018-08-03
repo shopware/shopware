@@ -42,10 +42,8 @@ class RegistrationRequestResolver implements ArgumentValueResolverInterface
             ->attributes
             ->get(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT);
 
-        $event = $this->eventDispatcher->dispatch(
-            RegistrationRequestEvent::NAME,
-            new RegistrationRequestEvent($request, $context, $registrationRequest)
-        );
+        $event = new RegistrationRequestEvent($request, $context, $registrationRequest);
+        $this->eventDispatcher->dispatch(RegistrationRequestEvent::NAME, $event);
 
         yield $event->getRegistrationRequest();
     }

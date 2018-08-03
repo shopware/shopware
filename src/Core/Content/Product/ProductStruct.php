@@ -834,13 +834,13 @@ class ProductStruct extends Entity
 
         $rules = $this->getPriceRules();
 
+        /** @var ProductPriceRuleCollection|null $prices */
         $prices = $rules->getPriceRulesForContext($context);
 
         if (!$prices) {
             return new PriceDefinitionCollection();
         }
 
-        /* @var ProductPriceRuleCollection $prices */
         $prices->sortByQuantity();
 
         $definitions = $prices->map(function (ProductPriceRuleStruct $rule) use ($taxRules) {
@@ -895,19 +895,19 @@ class ProductStruct extends Entity
         /** @var ProductPriceRuleCollection $rules */
         $rules = $this->getPriceRules();
 
+        /** @var ProductPriceRuleCollection|null $prices */
         $prices = $rules->getPriceRulesForContext($context);
 
         if (!$prices) {
             return new QuantityPriceDefinition($this->getPrice()->getGross(), $taxRules, $quantity, true);
         }
 
-        /** @var ProductPriceRuleCollection $prices */
         $price = $prices->getQuantityPrice($quantity);
 
         return new QuantityPriceDefinition($price->getPrice()->getGross(), $taxRules, $quantity, true);
     }
 
-    public function getTaxRuleCollection()
+    public function getTaxRuleCollection(): TaxRuleCollection
     {
         return new TaxRuleCollection([
             new PercentageTaxRule($this->getTax()->getTaxRate(), 100),

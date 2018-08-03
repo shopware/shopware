@@ -5,44 +5,20 @@ namespace Shopware\Core\Framework\ORM;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
-use Shopware\Core\Framework\ORM\Search\Aggregation\AggregationResult;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\Framework\ORM\Search\IdSearchResult;
 
 interface RepositoryInterface
 {
-    /**
-     * @param Criteria $criteria
-     * @param Context  $context
-     *
-     * @return AggregationResult
-     */
-    public function aggregate(Criteria $criteria, Context $context);
+    public function aggregate(Criteria $criteria, Context $context): AggregatorResult;
 
-    /**
-     * @param Criteria $criteria
-     * @param Context  $context
-     *
-     * @return IdSearchResult
-     */
-    public function searchIds(Criteria $criteria, Context $context);
+    public function searchIds(Criteria $criteria, Context $context): IdSearchResult;
 
-    /**
-     * @param Criteria $criteria
-     * @param Context  $context
-     *
-     * @return EntitySearchResult
-     */
-    public function search(Criteria $criteria, Context $context);
+    public function search(Criteria $criteria, Context $context): EntitySearchResult;
 
-    /**
-     * @param ReadCriteria $criteria
-     * @param Context      $context
-     *
-     * @return EntityCollection
-     */
-    public function read(ReadCriteria $criteria, Context $context);
+    public function read(ReadCriteria $criteria, Context $context): EntityCollection;
 
     public function update(array $data, Context $context): EntityWrittenContainerEvent;
 

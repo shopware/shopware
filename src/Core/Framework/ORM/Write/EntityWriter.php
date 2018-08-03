@@ -34,6 +34,7 @@ use Shopware\Core\Framework\ORM\Field\JsonField;
 use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
 use Shopware\Core\Framework\ORM\Field\TenantIdField;
 use Shopware\Core\Framework\ORM\Field\VersionField;
+use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\MappingEntityDefinition;
 use Shopware\Core\Framework\ORM\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\ORM\Write\Command\InsertCommand;
@@ -146,6 +147,7 @@ class EntityWriter implements EntityWriterInterface
         $commandQueue = new WriteCommandQueue();
         $commandQueue->setOrder($definition, ...$definition::getWriteOrder());
 
+        /** @var FieldCollection $fields */
         $fields = $definition::getPrimaryKeys();
         $primaryKeyFields = [];
 
@@ -153,8 +155,11 @@ class EntityWriter implements EntityWriterInterface
         foreach ($ids as $raw) {
             $mapped = [];
 
-            /** @var StorageAware|IdField $field */
             foreach ($fields as $field) {
+                if (!($field instanceof StorageAware)) {
+                    continue;
+                }
+
                 if (array_key_exists($field->getPropertyName(), $raw)) {
                     $mapped[$field->getStorageName()] = $raw[$field->getPropertyName()];
                     $primaryKeyFields[$field->getPropertyName()] = $raw[$field->getPropertyName()];

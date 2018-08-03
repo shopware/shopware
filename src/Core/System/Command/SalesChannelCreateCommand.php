@@ -6,7 +6,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Write\FieldException\InvalidFieldException;
 use Shopware\Core\Framework\ORM\Write\FieldException\WriteStackException;
+use Shopware\Core\Framework\ORM\Write\Validation\ValidationException;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Helper\Table;
@@ -14,7 +16,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\Validator\ConstraintViolation;
 
 class SalesChannelCreateCommand extends ContainerAwareCommand
 {
@@ -94,9 +95,10 @@ class SalesChannelCreateCommand extends ContainerAwareCommand
 
             $messages = [];
             foreach ($exception->getExceptions() as $err) {
-                /** @var ConstraintViolation $violation */
-                foreach ($err->getViolations() as $violation) {
-                    $messages[] = $violation->getPropertyPath() . ': ' . $violation->getMessage();
+                if ($err instanceof InvalidFieldException || $err instanceof ValidationException) {
+                    foreach ($err->getViolations() as $violation) {
+                        $messages[] = $violation->getPropertyPath() . ': ' . $violation->getMessage();
+                    }
                 }
             }
 

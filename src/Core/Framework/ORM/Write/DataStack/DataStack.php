@@ -98,7 +98,7 @@ class DataStack
 
     /**
      * @param string $key
-     * @param $value
+     * @param mixed  $value
      */
     public function update(string $key, $value): void
     {

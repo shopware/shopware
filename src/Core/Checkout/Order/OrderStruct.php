@@ -12,7 +12,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodStruct;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\Search\SearchDocumentCollection;
 use Shopware\Core\System\Currency\CurrencyStruct;
-use Shopware\Core\System\Touchpoint\TouchpointStruct;
+use Shopware\Core\System\SalesChannel\SalesChannelStruct;
 
 class OrderStruct extends Entity
 {
@@ -39,7 +39,7 @@ class OrderStruct extends Entity
     /**
      * @var string
      */
-    protected $touchpointId;
+    protected $salesChannelId;
 
     /**
      * @var string
@@ -107,9 +107,9 @@ class OrderStruct extends Entity
     protected $currency;
 
     /**
-     * @var TouchpointStruct
+     * @var SalesChannelStruct
      */
-    protected $touchpoint;
+    protected $salesChannel;
 
     /**
      * @var OrderAddressStruct
@@ -181,14 +181,14 @@ class OrderStruct extends Entity
         $this->currencyId = $currencyId;
     }
 
-    public function getTouchpointId(): string
+    public function getSalesChannelId(): string
     {
-        return $this->touchpointId;
+        return $this->salesChannelId;
     }
 
-    public function setTouchpointId(string $touchpointId): void
+    public function setSalesChannelId(string $salesChannelId): void
     {
-        $this->touchpointId = $touchpointId;
+        $this->salesChannelId = $salesChannelId;
     }
 
     public function getBillingAddressId(): string
@@ -321,14 +321,14 @@ class OrderStruct extends Entity
         $this->currency = $currency;
     }
 
-    public function getTouchpoint(): TouchpointStruct
+    public function getSalesChannel(): SalesChannelStruct
     {
-        return $this->touchpoint;
+        return $this->salesChannel;
     }
 
-    public function setTouchpoint(TouchpointStruct $touchpoint): void
+    public function setSalesChannel(SalesChannelStruct $salesChannel): void
     {
-        $this->touchpoint = $touchpoint;
+        $this->salesChannel = $salesChannel;
     }
 
     public function getBillingAddress(): OrderAddressStruct

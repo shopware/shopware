@@ -38,15 +38,15 @@ use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelStruct;
 use Shopware\Core\System\Tax\TaxCollection;
-use Shopware\Core\System\Touchpoint\TouchpointStruct;
 
 class CheckoutContextFactory implements CheckoutContextFactoryInterface
 {
     /**
      * @var RepositoryInterface
      */
-    private $touchpointRepository;
+    private $salesChannelRepository;
 
     /**
      * @var RepositoryInterface
@@ -109,7 +109,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
     private $taxDetector;
 
     public function __construct(
-        RepositoryInterface $touchpointRepository,
+        RepositoryInterface $salesChannelRepository,
         RepositoryInterface $currencyRepository,
         RepositoryInterface $customerRepository,
         RepositoryInterface $customerGroupRepository,
@@ -123,7 +123,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
         RepositoryInterface $languageRepository,
         TaxDetector $taxDetector
     ) {
-        $this->touchpointRepository = $touchpointRepository;
+        $this->salesChannelRepository = $salesChannelRepository;
         $this->currencyRepository = $currencyRepository;
         $this->customerRepository = $customerRepository;
         $this->customerGroupRepository = $customerGroupRepository;
@@ -141,25 +141,25 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
     public function create(
         string $tenantId,
         string $token,
-        string $touchpointId,
+        string $salesChannelId,
         array $options = []
     ): CheckoutContext {
-        $context = $this->getContext($touchpointId, $tenantId);
+        $context = $this->getContext($salesChannelId, $tenantId);
 
-        $touchpoint = $this->touchpointRepository->read(new ReadCriteria([$context->getSourceContext()->getTouchpointId()]), $context)
-            ->get($context->getSourceContext()->getTouchpointId());
+        $salesChannel = $this->salesChannelRepository->read(new ReadCriteria([$context->getSourceContext()->getSalesChannelId()]), $context)
+            ->get($context->getSourceContext()->getSalesChannelId());
 
-        if (!$touchpoint) {
-            throw new \RuntimeException(sprintf('Touchpoint with id %s not found or not valid!', $context->getSourceContext()->getTouchpointId()));
+        if (!$salesChannel) {
+            throw new \RuntimeException(sprintf('SalesChannel with id %s not found or not valid!', $context->getSourceContext()->getSalesChannelId()));
         }
 
         //load active currency, fallback to shop currency
-        $currency = $touchpoint->getCurrency();
+        $currency = $salesChannel->getCurrency();
         if (array_key_exists(CheckoutContextService::CURRENCY_ID, $options)) {
             $currency = $this->currencyRepository->read(new ReadCriteria([$options[CheckoutContextService::CURRENCY_ID]]), $context)->get($options[CheckoutContextService::CURRENCY_ID]);
         }
 
-        $language = $touchpoint->getLanguage();
+        $language = $salesChannel->getLanguage();
         if (array_key_exists(CheckoutContextService::LANGUAGE_ID, $options)) {
             $language = $this->languageRepository->read(new ReadCriteria([$options[CheckoutContextService::LANGUAGE_ID]]), $context)->get($options[CheckoutContextService::LANGUAGE_ID]);
         }
@@ -189,7 +189,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
 
         if (!$shippingLocation) {
             //load not logged in customer with default shop configuration or with provided checkout scopes
-            $shippingLocation = $this->loadShippingLocation($options, $context, $touchpoint);
+            $shippingLocation = $this->loadShippingLocation($options, $context, $salesChannel);
         }
 
         //customer group switched?
@@ -203,15 +203,15 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
         $taxRules = $this->taxRepository->search($criteria, $context);
 
         //detect active payment method, first check if checkout defined other payment method, otherwise validate if customer logged in, at least use shop default
-        $payment = $this->getPaymentMethod($options, $context, $touchpoint, $customer);
+        $payment = $this->getPaymentMethod($options, $context, $salesChannel, $customer);
 
         //detect active delivery method, at first checkout scope, at least shop default method
-        $delivery = $this->getShippingMethod($options, $context, $touchpoint);
+        $delivery = $this->getShippingMethod($options, $context, $salesChannel);
 
         $context = new CheckoutContext(
             $tenantId,
             $token,
-            $touchpoint,
+            $salesChannel,
             $language,
             $fallbackLanguage,
             $currency,
@@ -230,7 +230,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
         return $context;
     }
 
-    private function getPaymentMethod(array $options, Context $context, TouchpointStruct $touchpoint, ?CustomerStruct $customer): PaymentMethodStruct
+    private function getPaymentMethod(array $options, Context $context, SalesChannelStruct $salesChannel, ?CustomerStruct $customer): PaymentMethodStruct
     {
         //payment switched in checkout?
         if (array_key_exists(CheckoutContextService::PAYMENT_METHOD_ID, $options)) {
@@ -247,13 +247,13 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
             return $customer->getDefaultPaymentMethod();
         }
 
-        return $this->paymentMethodRepository->read(new ReadCriteria([$touchpoint->getPaymentMethodId()]), $context)
-            ->get($touchpoint->getPaymentMethodId());
+        return $this->paymentMethodRepository->read(new ReadCriteria([$salesChannel->getPaymentMethodId()]), $context)
+            ->get($salesChannel->getPaymentMethodId());
     }
 
-    private function getShippingMethod(array $options, Context $context, TouchpointStruct $touchpoint): ShippingMethodStruct
+    private function getShippingMethod(array $options, Context $context, SalesChannelStruct $salesChannel): ShippingMethodStruct
     {
-        $id = $touchpoint->getShippingMethodId();
+        $id = $salesChannel->getShippingMethodId();
         if (array_key_exists(CheckoutContextService::SHIPPING_METHOD_ID, $options)) {
             $id = $options[CheckoutContextService::SHIPPING_METHOD_ID];
         }
@@ -261,40 +261,40 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
         return $this->shippingMethodRepository->read(new ReadCriteria([$id]), $context)->get($id);
     }
 
-    private function getContext(string $touchpointId, string $tenantId): Context
+    private function getContext(string $salesChannelId, string $tenantId): Context
     {
         $query = $this->connection->createQueryBuilder();
         $query->select([
-            'touchpoint.id as touchpoint_id',
-            'touchpoint.language_id as touchpoint_language_id',
-            'touchpoint.currency_id as touchpoint_currency_id',
-            'touchpoint.catalog_ids as touchpoint_catalog_ids',
-            'currency.factor as touchpoint_currency_factor',
-            'language.parent_id as touchpoint_language_parent_id',
+            'sales_channel.id as sales_channel_id',
+            'sales_channel.language_id as sales_channel_language_id',
+            'sales_channel.currency_id as sales_channel_currency_id',
+            'sales_channel.catalog_ids as sales_channel_catalog_ids',
+            'currency.factor as sales_channel_currency_factor',
+            'language.parent_id as sales_channel_language_parent_id',
         ]);
-        $query->from('touchpoint', 'touchpoint');
-        $query->innerJoin('touchpoint', 'currency', 'currency', 'touchpoint.currency_id = currency.id');
-        $query->innerJoin('touchpoint', 'language', 'language', 'touchpoint.language_id = language.id');
-        $query->andWhere('touchpoint.id = :id');
-        $query->andWhere('touchpoint.tenant_id = :tenant');
-        $query->setParameter('id', Uuid::fromHexToBytes($touchpointId));
+        $query->from('sales_channel', 'sales_channel');
+        $query->innerJoin('sales_channel', 'currency', 'currency', 'sales_channel.currency_id = currency.id');
+        $query->innerJoin('sales_channel', 'language', 'language', 'sales_channel.language_id = language.id');
+        $query->andWhere('sales_channel.id = :id');
+        $query->andWhere('sales_channel.tenant_id = :tenant');
+        $query->setParameter('id', Uuid::fromHexToBytes($salesChannelId));
         $query->setParameter('tenant', Uuid::fromHexToBytes($tenantId));
 
         $data = $query->execute()->fetch(\PDO::FETCH_ASSOC);
 
         $sourceContext = new SourceContext(SourceContext::ORIGIN_STOREFRONT_API);
-        $sourceContext->setTouchpointId($touchpointId);
+        $sourceContext->setSalesChannelId($salesChannelId);
 
         return new Context(
             $tenantId,
             $sourceContext,
-            json_decode($data['touchpoint_catalog_ids'], true),
+            json_decode($data['sales_channel_catalog_ids'], true),
             [],
-            Uuid::fromBytesToHex($data['touchpoint_currency_id']),
-            Uuid::fromBytesToHex($data['touchpoint_language_id']),
-            $data['touchpoint_language_parent_id'] ? Uuid::fromBytesToHex($data['touchpoint_language_parent_id']) : null,
+            Uuid::fromBytesToHex($data['sales_channel_currency_id']),
+            Uuid::fromBytesToHex($data['sales_channel_language_id']),
+            $data['sales_channel_language_parent_id'] ? Uuid::fromBytesToHex($data['sales_channel_language_parent_id']) : null,
             Defaults::LIVE_VERSION,
-            (float) $data['touchpoint_currency_factor']
+            (float) $data['sales_channel_currency_factor']
         );
     }
 
@@ -343,7 +343,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
     private function loadShippingLocation(
         array $options,
         Context $context,
-        TouchpointStruct $touchpoint
+        SalesChannelStruct $salesChannel
     ): ShippingLocation {
         //allows to preview cart calculation for a specify state for not logged in customers
         if (array_key_exists(CheckoutContextService::STATE_ID, $options)) {
@@ -356,7 +356,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
             return new ShippingLocation($country, $state, null);
         }
 
-        $countryId = $touchpoint->getCountryId();
+        $countryId = $salesChannel->getCountryId();
         if (array_key_exists(CheckoutContextService::COUNTRY_ID, $options)) {
             $countryId = $options[CheckoutContextService::COUNTRY_ID];
         }

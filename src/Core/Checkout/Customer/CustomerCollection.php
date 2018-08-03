@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCol
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Framework\ORM\EntityCollection;
-use Shopware\Core\System\Touchpoint\TouchpointCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 class CustomerCollection extends EntityCollection
 {
@@ -53,17 +53,17 @@ class CustomerCollection extends EntityCollection
         });
     }
 
-    public function getTouchpointIds(): array
+    public function getSalesChannelIds(): array
     {
         return $this->fmap(function (CustomerStruct $customer) {
-            return $customer->getTouchpointId();
+            return $customer->getSalesChannelId();
         });
     }
 
-    public function filterByTouchpointId(string $id): self
+    public function filterBySalesChannelId(string $id): self
     {
         return $this->filter(function (CustomerStruct $customer) use ($id) {
-            return $customer->getTouchpointId() === $id;
+            return $customer->getSalesChannelId() === $id;
         });
     }
 
@@ -141,11 +141,11 @@ class CustomerCollection extends EntityCollection
         );
     }
 
-    public function getTouchpoints(): TouchpointCollection
+    public function getSalesChannels(): SalesChannelCollection
     {
-        return new TouchpointCollection(
+        return new SalesChannelCollection(
             $this->fmap(function (CustomerStruct $customer) {
-                return $customer->getTouchpoint();
+                return $customer->getSalesChannel();
             })
         );
     }

@@ -329,7 +329,7 @@ class DemodataCommand extends ContainerAwareCommand
                 'password' => 'shopware',
                 'defaultPaymentMethodId' => '47160b00-cd06-4b01-8817-6451f9f3c247',
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-                'touchpointId' => Defaults::TOUCHPOINT,
+                'salesChannelId' => Defaults::SALES_CHANNEL,
                 'defaultBillingAddressId' => $addressId,
                 'defaultShippingAddressId' => $addressId,
                 'addresses' => $addresses,
@@ -369,7 +369,7 @@ class DemodataCommand extends ContainerAwareCommand
             'password' => 'shopware',
             'defaultPaymentMethodId' => '47160b00cd064b0188176451f9f3c247',
             'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-            'touchpointId' => Defaults::TOUCHPOINT,
+            'salesChannelId' => Defaults::SALES_CHANNEL,
             'defaultBillingAddressId' => $billingAddressId,
             'defaultShippingAddressId' => $shippingAddressId,
             'addresses' => [
@@ -914,7 +914,7 @@ class DemodataCommand extends ContainerAwareCommand
             if (isset($contexts[$customerId])) {
                 $context = $contexts[$customerId];
             } else {
-                $context = $this->contextFactory->create($tenantId, $token, Defaults::TOUCHPOINT, $options);
+                $context = $this->contextFactory->create($tenantId, $token, Defaults::SALES_CHANNEL, $options);
                 $contexts[$customerId] = $context;
             }
 

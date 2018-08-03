@@ -312,8 +312,8 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service id="touchpoint.repository" class="Shopware\Core\Framework\ORM\EntityRepository" public="true">
-            <argument>Shopware\Core\System\Touchpoint\TouchpointDefinition</argument>
+        <service id="sales_channel.repository" class="Shopware\Core\Framework\ORM\EntityRepository" public="true">
+            <argument>Shopware\Core\System\SalesChannel\SalesChannelDefinition</argument>
             <argument type="service" id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\VersionManager"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntitySearcherInterface"/>

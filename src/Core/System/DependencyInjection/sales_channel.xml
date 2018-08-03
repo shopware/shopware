@@ -1,0 +1,17 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service class="Shopware\Core\System\SalesChannel\SalesChannelDefinition" id="Shopware\Core\System\SalesChannel\SalesChannelDefinition">
+            <tag name="shopware.entity.definition" entity="sales_channel"/>
+        </service>
+
+        <service class="Shopware\Core\System\Command\SalesChannelCreateCommand" id="Shopware\Core\System\Command\SalesChannelCreateCommand">
+            <argument id="sales_channel.repository" type="service"/>
+            <tag name="console.command"/>
+        </service>
+    </services>
+</container>                

@@ -50,7 +50,7 @@ class EnrichmentTest extends KernelTestCase
 
         $this->productRepository = self::$container->get('product.repository');
         $this->factory = self::$container->get(CheckoutContextFactory::class);
-        $this->context = $this->factory->create(Defaults::TENANT_ID, Defaults::TENANT_ID, Defaults::TOUCHPOINT);
+        $this->context = $this->factory->create(Defaults::TENANT_ID, Defaults::TENANT_ID, Defaults::SALES_CHANNEL);
         $this->enrichment = self::$container->get(Enrichment::class);
 
         $this->connection = self::$container->get(Connection::class);

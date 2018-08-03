@@ -43,7 +43,7 @@ for the corresponding use cases in the Shopware\Core universe.
 # Getting around the core structure
 
 The core domain is divided into different sub domains:
-* Touchpoint
+* Sales channel
     * This part of the core contains all sources for building application access objects, 
       context objects or languages. Take a look into this domain in order to find out 
       which information is available in a user context, which information is stored 
@@ -137,7 +137,7 @@ governed by its associated repository class.
 
 The repository classes are defined in the corresponding core parts, here are some examples which are available:
 * `\Shopware\Core\Content\Product\ProductRepository`
-* `\Shopware\Core\System\Touchpoint\TouchpointRepository`
+* `\Shopware\Core\System\SalesChannel\SalesChannelRepository`
 * `\Shopware\Core\System\Locale\LocaleRepository`
 * `\Shopware\Core\Checkout\Customer\CustomerRepository`
 

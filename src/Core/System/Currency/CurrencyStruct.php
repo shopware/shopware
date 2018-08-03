@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleCollection;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationCollection;
-use Shopware\Core\System\Touchpoint\TouchpointCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 class CurrencyStruct extends Entity
 {
@@ -66,9 +66,9 @@ class CurrencyStruct extends Entity
     protected $orders;
 
     /**
-     * @var TouchpointCollection|null
+     * @var SalesChannelCollection|null
      */
-    protected $touchpoints;
+    protected $salesChannels;
 
     /**
      * @var ProductPriceRuleCollection|null
@@ -185,14 +185,14 @@ class CurrencyStruct extends Entity
         $this->orders = $orders;
     }
 
-    public function getTouchpoints(): ?TouchpointCollection
+    public function getSalesChannels(): ?SalesChannelCollection
     {
-        return $this->touchpoints;
+        return $this->salesChannels;
     }
 
-    public function setTouchpoints(TouchpointCollection $touchpoints): void
+    public function setSalesChannels(SalesChannelCollection $salesChannels): void
     {
-        $this->touchpoints = $touchpoints;
+        $this->salesChannels = $salesChannels;
     }
 
     public function getProductPriceRules(): ?ProductPriceRuleCollection

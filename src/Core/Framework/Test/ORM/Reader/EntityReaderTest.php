@@ -277,7 +277,7 @@ class EntityReaderTest extends KernelTestCase
                 'email' => 'test@test.com' . $id,
                 'defaultShippingAddressId' => $defaultAddressId,
                 'defaultBillingAddressId' => $defaultAddressId,
-                'touchpointId' => Defaults::TOUCHPOINT,
+                'salesChannelId' => Defaults::SALES_CHANNEL,
                 'defaultPaymentMethodId' => Defaults::PAYMENT_METHOD_INVOICE,
                 'group' => ['name' => 'test'],
                 'addresses' => [
@@ -326,7 +326,7 @@ class EntityReaderTest extends KernelTestCase
                 'email' => 'test@test.com' . $id,
                 'defaultShippingAddressId' => $defaultAddressId,
                 'defaultBillingAddressId' => $defaultAddressId,
-                'touchpointId' => Defaults::TOUCHPOINT,
+                'salesChannelId' => Defaults::SALES_CHANNEL,
                 'defaultPaymentMethodId' => Defaults::PAYMENT_METHOD_INVOICE,
                 'group' => ['name' => 'test'],
                 'addresses' => [
@@ -377,7 +377,7 @@ class EntityReaderTest extends KernelTestCase
             'salutation' => 'A',
             'password' => 'A',
             'email' => 'test@test.com',
-            'touchpointId' => Defaults::TOUCHPOINT,
+            'salesChannelId' => Defaults::SALES_CHANNEL,
             'defaultPaymentMethodId' => Defaults::PAYMENT_METHOD_INVOICE,
             'group' => ['name' => 'test'],
         ];
@@ -473,7 +473,7 @@ class EntityReaderTest extends KernelTestCase
             'number' => 'A',
             'salutation' => 'A',
             'password' => 'A',
-            'touchpointId' => Defaults::TOUCHPOINT,
+            'salesChannelId' => Defaults::SALES_CHANNEL,
             'defaultPaymentMethodId' => Defaults::PAYMENT_METHOD_INVOICE,
             'group' => ['name' => 'test'],
         ];
@@ -596,7 +596,7 @@ class EntityReaderTest extends KernelTestCase
                 'email' => 'test@test.com' . Uuid::uuid4()->getHex(),
                 'defaultShippingAddressId' => $defaultAddressId,
                 'defaultBillingAddressId' => $defaultAddressId,
-                'touchpointId' => Defaults::TOUCHPOINT,
+                'salesChannelId' => Defaults::SALES_CHANNEL,
                 'defaultPaymentMethodId' => Defaults::PAYMENT_METHOD_INVOICE,
                 'group' => ['name' => 'test'],
                 'addresses' => [

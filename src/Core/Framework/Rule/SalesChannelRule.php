@@ -26,21 +26,21 @@ namespace Shopware\Core\Framework\Rule;
 
 use Shopware\Core\Content\Rule\Exception\UnsupportedOperatorException;
 
-class TouchpointRule extends Rule
+class SalesChannelRule extends Rule
 {
     /**
      * @var int[]
      */
-    protected $touchpointIds;
+    protected $salesChannelIds;
 
     /**
      * @var string
      */
     protected $operator;
 
-    public function __construct(array $touchpointIds, string $operator)
+    public function __construct(array $salesChannelIds, string $operator)
     {
-        $this->touchpointIds = $touchpointIds;
+        $this->salesChannelIds = $salesChannelIds;
         $this->operator = $operator;
     }
 
@@ -52,15 +52,15 @@ class TouchpointRule extends Rule
             case self::OPERATOR_EQ:
 
                 return new Match(
-                    in_array($context->getTouchpoint()->getId(), $this->touchpointIds, true),
-                    ['Touchpoint not matched']
+                    in_array($context->getSalesChannel()->getId(), $this->salesChannelIds, true),
+                    ['SalesChannel not matched']
                 );
 
             case self::OPERATOR_NEQ:
 
                 return new Match(
-                    !in_array($context->getTouchpoint()->getId(), $this->touchpointIds, true),
-                    ['Touchpoint not matched']
+                    !in_array($context->getSalesChannel()->getId(), $this->salesChannelIds, true),
+                    ['SalesChannel not matched']
                 );
 
             default:

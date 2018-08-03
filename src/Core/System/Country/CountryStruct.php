@@ -8,8 +8,8 @@ use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\System\Country\Aggregate\CountryArea\CountryAreaStruct;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateCollection;
 use Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleCollection;
-use Shopware\Core\System\Touchpoint\TouchpointCollection;
 
 class CountryStruct extends Entity
 {
@@ -114,9 +114,9 @@ class CountryStruct extends Entity
     protected $customerAddresses;
 
     /**
-     * @var TouchpointCollection|null
+     * @var SalesChannelCollection|null
      */
-    protected $touchpoints;
+    protected $salesChannels;
 
     public function getAreaId(): ?string
     {
@@ -318,13 +318,13 @@ class CountryStruct extends Entity
         $this->customerAddresses = $customerAddresses;
     }
 
-    public function getTouchpoints(): ?TouchpointCollection
+    public function getSalesChannels(): ?SalesChannelCollection
     {
-        return $this->touchpoints;
+        return $this->salesChannels;
     }
 
-    public function setTouchpoints(TouchpointCollection $touchpoints): void
+    public function setSalesChannels(SalesChannelCollection $salesChannels): void
     {
-        $this->touchpoints = $touchpoints;
+        $this->salesChannels = $salesChannels;
     }
 }

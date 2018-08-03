@@ -125,7 +125,7 @@
         </service>
 
         <!-- Routing -->
-        <service class="Shopware\Core\Framework\Routing\TouchpointSubscriber" id="Shopware\Core\Framework\Routing\TouchpointSubscriber">
+        <service class="Shopware\Core\Framework\Routing\SalesChannelSubscriber" id="Shopware\Core\Framework\Routing\SalesChannelSubscriber">
             <argument type="service" id="request_stack"/>
             <argument type="service" id="Shopware\Core\Framework\Routing\ApiRequestContextResolver"/>
             <tag name="kernel.event_subscriber"/>
@@ -172,11 +172,11 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
-        <service class="Shopware\Core\Framework\Routing\TouchpointRequestContextResolver"
+        <service class="Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver"
                  decorates="Shopware\Core\Framework\Routing\ApiRequestContextResolver"
-                 id="Shopware\Core\Framework\Routing\TouchpointRequestContextResolver">
+                 id="Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver">
 
-            <argument id="Shopware\Core\Framework\Routing\TouchpointRequestContextResolver.inner" type="service"/>
+            <argument id="Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver.inner" type="service"/>
             <argument id="Shopware\Core\Checkout\Context\CheckoutContextService" type="service"/>
             <argument id="Doctrine\DBAL\Connection" type="service"/>
         </service>

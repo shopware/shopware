@@ -17,7 +17,7 @@ Each collector has to implement the `\Shopware\Core\Checkout\Cart\Cart\CartColle
 <?php
 
 namespace Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Touchpoint\Context\Struct\ShopContext;
+use Shopware\Core\SalesChannel\Context\Struct\ShopContext;
 use Shopware\Core\Framework\Struct\StructCollection;
 
 interface CartCollectorInterface

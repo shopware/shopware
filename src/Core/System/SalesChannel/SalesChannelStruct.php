@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Touchpoint;
+namespace Shopware\Core\System\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Order\OrderCollection;
@@ -11,7 +11,7 @@ use Shopware\Core\System\Country\CountryStruct;
 use Shopware\Core\System\Currency\CurrencyStruct;
 use Shopware\Core\System\Language\LanguageStruct;
 
-class TouchpointStruct extends Entity
+class SalesChannelStruct extends Entity
 {
     /**
      * @var string

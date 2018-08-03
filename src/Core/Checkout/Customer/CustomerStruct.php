@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodStruct;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\Search\SearchDocumentCollection;
-use Shopware\Core\System\Touchpoint\TouchpointStruct;
+use Shopware\Core\System\SalesChannel\SalesChannelStruct;
 
 class CustomerStruct extends Entity
 {
@@ -26,7 +26,7 @@ class CustomerStruct extends Entity
     /**
      * @var string
      */
-    protected $touchpointId;
+    protected $salesChannelId;
 
     /**
      * @var string|null
@@ -174,9 +174,9 @@ class CustomerStruct extends Entity
     protected $defaultPaymentMethod;
 
     /**
-     * @var TouchpointStruct
+     * @var SalesChannelStruct
      */
-    protected $touchpoint;
+    protected $salesChannel;
 
     /**
      * @var PaymentMethodStruct|null
@@ -248,14 +248,14 @@ class CustomerStruct extends Entity
         $this->defaultPaymentMethodId = $defaultPaymentMethodId;
     }
 
-    public function getTouchpointId(): string
+    public function getSalesChannelId(): string
     {
-        return $this->touchpointId;
+        return $this->salesChannelId;
     }
 
-    public function setTouchpointId(string $touchpointId): void
+    public function setSalesChannelId(string $salesChannelId): void
     {
-        $this->touchpointId = $touchpointId;
+        $this->salesChannelId = $salesChannelId;
     }
 
     public function getLastPaymentMethodId(): ?string
@@ -548,14 +548,14 @@ class CustomerStruct extends Entity
         $this->defaultPaymentMethod = $defaultPaymentMethod;
     }
 
-    public function getTouchpoint(): TouchpointStruct
+    public function getSalesChannel(): SalesChannelStruct
     {
-        return $this->touchpoint;
+        return $this->salesChannel;
     }
 
-    public function setTouchpoint(TouchpointStruct $touchpoint): void
+    public function setSalesChannel(SalesChannelStruct $salesChannel): void
     {
-        $this->touchpoint = $touchpoint;
+        $this->salesChannel = $salesChannel;
     }
 
     public function getLastPaymentMethod(): ?PaymentMethodStruct

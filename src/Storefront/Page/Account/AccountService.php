@@ -52,8 +52,8 @@ class AccountService
     {
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('customer.email', $email));
-        // TODO NEXT-389 we have to check an option like "bind customer to touchpoint"
-        // todo in this case we have to filter "customer.touchpointId is null or touchpointId = :current"
+        // TODO NEXT-389 we have to check an option like "bind customer to salesChannel"
+        // todo in this case we have to filter "customer.salesChannelId is null or salesChannelId = :current"
 
         $customers = $this->customerRepository->search($criteria, $context->getContext());
 
@@ -306,7 +306,7 @@ class AccountService
         // todo implement customer number generator
         $data = [
             'id' => $customerId,
-            'touchpointId' => $context->getTouchpoint()->getId(),
+            'salesChannelId' => $context->getSalesChannel()->getId(),
             'groupId' => $context->getCurrentCustomerGroup()->getId(),
             'defaultPaymentMethodId' => $context->getPaymentMethod()->getId(),
             'number' => '123',

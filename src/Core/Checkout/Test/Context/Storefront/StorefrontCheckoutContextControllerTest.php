@@ -173,7 +173,7 @@ class StorefrontCheckoutContextControllerTest extends ApiTestCase
         $this->customerRepository->create([
             [
                 'id' => $customerId,
-                'touchpointId' => Defaults::TOUCHPOINT,
+                'salesChannelId' => Defaults::SALES_CHANNEL,
                 'defaultShippingAddress' => [
                     'id' => $addressId,
                     'firstName' => 'Max',

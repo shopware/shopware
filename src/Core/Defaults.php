@@ -6,7 +6,7 @@ final class Defaults
 {
     public const TENANT_ID = '20080911ffff4fffafffffff19830531';
 
-    public const TOUCHPOINT = '20080911ffff4fffafffffff19830531';
+    public const SALES_CHANNEL = '20080911ffff4fffafffffff19830531';
 
     public const LANGUAGE = '20080911ffff4fffafffffff19830531';
 

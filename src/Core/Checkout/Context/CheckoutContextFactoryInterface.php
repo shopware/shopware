@@ -31,7 +31,7 @@ interface CheckoutContextFactoryInterface
     public function create(
         string $tenantId,
         string $token,
-        string $touchpointId,
+        string $salesChannelId,
         array $options = []
     ): CheckoutContext;
 }

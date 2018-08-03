@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\Api;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Client;
@@ -31,7 +32,7 @@ class ApiTestCase extends WebTestCase
     /**
      * @var array
      */
-    protected $touchpoints = [];
+    protected $salesChannelIds = [];
 
     /**
      * @throws \Shopware\Core\Framework\Exception\InvalidUuidException
@@ -67,7 +68,7 @@ class ApiTestCase extends WebTestCase
     {
         try {
             self::$container->get(Connection::class)->executeQuery('DELETE FROM user WHERE username IN (:usernames)', ['usernames' => $this->apiUsernames], ['usernames' => Connection::PARAM_STR_ARRAY]);
-            self::$container->get(Connection::class)->executeQuery('DELETE FROM touchpoint WHERE access_key IN (:accessKeys)', ['accessKeys' => $this->touchpoints], ['accessKeys' => Connection::PARAM_STR_ARRAY]);
+            self::$container->get(Connection::class)->executeQuery('DELETE FROM sales_channel WHERE id IN (:salesChannelIds)', ['salesChannelIds' => $this->salesChannelIds], ['salesChannelIds' => Connection::PARAM_STR_ARRAY]);
         } catch (\Exception $ex) {
         }
 
@@ -151,38 +152,29 @@ class ApiTestCase extends WebTestCase
      */
     protected function authorizeStorefrontClient(Client $storefrontApiClient): void
     {
-        $touchpoint = Uuid::uuid4();
-        $accessKey = AccessKeyHelper::generateAccessKey('touchpoint');
+        $salesChannelId = Uuid::uuid4();
+        $accessKey = AccessKeyHelper::generateAccessKey('sales-channel');
         $secretKey = AccessKeyHelper::generateSecretAccessKey();
 
-        self::$container->get(Connection::class)->insert('touchpoint', [
-            'id' => $touchpoint->getBytes(),
-            'tenant_id' => Uuid::fromHexToBytes(Defaults::TENANT_ID),
-            'name' => $touchpoint->getHex(),
-            'type' => 'storefront_api',
-            'access_key' => $accessKey,
-            'secret_access_key' => password_hash($secretKey, PASSWORD_BCRYPT),
-            'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE),
-            'language_tenant_id' => Uuid::fromHexToBytes(Defaults::TENANT_ID),
-            'currency_id' => Uuid::fromHexToBytes(Defaults::CURRENCY),
-            'currency_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-            'currency_tenant_id' => Uuid::fromHexToBytes(Defaults::TENANT_ID),
-            'payment_method_id' => Uuid::fromHexToBytes(Defaults::PAYMENT_METHOD_DEBIT),
-            'payment_method_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-            'payment_method_tenant_id' => Uuid::fromHexToBytes(Defaults::TENANT_ID),
-            'shipping_method_id' => Uuid::fromHexToBytes(Defaults::SHIPPING_METHOD),
-            'shipping_method_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-            'shipping_method_tenant_id' => Uuid::fromHexToBytes(Defaults::TENANT_ID),
-            'country_id' => Uuid::fromHexToBytes(Defaults::COUNTRY),
-            'country_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-            'country_tenant_id' => Uuid::fromHexToBytes(Defaults::TENANT_ID),
-            'catalog_ids' => json_encode([Defaults::CATALOG]),
-            'currency_ids' => json_encode([Defaults::CURRENCY]),
-            'language_ids' => json_encode([Defaults::LANGUAGE]),
-            'created_at' => (new \DateTime())->format(Defaults::DATE_FORMAT),
-        ]);
+        $salesChannelRepository = self::$container->get('sales_channel.repository');
 
-        $this->touchpoints[] = $touchpoint->getHex();
+        $salesChannelRepository->upsert([[
+            'id' => $salesChannelId->getHex(),
+            'name' => 'API Test case sales channel',
+            'type' => 'storefront_api',
+            'accessKey' => $accessKey,
+            'secretAccessKey' => $secretKey,
+            'languageId' => Defaults::LANGUAGE,
+            'currencyId' => Defaults::CURRENCY,
+            'paymentMethodId' => Defaults::PAYMENT_METHOD_DEBIT,
+            'shippingMethodId' => Defaults::SHIPPING_METHOD,
+            'countryId' => Defaults::COUNTRY,
+            'catalogIds' => [Defaults::CATALOG],
+            'currencyIds' => [Defaults::CURRENCY],
+            'languageIds' => [Defaults::LANGUAGE],
+        ]], Context::createDefaultContext(Defaults::TENANT_ID));
+
+        $this->salesChannelIds[] = $salesChannelId->getBytes();
 
         $authPayload = [
             'grant_type' => 'client_credentials',

@@ -25,7 +25,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\Core\System\Touchpoint\TouchpointDefinition;
+use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class ShippingMethodDefinition extends EntityDefinition
 {
@@ -66,7 +66,7 @@ class ShippingMethodDefinition extends EntityDefinition
             new LongTextField('calculation_sql', 'calculationSql'),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new OneToManyAssociationField('touchpoints', TouchpointDefinition::class, 'shipping_method_id', false, 'id'))->setFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('salesChannels', SalesChannelDefinition::class, 'shipping_method_id', false, 'id'))->setFlags(new RestrictDelete()),
             (new TranslatedField(new LongTextField('description', 'description')))->setFlags(new SearchRanking(self::LOW_SEARCH_RAKING)),
             (new TranslatedField(new StringField('comment', 'comment')))->setFlags(new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
             (new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'shipping_method_id', false, 'id'))->setFlags(new RestrictDelete()),

@@ -195,7 +195,7 @@ class StorefrontCustomerController extends Controller
         $this->accountService->saveEmail($emailSaveRequest, $context);
         $this->checkoutContextService->refresh(
             $context->getTenantId(),
-            $context->getTouchpoint()->getId(),
+            $context->getSalesChannel()->getId(),
             $context->getToken()
         );
 
@@ -217,7 +217,7 @@ class StorefrontCustomerController extends Controller
         $this->accountService->savePassword($passwordSaveRequest, $context);
         $this->checkoutContextService->refresh(
             $context->getTenantId(),
-            $context->getTouchpoint()->getId(),
+            $context->getSalesChannel()->getId(),
             $context->getToken()
         );
 
@@ -235,7 +235,7 @@ class StorefrontCustomerController extends Controller
         $this->accountService->saveProfile($profileSaveRequest, $context);
         $this->checkoutContextService->refresh(
             $context->getTenantId(),
-            $context->getTouchpoint()->getId(),
+            $context->getSalesChannel()->getId(),
             $context->getToken()
         );
 
@@ -298,7 +298,7 @@ class StorefrontCustomerController extends Controller
 
         $addressId = $this->accountService->saveAddress($addressSaveRequest, $context);
 
-        $this->checkoutContextService->refresh($context->getTenantId(), $context->getTouchpoint()->getId(), $context->getToken());
+        $this->checkoutContextService->refresh($context->getTenantId(), $context->getSalesChannel()->getId(), $context->getToken());
 
         return new JsonResponse($this->serialize($addressId));
     }

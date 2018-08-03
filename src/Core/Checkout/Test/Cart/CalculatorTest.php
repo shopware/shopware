@@ -42,7 +42,7 @@ class CalculatorTest extends KernelTestCase
 
         $this->calculator = self::$container->get(Calculator::class);
         $this->factory = self::$container->get(CheckoutContextFactory::class);
-        $this->context = $this->factory->create(Defaults::TENANT_ID, Defaults::TENANT_ID, Defaults::TOUCHPOINT);
+        $this->context = $this->factory->create(Defaults::TENANT_ID, Defaults::TENANT_ID, Defaults::SALES_CHANNEL);
     }
 
     public function testCalculateSimplePrice()

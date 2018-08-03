@@ -40,7 +40,7 @@ class ProcessorTest extends KernelTestCase
 
         $this->processor = self::$container->get(Processor::class);
         $this->factory = self::$container->get(CheckoutContextFactory::class);
-        $this->context = $this->factory->create(Defaults::TENANT_ID, Defaults::TENANT_ID, Defaults::TOUCHPOINT);
+        $this->context = $this->factory->create(Defaults::TENANT_ID, Defaults::TENANT_ID, Defaults::SALES_CHANNEL);
     }
 
     public function testAddOwnLineItem()

@@ -889,7 +889,7 @@ class ProductStruct extends Entity
 
     public function getPriceDefinitionForQuantity(Context $context, int $quantity): QuantityPriceDefinition
     {
-        // TODO@DR consider tax state of touchpoint context (NEXT-286)
+        // TODO@DR consider tax state of salesChannel context (NEXT-286)
         $taxRules = $this->getTaxRuleCollection();
 
         /** @var ProductPriceRuleCollection $rules */

@@ -115,7 +115,7 @@ class SearchKeywordIndexer implements IndexerInterface
         $catalogIds = $this->catalogRepository->searchIds(new Criteria(), Context::createDefaultContext($tenantId));
 
         $sourceContext = new SourceContext();
-        $sourceContext->setTouchpointId(Defaults::TOUCHPOINT);
+        $sourceContext->setSalesChannelId(Defaults::SALES_CHANNEL);
 
         foreach ($languages as $language) {
             $context = new Context(

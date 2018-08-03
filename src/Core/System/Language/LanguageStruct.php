@@ -25,9 +25,9 @@ use Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\ListingFacetT
 use Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\ListingSortingTranslationCollection;
 use Shopware\Core\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationCollection;
 use Shopware\Core\System\Locale\LocaleStruct;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\Snippet\SnippetCollection;
 use Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\TaxAreaRuleTranslationCollection;
-use Shopware\Core\System\Touchpoint\TouchpointCollection;
 use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationCollection;
 
 class LanguageStruct extends Entity
@@ -78,9 +78,9 @@ class LanguageStruct extends Entity
     protected $children;
 
     /**
-     * @var TouchpointCollection|null
+     * @var SalesChannelCollection|null
      */
-    protected $touchpoints;
+    protected $salesChannels;
 
     /**
      * @var MediaAlbumTranslationCollection|null
@@ -472,14 +472,14 @@ class LanguageStruct extends Entity
         $this->unitTranslations = $unitTranslations;
     }
 
-    public function getTouchpoints(): ?TouchpointCollection
+    public function getSalesChannels(): ?SalesChannelCollection
     {
-        return $this->touchpoints;
+        return $this->salesChannels;
     }
 
-    public function setTouchpoints(TouchpointCollection $touchpoints): void
+    public function setSalesChannels(SalesChannelCollection $salesChannels): void
     {
-        $this->touchpoints = $touchpoints;
+        $this->salesChannels = $salesChannels;
     }
 
     public function getOrderTransactionStateTranslations(): ?OrderTransactionStateTranslationCollection

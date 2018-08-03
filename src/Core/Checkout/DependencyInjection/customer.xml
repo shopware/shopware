@@ -39,7 +39,7 @@
         </service>
 
         <service class="Shopware\Core\Checkout\Context\CheckoutContextFactory" id="Shopware\Core\Checkout\Context\CheckoutContextFactory">
-            <argument type="service" id="touchpoint.repository"/>
+            <argument type="service" id="sales_channel.repository"/>
             <argument type="service" id="currency.repository"/>
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="customer_group.repository"/>

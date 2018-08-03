@@ -30,7 +30,7 @@
             <argument id="slugify" type="service"/>
             <argument id="router" type="service"/>
             <argument id="product.repository" type="service"/>
-            <argument id="touchpoint.repository" type="service"/>
+            <argument id="sales_channel.repository" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument type="service" id="Shopware\Core\Content\Product\Util\EventIdExtractor"/>
             <!--<tag name="shopware.dbal_indexing.indexer"/>-->
@@ -41,7 +41,7 @@
             <argument id="slugify" type="service"/>
             <argument id="router" type="service"/>
             <argument id="category.repository" type="service"/>
-            <argument id="touchpoint.repository" type="service"/>
+            <argument id="sales_channel.repository" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument type="service" id="Shopware\Core\Content\Product\Util\EventIdExtractor"/>
             <!--<tag name="shopware.dbal_indexing.indexer"/>-->
@@ -262,12 +262,12 @@
             <tag name="shopware.entity.definition" entity="seo_url" />
         </service>
 
-        <service class="Shopware\Storefront\Command\TouchpointCreateStorefrontCommand" id="Shopware\Storefront\Command\TouchpointCreateStorefrontCommand">
-            <argument id="touchpoint.repository" type="service"/>
+        <service class="Shopware\Storefront\Command\SalesChannelCreateStorefrontCommand" id="Shopware\Storefront\Command\SalesChannelCreateStorefrontCommand">
+            <argument id="sales_channel.repository" type="service"/>
             <tag name="console.command"/>
         </service>
 
-        <service class="Shopware\Storefront\Api\Seo\TouchpointExtension" id="Shopware\Storefront\Api\Seo\TouchpointExtension">
+        <service class="Shopware\Storefront\Api\Seo\SalesChannelExtension" id="Shopware\Storefront\Api\Seo\SalesChannelExtension">
             <tag name="shopware.entity.extension"/>
         </service>
 

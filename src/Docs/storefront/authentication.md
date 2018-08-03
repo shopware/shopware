@@ -29,13 +29,13 @@ Content-Type: application/json
 ```
 
 ## Default Access
-The corresponding client_id and client_secret are generated when a touchpoint is initialized. In the current state of development, the initialization of the environment automatically generates a touchpoint for accessing the Storefront API:
+The corresponding client_id and client_secret are generated when a sales channel is initialized. In the current state of development, the initialization of the environment automatically generates a sales channel for accessing the Storefront API:
 
 ```
 (9/11) Starting
-> php bin/console touchpoint:create --tenant-id=20080911ffff4fffafffffff19830531 --id=20080911ffff4fffafffffff19830531
+> php bin/console sales-channel:create --tenant-id=20080911ffff4fffafffffff19830531 --id=20080911ffff4fffafffffff19830531
 
-      [OK] Touchpoint has been created successfully.
+      [OK] Sales channel has been created successfully.
 
       Access tokens:
      +-------------------+------------------------------------------------------------------------+

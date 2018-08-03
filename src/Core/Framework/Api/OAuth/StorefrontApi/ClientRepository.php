@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
-use Shopware\Core\Framework\Api\OAuth\StorefrontApi\Client\TouchpointClient;
+use Shopware\Core\Framework\Api\OAuth\StorefrontApi\Client\SalesChannelClient;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -44,30 +44,30 @@ class ClientRepository implements ClientRepositoryInterface
     public function getClientEntity($clientIdentifier, $grantType = null, $clientSecret = null, $mustValidateSecret = true)
     {
         $origin = AccessKeyHelper::getOrigin($clientIdentifier);
-        if ($origin !== 'touchpoint') {
+        if ($origin !== 'sales-channel') {
             OAuthServerException::invalidCredentials();
         }
 
         $builder = $this->connection->createQueryBuilder();
 
-        $touchpoint = $builder->select(['touchpoint.secret_access_key'])
-            ->from('touchpoint')
-            ->where('touchpoint.tenant_id = :tenantId')
-            ->andWhere('touchpoint.access_key = :accessKey')
+        $salesChannel = $builder->select(['sales_channel.secret_access_key'])
+            ->from('sales_channel')
+            ->where('sales_channel.tenant_id = :tenantId')
+            ->andWhere('sales_channel.access_key = :accessKey')
             ->setParameter('tenantId', Uuid::fromHexToBytes($this->getTenantId()))
             ->setParameter('accessKey', $clientIdentifier)
             ->execute()
             ->fetch();
 
-        if (!$touchpoint) {
+        if (!$salesChannel) {
             return null;
         }
 
-        if ($mustValidateSecret === true && !password_verify($clientSecret, $touchpoint['secret_access_key'])) {
+        if ($mustValidateSecret === true && !password_verify($clientSecret, $salesChannel['secret_access_key'])) {
             return null;
         }
 
-        return new TouchpointClient($clientIdentifier);
+        return new SalesChannelClient($clientIdentifier);
     }
 
     private function getTenantId(): string

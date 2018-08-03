@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationCollection;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\Plugin\PluginStruct;
-use Shopware\Core\System\Touchpoint\TouchpointCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 class PaymentMethodStruct extends Entity
 {
@@ -148,9 +148,9 @@ class PaymentMethodStruct extends Entity
     protected $customers;
 
     /**
-     * @var TouchpointCollection|null
+     * @var SalesChannelCollection|null
      */
-    protected $touchpoints;
+    protected $salesChannels;
 
     public function getPluginId(): ?string
     {
@@ -422,13 +422,13 @@ class PaymentMethodStruct extends Entity
         $this->customers = $customers;
     }
 
-    public function getTouchpoints(): ?TouchpointCollection
+    public function getSalesChannels(): ?SalesChannelCollection
     {
-        return $this->touchpoints;
+        return $this->salesChannels;
     }
 
-    public function setTouchpoints(TouchpointCollection $touchpoints): void
+    public function setSalesChannels(SalesChannelCollection $salesChannels): void
     {
-        $this->touchpoints = $touchpoints;
+        $this->salesChannels = $salesChannels;
     }
 }

@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderState\OrderStateCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Framework\ORM\EntityCollection;
 use Shopware\Core\System\Currency\CurrencyCollection;
-use Shopware\Core\System\Touchpoint\TouchpointCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 class OrderCollection extends EntityCollection
 {
@@ -83,17 +83,17 @@ class OrderCollection extends EntityCollection
         });
     }
 
-    public function getTouchpointIs(): array
+    public function getSalesChannelIs(): array
     {
         return $this->fmap(function (OrderStruct $order) {
-            return $order->getTouchpointId();
+            return $order->getSalesChannelId();
         });
     }
 
-    public function filterByTouchpointId(string $id): self
+    public function filterBySalesChannelId(string $id): self
     {
         return $this->filter(function (OrderStruct $order) use ($id) {
-            return $order->getTouchpointId() === $id;
+            return $order->getSalesChannelId() === $id;
         });
     }
 
@@ -147,11 +147,11 @@ class OrderCollection extends EntityCollection
         );
     }
 
-    public function getTouchpoints(): TouchpointCollection
+    public function getSalesChannels(): SalesChannelCollection
     {
-        return new TouchpointCollection(
+        return new SalesChannelCollection(
             $this->fmap(function (OrderStruct $order) {
-                return $order->getTouchpoint();
+                return $order->getSalesChannel();
             })
         );
     }

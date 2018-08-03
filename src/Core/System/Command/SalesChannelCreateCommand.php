@@ -16,25 +16,25 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Validator\ConstraintViolation;
 
-class TouchpointCreateCommand extends ContainerAwareCommand
+class SalesChannelCreateCommand extends ContainerAwareCommand
 {
     /**
      * @var RepositoryInterface
      */
-    private $touchpointRepository;
+    private $salesChannelRepository;
 
-    public function __construct(RepositoryInterface $touchpointRepository)
+    public function __construct(RepositoryInterface $salesChannelRepository)
     {
         parent::__construct();
 
-        $this->touchpointRepository = $touchpointRepository;
+        $this->salesChannelRepository = $salesChannelRepository;
     }
 
     protected function configure()
     {
-        $this->setName('touchpoint:create')
+        $this->setName('sales-channel:create')
             ->addOption('tenant-id', 't', InputOption::VALUE_REQUIRED, 'Tenant id')
-            ->addOption('id', null, InputOption::VALUE_REQUIRED, 'Id for the touchpoint', Uuid::uuid4()->getHex())
+            ->addOption('id', null, InputOption::VALUE_REQUIRED, 'Id for the sales channel', Uuid::uuid4()->getHex())
             ->addOption('name', null, InputOption::VALUE_REQUIRED, 'Name for the application', 'Storefront API endpoint')
             ->addOption('languageId', null, InputOption::VALUE_REQUIRED, 'Default language', Defaults::LANGUAGE)
             ->addOption('currencyId', null, InputOption::VALUE_REQUIRED, 'Default currency', Defaults::CURRENCY)
@@ -68,14 +68,14 @@ class TouchpointCreateCommand extends ContainerAwareCommand
         $data = [
             'id' => $id,
             'type' => $this->getType(),
-            'accessKey' => AccessKeyHelper::generateAccessKey('touchpoint'),
+            'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
             'secretAccessKey' => $secretAccessKey,
-            'configuration' => $this->getTouchpointConfiguration($input, $output),
+            'configuration' => $this->getSalesChannelConfiguration($input, $output),
             'languageId' => $input->getOption('languageId'),
             'currencyId' => $input->getOption('currencyId'),
             'currencyVersionId' => Defaults::LIVE_VERSION,
             'paymentMethodId' => $input->getOption('paymentMethodId'),
-            'paymentMethodVersionI' => Defaults::LIVE_VERSION,
+            'paymentMethodVersionId' => Defaults::LIVE_VERSION,
             'shippingMethodId' => $input->getOption('shippingMethodId'),
             'shippingMethodVersionId' => Defaults::LIVE_VERSION,
             'countryId' => $input->getOption('countryId'),
@@ -87,9 +87,9 @@ class TouchpointCreateCommand extends ContainerAwareCommand
         ];
 
         try {
-            $this->touchpointRepository->create([$data], Context::createDefaultContext($tenantId));
+            $this->salesChannelRepository->create([$data], Context::createDefaultContext($tenantId));
 
-            $io->success('Touchpoint has been created successfully.');
+            $io->success('Sales channel has been created successfully.');
         } catch (WriteStackException $exception) {
             $io->error('Something went wrong.');
 
@@ -119,7 +119,7 @@ class TouchpointCreateCommand extends ContainerAwareCommand
         $table->render();
     }
 
-    protected function getTouchpointConfiguration(InputInterface $input, OutputInterface $output): array
+    protected function getSalesChannelConfiguration(InputInterface $input, OutputInterface $output): array
     {
         return [];
     }

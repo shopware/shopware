@@ -40,7 +40,7 @@ use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator;
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\System\Touchpoint\TouchpointStruct;
+use Shopware\Core\System\SalesChannel\SalesChannelStruct;
 
 class TaxAmountCalculatorTest extends TestCase
 {
@@ -54,11 +54,11 @@ class TaxAmountCalculatorTest extends TestCase
      */
     public function testCalculation(string $calculationType, TaxDetector $taxDetector, PriceCollection $prices, CalculatedTaxCollection $expected): void
     {
-        $shop = $this->createMock(TouchpointStruct::class);
+        $shop = $this->createMock(SalesChannelStruct::class);
         $shop->method('getTaxCalculationType')->will(static::returnValue($calculationType));
 
         $context = $this->createMock(CheckoutContext::class);
-        $context->method('getTouchpoint')->will(static::returnValue($shop));
+        $context->method('getSalesChannel')->will(static::returnValue($shop));
 
         $taxAmountCalculator = new TaxAmountCalculator(
             new PercentageTaxRuleBuilder(),

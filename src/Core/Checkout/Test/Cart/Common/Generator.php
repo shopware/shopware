@@ -52,16 +52,16 @@ use Shopware\Core\System\Country\CountryStruct;
 use Shopware\Core\System\Currency\CurrencyStruct;
 use Shopware\Core\System\Language\LanguageStruct;
 use Shopware\Core\System\Locale\LocaleStruct;
+use Shopware\Core\System\SalesChannel\SalesChannelStruct;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxStruct;
-use Shopware\Core\System\Touchpoint\TouchpointStruct;
 
 class Generator extends TestCase
 {
     public static function createContext(
         $currentCustomerGroup = null,
         $fallbackCustomerGroup = null,
-        $touchpoint = null,
+        $salesChannel = null,
         $currency = null,
         $priceGroupDiscounts = null,
         $taxes = null,
@@ -72,11 +72,11 @@ class Generator extends TestCase
         $language = null,
         $fallbackLanguage = null
     ) {
-        if ($touchpoint === null) {
-            $touchpoint = new TouchpointStruct();
-            $touchpoint->setId('ffa32a50e2d04cf38389a53f8d6cd594');
-            $touchpoint->setTaxCalculationType(TaxAmountCalculator::CALCULATION_HORIZONTAL);
-            $touchpoint->setCatalogIds([Defaults::CATALOG]);
+        if ($salesChannel === null) {
+            $salesChannel = new SalesChannelStruct();
+            $salesChannel->setId('ffa32a50e2d04cf38389a53f8d6cd594');
+            $salesChannel->setTaxCalculationType(TaxAmountCalculator::CALCULATION_HORIZONTAL);
+            $salesChannel->setCatalogIds([Defaults::CATALOG]);
         }
 
         $currency = $currency ?: (new CurrencyStruct())->assign([
@@ -164,7 +164,7 @@ class Generator extends TestCase
         return new CheckoutContext(
             Defaults::TENANT_ID,
             Uuid::uuid4()->toString(),
-            $touchpoint,
+            $salesChannel,
             $language,
             $fallbackLanguage,
             $currency,

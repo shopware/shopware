@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Api\Seo;
 
 use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\System\Touchpoint\TouchpointStruct;
+use Shopware\Core\System\SalesChannel\SalesChannelStruct;
 
 class SeoUrlStruct extends Entity
 {
@@ -15,7 +15,7 @@ class SeoUrlStruct extends Entity
     /**
      * @var string
      */
-    protected $touchpointId;
+    protected $salesChannelId;
 
     /**
      * @var string
@@ -63,9 +63,9 @@ class SeoUrlStruct extends Entity
     protected $updatedAt;
 
     /**
-     * @var TouchpointStruct|null
+     * @var SalesChannelStruct|null
      */
-    protected $touchpoint;
+    protected $salesChannel;
 
     /**
      * @var string
@@ -82,14 +82,14 @@ class SeoUrlStruct extends Entity
         $this->versionId = $versionId;
     }
 
-    public function getTouchpointId(): string
+    public function getSalesChannelId(): string
     {
-        return $this->touchpointId;
+        return $this->salesChannelId;
     }
 
-    public function setTouchpointId(string $touchpointId): void
+    public function setSalesChannelId(string $salesChannelId): void
     {
-        $this->touchpointId = $touchpointId;
+        $this->salesChannelId = $salesChannelId;
     }
 
     public function getName(): string
@@ -182,14 +182,14 @@ class SeoUrlStruct extends Entity
         $this->updatedAt = $updatedAt;
     }
 
-    public function getTouchpoint(): ?TouchpointStruct
+    public function getSalesChannel(): ?SalesChannelStruct
     {
-        return $this->touchpoint;
+        return $this->salesChannel;
     }
 
-    public function setTouchpoint(TouchpointStruct $touchpoint): void
+    public function setSalesChannel(SalesChannelStruct $salesChannel): void
     {
-        $this->touchpoint = $touchpoint;
+        $this->salesChannel = $salesChannel;
     }
 
     public function setUrl(string $url): void

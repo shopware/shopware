@@ -70,7 +70,7 @@ class OrderConverter
             'stateId' => Defaults::ORDER_STATE_OPEN,
             'paymentMethodId' => $context->getPaymentMethod()->getId(),
             'currencyId' => $context->getCurrency()->getId(),
-            'touchpointId' => $context->getTouchpoint()->getId(),
+            'salesChannelId' => $context->getSalesChannel()->getId(),
             'billingAddressId' => $addressId,
             'lineItems' => [],
             'deliveries' => [],

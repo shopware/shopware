@@ -41,7 +41,7 @@ use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator;
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\System\Touchpoint\TouchpointStruct;
+use Shopware\Core\System\SalesChannel\SalesChannelStruct;
 
 /**
  * Class PriceCalculatorTest
@@ -59,11 +59,11 @@ class AmountCalculatorTest extends TestCase
         $detector = $this->createMock(TaxDetector::class);
         $detector->method('useGross')->will(static::returnValue(true));
 
-        $shop = $this->createMock(TouchpointStruct::class);
+        $shop = $this->createMock(SalesChannelStruct::class);
         $shop->method('getTaxCalculationType')->will(static::returnValue(TaxAmountCalculator::CALCULATION_VERTICAL));
 
         $context = $this->createMock(CheckoutContext::class);
-        $context->method('getTouchpoint')->will(static::returnValue($shop));
+        $context->method('getSalesChannel')->will(static::returnValue($shop));
 
         $calculator = new AmountCalculator(
             $detector,
@@ -97,11 +97,11 @@ class AmountCalculatorTest extends TestCase
         $detector->method('useGross')->will(static::returnValue(false));
         $detector->method('isNetDelivery')->will(static::returnValue(false));
 
-        $shop = $this->createMock(TouchpointStruct::class);
+        $shop = $this->createMock(SalesChannelStruct::class);
         $shop->method('getTaxCalculationType')->will(static::returnValue(TaxAmountCalculator::CALCULATION_VERTICAL));
 
         $context = $this->createMock(CheckoutContext::class);
-        $context->method('getTouchpoint')->will(static::returnValue($shop));
+        $context->method('getSalesChannel')->will(static::returnValue($shop));
 
         $calculator = new AmountCalculator(
             $detector,
@@ -135,11 +135,11 @@ class AmountCalculatorTest extends TestCase
         $detector->method('useGross')->will(static::returnValue(false));
         $detector->method('isNetDelivery')->will(static::returnValue(true));
 
-        $shop = $this->createMock(TouchpointStruct::class);
+        $shop = $this->createMock(SalesChannelStruct::class);
         $shop->method('getTaxCalculationType')->will(static::returnValue(TaxAmountCalculator::CALCULATION_VERTICAL));
 
         $context = $this->createMock(CheckoutContext::class);
-        $context->method('getTouchpoint')->will(static::returnValue($shop));
+        $context->method('getSalesChannel')->will(static::returnValue($shop));
 
         $calculator = new AmountCalculator(
             $detector,

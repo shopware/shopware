@@ -5,12 +5,12 @@ namespace Shopware\Core\Framework\Routing;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
-use Shopware\Core\Framework\Routing\Exception\TouchpointNotFoundException;
+use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
-class TouchpointRequestContextResolver implements RequestContextResolverInterface
+class SalesChannelRequestContextResolver implements RequestContextResolverInterface
 {
     /**
      * @var RequestContextResolverInterface
@@ -55,7 +55,7 @@ class TouchpointRequestContextResolver implements RequestContextResolverInterfac
 
         $origin = AccessKeyHelper::getOrigin($clientId);
 
-        if ($origin !== 'touchpoint') {
+        if ($origin !== 'sales-channel') {
             $this->decorated->resolve($master, $request);
 
             return;
@@ -77,36 +77,36 @@ class TouchpointRequestContextResolver implements RequestContextResolverInterfac
         $contextToken = $master->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
         $tenantId = $master->headers->get(PlatformRequest::HEADER_TENANT_ID);
         $accessKey = $master->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID);
-        $touchpointId = $this->getTouchpointId($accessKey, $tenantId);
+        $salesChannelId = $this->getSalesChannelId($accessKey, $tenantId);
 
         //sub requests can use the context of the master request
         if ($master->attributes->has(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT)) {
             $context = $master->attributes->get(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT);
         } else {
-            $context = $this->contextService->get($tenantId, $touchpointId, $contextToken);
+            $context = $this->contextService->get($tenantId, $salesChannelId, $contextToken);
         }
 
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context->getContext());
         $request->attributes->set(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT, $context);
     }
 
-    private function getTouchpointId(string $accessKey, string $tenantId): string
+    private function getSalesChannelId(string $accessKey, string $tenantId): string
     {
         $builder = $this->connection->createQueryBuilder();
 
-        $touchpointId = $builder->select(['touchpoint.id'])
-            ->from('touchpoint')
-            ->where('touchpoint.tenant_id = :tenantId')
-            ->andWhere('touchpoint.access_key = :accessKey')
+        $salesChannelId = $builder->select(['sales_channel.id'])
+            ->from('sales_channel')
+            ->where('sales_channel.tenant_id = :tenantId')
+            ->andWhere('sales_channel.access_key = :accessKey')
             ->setParameter('tenantId', Uuid::fromHexToBytes($tenantId))
             ->setParameter('accessKey', $accessKey)
             ->execute()
             ->fetchColumn();
 
-        if (!$touchpointId) {
-            throw new TouchpointNotFoundException();
+        if (!$salesChannelId) {
+            throw new SalesChannelNotFoundException();
         }
 
-        return Uuid::fromBytesToHex($touchpointId);
+        return Uuid::fromBytesToHex($salesChannelId);
     }
 }

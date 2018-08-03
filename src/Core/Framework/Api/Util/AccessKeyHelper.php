@@ -8,12 +8,12 @@ class AccessKeyHelper
 {
     private const USER_IDENTIFIER = 'SWUA';
     private const INTEGRATION_IDENTIFIER = 'SWIA';
-    private const TOUCHPOINT_IDENTIFIER = 'SWTP';
+    private const SALES_CHANNEL_IDENTIFIER = 'SWSC';
 
     public static $mapping = [
         self::USER_IDENTIFIER => 'user',
         self::INTEGRATION_IDENTIFIER => 'integration',
-        self::TOUCHPOINT_IDENTIFIER => 'touchpoint',
+        self::SALES_CHANNEL_IDENTIFIER => 'sales-channel',
     ];
 
     public static function generateAccessKey(string $identifier): string

@@ -64,7 +64,7 @@ class CustomerRepositoryTest extends KernelTestCase
         $records = [
             [
                 'id' => $recordA,
-                'touchpointId' => Defaults::TOUCHPOINT,
+                'salesChannelId' => Defaults::SALES_CHANNEL,
                 'defaultShippingAddress' => $address,
                 'defaultPaymentMethodId' => 'e84976ac-e9ab-4928-a3dc-c387b66dbaa6',
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
@@ -77,7 +77,7 @@ class CustomerRepositoryTest extends KernelTestCase
             ],
             [
                 'id' => $recordB,
-                'touchpointId' => Defaults::TOUCHPOINT,
+                'salesChannelId' => Defaults::SALES_CHANNEL,
                 'defaultShippingAddress' => $address,
                 'defaultPaymentMethodId' => 'e84976ac-e9ab-4928-a3dc-c387b66dbaa6',
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
@@ -90,7 +90,7 @@ class CustomerRepositoryTest extends KernelTestCase
             ],
             [
                 'id' => $recordC,
-                'touchpointId' => Defaults::TOUCHPOINT,
+                'salesChannelId' => Defaults::SALES_CHANNEL,
                 'defaultShippingAddress' => $address,
                 'defaultPaymentMethodId' => 'e84976ac-e9ab-4928-a3dc-c387b66dbaa6',
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
@@ -103,7 +103,7 @@ class CustomerRepositoryTest extends KernelTestCase
             ],
             [
                 'id' => $recordD,
-                'touchpointId' => Defaults::TOUCHPOINT,
+                'salesChannelId' => Defaults::SALES_CHANNEL,
                 'defaultShippingAddress' => $address,
                 'defaultPaymentMethodId' => 'e84976ac-e9ab-4928-a3dc-c387b66dbaa6',
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,

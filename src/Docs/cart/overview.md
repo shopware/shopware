@@ -248,7 +248,7 @@ The cart calculation is done in the `Shopware\Core\Checkout\Cart\Cart\CartProces
 This class contains a list of `Shopware\Core\Checkout\Cart\Cart\CartProcessorInterface`, which are the access points for the Shopware\Core core and third party developers in the cart process. 
 
 ```php
-use Shopware\Core\Touchpoint\Context\Struct\ShopContext;
+use Shopware\Core\SalesChannel\Context\Struct\ShopContext;
 use Shopware\Core\Framework\Struct\StructCollection;
 
 interface CartProcessorInterface
@@ -321,7 +321,7 @@ use Shopware\Core\Checkout\Cart\Cart\CartProcessorInterface;
 use Shopware\Core\Checkout\Cart\Cart\ProcessorCart;
 use Shopware\Core\Checkout\Cart\LineItem\Discount;
 use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
-use Shopware\Core\Touchpoint\Context\Struct\ShopContext;
+use Shopware\Core\SalesChannel\Context\Struct\ShopContext;
 use Shopware\Core\Framework\Struct\StructCollection;
 
 class NewCustomerDiscountProcessor implements CartProcessorInterface
@@ -431,7 +431,7 @@ use Shopware\Core\Checkout\Cart\Cart\ProcessorCart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Product\ProductProcessor;
-use Shopware\Core\Touchpoint\Context\Struct\ShopContext;
+use Shopware\Core\SalesChannel\Context\Struct\ShopContext;
 use Shopware\Core\Framework\Struct\StructCollection;
 
 class BlacklistedProductProcessor implements CartProcessorInterface

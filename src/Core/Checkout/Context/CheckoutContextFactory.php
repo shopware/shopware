@@ -150,7 +150,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
             ->get($context->getSourceContext()->getSalesChannelId());
 
         if (!$salesChannel) {
-            throw new \RuntimeException(sprintf('SalesChannel with id %s not found or not valid!', $context->getSourceContext()->getSalesChannelId()));
+            throw new \RuntimeException(sprintf('Sales channel with id %s not found or not valid!', $context->getSourceContext()->getSalesChannelId()));
         }
 
         //load active currency, fallback to shop currency

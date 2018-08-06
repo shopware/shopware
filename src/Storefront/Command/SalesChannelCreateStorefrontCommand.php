@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Command;
 
+use Shopware\Core\Defaults;
 use Shopware\Core\System\Command\SalesChannelCreateCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -18,9 +19,9 @@ class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
         ;
     }
 
-    protected function getType(): string
+    protected function getTypeId(): string
     {
-        return 'storefront';
+        return Defaults::SALES_CHANNEL_STOREFRONT;
     }
 
     protected function getSalesChannelConfiguration(InputInterface $input, OutputInterface $output): array

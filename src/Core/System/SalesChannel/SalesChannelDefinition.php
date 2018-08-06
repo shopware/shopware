@@ -30,6 +30,7 @@ use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesChannelTranslationDefinition;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeDefinition;
 
 class SalesChannelDefinition extends EntityDefinition
 {
@@ -43,6 +44,7 @@ class SalesChannelDefinition extends EntityDefinition
         return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('type_id', 'typeId', SalesChannelTypeDefinition::class))->setFlags(new Required()),
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->setFlags(new Required()),
             (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->setFlags(new Required()),
             new ReferenceVersionField(CurrencyDefinition::class),
@@ -65,6 +67,7 @@ class SalesChannelDefinition extends EntityDefinition
             new CreatedAtField(),
             new UpdatedAtField(),
             (new TranslationsAssociationField('translations', SalesChannelTranslationDefinition::class, 'sales_channel_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
+            new ManyToOneAssociationField('type', 'type_id', SalesChannelTypeDefinition::class, true),
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, true),
             new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, true),
             new ManyToOneAssociationField('paymentMethod', 'payment_method_id', PaymentMethodDefinition::class, false),

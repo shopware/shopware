@@ -33,4 +33,94 @@ class SalesChannelEvents
      * @Event("Shopware\Core\Framework\ORM\Event\EntityIdSearchResultLoadedEvent")
      */
     public const SALES_CHANNEL_ID_SEARCH_RESULT_LOADED = 'sales_channel.id.search.result.loaded';
+
+    /**
+     * @Event("Shopware\Core\Framework\ORM\Event\EntityWrittenEvent")
+     */
+    public const SALES_CHANNEL_TRANSLATION_WRITTEN_EVENT = 'sales_channel_translation.written';
+
+    /**
+     * @Event("Shopware\Core\Framework\ORM\Event\EntityDeletedEvent")
+     */
+    public const SALES_CHANNEL_TRANSLATION_DELETED_EVENT = 'sales_channel_translation.deleted';
+
+    /**
+     * @Event("Shopware\Core\Framework\ORM\Event\EntityLoadedEvent")
+     */
+    public const SALES_CHANNEL_TRANSLATION_LOADED_EVENT = 'sales_channel_translation.loaded';
+
+    /**
+     * @Event("Shopware\Core\Framework\ORM\Event\EntitySearchResultLoadedEvent")
+     */
+    public const SALES_CHANNEL_TRANSLATION_SEARCH_RESULT_LOADED_EVENT = 'sales_channel_translation.search.result.loaded';
+
+    /**
+     * @Event("Shopware\Core\Framework\ORM\Event\EntityAggregationResultLoadedEvent")
+     */
+    public const SALES_CHANNEL_TRANSLATION_AGGREGATION_LOADED_EVENT = 'sales_channel_translation.aggregation.result.loaded';
+
+    /**
+     * @Event("Shopware\Core\Framework\ORM\Event\EntityIdSearchResultLoadedEvent")
+     */
+    public const SALES_CHANNEL_TRANSLATION_ID_SEARCH_RESULT_LOADED_EVENT = 'sales_channel_translation.id.search.result.loaded';
+
+    /**
+     * @Event("Shopware\Core\Framework\ORM\Event\EntityWrittenEvent")
+     */
+    public const SALES_CHANNEL_TYPE_WRITTEN = 'sales_channel_type.written';
+
+    /**
+     * @Event("Shopware\Core\Framework\ORM\Event\EntityDeletedEvent")
+     */
+    public const SALES_CHANNEL_TYPE_DELETED = 'sales_channel_type.deleted';
+
+    /**
+     * @Event("Shopware\Core\Framework\ORM\Event\EntityLoadedEvent")
+     */
+    public const SALES_CHANNEL_TYPE_LOADED = 'sales_channel_type.loaded';
+
+    /**
+     * @Event("Shopware\Core\Framework\ORM\Event\EntitySearchResultLoadedEvent")
+     */
+    public const SALES_CHANNEL_TYPE_SEARCH_RESULT_LOADED = 'sales_channel_type.search.result.loaded';
+
+    /**
+     * @Event("Shopware\Core\Framework\ORM\Event\EntityAggregationResultLoadedEvent")
+     */
+    public const SALES_CHANNEL_TYPE_AGGREGATION_RESULT_LOADED = 'sales_channel_type.aggregation.result.loaded';
+
+    /**
+     * @Event("Shopware\Core\Framework\ORM\Event\EntityIdSearchResultLoadedEvent")
+     */
+    public const SALES_CHANNEL_TYPE_ID_SEARCH_RESULT_LOADED = 'sales_channel_type.id.search.result.loaded';
+
+    /**
+     * @Event("Shopware\Core\Framework\ORM\Event\EntityWrittenEvent")
+     */
+    public const SALES_CHANNEL_TYPE_TRANSLATION_WRITTEN_EVENT = 'sales_channel_type_translation.written';
+
+    /**
+     * @Event("Shopware\Core\Framework\ORM\Event\EntityDeletedEvent")
+     */
+    public const SALES_CHANNEL_TYPE_TRANSLATION_DELETED_EVENT = 'sales_channel_type_translation.deleted';
+
+    /**
+     * @Event("Shopware\Core\Framework\ORM\Event\EntityLoadedEvent")
+     */
+    public const SALES_CHANNEL_TYPE_TRANSLATION_LOADED_EVENT = 'sales_channel_type_translation.loaded';
+
+    /**
+     * @Event("Shopware\Core\Framework\ORM\Event\EntitySearchResultLoadedEvent")
+     */
+    public const SALES_CHANNEL_TYPE_TRANSLATION_SEARCH_RESULT_LOADED_EVENT = 'sales_channel_type_translation.search.result.loaded';
+
+    /**
+     * @Event("Shopware\Core\Framework\ORM\Event\EntityAggregationResultLoadedEvent")
+     */
+    public const SALES_CHANNEL_TYPE_TRANSLATION_AGGREGATION_LOADED_EVENT = 'sales_channel_type_translation.aggregation.result.loaded';
+
+    /**
+     * @Event("Shopware\Core\Framework\ORM\Event\EntityIdSearchResultLoadedEvent")
+     */
+    public const SALES_CHANNEL_TYPE_TRANSLATION_ID_SEARCH_RESULT_LOADED_EVENT = 'sales_channel_type_translation.id.search.result.loaded';
 }

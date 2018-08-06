@@ -6,7 +6,8 @@ DROP TABLE IF EXISTS `sales_channel`;
 CREATE TABLE `sales_channel` (
   `id` binary(16) NOT NULL,
   `tenant_id` binary(16) NOT NULL,
-  `type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `type_id` binary(16) NOT NULL,
+  `type_tenant_id` binary(16) NOT NULL,
   `configuration` LONGTEXT NULL DEFAULT NULL,
   `access_key` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `secret_access_key` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -40,7 +41,8 @@ CREATE TABLE `sales_channel` (
   CONSTRAINT `fk_sales_channel.currency_id` FOREIGN KEY (`currency_id`, `currency_version_id`, `currency_tenant_id`) REFERENCES `currency` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_sales_channel.language_id` FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_sales_channel.payment_method_id` FOREIGN KEY (`payment_method_id`, `payment_method_version_id`, `payment_method_tenant_id`) REFERENCES `payment_method` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `fk_sales_channel.shipping_method_id` FOREIGN KEY (`shipping_method_id`, `shipping_method_version_id`, `shipping_method_tenant_id`) REFERENCES `shipping_method` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE
+  CONSTRAINT `fk_sales_channel.shipping_method_id` FOREIGN KEY (`shipping_method_id`, `shipping_method_version_id`, `shipping_method_tenant_id`) REFERENCES `shipping_method` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_sales_channel.type_id` FOREIGN KEY (`type_id`, `type_tenant_id`) REFERENCES `sales_channel_type` (`id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `sales_channel_translation`;
@@ -55,6 +57,36 @@ CREATE TABLE `sales_channel_translation` (
   PRIMARY KEY (`sales_channel_id`, `sales_channel_tenant_id`, `language_id`, `language_tenant_id`),
   CONSTRAINT `sales_channel_translation_ibfk_1` FOREIGN KEY (`language_id`, `sales_channel_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `sales_channel_translation_ibfk_2` FOREIGN KEY (`sales_channel_id`, `sales_channel_tenant_id`) REFERENCES `sales_channel` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `sales_channel_type`;
+CREATE TABLE `sales_channel_type` (
+  `id` binary(16) NOT NULL,
+  `tenant_id` binary(16) NOT NULL,
+  `cover` varchar(500) COLLATE utf8mb4_unicode_ci NULL,
+  `icon` varchar(255) COLLATE utf8mb4_unicode_ci NULL,
+  `screenshots` LONGTEXT COLLATE utf8mb4_unicode_ci NULL,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
+  PRIMARY KEY (`id`, `tenant_id`),
+  CHECK (JSON_VALID(`screenshots`))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `sales_channel_type_translation`;
+CREATE TABLE `sales_channel_type_translation` (
+  `sales_channel_type_id` binary(16) NOT NULL,
+  `sales_channel_type_tenant_id` binary(16) NOT NULL,
+  `language_id` binary(16) NOT NULL,
+  `language_tenant_id` binary(16) NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `manufacturer` varchar(255) COLLATE utf8mb4_unicode_ci NULL,
+  `description` varchar(255) COLLATE utf8mb4_unicode_ci NULL,
+  `description_long` LONGTEXT COLLATE utf8mb4_unicode_ci NULL,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
+  PRIMARY KEY (`sales_channel_type_id`, `sales_channel_type_tenant_id`, `language_id`, `language_tenant_id`),
+  CONSTRAINT `sales_channel_type_translation_ibfk_1` FOREIGN KEY (`language_id`, `sales_channel_type_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `sales_channel_type_translation_ibfk_2` FOREIGN KEY (`sales_channel_type_id`, `sales_channel_type_tenant_id`) REFERENCES `sales_channel_type` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `cart`;

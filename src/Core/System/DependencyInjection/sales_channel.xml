@@ -9,6 +9,18 @@
             <tag name="shopware.entity.definition" entity="sales_channel"/>
         </service>
 
+        <service class="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesChannelTranslationDefinition" id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesChannelTranslationDefinition">
+            <tag name="shopware.entity.definition" entity="sales_channel_translation"/>
+        </service>
+
+        <service class="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeDefinition" id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeDefinition">
+            <tag name="shopware.entity.definition" entity="sales_channel_type"/>
+        </service>
+
+        <service class="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTypeTranslation\SalesChannelTypeTranslationDefinition" id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTypeTranslation\SalesChannelTypeTranslationDefinition">
+            <tag name="shopware.entity.definition" entity="sales_channel_type_translation"/>
+        </service>
+
         <service class="Shopware\Core\System\Command\SalesChannelCreateCommand" id="Shopware\Core\System\Command\SalesChannelCreateCommand">
             <argument id="sales_channel.repository" type="service"/>
             <tag name="console.command"/>

@@ -40,25 +40,26 @@ class CreateTenantCommand extends ContainerAwareCommand
             throw new \Exception('Invalid uuid provided');
         }
 
-        $bytes = hex2bin($tenantId);
+        $tenantId = hex2bin($tenantId);
 
         $this->connection->executeUpdate('SET NAMES utf8mb4;');
         $this->connection->executeUpdate('SET FOREIGN_KEY_CHECKS=0;');
 
-        $this->importCatalog($bytes);
-        $this->importLanguage($bytes);
-        $this->importCountry($bytes);
-        $this->importCountryArea($bytes);
-        $this->importCountryState($bytes);
-        $this->importOrderState($bytes);
-        $this->importOrderTransaction($bytes);
-        $this->importCurrency($bytes);
-        $this->importCustomerGroup($bytes);
-        $this->importLocale($bytes);
-        $this->importPaymentMethod($bytes);
-        $this->importShippingMethod($bytes);
-        $this->importTax($bytes);
-        $this->importListingSorting($bytes);
+        $this->importCatalog($tenantId);
+        $this->importLanguage($tenantId);
+        $this->importCountry($tenantId);
+        $this->importCountryArea($tenantId);
+        $this->importCountryState($tenantId);
+        $this->importOrderState($tenantId);
+        $this->importOrderTransaction($tenantId);
+        $this->importCurrency($tenantId);
+        $this->importCustomerGroup($tenantId);
+        $this->importLocale($tenantId);
+        $this->importPaymentMethod($tenantId);
+        $this->importShippingMethod($tenantId);
+        $this->importTax($tenantId);
+        $this->importListingSorting($tenantId);
+        $this->importSalesChannelType($tenantId);
 
         $this->connection->executeUpdate('SET FOREIGN_KEY_CHECKS=1;');
     }
@@ -1093,6 +1094,31 @@ class CreateTenantCommand extends ContainerAwareCommand
                 [hex2bin('361D52E6A9894467B4FEAF5E5A799383'), hex2bin('20080911ffff4fffafffffff19830531'), hex2bin('20080911ffff4fffafffffff19830531'), 'Cheapest price', $this->now()],
                 [hex2bin('4F0B50F58286488FB8D88B43934534E2'), hex2bin('20080911ffff4fffafffffff19830531'), hex2bin('20080911ffff4fffafffffff19830531'), 'Highest price', $this->now()],
                 [hex2bin('5727B79736A44CB1B1CC904820570DB9'), hex2bin('20080911ffff4fffafffffff19830531'), hex2bin('20080911ffff4fffafffffff19830531'), 'Product name', $this->now()],
+            ]
+        );
+    }
+
+    private function importSalesChannelType(string $tenantId)
+    {
+        $this->importTable(
+            $tenantId,
+            'sales_channel_type',
+            ['id', 'created_at', 'updated_at'],
+            ['tenant_id'],
+            [
+                [hex2bin(Defaults::SALES_CHANNEL_STOREFRONT), $this->now(), null],
+                [hex2bin(Defaults::SALES_CHANNEL_STOREFRONT_API), $this->now(), null],
+            ]
+        );
+
+        $this->importTable(
+            $tenantId,
+            'sales_channel_type_translation',
+            ['sales_channel_type_id', 'language_id', 'name', 'manufacturer', 'description', 'description_long', 'created_at', 'updated_at'],
+            ['sales_channel_type_tenant_id', 'language_tenant_id'],
+            [
+                [hex2bin(Defaults::SALES_CHANNEL_STOREFRONT), hex2bin('20080911ffff4fffafffffff19830531'), 'Storefront', 'Shopware AG', 'Default storefront sales channel', '', $this->now(), null],
+                [hex2bin(Defaults::SALES_CHANNEL_STOREFRONT_API), hex2bin('20080911ffff4fffafffffff19830531'), 'Storefront API', 'Shopware AG', 'Default Storefront-API', '', $this->now(), null],
             ]
         );
     }

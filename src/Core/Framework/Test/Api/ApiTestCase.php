@@ -160,8 +160,8 @@ class ApiTestCase extends WebTestCase
 
         $salesChannelRepository->upsert([[
             'id' => $salesChannelId->getHex(),
+            'typeId' => Defaults::SALES_CHANNEL_STOREFRONT_API,
             'name' => 'API Test case sales channel',
-            'type' => 'storefront_api',
             'accessKey' => $accessKey,
             'secretAccessKey' => $secretKey,
             'languageId' => Defaults::LANGUAGE,

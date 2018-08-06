@@ -5,6 +5,7 @@ namespace Shopware\Core\System\SalesChannel;
 use Shopware\Core\Framework\ORM\EntityCollection;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Language\LanguageCollection;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeCollection;
 
 class SalesChannelCollection extends EntityCollection
 {
@@ -93,6 +94,20 @@ class SalesChannelCollection extends EntityCollection
         });
     }
 
+    public function getTypeIds(): array
+    {
+        return $this->fmap(function (SalesChannelStruct $salesChannel) {
+            return $salesChannel->getTypeId();
+        });
+    }
+
+    public function filterByTypeId(string $id): SalesChannelCollection
+    {
+        return $this->filter(function (SalesChannelStruct $salesChannel) use ($id) {
+            return $salesChannel->getTypeId() === $id;
+        });
+    }
+
     public function getCatalogIds(): array
     {
         return $this->fmap(function (SalesChannelStruct $salesChannel) {
@@ -135,6 +150,15 @@ class SalesChannelCollection extends EntityCollection
         return new CurrencyCollection(
             $this->fmap(function (SalesChannelStruct $salesChannel) {
                 return $salesChannel->getCurrency();
+            })
+        );
+    }
+
+    public function getTypes(): SalesChannelTypeCollection
+    {
+        return new SalesChannelTypeCollection(
+            $this->fmap(function (SalesChannelStruct $salesChannel) {
+                return $salesChannel->getType();
             })
         );
     }

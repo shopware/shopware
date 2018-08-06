@@ -11,7 +11,7 @@ class SalesChannelNotFoundException extends HttpException implements ShopwareExc
 {
     public function __construct(int $code = 0, Throwable $previous = null)
     {
-        $message = 'The salesChannel was not found.';
+        $message = 'The sales channel was not found.';
 
         parent::__construct(Response::HTTP_PRECONDITION_FAILED, $message, $previous, [], $code);
     }

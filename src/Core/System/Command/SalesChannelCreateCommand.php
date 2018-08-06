@@ -41,6 +41,7 @@ class SalesChannelCreateCommand extends ContainerAwareCommand
             ->addOption('paymentMethodId', null, InputOption::VALUE_REQUIRED, 'Default payment method', Defaults::PAYMENT_METHOD_DEBIT)
             ->addOption('shippingMethodId', null, InputOption::VALUE_REQUIRED, 'Default shipping method', Defaults::SHIPPING_METHOD)
             ->addOption('countryId', null, InputOption::VALUE_REQUIRED, 'Default country', Defaults::COUNTRY)
+            ->addOption('typeId', null, InputOption::VALUE_OPTIONAL, 'Sales channel type id')
         ;
     }
 
@@ -48,6 +49,7 @@ class SalesChannelCreateCommand extends ContainerAwareCommand
     {
         $tenantId = $input->getOption('tenant-id');
         $id = $input->getOption('id');
+        $typeId = $input->getOption('typeId');
 
         if (!$tenantId) {
             throw new \Exception('No tenant id provided');
@@ -67,7 +69,7 @@ class SalesChannelCreateCommand extends ContainerAwareCommand
 
         $data = [
             'id' => $id,
-            'type' => $this->getType(),
+            'typeId' => $typeId ?? $this->getTypeId(),
             'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
             'secretAccessKey' => $secretAccessKey,
             'configuration' => $this->getSalesChannelConfiguration($input, $output),
@@ -124,8 +126,8 @@ class SalesChannelCreateCommand extends ContainerAwareCommand
         return [];
     }
 
-    protected function getType(): string
+    protected function getTypeId(): string
     {
-        return 'storefront_api';
+        return Defaults::SALES_CHANNEL_STOREFRONT_API;
     }
 }

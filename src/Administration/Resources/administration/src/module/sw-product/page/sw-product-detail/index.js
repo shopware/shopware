@@ -1,6 +1,7 @@
 import { Component, Mixin, State } from 'src/core/shopware';
 import { fileReader } from 'src/core/service/util.service';
 import template from './sw-product-detail.html.twig';
+import './sw-product-detail.less';
 
 Component.register('sw-product-detail', {
     template,

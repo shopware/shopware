@@ -12,13 +12,15 @@
             <template slot="smart-bar-actions">
                 {% block sw_product_detail_actions_abort %}
                     <sw-button :disabled="product.isLoading" link="sw.product.index">
-                        {{ $tc('sw-product.detail.buttonCancel') }}
+                        <sw-icon name="small-default-x-line-medium" small></sw-icon>
+                        <span class="text">{{ $tc('sw-product.detail.buttonCancel') }}</span>
                     </sw-button>
                 {% endblock %}
 
                 {% block sw_product_detail_actions_save %}
                     <sw-button variant="primary" :disabled="product.isLoading" @click.prevent="onSave">
-                        {{ $tc('sw-product.detail.buttonSave') }}
+                        <sw-icon name="default-action-save" small></sw-icon>
+                        <span class="text">{{ $tc('sw-product.detail.buttonSave') }}</span>
                     </sw-button>
                 {% endblock %}
             </template>

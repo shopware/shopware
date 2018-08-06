@@ -1,0 +1,36 @@
+@import "~less/variables";
+
+.sw-product-detail {
+    .smart-bar__actions {
+        .sw-button {
+            height: 40px;
+
+            .sw-icon {
+                display: none;
+            }
+
+            .text {
+                display: inline-block;
+            }
+
+            @media screen and (max-width: 500px) {
+                width: 40px;
+                padding-left: 5px;
+                padding-right: 5px;
+                text-align: center;
+
+                .sw-button__content {
+                    display: inline-block;
+                }
+
+                .sw-icon {
+                    display: inline-block;
+                }
+
+                .text {
+                    display: none;
+                }
+            }
+        }
+    }
+}

@@ -45,7 +45,20 @@ Component.register('sw-admin-menu', {
         }
     },
 
+    created() {
+        this.collapseMenuOnSmallViewports();
+    },
+
     mounted() {
+        const me = this;
+
+        this.$device.onResize({
+            listener() {
+                me.collapseMenuOnSmallViewports();
+            },
+            component: this
+        });
+
         this.addScrollbarOffset();
     },
 
@@ -58,6 +71,12 @@ Component.register('sw-admin-menu', {
             }
 
             this.changeActiveItem(currentTarget.querySelector('.sw-admin-menu__navigation-link'));
+        },
+
+        collapseMenuOnSmallViewports() {
+            if (this.$device.getViewportWidth() <= 1200) {
+                this.isExpanded = false;
+            }
         },
 
         changeActiveItem(target) {

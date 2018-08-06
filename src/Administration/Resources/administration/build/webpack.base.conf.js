@@ -7,6 +7,7 @@ function resolve(dir) {
     return path.join(__dirname, '..', dir)
 }
 
+// Refactor the usage of eslint
 const eslintDisable = (process.env.ESLINT_DISABLE === 'true');
 
 module.exports = {

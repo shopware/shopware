@@ -60,10 +60,10 @@
                 <sw-field type="select"
                           :label="$tc('sw-customer.baseForm.labelApplication')"
                           :placeholder="$tc('sw-customer.baseForm.placeholderApplication')"
-                          v-model="customer.touchpointId">
+                          v-model="customer.salesChannelId">
                     {% block sw_customer_base_form_shop_field_options %}
-                        <option slot="options" v-for="touchpoint in touchpoints" :key="touchpoint.id" :value="touchpoint.id">
-                            {{ touchpoint.name }}
+                        <option slot="options" v-for="salesChannel in salesChannels" :key="salesChannel.id" :value="salesChannel.id">
+                            {{ salesChannel.name }}
                         </option>
                     {% endblock %}
                 </sw-field>

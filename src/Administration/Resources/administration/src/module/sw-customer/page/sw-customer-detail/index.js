@@ -20,7 +20,7 @@ Component.register('sw-customer-detail', {
             customerId: null,
             customerEditMode: false,
             customerGroups: [],
-            touchpoints: [],
+            salesChannels: [],
             countries: [],
             addresses: [],
             paymentMethods: []
@@ -40,8 +40,8 @@ Component.register('sw-customer-detail', {
             return State.getStore('country');
         },
 
-        touchpointStore() {
-            return State.getStore('touchpoint');
+        salesChannelStore() {
+            return State.getStore('sales_channel');
         },
 
         customerAddressStore() {
@@ -86,8 +86,8 @@ Component.register('sw-customer-detail', {
                     offset: 0
                 });
 
-                this.touchpointStore.getList({ offset: 0, limit: 100 }).then((response) => {
-                    this.touchpoints = response.items;
+                this.salesChannelStore.getList({ offset: 0, limit: 100 }).then((response) => {
+                    this.salesChannels = response.items;
                 });
 
                 this.customerGroupStore.getList({ offset: 0, limit: 100 }).then((response) => {

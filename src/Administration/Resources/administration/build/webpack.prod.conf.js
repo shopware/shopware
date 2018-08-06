@@ -1,4 +1,3 @@
-const path = require('path');
 const utils = require('./utils');
 const webpack = require('webpack');
 const config = require('../config');
@@ -27,6 +26,7 @@ const webpackConfig = merge(baseWebpackConfig, {
     },
     optimization: {
         splitChunks: {
+            chunks: 'all',
             cacheGroups: {
                 app: {
                     name: 'app',
@@ -68,7 +68,7 @@ const webpackConfig = merge(baseWebpackConfig, {
         // copy custom static assets
         new CopyWebpackPlugin([
             {
-                from: path.resolve(__dirname, '../static'),
+                from:utils.resolve('static'),
                 to: config.build.assetsSubDirectory,
                 ignore: [ '.*' ]
             }

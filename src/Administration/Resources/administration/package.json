@@ -14,8 +14,8 @@
   ],
   "private": true,
   "scripts": {
-    "dev": "node --trace-deprecation build/dev-server.js",
-    "build": "node --trace-deprecation --inspect build/build.js",
+    "dev": "node build/dev-server.js",
+    "build": "node build/build.js",
     "unit": "cross-env BABEL_ENV=test TESTING_ENV=single karma start test/unit/karma.conf.js --single-run",
     "unit-watch": "cross-env BABEL_ENV=test TESTING_ENV=watch karma start test/unit/karma.conf.js --auto-watch",
     "e2e": "node test/e2e/runner.js",
@@ -82,7 +82,6 @@
     "function-bind": "^1.1.1",
     "html-loader": "^0.5.5",
     "html-webpack-plugin": "^3.2.0",
-    "http-proxy-middleware": "^0.18.0",
     "inject-loader": "^4.0.1",
     "jsdoc": "^3.5.5",
     "karma": "^2.0.5",

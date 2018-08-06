@@ -11,15 +11,15 @@ const webpack = require('webpack');
 const config = require('../config');
 const webpackConfig = require('./webpack.prod.conf');
 
-const spinner = ora('building for production...');
+const spinner = ora('Building project for production...');
 spinner.start();
 
-rm(path.join(config.build.assetsRoot, config.build.assetsSubDirectory), err => {
+rm(path.join(config.build.assetsRoot, config.build.assetsSubDirectory), (err) => {
     if (err) {
         throw err;
     }
 
-    webpack(webpackConfig, function (err, stats) {
+    webpack(webpackConfig, (err, stats) => {
         spinner.stop();
         if (err) {
             throw err;

@@ -80,6 +80,7 @@ module.exports = {
         'prefer-destructuring': [ 'off', { 'object': true, 'array': false } ],
 
         'operator-linebreak': 0,
+
         'import/no-cycle': 0,
 
         // allow optionalDependencies

@@ -238,10 +238,21 @@ exports.injectIncludePathsToLoader = function(config, paths) {
     return config;
 };
 
+/**
+ * Returns the include paths
+ *
+ * @returns {Array<String>}
+ */
 exports.getIncludePaths = function() {
     return includePaths;
 };
 
+/**
+ * Provides the path depending on the environment.
+ *
+ * @param {String} _path
+ * @returns {String}
+ */
 exports.assetsPath = function (_path) {
     const assetsSubDirectory = process.env.NODE_ENV === 'production'
         ? config.build.assetsSubDirectory
@@ -250,6 +261,11 @@ exports.assetsPath = function (_path) {
     return path.posix.join(assetsSubDirectory, _path)
 };
 
+/**
+ * Returns the css loader object for the webpack config
+ * @param {Object} options
+ * @returns {Object}
+ */
 exports.cssLoaders = function (options) {
     options = options || {};
 

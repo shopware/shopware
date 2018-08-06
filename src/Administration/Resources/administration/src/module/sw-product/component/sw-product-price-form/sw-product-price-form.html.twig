@@ -16,8 +16,8 @@
 
             {% block sw_product_price_form_purchase_price_field %}
                 <sw-field type="number"
-                          :label="$tc('sw-product.priceForm.labelPriceGross')"
-                          :placeholder="$tc('sw-product.priceForm.placeholderPriceGross')"
+                          :label="$tc('sw-product.priceForm.labelPurchasePriceGross')"
+                          :placeholder="$tc('sw-product.priceForm.placeholderPurchasePriceGross')"
                           suffix="EUR"
                           min="0.00"
                           step="0.01"
@@ -35,19 +35,7 @@
             </sw-price-field>
         {% endblock %}
 
-        <sw-container grid="1fr 1fr 1fr 1fr" gap="0px 30px">
-
-            {% block sw_product_price_form_unit_field %}
-                <sw-field type="select"
-                          :label="$tc('sw-product.priceForm.labelUnit')"
-                          :placeholder="$tc('sw-product.priceForm.placeholderUnit')"
-                          v-model="product.unitId">
-                    <option slot="options" :value="1">{{ $tc('sw-product.priceForm.optionLitre') }}</option>
-                    <option slot="options" :value="2">{{ $tc('sw-product.priceForm.optionKilogram') }}</option>
-                    <option slot="options" :value="3">{{ $tc('sw-product.priceForm.optionMetre') }}</option>
-                </sw-field>
-            {% endblock %}
-
+        <sw-container grid="1fr 1fr 1fr" gap="0px 30px">
             {% block sw_product_price_form_purchase_unit_field %}
                 <sw-field type="number"
                           :label="$tc('sw-product.priceForm.labelPurchaseUnit')"

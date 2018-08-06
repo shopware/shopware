@@ -1,5 +1,9 @@
 {
   "global": {
+    "notification": {
+      "notificationSaveErrorTitle": "Error",
+      "notificationSaveErrorMessage": "An error occurred while saving the entity \"{entityName}\"."
+    },
     "sw-admin-menu": {
       "linkChangeLanguage": "Change language",
       "linkLogout": "Logout",
@@ -18,8 +22,8 @@
       "titleHidePassword": "Hide password"
     },
     "sw-price-field": {
-      "labelPriceGross": "Price (Gross)",
-      "labelPriceNet": "Price (Net)"
+      "labelPriceGross": "Price (gross)",
+      "labelPriceNet": "Price (net)"
     },
     "sw-text-editor": {
       "labelTextLength": "{count} Character | {count} Characters"
@@ -271,9 +275,9 @@
       "buttonDelete": "Delete",
       "buttonCreateNewApiKeys": "Create new API keys",
       "labelFieldLabel": "Name",
-      "idFieldLabel": "ID",
-      "secretFieldLabel": "Secret key",
-      "secretHelpText": "The shown secret key will no longer be visible after saving. To use the key please copy it to the source code of your application. In case you lost the key, you can generate a new one for the application at any time.",
+      "idFieldLabel": "Access key ID",
+      "secretFieldLabel": "Secret access key",
+      "secretHelpText": "The shown access key will no longer be visible after saving. Be sure to copy the key to a secure place. In case you lost the key, you can generate a new one for the application at any time.",
       "secretHelpTextTitle": "Important!",
       "writeAccessFieldLabel": "Write access",
       "titleSaveSuccess": "Integration",
@@ -310,13 +314,13 @@
     },
     "priceForm": {
       "labelTaxRate": "Tax rate",
-      "labelPriceGross": "Price (Gross)",
+      "labelPurchasePriceGross": "Purchase price (gross)",
       "labelUnit": "Unit of measurement",
       "labelPurchaseUnit": "Purchase unit",
       "labelReferenceUnit": "Reference unit",
       "labelPackUnit": "Packaging unit",
       "placeholderTaxRate": "Select tax rate...",
-      "placeholderPriceGross": "Enter price (gross)...",
+      "placeholderPurchasePriceGross": "Enter purchase price...",
       "placeholderUnit": "Select...",
       "placeholderPurchaseUnit": "Purchase unit...",
       "placeholderReferenceUnit": "Reference unit...",
@@ -331,7 +335,7 @@
       "labelWidth": "Width",
       "labelHeight": "Height",
       "labelLength": "Length",
-      "labelWeight": "Mass",
+      "labelWeight": "Weight",
       "labelMinPurchase": "Min. order quantity",
       "labelMaxPurchase": "Max. order quantity",
       "labelEan": "EAN",
@@ -368,7 +372,7 @@
       "textPriceRuleForCurrency": "Price rule for currency",
       "columnQuantityStart": "Starting from",
       "columnQuantityEnd": "Ending at",
-      "columnPrice": "Price (Gross / Net)",
+      "columnPrice": "Price (gross / net)",
       "contextMenuDuplicate": "Duplicate",
       "contextMenuDelete": "Delete"
     },

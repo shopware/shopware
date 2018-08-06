@@ -20,11 +20,13 @@ Component.extend('sw-product-create', 'sw-product-detail', {
             }
 
             this.$super.createdComponent();
+
+            this.product.price.linked = true;
         },
 
         onSave() {
-            this.product.save().then((product) => {
-                this.$router.push({ name: 'sw.product.detail', params: { id: product.id } });
+            this.$super.onSave().then(() => {
+                this.$router.push({ name: 'sw.product.detail', params: { id: this.product.id } });
             });
         }
     }

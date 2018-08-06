@@ -24,35 +24,45 @@ class ApiService {
      *
      * @param {Number} page
      * @param {Number} limit
-     * @param {Object} [additionalParams={}]
-     * @param {Object} [additionalHeaders={}]
+     * @param {String} sortBy
+     * @param {String} sortDirection
+     * @param {String} term
+     * @param {Object} criteria
+     * @param {Object} aggregations
+     * @param {Object} headers
      * @returns {Promise<T>}
      */
-    getList({ page, limit, additionalParams = {}, additionalHeaders = {} }) {
-        const headers = this.getBasicHeaders(additionalHeaders);
-        let params = {};
+    getList({ page = 1, limit = 25, sortBy, sortDirection = 'asc', term, criteria, aggregations, headers }) {
+        const requestHeaders = this.getBasicHeaders(headers);
+        const params = { page, limit };
 
-        if (page >= 1) {
-            params.page = page;
+        if (sortBy && sortBy.length) {
+            params.sort = (sortDirection.toLowerCase() === 'asc' ? '' : '-') + sortBy;
         }
 
-        if (limit > 0) {
-            params.limit = limit;
+        if (term) {
+            params.term = term;
         }
 
-        params = Object.assign(params, additionalParams);
+        if (criteria) {
+            params.filter = [criteria.getQuery()];
+        }
+
+        if (aggregations) {
+            params.aggregations = aggregations;
+        }
 
         // Switch to the general search end point when we're having a search term
         if ((params.term && params.term.length) || (params.filter && params.filter.length)) {
             return this.httpClient
-                .post(`${this.getApiBasePath(null, 'search')}`, params, { headers })
+                .post(`${this.getApiBasePath(null, 'search')}`, params, { headers: requestHeaders })
                 .then((response) => {
                     return ApiService.handleResponse(response);
                 });
         }
 
         return this.httpClient
-            .get(this.getApiBasePath(), { params, headers })
+            .get(this.getApiBasePath(), { params, headers: requestHeaders })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });

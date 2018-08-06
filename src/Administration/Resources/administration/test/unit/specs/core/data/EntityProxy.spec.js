@@ -5,11 +5,15 @@ import utils from 'src/core/service/util.service';
 import { itAsync } from '../../../async-helper';
 
 const State = Shopware.State;
+const Application = Shopware.Application;
+
+const initContainer = Application.getContainer('init');
+const serviceContainer = Application.getContainer('service');
 
 describe('core/data/EntityProxy.js', () => {
     it('should create an entity without initial data (empty entity should be created)', () => {
-        const productEntity = new EntityProxy('product', 'productService');
-
+        const productEntity = new EntityProxy('product', serviceContainer.productService);
+        
         expect(productEntity).to.have.property('catalogId');
         expect(productEntity).to.have.property('createdAt');
         expect(productEntity).to.have.property('updatedAt');
@@ -20,153 +24,117 @@ describe('core/data/EntityProxy.js', () => {
         // We shouldn't have any changes yet
         expect(Object.keys(productEntity.getChanges()).length).to.be.equal(0);
 
-        expect(productEntity.isNew).to.be.equal(true);
+        expect(productEntity.isLocal).to.be.equal(true);
     });
 
-    it('should create an entity with initial data', () => {
-        const productWithDataEntity = new EntityProxy('product', 'productService', {
-            id: utils.createId(),
+    it('should create an entity and silently set initial local data', () => {
+        const productEntity = new EntityProxy('product', serviceContainer.productService);
+
+        productEntity.setLocalData({
             active: true,
             allowNotification: true,
             name: 'A simple product',
             description: 'Lorem ipsum dolor sit amet'
-        });
+        }, true, false);
 
         // We shouldn't have any changes yet
-        expect(Object.keys(productWithDataEntity.getChanges()).length).to.be.equal(0);
+        expect(Object.keys(productEntity.getChanges()).length).to.be.equal(0);
 
-        expect(productWithDataEntity.name).to.be.equal('A simple product');
-        expect(productWithDataEntity.description).to.be.equal('Lorem ipsum dolor sit amet');
-        expect(productWithDataEntity.active).to.be.equal(true);
-        expect(productWithDataEntity.allowNotification).to.be.equal(true);
-
-        const productWithoutIdEntity = new EntityProxy('product', 'productService', {
-            active: true,
-            allowNotification: true
-        });
-
-        expect(productWithoutIdEntity.active).to.be.equal(false);
-        expect(productWithoutIdEntity.allowNotification).to.be.equal(false);
+        expect(productEntity.name).to.be.equal('A simple product');
+        expect(productEntity.description).to.be.equal('Lorem ipsum dolor sit amet');
+        expect(productEntity.active).to.be.equal(true);
+        expect(productEntity.allowNotification).to.be.equal(true);
     });
 
-    it('should create an entity with initial data with association keys', () => {
-        const categoryEntity = new EntityProxy('category', 'categoryService', {
-            id: utils.createId(),
-            name: 'Example category'
-        });
+    it('should create an entity with local changes', () => {
+        const categoryEntity = new EntityProxy('category', serviceContainer.categoryService);
 
-        const productWithoutDataAssociationEntity = new EntityProxy('product', 'productService');
-
-        productWithoutDataAssociationEntity.initData({
-            id: utils.createId(),
-            active: true,
-            allowNotification: true,
-            name: 'A simple product',
-            description: 'Lorem ipsum dolor sit amet',
-            categories: [categoryEntity]
-        });
-
-        const productWithDataAssociationEntity = new EntityProxy('product', 'productService');
-        productWithDataAssociationEntity.initData({
-            id: utils.createId(),
-            active: true,
-            allowNotification: true,
-            name: 'A simple product',
-            description: 'Lorem ipsum dolor sit amet',
-            categories: [categoryEntity]
-        }, false);
-
-        expect(productWithDataAssociationEntity.categories.length).to.be.equal(1);
-        expect(productWithoutDataAssociationEntity.categories.length).to.be.equal(0);
-
-        expect(Object.keys(productWithoutDataAssociationEntity.getChanges()).length).to.be.equal(0);
-        expect(Object.keys(productWithDataAssociationEntity.getChanges()).length).to.be.equal(0);
-    });
-
-    it('should create an entity with changes in place', () => {
-        const categoryEntity = new EntityProxy('category', 'categoryService', {
-            id: utils.createId(),
-            name: 'Example category'
-        });
-
-        categoryEntity.name =  'Example category Edited';
+        categoryEntity.name = 'Example category Edited';
         expect(Object.keys(categoryEntity.getChanges()).length).to.be.equal(1);
+        expect(categoryEntity.getChanges().name).to.be.equal('Example category Edited');
     });
 
     it('should generate association stores for the entity', () => {
-        const productEntity = new EntityProxy('product', 'productService');
-        const requiredStores = productEntity.associatedProperties;
+        const productEntity = new EntityProxy('product', serviceContainer.productService);
+        const associatedProps = productEntity.associatedEntityPropNames;
 
-        const keys = Array.from(productEntity.associationStores.keys());
-
-        keys.forEach((storeKey) => {
-            expect(requiredStores.indexOf(storeKey) !== -1).to.be.equal(true);
+        Object.keys(productEntity.associations).forEach((associationKey) => {
+            expect(associatedProps.indexOf(associationKey) !== -1).to.be.equal(true);
         });
     });
 
     it('should return a generated association store', () => {
-        const productEntity = new EntityProxy('product', 'productService');
-        const storeKeys = productEntity.associatedProperties;
+        const productEntity = new EntityProxy('product', serviceContainer.productService);
+        const associatedProps = productEntity.associatedEntityPropNames;
 
-        storeKeys.forEach((storeKey) => {
-            const store = productEntity.getAssociationStore(storeKey);
+        associatedProps.forEach((associationKey) => {
+            const store = productEntity.getAssociation(associationKey);
 
             expect(store.store).to.be.an('object');
             expect(store.isLoading).to.be.equal(false);
-            expect(store.isLoading).to.be.equal(false);
-            expect(store.$parent).to.be.an('object');
-            expect(store.$type).to.be.equal(storeKey);
+            expect(store.parentEntity).to.be.an('object');
+            expect(store.associationKey).to.be.equal(associationKey);
         });
     });
 
-    it('should get the changes without association', () => {
-        const productEntity = new EntityProxy('product', 'productService');
+    it('should get the changes of the entity without associations', () => {
+        const productEntity = new EntityProxy('product', serviceContainer.productService);
 
         // Trigger a change
-        productEntity.name = 'Test';
+        productEntity.name = 'Test product';
 
-        const categoryEntity = new EntityProxy('category', 'categoryService', {
-            id: utils.createId(),
-            name: 'Example category'
-        });
-
-        productEntity.categories.push(categoryEntity);
+        const categoryEntity = productEntity.getAssociation('categories').create();
+        categoryEntity.name = 'Test category';
 
         const changes = productEntity.getChanges();
 
-        expect(changes).to.deep.include({
-            name: 'Test'
-        });
+        expect(changes.name).to.be.equal('Test product');
+        expect(changes.categories).to.be.an('undefined');
+    });
 
-        const changesWithAssociations = productEntity.getChanges(true);
+    it('should get the changes of the entity including associations', () => {
+        const productEntity = new EntityProxy('product', serviceContainer.productService);
 
-        expect(changesWithAssociations).to.be.an('object');
-        expect(changesWithAssociations.categories).to.be.an('array');
+        // Trigger a change
+        productEntity.name = 'Test product';
+
+        const categoryEntity = productEntity.getAssociation('categories').create();
+        categoryEntity.name = 'Test category';
+
+        const changes = productEntity.getChanges();
+        const changedAssociations = productEntity.getChangedAssociations();
+
+        Object.assign(changes, changedAssociations);
+
+        expect(changes.name).to.be.equal('Test product');
+        expect(changes.categories).to.be.an('array');
+        expect(changes.categories.length).to.be.equal(1);
+        expect(changes.categories[0].name).to.be.equal('Test category');
     });
 
     itAsync('should save the entity', (done) => {
-        const productEntity = new EntityProxy('product', 'productService');
+        const productEntity = new EntityProxy('product', serviceContainer.productService);
 
-        const taxEntity = new EntityProxy('tax', 'taxService', {
-            id: utils.createId(),
-            name: 'Insane tax rate',
+        const taxEntity = new EntityProxy('tax', serviceContainer.taxService);
+        taxEntity.setLocalData({
+            name: 'Test tax rate',
             taxRate: 99.98
         });
-        taxEntity.isNew = true;
 
-        const catalogEntity = new EntityProxy('catalog', 'catalogService');
-        catalogEntity.name = 'Sample catalog';
+        const catalogEntity = new EntityProxy('catalog', serviceContainer.catalogService);
+        catalogEntity.name = 'Test catalog';
 
-        const manufacturerEntity = new EntityProxy('product_manufacturer',  'productManufacturerService', {
-            id: utils.createId(),
+        const manufacturerEntity = new EntityProxy('product_manufacturer',  serviceContainer.productManufacturerService);
+        manufacturerEntity.setLocalData({
             catalogId: catalogEntity.id,
-            name: 'Sample manufacturer'
+            name: 'Test manufacturer'
         });
-        manufacturerEntity.isNew = true;
 
         // Trigger changes
-        productEntity.tax = taxEntity;
-        productEntity.manufacturer = manufacturerEntity;
+        productEntity.tax = taxEntity.getChanges();
+        productEntity.tax.id = taxEntity.id;
+        productEntity.manufacturer = manufacturerEntity.getChanges();
+        productEntity.manufacturer.id = manufacturerEntity.id;
 
         productEntity.name = 'Sample product';
         productEntity.catalogId = catalogEntity.id;
@@ -208,23 +176,23 @@ describe('core/data/EntityProxy.js', () => {
         const store = State.getStore('product');
         const entity = store.create();
 
-        expect(entity.$store).to.be.equal(store);
-        expect(entity.$store.store[entity.id]).to.be.equal(entity);
+        expect(entity.store).to.be.equal(store);
+        expect(entity.store.store[entity.id]).to.be.equal(entity);
 
         expect(entity.remove()).to.be.equal(true);
 
-        expect(entity.$store.store[entity.id]).to.be.an('undefined');
+        expect(store[entity.id]).to.be.an('undefined');
 
-        const productEntity = new EntityProxy('product', 'productService');
+        const productEntity = new EntityProxy('product', serviceContainer.productService);
         expect(productEntity.remove()).to.be.equal(false);
     });
 
     itAsync('should delete the entity (direct delete)', (done) => {
-        const taxEntity = new EntityProxy('tax', 'taxService');
+        const taxEntity = new EntityProxy('tax', serviceContainer.taxService);
 
-        taxEntity.name = 'Insane tax rate';
+        taxEntity.name = 'Test tax rate';
         taxEntity.taxRate = 99.98;
-        taxEntity.isNew = true;
+
         taxEntity.save().then(() => {
             taxEntity.delete(true).then(() => {
                 done();
@@ -237,7 +205,7 @@ describe('core/data/EntityProxy.js', () => {
     });
 
     it('should validate the required fields', () => {
-        const invalidProductEntity = new EntityProxy('product', 'productService');
+        const invalidProductEntity = new EntityProxy('product', serviceContainer.productService);
         const validate = invalidProductEntity.validate();
 
         expect(validate).to.be.equal(false);

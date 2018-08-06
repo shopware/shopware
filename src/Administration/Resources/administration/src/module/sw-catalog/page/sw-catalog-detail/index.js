@@ -1,4 +1,5 @@
 import { Component, State } from 'src/core/shopware';
+import { warn } from 'src/core/service/utils/debug.utils';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-catalog-detail.html.twig';
 import './sw-catalog-detail.less';
@@ -84,20 +85,18 @@ Component.register('sw-catalog-detail', {
             const aggregateParams = {
                 page: 1,
                 limit: 1,
-                additionalParams: {
-                    aggregations: {
-                        productCount: {
-                            count: { field: 'catalog.products.id' }
-                        },
-                        categoryCount: {
-                            count: { field: 'catalog.categories.id' }
-                        },
-                        mediaCount: {
-                            count: { field: 'catalog.media.id' }
-                        }
+                aggregations: {
+                    productCount: {
+                        count: { field: 'catalog.products.id' }
                     },
-                    filter: [CriteriaFactory.term('id', this.catalogId).getQuery()]
-                }
+                    categoryCount: {
+                        count: { field: 'catalog.categories.id' }
+                    },
+                    mediaCount: {
+                        count: { field: 'catalog.media.id' }
+                    }
+                },
+                criteria: CriteriaFactory.term('id', this.catalogId)
             };
 
             return this.catalogService.getList(aggregateParams).then((response) => {
@@ -184,7 +183,11 @@ Component.register('sw-catalog-detail', {
 
         onSave() {
             this.isLoading = true;
-            const associatedCategoryStore = this.catalog.getAssociationStore('categories');
+            const associatedCategoryStore = this.catalog.getAssociation('categories');
+            const titleSaveError = this.$tc('global.notification.notificationSaveErrorTitle');
+            const messageSaveError = this.$tc(
+                'global.notification.notificationSaveErrorMessage', 0, { entityName: this.catalog.name }
+            );
 
             Object.keys(this.categoryStore.store).forEach((id) => {
                 const category = this.categoryStore.store[id];
@@ -198,8 +201,13 @@ Component.register('sw-catalog-detail', {
 
             return this.catalog.save().then((response) => {
                 this.isLoading = false;
-
                 return response;
+            }).catch((exception) => {
+                this.createNotificationError({
+                    title: titleSaveError,
+                    message: messageSaveError
+                });
+                warn(this._name, exception.message, exception.response);
             });
         }
     }

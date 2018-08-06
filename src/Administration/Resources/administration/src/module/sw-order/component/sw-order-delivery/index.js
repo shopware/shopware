@@ -34,7 +34,7 @@ Component.register('sw-order-delivery', {
 
     computed: {
         positionsStore() {
-            return this.delivery.getAssociationStore('positions');
+            return this.delivery.getAssociation('positions');
         }
     },
 

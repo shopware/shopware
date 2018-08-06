@@ -1,7 +1,6 @@
 /**
  * @module core/factory/entity
  */
-import { warn } from 'src/core/service/utils/debug.utils';
 import { hasOwnProperty } from 'src/core/service/utils/object.utils';
 
 export default {
@@ -9,6 +8,7 @@ export default {
     getEntityDefinition,
     getDefinitionRegistry,
     getRawEntityObject,
+    getPropertyBlacklist,
     getRequiredProperties,
     getAssociatedProperties
 };
@@ -54,53 +54,87 @@ function getDefinitionRegistry() {
 }
 
 /**
- * Get a raw object containing all properties of the given entity with empty values.
+ * Returns a raw entity object by its schema with empty properties.
  *
- * @param {String} entityName
- * @param {Boolean} includeObjectAssociations
- * @returns {Object}
+ * @param {Object} schema
+ * @param {Boolean} deep
+ * @return {{}}
  */
-function getRawEntityObject(entityName, includeObjectAssociations = false) {
-    if (!entityDefinitions.has(entityName)) {
+function getRawEntityObject(schema, deep = true) {
+    const properties = schema.properties;
+    const obj = {};
+
+    Object.keys(properties).forEach((property) => {
+        const propSchema = properties[property];
+
+        obj[property] = getRawPropertyValue(propSchema, deep);
+    });
+
+    return obj;
+}
+
+/**
+ * Returns the default value for a property type to symbolize an empty state.
+ *
+ * @param {Object} propSchema
+ * @param {Boolean} deep
+ * @return {*}
+ */
+function getRawPropertyValue(propSchema, deep = true) {
+    if (propSchema.type === 'boolean') {
+        return false;
+    }
+
+    if (propSchema.type === 'string') {
+        return '';
+    }
+
+    if (propSchema.type === 'number' || propSchema.type === 'integer') {
+        return null;
+    }
+
+    if (propSchema.type === 'array') {
+        return [];
+    }
+
+    // OneToOne Relation
+    if (propSchema.type === 'object' && propSchema.entity) {
+        if (deep === true) {
+            return getRawEntityObject(getEntityDefinition(propSchema.entity), false);
+        }
+
         return {};
     }
 
-    const definition = entityDefinitions.get(entityName);
-    const entity = {};
-
-    Object.keys(definition.properties).forEach((propertyName) => {
-        const property = definition.properties[propertyName];
-
-        if (property.type === 'array' || property.type === 'json_array') {
-            entity[propertyName] = [];
-        } else if (property.type === 'json_object') {
-            /**
-             * Set up a trap for json objects, because wo don't know its properties.
-             */
-            entity[propertyName] = new Proxy({}, {
-                get(target, key) {
-                    return target[key] || null;
-                }
-            });
-        } else if (property.type === 'object') {
-            if (property.entity && includeObjectAssociations) {
-                entity[propertyName] = getRawEntityObject(property.entity);
-            } else {
-                entity[propertyName] = {};
-            }
-        } else if (property.type === 'boolean') {
-            entity[propertyName] = false;
-        } else if (property.type === 'string' && property.format === 'date-time') {
-            entity[propertyName] = '';
-        } else if (property.type === 'string' || property.type === 'number' || property.type === 'integer') {
-            entity[propertyName] = null;
-        } else {
-            warn('EntityFactory', `Unknown property type ${property.type} in ${entityName} entity.`, definition);
-            entity[propertyName] = null;
+    // JSON Field
+    if (propSchema.type === 'object' && propSchema.properties) {
+        if (deep === true) {
+            return getRawEntityObject(propSchema, false);
         }
-    });
 
-    return entity;
+        return {};
+    }
+
+    if (propSchema.type === 'string' && propSchema.format === 'date-time') {
+        return '';
+    }
+
+    return null;
+}
+
+function getPropertyBlacklist() {
+    return [
+        'createdAt',
+        'updatedAt',
+        'childCount',
+        'tenantId',
+        'versionId',
+        'links',
+        'extensions',
+        'mimeType',
+        'metaData',
+        'fileSize'
+    ];
 }
 
 /**
@@ -115,7 +149,16 @@ function getRequiredProperties(entityName) {
     }
 
     const definition = entityDefinitions.get(entityName);
-    return definition.required;
+    const blacklist = getPropertyBlacklist();
+    const requiredFields = [];
+
+    definition.required.forEach((property) => {
+        if (!blacklist.includes(property)) {
+            requiredFields.push(property);
+        }
+    });
+
+    return requiredFields;
 }
 
 /**

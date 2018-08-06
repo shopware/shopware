@@ -40,8 +40,8 @@ Mixin.register('listing', {
         getDataFromRoute() {
             const params = this.$route.query;
 
-            this.page = params.page || this.page;
-            this.limit = params.limit || this.limit;
+            this.page = parseInt(params.page, 10) || this.page;
+            this.limit = parseInt(params.limit, 10) || this.limit;
             this.sortDirection = params.sortDirection || this.sortDirection;
             this.sortBy = params.sortBy || this.sortBy;
             this.term = params.term || this.term;

@@ -1,5 +1,9 @@
 {
   "global": {
+    "notification": {
+      "notificationSaveErrorTitle": "Fehler",
+      "notificationSaveErrorMessage": "Beim Speichern der Entität \"{entityName}\" ist ein Fehler aufgetreten."
+    },
     "sw-admin-menu": {
       "linkChangeLanguage": "Sprache wechseln",
       "linkLogout": "Abmelden",
@@ -271,9 +275,9 @@
       "buttonDelete": "Löschen",
       "buttonCreateNewApiKeys": "API Zugangsdaten neu generieren",
       "labelFieldLabel": "Name",
-      "idFieldLabel": "ID",
+      "idFieldLabel": "Zugangs-ID",
       "secretFieldLabel": "Sicherheitsschlüssel",
-      "secretHelpText": "Der angezeigte Sicherheitsschlüssel wird nach dem Speichern nicht mehr einsehbar sein. Bitte kopiere Dir den Schlüssel zur Verwendung in den Quellcode Deiner Anwendung. Solltest Du den Schlüssel einmal verloren haben, kannst Du natürlich jeder Zeit einen neuen für die Anwendung generieren.",
+      "secretHelpText": "Der angezeigte Sicherheitsschlüssel wird nach dem Speichern nicht mehr einsehbar sein. Bitte kopiere Dir den Schlüssel zur Verwendung an einen sicheren Ort. Solltest Du den Schlüssel einmal verloren haben, kannst Du natürlich jeder Zeit einen neuen für die Anwendung generieren.",
       "secretHelpTextTitle": "Wichtig!",
       "writeAccessFieldLabel": "Schreibrechte",
       "titleSaveSuccess": "Integration",
@@ -310,13 +314,13 @@
     },
     "priceForm": {
       "labelTaxRate": "Steuersatz",
-      "labelPriceGross": "Einkaufspreis (Brutto)",
+      "labelPurchasePriceGross": "Einkaufspreis (Brutto)",
       "labelUnit": "Maßeinheit",
       "labelPurchaseUnit": "Inhalt",
       "labelReferenceUnit": "Grundeinheit",
       "labelPackUnit": "Verpackungseinheit",
       "placeholderTaxRate": "Wähle einen Steuersatz aus...",
-      "placeholderPriceGross": "Gebe den Einkaufspreis (Brutto) ein...",
+      "placeholderPurchasePriceGross": "Gebe den Einkaufspreis (Brutto) ein...",
       "placeholderUnit": "Wählen...",
       "placeholderPurchaseUnit": "Inhalt...",
       "placeholderReferenceUnit": "Grundeinheit...",
@@ -363,7 +367,7 @@
       "buttonPriceRuleDelete": "Preisregel löschen",
       "buttonPriceRuleDuplicate": "Preisregel duplizieren",
       "buttonPriceRuleCurrencyAdd": "Währung hinzufügen",
-      "buttonCreateAdditionalPriceRule": "Weitere Preisregel hinzufügen",
+      "buttonAddAdditionalPriceRule": "Weitere Preisregel hinzufügen",
       "textCurrencyDefault": "(Standard)",
       "textPriceRuleForCurrency": "Preisregel für Währung",
       "columnQuantityStart": "Menge von",

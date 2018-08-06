@@ -29,8 +29,7 @@ class NotificationStore {
             return Promise.reject(config);
         }
 
-        const notification = Object.assign({}, this.defaults, config);
-        notification.uuid = utils.createId();
+        const notification = Object.assign({ uuid: utils.createId() }, this.defaults, config);
 
         this.addNotification(notification);
 

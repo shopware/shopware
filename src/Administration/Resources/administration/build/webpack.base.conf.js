@@ -10,6 +10,9 @@ function resolve(dir) {
 const eslintDisable = (process.env.ESLINT_DISABLE === 'true');
 
 module.exports = {
+    performance: {
+        hints: false
+    },
     entry: {
         commons: [ resolve('src') + '/core/common.js', resolve('src') + '/core/shopware.js' ],
         app: resolve('src') + '/app/main.js'

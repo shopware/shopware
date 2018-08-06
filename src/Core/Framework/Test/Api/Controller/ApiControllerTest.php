@@ -326,8 +326,8 @@ class ApiControllerTest extends ApiTestCase
         static::assertEquals('http://localhost/api/v' . PlatformRequest::API_VERSION . '/product/' . $id, $response->headers->get('Location'));
 
         $data = [
-            'offset' => 0,
-            'size' => 5,
+            'page' => 1,
+            'limit' => 5,
             'fetch-count' => Criteria::FETCH_COUNT_TOTAL,
             'sort' => [
                 [

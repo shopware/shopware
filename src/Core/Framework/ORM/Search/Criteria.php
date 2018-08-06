@@ -11,8 +11,17 @@ use Shopware\Core\Framework\Struct\Struct;
 
 class Criteria extends Struct
 {
+    /**
+     * no total count will be selected. Should be used if no pagination required (fastest)
+     */
     public const FETCH_COUNT_NONE = 0;
+    /**
+     * exact total count will be selected. Should be used if an exact pagination is required (slow)
+     */
     public const FETCH_COUNT_TOTAL = 1;
+    /**
+     * fetches limit * 5 + 1. Should be used if pagination can work with "next page exists" (fast)
+     */
     public const FETCH_COUNT_NEXT_PAGES = 2;
 
     /**

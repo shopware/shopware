@@ -6,11 +6,11 @@ use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
-class InvalidOffsetQueryException extends ShopwareHttpException
+class QueryLimitExceededException extends ShopwareHttpException
 {
-    public function __construct($offset, int $code = 0, Throwable $previous = null)
+    public function __construct($maxLimit, $limit, int $code = 0, Throwable $previous = null)
     {
-        $message = sprintf('The offset parameter must be a positive integer. Given: %s', $offset);
+        $message = sprintf('The limit must be lower than or equal to MAX_LIMIT(=%d). Given: %s', $maxLimit, $limit);
 
         parent::__construct($message, $code, $previous);
     }

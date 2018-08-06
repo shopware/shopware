@@ -22,9 +22,7 @@
     "test": "npm run unit && npm run e2e",
     "lint": "eslint --ext .js,.vue src test/unit/specs test/e2e/specs",
     "security-check": "./node_modules/.bin/nsp check",
-    "generate-api-docs": "./node_modules/.bin/jsdoc src -r -c jsdoc.config.js",
-    "storybook-watch": "start-storybook -p 9001 -s ./static -c .storybook",
-    "storybook-generate": "build-storybook -s ./static -c .storybook -o ../../../../../../../build/artifacts/storybook"
+    "generate-api-docs": "./node_modules/.bin/jsdoc src -r -c jsdoc.config.js"
   },
   "dependencies": {
     "app-module-path": "^2.2.0",
@@ -39,11 +37,6 @@
     "vue-router": "^3.0.1"
   },
   "devDependencies": {
-    "@storybook/addon-actions": "^3.4.10",
-    "@storybook/addon-centered": "^3.4.10",
-    "@storybook/addon-knobs": "^3.4.10",
-    "@storybook/addons": "^3.4.10",
-    "@storybook/vue": "^3.4.10",
     "ajv": "^6.5.2",
     "autoprefixer": "^9.1.0",
     "axios-mock-adapter": "^1.15.0",

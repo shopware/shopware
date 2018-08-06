@@ -102,10 +102,10 @@ if (pluginList.length) {
 
         webpackConfig.plugins.push(
             new WebpackCopyAfterBuildPlugin({
-                files: [ {
+                files: [{
                     chunkName: pluginName,
                     to: `${pluginPath}/${pluginName}.js`
-                } ],
+                }],
                 options: {
                     absolutePath: true,
                     sourceMap: true

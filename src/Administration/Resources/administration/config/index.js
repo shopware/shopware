@@ -1,7 +1,7 @@
 // see http://vuejs-templates.github.io/webpack for documentation.
 var path = require('path');
 const process = require('process');
-const appPath = process.argv.slice(2)[ 0 ];
+const appPath = process.argv.slice(2)[0];
 
 module.exports = {
     build: {

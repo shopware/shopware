@@ -12,7 +12,6 @@ class NotificationStore {
         this.defaults = {
             system: false,
             variant: 'info', // success, info, warning, error
-            uuid: utils.createId(),
             autoClose: true,
             duration: 5000
         };
@@ -22,7 +21,7 @@ class NotificationStore {
      * Create a new notification.
      *
      * @param {Object} config
-     * @return {*}
+     * @returns {Promise<T>}
      */
     createNotification(config) {
         if (!config.message) {
@@ -31,6 +30,7 @@ class NotificationStore {
         }
 
         const notification = Object.assign({}, this.defaults, config);
+        notification.uuid = utils.createId();
 
         this.addNotification(notification);
 

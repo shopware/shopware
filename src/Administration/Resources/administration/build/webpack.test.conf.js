@@ -9,6 +9,7 @@ const webpackConfig = merge(baseConfig, {
     module: {
         rules: utils.styleLoaders()
     },
+    mode: 'development',
     devtool: '#inline-source-map',
     plugins: [
         new webpack.DefinePlugin({

@@ -7,9 +7,15 @@ function resolve(dir) {
     return path.join(__dirname, '..', dir)
 }
 
+// Refactor the usage of eslint
 const eslintDisable = (process.env.ESLINT_DISABLE === 'true');
 
 module.exports = {
+    performance: {
+        hints: process.env.NODE_ENV === 'production'
+            ? config.build.performanceHints
+            : config.dev.performanceHints
+    },
     entry: {
         commons: [ resolve('src') + '/core/common.js', resolve('src') + '/core/shopware.js' ],
         app: resolve('src') + '/app/main.js'

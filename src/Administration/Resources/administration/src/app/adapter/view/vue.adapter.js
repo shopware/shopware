@@ -247,7 +247,8 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
                             function getSuperMethod(comp, methodName) {
                                 if (comp.extends && comp.extends.methods && comp.extends.methods[methodName]) {
                                     return comp.extends.methods[methodName];
-                                } else if (comp.extends.extends) {
+                                }
+                                if (comp.extends.extends) {
                                     return getSuperMethod(comp.extends, methodName);
                                 }
 

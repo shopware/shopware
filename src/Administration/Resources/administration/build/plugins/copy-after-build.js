@@ -17,7 +17,7 @@ WebpackCopyAfterBuild.prototype.apply = function(compiler) {
     const files = this._filesMap;
     const opts = this._opts;
 
-    compiler.plugin('done', (stats) => {
+    compiler.hooks.done.tapAsync('sw-copy-after-build', (stats) => {
         stats = stats.toJson();
         const chunks = stats.chunks;
 

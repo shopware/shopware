@@ -69,7 +69,7 @@ CREATE TABLE `sales_channel_type` (
   `created_at` datetime(3) NOT NULL,
   `updated_at` datetime(3),
   PRIMARY KEY (`id`, `tenant_id`),
-  CHECK (JSON_VALID(`screenshots`))
+  CHECK (JSON_VALID(`screenshot_urls`))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `sales_channel_type_translation`;

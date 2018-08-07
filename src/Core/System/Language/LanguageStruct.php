@@ -25,6 +25,8 @@ use Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\ListingFacetT
 use Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\ListingSortingTranslationCollection;
 use Shopware\Core\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationCollection;
 use Shopware\Core\System\Locale\LocaleStruct;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesChannelTranslationCollection;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTypeTranslation\SalesChannelTypeTranslationCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\Snippet\SnippetCollection;
 use Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\TaxAreaRuleTranslationCollection;
@@ -191,6 +193,16 @@ class LanguageStruct extends Entity
      * @var DiscountSurchargeTranslationCollection|null
      */
     protected $discountsurchargeTranslations;
+
+    /**
+     * @var SalesChannelTranslationCollection|null
+     */
+    protected $salesChannelTranslations;
+
+    /**
+     * @var SalesChannelTypeTranslationCollection|null
+     */
+    protected $salesChannelTypeTranslations;
 
     /**
      * @var SearchDocumentCollection|null
@@ -512,6 +524,36 @@ class LanguageStruct extends Entity
         $this->configurationGroupOptionTranslations = $configurationGroupOptionTranslations;
     }
 
+    public function getDiscountsurchargeTranslations(): ?DiscountSurchargeTranslationCollection
+    {
+        return $this->discountsurchargeTranslations;
+    }
+
+    public function setDiscountsurchargeTranslations(DiscountSurchargeTranslationCollection $discountsurchargeTranslations): void
+    {
+        $this->discountsurchargeTranslations = $discountsurchargeTranslations;
+    }
+
+    public function getSalesChannelTranslations(): ?SalesChannelTranslationCollection
+    {
+        return $this->salesChannelTranslations;
+    }
+
+    public function setSalesChannelTranslations(SalesChannelTranslationCollection $salesChannelTranslations): void
+    {
+        $this->salesChannelTranslations = $salesChannelTranslations;
+    }
+
+    public function getSalesChannelTypeTranslations(): ?SalesChannelTypeTranslationCollection
+    {
+        return $this->salesChannelTypeTranslations;
+    }
+
+    public function setSalesChannelTypeTranslations(SalesChannelTypeTranslationCollection $salesChannelTypeTranslations): void
+    {
+        $this->salesChannelTypeTranslations = $salesChannelTypeTranslations;
+    }
+
     public function getSearchDocuments(): ?SearchDocumentCollection
     {
         return $this->searchDocuments;
@@ -530,15 +572,5 @@ class LanguageStruct extends Entity
     public function setSnippets(SnippetCollection $snippets): void
     {
         $this->snippets = $snippets;
-    }
-
-    public function getDiscountsurchargeTranslations(): ?DiscountSurchargeTranslationCollection
-    {
-        return $this->discountsurchargeTranslations;
-    }
-
-    public function setDiscountsurchargeTranslations(DiscountSurchargeTranslationCollection $discountsurchargeTranslations): void
-    {
-        $this->discountsurchargeTranslations = $discountsurchargeTranslations;
     }
 }

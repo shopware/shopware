@@ -3,6 +3,7 @@ const utils = require('./utils');
 const webpack = require('webpack');
 const merge = require('webpack-merge');
 const baseConfig = require('./webpack.base.conf');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const webpackConfig = merge(baseConfig, {
     // use inline sourcemap for karma-sourcemap-loader
@@ -14,6 +15,9 @@ const webpackConfig = merge(baseConfig, {
     plugins: [
         new webpack.DefinePlugin({
             'process.env': require('../config/test.env')
+        }),
+        new MiniCssExtractPlugin({
+            filename: utils.assetsPath('css/[name].css')
         })
     ]
 });

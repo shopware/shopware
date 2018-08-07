@@ -101,7 +101,6 @@
     "optimize-css-assets-webpack-plugin": "^5.0.0",
     "ora": "^3.0.0",
     "prismjs": "^1.15.0",
-    "puppeteer": "^1.6.1",
     "rimraf": "^2.6.2",
     "selenium-server": "^3.14.0",
     "semver": "^5.5.0",

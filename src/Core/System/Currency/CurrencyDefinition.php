@@ -24,7 +24,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition;
-use Shopware\Core\System\Touchpoint\TouchpointDefinition;
+use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class CurrencyDefinition extends EntityDefinition
 {
@@ -48,7 +48,7 @@ class CurrencyDefinition extends EntityDefinition
             new IntField('position', 'position'),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new OneToManyAssociationField('touchpoints', TouchpointDefinition::class, 'currency_id', false, 'id'))->setFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('salesChannels', SalesChannelDefinition::class, 'currency_id', false, 'id'))->setFlags(new RestrictDelete()),
             (new TranslationsAssociationField('translations', CurrencyTranslationDefinition::class, 'currency_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
             (new OneToManyAssociationField('orders', OrderDefinition::class, 'currency_id', false, 'id'))->setFlags(new RestrictDelete()),
             new OneToManyAssociationField('productPriceRules', ProductPriceRuleDefinition::class, 'currency_id', false, 'id'),

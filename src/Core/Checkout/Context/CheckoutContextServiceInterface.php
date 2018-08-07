@@ -33,7 +33,7 @@ use Shopware\Core\Checkout\CheckoutContext;
  */
 interface CheckoutContextServiceInterface
 {
-    public function get(string $tenantId, string $touchpointId, string $token): CheckoutContext;
+    public function get(string $tenantId, string $salesChannelId, string $token): CheckoutContext;
 
-    public function refresh(string $tenantId, string $touchpointId, string $token): void;
+    public function refresh(string $tenantId, string $salesChannelId, string $token): void;
 }

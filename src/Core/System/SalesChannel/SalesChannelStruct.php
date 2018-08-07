@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Touchpoint;
+namespace Shopware\Core\System\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Order\OrderCollection;
@@ -10,9 +10,15 @@ use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\System\Country\CountryStruct;
 use Shopware\Core\System\Currency\CurrencyStruct;
 use Shopware\Core\System\Language\LanguageStruct;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeStruct;
 
-class TouchpointStruct extends Entity
+class SalesChannelStruct extends Entity
 {
+    /**
+     * @var string
+     */
+    protected $typeId;
+
     /**
      * @var string
      */
@@ -37,11 +43,6 @@ class TouchpointStruct extends Entity
      * @var string
      */
     protected $countryId;
-
-    /**
-     * @var string
-     */
-    protected $type;
 
     /**
      * @var string
@@ -97,6 +98,11 @@ class TouchpointStruct extends Entity
      * @var \DateTime|null
      */
     protected $updatedAt;
+
+    /**
+     * @var SalesChannelTypeStruct
+     */
+    protected $type;
 
     /**
      * @var CurrencyStruct
@@ -181,16 +187,6 @@ class TouchpointStruct extends Entity
     public function setCountryId(string $countryId): void
     {
         $this->countryId = $countryId;
-    }
-
-    public function getType(): string
-    {
-        return $this->type;
-    }
-
-    public function setType(string $type): void
-    {
-        $this->type = $type;
     }
 
     public function getName(): string
@@ -288,7 +284,7 @@ class TouchpointStruct extends Entity
         return $this->createdAt;
     }
 
-    public function setCreatedAt(?\DateTime $createdAt): void
+    public function setCreatedAt(\DateTime $createdAt): void
     {
         $this->createdAt = $createdAt;
     }
@@ -298,7 +294,7 @@ class TouchpointStruct extends Entity
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(?\DateTime $updatedAt): void
+    public function setUpdatedAt(\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
     }
@@ -374,5 +370,25 @@ class TouchpointStruct extends Entity
     public function setCustomers(CustomerCollection $customers): void
     {
         $this->customers = $customers;
+    }
+
+    public function getTypeId(): string
+    {
+        return $this->typeId;
+    }
+
+    public function setTypeId(string $typeId): void
+    {
+        $this->typeId = $typeId;
+    }
+
+    public function getType(): SalesChannelTypeStruct
+    {
+        return $this->type;
+    }
+
+    public function setType(SalesChannelTypeStruct $type): void
+    {
+        $this->type = $type;
     }
 }

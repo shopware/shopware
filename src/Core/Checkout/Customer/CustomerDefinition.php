@@ -30,7 +30,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\ReadOnly;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\Core\System\Touchpoint\TouchpointDefinition;
+use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class CustomerDefinition extends EntityDefinition
 {
@@ -57,7 +57,7 @@ class CustomerDefinition extends EntityDefinition
             (new FkField('default_payment_method_id', 'defaultPaymentMethodId', PaymentMethodDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(PaymentMethodDefinition::class, 'default_payment_method_version_id'))->setFlags(new Required()),
 
-            (new FkField('touchpoint_id', 'touchpointId', TouchpointDefinition::class))->setFlags(new Required()),
+            (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->setFlags(new Required()),
 
             new FkField('last_payment_method_id', 'lastPaymentMethodId', PaymentMethodDefinition::class),
             new ReferenceVersionField(PaymentMethodDefinition::class, 'last_payment_method_version_id'),
@@ -94,7 +94,7 @@ class CustomerDefinition extends EntityDefinition
             new UpdatedAtField(),
             new ManyToOneAssociationField('group', 'customer_group_id', CustomerGroupDefinition::class, true),
             new ManyToOneAssociationField('defaultPaymentMethod', 'default_payment_method_id', PaymentMethodDefinition::class, true),
-            new ManyToOneAssociationField('touchpoint', 'touchpoint_id', TouchpointDefinition::class, true),
+            new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, true),
             new ManyToOneAssociationField('lastPaymentMethod', 'last_payment_method_id', PaymentMethodDefinition::class, true),
             (new ManyToOneAssociationField('defaultBillingAddress', 'default_billing_address_id', CustomerAddressDefinition::class, true))->setFlags(new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
             new ManyToOneAssociationField('defaultShippingAddress', 'default_shipping_address_id', CustomerAddressDefinition::class, true),

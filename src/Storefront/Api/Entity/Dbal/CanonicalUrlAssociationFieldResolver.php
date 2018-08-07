@@ -22,9 +22,9 @@ class CanonicalUrlAssociationFieldResolver implements FieldResolverInterface
         }
 
         if ($context->getSourceContext()->getOrigin() !== SourceContext::ORIGIN_STOREFRONT_API) {
-            $touchpointId = Uuid::fromHexToBytes(Defaults::TOUCHPOINT);
+            $salesChannelId = Uuid::fromHexToBytes(Defaults::SALES_CHANNEL);
         } else {
-            $touchpointId = Uuid::fromHexToBytes($context->getSourceContext()->getTouchpointId());
+            $salesChannelId = Uuid::fromHexToBytes($context->getSourceContext()->getSalesChannelId());
         }
 
         $table = SeoUrlDefinition::getEntityName();
@@ -51,7 +51,7 @@ class CanonicalUrlAssociationFieldResolver implements FieldResolverInterface
             str_replace(
                 array_keys($parameters),
                 array_values($parameters),
-                '#alias#.`touchpoint_id` = :touchpointId
+                '#alias#.`sales_channel_id` = :salesChannelId
                  AND #alias#.#reference_column# = #root#.#source_column#  
                  AND #alias#.name = :' . $key . '
                  AND #alias#.is_canonical = 1
@@ -59,7 +59,7 @@ class CanonicalUrlAssociationFieldResolver implements FieldResolverInterface
             )
         );
         $query->setParameter($key, $field->getRouteName());
-        $query->setParameter('touchpointId', $touchpointId);
+        $query->setParameter('salesChannelId', $salesChannelId);
 
         return true;
     }

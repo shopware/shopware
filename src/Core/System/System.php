@@ -39,7 +39,7 @@ class System extends Bundle
         parent::build($container);
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
-        $loader->load('touchpoint.xml');
+        $loader->load('sales_channel.xml');
         $loader->load('country.xml');
         $loader->load('currency.xml');
         $loader->load('locale.xml');

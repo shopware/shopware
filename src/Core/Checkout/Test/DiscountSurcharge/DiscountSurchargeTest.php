@@ -77,7 +77,7 @@ class DiscountSurchargeTest extends KernelTestCase
         self::$discountSurchargeRepository = self::$kernel->getContainer()->get('discount_surcharge.repository');
         self::$factory = self::$container->get(CheckoutContextFactory::class);
 
-        self::$context = self::$factory->create(Defaults::TENANT_ID, Defaults::TENANT_ID, Defaults::TOUCHPOINT);
+        self::$context = self::$factory->create(Defaults::TENANT_ID, Defaults::TENANT_ID, Defaults::SALES_CHANNEL);
 
         self::$processor = self::$container->get(Processor::class);
         self::$enrichment = self::$container->get(Enrichment::class);

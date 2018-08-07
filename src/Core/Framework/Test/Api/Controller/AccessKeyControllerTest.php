@@ -53,9 +53,9 @@ class AccessKeyControllerTest extends ApiTestCase
         static::assertNull($e);
     }
 
-    public function testTouchpointAccessKey()
+    public function testSalesChannelAccessKey()
     {
-        $this->apiClient->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/touchpoint/actions/generate-key');
+        $this->apiClient->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/sales-channel/actions/generate-key');
 
         $response = $this->apiClient->getResponse();
         $body = json_decode($response->getContent(), true);

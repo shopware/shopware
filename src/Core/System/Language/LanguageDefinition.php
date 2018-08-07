@@ -41,9 +41,9 @@ use Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\ListingFacetT
 use Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\ListingSortingTranslationDefinition;
 use Shopware\Core\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationDefinition;
 use Shopware\Core\System\Locale\LocaleDefinition;
+use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Snippet\SnippetDefinition;
 use Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\TaxAreaRuleTranslationDefinition;
-use Shopware\Core\System\Touchpoint\TouchpointDefinition;
 use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationDefinition;
 
 class LanguageDefinition extends EntityDefinition
@@ -67,7 +67,7 @@ class LanguageDefinition extends EntityDefinition
             new ManyToOneAssociationField('parent', 'parent_id', LanguageDefinition::class, false),
             new ManyToOneAssociationField('locale', 'locale_id', LocaleDefinition::class, true),
             new ChildrenAssociationField(self::class),
-            new OneToManyAssociationField('touchpoints', TouchpointDefinition::class, 'language_id', false, 'id'),
+            new OneToManyAssociationField('salesChannels', SalesChannelDefinition::class, 'language_id', false, 'id'),
             new OneToManyAssociationField('snippets', SnippetDefinition::class, 'language_id', false, 'id'),
             (new TranslationsAssociationField('categoryTranslations', CategoryTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('countryAreaTranslations', CountryAreaTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new CascadeDelete()),

@@ -36,14 +36,14 @@ class AccessKeyController extends Controller
     }
 
     /**
-     * @Route("/api/v{version}/touchpoint/actions/generate-key", name="api.touchpoint.actions.generate.key", methods={"GET"})
+     * @Route("/api/v{version}/sales-channel/actions/generate-key", name="api.sales_channel.actions.generate.key", methods={"GET"})
      *
      * @return JsonResponse
      */
-    public function generateTouchpointKey(): JsonResponse
+    public function generateSalesChannelKey(): JsonResponse
     {
         return new JsonResponse([
-            'accessKey' => AccessKeyHelper::generateAccessKey('touchpoint'),
+            'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
             'secretAccessKey' => AccessKeyHelper::generateSecretAccessKey(),
         ]);
     }

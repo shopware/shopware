@@ -14,7 +14,7 @@ use Shopware\Core\Framework\ORM\Field\UpdatedAtField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
-use Shopware\Core\System\Touchpoint\TouchpointDefinition;
+use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class SeoUrlDefinition extends EntityDefinition
 {
@@ -29,7 +29,7 @@ class SeoUrlDefinition extends EntityDefinition
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new IdField('version_id', 'versionId'))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('touchpoint_id', 'touchpointId', TouchpointDefinition::class))->setFlags(new Required()),
+            (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->setFlags(new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),
             (new IdField('foreign_key', 'foreignKey'))->setFlags(new Required()),
             (new IdField('foreign_key_version_id', 'foreignKeyVersionId'))->setFlags(new Required()),
@@ -39,7 +39,7 @@ class SeoUrlDefinition extends EntityDefinition
             new BoolField('is_modified', 'isModified'),
             new CreatedAtField(),
             new UpdatedAtField(),
-            new ManyToOneAssociationField('touchpoint', 'touchpoint_id', TouchpointDefinition::class, false),
+            new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, false),
         ]);
     }
 

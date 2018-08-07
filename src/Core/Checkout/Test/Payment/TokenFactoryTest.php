@@ -186,7 +186,7 @@ class TokenFactoryTest extends KernelTestCase
             'stateId' => Defaults::ORDER_STATE_OPEN,
             'paymentMethodId' => self::PAYMENT_METHOD_INVOICE,
             'currencyId' => Defaults::CURRENCY,
-            'touchpointId' => Defaults::TOUCHPOINT,
+            'salesChannelId' => Defaults::SALES_CHANNEL,
             'billingAddress' => [
                 'salutation' => 'mr',
                 'firstName' => 'Max',
@@ -223,7 +223,7 @@ class TokenFactoryTest extends KernelTestCase
             'password' => 'shopware',
             'defaultPaymentMethodId' => self::PAYMENT_METHOD_INVOICE,
             'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-            'touchpointId' => Defaults::TOUCHPOINT,
+            'salesChannelId' => Defaults::SALES_CHANNEL,
             'defaultBillingAddressId' => $addressId,
             'defaultShippingAddressId' => $addressId,
             'addresses' => [

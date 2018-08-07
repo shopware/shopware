@@ -65,7 +65,7 @@ class TaxAmountCalculator implements TaxAmountCalculatorInterface
             return new CalculatedTaxCollection([]);
         }
 
-        if ($context->getTouchpoint()->getTaxCalculationType() === self::CALCULATION_VERTICAL) {
+        if ($context->getSalesChannel()->getTaxCalculationType() === self::CALCULATION_VERTICAL) {
             return $priceCollection->getCalculatedTaxes();
         }
 

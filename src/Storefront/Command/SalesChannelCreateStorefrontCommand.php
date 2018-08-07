@@ -2,28 +2,29 @@
 
 namespace Shopware\Storefront\Command;
 
-use Shopware\Core\System\Command\TouchpointCreateCommand;
+use Shopware\Core\Defaults;
+use Shopware\Core\System\Command\SalesChannelCreateCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class TouchpointCreateStorefrontCommand extends TouchpointCreateCommand
+class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
 {
     protected function configure()
     {
         parent::configure();
 
-        $this->setName('touchpoint:create:storefront')
+        $this->setName('sales-channel:create:storefront')
             ->addOption('url', null, InputOption::VALUE_REQUIRED, 'App URL for storefront')
         ;
     }
 
-    protected function getType(): string
+    protected function getTypeId(): string
     {
-        return 'storefront';
+        return Defaults::SALES_CHANNEL_STOREFRONT;
     }
 
-    protected function getTouchpointConfiguration(InputInterface $input, OutputInterface $output): array
+    protected function getSalesChannelConfiguration(InputInterface $input, OutputInterface $output): array
     {
         return [
             'domains' => [

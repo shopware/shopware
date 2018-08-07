@@ -653,7 +653,7 @@ class ProductStruct extends Entity
         return $this->createdAt;
     }
 
-    public function setCreatedAt(?\DateTime $createdAt): void
+    public function setCreatedAt(\DateTime $createdAt): void
     {
         $this->createdAt = $createdAt;
     }
@@ -663,7 +663,7 @@ class ProductStruct extends Entity
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(?\DateTime $updatedAt): void
+    public function setUpdatedAt(\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
     }
@@ -889,7 +889,7 @@ class ProductStruct extends Entity
 
     public function getPriceDefinitionForQuantity(Context $context, int $quantity): QuantityPriceDefinition
     {
-        // TODO@DR consider tax state of touchpoint context (NEXT-286)
+        // TODO@DR consider tax state of sales channel context (NEXT-286)
         $taxRules = $this->getTaxRuleCollection();
 
         /** @var ProductPriceRuleCollection $rules */

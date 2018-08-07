@@ -21,7 +21,7 @@ Component.register('sw-customer-detail-base', {
             required: true,
             default: ''
         },
-        touchpoints: {
+        salesChannels: {
             type: Array,
             required: true,
             default() {

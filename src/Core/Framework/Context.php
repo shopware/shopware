@@ -27,7 +27,7 @@ namespace Shopware\Core\Framework;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Core\System\Touchpoint\TouchpointStruct;
+use Shopware\Core\System\SalesChannel\SalesChannelStruct;
 
 class Context extends Struct
 {
@@ -103,26 +103,26 @@ class Context extends Struct
     public static function createDefaultContext(string $tenantId): self
     {
         $sourceContext = new SourceContext('cli');
-        $sourceContext->setTouchpointId(Defaults::TOUCHPOINT);
+        $sourceContext->setSalesChannelId(Defaults::SALES_CHANNEL);
 
         return new self($tenantId, $sourceContext, [Defaults::CATALOG], [], Defaults::CURRENCY, Defaults::LANGUAGE);
     }
 
-    public static function createFromTouchpoint(TouchpointStruct $touchpoint, string $origin): self
+    public static function createFromSalesChannel(SalesChannelStruct $salesChannel, string $origin): self
     {
         $sourceContext = new SourceContext($origin);
-        $sourceContext->setTouchpointId($touchpoint->getId());
+        $sourceContext->setSalesChannelId($salesChannel->getId());
 
         return new self(
-            $touchpoint->getTenantId(),
+            $salesChannel->getTenantId(),
             $sourceContext,
-            $touchpoint->getCatalogIds(),
+            $salesChannel->getCatalogIds(),
             [],
-            $touchpoint->getCurrencyId(),
-            $touchpoint->getLanguageId(),
-            $touchpoint->getLanguage()->getParentId(),
+            $salesChannel->getCurrencyId(),
+            $salesChannel->getLanguageId(),
+            $salesChannel->getLanguage()->getParentId(),
             Defaults::LIVE_VERSION,
-            $touchpoint->getCurrency()->getFactor()
+            $salesChannel->getCurrency()->getFactor()
         );
     }
 

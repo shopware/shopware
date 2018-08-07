@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationCollection;
 use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\System\Touchpoint\TouchpointCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 class ShippingMethodStruct extends Entity
 {
@@ -166,9 +166,9 @@ class ShippingMethodStruct extends Entity
     protected $orderDeliveries;
 
     /**
-     * @var TouchpointCollection|null
+     * @var SalesChannelCollection|null
      */
-    protected $touchpoints;
+    protected $salesChannels;
 
     public function getType(): int
     {
@@ -395,7 +395,7 @@ class ShippingMethodStruct extends Entity
         return $this->createdAt;
     }
 
-    public function setCreatedAt(?\DateTime $createdAt): void
+    public function setCreatedAt(\DateTime $createdAt): void
     {
         $this->createdAt = $createdAt;
     }
@@ -405,7 +405,7 @@ class ShippingMethodStruct extends Entity
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(?\DateTime $updatedAt): void
+    public function setUpdatedAt(\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
     }
@@ -480,13 +480,13 @@ class ShippingMethodStruct extends Entity
         $this->orderDeliveries = $orderDeliveries;
     }
 
-    public function getTouchpoints(): ?TouchpointCollection
+    public function getSalesChannels(): ?SalesChannelCollection
     {
-        return $this->touchpoints;
+        return $this->salesChannels;
     }
 
-    public function setTouchpoints(TouchpointCollection $touchpoints): void
+    public function setSalesChannels(SalesChannelCollection $salesChannels): void
     {
-        $this->touchpoints = $touchpoints;
+        $this->salesChannels = $salesChannels;
     }
 }

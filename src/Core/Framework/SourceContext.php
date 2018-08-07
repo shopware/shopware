@@ -26,7 +26,7 @@ class SourceContext
     /**
      * @var null|string
      */
-    private $touchpointId;
+    private $salesChannelId;
 
     public function __construct(string $origin = self::ORIGIN_SYSTEM)
     {
@@ -63,13 +63,13 @@ class SourceContext
         $this->integrationId = $integrationId;
     }
 
-    public function getTouchpointId(): ?string
+    public function getSalesChannelId(): ?string
     {
-        return $this->touchpointId;
+        return $this->salesChannelId;
     }
 
-    public function setTouchpointId(string $touchpointId): void
+    public function setSalesChannelId(string $salesChannelId): void
     {
-        $this->touchpointId = $touchpointId;
+        $this->salesChannelId = $salesChannelId;
     }
 }

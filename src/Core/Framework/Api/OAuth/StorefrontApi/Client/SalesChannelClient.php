@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Api\OAuth\StorefrontApi\Client;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\Traits\ClientTrait;
 
-class TouchpointClient implements ClientEntityInterface
+class SalesChannelClient implements ClientEntityInterface
 {
     use ClientTrait;
 

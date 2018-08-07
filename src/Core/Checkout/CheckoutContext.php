@@ -37,8 +37,8 @@ use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Currency\CurrencyStruct;
 use Shopware\Core\System\Language\LanguageStruct;
+use Shopware\Core\System\SalesChannel\SalesChannelStruct;
 use Shopware\Core\System\Tax\TaxCollection;
-use Shopware\Core\System\Touchpoint\TouchpointStruct;
 
 /**
  * @category  Shopware\Core
@@ -70,9 +70,9 @@ class CheckoutContext extends Struct
     protected $currency;
 
     /**
-     * @var TouchpointStruct
+     * @var SalesChannelStruct
      */
-    protected $touchpoint;
+    protected $salesChannel;
 
     /**
      * @var TaxCollection
@@ -139,7 +139,7 @@ class CheckoutContext extends Struct
     public function __construct(
         string $tenantId,
         string $token,
-        TouchpointStruct $touchpoint,
+        SalesChannelStruct $salesChannel,
         LanguageStruct $language,
         ?LanguageStruct $fallbackLanguage,
         CurrencyStruct $currency,
@@ -155,7 +155,7 @@ class CheckoutContext extends Struct
         $this->currentCustomerGroup = $currentCustomerGroup;
         $this->fallbackCustomerGroup = $fallbackCustomerGroup;
         $this->currency = $currency;
-        $this->touchpoint = $touchpoint;
+        $this->salesChannel = $salesChannel;
         $this->taxRules = $taxRules;
         $this->customer = $customer;
         $this->paymentMethod = $paymentMethod;
@@ -183,9 +183,9 @@ class CheckoutContext extends Struct
         return $this->currency;
     }
 
-    public function getTouchpoint(): TouchpointStruct
+    public function getSalesChannel(): SalesChannelStruct
     {
-        return $this->touchpoint;
+        return $this->salesChannel;
     }
 
     public function getTaxRules(): TaxCollection
@@ -220,12 +220,12 @@ class CheckoutContext extends Struct
         }
 
         $sourceContext = new SourceContext(SourceContext::ORIGIN_STOREFRONT_API);
-        $sourceContext->setTouchpointId($this->touchpoint->getId());
+        $sourceContext->setSalesChannelId($this->salesChannel->getId());
 
         return $this->context = new Context(
             $this->tenantId,
             $sourceContext,
-            $this->touchpoint->getCatalogIds(),
+            $this->salesChannel->getCatalogIds(),
             $this->rulesIds,
             $this->currency->getId(),
             $this->language->getId(),

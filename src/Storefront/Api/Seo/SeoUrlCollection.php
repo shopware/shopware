@@ -24,14 +24,14 @@ class SeoUrlCollection extends EntityCollection
     public function getApplicationIds(): array
     {
         return $this->fmap(function (SeoUrlStruct $seoUrl) {
-            return $seoUrl->getTouchpointId();
+            return $seoUrl->getSalesChannelId();
         });
     }
 
     public function filterByApplicationId(string $id): SeoUrlCollection
     {
         return $this->filter(function (SeoUrlStruct $seoUrl) use ($id) {
-            return $seoUrl->getTouchpointId() === $id;
+            return $seoUrl->getSalesChannelId() === $id;
         });
     }
 

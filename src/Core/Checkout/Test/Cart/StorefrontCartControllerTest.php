@@ -557,7 +557,7 @@ class StorefrontCartControllerTest extends ApiTestCase
     public function testOrderProcess()
     {
         $productId = Uuid::uuid4()->getHex();
-        $context = Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID);
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
 
         $this->productRepository->create([
             [
@@ -581,7 +581,7 @@ class StorefrontCartControllerTest extends ApiTestCase
 
         $this->customerRepository->create([
             [
-                'touchpointId' => $context->getSourceContext()->getTouchpointId(),
+                'salesChannelId' => $context->getSourceContext()->getSalesChannelId(),
                 'defaultShippingAddress' => [
                     'id' => $addressId,
                     'firstName' => 'not',
@@ -631,7 +631,7 @@ class StorefrontCartControllerTest extends ApiTestCase
     public function testOrderProcessWithEmptyCart()
     {
         $addressId = Uuid::uuid4()->getHex();
-        $context = Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID);
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
 
         $mail = Uuid::uuid4()->getHex();
         $password = 'shopware';
@@ -642,7 +642,7 @@ class StorefrontCartControllerTest extends ApiTestCase
 
         $this->customerRepository->create([
             [
-                'touchpointId' => $context->getSourceContext()->getTouchpointId(),
+                'salesChannelId' => $context->getSourceContext()->getSalesChannelId(),
                 'defaultShippingAddress' => [
                     'id' => $addressId,
                     'firstName' => 'not',

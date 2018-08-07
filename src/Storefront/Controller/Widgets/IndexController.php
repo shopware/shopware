@@ -62,7 +62,7 @@ class IndexController extends StorefrontController
         $languages = $this->loadLanguages($context);
 
         return $this->render('@Storefront/widgets/index/shop_menu.html.twig', [
-            'application' => $context->getTouchpoint(),
+            'application' => $context->getSalesChannel(),
             'currency' => $context->getCurrency(),
             'languages' => $languages,
             'language' => $languages->get($context->getContext()->getLanguageId()),
@@ -73,7 +73,7 @@ class IndexController extends StorefrontController
     private function loadLanguages(CheckoutContext $context): EntitySearchResult
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new TermsQuery('language.id', $context->getTouchpoint()->getLanguageIds()));
+        $criteria->addFilter(new TermsQuery('language.id', $context->getSalesChannel()->getLanguageIds()));
 
         return $this->languageRepository->search($criteria, $context->getContext());
     }

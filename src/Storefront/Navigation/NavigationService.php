@@ -30,7 +30,7 @@ class NavigationService
 
     public function load(?string $categoryId, Context $context): ?Navigation
     {
-        $applicationId = $context->getSourceContext()->getTouchpointId();
+        $applicationId = $context->getSourceContext()->getSalesChannelId();
 
         if ($this->navigation[$applicationId]) {
             return $this->navigation[$applicationId];

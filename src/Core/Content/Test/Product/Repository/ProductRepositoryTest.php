@@ -406,7 +406,7 @@ class ProductRepositoryTest extends KernelTestCase
         $criteria->addSorting(new FieldSorting('product.priceRules.price', FieldSorting::ASCENDING));
 
         $sourceContext = new SourceContext();
-        $sourceContext->setTouchpointId(Defaults::TOUCHPOINT);
+        $sourceContext->setSalesChannelId(Defaults::SALES_CHANNEL);
 
         $context = new Context(
             Defaults::TENANT_ID,

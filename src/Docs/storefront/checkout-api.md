@@ -313,7 +313,7 @@ curl -X GET \
                         "taxAreaRules": null,
                         "orderAddresses": null,
                         "customerAddresses": null,
-                        "touchpoints": null,
+                        "salesChannels": null,
                         "id": "20080911ffff4fffafffffff19830531",
                         "tenantId": "20080911ffff4fffafffffff19830531",
                         "extensions": {
@@ -365,7 +365,7 @@ curl -X GET \
                     "maxDeliveryTime": 2,
                     "translations": null,
                     "orderDeliveries": null,
-                    "touchpoints": null,
+                    "salesChannel": null,
                     "id": "20080911ffff4fffafffffff19830531",
                     "tenantId": "20080911ffff4fffafffffff19830531",
                     "extensions": {
@@ -544,7 +544,7 @@ The created order is returned as a response:
         "stateId": "1194a493806742c9b85e61f1f2cf9be8",
         "paymentMethodId": "47160b00cd064b0188176451f9f3c247",
         "currencyId": "20080911ffff4fffafffffff19830531",
-        "touchpointId": "20080911ffff4fffafffffff19830531",
+        "salesChannelId": "20080911ffff4fffafffffff19830531",
         "billingAddressId": "97a9404ef6c744a9bf3a10b9b393619c",
         "date": "2018-07-06T12:09:25+00:00",
         "amountTotal": 488,
@@ -557,7 +557,7 @@ The created order is returned as a response:
         "customer": {
             "groupId": "20080911ffff4fffafffffff19830531",
             "defaultPaymentMethodId": "47160b00cd064b0188176451f9f3c247",
-            "touchpointId": "20080911ffff4fffafffffff19830531",
+            "salesChannelId": "20080911ffff4fffafffffff19830531",
             "lastPaymentMethodId": null,
             "defaultBillingAddressId": "a18b1fc617564025895a911808c4c58e",
             "defaultShippingAddressId": "4d3318e90be645d388221f48ecd78cbb",
@@ -636,7 +636,7 @@ The created order is returned as a response:
                 "transactions": null,
                 "orders": null,
                 "customers": null,
-                "touchpoints": null,
+                "salesChannels": null,
                 "id": "47160b00cd064b0188176451f9f3c247",
                 "tenantId": "20080911ffff4fffafffffff19830531",
                 "extensions": {
@@ -647,7 +647,7 @@ The created order is returned as a response:
                 },
                 "versionId": null
             },
-            "touchpoint": {
+            "salesChannel": {
                 "languageId": "20080911ffff4fffafffffff19830531",
                 "currencyId": "20080911ffff4fffafffffff19830531",
                 "paymentMethodId": "e84976ace9ab4928a3dcc387b66dbaa6",
@@ -683,7 +683,7 @@ The created order is returned as a response:
                     "updatedAt": null,
                     "translations": null,
                     "orders": null,
-                    "touchpoints": null,
+                    "salesChannels": null,
                     "productPriceRules": null,
                     "id": "20080911ffff4fffafffffff19830531",
                     "tenantId": "20080911ffff4fffafffffff19830531",
@@ -723,7 +723,7 @@ The created order is returned as a response:
                     },
                     "parent": null,
                     "children": null,
-                    "touchpoints": null,
+                    "salesChannels": null,
                     "mediaAlbumTranslations": null,
                     "countryAreaTranslations": null,
                     "categoryTranslations": null,
@@ -805,7 +805,7 @@ The created order is returned as a response:
                     "taxAreaRules": null,
                     "orderAddresses": null,
                     "customerAddresses": null,
-                    "touchpoints": null,
+                    "salesChannels": null,
                     "id": "ffe61e1c99154f9597014a310ab5482d",
                     "tenantId": "20080911ffff4fffafffffff19830531",
                     "extensions": {
@@ -866,7 +866,7 @@ The created order is returned as a response:
                     "taxAreaRules": null,
                     "orderAddresses": null,
                     "customerAddresses": null,
-                    "touchpoints": null,
+                    "salesChannels": null,
                     "id": "ffe61e1c99154f9597014a310ab5482d",
                     "tenantId": "20080911ffff4fffafffffff19830531",
                     "extensions": {
@@ -946,7 +946,7 @@ The created order is returned as a response:
             "transactions": null,
             "orders": null,
             "customers": null,
-            "touchpoints": null,
+            "salesChannels": null,
             "id": "47160b00cd064b0188176451f9f3c247",
             "tenantId": "20080911ffff4fffafffffff19830531",
             "extensions": {
@@ -969,7 +969,7 @@ The created order is returned as a response:
             "updatedAt": null,
             "translations": null,
             "orders": null,
-            "touchpoints": null,
+            "salesChannels": null,
             "productPriceRules": null,
             "id": "20080911ffff4fffafffffff19830531",
             "tenantId": "20080911ffff4fffafffffff19830531",
@@ -981,7 +981,7 @@ The created order is returned as a response:
             },
             "versionId": null
         },
-        "touchpoint": {
+        "salesChannel": {
             "languageId": "20080911ffff4fffafffffff19830531",
             "currencyId": "20080911ffff4fffafffffff19830531",
             "paymentMethodId": "e84976ace9ab4928a3dcc387b66dbaa6",
@@ -1017,7 +1017,7 @@ The created order is returned as a response:
                 "updatedAt": null,
                 "translations": null,
                 "orders": null,
-                "touchpoints": null,
+                "salesChannels": null,
                 "productPriceRules": null,
                 "id": "20080911ffff4fffafffffff19830531",
                 "tenantId": "20080911ffff4fffafffffff19830531",
@@ -1057,7 +1057,7 @@ The created order is returned as a response:
                 },
                 "parent": null,
                 "children": null,
-                "touchpoints": null,
+                "salesChannels": null,
                 "mediaAlbumTranslations": null,
                 "countryAreaTranslations": null,
                 "categoryTranslations": null,
@@ -1137,7 +1137,7 @@ The created order is returned as a response:
                 "taxAreaRules": null,
                 "orderAddresses": null,
                 "customerAddresses": null,
-                "touchpoints": null,
+                "salesChannels": null,
                 "id": "ffe61e1c99154f9597014a310ab5482d",
                 "tenantId": "20080911ffff4fffafffffff19830531",
                 "extensions": {

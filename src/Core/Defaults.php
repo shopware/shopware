@@ -6,7 +6,7 @@ final class Defaults
 {
     public const TENANT_ID = '20080911ffff4fffafffffff19830531';
 
-    public const TOUCHPOINT = '20080911ffff4fffafffffff19830531';
+    public const SALES_CHANNEL = '20080911ffff4fffafffffff19830531';
 
     public const LANGUAGE = '20080911ffff4fffafffffff19830531';
 
@@ -41,6 +41,10 @@ final class Defaults
     public const PAYMENT_METHOD_PAID_IN_ADVANCE = '47160b00cd064b0188176451f9f3c247';
 
     public const PAYMENT_METHOD_SEPA = 'a6ddadce4cb441f3976a32505049f037';
+
+    public const SALES_CHANNEL_STOREFRONT_API = 'f183ee5650cf4bdb8a774337575067a6';
+
+    public const SALES_CHANNEL_STOREFRONT = '8a243080f92e4c719546314b577cf82b';
 
     public const DATE_FORMAT = 'Y-m-d H:i:s.v';
 }

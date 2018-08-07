@@ -166,7 +166,7 @@ class OrderingProcessTest extends ApiTestCase
             'password' => $password,
             'defaultPaymentMethodId' => Defaults::PAYMENT_METHOD_INVOICE,
             'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-            'touchpointId' => Defaults::TOUCHPOINT,
+            'salesChannelId' => Defaults::SALES_CHANNEL,
             'defaultBillingAddressId' => $addressId,
             'defaultShippingAddressId' => $addressId,
             'addresses' => [

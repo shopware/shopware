@@ -86,7 +86,7 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
         $applications = $this->applicationRepository->search(new Criteria(), Context::createDefaultContext($tenantId));
 
         foreach ($applications as $application) {
-            $context = Context::createFromTouchpoint($application, SourceContext::ORIGIN_SYSTEM);
+            $context = Context::createFromSalesChannel($application, SourceContext::ORIGIN_SYSTEM);
 
             $iterator = new RepositoryIterator($this->categoryRepository, $context);
 
@@ -138,7 +138,7 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
         $query->from('seo_url', 'seo_url');
 
         $query->andWhere('seo_url.name = :name');
-        $query->andWhere('seo_url.touchpoint_id = :application');
+        $query->andWhere('seo_url.sales_channel_id = :application');
         $query->andWhere('seo_url.is_canonical = 1');
         $query->andWhere('seo_url.tenant_id = :tenant');
         $query->andWhere('seo_url.foreign_key IN (:ids)');
@@ -159,7 +159,7 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
 
         $categories = $this->categoryRepository->read(new ReadCriteria($ids), $context);
 
-        $canonicals = $this->fetchCanonicals($categories->getIds(), $context->getSourceContext()->getTouchpointId(), $context->getTenantId());
+        $canonicals = $this->fetchCanonicals($categories->getIds(), $context->getSourceContext()->getSalesChannelId(), $context->getTenantId());
 
         $liveVersionId = Uuid::fromStringToBytes(Defaults::LIVE_VERSION);
         $insertQuery = new MultiInsertQueryQueue($this->connection, 250, false, true);
@@ -198,8 +198,8 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
                 'id' => $existing['id'],
                 'tenant_id' => Uuid::fromStringToBytes($context->getTenantId()),
                 'version_id' => $liveVersionId,
-                'touchpoint_id' => Uuid::fromStringToBytes($context->getSourceContext()->getTouchpointId()),
-                'touchpoint_tenant_id' => Uuid::fromStringToBytes($context->getTenantId()),
+                'sales_channel_id' => Uuid::fromStringToBytes($context->getSourceContext()->getSalesChannelId()),
+                'sales_channel_tenant_id' => Uuid::fromStringToBytes($context->getTenantId()),
                 'name' => self::ROUTE_NAME,
                 'foreign_key' => Uuid::fromStringToBytes($category->getId()),
                 'foreign_key_version_id' => $liveVersionId,

@@ -84,21 +84,21 @@ class CheckoutContextService implements CheckoutContextServiceInterface
         $this->contextPersister = $contextPersister;
     }
 
-    public function get(string $tenantId, string $touchpointId, string $token): CheckoutContext
+    public function get(string $tenantId, string $salesChannelId, string $token): CheckoutContext
     {
-        return $this->load($tenantId, $touchpointId, $token, true);
+        return $this->load($tenantId, $salesChannelId, $token, true);
     }
 
-    public function refresh(string $tenantId, string $touchpointId, string $token): void
+    public function refresh(string $tenantId, string $salesChannelId, string $token): void
     {
-        $key = $touchpointId . '-' . $token . '-' . $tenantId;
+        $key = $salesChannelId . '-' . $token . '-' . $tenantId;
         $this->context[$key] = null;
-        $this->load($tenantId, $touchpointId, $token, false);
+        $this->load($tenantId, $salesChannelId, $token, false);
     }
 
-    private function load(string $tenantId, string $touchpointId, string $token, bool $useCache): CheckoutContext
+    private function load(string $tenantId, string $salesChannelId, string $token, bool $useCache): CheckoutContext
     {
-        $key = $touchpointId . '-' . $token . '-' . $tenantId;
+        $key = $salesChannelId . '-' . $token . '-' . $tenantId;
 
         if (isset($this->context[$key])) {
             return $this->context[$key];
@@ -119,7 +119,7 @@ class CheckoutContextService implements CheckoutContextServiceInterface
         }
 
         if (!$context) {
-            $context = $this->factory->create($tenantId, $token, $touchpointId, $parameters);
+            $context = $this->factory->create($tenantId, $token, $salesChannelId, $parameters);
 
             $item->set(serialize($context));
 
@@ -145,7 +145,7 @@ class CheckoutContextService implements CheckoutContextServiceInterface
         return new CheckoutContext(
             $cacheContext->getTenantId(),
             $token,
-            $cacheContext->getTouchpoint(),
+            $cacheContext->getSalesChannel(),
             $cacheContext->getLanguage(),
             $cacheContext->getFallbackLanguage(),
             $cacheContext->getCurrency(),

@@ -29,7 +29,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\Framework\Plugin\PluginDefinition;
-use Shopware\Core\System\Touchpoint\TouchpointDefinition;
+use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class PaymentMethodDefinition extends EntityDefinition
 {
@@ -66,7 +66,7 @@ class PaymentMethodDefinition extends EntityDefinition
             new LongTextField('risk_rules', 'riskRules'),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new OneToManyAssociationField('touchpoints', TouchpointDefinition::class, 'payment_method_id', false, 'id'))->setFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('salesChannels', SalesChannelDefinition::class, 'payment_method_id', false, 'id'))->setFlags(new RestrictDelete()),
             new ManyToOneAssociationField('plugin', 'plugin_id', PluginDefinition::class, false),
             (new OneToManyAssociationField('customers', CustomerDefinition::class, 'default_payment_method_id', false, 'id'))->setFlags(new RestrictDelete()),
             (new OneToManyAssociationField('customers', CustomerDefinition::class, 'last_payment_method_id', false, 'id'))->setFlags(new RestrictDelete()),

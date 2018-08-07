@@ -62,9 +62,9 @@ class SalesChannelRepositoryTest extends KernelTestCase
             'id' => $salesChannelId,
             'name' => $name,
             'type' => [
-                'cover' => $cover,
-                'icon' => $icon,
-                'screenshots' => $screenshots,
+                'coverUrl' => $cover,
+                'iconName' => $icon,
+                'screenshotUrls' => $screenshots,
                 'name' => $typeName,
                 'manufacturer' => $manufacturer,
                 'description' => $description,
@@ -89,9 +89,9 @@ class SalesChannelRepositoryTest extends KernelTestCase
         self::assertEquals($accessKey, $salesChannel->getAccessKey());
         self::assertTrue(password_verify($secretKey, $salesChannel->getSecretAccessKey()));
 
-        self::assertEquals($cover, $salesChannel->getType()->getCover());
-        self::assertEquals($icon, $salesChannel->getType()->getIcon());
-        self::assertEquals($screenshots, $salesChannel->getType()->getScreenshots());
+        self::assertEquals($cover, $salesChannel->getType()->getCoverUrl());
+        self::assertEquals($icon, $salesChannel->getType()->getIconName());
+        self::assertEquals($screenshots, $salesChannel->getType()->getScreenshotUrls());
         self::assertEquals($typeName, $salesChannel->getType()->getName());
         self::assertEquals($manufacturer, $salesChannel->getType()->getManufacturer());
         self::assertEquals($description, $salesChannel->getType()->getDescription());

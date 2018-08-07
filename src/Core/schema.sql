@@ -63,9 +63,9 @@ DROP TABLE IF EXISTS `sales_channel_type`;
 CREATE TABLE `sales_channel_type` (
   `id` binary(16) NOT NULL,
   `tenant_id` binary(16) NOT NULL,
-  `cover` varchar(500) COLLATE utf8mb4_unicode_ci NULL,
-  `icon` varchar(255) COLLATE utf8mb4_unicode_ci NULL,
-  `screenshots` LONGTEXT COLLATE utf8mb4_unicode_ci NULL,
+  `cover_url` varchar(500) COLLATE utf8mb4_unicode_ci NULL,
+  `icon_name` varchar(255) COLLATE utf8mb4_unicode_ci NULL,
+  `screenshot_urls` LONGTEXT COLLATE utf8mb4_unicode_ci NULL,
   `created_at` datetime(3) NOT NULL,
   `updated_at` datetime(3),
   PRIMARY KEY (`id`, `tenant_id`),

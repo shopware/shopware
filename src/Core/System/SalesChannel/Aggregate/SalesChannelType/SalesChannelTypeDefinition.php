@@ -31,9 +31,9 @@ class SalesChannelTypeDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new TenantIdField(),
-            new StringField('cover', 'cover'),
-            new StringField('icon', 'icon'),
-            new ListField('screenshots', 'screenshots', StringField::class),
+            new StringField('cover_url', 'coverUrl'),
+            new StringField('icon_name', 'iconName'),
+            new ListField('screenshot_urls', 'screenshotUrls', StringField::class),
             (new TranslatedField(new StringField('name', 'name')))->setFlags(new Required()),
             new TranslatedField(new StringField('manufacturer', 'manufacturer')),
             new TranslatedField(new StringField('description', 'description')),

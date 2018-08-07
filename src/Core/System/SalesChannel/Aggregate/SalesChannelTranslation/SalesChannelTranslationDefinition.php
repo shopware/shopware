@@ -26,7 +26,6 @@ class SalesChannelTranslationDefinition extends EntityDefinition
         return new FieldCollection([
             (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->setFlags(new PrimaryKey(), new Required()),
-
             (new StringField('name', 'name'))->setFlags(new Required()),
             new CreatedAtField(),
             new UpdatedAtField(),

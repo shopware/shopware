@@ -30,17 +30,17 @@ class SalesChannelTypeStruct extends Entity
     /**
      * @var string|null
      */
-    protected $cover;
+    protected $coverUrl;
 
     /**
      * @var string|null
      */
-    protected $icon;
+    protected $iconName;
 
     /**
      * @var array|null
      */
-    protected $screenshots;
+    protected $screenshotUrls;
 
     /**
      * @var \DateTime|null
@@ -97,34 +97,34 @@ class SalesChannelTypeStruct extends Entity
         $this->descriptionLong = $descriptionLong;
     }
 
-    public function getCover(): string
+    public function getCoverUrl(): string
     {
-        return $this->cover;
+        return $this->coverUrl;
     }
 
-    public function setCover(string $cover): void
+    public function setCoverUrl(string $coverUrl): void
     {
-        $this->cover = $cover;
+        $this->coverUrl = $coverUrl;
     }
 
-    public function getIcon(): string
+    public function getIconName(): string
     {
-        return $this->icon;
+        return $this->iconName;
     }
 
-    public function setIcon(string $icon): void
+    public function setIconName(string $iconName): void
     {
-        $this->icon = $icon;
+        $this->iconName = $iconName;
     }
 
-    public function getScreenshots(): array
+    public function getScreenshotUrls(): array
     {
-        return $this->screenshots;
+        return $this->screenshotUrls;
     }
 
-    public function setScreenshots(array $screenshots): void
+    public function setScreenshotUrls(array $screenshotUrls): void
     {
-        $this->screenshots = $screenshots;
+        $this->screenshotUrls = $screenshotUrls;
     }
 
     public function getCreatedAt(): ?\DateTime
@@ -132,7 +132,7 @@ class SalesChannelTypeStruct extends Entity
         return $this->createdAt;
     }
 
-    public function setCreatedAt(?\DateTime $createdAt): void
+    public function setCreatedAt(\DateTime $createdAt): void
     {
         $this->createdAt = $createdAt;
     }
@@ -142,7 +142,7 @@ class SalesChannelTypeStruct extends Entity
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(?\DateTime $updatedAt): void
+    public function setUpdatedAt(\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
     }

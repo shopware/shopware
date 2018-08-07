@@ -26,7 +26,6 @@ const webpackConfig = merge(baseWebpackConfig, {
     },
     optimization: {
         splitChunks: {
-            chunks: 'all',
             cacheGroups: {
                 app: {
                     name: 'app',

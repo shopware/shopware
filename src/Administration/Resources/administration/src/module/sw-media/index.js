@@ -1,13 +1,13 @@
 import { Module } from 'src/core/shopware';
-import './page/sw-mediamanager-index';
-import './page/sw-mediamanager-catalog';
-import './component/sidebar/sw-mediamanager-sidebar';
+import './page/sw-media-index';
+import './page/sw-media-catalog';
+import './component/sidebar/sw-media-sidebar';
 import './component/sw-media-grid-catalog-item';
 
-Module.register('sw-mediamanager', {
+Module.register('sw-media', {
     type: 'core',
-    name: 'Mediamanager',
-    description: 'sw-mediamanager.general.descriptionTextModule',
+    name: 'Media',
+    description: 'sw-media.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#ef734a',
@@ -16,23 +16,23 @@ Module.register('sw-mediamanager', {
     routes: {
         index: {
             components: {
-                default: 'sw-mediamanager-index'
+                default: 'sw-media-index'
             },
             path: 'index'
         },
         'catalog-content': {
             components: {
-                default: 'sw-mediamanager-catalog'
+                default: 'sw-media-catalog'
             },
             path: 'catalog/:id'
         }
     },
 
     navigation: [{
-        id: 'sw-mediamanager',
-        label: 'sw-mediamanager.general.mainMenuItemGeneral',
+        id: 'sw-media',
+        label: 'sw-media.general.mainMenuItemGeneral',
         color: '#ef734a',
         icon: 'default-object-image',
-        path: 'sw.mediamanager.index'
+        path: 'sw.media.index'
     }]
 });

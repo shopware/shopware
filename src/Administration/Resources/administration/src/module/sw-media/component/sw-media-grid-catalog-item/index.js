@@ -28,7 +28,7 @@ Component.extend('sw-media-grid-catalog-item', 'sw-media-grid-item', {
     methods: {
         viewCatalogContent() {
             this.$router.push({
-                name: 'sw.mediamanager.catalog-content',
+                name: 'sw.media.catalog-content',
                 params: { id: this.item.id }
             });
         }

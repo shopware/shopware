@@ -1,8 +1,8 @@
 import { warn } from 'src/core/service/utils/debug.utils';
 
-const mediamanagerMediaGridListener = {
+const mediaMediaGridListener = {
     computed: {
-        mediamanagerMediaGridListener() {
+        mediaMediaGridListener() {
             return {
                 'sw-media-grid-selection-clear': this.handleMediaGridSelectionRemoved,
                 'sw-media-grid-item-selection-add': this.handleMediaGridItemSelected,
@@ -24,4 +24,4 @@ const mediamanagerMediaGridListener = {
     }
 };
 
-export default mediamanagerMediaGridListener;
+export default mediaMediaGridListener;

@@ -465,9 +465,9 @@
       "buttonDelete": "Löschen"
     }
   },
-  "sw-mediamanager": {
+  "sw-media": {
     "general": {
-      "mainMenuItemGeneral": "Mediamanager",
+      "mainMenuItemGeneral": "Medien",
       "descriptionTextModule": "Modul zum Verwalten von Mediendateien"
     },
     "catalogItem": {

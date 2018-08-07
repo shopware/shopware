@@ -1,15 +1,15 @@
 import { Component, State } from 'src/core/shopware';
-import mediamanagerMediaGridListener from '../../mixin/mediagrid.listener.mixin';
-import mediamanagerSidebarListener from '../../mixin/sibebar.listener.mixin';
-import template from './sw-mediamanager-index.html.twig';
-import './sw-mediamanager-index.less';
+import mediaMediaGridListener from '../../mixin/mediagrid.listener.mixin';
+import mediaSidebarListener from '../../mixin/sibebar.listener.mixin';
+import template from './sw-media-index.html.twig';
+import './sw-media-index.less';
 
-Component.register('sw-mediamanager-index', {
+Component.register('sw-media-index', {
     template,
 
     mixins: [
-        mediamanagerMediaGridListener,
-        mediamanagerSidebarListener
+        mediaMediaGridListener,
+        mediaSidebarListener
     ],
 
     data() {

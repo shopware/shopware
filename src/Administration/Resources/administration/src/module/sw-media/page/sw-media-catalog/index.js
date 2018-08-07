@@ -1,17 +1,17 @@
 import { Component, State, Mixin } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
-import mediamanagerMediaGridListener from '../../mixin/mediagrid.listener.mixin';
-import mediamanagerSidebarListener from '../../mixin/sibebar.listener.mixin';
-import template from './sw-mediamanager-catalog.html.twig';
-import './sw-mediamanager-catalog.less';
+import mediaMediaGridListener from '../../mixin/mediagrid.listener.mixin';
+import mediaSidebarListener from '../../mixin/sibebar.listener.mixin';
+import template from './sw-media-catalog.html.twig';
+import './sw-media-catalog.less';
 
-Component.register('sw-mediamanager-catalog', {
+Component.register('sw-media-catalog', {
     template,
 
     mixins: [
         Mixin.getByName('listing'),
-        mediamanagerMediaGridListener,
-        mediamanagerSidebarListener
+        mediaMediaGridListener,
+        mediaSidebarListener
     ],
 
     data() {

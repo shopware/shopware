@@ -1,14 +1,14 @@
 import { warn } from 'src/core/service/utils/debug.utils';
 
-const mediamanagerSidebarListener = {
+const mediaSidebarListener = {
     computed: {
-        mediamanagerSidebarListener() {
+        mediaSidebarListener() {
             return {
-                'sw-mediamanager-sidebar-move-batch': this.handleSidebarMoveBatchRequest,
-                'sw-mediamanager-sidebar-remove-batch': this.handleSidebarRemoveBatchRequest,
-                'sw-mediamanager-sidebar-quickaction-replace-item': this.handleSidebarReplaceItem,
-                'sw-mediamanager-sidebar-quickaction-move-item': this.handleSidebarMoveItem,
-                'sw-mediamanager-sidebar-quickaction-remove-item': this.handleSidebarRemoveItem
+                'sw-media-sidebar-move-batch': this.handleSidebarMoveBatchRequest,
+                'sw-media-sidebar-remove-batch': this.handleSidebarRemoveBatchRequest,
+                'sw-media-sidebar-quickaction-replace-item': this.handleSidebarReplaceItem,
+                'sw-media-sidebar-quickaction-move-item': this.handleSidebarMoveItem,
+                'sw-media-sidebar-quickaction-remove-item': this.handleSidebarRemoveItem
             };
         }
     },
@@ -32,4 +32,4 @@ const mediamanagerSidebarListener = {
     }
 };
 
-export default mediamanagerSidebarListener;
+export default mediaSidebarListener;

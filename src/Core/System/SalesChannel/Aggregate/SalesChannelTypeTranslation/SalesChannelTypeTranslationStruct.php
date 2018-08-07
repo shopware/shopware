@@ -4,6 +4,7 @@ namespace Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTypeTranslatio
 
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\System\Language\LanguageStruct;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeStruct;
 
 class SalesChannelTypeTranslationStruct extends Entity
 {
@@ -41,6 +42,11 @@ class SalesChannelTypeTranslationStruct extends Entity
      * @var LanguageStruct|null
      */
     protected $language;
+
+    /**
+     * @var SalesChannelTypeStruct|null
+     */
+    protected $salesChannelType;
 
     /**
      * @var \DateTime
@@ -120,6 +126,16 @@ class SalesChannelTypeTranslationStruct extends Entity
     public function setLanguage(LanguageStruct $language): void
     {
         $this->language = $language;
+    }
+
+    public function getSalesChannelType(): ?SalesChannelTypeStruct
+    {
+        return $this->salesChannelType;
+    }
+
+    public function setSalesChannelType(SalesChannelTypeStruct $salesChannelType): void
+    {
+        $this->salesChannelType = $salesChannelType;
     }
 
     public function getCreatedAt(): \DateTime

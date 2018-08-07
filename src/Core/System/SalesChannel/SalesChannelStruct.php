@@ -10,6 +10,7 @@ use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\System\Country\CountryStruct;
 use Shopware\Core\System\Currency\CurrencyStruct;
 use Shopware\Core\System\Language\LanguageStruct;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesChannelTranslationCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeStruct;
 
 class SalesChannelStruct extends Entity
@@ -138,6 +139,11 @@ class SalesChannelStruct extends Entity
      * @var CustomerCollection|null
      */
     protected $customers;
+
+    /**
+     * @var SalesChannelTranslationCollection|null
+     */
+    protected $translations;
 
     public function getLanguageId(): string
     {
@@ -390,5 +396,15 @@ class SalesChannelStruct extends Entity
     public function setType(SalesChannelTypeStruct $type): void
     {
         $this->type = $type;
+    }
+
+    public function getTranslations(): ?SalesChannelTranslationCollection
+    {
+        return $this->translations;
+    }
+
+    public function setTranslations(SalesChannelTranslationCollection $translations): void
+    {
+        $this->translations = $translations;
     }
 }

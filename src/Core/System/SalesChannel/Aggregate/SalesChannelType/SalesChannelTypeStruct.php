@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType;
 
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTypeTranslation\SalesChannelTypeTranslationCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 class SalesChannelTypeStruct extends Entity
@@ -56,6 +57,11 @@ class SalesChannelTypeStruct extends Entity
      * @var SalesChannelCollection|null
      */
     protected $salesChannels;
+
+    /**
+     * @var SalesChannelTypeTranslationCollection|null
+     */
+    protected $translations;
 
     public function getName(): string
     {
@@ -155,5 +161,15 @@ class SalesChannelTypeStruct extends Entity
     public function setSalesChannels(?SalesChannelCollection $salesChannels): void
     {
         $this->salesChannels = $salesChannels;
+    }
+
+    public function getTranslations(): ?SalesChannelTypeTranslationCollection
+    {
+        return $this->translations;
+    }
+
+    public function setTranslations(SalesChannelTypeTranslationCollection $translations): void
+    {
+        $this->translations = $translations;
     }
 }

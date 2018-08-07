@@ -1,0 +1,9 @@
+<router-link :to="to" class="sw-settings-wrapper-item">
+    <div class="sw-settings-wrapper-item__icon">
+        <slot name="icon"></slot>
+    </div>
+
+    <div class="sw-settings-wrapper-item__label">
+        <slot name="label">{{ label }}</slot>
+    </div>
+</router-link>

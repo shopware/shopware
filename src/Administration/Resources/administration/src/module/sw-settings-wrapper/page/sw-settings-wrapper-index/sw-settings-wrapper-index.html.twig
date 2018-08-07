@@ -1,0 +1,20 @@
+{% block sw_settings_wrapper %}
+    <sw-page class="sw-settings-wrapper">
+
+        {% block sw_settings_wrapper_header %}
+            <template slot="smart-bar-header">
+                <h2>{{ $tc('sw-settings-wrapper.index.title') }}</h2>
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_wrapper_content %}
+            <sw-card-view slot="content">
+                {% block sw_settings_wrapper_content_card %}
+                    <sw-card>
+                        <slot>{% block sw_settings_wrapper_content_card_slot_default %}{% endblock %}</slot>
+                    </sw-card>
+                {% endblock %}
+            </sw-card-view>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

@@ -549,5 +549,25 @@
       "modalButtonDelete": "Löschen",
       "modalButtonAbort": "Abbrechen"
     }
+  },
+  "sw-settings-wrapper": {
+    "general": {
+      "mainMenuItemGeneral": "Einstellungen"
+    },
+    "index": {
+      "title": "Einstellungen"
+    }
+  },
+  "sw-settings-currency": {
+    "general": {
+      "mainMenuItemGeneral": "Währungen"
+    },
+    "list": {
+      "title": "Einstellungen / Währungen",
+      "columnName": "Name",
+      "columnShortName": "Kurzname",
+      "columnSymbol": "Symbol",
+      "columnFactor": "Faktor"
+    }
   }
 }

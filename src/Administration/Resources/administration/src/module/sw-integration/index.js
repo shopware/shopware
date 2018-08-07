@@ -20,7 +20,6 @@ Module.register('sw-integration', {
     navigation: [{
         path: 'sw.integration.index',
         label: 'sw-integration.general.mainMenuItemIndex',
-        color: '#14D7A5',
-        icon: 'default-device-server'
+        parent: 'sw-settings-wrapper'
     }]
 });

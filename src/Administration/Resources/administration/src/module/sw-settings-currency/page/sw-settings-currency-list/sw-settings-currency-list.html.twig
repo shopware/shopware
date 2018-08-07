@@ -1,0 +1,56 @@
+{% block sw_settings_currency_index %}
+    <sw-page class="sw-settings-currency-list">
+
+        {% block sw_settings_currency_index_header %}
+            <template slot="smart-bar-header">
+                <h2>{{ $tc('sw-settings-currency.list.title') }}</h2>
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_currency_index_content %}
+            <sw-card-view slot="content">
+                {% block sw_settings_currency_index_content_card %}
+                    <sw-card :isLoading="isLoading">
+                        <sw-grid class="sw-settings-currency-list-grid" :items="currencies" table>
+                            <template slot="columns" slot-scope="{ item }">
+                                <sw-grid-column flex="minmax(180px, 1fr)"
+                                                :label="$tc('sw-settings-currency.list.columnName')">
+                                        <router-link :title="$tc('sw-order.detailBase.contextMenuShowProduct')"
+                                                     :to="{ name: 'sw.settings.currency.detail', params: { id: item.identifier } }">
+                                                {{ item.name }}
+                                        </router-link>
+                                </sw-grid-column>
+
+                                <sw-grid-column flex="minmax(180px, 1fr)"
+                                                :label="$tc('sw-settings-currency.list.columnShortName')">
+                                    {{ item.shortName }}
+                                </sw-grid-column>
+
+                                <sw-grid-column flex="minmax(80px, 1fr)"
+                                                :label="$tc('sw-settings-currency.list.columnSymbol')">
+                                        {{ item.symbol }}
+                                </sw-grid-column>
+
+                                <sw-grid-column flex="minmax(80px, 1fr)"
+                                                :label="$tc('sw-settings-currency.list.columnFactor')">
+                                    {{ item.factor }}
+                                </sw-grid-column>
+
+                                <sw-grid-column flex="minmax(70px, 70px)"
+                                                align="center"
+                                                label=""
+                                                iconLabel="small-search">
+                                    <sw-context-button>
+                                        <sw-context-menu-item icon="default-eye-open" :routerLink="{ name: 'sw.product.detail', params: { id: item.identifier } }">
+                                            {{ $tc('sw-order.detailBase.contextMenuShowProduct') }}
+                                        </sw-context-menu-item>
+                                    </sw-context-button>
+                                </sw-grid-column>
+                            </template>
+                        </sw-grid>
+                    </sw-card>
+                {% endblock %}
+            </sw-card-view>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

@@ -36,9 +36,9 @@ class CurrencyStruct extends Entity
     protected $isDefault;
 
     /**
-     * @var int
+     * @var bool
      */
-    protected $symbolPosition;
+    protected $placedInFront;
 
     /**
      * @var int
@@ -125,14 +125,14 @@ class CurrencyStruct extends Entity
         $this->isDefault = $isDefault;
     }
 
-    public function getSymbolPosition(): int
+    public function getPlacedInFront(): bool
     {
-        return $this->symbolPosition;
+        return $this->placedInFront;
     }
 
-    public function setSymbolPosition(int $symbolPosition): void
+    public function setPlacedInFront(bool $placedInFront): void
     {
-        $this->symbolPosition = $symbolPosition;
+        $this->placedInFront = $placedInFront;
     }
 
     public function getPosition(): int

@@ -431,7 +431,7 @@ class CreateTenantCommand extends ContainerAwareCommand
         $this->importTable(
             $tenantId,
             'currency',
-            ['id', 'version_id', 'is_default', 'factor', 'symbol', 'symbol_position', 'position', 'created_at', 'updated_at'],
+            ['id', 'version_id', 'is_default', 'factor', 'symbol', 'placed_in_front', 'position', 'created_at', 'updated_at'],
             ['tenant_id'],
             [
                 [hex2bin('20080911ffff4fffafffffff19830531'), hex2bin('20080911ffff4fffafffffff19830531'), 1, 1, '€', 0, 0,      $this->now(), null],

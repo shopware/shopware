@@ -105,8 +105,10 @@ describe('core/data/EntityStore.js', () => {
                 offset: 0,
                 limit: 3
             }).then((response) => {
-                expect(response.items.length).to.be.equal(1);
-                done();
+                expect(response.items.length).to.be.equal(3);
+                entity.delete(true).then(() => {
+                    done();
+                });
             }).catch((err) => {
                 done(err);
             });
@@ -132,7 +134,9 @@ describe('core/data/EntityStore.js', () => {
                 term: 'Bitcoin'
             }).then((response) => {
                 expect(response.items.length).to.be.equal(1);
-                done();
+                entity.delete(true).then(() => {
+                    done();
+                });
             }).catch((err) => {
                 done(err);
             });

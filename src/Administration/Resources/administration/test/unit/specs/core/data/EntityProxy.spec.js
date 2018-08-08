@@ -179,22 +179,30 @@ describe('core/data/EntityProxy.js', () => {
             productEntity.save().then((response) => {
                 expect(response.errors.length).to.be.equal(0);
                 expect(response.name).to.be.equal('Sample product');
-                expect(response.taxId).to.be.equal(taxEntity.id);
-                expect(response.manufacturerId).to.be.equal(manufacturerEntity.id);
-                expect(response.catalogId).to.be.equal(catalogEntity.id);
 
                 expect(response.price).to.deep.include({
                     gross: 12,
                     net: 11
                 });
-                done();
-            }).catch(function (error) {
+
+                productEntity.delete(true).then(() => {
+                    return manufacturerEntity.delete(true);
+                }).then(() => {
+                    return taxEntity.delete(true);
+                }).then(() => {
+                    return catalogEntity.delete(true);
+                }).then(() => {
+                    done();
+                }).catch((err) => {
+                    done(err);
+                });
+            }).catch((error) => {
                 done(error);
             });
-        }).catch(function (error) {
+        }).catch((error) => {
             done(error);
         });
-    });
+    }, 50000);
 
     it('should remove itself from the store', () => {
         const store = State.getStore('product');

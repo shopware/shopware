@@ -563,11 +563,67 @@
       "mainMenuItemGeneral": "Währungen"
     },
     "list": {
-      "title": "Einstellungen / Währungen",
+      "textHeadline": "Währungen",
+      "textDeleteConfirm": "Sind Sie sich sicher dass sie die Währung {name} löschen möchten?",
       "columnName": "Name",
       "columnShortName": "Kurzname",
       "columnSymbol": "Symbol",
-      "columnFactor": "Faktor"
+      "columnFactor": "Faktor",
+      "buttonAddCurrency": "Währung anlegen",
+      "contextMenuEdit": "Anzeigen",
+      "modalTitleDelete": "Währung löschen",
+      "titleDeleteSuccess": "Währung",
+      "messageDeleteSuccess": "Die Währung {name} wurde erfolgreich gelöscht.",
+      "buttonCancel": "Abbrechen",
+      "buttonDelete": "Löschen"
+    },
+    "detail": {
+      "textHeadline": "Neue Währung",
+      "titleCard": "Einstellungen",
+      "titleSaveSuccess": "Währung",
+      "messageSaveSuccess": "Die Währung {name} wurde erfolgreich gespeichert.",
+      "labelIsDefault": "Standard?",
+      "labelName": "Name",
+      "labelShortName": "Kurzname",
+      "labelSymbol": "Symbol",
+      "labelFactor": "Faktor",
+      "placeholderName": "Name eingeben...",
+      "placeholderShortName": "Kurzname eingeben...",
+      "placeholderSymbol": "Symbol eingeben...",
+      "placeholderFactor": "Factor eingeben...",
+      "buttonCancel": "Abbrechen",
+      "buttonSave": "Speichern"
+    }
+  },
+  "sw-settings-tax": {
+    "general": {
+      "mainMenuItemGeneral": "Steuern"
+    },
+    "list": {
+      "textHeadline": "Steuern",
+      "textDeleteConfirm": "Sind Sie sich sicher dass sie die Steuer {name} löschen möchten?",
+      "columnName": "Name",
+      "columnTaxRate": "Steuersatz",
+      "buttonAddTax": "Steuer anlegen",
+      "contextMenuEdit": "Anzeigen",
+      "modalTitleDelete": "Steuer löschen",
+      "titleDeleteSuccess": "Steuern",
+      "messageDeleteSuccess": "Die Steuer {name} wurde erfolgreich gelöscht.",
+      "buttonCancel": "Abbrechen",
+      "buttonDelete": "Löschen"
+    },
+    "detail": {
+      "textHeadline": "Neue Steuer",
+      "titleCard": "Einstellungen",
+      "titleSaveSuccess": "Steuer",
+      "messageSaveSuccess": "Die Steuer {name} wurde erfolgreich gespeichert.",
+      "labelName": "Name",
+      "labelShortName": "Kurzname",
+      "labelTaxRate": "Steuersatz",
+      "placeholderName": "Name eingeben...",
+      "placeholderTaxRate": "Steuersatz eingeben...",
+      "buttonCancel": "Abbrechen",
+      "buttonSave": "Speichern"
     }
   }
 }

@@ -1,46 +1,46 @@
 import { Module } from 'src/core/shopware';
 
 import './extension/sw-settings-wrapper-index';
-import './page/sw-settings-currency-list';
-import './page/sw-settings-currency-detail';
-import './page/sw-settings-currency-create';
+import './page/sw-settings-tax-list';
+import './page/sw-settings-tax-detail';
+import './page/sw-settings-tax-create';
 
-Module.register('sw-settings-currency', {
+Module.register('sw-settings-tax', {
     type: 'core',
     name: 'Currency settings',
-    description: 'Currency section in the settings module',
+    description: 'Tax section in the settings module',
     color: '#9AA8B5',
     icon: 'default-action-settings',
 
     routes: {
         index: {
-            component: 'sw-settings-currency-list',
+            component: 'sw-settings-tax-list',
             path: 'index',
             meta: {
                 parentPath: 'sw.settings.wrapper.index'
             }
         },
         detail: {
-            component: 'sw-settings-currency-detail',
+            component: 'sw-settings-tax-detail',
             path: 'detail/:id',
             meta: {
-                parentPath: 'sw.settings.currency.index'
+                parentPath: 'sw.settings.tax.index'
             }
         },
         create: {
-            component: 'sw-settings-currency-create',
+            component: 'sw-settings-tax-create',
             path: 'create',
             meta: {
-                parentPath: 'sw.settings.currency.index'
+                parentPath: 'sw.settings.tax.index'
             }
         }
     },
 
     navigation: [{
-        label: 'sw-settings-currency.general.mainMenuItemGeneral',
+        label: 'sw-settings-tax.general.mainMenuItemGeneral',
         color: '#9AA8B5',
         icon: 'default-action-settings',
-        path: 'sw.settings.currency.index',
+        path: 'sw.settings.tax.index',
         parent: 'sw-settings-wrapper'
     }]
 });

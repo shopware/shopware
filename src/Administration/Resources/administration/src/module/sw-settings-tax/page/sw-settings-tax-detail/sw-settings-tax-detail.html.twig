@@ -1,0 +1,56 @@
+{% block sw_settings_tax_detail %}
+    <sw-page class="sw-settings-tax-detail">
+
+        {% block sw_settings_tax_detail_header %}
+            <template slot="smart-bar-header">
+                <h2 v-if="tax.name">{{ tax.name }}</h2>
+                <h2 v-else>{{ $tc('sw-settings-tax.detail.textHeadline') }}</h2>
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_tax_detail_actions %}
+            <template slot="smart-bar-actions">
+                {% block sw_settings_tax_detail_actions_abort %}
+                    <sw-button :disabled="tax.isLoading" link="sw.settings.tax.index">
+                        {{ $tc('sw-settings-tax.detail.buttonCancel') }}
+                    </sw-button>
+                {% endblock %}
+
+                {% block sw_settings_tax_detail_actions_save %}
+                    <sw-button variant="primary" :disabled="tax.isLoading" @click.prevent="onSave">
+                        {{ $tc('sw-settings-tax.detail.buttonSave') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_tax_detail_content %}
+            <sw-card-view slot="content">
+
+                {% block sw_settings_tax_detail_content_card %}
+                    <sw-card :title="$tc('sw-settings-tax.detail.titleCard')">
+                        <sw-container grid="1fr 1fr" gap="0px 30px">
+
+                            {% block sw_settings_tax_detail_content_field_name %}
+                                <sw-field type="text"
+                                          :label="$tc('sw-settings-tax.detail.labelName')"
+                                          :placeholder="$tc('sw-settings-tax.detail.placeholderName')"
+                                          v-model="tax.name">
+                                </sw-field>
+                            {% endblock %}
+
+                            {% block sw_settings_tax_detail_content_field_tax_rate %}
+                                <sw-field type="number"
+                                          suffix="%"
+                                          :label="$tc('sw-settings-tax.detail.labelTaxRate')"
+                                          :placeholder="$tc('sw-settings-tax.detail.placeholderTaxRate')"
+                                          v-model="tax.taxRate">
+                                </sw-field>
+                            {% endblock %}
+                        </sw-container>
+                    </sw-card>
+                {% endblock %}
+            </sw-card-view>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

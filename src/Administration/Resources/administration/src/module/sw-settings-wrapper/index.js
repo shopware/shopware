@@ -13,7 +13,8 @@ Module.register('sw-settings-wrapper', {
     routes: {
         index: {
             component: 'sw-settings-wrapper-index',
-            path: 'index'
+            path: 'index',
+            icon: 'default-action-settings'
         }
     },
 

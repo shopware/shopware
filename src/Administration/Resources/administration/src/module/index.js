@@ -9,3 +9,4 @@ import 'module/sw-media';
 import 'module/sw-integration';
 import 'module/sw-settings-wrapper';
 import 'module/sw-settings-currency';
+import 'module/sw-settings-tax';

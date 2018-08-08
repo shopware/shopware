@@ -1,7 +1,7 @@
 import { Component, State } from 'src/core/shopware';
-import template from './sw-settings-currency-list.html.twig';
+import template from './sw-settings-tax-list.html.twig';
 
-Component.register('sw-settings-currency-list', {
+Component.register('sw-settings-tax-list', {
     template,
 
     mixins: [
@@ -11,15 +11,15 @@ Component.register('sw-settings-currency-list', {
 
     data() {
         return {
-            currencies: [],
+            taxes: [],
             isLoading: false,
             showDeleteModal: false
         };
     },
 
     computed: {
-        currencyStore() {
-            return State.getStore('currency');
+        taxStore() {
+            return State.getStore('tax');
         }
     },
 
@@ -34,11 +34,11 @@ Component.register('sw-settings-currency-list', {
             this.isLoading = true;
             const params = this.getListingParams();
 
-            this.currencies = [];
+            this.taxes = [];
 
-            return this.currencyStore.getList(params).then((response) => {
+            return this.taxStore.getList(params).then((response) => {
                 this.total = response.total;
-                this.currencies = response.items;
+                this.taxes = response.items;
                 this.isLoading = false;
 
                 return this.products;
@@ -54,12 +54,12 @@ Component.register('sw-settings-currency-list', {
         },
 
         onConfirmDelete(id) {
-            const currency = this.currencyStore.store[id];
+            const currency = this.taxStore.store[id];
             const currencyName = currency.name;
-            const titleSaveSuccess = this.$tc('sw-settings-currency.list.titleDeleteSuccess');
-            const messageSaveSuccess = this.$tc('sw-settings-currency.list.messageDeleteSuccess', 0, { name: currencyName });
+            const titleSaveSuccess = this.$tc('sw-settings-tax.list.titleDeleteSuccess');
+            const messageSaveSuccess = this.$tc('sw-settings-tax.list.messageDeleteSuccess', 0, { name: currencyName });
 
-            return this.currencyStore.store[id].delete(true).then(() => {
+            return this.taxStore.store[id].delete(true).then(() => {
                 this.showDeleteModal = false;
 
                 this.createNotificationSuccess({

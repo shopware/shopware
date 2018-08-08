@@ -625,5 +625,36 @@
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern"
     }
+  },
+  "sw-settings-language": {
+    "general": {
+      "mainMenuItemGeneral": "Sprachen"
+    },
+    "list": {
+      "textHeadline": "Sprachen",
+      "textDeleteConfirm": "Sind Sie sich sicher dass sie die Sprache {name} löschen möchten?",
+      "columnName": "Name",
+      "columnLocaleName": "Region",
+      "buttonAddLanguage": "Sprache anlegen",
+      "contextMenuEdit": "Anzeigen",
+      "modalTitleDelete": "Sprache löschen",
+      "titleDeleteSuccess": "Sprachen",
+      "messageDeleteSuccess": "Die Sprache {name} wurde erfolgreich gelöscht.",
+      "buttonCancel": "Abbrechen",
+      "buttonDelete": "Löschen"
+    },
+    "detail": {
+      "textHeadline": "Neue Sprache",
+      "titleCard": "Einstellungen",
+      "titleSaveSuccess": "Sprachen",
+      "messageSaveSuccess": "Die Sprache {name} wurde erfolgreich gespeichert.",
+      "labelName": "Name",
+      "labelLocale": "Region",
+      "labelParent": "Erben von",
+      "placeholderName": "Name eingeben...",
+      "placeholderPleaseSelect": "Bitte wählen...",
+      "buttonCancel": "Abbrechen",
+      "buttonSave": "Speichern"
+    }
   }
 }

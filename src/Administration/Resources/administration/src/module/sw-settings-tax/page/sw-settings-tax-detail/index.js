@@ -38,7 +38,6 @@ Component.register('sw-settings-tax-detail', {
             const messageSaveSuccess = this.$tc('sw-settings-tax.detail.messageSaveSuccess', 0, { name: taxName });
 
             return this.tax.save().then(() => {
-                console.log(this);
                 this.createNotificationSuccess({
                     title: titleSaveSuccess,
                     message: messageSaveSuccess

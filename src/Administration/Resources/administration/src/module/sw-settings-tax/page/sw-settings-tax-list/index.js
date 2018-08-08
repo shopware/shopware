@@ -41,7 +41,7 @@ Component.register('sw-settings-tax-list', {
                 this.taxes = response.items;
                 this.isLoading = false;
 
-                return this.products;
+                return this.taxes;
             });
         },
 

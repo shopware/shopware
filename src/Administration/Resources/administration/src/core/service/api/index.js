@@ -20,6 +20,8 @@ import RuleApiService from 'src/core/service/api/rule.api.service';
 import MediaApiService from 'src/core/service/api/media.api.service';
 import SalesChannelApiService from 'src/core/service/api/sales-channel.api.service';
 import SearchApiService from 'src/core/service/api/search.api.service';
+import LanguageApiService from 'src/core/service/api/language.api.service';
+import LocaleApiService from 'src/core/service/api/locale.api.service';
 
 export default {
     shopService: ShopApiService,
@@ -43,5 +45,7 @@ export default {
     ruleService: RuleApiService,
     mediaService: MediaApiService,
     salesChannelService: SalesChannelApiService,
-    searchService: SearchApiService
+    searchService: SearchApiService,
+    languageService: LanguageApiService,
+    localeService: LocaleApiService
 };

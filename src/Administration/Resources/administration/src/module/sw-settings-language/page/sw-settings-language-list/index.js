@@ -1,7 +1,7 @@
 import { Component, State } from 'src/core/shopware';
-import template from './sw-settings-currency-list.html.twig';
+import template from './sw-settings-language-list.html.twig';
 
-Component.register('sw-settings-currency-list', {
+Component.register('sw-settings-language-list', {
     template,
 
     mixins: [
@@ -11,15 +11,15 @@ Component.register('sw-settings-currency-list', {
 
     data() {
         return {
-            currencies: [],
+            languages: [],
             isLoading: false,
             showDeleteModal: false
         };
     },
 
     computed: {
-        currencyStore() {
-            return State.getStore('currency');
+        languageStore() {
+            return State.getStore('language');
         }
     },
 
@@ -34,14 +34,14 @@ Component.register('sw-settings-currency-list', {
             this.isLoading = true;
             const params = this.getListingParams();
 
-            this.currencies = [];
+            this.languages = [];
 
-            return this.currencyStore.getList(params).then((response) => {
+            return this.languageStore.getList(params).then((response) => {
                 this.total = response.total;
-                this.currencies = response.items;
+                this.languages = response.items;
                 this.isLoading = false;
 
-                return this.currencies;
+                return this.languages;
             });
         },
 
@@ -54,12 +54,12 @@ Component.register('sw-settings-currency-list', {
         },
 
         onConfirmDelete(id) {
-            const currency = this.currencyStore.store[id];
-            const currencyName = currency.name;
-            const titleSaveSuccess = this.$tc('sw-settings-currency.list.titleDeleteSuccess');
-            const messageSaveSuccess = this.$tc('sw-settings-currency.list.messageDeleteSuccess', 0, { name: currencyName });
+            const language = this.languageStore.store[id];
+            const languageName = language.name;
+            const titleSaveSuccess = this.$tc('sw-settings-language.list.titleDeleteSuccess');
+            const messageSaveSuccess = this.$tc('sw-settings-language.list.messageDeleteSuccess', 0, { name: languageName });
 
-            return this.currencyStore.store[id].delete(true).then(() => {
+            return this.languageStore.store[id].delete(true).then(() => {
                 this.showDeleteModal = false;
 
                 this.createNotificationSuccess({

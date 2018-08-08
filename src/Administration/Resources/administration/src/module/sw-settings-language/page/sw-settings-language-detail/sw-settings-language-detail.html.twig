@@ -1,0 +1,85 @@
+{% block sw_settings_language_detail %}
+    <sw-page class="sw-settings-language-detail">
+
+        {% block sw_settings_language_detail_header %}
+            <template slot="smart-bar-header">
+                <h2 v-if="language.name">{{ language.name }}</h2>
+                <h2 v-else>{{ $tc('sw-settings-language.detail.textHeadline') }}</h2>
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_language_detail_actions %}
+            <template slot="smart-bar-actions">
+                {% block sw_settings_language_detail_actions_abort %}
+                    <sw-button :disabled="language.isLoading" link="sw.settings.language.index">
+                        {{ $tc('sw-settings-language.detail.buttonCancel') }}
+                    </sw-button>
+                {% endblock %}
+
+                {% block sw_settings_language_detail_actions_save %}
+                    <sw-button variant="primary" :disabled="language.isLoading" @click.prevent="onSave">
+                        {{ $tc('sw-settings-language.detail.buttonSave') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_language_detail_content %}
+            <sw-card-view slot="content">
+
+                {% block sw_settings_language_detail_content_card %}
+                    <sw-card :title="$tc('sw-settings-language.detail.titleCard')">
+                        <sw-container grid="1fr 1fr" gap="0px 30px">
+
+                            {% block sw_settings_language_detail_content_field_name %}
+                                <sw-field type="text"
+                                          :label="$tc('sw-settings-language.detail.labelName')"
+                                          :placeholder="$tc('sw-settings-language.detail.placeholderName')"
+                                          validation="required"
+                                          v-model="language.name">
+                                </sw-field>
+                            {% endblock %}
+
+                            {% block sw_settings_language_detail_content_field_localeId %}
+                                <sw-field type="select"
+                                          :label="$tc('sw-settings-language.detail.labelLocale')"
+                                          validation="required"
+                                          :value="language.localeId"
+                                          v-model="language.localeId">
+
+                                        {% block sw_settings_language_detail_content_field_localeId_options %}
+                                            <option slot="options"
+                                                    v-for="locale in locales"
+                                                    :key="locale.id"
+                                                    :value="locale.id">
+                                                {{ locale.name }}, {{ locale.territory }} ({{ locale.code }})
+                                            </option>
+                                        {% endblock %}
+                                </sw-field>
+                            {% endblock %}
+                        </sw-container>
+
+                        {% block sw_settings_language_detail_content_field_parentId %}
+                            <sw-field type="select"
+                                      :label="$tc('sw-settings-language.detail.labelParent')"
+                                      :placeholder="$tc('sw-settings-language.detail.placeholderPleaseSelect')"
+                                      :value="language.parentId"
+                                      v-model="language.parentId">
+
+                                {% block sw_settings_language_detail_content_field_parentId_options %}
+                                    <option slot="options"
+                                            v-for="lang in languages"
+                                            :key="lang.id"
+                                            :disabled="lang.id === language.id"
+                                            :value="lang.id">
+                                        {{ lang.name }}
+                                    </option>
+                                {% endblock %}
+                            </sw-field>
+                        {% endblock %}
+                    </sw-card>
+                {% endblock %}
+            </sw-card-view>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

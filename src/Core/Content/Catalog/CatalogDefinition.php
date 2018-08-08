@@ -19,6 +19,7 @@ use Shopware\Core\Framework\ORM\Field\IdField;
 use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\Field\TenantIdField;
+use Shopware\Core\Framework\ORM\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\ORM\Field\UpdatedAtField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
@@ -41,16 +42,16 @@ class CatalogDefinition extends EntityDefinition
             new CreatedAtField(),
             new UpdatedAtField(),
             (new OneToManyAssociationField('categories', CategoryDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('categoryTranslations', CategoryTranslationDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new TranslationsAssociationField('categoryTranslations', CategoryTranslationDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new OneToManyAssociationField('media', MediaDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new OneToManyAssociationField('mediaAlbum', MediaAlbumDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('mediaAlbumTranslations', MediaAlbumTranslationDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('mediaTranslations', MediaTranslationDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new TranslationsAssociationField('mediaAlbumTranslations', MediaAlbumTranslationDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new TranslationsAssociationField('mediaTranslations', MediaTranslationDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new OneToManyAssociationField('products', ProductDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new OneToManyAssociationField('productManufacturers', ProductManufacturerDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('productManufacturerTranslations', ProductManufacturerTranslationDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new TranslationsAssociationField('productManufacturerTranslations', ProductManufacturerTranslationDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new OneToManyAssociationField('productMedia', ProductMediaDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('productTranslations', ProductTranslationDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new TranslationsAssociationField('productTranslations', ProductTranslationDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete()),
         ]);
     }
 

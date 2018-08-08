@@ -44,7 +44,7 @@ class CurrencyDefinition extends EntityDefinition
             (new TranslatedField(new StringField('short_name', 'shortName')))->setFlags(new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
             (new TranslatedField(new StringField('name', 'name')))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
             new BoolField('is_default', 'isDefault'),
-            new IntField('symbol_position', 'symbolPosition'),
+            new BoolField('placed_in_front', 'placedInFront'),
             new IntField('position', 'position'),
             new CreatedAtField(),
             new UpdatedAtField(),

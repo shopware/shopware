@@ -430,7 +430,7 @@ CREATE TABLE `currency` (
   `is_default` tinyint(1) NOT NULL DEFAULT '0',
   `factor` double NOT NULL,
   `symbol` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `symbol_position` int(11) unsigned NOT NULL DEFAULT '0',
+  `placed_in_front` tinyint(1) NOT NULL DEFAULT '0',
   `position` int(11) NOT NULL DEFAULT '1',
   `created_at` datetime(3) NOT NULL,
   `updated_at` datetime(3),

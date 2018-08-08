@@ -40,6 +40,7 @@ use Shopware\Core\Framework\Rule\Container\NotRule;
 use Shopware\Core\Framework\Rule\CurrencyRule;
 use Shopware\Core\Framework\Rule\DateRangeRule;
 use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Util\Random;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -683,7 +684,7 @@ class DemodataCommand extends ContainerAwareCommand
             'price' => ['gross' => $price, 'net' => $price / 1.19],
             'name' => $this->faker->productName,
             'description' => $this->faker->text(),
-            'descriptionLong' => $this->faker->randomHtml(2, 3),
+            'descriptionLong' => $this->generateRandomHTML(10, ['b', 'i', 'u', 'p', 'h1', 'h2', 'h3', 'h4', 'cite']),
             'taxId' => '4926035368e34d9fa695e017d7a231b9',
             'manufacturerId' => $manufacturer[random_int(0, count($manufacturer) - 1)],
             'active' => true,
@@ -695,6 +696,19 @@ class DemodataCommand extends ContainerAwareCommand
         ];
 
         return $product;
+    }
+
+    private function generateRandomHTML(int $count, array $tags): string
+    {
+        $output = '';
+        for ($i = 0; $i < $count; ++$i) {
+            $tag = Random::getRandomArrayElement($tags);
+            $text = $this->faker->words(rand(1, 10), true);
+            $output .= sprintf('<%1$s>%2$s</%1$s>', $tag, $text);
+            $output .= '<br/>';
+        }
+
+        return $output;
     }
 
     private function createConfigurators()

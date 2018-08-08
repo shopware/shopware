@@ -1,9 +1,9 @@
 import { Component } from 'src/core/shopware';
 import 'src/app/component/base/sw-collapse';
-import template from './sw-mediamanager-collapse.html.twig';
-import './sw-mediamanager-collapse.less';
+import template from './sw-media-collapse.html.twig';
+import './sw-media-collapse.less';
 
-Component.extend('sw-mediamanager-collapse', 'sw-collapse', {
+Component.extend('sw-media-collapse', 'sw-collapse', {
     template,
 
     props: {

@@ -1,42 +1,42 @@
-{% block sw_mediamanager_sidebar %}
-    <div class="sw-mediamanager-sidebar">
+{% block sw_media_sidebar %}
+    <div class="sw-media-sidebar">
         <sw-sidebar slot="sidebar">
-            {% block sw_mediamanager_sidebar_container %}
-                <div class="sw-mediamanager-sidebar__item-container">
-                    {% block sw_mediamanager_sidebar_items_top %}
-                        <div class="sw-mediamanager-sidebar__items-top">
-                            {% block sw_mediamanager_sidebar_actions_quickinfo %}
+            {% block sw_media_sidebar_container %}
+                <div class="sw-media-sidebar__item-container">
+                    {% block sw_media_sidebar_items_top %}
+                        <div class="sw-media-sidebar__items-top">
+                            {% block sw_media_sidebar_actions_quickinfo %}
                                 <sw-sidebar-item icon="default-action-document-view"
-                                                 :title="$tc('sw-mediamanager.sidebar.actions.quickInfo')">
-                                    <sw-mediamanager-quickinfo :item="item" v-on="$listeners"></sw-mediamanager-quickinfo>
+                                                 :title="$tc('sw-media.sidebar.actions.quickInfo')">
+                                    <sw-media-quickinfo :item="item" v-on="$listeners"></sw-media-quickinfo>
                                 </sw-sidebar-item>
                             {% endblock %}
-                            {% block sw_mediamanager_sidebar_actions_filter %}
+                            {% block sw_media_sidebar_actions_filter %}
                                 <sw-sidebar-item icon="default-action-filter"
-                                                 :title="$tc('sw-mediamanager.sidebar.actions.filter')"
+                                                 :title="$tc('sw-media.sidebar.actions.filter')"
                                                  :disabled="true">
                                 </sw-sidebar-item>
                             {% endblock %}
                         </div>
                     {% endblock %}
 
-                    {% block sw_mediamanager_sidebar_items_bottom %}
-                        <div class="sw-mediamanager-sidebar__items-bottom">
-                            {% block sw_mediamanager_sidebar_actions_move_file %}
+                    {% block sw_media_sidebar_items_bottom %}
+                        <div class="sw-media-sidebar__items-bottom">
+                            {% block sw_media_sidebar_actions_move_file %}
                                 <sw-sidebar-item icon="default-action-move-file"
                                                  @click="emitRequestMoveSelection">
                                 </sw-sidebar-item>
                             {% endblock %}
 
-                            {% block sw_mediamanager_sidebar_actions_delete_file %}
+                            {% block sw_media_sidebar_actions_delete_file %}
                                 <sw-sidebar-item icon="default-action-trash"
                                                  @click="emitRequestRemoveSelection">
                                 </sw-sidebar-item>
                             {% endblock %}
 
-                            {% block sw_mediamanager_sidebar_actions_settings %}
+                            {% block sw_media_sidebar_actions_settings %}
                                 <sw-sidebar-item icon="default-action-settings"
-                                                 :title="$tc('sw-mediamanager.sidebar.actions.settings')"
+                                                 :title="$tc('sw-media.sidebar.actions.settings')"
                                                  :disabled="true">
                                 </sw-sidebar-item>
                             {% endblock %}

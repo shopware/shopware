@@ -10,14 +10,14 @@
 
 {% block sw_media_grid_item_context_items%}
     {% block sw_media_grid_catalog_item_show_content_button %}
-        <sw-context-menu-item :routerLink="{ name: 'sw.mediamanager.catalog-content', params: { id: item.id } }">
-            {{ $tc('sw-mediamanager.catalogItem.showCatalogContent') }}
+        <sw-context-menu-item :routerLink="{ name: 'sw.media.catalog-content', params: { id: item.id } }">
+            {{ $tc('sw-media.catalogItem.showCatalogContent') }}
         </sw-context-menu-item>
     {% endblock %}
 
     {% block sw_media_grid_catalog_item_show_catalog_button %}
         <sw-context-menu-item :routerLink="{ name: 'sw.catalog.detail', params: { id: item.id } }">
-            {{ $tc('sw-mediamanager.catalogItem.showCatalogDetails') }}
+            {{ $tc('sw-media.catalogItem.showCatalogDetails') }}
         </sw-context-menu-item>
     {% endblock %}
 {% endblock %}

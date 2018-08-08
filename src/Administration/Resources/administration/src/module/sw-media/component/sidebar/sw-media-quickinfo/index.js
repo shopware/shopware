@@ -1,11 +1,11 @@
 import { Component } from 'src/core/shopware';
 import { format } from 'src/core/service/util.service';
 import domUtils from 'src/core/service/utils/dom.utils';
-import '../../sw-mediamanager-collapse';
-import template from './sw-mediamanager-quickinfo.html.twig';
-import './sw-mediamanager-quickinfo.less';
+import '../../sw-media-collapse';
+import template from './sw-media-quickinfo.html.twig';
+import './sw-media-quickinfo.less';
 
-Component.register('sw-mediamanager-quickinfo', {
+Component.register('sw-media-quickinfo', {
     template,
 
     props: {
@@ -39,7 +39,7 @@ Component.register('sw-mediamanager-quickinfo', {
 
     methods: {
         emitQuickAction(originalDomEvent, action) {
-            this.$emit(`sw-mediamanager-sidebar-quickaction-${action}`, {
+            this.$emit(`sw-media-sidebar-quickaction-${action}`, {
                 originalDomEvent,
                 item: this.item
             });

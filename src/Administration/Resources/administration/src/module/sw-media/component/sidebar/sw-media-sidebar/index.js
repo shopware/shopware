@@ -1,9 +1,9 @@
 import { Component } from 'src/core/shopware';
-import template from './sw-mediamanager-sidebar.html.twig';
-import './sw-mediamanager-sidebar.less';
-import '../sw-mediamanager-quickinfo';
+import template from './sw-media-sidebar.html.twig';
+import './sw-media-sidebar.less';
+import '../sw-media-quickinfo';
 
-Component.register('sw-mediamanager-sidebar', {
+Component.register('sw-media-sidebar', {
     template,
 
     props: {
@@ -18,10 +18,10 @@ Component.register('sw-mediamanager-sidebar', {
 
     methods: {
         emitRequestMoveSelection(originalDomEvent) {
-            this.$emit('sw-mediamanager-sidebar-move-batch', { originalDomEvent });
+            this.$emit('sw-media-sidebar-move-batch', { originalDomEvent });
         },
         emitRequestRemoveSelection(originalDomEvent) {
-            this.$emit('sw-mediamanager-sidebar-remove-batch', { originalDomEvent });
+            this.$emit('sw-media-sidebar-remove-batch', { originalDomEvent });
         }
     }
 });

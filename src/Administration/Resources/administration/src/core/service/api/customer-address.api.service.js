@@ -10,12 +10,12 @@ class CustomerAddressApiService extends ApiService {
         super(httpClient, loginService, apiEndpoint);
     }
 
-    getListByCustomerId(customerId, offset, limit, additionalParams = {}, additionalHeaders = {}) {
+    getListByCustomerId(customerId, page, limit, additionalParams = {}, additionalHeaders = {}) {
         const headers = this.getBasicHeaders(additionalHeaders);
         let params = {};
 
-        if (offset >= 0) {
-            params.offset = offset;
+        if (page >= 1) {
+            params.page = page;
         }
 
         if (limit > 0) {

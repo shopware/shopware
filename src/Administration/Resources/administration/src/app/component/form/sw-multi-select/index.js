@@ -130,7 +130,7 @@ Component.register('sw-multi-select', {
             );
 
             this.serviceProvider.getList({
-                offset: 0,
+                page: 1,
                 limit: this.value.length,
                 additionalParams: {
                     filter: [criteria.getQuery()]
@@ -143,7 +143,7 @@ Component.register('sw-multi-select', {
 
         loadResults() {
             this.serviceProvider.getList({
-                offset: 0,
+                page: 1,
                 limit: this.resultsLimit,
                 additionalParams: {
                     term: this.searchTerm
@@ -159,7 +159,7 @@ Component.register('sw-multi-select', {
         loadPreviewResults() {
             this.isLoading = true;
 
-            this.serviceProvider.getList({ offset: 0, limit: this.previewResultsLimit }).then((response) => {
+            this.serviceProvider.getList({ page: 1, limit: this.previewResultsLimit }).then((response) => {
                 this.results = response.data;
                 this.isLoading = false;
             });

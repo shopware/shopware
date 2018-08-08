@@ -10,9 +10,9 @@ class SearchApiService extends ApiService {
         super(httpClient, loginService, apiEndpoint);
     }
 
-    search({ term, offset = 0, limit = 25, additionalParams = {}, additionalHeaders = {} }) {
+    search({ term, page = 1, limit = 25, additionalParams = {}, additionalHeaders = {} }) {
         const headers = this.getBasicHeaders(additionalHeaders);
-        const params = Object.assign({ offset, limit, term }, additionalParams);
+        const params = Object.assign({ page, limit, term }, additionalParams);
 
         return this.httpClient
             .get(this.getApiBasePath(), {

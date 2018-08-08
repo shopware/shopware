@@ -83,22 +83,22 @@ Component.register('sw-customer-detail', {
 
                 this.customerAddressStore.getList({
                     limit: 10,
-                    offset: 0
+                    page: 1
                 });
 
-                this.salesChannelStore.getList({ offset: 0, limit: 100 }).then((response) => {
+                this.salesChannelStore.getList({ page: 1, limit: 100 }).then((response) => {
                     this.salesChannels = response.items;
                 });
 
-                this.customerGroupStore.getList({ offset: 0, limit: 100 }).then((response) => {
+                this.customerGroupStore.getList({ page: 1, limit: 100 }).then((response) => {
                     this.customerGroups = response.items;
                 });
 
-                this.countryStore.getList({ offset: 0, limit: 100 }).then((response) => {
+                this.countryStore.getList({ page: 1, limit: 100 }).then((response) => {
                     this.countries = response.items;
                 });
 
-                this.paymentMethodStore.getList({ offset: 0, limit: 100 }).then((response) => {
+                this.paymentMethodStore.getList({ page: 1, limit: 100 }).then((response) => {
                     this.paymentMethods = response.items;
                 });
             }

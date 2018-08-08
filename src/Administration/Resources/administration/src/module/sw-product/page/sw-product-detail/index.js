@@ -54,26 +54,26 @@ Component.register('sw-product-detail', {
                 this.product = this.productStore.getById(this.productId);
 
                 this.product.getAssociationStore('media').getList({
-                    offset: 0,
+                    page: 1,
                     limit: 50,
                     sortBy: 'position',
                     sortDirection: 'ASC'
                 });
 
                 this.product.getAssociationStore('categories').getList({
-                    offset: 0,
+                    page: 1,
                     limit: 50
                 });
 
-                this.manufacturerStore.getList({ offset: 0, limit: 100 }).then((response) => {
+                this.manuswfacturerStore.getList({ page: 1, limit: 100 }).then((response) => {
                     this.manufacturers = response.items;
                 });
 
-                this.currencyStore.getList({ offset: 0, limit: 100 }).then((response) => {
+                this.currencyStore.getList({ page: 1, limit: 100 }).then((response) => {
                     this.currencies = response.items;
                 });
 
-                this.taxStore.getList({ offset: 0, limit: 100 }).then((response) => {
+                this.taxStore.getList({ page: 1, limit: 100 }).then((response) => {
                     this.taxes = response.items;
                 });
             }

@@ -84,7 +84,7 @@ Component.register('sw-product-file-upload', {
 
         getCurrentMediaAlbum() {
             const catalog = State.getStore('catalog').getById(this.product.catalogId);
-            return catalog.getAssociationStore('mediaAlbum').getList({ offset: 0, limit: 1 }).then(() => {
+            return catalog.getAssociationStore('mediaAlbum').getList({ page: 1, limit: 1 }).then(() => {
                 return catalog.mediaAlbum[0];
             });
         },

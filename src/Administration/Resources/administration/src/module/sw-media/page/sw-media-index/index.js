@@ -38,12 +38,12 @@ Component.register('sw-media-index', {
         createComponent() {
             this.isLoading = true;
 
-            this.catalogStore.getList({ offset: 0, limit: 7 }).then((response) => {
+            this.catalogStore.getList({ page: 1, limit: 7 }).then((response) => {
                 this.catalogs = response.items;
             });
 
             this.mediaItemStore.getList({
-                offset: 0,
+                page: 1,
                 limit: 15,
                 sortBy: 'createdAt',
                 sortDirection: 'desc'

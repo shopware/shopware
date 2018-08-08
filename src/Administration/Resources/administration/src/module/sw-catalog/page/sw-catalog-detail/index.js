@@ -48,6 +48,7 @@ Component.register('sw-catalog-detail', {
         getCategories(parentId = null, searchTerm = null) {
             const criteria = [];
             const params = {
+                page: 1,
                 limit: 500
             };
 
@@ -81,7 +82,7 @@ Component.register('sw-catalog-detail', {
 
         getAggregations() {
             const aggregateParams = {
-                offset: 0,
+                page: 1,
                 limit: 1,
                 additionalParams: {
                     aggregations: {

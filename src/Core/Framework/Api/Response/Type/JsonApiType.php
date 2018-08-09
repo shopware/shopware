@@ -137,9 +137,8 @@ class JsonApiType implements ResponseTypeInterface
 
             case Criteria::FETCH_COUNT_TOTAL:
                 $lastPage = (int) ceil($searchResult->getTotal() / $limit);
-                if ($lastPage >= 1) {
-                    $pagination['last'] = $this->buildPaginationUrl($uri, $parameters, $limit, $lastPage);
-                }
+                $lastPage = $lastPage >= 1 ? $lastPage : 1;
+                $pagination['last'] = $this->buildPaginationUrl($uri, $parameters, $limit, $lastPage);
 
                 if ($currentPage < $lastPage) {
                     $pagination['next'] = $this->buildPaginationUrl($uri, $parameters, $limit, $currentPage + 1);

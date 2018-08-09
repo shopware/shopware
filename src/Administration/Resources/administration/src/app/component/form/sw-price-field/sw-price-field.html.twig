@@ -16,8 +16,8 @@
         {% endblock %}
 
         {% block sw_price_field_lock_button %}
-            <button class="sw-price-field__lock" :class="{ 'is--locked': locked }" @click="onLockSwitch">
-                <sw-icon name="default-lock-closed" size="16" v-if="locked"></sw-icon>
+            <button class="sw-price-field__lock" :class="{ 'is--locked': price.linked }" @click="onLockSwitch">
+                <sw-icon name="default-lock-closed" size="16" v-if="price.linked"></sw-icon>
                 <sw-icon name="default-lock-open" size="16 "v-else></sw-icon>
             </button>
         {% endblock %}

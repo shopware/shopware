@@ -39,21 +39,15 @@ Component.register('sw-price-field', {
         }
     },
 
-    data() {
-        return {
-            locked: true
-        };
-    },
-
     watch: {
-        locked(value) {
+        'price.linked': (value) => {
             if (value === true) {
                 this.price.net = this.convertGrossToNet(this.price.gross);
             }
         },
 
         'taxRate.taxRate': function taxRateWatcher() {
-            if (this.locked === true) {
+            if (this.price.linked === true) {
                 this.price.net = this.convertGrossToNet(this.price.gross);
             }
         }
@@ -61,14 +55,16 @@ Component.register('sw-price-field', {
 
     methods: {
         onLockSwitch() {
-            this.locked = !this.locked;
+            this.price.linked = !this.price.linked;
+            this.$emit('priceLockChange', this.price.linked);
+            this.$emit('change', this.price);
         },
 
         onPriceGrossChange(value) {
             this.$emit('priceGrossChange', value);
             this.$emit('change', this.price);
 
-            if (this.locked) {
+            if (this.price.linked) {
                 this.price.net = this.convertGrossToNet(value);
             }
         },
@@ -77,7 +73,7 @@ Component.register('sw-price-field', {
             this.$emit('priceNetChange', value);
             this.$emit('change', this.price);
 
-            if (this.locked) {
+            if (this.price.linked) {
                 this.price.gross = this.convertNetToGross(value);
             }
         },

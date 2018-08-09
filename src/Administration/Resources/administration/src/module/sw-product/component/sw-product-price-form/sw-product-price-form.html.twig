@@ -27,7 +27,12 @@
         </sw-container>
 
         {% block sw_product_price_form_price_field %}
-            <sw-price-field :price="product.price" :taxRate="productTaxRate" :currency="defaultCurrency" validation="required"></sw-price-field>
+            <sw-price-field
+                    :price="product.price"
+                    :taxRate="productTaxRate"
+                    :currency="defaultCurrency"
+                    validation="required">
+            </sw-price-field>
         {% endblock %}
 
         <sw-container grid="1fr 1fr 1fr 1fr" gap="0px 30px">

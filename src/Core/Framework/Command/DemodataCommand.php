@@ -6,7 +6,6 @@ use bheller\ImagesGenerator\ImagesGeneratorProvider;
 use Doctrine\DBAL\Connection;
 use Faker\Factory;
 use Faker\Generator;
-use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -23,6 +22,8 @@ use Shopware\Core\Checkout\Customer\Rule\CustomerGroupRule;
 use Shopware\Core\Checkout\Customer\Rule\IsNewCustomerRule;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Configuration\ConfigurationGroupDefinition;
+use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Content\Media\Upload\MediaUpdater;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Cart\ProductCollector;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -102,11 +103,6 @@ class DemodataCommand extends ContainerAwareCommand
     private $albumRepository;
 
     /**
-     * @var FilesystemInterface
-     */
-    private $filesystem;
-
-    /**
      * Images to be deleted after generating data
      *
      * @var string[]
@@ -138,20 +134,24 @@ class DemodataCommand extends ContainerAwareCommand
      */
     private $taxRepository;
 
+    /**
+     * @var MediaUpdater
+     */
+    private $mediaUpdater;
+
     public function __construct(
         ?string $name = null,
         EntityWriterInterface $writer,
         VariantGenerator $variantGenerator,
-        FilesystemInterface $filesystem,
         ContainerInterface $container,
         OrderConverter $orderConverter,
         Connection $connection,
         CheckoutContextFactory $contextFactory,
-        Processor $calculator
+        Processor $calculator,
+        MediaUpdater $mediaUpdater
     ) {
         parent::__construct($name);
         $this->writer = $writer;
-        $this->filesystem = $filesystem;
 
         $this->variantGenerator = $variantGenerator;
         $this->productRepository = $container->get('product.repository');
@@ -163,6 +163,7 @@ class DemodataCommand extends ContainerAwareCommand
         $this->connection = $connection;
         $this->contextFactory = $contextFactory;
         $this->processor = $calculator;
+        $this->mediaUpdater = $mediaUpdater;
     }
 
     protected function configure()
@@ -173,6 +174,7 @@ class DemodataCommand extends ContainerAwareCommand
         $this->addOption('orders', 'o', InputOption::VALUE_REQUIRED, 'Order count', 50);
         $this->addOption('manufacturers', 'm', InputOption::VALUE_REQUIRED, 'Manufacturer count', 50);
         $this->addOption('customers', 'cs', InputOption::VALUE_REQUIRED, 'Customer count', 200);
+        $this->addOption('media', '', InputOption::VALUE_REQUIRED, 'Media count', 100);
 
         $this->addOption('with-configurator', 'w', InputOption::VALUE_OPTIONAL, 'Enables configurator products', 1);
         $this->addOption('with-services', 'x', InputOption::VALUE_OPTIONAL, 'Enables serivces for products', 1);
@@ -214,7 +216,7 @@ class DemodataCommand extends ContainerAwareCommand
         } catch (\Exception $e) {
         }
 
-        $categories = $this->createCategory($input->getOption('categories'));
+        $categories = $this->createCategory((int) $input->getOption('categories'));
 
         $manufacturer = $this->createManufacturer($input->getOption('manufacturers'));
 
@@ -230,6 +232,8 @@ class DemodataCommand extends ContainerAwareCommand
 
         $this->createOrders((int) $input->getOption('orders'), $tenantId);
 
+        $this->createMedia((int) $input->getOption('media'), $tenantId);
+
         $this->cleanupImages();
 
         $this->io->newLine();
@@ -244,7 +248,7 @@ class DemodataCommand extends ContainerAwareCommand
         );
     }
 
-    private function createCategory($count = 10)
+    private function createCategory(int $count = 10)
     {
         $payload = [];
         for ($i = 0; $i < $count; ++$i) {
@@ -418,6 +422,7 @@ class DemodataCommand extends ContainerAwareCommand
         bool $withServices = false
     ) {
         $payload = [];
+        $productImages = [];
 
         $albumId = Uuid::uuid4()->getHex();
         $this->io->section('Creating default media album.');
@@ -438,6 +443,20 @@ class DemodataCommand extends ContainerAwareCommand
 
         $context = Context::createDefaultContext($this->tenantId);
         $context->getExtension('write_protection')->set('write_media', true);
+
+        $importImages = function () use (&$productImages, $context) {
+            foreach ($productImages as $id => $file) {
+                $this->mediaUpdater->persistFileToMedia(
+                    $file,
+                    $id,
+                    mime_content_type($file),
+                    filesize($file),
+                    $context
+                );
+            }
+
+            $productImages = [];
+        };
 
         $taxes = array_values($this->taxRepository->search(new Criteria(), $context)->getIds());
 
@@ -460,9 +479,7 @@ class DemodataCommand extends ContainerAwareCommand
                     ],
                 ];
 
-                $mediaFile = fopen($imagePath, 'rb');
-                $this->filesystem->writeStream($mediaId . '.' . pathinfo($imagePath, PATHINFO_EXTENSION), $mediaFile);
-                fclose($mediaFile);
+                $productImages[$mediaId] = $imagePath;
             }
 
             $hasServices = random_int(1, 100) <= 5 && $withServices;
@@ -510,9 +527,7 @@ class DemodataCommand extends ContainerAwareCommand
                         ],
                     ];
 
-                    $mediaFile = fopen($imagePath, 'rb');
-                    $this->filesystem->writeStream($mediaId . '.' . pathinfo($imagePath, PATHINFO_EXTENSION), $mediaFile);
-                    fclose($mediaFile);
+                    $productImages[$mediaId] = $imagePath;
                 }
 
                 $this->productRepository->update($variantImagePayload, $context);
@@ -525,12 +540,14 @@ class DemodataCommand extends ContainerAwareCommand
             if (count($payload) >= 50) {
                 $this->io->progressAdvance(count($payload));
                 $this->writer->upsert(ProductDefinition::class, $payload, WriteContext::createFromContext($context));
+                $importImages();
                 $payload = [];
             }
         }
 
         if (!empty($payload)) {
             $this->writer->upsert(ProductDefinition::class, $payload, WriteContext::createFromContext($context));
+            $importImages();
         }
 
         $this->io->progressFinish();
@@ -966,5 +983,58 @@ class DemodataCommand extends ContainerAwareCommand
         }
 
         $this->io->progressFinish();
+    }
+
+    private function createMedia(int $limit, string $tenantId)
+    {
+        $context = Context::createDefaultContext($this->tenantId);
+        $context->getExtension('write_protection')->set('write_media', true);
+
+        $albumId = Uuid::uuid4()->getHex();
+        $this->io->section('Creating empty media album.');
+        $this->albumRepository->create([['id' => $albumId, 'name' => 'Misc Media']], Context::createDefaultContext($this->tenantId));
+
+        $this->io->section("Generating {$limit} media items...");
+        $this->io->progressStart($limit);
+
+        $payload = [];
+
+        for ($i = 0; $i < $limit; ++$i) {
+            $payload[] = [
+                'name' => 'File #' . $i,
+            ];
+
+            $file = $this->getRandomFile();
+
+            $mediaId = \Ramsey\Uuid\Uuid::uuid4()->getHex();
+            $this->writer->insert(
+                MediaDefinition::class,
+                [['id' => $mediaId, 'name' => "File #{$i}: {$file}", 'albumId' => $albumId]],
+                $this->getContext()
+            );
+
+            $this->mediaUpdater->persistFileToMedia(
+                $file,
+                $mediaId,
+                mime_content_type($file),
+                filesize($file),
+                $context
+            );
+
+            $this->io->progressAdvance(1);
+        }
+        $this->io->progressFinish();
+    }
+
+    private function getRandomFile(): string
+    {
+        $files = array_keys(iterator_to_array(
+            (new Finder())
+            ->files()
+            ->in(__DIR__ . '/../Resources/demo-media')
+            ->getIterator()
+        ));
+
+        return $files[random_int(0, count($files) - 1)];
     }
 }

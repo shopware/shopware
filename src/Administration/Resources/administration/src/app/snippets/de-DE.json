@@ -704,5 +704,36 @@
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern"
     }
+  },
+  "sw-settings-shipping": {
+    "general": {
+      "mainMenuItemGeneral": "Versandkosten"
+    },
+    "list": {
+      "textHeadline": "Versandkosten",
+      "textDeleteConfirm": "Sind Sie sich sicher dass sie die Versandkosten {name} löschen möchten?",
+      "columnName": "Name",
+      "columnTaxRate": "Steuersatz",
+      "buttonAddShippingMethod": "Versandkosten anlegen",
+      "contextMenuEdit": "Anzeigen",
+      "modalTitleDelete": "Steuer löschen",
+      "titleDeleteSuccess": "Steuern",
+      "messageDeleteSuccess": "Die Steuer {name} wurde erfolgreich gelöscht.",
+      "buttonCancel": "Abbrechen",
+      "buttonDelete": "Löschen"
+    },
+    "detail": {
+      "textHeadline": "Neue Versandkosten",
+      "titleCard": "Einstellungen",
+      "titleSaveSuccess": "Versandkosten",
+      "messageSaveSuccess": "Die Versandkosten {name} wurde erfolgreich gespeichert.",
+      "labelName": "Name",
+      "labelShortName": "Kurzname",
+      "labelTaxRate": "Steuersatz",
+      "placeholderName": "Name eingeben...",
+      "placeholderTaxRate": "Steuersatz eingeben...",
+      "buttonCancel": "Abbrechen",
+      "buttonSave": "Speichern"
+    }
   }
 }

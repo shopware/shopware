@@ -18,11 +18,6 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class TokenFactoryTest extends KernelTestCase
 {
-    const PAYMENT_METHOD_INVOICE = '19D144FFE15F4772860D59FCA7F207C1';
-
-    const COUNTRY_GERMANY = '20080911ffff4fffafffffff19830531';
-
-    const COUNTRY_STATE_NRW = '9F834BAD88204D9896F31993624AC74C';
     /**
      * @var PaymentTransactionTokenFactory
      */
@@ -53,6 +48,11 @@ class TokenFactoryTest extends KernelTestCase
      */
     protected $connection;
 
+    /**
+     * @var RepositoryInterface
+     */
+    private $countryRepository;
+
     public function setUp()
     {
         self::bootKernel();
@@ -64,6 +64,7 @@ class TokenFactoryTest extends KernelTestCase
         $this->orderRepository = self::$container->get('order.repository');
         $this->customerRepository = self::$container->get('customer.repository');
         $this->orderTransactionRepository = self::$container->get('order_transaction.repository');
+        $this->countryRepository = self::$container->get('country.repository');
     }
 
     /**
@@ -154,7 +155,7 @@ class TokenFactoryTest extends KernelTestCase
         $transaction = [
             'id' => $id,
             'orderId' => $orderId,
-            'paymentMethodId' => self::PAYMENT_METHOD_INVOICE,
+            'paymentMethodId' => Defaults::PAYMENT_METHOD_INVOICE,
             'orderTransactionStateId' => Defaults::ORDER_TRANSACTION_OPEN,
             'amount' => new Price(100, 100, new CalculatedTaxCollection(), new TaxRuleCollection(), 1),
             'payload' => '{}',
@@ -184,7 +185,7 @@ class TokenFactoryTest extends KernelTestCase
             'isTaxFree' => true,
             'customerId' => $customerId,
             'stateId' => Defaults::ORDER_STATE_OPEN,
-            'paymentMethodId' => self::PAYMENT_METHOD_INVOICE,
+            'paymentMethodId' => Defaults::PAYMENT_METHOD_INVOICE,
             'currencyId' => Defaults::CURRENCY,
             'salesChannelId' => Defaults::SALES_CHANNEL,
             'billingAddress' => [
@@ -194,8 +195,7 @@ class TokenFactoryTest extends KernelTestCase
                 'street' => 'Ebbinghoff 10',
                 'zipcode' => '48624',
                 'city' => 'Schöppingen',
-                'countryId' => self::COUNTRY_GERMANY,
-                'countryStateId' => self::COUNTRY_STATE_NRW,
+                'countryId' => Defaults::COUNTRY,
             ],
             'lineItems' => [],
             'deliveries' => [],
@@ -221,7 +221,7 @@ class TokenFactoryTest extends KernelTestCase
             'lastName' => 'Mustermann',
             'email' => Uuid::uuid4()->getHex() . '@example.com',
             'password' => 'shopware',
-            'defaultPaymentMethodId' => self::PAYMENT_METHOD_INVOICE,
+            'defaultPaymentMethodId' => Defaults::PAYMENT_METHOD_INVOICE,
             'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
             'salesChannelId' => Defaults::SALES_CHANNEL,
             'defaultBillingAddressId' => $addressId,
@@ -230,7 +230,7 @@ class TokenFactoryTest extends KernelTestCase
                 [
                     'id' => $addressId,
                     'customerId' => $customerId,
-                    'countryId' => self::COUNTRY_GERMANY,
+                    'countryId' => Defaults::COUNTRY,
                     'salutation' => 'Herr',
                     'firstName' => 'Max',
                     'lastName' => 'Mustermann',

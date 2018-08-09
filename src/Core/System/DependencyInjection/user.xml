@@ -10,7 +10,7 @@
         </service>
 
         <service class="Shopware\Core\System\Command\UserCreateCommand" id="Shopware\Core\System\Command\UserCreateCommand">
-            <argument id="user.repository" type="service"/>
+            <argument id="Shopware\Core\Framework\Provisioning\UserProvisioner" type="service"/>
             <tag name="console.command"/>
         </service>
 

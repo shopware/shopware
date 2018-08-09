@@ -28,7 +28,6 @@ class OrderTransactionStateTranslationDefinition extends EntityDefinition
             (new FkField('order_transaction_state_id', 'orderTransactionStateId', OrderTransactionStateDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new ReferenceVersionField(OrderTransactionStateDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->setFlags(new PrimaryKey(), new Required()),
-            new ReferenceVersionField(LanguageDefinition::class),
             (new StringField('description', 'description'))->setFlags(new Required()),
             new CreatedAtField(),
             new UpdatedAtField(),

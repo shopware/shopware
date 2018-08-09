@@ -6,9 +6,12 @@ use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodStruct;
 use Shopware\Core\Checkout\Shipping\ShippingMethodStruct;
+use Shopware\Core\Content\Catalog\CatalogCollection;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\System\Country\CountryStruct;
+use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Currency\CurrencyStruct;
+use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageStruct;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesChannelTranslationCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeStruct;
@@ -61,19 +64,19 @@ class SalesChannelStruct extends Entity
     protected $secretAccessKey;
 
     /**
-     * @var array
+     * @var CatalogCollection|null
      */
-    protected $catalogIds = [];
+    protected $catalogs;
 
     /**
-     * @var array
+     * @var CurrencyCollection|null
      */
-    protected $currencyIds;
+    protected $currencies;
 
     /**
-     * @var array
+     * @var LanguageCollection|null
      */
-    protected $languageIds;
+    protected $languages;
 
     /**
      * @var array|null
@@ -225,34 +228,34 @@ class SalesChannelStruct extends Entity
         $this->secretAccessKey = $secretAccessKey;
     }
 
-    public function getCatalogIds(): array
+    public function getCatalogs(): ?CatalogCollection
     {
-        return $this->catalogIds;
+        return $this->catalogs;
     }
 
-    public function setCatalogIds(array $catalogIds): void
+    public function setCatalogs(CatalogCollection $catalogs): void
     {
-        $this->catalogIds = $catalogIds;
+        $this->catalogs = $catalogs;
     }
 
-    public function getCurrencyIds(): array
+    public function getCurrencies(): ?CurrencyCollection
     {
-        return $this->currencyIds;
+        return $this->currencies;
     }
 
-    public function setCurrencyIds(array $currencyIds): void
+    public function setCurrencies(CurrencyCollection $currencies): void
     {
-        $this->currencyIds = $currencyIds;
+        $this->currencies = $currencies;
     }
 
-    public function getLanguageIds(): array
+    public function getLanguages(): ?LanguageCollection
     {
-        return $this->languageIds;
+        return $this->languages;
     }
 
-    public function setLanguageIds(array $languageIds): void
+    public function setLanguages(LanguageCollection $languages): void
     {
-        $this->languageIds = $languageIds;
+        $this->languages = $languages;
     }
 
     public function getConfiguration(): ?array

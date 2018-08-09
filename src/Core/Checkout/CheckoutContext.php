@@ -225,7 +225,7 @@ class CheckoutContext extends Struct
         return $this->context = new Context(
             $this->tenantId,
             $sourceContext,
-            $this->salesChannel->getCatalogIds(),
+            $this->salesChannel->getCatalogs()->getIds(),
             $this->rulesIds,
             $this->currency->getId(),
             $this->language->getId(),

@@ -263,32 +263,36 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
 
     private function getContext(string $salesChannelId, string $tenantId): Context
     {
-        $query = $this->connection->createQueryBuilder();
-        $query->select([
-            'sales_channel.id as sales_channel_id',
-            'sales_channel.language_id as sales_channel_language_id',
-            'sales_channel.currency_id as sales_channel_currency_id',
-            'sales_channel.catalog_ids as sales_channel_catalog_ids',
-            'currency.factor as sales_channel_currency_factor',
-            'language.parent_id as sales_channel_language_parent_id',
-        ]);
-        $query->from('sales_channel', 'sales_channel');
-        $query->innerJoin('sales_channel', 'currency', 'currency', 'sales_channel.currency_id = currency.id');
-        $query->innerJoin('sales_channel', 'language', 'language', 'sales_channel.language_id = language.id');
-        $query->andWhere('sales_channel.id = :id');
-        $query->andWhere('sales_channel.tenant_id = :tenant');
-        $query->setParameter('id', Uuid::fromHexToBytes($salesChannelId));
-        $query->setParameter('tenant', Uuid::fromHexToBytes($tenantId));
+        $sql = '
+        SELECT 
+          sales_channel.id as sales_channel_id, 
+          sales_channel.language_id as sales_channel_language_id,
+          sales_channel.currency_id as sales_channel_currency_id,
+          currency.factor as sales_channel_currency_factor,
+          language.parent_id as sales_channel_language_parent_id,
+          GROUP_CONCAT(HEX(sales_channel_catalog.catalog_id)) as sales_channel_catalog_ids
+        FROM sales_channel
+        INNER JOIN currency ON sales_channel.currency_id = currency.id
+        INNER JOIN language ON sales_channel.language_id = language.id
+        LEFT JOIN sales_channel_catalog ON sales_channel.id = sales_channel_catalog.sales_channel_id
+          AND sales_channel.tenant_id = sales_channel_catalog.sales_channel_tenant_id
+        WHERE sales_channel.id = :id AND sales_channel.tenant_id = :tenant_id
+        GROUP BY sales_channel.id, sales_channel.language_id, sales_channel.currency_id, currency.factor, language.parent_id';
 
-        $data = $query->execute()->fetch(\PDO::FETCH_ASSOC);
+        $data = $this->connection->fetchAssoc($sql, [
+            'id' => Uuid::fromHexToBytes($salesChannelId),
+            'tenant_id' => Uuid::fromHexToBytes($tenantId),
+        ]);
 
         $sourceContext = new SourceContext(SourceContext::ORIGIN_STOREFRONT_API);
         $sourceContext->setSalesChannelId($salesChannelId);
 
+        $salesChannelCatalogIds = $data['sales_channel_catalog_ids'] ? explode(',', $data['sales_channel_catalog_ids']) : null;
+
         return new Context(
             $tenantId,
             $sourceContext,
-            json_decode($data['sales_channel_catalog_ids'], true),
+            $salesChannelCatalogIds,
             [],
             Uuid::fromBytesToHex($data['sales_channel_currency_id']),
             Uuid::fromBytesToHex($data['sales_channel_language_id']),

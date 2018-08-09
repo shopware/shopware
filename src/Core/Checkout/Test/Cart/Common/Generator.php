@@ -43,6 +43,8 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupStruct;
 use Shopware\Core\Checkout\Customer\CustomerStruct;
 use Shopware\Core\Checkout\Payment\PaymentMethodStruct;
 use Shopware\Core\Checkout\Shipping\ShippingMethodStruct;
+use Shopware\Core\Content\Catalog\CatalogCollection;
+use Shopware\Core\Content\Catalog\CatalogStruct;
 use Shopware\Core\Content\Product\Cart\ProductGateway;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -76,7 +78,13 @@ class Generator extends TestCase
             $salesChannel = new SalesChannelStruct();
             $salesChannel->setId('ffa32a50e2d04cf38389a53f8d6cd594');
             $salesChannel->setTaxCalculationType(TaxAmountCalculator::CALCULATION_HORIZONTAL);
-            $salesChannel->setCatalogIds([Defaults::CATALOG]);
+
+            $catalogs = new CatalogCollection();
+            $catalog = new CatalogStruct();
+            $catalog->setName('generated catalog');
+            $catalog->setId(Defaults::CATALOG);
+
+            $salesChannel->setCatalogs($catalogs);
         }
 
         $currency = $currency ?: (new CurrencyStruct())->assign([

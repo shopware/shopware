@@ -6,13 +6,14 @@ use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
+use Shopware\Core\Content\Catalog\CatalogDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Field\BoolField;
 use Shopware\Core\Framework\ORM\Field\CreatedAtField;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\IdField;
 use Shopware\Core\Framework\ORM\Field\JsonField;
-use Shopware\Core\Framework\ORM\Field\ListField;
+use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\PasswordField;
@@ -29,6 +30,9 @@ use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Language\LanguageDefinition;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCatalog\SalesChannelCatalogDefinition;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCurrency\SalesChannelCurrencyDefinition;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelLanguage\SalesChannelLanguageDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesChannelTranslationDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeDefinition;
 
@@ -58,15 +62,15 @@ class SalesChannelDefinition extends EntityDefinition
             (new TranslatedField(new StringField('name', 'name')))->setFlags(new Required()),
             (new StringField('access_key', 'accessKey'))->setFlags(new Required()),
             (new PasswordField('secret_access_key', 'secretAccessKey'))->setFlags(new Required()),
-            (new ListField('catalog_ids', 'catalogIds', IdField::class))->setFlags(new Required()),
-            (new ListField('currency_ids', 'currencyIds', IdField::class))->setFlags(new Required()),
-            (new ListField('language_ids', 'languageIds', IdField::class))->setFlags(new Required()),
             new JsonField('configuration', 'configuration'),
             new BoolField('active', 'active'),
             new StringField('tax_calculation_type', 'taxCalculationType'),
             new CreatedAtField(),
             new UpdatedAtField(),
             (new TranslationsAssociationField('translations', SalesChannelTranslationDefinition::class, 'sales_channel_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
+            new ManyToManyAssociationField('catalogs', CatalogDefinition::class, SalesChannelCatalogDefinition::class, true, 'sales_channel_id', 'catalog_id'),
+            new ManyToManyAssociationField('currencies', CurrencyDefinition::class, SalesChannelCurrencyDefinition::class, false, 'sales_channel_id', 'currency_id'),
+            new ManyToManyAssociationField('languages', LanguageDefinition::class, SalesChannelLanguageDefinition::class, false, 'sales_channel_id', 'language_id'),
             new ManyToOneAssociationField('type', 'type_id', SalesChannelTypeDefinition::class, true),
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, true),
             new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, true),

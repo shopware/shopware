@@ -1,0 +1,33 @@
+@import "~less/variables";
+
+.sw-product-file-upload {
+
+    .sw-product-file-upload__file-input {
+        display: none;
+    }
+
+    .sw-product-file-upload__dropzone {
+        text-align: center;
+    }
+
+    .sw-product-file-upload__upload-button {
+        display: block;
+        margin: 0 auto;
+        margin-bottom: 20px;
+    }
+
+    .sw-product-file-upload__grid {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        grid-gap: 10px;
+        grid-auto-flow: dense;
+        grid-auto-rows: 114.66px;
+    }
+
+    .sw-image.is--cover {
+        grid-column-start: 1;
+        grid-column-end: 3;
+        grid-row-start: 1;
+        grid-row-end: 3;
+    }
+}

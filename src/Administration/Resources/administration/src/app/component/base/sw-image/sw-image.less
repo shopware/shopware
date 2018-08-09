@@ -1,0 +1,63 @@
+@import "~less/variables";
+
+@sw-image-tooltip-color-background: @color-biscay;
+@sw-image-tooltip-color-text: @color-white;
+@sw-image-color-hover: @color-black;
+@sw-image-border-radius: @border-radius-default;
+@sw-image-tooltip-border-radius: @border-radius-default;
+
+.sw-image {
+    position: relative;
+    display: inline-block;
+    border-radius: @sw-image-border-radius;
+
+    &:hover {
+        background-color: @sw-image-color-hover;
+    }
+
+    .sw-image__image {
+        border-radius: @sw-image-border-radius;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+
+        &:hover {
+            opacity: 0.7;
+        }
+    }
+
+    .sw-image__tooltip {
+        visibility: hidden;
+        background-color: @sw-image-tooltip-color-background;
+        color: @sw-image-tooltip-color-text;
+        text-align: center;
+        border-radius: @sw-image-tooltip-border-radius;
+        position: absolute;
+        padding: 8px 8px;
+        z-index: 1;
+
+        &:after {
+            content: " ";
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            width: max-content;
+            margin-left: -8px;
+            border-width: 8px;
+            border-style: solid;
+            border-color: transparent transparent @sw-image-tooltip-color-background transparent;
+        }
+    }
+
+    &:hover .sw-image__tooltip {
+        visibility: visible;
+        left: 0;
+        right: 0;
+    }
+
+    .sw-image__context-button {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+    }
+}

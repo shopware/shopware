@@ -19,7 +19,7 @@ class UserProvisioner
         $this->connection = $connection;
     }
 
-    public function provision(string $tenantId, string $username, ?string $password = null): string
+    public function provision(string $tenantId, string $username, string $password = null, array $additionalData = []): string
     {
         if ($this->userExists($username, $tenantId)) {
             throw new \RuntimeException(sprintf('User with username "%s" already exists.', $username));
@@ -29,16 +29,16 @@ class UserProvisioner
 
         $userPayload = [
             'id' => Uuid::uuid4()->getBytes(),
-            'name' => $username,
+            'name' => $additionalData['name'] ?? $username,
             'tenant_id' => Uuid::fromHexToBytes($tenantId),
-            'email' => 'info@shopware.com',
+            'email' => $additionalData['email'] ?? 'info@shopware.com',
             'username' => $username,
             'password' => password_hash($password, PASSWORD_BCRYPT),
             'locale_id' => Uuid::fromHexToBytes(Defaults::LOCALE),
             'locale_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
             'locale_tenant_id' => Uuid::fromHexToBytes($tenantId),
             'active' => true,
-            'created_at' => date('Y-m-d H:i:s'),
+            'created_at' => date(Defaults::DATE_FORMAT),
         ];
 
         $this->connection->insert('user', $userPayload);

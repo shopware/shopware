@@ -978,10 +978,6 @@ class DemodataCommand extends ContainerAwareCommand
         $context = Context::createDefaultContext($this->tenantId);
         $context->getExtension('write_protection')->set('write_media', true);
 
-        $albumId = Uuid::uuid4()->getHex();
-        $this->io->section('Creating empty media album.');
-        $this->albumRepository->create([['id' => $albumId, 'name' => 'Misc Media']], Context::createDefaultContext($this->tenantId));
-
         $this->io->section("Generating {$limit} media items...");
         $this->io->progressStart($limit);
 
@@ -997,7 +993,7 @@ class DemodataCommand extends ContainerAwareCommand
             $mediaId = \Ramsey\Uuid\Uuid::uuid4()->getHex();
             $this->writer->insert(
                 MediaDefinition::class,
-                [['id' => $mediaId, 'name' => "File #{$i}: {$file}", 'albumId' => $albumId]],
+                [['id' => $mediaId, 'name' => "File #{$i}: {$file}"]],
                 $this->getContext()
             );
 

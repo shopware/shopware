@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Media\Upload;
 
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\Media\Event\MediaFileUploadedEvent;
+use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
 use Shopware\Core\Content\Media\Exception\IllegalMimeTypeException;
 use Shopware\Core\Content\Media\Util\MimeType;
 use Shopware\Core\Content\Media\Util\UrlGeneratorInterface;
@@ -56,10 +57,15 @@ class MediaUpdater
 
         $this->saveFileToMediaDir($filePath, $mediaId, $mimeType);
         $this->updateMediaEntity($mediaId, $mimeType, $fileSize, $context);
-        $this->eventDispatcher->dispatch(
-            MediaFileUploadedEvent::EVENT_NAME,
-            new MediaFileUploadedEvent($mediaId, $mimeType, $context)
-        );
+
+        try {
+            $this->eventDispatcher->dispatch(
+                MediaFileUploadedEvent::EVENT_NAME,
+                new MediaFileUploadedEvent($mediaId, $mimeType, $context)
+            );
+        } catch (FileTypeNotSupportedException $e) {
+            //ignore that a thumbnail was not created
+        }
     }
 
     private function saveFileToMediaDir(string $filePath, string $mediaId, string $mimeType): void

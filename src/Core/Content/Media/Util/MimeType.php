@@ -16,6 +16,7 @@ class MimeType
         'image/svg+xml' => '.svg',
 
         'video/mpeg' => '.mp4',
+        'video/mp4' => '.mp4',
         'video/webm' => '.webm',
         'video/ogg' => '.ogv',
         'video/quicktime' => '.mov',

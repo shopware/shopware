@@ -1,35 +1,25 @@
-import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
+import { itAsync } from '../../../async-helper';
 
-import LoginService from 'src/core/service/login.service';
-
-const httpMock = new MockAdapter(axios);
 let loginService;
 
 describe('core/service/login.service.js', () => {
-    // Create a new instance of the service for each test
     beforeEach(() => {
-        loginService = new LoginService(axios);
+        loginService = Shopware.Application.getContainer('service').loginService;
     });
-
-    // Resets the mocking adapter
     afterEach(() => {
-        httpMock.reset();
         loginService.clearBearerAuthentication();
     });
 
-    xit('should request the token and expiry date from the server', () => {
-        httpMock.onPost('/oauth/token').reply(() => {
-            return [200, {
-                access_token: 'foobar',
-                expiry: 3600
-            }];
-        });
-
-        return loginService.loginByUsername('demo', 'demo').then((response) => {
-            expect(response.status).to.equal(200);
-            expect(response.data.access_token).to.equal('foobar');
-            expect(response.data.expiry).to.equal(3600);
+    itAsync('should request the token and expiry date from the server', (done) => {
+        loginService.loginByUsername('admin', 'shopware').then((response) => {
+            const data = response.data;
+            expect(response.status).to.be.equal(200);
+            expect(data).to.be.an('object');
+            expect(data.expires_in).to.be.equal(3600);
+            expect(data.access_token).to.be.a('string');
+            expect(data.refresh_token).to.be.a('string');
+            expect(data.token_type).to.equal('Bearer');
+            done();
         });
     });
 
@@ -112,12 +102,12 @@ describe('core/service/login.service.js', () => {
     });
 
     it('should set a new the localStorage key and clear the previous entry', () => {
+        const oldKey = loginService.getLocalStorageKey();
         loginService.setBearerAuthentication(
             'foobar',
             9999999999
         );
-        const oldKey = loginService.getLocalStorageKey();
-        const newKey = loginService.setLocalStorageKey('newStorageKey');
+        const newKey = loginService.setLocalStorageKey('storageKey');
 
         const authObject = loginService.setBearerAuthentication(
             'foobar',

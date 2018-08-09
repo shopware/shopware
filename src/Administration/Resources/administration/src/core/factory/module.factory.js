@@ -3,6 +3,7 @@
  */
 import { warn } from 'src/core/service/utils/debug.utils';
 import { hasOwnProperty } from 'src/core/service/utils/object.utils';
+import types from 'src/core/service/utils/types.utils';
 
 export default {
     getModuleRoutes,
@@ -138,6 +139,36 @@ function registerModule(moduleId, module) {
 
     // Add the navigation of the module to the module definition. We'll create a menu entry later on
     if (hasOwnProperty(module, 'navigation') && module.navigation) {
+        if (!types.isArray(module.navigation)) {
+            warn(
+                'ModuleFactory',
+                'The route definition has to be an array.',
+                module.navigation
+            );
+            return false;
+        }
+
+        module.navigation = module.navigation.filter((navigationEntry) => {
+            if (!navigationEntry.id && !navigationEntry.path && !navigationEntry.parent && !navigationEntry.link) {
+                warn(
+                    'ModuleFactory',
+                    'The navigation entry does not contains the necessary properties',
+                    'Abort registration of the navigation entry',
+                    navigationEntry
+                );
+                return false;
+            }
+
+            if (!navigationEntry.label || !navigationEntry.label.length) {
+                warn(
+                    'ModuleFactory',
+                    'The navigation entry needs a property called "label"'
+                );
+                return false;
+            }
+
+            return true;
+        });
         moduleDefinition.navigation = module.navigation;
     }
 

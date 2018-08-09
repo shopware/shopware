@@ -1,3 +1,20 @@
+import { beforeAsync } from '../../async-helper';
+
+beforeAsync((done) => {
+    Shopware.Application.start().then(() => {
+        const AuthStore = Shopware.State.getStore('auth');
+        AuthStore.username = 'admin';
+        AuthStore.password = 'shopware';
+        AuthStore.loginUserWithPassword().then(() => {
+            done();
+        }).catch((err) => {
+            done(err);
+        });
+    }).catch((err) => {
+        done(err);
+    });
+}, 60000);
+
 describe('core/common.js', () => {
     it('should contain the necessary methods for the module factory', () => {
         expect(Shopware.Module).to.have.property('register');

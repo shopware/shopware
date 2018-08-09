@@ -9,6 +9,7 @@ export default function createContext(context) {
 
     return {
         installationPath,
+        environment: process.env.NODE_ENV,
         apiPath: apiPath,
         apiResourcePath: `${apiPath}/v1`,
         assetsPath: getAssetsPath(installationPath, isDevMode)

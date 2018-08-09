@@ -500,6 +500,34 @@
       "buttonDelete": "Delete"
     }
   },
+  "sw-sales-channel": {
+    "general": {
+      "titleMenuItems": "Sales channel"
+    },
+    "modal": {
+      "title": "Add sales channel",
+      "buttonAddChannel": "Add",
+      "titleDetailPrefix": "Details of",
+      "buttonShowDetails": "Show details",
+      "buttonBack": "Back",
+      "buttonCancel": "Cancel",
+      "titleDescription": "Information"
+    },
+    "detail": {
+      "titleSaveSuccess": "Sales channel",
+      "messageSaveSuccess": "The sales channel {name} was saved successfully.",
+      "buttonSave": "Save",
+      "tabBase": "General",
+      "titleAPICard": "API Keys",
+      "titleSecretHelpText": "Important!",
+      "secretHelpText": "The shown secret key will no longer be visible after saving. To use the key please copy it to the source code of your application. In case you lost the key, you can generate a new one for the application at any time.",
+      "buttonCreateNewApiKeys": "Create new API keys",
+      "labelSecretField": "Secret key",
+      "labelIdField": "ID",
+      "titleAPIError": "Something went wrong",
+      "messageAPIError": "We have been informed."
+    }
+  },
   "sw-media": {
     "general": {
       "mainMenuItemGeneral": "Media",

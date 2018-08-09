@@ -500,6 +500,34 @@
       "buttonDelete": "Löschen"
     }
   },
+  "sw-sales-channel": {
+    "general": {
+      "titleMenuItems": "Verkaufskanäle"
+    },
+    "modal": {
+      "title": "Verkaufskanal anlegen",
+      "buttonAddChannel": "Hinzufügen",
+      "titleDetailPrefix": "Details zu",
+      "buttonShowDetails": "Details anzeigen",
+      "buttonBack": "Zurück",
+      "buttonCancel": "Abbrechen",
+      "titleDescription": "Informationen"
+    },
+    "detail": {
+      "titleSaveSuccess": "Verkaufskanal",
+      "messageSaveSuccess": "Der Verkaufskanal {name} wurde erfolgreich gespeichert.",
+      "buttonSave": "Speichern",
+      "tabBase": "Allgemein",
+      "titleAPICard": "API Zugangsdaten",
+      "titleSecretHelpText": "Wichtig!",
+      "secretHelpText": "Der angezeigte Sicherheitsschlüssel wird nach dem Speichern nicht mehr einsehbar sein. Bitte kopiere Dir den Schlüssel zur Verwendung in den Quellcode Deiner Anwendung. Solltest Du den Schlüssel einmal verloren haben, kannst Du natürlich jeder Zeit einen neuen für die Anwendung generieren.",
+      "buttonCreateNewApiKeys": "API Zugangsdaten neu generieren",
+      "labelSecretField": "Sicherheitsschlüssel",
+      "labelIdField": "ID",
+      "titleAPIError": "Ups! Ein Fehler ist aufgetreten!",
+      "messageAPIError": "Wir wurden bereits über das Problem informiert und arbeiten an einer Lösung, bitte versuchen Sie es in Kürze erneut."
+    }
+  },
   "sw-media": {
     "general": {
       "mainMenuItemGeneral": "Medien",

@@ -1,0 +1,85 @@
+{% block sw_sales_channel_detail_base %}
+    <div class="sw-sales-channel-detail-base">
+        {% block sw_sales_channel_detail_base_general %}
+            <sw-card title="Sales Channel"
+                     :isLoading="salesChannel.isLoading"
+                     key="edit">
+                <sw-container grid="1fr 1fr" gap="0px 30px">
+                    <sw-field type="text"
+                              label="Name"
+                              v-model="salesChannel.name">
+                    </sw-field>
+
+                    <sw-field type="checkbox"
+                              label="Aktiv"
+                              v-model="salesChannel.active">
+                    </sw-field>
+
+                </sw-container>
+
+                <sw-multi-select id="currencyIds"
+                                 label="Währungen"
+                                 placeholder="Währungen"
+                                 :serviceProvider="currencyService"
+                                 :store="currencyStore"
+                                 entityName="currency"
+                                 v-model="salesChannelCurrencies">
+                </sw-multi-select>
+
+                <sw-field type="select"
+                          label="Default Währung"
+                          validation="required"
+                          v-model="salesChannel.currencyId">
+                    <option slot="options" v-for="currency in currencies" :key="currency.id" :value="currency.id">
+                        {{ currency.name }}
+                    </option>
+                </sw-field>
+
+                <sw-field type="select"
+                          label="Land"
+                          validation="required"
+                          v-model="salesChannel.countryId">
+                        <option slot="options" v-for="country in countries" :key="country.id" :value="country.id">
+                            {{ country.name }}
+                        </option>
+                </sw-field>
+            </sw-card>
+        {% endblock %}
+
+        {% block sw_sales_channel_detail_base_api %}
+            <sw-card :title="$tc('sw-sales-channel.detail.titleAPICard')">
+                {% block sw_sales_channel_detail_base_api_field_accesskey %}
+                    <sw-field :label="$tc('sw-sales-channel.detail.labelIdField')"
+                              :disabled="true"
+                              v-model="salesChannel.accessKey"
+                              :copyAble="true">
+                    </sw-field>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_base_api_field_secretaccesskey %}
+                    <sw-field :type="secretAccessKeyFieldType"
+                              :label="$tc('sw-sales-channel.detail.labelSecretField')"
+                              :disabled="true"
+                              v-model="salesChannel.secretAccessKey"
+                              :passwordToggleAble="false"
+                              :copyAble="showSecretAccessKey">
+
+                    </sw-field>
+
+                    <sw-button v-if="!showSecretAccessKey" @click="onGenerateKeys"
+                               variant="danger">
+                        {{ $tc('sw-sales-channel.detail.buttonCreateNewApiKeys') }}
+                    </sw-button>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_base_api_helptext%}
+                    <sw-alert variant="info"
+                              class="sw-sales-channel-detail-base__secret-help-text-alert"
+                              :title="$tc('sw-sales-channel.detail.titleSecretHelpText')">
+                        {{ $tc('sw-sales-channel.detail.secretHelpText') }}
+                    </sw-alert>
+                {% endblock %}
+            </sw-card>
+        {% endblock %}
+    </div>
+{% endblock %}

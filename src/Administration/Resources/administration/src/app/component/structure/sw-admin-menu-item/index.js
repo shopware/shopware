@@ -26,6 +26,22 @@ Component.register('sw-admin-menu-item', {
         }
     },
 
+    computed: {
+        getLinkToProp() {
+            if (this.entry.params) {
+                return { name: this.entry.path, params: this.entry.params };
+            }
+
+            return { name: this.entry.path };
+        },
+        getEntryLabel() {
+            if (this.entry.label instanceof Object) {
+                return (this.entry.label.translated) ? this.entry.label.label : this.$tc(this.entry.label.label);
+            }
+            return this.$tc(this.entry.label);
+        }
+    },
+
     methods: {
         getIconName(name) {
             return `${name}`;

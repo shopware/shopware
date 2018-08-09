@@ -1,0 +1,98 @@
+@import "~less/variables";
+
+.sw-sales-channel-modal {
+    .sw-sales-channel-modal__back {
+        position: absolute;
+        top: 12px;
+        left: 20px;
+        border-radius: 50%;
+        text-align: center;
+        width: 40px;
+        height: 40px;
+        line-height: 40px;
+        background: 0 none;
+        border: 0 none;
+        color: #798a9c;
+        cursor: pointer;
+        outline: none;
+    }
+
+    .sw-sales-channel-modal__title {
+        margin: 0 0 0 30px;
+        font-weight: normal;
+        font-size: 18px;
+    }
+
+    .sw-sales-channel-modal__detail-header {
+        margin-bottom: 30px;
+    }
+
+    .sw-sales-channel-modal__screenshots {
+        margin-bottom: 30px;
+    }
+
+    .sw-sales-channel-modal__detail-cover {
+        width: 165px;
+        height: 165px;
+        background: lighten(@color-gutenberg, 25%);
+        border-radius: 3px;
+    }
+
+    .sw-sales-channel-modal__detail-name {
+        font-size: 18px;
+        color: @color-kashmir;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .sw-sales-channel-modal__detail-manufacturer {
+        font-size: @font-size-small;
+        color: lighten(@color-gutenberg, 25%);
+        margin-bottom: 20px;
+    }
+
+    .sw-sales-channel-modal__detail-description {
+        margin-bottom: 20px;
+    }
+
+    .sw-sales-channel-modal__description-title {
+        margin-bottom: 20px;
+        font-weight: 600;
+        color: @color-kashmir;
+    }
+
+    .sw-sales-channel-modal__description-text {
+        color: @color-gutenberg;
+    }
+
+    .sw-sales-channel-modal__screenshot {
+        display: inline-block;
+
+        img {
+            width: 200px;
+        }
+
+        &:not(:first-child) {
+            margin-left: 20px;
+        }
+    }
+
+    .sw-sales-channel-modal__grid-item-name {
+        font-size: 18px;
+        margin-bottom: 8px;
+        color: @color-gutenberg;
+        font-weight: normal;
+    }
+
+    .sw-sales-channel-modal__grid-item-description {
+        color: lighten(@color-gutenberg, 25%);
+        font-size: @font-size-small;
+    }
+
+    .sw-sales-channel-modal__grid-icon {
+        width: 64px;
+        height: 64px;
+        background: lighten(@color-gutenberg, 25%);
+        border-radius: 3px;
+    }
+}

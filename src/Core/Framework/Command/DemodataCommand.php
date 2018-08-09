@@ -230,9 +230,9 @@ class DemodataCommand extends ContainerAwareCommand
             $input->getOption('with-services') == 1
         );
 
-        $this->createOrders((int) $input->getOption('orders'), $tenantId);
+        $this->createOrders((int) $input->getOption('orders'));
 
-        $this->createMedia((int) $input->getOption('media'), $tenantId);
+        $this->createMedia((int) $input->getOption('media'));
 
         $this->cleanupImages();
 
@@ -892,7 +892,7 @@ class DemodataCommand extends ContainerAwareCommand
         }
     }
 
-    private function createOrders(int $limit, string $tenantId)
+    private function createOrders(int $limit)
     {
         $products = $this->connection->fetchAll('
         SELECT LOWER(HEX(product.id)) AS id,
@@ -954,7 +954,7 @@ class DemodataCommand extends ContainerAwareCommand
             if (isset($contexts[$customerId])) {
                 $context = $contexts[$customerId];
             } else {
-                $context = $this->contextFactory->create($tenantId, $token, Defaults::SALES_CHANNEL, $options);
+                $context = $this->contextFactory->create($this->tenantId, $token, Defaults::SALES_CHANNEL, $options);
                 $contexts[$customerId] = $context;
             }
 
@@ -985,7 +985,7 @@ class DemodataCommand extends ContainerAwareCommand
         $this->io->progressFinish();
     }
 
-    private function createMedia(int $limit, string $tenantId)
+    private function createMedia(int $limit)
     {
         $context = Context::createDefaultContext($this->tenantId);
         $context->getExtension('write_protection')->set('write_media', true);

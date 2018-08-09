@@ -133,6 +133,11 @@ class DemodataCommand extends ContainerAwareCommand
      */
     private $processor;
 
+    /**
+     * @var RepositoryInterface
+     */
+    private $taxRepository;
+
     public function __construct(
         ?string $name = null,
         EntityWriterInterface $writer,
@@ -153,6 +158,7 @@ class DemodataCommand extends ContainerAwareCommand
         $this->ruleRepository = $container->get('rule.repository');
         $this->categoryRepository = $container->get('category.repository');
         $this->albumRepository = $container->get('media_album.repository');
+        $this->taxRepository = $container->get('tax.repository');
         $this->orderConverter = $orderConverter;
         $this->connection = $connection;
         $this->contextFactory = $contextFactory;
@@ -328,7 +334,7 @@ class DemodataCommand extends ContainerAwareCommand
                 'lastName' => $lastName,
                 'email' => $id . $this->faker->safeEmail,
                 'password' => 'shopware',
-                'defaultPaymentMethodId' => '47160b00-cd06-4b01-8817-6451f9f3c247',
+                'defaultPaymentMethodId' => Defaults::PAYMENT_METHOD_INVOICE,
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
                 'salesChannelId' => Defaults::SALES_CHANNEL,
                 'defaultBillingAddressId' => $addressId,
@@ -433,8 +439,10 @@ class DemodataCommand extends ContainerAwareCommand
         $context = Context::createDefaultContext($this->tenantId);
         $context->getExtension('write_protection')->set('write_media', true);
 
+        $taxes = array_values($this->taxRepository->search(new Criteria(), $context)->getIds());
+
         for ($i = 0; $i < $count; ++$i) {
-            $product = $this->createSimpleProduct($categories, $manufacturer, $rules);
+            $product = $this->createSimpleProduct($categories, $manufacturer, $rules, $taxes);
 
             if ($withMedia) {
                 $imagePath = $this->getRandomImage($product['name']);
@@ -459,7 +467,7 @@ class DemodataCommand extends ContainerAwareCommand
 
             $hasServices = random_int(1, 100) <= 5 && $withServices;
             if ($hasServices) {
-                $product['services'] = $this->buildProductServices($services);
+                $product['services'] = $this->buildProductServices($services, $taxes);
             }
 
             $isConfigurator = random_int(1, 100) <= 5 && $withConfigurator;
@@ -672,10 +680,11 @@ class DemodataCommand extends ContainerAwareCommand
      * @param array $categories
      * @param array $manufacturer
      * @param array $rules
+     * @param array $taxes
      *
      * @return array
      */
-    private function createSimpleProduct(array $categories, array $manufacturer, array $rules): array
+    private function createSimpleProduct(array $categories, array $manufacturer, array $rules, array $taxes): array
     {
         $price = mt_rand(1, 1000);
 
@@ -685,7 +694,7 @@ class DemodataCommand extends ContainerAwareCommand
             'name' => $this->faker->productName,
             'description' => $this->faker->text(),
             'descriptionLong' => $this->generateRandomHTML(10, ['b', 'i', 'u', 'p', 'h1', 'h2', 'h3', 'h4', 'cite']),
-            'taxId' => '4926035368e34d9fa695e017d7a231b9',
+            'taxId' => $taxes[random_int(0, count($taxes) - 1)],
             'manufacturerId' => $manufacturer[random_int(0, count($manufacturer) - 1)],
             'active' => true,
             'categories' => [
@@ -823,16 +832,16 @@ class DemodataCommand extends ContainerAwareCommand
         return $data;
     }
 
-    private function buildProductServices(array $services)
+    private function buildProductServices(array $services, array $taxes)
     {
         $optionIds = $this->getRandomOptions($services);
 
-        return array_map(function ($optionId) {
+        return array_map(function ($optionId) use ($taxes) {
             $price = random_int(5, 100);
 
             return [
                 'price' => ['gross' => $price, 'net' => $price / 1.19],
-                'taxId' => '4926035368e34d9fa695e017d7a231b9',
+                'taxId' => $taxes[random_int(0, count($taxes) - 1)],
                 'optionId' => $optionId,
             ];
         }, $optionIds);

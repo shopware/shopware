@@ -49,10 +49,6 @@ Component.register('sw-container', {
         }
     },
 
-    mounted() {
-        console.log('mounted');
-    },
-
     computed: {
         gridStyles() {
             const styles = {};

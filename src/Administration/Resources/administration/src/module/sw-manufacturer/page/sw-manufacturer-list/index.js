@@ -42,8 +42,9 @@ Component.register('sw-manufacturer-list', {
         },
 
         onConfirmDelete(id) {
+            this.showDeleteModal = false;
+
             return this.manufacturerStore.store[id].delete(true).then(() => {
-                this.showDeleteModal = false;
                 this.getList();
             });
         },

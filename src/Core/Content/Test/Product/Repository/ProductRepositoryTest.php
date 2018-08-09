@@ -327,7 +327,7 @@ class ProductRepositoryTest extends KernelTestCase
         /* @var ProductStruct $product */
         static::assertEquals($id->getHex(), $product->getId());
 
-        static::assertEquals(new PriceStruct(10, 15), $product->getPrice());
+        static::assertEquals(new PriceStruct(10, 15, false), $product->getPrice());
         static::assertCount(2, $product->getPriceRules());
 
         /** @var ProductPriceRuleStruct $price */
@@ -442,9 +442,9 @@ class ProductRepositoryTest extends KernelTestCase
         $greenId = Uuid::uuid4()->getHex();
         $parentId = Uuid::uuid4()->getHex();
 
-        $parentPrice = ['gross' => 10, 'net' => 9];
+        $parentPrice = ['gross' => 10, 'net' => 9, 'linked' => true];
         $parentName = 'T-shirt';
-        $greenPrice = ['gross' => 15, 'net' => 14];
+        $greenPrice = ['gross' => 15, 'net' => 14, 'linked' => true];
 
         $redName = 'Red shirt';
 
@@ -609,8 +609,8 @@ class ProductRepositoryTest extends KernelTestCase
         $child = Uuid::uuid4()->getHex();
 
         $data = [
-            ['id' => $id, 'name' => 'Insert', 'price' => ['gross' => 10, 'net' => 9], 'tax' => ['name' => 'test', 'taxRate' => 10], 'manufacturer' => ['name' => 'test']],
-            ['id' => $child, 'parentId' => $id, 'price' => ['gross' => 12, 'net' => 11]],
+            ['id' => $id, 'name' => 'Insert', 'price' => ['gross' => 10, 'net' => 9, 'linked' => false], 'tax' => ['name' => 'test', 'taxRate' => 10], 'manufacturer' => ['name' => 'test']],
+            ['id' => $child, 'parentId' => $id, 'price' => ['gross' => 12, 'net' => 11, 'linked' => false]],
         ];
 
         $this->repository->upsert($data, Context::createDefaultContext(Defaults::TENANT_ID));
@@ -685,7 +685,7 @@ class ProductRepositoryTest extends KernelTestCase
         $products = [
             [
                 'id' => $parentId,
-                'price' => ['gross' => 10, 'net' => 9],
+                'price' => ['gross' => 10, 'net' => 9, 'linked' => true],
                 'manufacturer' => ['name' => 'test'],
                 'name' => 'parent',
                 'tax' => ['id' => $parentTax, 'taxRate' => 13, 'name' => 'green'],
@@ -726,7 +726,7 @@ class ProductRepositoryTest extends KernelTestCase
         static::assertEquals($greenTax, $green->getTaxId());
 
         $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromStringToBytes($parentId)]);
-        static::assertEquals(['gross' => 10, 'net' => 9], json_decode($row['price'], true));
+        static::assertEquals(['gross' => 10, 'net' => 9, 'linked' => true], json_decode($row['price'], true));
         static::assertEquals($parentTax, Uuid::fromBytesToHex($row['tax_id']));
 
         $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromStringToBytes($redId)]);
@@ -1392,8 +1392,8 @@ class ProductRepositoryTest extends KernelTestCase
         $blue = $configurators->get($blueId);
         $red = $configurators->get($redId);
 
-        static::assertEquals(new PriceStruct(25, 50), $red->getPrice());
-        static::assertEquals(new PriceStruct(90, 100), $blue->getPrice());
+        static::assertEquals(new PriceStruct(25, 50, false), $red->getPrice());
+        static::assertEquals(new PriceStruct(90, 100, false), $blue->getPrice());
 
         static::assertEquals('red', $red->getOption()->getName());
         static::assertEquals('blue', $blue->getOption()->getName());
@@ -1456,8 +1456,8 @@ class ProductRepositoryTest extends KernelTestCase
         $blue = $services->get($blueId);
         $red = $services->get($redId);
 
-        static::assertEquals(new PriceStruct(25, 50), $red->getPrice());
-        static::assertEquals(new PriceStruct(90, 100), $blue->getPrice());
+        static::assertEquals(new PriceStruct(25, 50, false), $red->getPrice());
+        static::assertEquals(new PriceStruct(90, 100, false), $blue->getPrice());
 
         static::assertEquals(100, $red->getTax()->getTaxRate());
         static::assertEquals(1, $blue->getTax()->getTaxRate());
@@ -1612,7 +1612,7 @@ class ProductRepositoryTest extends KernelTestCase
         /** @var ProductPriceRuleStruct $price */
         $price = $product->getPriceRules()->get($id);
         static::assertEquals($ruleA, $price->getRuleId());
-        static::assertEquals(new PriceStruct(4000, 5000), $price->getPrice());
+        static::assertEquals(new PriceStruct(4000, 5000, false), $price->getPrice());
 
         static::assertEquals(1, $price->getQuantityStart());
         static::assertEquals(20, $price->getQuantityEnd());
@@ -1645,7 +1645,7 @@ class ProductRepositoryTest extends KernelTestCase
         /** @var ProductPriceRuleStruct $price */
         $price = $product->getPriceRules()->get($id3);
         static::assertEquals($ruleB, $price->getRuleId());
-        static::assertEquals(new PriceStruct(50, 50), $price->getPrice());
+        static::assertEquals(new PriceStruct(50, 50, false), $price->getPrice());
 
         static::assertEquals(1, $price->getQuantityStart());
         static::assertNull($price->getQuantityEnd());

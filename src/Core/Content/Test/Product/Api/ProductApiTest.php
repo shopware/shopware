@@ -114,7 +114,7 @@ class ProductApiTest extends ApiTestCase
         /** @var ProductPriceRuleStruct $price */
         $price = $product->getPriceRules()->get($id);
         static::assertEquals($ruleA, $price->getRuleId());
-        static::assertEquals(new PriceStruct(4000, 5000), $price->getPrice());
+        static::assertEquals(new PriceStruct(4000, 5000, false), $price->getPrice());
 
         static::assertEquals(1, $price->getQuantityStart());
         static::assertEquals(20, $price->getQuantityEnd());
@@ -148,7 +148,7 @@ class ProductApiTest extends ApiTestCase
         /** @var ProductPriceRuleStruct $price */
         $price = $product->getPriceRules()->get($id3);
         static::assertEquals($ruleB, $price->getRuleId());
-        static::assertEquals(new PriceStruct(50, 50), $price->getPrice());
+        static::assertEquals(new PriceStruct(50, 50, false), $price->getPrice());
 
         static::assertEquals(1, $price->getQuantityStart());
         static::assertNull($price->getQuantityEnd());

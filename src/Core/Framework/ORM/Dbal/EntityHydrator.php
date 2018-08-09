@@ -240,7 +240,7 @@ class EntityHydrator
                 }
                 $value = json_decode((string) $value, true);
 
-                return new PriceStruct($value['net'], $value['gross']);
+                return new PriceStruct($value['net'], $value['gross'], (bool) $value['linked']);
 
             case $field instanceof PriceRulesJsonField:
                 $value = json_decode((string) $value, true);

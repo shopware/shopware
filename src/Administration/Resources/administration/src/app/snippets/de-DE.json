@@ -656,5 +656,53 @@
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern"
     }
+  },
+  "sw-settings-payment": {
+    "general": {
+      "mainMenuItemGeneral": "Zahlungsarten"
+    },
+    "list": {
+      "textHeadline": "Zahlungsarten",
+      "textDeleteConfirm": "Sind Sie sich sicher dass sie die Zahlungsart {name} löschen möchten?",
+      "columnName": "Name",
+      "columnDescription": "Beschreibung",
+      "columnActive": "Aktiv",
+      "buttonAddPaymentMethod": "Zahlungsart anlegen",
+      "contextMenuEdit": "Anzeigen",
+      "modalTitleDelete": "Zahlungsart löschen",
+      "titleDeleteSuccess": "Zahlungsart",
+      "messageDeleteSuccess": "Die Zahlungsart {name} wurde erfolgreich gelöscht.",
+      "buttonCancel": "Abbrechen",
+      "buttonDelete": "Löschen"
+    },
+    "detail": {
+      "textHeadline": "Neue Zahlungsart",
+      "titleCard": "Einstellungen",
+      "titleSaveSuccess": "Zahlungsart",
+      "messageSaveSuccess": "Die Zahlungsart {name} wurde erfolgreich gespeichert.",
+      "labelName": "Name",
+      "labelTechnicalName": "Technischer Name",
+      "labelActive": "Aktiv",
+      "labelAllowEsd": "Aktiv für ESD Produkte",
+      "labelMobileInactive": "Inaktiv für Smartphones",
+      "labelAdditionalDescription": "Beschreibung",
+      "labelTemplate": "Template",
+      "labelUsedIframe": "URL für iFrame",
+      "labelAbsoluteSurcharge": "Pauschaler Aufschlag",
+      "labelPercentageSurcharge": "Prozentualer Aufschlag",
+      "labelTable": "Datenbank-Tabelle",
+      "labelClass": "Klasse",
+      "placeholderName": "Name eingeben...",
+      "placeholderTechnicalName": "Technischer Name eingeben...",
+      "placeholderAdditionalDescription": "Beschreibung eingeben...",
+      "placeholderTemplate": "Template eingeben...",
+      "placeholderUsedIframe": "URL eingeben...",
+      "placeholderAbsoluteSurcharge": "Aufschlag eingeben...",
+      "placeholderPercentageSurcharge": "Prozentualer Aufschlag eingeben...",
+      "placeholderTable": "Datenbank-Tabelle eingeben...",
+      "placeholderClass": "Klasse eingeben...",
+      "buttonCancel": "Abbrechen",
+      "buttonSave": "Speichern"
+    }
   }
 }

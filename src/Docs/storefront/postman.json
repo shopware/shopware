@@ -60,7 +60,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\"offset\":0,\"limit\":1,\"filter\":[{\"type\":\"nested\",\"operator\":\"OR\",\"queries\":[{\"type\":\"term\",\"field\":\"product.active\",\"value\":true}]}],\"term\":\"A\",\"sort\":[{\"field\":\"product.name\",\"direction\":\"descending\"}],\"post-filter\":[{\"type\":\"term\",\"field\":\"product.active\",\"value\":true}],\"aggregations\":{\"active_products\":{\"count\":{\"field\":\"product.active\"}}}}"
+					"raw": "{\"page\":1,\"limit\":1,\"filter\":[{\"type\":\"nested\",\"operator\":\"OR\",\"queries\":[{\"type\":\"term\",\"field\":\"product.active\",\"value\":true}]}],\"term\":\"A\",\"sort\":[{\"field\":\"product.name\",\"direction\":\"descending\"}],\"post-filter\":[{\"type\":\"term\",\"field\":\"product.active\",\"value\":true}],\"aggregations\":{\"active_products\":{\"count\":{\"field\":\"product.active\"}}}}"
 				},
 				"url": {
 					"raw": "http://shopware.development/storefront-api/product",
@@ -99,7 +99,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\"offset\":0,\"limit\":1,\"filter\":[{\"type\":\"nested\",\"operator\":\"OR\",\"queries\":[{\"type\":\"term\",\"field\":\"category.active\",\"value\":true}]}],\"term\":\"A\",\"sort\":[{\"field\":\"category.name\",\"direction\":\"descending\"},{\"field\":\"category.metaTitle\",\"direction\":\"ascending\"}],\"post-filter\":[{\"type\":\"term\",\"field\":\"category.active\",\"value\":true}],\"aggregations\":{\"active_categories\":{\"count\":{\"field\":\"category.active\"}}}}"
+					"raw": "{\"page\":1,\"limit\":1,\"filter\":[{\"type\":\"nested\",\"operator\":\"OR\",\"queries\":[{\"type\":\"term\",\"field\":\"category.active\",\"value\":true}]}],\"term\":\"A\",\"sort\":[{\"field\":\"category.name\",\"direction\":\"descending\"},{\"field\":\"category.metaTitle\",\"direction\":\"ascending\"}],\"post-filter\":[{\"type\":\"term\",\"field\":\"category.active\",\"value\":true}],\"aggregations\":{\"active_categories\":{\"count\":{\"field\":\"category.active\"}}}}"
 				},
 				"url": {
 					"raw": "http://shopware.development/storefront-api/category",

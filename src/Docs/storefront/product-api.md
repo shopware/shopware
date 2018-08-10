@@ -41,7 +41,7 @@ The List Route supports both data filtering via GET parameter and POST parameter
 If the list route is addressed by POST, as mentioned earlier, more complex queries can be sent as body:
 ```json
 {
-    "offset": 0,
+    "page": 1,
     "limit": 10,
     "filter": [
         {
@@ -74,9 +74,9 @@ A typical result of this route looks as follow:
 ```json
 {
     "links": {
-        "first": "http://shopware.development/storefront-api/product?page%5Boffset%5D=0&page%5Blimit%5D=1",
-        "last": "http://shopware.development/storefront-api/product?page%5Boffset%5D=49&page%5Blimit%5D=1",
-        "next": "http://shopware.development/storefront-api/product?page%5Boffset%5D=1&page%5Blimit%5D=1",
+        "first": "http://shopware.development/storefront-api/product?page=1&limit=1",
+        "last": "http://shopware.development/storefront-api/product?page=49&limit=1",
+        "next": "http://shopware.development/storefront-api/product?page=2&limit=1",
         "self": "http://shopware.development/storefront-api/product"
     },
     "meta": {
@@ -389,7 +389,7 @@ curl_setopt_array($curl, array(
   CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
   CURLOPT_CUSTOMREQUEST => "POST",
   CURLOPT_POSTFIELDS => json_encode(array(
-    'offset'=> 0,
+    'page'=> 1,
     'limit'=> 10,
     'filter'=> [
         [
@@ -437,7 +437,7 @@ curl -X POST \
   http://shopware.development/storefront-api/product \
   -H 'Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjVlMWUzOGIyNjI0MjAzM2U1NmEzNGExMjJmMjA4NWM5MWVkMjFkMzI3MGI5MTk4NzJkZjRmMTgwYzM0OTgxODM4ZmMwNjE4ZjMzM2RkN2ZmIn0.eyJhdWQiOiJmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZiIsImp0aSI6IjVlMWUzOGIyNjI0MjAzM2U1NmEzNGExMjJmMjA4NWM5MWVkMjFkMzI3MGI5MTk4NzJkZjRmMTgwYzM0OTgxODM4ZmMwNjE4ZjMzM2RkN2ZmIiwiaWF0IjoxNTMwODY3NTEzLCJuYmYiOjE1MzA4Njc1MTMsImV4cCI6MTUzMDg3MTExMywic3ViIjoiIiwic2NvcGVzIjpbXX0.Rk0r2FFUPe14h830DCIgB-QcnDvf9KSAuxNGNpLFfW6KD_cRAdSX3JQm0sju4L0YgUugyXPZZLsLHkSmMP-yWD4t87EI_f2ODJl99ak7RWXzA_MF7e0LsE9knvApR3BIJavxVPjNWjSyvt6QvPNALAcGK5yamjdVRTUooHEmgSOKLHKOoYtUIOEUqRzU_q9UdHELN3UUDa3vZfqmPxBflsG0G5EhnSSpHMJrVZ3rwPu0vRCJ3anS1nfl3xeohSoxlooRv2iOsl2B_xkbLGYu2JpY9-eiWKkHIFaLHMtAvIIsHhOrfzM2hQyKhQh7niwkJYpcyEh1l7nZ6q7MhaSKqw' \
   -H 'Content-Type: application/json' \
-  -d '{"offset":0,"limit":10,"filter":[{"type":"nested","operator":"OR","queries":[{"type":"term","field":"product.active","value":true}]}],"term":"A","sort":[{"field":"product.name","direction":"descending"}],"post-filter":[{"type":"term","field":"product.active","value":true}],"aggregations":{"active_products":{"count":{"field":"product.active"}}}}'
+  -d '{"page":1,"limit":10,"filter":[{"type":"nested","operator":"OR","queries":[{"type":"term","field":"product.active","value":true}]}],"term":"A","sort":[{"field":"product.name","direction":"descending"}],"post-filter":[{"type":"term","field":"product.active","value":true}],"aggregations":{"active_products":{"count":{"field":"product.active"}}}}'
 ```
 
 ### Python
@@ -446,7 +446,7 @@ import http.client
 
 conn = http.client.HTTPConnection("shopware,development")
 
-payload = "{\"offset\":0,\"limit\":10,\"filter\":[{\"type\":\"nested\",\"operator\":\"OR\",\"queries\":[{\"type\":\"term\",\"field\":\"product.active\",\"value\":true}]}],\"term\":\"A\",\"sort\":[{\"field\":\"product.name\",\"direction\":\"descending\"}],\"post-filter\":[{\"type\":\"term\",\"field\":\"product.active\",\"value\":true}],\"aggregations\":{\"active_products\":{\"count\":{\"field\":\"product.active\"}}}}"
+payload = "{\"page\":1,\"limit\":10,\"filter\":[{\"type\":\"nested\",\"operator\":\"OR\",\"queries\":[{\"type\":\"term\",\"field\":\"product.active\",\"value\":true}]}],\"term\":\"A\",\"sort\":[{\"field\":\"product.name\",\"direction\":\"descending\"}],\"post-filter\":[{\"type\":\"term\",\"field\":\"product.active\",\"value\":true}],\"aggregations\":{\"active_products\":{\"count\":{\"field\":\"product.active\"}}}}"
 
 headers = {
     'Content-Type': "application/json",
@@ -466,7 +466,7 @@ print(data.decode("utf-8"))
 OkHttpClient client = new OkHttpClient();
 
 MediaType mediaType = MediaType.parse("application/json");
-RequestBody body = RequestBody.create(mediaType, "{\"offset\":0,\"limit\":10,\"filter\":[{\"type\":\"nested\",\"operator\":\"OR\",\"queries\":[{\"type\":\"term\",\"field\":\"product.active\",\"value\":true}]}],\"term\":\"A\",\"sort\":[{\"field\":\"product.name\",\"direction\":\"descending\"}],\"post-filter\":[{\"type\":\"term\",\"field\":\"product.active\",\"value\":true}],\"aggregations\":{\"active_products\":{\"count\":{\"field\":\"product.active\"}}}}");
+RequestBody body = RequestBody.create(mediaType, "{\"page\":1,\"limit\":10,\"filter\":[{\"type\":\"nested\",\"operator\":\"OR\",\"queries\":[{\"type\":\"term\",\"field\":\"product.active\",\"value\":true}]}],\"term\":\"A\",\"sort\":[{\"field\":\"product.name\",\"direction\":\"descending\"}],\"post-filter\":[{\"type\":\"term\",\"field\":\"product.active\",\"value\":true}],\"aggregations\":{\"active_products\":{\"count\":{\"field\":\"product.active\"}}}}");
 Request request = new Request.Builder()
   .url("http://shopware.development/storefront-api/product")
   .post(body)
@@ -480,7 +480,7 @@ Response response = client.newCall(request).execute();
 ### Javascript
 ```javascript
 var data = JSON.stringify({
-  "offset": 0,
+  "page": 1,
   "limit": 10,
   "filter": [
     {
@@ -547,7 +547,7 @@ var settings = {
     "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjVlMWUzOGIyNjI0MjAzM2U1NmEzNGExMjJmMjA4NWM5MWVkMjFkMzI3MGI5MTk4NzJkZjRmMTgwYzM0OTgxODM4ZmMwNjE4ZjMzM2RkN2ZmIn0.eyJhdWQiOiJmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZiIsImp0aSI6IjVlMWUzOGIyNjI0MjAzM2U1NmEzNGExMjJmMjA4NWM5MWVkMjFkMzI3MGI5MTk4NzJkZjRmMTgwYzM0OTgxODM4ZmMwNjE4ZjMzM2RkN2ZmIiwiaWF0IjoxNTMwODY3NTEzLCJuYmYiOjE1MzA4Njc1MTMsImV4cCI6MTUzMDg3MTExMywic3ViIjoiIiwic2NvcGVzIjpbXX0.Rk0r2FFUPe14h830DCIgB-QcnDvf9KSAuxNGNpLFfW6KD_cRAdSX3JQm0sju4L0YgUugyXPZZLsLHkSmMP-yWD4t87EI_f2ODJl99ak7RWXzA_MF7e0LsE9knvApR3BIJavxVPjNWjSyvt6QvPNALAcGK5yamjdVRTUooHEmgSOKLHKOoYtUIOEUqRzU_q9UdHELN3UUDa3vZfqmPxBflsG0G5EhnSSpHMJrVZ3rwPu0vRCJ3anS1nfl3xeohSoxlooRv2iOsl2B_xkbLGYu2JpY9-eiWKkHIFaLHMtAvIIsHhOrfzM2hQyKhQh7niwkJYpcyEh1l7nZ6q7MhaSKqw"
   },
   "processData": false,
-  "data": "{\"offset\":0,\"limit\":10,\"filter\":[{\"type\":\"nested\",\"operator\":\"OR\",\"queries\":[{\"type\":\"term\",\"field\":\"product.active\",\"value\":true}]}],\"term\":\"A\",\"sort\":[{\"field\":\"product.name\",\"direction\":\"descending\"}],\"post-filter\":[{\"type\":\"term\",\"field\":\"product.active\",\"value\":true}],\"aggregations\":{\"active_products\":{\"count\":{\"field\":\"product.active\"}}}}"
+  "data": "{\"page\":1,\"limit\":10,\"filter\":[{\"type\":\"nested\",\"operator\":\"OR\",\"queries\":[{\"type\":\"term\",\"field\":\"product.active\",\"value\":true}]}],\"term\":\"A\",\"sort\":[{\"field\":\"product.name\",\"direction\":\"descending\"}],\"post-filter\":[{\"type\":\"term\",\"field\":\"product.active\",\"value\":true}],\"aggregations\":{\"active_products\":{\"count\":{\"field\":\"product.active\"}}}}"
 };
 
 $.ajax(settings).done(function (response) {
@@ -588,7 +588,7 @@ var req = http.request(options, function (res) {
   });
 });
 
-req.write(JSON.stringify({ offset: 0,
+req.write(JSON.stringify({ page: 1,
   limit: 10,
   filter: 
    [ { type: 'nested',
@@ -616,7 +616,7 @@ func main() {
 
 	url := "http://shopware.development/storefront-api/product"
 
-	payload := strings.NewReader("{\"offset\":0,\"limit\":10,\"filter\":[{\"type\":\"nested\",\"operator\":\"OR\",\"queries\":[{\"type\":\"term\",\"field\":\"product.active\",\"value\":true}]}],\"term\":\"A\",\"sort\":[{\"field\":\"product.name\",\"direction\":\"descending\"}],\"post-filter\":[{\"type\":\"term\",\"field\":\"product.active\",\"value\":true}],\"aggregations\":{\"active_products\":{\"count\":{\"field\":\"product.active\"}}}}")
+	payload := strings.NewReader("{\"page\":1,\"limit\":10,\"filter\":[{\"type\":\"nested\",\"operator\":\"OR\",\"queries\":[{\"type\":\"term\",\"field\":\"product.active\",\"value\":true}]}],\"term\":\"A\",\"sort\":[{\"field\":\"product.name\",\"direction\":\"descending\"}],\"post-filter\":[{\"type\":\"term\",\"field\":\"product.active\",\"value\":true}],\"aggregations\":{\"active_products\":{\"count\":{\"field\":\"product.active\"}}}}")
 
 	req, _ := http.NewRequest("POST", url, payload)
 

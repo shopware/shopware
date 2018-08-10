@@ -34,7 +34,7 @@
 
                         {% block frontend_register_login_input_email %}
                             <div class="register--login-email">
-                                <input name="login[email]" placeholder="{% trans %}frontend.account.login.LoginPlaceholderMail{% endtrans %}" type="email" autocomplete="email" tabindex="1" value="{{ last_email }}" id="email" class="register--login-field{% if error_flags.email %} has--error{% endif %}" />
+                                <input name="login[username]" placeholder="{% trans %}frontend.account.login.LoginPlaceholderMail{% endtrans %}" type="email" autocomplete="email" tabindex="1" value="{{ last_email }}" id="email" class="register--login-field{% if error_flags.email %} has--error{% endif %}" />
                             </div>
                         {% endblock %}
 

@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Customer\Storefront;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Framework\Api\Response\ResponseFactory;
@@ -17,10 +16,10 @@ use Shopware\Core\Framework\ORM\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Exception\AddressNotFoundException;
-use Shopware\Storefront\Exception\CustomerNotFoundException;
 use Shopware\Storefront\Page\Account\AccountService;
 use Shopware\Storefront\Page\Account\AddressSaveRequest;
 use Shopware\Storefront\Page\Account\EmailSaveRequest;
+use Shopware\Storefront\Page\Account\LoginRequest;
 use Shopware\Storefront\Page\Account\PasswordSaveRequest;
 use Shopware\Storefront\Page\Account\ProfileSaveRequest;
 use Shopware\Storefront\Page\Account\RegistrationRequest;
@@ -28,9 +27,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Serializer\Serializer;
 
 class StorefrontCustomerController extends Controller
@@ -39,11 +36,6 @@ class StorefrontCustomerController extends Controller
      * @var Serializer
      */
     private $serializer;
-
-    /**
-     * @var CheckoutContextPersister
-     */
-    private $contextPersister;
 
     /**
      * @var AccountService
@@ -67,14 +59,12 @@ class StorefrontCustomerController extends Controller
 
     public function __construct(
         Serializer $serializer,
-        CheckoutContextPersister $contextPersister,
         AccountService $accountService,
         CheckoutContextService $checkoutContextService,
         ResponseFactory $responseFactory,
         RepositoryInterface $orderRepository
     ) {
         $this->serializer = $serializer;
-        $this->contextPersister = $contextPersister;
         $this->accountService = $accountService;
         $this->checkoutContextService = $checkoutContextService;
         $this->responseFactory = $responseFactory;
@@ -86,33 +76,13 @@ class StorefrontCustomerController extends Controller
      */
     public function login(Request $request, CheckoutContext $context): JsonResponse
     {
-        $post = $this->decodedContent($request);
+        $loginRequest = new LoginRequest();
+        $loginRequest->assign($this->decodedContent($request));
 
-        if (empty($post['username']) || empty($post['password'])) {
-            throw new BadCredentialsException();
-        }
-
-        $username = $post['username'];
-        $password = $post['password'];
-
-        try {
-            $user = $this->accountService->getCustomerByLogin($username, $password, $context);
-        } catch (CustomerNotFoundException | BadCredentialsException $exception) {
-            throw new UnauthorizedHttpException('json', $exception->getMessage());
-        }
-
-        $this->contextPersister->save(
-            $context->getToken(),
-            [
-                'customerId' => $user->getId(),
-                'billingAddressId' => null,
-                'shippingAddressId' => null,
-            ],
-            $context->getTenantId()
-        );
+        $token = $this->accountService->login($loginRequest, $context);
 
         return new JsonResponse([
-            PlatformRequest::HEADER_CONTEXT_TOKEN => $context->getToken(),
+            PlatformRequest::HEADER_CONTEXT_TOKEN => $token,
         ]);
     }
 
@@ -121,15 +91,7 @@ class StorefrontCustomerController extends Controller
      */
     public function logout(CheckoutContext $context): JsonResponse
     {
-        $this->contextPersister->save(
-            $context->getToken(),
-            [
-                'customerId' => null,
-                'billingAddressId' => null,
-                'shippingAddressId' => null,
-            ],
-            $context->getTenantId()
-        );
+        $this->accountService->logout($context);
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }

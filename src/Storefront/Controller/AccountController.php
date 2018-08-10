@@ -119,7 +119,7 @@ class AccountController extends StorefrontController
     {
         try {
             $customer = $this->accountService->getCustomerByLogin(
-                $loginRequest->getEmail(),
+                $loginRequest->getUsername(),
                 $loginRequest->getPassword(),
                 $context
             );

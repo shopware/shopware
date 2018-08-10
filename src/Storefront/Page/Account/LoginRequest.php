@@ -7,19 +7,19 @@ use Shopware\Core\Framework\Struct\Struct;
 class LoginRequest extends Struct
 {
     /** @var string|null */
-    protected $email;
+    protected $username;
 
     /** @var string|null */
     protected $password;
 
-    public function getEmail(): ?string
+    public function getUsername(): ?string
     {
-        return $this->email;
+        return $this->username;
     }
 
-    public function setEmail(?string $email): void
+    public function setUsername(?string $username): void
     {
-        $this->email = $email;
+        $this->username = $username;
     }
 
     public function getPassword(): ?string

@@ -345,13 +345,13 @@ class AccountService
      */
     public function login(LoginRequest $loginRequest, CheckoutContext $context): string
     {
-        if (empty($loginRequest->getEmail()) || empty($loginRequest->getPassword())) {
+        if (empty($loginRequest->getUsername()) || empty($loginRequest->getPassword())) {
             throw new BadCredentialsException();
         }
 
         try {
             $user = $this->getCustomerByLogin(
-                $loginRequest->getEmail(),
+                $loginRequest->getUsername(),
                 $loginRequest->getPassword(),
                 $context
             );

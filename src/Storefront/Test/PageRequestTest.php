@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Test;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Framework\ORM\EntityRepository;
 use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
@@ -55,7 +56,8 @@ class PageRequestTest extends KernelTestCase
         $service = new AccountService(
             $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class),
-            $customerRepository
+            $customerRepository,
+            $this->createMock(CheckoutContextPersister::class)
         );
 
         $service->saveEmail($pageRequest, $checkoutContext);

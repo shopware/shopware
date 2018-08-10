@@ -29,6 +29,12 @@ Component.register('sw-order-detail', {
         this.createdComponent();
     },
 
+    watch: {
+        '$route.params.id'() {
+            this.createdComponent();
+        }
+    },
+
     methods: {
         createdComponent() {
             this.orderId = this.$route.params.id;

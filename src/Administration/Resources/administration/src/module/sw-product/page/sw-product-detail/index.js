@@ -47,6 +47,12 @@ Component.register('sw-product-detail', {
         this.createdComponent();
     },
 
+    watch: {
+        '$route.params.id'() {
+            this.createdComponent();
+        }
+    },
+
     methods: {
         createdComponent() {
             if (this.$route.params.id) {

@@ -70,6 +70,7 @@
             <argument id="country.repository" type="service"/>
             <argument id="customer_address.repository" type="service"/>
             <argument id="customer.repository" type="service"/>
+            <argument id="Shopware\Core\Checkout\Context\CheckoutContextPersister" type="service"/>
         </service>
 
         <service class="Shopware\Storefront\Controller\AccountController" public="true" id="Shopware\Storefront\Controller\AccountController">

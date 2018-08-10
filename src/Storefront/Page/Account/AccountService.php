@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Page\Account;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
 use Shopware\Core\Checkout\Customer\CustomerStruct;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Storefront\Exception\AddressNotFoundException;
 use Shopware\Storefront\Exception\CustomerNotFoundException;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 
 class AccountService
@@ -35,14 +37,21 @@ class AccountService
      */
     private $customerRepository;
 
+    /**
+     * @var CheckoutContextPersister
+     */
+    private $contextPersister;
+
     public function __construct(
         RepositoryInterface $countryRepository,
         RepositoryInterface $customerAddressRepository,
-        RepositoryInterface $customerRepository
+        RepositoryInterface $customerRepository,
+        CheckoutContextPersister $contextPersister
     ) {
         $this->countryRepository = $countryRepository;
         $this->customerAddressRepository = $customerAddressRepository;
         $this->customerRepository = $customerRepository;
+        $this->contextPersister = $contextPersister;
     }
 
     /**
@@ -328,6 +337,52 @@ class AccountService
         $this->customerRepository->create([$data], $context->getContext());
 
         return $customerId;
+    }
+
+    /**
+     * @throws BadCredentialsException
+     * @throws UnauthorizedHttpException
+     */
+    public function login(LoginRequest $loginRequest, CheckoutContext $context): string
+    {
+        if (empty($loginRequest->getEmail()) || empty($loginRequest->getPassword())) {
+            throw new BadCredentialsException();
+        }
+
+        try {
+            $user = $this->getCustomerByLogin(
+                $loginRequest->getEmail(),
+                $loginRequest->getPassword(),
+                $context
+            );
+        } catch (CustomerNotFoundException | BadCredentialsException $exception) {
+            throw new UnauthorizedHttpException('json', $exception->getMessage());
+        }
+
+        $this->contextPersister->save(
+            $context->getToken(),
+            [
+                'customerId' => $user->getId(),
+                'billingAddressId' => null,
+                'shippingAddressId' => null,
+            ],
+            $context->getTenantId()
+        );
+
+        return $context->getToken();
+    }
+
+    public function logout(CheckoutContext $context): void
+    {
+        $this->contextPersister->save(
+            $context->getToken(),
+            [
+                'customerId' => null,
+                'billingAddressId' => null,
+                'shippingAddressId' => null,
+            ],
+            $context->getTenantId()
+        );
     }
 
     /**

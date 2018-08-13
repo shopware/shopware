@@ -6,11 +6,14 @@ use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Exception\SearchRequestException;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\ORM\Search\SearchBuilder;
 use Shopware\Core\Framework\Test\Api\ApiTestCase;
 use Shopware\Core\PlatformRequest;
+use Symfony\Component\HttpFoundation\Request;
 
 class SearchCriteriaBuilderTest extends ApiTestCase
 {
@@ -341,16 +344,50 @@ class SearchCriteriaBuilderTest extends ApiTestCase
 
     public function testLimitExceedingMaxLimit(): void
     {
-        $max_limit = RequestCriteriaBuilder::DEFAULT_MAX_LIMIT;
+        $max_limit = 50;
         $limit = $max_limit + 1;
-        $this->createData('testOverMaxLimit', $limit);
 
-        $this->apiClient->request('GET', $this->url . '/product-manufacturer', ['limit' => $limit, 'filter' => ['product_manufacturer.link' => 'testOverMaxLimit']]);
-        static::assertSame(400, $this->apiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
+        $params = [
+            'limit' => $max_limit + 1,
+        ];
 
-        static::assertEquals('The limit must be lower than or equal to MAX_LIMIT(=' . $max_limit . '). Given: ' . $limit, $content['errors'][0]['detail']);
-        static::assertEquals('/limit', $content['errors'][0]['source']['pointer']);
+        $got_error = false;
+        try {
+            $this->fakeHandleRequest($max_limit, [], $params);
+        } catch (SearchRequestException $e) {
+            $errors = $e->getErrors();
+            $current = $errors->current();
+
+            static::assertEquals('The limit must be lower than or equal to MAX_LIMIT(=' . $max_limit . '). Given: ' . $limit, $current['detail']);
+            static::assertEquals('/limit', $current['source']['pointer']);
+            $got_error = true;
+        }
+        static::assertTrue($got_error);
+    }
+
+    public function testDisallowedLimit(): void
+    {
+        $allowedLimits = [1, 10];
+        $limit = 13;
+
+        $params = [
+            'limit' => $limit,
+        ];
+
+        $got_error = false;
+        try {
+            $this->fakeHandleRequest(0, $allowedLimits, $params);
+        } catch (SearchRequestException $e) {
+            $errors = $e->getErrors();
+            $current = $errors->current();
+
+            $message = sprintf('The limit must be one of the "allowed_limits" [%s]. Given: %s', implode(', ', $allowedLimits), $limit);
+            static::assertEquals($message, $current['detail']);
+            static::assertEquals('/limit', $current['source']['pointer']);
+
+            $got_error = true;
+        }
+        static::assertTrue($got_error);
     }
 
     public function testMultipleErrorStack(): void
@@ -379,6 +416,18 @@ class SearchCriteriaBuilderTest extends ApiTestCase
         static::assertEquals('/filter/1/value', $content['errors'][3]['source']['pointer']);
         static::assertEquals('/filter/2/queries/0/type', $content['errors'][4]['source']['pointer']);
         static::assertEquals('/filter/2/queries/1/field', $content['errors'][5]['source']['pointer']);
+    }
+
+    private function fakeHandleRequest($maxLimit = 0, $allowedLimits = [], $params = [])
+    {
+        $searchBuilder = $this::$container->get(SearchBuilder::class);
+        $requestBuilder = new RequestCriteriaBuilder($searchBuilder, $maxLimit, $allowedLimits);
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $definition = 'Shopware\Core\Content\Product\ProductDefinition';
+
+        $request = new Request($params);
+
+        return $requestBuilder->handleRequest($request, new Criteria(), $definition, $context);
     }
 
     private function createData(string $link, int $count): array

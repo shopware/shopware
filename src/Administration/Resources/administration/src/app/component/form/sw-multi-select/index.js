@@ -32,7 +32,7 @@ Component.register('sw-multi-select', {
         previewResultsLimit: {
             type: Number,
             required: false,
-            default: 20
+            default: 25
         },
         resultsLimit: {
             type: Number,

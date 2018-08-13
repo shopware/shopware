@@ -65,7 +65,7 @@ Component.register('sw-product-detail', {
                     limit: 50
                 });
 
-                this.manuswfacturerStore.getList({ page: 1, limit: 100 }).then((response) => {
+                this.manufacturers.getList({ page: 1, limit: 100 }).then((response) => {
                     this.manufacturers = response.items;
                 });
 

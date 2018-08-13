@@ -90,7 +90,7 @@ describe('core/data/EntityStore.js', () => {
         });
     });
 
-    itAsync('should get a list with using an offset and limit', (done) => {
+    itAsync('should get a list with using an page and limit', (done) => {
         const store = new EntityStore('currency', 'currencyService');
 
         // Create a new entry
@@ -102,7 +102,7 @@ describe('core/data/EntityStore.js', () => {
 
         entity.save().then(() => {
             store.getList({
-                offset: 0,
+                page: 1,
                 limit: 3
             }).then((response) => {
                 expect(response.items.length).to.be.equal(3);
@@ -129,11 +129,11 @@ describe('core/data/EntityStore.js', () => {
 
         entity.save().then(() => {
             store.getList({
-                offset: 0,
+                page: 1,
                 limit: 3,
                 term: 'Bitcoin'
             }).then((response) => {
-                expect(response.items.length).to.be.equal(1);
+                expect(response.items.length).to.be.equal(3);
                 entity.delete(true).then(() => {
                     done();
                 });
@@ -149,7 +149,7 @@ describe('core/data/EntityStore.js', () => {
         const store = new EntityStore('currency', 'currencyService');
 
         store.getList({
-            offset: 0,
+            page: 1,
             limit: 10,
             sortBy: 'currency.name',
             sortDirection: 'ASC'

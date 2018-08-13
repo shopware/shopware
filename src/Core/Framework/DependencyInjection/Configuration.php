@@ -54,6 +54,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createHookSection())
                 ->append($this->createModelSection())
                 ->append($this->createBackendSessionSection())
+                ->append($this->createApiSection())
                 ->scalarNode('plugin_directory')->end()
                 ->arrayNode('trustedproxies')->end()
                 ->variableNode('custom')->end()
@@ -392,6 +393,23 @@ class Configuration implements ConfigurationInterface
                 ->booleanNode('cookie_httponly')->end()
                 ->integerNode('use_trans_sid')->end()
                 ->booleanNode('locking')->end()
+            ->end()
+        ;
+
+        return $node;
+    }
+
+    private function createApiSection()
+    {
+        $treeBuilder = new TreeBuilder();
+        $node = $treeBuilder->root('api');
+
+        $node
+            ->children()
+            ->arrayNode('allowed_limits')
+            ->prototype('scalar')->end()
+            ->end()
+            ->integerNode('max_limit')->end()
             ->end()
         ;
 

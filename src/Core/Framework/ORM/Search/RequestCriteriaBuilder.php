@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\ORM\Search;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Exception\DisallowedLimitQueryException;
 use Shopware\Core\Framework\ORM\Exception\InvalidAggregationQueryException;
 use Shopware\Core\Framework\ORM\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\ORM\Exception\InvalidLimitQueryException;
@@ -43,10 +44,16 @@ class RequestCriteriaBuilder
      */
     private $maxLimit;
 
-    public function __construct(SearchBuilder $searchBuilder, int $maxLimit = self::DEFAULT_MAX_LIMIT)
+    /**
+     * @var int[]
+     */
+    private $allowedLimits;
+
+    public function __construct(SearchBuilder $searchBuilder, int $maxLimit, array $availableLimits = [])
     {
         $this->searchBuilder = $searchBuilder;
         $this->maxLimit = $maxLimit;
+        $this->allowedLimits = $availableLimits;
     }
 
     public function handleRequest(Request $request, Criteria $criteria, string $definition, Context $context): Criteria
@@ -56,6 +63,16 @@ class RequestCriteriaBuilder
         }
 
         return $this->fromArray($request->request->all(), $criteria, $definition, $context);
+    }
+
+    public function getMaxLimit(): int
+    {
+        return $this->maxLimit;
+    }
+
+    public function getAllowedLimits(): array
+    {
+        return $this->allowedLimits;
     }
 
     private function fromArray(array $payload, Criteria $criteria, string $definition, Context $context): Criteria
@@ -303,8 +320,14 @@ class RequestCriteriaBuilder
             return;
         }
 
-        if ($limit > $this->maxLimit) {
+        if (empty($this->allowedLimits) && $this->maxLimit > 0 && $limit > $this->maxLimit) {
             $searchRequestException->add(new QueryLimitExceededException($this->maxLimit, $limit), '/limit');
+
+            return;
+        }
+
+        if (!empty($this->allowedLimits) && !in_array($limit, $this->allowedLimits)) {
+            $searchRequestException->add(new DisallowedLimitQueryException($this->allowedLimits, $limit), '/limit');
 
             return;
         }

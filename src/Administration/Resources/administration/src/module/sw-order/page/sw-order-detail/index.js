@@ -36,7 +36,7 @@ Component.register('sw-order-detail', {
 
             this.lineItemsStore.getList({
                 page: 1,
-                limit: 20
+                limit: 25
             });
 
             this.deliveriesStore.getList({

@@ -52,6 +52,10 @@
                     {% endblock %}
                 </div>
             {% endblock %}
+            <sw-media-modal-delete :itemsToDelete = "selectionToDelete"
+                @sw-media-modal-delete-close="closeDeleteModal"
+                @sw-media-modal-delete-delete="deleteSelection">
+            </sw-media-modal-delete>
         </template>
     </sw-page>
 {% endblock %}

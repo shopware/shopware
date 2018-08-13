@@ -1,0 +1,20 @@
+<sw-modal v-if="showModal"
+          variant="small"
+          @closeModal="closeDeleteModal($event)"
+          :title="$tc('sw-media.modalDelete.modalHeader')">
+    <div v-if="itemsToDelete.length === 1">
+        {{ $tc('sw-media.modalDelete.deleteMessageSingular', 0, { mediaName: itemsToDelete[0].name }) }}
+    </div>
+    <div v-else>
+        {{ $tc('sw-media.modalDelete.deleteMessagePlural', 0, { count: itemsToDelete.length}) }}
+    </div>
+
+    <template slot="modal-footer">
+        <sw-button @click="closeDeleteModal($event)" size="small">
+            {{ $tc('sw-media.modalDelete.modalButtonNo') }}
+        </sw-button>
+        <sw-button @click="deleteSelection($event)" size="small" variant="primary">
+            {{ $tc('sw-media.modalDelete.modalButtonYes') }}
+        </sw-button>
+    </template>
+</sw-modal>

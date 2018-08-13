@@ -1,4 +1,5 @@
 import { Component, State } from 'src/core/shopware';
+import '../../component/sw-media-modal-delete';
 import mediaMediaGridListener from '../../mixin/mediagrid.listener.mixin';
 import mediaSidebarListener from '../../mixin/sibebar.listener.mixin';
 import template from './sw-media-index.html.twig';
@@ -17,7 +18,8 @@ Component.register('sw-media-index', {
             isLoading: false,
             catalogs: [],
             lastAddedMediaItems: [],
-            lastSelectedItem: null
+            lastSelectedItem: null,
+            selectionToDelete: null
         };
     },
 
@@ -41,16 +43,7 @@ Component.register('sw-media-index', {
             this.catalogStore.getList({ page: 1, limit: 10 }).then((response) => {
                 this.catalogs = response.items;
             });
-
-            this.mediaItemStore.getList({
-                page: 1,
-                limit: 10,
-                sortBy: 'createdAt',
-                sortDirection: 'desc'
-            }).then((response) => {
-                this.lastAddedMediaItems = response.items;
-            });
-            this.isLoading = false;
+            this.loadList();
         },
         getLastSelectedItem() {
             const selection = this.$refs.gridLastAdded.selection;
@@ -70,6 +63,40 @@ Component.register('sw-media-index', {
         },
         handleMediaGridItemUnselected() {
             this.getLastSelectedItem();
+        },
+        handleSidebarRemoveItem({ item }) {
+            this.selectionToDelete = [item];
+        },
+        handleSidebarRemoveBatchRequest() {
+            this.selectionToDelete = this.$refs.gridLastAdded.selection;
+        },
+        closeDeleteModal() {
+            this.selectionToDelete = null;
+        },
+        deleteSelection() {
+            const promises = [];
+
+            this.isLoading = true;
+
+            this.selectionToDelete.forEach((element) => {
+                promises.push(this.mediaItemStore.getById(element.id).delete(true));
+            });
+
+            Promise.all(promises).then(() => {
+                this.selectionToDelete = null;
+                this.loadList();
+            });
+        },
+        loadList() {
+            this.mediaItemStore.getList({
+                page: 1,
+                limit: 10,
+                sortBy: 'createdAt',
+                sortDirection: 'desc'
+            }).then((response) => {
+                this.lastAddedMediaItems = response.items;
+            });
+            this.isLoading = false;
         }
     }
 });

@@ -4,6 +4,7 @@ import mediaMediaGridListener from '../../mixin/mediagrid.listener.mixin';
 import mediaSidebarListener from '../../mixin/sibebar.listener.mixin';
 import template from './sw-media-catalog.html.twig';
 import './sw-media-catalog.less';
+import '../../component/sw-media-modal-delete';
 
 Component.register('sw-media-catalog', {
     template,
@@ -20,7 +21,8 @@ Component.register('sw-media-catalog', {
             previewType: 'media-grid-preview-as-grid',
             catalogs: [],
             mediaItems: [],
-            lastSelectedItem: null
+            lastSelectedItem: null,
+            selectionToDelete: null
         };
     },
 
@@ -82,6 +84,40 @@ Component.register('sw-media-catalog', {
         },
         handleMediaGridItemUnselected() {
             this.getLastSelectedItem();
+        },
+        handleSidebarRemoveItem({ item }) {
+            this.selectionToDelete = [item];
+        },
+        handleSidebarRemoveBatchRequest() {
+            this.selectionToDelete = this.$refs.mediaGrid.selection;
+        },
+        closeDeleteModal() {
+            this.selectionToDelete = null;
+        },
+        deleteSelection() {
+            const promises = [];
+
+            this.isLoading = true;
+
+            this.selectionToDelete.forEach((element) => {
+                promises.push(this.mediaItemStore.getById(element.id).delete(true));
+            });
+
+            Promise.all(promises).then(() => {
+                this.selectionToDelete = null;
+                this.loadList();
+            });
+        },
+        loadList() {
+            this.mediaItemStore.getList({
+                offset: 0,
+                limit: 15,
+                sortBy: 'createdAt',
+                sortDirection: 'desc'
+            }).then((response) => {
+                this.mediaItems = response.items;
+            });
+            this.isLoading = false;
         }
     }
 });

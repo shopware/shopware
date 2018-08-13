@@ -27,6 +27,7 @@ Component.register('sw-media-index', {
         catalogStore() {
             return State.getStore('catalog');
         },
+
         mediaItemStore() {
             return State.getStore('media');
         }
@@ -45,6 +46,7 @@ Component.register('sw-media-index', {
             });
             this.loadList();
         },
+
         getLastSelectedItem() {
             const selection = this.$refs.gridLastAdded.selection;
 
@@ -55,38 +57,45 @@ Component.register('sw-media-index', {
 
             this.lastSelectedItem = selection[selection.length - 1];
         },
+
         handleMediaGridSelectionRemoved() {
             this.getLastSelectedItem();
         },
+
         handleMediaGridItemSelected() {
             this.getLastSelectedItem();
         },
+
         handleMediaGridItemUnselected() {
             this.getLastSelectedItem();
         },
+
         handleSidebarRemoveItem({ item }) {
             this.selectionToDelete = [item];
         },
+
         handleSidebarRemoveBatchRequest() {
             this.selectionToDelete = this.$refs.gridLastAdded.selection;
         },
+
         closeDeleteModal() {
             this.selectionToDelete = null;
         },
-        deleteSelection() {
-            const promises = [];
 
+        deleteSelection() {
+            const mediaItemsDeletion = [];
             this.isLoading = true;
 
             this.selectionToDelete.forEach((element) => {
-                promises.push(this.mediaItemStore.getById(element.id).delete(true));
+                mediaItemsDeletion.push(this.mediaItemStore.getById(element.id).delete(true));
             });
 
-            Promise.all(promises).then(() => {
+            Promise.all(mediaItemsDeletion).then(() => {
                 this.selectionToDelete = null;
                 this.loadList();
             });
         },
+
         loadList() {
             this.mediaItemStore.getList({
                 page: 1,

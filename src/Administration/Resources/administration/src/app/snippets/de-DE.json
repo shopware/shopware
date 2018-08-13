@@ -515,10 +515,9 @@
     },
     "modalDelete": {
       "modalHeader": "Medien",
-      "deleteMessageSingular": "Möchten sie \"{mediaName}\" wirklich löschen?",
-      "deleteMessagePlural": "Diese {count} Medien löschen?",
-      "modalButtonYes": "Löschen",
-      "modalButtonNo": "Abbrechen"
+      "deleteMessage":"Möchten sie \"{mediaName}\" wirklich löschen? | Diese {count} Medien löschen",
+      "modalButtonDelete": "Löschen",
+      "modalButtonAbort": "Abbrechen"
     }
   }
 }

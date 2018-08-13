@@ -22,6 +22,7 @@ Component.register('sw-media-quickinfo', {
         itemIsAvailable() {
             return this.item !== undefined && this.item !== null;
         },
+
         getMetadata() {
             if (!this.itemIsAvailable) {
                 return {};
@@ -44,6 +45,7 @@ Component.register('sw-media-quickinfo', {
                 item: this.item
             });
         },
+
         copyLinkToClipboard() {
             if (this.itemIsAvailable) {
                 domUtils.copyToClipboard(this.item.extensions.links.url);

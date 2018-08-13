@@ -30,6 +30,7 @@ Component.register('sw-media-catalog', {
         mediaItemStore() {
             return State.getStore('media');
         },
+
         catalogStore() {
             return State.getStore('catalog');
         }
@@ -49,9 +50,9 @@ Component.register('sw-media-catalog', {
             }).then((response) => {
                 this.catalogs = response.items;
             });
-
             this.isLoading = false;
         },
+
         getList() {
             this.isLoading = true;
             const params = this.getListingParams();
@@ -67,57 +68,55 @@ Component.register('sw-media-catalog', {
                 return this.mediaItems;
             });
         },
+
         getLastSelectedItem() {
             const selection = this.$refs.mediaGrid.selection;
 
             if (selection.length === 0) {
                 this.lastSelectedItem = null;
+
                 return;
             }
             this.lastSelectedItem = selection[selection.length - 1];
         },
+
         handleMediaGridSelectionRemoved() {
             this.getLastSelectedItem();
         },
+
         handleMediaGridItemSelected() {
             this.getLastSelectedItem();
         },
+
         handleMediaGridItemUnselected() {
             this.getLastSelectedItem();
         },
+
         handleSidebarRemoveItem({ item }) {
             this.selectionToDelete = [item];
         },
+
         handleSidebarRemoveBatchRequest() {
             this.selectionToDelete = this.$refs.mediaGrid.selection;
         },
+
         closeDeleteModal() {
             this.selectionToDelete = null;
         },
+
         deleteSelection() {
-            const promises = [];
+            const mediaItemsDeletion = [];
 
             this.isLoading = true;
 
             this.selectionToDelete.forEach((element) => {
-                promises.push(this.mediaItemStore.getById(element.id).delete(true));
+                mediaItemsDeletion.push(this.mediaItemStore.getById(element.id).delete(true));
             });
 
-            Promise.all(promises).then(() => {
+            Promise.all(mediaItemsDeletion).then(() => {
                 this.selectionToDelete = null;
-                this.loadList();
+                this.getList();
             });
-        },
-        loadList() {
-            this.mediaItemStore.getList({
-                offset: 0,
-                limit: 15,
-                sortBy: 'createdAt',
-                sortDirection: 'desc'
-            }).then((response) => {
-                this.mediaItems = response.items;
-            });
-            this.isLoading = false;
         }
     }
 });

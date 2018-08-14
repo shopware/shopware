@@ -1,0 +1,19 @@
+{% block sw_version %}
+    <div class="sw-version">
+
+        {% block sw_version_name %}
+            <h1 class="sw-version__title">
+                Admin prototype
+                <span title="Shop status: OK" class="sw-admin-menu__shop-status">
+                    <sw-color-badge variant="success" :rounded="true"></sw-color-badge>
+                </span>
+            </h1>
+        {% endblock %}
+
+        {% block sw_version_info %}
+            <div class="sw-version__info">
+                Shopware administration
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

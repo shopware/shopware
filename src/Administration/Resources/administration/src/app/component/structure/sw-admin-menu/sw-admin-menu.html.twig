@@ -1,6 +1,6 @@
 {% block sw_admin_menu %}
     <aside class="sw-admin-menu"
-           :class="isExpanded ? 'is--expanded' : 'is--collapsed'"
+           :class="adminMenuClasses"
            :aria-expanded="isExpanded ? 'true' : 'false'">
 
         {% block sw_admin_menu_header %}

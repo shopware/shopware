@@ -19,13 +19,6 @@ Component.register('sw-container', {
             required: false,
             default: '50% 50%'
         },
-        // responsiveGrid: {
-        //     type: Object,
-        //     required: false,
-        //     default() {
-        //         return {};
-        //     }
-        // },
         gap: {
             type: String,
             required: false,
@@ -58,15 +51,6 @@ Component.register('sw-container', {
             styles['justify-items'] = this.justify;
             styles['justify-content'] = this.justify;
             styles['align-items'] = this.align;
-
-            // Object.keys(this.responsiveGrid).forEach((width) => {
-            //     const viewportWidth = parseInt(width, 0);
-            //     const viewportWidthGrid = this.responsiveGrid[width];
-            //
-            //     if (this.viewportWidth <= viewportWidth) {
-            //         styles['grid-template-columns'] = viewportWidthGrid;
-            //     }
-            // });
 
             return styles;
         },

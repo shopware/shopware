@@ -8,6 +8,7 @@
 @sw-admin-menu-width-flyout:            220px;
 @sw-admin-menu-z-index-flyout:          @z-index-flyout;
 @sw-admin-menu-transition:              .4s cubic-bezier(.50, .32, .01, 1);
+@sw-admin-menu-off-canvas-transition:   .4s cubic-bezier(0.3, 0, 0.15, 1);
 @sw-admin-menu-sub-menu-transition:     .35s cubic-bezier(.50, .32, .01, 1);
 @sw-admin-menu-flyout-transition:       .2s cubic-bezier(.50, .32, .01, 1);
 @sw-admin-menu-color-active:            lighten(@color-gradient-dark-gray-start, 3%);
@@ -21,6 +22,21 @@
     height: 100%;
     display: flex;
     flex-direction: column;
+
+    @media screen and (max-width: 500px) {
+        width: @sw-admin-menu-width-expanded;
+        position: absolute;
+        top: 0;
+        left: -@sw-admin-menu-width-expanded;
+        bottom: 0;
+        height: 100%;
+        z-index: 500;
+        transition: left @sw-admin-menu-off-canvas-transition;
+
+        &.is--off-canvas-shown {
+            left: 0;
+        }
+    }
 
     .collapsible-text {
         transition: opacity @sw-admin-menu-transition,
@@ -282,6 +298,10 @@
         background: none;
         border: 0 none;
         outline: none;
+
+        @media screen and (max-width: 500px) {
+            display: none;
+        }
 
         .sw-icon {
             color: @sw-admin-menu-color-text-secondary;

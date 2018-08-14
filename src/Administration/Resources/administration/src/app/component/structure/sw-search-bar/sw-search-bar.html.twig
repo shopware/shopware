@@ -1,11 +1,22 @@
 {% block sw_search_bar %}
-    <div class="sw-search-bar" :style="searchBarStyles">
+    <div class="sw-search-bar"
+         :class="{ 'is--search-bar-shown': this.isSearchBarShown }"
+         :style="searchBarStyles">
 
         {% block sw_search_bar_container %}
             <div class="sw-search-bar__container">
 
+                <button v-if="!isSearchBarShown" class="sw-search-bar__button" @click="toggleOffCanvas">
+                    <sw-icon v-if="isOffCanvasShown" name="default-basic-x-line"></sw-icon>
+                    <sw-icon v-else="isOffCanvasShown" name="small-default-stack-line"></sw-icon>
+                </button>
+
+                <button v-if="!isSearchBarShown" class="sw-search-bar__button" @click="showSearchBar">
+                    <sw-icon name="default-action-search" color="#fff"></sw-icon>
+                </button>
+
                 {% block sw_search_bar_field %}
-                    <div class="sw-search-bar__field" :class="searchBarFieldClasses">
+                    <div v-if="isSearchBarShown" class="sw-search-bar__field" :class="searchBarFieldClasses">
 
                         {% block sw_search_bar_type %}
                             <span v-if="useTypeSearch" class="sw-search-bar__type" :style="searchTypeColor">
@@ -30,7 +41,16 @@
                         {% endblock %}
 
                         {% block sw_search_bar_icon %}
-                            <sw-icon name="small-search" small></sw-icon>
+                            <span v-if="isSearchBarShown" @click="hideSearchBar">
+                                <sw-icon
+                                         name="small-default-x-line-medium"
+                                         small>
+                                </sw-icon>
+                            </span>
+                            <sw-icon v-else
+                                     name="small-search"
+                                     small>
+                            </sw-icon>
                         {% endblock %}
                     </div>
                 {% endblock %}

@@ -28,7 +28,7 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
-use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
+use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Storefront\Controller\StorefrontController;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -59,21 +59,19 @@ class IndexController extends StorefrontController
      */
     public function shopMenuAction(CheckoutContext $context)
     {
-        $languages = $this->loadLanguages($context);
-
         return $this->render('@Storefront/widgets/index/shop_menu.html.twig', [
             'application' => $context->getSalesChannel(),
-            'currency' => $context->getCurrency(),
-            'languages' => $languages,
-            'language' => $languages->get($context->getContext()->getLanguageId()),
             'currencies' => $this->getCurrencies($context),
+            'currency' => $context->getSalesChannel()->getCurrency(),
+            'languages' => $this->getLanguages($context),
+            'language' => $context->getSalesChannel()->getLanguage(),
         ]);
     }
 
-    private function loadLanguages(CheckoutContext $context): EntitySearchResult
+    private function getLanguages(CheckoutContext $context): EntitySearchResult
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new TermsQuery('language.id', $context->getSalesChannel()->getLanguageIds()));
+        $criteria->addFilter(new TermQuery('language.salesChannels.id', $context->getSalesChannel()->getId()));
 
         return $this->languageRepository->search($criteria, $context->getContext());
     }
@@ -81,7 +79,7 @@ class IndexController extends StorefrontController
     private function getCurrencies(CheckoutContext $context): EntitySearchResult
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new TermsQuery('currency.id', ['20080911ffff4fffafffffff19830531', '2824ea63db6741109e2378ddcc9cec84']));
+        $criteria->addFilter(new TermQuery('currency.salesChannels.id', $context->getSalesChannel()->getId()));
 
         return $this->currencyRepository->search($criteria, $context->getContext());
     }

@@ -30,11 +30,6 @@ use Symfony\Component\HttpFoundation\Request;
 class RequestCriteriaBuilder
 {
     /**
-     * The default maximum result limit
-     */
-    public const DEFAULT_MAX_LIMIT = 500;
-
-    /**
      * @var SearchBuilder
      */
     private $searchBuilder;

@@ -16,7 +16,7 @@ class DisallowedLimitQueryException extends ShopwareHttpException
 {
     public function __construct(array $allowedLimits, $limit, int $code = 0, Throwable $previous = null)
     {
-        $message = sprintf('The limit must be one of the "allowed_limits" [%s]. Given: %s', implode(', ', $allowedLimits), $limit);
+        $message = sprintf('The limit must be one of the `allowed_limits` [%s]. Given: %s', implode(', ', $allowedLimits), $limit);
 
         parent::__construct($message, $code, $previous);
     }

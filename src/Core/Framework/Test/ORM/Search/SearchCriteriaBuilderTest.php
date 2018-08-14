@@ -344,25 +344,25 @@ class SearchCriteriaBuilderTest extends ApiTestCase
 
     public function testLimitExceedingMaxLimit(): void
     {
-        $max_limit = 50;
-        $limit = $max_limit + 1;
+        $maxLimit = 50;
+        $limit = $maxLimit + 1;
 
         $params = [
-            'limit' => $max_limit + 1,
+            'limit' => $maxLimit + 1,
         ];
 
-        $got_error = false;
+        $gotError = false;
         try {
-            $this->fakeHandleRequest($max_limit, [], $params);
+            $this->fakeHandleRequest($maxLimit, [], $params);
         } catch (SearchRequestException $e) {
             $errors = $e->getErrors();
             $current = $errors->current();
 
-            static::assertEquals('The limit must be lower than or equal to MAX_LIMIT(=' . $max_limit . '). Given: ' . $limit, $current['detail']);
+            static::assertEquals('The limit must be lower than or equal to MAX_LIMIT(=' . $maxLimit . '). Given: ' . $limit, $current['detail']);
             static::assertEquals('/limit', $current['source']['pointer']);
-            $got_error = true;
+            $gotError = true;
         }
-        static::assertTrue($got_error);
+        static::assertTrue($gotError);
     }
 
     public function testDisallowedLimit(): void
@@ -374,20 +374,20 @@ class SearchCriteriaBuilderTest extends ApiTestCase
             'limit' => $limit,
         ];
 
-        $got_error = false;
+        $gotError = false;
         try {
             $this->fakeHandleRequest(0, $allowedLimits, $params);
         } catch (SearchRequestException $e) {
             $errors = $e->getErrors();
             $current = $errors->current();
 
-            $message = sprintf('The limit must be one of the "allowed_limits" [%s]. Given: %s', implode(', ', $allowedLimits), $limit);
+            $message = sprintf('The limit must be one of the `allowed_limits` [%s]. Given: %s', implode(', ', $allowedLimits), $limit);
             static::assertEquals($message, $current['detail']);
             static::assertEquals('/limit', $current['source']['pointer']);
 
-            $got_error = true;
+            $gotError = true;
         }
-        static::assertTrue($got_error);
+        static::assertTrue($gotError);
     }
 
     public function testMultipleErrorStack(): void

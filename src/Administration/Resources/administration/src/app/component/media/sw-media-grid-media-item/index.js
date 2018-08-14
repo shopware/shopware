@@ -1,6 +1,7 @@
 import { Component } from 'src/core/shopware';
 import template from './sw-media-grid-media-item.html.twig';
 import './sw-media-grid-media-item.less';
+import domUtils from '../../../../core/service/utils/dom.utils';
 
 Component.extend('sw-media-grid-media-item', 'sw-media-grid-item', {
     template,
@@ -42,8 +43,10 @@ Component.extend('sw-media-grid-media-item', 'sw-media-grid-item', {
                     return;
                 }
             }
+
             this.doSelectItem(originalDomEvent);
         },
+
         startInlineEdit() {
             if (this.containerOptions.editable) {
                 const input = this.$refs.inputItemName;
@@ -53,19 +56,47 @@ Component.extend('sw-media-grid-media-item', 'sw-media-grid-item', {
                 input.focus();
             }
         },
+
         cancelInlineEditFromBlur() {
             this.fromBlur = true;
             this.cancelInlineEdit();
         },
+
         cancelInlineEdit() {
             this.$refs.inputItemName.value = this.item.name;
             this.$refs.inputItemName.disabled = true;
         },
+
         emitNameChanged(originalDomEvent) {
             this.$emit('sw-media-grid-media-item-change-name', {
                 originalDomEvent,
                 item: this.item,
                 newName: this.$refs.inputItemName.value
+            });
+        },
+
+        showItemDetails(originalDomEvent) {
+            this.$emit('sw-media-grid-media-item-show-details', {
+                originalDomEvent,
+                item: this.item
+            });
+        },
+
+        copyItemLink() {
+            domUtils.copyToClipboard(this.item.extensions.links.url);
+        },
+
+        deleteItem(originalDomEvent) {
+            this.$emit('sw-media-grid-media-item-delete', {
+                originalDomEvent,
+                item: this.item
+            });
+        },
+
+        replaceItem(originalDomEvent) {
+            this.$emit('sw-media-grid-media-item-replace', {
+                originalDomEvent,
+                item: this.item
             });
         }
     }

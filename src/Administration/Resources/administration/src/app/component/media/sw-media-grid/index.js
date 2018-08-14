@@ -73,9 +73,11 @@ Component.register('sw-media-grid', {
                 'grid-template-columns': columnDefinition
             };
         },
+
         showSelectedIndicator() {
             return this.selectable && this.selection.length > 0;
         },
+
         containerOptions() {
             return {
                 previewType: this.previewType,
@@ -97,15 +99,18 @@ Component.register('sw-media-grid', {
         getSelection() {
             return this.selection;
         },
+
         clearSelection() {
             this.selection = [];
         },
+
         emitSelectionCleared(originalDomEvent) {
             this.clearSelection();
             this.$emit('sw-media-grid-selection-clear', {
                 originalDomEvent
             });
         },
+
         isItemSelected(item) {
             if (this.selection.length === 0) {
                 return false;
@@ -117,6 +122,7 @@ Component.register('sw-media-grid', {
 
             return index > -1;
         },
+
         addToSelection({ originalDomEvent, item }) {
             if (this.selectable) {
                 if (!this.isItemSelected(item)) {
@@ -129,6 +135,7 @@ Component.register('sw-media-grid', {
                 item
             });
         },
+
         removeFromSelection({ originalDomEvent, item }) {
             this.selection = this.selection.filter((element) => {
                 return !(element[this.idField] === item[this.idField]);

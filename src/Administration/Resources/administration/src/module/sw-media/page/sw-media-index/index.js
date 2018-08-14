@@ -70,12 +70,21 @@ Component.register('sw-media-index', {
             this.getLastSelectedItem();
         },
 
+        handleMediaGridItemShowDetails({ item }) {
+            this.lastSelectedItem = item;
+            this.$refs.mediaSidebar.showQuickInfo();
+        },
+
         handleSidebarRemoveItem({ item }) {
             this.selectionToDelete = [item];
         },
 
         handleSidebarRemoveBatchRequest() {
             this.selectionToDelete = this.$refs.gridLastAdded.selection;
+        },
+
+        handleMediaGridItemDelete({ item }) {
+            this.selectionToDelete = [item];
         },
 
         closeDeleteModal() {

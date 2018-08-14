@@ -20,8 +20,13 @@ Component.register('sw-media-sidebar', {
         emitRequestMoveSelection(originalDomEvent) {
             this.$emit('sw-media-sidebar-move-batch', { originalDomEvent });
         },
+
         emitRequestRemoveSelection(originalDomEvent) {
             this.$emit('sw-media-sidebar-remove-batch', { originalDomEvent });
+        },
+
+        showQuickInfo() {
+            this.$refs.quickInfoButton.toggleContentPanel(true);
         }
     }
 });

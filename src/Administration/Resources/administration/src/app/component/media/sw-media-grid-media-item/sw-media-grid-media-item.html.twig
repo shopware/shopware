@@ -12,7 +12,34 @@
         @keydown.enter="emitNameChanged"
         @keydown.esc="cancelInlineEdit"
         @blur="cancelInlineEditFromBlur">
+
     <div v-else>
         {{ itemTitle }}
     </div>
+{% endblock %}
+
+{% block sw_media_grid_item_context_items%}
+    {% block sw_media_griditem_context_item_detail %}
+        <sw-context-menu-item @click="showItemDetails($event)">
+            {{ $tc('global.sw-media-grid-media-item.contextMenuDetailLabel') }}
+        </sw-context-menu-item>
+    {% endblock %}
+
+    {% block sw_media_griditem_context_item_copy_item_link %}
+        <sw-context-menu-item @click="copyItemLink()">
+            {{ $tc('global.sw-media-grid-media-item.contextMenuCopyLinkLabel') }}
+        </sw-context-menu-item>
+    {% endblock %}
+
+    {% block sw_media_griditem_context_item_replace %}
+        <sw-context-menu-item @click="replaceitem($event)" :disabled="true">
+            {{ $tc('global.sw-media-grid-media-item.contextMenuReplaceLabel') }}
+        </sw-context-menu-item>
+    {% endblock %}
+
+    {% block sw_media_griditem_context_item_delete %}
+        <sw-context-menu-item @click="deleteItem($event)" variant="danger">
+            {{ $tc('global.sw-media-grid-media-item.contextMenuDeleteLabel') }}
+        </sw-context-menu-item>
+    {% endblock %}
 {% endblock %}

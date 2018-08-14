@@ -7,10 +7,12 @@
                         <div class="sw-media-sidebar__items-top">
                             {% block sw_media_sidebar_actions_quickinfo %}
                                 <sw-sidebar-item icon="default-action-document-view"
-                                                 :title="$tc('sw-media.sidebar.actions.quickInfo')">
+                                                 :title="$tc('sw-media.sidebar.actions.quickInfo')"
+                                                 ref="quickInfoButton">
                                     <sw-media-quickinfo :item="item" v-on="$listeners"></sw-media-quickinfo>
                                 </sw-sidebar-item>
                             {% endblock %}
+
                             {% block sw_media_sidebar_actions_filter %}
                                 <sw-sidebar-item icon="default-action-filter"
                                                  :title="$tc('sw-media.sidebar.actions.filter')"

@@ -36,6 +36,7 @@ Component.register('sw-sidebar-item', {
                 'is--disabled': this.disabled
             };
         },
+
         hasDefaultSlot() {
             return !!this.$slots.default;
         }
@@ -49,19 +50,28 @@ Component.register('sw-sidebar-item', {
         componentCreated() {
             this.$parent.items[this.panelId] = this;
         },
-        toggleContentPanel(event) {
+
+        sidebarButtonClick(event) {
             if (this.disabled) {
                 return;
             }
             this.$emit('click', event);
 
+            this.toggleContentPanel();
+        },
+
+        toggleContentPanel(expand = !this.isExpanded) {
             // The panel is just a button which can be clicked by the user
             if (!this.hasDefaultSlot) {
                 return;
             }
 
-            this.isExpanded = !this.isExpanded;
+            this.isExpanded = expand;
             this.$parent.$emit('closeNonExpandedContentPanels', this.panelId);
+        },
+
+        closeSideBarPanel() {
+            this.toggleContentPanel();
         }
     }
 });

@@ -34,13 +34,11 @@
     "sw-modal": {
       "labelClose": "Close"
     },
-    "sw-media-grid-item": {
-      "contextMenu": {
-        "details": "Details",
-        "edit": "Edit",
-        "move": "Move",
-        "delete": "Delete"
-      }
+    "sw-media-grid-media-item": {
+      "contextMenuDetailLabel": "Details",
+      "contextMenuDeleteLabel": "Delete",
+      "contextMenuCopyLinkLabel": "Copy Link",
+      "contextMenuReplaceLabel": "Replace"
     },
     "sw-multi-select": {
       "messageNoResults": "No Results found for \"{term}\".",

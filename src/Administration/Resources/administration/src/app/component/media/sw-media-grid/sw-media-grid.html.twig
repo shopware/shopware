@@ -5,20 +5,22 @@
                 <div class="sw-media-grid__content"
                      :style="mediaColumnDefinitions"
                      @click.self="emitSelectionCleared">
-                        {% block sw_media_grid_content_cell %}
-                            <div class="sw-media-grid__content-cell"
-                                 v-for="item in items"
-                                 :key="item.key" >
-                                <component :is="previewComponent"
-                                        :selected="isItemSelected(item)"
-                                        :item="item"
-                                        :containerOptions="containerOptions"
-                                        @sw-media-grid-item-selection-add="addToSelection"
-                                        @sw-media-grid-item-selection-remove="removeFromSelection"
-                                        v-on="$listeners">
-                                </component>
-                            </div>
-                        {% endblock %}
+
+                    {% block sw_media_grid_content_cell %}
+                        <div class="sw-media-grid__content-cell"
+                             v-for="item in items"
+                             :key="item.key" >
+                            <component
+                                :is="previewComponent"
+                                :selected="isItemSelected(item)"
+                                :item="item"
+                                :containerOptions="containerOptions"
+                                @sw-media-grid-item-selection-add="addToSelection"
+                                @sw-media-grid-item-selection-remove="removeFromSelection"
+                                v-on="$listeners">
+                            </component>
+                        </div>
+                    {% endblock %}
                 </div>
             {% endblock %}
         </slot>

@@ -14,7 +14,7 @@
 ## Pagination
 
 ```
-/api/product?offset=0&limit=10
+/api/product?page=1&limit=10
 ```
 
 ## Simple mode
@@ -47,7 +47,7 @@ This endpoint allows to receive a entity list even by sending a post request. Al
 
 ```json
 {
-	"offset": 0,
+	"page": 1,
 	"limit": 2,
 	"fetch-count": 1, 
 	"filter": [
@@ -202,7 +202,7 @@ The not query allows to negate a collection of queries. Sql example `WHERE !(pro
 A score query can only be used in `advanced mode` and only in the `query` context. This query allows to build a query which is used for ranking calculation in the query.
 ```json
 {
-  "offset": 0,
+  "page": 1,
   "limit": 10,
   "query": [
     { 

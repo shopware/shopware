@@ -20,20 +20,20 @@ class ApiService {
     }
 
     /**
-     * Gets a list from the configured API end point using the offset & limit.
+     * Gets a list from the configured API end point using the page & limit.
      *
-     * @param {Number} offset
+     * @param {Number} page
      * @param {Number} limit
      * @param {Object} [additionalParams={}]
      * @param {Object} [additionalHeaders={}]
      * @returns {Promise<T>}
      */
-    getList({ offset, limit, additionalParams = {}, additionalHeaders = {} }) {
+    getList({ page, limit, additionalParams = {}, additionalHeaders = {} }) {
         const headers = this.getBasicHeaders(additionalHeaders);
         let params = {};
 
-        if (offset >= 0) {
-            params.offset = offset;
+        if (page >= 1) {
+            params.page = page;
         }
 
         if (limit > 0) {

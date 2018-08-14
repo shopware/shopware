@@ -12,7 +12,7 @@ Component.register('sw-pagination', {
         limit: {
             required: true
         },
-        offset: {
+        page: {
             required: true
         },
         totalVisible: {
@@ -24,18 +24,13 @@ Component.register('sw-pagination', {
 
     data() {
         return {
-            currentPage: 0,
+            currentPage: this.page,
             perPage: this.limit,
             steps: [25, 50, 75, 100]
         };
     },
 
     computed: {
-        page() {
-            const page = Math.floor(this.offset / this.limit) + 1;
-            this.currentPage = page;
-            return page;
-        },
         maxPage() {
             return Math.ceil(this.total / this.perPage);
         },
@@ -78,7 +73,7 @@ Component.register('sw-pagination', {
         },
         pageChange() {
             this.$emit('page-change', {
-                offset: (this.currentPage - 1) * this.perPage,
+                page: this.currentPage,
                 limit: this.perPage
             });
         },
@@ -109,11 +104,6 @@ Component.register('sw-pagination', {
 
         changePageByPageNumber(pageNum) {
             this.currentPage = pageNum;
-            this.pageChange();
-        },
-
-        changePageByOffsetLimit(offset) {
-            this.currentPage = offset / this.perPage;
             this.pageChange();
         },
 

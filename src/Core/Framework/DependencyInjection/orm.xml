@@ -74,6 +74,8 @@
 
         <service class="Shopware\Core\Framework\ORM\Search\RequestCriteriaBuilder" id="Shopware\Core\Framework\ORM\Search\RequestCriteriaBuilder">
             <argument type="service" id="Shopware\Core\Framework\ORM\Search\SearchBuilder"/>
+            <argument>%shopware.api.max_limit%</argument>
+            <argument>%shopware.api.allowed_limits%</argument>
         </service>
 
         <service class="Shopware\Core\Framework\ORM\ExtensionRegistry" id="Shopware\Core\Framework\ORM\ExtensionRegistry" public="true">

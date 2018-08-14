@@ -35,12 +35,12 @@ Component.register('sw-order-detail', {
             this.order = this.orderStore.getById(this.orderId);
 
             this.lineItemsStore.getList({
-                offset: 0,
-                limit: 20
+                page: 1,
+                limit: 25
             });
 
             this.deliveriesStore.getList({
-                offset: 0,
+                page: 1,
                 limit: 50
             });
         },

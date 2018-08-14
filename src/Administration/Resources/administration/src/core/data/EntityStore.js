@@ -67,7 +67,7 @@ class EntityStore {
     /**
      * Get a list of entities.
      *
-     * @param {Number} offset
+     * @param {Number} page
      * @param {Number} limit
      * @param {String} sortBy
      * @param {String} sortDirection
@@ -75,7 +75,7 @@ class EntityStore {
      * @param {Object} criteria
      * @return {Promise}
      */
-    getList({ offset, limit, sortBy, sortDirection, term, criteria }) {
+    getList({ page, limit, sortBy, sortDirection, term, criteria }) {
         const params = {};
 
         if (sortBy && sortBy.length) {
@@ -93,7 +93,7 @@ class EntityStore {
         this.isLoading = true;
 
         return this.apiService.getList({
-            offset,
+            page,
             limit,
             additionalParams: params
         }).then((response) => {

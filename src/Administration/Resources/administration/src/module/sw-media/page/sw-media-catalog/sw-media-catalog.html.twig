@@ -27,7 +27,7 @@
 
                                     {% block sw_media_catalog_pagination %}
                                     <sw-pagination
-                                        :offset="offset"
+                                        :page="page"
                                         :limit="limit"
                                         :total="total"
                                         @page-change="onPageChange">

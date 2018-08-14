@@ -163,7 +163,7 @@ $result = $repository->search($criteria, $context);
 
 Each entity can also be accessed via API. Simple search queries can also be used via the 
 corresponding entity routes: 
-* `GET /api/v1/product?offset=0&limit=10` 
+* `GET /api/v1/product?page=1&limit=10` 
 
 Complex queries need to be sent via the `/search` endpoint:
 * `POST /api/v1/search/product`
@@ -179,7 +179,7 @@ $client->post(
     'http://shopware.local/api/v1/search/product',
     [
         'body' => json_encode([
-            'offset' => 0,
+            'page' => 1,
             'limit' => 10
         ]),
         'headers' => [
@@ -279,7 +279,7 @@ $client->post(
     'http://shopware.local/api/v1/search/product',
     [
         'body' => json_encode([
-            'offset' => 0,
+            'page' => 1,
             'limit' => 10,
             'filter' => [
                 ['type' => 'term', 'field' => 'product.active', 'value' => 1]
@@ -305,7 +305,7 @@ $result = $client->post(
     'http://shopware.local/api/v1/search/product',
     [
         'body' => json_encode([
-            'offset' => 0,
+            'page' => 1,
             'limit' => 10,
             'filter' => [
                 [
@@ -335,7 +335,7 @@ $result = $client->post(
     'http://shopware.local/api/v1/search/product',
     [
         'body' => json_encode([
-            'offset' => 0,
+            'page' => 1,
             'limit' => 10,
             'filter' => [
                 [
@@ -366,7 +366,7 @@ $result = $client->post(
     'http://shopware.local/api/v1/search/product',
     [
         'body' => json_encode([
-            'offset' => 0,
+            'page' => 1,
             'limit' => 10,
             'filter' => [
                 [
@@ -396,7 +396,7 @@ $result = $client->post(
     'http://shopware.local/api/v1/search/product',
     [
         'body' => json_encode([
-            'offset' => 0,
+            'page' => 1,
             'limit' => 10,
             'filter' => [
                 [
@@ -473,7 +473,7 @@ $result = $client->post(
     'http://shopware.local/api/v1/search/product',
     [
         'body' => json_encode([
-            'offset' => 0,
+            'page' => 1,
             'limit' => 10,
             'filter' => [
                 [

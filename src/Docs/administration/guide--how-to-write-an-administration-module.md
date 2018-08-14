@@ -713,7 +713,7 @@ State.register('manufacturer', {
     },
 
     actions: {
-        getManufacturerList({ commit }, offset = 0, limit = 25) {
+        getManufacturerList({ commit }, page = 1, limit = 25) {
             // Get the manufacturer API service
             const providerContainer = Shopware.Touchpoint.getContainer('service');
             const manufacturerService = providerContainer.productManufacturerService;

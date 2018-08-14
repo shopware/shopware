@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Api\Serializer\JsonApiEncoder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -117,62 +118,54 @@ class JsonApiType implements ResponseTypeInterface
         if ($limit <= 0) {
             return [];
         }
-
         $pagination = [
-            'first' => $this->buildPaginationUrl(
-                $uri,
-                array_merge(
-                    $parameters,
-                    ['page' => [
-                        'offset' => 0,
-                        'limit' => $limit,
-                    ]]
-                )
-            ),
-            'last' => $this->buildPaginationUrl(
-                $uri,
-                array_merge(
-                    $parameters,
-                    ['page' => [
-                        'offset' => ceil($searchResult->getTotal() / $limit) * $limit - $limit,
-                        'limit' => $limit,
-                    ]]
-                )
-            ),
+            'first' => $this->buildPaginationUrl($uri, $parameters, $limit, 1),
         ];
 
-        if ($offset - $limit > 0) {
-            $pagination['prev'] = $this->buildPaginationUrl(
-                $uri,
-                array_merge(
-                    $parameters,
-                    ['page' => [
-                        'offset' => $offset - $limit,
-                        'limit' => $limit,
-                    ]]
-                )
-            );
+        $currentPage = 1 + (int) floor($offset / $limit);
+        if ($currentPage > 1) {
+            $pagination['prev'] = $this->buildPaginationUrl($uri, $parameters, $limit, $currentPage - 1);
         }
 
-        if ($offset + $limit < $searchResult->getTotal()) {
-            $pagination['next'] = $this->buildPaginationUrl(
-                $uri,
-                array_merge(
-                    $parameters,
-                    ['page' => [
-                        'offset' => $offset + $limit,
-                        'limit' => $limit,
-                    ]]
-                )
-            );
+        $fetchCount = $searchResult->getCriteria()->fetchCount();
+        switch ($fetchCount) {
+            case Criteria::FETCH_COUNT_NONE:
+                if ($searchResult->getTotal() >= $limit) {
+                    $pagination['next'] = $this->buildPaginationUrl($uri, $parameters, $limit, $currentPage + 1);
+                }
+                break;
+
+            case Criteria::FETCH_COUNT_TOTAL:
+                $lastPage = (int) ceil($searchResult->getTotal() / $limit);
+                $lastPage = $lastPage >= 1 ? $lastPage : 1;
+                $pagination['last'] = $this->buildPaginationUrl($uri, $parameters, $limit, $lastPage);
+
+                if ($currentPage < $lastPage) {
+                    $pagination['next'] = $this->buildPaginationUrl($uri, $parameters, $limit, $currentPage + 1);
+                }
+                break;
+
+            case Criteria::FETCH_COUNT_NEXT_PAGES:
+                $remaining = $searchResult->getTotal();
+                $maxFetchCount = $limit * 5 + 1;
+                if ($remaining && $remaining > $limit) {
+                    $pagination['next'] = $this->buildPaginationUrl($uri, $parameters, $limit, $currentPage + 1);
+                }
+                if ($remaining > 0 && $remaining < $maxFetchCount) {
+                    $lastPage = $currentPage - 1 + (int) ceil($remaining / $limit);
+                    $pagination['last'] = $this->buildPaginationUrl($uri, $parameters, $limit, $lastPage);
+                }
+                break;
         }
 
         return $pagination;
     }
 
-    private function buildPaginationUrl(string $uri, array $parameters): string
+    private function buildPaginationUrl(string $uri, array $parameters, int $limit, int $page): string
     {
-        return $uri . '?' . http_build_query($parameters);
+        $params = array_merge($parameters, ['limit' => $limit, 'page' => $page]);
+
+        return $uri . '?' . http_build_query($params);
     }
 
     private function getBaseUrl(Request $request): string

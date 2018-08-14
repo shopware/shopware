@@ -26,7 +26,7 @@ Component.register('sw-catalog-list', {
         createdComponent() {
             this.isLoading = true;
 
-            this.catalogStore.getList({ offset: 0, limit: 100 }).then((response) => {
+            this.catalogStore.getList({ page: 1, limit: 100 }).then((response) => {
                 this.catalogs = response.items;
                 this.isLoading = false;
             });

@@ -72,7 +72,7 @@ We're having a special component called `sw-pagination` which can be slotted int
    :pagination="true">
    
    <template slot="pagination">
-		<sw-pagination :offset="offset"
+		<sw-pagination :page="page"
 		   :limit="limit"
 		   :total="totalProducts"
 		   :total-visible="7"
@@ -150,7 +150,7 @@ The `sw-grid` component will fire the event `inline-edit-finish` when the user p
 	</template>
    
    <template slot="pagination">
-		<sw-pagination :offset="offset"
+		<sw-pagination :page="page"
 		   :limit="limit"
 		   :total="totalProducts"
 		   :total-visible="7"

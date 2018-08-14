@@ -83,6 +83,7 @@ class ApiController extends Controller
         $this->serializer = $serializer;
         $this->responseFactory = $responseFactory;
         $this->entityWriter = $entityWriter;
+
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
     }
 

@@ -6,10 +6,14 @@ use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Exception\SearchRequestException;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\ORM\Search\SearchBuilder;
 use Shopware\Core\Framework\Test\Api\ApiTestCase;
 use Shopware\Core\PlatformRequest;
+use Symfony\Component\HttpFoundation\Request;
 
 class SearchCriteriaBuilderTest extends ApiTestCase
 {
@@ -186,74 +190,90 @@ class SearchCriteriaBuilderTest extends ApiTestCase
     }
 
     /**
-     * OFFSET
+     * PAGING
      */
-    public function testOffset(): void
+    public function testPage(): void
     {
-        $ids = [];
-        for ($i = 0; $i < 20; ++$i) {
-            $ids[] = $this->createManufacturer(['link' => 'testOffset']);
-        }
+        $link = 'testPage';
+        $limit = 10;
+        $pageCount = 2;
+        $ids = $this->createData($link, $limit * $pageCount);
 
-        $this->apiClient->request('GET', $this->url . '/product-manufacturer', ['offset' => 10, 'filter' => ['product_manufacturer.link' => 'testOffset'], 'sort' => 'product_manufacturer.id']);
+        $requestedPage = 2;
+        $this->apiClient->request('GET', $this->url . '/product-manufacturer', ['page' => $requestedPage, 'limit' => $limit, 'filter' => ['product_manufacturer.link' => $link], 'sort' => 'product_manufacturer.id']);
         static::assertSame(200, $this->apiClient->getResponse()->getStatusCode());
         $content = json_decode($this->apiClient->getResponse()->getContent(), true);
 
-        sort($ids);
-
-        $expectedIds = array_slice($ids, 10);
+        $expectedIds = array_slice($ids, $limit * ($requestedPage - 1), $limit);
         $actualIds = array_column($content['data'], 'id');
 
         static::assertEquals($expectedIds, $actualIds);
     }
 
-    public function testOffsetWithNumericString(): void
+    public function testPositiveNonExistentPage(): void
     {
-        $ids = [];
-        for ($i = 0; $i < 20; ++$i) {
-            $ids[] = $this->createManufacturer(['link' => 'testOffsetWithNumericString']);
-        }
+        $link = 'testPositiveNonExistentPage';
+        $limit = 10;
+        $pageCount = 2;
+        $this->createData($link, $limit * $pageCount);
 
-        $this->apiClient->request('GET', $this->url . '/product-manufacturer', ['offset' => '10', 'filter' => ['product_manufacturer.link' => 'testOffsetWithNumericString'], 'sort' => 'product_manufacturer.id']);
+        $requestedPage = 3;
+        $this->apiClient->request('GET', $this->url . '/product-manufacturer', ['page' => $requestedPage, 'limit' => $limit, 'filter' => ['product_manufacturer.link' => $link], 'sort' => 'product_manufacturer.id']);
         static::assertSame(200, $this->apiClient->getResponse()->getStatusCode());
         $content = json_decode($this->apiClient->getResponse()->getContent(), true);
 
-        sort($ids);
-
-        $expectedIds = array_slice($ids, 10);
+        $expectedIds = [];
         $actualIds = array_column($content['data'], 'id');
 
         static::assertEquals($expectedIds, $actualIds);
     }
 
-    public function testNegativeOffset(): void
+    public function testSmallPage(): void
     {
-        $this->apiClient->request('GET', $this->url . '/product', ['offset' => -1]);
-        static::assertSame(400, $this->apiClient->getResponse()->getStatusCode());
+        $link = 'testSmallPage';
+        $limit = 10;
+        $pageCount = 2;
+        $ids = $this->createData($link, $limit * $pageCount + 1);
+
+        $requestedPage = 3;
+        $this->apiClient->request('GET', $this->url . '/product-manufacturer', ['page' => $requestedPage, 'limit' => $limit, 'filter' => ['product_manufacturer.link' => $link], 'sort' => 'product_manufacturer.id']);
+        static::assertSame(200, $this->apiClient->getResponse()->getStatusCode());
         $content = json_decode($this->apiClient->getResponse()->getContent(), true);
 
-        static::assertEquals('The offset parameter must be a positive integer. Given: -1', $content['errors'][0]['detail']);
-        static::assertEquals('/offset', $content['errors'][0]['source']['pointer']);
+        $expectedIds = array_slice($ids, $limit * ($requestedPage - 1), $limit);
+        $actualIds = array_column($content['data'], 'id');
+
+        static::assertEquals($expectedIds, $actualIds);
     }
 
-    public function testNonIntegerOffset(): void
+    public function testNegativePage(): void
     {
-        $this->apiClient->request('GET', $this->url . '/product', ['offset' => 'foo']);
+        $this->apiClient->request('GET', $this->url . '/product', ['page' => -1]);
         static::assertSame(400, $this->apiClient->getResponse()->getStatusCode());
         $content = json_decode($this->apiClient->getResponse()->getContent(), true);
 
-        static::assertEquals('The offset parameter must be a positive integer. Given: foo', $content['errors'][0]['detail']);
-        static::assertEquals('/offset', $content['errors'][0]['source']['pointer']);
+        static::assertEquals('The page parameter must be a positive integer. Given: -1', $content['errors'][0]['detail']);
+        static::assertEquals('/page', $content['errors'][0]['source']['pointer']);
     }
 
-    public function testEmptyOffset(): void
+    public function testNonIntegerPage(): void
     {
-        $this->apiClient->request('GET', $this->url . '/product', ['offset' => '']);
+        $this->apiClient->request('GET', $this->url . '/product', ['page' => 'foo']);
         static::assertSame(400, $this->apiClient->getResponse()->getStatusCode());
         $content = json_decode($this->apiClient->getResponse()->getContent(), true);
 
-        static::assertEquals('The offset parameter must be a positive integer. Given: (empty)', $content['errors'][0]['detail']);
-        static::assertEquals('/offset', $content['errors'][0]['source']['pointer']);
+        static::assertEquals('The page parameter must be a positive integer. Given: foo', $content['errors'][0]['detail']);
+        static::assertEquals('/page', $content['errors'][0]['source']['pointer']);
+    }
+
+    public function testEmptyPage(): void
+    {
+        $this->apiClient->request('GET', $this->url . '/product', ['page' => '']);
+        static::assertSame(400, $this->apiClient->getResponse()->getStatusCode());
+        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
+
+        static::assertEquals('The page parameter must be a positive integer. Given: (empty)', $content['errors'][0]['detail']);
+        static::assertEquals('/page', $content['errors'][0]['source']['pointer']);
     }
 
     /**
@@ -322,11 +342,59 @@ class SearchCriteriaBuilderTest extends ApiTestCase
         static::assertEquals('/limit', $content['errors'][0]['source']['pointer']);
     }
 
+    public function testLimitExceedingMaxLimit(): void
+    {
+        $maxLimit = 50;
+        $limit = $maxLimit + 1;
+
+        $params = [
+            'limit' => $maxLimit + 1,
+        ];
+
+        $gotError = false;
+        try {
+            $this->fakeHandleRequest($maxLimit, [], $params);
+        } catch (SearchRequestException $e) {
+            $errors = $e->getErrors();
+            $current = $errors->current();
+
+            static::assertEquals('The limit must be lower than or equal to MAX_LIMIT(=' . $maxLimit . '). Given: ' . $limit, $current['detail']);
+            static::assertEquals('/limit', $current['source']['pointer']);
+            $gotError = true;
+        }
+        static::assertTrue($gotError);
+    }
+
+    public function testDisallowedLimit(): void
+    {
+        $allowedLimits = [1, 10];
+        $limit = 13;
+
+        $params = [
+            'limit' => $limit,
+        ];
+
+        $gotError = false;
+        try {
+            $this->fakeHandleRequest(0, $allowedLimits, $params);
+        } catch (SearchRequestException $e) {
+            $errors = $e->getErrors();
+            $current = $errors->current();
+
+            $message = sprintf('The limit must be one of the `allowed_limits` [%s]. Given: %s', implode(', ', $allowedLimits), $limit);
+            static::assertEquals($message, $current['detail']);
+            static::assertEquals('/limit', $current['source']['pointer']);
+
+            $gotError = true;
+        }
+        static::assertTrue($gotError);
+    }
+
     public function testMultipleErrorStack(): void
     {
         $query = [
             'limit' => '',
-            'offset' => '',
+            'page' => '',
             'filter' => [
                 ['type' => 'bar'],
                 ['type' => 'term', 'field' => 'foo', 'value' => ''],
@@ -342,12 +410,35 @@ class SearchCriteriaBuilderTest extends ApiTestCase
         $content = json_decode($this->apiClient->getResponse()->getContent(), true);
 
         static::assertCount(6, $content['errors'], print_r($content['errors'], true));
-        static::assertEquals('/offset', $content['errors'][0]['source']['pointer']);
-        static::assertEquals('/limit', $content['errors'][1]['source']['pointer']);
+        static::assertEquals('/limit', $content['errors'][0]['source']['pointer']);
+        static::assertEquals('/page', $content['errors'][1]['source']['pointer']);
         static::assertEquals('/filter/0/type', $content['errors'][2]['source']['pointer']);
         static::assertEquals('/filter/1/value', $content['errors'][3]['source']['pointer']);
         static::assertEquals('/filter/2/queries/0/type', $content['errors'][4]['source']['pointer']);
         static::assertEquals('/filter/2/queries/1/field', $content['errors'][5]['source']['pointer']);
+    }
+
+    private function fakeHandleRequest($maxLimit = 0, $allowedLimits = [], $params = [])
+    {
+        $searchBuilder = $this::$container->get(SearchBuilder::class);
+        $requestBuilder = new RequestCriteriaBuilder($searchBuilder, $maxLimit, $allowedLimits);
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $definition = 'Shopware\Core\Content\Product\ProductDefinition';
+
+        $request = new Request($params);
+
+        return $requestBuilder->handleRequest($request, new Criteria(), $definition, $context);
+    }
+
+    private function createData(string $link, int $count): array
+    {
+        $ids = [];
+        for ($i = 0; $i < $count; ++$i) {
+            $ids[] = $this->createManufacturer(['link' => $link]);
+        }
+        sort($ids);
+
+        return $ids;
     }
 
     private function createManufacturer(array $parameters = []): string

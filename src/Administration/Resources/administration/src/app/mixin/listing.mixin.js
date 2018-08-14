@@ -6,7 +6,7 @@ Mixin.register('listing', {
 
     data() {
         return {
-            offset: 0,
+            page: 1,
             limit: 25,
             total: 0,
             sortBy: null,
@@ -40,7 +40,7 @@ Mixin.register('listing', {
         getDataFromRoute() {
             const params = this.$route.query;
 
-            this.offset = params.offset || this.offset;
+            this.page = params.page || this.page;
             this.limit = params.limit || this.limit;
             this.sortDirection = params.sortDirection || this.sortDirection;
             this.sortBy = params.sortBy || this.sortBy;
@@ -80,7 +80,7 @@ Mixin.register('listing', {
         getListingParams() {
             const params = {
                 limit: this.limit,
-                offset: this.offset
+                page: this.page
             };
 
             if (this.term && this.term.length) {
@@ -123,7 +123,7 @@ Mixin.register('listing', {
         },
 
         onPageChange(opts) {
-            this.offset = opts.offset;
+            this.page = opts.page;
             this.limit = opts.limit;
 
             this.updateRoute();
@@ -133,7 +133,7 @@ Mixin.register('listing', {
         onSearch(value) {
             this.term = value;
 
-            this.offset = 0;
+            this.page = 1;
             this.updateRoute();
             this.getList();
         },
@@ -141,7 +141,7 @@ Mixin.register('listing', {
         onSwitchFilter(filter, filterIndex) {
             this.filters[filterIndex].active = !this.filters[filterIndex].active;
 
-            this.offset = 0;
+            this.page = 1;
             this.updateRoute();
             this.getList();
         },

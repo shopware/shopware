@@ -4,11 +4,13 @@ namespace Shopware\Core\Framework\ORM\Search;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Exception\DisallowedLimitQueryException;
 use Shopware\Core\Framework\ORM\Exception\InvalidAggregationQueryException;
 use Shopware\Core\Framework\ORM\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\ORM\Exception\InvalidLimitQueryException;
-use Shopware\Core\Framework\ORM\Exception\InvalidOffsetQueryException;
+use Shopware\Core\Framework\ORM\Exception\InvalidPageQueryException;
 use Shopware\Core\Framework\ORM\Exception\InvalidSortQueryException;
+use Shopware\Core\Framework\ORM\Exception\QueryLimitExceededException;
 use Shopware\Core\Framework\ORM\Exception\SearchRequestException;
 use Shopware\Core\Framework\ORM\Search\Aggregation\AvgAggregation;
 use Shopware\Core\Framework\ORM\Search\Aggregation\CardinalityAggregation;
@@ -32,9 +34,21 @@ class RequestCriteriaBuilder
      */
     private $searchBuilder;
 
-    public function __construct(SearchBuilder $searchBuilder)
+    /**
+     * @var int
+     */
+    private $maxLimit;
+
+    /**
+     * @var int[]
+     */
+    private $allowedLimits;
+
+    public function __construct(SearchBuilder $searchBuilder, int $maxLimit, array $availableLimits = [])
     {
         $this->searchBuilder = $searchBuilder;
+        $this->maxLimit = $maxLimit;
+        $this->allowedLimits = $availableLimits;
     }
 
     public function handleRequest(Request $request, Criteria $criteria, string $definition, Context $context): Criteria
@@ -44,6 +58,16 @@ class RequestCriteriaBuilder
         }
 
         return $this->fromArray($request->request->all(), $criteria, $definition, $context);
+    }
+
+    public function getMaxLimit(): int
+    {
+        return $this->maxLimit;
+    }
+
+    public function getAllowedLimits(): array
+    {
+        return $this->allowedLimits;
     }
 
     private function fromArray(array $payload, Criteria $criteria, string $definition, Context $context): Criteria
@@ -57,12 +81,12 @@ class RequestCriteriaBuilder
             $criteria->setFetchCount((int) $payload['fetch-count']);
         }
 
-        if (isset($payload['offset'])) {
-            $this->addOffset($payload, $criteria, $searchException);
-        }
-
         if (isset($payload['limit'])) {
             $this->addLimit($payload, $criteria, $searchException);
+        }
+
+        if (isset($payload['page'])) {
+            $this->setPage($payload, $criteria, $searchException);
         }
 
         if (isset($payload['filter'])) {
@@ -243,27 +267,30 @@ class RequestCriteriaBuilder
         }
     }
 
-    private function addOffset(array $payload, Criteria $criteria, SearchRequestException $searchRequestException): void
+    private function setPage(array $payload, Criteria $criteria, SearchRequestException $searchRequestException)
     {
-        if ($payload['offset'] === '') {
-            $searchRequestException->add(new InvalidOffsetQueryException('(empty)'), '/offset');
+        if ($payload['page'] === '') {
+            $searchRequestException->add(new InvalidPageQueryException('(empty)'), '/page');
 
             return;
         }
 
-        if (!is_numeric($payload['offset'])) {
-            $searchRequestException->add(new InvalidOffsetQueryException($payload['offset']), '/offset');
+        if (!is_numeric($payload['page'])) {
+            $searchRequestException->add(new InvalidPageQueryException($payload['page']), '/page');
 
             return;
         }
 
-        $offset = (int) $payload['offset'];
-        if ($offset < 0) {
-            $searchRequestException->add(new InvalidOffsetQueryException($offset), '/offset');
+        $page = (int) $payload['page'];
+        $limit = (int) ($payload['limit'] ?? 0);
+
+        if ($page <= 0) {
+            $searchRequestException->add(new InvalidPageQueryException($page), '/page');
 
             return;
         }
 
+        $offset = $limit * ($page - 1);
         $criteria->setOffset($offset);
     }
 
@@ -284,6 +311,18 @@ class RequestCriteriaBuilder
         $limit = (int) $payload['limit'];
         if ($limit <= 0) {
             $searchRequestException->add(new InvalidLimitQueryException($limit), '/limit');
+
+            return;
+        }
+
+        if (empty($this->allowedLimits) && $this->maxLimit > 0 && $limit > $this->maxLimit) {
+            $searchRequestException->add(new QueryLimitExceededException($this->maxLimit, $limit), '/limit');
+
+            return;
+        }
+
+        if (!empty($this->allowedLimits) && !in_array($limit, $this->allowedLimits)) {
+            $searchRequestException->add(new DisallowedLimitQueryException($this->allowedLimits, $limit), '/limit');
 
             return;
         }

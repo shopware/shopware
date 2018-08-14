@@ -42,7 +42,7 @@ Component.register('sw-media-catalog', {
             this.isLoading = true;
 
             this.catalogStore.getList({
-                offset: 0,
+                page: 1,
                 limit: 0
             }).then((response) => {
                 this.catalogs = response.items;

@@ -46,7 +46,7 @@ Component.register('sw-order-delivery', {
         createdComponent() {
             this.isLoading = true;
             this.positionsStore.getList({
-                offset: 0,
+                page: 1,
                 limit: 50
             }).then(() => {
                 this.isLoading = false;

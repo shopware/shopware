@@ -463,9 +463,9 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                                                             'type' => 'object',
                                                             'properties' => [
                                                                 'first' => ['example' => $path . '?limit=25'],
-                                                                'last' => ['example' => $path . '?limit=25&offset=250'],
-                                                                'next' => ['example' => $path . '?limit=25&offset=75'],
-                                                                'prev' => ['example' => $path . '?limit=25&offset=25'],
+                                                                'last' => ['example' => $path . '?limit=25&page=11'],
+                                                                'next' => ['example' => $path . '?limit=25&page=4'],
+                                                                'prev' => ['example' => $path . '?limit=25&page=2'],
                                                             ],
                                                         ],
                                                     ],
@@ -702,15 +702,15 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 'schema' => [
                     'type' => 'integer',
                 ],
-                'description' => 'Max amount of resources to be returned',
+                'description' => 'Max amount of resources to be returned in a page',
             ],
             [
-                'name' => 'offset',
+                'name' => 'page',
                 'in' => 'query',
                 'schema' => [
                     'type' => 'integer',
                 ],
-                'description' => 'Offset of the searched results',
+                'description' => 'The page to be returned',
             ],
             [
                 'name' => 'query',

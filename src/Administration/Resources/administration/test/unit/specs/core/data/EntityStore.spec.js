@@ -95,26 +95,40 @@ describe('core/data/EntityStore.js', () => {
 
         // Create a new entry
         const entity = store.create();
-        entity.factor = 6844.41;
-        entity.symbol = 'Ƀ';
-        entity.shortName = 'BTC';
-        entity.name = 'Bitcoin';
+        const currency = {
+            factor: 6844.41,
+            symbol: 'Ƀ',
+            shortName: 'BTC',
+            name: 'Bitcoin'
+        };
+        Object.assign(entity, currency);
 
-        entity.save().then(() => {
-            store.getList({
-                page: 1,
-                limit: 3
-            }).then((response) => {
-                expect(response.items.length).to.be.equal(3);
-                entity.delete(true).then(() => {
-                    done();
+        const page = 1;
+        const limit = 500;
+
+        store.getList({ page, limit }).then((response) => {
+            const totalBeforeSave = response.total;
+            const itemsBeforeSave = response.items;
+
+            entity.save().then(() => {
+                store.getList({ page, limit }).then((response) => {
+                    expect(response.total).to.be.equal(totalBeforeSave + 1);
+
+                    if (itemsBeforeSave.length < limit) {
+                        expect(response.items.length).to.be.equal(itemsBeforeSave.length + 1);
+                    }
+
+                    entity.delete(true).then(() => {
+                        done();
+                    });
+                }).catch((err) => {
+                    done(err);
                 });
             }).catch((err) => {
                 done(err);
             });
-        }).catch((err) => {
-            done(err);
         });
+
     });
 
     itAsync('should get a list with a specific term', (done) => {
@@ -125,15 +139,16 @@ describe('core/data/EntityStore.js', () => {
         entity.factor = 6844.41;
         entity.symbol = 'Ƀ';
         entity.shortName = 'BTC';
-        entity.name = 'Bitcoin';
+        entity.name = 'Awesome_crypto_currency';
 
         entity.save().then(() => {
             store.getList({
                 page: 1,
-                limit: 3,
-                term: 'Bitcoin'
+                limit: 1,
+                term: entity.name
             }).then((response) => {
-                expect(response.items.length).to.be.equal(3);
+                expect(response.items.length).to.be.equal(1);
+
                 entity.delete(true).then(() => {
                     done();
                 });

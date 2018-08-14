@@ -14,6 +14,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 class CatalogStruct extends Entity
 {
@@ -86,6 +87,11 @@ class CatalogStruct extends Entity
      * @var ProductTranslationCollection|null
      */
     protected $productTranslations;
+
+    /**
+     * @var SalesChannelCollection|null
+     */
+    protected $salesChannels;
 
     public function getName(): string
     {
@@ -225,5 +231,15 @@ class CatalogStruct extends Entity
     public function setProductTranslations(ProductTranslationCollection $productTranslations): void
     {
         $this->productTranslations = $productTranslations;
+    }
+
+    public function getSalesChannels(): ?SalesChannelCollection
+    {
+        return $this->salesChannels;
+    }
+
+    public function setSalesChannels(SalesChannelCollection $salesChannels): void
+    {
+        $this->salesChannels = $salesChannels;
     }
 }

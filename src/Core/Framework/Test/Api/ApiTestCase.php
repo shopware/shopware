@@ -169,9 +169,9 @@ class ApiTestCase extends WebTestCase
             'paymentMethodId' => Defaults::PAYMENT_METHOD_DEBIT,
             'shippingMethodId' => Defaults::SHIPPING_METHOD,
             'countryId' => Defaults::COUNTRY,
-            'catalogIds' => [Defaults::CATALOG],
-            'currencyIds' => [Defaults::CURRENCY],
-            'languageIds' => [Defaults::LANGUAGE],
+            'catalogs' => [['id' => Defaults::CATALOG]],
+            'currencies' => [['id' => Defaults::CURRENCY]],
+            'languages' => [['id' => Defaults::LANGUAGE]],
         ]], Context::createDefaultContext(Defaults::TENANT_ID));
 
         $this->salesChannelIds[] = $salesChannelId->getBytes();

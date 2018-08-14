@@ -348,6 +348,33 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
+        <service id="sales_channel_catalog.repository" class="Shopware\Core\Framework\ORM\EntityRepository" public="true">
+            <argument>Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCatalog\SalesChannelCatalogDefinition</argument>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\VersionManager"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntitySearcherInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="sales_channel_currency.repository" class="Shopware\Core\Framework\ORM\EntityRepository" public="true">
+            <argument>Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCurrency\SalesChannelCurrencyDefinition</argument>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\VersionManager"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntitySearcherInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="sales_channel_language.repository" class="Shopware\Core\Framework\ORM\EntityRepository" public="true">
+            <argument>Shopware\Core\System\SalesChannel\Aggregate\SalesChannelLanguage\SalesChannelLanguageDefinition</argument>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\VersionManager"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntitySearcherInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
         <service id="integration.repository" class="Shopware\Core\Framework\ORM\EntityRepository" public="true">
             <argument>Shopware\Core\System\Integration\IntegrationDefinition</argument>
             <argument type="service" id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface"/>

@@ -11,9 +11,6 @@ CREATE TABLE `sales_channel` (
   `configuration` LONGTEXT NULL DEFAULT NULL,
   `access_key` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `secret_access_key` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `catalog_ids` LONGTEXT NOT NULL,
-  `currency_ids` LONGTEXT NOT NULL,
-  `language_ids` LONGTEXT NOT NULL,
   `language_id` binary(16) NOT NULL,
   `language_tenant_id` binary(16) NOT NULL,
   `currency_id` binary(16) NOT NULL,
@@ -34,15 +31,52 @@ CREATE TABLE `sales_channel` (
   `updated_at` datetime(3),
   PRIMARY KEY (`id`, `tenant_id`),
   INDEX `access_key` (`access_key`),
-  CHECK (JSON_VALID(`catalog_ids`)),
-  CHECK (JSON_VALID(`currency_ids`)),
-  CHECK (JSON_VALID(`language_ids`)),
   CONSTRAINT `fk_sales_channel.country_id` FOREIGN KEY (`country_id`, `country_version_id`, `country_tenant_id`) REFERENCES `country` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_sales_channel.currency_id` FOREIGN KEY (`currency_id`, `currency_version_id`, `currency_tenant_id`) REFERENCES `currency` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_sales_channel.language_id` FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_sales_channel.payment_method_id` FOREIGN KEY (`payment_method_id`, `payment_method_version_id`, `payment_method_tenant_id`) REFERENCES `payment_method` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_sales_channel.shipping_method_id` FOREIGN KEY (`shipping_method_id`, `shipping_method_version_id`, `shipping_method_tenant_id`) REFERENCES `shipping_method` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_sales_channel.type_id` FOREIGN KEY (`type_id`, `type_tenant_id`) REFERENCES `sales_channel_type` (`id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `sales_channel_catalog`;
+CREATE TABLE `sales_channel_catalog` (
+  `sales_channel_id` binary(16) NOT NULL,
+  `sales_channel_tenant_id` binary(16) NOT NULL,
+  `catalog_id` binary(16) NOT NULL,
+  `catalog_tenant_id` binary(16) NOT NULL,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
+  PRIMARY KEY (`sales_channel_id`, `sales_channel_tenant_id`, `catalog_id`, `catalog_tenant_id`),
+  CONSTRAINT `fk_sales_channel_catalog.sales_channel_id` FOREIGN KEY (`sales_channel_id`, `sales_channel_tenant_id`) REFERENCES `sales_channel` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_sales_channel_catalog.catalog_id` FOREIGN KEY (`catalog_id`, `catalog_tenant_id`) REFERENCES `catalog` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `sales_channel_currency`;
+CREATE TABLE `sales_channel_currency` (
+  `sales_channel_id` binary(16) NOT NULL,
+  `sales_channel_tenant_id` binary(16) NOT NULL,
+  `currency_id` binary(16) NOT NULL,
+  `currency_version_id` binary(16) NOT NULL,
+  `currency_tenant_id` binary(16) NOT NULL,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
+  PRIMARY KEY (`sales_channel_id`, `sales_channel_tenant_id`, `currency_id`, `currency_tenant_id`),
+  CONSTRAINT `fk_sales_channel_currency.sales_channel_id` FOREIGN KEY (`sales_channel_id`, `sales_channel_tenant_id`) REFERENCES `sales_channel` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_sales_channel_currency.currency_id` FOREIGN KEY (`currency_id`, `currency_version_id`, `currency_tenant_id`) REFERENCES `currency` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `sales_channel_language`;
+CREATE TABLE `sales_channel_language` (
+  `sales_channel_id` binary(16) NOT NULL,
+  `sales_channel_tenant_id` binary(16) NOT NULL,
+  `language_id` binary(16) NOT NULL,
+  `language_tenant_id` binary(16) NOT NULL,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
+  PRIMARY KEY (`sales_channel_id`, `sales_channel_tenant_id`, `language_id`, `language_tenant_id`),
+  CONSTRAINT `fk_sales_channel_language.sales_channel_id` FOREIGN KEY (`sales_channel_id`, `sales_channel_tenant_id`) REFERENCES `sales_channel` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_sales_channel_language.language_id` FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `sales_channel_translation`;

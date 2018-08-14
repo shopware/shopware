@@ -481,7 +481,7 @@ class TenantProvisioner
             ['id', 'created_at', 'version_id', 'catalog_id'],
             ['tenant_id', 'catalog_tenant_id'],
             [
-                [$id, $this->now(), $this->defaultId, $this->defaultId]
+                [$id, $this->now(), $this->defaultId, $this->defaultId],
             ]
         );
 
@@ -490,24 +490,60 @@ class TenantProvisioner
             ['product_manufacturer_id', 'product_manufacturer_version_id', 'catalog_id', 'language_id', 'name', 'created_at'],
             ['product_manufacturer_tenant_id', 'catalog_tenant_id', 'language_tenant_id'],
             [
-                [$id, $this->defaultId, $this->defaultId, $this->defaultId, 'shopware AG', $this->now()]
+                [$id, $this->defaultId, $this->defaultId, $this->defaultId, 'shopware AG', $this->now()],
             ]
         );
     }
 
+    /**
+     * @throws InvalidUuidException
+     */
     private function createSalesChannel(): void
     {
         $key = AccessKeyHelper::generateAccessKey('sales-channel');
 
         $salesChannels = [
-            [Uuid::uuid4()->getBytes(), Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_STOREFRONT_API), $key, $key, json_encode(['20080911ffff4fffafffffff19830531']), json_encode(['20080911ffff4fffafffffff19830531']), json_encode(['20080911ffff4fffafffffff19830531']), $this->defaultId, $this->defaultId, $this->defaultId, $this->defaultId, $this->defaultId, $this->defaultId, $this->defaultId, $this->defaultId, $this->defaultId, 1, 'vertical', $this->now()]
+            [Uuid::uuid4()->getBytes(), Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_STOREFRONT_API), $key, $key, $this->defaultId, $this->defaultId, $this->defaultId, $this->defaultId, $this->defaultId, $this->defaultId, $this->defaultId, $this->defaultId, $this->defaultId, 1, 'vertical', $this->now()],
         ];
 
         $this->importTable(
             'sales_channel',
-            ['id', 'type_id', 'access_key', 'secret_access_key', 'catalog_ids', 'currency_ids', 'language_ids', 'language_id', 'currency_id', 'currency_version_id', 'payment_method_id', 'payment_method_version_id', 'shipping_method_version_id', 'shipping_method_id', 'country_id', 'country_version_id', 'active', 'tax_calculation_type', 'created_at'],
+            ['id', 'type_id', 'access_key', 'secret_access_key', 'language_id', 'currency_id', 'currency_version_id', 'payment_method_id', 'payment_method_version_id', 'shipping_method_version_id', 'shipping_method_id', 'country_id', 'country_version_id', 'active', 'tax_calculation_type', 'created_at'],
             ['type_tenant_id', 'tenant_id', 'language_tenant_id', 'currency_tenant_id', 'payment_method_tenant_id', 'shipping_method_tenant_id', 'country_tenant_id'],
             $salesChannels
+        );
+
+        $salesChannelCatalogs = [
+            [$salesChannels[0][0], Uuid::fromHexToBytes(Defaults::CATALOG), $this->now()],
+        ];
+
+        $this->importTable(
+            'sales_channel_catalog',
+            ['sales_channel_id', 'catalog_id', 'created_at'],
+            ['sales_channel_tenant_id', 'catalog_tenant_id'],
+            $salesChannelCatalogs
+        );
+
+        $salesChannelCurrency = [
+            [$salesChannels[0][0], Uuid::fromHexToBytes(Defaults::CURRENCY), Uuid::fromHexToBytes(Defaults::LIVE_VERSION), $this->now()],
+        ];
+
+        $this->importTable(
+            'sales_channel_currency',
+            ['sales_channel_id', 'currency_id', 'currency_version_id', 'created_at'],
+            ['sales_channel_tenant_id', 'currency_tenant_id'],
+            $salesChannelCurrency
+        );
+
+        $salesChannelLanguages = [
+            [$salesChannels[0][0], Uuid::fromHexToBytes(Defaults::LANGUAGE), $this->now()],
+        ];
+
+        $this->importTable(
+            'sales_channel_language',
+            ['sales_channel_id', 'language_id', 'created_at'],
+            ['sales_channel_tenant_id', 'language_tenant_id'],
+            $salesChannelLanguages
         );
 
         $this->importTable(
@@ -515,7 +551,7 @@ class TenantProvisioner
             ['sales_channel_id', 'language_id', 'name', 'created_at'],
             ['sales_channel_tenant_id', 'language_tenant_id'],
             [
-                [$salesChannels[0][0], $this->defaultId, 'Storefront API', $this->now()]
+                [$salesChannels[0][0], $this->defaultId, 'Storefront API', $this->now()],
             ]
         );
     }

@@ -20,6 +20,7 @@ use Shopware\Core\Framework\ORM\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\ORM\Field\CreatedAtField;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\IdField;
+use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\ParentField;
@@ -41,6 +42,7 @@ use Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\ListingFacetT
 use Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\ListingSortingTranslationDefinition;
 use Shopware\Core\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationDefinition;
 use Shopware\Core\System\Locale\LocaleDefinition;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelLanguage\SalesChannelLanguageDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesChannelTranslationDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTypeTranslation\SalesChannelTypeTranslationDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
@@ -69,8 +71,9 @@ class LanguageDefinition extends EntityDefinition
             new ManyToOneAssociationField('parent', 'parent_id', LanguageDefinition::class, false),
             new ManyToOneAssociationField('locale', 'locale_id', LocaleDefinition::class, true),
             new ChildrenAssociationField(self::class),
-            new OneToManyAssociationField('salesChannels', SalesChannelDefinition::class, 'language_id', false, 'id'),
+            new OneToManyAssociationField('salesChannelDefaultAssignments', SalesChannelDefinition::class, 'language_id', false, 'id'),
             new OneToManyAssociationField('snippets', SnippetDefinition::class, 'language_id', false, 'id'),
+            new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelLanguageDefinition::class, false, 'language_id', 'sales_channel_id'),
             (new TranslationsAssociationField('categoryTranslations', CategoryTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('countryAreaTranslations', CountryAreaTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('countryStateTranslations', CountryStateTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new CascadeDelete()),

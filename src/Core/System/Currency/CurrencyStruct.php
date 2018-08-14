@@ -71,6 +71,11 @@ class CurrencyStruct extends Entity
     protected $salesChannels;
 
     /**
+     * @var SalesChannelCollection|null
+     */
+    protected $salesChannelDefaultAssignments;
+
+    /**
      * @var ProductPriceRuleCollection|null
      */
     protected $productPriceRules;
@@ -193,6 +198,16 @@ class CurrencyStruct extends Entity
     public function setSalesChannels(SalesChannelCollection $salesChannels): void
     {
         $this->salesChannels = $salesChannels;
+    }
+
+    public function getSalesChannelDefaultAssignments(): ?SalesChannelCollection
+    {
+        return $this->salesChannelDefaultAssignments;
+    }
+
+    public function setSalesChannelDefaultAssignments(SalesChannelCollection $salesChannelDefaultAssignments): void
+    {
+        $this->salesChannelDefaultAssignments = $salesChannelDefaultAssignments;
     }
 
     public function getProductPriceRules(): ?ProductPriceRuleCollection

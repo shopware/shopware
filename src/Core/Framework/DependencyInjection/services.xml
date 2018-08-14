@@ -101,12 +101,12 @@
             <argument>framework:demodata</argument>
             <argument type="service" id="Shopware\Core\Framework\ORM\Write\EntityWriter"/>
             <argument type="service" id="Shopware\Core\Content\Product\Util\VariantGenerator"/>
-            <argument type="service" id="Shopware\Core\Content\Media\Util\Strategy\StrategyFilesystem"/>
             <argument type="service" id="service_container"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextFactory"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Processor"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Upload\MediaUpdater"/>
         </service>
 
         <service class="Shopware\Core\Framework\Provisioning\TenantProvisioner" id="Shopware\Core\Framework\Provisioning\TenantProvisioner">

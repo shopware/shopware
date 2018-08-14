@@ -90,7 +90,7 @@ describe('core/data/EntityStore.js', () => {
         });
     });
 
-    itAsync('should get a list with using an page and limit', (done) => {
+    itAsync('should get a list with using a page and limit', (done) => {
         const store = new EntityStore('currency', 'currencyService');
 
         // Create a new entry

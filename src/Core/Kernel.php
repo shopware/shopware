@@ -152,6 +152,7 @@ class Kernel extends HttpKernel
         $routes->import($confDir . '/{routes}' . self::CONFIG_EXTS, '/', 'glob');
 
         $this->addApiRoutes($routes);
+        $this->addPluginRoutes($routes);
     }
 
     /**
@@ -274,6 +275,13 @@ class Kernel extends HttpKernel
         $route->setDefault('_controller', $class . '::create');
         $route->addRequirements(['path' => '.*', 'version' => '\d+']);
         $routes->addRoute($route, 'api_controller.create');
+    }
+
+    private function addPluginRoutes(RouteCollectionBuilder $routes): void
+    {
+        foreach (static::$plugins->getActives() as $plugin) {
+            $plugin->configureRoutes($routes, (string) $this->environment);
+        }
     }
 
     private function initializePluginSystem(): void

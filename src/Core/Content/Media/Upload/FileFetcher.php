@@ -13,6 +13,8 @@ class FileFetcher
      * @param string  $destination
      * @param string  $mimeType
      * @param int     $length
+     *
+     * @throws MimeTypeMismatchException
      */
     public function fetchRequestData(Request $request, string $destination, string $mimeType, int $length): void
     {
@@ -41,7 +43,7 @@ class FileFetcher
     public function fetchFileFromURL(string $destination, string $url): int
     {
         if (!$this->isUrlValid($url)) {
-            throw new UploadException('malformed url');
+            throw new UploadException('malformed url: ' . $url);
         }
 
         $inputStream = $this->openStream($url, 'r');

@@ -781,10 +781,6 @@ class ProductRepositoryTest extends KernelTestCase
                         'media' => [
                             'id' => $parentMedia,
                             'name' => 'test file',
-                            'album' => [
-                                'id' => $parentMedia,
-                                'name' => 'test album',
-                            ],
                         ],
                     ],
                 ],
@@ -800,7 +796,6 @@ class ProductRepositoryTest extends KernelTestCase
                         'media' => [
                             'id' => $greenMedia,
                             'name' => 'test file',
-                            'albumId' => $parentMedia,
                         ],
                     ],
                 ],

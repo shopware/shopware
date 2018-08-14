@@ -3,52 +3,48 @@
 return [
     'data' => [
         'id' => 'f343a3c1-19cf-42a7-841a-a0ac5094908c',
-        'type' => 'media_album',
+        'type' => 'user',
         'attributes' => [
+            'localeId' => null,
+            'username' => 'user1',
+            'password' => 'password',
+            'email' => 'user1@shop.de',
+            'lastLogin' => '2018-01-15T08:01:16+00:00',
+            'active' => true,
+            'failedLogins' => 0,
+            'lockedUntil' => null,
             'name' => 'Manufacturer',
-            'position' => 12,
-            'parentId' => null,
-            'createThumbnails' => true,
-            'thumbnailSize' => '200x200',
-            'icon' => 'sprite-blue-folder',
-            'thumbnailHighDpi' => true,
-            'thumbnailQuality' => 90,
-            'thumbnailHighDpiQuality' => 60,
             'createdAt' => '2018-01-15T08:01:16+00:00',
             'updatedAt' => null,
-            'catalogId' => null,
             'tenantId' => null,
+        ],
+        'links' => [
+            'self' => '/api/user/f343a3c1-19cf-42a7-841a-a0ac5094908c',
         ],
         'relationships' => [
             'media' => [
+                'links' => [
+                    'related' => '/api/user/f343a3c1-19cf-42a7-841a-a0ac5094908c/media',
+                ],
                 'data' => [
-                    ['id' => '3e352be2-d858-46dd-9752-9c0f6b544870', 'type' => 'media'],
-                ],
-                'links' => [
-                    'related' => '/api/media-album/f343a3c1-19cf-42a7-841a-a0ac5094908c/media',
-                ],
-            ],
-            'parent' => [
-                'data' => null,
-                'links' => [
-                    'related' => '/api/media-album/f343a3c1-19cf-42a7-841a-a0ac5094908c/parent',
+                    [
+                        'id' => '3e352be2-d858-46dd-9752-9c0f6b544870',
+                        'type' => 'media',
+                    ],
                 ],
             ],
-            'children' => [
+            'accessKeys' => [
+                'links' => [
+                    'related' => '/api/user/f343a3c1-19cf-42a7-841a-a0ac5094908c/access-keys',
+                ],
                 'data' => [],
-                'links' => [
-                    'related' => '/api/media-album/f343a3c1-19cf-42a7-841a-a0ac5094908c/children',
-                ],
             ],
-            'catalog' => [
+            'locale' => [
                 'data' => null,
                 'links' => [
-                    'related' => '/api/media-album/f343a3c1-19cf-42a7-841a-a0ac5094908c/catalog',
+                    'related' => '/api/user/f343a3c1-19cf-42a7-841a-a0ac5094908c/locale',
                 ],
             ],
-        ],
-        'links' => [
-            'self' => '/api/media-album/f343a3c1-19cf-42a7-841a-a0ac5094908c',
         ],
     ],
     'included' => [
@@ -56,9 +52,8 @@ return [
             'id' => '3e352be2-d858-46dd-9752-9c0f6b544870',
             'type' => 'media',
             'attributes' => [
-                'albumId' => 'f343a3c1-19cf-42a7-841a-a0ac5094908c',
                 'name' => 'Lagerkorn-5,0klein',
-                'userId' => null,
+                'userId' => 'f343a3c1-19cf-42a7-841a-a0ac5094908c',
                 'mimeType' => 'image/jpg',
                 'fileSize' => 18921,
                 'metaData' => null,
@@ -69,20 +64,15 @@ return [
                 'tenantId' => null,
                 'extensions' => [
                     'links' => null,
-                ]
+                ],
+                'thumbnails' => null,
             ],
             'relationships' => [
-                'album' => [
+                'user' => [
                     'data' => [
                         'id' => 'f343a3c1-19cf-42a7-841a-a0ac5094908c',
-                        'type' => 'media_album',
+                        'type' => 'user',
                     ],
-                    'links' => [
-                        'related' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870/album',
-                    ],
-                ],
-                'user' => [
-                    'data' => null,
                     'links' => [
                         'related' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870/user',
                     ],

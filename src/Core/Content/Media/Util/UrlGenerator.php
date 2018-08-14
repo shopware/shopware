@@ -1,31 +1,9 @@
 <?php declare(strict_types=1);
-/**
- * Shopware 5
- * Copyright (c) shopware AG
- *
- * According to our dual licensing model, this program can be used either
- * under the terms of the GNU Affero General Public License, version 3,
- * or under a proprietary license.
- *
- * The texts of the GNU Affero General Public License with an additional
- * permission and of our proprietary license can be found at and
- * in the LICENSE file you have received along with this program.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * "Shopware" is a registered trademark of shopware AG.
- * The licensing of the program under the AGPLv3 does not imply a
- * trademark license. Therefore any rights, title and interest in
- * our trademarks remain entirely with us.
- */
 
 namespace Shopware\Core\Content\Media\Util;
 
 use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
-use Shopware\Core\Content\Media\Upload\MediaUpdater;
+use Shopware\Core\Content\Media\Exception\IllegalMimeTypeException;
 use Shopware\Core\Content\Media\Util\Strategy\StrategyInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -50,53 +28,90 @@ class UrlGenerator implements UrlGeneratorInterface
     {
         $this->strategy = $strategy;
         $this->requestStack = $requestStack;
+
         $this->baseUrl = $this->normalizeBaseUrl($baseUrl);
     }
 
     /**
-     * {@inheritdoc}
+     * @throws EmptyMediaFilenameException
+     * @throws IllegalMimeTypeException
      */
-    public function getUrl(string $filename, string $mimeType): string
+    public function getMediaUrl(string $filename, string $mimeType, bool $absolute = true): string
     {
-        if (!$this->baseUrl) {
-            $this->baseUrl = $this->createFallbackMediaUrl();
+        $extension = MimeType::getExtension($mimeType);
+
+        $encodedFileName = $this->encodeFilename($filename);
+
+        $basePath = $absolute ? $this->getBaseUrl() . '/' : '';
+
+        return $basePath . 'media/' . $encodedFileName . $extension;
+    }
+
+    /**
+     * @throws EmptyMediaFilenameException
+     * @throws IllegalMimeTypeException
+     */
+    public function getThumbnailUrl(
+        string $filename,
+        string $mimeType,
+        int $width,
+        int $height,
+        bool $isHighDpi = false,
+        bool $absolute = true): string
+    {
+        $extension = MimeType::getExtension($mimeType);
+
+        $encodedFileName = $this->encodeFilename($filename);
+        $thumbnailExtension = "_${width}x${height}";
+        if ($isHighDpi) {
+            $thumbnailExtension .= '@2x';
         }
 
+        $basePath = $absolute ? $this->getBaseUrl() . '/' : '';
+
+        return $basePath . 'thumbnail/' . $encodedFileName . $thumbnailExtension . $extension;
+    }
+
+    private function normalizeBaseUrl($baseUrl): ?string
+    {
+        if (!$baseUrl) {
+            return null;
+        }
+
+        return rtrim($baseUrl, '/');
+    }
+
+    private function getBaseUrl(): string
+    {
+        if (!$this->baseUrl) {
+            $this->baseUrl = $this->createFallbackUrl();
+        }
+
+        return $this->baseUrl;
+    }
+
+    private function createFallbackUrl(): string
+    {
+        $request = $this->requestStack->getMasterRequest();
+        if ($request) {
+            $basePath = $request->getSchemeAndHttpHost() . $request->getBasePath();
+
+            return rtrim($basePath, '/');
+        }
+
+        //todo@next: resolve default shop path
+        return '';
+    }
+
+    /**
+     * @throws EmptyMediaFilenameException
+     */
+    private function encodeFilename(string $filename): string
+    {
         if (empty($filename)) {
             throw new EmptyMediaFilenameException();
         }
 
-        $filename = $this->strategy->encode($filename);
-
-        return $this->baseUrl . '/' . $filename . MediaUpdater::ALLOWED_MIME_TYPES[$mimeType];
-    }
-
-    private function normalizeBaseUrl(string $mediaUrl = null): ?string
-    {
-        if (!$mediaUrl) {
-            return null;
-        }
-
-        return rtrim($mediaUrl, '/');
-    }
-
-    /**
-     * Generates a mediaUrl based on the request or router
-     *
-     * @throws \Exception
-     *
-     * @return string
-     */
-    private function createFallbackMediaUrl(): ?string
-    {
-        $request = $this->requestStack->getMasterRequest();
-        if ($request) {
-            return $this->normalizeBaseUrl(
-                $request->getSchemeAndHttpHost() . $request->getBasePath() . '/media'
-            );
-        }
-
-        //todo@next: resolve default shop path
-        return $this->normalizeBaseUrl('');
+        return $this->strategy->encode($filename);
     }
 }

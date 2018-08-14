@@ -3,15 +3,18 @@
 namespace Shopware\Core\Content\Test\Media\Upload;
 
 use Doctrine\DBAL\Connection;
+use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemInterface;
+use League\Flysystem\Memory\MemoryAdapter;
 use Shopware\Core\Content\Media\Exception\IllegalMimeTypeException;
 use Shopware\Core\Content\Media\Upload\MediaUpdater;
-use Shopware\Core\Content\Media\Util\Strategy\StrategyInterface;
+use Shopware\Core\Content\Media\Util\UrlGeneratorInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class MediaUpdaterTest extends KernelTestCase
 {
@@ -32,24 +35,28 @@ class MediaUpdaterTest extends KernelTestCase
      */
     private $mediaUpdater;
 
-    /** @var StrategyInterface */
-    private $strategy;
-
     /** @var FilesystemInterface */
     private $filesystem;
 
-    /** @var RepositoryInterface */
-    private $albumRepository;
+    /** @var UrlGeneratorInterface */
+    private $urlGenerator;
 
     public function setUp()
     {
         self::bootKernel();
-        $this->mediaUpdater = self::$container->get(MediaUpdater::class);
         $this->repository = self::$container->get('media.repository');
-        $this->albumRepository = self::$container->get('media_album.repository');
         $this->connection = self::$container->get(Connection::class);
-        $this->strategy = self::$container->get(StrategyInterface::class);
-        $this->filesystem = self::$container->get('shopware.filesystem.public');
+        $this->filesystem = new Filesystem(new MemoryAdapter());
+        $this->urlGenerator = self::$container->get(UrlGeneratorInterface::class);
+
+        // create media updater with in memory filesystem, so we do not need to clean up files afterwards
+        $this->mediaUpdater = new MediaUpdater(
+            $this->repository,
+            $this->filesystem,
+            $this->urlGenerator,
+            $this->createMock(EventDispatcherInterface::class)
+        );
+
         $this->connection->beginTransaction();
     }
 
@@ -77,10 +84,6 @@ class MediaUpdaterTest extends KernelTestCase
                 [
                     'id' => $mediaId->getHex(),
                     'name' => 'test file',
-                    'album' => [
-                        'id' => Uuid::uuid4()->getHex(),
-                        'name' => 'test',
-                    ],
                 ],
             ],
             $context
@@ -94,10 +97,9 @@ class MediaUpdaterTest extends KernelTestCase
             }
         }
 
-        $path = $this->strategy->encode($mediaId->getHex());
+        $path = $this->urlGenerator->getMediaUrl($mediaId->getHex(), $mimeType, false);
 
-        static::assertTrue($this->filesystem->has('media/' . $path . MediaUpdater::ALLOWED_MIME_TYPES[$mimeType]));
-        $this->filesystem->delete('media/' . $path . MediaUpdater::ALLOWED_MIME_TYPES[$mimeType]);
+        static::assertTrue($this->filesystem->has($path));
     }
 
     public function testPersistFileToMediaWithIllegalMimeType()

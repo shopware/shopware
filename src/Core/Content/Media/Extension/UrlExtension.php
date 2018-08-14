@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Media\Extension;
 
 use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Content\Media\Util\MimeType;
 use Shopware\Core\Content\Media\Util\UrlGeneratorInterface;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Event\EntityLoadedEvent;
@@ -45,13 +46,25 @@ class UrlExtension implements EventSubscriberInterface, EntityExtensionInterface
     public function mediaLoaded(EntityLoadedEvent $event): void
     {
         foreach ($event->getEntities() as $media) {
-            if (!$media->getMimeType()) {
+            if (!MimeType::isSupported($media->getMimeType())) {
                 continue;
             }
 
-            $url = $this->urlGenerator->getUrl($media->getId(), $media->getMimeType());
+            $url = $this->urlGenerator->getMediaUrl($media->getId(), $media->getMimeType());
 
-            $media->addExtension('links', new MediaLinksStruct($url));
+            $thumbnailUrls = [];
+            foreach ($media->getThumbnails() as $thumbnail) {
+                $thumbnailUrl = $this->urlGenerator->getThumbnailUrl(
+                    $media->getId(),
+                    $media->getMimeType(),
+                    $thumbnail->getWidth(),
+                    $thumbnail->getHeight(),
+                    $thumbnail->isHighDpi()
+                );
+                $thumbnailUrls[] = $thumbnailUrl;
+            }
+
+            $media->addExtension('links', new MediaLinksStruct($url, $thumbnailUrls));
         }
     }
 }

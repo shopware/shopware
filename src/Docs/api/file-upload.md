@@ -3,8 +3,7 @@
 To Upload a File you first have to create a Media-Entity with a POST-Request to `api/media` with
 ```json
 {
-   "name": "fancyImage.jpg",
-   "albumID": "ffffffff"
+   "name": "fancyImage.jpg"
 }
 ```
 This is the minimal required Payload to create a Media-Entity.

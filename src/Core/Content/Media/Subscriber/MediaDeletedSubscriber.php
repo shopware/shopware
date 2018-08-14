@@ -9,25 +9,22 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class MediaDeletedSubscriber implements EventSubscriberInterface
 {
-    /** @var FilesystemInterface */
+    /**
+     * @var FilesystemInterface
+     */
     private $filesystem;
 
-    /** @var StrategyInterface */
+    /**
+     * @var StrategyInterface
+     */
     private $strategy;
 
-    /**
-     * @param FilesystemInterface $filesystem
-     * @param StrategyInterface   $strategy
-     */
     public function __construct(FilesystemInterface $filesystem, StrategyInterface $strategy)
     {
         $this->filesystem = $filesystem;
         $this->strategy = $strategy;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public static function getSubscribedEvents()
     {
         return [
@@ -35,9 +32,6 @@ class MediaDeletedSubscriber implements EventSubscriberInterface
         ];
     }
 
-    /**
-     * @param EntityDeletedEvent $event
-     */
     public function mediaDeleted(EntityDeletedEvent $event): void
     {
         foreach ($event->getIds() as $mediaId) {
@@ -45,12 +39,7 @@ class MediaDeletedSubscriber implements EventSubscriberInterface
         }
     }
 
-    /**
-     * Deletes the Media File and depending Thumbnails of the Media Entity
-     *
-     * @param string $mediaId
-     */
-    private function deleteMediaFileForEntity($mediaId): void
+    private function deleteMediaFileForEntity(string $mediaId): void
     {
         $path = $this->strategy->encode($mediaId);
         $dir = dirname($path);

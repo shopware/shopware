@@ -11,7 +11,6 @@ use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Shipping
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOptionTranslation\ConfigurationGroupOptionTranslationDefinition;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\ConfigurationGroupTranslationDefinition;
-use Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\MediaAlbumTranslationDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
@@ -83,7 +82,6 @@ class LanguageDefinition extends EntityDefinition
             (new TranslationsAssociationField('listingFacetTranslations', ListingFacetTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('listingSortingTranslations', ListingSortingTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('localeTranslations', LocaleTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField('mediaAlbumTranslations', MediaAlbumTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('mediaTranslations', MediaTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('orderStateTranslations', OrderStateTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('orderTransactionStateTranslations', OrderTransactionStateTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new CascadeDelete()),

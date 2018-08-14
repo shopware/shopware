@@ -4,20 +4,15 @@ namespace Shopware\Core\Content\Media;
 
 use Shopware\Core\Content\Catalog\CatalogStruct;
 use Shopware\Core\Content\Category\CategoryCollection;
-use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumStruct;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\Struct\StructCollection;
 use Shopware\Core\System\User\UserStruct;
 
 class MediaStruct extends Entity
 {
-    /**
-     * @var string
-     */
-    protected $albumId;
-
     /**
      * @var int
      */
@@ -64,11 +59,6 @@ class MediaStruct extends Entity
     protected $description;
 
     /**
-     * @var MediaAlbumStruct
-     */
-    protected $album;
-
-    /**
      * @var UserStruct|null
      */
     protected $user;
@@ -98,15 +88,10 @@ class MediaStruct extends Entity
      */
     protected $catalog;
 
-    public function getAlbumId(): string
-    {
-        return $this->albumId;
-    }
-
-    public function setAlbumId(string $albumId): void
-    {
-        $this->albumId = $albumId;
-    }
+    /**
+     * @var StructCollection
+     */
+    protected $thumbnails;
 
     public function getUserId(): ?string
     {
@@ -188,16 +173,6 @@ class MediaStruct extends Entity
         $this->description = $description;
     }
 
-    public function getAlbum(): MediaAlbumStruct
-    {
-        return $this->album;
-    }
-
-    public function setAlbum(MediaAlbumStruct $album): void
-    {
-        $this->album = $album;
-    }
-
     public function getUser(): ?UserStruct
     {
         return $this->user;
@@ -266,5 +241,19 @@ class MediaStruct extends Entity
     public function setCatalog(CatalogStruct $catalog): void
     {
         $this->catalog = $catalog;
+    }
+
+    public function getThumbnails(): StructCollection
+    {
+        if ($this->thumbnails === null) {
+            $this->thumbnails = new StructCollection();
+        }
+
+        return $this->thumbnails;
+    }
+
+    public function setThumbnails(StructCollection $thumbnailCollection): void
+    {
+        $this->thumbnails = $thumbnailCollection;
     }
 }

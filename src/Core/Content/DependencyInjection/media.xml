@@ -9,27 +9,14 @@
             <tag name="shopware.entity.definition" entity="media"/>
         </service>
 
-        <service class="Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumDefinition" id="Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumDefinition">
-            <tag name="shopware.entity.definition" entity="media_album"/>
-        </service>
-
-        <service class="Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\MediaAlbumTranslationDefinition" id="Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\MediaAlbumTranslationDefinition">
-            <tag name="shopware.entity.definition" entity="media_album_translation"/>
-        </service>
-
         <service class="Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition" id="Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition">
             <tag name="shopware.entity.definition" entity="media_translation"/>
         </service>
 
         <service class="Shopware\Core\Content\Media\Extension\UrlExtension" id="Shopware\Core\Content\Media\Extension\UrlExtension">
-            <argument id="Shopware\Core\Content\Media\Util\UrlGenerator" type="service"/>
+            <argument id="Shopware\Core\Content\Media\Util\UrlGeneratorInterface" type="service"/>
             <tag name="kernel.event_subscriber"/>
             <tag name="shopware.entity.extension"/>
-        </service>
-
-        <service class="Shopware\Core\Content\Media\Extension\ThumbnailExtension" id="Shopware\Core\Content\Media\Extension\ThumbnailExtension">
-            <argument id="Shopware\Core\Content\Media\Util\UrlGenerator" type="service"/>
-            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service class="Shopware\Core\Content\Media\Util\Strategy\StrategyFilesystem" id="Shopware\Core\Content\Media\Util\Strategy\StrategyFilesystem">
@@ -37,7 +24,7 @@
             <argument type="service" id="Shopware\Core\Content\Media\Util\Strategy\StrategyInterface"/>
         </service>
 
-        <service class="Shopware\Core\Content\Media\Util\UrlGenerator" id="Shopware\Core\Content\Media\Util\UrlGenerator">
+        <service class="Shopware\Core\Content\Media\Util\UrlGenerator" id="Shopware\Core\Content\Media\Util\UrlGeneratorInterface">
             <argument type="service" id="Shopware\Core\Content\Media\Util\Strategy\StrategyInterface"/>
             <argument type="service" id="request_stack"/>
             <argument>%shopware.cdn.url%</argument>
@@ -58,7 +45,8 @@
         <service class="Shopware\Core\Content\Media\Upload\MediaUpdater" id="Shopware\Core\Content\Media\Upload\MediaUpdater" public="true">
             <argument type="service" id="media.repository"/>
             <argument type="service" id="shopware.filesystem.public"/>
-            <argument type="service" id="Shopware\Core\Content\Media\Util\Strategy\StrategyInterface"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Util\UrlGeneratorInterface"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service class="Shopware\Core\Content\Media\Subscriber\MediaDeletedSubscriber" id="Shopware\Core\Content\Media\Subscriber\MediaDeletedSubscriber">
@@ -129,6 +117,20 @@
             <call method="setContainer">
                 <argument id="service_container" type="service"/>
             </call>
+        </service>
+
+        <service class="Shopware\Core\Content\Media\Thumbnail\ThumbnailConfiguration"
+                 id="Shopware\Core\Content\Media\Thumbnail\ThumbnailConfiguration">
+            <factory class="Shopware\Core\Content\Media\Thumbnail\ThumbnailConfiguration" method="getDefaultThumbnailConfiguration"/>
+        </service>
+
+        <service class="Shopware\Core\Content\Media\Thumbnail\ThumbnailService" id="Shopware\Core\Content\Media\Thumbnail\ThumbnailService">
+            <argument type="service" id="media.repository"/>
+            <argument type="service" id="shopware.filesystem.public"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Util\UrlGeneratorInterface"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Thumbnail\ThumbnailConfiguration"/>
+
+            <tag name="kernel.event_subscriber" />
         </service>
 
     </services>

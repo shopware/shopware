@@ -740,66 +740,18 @@ CREATE TABLE `media` (
   `version_id` binary(16) NOT NULL,
   `catalog_id` binary(16) NOT NULL,
   `catalog_tenant_id` binary(16) NOT NULL,
-  `media_album_id` binary(16) NOT NULL,
-  `media_album_tenant_id` binary(16) NOT NULL,
-  `media_album_version_id` binary(16) NOT NULL,
   `user_id` binary(16) DEFAULT NULL,
   `user_tenant_id` binary(16) DEFAULT NULL,
   `mime_type` varchar(50) COLLATE utf8mb4_unicode_ci NULL,
   `file_size` int(10) unsigned NULL,
   `meta_data` text COLLATE utf8mb4_unicode_ci,
+  `thumbnails`text COLLATE utf8mb4_unicode_ci,
   `created_at` datetime(3) NOT NULL,
   `updated_at` datetime(3),
    PRIMARY KEY (`id`, `version_id`, `tenant_id`),
-   CONSTRAINT `fk_media.media_album_id` FOREIGN KEY (`media_album_id`, `media_album_version_id`, `media_album_tenant_id`) REFERENCES `media_album` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
    CONSTRAINT `fk_media.user_id` FOREIGN KEY (`user_id`, `user_tenant_id`) REFERENCES `user` (`id`, `tenant_id`) ON DELETE SET NULL ON UPDATE CASCADE,
    CONSTRAINT `fk_media.catalog_id` FOREIGN KEY (`catalog_id`, `catalog_tenant_id`) REFERENCES `catalog` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
-DROP TABLE IF EXISTS `media_album`;
-CREATE TABLE `media_album` (
-  `id` binary(16) NOT NULL,
-  `tenant_id` binary(16) NOT NULL,
-  `version_id` binary(16) NOT NULL,
-  `catalog_id` binary(16) NOT NULL,
-  `catalog_tenant_id` binary(16) NOT NULL,
-  `parent_id` binary(16) DEFAULT NULL,
-  `parent_tenant_id` binary(16) DEFAULT NULL,
-  `parent_version_id` binary(16) DEFAULT NULL,
-  `position` int(11) NOT NULL DEFAULT '1',
-  `create_thumbnails` tinyint(1) NOT NULL DEFAULT '0',
-  `thumbnail_size` text COLLATE utf8mb4_unicode_ci,
-  `icon` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `thumbnail_high_dpi` tinyint(1) NOT NULL DEFAULT '1',
-  `thumbnail_quality` int(11) DEFAULT NULL,
-  `thumbnail_high_dpi_quality` int(11) DEFAULT NULL,
-  `created_at` datetime(3) NOT NULL,
-  `updated_at` datetime(3),
-  PRIMARY KEY (`id`, `version_id`, `tenant_id`),
-  CONSTRAINT `fk_album.parent_id` FOREIGN KEY (`parent_id`, `parent_version_id`, `parent_tenant_id`) REFERENCES `media_album` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_album.catalog_id` FOREIGN KEY (`catalog_id`, `catalog_tenant_id`) REFERENCES `catalog` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
-DROP TABLE IF EXISTS `media_album_translation`;
-CREATE TABLE `media_album_translation` (
-  `media_album_id` binary(16) NOT NULL,
-  `media_album_tenant_id` binary(16) NOT NULL,
-  `media_album_version_id` binary(16) NOT NULL,
-  `language_id` binary(16) NOT NULL,
-  `language_tenant_id` binary(16) NOT NULL,
-  `catalog_id` binary(16) NOT NULL,
-  `catalog_tenant_id` binary(16) NOT NULL,
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `created_at` datetime(3) NOT NULL,
-  `updated_at` datetime(3),
-  PRIMARY KEY (`media_album_id`, `media_album_version_id`, `media_album_tenant_id`, `language_id`, `language_tenant_id`),
-  CONSTRAINT `media_album_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `media_album_translation_ibfk_2` FOREIGN KEY (`media_album_id`, `media_album_version_id`, `media_album_tenant_id`) REFERENCES `media_album` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `media_album_translation_ibfk_3` FOREIGN KEY (`catalog_id`, `catalog_tenant_id`) REFERENCES `catalog` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 
 DROP TABLE IF EXISTS `media_translation`;
 CREATE TABLE `media_translation` (

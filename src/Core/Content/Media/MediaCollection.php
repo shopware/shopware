@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Media;
 
-use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumCollection;
 use Shopware\Core\Framework\ORM\EntityCollection;
 
 class MediaCollection extends EntityCollection
@@ -22,20 +21,6 @@ class MediaCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getAlbumIds(): array
-    {
-        return $this->fmap(function (MediaStruct $media) {
-            return $media->getAlbumId();
-        });
-    }
-
-    public function filterByAlbumId(string $id): self
-    {
-        return $this->filter(function (MediaStruct $media) use ($id) {
-            return $media->getAlbumId() === $id;
-        });
-    }
-
     public function getUserIds(): array
     {
         return $this->fmap(function (MediaStruct $media) {
@@ -48,15 +33,6 @@ class MediaCollection extends EntityCollection
         return $this->filter(function (MediaStruct $media) use ($id) {
             return $media->getUserId() === $id;
         });
-    }
-
-    public function getAlbums(): MediaAlbumCollection
-    {
-        return new MediaAlbumCollection(
-            $this->fmap(function (MediaStruct $media) {
-                return $media->getAlbum();
-            })
-        );
     }
 
     protected function getExpectedClass(): string

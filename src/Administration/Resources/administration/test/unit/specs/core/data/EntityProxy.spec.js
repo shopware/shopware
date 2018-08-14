@@ -160,7 +160,7 @@ describe('core/data/EntityProxy.js', () => {
         const manufacturerEntity = new EntityProxy('product_manufacturer',  'productManufacturerService', {
             id: utils.createId(),
             catalogId: catalogEntity.id,
-            name: 'Sample manufactruer'
+            name: 'Sample manufacturer'
         });
         manufacturerEntity.isNew = true;
 

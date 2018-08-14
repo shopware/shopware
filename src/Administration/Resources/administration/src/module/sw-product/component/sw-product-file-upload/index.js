@@ -53,18 +53,10 @@ Component.register('sw-product-file-upload', {
 
             productMedia.position = productMedia.isCover ? 0 : this.mediaItems.slice(-1)[0].position + 1;
             const mediaEntity = this.mediaStore.create();
-            console.log(this.currentMediaAlbum);
             this.mediaStore.addAddition(mediaEntity);
 
-            // <- ToDo remove once media Entity is cleaned up
-            this.getCurrentMediaAlbum().then((album) => {
-                mediaEntity.albumId = album.id;
-                delete mediaEntity.album;
-            });
             delete mediaEntity.catalog;
             delete mediaEntity.user;
-            // ->
-
             mediaEntity.catalogId = this.product.catalogId;
             mediaEntity.name = file.name;
 
@@ -80,13 +72,6 @@ Component.register('sw-product-file-upload', {
             this.product.media.push(productMedia);
 
             return productMedia;
-        },
-
-        getCurrentMediaAlbum() {
-            const catalog = State.getStore('catalog').getById(this.product.catalogId);
-            return catalog.getAssociationStore('mediaAlbum').getList({ page: 1, limit: 1 }).then(() => {
-                return catalog.mediaAlbum[0];
-            });
         },
 
         getPreviewForMedia(mediaEntity) {

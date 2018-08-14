@@ -6,11 +6,10 @@ return [
             'id' => '3e352be2-d858-46dd-9752-9c0f6b544870',
             'type' => 'media',
             'attributes' => [
-                'albumId' => 'f343a3c1-19cf-42a7-841a-a0ac5094908c',
                 'mimeType' => 'image/jpg',
                 'fileSize' => 18921,
                 'metaData' => null,
-                'userId' => null,
+                'userId' => '6f51622e-b381-4c75-ae02-63cece27ce72',
                 'createdAt' => '2012-08-15T00:00:00+00:00',
                 'updatedAt' => '2017-11-21T11:25:34+00:00',
                 'name' => 'Lagerkorn-5,0klein',
@@ -19,23 +18,18 @@ return [
                 'tenantId' => null,
                 'extensions' => [
                     'links' => null,
-                ]
+                ],
+                'thumbnails' => null,
             ],
             'links' => [
                 'self' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870',
             ],
             'relationships' => [
-                'album' => [
-                    'data' => [
-                        'id' => 'f343a3c1-19cf-42a7-841a-a0ac5094908c',
-                        'type' => 'media_album',
-                    ],
-                    'links' => [
-                        'related' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870/album',
-                    ],
-                ],
                 'user' => [
-                    'data' => null,
+                    'data' => [
+                        'id' => '6f51622e-b381-4c75-ae02-63cece27ce72',
+                        'type' => 'user',
+                    ],
                     'links' => [
                         'related' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870/user',
                     ],
@@ -70,11 +64,10 @@ return [
             'id' => 'f1ad1d0c-0245-4a40-abf2-50f764d16248',
             'type' => 'media',
             'attributes' => [
-                'albumId' => 'f343a3c1-19cf-42a7-841a-a0ac5094908c',
                 'mimeType' => 'image/jpg',
                 'fileSize' => 155633,
                 'metaData' => null,
-                'userId' => null,
+                'userId' => '6f51622e-b381-4c75-ae02-63cece27ce72',
                 'createdAt' => '2012-08-17T00:00:00+00:00',
                 'updatedAt' => '2017-11-21T11:25:34+00:00',
                 'name' => 'Jasmine-Lotus-Cover',
@@ -83,20 +76,15 @@ return [
                 'tenantId' => null,
                 'extensions' => [
                     'links' => null,
-                ]
+                ],
+                'thumbnails' => null,
             ],
             'relationships' => [
-                'album' => [
-                    'data' => [
-                        'id' => 'f343a3c1-19cf-42a7-841a-a0ac5094908c',
-                        'type' => 'media_album',
-                    ],
-                    'links' => [
-                        'related' => '/api/media/f1ad1d0c-0245-4a40-abf2-50f764d16248/album',
-                    ],
-                ],
                 'user' => [
-                    'data' => null,
+                    'data' => [
+                        'id' => '6f51622e-b381-4c75-ae02-63cece27ce72',
+                        'type' => 'user',
+                    ],
                     'links' => [
                         'related' => '/api/media/f1ad1d0c-0245-4a40-abf2-50f764d16248/user',
                     ],
@@ -133,49 +121,42 @@ return [
     ],
     'included' => [
         [
-            'id' => 'f343a3c1-19cf-42a7-841a-a0ac5094908c',
-            'type' => 'media_album',
+            'id' => '6f51622e-b381-4c75-ae02-63cece27ce72',
+            'type' => 'user',
             'attributes' => [
-                'parentId' => null,
-                'position' => 12,
-                'createThumbnails' => true,
-                'thumbnailSize' => '200x200',
-                'icon' => 'sprite-blue-folder',
-                'thumbnailHighDpi' => true,
-                'thumbnailQuality' => 90,
-                'thumbnailHighDpiQuality' => 60,
+                'localeId' => null,
+                'username' => 'user1',
+                'password' => 'password',
+                'email' => 'user1@shop.de',
+                'lastLogin' => '2018-01-15T08:01:16+00:00',
+                'active' => true,
+                'failedLogins' => 0,
+                'lockedUntil' => null,
+                'name' => 'Manufacturer',
                 'createdAt' => '2018-01-15T08:01:16+00:00',
                 'updatedAt' => null,
-                'name' => 'Manufacturer',
-                'catalogId' => null,
                 'tenantId' => null,
             ],
             'links' => [
-                'self' => '/api/media-album/f343a3c1-19cf-42a7-841a-a0ac5094908c',
+                'self' => '/api/user/6f51622e-b381-4c75-ae02-63cece27ce72',
             ],
             'relationships' => [
                 'media' => [
                     'links' => [
-                        'related' => '/api/media-album/f343a3c1-19cf-42a7-841a-a0ac5094908c/media',
+                        'related' => '/api/user/6f51622e-b381-4c75-ae02-63cece27ce72/media',
                     ],
                     'data' => [],
                 ],
-                'parent' => [
+                'accessKeys' => [
                     'links' => [
-                        'related' => '/api/media-album/f343a3c1-19cf-42a7-841a-a0ac5094908c/parent',
-                    ],
-                    'data' => null,
-                ],
-                'children' => [
-                    'links' => [
-                        'related' => '/api/media-album/f343a3c1-19cf-42a7-841a-a0ac5094908c/children',
+                        'related' => '/api/user/6f51622e-b381-4c75-ae02-63cece27ce72/access-keys',
                     ],
                     'data' => [],
                 ],
-                'catalog' => [
+                'locale' => [
                     'data' => null,
                     'links' => [
-                        'related' => '/api/media-album/f343a3c1-19cf-42a7-841a-a0ac5094908c/catalog',
+                        'related' => '/api/user/6f51622e-b381-4c75-ae02-63cece27ce72/locale',
                     ],
                 ],
             ],

@@ -11,7 +11,6 @@ use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Shipping
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationCollection;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOptionTranslation\ConfigurationGroupOptionTranslationCollection;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\ConfigurationGroupTranslationCollection;
-use Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\MediaAlbumTranslationCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
@@ -88,11 +87,6 @@ class LanguageStruct extends Entity
      * @var SalesChannelCollection|null
      */
     protected $salesChannelDefaultAssignments;
-
-    /**
-     * @var MediaAlbumTranslationCollection|null
-     */
-    protected $mediaAlbumTranslations;
 
     /**
      * @var CountryAreaTranslationCollection|null
@@ -307,16 +301,6 @@ class LanguageStruct extends Entity
     public function setChildren(LanguageCollection $children): void
     {
         $this->children = $children;
-    }
-
-    public function getMediaAlbumTranslations(): ?MediaAlbumTranslationCollection
-    {
-        return $this->mediaAlbumTranslations;
-    }
-
-    public function setMediaAlbumTranslations(MediaAlbumTranslationCollection $mediaAlbumTranslations): void
-    {
-        $this->mediaAlbumTranslations = $mediaAlbumTranslations;
     }
 
     public function getCountryAreaTranslations(): ?CountryAreaTranslationCollection

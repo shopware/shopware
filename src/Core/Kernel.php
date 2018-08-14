@@ -151,8 +151,8 @@ class Kernel extends HttpKernel
         $routes->import($confDir . '/{routes}/' . $this->environment . '/**/*' . self::CONFIG_EXTS, '/', 'glob');
         $routes->import($confDir . '/{routes}' . self::CONFIG_EXTS, '/', 'glob');
 
-        $this->addApiRoutes($routes);
         $this->addPluginRoutes($routes);
+        $this->addApiRoutes($routes);
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Catalog;
 
 use DateTime;
+use Shopware\Core\Content\Catalog\Aggregate\CatalogTranslation\CatalogTranslationCollection;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
 use Shopware\Core\Content\Media\MediaCollection;
@@ -75,6 +76,11 @@ class CatalogStruct extends Entity
      * @var ProductTranslationCollection|null
      */
     protected $productTranslations;
+
+    /**
+     * @var CatalogTranslationCollection|null
+     */
+    protected $translations;
 
     /**
      * @var SalesChannelCollection|null
@@ -199,6 +205,16 @@ class CatalogStruct extends Entity
     public function setProductTranslations(ProductTranslationCollection $productTranslations): void
     {
         $this->productTranslations = $productTranslations;
+    }
+
+    public function getTranslations(): ?CatalogTranslationCollection
+    {
+        return $this->translations;
+    }
+
+    public function setTranslations(CatalogTranslationCollection $translations): void
+    {
+        $this->translations = $translations;
     }
 
     public function getSalesChannels(): ?SalesChannelCollection

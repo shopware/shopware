@@ -94,10 +94,19 @@ class TenantProvisioner
     {
         $this->importTable(
             'catalog',
-            ['id', 'name', 'created_at'],
+            ['id', 'created_at'],
             ['tenant_id'],
             [
-                [$this->defaultId, 'Default catalogue', $this->now()],
+                [$this->defaultId, $this->now()],
+            ]
+        );
+
+        $this->importTable(
+            'catalog_translation',
+            ['catalog_id', 'language_id', 'name', 'created_at'],
+            ['catalog_tenant_id', 'language_tenant_id'],
+            [
+                [$this->defaultId, $this->defaultId, 'Default catalogue', $this->now()],
             ]
         );
     }

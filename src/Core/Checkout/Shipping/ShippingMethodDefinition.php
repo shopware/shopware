@@ -44,7 +44,7 @@ class ShippingMethodDefinition extends EntityDefinition
             new VersionField(),
             (new IntField('type', 'type'))->setFlags(new Required()),
             (new BoolField('bind_shippingfree', 'bindShippingfree'))->setFlags(new Required()),
-            (new BoolField('bind_laststock', 'bindLaststock'))->setFlags(new Required()),
+            (new BoolField('bind_laststock', 'bindLaststock')),
             (new TranslatedField(new StringField('name', 'name')))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
             new BoolField('active', 'active'),
             new IntField('position', 'position'),

@@ -14,6 +14,11 @@ Component.register('sw-admin-menu-item', {
             default: true,
             required: false
         },
+        iconSize: {
+            type: String,
+            default: '20px',
+            required: false
+        },
         collapsibleText: {
             type: Boolean,
             default: true,

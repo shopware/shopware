@@ -59,8 +59,13 @@ Component.register('sw-sales-channel-modal', {
         onOpenDetail(id) {
             this.detailType = this.salesChannelTypes.find(a => a.id === id);
         },
-        onAddChannel() {
+        onAddChannel(id) {
             this.onCloseModal();
+            if (id) {
+                this.$router.push({ name: 'sw.sales.channel.create', params: { typeId: id } });
+                return;
+            }
+
             this.$router.push({ name: 'sw.sales.channel.create', params: { typeId: this.detailType.id } });
         }
     }

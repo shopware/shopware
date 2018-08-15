@@ -51,6 +51,10 @@ Component.register('sw-multi-select', {
         store: {
             type: Object,
             required: true
+        },
+        defaultItemId: {
+            type: String,
+            required: false
         }
     },
 
@@ -240,6 +244,10 @@ Component.register('sw-multi-select', {
             this.emitChanges(this.selections);
 
             this.setFocus();
+
+            if (this.selections.length === 1) {
+                this.changeDefaultItemId(result.id);
+            }
         },
 
         addSelectionOnEnter() {
@@ -269,6 +277,10 @@ Component.register('sw-multi-select', {
             this.emitChanges(this.selections);
 
             this.setFocus();
+
+            if (this.defaultItemId && this.defaultItemId === id) {
+                this.changeDefaultItemId(this.selections[0].id);
+            }
         },
 
         dismissLastSelection() {
@@ -307,6 +319,12 @@ Component.register('sw-multi-select', {
             });
 
             this.$emit('input', this.selections);
+        },
+
+        changeDefaultItemId(id) {
+            if (typeof this.defaultItemId !== 'undefined') {
+                this.$emit('default_changed', id);
+            }
         }
     }
 });

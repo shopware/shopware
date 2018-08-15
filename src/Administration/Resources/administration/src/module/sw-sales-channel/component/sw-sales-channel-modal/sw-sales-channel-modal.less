@@ -1,5 +1,12 @@
 @import "~less/variables";
 
+@sw-sales-channel-modal-color-text:                 @color-gutenberg;
+@sw-sales-channel-modal-color-description-title:    @color-kashmir;
+@sw-sales-channel-modal-color-detail-name:          @color-kashmir;
+@sw-sales-channel-modal-font-size-small:            @font-size-small;
+
+
+
 .sw-sales-channel-modal {
     .sw-sales-channel-modal__back {
         position: absolute;
@@ -34,20 +41,20 @@
     .sw-sales-channel-modal__detail-cover {
         width: 165px;
         height: 165px;
-        background: lighten(@color-gutenberg, 25%);
+        background: lighten(@sw-sales-channel-modal-color-text, 25%);
         border-radius: 3px;
     }
 
     .sw-sales-channel-modal__detail-name {
         font-size: 18px;
-        color: @color-kashmir;
+        color: @sw-sales-channel-modal-color-detail-name;
         font-weight: 600;
         margin-bottom: 8px;
     }
 
     .sw-sales-channel-modal__detail-manufacturer {
-        font-size: @font-size-small;
-        color: lighten(@color-gutenberg, 25%);
+        font-size: @sw-sales-channel-modal-font-size-small;
+        color: lighten(@sw-sales-channel-modal-color-text, 25%);
         margin-bottom: 20px;
     }
 
@@ -58,11 +65,11 @@
     .sw-sales-channel-modal__description-title {
         margin-bottom: 20px;
         font-weight: 600;
-        color: @color-kashmir;
+        color: @sw-sales-channel-modal-color-description-title;
     }
 
     .sw-sales-channel-modal__description-text {
-        color: @color-gutenberg;
+        color: @sw-sales-channel-modal-color-text;
     }
 
     .sw-sales-channel-modal__screenshot {
@@ -80,19 +87,32 @@
     .sw-sales-channel-modal__grid-item-name {
         font-size: 18px;
         margin-bottom: 8px;
-        color: @color-gutenberg;
+        color: @sw-sales-channel-modal-color-text;
         font-weight: normal;
     }
 
     .sw-sales-channel-modal__grid-item-description {
-        color: lighten(@color-gutenberg, 25%);
-        font-size: @font-size-small;
+        color: lighten(@sw-sales-channel-modal-color-text, 25%);
+        font-size: @sw-sales-channel-modal-font-size-small;
     }
 
     .sw-sales-channel-modal__grid-icon {
         width: 64px;
         height: 64px;
-        background: lighten(@color-gutenberg, 25%);
+        background: lighten(@sw-sales-channel-modal-color-text, 25%);
         border-radius: 3px;
+
+        .sw-icon{
+            background: #fff;
+            padding: 10px;
+            width: 100%;
+            height: 100%;
+        }
+    }
+
+    .sw-sales-channel-modal__grid-actions {
+        .sw-grid__cell-content {
+            grid-gap: 5px;
+        }
     }
 }

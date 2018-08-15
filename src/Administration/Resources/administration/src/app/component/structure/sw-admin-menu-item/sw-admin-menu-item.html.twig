@@ -11,7 +11,7 @@
 
                 {% block sw_admin_menu_item_icon %}
                     <sw-icon v-if="displayIcon"
-                             size="20px"
+                             :size="iconSize"
                              class="sw-admin-menu__navigation-link-icon"
                              :name="getIconName(entry.icon)"
                              :style="{ 'color': entry.color }">
@@ -35,7 +35,7 @@
 
                 {% block sw_admin_menu_item_icon %}
                     <sw-icon v-if="displayIcon"
-                             size="20px"
+                             :size="iconSize"
                              class="sw-admin-menu__navigation-link-icon"
                              :name="getIconName(entry.icon)"
                              :style="{ 'color': entry.color }">
@@ -55,7 +55,7 @@
 
                 {% block sw_admin_menu_item_icon %}
                     <sw-icon v-if="displayIcon"
-                             size="20px"
+                             :size="iconSize"
                              class="sw-admin-menu__navigation-link-icon"
                              :name="getIconName(entry.icon)"
                              :style="{ 'color': entry.color }">

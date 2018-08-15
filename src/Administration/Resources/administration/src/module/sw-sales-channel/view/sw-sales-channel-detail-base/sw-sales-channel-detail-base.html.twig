@@ -1,48 +1,104 @@
 {% block sw_sales_channel_detail_base %}
     <div class="sw-sales-channel-detail-base">
         {% block sw_sales_channel_detail_base_general %}
-            <sw-card title="Sales Channel"
+            <sw-card :title="$tc('sw-sales-channel.detail.titleGeneralSettings')"
                      :isLoading="salesChannel.isLoading"
                      key="edit">
                 <sw-container grid="1fr 1fr" gap="0px 30px">
-                    <sw-field type="text"
-                              label="Name"
-                              v-model="salesChannel.name">
-                    </sw-field>
+                    {% block sw_sales_channel_detail_base_general_input_name %}
+                        <sw-field type="text"
+                                  validation="required"
+                                  :label="$tc('sw-sales-channel.detail.labelInputName')"
+                                  v-model="salesChannel.name">
+                        </sw-field>
+                    {% endblock %}
 
-                    <sw-field type="checkbox"
-                              label="Aktiv"
-                              v-model="salesChannel.active">
-                    </sw-field>
+                    {% block sw_sales_channel_detail_base_general_input_active %}
+                        <sw-field type="checkbox"
+                                  :label="$tc('sw-sales-channel.detail.labelInputActive')"
+                                  v-model="salesChannel.active">
+                        </sw-field>
+                    {% endblock %}
 
+                    {% block sw_sales_channel_detail_base_general_input_shipping %}
+                        <sw-field type="select"
+                                  :label="$tc('sw-sales-channel.detail.labelInputShipping')"
+                                  validation="required"
+                                  v-model="salesChannel.shippingMethodId">
+                            <option slot="options" v-for="shippingMethod in shippingMethods" :value="shippingMethod.id">
+                                {{ shippingMethod.name }}
+                            </option>
+                        </sw-field>
+                    {% endblock %}
+
+                    {% block sw_sales_channel_detail_base_general_input_payment %}
+                        <sw-field type="select"
+                                  :label="$tc('sw-sales-channel.detail.labelInputPayment')"
+                                  validation="required"
+                                  v-model="salesChannel.paymentMethodId">
+                            <option slot="options" v-for="paymentMethod in paymentMethods" :value="paymentMethod.id">
+                                {{ paymentMethod.name }}
+                            </option>
+                        </sw-field>
+                    {% endblock %}
+
+                    {% block sw_sales_channel_detail_base_general_input_country %}
+                        <sw-field type="select"
+                                  :label="$tc('sw-sales-channel.detail.labelInputCountry')"
+                                  validation="required"
+                                  v-model="salesChannel.countryId">
+                            <option slot="options" v-for="country in countries" :value="country.id">
+                                {{ country.name }}
+                            </option>
+                        </sw-field>
+                    {% endblock %}
+
+                    {% block sw_sales_channel_detail_base_general_input_tax_calculation %}
+                        <sw-field type="select"
+                                  :label="$tc('sw-sales-channel.detail.labelInputTaxCalculation')"
+                                  validation="required"
+                                  v-model="salesChannel.taxCalculationType">
+                            <template slot="options">
+                                <option value="vertical">{{ $tc('sw-sales-channel.detail.labelOptionTaxVertical') }}</option>
+                                <option value="horizontal">{{ $tc('sw-sales-channel.detail.labelOptionTaxHorizontal') }}</option>
+                            </template>
+                        </sw-field>
+                    {% endblock %}
                 </sw-container>
 
-                <sw-multi-select id="currencyIds"
-                                 label="Währungen"
-                                 placeholder="Währungen"
-                                 :serviceProvider="currencyService"
-                                 :store="currencyStore"
-                                 entityName="currency"
-                                 v-model="salesChannelCurrencies">
-                </sw-multi-select>
+                {% block sw_sales_channel_detail_base_general_input_currencies %}
+                    <sw-multi-select id="currencyIds"
+                                     :label="$tc('sw-sales-channel.detail.labelInputCurrencies')"
+                                     :serviceProvider="currencyService"
+                                     :store="currencyStore"
+                                     entityName="currency"
+                                     :defaultItemId="salesChannel.currencyId"
+                                     v-model="salesChannel.currencies"
+                                     @default_changed="changeDefaultCurrency">
+                    </sw-multi-select>
+                {% endblock %}
 
-                <sw-field type="select"
-                          label="Default Währung"
-                          validation="required"
-                          v-model="salesChannel.currencyId">
-                    <option slot="options" v-for="currency in currencies" :key="currency.id" :value="currency.id">
-                        {{ currency.name }}
-                    </option>
-                </sw-field>
+                {% block sw_sales_channel_detail_base_general_input_languages %}
+                    <sw-multi-select id="languageIds"
+                                     :label="$tc('sw-sales-channel.detail.labelInputLanguages')"
+                                     :serviceProvider="languageService"
+                                     :store="languageStore"
+                                     entityName="language"
+                                     :defaultItemId="salesChannel.languageId"
+                                     v-model="salesChannel.languages"
+                                     @default_changed="changeDefaultLanguage">
+                    </sw-multi-select>
+                {% endblock %}
 
-                <sw-field type="select"
-                          label="Land"
-                          validation="required"
-                          v-model="salesChannel.countryId">
-                        <option slot="options" v-for="country in countries" :key="country.id" :value="country.id">
-                            {{ country.name }}
-                        </option>
-                </sw-field>
+                {% block sw_sales_channel_detail_base_general_input_catalogs %}
+                    <sw-multi-select id="catalogIds"
+                                     :label="$tc('sw-sales-channel.detail.labelInputCatalogs')"
+                                     :serviceProvider="catalogService"
+                                     :store="catalogStore"
+                                     entityName="catalog"
+                                     v-model="salesChannel.catalogs">
+                    </sw-multi-select>
+                {% endblock %}
             </sw-card>
         {% endblock %}
 

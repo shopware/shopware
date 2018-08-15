@@ -508,7 +508,7 @@
       "title": "Verkaufskanal anlegen",
       "buttonAddChannel": "Hinzufügen",
       "titleDetailPrefix": "Details zu",
-      "buttonShowDetails": "Details anzeigen",
+      "buttonShowDetails": "Details",
       "buttonBack": "Zurück",
       "buttonCancel": "Abbrechen",
       "titleDescription": "Informationen"
@@ -525,7 +525,19 @@
       "labelSecretField": "Sicherheitsschlüssel",
       "labelIdField": "ID",
       "titleAPIError": "Ups! Ein Fehler ist aufgetreten!",
-      "messageAPIError": "Wir wurden bereits über das Problem informiert und arbeiten an einer Lösung, bitte versuchen Sie es in Kürze erneut."
+      "messageAPIError": "Wir wurden bereits über das Problem informiert und arbeiten an einer Lösung, bitte versuchen Sie es in Kürze erneut.",
+      "titleGeneralSettings": "Grundeinstellungen",
+      "labelInputName": "Name",
+      "labelInputActive": "Aktiv",
+      "labelInputShipping": "Versandart",
+      "labelInputPayment": "Zahlungsart",
+      "labelInputCountry": "Land",
+      "labelInputTaxCalculation": "Steuerberechnung",
+      "labelOptionTaxVertical": "Vertikal",
+      "labelOptionTaxHorizontal": "Horizontal",
+      "labelInputCurrencies": "Währungen",
+      "labelInputLanguages": "Sprachen",
+      "labelInputCatalogs": "Kataloge"
     }
   },
   "sw-media": {

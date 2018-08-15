@@ -33,8 +33,8 @@
 
                 {% block sw_sales_channel_detail_content_view %}
                     <router-view :salesChannel="salesChannel"
-                                 :salesChannelCurrencies="salesChannelCurrencies"
-                                 :currencies="currencies"
+                                 :shippingMethods="shippingMethods"
+                                 :paymentMethods="paymentMethods"
                                  :countries="countries">
                     </router-view>
                 {% endblock %}

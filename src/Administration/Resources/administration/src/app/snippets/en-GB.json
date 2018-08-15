@@ -525,7 +525,19 @@
       "labelSecretField": "Secret key",
       "labelIdField": "ID",
       "titleAPIError": "Something went wrong",
-      "messageAPIError": "We have been informed."
+      "messageAPIError": "We have been informed.",
+      "titleGeneralSettings": "General Settings",
+      "labelInputName": "Name",
+      "labelInputActive": "Active",
+      "labelInputShipping": "Shipping method",
+      "labelInputPayment": "Payment method",
+      "labelInputCountry": "Country",
+      "labelInputTaxCalculation": "Tax calculation",
+      "labelOptionTaxVertical": "Vertical",
+      "labelOptionTaxHorizontal": "Horizontal",
+      "labelInputCurrencies": "Currencies",
+      "labelInputLanguages": "Languages",
+      "labelInputCatalogs": "Catalogs"
     }
   },
   "sw-media": {

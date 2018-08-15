@@ -42,7 +42,7 @@ Component.register('sw-sales-channel-menu', {
                     params: { id: salesChannel.id },
                     color: '#D8DDE6',
                     label: { label: salesChannel.name, translated: true },
-                    icon: 'default-money-cash',
+                    icon: salesChannel.type.iconName,
                     children: []
                 });
             });

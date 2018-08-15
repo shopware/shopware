@@ -27,6 +27,7 @@
                             <sw-admin-menu-item v-for="entry in menuItems"
                                                 :entry="entry"
                                                 :key="entry.id || entry.path"
+                                                iconSize="16px"
                                                 :class="entry.label">
                             </sw-admin-menu-item>
                         {% endblock %}

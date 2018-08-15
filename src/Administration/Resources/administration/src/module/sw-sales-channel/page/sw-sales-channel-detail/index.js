@@ -1,5 +1,4 @@
 import { Component, Mixin, State } from 'src/core/shopware';
-import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-sales-channel-detail.html.twig';
 
 Component.register('sw-sales-channel-detail', {
@@ -13,11 +12,10 @@ Component.register('sw-sales-channel-detail', {
     data() {
         return {
             salesChannel: {},
-            salesChannelCurrencies: [],
             salesChannelType: {},
             countries: [],
-            currencies: [],
-            languages: [],
+            shippingMethods: [],
+            paymentMethods: [],
             isLoading: false
         };
     },
@@ -36,6 +34,14 @@ Component.register('sw-sales-channel-detail', {
 
         languageStore() {
             return State.getStore('language');
+        },
+
+        shippingMethodStore() {
+            return State.getStore('shipping_method');
+        },
+
+        paymentMethodStore() {
+            return State.getStore('payment_method');
         },
 
         currencyStore() {
@@ -59,38 +65,33 @@ Component.register('sw-sales-channel-detail', {
                 return;
             }
 
-            const params = {
-                limit: 1,
+            this.salesChannel = this.salesChannelStore.getById(this.$route.params.id);
+
+            this.salesChannel.getAssociationStore('catalogs').getList({
                 offset: 0,
-                criteria: CriteriaFactory.term('id', this.$route.params.id)
-            };
+                limit: 50
+            });
 
-            // todo change everything when salesChannel relations are done by API
+            this.salesChannel.getAssociationStore('languages').getList({
+                offset: 0,
+                limit: 50
+            });
 
-            this.currencyStore.getList({ offset: 0, limit: 100 }).then((response) => {
-                this.currencies = response.items;
-
-                this.salesChannelStore.getList(params).then((resp) => {
-                    this.salesChannel = resp.items[0];
-
-                    // because of getList...
-                    // todo only user getById when relations are done
-                    if (this.salesChannel === undefined) {
-                        this.salesChannel = this.salesChannelStore.getById(this.$route.params.id);
-                    }
-
-                    this.salesChannel.currencyIds.forEach((id) => {
-                        this.salesChannelCurrencies.push(this.currencies.find(a => a.id === id));
-                    });
-                });
+            this.salesChannel.getAssociationStore('currencies').getList({
+                offset: 0,
+                limit: 50
             });
 
             this.countryStore.getList({ offset: 0, limit: 100 }).then((response) => {
                 this.countries = response.items;
             });
 
-            this.languageStore.getList({ offset: 0, limit: 100 }).then((response) => {
-                this.lanuages = response.items;
+            this.shippingMethodStore.getList({ offset: 0, limit: 100 }).then((response) => {
+                this.shippingMethods = response.items;
+            });
+
+            this.paymentMethodStore.getList({ offset: 0, limit: 100 }).then((response) => {
+                this.paymentMethods = response.items;
             });
         },
 
@@ -102,7 +103,7 @@ Component.register('sw-sales-channel-detail', {
                 { name: this.salesChannel.name }
             );
 
-            return this.salesChannel.save().then(() => {
+            return this.salesChannel.save(true, true).then(() => {
                 this.createNotificationSuccess({
                     title: titleSaveSuccess,
                     message: messageSaveSuccess

@@ -5,7 +5,7 @@ import './sw-sales-channel-detail-base.less';
 Component.register('sw-sales-channel-detail-base', {
     template,
 
-    inject: ['salesChannelService', 'currencyService'],
+    inject: ['salesChannelService', 'currencyService', 'languageService', 'catalogService'],
 
     props: {
         salesChannel: {
@@ -13,7 +13,6 @@ Component.register('sw-sales-channel-detail-base', {
             required: true,
             default: {}
         },
-
         countries: {
             type: Array,
             required: true,
@@ -21,25 +20,24 @@ Component.register('sw-sales-channel-detail-base', {
                 return [];
             }
         },
-
-        currencies: {
+        shippingMethods: {
             type: Array,
             required: true,
             default() {
                 return [];
             }
         },
-
-        salesChannelCurrencies: {
+        paymentMethods: {
             type: Array,
-            required: false,
-            default: []
+            required: true,
+            default() {
+                return [];
+            }
         }
     },
 
     data() {
         return {
-            ChannelCurrencies: [],
             showSecretAccessKey: false,
             isLoadingAPICard: false
         };
@@ -56,11 +54,21 @@ Component.register('sw-sales-channel-detail-base', {
 
         currencyStore() {
             return State.getStore('currency');
+        },
+
+        languageStore() {
+            return State.getStore('language');
         }
     },
 
     created() {
         this.createdComponent();
+    },
+
+    watch: {
+        'salesChannel.id'() {
+            this.createdComponent();
+        }
     },
 
     methods: {
@@ -81,6 +89,14 @@ Component.register('sw-sales-channel-detail-base', {
                     message: this.$tc('sw-sales-channel.detail.messageAPIError')
                 });
             });
+        },
+
+        changeDefaultCurrency(id) {
+            this.salesChannel.currencyId = id;
+        },
+
+        changeDefaultLanguage(id) {
+            this.salesChannel.languageId = id;
         }
     }
 });

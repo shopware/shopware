@@ -54,6 +54,19 @@
       "typeLabelCustomer": "Kunde",
       "typeLabelProduct": "Produkt",
       "typeLabelOrder": "Bestellung"
+    },
+    "sw-media-upload-container": {
+      "dropZoneText": "Dateien zum Hochladen hierhin ziehen",
+      "dropZoneDemoText": "(Achtung! Drag and Drop ist in der Demo nicht verfügbar)",
+      "upload": "Datei hochladen",
+      "openMedia": "Medien öffnen",
+      "createFromURLText": "Datei über URL hinzufügen"
+    },
+    "sw-media-upload-url-modal": {
+      "title": "Datei über URL hochladen",
+      "upload": "Hochladen",
+      "cancel": "Abbrechen",
+      "example": "www.beispiel.de"
     }
   },
   "sw-login": {

@@ -1,0 +1,79 @@
+{% block sw_media_upload_container %}
+    <div class="sw-media-upload-container">
+        {% block sw_media_upload_container_title %}
+                <div class="sw-media-upload-container__title" v-if="title">{{ title }}</div>
+            {% endblock %}
+
+        {% block sw_media_upload_container_file_input %}
+            <input class="sw-media-upload-container__file-input"
+                type="file"
+                name="file-upload"
+                ref="fileInput"
+                :multiple="multipleFiles"
+                @change="handleFileUpload">
+        {% endblock %}
+
+        {% block sw_media_upload_container_drop_zone %}
+            <div class="sw-media-upload-container__drop-zone">
+                {% block sw_media_upload_container_drop_zone_label %}
+                    <div class="sw-media-upload-container__drop-zone-label">
+                        {% block sw_media_upload_container_upload_icon %}
+                            <sw-icon name="default-action-cloud-upload"></sw-icon>
+                        {% endblock%}
+
+                        {% block sw_media_upload_container_label_text %}
+                            <div class="sw-media-upload-container__drop-zone-label-text">
+                                {{ $tc('global.sw-media-upload-container.dropZoneText') }}
+                            </div>
+                        {% endblock %}
+
+                        {% block sw_media_upload_container_demo_text %}
+                            <div class="sw-media-upload-container__demo-notification">
+                                {{ $tc('global.sw-media-upload-container.dropZoneDemoText') }}
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+
+                {% block sw_media_upload_container_button_container %}
+                    <div class="sw-media-upload-container__button-container">
+                        {% block sw_media_upload_container_upload_button %}
+                            <sw-button class="sw-media-upload-container__action-button"
+                                       size="small"
+                                       @click="addFile">
+                                {{ $tc('global.sw-media-upload-container.upload') }}
+                            </sw-button>
+                        {% endblock %}
+
+                        {% block sw_media_upload_container_open_media_button %}
+                            <sw-button class="sw-media-upload-container__action-button"
+                                       variant="primary"
+                                       size="small"
+                                       @click="emitOpenMedia($event)">
+                                {{ $tc('global.sw-media-upload-container.openMedia') }}
+                            </sw-button>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block sw_media_upload_container_create_from_url_container %}
+            <div class="sw-media-upload-container__create-from-url-link-container" @click="openUrlDialog">
+                {% block sw_media_upload_container_create_from_url_container_text %}
+                    <span class="sw-media-upload-container__create-from-url-link">
+                        {{ $tc('global.sw-media-upload-container.createFromURLText') }}
+                    </span>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block sw_media_upload_container_url_modal %}
+            <sw-media-upload-url-modal
+               v-if="showUrlModal"
+               @sw-media-upload-url-modal-submit="uploadFromUrl"
+               @closeModal="closeUrlDialog">
+            </sw-media-upload-url-modal>
+        {% endblock %}
+    </div>
+{% endblock %}

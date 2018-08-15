@@ -55,3 +55,5 @@ import './structure/sw-search-bar-item';
 import './media/sw-media-grid';
 import './media/sw-media-grid-item';
 import './media/sw-media-grid-media-item';
+import './media/sw-media-upload-container';
+import './media/sw-media-upload-url-modal';

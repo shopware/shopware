@@ -20,7 +20,7 @@
                                 {% endblock %}
 
                                 {% block sw_media_quickinfo_quickactions_download %}
-                                    <a class="sw-media-quickinfo__quickaction" :href="this.item.links.url" download>
+                                    <a class="sw-media-quickinfo__quickaction" :href="this.item.extensions.links.url" download>
                                         <sw-icon small name="default-action-cloud-download"
                                                  class="sw-media-quickinfo__quickactions-icon"></sw-icon>
                                         {{ $tc('sw-media.sidebar.quickinfo.download') }}

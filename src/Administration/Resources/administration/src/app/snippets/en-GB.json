@@ -512,6 +512,12 @@
         "createdAt": "Uploaded at",
         "url": "URL"
       }
+    },
+    "modalDelete": {
+      "modalHeader": "Media",
+      "deleteMessage": "Do you want to delete \"{mediaName}\" ? | Delete {count} Media items?",
+      "modalButtonDelete": "Delete",
+      "modalButtonAbort": "Cancel"
     }
   }
 }

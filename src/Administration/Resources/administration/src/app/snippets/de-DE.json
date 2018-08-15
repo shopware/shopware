@@ -512,6 +512,12 @@
         "createdAt": "Hochgeladen am",
         "url": "URL"
       }
+    },
+    "modalDelete": {
+      "modalHeader": "Medien",
+      "deleteMessage":"Möchten sie \"{mediaName}\" wirklich löschen? | Diese {count} Medien löschen",
+      "modalButtonDelete": "Löschen",
+      "modalButtonAbort": "Abbrechen"
     }
   }
 }

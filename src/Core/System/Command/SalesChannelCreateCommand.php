@@ -65,13 +65,10 @@ class SalesChannelCreateCommand extends ContainerAwareCommand
 
         $io = new SymfonyStyle($input, $output);
 
-        $secretAccessKey = AccessKeyHelper::generateSecretAccessKey();
-
         $data = [
             'id' => $id,
             'typeId' => $typeId ?? $this->getTypeId(),
             'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
-            'secretAccessKey' => $secretAccessKey,
             'configuration' => $this->getSalesChannelConfiguration($input, $output),
             'languageId' => $input->getOption('languageId'),
             'currencyId' => $input->getOption('currencyId'),
@@ -115,7 +112,6 @@ class SalesChannelCreateCommand extends ContainerAwareCommand
 
         $table->addRows([
             ['Access key', $data['accessKey']],
-            ['Secret access key', $secretAccessKey],
         ]);
 
         $table->render();

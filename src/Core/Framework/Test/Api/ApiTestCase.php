@@ -147,14 +147,10 @@ class ApiTestCase extends WebTestCase
         $client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['access_token']));
     }
 
-    /**
-     * @throws \Shopware\Core\Framework\Exception\InvalidUuidException
-     */
     protected function authorizeStorefrontClient(Client $storefrontApiClient): void
     {
         $salesChannelId = Uuid::uuid4();
         $accessKey = AccessKeyHelper::generateAccessKey('sales-channel');
-        $secretKey = AccessKeyHelper::generateSecretAccessKey();
 
         $salesChannelRepository = self::$container->get('sales_channel.repository');
 
@@ -163,7 +159,6 @@ class ApiTestCase extends WebTestCase
             'typeId' => Defaults::SALES_CHANNEL_STOREFRONT_API,
             'name' => 'API Test case sales channel',
             'accessKey' => $accessKey,
-            'secretAccessKey' => $secretKey,
             'languageId' => Defaults::LANGUAGE,
             'currencyId' => Defaults::CURRENCY,
             'paymentMethodId' => Defaults::PAYMENT_METHOD_DEBIT,
@@ -176,18 +171,7 @@ class ApiTestCase extends WebTestCase
 
         $this->salesChannelIds[] = $salesChannelId->getBytes();
 
-        $authPayload = [
-            'grant_type' => 'client_credentials',
-            'client_id' => $accessKey,
-            'client_secret' => $secretKey,
-        ];
-
-        $storefrontApiClient->request('POST', '/storefront-api/oauth/token', $authPayload);
-
-        $data = json_decode($storefrontApiClient->getResponse()->getContent(), true);
-
-        $this->assertArrayHasKey('access_token', $data, 'No token returned from API: ' . (($data['errors'][0]['detail'] ?? 'unknown error') . print_r($data, true)));
-
-        $storefrontApiClient->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['access_token']));
+        $header = 'HTTP_' . str_replace('-', '_', strtoupper(PlatformRequest::HEADER_ACCESS_KEY));
+        $storefrontApiClient->setServerParameter($header, $accessKey);
     }
 }

@@ -64,7 +64,6 @@ class SalesChannelDefinition extends EntityDefinition
             (new StringField('type', 'type'))->setFlags(new Required()),
             (new TranslatedField(new StringField('name', 'name')))->setFlags(new Required()),
             (new StringField('access_key', 'accessKey'))->setFlags(new Required()),
-            (new PasswordField('secret_access_key', 'secretAccessKey'))->setFlags(new Required()),
             new JsonField('configuration', 'configuration'),
             new BoolField('active', 'active'),
             new StringField('tax_calculation_type', 'taxCalculationType'),

@@ -127,7 +127,6 @@ class SalesChannelRepositoryTest extends KernelTestCase
 
         self::assertEquals($name, $salesChannel->getName());
         self::assertEquals($accessKey, $salesChannel->getAccessKey());
-        self::assertTrue(password_verify($secretKey, $salesChannel->getSecretAccessKey()));
 
         self::assertEquals($cover, $salesChannel->getType()->getCoverUrl());
         self::assertEquals($icon, $salesChannel->getType()->getIconName());

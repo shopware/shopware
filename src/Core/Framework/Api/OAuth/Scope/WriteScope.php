@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Api\OAuth\Api\Scope;
+namespace Shopware\Core\Framework\Api\OAuth\Scope;
 
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
 

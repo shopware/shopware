@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Api\Controller;
 
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
 use Shopware\Core\Framework\Api\Exception\UnknownRepositoryVersionException;
-use Shopware\Core\Framework\Api\OAuth\Api\Scope\WriteScope;
+use Shopware\Core\Framework\Api\OAuth\Scope\WriteScope;
 use Shopware\Core\Framework\Api\Response\ResponseFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\DefinitionRegistry;

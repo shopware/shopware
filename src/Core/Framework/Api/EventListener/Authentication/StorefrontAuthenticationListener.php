@@ -1,0 +1,95 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Framework\Api\EventListener\Authentication;
+
+use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
+use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
+use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\PlatformRequest;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpKernel\Event\GetResponseEvent;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
+use Symfony\Component\HttpKernel\KernelEvents;
+
+class StorefrontAuthenticationListener implements EventSubscriberInterface
+{
+    /**
+     * @var string
+     */
+    private static $routePrefix = '/storefront-api/';
+
+    /**
+     * @var string[]
+     */
+    private static $unprotectedRoutes = [
+    ];
+
+    /**
+     * @var Connection
+     */
+    private $connection;
+
+    public function __construct(Connection $connection)
+    {
+        $this->connection = $connection;
+    }
+
+    public static function getSubscribedEvents()
+    {
+        return [
+            KernelEvents::REQUEST => ['validateRequest', 32],
+        ];
+    }
+
+    public function validateRequest(GetResponseEvent $event): void
+    {
+        $request = $event->getRequest();
+
+        foreach (self::$unprotectedRoutes as $route) {
+            if (stripos($request->getPathInfo(), $route) === 0) {
+                return;
+            }
+        }
+
+        if (stripos($request->getPathInfo(), self::$routePrefix) !== 0) {
+            return;
+        }
+
+        if (!$request->headers->has(PlatformRequest::HEADER_ACCESS_KEY)) {
+            throw new UnauthorizedHttpException('header', sprintf('Header "%s" is required.', PlatformRequest::HEADER_ACCESS_KEY));
+        }
+
+        $accessKey = $request->headers->get(PlatformRequest::HEADER_ACCESS_KEY);
+
+        $origin = AccessKeyHelper::getOrigin($accessKey);
+        if ($origin !== 'sales-channel') {
+            throw new SalesChannelNotFoundException();
+        }
+
+        $tenantId = $request->headers->get(PlatformRequest::HEADER_TENANT_ID);
+        $salesChannelId = $this->getSalesChannelId($accessKey, $tenantId);
+
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, $salesChannelId);
+    }
+
+    private function getSalesChannelId(string $accessKey, string $tenantId): string
+    {
+        $builder = $this->connection->createQueryBuilder();
+
+        $salesChannelId = $builder->select(['sales_channel.id'])
+            ->from('sales_channel')
+            ->where('sales_channel.tenant_id = :tenantId')
+            ->andWhere('sales_channel.access_key = :accessKey')
+            ->setParameter('tenantId', Uuid::fromHexToBytes($tenantId))
+            ->setParameter('accessKey', $accessKey)
+            ->execute()
+            ->fetchColumn();
+
+        if (!$salesChannelId) {
+            throw new SalesChannelNotFoundException();
+        }
+
+        return Uuid::fromBytesToHex($salesChannelId);
+    }
+}

@@ -512,12 +512,12 @@ class TenantProvisioner
         $key = AccessKeyHelper::generateAccessKey('sales-channel');
 
         $salesChannels = [
-            [Uuid::uuid4()->getBytes(), Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_STOREFRONT_API), $key, $key, $this->defaultId, $this->defaultId, $this->defaultId, $this->defaultId, $this->defaultId, $this->defaultId, $this->defaultId, $this->defaultId, $this->defaultId, 1, 'vertical', $this->now()],
+            [Uuid::uuid4()->getBytes(), Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_STOREFRONT_API), $key, $this->defaultId, $this->defaultId, $this->defaultId, $this->defaultId, $this->defaultId, $this->defaultId, $this->defaultId, $this->defaultId, $this->defaultId, 1, 'vertical', $this->now()],
         ];
 
         $this->importTable(
             'sales_channel',
-            ['id', 'type_id', 'access_key', 'secret_access_key', 'language_id', 'currency_id', 'currency_version_id', 'payment_method_id', 'payment_method_version_id', 'shipping_method_version_id', 'shipping_method_id', 'country_id', 'country_version_id', 'active', 'tax_calculation_type', 'created_at'],
+            ['id', 'type_id', 'access_key', 'language_id', 'currency_id', 'currency_version_id', 'payment_method_id', 'payment_method_version_id', 'shipping_method_version_id', 'shipping_method_id', 'country_id', 'country_version_id', 'active', 'tax_calculation_type', 'created_at'],
             ['type_tenant_id', 'tenant_id', 'language_tenant_id', 'currency_tenant_id', 'payment_method_tenant_id', 'shipping_method_tenant_id', 'country_tenant_id'],
             $salesChannels
         );

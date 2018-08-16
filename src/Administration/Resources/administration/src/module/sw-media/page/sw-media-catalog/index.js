@@ -51,6 +51,7 @@ Component.register('sw-media-catalog', {
             }).then((response) => {
                 this.catalogs = response.items;
             });
+
             this.isLoading = false;
         },
 
@@ -101,6 +102,11 @@ Component.register('sw-media-catalog', {
 
         handleMediaGridItemUnselected() {
             this.getLastSelectedItem();
+        },
+
+        handleMediaGridItemShowDetails({ item }) {
+            this.lastSelectedItem = item;
+            this.$refs.mediaSidebar.showQuickInfo();
         },
 
         handleSidebarRemoveItem({ item }) {

@@ -1,7 +1,7 @@
 {% block sw_sidebar_item %}
     <div class="sw-sidebar-item">
         {% block sw_sidebar_item_button %}
-            <button class="sw-sidebar-item__button" :class="sidebarItemClasses" @click="toggleContentPanel">
+            <button class="sw-sidebar-item__button" :class="sidebarItemClasses" @click="sidebarButtonClick">
                 {% block sw_sidebar_item_icon %}<sw-icon :name="icon" size="20px" :title="title"></sw-icon>{% endblock %}
             </button>
         {% endblock %}
@@ -13,8 +13,9 @@
                         {% block sw_sidebar_item_title %}
                             <h1 class="sw-sidebar-item__title">{{ title }}</h1>
                         {% endblock %}
+
                         {% block sw_sidebar_item_close_button %}
-                            <div class="sw-sidebar-item__close-button" @click="toggleContentPanel">
+                            <div class="sw-sidebar-item__close-button" @click="closeSideBarPanel">
                                 <sw-icon name="small-default-x-line-small"></sw-icon>
                             </div>
                         {% endblock %}

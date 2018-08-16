@@ -24,25 +24,30 @@ Component.register('sw-media-grid-item', {
         isListItemPreview() {
             return this.containerOptions.previewType === 'media-grid-preview-as-list';
         },
+
         itemTitle() {
             return this.item.name;
         },
+
         mediaItemClasses() {
             return {
                 'is--selected': this.selected
             };
         },
+
         mediaItemContentClasses() {
             return {
                 'is--grid': !this.isListItemPreview,
                 'is--list': this.isListItemPreview
             };
         },
+
         selectedIndicatorClasses() {
             return {
                 'selected-indicator--visible': this.containerOptions.selectionInProgress
             };
         },
+
         gridItemListeners() {
             return {
                 click: this.doMainAction
@@ -54,6 +59,7 @@ Component.register('sw-media-grid-item', {
         doMainAction(originalDomEvent) {
             this.doSelectItem(originalDomEvent);
         },
+
         doSelectItem(originalDomEvent) {
             if (!this.selected ||
                 ['SVG', 'BUTTON'].includes(originalDomEvent.target.tagName.toUpperCase())
@@ -64,12 +70,14 @@ Component.register('sw-media-grid-item', {
 
             this.removeFromSelection(originalDomEvent);
         },
+
         selectItem(originalDomEvent) {
             this.$emit('sw-media-grid-item-selection-add', {
                 originalDomEvent,
                 item: this.item
             });
         },
+
         removeFromSelection(originalDomEvent) {
             this.$emit('sw-media-grid-item-selection-remove', {
                 originalDomEvent,

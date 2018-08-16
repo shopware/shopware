@@ -17,15 +17,19 @@ const mediaSidebarListener = {
         handleSidebarMoveBatchRequest() {
             warn('handleMediaGridSelectionRemoved', 'Handler must be overriden in component');
         },
+
         handleSidebarRemoveBatchRequest() {
             warn('handleSidebarRemoveBatchRequest', 'Handler must be overriden in component');
         },
+
         handleSidebarReplaceItem() {
             warn('handleSidebarReplaceItem', 'Handler must be overriden in component');
         },
+
         handleSidebarMoveItem() {
             warn('handleSidebarMoveItem', 'Handler must be overriden in component');
         },
+
         handleSidebarRemoveItem() {
             warn('handleSidebarRemoveItem', 'Handler must be overriden in component');
         }

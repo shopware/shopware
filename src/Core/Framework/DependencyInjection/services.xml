@@ -121,6 +121,11 @@
             <argument type="service" id="Shopware\Core\Framework\Provisioning\TenantProvisioner"/>
         </service>
 
+        <service class="Shopware\Core\Framework\Command\MigrationCommand" id="Shopware\Core\Framework\Command\MigrationCommand">
+            <tag name="console.command" command="framework:migrate"/>
+            <argument type="service" id="service_container"/>
+        </service>
+
         <!-- Serializer -->
         <service class="Shopware\Core\Framework\Struct\Serializer\StructNormalizer" id="Shopware\Core\Framework\Struct\Serializer\StructNormalizer">
             <tag name="serializer.normalizer"/>

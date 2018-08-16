@@ -1,5 +1,6 @@
 import { Component, State, Mixin } from 'src/core/shopware';
 import template from './sw-settings-shipping-detail.html.twig';
+import './sw-settings-shipping-detail.less';
 
 Component.register('sw-settings-shipping-detail', {
     template,
@@ -28,7 +29,7 @@ Component.register('sw-settings-shipping-detail', {
         createdComponent() {
             if (this.$route.params.id) {
                 this.shippingMethodId = this.$route.params.id;
-                this.tax = this.shippingMethodStore.getById(this.shippingMethodId);
+                this.shippingMethod = this.shippingMethodStore.getById(this.shippingMethodId);
             }
         },
 
@@ -39,7 +40,7 @@ Component.register('sw-settings-shipping-detail', {
                 name: shippingMethodName
             });
 
-            return this.tax.save().then(() => {
+            return this.shippingMethod.save().then(() => {
                 this.createNotificationSuccess({
                     title: titleSaveSuccess,
                     message: messageSaveSuccess

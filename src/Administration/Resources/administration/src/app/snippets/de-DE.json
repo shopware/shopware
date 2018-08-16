@@ -582,7 +582,6 @@
       "titleCard": "Einstellungen",
       "titleSaveSuccess": "Währung",
       "messageSaveSuccess": "Die Währung {name} wurde erfolgreich gespeichert.",
-      "labelIsDefault": "Standard?",
       "labelName": "Name",
       "labelShortName": "Kurzname",
       "labelSymbol": "Symbol",
@@ -618,7 +617,6 @@
       "titleSaveSuccess": "Steuer",
       "messageSaveSuccess": "Die Steuer {name} wurde erfolgreich gespeichert.",
       "labelName": "Name",
-      "labelShortName": "Kurzname",
       "labelTaxRate": "Steuersatz",
       "placeholderName": "Name eingeben...",
       "placeholderTaxRate": "Steuersatz eingeben...",
@@ -713,12 +711,13 @@
       "textHeadline": "Versandkosten",
       "textDeleteConfirm": "Sind Sie sich sicher dass sie die Versandkosten {name} löschen möchten?",
       "columnName": "Name",
-      "columnTaxRate": "Steuersatz",
+      "columnActive": "Aktiv",
+      "columnShippingfree": "Versandkostenfrei",
       "buttonAddShippingMethod": "Versandkosten anlegen",
       "contextMenuEdit": "Anzeigen",
-      "modalTitleDelete": "Steuer löschen",
-      "titleDeleteSuccess": "Steuern",
-      "messageDeleteSuccess": "Die Steuer {name} wurde erfolgreich gelöscht.",
+      "modalTitleDelete": "Versandkosten löschen",
+      "titleDeleteSuccess": "Versandkosten",
+      "messageDeleteSuccess": "Die Versandkosten {name} wurde erfolgreich gelöscht.",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen"
     },
@@ -728,10 +727,38 @@
       "titleSaveSuccess": "Versandkosten",
       "messageSaveSuccess": "Die Versandkosten {name} wurde erfolgreich gespeichert.",
       "labelName": "Name",
-      "labelShortName": "Kurzname",
-      "labelTaxRate": "Steuersatz",
+      "labelActive": "Aktiv",
+      "labelBindShippingfree": "Versandkostenfrei",
       "placeholderName": "Name eingeben...",
-      "placeholderTaxRate": "Steuersatz eingeben...",
+      "buttonCancel": "Abbrechen",
+      "buttonSave": "Speichern"
+    }
+  },
+  "sw-settings-country": {
+    "general": {
+      "mainMenuItemGeneral": "Länder"
+    },
+    "list": {
+      "textHeadline": "Länder",
+      "textDeleteConfirm": "Sind Sie sich sicher dass Sie das Land {name} löschen möchten?",
+      "columnName": "Name",
+      "columnActive": "Aktiv",
+      "buttonAddCountry": "Land anlegen",
+      "contextMenuEdit": "Anzeigen",
+      "modalTitleDelete": "Land löschen",
+      "titleDeleteSuccess": "Land",
+      "messageDeleteSuccess": "Das Land {name} wurde erfolgreich gelöscht.",
+      "buttonCancel": "Abbrechen",
+      "buttonDelete": "Löschen"
+    },
+    "detail": {
+      "textHeadline": "Neues Land",
+      "titleCard": "Einstellungen",
+      "titleSaveSuccess": "Land",
+      "messageSaveSuccess": "Das Land {name} wurde erfolgreich gespeichert.",
+      "labelName": "Name",
+      "labelActive": "Aktiv",
+      "placeholderName": "Name eingeben...",
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern"
     }

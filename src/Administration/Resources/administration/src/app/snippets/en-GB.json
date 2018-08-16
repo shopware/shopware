@@ -550,5 +550,218 @@
       "modalButtonDelete": "Delete",
       "modalButtonAbort": "Cancel"
     }
+  },
+  "sw-settings-wrapper": {
+    "general": {
+      "mainMenuItemGeneral": "Settings"
+    },
+    "index": {
+      "title": "Settings"
+    }
+  },
+  "sw-settings-currency": {
+    "general": {
+      "mainMenuItemGeneral": "Currencies"
+    },
+    "list": {
+      "textHeadline": "Currencies",
+      "textDeleteConfirm": "Are you sure, you want to delete the currency {name}?",
+      "columnName": "Name",
+      "columnShortName": "Short name",
+      "columnSymbol": "Symbol",
+      "columnFactor": "Factor",
+      "buttonAddCurrency": "Add currency",
+      "contextMenuEdit": "Edit",
+      "modalTitleDelete": "Delete currency",
+      "titleDeleteSuccess": "Currency",
+      "messageDeleteSuccess": "The currency {name} has been deleted successfully.",
+      "buttonCancel": "Cancel",
+      "buttonDelete": "Delete"
+    },
+    "detail": {
+      "textHeadline": "New currency",
+      "titleCard": "Settings",
+      "titleSaveSuccess": "Currency",
+      "messageSaveSuccess": "The currency {name} has been saved successfully.",
+      "labelName": "Name",
+      "labelShortName": "Short name",
+      "labelSymbol": "Symbol",
+      "labelFactor": "Factor",
+      "placeholderName": "Enter name...",
+      "placeholderShortName": "Enter short name...",
+      "placeholderSymbol": "Enter symbol...",
+      "placeholderFactor": "Enter factor...",
+      "buttonCancel": "Cancel",
+      "buttonSave": "Save"
+    }
+  },
+  "sw-settings-tax": {
+    "general": {
+      "mainMenuItemGeneral": "Tax"
+    },
+    "list": {
+      "textHeadline": "Tax",
+      "textDeleteConfirm": "Are you sure, you want to delete the tax {name}??",
+      "columnName": "Name",
+      "columnTaxRate": "Tax rate",
+      "buttonAddTax": "Add tax",
+      "contextMenuEdit": "Edit",
+      "modalTitleDelete": "Delete tax",
+      "titleDeleteSuccess": "Tax",
+      "messageDeleteSuccess": "The tax {name} has been deleted successfully.",
+      "buttonCancel": "Cancel",
+      "buttonDelete": "Delete"
+    },
+    "detail": {
+      "textHeadline": "New tax",
+      "titleCard": "Settings",
+      "titleSaveSuccess": "Tax",
+      "messageSaveSuccess": "The tax {name} has been saved successfully.",
+      "labelName": "Name",
+      "labelTaxRate": "Tax rate",
+      "placeholderName": "Enter name...",
+      "placeholderTaxRate": "Enter tax rate...",
+      "buttonCancel": "Cancel",
+      "buttonSave": "Save"
+    }
+  },
+  "sw-settings-language": {
+    "general": {
+      "mainMenuItemGeneral": "Languages"
+    },
+    "list": {
+      "textHeadline": "Sprachen",
+      "textDeleteConfirm": "Are you sure, you want to delete the language {name}??",
+      "columnName": "Name",
+      "columnLocaleName": "Region",
+      "buttonAddLanguage": "Add language",
+      "contextMenuEdit": "Edit",
+      "modalTitleDelete": "Delete language",
+      "titleDeleteSuccess": "Languages",
+      "messageDeleteSuccess": "The language {name} has been deleted successfully.",
+      "buttonCancel": "Cancel",
+      "buttonDelete": "Delete"
+    },
+    "detail": {
+      "textHeadline": "New language",
+      "titleCard": "Settings",
+      "titleSaveSuccess": "Languages",
+      "messageSaveSuccess": "The language {name} has been saved successfully.",
+      "labelName": "Name",
+      "labelLocale": "Region",
+      "labelParent": "Inherit from",
+      "placeholderName": "Enter name...",
+      "placeholderPleaseSelect": "Please select...",
+      "buttonCancel": "Cancel",
+      "buttonSave": "Save"
+    }
+  },
+  "sw-settings-payment": {
+    "general": {
+      "mainMenuItemGeneral": "Payment Methods"
+    },
+    "list": {
+      "textHeadline": "Payment Methods",
+      "textDeleteConfirm": "Are you sure, you want to delete the payment method {name}??",
+      "columnName": "Name",
+      "columnDescription": "Description",
+      "columnActive": "Active",
+      "buttonAddPaymentMethod": "Add payment method",
+      "contextMenuEdit": "Edit",
+      "modalTitleDelete": "Delete payment method",
+      "titleDeleteSuccess": "Payment method",
+      "messageDeleteSuccess": "The payment method {name} has been deleted successfully.",
+      "buttonCancel": "Cancel",
+      "buttonDelete": "Delete"
+    },
+    "detail": {
+      "textHeadline": "New Payment method",
+      "titleCard": "Settings",
+      "titleSaveSuccess": "Payment Method",
+      "messageSaveSuccess": "The payment method {name} has been saved successfully.",
+      "labelName": "Name",
+      "labelTechnicalName": "Technical name",
+      "labelActive": "Active",
+      "labelAllowEsd": "Active for ESD products",
+      "labelMobileInactive": "Inactive for smartphones",
+      "labelAdditionalDescription": "Description",
+      "labelTemplate": "Template",
+      "labelUsedIframe": "URL for iFrame",
+      "labelAbsoluteSurcharge": "General surcharge",
+      "labelPercentageSurcharge": "Percentage surcharge",
+      "labelTable": "Database-Table",
+      "labelClass": "Class",
+      "placeholderName": "Enter name...",
+      "placeholderTechnicalName": "Enter technical name...",
+      "placeholderAdditionalDescription": "Enter description...",
+      "placeholderTemplate": "Enter template...",
+      "placeholderUsedIframe": "Enter URL...",
+      "placeholderAbsoluteSurcharge": "Enter surcharge...",
+      "placeholderPercentageSurcharge": "Enter percentage surcharge...",
+      "placeholderTable": "Enter database-table...",
+      "placeholderClass": "Enter class...",
+      "buttonCancel": "Cancel",
+      "buttonSave": "Save"
+    }
+  },
+  "sw-settings-shipping": {
+    "general": {
+      "mainMenuItemGeneral": "Shipping costs"
+    },
+    "list": {
+      "textHeadline": "Shipping costs",
+      "textDeleteConfirm": "Are you sure, you want to delete the shipping cost {name}??",
+      "columnName": "Name",
+      "columnActive": "Active",
+      "columnShippingfree": "Shipping cost free",
+      "buttonAddShippingMethod": "Add shipping cost",
+      "contextMenuEdit": "Edit",
+      "modalTitleDelete": "Delete shipping cost",
+      "titleDeleteSuccess": "Shipping cost",
+      "messageDeleteSuccess": "The shipping cost {name} has been deleted successfully.",
+      "buttonCancel": "Cancel",
+      "buttonDelete": "Delete"
+    },
+    "detail": {
+      "textHeadline": "New shipping cost",
+      "titleCard": "Settings",
+      "titleSaveSuccess": "Shipping cost",
+      "messageSaveSuccess": "The shipping cost {name} has been saved successfully.",
+      "labelName": "Name",
+      "labelActive": "Active",
+      "labelBindShippingfree": "Shipping cost free",
+      "placeholderName": "Enter name...",
+      "buttonCancel": "Cancel",
+      "buttonSave": "Save"
+    }
+  },
+  "sw-settings-country": {
+    "general": {
+      "mainMenuItemGeneral": "Countries"
+    },
+    "list": {
+      "textHeadline": "Countries",
+      "textDeleteConfirm": "Are you sure, you want to delete the country {name}?",
+      "columnName": "Name",
+      "columnActive": "Active",
+      "buttonAddCountry": "Add country",
+      "contextMenuEdit": "Edit",
+      "modalTitleDelete": "Delete Country",
+      "titleDeleteSuccess": "Country",
+      "messageDeleteSuccess": "The country {name} has been deleted successfully.",
+      "buttonCancel": "Cancel",
+      "buttonDelete": "Delete"
+    },
+    "detail": {
+      "textHeadline": "New country",
+      "titleCard": "Settings",
+      "titleSaveSuccess": "Country",
+      "messageSaveSuccess": "The country {name} has been saved successfully.",
+      "labelName": "Name",
+      "labelActive": "Active",
+      "placeholderName": "Enter name...",
+      "buttonCancel": "Cancel",
+      "buttonSave": "Save"
+    }
   }
 }

@@ -40,7 +40,7 @@
                 {% block sw_settings_currency_list_content_card %}
                     <sw-card :isLoading="isLoading">
                         {% block sw_settings_currency_list_grid %}
-                            <sw-grid class="sw-settings-currency-list-grid" :items="currencies" table>
+                            <sw-grid slot="grid" class="sw-settings-currency-list-grid" :items="currencies" table>
                                 <template slot="columns" slot-scope="{ item }">
                                     {% block sw_product_list_grid_columns %}
 

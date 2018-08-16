@@ -1,0 +1,52 @@
+{% block sw_settings_wrapper_content_card_slot_default %}
+    {% parent %}
+
+    <sw-settings-wrapper-item :label="$tc('sw-settings-country.general.mainMenuItemGeneral')" :to="{ name: 'sw.settings.country.index' }">
+        <template slot="icon">
+            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="80" height="80" viewBox="0 0 80 80">
+                <defs>
+                    <path id="countrys-b" d="M12,36 C20,24.418278 24,16.418278 24,12 C24,5.372583 18.627417,0 12,0 C5.372583,0 0,5.372583 0,12 C0,16.418278 4,24.418278 12,36 Z"/>
+                    <filter id="countrys-a" width="133.3%" height="122.2%" x="-20.8%" y="-8.3%" filterUnits="objectBoundingBox">
+                        <feMorphology in="SourceAlpha" operator="dilate" radius="2" result="shadowSpreadOuter1"/>
+                        <feOffset dx="-2" dy="2" in="shadowSpreadOuter1" result="shadowOffsetOuter1"/>
+                        <feComposite in="shadowOffsetOuter1" in2="SourceAlpha" operator="out" result="shadowOffsetOuter1"/>
+                        <feColorMatrix in="shadowOffsetOuter1" values="0 0 0 0 0.0823529412   0 0 0 0 0.266666667   0 0 0 0 0.466666667  0 0 0 0.1 0"/>
+                    </filter>
+                    <path id="countrys-d" d="M6,18 C10,12.209139 12,8.209139 12,6 C12,2.6862915 9.3137085,0 6,0 C2.6862915,0 0,2.6862915 0,6 C0,8.209139 2,12.209139 6,18 Z"/>
+                    <filter id="countrys-c" width="166.7%" height="144.4%" x="-41.7%" y="-16.7%" filterUnits="objectBoundingBox">
+                        <feMorphology in="SourceAlpha" operator="dilate" radius="2" result="shadowSpreadOuter1"/>
+                        <feOffset dx="-2" dy="2" in="shadowSpreadOuter1" result="shadowOffsetOuter1"/>
+                        <feComposite in="shadowOffsetOuter1" in2="SourceAlpha" operator="out" result="shadowOffsetOuter1"/>
+                        <feColorMatrix in="shadowOffsetOuter1" values="0 0 0 0 0.0823529412   0 0 0 0 0.266666667   0 0 0 0 0.466666667  0 0 0 0.2 0"/>
+                    </filter>
+                </defs>
+                <g fill="none" fill-rule="evenodd">
+                    <path fill="#E8F6FF" fill-rule="nonzero" d="M4.40244005,44.1121929 C4.40244005,75.0306785 35.3571644,49.2652738 49.1148197,64.7245166 C62.872475,80.1837594 86.9483717,62.1479761 77.7766015,44.1121929 C68.6048313,26.0764096 62.872475,-0.977265233 44.5289346,14.4819776 C26.1853942,29.9412203 4.40244005,13.1937073 4.40244005,44.1121929 Z" transform="rotate(25 42.105 40.236)"/>
+                    <g fill-rule="nonzero" stroke="#303A4F" stroke-width="2" transform="translate(12 12)">
+                        <circle cx="28" cy="28" r="27" fill="#FFF"/>
+                        <ellipse cx="28" cy="28" rx="10" ry="27"/>
+                        <path d="M5,43 C9.90666667,39.6666667 17.5733333,38 28,38 C38.4266667,38 46.0933333,39.6666667 51,43"/>
+                        <path d="M5,18 C9.90666667,14.6666667 17.5733333,13 28,13 C38.4266667,13 46.0933333,14.6666667 51,18" transform="matrix(1 0 0 -1 0 31)"/>
+                        <path d="M15,52 C17.7733333,50 22.1066667,49 28,49 C33.8933333,49 38.2266667,50 41,52"/>
+                        <path d="M15,7 C17.7733333,5 22.1066667,4 28,4 C33.8933333,4 38.2266667,5 41,7" transform="matrix(1 0 0 -1 0 11)"/>
+                        <path stroke-linecap="square" d="M1.49090909,28 L54.5090909,28"/>
+                    </g>
+                    <g fill-rule="nonzero" transform="translate(47 34)">
+                        <g stroke-linejoin="round">
+                            <use fill="#000" filter="url(#countrys-a)" xlink:href="#countrys-b"/>
+                            <path fill="#189EFF" fill-rule="evenodd" stroke="#303A4F" stroke-width="2" d="M11.177206,36.5683397 C3.05919629,24.8157733 -1,16.6973807 -1,12 C-1,4.82029825 4.82029825,-1 12,-1 C19.1797017,-1 25,4.82029825 25,12 C25,16.6973807 20.9408037,24.8157733 12.822794,36.5683397 L12,37.7595111 L11.177206,36.5683397 Z"/>
+                        </g>
+                        <circle cx="12" cy="12" r="4.5" fill="#FFF"/>
+                    </g>
+                    <g fill-rule="nonzero" transform="translate(15 13)">
+                        <g stroke-linejoin="round">
+                            <use fill="#000" filter="url(#countrys-c)" xlink:href="#countrys-d"/>
+                            <path fill="#57D9A3" fill-rule="evenodd" stroke="#303A4F" stroke-width="2" d="M5.17720598,18.5683397 C1.05919629,12.6066343 -1,8.48824168 -1,6 C-1,2.13400675 2.13400675,-1 6,-1 C9.86599325,-1 13,2.13400675 13,6 C13,8.48824168 10.9408037,12.6066343 6.82279402,18.5683397 L6,19.7595111 L5.17720598,18.5683397 Z"/>
+                        </g>
+                        <circle cx="6" cy="6" r="2.25" fill="#FFF"/>
+                    </g>
+                </g>
+            </svg>
+        </template>
+    </sw-settings-wrapper-item>
+{% endblock %}

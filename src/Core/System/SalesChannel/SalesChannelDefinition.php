@@ -31,8 +31,11 @@ use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCatalog\SalesChannelCatalogDefinition;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCountry\SalesChannelCountryDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCurrency\SalesChannelCurrencyDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelLanguage\SalesChannelLanguageDefinition;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelPaymentMethod\SalesChannelPaymentMethodDefinition;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelShippingMethod\SalesChannelShippingMethodDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesChannelTranslationDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeDefinition;
 
@@ -71,6 +74,9 @@ class SalesChannelDefinition extends EntityDefinition
             new ManyToManyAssociationField('catalogs', CatalogDefinition::class, SalesChannelCatalogDefinition::class, true, 'sales_channel_id', 'catalog_id'),
             new ManyToManyAssociationField('currencies', CurrencyDefinition::class, SalesChannelCurrencyDefinition::class, false, 'sales_channel_id', 'currency_id'),
             new ManyToManyAssociationField('languages', LanguageDefinition::class, SalesChannelLanguageDefinition::class, false, 'sales_channel_id', 'language_id'),
+            new ManyToManyAssociationField('countries', CountryDefinition::class, SalesChannelCountryDefinition::class, false, 'sales_channel_id', 'country_id'),
+            new ManyToManyAssociationField('paymentMethods', PaymentMethodDefinition::class, SalesChannelPaymentMethodDefinition::class, false, 'sales_channel_id', 'payment_method_id'),
+            new ManyToManyAssociationField('shippingMethods', ShippingMethodDefinition::class, SalesChannelShippingMethodDefinition::class, false, 'sales_channel_id', 'shipping_method_id'),
             new ManyToOneAssociationField('type', 'type_id', SalesChannelTypeDefinition::class, true),
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, true),
             new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, true),

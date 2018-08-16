@@ -116,6 +116,11 @@ class CountryStruct extends Entity
     /**
      * @var SalesChannelCollection|null
      */
+    protected $salesChannelDefaultAssignments;
+
+    /**
+     * @var SalesChannelCollection|null
+     */
     protected $salesChannels;
 
     public function getAreaId(): ?string
@@ -316,6 +321,16 @@ class CountryStruct extends Entity
     public function setCustomerAddresses(CustomerAddressCollection $customerAddresses): void
     {
         $this->customerAddresses = $customerAddresses;
+    }
+
+    public function getSalesChannelDefaultAssignments(): ?SalesChannelCollection
+    {
+        return $this->salesChannelDefaultAssignments;
+    }
+
+    public function setSalesChannelDefaultAssignments(SalesChannelCollection $salesChannelDefaultAssignments): void
+    {
+        $this->salesChannelDefaultAssignments = $salesChannelDefaultAssignments;
     }
 
     public function getSalesChannels(): ?SalesChannelCollection

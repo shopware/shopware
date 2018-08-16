@@ -8,6 +8,7 @@
 @sw-search-bar-results-z-index:          800;
 @sw-search-bar-z-index:                  @z-index-search-bar-results;
 @sw-search-bar-button-color-text:        @color-white;
+@sw-search-bar-mobile-box-shadow:        0 3px 3px rgba(0, 0, 0, 0.3);
 
 .sw-search-bar {
     width: 100%;
@@ -31,60 +32,11 @@
         -moz-appearance: none;
     }
 
-    .sw-admin-menu__header-shop-attributes {
-        white-space: nowrap;
-        width: 100%;
-    }
-
-    .sw-admin-menu__shop-status {
-        //position: absolute;
-        //top: 1px;
-        //right: 0;
-        width: 16px;
-        height: 16px;
-        padding: 4px;
-        display: inline-block;
-        margin-left: 5px;
-
-        .sw-color-badge {
-            display: inline-block;
-            margin: 0;
-        }
-    }
-
-    .sw-admin-menu__header-shop-name {
-        color: @color-white;
-        font-size: @font-size-default;
-        font-weight: 600;
-        line-height: 0;
-        margin: 0;
-        vertical-align: top;
-    }
-
-    .sw-admin-menu__header-shop-version {
-        color: @color-steam-cloud;
-        font-size: 12px;
-    }
-
     @media screen and (max-width: 500px) {
         background: @color-gradient-dark-gray-start;
         border-bottom: 0 none;
-        box-shadow: 0 3px 3px rgba(0, 0, 0, 0.3);
-
-        .sw-search-bar__menu-trigger,
-        .sw-search-bar__environment,
-        .sw-search-bar__search-trigger {
-            display: block;
-            color: @color-white;
-        }
-
-        .sw-search-bar__menu-trigger,
-        .sw-search-bar__search-trigger {
-            padding: 0 12px;
-            cursor: pointer;
-        }
+        box-shadow: @sw-search-bar-mobile-box-shadow;
     }
-
 
     .sw-search-bar__container {
         padding: 15px 0;
@@ -92,25 +44,16 @@
         margin: 0 auto;
         position: relative;
 
-        @media screen and (max-width: 500px) {
-            display: grid;
-            grid-template-columns: auto 1fr auto;
-            grid-gap: 5px;
-            align-items: center;
-            height: 80px;
-        }
-
         @media screen and (max-width: 1360px) {
             padding: 15px;
         }
     }
 
-    &.is--search-bar-shown {
-        @media screen and (max-width: 500px) {
-            .sw-search-bar__container {
-                display: block;
-            }
-        }
+    .sw-search-bar__mobile-controls {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        grid-gap: 5px;
+        align-items: center;
     }
 
     .sw-search-bar__field {
@@ -124,22 +67,44 @@
         flex-wrap: nowrap;
         height: 50px;
 
-        //@media screen and (max-width: 500px) {
-        //    display: none;
-        //}
-
         &.is--active {
             border-color: @color-shopware-blue;
         }
 
-        .sw-icon {
+        .sw-search-bar__field-icon {
             position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            right: 15px;
+            top: 0;
+            bottom: 0;
+            height: 100%;
+            width: 50px;
+            right: 0;
             color: @color-gutenberg;
-            //pointer-events: none;
+            text-align: center;
+            line-height: 45px;
+            background: 0 none;
+            border: 0 none;
+            outline: none;
+            -moz-appearance: none;
+            -webkit-appearance: none;
+        }
+
+        .sw-search-bar__field-close {
+            display: none;
             cursor: pointer;
+        }
+
+        .sw-search-bar__field-search-icon {
+            pointer-events: none;
+        }
+
+        @media screen and (max-width: 500px) {
+            .sw-search-bar__field-close {
+                display: block;
+            }
+
+            .sw-search-bar__field-search-icon {
+                display: none;
+            }
         }
     }
 

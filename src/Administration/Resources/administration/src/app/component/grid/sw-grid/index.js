@@ -130,13 +130,13 @@ Component.register('sw-grid', {
 
     methods: {
         createdComponent() {
-            const me = this;
+            const that = this;
 
             this.registerInlineEditingEvents();
 
             this.$device.onResize({
                 listener() {
-                    me.setScrollbarOffset();
+                    that.setScrollbarOffset();
                 },
                 component: this
             });

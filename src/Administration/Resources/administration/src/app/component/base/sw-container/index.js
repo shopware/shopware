@@ -53,10 +53,6 @@ Component.register('sw-container', {
             styles['align-items'] = this.align;
 
             return styles;
-        },
-
-        viewportWidth() {
-            return this.$device.getViewportWidth();
         }
     }
 });

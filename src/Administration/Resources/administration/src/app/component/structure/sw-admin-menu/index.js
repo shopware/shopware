@@ -63,11 +63,11 @@ Component.register('sw-admin-menu', {
     },
 
     mounted() {
-        const me = this;
+        const that = this;
 
         this.$device.onResize({
             listener() {
-                me.collapseMenuOnSmallViewports();
+                that.collapseMenuOnSmallViewports();
             },
             component: this
         });

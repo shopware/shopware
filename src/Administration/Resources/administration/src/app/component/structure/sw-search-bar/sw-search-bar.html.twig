@@ -1,19 +1,30 @@
 {% block sw_search_bar %}
-    <div class="sw-search-bar"
-         :class="{ 'is--search-bar-shown': this.isSearchBarShown }"
-         :style="searchBarStyles">
+    <div class="sw-search-bar" :style="searchBarStyles">
 
         {% block sw_search_bar_container %}
             <div class="sw-search-bar__container">
 
-                <button v-if="!isSearchBarShown" class="sw-search-bar__button" @click="toggleOffCanvas">
-                    <sw-icon v-if="isOffCanvasShown" name="default-basic-x-line"></sw-icon>
-                    <sw-icon v-else="isOffCanvasShown" name="small-default-stack-line"></sw-icon>
-                </button>
+                {% block sw_search_bar_mobile_controls %}
+                    <div v-if="!isSearchBarShown" class="sw-search-bar__mobile-controls">
 
-                <button v-if="!isSearchBarShown" class="sw-search-bar__button" @click="showSearchBar">
-                    <sw-icon name="default-action-search" color="#fff"></sw-icon>
-                </button>
+                        {% block sw_search_bar_button_off_canvas_toggle %}
+                            <button class="sw-search-bar__button" @click="toggleOffCanvas">
+                                <sw-icon v-if="isOffCanvasShown" name="default-basic-x-line"></sw-icon>
+                                <sw-icon v-else name="small-default-stack-line"></sw-icon>
+                            </button>
+                        {% endblock %}
+
+                        {% block sw_search_bar_version_display %}
+                            <sw-version></sw-version>
+                        {% endblock %}
+
+                        {% block sw_search_bar_button_search %}
+                            <button class="sw-search-bar__button" @click="showSearchBar">
+                                <sw-icon name="default-action-search"></sw-icon>
+                            </button>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
 
                 {% block sw_search_bar_field %}
                     <div v-if="isSearchBarShown" class="sw-search-bar__field" :class="searchBarFieldClasses">
@@ -41,16 +52,13 @@
                         {% endblock %}
 
                         {% block sw_search_bar_icon %}
-                            <span v-if="isSearchBarShown" @click="hideSearchBar">
-                                <sw-icon
-                                         name="small-default-x-line-medium"
-                                         small>
-                                </sw-icon>
+                            <button class="sw-search-bar__field-icon sw-search-bar__field-close" @click="hideSearchBar">
+                                <sw-icon name="small-default-x-line-medium" small></sw-icon>
+                            </button>
+
+                            <span class="sw-search-bar__field-icon sw-search-bar__field-search-icon">
+                                <sw-icon name="small-search" small></sw-icon>
                             </span>
-                            <sw-icon v-else
-                                     name="small-search"
-                                     small>
-                            </sw-icon>
                         {% endblock %}
                     </div>
                 {% endblock %}

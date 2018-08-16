@@ -23,13 +23,13 @@ Component.register('sw-search-bar', {
     },
 
     created() {
-        const me = this;
+        const that = this;
+
+        this.showSearchFieldOnLargerViewports();
 
         this.$device.onResize({
             listener() {
-                if (me.$device.getViewportWidth() >= 500) {
-                    me.isSearchBarShown = true;
-                }
+                that.showSearchFieldOnLargerViewports();
             },
             component: this
         });
@@ -78,6 +78,7 @@ Component.register('sw-search-bar', {
     methods: {
         onFocusInput() {
             this.isActive = true;
+
             if (this.useTypeSearch) {
                 return;
             }
@@ -101,6 +102,12 @@ Component.register('sw-search-bar', {
             this.isSearchBarShown = false;
             this.isActive = false;
             this.showResultsContainer = false;
+        },
+
+        showSearchFieldOnLargerViewports() {
+            if (this.$device.getViewportWidth() > 500) {
+                this.isSearchBarShown = true;
+            }
         },
 
         onSearchTermChange() {

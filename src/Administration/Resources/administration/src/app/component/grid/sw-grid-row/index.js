@@ -44,6 +44,10 @@ Component.register('sw-grid-row', {
 
     methods: {
         onInlineEditStart() {
+            if (this.$device.getViewportWidth() < 800) {
+                return;
+            }
+
             let isInlineEditingConfigured = false;
 
             // If inline editing is already enabled, or no column has

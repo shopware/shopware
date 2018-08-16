@@ -1,5 +1,43 @@
 @import "~less/variables";
+@import "~less/mixins";
+
+@sw-version-color-title:     @color-white;
+@sw-version-color-info:      @color-steam-cloud;
+@sw-version-font-size-title: @font-size-default;
+@sw-version-font-size-info:  12px;
 
 .sw-version {
+    white-space: nowrap;
+    width: 100%;
 
+    .sw-version__title {
+        .truncate();
+        max-width: 200px;
+        color: @sw-version-color-title;
+        font-size: @sw-version-font-size-title;
+        font-weight: 600;
+        margin: 0;
+        vertical-align: top;
+    }
+
+    .sw-version__status {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        padding: 4px;
+        line-height: 0;
+        margin-left: 5px;
+
+        .sw-color-badge {
+            display: inline-block;
+            margin: 0;
+        }
+    }
+
+    .sw-version__info {
+        .truncate();
+        max-width: 200px;
+        color: @sw-version-color-info;
+        font-size: @sw-version-font-size-info;
+    }
 }

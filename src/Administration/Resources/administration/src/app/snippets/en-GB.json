@@ -483,6 +483,9 @@
       "showCatalogContent": "Show contents",
       "showCatalogDetails": "Show Catalogue details"
     },
+    "smart-bar": {
+      "buttonUpload": "Upload files"
+    },
     "index": {
       "catalogs": "Catalogues",
       "lastAdded": "Last added"

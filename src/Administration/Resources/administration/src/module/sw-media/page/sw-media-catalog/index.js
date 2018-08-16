@@ -2,6 +2,7 @@ import { Component, State, Mixin } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import mediaMediaGridListener from '../../mixin/mediagrid.listener.mixin';
 import mediaSidebarListener from '../../mixin/sibebar.listener.mixin';
+import '../../component/sw-media-upload';
 import template from './sw-media-catalog.html.twig';
 import './sw-media-catalog.less';
 import '../../component/sw-media-modal-delete';
@@ -53,12 +54,18 @@ Component.register('sw-media-catalog', {
             this.isLoading = false;
         },
 
+        onNewMedia() {
+            this.getList();
+        },
+
         getList() {
             this.isLoading = true;
             const params = this.getListingParams();
             const catalogId = this.$route.params.id;
 
             params.criteria = CriteriaFactory.term('catalogId', catalogId);
+            params.sortBy = 'createdAt';
+            params.sortDirection = 'dsc';
 
             return this.mediaItemStore.getList(params).then((response) => {
                 this.total = response.total;
@@ -67,6 +74,10 @@ Component.register('sw-media-catalog', {
 
                 return this.mediaItems;
             });
+        },
+
+        getCatalogId() {
+            return this.$route.params.id;
         },
 
         getLastSelectedItem() {

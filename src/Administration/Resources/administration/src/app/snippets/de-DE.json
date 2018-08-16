@@ -479,6 +479,9 @@
       "mainMenuItemGeneral": "Medien",
       "descriptionTextModule": "Modul zum Verwalten von Mediendateien"
     },
+    "smart-bar": {
+      "buttonUpload": "Dateien hochladen"
+    },
     "catalogItem": {
       "showCatalogContent": "Inhalt anzeigen",
       "showCatalogDetails": "Katalogdetails anzeigen"

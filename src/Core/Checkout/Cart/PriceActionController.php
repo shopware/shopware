@@ -93,7 +93,7 @@ class PriceActionController extends Controller
             $preCalculated
         );
 
-        $calculated = $calculator->calculate($definition, $context);
+        $calculated = $calculator->calculate($definition);
 
         $data = json_decode(json_encode($calculated, JSON_PRESERVE_ZERO_FRACTION), true);
 

@@ -98,12 +98,7 @@ class Manager
         return $this->migrationPath;
     }
 
-    /**
-     * Log string to stdout
-     *
-     * @param $str
-     */
-    public function log($str)
+    public function log(string $str)
     {
         if (PHP_SAPI === 'cli') {
             echo $str . "\n";
@@ -176,7 +171,7 @@ class Manager
             }
 
             try {
-                /** @var $migrationClass AbstractMigration */
+                /** @var AbstractMigration $migrationClass */
                 $migrationClass = new $migrationClassName($this->getConnection());
             } catch (\Exception $e) {
                 throw new \RuntimeException('Could not instantiate Object');

@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
-use Shopware\Core\Framework\Plugin;
-
 class RequirementValidator
 {
     /**
@@ -17,9 +15,9 @@ class RequirementValidator
     }
 
     /**
-     * @param string   $pluginXmlFile    File path to the plugin.xml
-     * @param string   $shopwareVersion  current shopware version
-     * @param Plugin[] $availablePlugins
+     * @param string         $pluginXmlFile    File path to the plugin.xml
+     * @param string         $shopwareVersion  current shopware version
+     * @param PluginStruct[] $availablePlugins
      */
     public function validate(string $pluginXmlFile, string $shopwareVersion, array $availablePlugins): void
     {
@@ -78,12 +76,12 @@ class RequirementValidator
     }
 
     /**
-     * @param array[]  $requiredPlugins
-     * @param Plugin[] $availablePlugins
+     * @param array[]        $requiredPlugins
+     * @param PluginStruct[] $availablePlugins
      *
      * @throws \Exception
      */
-    private function assertRequiredPlugins($requiredPlugins, array $availablePlugins): void
+    private function assertRequiredPlugins(array $requiredPlugins, array $availablePlugins): void
     {
         foreach ($requiredPlugins as $requiredPlugin) {
             $plugin = $availablePlugins[$requiredPlugin['pluginName']] ?? null;
@@ -96,7 +94,7 @@ class RequirementValidator
                 throw  new \RuntimeException(sprintf('Required plugin %s is not installed', $requiredPlugin['pluginName']));
             }
 
-            if (!$plugin->isActive()) {
+            if (!$plugin->getActive()) {
                 throw  new \RuntimeException(sprintf('Required plugin %s is not active', $requiredPlugin['pluginName']));
             }
 

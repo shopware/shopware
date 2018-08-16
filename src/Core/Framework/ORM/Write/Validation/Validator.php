@@ -51,11 +51,11 @@ class Validator
     }
 
     /**
-     * @param $propertyName
-     * @param $propertyValue
+     * @param string       $propertyName
+     * @param mixed        $propertyValue
      * @param Constraint[] $constraints
      */
-    public function addConstraint($propertyName, $propertyValue, array $constraints)
+    public function addConstraint(string $propertyName, $propertyValue, array $constraints): void
     {
         $this->data[] = [
             'name' => $propertyName,

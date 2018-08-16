@@ -76,7 +76,7 @@ class MediaUploadController extends Controller
      */
     private function fetchFile(Request $request, string $contentType, string $tempFile): int
     {
-        if ($contentType == 'application/json') {
+        if ($contentType === 'application/json') {
             $contentLength = $this->fileFetcher->fetchFileFromURL($tempFile, $request->request->get('url'));
         } else {
             $contentLength = (int) $request->headers->get('content-length');

@@ -23,6 +23,7 @@ class CustomerAddressPageLoader
     public function load(CheckoutContext $context): CustomerAddressPageStruct
     {
         $criteria = $this->createCriteria($context->getCustomer()->getId());
+
         /** @var CustomerAddressCollection $addresses */
         $addresses = $this->customerAddressRepository->search($criteria, $context->getContext())->getEntities();
 

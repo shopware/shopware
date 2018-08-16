@@ -42,10 +42,8 @@ class EmailSaveRequestResolver implements ArgumentValueResolverInterface
             ->attributes
             ->get(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT);
 
-        $event = $this->eventDispatcher->dispatch(
-            EmailSaveRequestEvent::NAME,
-            new EmailSaveRequestEvent($request, $context, $emailSaveRequest)
-        );
+        $event = new EmailSaveRequestEvent($request, $context, $emailSaveRequest);
+        $this->eventDispatcher->dispatch(EmailSaveRequestEvent::NAME, $event);
 
         yield $event->getEmailSaveRequest();
     }

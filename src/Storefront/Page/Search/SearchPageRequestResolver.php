@@ -42,10 +42,8 @@ class SearchPageRequestResolver implements ArgumentValueResolverInterface
             ->attributes
             ->get(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT);
 
-        $event = $this->eventDispatcher->dispatch(
-            ListingPageRequestEvent::NAME,
-            new ListingPageRequestEvent($request, $context, $pageRequest)
-        );
+        $event = new ListingPageRequestEvent($request, $context, $pageRequest);
+        $this->eventDispatcher->dispatch(ListingPageRequestEvent::NAME, $event);
 
         yield $event->getListingPageRequest();
     }

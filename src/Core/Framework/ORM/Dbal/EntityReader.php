@@ -190,6 +190,7 @@ class EntityReader implements EntityReaderInterface
             $this->queryHelper->resolveField($parent, $definition, $root, $query, $context);
         }
 
+        /** @var Field $field */
         foreach ($filtered as $field) {
             //translated fields are handled after loop all together
             if ($field instanceof TranslatedField) {
@@ -447,11 +448,11 @@ class EntityReader implements EntityReaderInterface
 
     private function shouldBeLoadedDelayed(AssociationInterface $association, string $definition, array $fields): bool
     {
-        /** @var AssociationInterface|Field $association */
         if ($association->is(DelayedLoad::class)) {
             return true;
         }
 
+        /** @var Field $field */
         foreach ($fields as $field) {
             if (!$field instanceof AssociationInterface) {
                 continue;

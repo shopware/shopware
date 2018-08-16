@@ -35,20 +35,6 @@ class UserCollection extends EntityCollection
         });
     }
 
-    public function getSessionIds(): array
-    {
-        return $this->fmap(function (UserStruct $user) {
-            return $user->getSessionId();
-        });
-    }
-
-    public function filterBySessionId(string $id): self
-    {
-        return $this->filter(function (UserStruct $user) use ($id) {
-            return $user->getSessionId() === $id;
-        });
-    }
-
     protected function getExpectedClass(): string
     {
         return UserStruct::class;

@@ -108,34 +108,6 @@ class SalesChannelCollection extends EntityCollection
         });
     }
 
-    public function getCatalogIds(): array
-    {
-        return $this->fmap(function (SalesChannelStruct $salesChannel) {
-            return $salesChannel->getCatalogIds();
-        });
-    }
-
-    public function filterByCatalogIds(string $id): SalesChannelCollection
-    {
-        return $this->filter(function (SalesChannelStruct $salesChannel) use ($id) {
-            return $salesChannel->getCatalogIds() === $id;
-        });
-    }
-
-    public function filterByCurrencyIds(string $id): SalesChannelCollection
-    {
-        return $this->filter(function (SalesChannelStruct $salesChannel) use ($id) {
-            return $salesChannel->getCurrencyIds() === $id;
-        });
-    }
-
-    public function filterByLanguageIds(string $id): SalesChannelCollection
-    {
-        return $this->filter(function (SalesChannelStruct $salesChannel) use ($id) {
-            return $salesChannel->getLanguageIds() === $id;
-        });
-    }
-
     public function getLanguages(): LanguageCollection
     {
         return new LanguageCollection(

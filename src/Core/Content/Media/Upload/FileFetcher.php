@@ -77,15 +77,15 @@ class FileFetcher
     }
 
     /**
-     * @param int $length
-     * @param $inputStream
-     * @param $tempStream
+     * @param int      $length
+     * @param resource $inputStream
+     * @param resource $tempStream
      */
     private function copyStreams(int $length, $inputStream, $tempStream): void
     {
         $bytesWritten = stream_copy_to_stream($inputStream, $tempStream);
 
-        if ($bytesWritten != $length) {
+        if ($bytesWritten !== $length) {
             throw new UploadException('expected content-length did not match actual size');
         }
     }

@@ -15,6 +15,7 @@ use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
 use Shopware\Core\Framework\ORM\Write\WriteContext;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -67,7 +68,7 @@ class EntityRepository implements RepositoryInterface
         $this->definition = $definition;
     }
 
-    public function search(Criteria $criteria, Context $context)
+    public function search(Criteria $criteria, Context $context): EntitySearchResult
     {
         $ids = $this->searchIds($criteria, $context);
 
@@ -111,7 +112,7 @@ class EntityRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchIds(Criteria $criteria, Context $context)
+    public function searchIds(Criteria $criteria, Context $context): IdSearchResult
     {
         $result = $this->searcher->search($this->definition, $criteria, $context);
 
@@ -174,7 +175,7 @@ class EntityRepository implements RepositoryInterface
         $this->versionManager->merge($versionId, WriteContext::createFromContext($context));
     }
 
-    public function read(ReadCriteria $criteria, Context $context)
+    public function read(ReadCriteria $criteria, Context $context): EntityCollection
     {
         /** @var EntityCollection $entities */
         $entities = $this->reader->read($this->definition, $criteria, $context);

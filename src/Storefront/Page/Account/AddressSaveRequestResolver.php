@@ -42,10 +42,8 @@ class AddressSaveRequestResolver implements ArgumentValueResolverInterface
             ->attributes
             ->get(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT);
 
-        $event = $this->eventDispatcher->dispatch(
-            AddressSaveRequestEvent::NAME,
-            new AddressSaveRequestEvent($request, $context, $pageRequest)
-        );
+        $event = new AddressSaveRequestEvent($request, $context, $pageRequest);
+        $this->eventDispatcher->dispatch(AddressSaveRequestEvent::NAME, $event);
 
         yield $event->getAddressSaveRequest();
     }

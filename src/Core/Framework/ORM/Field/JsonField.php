@@ -98,7 +98,7 @@ class JsonField extends Field implements StorageAware
     /**
      * @param array  $constraints
      * @param string $fieldName
-     * @param $value
+     * @param mixed  $value
      */
     protected function validate(array $constraints, string $fieldName, $value): void
     {

@@ -57,7 +57,7 @@ class Calculator
         $calculated = new LineItemCollection();
 
         foreach ($lineItems as $original) {
-            $lineItem = LineItem::createFrom($original);
+            $lineItem = LineItem::createFromLineItem($original);
 
             try {
                 $price = $this->calculatePrice($cart, $lineItem, $context, $calculated);

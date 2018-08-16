@@ -104,7 +104,7 @@ class AdministrationSearch
 
                 if ($entityChanges->count() > 0) {
                     $score = 1 + ($entityChanges->count() / 10);
-                } else if ($definitionChanges->count() > 0) {
+                } elseif ($definitionChanges->count() > 0) {
                     $score = 1.05;
                 }
 
@@ -122,8 +122,11 @@ class AdministrationSearch
     private function fetchEntities(Context $context, array $grouped): array
     {
         $results = [];
+
+        /** @var EntityDefinition|string $definition */
+        /** @var string[] $rows */
         foreach ($grouped as $definition => $rows) {
-            /** @var string|EntityDefinition $definition */
+            /** @var RepositoryInterface $repository */
             $repository = $this->container->get($definition::getEntityName() . '.repository');
 
             $criteria = new ReadCriteria(\array_keys($rows));
@@ -186,7 +189,7 @@ class AdministrationSearch
 
             $this->searchBuilder->build($criteria, $term, $definition, $context);
 
-            /* @var RepositoryInterface $repository */
+            /** @var RepositoryInterface $repository */
             $repository = $this->container->get($definition::getEntityName() . '.repository');
 
             $results[$definition] = $repository->searchIds($criteria, $context);

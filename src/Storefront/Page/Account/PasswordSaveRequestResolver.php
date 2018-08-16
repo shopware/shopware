@@ -42,10 +42,8 @@ class PasswordSaveRequestResolver implements ArgumentValueResolverInterface
             ->attributes
             ->get(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT);
 
-        $event = $this->eventDispatcher->dispatch(
-            PasswordSaveRequestEvent::NAME,
-            new PasswordSaveRequestEvent($request, $context, $passwordSaveRequest)
-        );
+        $event = new PasswordSaveRequestEvent($request, $context, $passwordSaveRequest);
+        $this->eventDispatcher->dispatch(PasswordSaveRequestEvent::NAME, $event);
 
         yield $event->getPasswordSaveRequest();
     }

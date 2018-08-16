@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Subscriber;
 
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionCollection;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
+use Shopware\Core\Content\Configuration\ConfigurationGroupStruct;
 use Shopware\Core\Framework\ORM\Search\Aggregation\AggregationResult;
 use Shopware\Core\Framework\ORM\Search\Aggregation\EntityAggregation;
 use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;

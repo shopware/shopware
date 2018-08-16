@@ -77,9 +77,6 @@ class TokenStruct extends Struct
         return $this->transactionId;
     }
 
-    /**
-     * @return string
-     */
     public function getExpires(): \DateTime
     {
         return $this->expires;

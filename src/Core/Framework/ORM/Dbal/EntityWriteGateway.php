@@ -163,7 +163,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                 continue;
             }
 
-            /** @var $command InsertCommand|UpdateCommand */
+            /** @var InsertCommand|UpdateCommand $command */
             $state = array_replace_recursive($state, $command->getPayload());
 
             if ($command instanceof InsertCommand) {
@@ -179,7 +179,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
         $parent = $this->getParentField($definition);
 
-        if (array_key_exists('parent', $database)) {
+        if ($parent && array_key_exists('parent', $database)) {
             $database[$parent->getStorageName()] = $database['parent'];
             unset($database['parent']);
         }

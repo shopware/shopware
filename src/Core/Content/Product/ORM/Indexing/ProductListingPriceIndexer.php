@@ -141,12 +141,7 @@ class ProductListingPriceIndexer implements IndexerInterface
         return $query->execute()->fetchAll(\PDO::FETCH_GROUP);
     }
 
-    /**
-     * @param $productPrices
-     *
-     * @return array
-     */
-    private function convertPrices($productPrices): array
+    private function convertPrices(array $productPrices): array
     {
         $productPrices = array_map(
             function (array $price) {

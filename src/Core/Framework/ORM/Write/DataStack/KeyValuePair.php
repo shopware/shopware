@@ -43,8 +43,8 @@ class KeyValuePair
 
     /**
      * @param string $key
-     * @param $value
-     * @param bool $isRaw
+     * @param mixed  $value
+     * @param bool   $isRaw
      */
     public function __construct(string $key, $value, bool $isRaw)
     {

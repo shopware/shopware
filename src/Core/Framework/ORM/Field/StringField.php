@@ -78,7 +78,7 @@ class StringField extends Field implements StorageAware
     /**
      * @param array  $constraints
      * @param string $fieldName
-     * @param $value
+     * @param mixed  $value
      */
     private function validate(array $constraints, string $fieldName, $value)
     {

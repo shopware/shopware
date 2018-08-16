@@ -42,10 +42,8 @@ class LoginRequestResolver implements ArgumentValueResolverInterface
             ->attributes
             ->get(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT);
 
-        $event = $this->eventDispatcher->dispatch(
-            LoginRequestEvent::NAME,
-            new LoginRequestEvent($request, $context, $loginRequest)
-        );
+        $event = new LoginRequestEvent($request, $context, $loginRequest);
+        $this->eventDispatcher->dispatch(LoginRequestEvent::NAME, $event);
 
         yield $event->getLoginRequest();
     }

@@ -29,6 +29,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -118,6 +119,7 @@ class BuildCategoryPathCommand extends ContainerAwareCommand implements EventSub
 
         $context = Context::createDefaultContext($tenantId);
 
+        /** @var RepositoryInterface $categoryRepository */
         $categoryRepository = $this->getContainer()->get('category.repository');
 
         $criteria = new Criteria();

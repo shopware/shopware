@@ -141,16 +141,12 @@ class LineItem extends Struct
         $this->quantity = $quantity;
     }
 
-    /**
-     * @throws InvalidQuantityException
-     */
-    public static function createFrom(Struct $object)
+    public static function createFromLineItem(LineItem $lineItem): self
     {
-        /** @var LineItem $object */
-        $self = new static($object->key, $object->type, $object->quantity, $object->priority);
+        $self = new static($lineItem->key, $lineItem->type, $lineItem->quantity, $lineItem->priority);
 
-        foreach ($object as $propety => $value) {
-            $self->$propety = $value;
+        foreach ($lineItem as $property => $value) {
+            $self->$property = $value;
         }
 
         return $self;

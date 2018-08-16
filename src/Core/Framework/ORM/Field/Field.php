@@ -139,11 +139,6 @@ abstract class Field extends Struct
         return 0;
     }
 
-    /**
-     * @param Flag ...$flags
-     *
-     * @return self
-     */
     public function setFlags(Flag  ...$flags): self
     {
         $this->flags = $flags;
@@ -158,11 +153,6 @@ abstract class Field extends Struct
         return $this;
     }
 
-    /**
-     * @param string $class
-     *
-     * @return bool
-     */
     public function is(string $class): bool
     {
         foreach ($this->flags as $flag) {
@@ -263,10 +253,10 @@ abstract class Field extends Struct
     abstract protected function invoke(EntityExistence $existence, KeyValuePair $data): \Generator;
 
     /**
-     * @param $value
-     * @param $key
+     * @param mixed  $value
+     * @param string $key
      */
-    private function validateContextHasPermission($value, $key): void
+    private function validateContextHasPermission($value, string $key): void
     {
         /** @var WriteProtected $flag */
         $flag = $this->getFlag(WriteProtected::class);
@@ -290,12 +280,7 @@ abstract class Field extends Struct
         throw new InsufficientWritePermissionException($this->path . '/' . $key, $violationList);
     }
 
-    /**
-     * @param string $flag
-     *
-     * @return bool
-     */
-    private function contextHasPermission($flag)
+    private function contextHasPermission(string $flag): bool
     {
         /** @var ArrayStruct $extension */
         $extension = $this->writeContext->getContext()->getExtension('write_protection');

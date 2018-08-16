@@ -297,12 +297,6 @@ class DefinitionValidator
         return $associationViolations;
     }
 
-    /**
-     * @param string $definition
-     * @param $association
-     *
-     * @return array
-     */
     private function validateOneToMany(string $definition, OneToManyAssociationField $association): array
     {
         $associationViolations = [];
@@ -432,6 +426,7 @@ class DefinitionValidator
                 continue;
             }
 
+            /** @var Field $association */
             $association = $definition::getFields()->get($column->getName());
 
             if ($association instanceof AssociationInterface && $association->is(Inherited::class)) {

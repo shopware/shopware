@@ -53,7 +53,7 @@ class StructCollection extends Collection
         $this->doRemoveByKey($key);
     }
 
-    public function get($key): ? Struct
+    public function get($key): ?Struct
     {
         return $this->elements[$key] ?? null;
     }

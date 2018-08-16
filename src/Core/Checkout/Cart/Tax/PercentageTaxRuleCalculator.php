@@ -49,7 +49,10 @@ class PercentageTaxRuleCalculator implements TaxRuleCalculatorInterface
 
     public function calculateTaxFromGrossPrice(float $gross, TaxRuleInterface $rule): CalculatedTax
     {
-        /* @var PercentageTaxRule $rule */
+        if (!($rule instanceof PercentageTaxRule)) {
+            throw new \RuntimeException('Percentual taxes can only be calculated with a percentage tax rule.');
+        }
+
         return $this->taxRuleCalculator->calculateTaxFromGrossPrice(
             $gross / 100 * $rule->getPercentage(),
             new TaxRule($rule->getTaxRate())
@@ -58,7 +61,10 @@ class PercentageTaxRuleCalculator implements TaxRuleCalculatorInterface
 
     public function calculateTaxFromNetPrice(float $net, TaxRuleInterface $rule): CalculatedTax
     {
-        /* @var PercentageTaxRule $rule */
+        if (!($rule instanceof PercentageTaxRule)) {
+            throw new \RuntimeException('Percentual taxes can only be calculated with a percentage tax rule.');
+        }
+
         return $this->taxRuleCalculator->calculateTaxFromNetPrice(
             $net / 100 * $rule->getPercentage(),
             new TaxRule($rule->getTaxRate())

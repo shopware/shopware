@@ -76,6 +76,7 @@ class Framework extends Bundle
     {
         parent::boot();
 
+        /** @var ExtensionRegistry $registry */
         $registry = $this->container->get(ExtensionRegistry::class);
         foreach ($registry->getExtensions() as $extension) {
             /** @var EntityDefinition $definition */

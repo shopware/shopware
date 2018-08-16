@@ -42,10 +42,8 @@ class ProfileSaveRequestResolver implements ArgumentValueResolverInterface
             ->attributes
             ->get(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT);
 
-        $event = $this->eventDispatcher->dispatch(
-            ProfileSaveRequestEvent::NAME,
-            new ProfileSaveRequestEvent($request, $context, $pageRequest)
-        );
+        $event = new ProfileSaveRequestEvent($request, $context, $pageRequest);
+        $this->eventDispatcher->dispatch(ProfileSaveRequestEvent::NAME, $event);
 
         yield $event->getProfileSaveRequest();
     }

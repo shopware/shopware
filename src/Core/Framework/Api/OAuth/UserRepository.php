@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Api\OAuth\Api;
+namespace Shopware\Core\Framework\Api\OAuth;
 
 use Doctrine\DBAL\Connection;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\UserEntityInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
-use Shopware\Core\Framework\Api\OAuth\Api\User\User;
+use Shopware\Core\Framework\Api\OAuth\User\User;
 use Shopware\Core\Framework\Struct\Uuid;
 
 class UserRepository implements UserRepositoryInterface

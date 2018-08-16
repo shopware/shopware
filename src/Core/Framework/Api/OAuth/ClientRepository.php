@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Api\OAuth\Api;
+namespace Shopware\Core\Framework\Api\OAuth;
 
 use Doctrine\DBAL\Connection;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
-use Shopware\Core\Framework\Api\OAuth\Api\Client\ApiClient;
+use Shopware\Core\Framework\Api\OAuth\Client\ApiClient;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Struct\Uuid;
 

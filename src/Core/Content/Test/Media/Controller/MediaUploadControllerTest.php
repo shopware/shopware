@@ -102,6 +102,8 @@ class MediaUploadControllerTest extends ApiTestCase
         $target = self::$container->getParameter('kernel.project_dir') . '/public/shopware-logo.png';
         copy(__DIR__ . '/../fixtures/shopware-logo.png', $target);
 
+        $url = getenv('APP_URL');
+
         try {
             $this->apiClient->request(
                  'POST',
@@ -111,7 +113,7 @@ class MediaUploadControllerTest extends ApiTestCase
                  [
                      'HTTP_CONTENT-TYPE' => 'application/json',
                  ],
-                 json_encode(['url' => 'http://localhost:80/shopware-logo.png'])
+                 json_encode(['url' => $url . '/shopware-logo.png'])
              );
             $response = $this->apiClient->getResponse();
         } finally {

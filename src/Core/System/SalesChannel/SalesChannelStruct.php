@@ -218,16 +218,6 @@ class SalesChannelStruct extends Entity
         $this->accessKey = $accessKey;
     }
 
-    public function getSecretAccessKey(): string
-    {
-        return $this->secretAccessKey;
-    }
-
-    public function setSecretAccessKey(string $secretAccessKey): void
-    {
-        $this->secretAccessKey = $secretAccessKey;
-    }
-
     public function getCatalogs(): ?CatalogCollection
     {
         return $this->catalogs;

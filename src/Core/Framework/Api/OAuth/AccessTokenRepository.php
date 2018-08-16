@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Api\OAuth\Api;
+namespace Shopware\Core\Framework\Api\OAuth;
 
 use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
 use League\OAuth2\Server\Exception\UniqueTokenIdentifierConstraintViolationException;
 use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
-use Shopware\Core\Framework\Api\OAuth\Api\Client\ApiClient;
+use Shopware\Core\Framework\Api\OAuth\Client\ApiClient;
 
 class AccessTokenRepository implements AccessTokenRepositoryInterface
 {

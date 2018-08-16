@@ -10,7 +10,7 @@ Module.register('sw-media', {
     description: 'sw-media.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#ef734a',
+    color: '#FFD700',
     icon: 'default-object-image',
 
     routes: {
@@ -31,7 +31,7 @@ Module.register('sw-media', {
     navigation: [{
         id: 'sw-media',
         label: 'sw-media.general.mainMenuItemGeneral',
-        color: '#ef734a',
+        color: '#FFD700',
         icon: 'default-object-image',
         path: 'sw.media.index'
     }]

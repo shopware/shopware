@@ -1,5 +1,16 @@
 {% block sw_media_catalog %}
     <sw-page class="sw-media-catalog">
+
+        {% block sw_media_catalog_smart_bar %}
+            <template slot="smart-bar-actions">
+
+                {% block sw_media_catalog_smart_bar_media_upload %}
+                    <sw-media-upload :catalogId="getCatalogId()" @new-media-entity="onNewMedia"></sw-media-upload>
+                {% endblock %}
+
+            </template>
+        {% endblock %}
+
         <template slot="content">
             {% block sw_media_catalog_page_content %}
                 <div class="sw-media-catalog__page-content">

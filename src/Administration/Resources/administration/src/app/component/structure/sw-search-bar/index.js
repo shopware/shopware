@@ -16,8 +16,23 @@ Component.register('sw-search-bar', {
             searchTerm: '',
             results: [],
             isActive: false,
-            scrollbarOffset: 0
+            scrollbarOffset: 0,
+            isOffCanvasShown: false,
+            isSearchBarShown: false
         };
+    },
+
+    created() {
+        const that = this;
+
+        this.showSearchFieldOnLargerViewports();
+
+        this.$device.onResize({
+            listener() {
+                that.showSearchFieldOnLargerViewports();
+            },
+            component: this
+        });
     },
 
     computed: {
@@ -63,6 +78,7 @@ Component.register('sw-search-bar', {
     methods: {
         onFocusInput() {
             this.isActive = true;
+
             if (this.useTypeSearch) {
                 return;
             }
@@ -74,12 +90,38 @@ Component.register('sw-search-bar', {
             this.isActive = false;
         },
 
+        showSearchBar() {
+            this.isSearchBarShown = true;
+            this.isActive = true;
+            this.isOffCanvasShown = false;
+
+            this.$root.$emit('toggleOffCanvas', this.isOffCanvasShown);
+        },
+
+        hideSearchBar() {
+            this.isSearchBarShown = false;
+            this.isActive = false;
+            this.showResultsContainer = false;
+        },
+
+        showSearchFieldOnLargerViewports() {
+            if (this.$device.getViewportWidth() > 500) {
+                this.isSearchBarShown = true;
+            }
+        },
+
         onSearchTermChange() {
             if (this.useTypeSearch) {
                 this.doListSearch();
             } else {
                 this.doGlobalSearch();
             }
+        },
+
+        toggleOffCanvas() {
+            this.isOffCanvasShown = !this.isOffCanvasShown;
+
+            this.$root.$emit('toggleOffCanvas', this.isOffCanvasShown);
         },
 
         resetSearchType() {

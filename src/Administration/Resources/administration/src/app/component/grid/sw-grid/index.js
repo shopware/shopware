@@ -125,10 +125,23 @@ Component.register('sw-grid', {
     },
 
     created() {
-        this.registerInlineEditingEvents();
+        this.createdComponent();
     },
 
     methods: {
+        createdComponent() {
+            const that = this;
+
+            this.registerInlineEditingEvents();
+
+            this.$device.onResize({
+                listener() {
+                    that.setScrollbarOffset();
+                },
+                component: this
+            });
+        },
+
         registerInlineEditingEvents() {
             this.$on('sw-row-inline-edit-start', this.inlineEditingStart);
             this.$on('sw-row-inline-edit-cancel', this.disableActiveInlineEditing);

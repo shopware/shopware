@@ -1,6 +1,6 @@
 {% block sw_admin_menu %}
     <aside class="sw-admin-menu"
-           :class="isExpanded ? 'is--expanded' : 'is--collapsed'"
+           :class="adminMenuClasses"
            :aria-expanded="isExpanded ? 'true' : 'false'">
 
         {% block sw_admin_menu_header %}
@@ -10,32 +10,9 @@
                     <div class="sw-admin-menu__header-logo" role="img"></div>
                 {% endblock %}
 
-                {% block sw_admin_menu_header_shop_attributes %}
-                    <div class="sw-admin-menu__header-shop-attributes collapsible-text">
-
-                        {% block sw_admin_menu_header_shop_name %}
-                            <h1 class="sw-admin-menu__header-shop-name">
-                                {{ $tc('global.sw-admin-menu.textProjectName') }}
-                            </h1>
-                        {% endblock %}
-
-                        {% block sw_admin_menu_header_shop_version %}
-                            <div class="sw-admin-menu__header-shop-version">
-                                {{ $tc('global.sw-admin-menu.textShopwareAdmin') }}
-                            </div>
-                        {% endblock %}
-
-                        {% block sw_admin_menu_header_shop_status %}
-                            <div class="sw-admin-menu__shop-status" title="Shop status: OK">
-                                {% block sw_admin_menu_header_shop_status_badge %}
-                                    <sw-color-badge variant="success" :rounded="true"></sw-color-badge>
-                                {% endblock %}
-                            </div>
-                        {% endblock %}
-
-                    </div>
-               {% endblock %}
-
+                {% block sw_admin_menu_header_version %}
+                    <sw-version class="collapsible-text"></sw-version>
+                {% endblock %}
             </div>
         {% endblock %}
 

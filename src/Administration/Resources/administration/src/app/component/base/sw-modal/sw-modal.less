@@ -1,8 +1,8 @@
 @import "~less/variables";
 
 @sw-modal-color-backdrop:             rgba(0, 0, 0, 0.4);
-@sw-modal-z-index:                    1000;
-@sw-modal-loader-z-index:             1010;
+@sw-modal-z-index:                    @z-index-modal;
+@sw-modal-loader-z-index:             @sw-modal-z-index + 1;
 @sw-modal-dialog-color-background:    @color-white;
 @sw-modal-footer-color-background:    @color-light-gray;
 @sw-modal-color-text:                 @color-gutenberg;
@@ -19,15 +19,17 @@
     right: 0;
     bottom: 0;
     left: 0;
-    outline: none;
-    background-color: @sw-modal-color-backdrop;
-    z-index: @sw-modal-z-index;
+    padding: 40px 20px;
+    height: 100%;
+    width: 100%;
     overflow-x: hidden;
     overflow-y: auto;
+    background-color: @sw-modal-color-backdrop;
+    z-index: @sw-modal-z-index;
+    outline: none;
 
     .sw-modal__dialog {
-        max-width: 700px;
-        margin: 50px auto;
+        margin: 0 auto;
         background-color: @sw-modal-dialog-color-background;
         border-radius: @sw-modal-border-radius;
         color: @sw-modal-color-text;
@@ -35,24 +37,31 @@
     }
 
     &.sw-modal--default .sw-modal__dialog {
-        @media screen and (max-width: 740px) {
-            margin: 20px;
-        }
+        max-width: 700px;
     }
 
     &.sw-modal--large .sw-modal__dialog {
         max-width: 900px;
-
-        @media screen and (max-width: 940px) {
-            margin: 20px;
-        }
     }
 
     &.sw-modal--small .sw-modal__dialog {
-        max-width: 450px;
+        max-width: 500px;
+    }
 
-        @media screen and (max-width: 490px) {
-            margin: 20px;
+    @media screen and (max-width: 500px) {
+        padding: 0;
+        overflow-y: hidden;
+
+        .sw-modal__dialog {
+            border-radius: 0;
+            display: grid;
+            height: 100%;
+            grid-template-rows: auto 1fr auto;
+        }
+
+        .sw-modal__body {
+            overflow-x: hidden;
+            overflow-y: auto;
         }
     }
 
@@ -101,7 +110,7 @@
 
     .sw-modal__body {
         padding: 20px 30px;
-        position:relative;
+        position: relative;
     }
 
     .sw-modal__footer {

@@ -6,11 +6,12 @@
 @sw-multi-select-color-background:                @color-white;
 @sw-multi-select-color-label:                     @color-kashmir;
 @sw-multi-select-selection-item-color-text:       @color-gutenberg;
+@sw-multi-select-font-family:                     @font-family-default;
 @sw-multi-select-selection-item-color-background: darken(@color-light-gray, 5%);
 @sw-multi-select-input-color-text:                @color-gutenberg;
 @sw-multi-select-input-color-placeholder:         lighten(@color-gutenberg, 25%);
 @sw-multi-select-results-max-height:              315px;
-@sw-multi-select-results-z-index:                 1000;
+@sw-multi-select-results-z-index:                 @z-index-multi-select-results;
 @sw-multi-select-results-box-shadow:              0 2px 4px 0 rgba(0, 0, 0, 0.09);
 @sw-multi-select-result-color-icon:               darken(@color-light-gray, 20%);
 @sw-multi-select-result-active-color-background:  lighten(@color-shopware-blue, 40%);
@@ -120,6 +121,7 @@
         border: 0 none;
         outline: none;
         color: @sw-multi-select-input-color-text;
+        font-family: @sw-multi-select-font-family;
         background: 0 none;
 
         &::placeholder {

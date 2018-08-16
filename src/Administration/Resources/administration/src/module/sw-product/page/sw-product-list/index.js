@@ -100,8 +100,9 @@ Component.register('sw-product-list', {
         },
 
         onConfirmDelete(id) {
+            this.showDeleteModal = false;
+
             return this.productStore.getById(id).delete(true).then(() => {
-                this.showDeleteModal = false;
                 this.getList();
             });
         }

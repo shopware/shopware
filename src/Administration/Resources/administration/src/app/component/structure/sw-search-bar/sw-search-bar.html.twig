@@ -4,8 +4,30 @@
         {% block sw_search_bar_container %}
             <div class="sw-search-bar__container">
 
+                {% block sw_search_bar_mobile_controls %}
+                    <div v-if="!isSearchBarShown" class="sw-search-bar__mobile-controls">
+
+                        {% block sw_search_bar_button_off_canvas_toggle %}
+                            <button class="sw-search-bar__button" @click="toggleOffCanvas">
+                                <sw-icon v-if="isOffCanvasShown" name="default-basic-x-line"></sw-icon>
+                                <sw-icon v-else name="small-default-stack-line"></sw-icon>
+                            </button>
+                        {% endblock %}
+
+                        {% block sw_search_bar_version_display %}
+                            <sw-version></sw-version>
+                        {% endblock %}
+
+                        {% block sw_search_bar_button_search %}
+                            <button class="sw-search-bar__button" @click="showSearchBar">
+                                <sw-icon name="default-action-search"></sw-icon>
+                            </button>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+
                 {% block sw_search_bar_field %}
-                    <div class="sw-search-bar__field" :class="searchBarFieldClasses">
+                    <div v-if="isSearchBarShown" class="sw-search-bar__field" :class="searchBarFieldClasses">
 
                         {% block sw_search_bar_type %}
                             <span v-if="useTypeSearch" class="sw-search-bar__type" :style="searchTypeColor">
@@ -30,7 +52,13 @@
                         {% endblock %}
 
                         {% block sw_search_bar_icon %}
-                            <sw-icon name="small-search" small></sw-icon>
+                            <button class="sw-search-bar__field-icon sw-search-bar__field-close" @click="hideSearchBar">
+                                <sw-icon name="small-default-x-line-medium" small></sw-icon>
+                            </button>
+
+                            <span class="sw-search-bar__field-icon sw-search-bar__field-search-icon">
+                                <sw-icon name="small-search" small></sw-icon>
+                            </span>
                         {% endblock %}
                     </div>
                 {% endblock %}

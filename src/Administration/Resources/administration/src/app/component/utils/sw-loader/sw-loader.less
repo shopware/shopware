@@ -4,6 +4,7 @@
 @sw-loader-element-color:   @color-shopware-blue;
 @sw-loader-rotate-duration: 1.4s;
 @sw-loader-colors-duration: 5.6s;
+@sw-loader-z-index:         @z-index-loader;
 
 .sw-loader {
     width: 100%;
@@ -14,6 +15,7 @@
     left: 0;
     right: 0;
     margin: auto;
+    z-index: @sw-loader-z-index;
     background: @sw-loader-color-overlay;
 
     .sw-loader__container {

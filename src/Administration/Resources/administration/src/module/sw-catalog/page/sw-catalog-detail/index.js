@@ -156,6 +156,11 @@ Component.register('sw-catalog-detail', {
 
         onEditCategory(item) {
             this.currentEditCategory = item.id;
+
+            this.$nextTick(() => {
+                const categoryNameField = this.$el.querySelector('.sw-catalog-detail__edit-category-field input');
+                categoryNameField.focus();
+            });
         },
 
         onEditCategoryFinish() {

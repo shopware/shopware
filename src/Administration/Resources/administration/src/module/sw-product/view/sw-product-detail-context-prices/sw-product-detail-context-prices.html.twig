@@ -2,7 +2,9 @@
     <div class="sw-product-detail-context-prices">
 
         {% block sw_product_detail_prices_empty_state %}
-            <sw-card class="context-prices__empty-state" v-if="!isLoaded && !product.priceRules.length">
+            <sw-card class="context-prices__empty-state"
+                     v-if="!isLoaded && !product.priceRules.length"
+                     :large="true">
                 <sw-loader></sw-loader>
             </sw-card>
         {% endblock %}
@@ -13,6 +15,7 @@
                      :key="priceGroup.ruleId"
                      class="context-price"
                      :isLoading="isLoading"
+                     :large="true"
                      v-else>
 
                 {% block sw_product_detail_prices_price_card_toolbar %}

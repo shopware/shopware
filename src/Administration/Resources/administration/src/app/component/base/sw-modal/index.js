@@ -57,6 +57,9 @@ Component.register('sw-modal', {
     methods: {
         mountedComponent() {
             document.addEventListener('keyup', this.closeModalOnEscapeKey);
+
+            document.body.appendChild(this.$el);
+
             this.setFocusToModal();
         },
 

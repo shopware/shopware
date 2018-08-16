@@ -11,6 +11,7 @@ Component.register('sw-admin-menu', {
     data() {
         return {
             isExpanded: true,
+            isOffCanvasShown: false,
             isUserActionsActive: false,
             flyoutEntries: [],
             flyoutStyle: {},
@@ -42,10 +43,35 @@ Component.register('sw-admin-menu', {
                 right: this.scrollbarOffset,
                 'margin-left': this.scrollbarOffset
             };
+        },
+
+        adminMenuClasses() {
+            return {
+                'is--expanded': this.isExpanded,
+                'is--collapsed': !this.isExpanded,
+                'is--off-canvas-shown': this.isOffCanvasShown
+            };
         }
     },
 
+    created() {
+        this.collapseMenuOnSmallViewports();
+
+        this.$root.$on('toggleOffCanvas', (state) => {
+            this.isOffCanvasShown = state;
+        });
+    },
+
     mounted() {
+        const that = this;
+
+        this.$device.onResize({
+            listener() {
+                that.collapseMenuOnSmallViewports();
+            },
+            component: this
+        });
+
         this.addScrollbarOffset();
     },
 
@@ -53,11 +79,25 @@ Component.register('sw-admin-menu', {
         openSubMenu(entry, currentTarget) {
             this.subMenuOpen = !this.subMenuOpen;
 
+            if (this.$device.getViewportWidth() <= 500) {
+                this.isOffCanvasShown = false;
+            }
+
             if (this.isExpanded) {
                 this.flyoutEntries = [];
             }
 
             this.changeActiveItem(currentTarget.querySelector('.sw-admin-menu__navigation-link'));
+        },
+
+        collapseMenuOnSmallViewports() {
+            if (this.$device.getViewportWidth() <= 1200 && this.$device.getViewportWidth() >= 500) {
+                this.isExpanded = false;
+            }
+
+            if (this.$device.getViewportWidth() <= 500) {
+                this.isExpanded = true;
+            }
         },
 
         changeActiveItem(target) {
@@ -89,7 +129,10 @@ Component.register('sw-admin-menu', {
                 return false;
             }
 
-            this.flyoutEntries = entry.children;
+            if (this.$device.getViewportWidth() >= 500) {
+                this.flyoutEntries = entry.children;
+            }
+
             this.flyoutLabel = entry.label;
 
             if (!this.isExpanded) {

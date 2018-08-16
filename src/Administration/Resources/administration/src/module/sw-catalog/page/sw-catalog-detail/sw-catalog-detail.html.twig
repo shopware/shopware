@@ -96,7 +96,7 @@
                                 {% block sw_catalog_detail_categories_tree_actions %}
                                     <template slot="actions">
                                         <sw-container grid="3fr 1fr" gap="0 20px">
-                                            <sw-field v-model="addCategoryName" v-on:keyup.enter="onAddCategory" :placeholder="$tc('sw-catalog.detail.fieldPlaceholderAddCategory')"></sw-field>
+                                            <sw-field v-model="addCategoryName" @keyup.enter="onAddCategory" :placeholder="$tc('sw-catalog.detail.fieldPlaceholderAddCategory')"></sw-field>
                                             <sw-button @click="onAddCategory">{{ $tc('sw-catalog.detail.buttonAddCategory') }}</sw-button>
                                         </sw-container>
                                     </template>
@@ -115,7 +115,10 @@
                                                     <template slot="content" slot-scope="{ item }">
                                                         {% block sw_catalog_detail_categories_tree_items_item_content_edit %}
                                                             <template v-if="currentEditCategory === item.data.id">
-                                                                <sw-field v-model="item.data.name" v-on:keyup.enter="onEditCategoryFinish(item)"></sw-field>
+                                                                <sw-field class="sw-catalog-detail__edit-category-field"
+                                                                          v-model="item.data.name"
+                                                                          @keyup.enter="onEditCategoryFinish(item)">
+                                                                </sw-field>
                                                             </template>
                                                         {% endblock %}
 

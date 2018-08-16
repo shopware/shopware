@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Catalog;
 
+use Shopware\Core\Content\Catalog\Aggregate\CatalogTranslation\CatalogTranslationDefinition;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition;
@@ -18,6 +19,7 @@ use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\Field\TenantIdField;
+use Shopware\Core\Framework\ORM\Field\TranslatedField;
 use Shopware\Core\Framework\ORM\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\ORM\Field\UpdatedAtField;
 use Shopware\Core\Framework\ORM\FieldCollection;
@@ -39,7 +41,7 @@ class CatalogDefinition extends EntityDefinition
         return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new StringField('name', 'name'))->setFlags(new Required()),
+            (new TranslatedField(new StringField('name', 'name')))->setFlags(new Required()),
             new CreatedAtField(),
             new UpdatedAtField(),
             (new OneToManyAssociationField('categories', CategoryDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete()),
@@ -51,6 +53,7 @@ class CatalogDefinition extends EntityDefinition
             (new TranslationsAssociationField('productManufacturerTranslations', ProductManufacturerTranslationDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new OneToManyAssociationField('productMedia', ProductMediaDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('productTranslations', ProductTranslationDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new TranslationsAssociationField('translations', CatalogTranslationDefinition::class, 'catalog_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
             new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelCatalogDefinition::class, false, 'catalog_id', 'sales_channel_id'),
         ]);
     }
@@ -63,5 +66,10 @@ class CatalogDefinition extends EntityDefinition
     public static function getStructClass(): string
     {
         return CatalogStruct::class;
+    }
+
+    public static function getTranslationDefinitionClass(): ?string
+    {
+        return CatalogTranslationDefinition::class;
     }
 }

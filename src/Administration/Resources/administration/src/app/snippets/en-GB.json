@@ -54,6 +54,19 @@
       "typeLabelCustomer": "Customer",
       "typeLabelProduct": "Product",
       "typeLabelOrder": "Order"
+    },
+    "sw-media-upload-container": {
+      "dropZoneText": "Drop Files to upload",
+      "dropZoneDemoText": "(Attention! Drag and Drop is not available in this demo)",
+      "upload": "Upload File",
+      "openMedia": "Open Media",
+      "createFromURLText": "Add File from URL"
+    },
+    "sw-media-upload-url-modal": {
+      "title": "Upload file from URL",
+      "upload": "Upload",
+      "cancel": "Cancel",
+      "example": "www.example.com"
     }
   },
   "sw-login": {

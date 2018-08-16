@@ -1,0 +1,41 @@
+{% block sw_media_upload_url_modal %}
+    <sw-modal
+        class="sw-media-upload-url-modal"
+        variant="small"
+        :title="$tc('global.sw-media-upload-url-modal.title')"
+        v-on="$listeners">
+
+        {% block sw_media_upload_url_modal_dialog %}
+            <div class="sw-media-upload-url-content">
+                {% block sw_media_upload_url_modal_input %}
+                    <sw-field
+                        v-model="url"
+                        label="URL"
+                        :placeholder="$tc('global.sw-media-upload-url-modal.example')"
+                        ref="urlInput">
+                    </sw-field>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block sw_media_upload_url_modal_footer %}
+            <template slot="modal-footer">
+                {% block sw_media_upload_url_modal_cancel_button %}
+                    <sw-button size="small" @click="closeModal">
+                        {{ $tc('global.sw-media-upload-url-modal.cancel') }}
+                    </sw-button>
+                {% endblock %}
+
+                {% block sw_media_upload_url_modal_submit_button %}
+                    <sw-button
+                        variant="primary"
+                        size="small"
+                        @click.prevent="emitUrl">
+
+                        {{ $tc('global.sw-media-upload-url-modal.upload') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+    </sw-modal>
+{% endblock %}

@@ -53,9 +53,9 @@
                     {% block sw_media_catalog_sidebar %}
                         <div class="sw-media-catalog__sidebar">
                             <sw-media-sidebar
-                                    :item="lastSelectedItem"
-                                    v-on="mediaSidebarListener"
-                                    ref="mediaSidebar"
+                                :item="lastSelectedItem"
+                                v-on="mediaSidebarListener"
+                                ref="mediaSidebar"
                             ></sw-media-sidebar>
                         </div>
                     {% endblock %}
@@ -63,10 +63,19 @@
             {% endblock %}
 
             {% block sw_media_catalog_modal_delete %}
-                <sw-media-modal-delete :itemsToDelete ="selectionToDelete"
+                <sw-media-modal-delete
+                   :itemsToDelete="selectionToDelete"
                    @sw-media-modal-delete-close="closeDeleteModal"
                    @sw-media-modal-delete-delete="deleteSelection">
                 </sw-media-modal-delete>
+            {% endblock %}
+
+            {% block sw_media_catalog_modal_replace %}
+                <sw-media-modal-replace
+                    :itemToReplace="mediaItemToReplace"
+                    @sw-media-modal-replace-close="closeReplaceModal"
+                    @sw-media-modal-replace-replace-started="handleReplacementStarted">
+                </sw-media-modal-replace>
             {% endblock %}
         </template>
     </sw-page>

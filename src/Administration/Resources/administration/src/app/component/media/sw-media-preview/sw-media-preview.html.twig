@@ -3,7 +3,7 @@
         {% block sw_media_preview_file_type_check %}
             <template v-if="checkForFileTypeImage">
                 {% block sw_media_preview_file_type_image %}
-                    <img :src="item.extensions.links.url" :alt="item.name" class="sw-media-preview-item">
+                    <img :src="getImageURLFromItem" :alt="item.name" class="sw-media-preview-item">
                 {% endblock %}
             </template>
 

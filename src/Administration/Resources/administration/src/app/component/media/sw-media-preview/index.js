@@ -78,6 +78,10 @@ Component.register('sw-media-preview', {
             };
 
             return fileExtensions[this.item.mimeType] || 'file-thumbnail-normal';
+        },
+
+        getImageURLFromItem() {
+            return `${this.item.extensions.links.url}?${Date.now()}`;
         }
     },
 

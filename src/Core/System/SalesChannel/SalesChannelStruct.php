@@ -4,10 +4,13 @@ namespace Shopware\Core\System\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Order\OrderCollection;
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodStruct;
+use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodStruct;
 use Shopware\Core\Content\Catalog\CatalogCollection;
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryStruct;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Currency\CurrencyStruct;
@@ -144,6 +147,21 @@ class SalesChannelStruct extends Entity
     protected $customers;
 
     /**
+     * @var CountryCollection|null
+     */
+    protected $countries;
+
+    /**
+     * @var PaymentMethodCollection|null
+     */
+    protected $paymentMethods;
+
+    /**
+     * @var ShippingMethodCollection|null
+     */
+    protected $shippingMethods;
+
+    /**
      * @var SalesChannelTranslationCollection|null
      */
     protected $translations;
@@ -263,7 +281,7 @@ class SalesChannelStruct extends Entity
         return $this->configuration;
     }
 
-    public function setConfiguration(?array $configuration): void
+    public function setConfiguration(array $configuration): void
     {
         $this->configuration = $configuration;
     }
@@ -401,6 +419,16 @@ class SalesChannelStruct extends Entity
         $this->type = $type;
     }
 
+    public function getCountries(): ?CountryCollection
+    {
+        return $this->countries;
+    }
+
+    public function setCountries(CountryCollection $countries): void
+    {
+        $this->countries = $countries;
+    }
+
     public function getTranslations(): ?SalesChannelTranslationCollection
     {
         return $this->translations;
@@ -409,5 +437,25 @@ class SalesChannelStruct extends Entity
     public function setTranslations(SalesChannelTranslationCollection $translations): void
     {
         $this->translations = $translations;
+    }
+
+    public function getPaymentMethods(): ?PaymentMethodCollection
+    {
+        return $this->paymentMethods;
+    }
+
+    public function setPaymentMethods(PaymentMethodCollection $paymentMethods): void
+    {
+        $this->paymentMethods = $paymentMethods;
+    }
+
+    public function getShippingMethods(): ?ShippingMethodCollection
+    {
+        return $this->shippingMethods;
+    }
+
+    public function setShippingMethods(ShippingMethodCollection $shippingMethods): void
+    {
+        $this->shippingMethods = $shippingMethods;
     }
 }

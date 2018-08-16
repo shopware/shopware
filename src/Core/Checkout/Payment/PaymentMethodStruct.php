@@ -150,6 +150,11 @@ class PaymentMethodStruct extends Entity
     /**
      * @var SalesChannelCollection|null
      */
+    protected $salesChannelDefaultAssignments;
+
+    /**
+     * @var SalesChannelCollection|null
+     */
     protected $salesChannels;
 
     public function getPluginId(): ?string
@@ -420,6 +425,16 @@ class PaymentMethodStruct extends Entity
     public function setCustomers(CustomerCollection $customers): void
     {
         $this->customers = $customers;
+    }
+
+    public function getSalesChannelDefaultAssignments(): ?SalesChannelCollection
+    {
+        return $this->salesChannelDefaultAssignments;
+    }
+
+    public function setSalesChannelDefaultAssignments(SalesChannelCollection $salesChannelDefaultAssignments): void
+    {
+        $this->salesChannelDefaultAssignments = $salesChannelDefaultAssignments;
     }
 
     public function getSalesChannels(): ?SalesChannelCollection

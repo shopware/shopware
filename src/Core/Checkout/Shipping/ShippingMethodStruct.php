@@ -168,6 +168,11 @@ class ShippingMethodStruct extends Entity
     /**
      * @var SalesChannelCollection|null
      */
+    protected $salesChannelDefaultAssignments;
+
+    /**
+     * @var SalesChannelCollection|null
+     */
     protected $salesChannels;
 
     public function getType(): int
@@ -478,6 +483,16 @@ class ShippingMethodStruct extends Entity
     public function setOrderDeliveries(OrderDeliveryCollection $orderDeliveries): void
     {
         $this->orderDeliveries = $orderDeliveries;
+    }
+
+    public function getSalesChannelDefaultAssignments(): ?SalesChannelCollection
+    {
+        return $this->salesChannelDefaultAssignments;
+    }
+
+    public function setSalesChannelDefaultAssignments(SalesChannelCollection $salesChannelDefaultAssignments): void
+    {
+        $this->salesChannelDefaultAssignments = $salesChannelDefaultAssignments;
     }
 
     public function getSalesChannels(): ?SalesChannelCollection

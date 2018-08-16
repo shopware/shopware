@@ -25,7 +25,7 @@ class SalesChannelCurrencyDefinition extends MappingEntityDefinition
     {
         return new FieldCollection([
             (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('currency_id', 'currency_id', CurrencyDefinition::class))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             new ReferenceVersionField(CurrencyDefinition::class),
             new CreatedAtField(),
             new UpdatedAtField(),

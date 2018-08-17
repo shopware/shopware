@@ -1,6 +1,5 @@
 import { Component } from 'src/core/shopware';
 import template from './sw-media-grid-media-item.html.twig';
-import './sw-media-grid-media-item.less';
 import domUtils from '../../../../core/service/utils/dom.utils';
 
 Component.extend('sw-media-grid-media-item', 'sw-media-grid-item', {

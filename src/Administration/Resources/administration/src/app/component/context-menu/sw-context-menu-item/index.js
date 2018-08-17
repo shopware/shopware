@@ -10,15 +10,18 @@ Component.register('sw-context-menu-item', {
             type: String,
             required: false
         },
+
         disabled: {
             type: Boolean,
             required: false,
             default: false
         },
+
         routerLink: {
             type: Object,
             required: false
         },
+
         variant: {
             type: String,
             required: false,
@@ -40,6 +43,7 @@ Component.register('sw-context-menu-item', {
                 'sw-context-menu-item--icon': this.icon
             };
         },
+
         contextListeners() {
             return this.disabled ? {} : this.$listeners;
         }

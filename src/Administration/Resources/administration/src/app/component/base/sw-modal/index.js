@@ -12,10 +12,12 @@ Component.register('sw-modal', {
             type: String,
             default: ''
         },
+
         size: {
             type: String,
             default: ''
         },
+
         variant: {
             type: String,
             required: false,
@@ -27,6 +29,7 @@ Component.register('sw-modal', {
                 return ['default', 'small', 'large', 'full'].includes(value);
             }
         },
+
         isLoading: {
             type: Boolean,
             required: false,

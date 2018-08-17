@@ -10,10 +10,12 @@ Component.register('sw-media-grid-item', {
             type: Boolean,
             required: true
         },
+
         item: {
             required: true,
             type: Object
         },
+
         containerOptions: {
             required: true,
             type: Object

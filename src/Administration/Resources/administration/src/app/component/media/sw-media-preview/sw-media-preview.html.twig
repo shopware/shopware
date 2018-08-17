@@ -1,0 +1,38 @@
+{% block sw_media_preview %}
+    <div class="sw-media-preview">
+        {% block sw_media_preview_file_type_check %}
+            <template v-if="checkForFileTypeImage">
+                {% block sw_media_preview_file_type_image %}
+                    <img :src="item.extensions.links.url" :alt="item.name" class="sw-media-preview-item">
+                {% endblock %}
+            </template>
+
+            <template v-else-if="checkForFileTypeVideo">
+                {% block sw_media_preview_file_type_video %}
+                    <video controls class="sw-media-preview-item">
+                        <source :src="item.extensions.links.url" :type="item.mimeType">
+                        {{ $tc('global.sw-media-preview.fallbackVideoTagSupport') }}
+                    </video>
+                {% endblock %}
+            </template>
+
+            <template v-else-if="checkForFileTypeAudio">
+                {% block sw_media_preview_file_type_audio %}
+                    <audio controls>
+                        <source :src="item.extensions.links.url" :type="item.mimeType">
+                        {{ $tc('global.sw-media-preview.fallbackAudioTagSupport') }}
+                    </audio>
+                {% endblock %}
+            </template>
+
+            <template v-else>
+                {% block sw_media_preview_file_type_else %}
+                    <sw-icon class="sw-media-preview-item"
+                             name="text-editor-media"
+                             size="80%">
+                    </sw-icon>
+                {% endblock %}
+            </template>
+        {% endblock %}
+    </div>
+{% endblock %}

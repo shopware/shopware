@@ -32,6 +32,7 @@ class KernelLifecycleManager
      */
     public static function createClient(KernelInterface $kernel, bool $enableReboot = false): Client
     {
+        /** @var Client $apiClient */
         $apiClient = $kernel->getContainer()->get('test.client');
 
         if ($enableReboot) {

@@ -38,7 +38,7 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @return object|object[]
      */
     public function denormalize($data, $class = null, $format = null, array $context = [])
     {
@@ -84,15 +84,7 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
         return isset($argument['_class']);
     }
 
-    /**
-     * @param string $class
-     * @param array  $arguments
-     *
-     * @throws InvalidArgumentException
-     *
-     * @return object
-     */
-    private function createInstance(string $class, array $arguments)
+    private function createInstance(string $class, array $arguments): Struct
     {
         try {
             $reflectionClass = $this->getReflectionClass($class);
@@ -100,24 +92,22 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
             throw new InvalidArgumentException($exception->getMessage());
         }
 
-        $instance = $reflectionClass->newInstanceWithoutConstructor();
-        if (!($instance instanceof Struct)) {
+        $struct = $reflectionClass->newInstanceWithoutConstructor();
+        if (!$struct instanceof Struct) {
             throw new InvalidArgumentException(sprintf('Unable to unserialize a non-struct class: %s', $reflectionClass->getName()));
         }
 
         if (!$reflectionClass->getConstructor()) {
-            /* @var Struct $instance */
-            $instance->assign($arguments);
+            $struct->assign($arguments);
 
-            return $instance;
+            return $struct;
         }
 
         $constructorParams = $reflectionClass->getConstructor()->getParameters();
         if (count($constructorParams) <= 0) {
-            /* @var Struct $instance */
-            $instance->assign($arguments);
+            $struct->assign($arguments);
 
-            return $instance;
+            return $struct;
         }
         $params = [];
 
@@ -139,11 +129,13 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
             unset($arguments[$name]);
         }
 
-        /* @var Struct $instance */
-        $instance = $reflectionClass->newInstanceArgs($params);
-        $instance->assign($arguments);
+        $struct = $reflectionClass->newInstanceArgs($params);
+        if (!$struct instanceof Struct) {
+            throw new InvalidArgumentException(sprintf('Unable to unserialize a non-struct class: %s', $reflectionClass->getName()));
+        }
+        $struct->assign($arguments);
 
-        return $instance;
+        return $struct;
     }
 
     private function getReflectionClass(string $class): \ReflectionClass

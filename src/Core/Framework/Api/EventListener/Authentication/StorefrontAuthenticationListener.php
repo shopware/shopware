@@ -20,7 +20,7 @@ class StorefrontAuthenticationListener implements EventSubscriberInterface
     private static $routePrefix = '/storefront-api/';
 
     /**
-     * @var string[]
+     * @var array[]
      */
     private static $unprotectedRoutes = [
         [

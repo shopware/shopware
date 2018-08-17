@@ -10,6 +10,7 @@ use Shopware\Core\Framework\ORM\Field\AssociationInterface;
 use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\ORM\Field\StructField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
@@ -137,9 +138,6 @@ class EntityForeignKeyResolver
 
     private function joinCascades(string $definition, FieldCollection $cascades, string $root, QueryBuilder $query, string $class, Context $context): void
     {
-        /**
-         * @var AssociationInterface $cascade
-         */
         foreach ($cascades as $cascade) {
             $alias = $root . '.' . $cascade->getPropertyName();
 
@@ -176,6 +174,8 @@ class EntityForeignKeyResolver
                 );
             }
 
+            /** @var StructField|AssociationInterface $cascade */
+            $cascade = $cascade;
             //avoid infinite recursive call
             if ($cascade->getReferenceClass() === $definition) {
                 continue;
@@ -237,7 +237,6 @@ class EntityForeignKeyResolver
                     throw new \RuntimeException(sprintf('Field by key %s not found', $key));
                 }
 
-                /** @var AssociationInterface $field */
                 if ($field instanceof ManyToManyAssociationField) {
                     $class = $field->getMappingDefinition();
 
@@ -262,6 +261,8 @@ class EntityForeignKeyResolver
                     continue;
                 }
 
+                /** @var StructField|AssociationInterface $field */
+                $field = $field;
                 $class = $field->getReferenceClass();
 
                 if (!array_key_exists($class, $restrictions)) {

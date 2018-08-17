@@ -2,12 +2,6 @@
 
 namespace Shopware\Core\System\Command;
 
-use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\ORM\RepositoryInterface;
-use Shopware\Core\Framework\ORM\Search\Criteria;
-use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\Provisioning\UserProvisioner;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\Console\Command\Command;

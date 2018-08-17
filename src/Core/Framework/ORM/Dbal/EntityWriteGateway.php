@@ -156,6 +156,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         $useDatabase = true;
 
         $state = [];
+
         foreach ($commands as $command) {
             if ($command instanceof DeleteCommand) {
                 $state = [];
@@ -163,7 +164,10 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                 continue;
             }
 
-            /** @var InsertCommand|UpdateCommand $command */
+            if (!$command instanceof InsertCommand && !$command instanceof UpdateCommand) {
+                continue;
+            }
+
             $state = array_replace_recursive($state, $command->getPayload());
 
             if ($command instanceof InsertCommand) {

@@ -44,6 +44,9 @@ class ProductGateway implements ProductGatewayInterface
 
     public function get(array $ids, CheckoutContext $context): ProductCollection
     {
-        return $this->repository->read(new ReadCriteria($ids), $context->getContext());
+        /** @var ProductCollection $result */
+        $result = $this->repository->read(new ReadCriteria($ids), $context->getContext());
+
+        return $result;
     }
 }

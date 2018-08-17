@@ -16,7 +16,6 @@ use Shopware\Core\Framework\ORM\Field\JsonField;
 use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
-use Shopware\Core\Framework\ORM\Field\PasswordField;
 use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
 use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\Field\TenantIdField;

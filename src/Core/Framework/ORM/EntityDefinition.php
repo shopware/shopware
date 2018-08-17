@@ -23,12 +23,12 @@ abstract class EntityDefinition
     public const ASSOCIATION_SEARCH_RANKING = 0.25;
 
     /**
-     * @var FieldCollection
+     * @var (FieldCollection|null)[]
      */
     protected static $fields = [];
 
     /**
-     * @var array[]
+     * @var Field[][]
      */
     protected static $searchFields = [];
 
@@ -44,6 +44,11 @@ abstract class EntityDefinition
     }
 
     abstract public static function getEntityName(): string;
+
+    public static function getEntityNameByDefinition(string $definition): string
+    {
+        return $definition::getEntityName();
+    }
 
     public static function useKeywordSearch(): bool
     {

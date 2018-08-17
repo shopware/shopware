@@ -239,10 +239,8 @@ class SearchKeywordIndexer implements IndexerInterface
 
     private function indexEntities(string $definition, Context $context, array $ids, string $table, string $documentTable): void
     {
-        /**
-         * @var EntityDefinition $definition
-         * @var EntityRepository $repository
-         */
+        /** @var EntityDefinition $definition */
+        /** @var EntityRepository $repository */
         $repository = $this->container->get($definition::getEntityName() . '.repository');
 
         $entities = $repository->read(new ReadCriteria($ids), $context);

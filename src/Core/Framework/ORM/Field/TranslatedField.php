@@ -52,23 +52,20 @@ class TranslatedField extends Field
     private $foreignFieldName;
 
     /**
-     * @var StorageAware
+     * @var StorageAware|Field
      */
     private $field;
 
-    /**
-     * @param StorageAware $field
-     *
-     * @internal param string $storageName
-     */
     public function __construct(StorageAware $field)
     {
+        /** @var StorageAware|Field $field */
+        $field = $field;
+
         $this->field = $field;
         $this->storageName = $field->getStorageName();
         $this->foreignClassName = LanguageDefinition::class;
         $this->foreignFieldName = 'id';
 
-        /* @var Field $field */
         parent::__construct($field->getPropertyName());
     }
 

@@ -70,11 +70,9 @@ class EntityLoadedEvent extends NestedEvent
 
         $events = [];
 
-        /**
-         * @var string|EntityDefinition $definition
-         * @var Entity[]                $entities
-         */
+        /** @var string|EntityDefinition $definition */
         foreach ($associations as $definition => $entities) {
+            /** @var Entity[] $entities */
             $collection = $definition::getCollectionClass();
 
             $events[] = new EntityLoadedEvent($definition, new $collection($entities), $this->context);

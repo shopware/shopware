@@ -270,10 +270,6 @@ class EntityWriter implements EntityWriterInterface
     {
         $identifiers = [];
 
-        /*
-         * @var string
-         * @var UpdateCommand[]|InsertCommand[] $queries
-         */
         foreach ($queue->getCommands() as $resource => $commands) {
             if (count($commands) === 0) {
                 continue;
@@ -355,8 +351,10 @@ class EntityWriter implements EntityWriterInterface
 
     private function getCommandPayload(WriteCommandInterface $command): array
     {
-        /** @var InsertCommand|UpdateCommand $command */
-        $payload = $command instanceof DeleteCommand ? [] : $command->getPayload();
+        $payload = [];
+        if ($command instanceof InsertCommand || $command instanceof UpdateCommand) {
+            $payload = $command->getPayload();
+        }
 
         $fields = $command->getDefinition()::getFields();
 

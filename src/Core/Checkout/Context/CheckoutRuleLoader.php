@@ -131,7 +131,10 @@ class CheckoutRuleLoader
         }
 
         $rules = $this->repository->search(new Criteria(), $context);
-        $this->rules = $rules->getEntities();
+
+        /** @var RuleCollection $rules */
+        $rules = $rules->getEntities();
+        $this->rules = $rules;
 
         $cacheItem->set(serialize($this->rules));
         $this->cache->save($cacheItem);

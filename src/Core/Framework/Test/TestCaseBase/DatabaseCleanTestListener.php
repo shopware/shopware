@@ -127,12 +127,7 @@ class DatabaseCleanTestListener implements TestListener
         return $stateResult;
     }
 
-    /**
-     * @param $tableNames
-     *
-     * @return array
-     */
-    private function createDiff($tableNames): array
+    private function createDiff(array $tableNames): array
     {
         $diff = array_diff($this->lastDataPoint, $tableNames);
 

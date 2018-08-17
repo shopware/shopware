@@ -741,7 +741,10 @@ class ApiController extends Controller
             throw new UnknownRepositoryVersionException($definition::getEntityName(), (int) $request->get('version'));
         }
 
-        return $this->get($definition::getEntityName() . '.repository');
+        /** @var RepositoryInterface $repo */
+        $repo = $this->get($definition::getEntityName() . '.repository');
+
+        return $repo;
     }
 
     private function hasScope(Request $request, string $scopeIdentifier): bool

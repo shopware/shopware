@@ -29,14 +29,14 @@ class UserRepository implements UserRepositoryInterface
      * @param string                $grantType    The grant type used
      * @param ClientEntityInterface $clientEntity
      *
-     * @return UserEntityInterface
+     * @return ?UserEntityInterface
      */
     public function getUserEntityByUserCredentials(
         $username,
         $password,
         $grantType,
         ClientEntityInterface $clientEntity
-    ) {
+    ): ?UserEntityInterface {
         $builder = $this->connection->createQueryBuilder();
         $user = $builder->select(['user.id', 'user.password'])
             ->from('user')

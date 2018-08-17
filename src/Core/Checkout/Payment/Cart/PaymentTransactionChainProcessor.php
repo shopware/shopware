@@ -6,7 +6,6 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionColl
 use Shopware\Core\Checkout\Order\OrderStruct;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
-use Shopware\Core\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactory;
 use Shopware\Core\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactoryInterface;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
@@ -21,7 +20,7 @@ use Symfony\Component\Routing\RouterInterface;
 class PaymentTransactionChainProcessor
 {
     /**
-     * @var PaymentTransactionTokenFactory
+     * @var PaymentTransactionTokenFactoryInterface
      */
     private $tokenFactory;
 

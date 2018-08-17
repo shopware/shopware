@@ -29,7 +29,8 @@ class XmlPluginInfoReader
         $entries = $xpath->query('//plugin');
 
         if ($entries === false) {
-            return;
+            // TODO: throw Exception?
+            return [];
         }
 
         $entry = $entries[0];
@@ -113,7 +114,7 @@ class XmlPluginInfoReader
     /**
      * Get child element values by name.
      *
-     * @return \DOMElement[]
+     * @return string[]
      */
     private function getChildrenValues(\DOMNode $node, string $name): array
     {

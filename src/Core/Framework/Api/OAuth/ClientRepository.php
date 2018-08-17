@@ -31,9 +31,9 @@ class ClientRepository implements ClientRepositoryInterface
      * @param bool        $mustValidateSecret If true the client must attempt to validate the secret if the client
      *                                        is confidential
      *
-     * @return ClientEntityInterface
+     * @return ?ClientEntityInterface
      */
-    public function getClientEntity($clientIdentifier, $grantType = null, $clientSecret = null, $mustValidateSecret = true)
+    public function getClientEntity($clientIdentifier, $grantType = null, $clientSecret = null, $mustValidateSecret = true): ?ClientEntityInterface
     {
         if ($grantType === 'password' && $clientIdentifier === 'administration') {
             return new ApiClient('administration', true);

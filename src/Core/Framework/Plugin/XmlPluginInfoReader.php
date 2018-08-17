@@ -28,8 +28,7 @@ class XmlPluginInfoReader
 
         $entries = $xpath->query('//plugin');
 
-        if ($entries === false) {
-            // TODO: throw Exception?
+        if (empty($entries)) {
             return [];
         }
 

@@ -111,7 +111,7 @@ class StorefrontCartController extends Controller
     public function addLineItem(string $id, Request $request, CheckoutContext $context): JsonResponse
     {
         // todo support price definition (NEXT-528)
-        $type = $request->request->getAlnum('type', null);
+        $type = $request->request->getAlnum('type');
         $quantity = $request->request->getInt('quantity', 1);
         $request->request->remove('quantity');
 

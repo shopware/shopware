@@ -100,7 +100,7 @@ class ManufacturerAggregationSubscriber implements EventSubscriberInterface
     {
         $result = $event->getPage()->getProducts()->getAggregations();
 
-        if ($result === null) {
+        if ($result->count() <= 0) {
             return;
         }
 

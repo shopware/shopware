@@ -19,7 +19,7 @@ class EntitySearchResult extends EntityCollection
     protected $entities;
 
     /**
-     * @var AggregationResultCollection|null
+     * @var AggregationResultCollection
      */
     protected $aggregations;
 

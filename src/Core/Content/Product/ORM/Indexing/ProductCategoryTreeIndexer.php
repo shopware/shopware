@@ -153,7 +153,7 @@ class ProductCategoryTreeIndexer implements IndexerInterface
                 ]
             );
 
-            if ($categoryIds === null) {
+            if (empty($categoryIds)) {
                 continue;
             }
 

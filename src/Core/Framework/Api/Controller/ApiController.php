@@ -115,7 +115,7 @@ class ApiController extends Controller
             throw new ResourceNotFoundException($definition::getEntityName(), ['id' => $id]);
         }
 
-        return $responseFactory->createDetailResponse($entity, (string) $definition, $request, $context);
+        return $responseFactory->createDetailResponse($entity, $definition, $request, $context);
     }
 
     public function search(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $path): Response
@@ -603,7 +603,7 @@ class ApiController extends Controller
         foreach ($parts as $part) {
             $fields = $root::getFields();
 
-            /** @var AssociationInterface $field */
+            /** @var AssociationInterface|null $field */
             $field = $fields->get($part['entity']);
             if (!$field) {
                 $path = implode('.', array_column($entities, 'entity')) . '.' . $part['entity'];

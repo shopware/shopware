@@ -82,7 +82,7 @@ class DeliveryBuilder
                 continue;
             }
 
-            $outOfStock = (int) abs($item->getDeliveryInformation()->getStock() - $quantity);
+            $outOfStock = abs($item->getDeliveryInformation()->getStock() - $quantity);
 
             $position = $this->recalculatePosition(
                 $item,

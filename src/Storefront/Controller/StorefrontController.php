@@ -57,7 +57,7 @@ abstract class StorefrontController extends Controller
             return;
         }
 
-        /** @var CheckoutContext $context */
+        /** @var CheckoutContext|null $context */
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT);
 
         if ($context && $context->getCustomer() && $context->getCustomer()->getGuest() === false) {

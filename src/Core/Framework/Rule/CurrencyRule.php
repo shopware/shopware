@@ -5,12 +5,12 @@ namespace Shopware\Core\Framework\Rule;
 class CurrencyRule extends Rule
 {
     /**
-     * @var int[]
+     * @var string[]
      */
     protected $currencyIds;
 
     /**
-     * @param int[] $currencyIds
+     * @param string[] $currencyIds
      */
     public function __construct(array $currencyIds)
     {

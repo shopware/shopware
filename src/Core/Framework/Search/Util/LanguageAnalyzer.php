@@ -53,7 +53,7 @@ class LanguageAnalyzer implements SearchAnalyzerInterface
             if (!$value) {
                 continue;
             }
-            /** @var SearchRanking $flag */
+            /** @var SearchRanking|null $flag */
             $flag = $field->getFlag(SearchRanking::class);
 
             if (!$field instanceof AssociationInterface) {

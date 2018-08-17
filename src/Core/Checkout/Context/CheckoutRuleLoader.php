@@ -77,13 +77,12 @@ class CheckoutRuleLoader
 
         $rules->sortByPriority();
 
-        $valid = false;
-
         $context->setRuleIds($rules->getIds());
 
         $iteration = 1;
 
-        while (!$valid) {
+        $valid = true;
+        do {
             if ($iteration > self::MAX_ITERATION) {
                 break;
             }
@@ -104,7 +103,7 @@ class CheckoutRuleLoader
             $cart = $new;
 
             ++$iteration;
-        }
+        } while ($valid);
 
         $this->storeFrontCartService->setCart($cart);
 

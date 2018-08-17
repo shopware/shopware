@@ -482,7 +482,7 @@ class EntityReader implements EntityReaderInterface
 
         /** @var ArrayStruct $detail */
         foreach ($details as $detail) {
-            /** @var ArrayStruct $extension */
+            /** @var ArrayStruct|null $extension */
             $extension = $detail->getExtension('inherited');
 
             if (!$extension) {

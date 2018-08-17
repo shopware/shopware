@@ -215,18 +215,16 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
             return $this->paymentMethodRepository->read(new ReadCriteria([$options[CheckoutContextService::PAYMENT_METHOD_ID]]), $context)->get($options[CheckoutContextService::PAYMENT_METHOD_ID]);
         }
 
-        //customer has a last payment method from previous order?
-        if ($customer && $customer->getLastPaymentMethod()) {
+        if (!$customer) {
+            return $this->paymentMethodRepository->read(new ReadCriteria([$salesChannel->getPaymentMethodId()]), $context)
+                ->get($salesChannel->getPaymentMethodId());
+        }
+
+        if ($customer->getLastPaymentMethod()) {
             return $customer->getLastPaymentMethod();
         }
 
-        //customer selected a default payment method in registration
-        if ($customer && $customer->getDefaultPaymentMethod()) {
-            return $customer->getDefaultPaymentMethod();
-        }
-
-        return $this->paymentMethodRepository->read(new ReadCriteria([$salesChannel->getPaymentMethodId()]), $context)
-            ->get($salesChannel->getPaymentMethodId());
+        return $customer->getDefaultPaymentMethod();
     }
 
     private function getShippingMethod(array $options, Context $context, SalesChannelStruct $salesChannel): ShippingMethodStruct
@@ -284,7 +282,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
     {
         $customerId = $options[CheckoutContextService::CUSTOMER_ID];
 
-        /** @var CustomerStruct $customer */
+        /** @var CustomerStruct|null $customer */
         $customer = $this->customerRepository->read(new ReadCriteria([$customerId]), $context)->get($customerId);
 
         if (!$customer) {

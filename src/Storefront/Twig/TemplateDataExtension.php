@@ -27,7 +27,7 @@ class TemplateDataExtension extends \Twig_Extension implements \Twig_Extension_G
             return [];
         }
 
-        /** @var CheckoutContext $context */
+        /** @var CheckoutContext|null $context */
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT);
 
         if (!$context) {

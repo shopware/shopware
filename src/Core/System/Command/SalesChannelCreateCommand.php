@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Write\FieldException\InvalidFieldException;
 use Shopware\Core\Framework\ORM\Write\FieldException\WriteStackException;
-use Shopware\Core\Framework\ORM\Write\Validation\ValidationException;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Helper\Table;
@@ -97,7 +96,7 @@ class SalesChannelCreateCommand extends ContainerAwareCommand
 
             $messages = [];
             foreach ($exception->getExceptions() as $err) {
-                if ($err instanceof InvalidFieldException || $err instanceof ValidationException) {
+                if ($err instanceof InvalidFieldException) {
                     foreach ($err->getViolations() as $violation) {
                         $messages[] = $violation->getPropertyPath() . ': ' . $violation->getMessage();
                     }

@@ -105,7 +105,7 @@ class CheckoutContext extends Struct
     protected $fallbackLanguage;
 
     /**
-     * @var Context
+     * @var Context|null
      */
     private $context;
 

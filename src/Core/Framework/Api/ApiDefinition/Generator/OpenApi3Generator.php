@@ -231,7 +231,6 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             ];
         }
 
-        $properties = [];
         $required = [];
 
         foreach ($jsonField->getPropertyMapping() as $field) {
@@ -245,10 +244,6 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             }
 
             $definition['properties'][$field->getPropertyName()] = $this->getPropertyByField(\get_class($field));
-        }
-
-        if (\count($properties)) {
-            $definition['properties'] = $properties;
         }
 
         if (\count($required)) {

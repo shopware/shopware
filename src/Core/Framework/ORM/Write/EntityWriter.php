@@ -110,7 +110,7 @@ class EntityWriter implements EntityWriterInterface
 
     /**
      * @param EntityDefinition|string $definition
-     * @param string[]                $ids
+     * @param array[]                 $ids
      * @param WriteContext            $writeContext
      *
      * @throws RestrictDeleteViolationException

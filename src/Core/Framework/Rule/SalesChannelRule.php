@@ -7,7 +7,7 @@ use Shopware\Core\Content\Rule\Exception\UnsupportedOperatorException;
 class SalesChannelRule extends Rule
 {
     /**
-     * @var int[]
+     * @var string[]
      */
     protected $salesChannelIds;
 

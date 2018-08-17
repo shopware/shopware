@@ -45,11 +45,6 @@ abstract class EntityDefinition
 
     abstract public static function getEntityName(): string;
 
-    public static function getEntityNameByDefinition(string $definition): string
-    {
-        return $definition::getEntityName();
-    }
-
     public static function useKeywordSearch(): bool
     {
         return false;

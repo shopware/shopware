@@ -105,9 +105,9 @@ class ProfileSaveRequest extends Struct
 
         return new \DateTime(sprintf(
             '%s-%s-%s',
-            (int) $this->birthdayYear,
-            (int) $this->birthdayMonth,
-            (int) $this->birthdayDay
+            $this->birthdayYear,
+            $this->birthdayMonth,
+            $this->birthdayDay
         ));
     }
 }

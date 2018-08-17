@@ -92,7 +92,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             return null;
         }
 
-        /** @var ManyToOneAssociationField $parent */
+        /** @var ManyToOneAssociationField|null $parent */
         $parent = $definition::getFields()->get('parent');
 
         if (!$parent) {

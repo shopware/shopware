@@ -28,9 +28,11 @@ class CustomerGroupRule extends Rule
             return new Match(false, ['Wrong scope']);
         }
 
+        $id = $scope->getCheckoutContext()->getCurrentCustomerGroup()->getId();
+
         /* @var CheckoutRuleScope $scope */
         return new Match(
-            \in_array($scope->getCheckoutContext()->getCurrentCustomerGroup()->getId(), $this->customerGroupIds, true),
+            $id !== null && \in_array($id, $this->customerGroupIds, true),
             ['Current customer group not matched']
         );
     }

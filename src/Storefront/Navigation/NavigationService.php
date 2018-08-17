@@ -34,7 +34,7 @@ class NavigationService
     {
         $applicationId = $context->getSourceContext()->getSalesChannelId();
 
-        if ($this->navigation[$applicationId]) {
+        if (isset($this->navigation[$applicationId])) {
             return $this->navigation[$applicationId];
         }
 
@@ -47,7 +47,7 @@ class NavigationService
         $rootIds = [];
 
         if ($categoryId) {
-            /** @var CategoryStruct $activeCategory */
+            /** @var CategoryStruct|null $activeCategory */
             $activeCategory = $this->repository->read(new ReadCriteria([$categoryId]), $context)->get($categoryId);
 
             if ($activeCategory) {

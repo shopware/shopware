@@ -13,7 +13,7 @@ class Navigation
     protected $tree;
 
     /**
-     * @var CategoryStruct
+     * @var CategoryStruct|null
      */
     protected $activeCategory;
 

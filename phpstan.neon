@@ -8,5 +8,5 @@ parameters:
         - '#PHPDoc tag @param for parameter.*EntityDefinition.*is not subtype of native type string#'
         - '#PHPDoc tag @return with type.*EntityDefinition.*is not subtype of native type string#'
         # https://github.com/phpstan/phpstan/issues/1060
-        - '#Argument of an invalid type.*\\(Struct|LineItem|WriteCommandInterface).* supplied for foreach, only iterables are supported.#'
+        - '#Argument of an invalid type.*\\(Struct|LineItem|WriteCommandInterface).* supplied for foreach, only iterables are supported\.#'
         - '#Call to an undefined method Symfony\\Component\\Config\\Definition\\Builder\\NodeParentInterface::(variableNode|scalarNode|end)\(\)\.#'

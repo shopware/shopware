@@ -61,21 +61,30 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 'version' => '1.0.0',
             ],
             'security' => [
-                ['bearerAuth' => []],
+                ['oAuth' => ['write']],
             ],
-            'tags' => [
-                ['name' => 'Auth', 'description' => 'Endpoint for consumer authentication.'],
-            ],
-            'paths' => [
-                '/auth' => $this->getAuthPath(),
-            ],
+            'tags' => [],
+            'paths' => [],
             'components' => [
                 'schemas' => $this->getDefaultSchemas(),
                 'securitySchemes' => [
-                    'bearerAuth' => [
-                        'type' => 'http',
-                        'scheme' => 'bearer',
-                        'bearerFormat' => 'JWT',
+                    'oAuth' => [
+                        'type' => 'oauth2',
+                        'description' => 'Authentication API',
+                        'flows' => [
+                            'password' => [
+                                'tokenUrl' => $url . '/api/oauth/token',
+                                'scopes' => [
+                                    'write' => 'Full write access',
+                                ],
+                            ],
+                            'clientCredentials' => [
+                                'tokenUrl' => $url . '/api/oauth/token',
+                                'scopes' => [
+                                    'write' => 'Full write access',
+                                ],
+                            ],
+                        ],
                     ],
                 ],
                 'responses' => [
@@ -707,25 +716,6 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         ];
     }
 
-    private function getAuthSchema(): array
-    {
-        return [
-            'type' => 'object',
-            'properties' => [
-                'username' => [
-                    'type' => 'string',
-                    'example' => 'admin',
-                    'description' => 'Username for authentication.',
-                ],
-                'password' => [
-                    'type' => 'string',
-                    'example' => 'shopware',
-                    'description' => 'Password for authentication.',
-                ],
-            ],
-        ];
-    }
-
     /**
      * @param string|EntityDefinition $definition
      * @param string                  $rootPath
@@ -803,55 +793,9 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         ];
     }
 
-    private function getAuthPath(): array
-    {
-        return [
-            'post' => [
-                'tags' => ['Auth'],
-                'security' => [],
-                'requestBody' => [
-                    'content' => [
-                        'application/json' => [
-                            'schema' => [
-                                '$ref' => '#/components/schemas/auth',
-                            ],
-                        ],
-                    ],
-                ],
-                'responses' => [
-                    Response::HTTP_OK => [
-                        'description' => 'Response with authentication token for further requests',
-                        'content' => [
-                            'application/json' => [
-                                'schema' => [
-                                    'properties' => [
-                                        'token' => [
-                                            'type' => 'string',
-                                            'description' => 'The token that should be used for future requests.',
-                                        ],
-                                        'expiry' => [
-                                            'type' => 'integer',
-                                            'description' => 'Datetime as unix time when the token expires',
-                                        ],
-                                    ],
-                                    'example' => [
-                                        'token' => 'eyJhbGciOiJSUzI1NiJ9.eyJyb2xlcyI6WyJJU19BVVRIRU5USUNBVEVEX0ZVTExZIiwiUk9MRV9BRE1JTiJdLCJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNTE0OTAzODA3LCJleHAiOjE1MTQ5MDc0MDd9.b28BFrxJ_g6KvuGwbtI4LdhxBQOs3SEw_gIUD-zD6rzFyekACFwDupCSLX-emFDJb9UztJyugIGpEfdGkwtwUxf_gpHyV85FsfCMFlb00fUpdBXD8pP2qu9oBjVgtcPxLeKolY_OXdCcHR40yu-dnxb853uLnJhOIlPIJYMxayf7XLenYtOtQnJ9W7RlTOBLqFxa_qQqGV7wlhq8JUy9gyfbvxIPFE4hH53wQ4jagO6kUlOFYXKLn9lQrrWOhEMq7YqYImbRuWGu6i5a2sa1-k5BxqlzLR2B5WPteDTa7tDZqZsK1CSma5hz0zbusggg8iycQ-nvecAP9jQ6Z83ZEg',
-                                        'expiry' => 1514907407,
-                                    ],
-                                ],
-                            ],
-                        ],
-                    ],
-                    Response::HTTP_BAD_REQUEST => $this->getResponseRef((string) Response::HTTP_BAD_REQUEST),
-                ],
-            ],
-        ];
-    }
-
     private function getDefaultSchemas(): array
     {
         $defaults = [
-            'auth' => $this->getAuthSchema(),
             'success' => [
                 'type' => 'object',
                 'required' => ['data'],

@@ -23,6 +23,7 @@ use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
 use Shopware\Core\Framework\ORM\Field\TenantIdField;
 use Shopware\Core\Framework\ORM\Field\VersionField;
 use Shopware\Core\Framework\ORM\MappingEntityDefinition;
+use Shopware\Core\Framework\ORM\Write\Flag\ReadOnly;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\HttpFoundation\Response;
@@ -48,10 +49,12 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
     public function generate(): array
     {
+        $url = getenv('APP_URL');
+
         $openapi = [
             'openapi' => '3.0.0',
             'servers' => [
-                ['url' => 'http://shopware.next/api'],
+                ['url' => $url . '/api/v1'],
             ],
             'info' => [
                 'title' => 'Shopware API',
@@ -109,12 +112,10 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
             $openapi['components']['schemas'] = array_merge(
                 $openapi['components']['schemas'],
-                $this->getSchemaByDefinition($definition),
-                $this->getSchemaByDefinition($definition, true)
+                $this->getSchemaByDefinition($definition)
             );
 
-            $openapi = $this->addListPathActions($openapi, $definition);
-            $openapi = $this->addDetailPathActions($openapi, $definition);
+            $openapi = $this->addPathActions($openapi, $definition);
 
             $humanReadableName = $this->convertToHumanReadable($definition::getEntityName());
 
@@ -147,7 +148,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 continue;
             }
 
-            $schema = $this->getSchemaByDefinition($definition, true);
+            $schema = $this->getSchemaByDefinition($definition);
             $schema = array_shift($schema);
             $schema = $schema['allOf'][1]['properties'];
 
@@ -291,18 +292,17 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
     /**
      * @param string|EntityDefinition $definition
-     * @param bool                    $detailSchema
      *
      * @return array
      */
-    private function getSchemaByDefinition(string $definition, bool $detailSchema = false): array
+    private function getSchemaByDefinition(string $definition): array
     {
         $attributes = [];
         $requiredAttributes = [];
         $relationships = [];
 
         $uuid = Uuid::uuid4()->getHex();
-        $schemaName = $definition::getEntityName() . '_' . ($detailSchema ? 'detail' : 'basic');
+        $schemaName = $definition::getEntityName();
         $detailPath = $this->getResourceUri($definition) . '/' . $uuid;
 
         /** @var Field $field */
@@ -312,10 +312,6 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             }
 
             if ($field instanceof TenantIdField) {
-                continue;
-            }
-
-            if ($detailSchema === false && $field instanceof AssociationInterface && $field->loadInBasic() === false) {
                 continue;
             }
 
@@ -338,16 +334,17 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 continue;
             }
 
-            $attributes[$field->getPropertyName()] = $this->getPropertyByField(get_class($field));
+            $attr = $this->getPropertyByField(get_class($field));
+            if ($field->is(ReadOnly::class) || in_array($field->getPropertyName(), ['createdAt', 'updatedAt'])) {
+                $attr['readOnly'] = true;
+            }
+
+            $attributes[$field->getPropertyName()] = $attr;
         }
 
         if ($definition::getTranslationDefinitionClass()) {
             foreach ($definition::getTranslationDefinitionClass()::getFields() as $field) {
                 if ($field->getPropertyName() === 'translations' || $field->getPropertyName() === 'id') {
-                    continue;
-                }
-
-                if ($detailSchema === false && $field instanceof AssociationInterface && $field->loadInBasic() === false) {
                     continue;
                 }
 
@@ -403,7 +400,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 $entity = $relationshipData['items']['properties']['type']['example'];
             }
 
-            $attributes[$property] = ['$ref' => '#/components/schemas/' . $entity . '_basic_flat'];
+            $attributes[$property] = ['$ref' => '#/components/schemas/' . $entity . '_flat'];
         }
 
         $schema[$schemaName . '_flat'] = [
@@ -421,12 +418,33 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
      *
      * @return array
      */
-    private function addListPathActions(array $openapi, string $definition): array
+    private function addPathActions(array $openapi, string $definition): array
     {
         $humanReadableName = $this->convertToHumanReadable($definition::getEntityName());
+
+        $schemaName = $definition::getEntityName();
+        if ($definition::getStructClass() === $definition::getStructClass()) {
+            $schemaName = $definition::getEntityName();
+        }
         $path = $this->getResourceUri($definition);
 
-        $schemaName = $definition::getEntityName() . '_basic';
+        $responseDataParameter = [
+            'name' => '_response',
+            'in' => 'query',
+            'schema' => [
+                'type' => 'string',
+            ],
+            'allowEmptyValue' => true,
+            'description' => 'Data format for response. Empty if none is provided.',
+        ];
+
+        $idParameter = [
+            'name' => 'id',
+            'in' => 'path',
+            'schema' => ['type' => 'string', 'format' => 'uuid'],
+            'description' => 'Identifier for the ' . $definition::getEntityName(),
+            'required' => true,
+        ];
 
         $openapi['paths'][$path] = [
             'get' => [
@@ -511,59 +529,25 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                     'content' => [
                         'application/vnd.api+json' => [
                             'schema' => [
-                                '$ref' => '#/components/schemas/' . $definition::getEntityName() . '_detail',
+                                '$ref' => '#/components/schemas/' . $definition::getEntityName(),
                             ],
                         ],
                         'application/json' => [
                             'schema' => [
-                                '$ref' => '#/components/schemas/' . $definition::getEntityName() . '_detail_flat',
+                                '$ref' => '#/components/schemas/' . $definition::getEntityName() . '_flat',
                             ],
                         ],
                     ],
                 ],
                 'responses' => [
-                    Response::HTTP_CREATED => $this->getDetailResponse($definition::getEntityName() . '_detail'),
+                    Response::HTTP_CREATED => $this->getDetailResponse($definition::getEntityName()),
                     Response::HTTP_BAD_REQUEST => $this->getResponseRef((string) Response::HTTP_BAD_REQUEST),
                     Response::HTTP_UNAUTHORIZED => $this->getResponseRef((string) Response::HTTP_UNAUTHORIZED),
                 ],
             ],
         ];
 
-        return $openapi;
-    }
-
-    /**
-     * @param array                   $openapi
-     * @param string|EntityDefinition $definition
-     *
-     * @return array
-     */
-    private function addDetailPathActions(array $openapi, string $definition): array
-    {
-        $humanReadableName = $this->convertToHumanReadable($definition::getEntityName());
-
-        $schemaName = $definition::getEntityName() . '_detail';
-        if ($definition::getStructClass() === $definition::getStructClass()) {
-            $schemaName = $definition::getEntityName() . '_basic';
-        }
-        $path = $this->getResourceUri($definition) . '/{id}';
-
-        $responseDataParameter = [
-            'name' => '_response',
-            'in' => 'query',
-            'schema' => ['type' => 'string', 'enum' => ['basic', 'detail']],
-            'description' => 'Data format for response. Empty if none is provided.',
-        ];
-
-        $idParameter = [
-            'name' => 'id',
-            'in' => 'path',
-            'schema' => ['type' => 'string', 'format' => 'uuid'],
-            'description' => 'Identifier for the ' . $definition::getEntityName(),
-            'required' => true,
-        ];
-
-        $openapi['paths'][$path] = [
+        $openapi['paths'][$path . '/{id}'] = [
             'get' => [
                 'summary' => 'Detailed information about a ' . $humanReadableName . ' resource',
                 'operationId' => 'get' . $this->convertToOperationId($definition::getEntityName()),
@@ -585,7 +569,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                     'content' => [
                         'application/vnd.api+json' => [
                             'schema' => [
-                                '$ref' => '#/components/schemas/' . $definition::getEntityName() . '_detail',
+                                '$ref' => '#/components/schemas/' . $definition::getEntityName(),
                             ],
                         ],
                     ],

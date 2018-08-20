@@ -193,8 +193,8 @@ describe('core/data/EntityProxy.js', () => {
                     return catalogEntity.delete(true);
                 }).then(() => {
                     done();
-                }).catch((err) => {
-                    done(err);
+                }).catch((error) => {
+                    done(error);
                 });
             }).catch((error) => {
                 done(error);

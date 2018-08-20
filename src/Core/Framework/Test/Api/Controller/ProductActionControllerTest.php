@@ -80,8 +80,8 @@ class ProductActionControllerTest extends ApiTestCase
         $blue = $configurators->get($blueId);
         $red = $configurators->get($redId);
 
-        static::assertEquals(new PriceStruct(25, 50), $red->getPrice());
-        static::assertEquals(new PriceStruct(90, 100), $blue->getPrice());
+        static::assertEquals(new PriceStruct(25, 50, false), $red->getPrice());
+        static::assertEquals(new PriceStruct(90, 100, false), $blue->getPrice());
 
         static::assertEquals('red', $red->getOption()->getName());
         static::assertEquals('blue', $blue->getOption()->getName());

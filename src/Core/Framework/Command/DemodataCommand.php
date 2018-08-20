@@ -639,7 +639,7 @@ class DemodataCommand extends ContainerAwareCommand
                 'ruleId' => $ruleId,
                 'quantityStart' => 1,
                 'quantityEnd' => 10,
-                'price' => ['gross' => $gross, 'net' => $gross / 1.19],
+                'price' => ['gross' => $gross, 'net' => $gross / 1.19, 'linked' => true],
             ];
 
             $gross = random_int(1, 499);
@@ -648,7 +648,7 @@ class DemodataCommand extends ContainerAwareCommand
                 'currencyId' => Defaults::CURRENCY,
                 'ruleId' => $ruleId,
                 'quantityStart' => 11,
-                'price' => ['gross' => $gross, 'net' => $gross / 1.19],
+                'price' => ['gross' => $gross, 'net' => $gross / 1.19, 'linked' => true],
             ];
         }
 
@@ -699,7 +699,7 @@ class DemodataCommand extends ContainerAwareCommand
 
         $product = [
             'id' => Uuid::uuid4()->getHex(),
-            'price' => ['gross' => $price, 'net' => $price / 1.19],
+            'price' => ['gross' => $price, 'net' => $price / 1.19, 'linked' => true],
             'name' => $this->faker->productName,
             'description' => $this->faker->text(),
             'descriptionLong' => $this->generateRandomHTML(10, ['b', 'i', 'u', 'p', 'h1', 'h2', 'h3', 'h4', 'cite']),
@@ -784,7 +784,7 @@ class DemodataCommand extends ContainerAwareCommand
 
                 return [
                     'optionId' => $id,
-                    'price' => ['gross' => $price, 'net' => $price / 1.19],
+                    'price' => ['gross' => $price, 'net' => $price / 1.19, 'linked' => true],
                 ];
             },
             $optionIds
@@ -849,7 +849,7 @@ class DemodataCommand extends ContainerAwareCommand
             $price = random_int(5, 100);
 
             return [
-                'price' => ['gross' => $price, 'net' => $price / 1.19],
+                'price' => ['gross' => $price, 'net' => $price / 1.19, 'linked' => true],
                 'taxId' => $taxes[random_int(0, count($taxes) - 1)],
                 'optionId' => $optionId,
             ];

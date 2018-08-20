@@ -112,8 +112,8 @@ class VariantGeneratorTest extends KernelTestCase
         static::assertInstanceOf(ProductStruct::class, $red);
         static::assertInstanceOf(ProductStruct::class, $blue);
 
-        static::assertEquals(new PriceStruct(35, 60), $red->getPrice());
-        static::assertEquals(new PriceStruct(100, 110), $blue->getPrice());
+        static::assertEquals(new PriceStruct(35, 60, false), $red->getPrice());
+        static::assertEquals(new PriceStruct(100, 110, false), $blue->getPrice());
     }
 
     public function testMultiDimension()

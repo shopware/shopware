@@ -11,6 +11,7 @@ class PriceField extends JsonField
         $propertyMapping = [
             (new FloatField('gross', 'gross'))->setFlags(new Required()),
             (new FloatField('net', 'net'))->setFlags(new Required()),
+            (new BoolField('linked', 'linked'))->setFlags(new Required()),
         ];
 
         parent::__construct($storageName, $propertyName, $propertyMapping);

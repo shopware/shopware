@@ -37,12 +37,18 @@ class VersioningTest extends KernelTestCase
      */
     private $productRepository;
 
+    /**
+     * @var RepositoryInterface
+     */
+    private $categoryRepository;
+
     public function setUp()
     {
         static::bootKernel();
 
         $this->taxRepository = self::$container->get('tax.repository');
         $this->productRepository = self::$container->get('product.repository');
+        $this->categoryRepository = self::$container->get('category.repository');
         $this->connection = self::$container->get(Connection::class);
         $this->connection->beginTransaction();
         $this->connection->executeUpdate('DELETE FROM product');
@@ -513,13 +519,13 @@ class VersioningTest extends KernelTestCase
             [
                 'id' => $productId->getHex(),
                 'name' => 'parent',
-                'price' => ['gross' => 10, 'net' => 9],
+                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['taxRate' => 18, 'name' => 'test'],
             ],
             [
                 'id' => $variantId->getHex(),
-                'price' => ['gross' => 15, 'net' => 14],
+                'price' => ['gross' => 15, 'net' => 14, 'linked' => false],
                 'parentId' => $productId->getHex(),
             ],
         ];
@@ -530,7 +536,7 @@ class VersioningTest extends KernelTestCase
         $versionContext = $liveContext->createWithVersionId($variantVersionId);
 
         $this->productRepository->update([
-            ['id' => $variantId->getHex(), 'price' => ['gross' => 20, 'net' => 19]],
+            ['id' => $variantId->getHex(), 'price' => ['gross' => 20, 'net' => 19, 'linked' => false]],
         ], $versionContext);
 
         $variant = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id AND version_id = :version', [
@@ -538,14 +544,14 @@ class VersioningTest extends KernelTestCase
             'version' => Uuid::fromString($variantVersionId)->getBytes(),
         ]);
 
-        static::assertEquals(['gross' => 20, 'net' => 19], json_decode($variant['price'], true));
+        static::assertEquals(['gross' => 20, 'net' => 19, 'linked' => false], json_decode($variant['price'], true));
 
         $variants = $this->productRepository->read(new ReadCriteria([$variantId->getHex()]), $versionContext);
         static::assertCount(1, $variants);
         static::assertTrue($variants->has($variantId->getHex()));
 
         $variant = $variants->get($variantId->getHex());
-        static::assertEquals(new PriceStruct(19, 20), $variant->getPrice());
+        static::assertEquals(new PriceStruct(19, 20, false), $variant->getPrice());
         static::assertEquals('parent', $variant->getName());
 
         $this->productRepository->createVersion($productId->getHex(), $liveContext, 'test parent', $variantVersionId);
@@ -623,6 +629,37 @@ class VersioningTest extends KernelTestCase
         static::assertEquals(19, $tax['tax_rate']);
     }
 
+    public function testMergeBoolField(): void
+    {
+        static::markTestSkipped('The versioning cant handle updates with BoolField - issue NEXT-670 needs to be fixed first');
+
+        $liveContext = Context::createDefaultContext(Defaults::TENANT_ID);
+
+        $parentCategoryId = $this->createCategory($liveContext);
+
+        $categoryId = Uuid::uuid4()->getHex();
+        $versionId = Uuid::uuid4()->getHex();
+
+        $categories = [
+            [
+                'id' => $categoryId,
+                'parentId' => $parentCategoryId,
+                'name' => 'TEST cat',
+                'active' => true,
+            ],
+        ];
+        $this->categoryRepository->create($categories, $liveContext);
+
+        $this->categoryRepository->createVersion($categoryId, $liveContext, 'boolVersionUpdate', $versionId);
+
+        $versionContext = $liveContext->createWithVersionId($versionId);
+
+        $update = ['id' => $categoryId, 'active' => false];
+        $this->categoryRepository->update([$update], $versionContext);
+
+        $this->categoryRepository->merge($versionId, $liveContext);
+    }
+
     public function testCampaign(): void
     {
         $liveContext = Context::createDefaultContext(Defaults::TENANT_ID);
@@ -635,22 +672,25 @@ class VersioningTest extends KernelTestCase
         $category = Uuid::uuid4()->getHex();
         $versionId = Uuid::uuid4()->getHex();
 
+        $taxId1 = Uuid::uuid4();
+        $taxId2 = Uuid::uuid4();
+
         $products = [
             [
                 'id' => $product1->getHex(),
                 'name' => 'product test',
-                'price' => ['gross' => 10, 'net' => 9],
+                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['name' => 'test'],
-                'tax' => ['name' => 'test', 'taxRate' => 19],
+                'tax' => ['id' => $taxId1->getHex(), 'name' => 'test', 'taxRate' => 7],
                 'categories' => [
                     ['id' => $category, 'parentId' => $parentCategoryId, 'name' => 'TEST cat'],
                 ],
             ], [
                 'id' => $product2->getHex(),
                 'name' => 'product test',
-                'price' => ['gross' => 10, 'net' => 9],
+                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['name' => 'test'],
-                'tax' => ['name' => 'test', 'taxRate' => 19],
+                'tax' => ['id' => $taxId2->getHex(), 'name' => 'test', 'taxRate' => 7],
                 'categories' => [
                     ['id' => $category],
                 ],
@@ -662,13 +702,13 @@ class VersioningTest extends KernelTestCase
         $this->productRepository->createVersion($product1->getHex(), $liveContext, 'Campaign', $versionId);
 
         $versionContext = $liveContext->createWithVersionId($versionId);
-        $update = ['id' => $product1->getHex(), 'price' => ['gross' => 100, 'net' => 9]];
+        $update = ['id' => $product1->getHex(), 'tax' => ['id' => $taxId1->getHex(), 'name' => 'test', 'taxRate' => 19]];
         $this->productRepository->update([$update], $versionContext);
 
         $versionId = $this->productRepository->createVersion($product2->getHex(), $liveContext, 'Campaign', $versionId);
 
         $versionContext = $liveContext->createWithVersionId($versionId);
-        $update = ['id' => $product2->getHex(), 'price' => ['gross' => 200, 'net' => 9]];
+        $update = ['id' => $product2->getHex(), 'tax' => ['id' => $taxId2->getHex(), 'name' => 'test', 'taxRate' => 25]];
         $this->productRepository->update([$update], $versionContext);
 
         $changes = $this->getVersionData(ProductDefinition::getEntityName(), $product1->getHex(), $versionId);
@@ -679,7 +719,7 @@ class VersioningTest extends KernelTestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('product.categories.id', $category));
-        $criteria->addFilter(new RangeQuery('product.price', [RangeQuery::GTE => 100]));
+        $criteria->addFilter(new RangeQuery('product.tax.taxRate', [RangeQuery::GTE => 19]));
 
         $search = $this->productRepository->searchIds($criteria, $versionContext);
         static::assertCount(2, $search->getIds());
@@ -697,7 +737,7 @@ class VersioningTest extends KernelTestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('product.categories.id', $category));
-        $criteria->addFilter(new TermQuery('product.price', 10));
+        $criteria->addFilter(new TermQuery('product.tax.taxRate', 7));
 
         $search = $this->productRepository->searchIds($criteria, $liveContext);
         static::assertCount(2, $search->getIds());
@@ -731,21 +771,21 @@ class VersioningTest extends KernelTestCase
         $changes = $this->getVersionData(ProductDefinition::getEntityName(), $product2->getHex(), $versionId);
         static::assertEmpty($changes);
 
-        $product = $this->connection->fetchAssoc(
-            'SELECT * FROM product WHERE id = :id AND version_id = :version',
-            ['id' => $product1->getBytes(), 'version' => Uuid::fromString(Defaults::LIVE_VERSION)->getBytes()]
+        $tax = $this->connection->fetchAssoc(
+            'SELECT * FROM tax WHERE id = :id AND version_id = :version',
+            ['id' => $taxId1->getBytes(), 'version' => Uuid::fromString(Defaults::LIVE_VERSION)->getBytes()]
         );
-        static::assertEquals(['gross' => 100, 'net' => 9], json_decode($product['price'], true));
+        static::assertArraySubset(['name' => 'test', 'tax_rate' => 19], $tax);
 
-        $product = $this->connection->fetchAssoc(
-            'SELECT * FROM product WHERE id = :id AND version_id = :version',
-            ['id' => $product2->getBytes(), 'version' => Uuid::fromString(Defaults::LIVE_VERSION)->getBytes()]
+        $tax = $this->connection->fetchAssoc(
+            'SELECT * FROM tax WHERE id = :id AND version_id = :version',
+            ['id' => $taxId2->getBytes(), 'version' => Uuid::fromString(Defaults::LIVE_VERSION)->getBytes()]
         );
-        static::assertEquals(['gross' => 200, 'net' => 9], json_decode($product['price'], true));
+        static::assertArraySubset(['name' => 'test', 'tax_rate' => 25], $tax);
 
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('product.categories.id', $category));
-        $criteria->addFilter(new RangeQuery('product.price', [RangeQuery::GTE => 100]));
+        $criteria->addFilter(new RangeQuery('product.tax.taxRate', [RangeQuery::GTE => 19]));
 
         $search = $this->productRepository->searchIds($criteria, $liveContext);
         static::assertCount(2, $search->getIds());

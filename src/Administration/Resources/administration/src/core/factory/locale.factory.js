@@ -9,7 +9,8 @@ export default {
     getLocaleRegistry,
     register,
     extend,
-    getBrowserLocale,
+    getBrowserLanguage,
+    getBrowserLanguages,
     getLastKnownLocale,
     setLocale
 };
@@ -132,7 +133,7 @@ function getLocaleByName(localeName) {
  * @returns {String}
  */
 function getLastKnownLocale() {
-    let localeName = getBrowserLocale();
+    let localeName = getBrowserLanguage();
 
     if (window.localStorage.getItem(localStorageKey) !== null) {
         localeName = window.localStorage.getItem(localStorageKey);
@@ -143,19 +144,62 @@ function getLastKnownLocale() {
 
 /**
  * Terminates the browser language and checks if the language is in the registry.
- * If this is not the case the {@link defaultLocale}
- * will be returned.
+ * If this is not the case the {@link defaultLocale} will be returned.
  *
  * @returns {String}
  */
-function getBrowserLocale() {
-    const localeName = navigator.language;
+function getBrowserLanguage() {
+    const languages = getBrowserLanguages();
+    const shortLanguageCodes = languages.map((language) => {
+        const lang = language.split('-')[0];
+        return lang.toLowerCase();
+    });
 
-    if (localeRegistry.has(localeName)) {
-        return defaultLocale;
+    let matchedLanguage = null;
+
+    languages.forEach((language) => {
+        const shortLanguageCode = language.split('-')[0];
+
+        if (!matchedLanguage && shortLanguageCodes.includes(shortLanguageCode)) {
+            matchedLanguage = language;
+        }
+    });
+
+    if (!matchedLanguage) {
+        matchedLanguage = defaultLocale;
     }
 
-    return localeName;
+    return matchedLanguage;
+}
+
+/**
+ * Looks up all available browser languages.
+ *
+ * @returns {Array}
+ */
+function getBrowserLanguages() {
+    const languages = [];
+
+    if (navigator.language) {
+        languages.push(navigator.language);
+    }
+
+    // Chrome only
+    if (navigator.languages && navigator.languages.length) {
+        navigator.languages.forEach((lang) => {
+            languages.push(lang);
+        });
+    }
+
+    if (navigator.userLanguage) {
+        languages.push(navigator.userLanguage);
+    }
+
+    if (navigator.systemLanguage) {
+        languages.push(navigator.systemLanguage);
+    }
+
+    return languages;
 }
 
 /**

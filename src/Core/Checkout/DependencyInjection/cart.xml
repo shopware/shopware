@@ -102,6 +102,8 @@
             <argument type="service" id="media.repository"/>
             <argument type="service" id="serializer"/>
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>
+            <argument type="service" id="Shopware\Storefront\Page\Account\AccountService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextFactory"/>
         </service>
 
         <service class="Shopware\Core\Checkout\Cart\PriceActionController" id="Shopware\Core\Checkout\Cart\PriceActionController" public="true">

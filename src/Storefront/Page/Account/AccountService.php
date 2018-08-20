@@ -66,7 +66,7 @@ class AccountService
 
         $customers = $this->customerRepository->search($criteria, $context->getContext());
 
-        if ($customers->count() === 0) {
+        if ($customers->count() !== 1) {
             throw new CustomerNotFoundException($email);
         }
 
@@ -76,6 +76,26 @@ class AccountService
         if (!password_verify($password, $customer->getPassword())) {
             throw new BadCredentialsException();
         }
+
+        return $customer;
+    }
+
+    /**
+     * @throws CustomerNotFoundException
+     */
+    public function getCustomerByEmail(string $email, CheckoutContext $context): CustomerStruct
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new TermQuery('customer.email', $email));
+
+        $customers = $this->customerRepository->search($criteria, $context->getContext());
+
+        if ($customers->count() !== 1) {
+            throw new CustomerNotFoundException($email);
+        }
+
+        /** @var CustomerStruct $customer */
+        $customer = $customers->first();
 
         return $customer;
     }
@@ -322,7 +342,6 @@ class AccountService
             'salutation' => $registrationRequest->getSalutation(),
             'firstName' => $registrationRequest->getFirstName(),
             'lastName' => $registrationRequest->getLastName(),
-            'password' => $registrationRequest->getPassword(),
             'email' => $registrationRequest->getEmail(),
             'title' => $registrationRequest->getTitle(),
             'encoder' => 'bcrypt',
@@ -333,7 +352,14 @@ class AccountService
             'birthday' => $registrationRequest->getBirthday(),
         ];
 
-        $data = array_filter($data);
+        if (!$registrationRequest->getGuest()) {
+            $data['password'] = $registrationRequest->getPassword();
+        }
+
+        $data = array_filter($data, function ($element) {
+            return !is_null($element);
+        });
+
         $this->customerRepository->create([$data], $context->getContext());
 
         return $customerId;

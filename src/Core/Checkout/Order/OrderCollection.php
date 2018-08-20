@@ -27,17 +27,17 @@ class OrderCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getCustomerIds(): array
+    public function getOrderCustomerIds(): array
     {
         return $this->fmap(function (OrderStruct $order) {
-            return $order->getCustomerId();
+            return $order->getOrderCustomerId();
         });
     }
 
-    public function filterByCustomerId(string $id): self
+    public function filterByOrderCustomerId(string $id): self
     {
         return $this->filter(function (OrderStruct $order) use ($id) {
-            return $order->getCustomerId() === $id;
+            return $order->getOrderCustomerId() === $id;
         });
     }
 
@@ -111,11 +111,11 @@ class OrderCollection extends EntityCollection
         });
     }
 
-    public function getCustomers(): CustomerCollection
+    public function getOrderCustomers(): CustomerCollection
     {
         return new CustomerCollection(
             $this->fmap(function (OrderStruct $order) {
-                return $order->getCustomer();
+                return $order->getOrderCustomer();
             })
         );
     }

@@ -73,7 +73,7 @@ class ResponseExceptionListener extends ExceptionListener
 
             if (is_string($value)) {
                 if (!ctype_print($value) && strlen($value) === 16) {
-                    $array[$key] = sprintf('ATTENTION: Converted binary string by the `%s`: %s', self::class, bin2hex($value));
+                    $array[$key] = sprintf('ATTENTION: Converted binary string by the "%s": %s', self::class, bin2hex($value));
                 } elseif (!mb_detect_encoding($value)) {
                     $array[$key] = utf8_encode($value);
                 }

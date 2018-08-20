@@ -12,7 +12,7 @@ class InvalidQuantityException extends ShopwareHttpException
 
     public function __construct(int $quantity, int $code = 0, Throwable $previous = null)
     {
-        $message = sprintf('The quantity must be a positive integer. Given: `%s` ', $quantity);
+        $message = sprintf('The quantity must be a positive integer. Given: "%s" ', $quantity);
 
         parent::__construct($message, $code, $previous);
     }

@@ -4,9 +4,11 @@ namespace Shopware\Core\Checkout\Test\Cart;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
+use Shopware\Core\Checkout\Customer\CustomerStruct;
 use Shopware\Core\Content\Product\Cart\ProductCollector;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Test\Api\ApiTestCase;
 use Shopware\Core\PlatformRequest;
@@ -50,7 +52,7 @@ class StorefrontCartControllerTest extends ApiTestCase
      */
     private $context;
 
-    protected function setUp()
+    public function setUp()
     {
         parent::setUp();
 
@@ -549,38 +551,7 @@ class StorefrontCartControllerTest extends ApiTestCase
         $mail = Uuid::uuid4()->getHex();
         $password = 'shopware';
 
-        $this->connection->executeUpdate('DELETE FROM customer WHERE email = :mail', [
-            'mail' => $mail,
-        ]);
-
-        $this->customerRepository->create([
-            [
-                'salesChannelId' => $context->getSourceContext()->getSalesChannelId(),
-                'defaultShippingAddress' => [
-                    'id' => $addressId,
-                    'firstName' => 'not',
-                    'lastName' => 'not',
-                    'street' => 'test',
-                    'city' => 'not',
-                    'zipcode' => 'not',
-                    'salutation' => 'not',
-                    'country' => ['name' => 'not'],
-                ],
-                'defaultBillingAddressId' => $addressId,
-                'defaultPaymentMethod' => [
-                    'name' => 'test',
-                    'additionalDescription' => 'test',
-                    'technicalName' => Uuid::uuid4()->getHex(),
-                ],
-                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-                'email' => $mail,
-                'password' => $password,
-                'lastName' => 'not',
-                'firstName' => 'match',
-                'salutation' => 'not',
-                'number' => 'not',
-            ],
-        ], $context);
+        $this->createCutomer($addressId, $mail, $password, $context);
 
         $client = $this->createCart();
 
@@ -599,7 +570,217 @@ class StorefrontCartControllerTest extends ApiTestCase
         $order = $order['data'];
         static::assertNotEmpty($order);
 
-        static::assertEquals($mail, $order['customer']['email']);
+        static::assertEquals($mail, $order['orderCustomer']['email']);
+    }
+
+    public function testGuestOrderProcess()
+    {
+        $productId = Uuid::uuid4()->getHex();
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+
+        $grossPrice = 10;
+        $this->productRepository->create([
+            [
+                'id' => $productId,
+                'name' => 'Test',
+                'catalogId' => Defaults::CATALOG,
+                'price' => ['gross' => $grossPrice, 'net' => 9],
+                'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
+                'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
+            ],
+        ], $context);
+
+        $mail = Uuid::uuid4()->getHex();
+
+        $firstName = 'Max';
+        $lastName = 'Mustmann';
+
+        $personal = [
+            'email' => $mail,
+            'firstName' => $firstName,
+            'lastName' => $lastName,
+        ];
+
+        $countryId = Defaults::COUNTRY;
+        $street = 'Examplestreet 11';
+        $zipcode = '48441';
+        $city = 'Cologne';
+
+        $billing = [
+            'billingCountry' => $countryId,
+            'billingStreet' => $street,
+            'billingZipcode' => $zipcode,
+            'billingCity' => $city,
+        ];
+
+        $client = $this->createCart();
+
+        $quantity = 5;
+        $this->addProduct($client, $productId, $quantity);
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+
+        $this->guestOrder($client, array_merge($personal, $billing));
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+
+        $order = json_decode($client->getResponse()->getContent(), true);
+        static::assertArrayHasKey('data', $order);
+
+        $order = $order['data'];
+        static::assertNotEmpty($order);
+
+        static::assertEquals($grossPrice * $quantity, $order['amountTotal']);
+        static::assertEquals($mail, $order['orderCustomer']['email']);
+
+        static::assertNotEmpty($order['orderCustomer']['customerId']);
+
+        /** @var CustomerStruct $customer */
+        $customer = $this->customerRepository->read(new ReadCriteria([$order['orderCustomer']['customerId']]), $context)->first();
+
+        static::assertEquals($firstName, $customer->getFirstName());
+        static::assertEquals($lastName, $customer->getLastName());
+        static::assertEquals($countryId, $order['billingAddress']['country']['id']);
+        static::assertEquals($street, $order['billingAddress']['street']);
+        static::assertEquals($zipcode, $order['billingAddress']['zipcode']);
+        static::assertEquals($city, $order['billingAddress']['city']);
+        // todo@ju check shippingAddress when deliveries are implemented again
+    }
+
+    public function testGuestOrderProcessWithExistingCustomer()
+    {
+        $productId = Uuid::uuid4()->getHex();
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+
+        $grossPrice = 10;
+        $this->productRepository->create([
+            [
+                'id' => $productId,
+                'name' => 'Test',
+                'catalogId' => Defaults::CATALOG,
+                'price' => ['gross' => $grossPrice, 'net' => 9],
+                'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
+                'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
+            ],
+        ], $context);
+
+        $addressId = Uuid::uuid4()->getHex();
+        $mail = Uuid::uuid4()->getHex();
+        $password = 'shopware';
+
+        $this->createCutomer($addressId, $mail, $password, $context);
+
+        $firstName = 'Max';
+        $lastName = 'Mustmann';
+
+        $personal = [
+            'email' => $mail,
+            'firstName' => $firstName,
+            'lastName' => $lastName,
+        ];
+
+        $countryId = Defaults::COUNTRY;
+        $street = 'Examplestreet 11';
+        $zipcode = '48441';
+        $city = 'Cologne';
+
+        $billing = [
+            'billingCountry' => $countryId,
+            'billingStreet' => $street,
+            'billingZipcode' => $zipcode,
+            'billingCity' => $city,
+        ];
+
+        $client = $this->createCart();
+
+        $quantity = 5;
+        $this->addProduct($client, $productId, $quantity);
+        static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+
+        $this->guestOrder($client, array_merge($personal, $billing));
+        static::assertSame(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+
+        $content = json_decode($client->getResponse()->getContent(), true);
+        static::assertEquals(sprintf('Customer with email "%s" already has an account', $mail), $content['errors'][0]['detail'] ?? '');
+    }
+
+    public function testGuestOrderProcessWithLoggedInCustomer()
+    {
+        $productId = Uuid::uuid4()->getHex();
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+
+        $grossPrice = 10;
+        $this->productRepository->create([
+            [
+                'id' => $productId,
+                'name' => 'Test',
+                'catalogId' => Defaults::CATALOG,
+                'price' => ['gross' => $grossPrice, 'net' => 9],
+                'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
+                'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
+            ],
+        ], $context);
+
+        $guestMail = Uuid::uuid4()->getHex();
+
+        $firstName = 'Max';
+        $lastName = 'Mustmann';
+
+        $personal = [
+            'email' => $guestMail,
+            'firstName' => $firstName,
+            'lastName' => $lastName,
+        ];
+
+        $countryId = Defaults::COUNTRY;
+        $street = 'Examplestreet 11';
+        $zipcode = '48441';
+        $city = 'Cologne';
+
+        $billing = [
+            'billingCountry' => $countryId,
+            'billingStreet' => $street,
+            'billingZipcode' => $zipcode,
+            'billingCity' => $city,
+        ];
+
+        $addressId = Uuid::uuid4()->getHex();
+        $mail = Uuid::uuid4()->getHex();
+        $password = 'shopware';
+
+        $this->createCutomer($addressId, $mail, $password, $context);
+
+        $client = $this->createCart();
+
+        $this->login($client, $mail, $password);
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+
+        $quantity = 5;
+        $this->addProduct($client, $productId, $quantity);
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+
+        $this->guestOrder($client, array_merge($personal, $billing));
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+
+        $order = json_decode($client->getResponse()->getContent(), true);
+        static::assertArrayHasKey('data', $order);
+
+        $order = $order['data'];
+        static::assertNotEmpty($order);
+
+        static::assertEquals($grossPrice * $quantity, $order['amountTotal']);
+        static::assertEquals($guestMail, $order['orderCustomer']['email']);
+
+        static::assertNotEmpty($order['orderCustomer']['customerId']);
+
+        /** @var CustomerStruct $customer */
+        $customer = $this->customerRepository->read(new ReadCriteria([$order['orderCustomer']['customerId']]), $context)->first();
+
+        static::assertEquals($firstName, $customer->getFirstName());
+        static::assertEquals($lastName, $customer->getLastName());
+        static::assertEquals($countryId, $order['billingAddress']['country']['id']);
+        static::assertEquals($street, $order['billingAddress']['street']);
+        static::assertEquals($zipcode, $order['billingAddress']['zipcode']);
+        static::assertEquals($city, $order['billingAddress']['city']);
+        // todo@ju check shippingAddress when deliveries are implemented again
     }
 
     public function testOrderProcessWithEmptyCart()
@@ -610,6 +791,24 @@ class StorefrontCartControllerTest extends ApiTestCase
         $mail = Uuid::uuid4()->getHex();
         $password = 'shopware';
 
+        $this->createCutomer($addressId, $mail, $password, $context);
+
+        $client = $this->createCart();
+
+        $this->login($client, $mail, $password);
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+
+        $this->order($client);
+        static::assertSame(400, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+
+        $response = json_decode($client->getResponse()->getContent(), true);
+        static::assertArrayHasKey('errors', $response);
+
+        static::assertTrue(array_key_exists('CART-EMPTY', array_flip(array_column($response['errors'], 'code'))));
+    }
+
+    private function createCutomer(string $addressId, string $mail, string $password, Context $context)
+    {
         $this->connection->executeUpdate('DELETE FROM customer WHERE email = :mail', [
             'mail' => $mail,
         ]);
@@ -642,19 +841,6 @@ class StorefrontCartControllerTest extends ApiTestCase
                 'number' => 'not',
             ],
         ], $context);
-
-        $client = $this->createCart();
-
-        $this->login($client, $mail, $password);
-        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
-
-        $this->order($client);
-        static::assertSame(400, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
-
-        $response = json_decode($client->getResponse()->getContent(), true);
-        static::assertArrayHasKey('errors', $response);
-
-        static::assertTrue(array_key_exists('CART-EMPTY', array_flip(array_column($response['errors'], 'code'))));
     }
 
     private function createCart(): Client
@@ -710,6 +896,11 @@ class StorefrontCartControllerTest extends ApiTestCase
     private function order(Client $client)
     {
         $client->request('POST', '/storefront-api/checkout/order');
+    }
+
+    private function guestOrder(Client $client, array $payload)
+    {
+        $client->request('POST', '/storefront-api/checkout/guest-order', $payload);
     }
 
     private function login(Client $client, string $email, string $password)

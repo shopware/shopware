@@ -552,15 +552,15 @@ CREATE TABLE `customer` (
   `default_shipping_address_id` binary(16) NOT NULL,
   `default_shipping_address_tenant_id` binary(16) NOT NULL,
   `customer_number` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `salutation` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `salutation` varchar(30) COLLATE utf8mb4_unicode_ci NULL,
   `first_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `last_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `password` varchar(1024) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `email` varchar(250) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `password` varchar(1024) COLLATE utf8mb4_unicode_ci NULL,
+  `email` varchar(254) COLLATE utf8mb4_unicode_ci NOT NULL,
   `title` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `encoder` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'md5',
   `active` tinyint(1) NOT NULL DEFAULT '1',
-  `account_mode` int(11) NOT NULL DEFAULT '0',
+  `guest` tinyint(1) NOT NULL DEFAULT '0',
   `confirmation_key` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `first_login` date DEFAULT NULL,
   `last_login` datetime(3) DEFAULT NULL,
@@ -578,6 +578,7 @@ CREATE TABLE `customer` (
   PRIMARY KEY (`id`, `version_id`, `tenant_id`),
   UNIQUE `email` (`email`, `tenant_id`, `version_id`),
   UNIQUE `auto_increment` (`auto_increment`),
+  CHECK(`password` IS NOT NULL OR `guest` = 1),
   KEY `sessionID` (`session_id`),
   KEY `firstlogin` (`first_login`),
   KEY `lastlogin` (`last_login`),
@@ -607,7 +608,7 @@ CREATE TABLE `customer_address` (
   `country_state_version_id` binary(16) DEFAULT NULL,
   `company` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `department` varchar(35) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `salutation` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `salutation` varchar(30) COLLATE utf8mb4_unicode_ci NULL,
   `title` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `first_name` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   `last_name` varchar(60) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -820,9 +821,9 @@ CREATE TABLE `order` (
   `tenant_id` binary(16) NOT NULL,
   `version_id` binary(16) NOT NULL,
   `auto_increment` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `customer_id` binary(16) NOT NULL,
-  `customer_tenant_id` binary(16) NOT NULL,
-  `customer_version_id` binary(16) NOT NULL,
+  `order_customer_id` binary(16) NOT NULL,
+  `order_customer_tenant_id` binary(16) NOT NULL,
+  `order_customer_version_id` binary(16) NOT NULL,
   `order_state_id` binary(16) NOT NULL,
   `order_state_tenant_id` binary(16) NOT NULL,
   `order_state_version_id` binary(16) NOT NULL,
@@ -849,7 +850,7 @@ CREATE TABLE `order` (
    UNIQUE `auto_increment` (`auto_increment`),
    CONSTRAINT `fk_order.billing_address_id` FOREIGN KEY (`billing_address_id`, `billing_address_version_id`, `billing_address_tenant_id`) REFERENCES `order_address` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
    CONSTRAINT `fk_order.currency_id` FOREIGN KEY (`currency_id`, `currency_version_id`, `currency_tenant_id`) REFERENCES `currency` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-   CONSTRAINT `fk_order.customer_id` FOREIGN KEY (`customer_id`, `customer_version_id`, `customer_tenant_id`) REFERENCES `customer` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+   CONSTRAINT `fk_order.order_customer_id` FOREIGN KEY (`order_customer_id`, `order_customer_version_id`, `order_customer_tenant_id`) REFERENCES `order_customer` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
    CONSTRAINT `fk_order.order_state_id` FOREIGN KEY (`order_state_id`, `order_state_version_id`, `order_state_tenant_id`) REFERENCES `order_state` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
    CONSTRAINT `fk_order.payment_method_id` FOREIGN KEY (`payment_method_id`, `payment_method_version_id`, `payment_method_tenant_id`) REFERENCES `payment_method` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
    CONSTRAINT `fk_order.sales_channel_id` FOREIGN KEY (`sales_channel_id`, `sales_channel_tenant_id`) REFERENCES `sales_channel` (`id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE
@@ -869,7 +870,7 @@ CREATE TABLE `order_address` (
   `country_state_version_id` binary(16) DEFAULT NULL,
   `company` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `department` varchar(35) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `salutation` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `salutation` varchar(30) COLLATE utf8mb4_unicode_ci NULL,
   `title` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `first_name` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   `last_name` varchar(60) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -887,6 +888,20 @@ CREATE TABLE `order_address` (
   CONSTRAINT `fk_order_address.country_state_id` FOREIGN KEY (`country_state_id`, `country_state_version_id`, `country_state_tenant_id`) REFERENCES `country_state` (`id`, `version_id`, `tenant_id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+DROP TABLE IF EXISTS `order_customer`;
+CREATE TABLE `order_customer` (
+  `id` binary(16) NOT NULL,
+  `tenant_id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
+  `customer_id` binary(16) NULL,
+  `customer_tenant_id` binary(16) NULL,
+  `customer_version_id` binary(16) NULL,
+  `email` varchar(254) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
+  PRIMARY KEY (`id`, `version_id`, `tenant_id`),
+  CONSTRAINT `fk_order.customer_id` FOREIGN KEY (`customer_id`, `customer_version_id`, `customer_tenant_id`) REFERENCES `customer` (`id`, `version_id`, `tenant_id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `order_delivery`;
 CREATE TABLE `order_delivery` (
@@ -1621,7 +1636,7 @@ CREATE TABLE `user` (
   `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `last_login` datetime(3) DEFAULT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `email` varchar(120) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(254) COLLATE utf8mb4_unicode_ci NOT NULL,
   `active` tinyint(1) NOT NULL DEFAULT '0',
   `failed_logins` int(11) NOT NULL DEFAULT '0',
   `locked_until` datetime(3) DEFAULT NULL,

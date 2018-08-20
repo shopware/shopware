@@ -11,6 +11,7 @@
   * [Delete a line item](#delete-a-line-item)
   * [Customer login](#customer-login)
   * [Create order for cart](#create-order-for-cart)
+  * [Create a guest order](#create-guest-order)
   * [Examples](#examples)
     + [PHP](#php)
       - [Create a new cart](#create-a-new-cart-1)
@@ -516,7 +517,7 @@ The created order is returned as a response:
             "title": null,
             "encoder": "md5",
             "active": true,
-            "accountMode": 0,
+            "guest": 0,
             "confirmationKey": null,
             "firstLogin": null,
             "lastLogin": null,
@@ -1118,6 +1119,30 @@ The created order is returned as a response:
     }
 }
 ```
+
+## Create a guest order
+It is also possible to create an order as a guest:
+```
+curl -X POST \
+  http://shopware.development/storefront-api/checkout/guest-order \
+  -H 'x-sw-access-key: SWSCSFB2VUQ4QTRKUHBVMEZNTQ' \
+  -H 'Content-Type: application/json' \
+  -H 'x-sw-context-token: c439592b53ab4e769987bfe5ceb021ed'
+    -d '{
+    "email": "test@example.com",
+    "firstName": "max",
+    "lastName": "mustermann",
+    "billingCountry": "Germany",
+    "billingCity": "Berlin",
+    "billingZipcode": "10350",
+    "billingStreet": "Examplestreet 123"
+}'
+```
+
+The created order is returned as response. Please see above for an example response.
+
+You can also define a sperate shipping address by using shippingCountry, shippingCity... 
+If you dont provide shipping details, the billing details will be used.
 
 ## Examples
 

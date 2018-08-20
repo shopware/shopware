@@ -76,7 +76,7 @@ class OrderingProcessTest extends ApiTestCase
 
         self::assertEquals(Defaults::PAYMENT_METHOD_PAID_IN_ADVANCE, $order->getPaymentMethodId());
         self::assertEquals(25, $order->getAmountTotal());
-        self::assertEquals($customerId, $order->getCustomer()->getId());
+        self::assertEquals($customerId, $order->getOrderCustomer()->getId());
     }
 
     private function createProduct(

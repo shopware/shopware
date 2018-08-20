@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Checkout\Order;
 
-use Shopware\Core\Checkout\Customer\CustomerStruct;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressStruct;
+use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerStruct;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderState\OrderStateStruct;
@@ -19,7 +19,7 @@ class OrderStruct extends Entity
     /**
      * @var string
      */
-    protected $customerId;
+    protected $orderCustomerId;
 
     /**
      * @var string
@@ -87,9 +87,9 @@ class OrderStruct extends Entity
     protected $updatedAt;
 
     /**
-     * @var CustomerStruct
+     * @var OrderCustomerStruct
      */
-    protected $customer;
+    protected $orderCustomer;
 
     /**
      * @var OrderStateStruct
@@ -141,14 +141,14 @@ class OrderStruct extends Entity
      */
     protected $searchKeywords;
 
-    public function getCustomerId(): string
+    public function getOrderCustomerId(): string
     {
-        return $this->customerId;
+        return $this->orderCustomerId;
     }
 
-    public function setCustomerId(string $customerId): void
+    public function setOrderCustomerId(string $orderCustomerId): void
     {
-        $this->customerId = $customerId;
+        $this->orderCustomerId = $orderCustomerId;
     }
 
     public function getStateId(): string
@@ -281,14 +281,14 @@ class OrderStruct extends Entity
         $this->updatedAt = $updatedAt;
     }
 
-    public function getCustomer(): CustomerStruct
+    public function getOrderCustomer(): OrderCustomerStruct
     {
-        return $this->customer;
+        return $this->orderCustomer;
     }
 
-    public function setCustomer(CustomerStruct $customer): void
+    public function setOrderCustomer(OrderCustomerStruct $orderCustomer): void
     {
-        $this->customer = $customer;
+        $this->orderCustomer = $orderCustomer;
     }
 
     public function getState(): OrderStateStruct

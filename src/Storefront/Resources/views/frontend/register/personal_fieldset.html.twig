@@ -126,13 +126,13 @@
         {# Skip login #}
         {#{if !$update}#}
             {% block frontend_register_personal_fieldset_skip_login %}
-                {% if (showNoAccount or form_data.accountmode) and form_data.sValidation and not shopware.config.NoAccountDisable %}
+                {% if (showNoAccount or form_data.guest) and form_data.sValidation and not shopware.config.NoAccountDisable %}
                     <div class="register--check">
                         <input type="checkbox"
                                value="1"
                                id="register_personal_skipLogin"
-                               name="register[isGuest]"
-                               class="register--checkbox chkbox" {% if form_data.isGuest or isGuest %}checked="checked" {% endif %}/>
+                               name="register[guest]"
+                               class="register--checkbox chkbox" {% if form_data.guest or guest %}checked="checked" {% endif %}/>
 
                         <label for="register_personal_skipLogin" class="chklabel is--bold">
                             {% trans %}frontend.register.personal_fieldset.RegisterLabelNoAccount{% endtrans %}
@@ -142,8 +142,8 @@
                     <input type="hidden"
                            value="0"
                            id="register_personal_skipLogin"
-                           name="register[isGuest]"
-                           class="register--checkbox chkbox" {% if form_data.isGuest or isGuest %}checked="checked" {% endif %}/>
+                           name="register[guest]"
+                           class="register--checkbox chkbox" {% if form_data.guest or guest %}checked="checked" {% endif %}/>
                 {% endif %}
             {% endblock %}
 

@@ -22,7 +22,7 @@ class RegistrationRequest extends Struct
     protected $lastName;
 
     /** @var bool|null */
-    protected $accountMode;
+    protected $guest;
 
     /** @var string|null */
     protected $email;
@@ -170,14 +170,14 @@ class RegistrationRequest extends Struct
         $this->lastName = $lastName;
     }
 
-    public function getAccountMode(): ?bool
+    public function getGuest(): ?bool
     {
-        return $this->accountMode;
+        return $this->guest;
     }
 
-    public function setAccountMode(?bool $accountMode): void
+    public function setGuest(?bool $guest): void
     {
-        $this->accountMode = $accountMode;
+        $this->guest = $guest;
     }
 
     public function getEmail(): ?string

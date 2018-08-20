@@ -39,7 +39,7 @@ class AwsS3v3Factory implements AdapterFactoryInterface
 
         $client = new S3Client($options);
 
-        return new AwsS3Adapter($client, $options['bucket'], $options['root']);
+        return new AwsS3Adapter($client, $options['bucket'], $options['root'], $options['options']);
     }
 
     public function getType(): string
@@ -52,15 +52,17 @@ class AwsS3v3Factory implements AdapterFactoryInterface
         $options = new OptionsResolver();
 
         $options->setRequired(['bucket', 'region']);
-        $options->setDefined(['credentials', 'version', 'root']);
+        $options->setDefined(['credentials', 'version', 'root', 'options']);
 
         $options->setAllowedTypes('credentials', 'array');
         $options->setAllowedTypes('region', 'string');
         $options->setAllowedTypes('version', 'string');
         $options->setAllowedTypes('root', 'string');
+        $options->setAllowedTypes('options', 'array');
 
         $options->setDefault('version', 'latest');
         $options->setDefault('root', '');
+        $options->setDefault('options', []);
 
         $config = $options->resolve($definition);
 

@@ -1,7 +1,7 @@
 {% block sw_icon %}
     <svg class="sw-icon"
-         :class="[iconNamePrefix + name, iconClasses]"
-         :style="[iconSize, iconColor]"
+         :class="iconClasses"
+         :style="iconStyles"
          :aria-hidden="decorative">
         {% block sw_icon_inner %}
             {% block sw_icon_title %}

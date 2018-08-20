@@ -1,8 +1,11 @@
 import { Component } from 'src/core/shopware';
-import './sw-icon.less';
+import { debug } from 'src/core/service/util.service';
 import template from './sw-icon.html.twig';
+import './sw-icon.less';
 
 Component.register('sw-icon', {
+    template,
+
     props: {
         name: {
             type: String,
@@ -28,6 +31,10 @@ Component.register('sw-icon', {
             type: String,
             required: false
         },
+        multicolor: {
+            type: Boolean,
+            required: false
+        },
         decorative: {
             type: Boolean,
             required: false,
@@ -41,31 +48,46 @@ Component.register('sw-icon', {
         },
 
         iconSetPath() {
-            return `/static/img/sw-icons.svg#${this.iconNamePrefix + this.name}`;
+            return this.multicolor ?
+                `/static/img/sw-icons-multicolor.svg#${this.iconNamePrefix + this.name}` :
+                `/static/img/sw-icons.svg#${this.iconNamePrefix + this.name}`;
         },
 
         iconClasses() {
             return {
+                [this.iconNamePrefix + this.name]: this.name,
                 'sw-icon--small': this.small,
                 'sw-icon--large': this.large
             };
         },
 
-        iconSize() {
-            const size = this.size;
+        iconStyles() {
+            let size = this.size;
+
+            if (!Number.isNaN(parseFloat(size)) && !Number.isNaN(size - 0)) {
+                size = `${size}px`;
+            }
 
             return {
+                color: this.color,
                 width: size,
                 height: size
-            };
-        },
-
-        iconColor() {
-            return {
-                color: this.color
             };
         }
     },
 
-    template
+    created() {
+        this.createdComponent();
+    },
+
+    methods: {
+        createdComponent() {
+            if (this.color && this.multicolor) {
+                debug.warn(
+                    this.$options.name,
+                    `The color of "${this.name}" cannot be adjusted because it is a multicolor icon.`
+                );
+            }
+        }
+    }
 });

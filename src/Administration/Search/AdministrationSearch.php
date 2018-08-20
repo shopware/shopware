@@ -4,6 +4,7 @@ namespace Shopware\Administration\Search;
 
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
+use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\EntityCollection;
@@ -177,6 +178,7 @@ class AdministrationSearch
             ProductDefinition::class,
             OrderDefinition::class,
             CustomerDefinition::class,
+            MediaDefinition::class,
         ];
 
         $results = [];

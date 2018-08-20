@@ -33,7 +33,7 @@ Component.register('sw-media-quickinfo', {
                 mimeType: this.item.mimeType,
                 fileSize: this.item.fileSize,
                 createdAt: format.date(this.item.createdAt),
-                url: this.item.links.url
+                url: this.item.extensions.links.url
             };
         }
     },

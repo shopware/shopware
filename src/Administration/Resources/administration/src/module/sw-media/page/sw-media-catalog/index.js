@@ -39,6 +39,9 @@ Component.register('sw-media-catalog', {
 
     created() {
         this.onComponentCreated();
+        this.$root.$on('search', (term) => {
+            this.onSearch(term);
+        });
     },
 
     methods: {

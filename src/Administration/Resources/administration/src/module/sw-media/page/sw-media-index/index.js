@@ -1,4 +1,5 @@
 import { Component, State } from 'src/core/shopware';
+import CriteriaFactory from 'src/core/factory/criteria.factory';
 import '../../component/sw-media-modal-delete';
 import mediaMediaGridListener from '../../mixin/mediagrid.listener.mixin';
 import mediaSidebarListener from '../../mixin/sibebar.listener.mixin';
@@ -17,9 +18,10 @@ Component.register('sw-media-index', {
         return {
             isLoading: false,
             catalogs: [],
-            lastAddedMediaItems: [],
+            mediaItems: [],
             lastSelectedItem: null,
-            selectionToDelete: null
+            selectionToDelete: null,
+            searchId: this.$route.query.mediaId
         };
     },
 
@@ -30,11 +32,25 @@ Component.register('sw-media-index', {
 
         mediaItemStore() {
             return State.getStore('media');
+        },
+
+        isSearch() {
+            return this.searchId !== null && this.searchId !== undefined;
         }
     },
 
     created() {
         this.createComponent();
+    },
+
+    beforeRouteUpdate(to, from, next) {
+        if (to.query.mediaId) {
+            this.searchId = to.query.mediaId;
+        } else {
+            this.searchId = null;
+        }
+        this.loadMedia();
+        next();
     },
 
     methods: {
@@ -44,11 +60,11 @@ Component.register('sw-media-index', {
             this.catalogStore.getList({ page: 1, limit: 10 }).then((response) => {
                 this.catalogs = response.items;
             });
-            this.loadList();
+            this.loadMedia();
         },
 
         getLastSelectedItem() {
-            const selection = this.$refs.gridLastAdded.selection;
+            const selection = this.$refs.mediaGrid.selection;
 
             if (selection.length === 0) {
                 this.lastSelectedItem = null;
@@ -80,7 +96,7 @@ Component.register('sw-media-index', {
         },
 
         handleSidebarRemoveBatchRequest() {
-            this.selectionToDelete = this.$refs.gridLastAdded.selection;
+            this.selectionToDelete = this.$refs.mediaGrid.selection;
         },
 
         handleMediaGridItemDelete({ item }) {
@@ -101,20 +117,46 @@ Component.register('sw-media-index', {
 
             Promise.all(mediaItemsDeletion).then(() => {
                 this.selectionToDelete = null;
-                this.loadList();
+                this.loadMedia();
             });
         },
 
-        loadList() {
+        loadMedia() {
+            if (this.isSearch) {
+                this.loadSearchedMedia();
+                this.isLoading = false;
+                return;
+            }
+
+            this.loadLastAddedMedia();
+            this.isLoading = false;
+        },
+
+        loadLastAddedMedia() {
             this.mediaItemStore.getList({
                 page: 1,
                 limit: 10,
                 sortBy: 'createdAt',
                 sortDirection: 'desc'
             }).then((response) => {
-                this.lastAddedMediaItems = response.items;
+                this.mediaItems = response.items;
             });
-            this.isLoading = false;
+        },
+
+        loadSearchedMedia() {
+            const params = {
+                limit: 1,
+                page: 1,
+                criteria: CriteriaFactory.term('id', this.searchId),
+                sortBy: 'createdAt',
+                sortDirection: 'desc'
+            };
+
+            this.mediaItemStore.getList(params).then((response) => {
+                this.mediaItems = response.items;
+                this.lastSelectedItem = this.mediaItems[0];
+                this.handleMediaGridItemShowDetails({ item: this.mediaItems[0] });
+            });
         }
     }
 });

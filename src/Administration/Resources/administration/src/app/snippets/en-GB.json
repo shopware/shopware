@@ -51,7 +51,8 @@
     "sw-search-bar-item": {
       "typeLabelCustomer": "Customer",
       "typeLabelProduct": "Product",
-      "typeLabelOrder": "Order"
+      "typeLabelOrder": "Order",
+      "typeLabelMedia": "Media"
     },
     "sw-media-upload-container": {
       "dropZoneText": "Drop Files to upload",
@@ -499,7 +500,9 @@
     },
     "index": {
       "catalogs": "Catalogues",
-      "lastAdded": "Last added"
+      "lastAdded": "Last added",
+      "searchResult": "Search result"
+
     },
     "sidebar": {
       "actions": {

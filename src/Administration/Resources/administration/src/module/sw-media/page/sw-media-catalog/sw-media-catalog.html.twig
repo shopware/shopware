@@ -1,6 +1,12 @@
 {% block sw_media_catalog %}
     <sw-page class="sw-media-catalog">
 
+        {% block sw_order_list_search_bar_type %}
+            <template slot="search-bar-type">
+                {{ $tc('sw-media.general.mainMenuItemGeneral') }}:
+            </template>
+        {% endblock %}
+
         {% block sw_media_catalog_smart_bar %}
             <template slot="smart-bar-actions">
 

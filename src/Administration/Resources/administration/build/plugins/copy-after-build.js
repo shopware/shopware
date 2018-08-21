@@ -61,6 +61,7 @@ WebpackCopyAfterBuild.prototype.apply = function(compiler) {
                 }
 
                 fs.createReadStream(from).pipe(fs.createWriteStream(to));
+                fs.unlinkSync(from);
             });
         });
     });

@@ -49,8 +49,8 @@ Component.register('sw-icon', {
 
         iconSetPath() {
             return this.multicolor ?
-                `/static/img/sw-icons-multicolor.svg#${this.iconNamePrefix + this.name}` :
-                `/static/img/sw-icons.svg#${this.iconNamePrefix + this.name}`;
+                `/administration/static/img/sw-icons-multicolor.svg#${this.iconNamePrefix + this.name}` :
+                `/administration/static/img/sw-icons.svg#${this.iconNamePrefix + this.name}`;
         },
 
         iconClasses() {

@@ -1,7 +1,19 @@
 const path = require('path');
+const fs = require('fs');
 const utils = require('./utils');
 const config = require('../config');
 const vueLoaderConfig = require('./vue-loader.conf');
+
+const pluginList = utils.getPluginDefinitions('var/config_administration_plugins.json');
+
+const pluginSourceDirectories = pluginList.reduce((accumulator, plugin) => {
+    const srcPath = `${plugin.basePath}Resources/views/administration`;
+    if (fs.existsSync(srcPath)) {
+        accumulator.push(srcPath);
+    }
+
+    return accumulator;
+}, []);
 
 function resolve(dir) {
     return path.join(__dirname, '..', dir)
@@ -9,6 +21,8 @@ function resolve(dir) {
 
 // Refactor the usage of eslint
 const eslintDisable = (process.env.ESLINT_DISABLE === 'true');
+
+const includeDirectories =  [...[ resolve('src'), resolve('test') ], ...pluginSourceDirectories];
 
 module.exports = {
     performance: {
@@ -42,8 +56,9 @@ module.exports = {
             (eslintDisable === true ? {} : {
                 test: /\.(js|tsx?|vue)$/,
                 loader: 'eslint-loader',
-                enforce: "pre",
-                include: [ resolve('src'), resolve('test') ],
+                exclude: /node_modules/,
+                enforce: 'pre',
+                include: includeDirectories,
                 options: {
                     formatter: require('eslint-friendly-formatter')
                 }
@@ -60,7 +75,7 @@ module.exports = {
             {
                 test: /\.(js|tsx?|vue)$/,
                 loader: 'babel-loader',
-                include: [resolve('src'), resolve('test')],
+                include: includeDirectories,
                 options: {
                     presets: [['env', { modules: false }]]
                 }
@@ -80,13 +95,6 @@ module.exports = {
                     limit: 10000,
                     name: utils.assetsPath('fonts/[name].[hash:7].[ext]')
                 }
-            },
-            {
-                test: require.resolve('../node_modules/vue/dist/vue.esm.js'),
-                use: [{
-                    loader: 'expose-loader',
-                    options: 'VueJS'
-                }]
             },
             {
                 test: require.resolve('../src/core/common.js'),

@@ -97,7 +97,9 @@ if (pluginList.length) {
     pluginList.forEach((plugin) => {
         const pluginName = plugin.name;
         const basePath = plugin.basePath;
-        const pluginPath = `${basePath}Resources/public/administration`;
+        const pluginPath = `${basePath}Resources/public/`;
+        const assetPath = `${basePath}Resources/views/administration/static`;
+        const publicStaticPath = `${basePath}Resources/public/static/`;
 
         webpackConfig.plugins.push(
             new WebpackCopyAfterBuildPlugin({
@@ -109,14 +111,21 @@ if (pluginList.length) {
                     absolutePath: true,
                     sourceMap: true
                 }
-            })
-        )
+            }),
+            // copy custom static assets
+            new CopyWebpackPlugin([
+                {
+                    from: assetPath,
+                    to: publicStaticPath,
+                    ignore: [ '.*' ]
+                }
+            ])
+        );
+
     });
 }
 
-if (config.build.bundleAnalyzerReport) {
-    const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
-    webpackConfig.plugins.push(new BundleAnalyzerPlugin())
-}
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+webpackConfig.plugins.push(new BundleAnalyzerPlugin());
 
 module.exports = webpackConfig;

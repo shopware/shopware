@@ -40,6 +40,10 @@
       "contextMenuCopyLinkLabel": "Copy Link",
       "contextMenuReplaceLabel": "Replace"
     },
+    "sw-media-preview": {
+      "fallbackVideoTagSupport": "Your browser does not support the video tag",
+      "fallbackAudioTagSupport": "Your browser does not support the audio tag"
+    },
     "sw-multi-select": {
       "messageNoResults": "No Results found for \"{term}\".",
       "buttonDismiss": "Dismiss"

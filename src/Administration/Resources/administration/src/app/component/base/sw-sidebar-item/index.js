@@ -11,10 +11,12 @@ Component.register('sw-sidebar-item', {
             type: String,
             required: false
         },
+
         icon: {
             type: String,
             required: true
         },
+
         disabled: {
             type: Boolean,
             required: false,

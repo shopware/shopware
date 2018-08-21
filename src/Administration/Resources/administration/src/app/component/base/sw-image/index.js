@@ -11,16 +11,19 @@ Component.register('sw-image', {
             required: false,
             default: ''
         },
+
         isCover: {
             type: Boolean,
             required: false,
             default: false
         },
+
         downloadable: {
             type: Boolean,
             required: false,
             default: true
         },
+
         url: {
             type: String,
             required: false,

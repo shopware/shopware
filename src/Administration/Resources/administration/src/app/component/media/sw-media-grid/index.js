@@ -16,29 +16,35 @@ Component.register('sw-media-grid', {
                 ].includes(value);
             }
         },
+
         previewComponent: {
             require: true,
             type: String
         },
+
         items: {
             required: true,
             type: Array
         },
+
         idField: {
             required: false,
             default: 'id',
             type: String
         },
+
         editable: {
             required: false,
             type: Boolean,
             default: false
         },
+
         selectable: {
             required: false,
             type: Boolean,
             default: true
         },
+
         gridColumnWidth: {
             required: false,
             type: Number,

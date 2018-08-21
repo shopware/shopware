@@ -11,16 +11,19 @@ Component.register('sw-context-button', {
             required: false,
             default: false
         },
+
         menuWidth: {
             type: Number,
             required: false,
             default: 220
         },
+
         menuOffsetTop: {
             type: Number,
             required: false,
             default: 10
         },
+
         menuOffsetLeft: {
             type: Number,
             required: false,

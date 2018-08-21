@@ -13,16 +13,22 @@
                                 {% block sw_media_quickinfo_quickactions_replace %}
                                     <div class="sw-media-quickinfo__quickaction"
                                          @click="emitQuickAction($event, 'replace-item')">
-                                        <sw-icon small name="default-action-cloud-upload"
-                                                 class="sw-media-quickinfo__quickactions-icon"></sw-icon>
+                                        <sw-icon small
+                                                 name="default-action-cloud-upload"
+                                                 class="sw-media-quickinfo__quickactions-icon">
+                                        </sw-icon>
                                         {{ $tc('sw-media.sidebar.quickinfo.replace') }}
                                     </div>
                                 {% endblock %}
 
                                 {% block sw_media_quickinfo_quickactions_download %}
-                                    <a class="sw-media-quickinfo__quickaction" :href="this.item.extensions.links.url" download>
-                                        <sw-icon small name="default-action-cloud-download"
-                                                 class="sw-media-quickinfo__quickactions-icon"></sw-icon>
+                                    <a class="sw-media-quickinfo__quickaction"
+                                       :href="this.item.extensions.links.url"
+                                       download>
+                                        <sw-icon small
+                                                 name="default-action-cloud-download"
+                                                 class="sw-media-quickinfo__quickactions-icon">
+                                        </sw-icon>
                                         {{ $tc('sw-media.sidebar.quickinfo.download') }}
                                     </a>
                                 {% endblock %}
@@ -30,8 +36,10 @@
                                 {% block sw_media_quickinfo_quickactions_move %}
                                     <div class="sw-media-quickinfo__quickaction"
                                          @click="emitQuickAction($event, 'move-item')">
-                                        <sw-icon small name="default-action-move-file"
-                                                 class="sw-media-quickinfo__quickactions-icon"></sw-icon>
+                                        <sw-icon small
+                                                 name="default-action-move-file"
+                                                 class="sw-media-quickinfo__quickactions-icon">
+                                        </sw-icon>
                                         {{ $tc('sw-media.sidebar.quickinfo.move') }}
                                     </div>
                                 {% endblock %}
@@ -39,8 +47,10 @@
                                 {% block sw_media_quickinfo_quickactions_delete %}
                                     <div class="sw-media-quickinfo__quickaction"
                                          @click="emitQuickAction($event, 'remove-item')">
-                                        <sw-icon small name="default-action-trash"
-                                                 class="sw-media-quickinfo__quickactions-icon"></sw-icon>
+                                        <sw-icon small
+                                                 name="default-action-trash"
+                                                 class="sw-media-quickinfo__quickactions-icon">
+                                        </sw-icon>
                                         {{ $tc('sw-media.sidebar.quickinfo.delete') }}
                                     </div>
                                 {% endblock %}
@@ -48,16 +58,20 @@
                                 {% block sw_media_quickinfo_quickactions_copy_link %}
                                     <div class="sw-media-quickinfo__quickaction"
                                          @click="copyLinkToClipboard">
-                                        <sw-icon small name="default-web-link"
-                                                 class="sw-media-quickinfo__quickactions-icon"></sw-icon>
+                                        <sw-icon small
+                                                 name="default-web-link"
+                                                 class="sw-media-quickinfo__quickactions-icon">
+                                        </sw-icon>
                                         {{ $tc('sw-media.sidebar.quickinfo.copyLink') }}
                                     </div>
                                 {% endblock %}
 
                                 {% block sw_media_quickinfo_quickactions_more %}
                                     <div class="sw-media-quickinfo__quickaction">
-                                        <sw-icon small name="default-action-more-horizontal"
-                                                 class="sw-media-quickinfo__quickactions-icon"></sw-icon>
+                                        <sw-icon name="default-action-more-horizontal"
+                                                 class="sw-media-quickinfo__quickactions-icon"
+                                                 small>
+                                        </sw-icon>
                                         {{ $tc('sw-media.sidebar.quickinfo.more') }}
                                     </div>
                                 {% endblock %}
@@ -78,7 +92,9 @@
                         {% block sw_media_quickinfo_preview_content %}
                             <div class="sw-media-quickinfo__collapse-content">
                                 <div class="sw-media-quickinfo__preview">
-                                    <img :src="item.extensions.links.url" class="sw-media-quickinfo__image">
+                                    {% block sw_media_quickinfo_preview_item %}
+                                        <sw-media-preview :item="item"></sw-media-preview>
+                                    {% endblock %}
                                 </div>
                             </div>
                         {% endblock %}

@@ -1,46 +1,30 @@
-import { Component, State } from 'src/core/shopware';
+import { Component, Mixin, State } from 'src/core/shopware';
 import template from './sw-sales-channel-detail-base.html.twig';
 import './sw-sales-channel-detail-base.less';
 
 Component.register('sw-sales-channel-detail-base', {
     template,
 
-    inject: ['salesChannelService', 'currencyService', 'languageService', 'catalogService'],
+    mixins: [
+        Mixin.getByName('notification')
+    ],
+
+    inject: [
+        'salesChannelService',
+        'currencyService',
+        'languageService',
+        'catalogService',
+        'countryService',
+        'shippingMethodService',
+        'paymentMethodService'
+    ],
 
     props: {
         salesChannel: {
             type: Object,
             required: true,
             default: {}
-        },
-        countries: {
-            type: Array,
-            required: true,
-            default() {
-                return [];
-            }
-        },
-        shippingMethods: {
-            type: Array,
-            required: true,
-            default() {
-                return [];
-            }
-        },
-        paymentMethods: {
-            type: Array,
-            required: true,
-            default() {
-                return [];
-            }
         }
-    },
-
-    data() {
-        return {
-            showSecretAccessKey: false,
-            isLoadingAPICard: false
-        };
     },
 
     computed: {
@@ -52,12 +36,24 @@ Component.register('sw-sales-channel-detail-base', {
             return State.getStore('catalog');
         },
 
+        countryStore() {
+            return State.getStore('country');
+        },
+
         currencyStore() {
             return State.getStore('currency');
         },
 
         languageStore() {
             return State.getStore('language');
+        },
+
+        paymentMethodStore() {
+            return State.getStore('payment_method');
+        },
+
+        shippingMethodStore() {
+            return State.getStore('shipping_method');
         }
     },
 
@@ -76,13 +72,8 @@ Component.register('sw-sales-channel-detail-base', {
         },
 
         onGenerateKeys() {
-            this.isLoadingAPICard = true;
-
             this.salesChannelService.generateKey().then((response) => {
                 this.salesChannel.accessKey = response.accessKey;
-                this.salesChannel.secretAccessKey = response.secretAccessKey;
-                this.showSecretAccessKey = true;
-                this.isLoadingAPICard = false;
             }).catch(() => {
                 this.createNotificationError({
                     title: this.$tc('sw-sales-channel.detail.titleAPIError'),
@@ -97,6 +88,18 @@ Component.register('sw-sales-channel-detail-base', {
 
         changeDefaultLanguage(id) {
             this.salesChannel.languageId = id;
+        },
+
+        changeDefaultCountry(id) {
+            this.salesChannel.countryId = id;
+        },
+
+        changeDefaultPaymentMethod(id) {
+            this.salesChannel.paymentMethodId = id;
+        },
+
+        changeDefaultShippingMethod(id) {
+            this.salesChannel.shippingMethodId = id;
         }
     }
 });

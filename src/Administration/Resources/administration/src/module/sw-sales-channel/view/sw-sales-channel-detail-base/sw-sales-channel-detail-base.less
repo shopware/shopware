@@ -1,5 +1,6 @@
-
 @import "~less/variables";
+
+@sw-sales-channel-detail-color-text-access-key: @color-gutenberg;
 
 .sw-sales-channel-detail-base{
     .sw-sales-channel-detail-base__secret-help-text-alert {
@@ -13,5 +14,13 @@
 
     .sw-multi-select {
         margin-bottom: 20px;
+    }
+
+    .sw-sales-channel-detail__action {
+        text-align: right;
+    }
+
+    .sw-field input:disabled {
+        color: lighten(@sw-sales-channel-detail-color-text-access-key, 20%);
     }
 }

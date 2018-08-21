@@ -1,10 +1,14 @@
-import { Component } from 'src/core/shopware';
+import { Component, Mixin } from 'src/core/shopware';
 import utils from 'src/core/service/util.service';
 import './sw-multi-select.less';
 import template from './sw-multi-select.html.twig';
 
 Component.register('sw-multi-select', {
     template,
+
+    mixins: [
+        Mixin.getByName('validation')
+    ],
 
     props: {
         serviceProvider: {
@@ -74,7 +78,7 @@ Component.register('sw-multi-select', {
     computed: {
         multiSelectClasses() {
             return {
-                'has--error': this.hasError,
+                'has--error': !this.isValid || this.hasError,
                 'is--disabled': this.disabled,
                 'is--expanded': this.isExpanded
             };
@@ -278,7 +282,7 @@ Component.register('sw-multi-select', {
 
             this.setFocus();
 
-            if (this.defaultItemId && this.defaultItemId === id) {
+            if (this.defaultItemId && this.defaultItemId === id && this.selections.length >= 1) {
                 this.changeDefaultItemId(this.selections[0].id);
             }
         },

@@ -23,6 +23,10 @@ export function required(value) {
         return value === true;
     }
 
+    if (typeof value === 'object' && value !== null) {
+        return Object.keys(value).length !== 0 && value.constructor !== Object;
+    }
+
     return typeof value !== 'undefined' && value !== null;
 }
 

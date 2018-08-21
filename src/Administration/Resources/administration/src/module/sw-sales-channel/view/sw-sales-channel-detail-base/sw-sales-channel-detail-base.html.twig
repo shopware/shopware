@@ -20,43 +20,9 @@
                         </sw-field>
                     {% endblock %}
 
-                    {% block sw_sales_channel_detail_base_general_input_shipping %}
-                        <sw-field type="select"
-                                  :label="$tc('sw-sales-channel.detail.labelInputShipping')"
-                                  validation="required"
-                                  v-model="salesChannel.shippingMethodId">
-                            <option slot="options" v-for="shippingMethod in shippingMethods" :value="shippingMethod.id">
-                                {{ shippingMethod.name }}
-                            </option>
-                        </sw-field>
-                    {% endblock %}
-
-                    {% block sw_sales_channel_detail_base_general_input_payment %}
-                        <sw-field type="select"
-                                  :label="$tc('sw-sales-channel.detail.labelInputPayment')"
-                                  validation="required"
-                                  v-model="salesChannel.paymentMethodId">
-                            <option slot="options" v-for="paymentMethod in paymentMethods" :value="paymentMethod.id">
-                                {{ paymentMethod.name }}
-                            </option>
-                        </sw-field>
-                    {% endblock %}
-
-                    {% block sw_sales_channel_detail_base_general_input_country %}
-                        <sw-field type="select"
-                                  :label="$tc('sw-sales-channel.detail.labelInputCountry')"
-                                  validation="required"
-                                  v-model="salesChannel.countryId">
-                            <option slot="options" v-for="country in countries" :value="country.id">
-                                {{ country.name }}
-                            </option>
-                        </sw-field>
-                    {% endblock %}
-
                     {% block sw_sales_channel_detail_base_general_input_tax_calculation %}
                         <sw-field type="select"
                                   :label="$tc('sw-sales-channel.detail.labelInputTaxCalculation')"
-                                  validation="required"
                                   v-model="salesChannel.taxCalculationType">
                             <template slot="options">
                                 <option value="vertical">{{ $tc('sw-sales-channel.detail.labelOptionTaxVertical') }}</option>
@@ -66,9 +32,49 @@
                     {% endblock %}
                 </sw-container>
 
+                {% block sw_sales_channel_detail_base_general_input_payments_methods %}
+                    <sw-multi-select id="paymentMethoIds"
+                                     :label="$tc('sw-sales-channel.detail.labelInputPaymentMethods')"
+                                     validation="required"
+                                     :serviceProvider="paymentMethodService"
+                                     :store="paymentMethodStore"
+                                     entityName="paymentMethod"
+                                     :defaultItemId="salesChannel.paymentMethodId"
+                                     v-model="salesChannel.paymentMethods"
+                                     @default_changed="changeDefaultPaymentMethod">
+                    </sw-multi-select>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_base_general_input_shipping_methods %}
+                    <sw-multi-select id="shippingMethodIds"
+                                     :label="$tc('sw-sales-channel.detail.labelInputShippingMethods')"
+                                     validation="required"
+                                     :serviceProvider="shippingMethodService"
+                                     :store="shippingMethodStore"
+                                     entityName="shippingMethod"
+                                     :defaultItemId="salesChannel.shippingMethodId"
+                                     v-model="salesChannel.shippingMethods"
+                                     @default_changed="changeDefaultShippingMethod">
+                    </sw-multi-select>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_base_general_input_countries %}
+                    <sw-multi-select id="countryIds"
+                                     :label="$tc('sw-sales-channel.detail.labelInputCountries')"
+                                     validation="required"
+                                     :serviceProvider="countryService"
+                                     :store="countryStore"
+                                     entityName="country"
+                                     :defaultItemId="salesChannel.countryId"
+                                     v-model="salesChannel.countries"
+                                     @default_changed="changeDefaultCountry">
+                    </sw-multi-select>
+                {% endblock %}
+
                 {% block sw_sales_channel_detail_base_general_input_currencies %}
                     <sw-multi-select id="currencyIds"
                                      :label="$tc('sw-sales-channel.detail.labelInputCurrencies')"
+                                     validation="required"
                                      :serviceProvider="currencyService"
                                      :store="currencyStore"
                                      entityName="currency"
@@ -81,6 +87,7 @@
                 {% block sw_sales_channel_detail_base_general_input_languages %}
                     <sw-multi-select id="languageIds"
                                      :label="$tc('sw-sales-channel.detail.labelInputLanguages')"
+                                     validation="required"
                                      :serviceProvider="languageService"
                                      :store="languageStore"
                                      entityName="language"
@@ -99,41 +106,22 @@
                                      v-model="salesChannel.catalogs">
                     </sw-multi-select>
                 {% endblock %}
-            </sw-card>
-        {% endblock %}
 
-        {% block sw_sales_channel_detail_base_api %}
-            <sw-card :title="$tc('sw-sales-channel.detail.titleAPICard')">
-                {% block sw_sales_channel_detail_base_api_field_accesskey %}
-                    <sw-field :label="$tc('sw-sales-channel.detail.labelIdField')"
+                {% block sw_sales_channel_detail_base_general_input_access_key %}
+                    <sw-field :label="$tc('sw-sales-channel.detail.labelAccessKeyField')"
                               :disabled="true"
                               v-model="salesChannel.accessKey"
                               :copyAble="true">
                     </sw-field>
                 {% endblock %}
 
-                {% block sw_sales_channel_detail_base_api_field_secretaccesskey %}
-                    <sw-field :type="secretAccessKeyFieldType"
-                              :label="$tc('sw-sales-channel.detail.labelSecretField')"
-                              :disabled="true"
-                              v-model="salesChannel.secretAccessKey"
-                              :passwordToggleAble="false"
-                              :copyAble="showSecretAccessKey">
-
-                    </sw-field>
-
-                    <sw-button v-if="!showSecretAccessKey" @click="onGenerateKeys"
-                               variant="danger">
-                        {{ $tc('sw-sales-channel.detail.buttonCreateNewApiKeys') }}
-                    </sw-button>
-                {% endblock %}
-
-                {% block sw_sales_channel_detail_base_api_helptext%}
-                    <sw-alert variant="info"
-                              class="sw-sales-channel-detail-base__secret-help-text-alert"
-                              :title="$tc('sw-sales-channel.detail.titleSecretHelpText')">
-                        {{ $tc('sw-sales-channel.detail.secretHelpText') }}
-                    </sw-alert>
+                {% block sw_sales_channel_detail_base_general_input_actions %}
+                    <div class="sw-sales-channel-detail__action">
+                        <sw-button @click="onGenerateKeys"
+                                   variant="danger">
+                            {{ $tc('sw-sales-channel.detail.buttonCreateNewApiKeys') }}
+                        </sw-button>
+                    </div>
                 {% endblock %}
             </sw-card>
         {% endblock %}

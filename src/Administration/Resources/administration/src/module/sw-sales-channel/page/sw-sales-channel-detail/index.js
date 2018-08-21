@@ -12,40 +12,12 @@ Component.register('sw-sales-channel-detail', {
     data() {
         return {
             salesChannel: {},
-            salesChannelType: {},
-            countries: [],
-            shippingMethods: [],
-            paymentMethods: [],
             isLoading: false
         };
     },
     computed: {
         salesChannelStore() {
             return State.getStore('sales_channel');
-        },
-
-        salesChannelTypeStore() {
-            return State.getStore('sales_channel_type');
-        },
-
-        countryStore() {
-            return State.getStore('country');
-        },
-
-        languageStore() {
-            return State.getStore('language');
-        },
-
-        shippingMethodStore() {
-            return State.getStore('shipping_method');
-        },
-
-        paymentMethodStore() {
-            return State.getStore('payment_method');
-        },
-
-        currencyStore() {
-            return State.getStore('currency');
         }
     },
 
@@ -82,16 +54,19 @@ Component.register('sw-sales-channel-detail', {
                 limit: 50
             });
 
-            this.countryStore.getList({ offset: 0, limit: 100 }).then((response) => {
-                this.countries = response.items;
+            this.salesChannel.getAssociationStore('countries').getList({
+                offset: 0,
+                limit: 50
             });
 
-            this.shippingMethodStore.getList({ offset: 0, limit: 100 }).then((response) => {
-                this.shippingMethods = response.items;
+            this.salesChannel.getAssociationStore('shippingMethods').getList({
+                offset: 0,
+                limit: 50
             });
 
-            this.paymentMethodStore.getList({ offset: 0, limit: 100 }).then((response) => {
-                this.paymentMethods = response.items;
+            this.salesChannel.getAssociationStore('paymentMethods').getList({
+                offset: 0,
+                limit: 50
             });
         },
 
@@ -103,7 +78,7 @@ Component.register('sw-sales-channel-detail', {
                 { name: this.salesChannel.name }
             );
 
-            return this.salesChannel.save(true, true).then(() => {
+            return this.salesChannel.save().then(() => {
                 this.createNotificationSuccess({
                     title: titleSaveSuccess,
                     message: messageSaveSuccess

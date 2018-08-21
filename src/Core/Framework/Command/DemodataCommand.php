@@ -209,6 +209,7 @@ class DemodataCommand extends ContainerAwareCommand
         try {
             $this->createDefaultCustomer();
         } catch (\Exception $e) {
+            $this->io->warning('Could not create default customer: ' . $e->getMessage());
         }
 
         $categories = $this->createCategory((int) $input->getOption('categories'));
@@ -373,7 +374,7 @@ class DemodataCommand extends ContainerAwareCommand
             'lastName' => 'Mustermann',
             'email' => 'test@example.com',
             'password' => 'shopware',
-            'defaultPaymentMethodId' => '47160b00cd064b0188176451f9f3c247',
+            'defaultPaymentMethodId' => Defaults::PAYMENT_METHOD_INVOICE,
             'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
             'salesChannelId' => Defaults::SALES_CHANNEL,
             'defaultBillingAddressId' => $billingAddressId,

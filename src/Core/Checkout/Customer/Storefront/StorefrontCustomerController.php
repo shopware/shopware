@@ -298,10 +298,14 @@ class StorefrontCustomerController extends Controller
 
     private function loadOrders(int $page, int $limit, CheckoutContext $context): array
     {
-        $page = $page - 1;
+        if (!$context->getCustomer()) {
+            throw new CustomerNotLoggedInException();
+        }
+
+        --$page;
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('order.customerId', $context));
+        $criteria->addFilter(new TermQuery('order.customerId', $context->getCustomer()->getId()));
         $criteria->addSorting(new FieldSorting('order.date', FieldSorting::DESCENDING));
         $criteria->setLimit($limit);
         $criteria->setOffset($page * $limit);

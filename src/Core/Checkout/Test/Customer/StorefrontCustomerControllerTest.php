@@ -448,6 +448,31 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         );
     }
 
+    public function testGetOrdersWithoutLogin(): void
+    {
+        $this->storefrontApiClient->request('GET', '/storefront-api/customer/orders');
+        $response = $this->storefrontApiClient->getResponse();
+        $content = json_decode($response->getContent(), true);
+
+        static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode());
+        static::assertNotNull($content);
+        static::assertEquals('Customer is not logged in', $content['errors'][0]['detail'] ?? '');
+    }
+
+    public function testGetOrders(): void
+    {
+        $this->createCustomerAndLogin();
+        $this->createOrder();
+
+        $this->storefrontApiClient->request('GET', '/storefront-api/customer/orders');
+        $response = $this->storefrontApiClient->getResponse();
+        $content = json_decode($response->getContent(), true);
+
+        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertNotNull($content);
+        static::assertCount(1, $content['data']);
+    }
+
     private function createCustomerAndLogin(?string $email = null, string $password = 'shopware'): string
     {
         $email = $email ?? Uuid::uuid4()->getHex() . '@example.com';
@@ -552,5 +577,42 @@ class StorefrontCustomerControllerTest extends ApiTestCase
             (int) $month,
             (int) $day
         ));
+    }
+
+    private function createOrder(): void
+    {
+        $productId = Uuid::uuid4()->getHex();
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+
+        $this->productRepository->create([
+            [
+                'id' => $productId,
+                'name' => 'Test',
+                'catalogId' => Defaults::CATALOG,
+                'price' => ['gross' => 10, 'net' => 9],
+                'manufacturer' => ['name' => 'test'],
+                'tax' => ['taxRate' => 17, 'name' => 'with id'],
+            ],
+        ], $context);
+
+        // create new cart
+        $this->storefrontApiClient->request('POST', '/storefront-api/checkout/cart');
+        $response = $this->storefrontApiClient->getResponse();
+
+        static::assertEquals(200, $response->getStatusCode(), $response->getContent());
+
+        // add product
+        $this->storefrontApiClient->request('POST', '/storefront-api/checkout/cart/product/' . $productId);
+        static::assertSame(200, $this->storefrontApiClient->getResponse()->getStatusCode(), $this->storefrontApiClient->getResponse()->getContent());
+
+        // finish checkout
+        $this->storefrontApiClient->request('POST', '/storefront-api/checkout/order');
+        static::assertSame(200, $this->storefrontApiClient->getResponse()->getStatusCode(), $this->storefrontApiClient->getResponse()->getContent());
+
+        $order = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
+        static::assertArrayHasKey('data', $order);
+
+        $order = $order['data'];
+        static::assertNotEmpty($order);
     }
 }

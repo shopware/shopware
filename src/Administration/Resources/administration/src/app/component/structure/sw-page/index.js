@@ -6,6 +6,13 @@ import './sw-page.less';
 Component.register('sw-page', {
     template,
 
+    props: {
+        showSmartBar: {
+            type: Boolean,
+            default: true
+        }
+    },
+
     data() {
         return {
             module: null,
@@ -17,6 +24,19 @@ Component.register('sw-page', {
     computed: {
         pageColor() {
             return (this.module !== null) ? this.module.color : '#d8dde6';
+        },
+
+        pageContainerClasses() {
+            return {
+                'has--smart-bar': this.showSmartBar
+            };
+        },
+
+        smartBarStyles() {
+            return {
+                'border-bottom-color': this.pageColor,
+                'padding-right': `${this.scrollbarOffset}px`
+            };
         }
     },
 

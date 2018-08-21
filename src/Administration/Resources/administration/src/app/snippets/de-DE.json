@@ -85,6 +85,12 @@
       "buttonDelete": "Löschen"
     }
   },
+  "sw-dashboard": {
+    "general": {
+      "mainMenuItemGeneral": "Dashboard",
+      "descriptionTextModule": "Startseite, Statistiken und Systeminformationen"
+    }
+  },
   "sw-customer": {
     "general": {
       "mainMenuItemGeneral": "Kunden",

@@ -15,7 +15,11 @@
 
     .sw-page__container {
         display: grid;
-        grid-template-rows: 70px auto;
+        grid-template-rows: auto;
+
+        &.has--smart-bar {
+            grid-template-rows: 70px auto;
+        }
     }
 
     .sw-page__smart-bar {

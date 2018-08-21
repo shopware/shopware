@@ -5,6 +5,7 @@ export default [
         name: 'core',
         coreRoute: true,
         root: true,
-        component: 'sw-desktop'
+        component: 'sw-desktop',
+        redirect: '/sw/dashboard/index'
     }
 ];

@@ -7,7 +7,7 @@
                         <div class="sw-media-index__content">
                             {% block sw_media_index_catalogs %}
                                 {% block sw_media_index_catalogs_title %}
-                                    <h3>{{ $tc('sw-media.index.catalogs') }}</h3>
+                                    <h4>{{ $tc('sw-media.index.catalogs') }}</h4>
                                 {% endblock %}
 
                                 {% block sw_media_index_catalogs_grid %}
@@ -25,10 +25,10 @@
 
                             {% block sw_media_index_items %}
                                 {% block sw_media_index_items_title %}
-                                    <h3 v-if="!isSearch">{{ $tc('sw-media.index.lastAdded') }}</h3>
+                                    <h4 v-if="!isSearch">{{ $tc('sw-media.index.lastAdded') }}</h4>
                                 {% endblock %}
                                 {% block sw_media_index_searched_item_title %}
-                                    <h3 v-if="isSearch">{{ $tc('sw-media.index.searchResult') }}</h3>
+                                    <h4 v-if="isSearch">{{ $tc('sw-media.index.searchResult') }}</h4>
                                 {% endblock %}
 
                                 {% block sw_media_index_items_grid %}

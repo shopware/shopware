@@ -473,6 +473,38 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         static::assertCount(1, $content['data']);
     }
 
+    public function testGetOrdersWithLimit(): void
+    {
+        $this->createCustomerAndLogin();
+        $this->createOrder();
+        $this->createOrder();
+        $this->createOrder();
+
+        $this->storefrontApiClient->request('GET', '/storefront-api/customer/orders?limit=2');
+        $response = $this->storefrontApiClient->getResponse();
+        $content = json_decode($response->getContent(), true);
+
+        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertNotNull($content);
+        static::assertCount(2, $content['data']);
+    }
+
+    public function testGetOrdersWithLimitAndPage(): void
+    {
+        $this->createCustomerAndLogin();
+        $this->createOrder();
+        $this->createOrder();
+        $this->createOrder();
+
+        $this->storefrontApiClient->request('GET', '/storefront-api/customer/orders?limit=2&page=2');
+        $response = $this->storefrontApiClient->getResponse();
+        $content = json_decode($response->getContent(), true);
+
+        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertNotNull($content);
+        static::assertCount(1, $content['data']);
+    }
+
     private function createCustomerAndLogin(?string $email = null, string $password = 'shopware'): string
     {
         $email = $email ?? Uuid::uuid4()->getHex() . '@example.com';

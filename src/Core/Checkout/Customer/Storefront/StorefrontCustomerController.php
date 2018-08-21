@@ -117,17 +117,8 @@ class StorefrontCustomerController extends Controller
      */
     public function orderOverview(Request $request, CheckoutContext $context): JsonResponse
     {
-        $content = $this->decodedContent($request);
-
-        $limit = 10;
-        $page = 1;
-
-        if (array_key_exists('limit', $content)) {
-            $limit = (int) $content['limit'];
-        }
-        if (array_key_exists('page', $content)) {
-            $limit = (int) $content['page'];
-        }
+        $limit = $request->query->getInt('limit', 10);
+        $page = $request->query->getInt('page', 1);
 
         return new JsonResponse($this->serialize($this->loadOrders($page, $limit, $context)));
     }

@@ -64,7 +64,7 @@ class ThumbnailServiceTest extends KernelTestCase
         parent::tearDown();
     }
 
-    public function testSubsribesToMediaFileUploadedEvent()
+    public function testSubscribesToMediaFileUploadedEvent()
     {
         static::assertArrayHasKey(MediaFileUploadedEvent::EVENT_NAME, $this->thumbnailService->getSubscribedEvents());
     }
@@ -117,7 +117,7 @@ class ThumbnailServiceTest extends KernelTestCase
                     $mimeType,
                     $thumbnail->getWidth(),
                     $thumbnail->getHeight(),
-                    false,
+                    true,
                     false);
                 static::assertTrue($this->fileSystem->has($thumbnailPath));
             }

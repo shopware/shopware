@@ -54,7 +54,8 @@ class MediaDefinition extends EntityDefinition
             new CreatedAtField(),
             new UpdatedAtField(),
             (new ObjectField('thumbnails', 'thumbnails'))->setFlags(new WriteProtected('write_thumbnails')),
-            (new TranslatedField(new LongTextField('description', 'description')))->setFlags(new SearchRanking(self::LOW_SEARCH_RAKING)),
+            (new TranslatedField(new LongTextField('description', 'description')))->setFlags(new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
+
             (new TranslatedField(new StringField('name', 'name')))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
 
             new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, false),

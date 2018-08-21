@@ -76,6 +76,13 @@ Component.register('sw-search-bar', {
     },
 
     methods: {
+        clearSearchTerm() {
+            this.searchTerm = '';
+            this.showResultsContainer = false;
+
+            this.results = [];
+        },
+
         onFocusInput() {
             this.isActive = true;
 
@@ -141,6 +148,9 @@ Component.register('sw-search-bar', {
 
             if (searchTerm && searchTerm.length > 0) {
                 this.loadResults(searchTerm);
+                window.addEventListener('click', this.clearSearchTerm, {
+                    once: true
+                });
             } else {
                 this.showResultsContainer = false;
             }

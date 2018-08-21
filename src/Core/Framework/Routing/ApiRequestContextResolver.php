@@ -36,44 +36,41 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             return;
         }
 
-        $tenantId = $master->headers->get(PlatformRequest::HEADER_TENANT_ID);
-        $config = $this->getRuntimeParameters($master);
         $sourceContext = $this->resolveSourceContext($request);
-
-        if ($sourceContext->getUserId()) {
-            $config = array_replace_recursive($this->getUserParameters($sourceContext->getUserId(), $tenantId), $config);
-        }
-
-        $currencyFactory = 1.0;
+        $params = $this->getContextParameters($master, $sourceContext);
 
         $context = new Context(
-            $tenantId,
+            $params['tenantId'],
             $sourceContext,
             null,
             [],
-            $config['currencyId'],
-            $config['languageId'],
-            $config['languageId'],
+            $params['currencyId'],
+            $params['languageId'],
+            $params['languageId'],
             //$config['fallbackLanguageId'],
             Defaults::LIVE_VERSION,
-            $currencyFactory
+            $params['currencyFactory']
         );
 
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context);
     }
 
-    private function getRuntimeParameters(Request $request): array
+    private function getContextParameters(Request $master, SourceContext $sourceContext)
     {
-        $parameters = [
+        $params = [
             'currencyId' => Defaults::CURRENCY,
             'languageId' => Defaults::LANGUAGE,
+            'currencyFactory' => 1.0,
+            'tenantId' => $master->headers->get(PlatformRequest::HEADER_TENANT_ID),
         ];
 
-        if ($request->headers->has('language')) {
-            $parameters['languageId'] = $request->headers->get('language');
+        if ($sourceContext->getUserId()) {
+            $params = array_replace_recursive($params, $this->getUserParameters($sourceContext->getUserId(), $params['tenantId']));
         }
 
-        return $parameters;
+        $params = array_replace_recursive($params, $this->getRuntimeParameters($master));
+
+        return $params;
     }
 
     private function getUserParameters(string $userId, string $tenantId): array
@@ -92,11 +89,18 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             ->execute()
             ->fetch();
 
-        if ($user) {
-            return $user;
+        return $user ?: [];
+    }
+
+    private function getRuntimeParameters(Request $request): array
+    {
+        $parameters = [];
+
+        if ($request->headers->has(PlatformRequest::HEADER_LANGUAGE_ID)) {
+            $parameters['languageId'] = $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID);
         }
 
-        return [];
+        return $parameters;
     }
 
     private function resolveSourceContext(Request $request): SourceContext

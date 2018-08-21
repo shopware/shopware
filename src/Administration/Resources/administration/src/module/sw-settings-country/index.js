@@ -1,6 +1,6 @@
 import { Module } from 'src/core/shopware';
 
-import './extension/sw-settings-wrapper-index';
+import './extension/sw-settings-index';
 import './page/sw-settings-country-list';
 import './page/sw-settings-country-detail';
 import './page/sw-settings-country-create';
@@ -17,7 +17,7 @@ Module.register('sw-settings-country', {
             component: 'sw-settings-country-list',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.wrapper.index'
+                parentPath: 'sw.settings.index'
             }
         },
         detail: {
@@ -41,6 +41,6 @@ Module.register('sw-settings-country', {
         color: '#9AA8B5',
         icon: 'default-action-settings',
         path: 'sw.settings.country.index',
-        parent: 'sw-settings-wrapper'
+        parent: 'sw-settings'
     }]
 });

@@ -12,11 +12,11 @@
                 {% block sw_settings_payment_list_smart_bar_header_title %}
                     <h2>
                         {% block sw_settings_payment_list_smart_bar_header_title_text %}
-                            {{ $tc('sw-settings-wrapper.index.title') }} <sw-icon name="small-arrow-medium-right" small></sw-icon> {{ $tc('sw-settings-payment.list.textHeadline') }}
+                            {{ $tc('sw-settings.index.title') }} <sw-icon name="small-arrow-medium-right" small></sw-icon> {{ $tc('sw-settings-payment.list.textHeadline') }}
                         {% endblock %}
 
                         {% block sw_settings_payment_list_smart_bar_header_amount %}
-                        <span v-if="!isLoading" class="sw-page__smart-bar-amount">
+                            <span v-if="!isLoading" class="sw-page__smart-bar-amount">
                                 ({{ total }})
                             </span>
                         {% endblock %}
@@ -136,7 +136,7 @@
 
                                 {% block sw_settings_payment_list_grid_pagination %}
                                     <sw-pagination slot="pagination"
-                                                   :offset="offset"
+                                                   :page="page"
                                                    :limit="limit"
                                                    :total="total"
                                                    :total-visible="7"

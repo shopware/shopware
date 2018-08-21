@@ -551,7 +551,7 @@
       "modalButtonAbort": "Cancel"
     }
   },
-  "sw-settings-wrapper": {
+  "sw-settings": {
     "general": {
       "mainMenuItemGeneral": "Settings"
     },
@@ -601,7 +601,7 @@
     },
     "list": {
       "textHeadline": "Tax",
-      "textDeleteConfirm": "Are you sure, you want to delete the tax {name}??",
+      "textDeleteConfirm": "Are you sure, you want to delete the tax {name}?",
       "columnName": "Name",
       "columnTaxRate": "Tax rate",
       "buttonAddTax": "Add tax",
@@ -631,7 +631,7 @@
     },
     "list": {
       "textHeadline": "Sprachen",
-      "textDeleteConfirm": "Are you sure, you want to delete the language {name}??",
+      "textDeleteConfirm": "Are you sure, you want to delete the language {name}?",
       "columnName": "Name",
       "columnLocaleName": "Region",
       "buttonAddLanguage": "Add language",
@@ -658,11 +658,11 @@
   },
   "sw-settings-payment": {
     "general": {
-      "mainMenuItemGeneral": "Payment Methods"
+      "mainMenuItemGeneral": "Payment methods"
     },
     "list": {
-      "textHeadline": "Payment Methods",
-      "textDeleteConfirm": "Are you sure, you want to delete the payment method {name}??",
+      "textHeadline": "Payment methods",
+      "textDeleteConfirm": "Are you sure, you want to delete the payment method {name}?",
       "columnName": "Name",
       "columnDescription": "Description",
       "columnActive": "Active",
@@ -677,7 +677,7 @@
     "detail": {
       "textHeadline": "New Payment method",
       "titleCard": "Settings",
-      "titleSaveSuccess": "Payment Method",
+      "titleSaveSuccess": "Payment methods",
       "messageSaveSuccess": "The payment method {name} has been saved successfully.",
       "labelName": "Name",
       "labelTechnicalName": "Technical name",
@@ -689,7 +689,7 @@
       "labelUsedIframe": "URL for iFrame",
       "labelAbsoluteSurcharge": "General surcharge",
       "labelPercentageSurcharge": "Percentage surcharge",
-      "labelTable": "Database-Table",
+      "labelTable": "Database table",
       "labelClass": "Class",
       "placeholderName": "Enter name...",
       "placeholderTechnicalName": "Enter technical name...",
@@ -698,7 +698,7 @@
       "placeholderUsedIframe": "Enter URL...",
       "placeholderAbsoluteSurcharge": "Enter surcharge...",
       "placeholderPercentageSurcharge": "Enter percentage surcharge...",
-      "placeholderTable": "Enter database-table...",
+      "placeholderTable": "Enter database table...",
       "placeholderClass": "Enter class...",
       "buttonCancel": "Cancel",
       "buttonSave": "Save"
@@ -710,7 +710,7 @@
     },
     "list": {
       "textHeadline": "Shipping costs",
-      "textDeleteConfirm": "Are you sure, you want to delete the shipping cost {name}??",
+      "textDeleteConfirm": "Are you sure, you want to delete the shipping cost {name}?",
       "columnName": "Name",
       "columnActive": "Active",
       "columnShippingfree": "Shipping cost free",

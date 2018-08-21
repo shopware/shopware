@@ -550,7 +550,7 @@
       "modalButtonAbort": "Abbrechen"
     }
   },
-  "sw-settings-wrapper": {
+  "sw-settings": {
     "general": {
       "mainMenuItemGeneral": "Einstellungen"
     },

@@ -1,7 +1,7 @@
 import ApiService from './api.service';
 
 /**
- * Gateway for the API end point "catalog"
+ * Gateway for the API end point "language"
  * @class
  * @extends ApiService
  */

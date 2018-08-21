@@ -1,6 +1,6 @@
 import { Module } from 'src/core/shopware';
 
-import './extension/sw-settings-wrapper-index';
+import './extension/sw-settings-index';
 import './page/sw-integration-list';
 
 Module.register('sw-integration', {
@@ -17,7 +17,7 @@ Module.register('sw-integration', {
             component: 'sw-integration-list',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.wrapper.index'
+                parentPath: 'sw.settings.index'
             }
         }
     },
@@ -25,6 +25,6 @@ Module.register('sw-integration', {
     navigation: [{
         path: 'sw.integration.index',
         label: 'sw-integration.general.mainMenuItemIndex',
-        parent: 'sw-settings-wrapper'
+        parent: 'sw-settings'
     }]
 });

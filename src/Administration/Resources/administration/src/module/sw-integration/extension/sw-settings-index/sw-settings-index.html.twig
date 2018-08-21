@@ -1,0 +1,77 @@
+{% block sw_settings_content_card_slot_default %}
+    {% parent %}
+
+    <sw-settings-item :label="$tc('sw-integration.general.mainMenuItemIndex')" :to="{ name: 'sw.integration.index' }">
+        <template slot="icon">
+            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="80" height="80" viewBox="0 0 80 80">
+                <defs>
+                    <path id="integration-a" d="M40,40 L22,22"/>
+                    <path id="integration-b" d="M59,60 L40,40"/>
+                    <path id="integration-c" d="M61,19 L40,40"/>
+                    <path id="integration-d" d="M40,40 L21,48"/>
+                    <path id="integration-e" d="M40,40 L29,62"/>
+                    <circle id="integration-g" cx="40" cy="40" r="10"/>
+                    <filter id="integration-f" width="140%" height="140%" x="-25%" y="-15%" filterUnits="objectBoundingBox">
+                        <feMorphology in="SourceAlpha" operator="dilate" radius="2" result="shadowSpreadOuter1"/>
+                        <feOffset dx="-2" dy="2" in="shadowSpreadOuter1" result="shadowOffsetOuter1"/>
+                        <feComposite in="shadowOffsetOuter1" in2="SourceAlpha" operator="out" result="shadowOffsetOuter1"/>
+                        <feColorMatrix in="shadowOffsetOuter1" values="0 0 0 0 0.0823529412   0 0 0 0 0.266666667   0 0 0 0 0.466666667  0 0 0 0.1 0"/>
+                    </filter>
+                    <circle id="integration-i" cx="62" cy="19" r="6"/>
+                    <filter id="integration-h" width="150%" height="150%" x="-33.3%" y="-16.7%" filterUnits="objectBoundingBox">
+                        <feMorphology in="SourceAlpha" operator="dilate" radius="1" result="shadowSpreadOuter1"/>
+                        <feOffset dx="-2" dy="2" in="shadowSpreadOuter1" result="shadowOffsetOuter1"/>
+                        <feComposite in="shadowOffsetOuter1" in2="SourceAlpha" operator="out" result="shadowOffsetOuter1"/>
+                        <feColorMatrix in="shadowOffsetOuter1" values="0 0 0 0 0.0823529412   0 0 0 0 0.266666667   0 0 0 0 0.466666667  0 0 0 0.1 0"/>
+                    </filter>
+                    <circle id="integration-k" cx="27" cy="65" r="5"/>
+                    <filter id="integration-j" width="160%" height="160%" x="-40%" y="-20%" filterUnits="objectBoundingBox">
+                        <feMorphology in="SourceAlpha" operator="dilate" radius="1" result="shadowSpreadOuter1"/>
+                        <feOffset dx="-2" dy="2" in="shadowSpreadOuter1" result="shadowOffsetOuter1"/>
+                        <feComposite in="shadowOffsetOuter1" in2="SourceAlpha" operator="out" result="shadowOffsetOuter1"/>
+                        <feColorMatrix in="shadowOffsetOuter1" values="0 0 0 0 0.0823529412   0 0 0 0 0.266666667   0 0 0 0 0.466666667  0 0 0 0.1 0"/>
+                    </filter>
+                </defs>
+                <g fill="none" fill-rule="evenodd">
+                    <path fill="#E8F6FF" fill-rule="nonzero" d="M3,46.9602379 C3,78.5450816 32.9673758,52.2243785 46.2862095,68.0168004 C59.6050432,83.8092223 82.9130022,65.3847301 74.0337797,46.9602379 C65.1545573,28.5357457 59.6050432,0.89900747 41.8465983,16.6914293 C24.0881534,32.4838512 3,15.3753942 3,46.9602379 Z"/>
+                    <circle cx="40" cy="40" r="29" fill="#FFF" fill-rule="nonzero" stroke="#303A4F" stroke-width="2"/>
+                    <g fill-rule="nonzero" stroke-linecap="square">
+                        <use stroke="#303A4F" stroke-width="6" xlink:href="#integration-a"/>
+                        <use stroke="#FFF" stroke-width="2" xlink:href="#integration-a"/>
+                    </g>
+                    <g fill-rule="nonzero" stroke-linecap="square">
+                        <use stroke="#303A4F" stroke-width="6" xlink:href="#integration-b"/>
+                        <use stroke="#FFF" stroke-width="2" xlink:href="#integration-b"/>
+                    </g>
+                    <g fill-rule="nonzero" stroke-linecap="square">
+                        <use stroke="#303A4F" stroke-width="6" xlink:href="#integration-c"/>
+                        <use stroke="#FFF" stroke-width="2" xlink:href="#integration-c"/>
+                    </g>
+                    <g fill-rule="nonzero" stroke-linecap="square">
+                        <use stroke="#303A4F" stroke-width="6" xlink:href="#integration-d"/>
+                        <use stroke="#FFF" stroke-width="2" xlink:href="#integration-d"/>
+                    </g>
+                    <g fill-rule="nonzero" stroke-linecap="square">
+                        <use stroke="#303A4F" stroke-width="6" xlink:href="#integration-e"/>
+                        <use stroke="#FFF" stroke-width="2" xlink:href="#integration-e"/>
+                    </g>
+                    <g fill-rule="nonzero">
+                        <use fill="#000" filter="url(#integration-f)" xlink:href="#integration-g"/>
+                        <circle cx="40" cy="40" r="11" fill="#189EFF" fill-rule="evenodd" stroke="#303A4F" stroke-width="2"/>
+                    </g>
+                    <g fill-rule="nonzero">
+                        <use fill="#000" filter="url(#integration-h)" xlink:href="#integration-i"/>
+                        <use fill="#57D9A3" stroke="#303A4F" stroke-width="2" xlink:href="#integration-i"/>
+                    </g>
+                    <circle cx="59" cy="59" r="9" fill="#FFF" fill-rule="nonzero" stroke="#303A4F" stroke-width="2"/>
+                    <circle cx="21" cy="21" r="9" fill="#FFF" fill-rule="nonzero" stroke="#303A4F" stroke-width="2"/>
+                    <g fill-rule="nonzero">
+                        <use fill="#000" filter="url(#integration-j)" xlink:href="#integration-k"/>
+                        <use fill="#57D9A3" stroke="#303A4F" stroke-width="2" xlink:href="#integration-k"/>
+                    </g>
+                    <circle cx="21" cy="48" r="4" fill="#FFF" fill-rule="nonzero" stroke="#303A4F" stroke-width="2"/>
+                </g>
+            </svg>
+        </template>
+    </sw-settings-item>
+{% endblock %}

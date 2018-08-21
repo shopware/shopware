@@ -1,6 +1,6 @@
 import { Module } from 'src/core/shopware';
 
-import './extension/sw-settings-wrapper-index';
+import './extension/sw-settings-index';
 import './page/sw-settings-language-list';
 import './page/sw-settings-language-detail';
 import './page/sw-settings-language-create';
@@ -17,7 +17,7 @@ Module.register('sw-settings-language', {
             component: 'sw-settings-language-list',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.wrapper.index'
+                parentPath: 'sw.settings.index'
             }
         },
         detail: {
@@ -41,6 +41,6 @@ Module.register('sw-settings-language', {
         color: '#9AA8B5',
         icon: 'default-action-settings',
         path: 'sw.settings.language.index',
-        parent: 'sw-settings-wrapper'
+        parent: 'sw-settings'
     }]
 });

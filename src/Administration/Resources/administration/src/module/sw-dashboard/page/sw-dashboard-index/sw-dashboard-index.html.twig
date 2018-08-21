@@ -1,0 +1,9 @@
+{% block sw_dashboard_index %}
+    <sw-page class="sw-dashboard-index" :showSmartBar="false">
+        {% block sw_dashboard_index_content %}
+            <sw-card-view slot="content" class="sw-dashboard-index__content">
+                {% block sw_dashboard_index_content_view %}{% endblock %}
+            </sw-card-view>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

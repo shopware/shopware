@@ -16,11 +16,10 @@
         {% endblock %}
 
         {% block sw_page_smart_container %}
-            <div class="sw-page__container">
+            <div class="sw-page__container" :class="pageContainerClasses">
 
                 {% block sw_page_smart_bar %}
-                    <div class="sw-page__smart-bar"
-                         :style="{ 'border-bottom-color': pageColor, paddingRight: `${scrollbarOffset}px` }">
+                    <div v-if="showSmartBar" class="sw-page__smart-bar" :style="smartBarStyles">
 
                         {% block sw_page_smart_bar_back_btn %}
                             <slot name="smart-bar-back">

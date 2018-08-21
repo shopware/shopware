@@ -44,7 +44,6 @@ class AccessKeyController extends Controller
     {
         return new JsonResponse([
             'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
-            'secretAccessKey' => AccessKeyHelper::generateSecretAccessKey(),
         ]);
     }
 }

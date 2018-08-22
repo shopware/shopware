@@ -6,20 +6,18 @@ function exec(cmd) {
     return require('child_process').execSync(cmd).toString().trim()
 }
 
-const versionRequirements = [
-    {
-        name: 'node',
-        currentVersion: semver.clean(process.version),
-        versionRequirement: packageConfig.engines.node
-    },
-    {
-        name: 'npm',
-        currentVersion: exec('npm --version'),
-        versionRequirement: packageConfig.engines.npm
-    }
-];
+const versionRequirements = [{
+    name: 'node',
+    currentVersion: semver.clean(process.version),
+    versionRequirement: packageConfig.engines.node
+},
+{
+    name: 'npm',
+    currentVersion: exec('npm --version'),
+    versionRequirement: packageConfig.engines.npm
+}];
 
-module.exports = function () {
+module.exports = () => {
     const warnings = [];
     for (let i = 0; i < versionRequirements.length; i++) {
         let mod = versionRequirements[i];
@@ -35,6 +33,7 @@ module.exports = function () {
         console.log('');
         console.log(chalk.yellow('To use this template, you must update following to modules:'));
         console.log();
+
         for (let i = 0; i < warnings.length; i++) {
             let warning = warnings[i];
             console.log('  ' + warning);

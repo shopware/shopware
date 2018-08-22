@@ -15,20 +15,6 @@ const webpackConfig = process.env.NODE_ENV === 'testing'
     ? require('./webpack.prod.conf')
     : require('./webpack.dev.conf');
 
-const pluginList = utils.getPluginDefinitions('var/config_administration_plugins.json');
-
-const staticPaths = pluginList.reduce((accumulator, plugin) => {
-    const assetPath = `/${plugin.basePath}Resources/views/administration/static/`;
-    if (fs.existsSync(assetPath)) {
-        accumulator.push({
-            staticPath: `/${plugin.name.toLowerCase()}/static`,
-            systemPath: assetPath
-        });
-    }
-
-    return accumulator;
-}, []);
-
 // default port where dev server listens for incoming traffic
 const port = process.env.PORT || config.dev.port;
 
@@ -68,6 +54,20 @@ app.use(devMiddleware);
 // compilation error display
 app.use(hotMiddleware);
 
+const pluginList = utils.getPluginDefinitions('var/config_administration_plugins.json');
+const staticPaths = pluginList.reduce((accumulator, plugin) => {
+    const assetPath = `/${plugin.basePath}Resources/views/administration/static/`;
+
+    if (fs.existsSync(assetPath)) {
+        accumulator.push({
+            staticPath: `/${plugin.name.toLowerCase()}/static`,
+            systemPath: assetPath
+        });
+    }
+
+    return accumulator;
+}, []);
+
 // serve pure static assets, see https://github.com/webpack/webpack-dev-server/issues/200#issuecomment-139666063
 staticPaths.splice(0, 0, {
     staticPath: `/administration/static`,
@@ -92,18 +92,18 @@ console.log();
 
 console.log('# Starting hot module reloading dev server');
 
-devMiddleware.waitUntilValid(function () {
+devMiddleware.waitUntilValid(() => {
     console.log('Dev server listening at ' + uri + '\n');
 });
 
-module.exports = app.listen(port, function (err) {
+module.exports = app.listen(port, (err) => {
     if (err) {
         console.log(err);
-        return
+        return false;
     }
 
     // when env is testing, don't need open it
     if (autoOpenBrowser && process.env.NODE_ENV !== 'testing') {
-        opn(uri)
+        opn(uri);
     }
 });

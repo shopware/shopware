@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderCustomer;
 
 use Shopware\Core\Checkout\Customer\CustomerStruct;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Framework\ORM\Entity;
 
 class OrderCustomerStruct extends Entity
@@ -15,12 +16,41 @@ class OrderCustomerStruct extends Entity
     /**
      * @var string
      */
+    protected $firstName;
+
+    /**
+     * @var string
+     */
+    protected $lastName;
+
+    /**
+     * @var string|null
+     */
+    protected $salutation;
+
+    /**
+     * @var string|null
+     */
+    protected $title;
+
+    /**
+     * @var string|null
+     */
+    protected $customerNumber;
+    /**
+     * @var string
+     */
     protected $customerId;
 
     /**
      * @var CustomerStruct
      */
     protected $customer;
+
+    /**
+     * @var OrderCollection|null
+     */
+    protected $orders;
 
     public function getEmail(): string
     {
@@ -30,6 +60,56 @@ class OrderCustomerStruct extends Entity
     public function setEmail(string $email): void
     {
         $this->email = $email;
+    }
+
+    public function getFirstName(): string
+    {
+        return $this->firstName;
+    }
+
+    public function setFirstName(string $firstName): void
+    {
+        $this->firstName = $firstName;
+    }
+
+    public function getLastName(): string
+    {
+        return $this->lastName;
+    }
+
+    public function setLastName(string $lastName): void
+    {
+        $this->lastName = $lastName;
+    }
+
+    public function getSalutation(): ?string
+    {
+        return $this->salutation;
+    }
+
+    public function setSalutation(string $salutation): void
+    {
+        $this->salutation = $salutation;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(string $title): void
+    {
+        $this->title = $title;
+    }
+
+    public function getCustomerNumber(): ?string
+    {
+        return $this->customerNumber;
+    }
+
+    public function setCustomerNumber(string $customerNumber): void
+    {
+        $this->customerNumber = $customerNumber;
     }
 
     public function getCustomerId(): ?string
@@ -50,5 +130,15 @@ class OrderCustomerStruct extends Entity
     public function setCustomer(CustomerStruct $customer): void
     {
         $this->customer = $customer;
+    }
+
+    public function getOrders(): ?OrderCollection
+    {
+        return $this->orders;
+    }
+
+    public function setOrders(OrderCollection $orders): void
+    {
+        $this->orders = $orders;
     }
 }

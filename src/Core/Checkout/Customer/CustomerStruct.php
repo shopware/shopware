@@ -46,7 +46,7 @@ class CustomerStruct extends Entity
     /**
      * @var string
      */
-    protected $number;
+    protected $customerNumber;
 
     /**
      * @var string|null
@@ -288,14 +288,14 @@ class CustomerStruct extends Entity
         $this->defaultShippingAddressId = $defaultShippingAddressId;
     }
 
-    public function getNumber(): string
+    public function getCustomerNumber(): string
     {
-        return $this->number;
+        return $this->customerNumber;
     }
 
-    public function setNumber(string $number): void
+    public function setCustomerNumber(string $customerNumber): void
     {
-        $this->number = $number;
+        $this->customerNumber = $customerNumber;
     }
 
     public function getSalutation(): ?string

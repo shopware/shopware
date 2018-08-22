@@ -338,7 +338,7 @@ class AccountService
             'salesChannelId' => $context->getSalesChannel()->getId(),
             'groupId' => $context->getCurrentCustomerGroup()->getId(),
             'defaultPaymentMethodId' => $context->getPaymentMethod()->getId(),
-            'number' => '123',
+            'customerNumber' => '123',
             'salutation' => $registrationRequest->getSalutation(),
             'firstName' => $registrationRequest->getFirstName(),
             'lastName' => $registrationRequest->getLastName(),

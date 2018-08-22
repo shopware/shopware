@@ -186,6 +186,8 @@ class TokenFactoryTest extends KernelTestCase
             'orderCustomer' => [
                 'customerId' => $customerId,
                 'email' => 'test@example.com',
+                'firstName' => 'Max',
+                'lastName' => 'Mustermann',
             ],
             'stateId' => Defaults::ORDER_STATE_OPEN,
             'paymentMethodId' => Defaults::PAYMENT_METHOD_INVOICE,
@@ -218,7 +220,7 @@ class TokenFactoryTest extends KernelTestCase
 
         $customer = [
             'id' => $customerId,
-            'number' => '1337',
+            'customerNumber' => '1337',
             'salutation' => 'Herr',
             'firstName' => 'Max',
             'lastName' => 'Mustermann',

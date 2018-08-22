@@ -73,7 +73,7 @@ class CustomerRepositoryTest extends KernelTestCase
                 'lastName' => 'not',
                 'firstName' => $matchTerm,
                 'salutation' => 'not',
-                'number' => 'not',
+                'customerNumber' => 'not',
             ],
             [
                 'id' => $recordB,
@@ -86,7 +86,7 @@ class CustomerRepositoryTest extends KernelTestCase
                 'lastName' => $matchTerm,
                 'firstName' => 'not',
                 'salutation' => 'not',
-                'number' => 'not',
+                'customerNumber' => 'not',
             ],
             [
                 'id' => $recordC,
@@ -99,7 +99,7 @@ class CustomerRepositoryTest extends KernelTestCase
                 'lastName' => 'not',
                 'firstName' => 'not',
                 'salutation' => 'not',
-                'number' => $matchTerm,
+                'customerNumber' => $matchTerm,
             ],
             [
                 'id' => $recordD,
@@ -112,7 +112,7 @@ class CustomerRepositoryTest extends KernelTestCase
                 'lastName' => 'not',
                 'firstName' => 'not',
                 'salutation' => 'not',
-                'number' => 'not',
+                'customerNumber' => 'not',
             ],
         ];
 

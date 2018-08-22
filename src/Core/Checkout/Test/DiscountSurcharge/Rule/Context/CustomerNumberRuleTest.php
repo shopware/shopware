@@ -40,7 +40,7 @@ class CustomerNumberRuleTest extends TestCase
         $cart = $this->createMock(Cart::class);
 
         $customer = new CustomerStruct();
-        $customer->setNumber('NO. 1');
+        $customer->setCustomerNumber('NO. 1');
 
         $context = $this->createMock(CheckoutContext::class);
 
@@ -60,7 +60,7 @@ class CustomerNumberRuleTest extends TestCase
         $cart = $this->createMock(Cart::class);
 
         $customer = new CustomerStruct();
-        $customer->setNumber('NO. 2');
+        $customer->setCustomerNumber('NO. 2');
 
         $context = $this->createMock(CheckoutContext::class);
 
@@ -80,7 +80,7 @@ class CustomerNumberRuleTest extends TestCase
         $cart = $this->createMock(Cart::class);
 
         $customer = new CustomerStruct();
-        $customer->setNumber('no. 1');
+        $customer->setCustomerNumber('no. 1');
 
         $context = $this->createMock(CheckoutContext::class);
 
@@ -117,7 +117,7 @@ class CustomerNumberRuleTest extends TestCase
         $cart = $this->createMock(Cart::class);
 
         $customer = new CustomerStruct();
-        $customer->setNumber('no. 2');
+        $customer->setCustomerNumber('no. 2');
 
         $context = $this->createMock(CheckoutContext::class);
 

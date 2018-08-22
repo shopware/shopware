@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Customer;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupStruct;
-use Shopware\Core\Checkout\Order\OrderCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodStruct;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\Search\SearchDocumentCollection;
@@ -49,7 +49,7 @@ class CustomerStruct extends Entity
     protected $number;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $salutation;
 
@@ -89,9 +89,9 @@ class CustomerStruct extends Entity
     protected $active;
 
     /**
-     * @var int
+     * @var bool
      */
-    protected $accountMode;
+    protected $guest;
 
     /**
      * @var string|null
@@ -209,9 +209,9 @@ class CustomerStruct extends Entity
     protected $addresses;
 
     /**
-     * @var OrderCollection|null
+     * @var OrderCustomerCollection|null
      */
-    protected $orders;
+    protected $orderCustomers;
 
     /**
      * @var int
@@ -298,12 +298,12 @@ class CustomerStruct extends Entity
         $this->number = $number;
     }
 
-    public function getSalutation(): string
+    public function getSalutation(): ?string
     {
         return $this->salutation;
     }
 
-    public function setSalutation(string $salutation): void
+    public function setSalutation(?string $salutation): void
     {
         $this->salutation = $salutation;
     }
@@ -378,14 +378,14 @@ class CustomerStruct extends Entity
         $this->active = $active;
     }
 
-    public function getAccountMode(): int
+    public function getGuest(): bool
     {
-        return $this->accountMode;
+        return $this->guest;
     }
 
-    public function setAccountMode(int $accountMode): void
+    public function setGuest(bool $guest): void
     {
-        $this->accountMode = $accountMode;
+        $this->guest = $guest;
     }
 
     public function getConfirmationKey(): ?string
@@ -627,14 +627,14 @@ class CustomerStruct extends Entity
         $this->addresses = $addresses;
     }
 
-    public function getOrders(): ?OrderCollection
+    public function getOrderCustomers(): ?OrderCustomerCollection
     {
-        return $this->orders;
+        return $this->orderCustomers;
     }
 
-    public function setOrders(OrderCollection $orders): void
+    public function setOrderCustomers(OrderCustomerCollection $orderCustomers): void
     {
-        $this->orders = $orders;
+        $this->orderCustomers = $orderCustomers;
     }
 
     public function getAutoIncrement(): int

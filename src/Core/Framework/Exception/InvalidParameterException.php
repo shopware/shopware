@@ -12,7 +12,7 @@ class InvalidParameterException extends ShopwareHttpException
 
     public function __construct(string $name, int $code = 0, Throwable $previous = null)
     {
-        $message = sprintf('The parameter `%s` is invalid', $name);
+        $message = sprintf('The parameter "%s" is invalid', $name);
 
         parent::__construct($message, $code, $previous);
     }

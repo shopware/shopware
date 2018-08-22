@@ -12,7 +12,7 @@ class MissingParameterException extends ShopwareHttpException
 
     public function __construct(string $name, $code = 0, Throwable $previous = null)
     {
-        $message = sprintf('Parameter `%s` is missing', $name);
+        $message = sprintf('Parameter "%s" is missing', $name);
 
         parent::__construct($message, $code, $previous);
     }

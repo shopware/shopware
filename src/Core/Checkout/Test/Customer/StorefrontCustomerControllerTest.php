@@ -70,10 +70,10 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         $password = 'shopware';
         $customerId = $this->createCustomer($email, $password);
 
-        $this->storefrontApiClient->request('POST', '/storefront-api/customer/login', [], [], [], json_encode([
+        $this->storefrontApiClient->request('POST', '/storefront-api/customer/login', [
             'username' => $email,
             'password' => $password,
-        ]));
+        ]);
         $response = $this->storefrontApiClient->getResponse();
         $content = json_decode($response->getContent(), true);
 
@@ -204,7 +204,7 @@ class StorefrontCustomerControllerTest extends ApiTestCase
             'company' => 'Shopware AG',
         ];
 
-        $this->storefrontApiClient->request('POST', '/storefront-api/customer/address', [], [], [], json_encode($address));
+        $this->storefrontApiClient->request('POST', '/storefront-api/customer/address', $address);
         $response = $this->storefrontApiClient->getResponse();
         $content = json_decode($response->getContent(), true);
 
@@ -315,11 +315,7 @@ class StorefrontCustomerControllerTest extends ApiTestCase
             'shippingAdditionalAddressLine2' => 'Additional address line 02',
         ];
 
-        $this->storefrontApiClient->request('POST', '/storefront-api/customer', [], [], [],
-            json_encode(
-                array_merge($personal, $billing, $shipping)
-            )
-        );
+        $this->storefrontApiClient->request('POST', '/storefront-api/customer', array_merge($personal, $billing, $shipping));
 
         $response = $this->storefrontApiClient->getResponse();
         $content = json_decode($response->getContent(), true);
@@ -400,10 +396,7 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         $customerId = $this->createCustomerAndLogin();
         $password = '1234';
 
-        $this->storefrontApiClient->request('PUT', '/storefront-api/customer/password', [], [], [],
-            json_encode([
-                'password' => $password,
-            ]));
+        $this->storefrontApiClient->request('PUT', '/storefront-api/customer/password', ['password' => $password]);
         $response = $this->storefrontApiClient->getResponse();
         $content = json_decode($response->getContent(), true);
 
@@ -427,7 +420,7 @@ class StorefrontCustomerControllerTest extends ApiTestCase
             'birthdayMonth' => 5,
             'birthdayDay' => 3,
         ];
-        $this->storefrontApiClient->request('PUT', '/storefront-api/customer/profile', [], [], [], json_encode($data));
+        $this->storefrontApiClient->request('PUT', '/storefront-api/customer/profile', $data);
         $response = $this->storefrontApiClient->getResponse();
         $content = json_decode($response->getContent(), true);
 
@@ -510,10 +503,10 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         $email = $email ?? Uuid::uuid4()->getHex() . '@example.com';
         $customerId = $this->createCustomer($email, $password);
 
-        $this->storefrontApiClient->request('POST', '/storefront-api/customer/login', [], [], [], json_encode([
+        $this->storefrontApiClient->request('POST', '/storefront-api/customer/login', [
             'username' => $email,
             'password' => $password,
-        ]));
+        ]);
 
         return $customerId;
     }

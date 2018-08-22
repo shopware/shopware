@@ -93,9 +93,9 @@ class CartService
         return $this->getCart($context);
     }
 
-    public function getCart(CheckoutContext $context): Cart
+    public function getCart(CheckoutContext $context, bool $caching = true): Cart
     {
-        if ($this->cart) {
+        if ($this->cart && $caching) {
             return $this->cart;
         }
 
@@ -110,7 +110,6 @@ class CartService
     public function add(LineItem $item, CheckoutContext $context): Cart
     {
         $cart = $this->loadOrCreateCart($context);
-
         $cart->add($item);
 
         return $this->calculate($cart, $context);
@@ -119,7 +118,6 @@ class CartService
     public function fill(LineItemCollection $lineItems, CheckoutContext $context): Cart
     {
         $cart = $this->loadOrCreateCart($context);
-
         $cart->getLineItems()->fill($lineItems->getElements());
 
         return $this->calculate($cart, $context);
@@ -150,7 +148,6 @@ class CartService
     public function remove(string $identifier, CheckoutContext $context): Cart
     {
         $cart = $this->loadOrCreateCart($context);
-
         $cart->remove($identifier);
 
         return $this->calculate($cart, $context);
@@ -159,7 +156,7 @@ class CartService
     public function order(CheckoutContext $context): string
     {
         $events = $this->orderPersister->persist(
-            $this->getCart($context),
+            $this->getCart($context, false),
             $context
         );
 
@@ -178,14 +175,14 @@ class CartService
         }
 
         try {
-            //try to access existing cart, identified by session token
+            // try to access existing cart, identified by session token
             return $this->cart = $this->persister->load(
                 $context->getToken(),
                 self::CART_NAME,
                 $context
             );
         } catch (\Exception $e) {
-            //token not found, create new cart
+            // token not found, create new cart
             return $this->cart = $this->createNewCart($context);
         }
     }
@@ -193,14 +190,10 @@ class CartService
     private function calculate(Cart $cart, CheckoutContext $context): Cart
     {
         $cart = $this->enrichment->enrich($cart, $context);
-
         $cart = $this->processor->process($cart, $context);
-
         $this->save($cart, $context);
 
-        $this->cart = $cart;
-
-        return $cart;
+        return $this->cart = $cart;
     }
 
     private function save(Cart $cart, CheckoutContext $context): void

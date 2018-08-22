@@ -66,7 +66,6 @@ class OrderConverter
             'shippingNet' => $cart->getShippingCosts()->getTotalPrice() - $cart->getShippingCosts()->getCalculatedTaxes()->getAmount(),
             'isNet' => !$this->taxDetector->useGross($context),
             'isTaxFree' => $this->taxDetector->isNetDelivery($context),
-            'customerId' => $context->getCustomer()->getId(),
             'stateId' => Defaults::ORDER_STATE_OPEN,
             'paymentMethodId' => $context->getPaymentMethod()->getId(),
             'currencyId' => $context->getCurrency()->getId(),
@@ -77,6 +76,8 @@ class OrderConverter
         ];
 
         $address = $context->getCustomer()->getActiveBillingAddress();
+
+        $data['orderCustomer'] = $this->convertCustomer($context);
 
         $data['billingAddress'] = $this->convertAddress($address);
         $data['billingAddress']['id'] = $addressId;
@@ -214,6 +215,14 @@ class OrderConverter
             'paymentMethodId' => $transaction->getPaymentMethodId(),
             'amount' => $transaction->getAmount(),
             'orderTransactionStateId' => Defaults::ORDER_TRANSACTION_OPEN,
+        ];
+    }
+
+    private function convertCustomer(CheckoutContext $context)
+    {
+        return [
+            'customerId' => $context->getCustomer()->getId(),
+            'email' => $context->getCustomer()->getEmail(),
         ];
     }
 }

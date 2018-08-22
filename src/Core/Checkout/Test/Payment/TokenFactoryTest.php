@@ -183,7 +183,10 @@ class TokenFactoryTest extends KernelTestCase
             'shippingNet' => 5,
             'isNet' => true,
             'isTaxFree' => true,
-            'customerId' => $customerId,
+            'orderCustomer' => [
+                'customerId' => $customerId,
+                'email' => 'test@example.com',
+            ],
             'stateId' => Defaults::ORDER_STATE_OPEN,
             'paymentMethodId' => Defaults::PAYMENT_METHOD_INVOICE,
             'currencyId' => Defaults::CURRENCY,

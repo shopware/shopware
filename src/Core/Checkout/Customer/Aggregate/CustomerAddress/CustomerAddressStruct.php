@@ -25,7 +25,7 @@ class CustomerAddressStruct extends Entity
     protected $countryStateId;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $salutation;
 
@@ -144,12 +144,12 @@ class CustomerAddressStruct extends Entity
         $this->countryStateId = $countryStateId;
     }
 
-    public function getSalutation(): string
+    public function getSalutation(): ?string
     {
         return $this->salutation;
     }
 
-    public function setSalutation(string $salutation): void
+    public function setSalutation(?string $salutation): void
     {
         $this->salutation = $salutation;
     }

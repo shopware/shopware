@@ -61,6 +61,7 @@ class OrderPersisterTest extends TestCase
         $customer = new CustomerStruct();
         $customer->setId('SWAG-CUSTOMER-ID-1');
         $customer->setDefaultBillingAddress($billingAddress);
+        $customer->setEmail('test@example.com');
 
         $converter = new OrderConverter($taxDetector);
         $persister = new OrderPersister($repository, $converter);

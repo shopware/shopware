@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Checkout\Order;
 
-use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderState\OrderStateDefinition;
@@ -54,8 +54,8 @@ class OrderDefinition extends EntityDefinition
 
             (new IntField('auto_increment', 'autoIncrement'))->setFlags(new ReadOnly()),
 
-            (new FkField('customer_id', 'customerId', CustomerDefinition::class))->setFlags(new Required()),
-            (new ReferenceVersionField(CustomerDefinition::class))->setFlags(new Required()),
+            (new FkField('order_customer_id', 'orderCustomerId', OrderCustomerDefinition::class))->setFlags(new Required()),
+            (new ReferenceVersionField(OrderCustomerDefinition::class))->setFlags(new Required()),
 
             (new FkField('order_state_id', 'stateId', OrderStateDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(OrderStateDefinition::class))->setFlags(new Required()),
@@ -79,7 +79,7 @@ class OrderDefinition extends EntityDefinition
             (new BoolField('is_tax_free', 'isTaxFree'))->setFlags(new Required()),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new ManyToOneAssociationField('customer', 'customer_id', CustomerDefinition::class, true))->setFlags(new SearchRanking(0.5)),
+            (new ManyToOneAssociationField('orderCustomer', 'order_customer_id', OrderCustomerDefinition::class, true))->setFlags(new SearchRanking(0.5)),
             new ManyToOneAssociationField('state', 'order_state_id', OrderStateDefinition::class, true),
             new ManyToOneAssociationField('paymentMethod', 'payment_method_id', PaymentMethodDefinition::class, true),
             new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, true),

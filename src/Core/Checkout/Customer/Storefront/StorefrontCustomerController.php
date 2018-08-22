@@ -77,7 +77,7 @@ class StorefrontCustomerController extends Controller
     public function login(Request $request, CheckoutContext $context): JsonResponse
     {
         $loginRequest = new LoginRequest();
-        $loginRequest->assign($this->decodedContent($request));
+        $loginRequest->assign($request->request->all());
 
         $token = $this->accountService->login($loginRequest, $context);
 
@@ -130,7 +130,7 @@ class StorefrontCustomerController extends Controller
     {
         $registrationRequest = new RegistrationRequest();
 
-        $registrationRequest->assign($this->decodedContent($request));
+        $registrationRequest->assign($request->request->all());
 
         $customerId = $this->accountService->createNewCustomer($registrationRequest, $context);
 
@@ -143,7 +143,7 @@ class StorefrontCustomerController extends Controller
     public function saveEmail(Request $request, CheckoutContext $context): JsonResponse
     {
         $emailSaveRequest = new EmailSaveRequest();
-        $emailSaveRequest->assign($this->decodedContent($request));
+        $emailSaveRequest->assign($request->request->all());
 
         $this->accountService->saveEmail($emailSaveRequest, $context);
         $this->checkoutContextService->refresh(
@@ -161,7 +161,7 @@ class StorefrontCustomerController extends Controller
     public function savePassword(Request $request, CheckoutContext $context): JsonResponse
     {
         $passwordSaveRequest = new PasswordSaveRequest();
-        $passwordSaveRequest->assign($this->decodedContent($request));
+        $passwordSaveRequest->assign($request->request->all());
 
         if (empty($passwordSaveRequest->getPassword())) {
             return new JsonResponse($this->serialize('Invalid password'));
@@ -183,7 +183,7 @@ class StorefrontCustomerController extends Controller
     public function saveProfile(Request $request, CheckoutContext $context): JsonResponse
     {
         $profileSaveRequest = new ProfileSaveRequest();
-        $profileSaveRequest->assign($this->decodedContent($request));
+        $profileSaveRequest->assign($request->request->all());
 
         $this->accountService->saveProfile($profileSaveRequest, $context);
         $this->checkoutContextService->refresh(
@@ -247,7 +247,7 @@ class StorefrontCustomerController extends Controller
     public function createAddress(Request $request, CheckoutContext $context): JsonResponse
     {
         $addressSaveRequest = new AddressSaveRequest();
-        $addressSaveRequest->assign($this->decodedContent($request));
+        $addressSaveRequest->assign($request->request->all());
 
         $addressId = $this->accountService->saveAddress($addressSaveRequest, $context);
 
@@ -296,26 +296,13 @@ class StorefrontCustomerController extends Controller
         --$page;
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('order.customerId', $context->getCustomer()->getId()));
+        $criteria->addFilter(new TermQuery('order.orderCustomer.customerId', $context->getCustomer()->getId()));
         $criteria->addSorting(new FieldSorting('order.date', FieldSorting::DESCENDING));
         $criteria->setLimit($limit);
         $criteria->setOffset($page * $limit);
         $criteria->setFetchCount(Criteria::FETCH_COUNT_NEXT_PAGES);
 
         return $this->orderRepository->search($criteria, $context->getContext())->getElements();
-    }
-
-    private function decodedContent(Request $request): array
-    {
-        if (!empty($request->request->all())) {
-            return $request->request->all();
-        }
-
-        if (empty($request->getContent())) {
-            return [];
-        }
-
-        return $this->serializer->decode($request->getContent(), 'json');
     }
 
     private function serialize($data): array

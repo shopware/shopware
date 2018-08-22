@@ -20,7 +20,6 @@ Component.register('sw-media-catalog', {
         return {
             isLoading: false,
             previewType: 'media-grid-preview-as-grid',
-            catalogs: [],
             mediaItems: [],
             lastSelectedItem: null,
             selectionToDelete: null
@@ -38,24 +37,14 @@ Component.register('sw-media-catalog', {
     },
 
     created() {
-        this.onComponentCreated();
-        this.$root.$on('search', (term) => {
-            this.onSearch(term);
-        });
+        this.createdComponent();
     },
 
     methods: {
-        onComponentCreated() {
-            this.isLoading = true;
-
-            this.catalogStore.getList({
-                page: 1,
-                limit: 0
-            }).then((response) => {
-                this.catalogs = response.items;
+        createdComponent() {
+            this.$root.$on('search', (term) => {
+                this.onSearch(term);
             });
-
-            this.isLoading = false;
         },
 
         onNewMedia() {
@@ -118,6 +107,10 @@ Component.register('sw-media-catalog', {
 
         handleSidebarRemoveBatchRequest() {
             this.selectionToDelete = this.$refs.mediaGrid.selection;
+        },
+
+        handleMediaGridItemDelete({ item }) {
+            this.selectionToDelete = [item];
         },
 
         closeDeleteModal() {

@@ -1,6 +1,5 @@
 import { Component } from 'src/core/shopware';
 import utils from 'src/core/service/util.service';
-import CriteriaFactory from 'src/core/factory/criteria.factory';
 import './sw-multi-select.less';
 import template from './sw-multi-select.html.twig';
 
@@ -37,7 +36,7 @@ Component.register('sw-multi-select', {
         resultsLimit: {
             type: Number,
             required: false,
-            default: 200
+            default: 20
         },
         entityName: {
             type: String,
@@ -78,16 +77,6 @@ Component.register('sw-multi-select', {
         }
     },
 
-    watch: {
-        value() {
-            if (this.initialSelection) {
-                return;
-            }
-            this.initialSelection = true;
-            this.loadSelections();
-        }
-    },
-
     created() {
         this.createdComponent();
     },
@@ -116,27 +105,13 @@ Component.register('sw-multi-select', {
         },
 
         loadSelections() {
-            if (!this.value.length) {
-                return;
-            }
-
             this.isLoading = true;
 
-            const criteria = CriteriaFactory.nested(
-                'AND',
-                CriteriaFactory.terms(`${this.entityName}.id`, this.value.map((item) => {
-                    return item.id;
-                }))
-            );
-
-            this.serviceProvider.getList({
+            this.store.getList({
                 page: 1,
-                limit: this.value.length,
-                additionalParams: {
-                    filter: [criteria.getQuery()]
-                }
+                limit: 500 // ToDo: The concept of assigning a large amount of relations needs a special solution.
             }).then((response) => {
-                this.selections = response.data;
+                this.selections = response.items;
                 this.isLoading = false;
             });
         },
@@ -145,9 +120,7 @@ Component.register('sw-multi-select', {
             this.serviceProvider.getList({
                 page: 1,
                 limit: this.resultsLimit,
-                additionalParams: {
-                    term: this.searchTerm
-                }
+                term: this.searchTerm
             }).then((response) => {
                 this.results = response.data;
                 this.isLoading = false;
@@ -316,23 +289,21 @@ Component.register('sw-multi-select', {
             const itemIds = items.map((item) => item.id);
             const associationStore = this.store;
 
+            // Delete existing relations
             Object.keys(associationStore.store).forEach((id) => {
-                const associationEntity = associationStore.store[id];
-
-                if (itemIds.includes(id)) {
-                    associationStore.addAddition(associationEntity);
-                } else {
+                if (!itemIds.includes(id)) {
                     associationStore.store[id].delete();
                 }
             });
 
+            // Add new relations
             items.forEach((item) => {
-                const id = item.id;
-                const associationEntity = associationStore.store[id];
-
-                if (!associationEntity) {
-                    associationStore.create(id, item, true);
+                if (!associationStore.store[item.id]) {
+                    associationStore.create(item.id, item, true);
                 }
+
+                // In case the entity was already created but was deleted before
+                associationStore.store[item.id].isDeleted = false;
             });
 
             this.$emit('input', this.selections);

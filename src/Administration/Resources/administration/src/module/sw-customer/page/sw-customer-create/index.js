@@ -16,29 +16,25 @@ Component.extend('sw-customer-create', 'sw-customer-detail', {
     methods: {
         createdComponent() {
             this.customer = this.customerStore.create(this.$route.params.id);
-            const customerAddressesStore = this.customer.getAssociationStore('addresses');
+            const customerAddressesStore = this.customer.getAssociation('addresses');
 
             const defaultAddress = customerAddressesStore.create();
-            this.customer.addresses = [
-                defaultAddress
-            ];
-
-            this.$super.createdComponent();
-
-            this.customerEditMode = true;
-
             defaultAddress.customerId = this.customer.id;
+
+            this.customer.defaultBillingAddressId = defaultAddress.id;
+            this.customer.defaultShippingAddressId = defaultAddress.id;
 
             // ToDo: Change to actual password strategy
             this.customer.password = 'shopware';
 
-            this.customer.defaultBillingAddressId = defaultAddress.id;
-            this.customer.defaultShippingAddressId = defaultAddress.id;
+            this.$super.createdComponent();
+
+            this.customerEditMode = true;
         },
 
         onSave() {
-            this.customer.save().then((customer) => {
-                this.$router.push({ name: 'sw.customer.detail', params: { id: customer.id } });
+            this.$super.onSave().then(() => {
+                this.$router.push({ name: 'sw.customer.detail', params: { id: this.customer.id } });
             });
         }
     }

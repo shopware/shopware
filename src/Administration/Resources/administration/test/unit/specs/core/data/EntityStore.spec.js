@@ -22,7 +22,7 @@ describe('core/data/EntityStore.js', () => {
     });
 
     it('should initialize an EntityStore using a predefined api service', () => {
-        const store = new EntityStore('product', 'productService');
+        const store = new EntityStore('product', 'productService', EntityProxy);
 
         expect(store.apiService).to.be.an('object');
         expect(store.store).to.be.an('object');
@@ -38,7 +38,7 @@ describe('core/data/EntityStore.js', () => {
             initContainer.httpClient,
             serviceContainer.loginService,
             'product'
-        ));
+        ), EntityProxy);
 
         expect(store.apiService).to.be.an('object');
         expect(store.store).to.be.an('object');
@@ -46,12 +46,12 @@ describe('core/data/EntityStore.js', () => {
         expect(store.entityName).to.be.equal('product');
     });
 
-    it('should create a new entity the store', () => {
-        const store = new EntityStore('tax', 'taxService');
+    it('should create a new entity in the store', () => {
+        const store = new EntityStore('product', 'productService', EntityProxy);
 
         const entity = store.create();
 
-        expect(entity.isNew).to.be.equal(true);
+        expect(entity.isLocal).to.be.equal(true);
         expect(entity.isDeleted).to.be.equal(false);
         expect(entity.isLoading).to.be.equal(false);
         expect(entity.id.length).to.be.equal(32);
@@ -63,8 +63,8 @@ describe('core/data/EntityStore.js', () => {
         expect(entity.id).to.be.equal(newEntity.id);
     });
 
-    itAsync('should load an entry from the remote server when it is not in the store', (done) => {
-        const store = new EntityStore('currency', 'currencyService');
+    itAsync('should create a new entity in the store and save it to the server', (done) => {
+        const store = new EntityStore('currency', 'currencyService', EntityProxy);
 
         // Create a new entry
         const entity = store.create();
@@ -90,25 +90,53 @@ describe('core/data/EntityStore.js', () => {
         });
     });
 
-    itAsync('should get a list with using a page and limit', (done) => {
-        const store = new EntityStore('currency', 'currencyService');
+    itAsync('should load an entity from the server', (done) => {
+        const serviceContainer = Application.getContainer('service');
+        const store = new EntityStore('currency', serviceContainer.currencyService, EntityProxy);
+
+        // Create a new entry
+        const entity = new EntityProxy('currency', serviceContainer.currencyService);
+        entity.factor = 6844.41;
+        entity.symbol = 'Ƀ';
+        entity.shortName = 'BTC';
+        entity.name = 'Bitcoin';
+
+        entity.save().then((response) => {
+            store.getByIdAsync(response.id).then((storeEntity) => {
+                expect(entity.id).to.be.equal(storeEntity.id);
+                expect(storeEntity.symbol).to.be.equal('Ƀ');
+                expect(storeEntity.shortName).to.be.equal('BTC');
+                expect(storeEntity.name).to.be.equal('Bitcoin');
+
+                storeEntity.delete(true).then(() => {
+                    done();
+                }).catch((err) => {
+                    done(err);
+                });
+            }).catch((err) => {
+                done(err);
+            });
+        }).catch((err) => {
+            done(err);
+        });
+    });
+
+    itAsync('should get a list by using a page and limit', (done) => {
+        const store = new EntityStore('currency', 'currencyService', EntityProxy);
 
         // Create a new entry
         const entity = store.create();
-        const currency = {
-            factor: 6844.41,
-            symbol: 'Ƀ',
-            shortName: 'BTC',
-            name: 'Bitcoin'
-        };
-        Object.assign(entity, currency);
+        entity.factor = 6844.41;
+        entity.symbol = 'Ƀ';
+        entity.shortName = 'BTC';
+        entity.name = 'Bitcoin';
 
         const page = 1;
         const limit = 500;
 
-        store.getList({ page, limit }).then((response) => {
-            const totalBeforeSave = response.total;
-            const itemsBeforeSave = response.items;
+        store.getList({ page, limit }).then((storeResponse) => {
+            const totalBeforeSave = storeResponse.total;
+            const itemsBeforeSave = storeResponse.items;
 
             entity.save().then(() => {
                 store.getList({ page, limit }).then((response) => {
@@ -128,24 +156,23 @@ describe('core/data/EntityStore.js', () => {
                 done(err);
             });
         });
-
     });
 
     itAsync('should get a list with a specific term', (done) => {
-        const store = new EntityStore('currency', 'currencyService');
+        const store = new EntityStore('currency', 'currencyService', EntityProxy);
 
         // Create a new entry
         const entity = store.create();
         entity.factor = 6844.41;
         entity.symbol = 'Ƀ';
         entity.shortName = 'BTC';
-        entity.name = 'Awesome_crypto_currency';
+        entity.name = 'Bitcoin';
 
         entity.save().then(() => {
             store.getList({
                 page: 1,
                 limit: 1,
-                term: entity.name
+                term: 'Bitcoin'
             }).then((response) => {
                 expect(response.items.length).to.be.equal(1);
 
@@ -161,7 +188,7 @@ describe('core/data/EntityStore.js', () => {
     });
 
     itAsync('should accept a sort by and sort direction parameter', (done) => {
-        const store = new EntityStore('currency', 'currencyService');
+        const store = new EntityStore('currency', 'currencyService', EntityProxy);
 
         store.getList({
             page: 1,
@@ -176,7 +203,7 @@ describe('core/data/EntityStore.js', () => {
     });
 
     it('should create a new empty local entity', () => {
-        const store = new EntityStore('currency', 'currencyService');
+        const store = new EntityStore('currency', 'currencyService', EntityProxy);
 
         const entity = store.create();
         entity.factor = 6844.41;
@@ -193,15 +220,17 @@ describe('core/data/EntityStore.js', () => {
         expect(storeEntry.name).to.be.equal(entity.name);
     });
 
-    it('should an add entity to the store', () => {
-        const store = new EntityStore('currency', 'currencyService');
+    it('should add entity to the store', () => {
+        const store = new EntityStore('currency', 'currencyService', EntityProxy);
 
-        const entity = new EntityProxy('currency', 'currencyService', {
+        const entity = new EntityProxy('currency', 'currencyService');
+        entity.setLocalData({
             factor: 6844.41,
             symbol: 'Ƀ',
             shortName: 'BTC',
             name: 'Bitcoin'
         });
+
         store.add(entity);
 
         const storeEntity = store.store[entity.id];

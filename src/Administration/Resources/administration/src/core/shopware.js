@@ -54,6 +54,7 @@ export const Entity = {
     getDefinition: Shopware.Entity.getDefinition,
     getDefinitionRegistry: Shopware.Entity.getDefinitionRegistry,
     getRawEntityObject: Shopware.Entity.getRawEntityObject,
+    getPropertyBlacklist: Shopware.Entity.getPropertyBlacklist,
     getRequiredProperties: Shopware.Entity.getRequiredProperties,
     getAssociatedProperties: Shopware.Entity.getAssociatedProperties
 };

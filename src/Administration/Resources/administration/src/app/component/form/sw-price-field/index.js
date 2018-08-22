@@ -40,7 +40,7 @@ Component.register('sw-price-field', {
     },
 
     watch: {
-        'price.linked': (value) => {
+        'price.linked': function priceLinkedWatcher(value) {
             if (value === true) {
                 this.price.net = this.convertGrossToNet(this.price.gross);
             }

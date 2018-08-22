@@ -1,223 +1,163 @@
-/**
- * @module core/data/EntityStore
- */
-import { Application, Entity } from 'src/core/shopware';
+import { Application } from 'src/core/shopware';
 import utils, { types } from 'src/core/service/util.service';
-import EntityProxy from './EntityProxy';
+import { deepCopyObject, hasOwnProperty } from 'src/core/service/utils/object.utils';
 
-/**
- * The entity store is like a repository and contains multiple entities. It can be used to fetch a list of entities as
- * well as sync the changed entities to the remote server.
- *
- * @class
- */
-class EntityStore {
-    /**
-     * Initializes the entity store.
-     *
-     * @constructor
-     * @param {String} entityName
-     * @param {ApiService|String} apiService
-     * @param {any} [EntityClass = EntityProxy]
-     */
-    constructor(entityName, apiService, EntityClass = EntityProxy) {
+export default class EntityStore {
+    constructor(entityName, apiService, EntityClass) {
         this.entityName = entityName;
+        this.EntityClass = EntityClass;
 
         if (types.isString(apiService)) {
             const serviceContainer = Application.getContainer('service');
-            this._apiService = serviceContainer[apiService];
+            this.apiService = serviceContainer[apiService];
         } else {
-            this._apiService = apiService;
+            this.apiService = apiService;
         }
 
-        this.EntityClass = EntityClass;
-
-        this.store = {};
         this.isLoading = false;
+        this.store = {};
     }
 
     /**
-     * Get an entity by its id.
+     * Returns an entity by its id synchronously.
      *
      * @param {String} id
-     * @param {Object} additionalParams
-     * @param {Object} additionalHeaders
-     * @return {Object}
+     * @param {Boolean} [force=false]
+     * @return {*}
      */
-    getById(id, additionalParams = {}, additionalHeaders = {}) {
-        if (this.store[id]) {
+    getById(id, force = false) {
+        if (this.store[id] && force !== true) {
             return this.store[id];
         }
 
-        const entity = Entity.getRawEntityObject(this.entityName, true);
-        entity.id = id;
+        const entity = this.create(id);
 
-        this.store[id] = new this.EntityClass(this.entityName, this.apiService, entity);
-        this.store[id].$store = this;
-
-        this.store[id].isLoading = true;
-        this.apiService.getById(id, additionalParams, additionalHeaders).then((response) => {
-            this.store[id].initData(response.data);
-            this.store[id].isLoading = false;
+        entity.isLoading = true;
+        this.apiService.getById(id).then((response) => {
+            entity.setData(response.data);
+            entity.isLoading = false;
         });
 
-        return this.store[id];
+        return entity;
     }
 
     /**
-     * Get a list of entities.
+     * Returns an entity by its id asynchronously.
      *
-     * @param {Number} page
-     * @param {Number} limit
-     * @param {String} sortBy
-     * @param {String} sortDirection
-     * @param {String} term
-     * @param {Object} criteria
-     * @return {Promise}
+     * @param {String} id
+     * @return {Promise<never> | Promise<any>}
      */
-    getList({ page, limit, sortBy, sortDirection, term, criteria }) {
-        const params = {};
-
-        if (sortBy && sortBy.length) {
-            params.sort = (sortDirection.toLowerCase() === 'asc' ? '' : '-') + sortBy;
+    getByIdAsync(id) {
+        if (!id || !id.length) {
+            return Promise.reject();
         }
 
-        if (term) {
-            params.term = term;
-        }
+        const entity = this.create(id);
 
-        if (criteria) {
-            params.filter = [criteria.getQuery()];
-        }
+        entity.isLoading = true;
+        return this.apiService.getById(id).then((response) => {
+            entity.setData(response.data);
+            entity.isLoading = false;
 
+            return entity;
+        });
+    }
+
+    /**
+     * Loads a list of entities from the server.
+     *
+     * @param {Object} params
+     */
+    getList(params) {
         this.isLoading = true;
 
-        return this.apiService.getList({
-            page,
-            limit,
-            additionalParams: params
-        }).then((response) => {
-            const newItems = response.data;
+        return this.apiService.getList(params).then((response) => {
             const total = response.meta.total;
-
-            const items = newItems.map((item) => {
-                if (this.store[item.id]) {
-                    this.store[item.id].initData(item);
-                    return this.getById(item.id);
-                }
-
-                const entity = new this.EntityClass(this.entityName, this.apiService, item);
-                return this.add(entity);
-            });
-
-            // Hook for associations, when a store has a $parent property, we're filling it up with the items
-            if (this.$parent && this.$type) {
-                this.populateParentEntity(items);
-            }
+            const items = [];
 
             this.isLoading = false;
+
+            response.data.forEach((item) => {
+                const entity = this.create(item.id);
+                entity.setData(item);
+                items.push(entity);
+            });
 
             return { items, total };
         });
     }
 
     /**
-     * Populates the parent entity with new items.
-     *
-     * @param {Array} items
-     * @returns {Array}
-     */
-    populateParentEntity(items) {
-        const parent = this.$parent.draft[this.$type];
-
-        if (parent) {
-            parent.splice(0, parent.length);
-            parent.push(...items);
-        }
-
-        return items;
-    }
-
-    /**
-     * Create a new empty local entity.
+     * Creates a new entity in the store.
      *
      * @param {String} id
-     * @param {Object} [entityData = {}]
-     * @param {Boolean} [isAddition = false]
-     * @return {EntityProxy}
+     * @return {*}
      */
-    create(id = utils.createId(), entityData = {}, isAddition = false) {
-        const entity = Entity.getRawEntityObject(this.entityName, true);
+    create(id = utils.createId()) {
+        if (this.store[id]) {
+            return this.store[id];
+        }
 
-        Object.assign(entity, entityData);
-        entity.id = id;
-
-        this.store[id] = new this.EntityClass(this.entityName, this.apiService, entity);
-
-        this.store[id].isNew = true;
-        this.store[id].isAddition = isAddition;
-        this.store[id].$store = this;
-
+        this.store[id] = new this.EntityClass(this.entityName, this.apiService, id, this);
         return this.store[id];
     }
 
     /**
-     * Adds an entity to the store
+     * Duplicates an entity in the store.
+     *
+     * @param {String} id
+     * @return {*}
+     */
+    duplicate(id) {
+        const newId = utils.createId();
+
+        this.store[newId] = new this.EntityClass(this.entityName, this.apiService, newId, this);
+
+        if (this.store[id]) {
+            const duplicateData = deepCopyObject(this.store[id].draft);
+            duplicateData.id = newId;
+
+            this.store[newId].setLocalData(duplicateData);
+        }
+
+        return this.store[newId];
+    }
+
+    /**
+     * Adds an entity proxy to the store.
      *
      * @param {EntityProxy} entity
-     * @returns {Boolean|EntityProxy}
+     * @return {boolean}
      */
     add(entity) {
-        const id = entity.id;
-
-        if (!id || !id.length) {
+        if (!hasOwnProperty(entity, 'id')) {
             return false;
         }
 
-        entity.$store = this;
-
-        this.store[id] = entity;
-        return this.store[id];
+        this.store[entity.id] = entity;
+        return true;
     }
 
     /**
-     * Adds a relationship to the store
+     * Removes an entity from the store.
      *
      * @param {EntityProxy} entity
-     * @returns {Boolean|EntityProxy}
-     */
-    addAddition(entity) {
-        const id = entity.id;
-
-        if (!id || !id.length) {
-            return false;
-        }
-
-        entity.$store = this;
-
-        this.store[id] = entity;
-        this.store[id].isAddition = true;
-
-        return this.store[id];
-    }
-
-    /**
-     * Removes the given record from the store
-     *
-     * @param {EntityProxy} entity
-     * @returns {Boolean}
+     * @return {boolean}
      */
     remove(entity) {
-        const id = entity.id;
+        if (!hasOwnProperty(entity, 'id') || !this.store[entity.id]) {
+            return false;
+        }
 
-        return this.removeById(id);
+        delete this.store[entity.id];
+        return true;
     }
 
     /**
-     * Removes the entity from the store using the given id.
+     * Removes an entity from the store by its id.
      *
      * @param {String} id
-     * @returns {Boolean}
+     * @return {boolean}
      */
     removeById(id) {
         if (!this.store[id]) {
@@ -229,107 +169,105 @@ class EntityStore {
     }
 
     /**
-     * Removes all items from the store.
+     * Removes all entities from the store.
      *
-     * @returns {Boolean}
+     * @return {boolean}
      */
     removeAll() {
         this.store = {};
-
         return true;
     }
 
     /**
-     * Sync all entities in the store to the server.
+     * Iterator method to apply on all store items.
      *
-     * @param {Boolean} [deletionsOnly = false]
-     * @param {Array} [itemIds = []]
-     * @return {Promise<T>}
+     * @param {Function} iterator
+     * @param {Object} scope
+     * @return {{}}
      */
-    sync(deletionsOnly = false, itemIds = []) {
-        const syncCue = this.getSyncCue(deletionsOnly, itemIds);
+    forEach(iterator, scope = this) {
+        if (!types.isFunction(iterator)) {
+            return this.store;
+        }
+
+        Object.keys(this.store).forEach((id) => {
+            iterator.call(scope, this.store[id], id);
+        });
+
+        return this.store;
+    }
+
+    /**
+     * Syncs all entities in the store with the server.
+     *
+     * @param {Boolean} deletionsOnly
+     * @return {Promise<any[]>}
+     */
+    sync(deletionsOnly = false) {
+        let syncQueue = this.getDeletionQueue();
+
+        if (deletionsOnly === false) {
+            syncQueue = [...syncQueue, ...this.getUpdateQueue()];
+        }
 
         this.isLoading = true;
 
-        return Promise.all(syncCue).then(() => {
+        return Promise.all(syncQueue).then(() => {
             this.isLoading = false;
         });
     }
 
     /**
-     * Builds up the promise cue for a sync with the server.
+     * Get a promise queue of deleted entities.
      *
-     * @param {Boolean} [deletionsOnly = false]
-     * @param {Array} [itemIds = []]
      * @return {Array}
      */
-    getSyncCue(deletionsOnly = false, itemIds = []) {
-        const syncCue = [];
+    getDeletionQueue() {
+        const deletionQueue = [];
 
         Object.keys(this.store).forEach((id) => {
-            if (itemIds.length > 0 && !itemIds.includes(id)) {
+            const entity = this.store[id];
+
+            if (entity.isDeleted) {
+                deletionQueue.push(new Promise((resolve, reject) => {
+                    entity.delete(true)
+                        .then((response) => { resolve(response); })
+                        .catch((response) => { reject(response); });
+                }));
+            }
+        });
+
+        return deletionQueue;
+    }
+
+    /**
+     * Get a promise queue of changed entities.
+     *
+     * @return {Array}
+     */
+    getUpdateQueue() {
+        const updateQueue = [];
+
+        Object.keys(this.store).forEach((id) => {
+            const entity = this.store[id];
+
+            if (entity.isDeleted) {
                 return;
             }
 
-            const entry = this.getById(id);
-            const changes = entry.getChanges();
+            const changes = entity.getChanges();
 
-            if (entry.isDeleted) {
-                syncCue.push(new Promise((resolve, reject) => {
-                    entry.delete(true)
-                        .then((response) => {
-                            resolve(response);
-                        })
-                        .catch((response) => {
-                            reject(response);
-                        });
-                }));
-            } else if (Object.keys(changes).length && !deletionsOnly) {
-                syncCue.push(new Promise((resolve, reject) => {
-                    entry.save()
-                        .then((response) => {
-                            resolve(response);
-                        })
-                        .catch((response) => {
-                            reject(response);
-                        });
-                }));
+            if (entity.isLocal || Object.keys(changes).length > 0) {
+                updateQueue.push(
+                    new Promise((resolve, reject) => {
+                        entity.save()
+                            .then((response) => { resolve(response); })
+                            .catch((response) => { reject(response); });
+                    })
+                );
             }
         });
 
-        return syncCue;
-    }
-
-    /**
-     * Returns the changed entity ids.
-     *
-     * @returns {Array<String>}
-     */
-    getChangedIds() {
-        return Object.keys(this.store).filter((entityKey) => {
-            const entity = this.store[entityKey];
-            return Object.keys(entity.getChanges()).length;
-        });
-    }
-
-    /**
-     * Getter for the api service.
-     *
-     * @return {ApiService}
-     */
-    get apiService() {
-        return this._apiService;
-    }
-
-    /**
-     * Setter for the api service.
-     *
-     * @param {ApiService} service
-     * @returns {void}
-     */
-    set apiService(service) {
-        this._apiService = service;
+        return updateQueue;
     }
 }
-
-export default EntityStore;

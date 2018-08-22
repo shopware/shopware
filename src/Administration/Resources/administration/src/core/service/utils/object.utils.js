@@ -1,15 +1,14 @@
+import type from 'src/core/service/utils/types.utils';
+
 /**
  * @module core/service/utils/object
  */
 
-import type from './types.utils';
-
 export default {
     deepCopyObject,
-    getObjectChangeSet,
-    getAssociatedDeletions,
-    getPropertyBlacklist,
-    hasOwnProperty
+    hasOwnProperty,
+    getObjectDiff,
+    getArrayChanges
 };
 
 /**
@@ -34,330 +33,91 @@ export function deepCopyObject(copyObject = {}) {
 }
 
 /**
- * Compares two entity versions and returns all deleted associations of that entity.
+ * Get a simple recursive diff of two objects.
+ * Does not consider an entity schema or entity related logic.
  *
- * @param baseObject
- * @param compareObject
- * @param entitySchemaName
- * @returns {{}}
+ * @param {Object} a
+ * @param {Object} b
+ * @return {*}
  */
-export function getAssociatedDeletions(baseObject, compareObject, entitySchemaName) {
-    if (!baseObject || !compareObject || !entitySchemaName) {
+export function getObjectDiff(a, b) {
+    if (a === b) {
         return {};
     }
 
-    const entitySchema = Shopware.Entity.getDefinition(entitySchemaName);
-    const entityProperties = Object.keys(entitySchema.properties);
-
-    const b = { ...baseObject };
-    const c = { ...compareObject };
-
-    return Object.keys(b).reduce((acc, key) => {
-        if (!entityProperties.includes(key)) {
-            return { ...acc };
-        }
-
-        const property = entitySchema.properties[key];
-        let associatedEntity = null;
-
-        if (property.entity && property.entity.length) {
-            associatedEntity = property.entity;
-        }
-
-        // The property does not exist on the compare object, so it is a direct deletion.
-        if (typeof c[key] === 'undefined' && associatedEntity !== null) {
-            return { ...acc, [key]: b[key] };
-        }
-
-        if (type.isArray(b[key]) && associatedEntity !== null) {
-            const arrayDeletions = [];
-
-            b[key].forEach((item) => {
-                if (type.isObject(item) && item.id) {
-                    if (typeof c[key].find((compareItem) => compareItem.id === item.id) === 'undefined') {
-                        arrayDeletions.push(item);
-                    }
-                }
-            });
-
-            if (arrayDeletions.length > 0) {
-                return { ...acc, [key]: arrayDeletions };
-            }
-
-            return { ...acc };
-        }
-
-        return { ...acc };
-    }, {});
-}
-
-/**
- * Compares to objects recursively and returns a new object including the changeset.
- * You can optionally pass the name of an entity to validate all properties against the entity schema.
- *
- * @param {Object} baseObject
- * @param {Object} compareObject
- * @param {String|null} [entitySchemaName = null]
- * @param {Boolean} [includeAssociations = true]
- * @returns {*}
- */
-export function getObjectChangeSet(baseObject, compareObject, entitySchemaName = null, includeAssociations = true) {
-    // Both objects or properties are the same, so there is no change.
-    if (baseObject === compareObject) {
-        return {};
+    if (!type.isObject(a) || !type.isObject(b)) {
+        return b;
     }
 
-    // The passed properties are also no comparable objects so there must be a change.
-    if (!type.isObject(baseObject) || !type.isObject(compareObject)) {
-        return compareObject;
-    }
-
-    // Handle the special case of date properties.
-    if (type.isDate(baseObject) || type.isDate(compareObject)) {
-        if (baseObject.valueOf() === compareObject.valueOf()) {
+    if (type.isDate(a) || type.isDate(b)) {
+        if (a.valueOf() === b.valueOf()) {
             return {};
         }
 
-        return compareObject;
+        return b;
     }
 
-    let entitySchema = null;
-    let entityProperties = null;
-    const blacklist = getPropertyBlacklist();
-
-    if (entitySchemaName !== null) {
-        entitySchema = Shopware.Entity.getDefinition(entitySchemaName) || null;
-
-        if (entitySchema !== null) {
-            entityProperties = Object.keys(entitySchema.properties);
-
-            if (!includeAssociations) {
-                entityProperties = Object.keys(entitySchema.properties).reduce((accumulator, propName) => {
-                    const prop = entitySchema.properties[propName];
-                    if (prop.type !== 'array' || !hasOwnProperty(prop, 'entity')) {
-                        accumulator.push(propName);
-                    }
-
-                    return accumulator;
-                }, []);
-            }
-        }
-    }
-
-    const b = { ...baseObject };
-    const c = { ...compareObject };
-
-    // Iterate through all properties of the compare object and check for differences.
-    return Object.keys(c).reduce((acc, key) => {
-        let property = null;
-        let associatedEntity = null;
-
-        // Exclude properties which are on the blacklist
-        if (blacklist.includes(key)) {
-            return { ...acc };
+    return Object.keys(b).reduce((acc, key) => {
+        if (!hasOwnProperty(a, key)) {
+            return { ...acc, [key]: b[key] };
         }
 
-        // If there is a given entity schema definition, validate the property against the schema.
-        if (entityProperties !== null) {
-            // When the property is not a part of the definition, it will not be considered.
-            if (!entityProperties.includes(key)) {
-                return { ...acc };
-            }
-
-            property = entitySchema.properties[key];
-
-            // If the property is an associated entity the recursive call will also validate the associated schema.
-            if (property.entity && property.entity.length) {
-                associatedEntity = property.entity;
-            }
-
-            // If the type of the property is one of the json fields, it will get special treatment.
-            if (isJsonFieldProp(property, key)) {
-                return handleJsonFieldProp(b[key], c[key], acc, key);
-            }
-        }
-
-        // If the property is not present on the base object, it is an addition from the compare object.
-        if (!hasOwnProperty(b, key)) {
-            const addition = validateObjectSchema(c[key], associatedEntity);
-
-            if (hasNoChanges(addition)) {
-                return { ...acc };
-            }
-
-            return { ...acc, [key]: addition };
-        }
-
-        // If the property is an array, we also try to find changes in the array items.
         if (type.isArray(b[key])) {
-            return handleArrayProp(b[key], c[key], acc, key, associatedEntity);
+            const changes = getArrayChanges(a[key], b[key]);
+
+            if (Object.keys(changes).length > 0) {
+                return { ...acc, [key]: b[key] };
+            }
+
+            return acc;
         }
 
-        // Recursively get changes of nested object properties.
-        const diff = getObjectChangeSet(b[key], c[key], associatedEntity);
+        const changes = getObjectDiff(a[key], b[key]);
 
-        // When there are no actual changes, the property is not considered for the changeset.
-        if (hasNoChanges(diff)) {
-            return { ...acc };
+        if (Object.keys(changes).length > 0) {
+            return { ...acc, [key]: changes };
         }
 
-        // When the compared objects have their own "id" property, we assume that it is an association.
-        if (type.isObject(b[key]) && b[key].id) {
-            // Changes to associated entities always need the id for reference.
-            diff.id = b[key].id;
-        }
-
-        return { ...acc, [key]: diff };
+        return acc;
     }, {});
 }
 
 /**
- * Compares two arrays and their items to generate a changeset.
+ * Check if the compared array has changes.
+ * Works a little bit different like the object diff because it does not return a real changeset.
+ * In case of a change we will always use the complete compare array,
+ * because it always holds the newest state regarding deletions, additions and the order.
  *
- * @param baseArray
- * @param compareArray
- * @param entitySchemaName
- * @returns {*}
+ * @param {Array} a
+ * @param {Array} b
+ * @return {*}
  */
-function getArrayChangeSet(baseArray, compareArray, entitySchemaName = null) {
-    if (baseArray === compareArray) {
+export function getArrayChanges(a, b) {
+    if (a === b) {
         return [];
     }
 
-    // The passed properties are no comparable arrays so there must be a change.
-    if (!type.isArray(baseArray) || !type.isArray(compareArray)) {
-        return compareArray;
+    if (!type.isArray(a) || !type.isArray(b)) {
+        return b;
     }
 
-    // If there are no items in the compare array, there are no changes.
-    // Deletions are handled separately.
-    if (compareArray.length === 0) {
-        return [];
+    if (a.length !== b.length) {
+        return b;
     }
 
-    const b = [...baseArray];
-    const c = [...compareArray];
-
-    // If the items of the arrays are no comparable objects, we simply get the additions.
-    if (!type.isObject(c[0])) {
-        return c.filter(value => b.indexOf(value) < 0);
+    if (!type.isObject(b[0])) {
+        return b.filter(item => !a.includes(item));
     }
 
-    const diff = [];
+    const changes = [];
 
-    // If the arrays have comparable items, we try to also get their changes.
-    c.forEach((item, index) => {
-        // If the items have no identifier property we compare all items simply based on the index.
-        if (!item.id) {
-            const diffObject = getObjectChangeSet(b[index], c[index], entitySchemaName);
+    b.forEach((item, index) => {
+        const objDiff = getObjectDiff(a[index], b[index]);
 
-            if (type.isObject(diffObject) && !type.isEmpty(diffObject)) {
-                diff.push(diffObject);
-            }
-        // If there is an identifier we compare exactly the corresponding items and generate a changeset.
-        } else {
-            const compareObject = b.find((compareItem) => {
-                return item.id === compareItem.id;
-            });
-
-            // If the base array does not contain the item, it is an addition.
-            if (!compareObject) {
-                const addition = validateObjectSchema(item, entitySchemaName);
-
-                if (!hasNoChanges(addition)) {
-                    diff.push(addition);
-                }
-            // If both arrays contain the same item, we generate the changeset for them.
-            } else {
-                const diffObject = getObjectChangeSet(compareObject, item, entitySchemaName);
-
-                if (type.isObject(diffObject) && !type.isEmpty(diffObject)) {
-                    diff.push({ ...diffObject, id: item.id });
-                }
-            }
+        if (Object.keys(objDiff).length > 0) {
+            changes.push(b[index]);
         }
     });
 
-    return diff;
-}
-
-/**
- * Some properties are read-only because they are handled by the server.
- * They should not be set by the client and have to be removed from entity objects.
- *
- * @returns {string[]}
- */
-function getPropertyBlacklist() {
-    return [
-        'createdAt', 'updatedAt',
-        'childCount', 'tenantId',
-        'versionId', 'extensions',
-        'mimeType', 'metaData',
-        'fileSize'
-    ];
-}
-
-function hasNoChanges(diff) {
-    return type.isObject(diff) && type.isEmpty(diff) && !type.isDate(diff);
-}
-
-function isJsonFieldProp(property) {
-    return ['object', 'array'].includes(property.type) && !property.entity;
-}
-
-function handleArrayProp(baseProp, compareProp, accumulator, propName, entitySchemaName = null) {
-    const arrayDiff = getArrayChangeSet(baseProp, compareProp, entitySchemaName);
-
-    if (type.isArray(arrayDiff) && arrayDiff.length === 0) {
-        return { ...accumulator };
-    }
-
-    return { ...accumulator, [propName]: arrayDiff };
-}
-
-function handleJsonFieldProp(baseProp, compareProp, accumulator, propName) {
-    if (type.isObject(baseProp)) {
-        const jsonObjectDiff = getObjectChangeSet(baseProp, compareProp);
-
-        if (hasNoChanges(jsonObjectDiff)) {
-            return { ...accumulator };
-        }
-
-        const jsonObject = Object.assign(jsonObjectDiff, compareProp);
-        const blacklist = getPropertyBlacklist();
-
-        Object.keys(jsonObject).forEach((key) => {
-            if (blacklist.includes(key)) {
-                delete jsonObject[key];
-            }
-        });
-
-        return { ...accumulator, [propName]: jsonObject };
-    }
-
-    if (type.isArray(baseProp)) {
-        return { ...accumulator, [propName]: [...compareProp] };
-    }
-
-    return { ...accumulator };
-}
-
-function validateObjectSchema(obj, entitySchemaName) {
-    if (!type.isObject(obj) || !entitySchemaName) {
-        return obj;
-    }
-
-    const entitySchema = Shopware.Entity.getDefinition(entitySchemaName);
-    const entityProperties = Object.keys(entitySchema.properties);
-    const blacklist = getPropertyBlacklist();
-
-    return Object.keys(obj).reduce((acc, property) => {
-        if (blacklist.includes(property) ||
-            hasNoChanges(obj[property]) ||
-            !entityProperties.includes(property)) {
-            return { ...acc };
-        }
-
-        return { ...acc, [property]: obj[property] };
-    }, {});
+    return changes;
 }

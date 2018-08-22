@@ -44,7 +44,7 @@ Component.register('sw-customer-detail', {
         },
 
         customerAddressStore() {
-            return this.customer.getAssociationStore('addresses');
+            return this.customer.getAssociation('addresses');
         },
 
         paymentMethodStore() {

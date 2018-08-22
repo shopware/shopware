@@ -1,7 +1,7 @@
 {% block sw_pagination %}
     <div class="sw-pagination">
         {% block sw_pagination_page_prev %}
-            <button :disabled="page === 1" @click="prevPage" class="sw-pagination__page-button">
+            <button :disabled="currentPage === 1" @click="prevPage" class="sw-pagination__page-button">
                 <sw-icon name="small-arrow-medium-left" small />
             </button>
         {% endblock %}
@@ -30,7 +30,7 @@
         {% endblock %}
 
         {% block sw_pagination_page_next %}
-            <button :disabled="page === maxPage" @click="nextPage" class="sw-pagination__page-button">
+            <button :disabled="currentPage === maxPage" @click="nextPage" class="sw-pagination__page-button">
                 <sw-icon name="small-arrow-medium-right" small />
             </button>
         {% endblock %}

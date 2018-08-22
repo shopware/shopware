@@ -17,11 +17,11 @@ Component.register('sw-order-detail', {
             return State.getStore('order');
         },
         lineItemsStore() {
-            return this.order.getAssociationStore('lineItems');
+            return this.order.getAssociation('lineItems');
         },
 
         deliveriesStore() {
-            return this.order.getAssociationStore('deliveries');
+            return this.order.getAssociation('deliveries');
         }
     },
 

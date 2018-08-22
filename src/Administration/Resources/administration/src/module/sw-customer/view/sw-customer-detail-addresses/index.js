@@ -19,13 +19,6 @@ Component.register('sw-customer-detail-addresses', {
             default() {
                 return [];
             }
-        },
-        addresses: {
-            type: Array,
-            required: true,
-            default() {
-                return [];
-            }
         }
     },
 
@@ -40,14 +33,13 @@ Component.register('sw-customer-detail-addresses', {
 
     computed: {
         customerAddressStore() {
-            return this.customer.getAssociationStore('addresses');
+            return this.customer.getAssociation('addresses');
         }
     },
 
     methods: {
         onCreateNewAddress() {
             this.showAddAddressModal = true;
-
             this.createNewCustomerAddress();
         },
 

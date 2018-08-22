@@ -1,53 +1,88 @@
-/**
- * @module core/data/EntityProxy
- */
 import { Application, Entity, State } from 'src/core/shopware';
-import {
-    deepCopyObject,
-    getAssociatedDeletions,
-    getObjectChangeSet,
-    hasOwnProperty
-} from 'src/core/service/utils/object.utils';
 import utils from 'src/core/service/util.service';
-import EntityStore from 'src/core/data/EntityStore';
+import { deepCopyObject, hasOwnProperty, getArrayChanges } from 'src/core/service/utils/object.utils';
+import { required } from 'src/core/service/validation.service';
+import type from 'src/core/service/utils/types.utils';
+import CriteriaFactory from 'src/core/factory/criteria.factory';
 import ApiService from 'src/core/service/api/api.service';
+import AssociationStore from './AssociationStore';
 
-/**
- * The entity proxy represents a single entity in the application. It automatically generates and updates the changeset
- * of the entity, provides helper methods for the CRUD operations and generates stores for the association stores.
- *
- * @class
- */
-class EntityProxy {
-    constructor(entityName, apiServiceName, data = null) {
-        const me = this;
+export default class EntityProxy {
+    constructor(entityName, apiService, id = utils.createId(), store = null) {
+        const that = this;
 
-        me.entityName = entityName;
-        me.apiServiceName = apiServiceName;
+        that.id = id;
+        that.entityName = entityName;
 
-        me.errors = [];
-        me.isLoading = false;
-        me.isDeleted = false;
-        me.isNew = false;
-        me.isAddition = false;
+        /**
+         * The API service for operating CRUD operations for the entity.
+         *
+         * @type ApiService
+         */
+        that.apiService = apiService;
 
-        if (data === null || !data.id) {
-            data = Entity.getRawEntityObject(entityName, true);
-            data.id = utils.createId();
-            me.isNew = true;
-        }
+        /**
+         * The corresponding store, which holds the entity.
+         *
+         * @type EntityStore
+         */
+        that.store = store;
 
-        me.id = data.id;
+        /**
+         * Shows if there is an async action working on the entity.
+         *
+         * @type {boolean}
+         */
+        that.isLoading = false;
 
-        me.draft = deepCopyObject(data);
-        me.original = deepCopyObject(data);
+        /**
+         * Symbolizes if the entity was never synchronized with the server.
+         *
+         * @type {boolean}
+         */
+        that.isLocal = true;
 
-        me.$store = null;
-        me.associationStores = new Map();
-        me.createAssociationStores();
+        /**
+         * Symbolizes that the entity was deleted locally but was not already deleted on the server.
+         *
+         * @type {boolean}
+         */
+        that.isDeleted = false;
 
-        // Return a proxy with the exposed data as the base instead of the whole class.
-        return new Proxy(me.exposedData, {
+        /**
+         * Holds all exceptions related to this entity.
+         *
+         * @type {Array}
+         */
+        that.errors = [];
+
+        /**
+         * A registry of all OneToMany associated stores of this entity.
+         *
+         * @type {Object}
+         */
+        that.associations = {};
+
+        /**
+         * The original data of the entity.
+         * All changes which are made locally will not affect this object.
+         *
+         * @type {Object}
+         */
+        that.original = Entity.getRawEntityObject(this.entitySchema);
+        that.original.id = id;
+
+        /**
+         * The draft data of the entity on which local changes are applied.
+         * For saving there will be a changeset generated between the draft and the original data.
+         *
+         * @type {Object}
+         */
+        that.draft = deepCopyObject(that.original);
+
+        that.createAssociatedStores();
+
+        return new Proxy(that.exposedData, {
             get(target, property) {
                 // The normal getter for the raw data.
                 if (property in target) {
@@ -55,8 +90,8 @@ class EntityProxy {
                 }
 
                 // You can also access some methods of the class directly on the object.
-                if (property in me) {
-                    return me[property];
+                if (property in that) {
+                    return that[property];
                 }
 
                 return null;
@@ -64,322 +99,259 @@ class EntityProxy {
 
             set(target, property, value) {
                 if (property === 'draft') {
-                    Object.assign(target, value);
-                    me.draft = value;
+                    Object.assign(that.draft, deepCopyObject(value));
+                    Object.assign(target, that.exposedData);
+                    return true;
+                }
+
+                if (property === 'original') {
+                    Object.assign(that.original, deepCopyObject(value));
                     return true;
                 }
 
                 if (property in target) {
                     target[property] = value;
-
-                    if (property in me.draft) {
-                        me.draft[property] = value;
-                    }
-
-                    return true;
                 }
 
-                if (property in me) {
-                    me[property] = value;
-                    return true;
+                if (property in that.draft) {
+                    that.draft[property] = value;
                 }
 
-                return false;
+                if (property in that) {
+                    that[property] = value;
+                }
+
+                return true;
             }
         });
     }
 
     /**
-     * Initialize the entity with new data. If the entity exists already, we're applying the changes onto the new data.
+     * Initializes data of the entity by setting the draft and original data.
+     * This method is mostly used to set data which was loaded from the server.
      *
      * @param {Object} data
-     * @param {Boolean} [removeAssociationsKeysFromData = true]
-     * @returns {EntityProxy}
+     * @param {Boolean} [removeAssociationKeysFromData=true]
+     * @param {Boolean} [populateAssociations=false]
      */
-    initData(data, removeAssociationsKeysFromData = true) {
-        const changes = this.getChanges();
+    setData(data, removeAssociationKeysFromData = true, populateAssociations = false) {
+        const associatedProps = this.associatedEntityPropNames;
 
-        if (removeAssociationsKeysFromData) {
-            data = Object.keys(data).reduce((acc, key) => {
-                if (!this.associatedProperties.includes(key)) {
-                    acc[key] = data[key];
+        if (populateAssociations === true) {
+            this.populateAssociatedStores(data);
+        }
+
+        if (removeAssociationKeysFromData === true) {
+            Object.keys(data).forEach((prop) => {
+                if (associatedProps.includes(prop)) {
+                    delete data[prop];
                 }
-
-                return acc;
-            }, {});
-        }
-
-        if (Object.keys(changes).length) {
-            this.draft = Object.assign(deepCopyObject(data), this.draft);
-        } else {
-            this.draft = Object.assign(this.draft, deepCopyObject(data));
-        }
-
-        this.original = Object.assign(this.original, deepCopyObject(data));
-
-        return this;
-    }
-
-    /**
-     * Creates the association stores for the entity. The associations are based on the entity scheme. The
-     * associated store will be configured with their own api service, otherwise we had to configure the base resource
-     * api service which will lead to unpredictable behavior of the services.
-     *
-     * @returns {Map<String, Object>}
-     */
-    createAssociationStores() {
-        const entityDefinition = Entity.getDefinition(this.entityName);
-
-        const initContainer = Application.getContainer('init');
-        const serviceContainer = Application.getContainer('service');
-
-        const associations = this.associatedProperties.reduce((accumulator, propName) => {
-            const prop = entityDefinition.properties[propName];
-
-            accumulator.push({
-                name: propName,
-                entity: prop.entity
-            });
-
-            return accumulator;
-        }, []);
-
-        associations.forEach((association) => {
-            const name = association.name;
-            const kebabEntityName = this.entityName.replace('_', '-');
-            const apiEndPoint = `${kebabEntityName}/${this.id}/${name}`;
-
-            const store = new EntityStore(association.entity, new ApiService(
-                initContainer.httpClient,
-                serviceContainer.loginService,
-                apiEndPoint
-            ));
-
-            // When the association gets data on the initial call, we're adding them straight away
-            if (hasOwnProperty(this.draft, name) && this.draft[name].length) {
-                this.draft[name].forEach((item) => {
-                    const entity = new EntityProxy(this.entityName, this.apiService, item);
-                    store.add(entity);
-                });
-            }
-
-            // Set additional private properties
-            store.$parent = this;
-            store.$type = name;
-
-            this.associationStores.set(name, store);
-        });
-
-        return this.associationStores;
-    }
-
-    /**
-     * Returns an association store if it exists.
-     * Otherwise it will return a falsy value.
-     *
-     * @param {String} storeName
-     * @returns {Boolean|EntityStore}
-     */
-    getAssociationStore(storeName) {
-        if (!this.associationStores.has(storeName)) {
-            return false;
-        }
-
-        return this.associationStores.get(storeName);
-    }
-
-    /**
-     * Lists all available association stores.
-     *
-     * @returns {IterableIterator<EntityStore>}
-     */
-    listAssociationStores() {
-        return this.associationStores.entries();
-    }
-
-    /**
-     * Get all associations which got deleted.
-     *
-     * @return {Object}
-     */
-    getDeletedAssociations() {
-        return getAssociatedDeletions(this.original, this.draft, this.entityName);
-    }
-
-    /**
-     * Get all local changes made to the entity.
-     *
-     * @param {Boolean} [includeAssociations = false]
-     * @return {Object}
-     */
-    getChanges(includeAssociations = false) {
-        return getObjectChangeSet(this.original, this.draft, this.entityName, includeAssociations);
-    }
-
-    /**
-     * Saves the entity and sends the local changes to the server. By default the method will sync the association
-     * stores automatically.
-     *
-     * @param {Boolean} [syncAssociations = true]
-     * @param {Boolean} [changesetIncludeAssociations = false]
-     * @return {Promise<T>}
-     */
-    save(syncAssociations = true, changesetIncludeAssociations = false) {
-        const changeset = this.getChanges(changesetIncludeAssociations);
-        const associationCue = [];
-
-        // Apply the association changes to the changeset, so we're just having one request to update associations
-        if (syncAssociations) {
-            this.associationStores.forEach((associationStore, entityKey) => {
-                Object.keys(associationStore.store).forEach((entityId) => {
-                    const storeEntity = associationStore.store[entityId];
-                    const changes = storeEntity.getChanges();
-
-                    if (storeEntity.isDeleted) {
-                        return;
-                    }
-
-                    if (!storeEntity.isAddition && !Object.keys(changes).length) {
-                        return;
-                    }
-
-                    if (!hasOwnProperty(changeset, entityKey)) {
-                        changeset[entityKey] = [];
-                    }
-
-                    changes.id = entityId;
-                    changeset[entityKey].push(changes);
-                });
             });
         }
 
-        /**
-         * The association stores will be automatically synced (deletions only),
-         * the rest will be send using the main entry using the generated changeset.
-         */
-        if (syncAssociations) {
-            this.associationStores.forEach((store) => {
-                associationCue.push(new Promise((resolve, reject) => {
-                    store.sync(true).then(resolve).catch(reject);
-                }));
+        this.draft = data;
+        this.original = data;
+        this.isLocal = false;
+    }
+
+    /**
+     * Apply local data changes to the entity.
+     *
+     * @param {Object} data
+     * @param {Boolean} [removeAssociationKeysFromData=true]
+     * @param {Boolean} [applyAsChange=true]
+     */
+    setLocalData(data, removeAssociationKeysFromData = true, applyAsChange = true) {
+        const associatedProps = this.associatedEntityPropNames;
+
+        if (removeAssociationKeysFromData === true) {
+            Object.keys(data).forEach((prop) => {
+                if (associatedProps.includes(prop)) {
+                    delete data[prop];
+                }
             });
+        }
+
+        this.draft = data;
+
+        if (applyAsChange !== true) {
+            this.original = data;
+        }
+    }
+
+    /**
+     * Discards current changes of the entity.
+     */
+    discardChanges() {
+        this.draft = deepCopyObject(this.original);
+    }
+
+    /**
+     * Applies the changes of the entity, so they become the current state.
+     */
+    applyChanges() {
+        this.original = deepCopyObject(this.draft);
+    }
+
+    /**
+     * Saves the entity to the server.
+     *
+     * @param {Boolean} includeAssociations
+     * @return {Promise<[]>}
+     */
+    save(includeAssociations = true) {
+        const changes = this.getChanges();
+        let changedAssociations = {};
+        let deletionQueue = [];
+
+        if (includeAssociations === true) {
+            changedAssociations = this.getChangedAssociations();
+
+            Object.assign(changes, changedAssociations);
+            deletionQueue = this.getDeletedAssociationsQueue();
+        }
+
+        if (this.isLocal) {
+            return this.sendCreateRequest(changes, changedAssociations);
         }
 
         this.isLoading = true;
-
-        if (this.isNew) {
-            changeset.id = this.id;
-
-            if (syncAssociations && associationCue.length) {
-                return Promise.all(associationCue).then(() => {
-                    if (!Object.keys(changeset).length) {
-                        this.isLoading = false;
-                        return Promise.resolve(this.exposedData);
-                    }
-
-                    return this.sendCreateRequest(changeset);
-                });
-            }
-
-            if (!Object.keys(changeset).length) {
+        return Promise.all(deletionQueue).then(() => {
+            if (!Object.keys(changes).length) {
                 this.isLoading = false;
                 return Promise.resolve(this.exposedData);
             }
 
-            return this.sendCreateRequest(changeset);
-        }
-
-        if (syncAssociations && associationCue.length) {
-            return Promise.all(associationCue).then(() => {
-                if (!Object.keys(changeset).length) {
-                    this.isLoading = false;
-                    return Promise.resolve(this.exposedData);
-                }
-
-                return this.sendUpdateRequest(changeset);
-            });
-        }
-
-        if (!Object.keys(changeset).length) {
+            return this.sendUpdateRequest(changes, changedAssociations);
+        }).catch((exception) => {
             this.isLoading = false;
+            return Promise.reject(this.handleException(exception));
+        });
+    }
+
+    /**
+     * Internal method for sending the create request.
+     *
+     * @private
+     * @param {Object} changes
+     * @param {Object} changedAssociations
+     * @return {Promise}
+     */
+    sendCreateRequest(changes, changedAssociations) {
+        changes.id = this.id;
+
+        this.isLoading = true;
+
+        return this.apiService.create(changes, { _response: true }).then((response) => {
+            this.isLoading = false;
+
+            if (response.data) {
+                this.setData(response.data);
+            }
+
+            this.refreshAssociations(changedAssociations);
+
             return Promise.resolve(this.exposedData);
-        }
-
-        return this.sendUpdateRequest(changeset);
-    }
-
-    sendCreateRequest(changeset) {
-        return this.apiService.create(changeset, { _response: true })
-            .then((response) => {
-                this.isLoading = false;
-
-                if (response.data) {
-                    this.initData(response.data);
-                }
-
-                return Promise.resolve(this.exposedData);
-            })
-            .catch((exception) => {
-                this.isLoading = false;
-                return Promise.reject(this.handleException(exception));
-            });
-    }
-
-    sendUpdateRequest(changeset) {
-        return this.apiService.updateById(this.id, changeset, { _response: true })
-            .then((response) => {
-                this.isLoading = false;
-
-                if (response.data) {
-                    this.initData(response.data);
-                }
-
-                return Promise.resolve(this.exposedData);
-            })
-            .catch((exception) => {
-                this.isLoading = false;
-                return Promise.reject(this.handleException(exception));
-            });
+        }).catch((exception) => {
+            this.isLoading = false;
+            return Promise.reject(this.handleException(exception));
+        });
     }
 
     /**
-     * Removes this entity from the store.
+     * Internal method for sending the update request.
      *
-     * @returns {Boolean}
+     * @private
+     * @param {Object} changes
+     * @param {Object} changedAssociations
+     * @return {Promise}
      */
-    remove() {
-        if (!this.$store) {
-            return false;
-        }
-        return this.$store.remove(this);
+    sendUpdateRequest(changes, changedAssociations = {}) {
+        this.isLoading = true;
+
+        return this.apiService.updateById(this.id, changes, { _response: true }).then((response) => {
+            this.isLoading = false;
+
+            if (response.data) {
+                this.setData(response.data);
+            }
+
+            this.refreshAssociations(changedAssociations);
+
+            return Promise.resolve(this.exposedData);
+        }).catch((exception) => {
+            this.isLoading = false;
+            return Promise.reject(this.handleException(exception));
+        });
     }
 
     /**
-     * Deletes the entity using the configured API service. By default the method marks the entity as deleted, but it is
-     * also possible to delete it directly.
+     * Reloads changed associations from the server.
      *
-     * @param {Boolean} [directDeletion = true]
-     * @return {Promise<void>}
+     * @param {Object} changedAssociations
      */
-    delete(directDeletion = false) {
-        this.draft = {};
+    refreshAssociations(changedAssociations) {
+        Object.keys(changedAssociations).forEach((associationKey) => {
+            const association = this.associations[associationKey];
+            const associationIds = changedAssociations[associationKey].reduce((acc, item) => {
+                return [...acc, item.id];
+            }, []);
+
+            const limit = 50;
+            const pages = Math.ceil(associationIds.length / limit);
+            const criteria = CriteriaFactory.terms('id', associationIds);
+
+            for (let i = 1; i <= pages; i += 1) {
+                association.getList({ page: i, limit, criteria }, false);
+            }
+        });
+    }
+
+    /**
+     * Deletes the entity.
+     *
+     * @param {Boolean} directDelete
+     * @return {Promise}
+     */
+    delete(directDelete = false) {
         this.isDeleted = true;
 
-        if (this.isAddition && this.$store) {
+        if (directDelete !== true) {
+            return Promise.resolve();
+        }
+
+        if (this.isLocal) {
             this.remove();
+            return Promise.resolve();
         }
 
-        if (directDeletion && !this.isAddition) {
-            return this.apiService.delete(this.id).then(() => {
-                if (this.$store && this.$store[this.id]) {
-                    this.remove();
-                } else {
-                    delete State.getStore(this.entityName).remove(this.id);
-                }
-            });
+        return this.apiService.delete(this.id).then(() => {
+            this.remove();
+        });
+    }
+
+    /**
+     * Removes the entity from its corresponding store.
+     *
+     * @return {boolean}
+     */
+    remove() {
+        if (this.store === null) {
+            return false;
         }
 
-        return Promise.resolve();
+        return this.store.remove(this);
+    }
+
+    /**
+     * Validates the entity.
+     *
+     * @return {Boolean}
+     */
+    validate(data = this.draft) {
+        return this.requiredProperties.every((property) => {
+            return required(data[property]);
+        });
     }
 
     /**
@@ -389,7 +361,7 @@ class EntityProxy {
      * @return {Object}
      */
     handleException(exception) {
-        if (exception.response && exception.response.data && exception.response.data.errors) {
+        if (exception.response.data && exception.response.data.errors) {
             exception.response.data.errors.forEach((error) => {
                 this.addError(error);
             });
@@ -402,7 +374,6 @@ class EntityProxy {
      * Adds a new error for the entity.
      *
      * @param {Object} error
-     * @returns {void}
      */
     addError(error) {
         this.errors.push(error);
@@ -414,80 +385,339 @@ class EntityProxy {
     }
 
     /**
-     * Validates the entity.
-     *
-     * @return {Boolean}
+     * Creates entity stores for each OneToMany association of the entity.
      */
-    validate() {
-        return this.requiredProperties.every((property) => {
-            return this.draft[property] !== null &&
-                   typeof this.draft[property] !== 'undefined';
+    createAssociatedStores() {
+        const associationDefinitions = this.associatedEntityPropDefinitions;
+
+        const initContainer = Application.getContainer('init');
+        const serviceContainer = Application.getContainer('service');
+
+        Object.keys(associationDefinitions).forEach((prop) => {
+            const definition = associationDefinitions[prop];
+            const apiEndPoint = `${this.kebabEntityName}/${this.id}/${prop}`;
+
+            const apiService = new ApiService(
+                initContainer.httpClient,
+                serviceContainer.loginService,
+                apiEndPoint
+            );
+
+            this.associations[prop] = new AssociationStore(definition.entity, apiService, EntityProxy, this, prop);
+
+            if (this.draft[prop] && this.draft[prop].length > 0) {
+                this.populateAssociatedStore(prop, this.draft[prop]);
+            }
         });
     }
 
     /**
-     * The additional properties you want to add to the exposed data.
-     *
-     * @return {Object}
+     * Populates all associated stores and creates entities if there is initial data provided.
      */
-    get localData() {
+    populateAssociatedStores(data = this.draft) {
+        const associatedProps = this.associatedEntityPropNames;
+
+        associatedProps.forEach((prop) => {
+            if (data[prop] && data[prop].length > 0) {
+                this.populateAssociatedStore(prop, data[prop]);
+            }
+        });
+    }
+
+    /**
+     * Populates an associated store and creates entities based on the provided data.
+     *
+     * @param {String} associationName
+     * @param {Array} items
+     * @return {*}
+     */
+    populateAssociatedStore(associationName, items) {
+        const store = this.associations[associationName];
+
+        items.forEach((item) => {
+            const entity = store.create(item.id);
+            entity.setData(item);
+        });
+
+        return store;
+    }
+
+    /**
+     * Returns the store for a OneToMany association by property name.
+     *
+     * @param {String} associationName
+     * @return {*}
+     */
+    getAssociation(associationName) {
+        return this.associations[associationName];
+    }
+
+    /**
+     * Returns a promise queue for syncing all deleted OneToMany associations.
+     *
+     * @return {Array}
+     */
+    getDeletedAssociationsQueue() {
+        let deletionQueue = [];
+
+        Object.keys(this.associations).forEach((associationKey) => {
+            const association = this.associations[associationKey];
+            const assocDeletionQueue = association.getDeletionQueue();
+
+            if (assocDeletionQueue.length > 0) {
+                deletionQueue = [...deletionQueue, ...assocDeletionQueue];
+            }
+        });
+
+        return deletionQueue;
+    }
+
+    /**
+     * Get all changed OneToMany associations.
+     * Includes changes and additions but no deletions, because they are handled separately.
+     * Returns an object which fits the structure of the entity so it can be merged into other data or changesets.
+     *
+     * @return {{}}
+     */
+    getChangedAssociations() {
+        const changes = {};
+
+        Object.keys(this.associations).forEach((associationKey) => {
+            const association = this.associations[associationKey];
+
+            Object.keys(association.store).forEach((id) => {
+                const entity = association.store[id];
+
+                // Deletions are handled in separate requests
+                if (entity.isDeleted) {
+                    return;
+                }
+
+                const associationChanges = entity.getChanges();
+
+                if (entity.isLocal || Object.keys(associationChanges).length > 0) {
+                    associationChanges.id = id;
+                    changes[associationKey] = changes[associationKey] || [];
+                    changes[associationKey].push(associationChanges);
+                }
+            });
+        });
+
+        return changes;
+    }
+
+    /**
+     * Get all changes made to the data of the entity.
+     * This method will generate a detailed changeset considering the schema definition of the entity.
+     * Also handles changes for OneToOne associations and special JSON fields.
+     *
+     * @param {Object} a
+     * @param {Object} b
+     * @param {Object} schema
+     * @return {*}
+     */
+    getChanges(a = this.original, b = this.draft, schema = Entity.getDefinition(this.entityName)) {
+        const properties = schema.properties;
+        const propertyList = Object.keys(properties);
+        const blacklist = Entity.getPropertyBlacklist();
+
+        if (a === b) {
+            return {};
+        }
+
+        if (!type.isObject(a) || !type.isObject(b)) {
+            return b;
+        }
+
+        if (type.isDate(a) || type.isDate(b)) {
+            if (a.valueOf() === b.valueOf()) {
+                return {};
+            }
+
+            return b;
+        }
+
+        return Object.keys(b).reduce((acc, key) => {
+            // The key is not part of the schema, or it is blacklisted
+            if (!propertyList.includes(key) || blacklist.includes(key)) {
+                return acc;
+            }
+
+            // The property does not exist in the base object, so it is an addition
+            if (!hasOwnProperty(a, key)) {
+                // The property is a OneToOne associated entity
+                if (type.isObject(b[key]) && properties[key].entity) {
+                    const addition = EntityProxy.validateSchema(b[key], Entity.getDefinition(properties[key].entity));
+
+                    if (Object.keys(addition).length <= 0) {
+                        return acc;
+                    }
+
+                    return { ...acc, [key]: addition };
+                }
+
+                // The property is a JSON field
+                if (type.isObject(b[key]) && properties[key].properties) {
+                    const addition = EntityProxy.validateSchema(b[key], properties[key]);
+
+                    if (Object.keys(addition).length <= 0) {
+                        return acc;
+                    }
+
+                    return { ...acc, [key]: addition };
+                }
+
+                // The property is a OneToMany associated entity
+                if (type.isArray(b[key] && properties[key].entity)) {
+                    return acc; // OneToMany associations are handled in a separate store
+                }
+
+                return { ...acc, [key]: b[key] };
+            }
+
+            // The property is a OneToOne associated entity
+            if (type.isObject(b[key]) && properties[key].entity) {
+                const changes = this.getChanges(a[key], b[key], Entity.getDefinition(properties[key].entity));
+
+                if (Object.keys(changes).length <= 0) {
+                    return acc;
+                }
+
+                return { ...acc, [key]: changes };
+            }
+
+            // The property is a JSON field
+            if (type.isObject(b[key]) && properties[key].properties) {
+                const changes = this.getChanges(a[key], b[key], properties[key]);
+
+                if (Object.keys(changes).length <= 0) {
+                    return acc;
+                }
+
+                return { ...acc, [key]: EntityProxy.validateSchema(b[key], properties[key]) };
+            }
+
+            // The property is a OneToMany associated entity
+            if (type.isArray(b[key] && properties[key].entity)) {
+                return acc; // OneToMany associations are handled in a separate store
+            }
+
+            // The property is a normal array
+            if (type.isArray(b[key])) {
+                const changes = getArrayChanges(a[key], b[key]);
+
+                if (changes.length <= 0) {
+                    return acc;
+                }
+
+                return { ...acc, [key]: b[key] };
+            }
+
+            // Any other property
+            if (b[key] !== a[key]) {
+                return { ...acc, [key]: b[key] };
+            }
+
+            return acc;
+        }, {});
+    }
+
+    /**
+     * Validates the property structure of an object against an entity schema.
+     * Removes also all properties which are blacklisted.
+     *
+     * @param {Object} obj
+     * @param {Object} schema
+     * @return {{}}
+     */
+    static validateSchema(obj, schema) {
+        const properties = schema.properties;
+        const propertyList = Object.keys(properties);
+        const blacklist = Entity.getPropertyBlacklist();
+
+        return Object.keys(obj).reduce((acc, key) => {
+            if (!propertyList.includes(key) || blacklist.includes(key)) {
+                return acc;
+            }
+
+            return { ...acc, [key]: obj[key] };
+        }, {});
+    }
+
+    /**
+     * Properties which will be exposed with the entity which can be used for internal tasks.
+     * These will not be included in the entity definition or the changeset.
+     *
+     * @return {{isLoading: boolean, errors: Array}}
+     */
+    get privateData() {
         return {
             isLoading: this.isLoading,
-            isNew: this.isNew,
-            isDeleted: this.isDeleted,
             errors: this.errors
         };
     }
 
     /**
-     * The exposed data of the entity which is used for data binding.
+     * The data which is exposed by the entity.
+     * This data will be used by the view layer.
      *
      * @return {Object}
      */
     get exposedData() {
-        return Object.assign({}, this.localData, this.draft);
+        return Object.assign({}, this.privateData, this.draft);
     }
 
     /**
-     * Getter for the corresponding api service.
+     * The schema definition of the entity.
      *
-     * @return {Object}
-     */
-    get apiService() {
-        if (this.$store) {
-            return this.$store.apiService;
-        }
-
-        const serviceContainer = Application.getContainer('service');
-        return serviceContainer[this.apiServiceName];
-    }
-
-    /**
-     * Getter for the corresponding entity schema.
-     *
-     * @return {Object}
+     * @return {*}
      */
     get entitySchema() {
         return Entity.getDefinition(this.entityName);
     }
 
     /**
-     * Getter for the required properties of the entity.
+     * A list with names of all required properties of the entity.
      *
-     * @return {Array}
+     * @return {*}
      */
     get requiredProperties() {
         return Entity.getRequiredProperties(this.entityName);
     }
 
     /**
-     * Getter for the associated properties of the entity.
+     * All property names of the entity which define a OneToMany relation.
      *
-     * @returns {Array}
+     * @return {*}
      */
-    get associatedProperties() {
+    get associatedEntityPropNames() {
         return Entity.getAssociatedProperties(this.entityName);
     }
-}
 
-export default EntityProxy;
+    /**
+     * Get all property definitions of OneToMany associations of the entity.
+     *
+     * @return {{}}
+     */
+    get associatedEntityPropDefinitions() {
+        const schema = this.entitySchema;
+        const associationProps = this.associatedEntityPropNames;
+
+        return Object.keys(schema.properties).reduce((acc, prop) => {
+            if (associationProps.includes(prop)) {
+                return { ...acc, [prop]: schema.properties[prop] };
+            }
+
+            return acc;
+        }, {});
+    }
+
+    /**
+     * Get the kebab version of the entity name.
+     *
+     * @return {String}
+     */
+    get kebabEntityName() {
+        return this.entityName.replace('_', '-');
+    }
+}

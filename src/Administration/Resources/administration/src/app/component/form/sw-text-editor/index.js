@@ -80,7 +80,7 @@ Component.register('sw-text-editor', {
                 }
             });
 
-            this.setText(this.value);
+            this.setText(this.value, true);
 
             this.editor.on('text-change', this.onTextChange);
         },
@@ -89,12 +89,12 @@ Component.register('sw-text-editor', {
             delete this.editor;
         },
 
-        setText(value) {
+        setText(value, silent = false) {
             if (value !== null && value.length && value !== '<h2><br></h2>') {
                 if (this.htmlContent) {
-                    this.editor.clipboard.dangerouslyPasteHTML(value);
+                    this.editor.clipboard.dangerouslyPasteHTML(value, silent ? 'silent' : 'api');
                 } else {
-                    this.editor.setText(value);
+                    this.editor.setText(value, silent ? 'silent' : 'api');
                 }
             }
         },

@@ -20,7 +20,7 @@ Component.register('sw-product-category-form', {
         },
 
         categoriesStore() {
-            return this.product.getAssociationStore('categories');
+            return this.product.getAssociation('categories');
         }
     }
 });

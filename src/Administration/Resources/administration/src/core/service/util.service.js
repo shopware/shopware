@@ -3,10 +3,14 @@
  */
 import throttle from 'lodash/throttle';
 import debounce from 'lodash/debounce';
-import merge from 'lodash/merge';
 import uuidV4 from 'uuid/v4';
 
-import { deepCopyObject, getObjectChangeSet, getAssociatedDeletions } from './utils/object.utils';
+import {
+    deepCopyObject,
+    hasOwnProperty,
+    getObjectDiff,
+    getArrayChanges
+} from './utils/object.utils';
 import { warn } from './utils/debug.utils';
 import { currency, date } from './utils/format.utils';
 import domUtils from './utils/dom.utils';
@@ -16,9 +20,9 @@ import fileReaderUtils from './utils/file-reader.utils';
 
 export const object = {
     deepCopyObject: deepCopyObject,
-    getObjectChangeSet: getObjectChangeSet,
-    getAssociatedDeletions: getAssociatedDeletions,
-    merge
+    hasOwnProperty: hasOwnProperty,
+    getObjectDiff: getObjectDiff,
+    getArrayChanges: getArrayChanges
 };
 
 export const debug = {

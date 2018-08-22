@@ -1,4 +1,5 @@
 import EntityStore from 'src/core/data/EntityStore';
+import EntityProxy from 'src/core/data/EntityProxy';
 import stringUtil from 'src/core/service/utils/string.utils';
 
 export default function initializeEntities(container) {
@@ -11,7 +12,7 @@ export default function initializeEntities(container) {
         Object.keys(response.data).forEach((entityName) => {
             entityFactory.addEntityDefinition(entityName, response.data[entityName]);
 
-            const store = new EntityStore(entityName, `${stringUtil.camelCase(entityName)}Service`);
+            const store = new EntityStore(entityName, `${stringUtil.camelCase(entityName)}Service`, EntityProxy);
             stateFactory.registerStore(entityName, store);
         });
 

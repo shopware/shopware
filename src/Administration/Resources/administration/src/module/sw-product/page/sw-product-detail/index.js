@@ -1,4 +1,5 @@
 import { Component, Mixin, State } from 'src/core/shopware';
+import { warn } from 'src/core/service/utils/debug.utils';
 import { fileReader } from 'src/core/service/util.service';
 import template from './sw-product-detail.html.twig';
 
@@ -52,14 +53,14 @@ Component.register('sw-product-detail', {
                 this.productId = this.$route.params.id;
                 this.product = this.productStore.getById(this.productId);
 
-                this.product.getAssociationStore('media').getList({
+                this.product.getAssociation('media').getList({
                     page: 1,
                     limit: 50,
                     sortBy: 'position',
                     sortDirection: 'ASC'
                 });
 
-                this.product.getAssociationStore('categories').getList({
+                this.product.getAssociation('categories').getList({
                     page: 1,
                     limit: 50
                 });
@@ -86,11 +87,15 @@ Component.register('sw-product-detail', {
             const productName = this.product.name;
             const titleSaveSuccess = this.$tc('sw-product.detail.titleSaveSuccess');
             const messageSaveSuccess = this.$tc('sw-product.detail.messageSaveSuccess', 0, { name: productName });
+            const titleSaveError = this.$tc('global.notification.notificationSaveErrorTitle');
+            const messageSaveError = this.$tc(
+                'global.notification.notificationSaveErrorMessage', 0, { entityName: productName }
+            );
 
-            this.product.save().then(() => {
-                const newProductMediaItems = this.product.media.filter(media => media.isNew);
-                let counter = 0;
+            return this.product.save().then(() => {
+                const newProductMediaItems = this.product.getChangedAssociations().media || [];
                 const count = newProductMediaItems.length;
+                let counter = 0;
 
                 return Promise.all(newProductMediaItems.map((productMedia) => {
                     productMedia.isLoading = true;
@@ -110,8 +115,20 @@ Component.register('sw-product-detail', {
                             message: `Uploaded ${counter}/${count} images`
                         });
                     }).catch(() => {
-                        productMedia.media.delete(true);
-                        productMedia.delete(true);
+                        // Delete the corresponding media entities when the upload fails
+                        this.product.getAssociation('media').getByIdAsync(productMedia.id).then((productMediaEntity) => {
+                            if (!productMediaEntity) {
+                                return;
+                            }
+
+                            if (productMediaEntity.media && productMediaEntity.media.id) {
+                                State.getStore('media').getByIdAsync(productMediaEntity.media.id).then((mediaEntity) => {
+                                    mediaEntity.delete(true);
+                                });
+                            }
+
+                            productMediaEntity.delete(true);
+                        });
 
                         this.createNotificationWarning({
                             title: titleSaveSuccess,
@@ -124,6 +141,12 @@ Component.register('sw-product-detail', {
                     title: titleSaveSuccess,
                     message: messageSaveSuccess
                 });
+            }).catch((exception) => {
+                this.createNotificationError({
+                    title: titleSaveError,
+                    message: messageSaveError
+                });
+                warn(this._name, exception.message, exception.response);
             });
         }
     }

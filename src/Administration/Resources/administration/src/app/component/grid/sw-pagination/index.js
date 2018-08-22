@@ -7,12 +7,15 @@ Component.register('sw-pagination', {
 
     props: {
         total: {
+            type: Number,
             required: true
         },
         limit: {
+            type: Number,
             required: true
         },
         page: {
+            type: Number,
             required: true
         },
         totalVisible: {
@@ -34,6 +37,7 @@ Component.register('sw-pagination', {
         maxPage() {
             return Math.ceil(this.total / this.perPage);
         },
+
         displayedPages() {
             const maxLength = this.totalVisible;
             const value = this.currentPage;
@@ -60,6 +64,12 @@ Component.register('sw-pagination', {
         }
     },
 
+    watch: {
+        page() {
+            this.currentPage = this.page;
+        }
+    },
+
     methods: {
         range(from, to) {
             const range = [];
@@ -71,6 +81,7 @@ Component.register('sw-pagination', {
             }
             return range;
         },
+
         pageChange() {
             this.$emit('page-change', {
                 page: this.currentPage,

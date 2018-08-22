@@ -124,13 +124,13 @@ describe('core/service/jsonapi-parser.service.js', () => {
         const serviceContainer = Application.getContainer('service');
         const catalogService = serviceContainer.catalogService;
 
-        const catalogEntity = new EntityProxy('catalog', 'catalogService');
+        const catalogEntity = new EntityProxy('catalog', catalogService);
         const catalogId = catalogEntity.id;
         catalogEntity.name = 'KarmaUnitCatalog';
 
         const headers = catalogService.getBasicHeaders();
         const params = {
-            offset: 0,
+            page: 1,
             limit: 1,
             aggregations: {
                 productCount: {

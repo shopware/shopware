@@ -23,7 +23,7 @@ Component.register('sw-product-file-upload', {
 
     computed: {
         productMediaStore() {
-            return this.product.getAssociationStore('media');
+            return this.product.getAssociation('media');
         },
 
         mediaStore() {
@@ -51,9 +51,13 @@ Component.register('sw-product-file-upload', {
             productMedia.isCover = this.mediaItems === [];
             productMedia.catalogId = this.product.catalogId;
 
-            productMedia.position = productMedia.isCover ? 0 : this.mediaItems.slice(-1)[0].position + 1;
+            if (productMedia.isCover || this.mediaItems.length <= 0) {
+                productMedia.position = 0;
+            } else {
+                productMedia.position = this.mediaItems[this.mediaItems.length - 1].position + 1;
+            }
+
             const mediaEntity = this.mediaStore.create();
-            this.mediaStore.addAddition(mediaEntity);
 
             delete mediaEntity.catalog;
             delete mediaEntity.user;
@@ -75,7 +79,7 @@ Component.register('sw-product-file-upload', {
         },
 
         getPreviewForMedia(mediaEntity) {
-            if (mediaEntity.isNew) {
+            if (mediaEntity.isLocal) {
                 return mediaEntity.id in this.previews ? this.previews[mediaEntity.id] : '';
             }
             return mediaEntity.extensions.links.url;

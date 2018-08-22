@@ -25,8 +25,8 @@ Component.extend('sw-sales-channel-create', 'sw-sales-channel-detail', {
         },
 
         onSave() {
-            this.salesChannel.save().then((salesChannel) => {
-                this.$router.push({ name: 'sw.sales.channel.detail', params: { id: salesChannel.id } });
+            this.$super.onSave().then(() => {
+                this.$router.push({ name: 'sw.sales.channel.detail', params: { id: this.salesChannel.id } });
             });
         }
     }

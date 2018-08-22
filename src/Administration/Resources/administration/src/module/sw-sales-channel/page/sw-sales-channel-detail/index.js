@@ -39,32 +39,32 @@ Component.register('sw-sales-channel-detail', {
 
             this.salesChannel = this.salesChannelStore.getById(this.$route.params.id);
 
-            this.salesChannel.getAssociationStore('catalogs').getList({
+            this.salesChannel.getAssociation('catalogs').getList({
                 offset: 0,
                 limit: 50
             });
 
-            this.salesChannel.getAssociationStore('languages').getList({
+            this.salesChannel.getAssociation('languages').getList({
                 offset: 0,
                 limit: 50
             });
 
-            this.salesChannel.getAssociationStore('currencies').getList({
+            this.salesChannel.getAssociation('currencies').getList({
                 offset: 0,
                 limit: 50
             });
 
-            this.salesChannel.getAssociationStore('countries').getList({
+            this.salesChannel.getAssociation('countries').getList({
                 offset: 0,
                 limit: 50
             });
 
-            this.salesChannel.getAssociationStore('shippingMethods').getList({
+            this.salesChannel.getAssociation('shippingMethods').getList({
                 offset: 0,
                 limit: 50
             });
 
-            this.salesChannel.getAssociationStore('paymentMethods').getList({
+            this.salesChannel.getAssociation('paymentMethods').getList({
                 offset: 0,
                 limit: 50
             });

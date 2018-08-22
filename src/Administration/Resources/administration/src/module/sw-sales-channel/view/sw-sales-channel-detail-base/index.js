@@ -1,4 +1,4 @@
-import { Component, Mixin, State } from 'src/core/shopware';
+import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-sales-channel-detail-base.html.twig';
 import './sw-sales-channel-detail-base.less';
 
@@ -33,27 +33,27 @@ Component.register('sw-sales-channel-detail-base', {
         },
 
         catalogStore() {
-            return State.getStore('catalog');
+            return this.salesChannel.getAssociation('catalogs');
         },
 
         countryStore() {
-            return State.getStore('country');
+            return this.salesChannel.getAssociation('countries');
         },
 
         currencyStore() {
-            return State.getStore('currency');
+            return this.salesChannel.getAssociation('currencies');
         },
 
         languageStore() {
-            return State.getStore('language');
+            return this.salesChannel.getAssociation('languages');
         },
 
         paymentMethodStore() {
-            return State.getStore('payment_method');
+            return this.salesChannel.getAssociation('paymentMethods');
         },
 
         shippingMethodStore() {
-            return State.getStore('shipping_method');
+            return this.salesChannel.getAssociation('shippingMethods');
         }
     },
 

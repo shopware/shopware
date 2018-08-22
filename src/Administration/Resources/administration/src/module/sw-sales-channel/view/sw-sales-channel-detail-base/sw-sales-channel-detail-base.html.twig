@@ -107,22 +107,26 @@
                     </sw-multi-select>
                 {% endblock %}
 
-                {% block sw_sales_channel_detail_base_general_input_access_key %}
-                    <sw-field :label="$tc('sw-sales-channel.detail.labelAccessKeyField')"
-                              :disabled="true"
-                              v-model="salesChannel.accessKey"
-                              :copyAble="true">
-                    </sw-field>
-                {% endblock %}
+                <sw-container grid="1fr auto" gap="0 5px">
+                    {% block sw_sales_channel_detail_base_general_input_access_key %}
+                        <sw-field :label="$tc('sw-sales-channel.detail.labelAccessKeyField')"
+                                  :disabled="true"
+                                  v-model="salesChannel.accessKey"
+                                  :copyAble="true">
+                        </sw-field>
+                    {% endblock %}
 
-                {% block sw_sales_channel_detail_base_general_input_actions %}
-                    <div class="sw-sales-channel-detail__action">
-                        <sw-button @click="onGenerateKeys"
-                                   variant="danger">
-                            {{ $tc('sw-sales-channel.detail.buttonCreateNewApiKeys') }}
-                        </sw-button>
-                    </div>
-                {% endblock %}
+                    {% block sw_sales_channel_detail_base_general_input_actions %}
+                        <div class="sw-sales-channel-detail__action-button">
+                            <sw-button @click="onGenerateKeys"
+                                       class="sw-sales-channel-detail-base__button-generate-keys"
+                                       variant="danger">
+                                {{ $tc('sw-sales-channel.detail.buttonCreateNewApiKeys') }}
+                            </sw-button>
+                        </div>
+                    {% endblock %}
+                </sw-container>
+
             </sw-card>
         {% endblock %}
     </div>

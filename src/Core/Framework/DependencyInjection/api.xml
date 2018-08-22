@@ -142,5 +142,11 @@
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\UserRepository"/>
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository"/>
         </service>
+
+        <service class="Shopware\Core\Framework\Api\Controller\UserController" id="Shopware\Core\Framework\Api\Controller\UserController" public="true">
+            <argument id="user.repository" type="service"/>
+            <argument id="Shopware\Core\Framework\Api\Response\ResponseFactory" type="service"/>
+        </service>
+
     </services>
 </container>

@@ -7,8 +7,8 @@ import './page/sw-settings-language-create';
 
 Module.register('sw-settings-language', {
     type: 'core',
-    name: 'Currency settings',
-    description: 'Currency section in the settings module',
+    name: 'Language settings',
+    description: 'Language section in the settings module',
     color: '#9AA8B5',
     icon: 'default-action-settings',
 

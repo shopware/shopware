@@ -7,7 +7,7 @@ import './page/sw-settings-tax-create';
 
 Module.register('sw-settings-tax', {
     type: 'core',
-    name: 'Currency settings',
+    name: 'Tax settings',
     description: 'Tax section in the settings module',
     color: '#9AA8B5',
     icon: 'default-action-settings',

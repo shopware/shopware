@@ -7,8 +7,8 @@ import './page/sw-settings-country-create';
 
 Module.register('sw-settings-country', {
     type: 'core',
-    name: 'Currency settings',
-    description: 'Tax section in the settings module',
+    name: 'Country settings',
+    description: 'Country section in the settings module',
     color: '#9AA8B5',
     icon: 'default-action-settings',
 

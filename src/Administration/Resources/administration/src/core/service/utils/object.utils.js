@@ -1,15 +1,21 @@
+import objectMerge from 'lodash/merge';
 import type from 'src/core/service/utils/types.utils';
 
 /**
  * @module core/service/utils/object
  */
-
 export default {
     deepCopyObject,
     hasOwnProperty,
     getObjectDiff,
-    getArrayChanges
+    getArrayChanges,
+    merge: objectMerge
 };
+
+/**
+ * Lodash import for object merges.
+ */
+export const merge = objectMerge;
 
 /**
  * Shorthand method for `Object.prototype.hasOwnProperty`

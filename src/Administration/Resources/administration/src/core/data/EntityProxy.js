@@ -197,7 +197,7 @@ export default class EntityProxy {
      * Saves the entity to the server.
      *
      * @param {Boolean} includeAssociations
-     * @return {Promise<[]>}
+     * @return {Promise<{}>}
      */
     save(includeAssociations = true) {
         const changes = this.getChanges();

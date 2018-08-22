@@ -15,7 +15,7 @@ export default class AssociationStore extends EntityStore {
      *
      * @param {Object} params
      * @param {Boolean} populateParent
-     * @return {Promise<[]>}
+     * @return {Promise<{}>}
      */
     getList(params, populateParent = true) {
         return super.getList(params).then((response) => {

@@ -549,5 +549,218 @@
       "modalButtonDelete": "Löschen",
       "modalButtonAbort": "Abbrechen"
     }
+  },
+  "sw-settings": {
+    "general": {
+      "mainMenuItemGeneral": "Einstellungen"
+    },
+    "index": {
+      "title": "Einstellungen"
+    }
+  },
+  "sw-settings-currency": {
+    "general": {
+      "mainMenuItemGeneral": "Währungen"
+    },
+    "list": {
+      "textHeadline": "Währungen",
+      "textDeleteConfirm": "Sind Sie sich sicher dass sie die Währung {name} löschen möchten?",
+      "columnName": "Name",
+      "columnShortName": "Kurzname",
+      "columnSymbol": "Symbol",
+      "columnFactor": "Faktor",
+      "buttonAddCurrency": "Währung anlegen",
+      "contextMenuEdit": "Anzeigen",
+      "modalTitleDelete": "Währung löschen",
+      "titleDeleteSuccess": "Währung",
+      "messageDeleteSuccess": "Die Währung {name} wurde erfolgreich gelöscht.",
+      "buttonCancel": "Abbrechen",
+      "buttonDelete": "Löschen"
+    },
+    "detail": {
+      "textHeadline": "Neue Währung",
+      "titleCard": "Einstellungen",
+      "titleSaveSuccess": "Währung",
+      "messageSaveSuccess": "Die Währung {name} wurde erfolgreich gespeichert.",
+      "labelName": "Name",
+      "labelShortName": "Kurzname",
+      "labelSymbol": "Symbol",
+      "labelFactor": "Faktor",
+      "placeholderName": "Name eingeben...",
+      "placeholderShortName": "Kurzname eingeben...",
+      "placeholderSymbol": "Symbol eingeben...",
+      "placeholderFactor": "Factor eingeben...",
+      "buttonCancel": "Abbrechen",
+      "buttonSave": "Speichern"
+    }
+  },
+  "sw-settings-tax": {
+    "general": {
+      "mainMenuItemGeneral": "Steuern"
+    },
+    "list": {
+      "textHeadline": "Steuern",
+      "textDeleteConfirm": "Sind Sie sich sicher dass sie die Steuer {name} löschen möchten?",
+      "columnName": "Name",
+      "columnTaxRate": "Steuersatz",
+      "buttonAddTax": "Steuer anlegen",
+      "contextMenuEdit": "Anzeigen",
+      "modalTitleDelete": "Steuer löschen",
+      "titleDeleteSuccess": "Steuern",
+      "messageDeleteSuccess": "Die Steuer {name} wurde erfolgreich gelöscht.",
+      "buttonCancel": "Abbrechen",
+      "buttonDelete": "Löschen"
+    },
+    "detail": {
+      "textHeadline": "Neue Steuer",
+      "titleCard": "Einstellungen",
+      "titleSaveSuccess": "Steuer",
+      "messageSaveSuccess": "Die Steuer {name} wurde erfolgreich gespeichert.",
+      "labelName": "Name",
+      "labelTaxRate": "Steuersatz",
+      "placeholderName": "Name eingeben...",
+      "placeholderTaxRate": "Steuersatz eingeben...",
+      "buttonCancel": "Abbrechen",
+      "buttonSave": "Speichern"
+    }
+  },
+  "sw-settings-language": {
+    "general": {
+      "mainMenuItemGeneral": "Sprachen"
+    },
+    "list": {
+      "textHeadline": "Sprachen",
+      "textDeleteConfirm": "Sind Sie sich sicher dass sie die Sprache {name} löschen möchten?",
+      "columnName": "Name",
+      "columnLocaleName": "Region",
+      "buttonAddLanguage": "Sprache anlegen",
+      "contextMenuEdit": "Anzeigen",
+      "modalTitleDelete": "Sprache löschen",
+      "titleDeleteSuccess": "Sprachen",
+      "messageDeleteSuccess": "Die Sprache {name} wurde erfolgreich gelöscht.",
+      "buttonCancel": "Abbrechen",
+      "buttonDelete": "Löschen"
+    },
+    "detail": {
+      "textHeadline": "Neue Sprache",
+      "titleCard": "Einstellungen",
+      "titleSaveSuccess": "Sprachen",
+      "messageSaveSuccess": "Die Sprache {name} wurde erfolgreich gespeichert.",
+      "labelName": "Name",
+      "labelLocale": "Region",
+      "labelParent": "Erben von",
+      "placeholderName": "Name eingeben...",
+      "placeholderPleaseSelect": "Bitte wählen...",
+      "buttonCancel": "Abbrechen",
+      "buttonSave": "Speichern"
+    }
+  },
+  "sw-settings-payment": {
+    "general": {
+      "mainMenuItemGeneral": "Zahlungsarten"
+    },
+    "list": {
+      "textHeadline": "Zahlungsarten",
+      "textDeleteConfirm": "Sind Sie sich sicher dass sie die Zahlungsart {name} löschen möchten?",
+      "columnName": "Name",
+      "columnDescription": "Beschreibung",
+      "columnActive": "Aktiv",
+      "buttonAddPaymentMethod": "Zahlungsart anlegen",
+      "contextMenuEdit": "Anzeigen",
+      "modalTitleDelete": "Zahlungsart löschen",
+      "titleDeleteSuccess": "Zahlungsart",
+      "messageDeleteSuccess": "Die Zahlungsart {name} wurde erfolgreich gelöscht.",
+      "buttonCancel": "Abbrechen",
+      "buttonDelete": "Löschen"
+    },
+    "detail": {
+      "textHeadline": "Neue Zahlungsart",
+      "titleCard": "Einstellungen",
+      "titleSaveSuccess": "Zahlungsart",
+      "messageSaveSuccess": "Die Zahlungsart {name} wurde erfolgreich gespeichert.",
+      "labelName": "Name",
+      "labelTechnicalName": "Technischer Name",
+      "labelActive": "Aktiv",
+      "labelAllowEsd": "Aktiv für ESD Produkte",
+      "labelMobileInactive": "Inaktiv für Smartphones",
+      "labelAdditionalDescription": "Beschreibung",
+      "labelTemplate": "Template",
+      "labelUsedIframe": "URL für iFrame",
+      "labelAbsoluteSurcharge": "Pauschaler Aufschlag",
+      "labelPercentageSurcharge": "Prozentualer Aufschlag",
+      "labelTable": "Datenbank-Tabelle",
+      "labelClass": "Klasse",
+      "placeholderName": "Name eingeben...",
+      "placeholderTechnicalName": "Technischer Name eingeben...",
+      "placeholderAdditionalDescription": "Beschreibung eingeben...",
+      "placeholderTemplate": "Template eingeben...",
+      "placeholderUsedIframe": "URL eingeben...",
+      "placeholderAbsoluteSurcharge": "Aufschlag eingeben...",
+      "placeholderPercentageSurcharge": "Prozentualer Aufschlag eingeben...",
+      "placeholderTable": "Datenbank-Tabelle eingeben...",
+      "placeholderClass": "Klasse eingeben...",
+      "buttonCancel": "Abbrechen",
+      "buttonSave": "Speichern"
+    }
+  },
+  "sw-settings-shipping": {
+    "general": {
+      "mainMenuItemGeneral": "Versandkosten"
+    },
+    "list": {
+      "textHeadline": "Versandkosten",
+      "textDeleteConfirm": "Sind Sie sich sicher dass sie die Versandkosten {name} löschen möchten?",
+      "columnName": "Name",
+      "columnActive": "Aktiv",
+      "columnShippingfree": "Versandkostenfrei",
+      "buttonAddShippingMethod": "Versandkosten anlegen",
+      "contextMenuEdit": "Anzeigen",
+      "modalTitleDelete": "Versandkosten löschen",
+      "titleDeleteSuccess": "Versandkosten",
+      "messageDeleteSuccess": "Die Versandkosten {name} wurde erfolgreich gelöscht.",
+      "buttonCancel": "Abbrechen",
+      "buttonDelete": "Löschen"
+    },
+    "detail": {
+      "textHeadline": "Neue Versandkosten",
+      "titleCard": "Einstellungen",
+      "titleSaveSuccess": "Versandkosten",
+      "messageSaveSuccess": "Die Versandkosten {name} wurde erfolgreich gespeichert.",
+      "labelName": "Name",
+      "labelActive": "Aktiv",
+      "labelBindShippingfree": "Versandkostenfrei",
+      "placeholderName": "Name eingeben...",
+      "buttonCancel": "Abbrechen",
+      "buttonSave": "Speichern"
+    }
+  },
+  "sw-settings-country": {
+    "general": {
+      "mainMenuItemGeneral": "Länder"
+    },
+    "list": {
+      "textHeadline": "Länder",
+      "textDeleteConfirm": "Sind Sie sich sicher dass Sie das Land {name} löschen möchten?",
+      "columnName": "Name",
+      "columnActive": "Aktiv",
+      "buttonAddCountry": "Land anlegen",
+      "contextMenuEdit": "Anzeigen",
+      "modalTitleDelete": "Land löschen",
+      "titleDeleteSuccess": "Land",
+      "messageDeleteSuccess": "Das Land {name} wurde erfolgreich gelöscht.",
+      "buttonCancel": "Abbrechen",
+      "buttonDelete": "Löschen"
+    },
+    "detail": {
+      "textHeadline": "Neues Land",
+      "titleCard": "Einstellungen",
+      "titleSaveSuccess": "Land",
+      "messageSaveSuccess": "Das Land {name} wurde erfolgreich gespeichert.",
+      "labelName": "Name",
+      "labelActive": "Aktiv",
+      "placeholderName": "Name eingeben...",
+      "buttonCancel": "Abbrechen",
+      "buttonSave": "Speichern"
+    }
   }
 }

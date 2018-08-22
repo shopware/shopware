@@ -1,0 +1,153 @@
+{% block sw_settings_payment_index %}
+    <sw-page class="sw-settings-payment-list">
+
+        {% block sw_settings_payment_list_search_bar_type %}
+            <template slot="search-bar-type">
+                {{ $tc('sw-settings-payment.list.textHeadline') }}:
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_payment_list_smart_bar_header %}
+            <template slot="smart-bar-header">
+                {% block sw_settings_payment_list_smart_bar_header_title %}
+                    <h2>
+                        {% block sw_settings_payment_list_smart_bar_header_title_text %}
+                            {{ $tc('sw-settings.index.title') }} <sw-icon name="small-arrow-medium-right" small></sw-icon> {{ $tc('sw-settings-payment.list.textHeadline') }}
+                        {% endblock %}
+
+                        {% block sw_settings_payment_list_smart_bar_header_amount %}
+                            <span v-if="!isLoading" class="sw-page__smart-bar-amount">
+                                ({{ total }})
+                            </span>
+                        {% endblock %}
+                    </h2>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_payment_list_smart_bar_actions %}
+            <template slot="smart-bar-actions">
+                {% block sw_settings_payment_list_smart_bar_actions_add %}
+                    <sw-button :link="'sw.settings.payment.create'" variant="primary">
+                        {{ $tc('sw-settings-payment.list.buttonAddPaymentMethod') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_payment_list_content %}
+            <sw-card-view slot="content">
+                {% block sw_settings_payment_list_content_card %}
+                    <sw-card :isLoading="isLoading">
+                        {% block sw_settings_payment_list_grid %}
+                            <sw-grid slot="grid" class="sw-settings-payment-list-grid" :items="paymentMethods" table>
+                                <template slot="columns" slot-scope="{ item }">
+                                    {% block sw_product_list_grid_columns %}
+
+                                        {% block sw_settings_payment_list_columns_name %}
+                                            <sw-grid-column flex="minmax(180px, 1fr)"
+                                                            :label="$tc('sw-settings-payment.list.columnName')">
+
+                                                {% block sw_settings_payment_list_columns_name_link %}
+                                                    <router-link :title="$tc('sw-settings-payment.list.contextMenuEdit')"
+                                                                 :to="{ name: 'sw.settings.payment.detail', params: { id: item.id } }">
+                                                        {% block sw_settings_payment_list_columns_name_link %}
+                                                            {{ item.name }}
+                                                        {% endblock %}
+                                                    </router-link>
+                                                {% endblock %}
+                                            </sw-grid-column>
+                                        {% endblock %}
+
+                                        {% block sw_settings_payment_list_columns_active %}
+                                            <sw-grid-column flex="minmax(100px, 100px)"
+                                                            :label="$tc('sw-settings-payment.list.columnActive')">
+                                                {% block sw_settings_payment_list_columns_active_label %}
+                                                    <sw-icon name="small-default-checkmark-line-medium" small v-if="item.active" class="is--active"></sw-icon>
+                                                    <sw-icon name="small-default-x-line-medium" small v-else class="is--inactive"></sw-icon>
+                                                {% endblock %}
+                                            </sw-grid-column>
+                                        {% endblock %}
+
+                                        {% block sw_settings_payment_list_columns_additional_description %}
+                                            <sw-grid-column flex="minmax(120px, 1fr)"
+                                                            :label="$tc('sw-settings-payment.list.columnDescription')">
+                                                {% block sw_settings_payment_list_columns_short_tax_rate_label %}
+                                                    {{ item.additionalDescription | striphtml | truncate(25) }}
+                                                {% endblock %}
+                                            </sw-grid-column>
+                                        {% endblock %}
+
+                                        {% block sw_settings_payment_list_columns_actions %}
+                                            <sw-grid-column flex="minmax(70px, 70px)"
+                                                            align="center"
+                                                            label=""
+                                                            iconLabel="small-search">
+                                                <sw-context-button>
+
+                                                    {% block sw_settings_payment_list_columns_actions_edit %}
+                                                        <sw-context-menu-item :routerLink="{ name: 'sw.settings.payment.detail', params: { id: item.id } }">
+                                                            {{ $tc('sw-settings-payment.list.contextMenuEdit') }}
+                                                        </sw-context-menu-item>
+                                                    {% endblock %}
+
+                                                    {% block sw_settings_payment_list_columns_actions_delete %}
+                                                        <sw-context-menu-item variant="danger" @click="onDelete(item.id)">
+                                                            {{ $tc('sw-manufacturer.list.contextMenuDelete') }}
+                                                        </sw-context-menu-item>
+                                                    {% endblock %}
+                                                </sw-context-button>
+                                            </sw-grid-column>
+                                        {% endblock %}
+
+                                        {% block sw_settings_payment_list_delete_modal %}
+                                            <sw-modal v-if="showDeleteModal === item.id"
+                                                      @closeModal="onCloseDeleteModal"
+                                                      :title="$tc('sw-settings-payment.list.modalTitleDelete')"
+                                                      variant="small">
+                                                {% block sw_settings_payment_list_delete_modal_confirm_text %}
+                                                    <p>
+                                                        {{ $tc('sw-settings-payment.list.textDeleteConfirm', 0, { name: item.name }) }}
+                                                    </p>
+                                                {% endblock %}
+
+                                                {% block sw_settings_payment_list_delete_modal_footer %}
+                                                    <template slot="modal-footer">
+                                                        {% block sw_settings_payment_list_delete_modal_actions_cancel %}
+                                                            <sw-button @click="onCloseDeleteModal"
+                                                                       size="small">
+                                                                {{ $tc('sw-settings-payment.list.buttonCancel') }}
+                                                            </sw-button>
+                                                        {% endblock %}
+
+                                                        {% block sw_settings_payment_list_delete_modal_actions_delete %}
+                                                            <sw-button @click="onConfirmDelete(item.id)"
+                                                                       variant="primary"
+                                                                       size="small">
+                                                                {{ $tc('sw-settings-payment.list.buttonDelete') }}
+                                                            </sw-button>
+                                                        {% endblock %}
+                                                    </template>
+                                                {% endblock %}
+                                            </sw-modal>
+                                        {% endblock %}
+                                    {% endblock %}
+                                </template>
+
+                                {% block sw_settings_payment_list_grid_pagination %}
+                                    <sw-pagination slot="pagination"
+                                                   :page="page"
+                                                   :limit="limit"
+                                                   :total="total"
+                                                   :total-visible="7"
+                                                   @page-change="onPageChange">
+                                    </sw-pagination>
+                                {% endblock %}
+                            </sw-grid>
+                        {% endblock %}
+                    </sw-card>
+                {% endblock %}
+            </sw-card-view>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% block sw_settings_shipping_detail %}
+    <sw-page class="sw-settings-shipping-detail">
+
+        {% block sw_settings_shipping_detail_header %}
+            <template slot="smart-bar-header">
+                <h2 v-if="shippingMethod.name">{{ shippingMethod.name }}</h2>
+                <h2 v-else>{{ $tc('sw-settings-shipping.detail.textHeadline') }}</h2>
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_shipping_detail_actions %}
+            <template slot="smart-bar-actions">
+                {% block sw_settings_shipping_detail_actions_abort %}
+                    <sw-button :disabled="shippingMethod.isLoading" link="sw.settings.shipping.index">
+                        {{ $tc('sw-settings-shipping.detail.buttonCancel') }}
+                    </sw-button>
+                {% endblock %}
+
+                {% block sw_settings_shipping_detail_actions_save %}
+                    <sw-button variant="primary" :disabled="shippingMethod.isLoading" @click.prevent="onSave">
+                        {{ $tc('sw-settings-shipping.detail.buttonSave') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_shipping_detail_content %}
+            <sw-card-view slot="content">
+
+                {% block sw_settings_shipping_detail_content_card %}
+                    <sw-card :title="$tc('sw-settings-shipping.detail.titleCard')">
+                        {% block sw_settings_shipping_detail_content_field_name %}
+                            <sw-field type="text"
+                                      :label="$tc('sw-settings-shipping.detail.labelName')"
+                                      :placeholder="$tc('sw-settings-shipping.detail.placeholderName')"
+                                      v-model="shippingMethod.name">
+                            </sw-field>
+                        {% endblock %}
+                        <sw-container grid="1fr 1fr" gap="0px 30px">
+                            {% block sw_settings_shipping_detail_content_field_active %}
+                                <sw-field type="checkbox"
+                                          :label="$tc('sw-settings-shipping.detail.labelActive')"
+                                          v-model="shippingMethod.active">
+                                </sw-field>
+                            {% endblock %}
+
+                            {% block sw_settings_shipping_detail_content_field_bind_shipping_free %}
+                                <sw-field type="checkbox"
+                                          :label="$tc('sw-settings-shipping.detail.labelBindShippingfree')"
+                                          v-model="shippingMethod.bindShippingfree">
+                                </sw-field>
+                            {% endblock %}
+                        </sw-container>
+                    </sw-card>
+                {% endblock %}
+            </sw-card-view>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

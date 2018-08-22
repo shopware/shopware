@@ -1425,7 +1425,7 @@ CREATE TABLE `shipping_method` (
   `bind_time_from` int(11) unsigned DEFAULT NULL,
   `bind_time_to` int(11) unsigned DEFAULT NULL,
   `bind_instock` tinyint(1) DEFAULT NULL,
-  `bind_laststock` tinyint(1) NOT NULL,
+  `bind_laststock` tinyint(1) NULL,
   `bind_weekday_from` int(1) unsigned DEFAULT NULL,
   `bind_weekday_to` int(1) unsigned DEFAULT NULL,
   `bind_weight_from` decimal(10,3) DEFAULT NULL,

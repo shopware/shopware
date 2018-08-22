@@ -36,7 +36,7 @@ Component.register('sw-media-preview', {
             const filePath = this.item.mimeType;
             const regEx = /^video\/+/;
 
-            return (regEx.test(filePath));
+            return (regEx.test(filePath) && this.isPlayable());
         },
 
         checkForFileTypeAudio() {
@@ -59,6 +59,36 @@ Component.register('sw-media-preview', {
             };
 
             return fileExtensions[this.item.mimeType] || 'unknown';
+        },
+
+        getPlaceholderIcon() {
+            const regEx = /^video\/+/;
+
+            if (regEx.test(this.item.mimeType)) {
+                // show movie placeholder image if video format is not playable
+                return 'file-thumbnail-mov';
+            }
+
+            const fileExtensions = {
+                'application/pdf': 'file-thumbnail-pdf',
+                'application/msword': 'file-thumbnail-doc',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'file-thumbnail-doc',
+                'application/vnd.ms-excel': 'file-thumbnail-xls',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'file-thumbnail-xls'
+            };
+
+            return fileExtensions[this.item.mimeType] || 'file-thumbnail-normal';
+        }
+    },
+
+    methods: {
+        isPlayable() {
+            const playableFormats = {
+                'video/mp4': true,
+                'video/webm': true
+            };
+
+            return playableFormats[this.item.mimeType] || false;
         }
     }
 });

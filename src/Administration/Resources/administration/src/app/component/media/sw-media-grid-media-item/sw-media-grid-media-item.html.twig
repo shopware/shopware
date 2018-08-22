@@ -26,21 +26,23 @@
         </sw-context-menu-item>
     {% endblock %}
 
-    {% block sw_media_griditem_context_item_copy_item_link %}
-        <sw-context-menu-item @click="copyItemLink()">
-            {{ $tc('global.sw-media-grid-media-item.contextMenuCopyLinkLabel') }}
-        </sw-context-menu-item>
-    {% endblock %}
+    <div class="sw-context-menu__group">
+        {% block sw_media_griditem_context_item_copy_item_link %}
+            <sw-context-menu-item @click="copyItemLink()">
+                {{ $tc('global.sw-media-grid-media-item.contextMenuCopyLinkLabel') }}
+            </sw-context-menu-item>
+        {% endblock %}
 
-    {% block sw_media_griditem_context_item_replace %}
-        <sw-context-menu-item @click="replaceitem($event)" :disabled="true">
-            {{ $tc('global.sw-media-grid-media-item.contextMenuReplaceLabel') }}
-        </sw-context-menu-item>
-    {% endblock %}
+        {% block sw_media_griditem_context_item_replace %}
+            <sw-context-menu-item @click="replaceitem($event)" :disabled="true">
+                {{ $tc('global.sw-media-grid-media-item.contextMenuReplaceLabel') }}
+            </sw-context-menu-item>
+        {% endblock %}
 
-    {% block sw_media_griditem_context_item_delete %}
-        <sw-context-menu-item @click="deleteItem($event)" variant="danger">
-            {{ $tc('global.sw-media-grid-media-item.contextMenuDeleteLabel') }}
-        </sw-context-menu-item>
-    {% endblock %}
+        {% block sw_media_griditem_context_item_delete %}
+            <sw-context-menu-item @click="deleteItem($event)" variant="danger">
+                {{ $tc('global.sw-media-grid-media-item.contextMenuDeleteLabel') }}
+            </sw-context-menu-item>
+        {% endblock %}
+    </div>
 {% endblock %}

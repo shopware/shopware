@@ -28,8 +28,9 @@
             <template v-else>
                 {% block sw_media_preview_file_type_else %}
                     <sw-icon class="sw-media-preview-item"
-                             name="text-editor-media"
-                             size="80%">
+                             :name="getPlaceholderIcon"
+                             size="80%"
+                             multicolor>
                     </sw-icon>
                 {% endblock %}
             </template>

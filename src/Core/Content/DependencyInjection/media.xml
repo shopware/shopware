@@ -56,6 +56,12 @@
         </service>
 
         <!-- Commands -->
+        <service class="Shopware\Core\Content\Media\Commands\GenerateThumbnailsCommand" id="Shopware\Core\Content\Media\Commands\GenerateThumbnailsCommand">
+            <argument type="service" id="Shopware\Core\Content\Media\Thumbnail\ThumbnailService"/>
+            <argument type="service" id="media.repository"/>
+            <tag name="console.command"/>
+        </service>
+
         <service class="Shopware\Core\Content\Media\Commands\MediaMigrateCommand" id="Shopware\Core\Content\Media\Commands\MediaMigrateCommand">
             <argument type="service" id="Shopware\Core\Content\Media\Util\Strategy\StrategyFilesystem"/>
             <argument type="service" id="Shopware\Core\Content\Media\Util\Strategy\StrategyFactory"/>

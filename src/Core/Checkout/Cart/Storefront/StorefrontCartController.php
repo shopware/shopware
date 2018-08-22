@@ -15,8 +15,10 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextFactory;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
+use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderStruct;
 use Shopware\Core\Content\Product\Cart\ProductCollector;
+use Shopware\Core\Framework\Api\Response\ResponseFactory;
 use Shopware\Core\Framework\Api\Response\Type\JsonType;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Exception\MissingParameterException;
@@ -71,6 +73,11 @@ class StorefrontCartController extends Controller
      */
     private $checkoutContextFactory;
 
+    /**
+     * @var ResponseFactory
+     */
+    private $responseFactory;
+
     public function __construct(
         CartService $service,
         RepositoryInterface $orderRepository,
@@ -78,7 +85,8 @@ class StorefrontCartController extends Controller
         Serializer $serializer,
         CheckoutContextPersister $contextPersister,
         AccountService $accountService,
-        CheckoutContextFactory $checkoutContextFactory
+        CheckoutContextFactory $checkoutContextFactory,
+        ResponseFactory $responseFactory
     ) {
         $this->orderRepository = $orderRepository;
         $this->serializer = $serializer;
@@ -87,6 +95,7 @@ class StorefrontCartController extends Controller
         $this->mediaRepository = $mediaRepository;
         $this->accountService = $accountService;
         $this->checkoutContextFactory = $checkoutContextFactory;
+        $this->responseFactory = $responseFactory;
     }
 
     /**
@@ -278,6 +287,24 @@ class StorefrontCartController extends Controller
 
         return new JsonResponse(
             $this->serialize($this->getOrderById($orderId, $context))
+        );
+    }
+
+    /**
+     * @Route("/storefront-api/checkout/guest-order/{id}", name="storefront.api.checkout.guest-order.deep-link", methods={"GET"})
+     *
+     * @throws OrderNotFoundException
+     */
+    public function getDeepLinkOrder(string $id, Request $request, Context $context): JsonResponse
+    {
+        $deepLinkCode = (string) $request->query->get('accessCode');
+        $order = $this->cartService->getOrderByDeepLinkCode($id, $deepLinkCode, $context);
+
+        return $this->responseFactory->createDetailResponse(
+            $order,
+            OrderDefinition::class,
+            $request,
+            $context
         );
     }
 

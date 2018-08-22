@@ -21,6 +21,7 @@ use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
 use Shopware\Core\Framework\ORM\Field\SearchKeywordAssociationField;
+use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\Field\TenantIdField;
 use Shopware\Core\Framework\ORM\Field\UpdatedAtField;
 use Shopware\Core\Framework\ORM\Field\VersionField;
@@ -77,6 +78,7 @@ class OrderDefinition extends EntityDefinition
             (new FloatField('shipping_total', 'shippingTotal'))->setFlags(new Required()),
             (new BoolField('is_net', 'isNet'))->setFlags(new Required()),
             (new BoolField('is_tax_free', 'isTaxFree'))->setFlags(new Required()),
+            new StringField('deep_link_code', 'deepLinkCode'),
             new CreatedAtField(),
             new UpdatedAtField(),
             (new ManyToOneAssociationField('orderCustomer', 'order_customer_id', OrderCustomerDefinition::class, true))->setFlags(new SearchRanking(0.5)),

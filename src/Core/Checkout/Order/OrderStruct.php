@@ -132,6 +132,11 @@ class OrderStruct extends Entity
     protected $transactions;
 
     /**
+     * @var null|string
+     */
+    protected $deepLinkCode;
+
+    /**
      * @var int
      */
     protected $autoIncrement;
@@ -364,6 +369,16 @@ class OrderStruct extends Entity
     public function setTransactions(OrderTransactionCollection $transactions): void
     {
         $this->transactions = $transactions;
+    }
+
+    public function getDeepLinkCode(): ?string
+    {
+        return $this->deepLinkCode;
+    }
+
+    public function setDeepLinkCode(string $deepLinkCode): void
+    {
+        $this->deepLinkCode = $deepLinkCode;
     }
 
     public function getAutoIncrement(): int

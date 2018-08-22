@@ -33,12 +33,17 @@ use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotRemoveableException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
+use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Order\OrderPersisterInterface;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Order\OrderDefinition;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 
 class CartService
 {
@@ -69,16 +74,23 @@ class CartService
      */
     private $enrichment;
 
+    /**
+     * @var RepositoryInterface
+     */
+    private $orderRepository;
+
     public function __construct(
         Enrichment $enrichment,
         Processor $processor,
         CartPersisterInterface $persister,
-        OrderPersisterInterface $orderPersister
+        OrderPersisterInterface $orderPersister,
+        RepositoryInterface $orderRepository
     ) {
         $this->processor = $processor;
         $this->persister = $persister;
         $this->orderPersister = $orderPersister;
         $this->enrichment = $enrichment;
+        $this->orderRepository = $orderRepository;
     }
 
     public function setCart(Cart $cart): void
@@ -166,6 +178,24 @@ class CartService
         $ids = $event->getIds();
 
         return array_shift($ids);
+    }
+
+    public function getOrderByDeepLinkCode(string $orderId, string $deepLinkCode, Context $context)
+    {
+        if ($orderId === '' || strlen($deepLinkCode) !== 32) {
+            throw new OrderNotFoundException($orderId);
+        }
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new TermQuery('id', $orderId));
+        $criteria->addFilter(new TermQuery('deepLinkCode', $deepLinkCode));
+
+        $orders = $this->orderRepository->search($criteria, $context);
+        if ($orders->getTotal() === 0) {
+            throw new OrderNotFoundException($orderId);
+        }
+
+        return $orders->first();
     }
 
     private function loadOrCreateCart(CheckoutContext $context): Cart

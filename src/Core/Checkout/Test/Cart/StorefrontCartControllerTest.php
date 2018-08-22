@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Test\Api\ApiTestCase;
+use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Component\HttpFoundation\Response;
@@ -805,6 +806,159 @@ class StorefrontCartControllerTest extends ApiTestCase
         static::assertArrayHasKey('errors', $response);
 
         static::assertTrue(array_key_exists('CART-EMPTY', array_flip(array_column($response['errors'], 'code'))));
+    }
+
+    public function testDeepLinkGuestOrderWithoutAcceessKey(): void
+    {
+        $expectedOrder = $this->createGuestOrder();
+
+        $accessHeader = 'HTTP_' . str_replace('-', '_', strtoupper(PlatformRequest::HEADER_ACCESS_KEY));
+        $this->storefrontApiClient->setServerParameter($accessHeader, '');
+
+        $orderId = $expectedOrder['data']['id'];
+        $accessCode = $expectedOrder['data']['deepLinkCode'];
+        $this->storefrontApiClient->request('GET', '/storefront-api/checkout/guest-order/' . $orderId, ['accessCode' => $accessCode]);
+        $response = $this->storefrontApiClient->getResponse();
+        static::assertSame(200, $response->getStatusCode());
+
+        $actualOrder = json_decode($response->getContent(), true);
+        static::assertArraySubset($expectedOrder, $actualOrder);
+    }
+
+    public function testDeepLinkGuestOrderWithAcceessKey(): void
+    {
+        $expectedOrder = $this->createGuestOrder();
+
+        $orderId = $expectedOrder['data']['id'];
+        $accessCode = $expectedOrder['data']['deepLinkCode'];
+        $this->storefrontApiClient->request('GET', '/storefront-api/checkout/guest-order/' . $orderId, ['accessCode' => $accessCode]);
+
+        $response = $this->storefrontApiClient->getResponse();
+        static::assertSame(200, $response->getStatusCode());
+
+        $actualOrder = json_decode($response->getContent(), true);
+        static::assertArraySubset($expectedOrder, $actualOrder);
+    }
+
+    public function testDeepLinkGuestOrderWithWrongCode(): void
+    {
+        $order = $this->createGuestOrder();
+
+        $accessHeader = 'HTTP_' . str_replace('-', '_', strtoupper(PlatformRequest::HEADER_ACCESS_KEY));
+        $this->storefrontApiClient->setServerParameter($accessHeader, '');
+
+        $orderId = $order['data']['id'];
+        $accessCode = Random::getBase64UrlString(32);
+        $this->storefrontApiClient->request('GET', '/storefront-api/checkout/guest-order/' . $orderId, ['accessCode' => $accessCode]);
+
+        $response = $this->storefrontApiClient->getResponse();
+        static::assertSame(400, $response->getStatusCode());
+
+        $content = json_decode($response->getContent(), true);
+        static::assertEquals(sprintf('Order with id "%s" not found', $orderId), $content['errors'][0]['detail']);
+    }
+
+    public function testDeepLinkGuestOrderWithoutCode(): void
+    {
+        $order = $this->createGuestOrder();
+
+        $accessHeader = 'HTTP_' . str_replace('-', '_', strtoupper(PlatformRequest::HEADER_ACCESS_KEY));
+        $this->storefrontApiClient->setServerParameter($accessHeader, '');
+
+        $orderId = $order['data']['id'];
+        $this->storefrontApiClient->request('GET', '/storefront-api/checkout/guest-order/' . $orderId);
+
+        $response = $this->storefrontApiClient->getResponse();
+        static::assertSame(400, $response->getStatusCode());
+
+        $content = json_decode($response->getContent(), true);
+        static::assertEquals(sprintf('Order with id "%s" not found', $orderId), $content['errors'][0]['detail']);
+    }
+
+    public function testDeepLinkGuestOrderWithWrongOrderId(): void
+    {
+        $order = $this->createGuestOrder();
+
+        $accessHeader = 'HTTP_' . str_replace('-', '_', strtoupper(PlatformRequest::HEADER_ACCESS_KEY));
+        $this->storefrontApiClient->setServerParameter($accessHeader, '');
+
+        $orderId = Uuid::uuid4()->getHex();
+        $accessCode = $order['data']['deepLinkCode'];
+        $this->storefrontApiClient->request('GET', '/storefront-api/checkout/guest-order/' . $orderId, ['accessCode' => $accessCode]);
+
+        $response = $this->storefrontApiClient->getResponse();
+        static::assertSame(400, $response->getStatusCode());
+
+        $content = json_decode($response->getContent(), true);
+        static::assertEquals(sprintf('Order with id "%s" not found', $orderId), $content['errors'][0]['detail']);
+    }
+
+    public function testCheckoutCartWithoutAccessKey(): void
+    {
+        $accessHeader = 'HTTP_' . str_replace('-', '_', strtoupper(PlatformRequest::HEADER_ACCESS_KEY));
+        $this->storefrontApiClient->setServerParameter($accessHeader, '');
+
+        $this->storefrontApiClient->request('GET', '/storefront-api/checkout/cart');
+        $response = $this->storefrontApiClient->getResponse();
+        static::assertEquals(500, $response->getStatusCode(), $response->getContent());
+        $content = json_decode($response->getContent(), true);
+        static::assertEquals('Access key is invalid and could not be identified.', $content['errors'][0]['detail']);
+    }
+
+    private function createGuestOrder()
+    {
+        $productId = Uuid::uuid4()->getHex();
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+
+        $grossPrice = 10;
+        $this->productRepository->create([
+            [
+                'id' => $productId,
+                'name' => 'Test',
+                'catalogId' => Defaults::CATALOG,
+                'price' => ['gross' => $grossPrice, 'net' => 9],
+                'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
+                'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
+            ],
+        ], $context);
+
+        $mail = Uuid::uuid4()->getHex();
+
+        $firstName = 'Max';
+        $lastName = 'Mustmann';
+
+        $personal = [
+            'email' => $mail,
+            'firstName' => $firstName,
+            'lastName' => $lastName,
+        ];
+
+        $countryId = Defaults::COUNTRY;
+        $street = 'Examplestreet 11';
+        $zipcode = '48441';
+        $city = 'Cologne';
+
+        $billing = [
+            'billingCountry' => $countryId,
+            'billingStreet' => $street,
+            'billingZipcode' => $zipcode,
+            'billingCity' => $city,
+        ];
+
+        $client = $this->createCart();
+
+        $quantity = 5;
+        $this->addProduct($client, $productId, $quantity);
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+
+        $this->guestOrder($client, array_merge($personal, $billing));
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+
+        $order = json_decode($client->getResponse()->getContent(), true);
+
+        static::assertNotEmpty($order['data']);
+
+        return $order;
     }
 
     private function createCutomer(string $addressId, string $mail, string $password, Context $context)

@@ -16,6 +16,7 @@ use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Util\Random;
 
 class OrderConverter
 {
@@ -55,6 +56,7 @@ class OrderConverter
                 throw new DeliveryWithoutAddressException();
             }
         }
+        $deepLinkCode = Random::getBase64UrlString(32);
 
         $data = [
             'id' => Uuid::uuid4()->getHex(),
@@ -73,6 +75,7 @@ class OrderConverter
             'billingAddressId' => $addressId,
             'lineItems' => [],
             'deliveries' => [],
+            'deepLinkCode' => $deepLinkCode,
         ];
 
         $address = $context->getCustomer()->getActiveBillingAddress();

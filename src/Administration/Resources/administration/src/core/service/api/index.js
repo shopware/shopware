@@ -22,6 +22,7 @@ import SalesChannelApiService from 'src/core/service/api/sales-channel.api.servi
 import SearchApiService from 'src/core/service/api/search.api.service';
 import LanguageApiService from 'src/core/service/api/language.api.service';
 import LocaleApiService from 'src/core/service/api/locale.api.service';
+import UserApiService from 'src/core/service/api/user.api.service';
 
 export default {
     shopService: ShopApiService,
@@ -47,5 +48,6 @@ export default {
     salesChannelService: SalesChannelApiService,
     searchService: SearchApiService,
     languageService: LanguageApiService,
-    localeService: LocaleApiService
+    localeService: LocaleApiService,
+    userService: UserApiService
 };

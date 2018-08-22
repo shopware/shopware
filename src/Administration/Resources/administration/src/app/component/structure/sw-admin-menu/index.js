@@ -6,7 +6,7 @@ import './sw-admin-menu.less';
 Component.register('sw-admin-menu', {
     template,
 
-    inject: ['menuService', 'loginService'],
+    inject: ['menuService', 'loginService', 'userService'],
 
     data() {
         return {
@@ -17,7 +17,8 @@ Component.register('sw-admin-menu', {
             flyoutStyle: {},
             flyoutLabel: '',
             subMenuOpen: false,
-            scrollbarOffset: ''
+            scrollbarOffset: '',
+            user: {}
         };
     },
 
@@ -51,11 +52,24 @@ Component.register('sw-admin-menu', {
                 'is--collapsed': !this.isExpanded,
                 'is--off-canvas-shown': this.isOffCanvasShown
             };
+        },
+
+        userName() {
+            return this.user.name;
+        },
+
+        userShortName() {
+            return this.user.shortName;
         }
     },
 
     created() {
         this.collapseMenuOnSmallViewports();
+
+        this.userService.getUser().then((response) => {
+            this.user = response.data;
+            this.user.shortName = this.user.name[0];
+        });
 
         this.$root.$on('toggleOffCanvas', (state) => {
             this.isOffCanvasShown = state;

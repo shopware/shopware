@@ -9,7 +9,8 @@ import {
     deepCopyObject,
     hasOwnProperty,
     getObjectDiff,
-    getArrayChanges
+    getArrayChanges,
+    merge
 } from './utils/object.utils';
 import { warn } from './utils/debug.utils';
 import { currency, date } from './utils/format.utils';
@@ -22,7 +23,8 @@ export const object = {
     deepCopyObject: deepCopyObject,
     hasOwnProperty: hasOwnProperty,
     getObjectDiff: getObjectDiff,
-    getArrayChanges: getArrayChanges
+    getArrayChanges: getArrayChanges,
+    merge: merge
 };
 
 export const debug = {

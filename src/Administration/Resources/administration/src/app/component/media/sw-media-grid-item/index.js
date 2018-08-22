@@ -27,6 +27,12 @@ Component.register('sw-media-grid-item', {
             return this.containerOptions.previewType === 'media-grid-preview-as-list';
         },
 
+        gridItemListeners() {
+            return {
+                click: this.emitClickedEvent
+            };
+        },
+
         itemTitle() {
             return this.item.name;
         },
@@ -48,24 +54,24 @@ Component.register('sw-media-grid-item', {
             return {
                 'selected-indicator--visible': this.containerOptions.selectionInProgress
             };
-        },
-
-        gridItemListeners() {
-            return {
-                click: this.doMainAction
-            };
         }
     },
 
     methods: {
-        doMainAction(originalDomEvent) {
-            this.doSelectItem(originalDomEvent);
+        emitClickedEvent(originalDomEvent) {
+            if (!this.selected) {
+                this.$emit('sw-media-grid-item-clicked', {
+                    originalDomEvent,
+                    item: this.item
+                });
+                return;
+            }
+
+            this.removeFromSelection(originalDomEvent);
         },
 
         doSelectItem(originalDomEvent) {
-            if (!this.selected ||
-                ['SVG', 'BUTTON'].includes(originalDomEvent.target.tagName.toUpperCase())
-            ) {
+            if (!this.selected) {
                 this.selectItem(originalDomEvent);
                 return;
             }

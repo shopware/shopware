@@ -15,7 +15,8 @@
                                 :selected="isItemSelected(item)"
                                 :item="item"
                                 :containerOptions="containerOptions"
-                                @sw-media-grid-item-selection-add="addToSelection"
+                                @sw-media-grid-item-selection-add="handleSelection"
+                                @sw-media-grid-item-clicked="handleClick"
                                 @sw-media-grid-item-selection-remove="removeFromSelection"
                                 v-on="$listeners">
                             </component>

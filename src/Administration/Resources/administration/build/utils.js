@@ -150,11 +150,9 @@ exports.pluginDefinitionWalker = function(baseWebPackConfig, pluginList) {
  * @returns {Object}
  */
 exports.injectSwDevModeLoader = function(webpackConfig) {
-    const srcPath = exports.resolve('src');
-
     console.log(`# Injecting SW DevMode Loader`);
     console.log(`Additional custom loader directory "${path.resolve(__dirname, 'loaders')}" added.`);
-    console.log(`JavaScript files in "${srcPath}" are affected by the loader.`);
+    console.log(`JavaScript files in "${includePaths.join(', ')}" are affected by the loader.`);
     console.log('');
 
     return merge(webpackConfig, {
@@ -168,9 +166,9 @@ exports.injectSwDevModeLoader = function(webpackConfig) {
         module: {
             // Configure the sw-devmode-loader.
             rules: [ {
-                test: /\.js$/,
+                test:  /\.(js|tsx?|vue)$/,
                 loader: 'sw-devmode-loader',
-                include: [ srcPath ],
+                include: includePaths,
             } ]
         }
     })

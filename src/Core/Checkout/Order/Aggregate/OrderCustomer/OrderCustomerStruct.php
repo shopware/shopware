@@ -43,6 +43,16 @@ class OrderCustomerStruct extends Entity
     protected $customerId;
 
     /**
+     * @var \DateTime
+     */
+    protected $createdAt;
+
+    /**
+     * @var \DateTime
+     */
+    protected $updatedAt;
+
+    /**
      * @var CustomerStruct
      */
     protected $customer;
@@ -120,6 +130,26 @@ class OrderCustomerStruct extends Entity
     public function setCustomerId(string $customerId): void
     {
         $this->customerId = $customerId;
+    }
+
+    public function getCreatedAt(): \DateTime
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTime $createdAt): void
+    {
+        $this->createdAt = $createdAt;
+    }
+
+    public function getUpdatedAt(): \DateTime
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(\DateTime $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
     }
 
     public function getCustomer(): CustomerStruct

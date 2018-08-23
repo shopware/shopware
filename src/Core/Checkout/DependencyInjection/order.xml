@@ -13,6 +13,10 @@
             <tag name="shopware.entity.definition" entity="order_address"/>
         </service>
 
+        <service class="Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerDefinition" id="Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerDefinition">
+            <tag name="shopware.entity.definition" entity="order_customer"/>
+        </service>
+
         <service class="Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition" id="Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition">
             <tag name="shopware.entity.definition" entity="order_delivery"/>
         </service>

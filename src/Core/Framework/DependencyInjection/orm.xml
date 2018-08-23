@@ -854,6 +854,15 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
+        <service id="order_customer.repository" class="Shopware\Core\Framework\ORM\EntityRepository" public="true">
+            <argument>Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerDefinition</argument>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\VersionManager"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntitySearcherInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
         <service id="order_address.repository" class="Shopware\Core\Framework\ORM\EntityRepository" public="true">
             <argument>Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition</argument>
             <argument type="service" id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface"/>

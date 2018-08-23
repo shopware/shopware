@@ -40,16 +40,21 @@ const includePaths = [
  * Tries to load the plugin definitions from the dumped configuration file.
  *
  * @param {String} definitionFilePath
+ * @param {Boolean} silent
  * @returns {Array}
  */
-exports.getPluginDefinitions = function(definitionFilePath) {
+exports.getPluginDefinitions = function(definitionFilePath, silent = false) {
     const plugins = [];
     const path = exports.resolveFromRootPath(definitionFilePath);
 
-    console.log('# Loading Shopware administration plugin definitions');
+    if (!silent) {
+        console.log('# Loading Shopware administration plugin definitions');
+    }
 
     try {
-        console.log(`Trying to load plugin definitions from "${path}"`);
+        if (!silent) {
+            console.log(`Trying to load plugin definitions from "${path}"`);
+        }
         const pluginsDefinition = require(path);
 
         Object.keys(pluginsDefinition).forEach(function (pluginName) {
@@ -64,13 +69,19 @@ exports.getPluginDefinitions = function(definitionFilePath) {
             });
         });
 
-        console.log(`Found ${plugins.length} plugin definition(s): ${plugins.map(plugin => plugin.name).join(', ')}`);
+        if (!silent) {
+            console.log(`Found ${plugins.length} plugin definition(s): ${plugins.map(plugin => plugin.name).join(', ')}`);
+        }
     } catch(err) {
-        console.log(`Could not load Shopware administration plugin definitions from "${path}"`);
+        if (!silent) {
+            console.log(`Could not load Shopware administration plugin definitions from "${path}"`);
+        }
     }
 
     // Generate an empty line
-    console.log();
+    if (!silent) {
+        console.log();
+    }
     return plugins;
 };
 
@@ -87,14 +98,6 @@ exports.getPluginDefinitions = function(definitionFilePath) {
 exports.iteratePluginDefinitions = function(baseWebPackConfig, pluginList, insertDevClient = true) {
     console.log('# Adding Shopware administration plugins to Webpack');
 
-    // Temporarily save the app entry point and remove it from the entry definition to sort the object the way we need it.
-    // We need the following order
-    // - commons
-    // - [n] plugins
-    // - app
-    const appEntry = baseWebPackConfig.entry.app;
-    delete baseWebPackConfig.entry.app;
-
     baseWebPackConfig = exports.pluginDefinitionWalker(baseWebPackConfig, pluginList);
 
     // Apply the dev client to the entry definition
@@ -105,7 +108,6 @@ exports.iteratePluginDefinitions = function(baseWebPackConfig, pluginList, inser
             baseWebPackConfig.entry[name]
         }
     });
-    baseWebPackConfig.entry.app = appEntry;
 
     // Generate empty line
     console.log('');
@@ -131,7 +133,7 @@ exports.pluginDefinitionWalker = function(baseWebPackConfig, pluginList) {
         };
 
         baseWebPackConfig.entry[name] = plugin.entryFile;
-        includePaths.push(exports.resolveFromRootPath(`${plugin.basePath}src`));
+        includePaths.push(`${plugin.basePath}Resources/views/administration/src`);
 
         if (plugin.webpackConfig) {
             console.log(`Plugin "${name}" using an extended Webpack config`);
@@ -159,11 +161,9 @@ exports.pluginDefinitionWalker = function(baseWebPackConfig, pluginList) {
  * @returns {Object}
  */
 exports.injectSwDevModeLoader = function(webpackConfig) {
-    const srcPath = exports.resolve('src');
-
     console.log(`# Injecting SW DevMode Loader`);
     console.log(`Additional custom loader directory "${path.resolve(__dirname, 'loaders')}" added.`);
-    console.log(`JavaScript files in "${srcPath}" are affected by the loader.`);
+    console.log(`JavaScript files in "${includePaths.join(', ')}" are affected by the loader.`);
     console.log('');
 
     return merge(webpackConfig, {
@@ -177,9 +177,9 @@ exports.injectSwDevModeLoader = function(webpackConfig) {
         module: {
             // Configure the sw-devmode-loader.
             rules: [ {
-                test: /\.js$/,
+                test:  /\.(js|tsx?|vue)$/,
                 loader: 'sw-devmode-loader',
-                include: [ srcPath ],
+                include: includePaths,
             } ]
         }
     })
@@ -214,8 +214,7 @@ exports.injectHtmlPlugin = function(config) {
     return new HtmlWebpackPlugin({
         filename: 'index.html',
         template: 'index.html',
-        inject: true,
-        chunksSortMode: 'manual',
+        inject: 'head',
         chunks: exports.getChunks(config)
     });
 };
@@ -273,7 +272,8 @@ exports.cssLoaders = function (options) {
         loader: 'css-loader',
         options: {
             minimize: process.env.NODE_ENV === 'production',
-            sourceMap: options.sourceMap
+            sourceMap: options.sourceMap,
+            url: false
         }
     };
 

@@ -8,7 +8,7 @@
         Backend (c) shopware AG
     </title>
 
-    <link rel="stylesheet" href="{{ asset('bundles/administration/static/css/app.css') }}">
+    <link rel="stylesheet" href="{{ asset('bundles/administration/static/css/app.css') }}?{{ 'now'|date('U') }}">
     {% block administration_stylesheets %}{% endblock %}
 </head>
 <body>
@@ -17,8 +17,8 @@
 
 {% block administration_templates %}{% endblock %}
 
-<script src="{{ asset('bundles/administration/static/js/commons.js') }}"></script>
-<script src="{{ asset('bundles/administration/static/js/app.js') }}"></script>
+<script src="{{ asset('bundles/administration/static/js/commons.js') }}?{{ 'now'|date('U') }}"></script>
+<script src="{{ asset('bundles/administration/static/js/app.js') }}?{{ 'now'|date('U') }}"></script>
 
 {# Plugins #}
 {% block administration_scripts %}{% endblock %}

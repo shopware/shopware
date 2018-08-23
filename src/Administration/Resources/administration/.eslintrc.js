@@ -1,4 +1,9 @@
 // http://eslint.org/docs/user-guide/configuring
+const path = require('path');
+
+function resolve(directory) {
+    return path.join(__dirname, directory);
+};
 
 module.exports = {
     root: true,
@@ -25,7 +30,7 @@ module.exports = {
     'settings': {
         'import/resolver': {
             'webpack': {
-                'config': 'build/webpack.base.conf.js'
+                'config': resolve('./build/webpack.base.conf.js')
             }
         }
     },
@@ -83,9 +88,11 @@ module.exports = {
 
         'import/no-cycle': 0,
 
+        'import/no-useless-path-segments': 0,
+
         // allow optionalDependencies
         'import/no-extraneous-dependencies': ['error', {
-            'optionalDependencies': ['test/unit/index.js']
+            'optionalDependencies': ['./test/unit/index.js']
         }]
     }
 };

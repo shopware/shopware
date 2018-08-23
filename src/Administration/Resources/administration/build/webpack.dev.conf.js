@@ -37,5 +37,7 @@ let mergedWebpackConfig = merge(baseWebpackConfig, {
     ]
 });
 
-mergedWebpackConfig = utils.injectSwDevModeLoader(mergedWebpackConfig);
+if (config.dev.openInEditor) {
+    mergedWebpackConfig = utils.injectSwDevModeLoader(mergedWebpackConfig);
+}
 module.exports = mergedWebpackConfig;

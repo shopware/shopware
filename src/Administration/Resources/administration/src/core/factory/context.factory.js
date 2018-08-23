@@ -63,5 +63,5 @@ function getAssetsPath(installationPath, isDevMode) {
         return '';
     }
 
-    return `${installationPath}/bundles/administration`;
+    return `${installationPath}/bundles/`;
 }

@@ -67,11 +67,6 @@ class SeoUrlStruct extends Entity
      */
     protected $salesChannel;
 
-    /**
-     * @var string
-     */
-    protected $url;
-
     public function getVersionId(): string
     {
         return $this->versionId;
@@ -190,15 +185,5 @@ class SeoUrlStruct extends Entity
     public function setSalesChannel(SalesChannelStruct $salesChannel): void
     {
         $this->salesChannel = $salesChannel;
-    }
-
-    public function setUrl(string $url): void
-    {
-        $this->url = $url;
-    }
-
-    public function getUrl(): string
-    {
-        return $this->url;
     }
 }

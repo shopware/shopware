@@ -120,7 +120,6 @@
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactory"/>
             <argument type="service" id="payment_method.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>
-            <argument type="service" id="serializer"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry"/>
         </service>
 

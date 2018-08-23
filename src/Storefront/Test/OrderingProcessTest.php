@@ -158,7 +158,7 @@ class OrderingProcessTest extends ApiTestCase
 
         $customer = [
             'id' => $customerId,
-            'number' => '1337',
+            'customerNumber' => '1337',
             'salutation' => 'Herr',
             'firstName' => 'Max',
             'lastName' => 'Mustermann',

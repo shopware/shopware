@@ -39,6 +39,11 @@ class OrderCustomerDefinition extends EntityDefinition
             new ReferenceVersionField(CustomerDefinition::class),
 
             (new StringField('email', 'email'))->setFlags(new Required()),
+            (new StringField('first_name', 'firstName'))->setFlags(new Required()),
+            (new StringField('last_name', 'lastName'))->setFlags(new Required()),
+            new StringField('salutation', 'salutation'),
+            new StringField('title', 'title'),
+            new StringField('customer_number', 'customerNumber'),
             new CreatedAtField(),
             new UpdatedAtField(),
             (new ManyToOneAssociationField('customer', 'customer_id', CustomerDefinition::class, false))->setFlags(new SearchRanking(0.5)),

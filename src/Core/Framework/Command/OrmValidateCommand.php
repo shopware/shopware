@@ -45,7 +45,7 @@ class OrmValidateCommand extends ContainerAwareCommand
 
     protected function runNotices(SymfonyStyle $io): int
     {
-        $notices = $this->validator->getNotices();
+        $notices = $this->validator->getNotices($this->getContainer());
 
         $count = 0;
         foreach ($notices as $definition => $matches) {

@@ -838,7 +838,7 @@ class StorefrontCartControllerTest extends ApiTestCase
                 'lastName' => 'not',
                 'firstName' => 'match',
                 'salutation' => 'not',
-                'number' => 'not',
+                'customerNumber' => 'not',
             ],
         ], $context);
     }

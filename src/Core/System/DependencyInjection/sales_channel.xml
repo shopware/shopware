@@ -13,6 +13,30 @@
             <tag name="shopware.entity.definition" entity="sales_channel_translation"/>
         </service>
 
+        <service class="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCatalog\SalesChannelCatalogDefinition" id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCatalog\SalesChannelCatalogDefinition">
+            <tag name="shopware.entity.definition" entity="sales_channel_catalog"/>
+        </service>
+
+        <service class="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCountry\SalesChannelCountryDefinition" id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCountry\SalesChannelCountryDefinition">
+            <tag name="shopware.entity.definition" entity="sales_channel_country"/>
+        </service>
+
+        <service class="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCurrency\SalesChannelCurrencyDefinition" id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCurrency\SalesChannelCurrencyDefinition">
+            <tag name="shopware.entity.definition" entity="sales_channel_currency"/>
+        </service>
+
+        <service class="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelLanguage\SalesChannelLanguageDefinition" id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelLanguage\SalesChannelLanguageDefinition">
+            <tag name="shopware.entity.definition" entity="sales_channel_language"/>
+        </service>
+
+        <service class="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelPaymentMethod\SalesChannelPaymentMethodDefinition" id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelPaymentMethod\SalesChannelPaymentMethodDefinition">
+            <tag name="shopware.entity.definition" entity="sales_channel_payment_method"/>
+        </service>
+
+        <service class="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelShippingMethod\SalesChannelShippingMethodDefinition" id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelShippingMethod\SalesChannelShippingMethodDefinition">
+            <tag name="shopware.entity.definition" entity="sales_channel_shipping_method"/>
+        </service>
+
         <service class="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeDefinition" id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeDefinition">
             <tag name="shopware.entity.definition" entity="sales_channel_type"/>
         </service>

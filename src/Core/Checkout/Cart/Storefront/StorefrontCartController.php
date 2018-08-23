@@ -262,14 +262,16 @@ class StorefrontCartController extends Controller
 
         try {
             $customer = $this->accountService->getCustomerByEmail($registrationRequest->getEmail(), $context);
-            $customerId = $customer->getId();
 
             if (!$customer->getGuest()) {
                 throw new CustomerAccountExistsException($registrationRequest->getEmail());
             }
         } catch (CustomerNotFoundException $exception) {
-            $customerId = $this->accountService->createNewCustomer($registrationRequest, $context);
+            // Check if customer already exists and has a real account.
+            // The empty catch is therefore intended.
         }
+
+        $customerId = $this->accountService->createNewCustomer($registrationRequest, $context);
 
         $orderId = $this->cartService->order($this->createOrderContext($customerId, $context));
         $this->contextPersister->save($context->getToken(), ['cartToken' => null], $context->getTenantId());

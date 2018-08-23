@@ -20,6 +20,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\Extension;
 use Shopware\Core\Framework\ORM\Write\Flag\Inherited;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\Struct\ArrayStruct;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class DefinitionValidator
 {
@@ -83,7 +84,7 @@ class DefinitionValidator
         return $violations;
     }
 
-    public function getNotices(): array
+    public function getNotices(ContainerInterface $container): array
     {
         $notices = [];
         /** @var string $definition */
@@ -104,6 +105,11 @@ class DefinitionValidator
                     $notices[$definition],
                     $this->findStructNotices($struct, $definition)
                 );
+            }
+
+            $entityName = $definition::getEntityName();
+            if (!$container->has($entityName . '.repository')) {
+                $notices[$definition][] = sprintf('Missing repository for entity %s ', $definition);
             }
         }
 

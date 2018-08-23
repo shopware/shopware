@@ -62,11 +62,6 @@ class SalesChannelStruct extends Entity
     protected $accessKey;
 
     /**
-     * @var string
-     */
-    protected $secretAccessKey;
-
-    /**
      * @var CatalogCollection|null
      */
     protected $catalogs;

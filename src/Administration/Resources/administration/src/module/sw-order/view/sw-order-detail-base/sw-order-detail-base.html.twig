@@ -3,7 +3,7 @@
 
         {% block sw_order_detail_base_info_card %}
             <sw-user-card :title="$tc('sw-order.detailBase.cardTitleDetails')"
-                          :user="order.customer"
+                          :user="order.orderCustomer"
                           :isLoading="order.isLoading">
 
                 {% block sw_order_detail_base_info_card_actions %}

@@ -47,7 +47,7 @@ Component.register('sw-customer-list', {
 
             // Use the customer number as the default sorting
             if (!params.sortBy && !params.sortDirection) {
-                params.sortBy = 'number';
+                params.sortBy = 'customerNumber';
                 params.sortDirection = 'DESC';
             }
 

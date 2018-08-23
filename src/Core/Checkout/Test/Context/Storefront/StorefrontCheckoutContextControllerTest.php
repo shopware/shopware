@@ -196,7 +196,7 @@ class StorefrontCheckoutContextControllerTest extends ApiTestCase
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'salutation' => 'Mr.',
-                'number' => '12345',
+                'customerNumber' => '12345',
             ],
         ], Context::createDefaultContext(Defaults::TENANT_ID));
 

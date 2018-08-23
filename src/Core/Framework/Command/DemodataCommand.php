@@ -328,7 +328,7 @@ class DemodataCommand extends ContainerAwareCommand
 
             $customer = [
                 'id' => $id,
-                'number' => (string) ($number + $i),
+                'customerNumber' => (string) ($number + $i),
                 'salutation' => $salutation,
                 'firstName' => $firstName,
                 'lastName' => $lastName,
@@ -368,7 +368,7 @@ class DemodataCommand extends ContainerAwareCommand
 
         $customer = [
             'id' => $id,
-            'number' => '1337',
+            'customerNumber' => '1337',
             'salutation' => 'Herr',
             'firstName' => 'Max',
             'lastName' => 'Mustermann',

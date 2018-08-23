@@ -8,6 +8,10 @@
         <service class="Shopware\Core\Content\Catalog\CatalogDefinition" id="Shopware\Core\Content\Catalog\CatalogDefinition">
             <tag name="shopware.entity.definition" entity="catalog"/>
         </service>
+
+        <service class="Shopware\Core\Content\Catalog\Aggregate\CatalogTranslation\CatalogTranslationDefinition" id="Shopware\Core\Content\Catalog\Aggregate\CatalogTranslation\CatalogTranslationDefinition">
+            <tag name="shopware.entity.definition" entity="catalog_translation"/>
+        </service>
     </services>
 </container>                
                 

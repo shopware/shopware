@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Account;
 
+use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
@@ -12,9 +13,9 @@ use Symfony\Component\HttpFoundation\Request;
 
 class OrderPageLoader
 {
-    const LIMIT_PARAMETER = 'limit';
+    public const LIMIT_PARAMETER = 'limit';
 
-    const PAGE_PARAMETER = 'page';
+    public const PAGE_PARAMETER = 'page';
 
     /**
      * @var RepositoryInterface
@@ -31,7 +32,12 @@ class OrderPageLoader
         $limit = $request->query->getInt(self::LIMIT_PARAMETER, 10);
         $page = $request->query->getInt(self::PAGE_PARAMETER, 1);
 
-        $criteria = $this->createCriteria($context->getCustomer()->getId(), $limit, $page);
+        $customer = $context->getCustomer();
+        if ($customer === null) {
+            throw new CustomerNotLoggedInException();
+        }
+
+        $criteria = $this->createCriteria($customer->getId(), $limit, $page);
         $orders = $this->orderRepository->search($criteria, $context->getContext());
 
         return new OrderPageStruct(
@@ -44,9 +50,9 @@ class OrderPageLoader
 
     private function createCriteria(string $customerId, int $limit, int $page): Criteria
     {
-        $page = $page - 1;
+        --$page;
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('order.customerId', $customerId));
+        $criteria->addFilter(new TermQuery('order.orderCustomer.customerId', $customerId));
         $criteria->addSorting(new FieldSorting('order.date', FieldSorting::DESCENDING));
         $criteria->setLimit($limit);
         $criteria->setOffset($page * $limit);

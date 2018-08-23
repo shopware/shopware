@@ -56,17 +56,17 @@
                                         {% block sw_customer_list_grid_columns_customer_number %}
                                             <sw-grid-column flex="minmax(80px, 100px)"
                                                             :label="$tc('sw-customer.list.columnCustomerNumber')"
-                                                            dataIndex="number"
+                                                            dataIndex="customerNumber"
                                                             align="right"
                                                             truncate
                                                             sortable
                                                             editable>
                                                 {% block sw_customer_list_grid_columns_customer_number_label %}
-                                                    {{ item.number }}
+                                                    {{ item.customerNumber }}
                                                 {% endblock %}
 
                                                 {% block sw_customer_list_grid_columns_customer_number_editor %}
-                                                    <sw-field type="text" v-model="item.number" slot="inline-edit"></sw-field>
+                                                    <sw-field type="text" v-model="item.customerNumber" slot="inline-edit"></sw-field>
                                                 {% endblock %}
                                             </sw-grid-column>
                                         {% endblock %}

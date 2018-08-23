@@ -218,11 +218,18 @@ class OrderConverter
         ];
     }
 
-    private function convertCustomer(CheckoutContext $context)
+    private function convertCustomer(CheckoutContext $context): array
     {
+        $customer = $context->getCustomer();
+
         return [
-            'customerId' => $context->getCustomer()->getId(),
-            'email' => $context->getCustomer()->getEmail(),
+            'customerId' => $customer->getId(),
+            'email' => $customer->getEmail(),
+            'firstName' => $customer->getFirstName(),
+            'lastName' => $customer->getLastName(),
+            'salutation' => $customer->getSalutation(),
+            'title' => $customer->getTitle(),
+            'customerNumber' => $customer->getCustomerNumber(),
         ];
     }
 }

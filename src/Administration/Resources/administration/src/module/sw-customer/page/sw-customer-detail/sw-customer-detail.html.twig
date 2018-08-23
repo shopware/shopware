@@ -17,7 +17,7 @@
                 {% endblock %}
 
                 {% block sw_customer_detail_actions_cancel %}
-                    <sw-button v-else :disabled="customer.isLoading" link="sw.customer.index">
+                    <sw-button v-else :disabled="customer.isLoading" :routerLink="{ name: 'sw.customer.index' }">
                         {{ $tc('sw-customer.detail.buttonCancel') }}
                     </sw-button>
                 {% endblock %}

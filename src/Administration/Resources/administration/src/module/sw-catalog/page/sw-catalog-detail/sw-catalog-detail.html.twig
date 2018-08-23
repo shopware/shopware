@@ -9,7 +9,9 @@
         <template slot="smart-bar-actions">
             {% block sw_catalog_detail_smart_bar_actions %}
                 {% block sw_catalog_detail_smart_bar_actions_abort %}
-                    <sw-button :disabled="isLoading" link="sw.catalog.index">{{ $tc('sw-catalog.detail.buttonAbortLabel') }}</sw-button>
+                    <sw-button :disabled="isLoading" :routerLink="{ name: 'sw.catalog.index' }">
+                        {{ $tc('sw-catalog.detail.buttonAbortLabel') }}
+                    </sw-button>
                 {% endblock %}
 
                 {% block sw_catalog_detail_smart_bar_actions_save %}

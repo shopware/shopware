@@ -28,7 +28,7 @@
         {% block sw_settings_currency_list_smart_bar_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_settings_currency_list_smart_bar_actions_add %}
-                    <sw-button :link="'sw.settings.currency.create'" variant="primary">
+                    <sw-button :routerLink="{ name: 'sw.settings.currency.create' }" variant="primary">
                         {{ $tc('sw-settings-currency.list.buttonAddCurrency') }}
                     </sw-button>
                 {% endblock %}

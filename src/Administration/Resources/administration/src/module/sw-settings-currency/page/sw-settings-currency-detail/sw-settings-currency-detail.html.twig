@@ -11,7 +11,7 @@
         {% block sw_settings_currency_detail_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_settings_currency_detail_actions_abort %}
-                    <sw-button :disabled="currency.isLoading" link="sw.settings.currency.index">
+                    <sw-button :disabled="currency.isLoading" :routerLink="{ name: 'sw.settings.currency.index' }">
                         {{ $tc('sw-settings-currency.detail.buttonCancel') }}
                     </sw-button>
                 {% endblock %}

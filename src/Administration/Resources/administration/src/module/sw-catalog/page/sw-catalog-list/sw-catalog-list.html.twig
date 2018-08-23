@@ -8,7 +8,9 @@
 
         <template slot="smart-bar-actions">
             {% block sw_catalog_list_smart_bar_actions %}
-                <sw-button :link="'sw.catalog.create'" variant="primary">{{ $tc('sw-catalog.general.buttonCreateCatalog') }}</sw-button>
+                <sw-button :routerLink="{ name: 'sw.catalog.create' }" variant="primary">
+                    {{ $tc('sw-catalog.general.buttonCreateCatalog') }}
+                </sw-button>
             {% endblock %}
         </template>
 

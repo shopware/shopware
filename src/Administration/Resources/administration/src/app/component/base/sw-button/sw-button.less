@@ -1,18 +1,21 @@
 @import '~less/variables';
 
-@sw-button-default-color-background: @color-link-water;
-@sw-button-default-color-text:       @color-kashmir;
-@sw-button-default-color-border:     @color-steam-cloud;
-@sw-button-primary-color-background: @color-shopware-blue;
-@sw-button-primary-color-text:       @color-white;
-@sw-button-danger-color-background:  @color-crimson;
-@sw-button-danger-color-text:        @color-white;
-@sw-button-ghost-color:              @color-shopware-blue;
-@sw-button-ghost-color-text-hover:   @color-white;
-@sw-button-transition:               all 0.15s ease-out;
-@sw-button-border-radius:            @border-radius-default;
-@sw-button-font-family:              @font-family-default;
-@sw-button-default-disabled-color:   @color-light-gray;
+@sw-button-default-color-background:  @color-link-water;
+@sw-button-default-color-text:        @color-kashmir;
+@sw-button-default-color-border:      @color-steam-cloud;
+@sw-button-primary-color-background:  @color-shopware-blue;
+@sw-button-primary-color-text:        @color-white;
+@sw-button-danger-color-background:   @color-crimson;
+@sw-button-danger-color-text:         @color-white;
+@sw-button-contrast-color-background: @color-contrast;
+@sw-button-contrast-color-text:       @color-kashmir;
+@sw-button-ghost-color-border:        @color-shopware-blue;
+@sw-button-ghost-color-background:    lighten(@color-shopware-blue, 40%);
+@sw-button-ghost-color-text:          @color-shopware-blue;
+@sw-button-transition:                all 0.15s ease-out;
+@sw-button-border-radius:             @border-radius-default;
+@sw-button-font-family:               @font-family-default;
+@sw-button-default-disabled-color:    @color-light-gray;
 
 .sw-button {
     border: 1px solid @sw-button-default-color-border;
@@ -90,6 +93,35 @@
         }
     }
 
+    &.sw-button--contrast {
+        background: @sw-button-contrast-color-background;
+        color: @sw-button-contrast-color-text;
+        line-height: 36px;
+        border: 0 none;
+
+        &.sw-button--small {
+            line-height: 28px;
+        }
+
+        &.sw-button--large {
+            line-height: 44px;
+        }
+
+        &:hover {
+            background: darken(@sw-button-contrast-color-background, 3%);
+        }
+
+        &:active {
+            background: darken(@sw-button-contrast-color-background, 5%);
+        }
+
+        &:disabled,
+        &.sw-button--disabled {
+            background: lighten(@sw-button-contrast-color-background, 20%);
+            color: lighten(@sw-button-contrast-color-text, 25%);
+        }
+    }
+
     &.sw-button--danger {
         background: @sw-button-danger-color-background;
         color: @sw-button-danger-color-text;
@@ -120,25 +152,24 @@
 
     &.sw-button--ghost {
         background-color: transparent;
-        border-color: @sw-button-ghost-color;
-        color: @sw-button-ghost-color;
+        border-color: @sw-button-ghost-color-border;
+        color: @sw-button-ghost-color-text;
 
         &:hover {
-            background-color: @sw-button-ghost-color;
-            color: @sw-button-ghost-color-text-hover;
+            background-color: @sw-button-ghost-color-background;
+            color: @sw-button-ghost-color-text;
         }
 
         &:active {
-            background-color: darken(@sw-button-ghost-color, 10%);
-            border-color: darken(@sw-button-ghost-color, 10%);
-            color: @sw-button-ghost-color-text-hover;
+            background-color: darken(@sw-button-ghost-color-background, 5%);
+            color: darken(@sw-button-ghost-color-text, 10);
         }
 
         &:disabled,
         &.sw-button--disabled {
             background-color: transparent;
-            border-color: lighten(@sw-button-ghost-color, 20%);
-            color: lighten(@sw-button-ghost-color, 20%);
+            border-color: lighten(@sw-button-ghost-color-border, 20%);
+            color: lighten(@sw-button-ghost-color-text, 20%);
         }
     }
 

@@ -78,8 +78,14 @@ module.exports = {
                 loader: 'babel-loader',
                 include: includeDirectories,
                 options: {
-                    presets: [
-                        [ resolve('node_modules/babel-preset-env'), { modules: false }]]
+                    presets: [[
+                        resolve('node_modules/babel-preset-env'), {
+                            modules: false,
+                            targets: {
+                                node: "current"
+                            }
+                        }
+                    ]],
                 }
             },
             {

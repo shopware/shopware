@@ -218,7 +218,7 @@ class OrderConverter
         ];
     }
 
-    private function convertCustomer(CheckoutContext $context)
+    private function convertCustomer(CheckoutContext $context): array
     {
         $customer = $context->getCustomer();
 

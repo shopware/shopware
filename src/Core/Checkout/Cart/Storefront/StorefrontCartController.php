@@ -267,6 +267,8 @@ class StorefrontCartController extends Controller
                 throw new CustomerAccountExistsException($registrationRequest->getEmail());
             }
         } catch (CustomerNotFoundException $exception) {
+            // Check if customer already exists and has a real account.
+            // The empty catch is therefore intended.
         }
 
         $customerId = $this->accountService->createNewCustomer($registrationRequest, $context);

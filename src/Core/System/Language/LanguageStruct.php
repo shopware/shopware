@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderStateTranslation\OrderStateTrans
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionStateTranslation\OrderTransactionStateTranslationCollection;
 use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationCollection;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationCollection;
+use Shopware\Core\Content\Catalog\Aggregate\CatalogTranslation\CatalogTranslationCollection;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationCollection;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOptionTranslation\ConfigurationGroupOptionTranslationCollection;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\ConfigurationGroupTranslationCollection;
@@ -87,6 +88,11 @@ class LanguageStruct extends Entity
      * @var SalesChannelCollection|null
      */
     protected $salesChannelDefaultAssignments;
+
+    /**
+     * @var CatalogTranslationCollection|null
+     */
+    protected $catalogTranslations;
 
     /**
      * @var CountryAreaTranslationCollection|null
@@ -301,6 +307,16 @@ class LanguageStruct extends Entity
     public function setChildren(LanguageCollection $children): void
     {
         $this->children = $children;
+    }
+
+    public function getCatalogTranslations(): ?CatalogTranslationCollection
+    {
+        return $this->catalogTranslations;
+    }
+
+    public function setCatalogTranslations(CatalogTranslationCollection $catalogTranslations): void
+    {
+        $this->catalogTranslations = $catalogTranslations;
     }
 
     public function getCountryAreaTranslations(): ?CountryAreaTranslationCollection

@@ -87,14 +87,6 @@ exports.getPluginDefinitions = function(definitionFilePath) {
 exports.iteratePluginDefinitions = function(baseWebPackConfig, pluginList, insertDevClient = true) {
     console.log('# Adding Shopware administration plugins to Webpack');
 
-    // Temporarily save the app entry point and remove it from the entry definition to sort the object the way we need it.
-    // We need the following order
-    // - commons
-    // - [n] plugins
-    // - app
-    const appEntry = baseWebPackConfig.entry.app;
-    delete baseWebPackConfig.entry.app;
-
     baseWebPackConfig = exports.pluginDefinitionWalker(baseWebPackConfig, pluginList);
 
     // Apply the dev client to the entry definition
@@ -105,7 +97,6 @@ exports.iteratePluginDefinitions = function(baseWebPackConfig, pluginList, inser
             baseWebPackConfig.entry[name]
         }
     });
-    baseWebPackConfig.entry.app = appEntry;
 
     // Generate empty line
     console.log('');
@@ -214,8 +205,7 @@ exports.injectHtmlPlugin = function(config) {
     return new HtmlWebpackPlugin({
         filename: 'index.html',
         template: 'index.html',
-        inject: true,
-        chunksSortMode: 'manual',
+        inject: 'head',
         chunks: exports.getChunks(config)
     });
 };

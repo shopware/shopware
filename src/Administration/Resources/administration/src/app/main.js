@@ -46,11 +46,3 @@ Object.keys(apiServices).forEach((key) => {
         return new ServiceFactoryClass(initContainer.httpClient, container.loginService);
     });
 });
-
-// When we're working with the hot module replacement server we wanna start up the application right away, we're
-// ignoring the code coverage for it cause we'll never hit the hot module reloading mode with unit tests.
-
-/* istanbul ignore if */
-if (module.hot) {
-    Application.start();
-}

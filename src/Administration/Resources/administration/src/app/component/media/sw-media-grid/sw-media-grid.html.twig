@@ -1,11 +1,10 @@
 {% block sw_media_grid %}
-    <div class="sw-media-grid">
+    <div class="sw-media-grid" @mousedown.left="onMouseDown" >
         <slot name="content">
             {% block sw_media_grid_slot_content %}
                 <div class="sw-media-grid__content"
                      :style="mediaColumnDefinitions"
                      @click.self="emitSelectionCleared">
-
                     {% block sw_media_grid_content_cell %}
                         <div class="sw-media-grid__content-cell"
                              v-for="item in items"

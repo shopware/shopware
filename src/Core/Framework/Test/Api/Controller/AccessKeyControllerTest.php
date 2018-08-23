@@ -63,8 +63,6 @@ class AccessKeyControllerTest extends ApiTestCase
         static::assertSame(200, $response->getStatusCode(), print_r($body, true));
         static::assertInternalType('array', $body);
         static::assertArrayHasKey('accessKey', $body);
-        static::assertArrayHasKey('secretAccessKey', $body);
-        static::assertNotEmpty($body['secretAccessKey']);
         static::assertNotEmpty($body['accessKey']);
 
         $e = null;

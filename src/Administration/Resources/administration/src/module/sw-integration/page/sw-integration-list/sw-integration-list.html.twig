@@ -30,6 +30,7 @@
                                 {% block sw_integration_list_overview_inner %}
                                     {% block sw_integration_list_detail_modal %}
                                         <sw-modal v-if="currentIntegration"
+                                                  class="sw-integration-list__detail"
                                                   :isLoading="isModalLoading"
                                                   :title="$tc('sw-integration.detail.detailModalTitle')"
                                                   @closeModal="onCloseDetailModal">

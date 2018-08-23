@@ -5,6 +5,9 @@
 @sw-multi-select-color-border-focus:              @color-shopware-blue;
 @sw-multi-select-color-background:                @color-white;
 @sw-multi-select-color-label:                     @color-kashmir;
+@sw-multi-select-color-background-default-item:   @color-cadet-blue;
+@sw-multi-select-color-text-default-item:         @color-shopware-blue;
+@sw-multi-select-color-border-default-item:       @color-shopware-blue;
 @sw-multi-select-selection-item-color-text:       @color-gutenberg;
 @sw-multi-select-font-family:                     @font-family-default;
 @sw-multi-select-selection-item-color-background: darken(@color-light-gray, 5%);
@@ -103,6 +106,11 @@
         .sw-icon {
             width: 12px;
             height: 12px;
+
+            &.is--default {
+                color: @sw-multi-select-color-text-default-item;
+                border: none;
+            }
         }
     }
 
@@ -187,6 +195,15 @@
         .sw-icon {
             color: darken(@sw-multi-select-result-color-icon, 10%);
             margin-right: 10px;
+        }
+    }
+
+    .is--default {
+        background-color: @sw-multi-select-color-background-default-item;
+        color: @sw-multi-select-color-text-default-item;
+        border: 1px solid @sw-multi-select-color-border-default-item;
+        &:hover {
+            background: darken(@sw-multi-select-color-background-default-item, 3%);
         }
     }
 

@@ -14,6 +14,11 @@ Component.register('sw-admin-menu-item', {
             default: true,
             required: false
         },
+        iconSize: {
+            type: String,
+            default: '20px',
+            required: false
+        },
         collapsibleText: {
             type: Boolean,
             default: true,
@@ -23,6 +28,23 @@ Component.register('sw-admin-menu-item', {
             type: Boolean,
             default: true,
             required: false
+        }
+    },
+
+    computed: {
+        getLinkToProp() {
+            if (this.entry.params) {
+                return { name: this.entry.path, params: this.entry.params };
+            }
+
+            return { name: this.entry.path };
+        },
+
+        getEntryLabel() {
+            if (this.entry.label instanceof Object) {
+                return (this.entry.label.translated) ? this.entry.label.label : this.$tc(this.entry.label.label);
+            }
+            return this.$tc(this.entry.label);
         }
     },
 

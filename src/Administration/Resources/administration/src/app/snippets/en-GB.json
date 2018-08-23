@@ -500,6 +500,42 @@
       "buttonDelete": "Delete"
     }
   },
+  "sw-sales-channel": {
+    "general": {
+      "titleMenuItems": "Sales channel"
+    },
+    "modal": {
+      "title": "Add sales channel",
+      "buttonAddChannel": "Add",
+      "titleDetailPrefix": "Details of",
+      "buttonShowDetails": "Show details",
+      "buttonBack": "Back",
+      "buttonCancel": "Cancel",
+      "titleDescription": "Information"
+    },
+    "detail": {
+      "titleSaveSuccess": "Sales channel",
+      "messageSaveSuccess": "The sales channel {name} was saved successfully.",
+      "buttonSave": "Save",
+      "buttonCreateNewApiKeys": "Create new API keys",
+      "tabBase": "General",
+      "labelAccessKeyField": "API access key",
+      "titleAPIError": "API access key",
+      "messageAPIError": "The API access key could not be generated.",
+      "titleGeneralSettings": "General Settings",
+      "labelInputName": "Name",
+      "labelInputActive": "Active",
+      "labelInputShippingMethods": "Shipping methods",
+      "labelInputPaymentMethods": "Payment methods",
+      "labelInputCountries": "Countries",
+      "labelInputTaxCalculation": "Tax calculation",
+      "labelOptionTaxVertical": "Vertical",
+      "labelOptionTaxHorizontal": "Horizontal",
+      "labelInputCurrencies": "Currencies",
+      "labelInputLanguages": "Languages",
+      "labelInputCatalogs": "Catalogs"
+    }
+  },
   "sw-media": {
     "general": {
       "mainMenuItemGeneral": "Media",

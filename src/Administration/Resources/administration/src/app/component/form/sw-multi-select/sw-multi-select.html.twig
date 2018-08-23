@@ -23,6 +23,8 @@
 
                         {% block sw_multi_select_selection_item %}
                             <li class="sw-multi-select__selection-item"
+                                :class="{ 'is--default': (selection.id === defaultItemId) }"
+                                @click="changeDefaultItemId(selection.id)"
                                 v-for="selection in selections"
                                 :key="selection.id"
                                 :data-id="selection.id">
@@ -38,9 +40,11 @@
                                 {% block sw_multi_select_selection_dismiss %}
                                     <button class="sw-multi-select__selection-dismiss"
                                             :title="$tc('global.sw-multi-select.buttonDismiss')"
-                                            @click.prevent="dismissSelection(selection.id)">
+                                            @click.prevent.stop="dismissSelection(selection.id)">
                                         {% block sw_multi_select_selection_dismiss_icon %}
-                                            <sw-icon name="small-default-x-line-medium"></sw-icon>
+                                            <sw-icon name="small-default-x-line-medium"
+                                                     :class="{ 'is--default': (selection.id === defaultItemId) }">
+                                            </sw-icon>
                                         {% endblock %}
                                     </button>
                                 {% endblock %}

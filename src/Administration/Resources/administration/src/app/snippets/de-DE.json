@@ -500,6 +500,42 @@
       "buttonDelete": "Löschen"
     }
   },
+  "sw-sales-channel": {
+    "general": {
+      "titleMenuItems": "Verkaufskanäle"
+    },
+    "modal": {
+      "title": "Verkaufskanal anlegen",
+      "buttonAddChannel": "Hinzufügen",
+      "titleDetailPrefix": "Details zu",
+      "buttonShowDetails": "Details",
+      "buttonBack": "Zurück",
+      "buttonCancel": "Abbrechen",
+      "titleDescription": "Informationen"
+    },
+    "detail": {
+      "titleSaveSuccess": "Verkaufskanal",
+      "messageSaveSuccess": "Der Verkaufskanal {name} wurde erfolgreich gespeichert.",
+      "buttonSave": "Speichern",
+      "buttonCreateNewApiKeys": "API Zugangsdaten neu generieren",
+      "tabBase": "Allgemein",
+      "labelAccessKeyField": "API Zugangs-ID",
+      "titleAPIError": "API Zugangs-ID!",
+      "messageAPIError": "Der API Schlüssel konnte nicht generiert werden",
+      "titleGeneralSettings": "Grundeinstellungen",
+      "labelInputName": "Name",
+      "labelInputActive": "Aktiv",
+      "labelInputShippingMethods": "Versandarten",
+      "labelInputPaymentMethods": "Zahlungsarten",
+      "labelInputCountries": "Länder",
+      "labelInputTaxCalculation": "Steuerberechnung",
+      "labelOptionTaxVertical": "Vertikal",
+      "labelOptionTaxHorizontal": "Horizontal",
+      "labelInputCurrencies": "Währungen",
+      "labelInputLanguages": "Sprachen",
+      "labelInputCatalogs": "Kataloge"
+    }
+  },
   "sw-media": {
     "general": {
       "mainMenuItemGeneral": "Medien",

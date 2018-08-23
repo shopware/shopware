@@ -7,11 +7,11 @@
         {% block sw_admin_menu_item_router_link %}
             <router-link v-if="entry.path"
                          class="sw-admin-menu__navigation-link"
-                         :to="{ name: entry.path }">
+                         :to="getLinkToProp">
 
                 {% block sw_admin_menu_item_icon %}
                     <sw-icon v-if="displayIcon"
-                             size="20px"
+                             :size="iconSize"
                              class="sw-admin-menu__navigation-link-icon"
                              :name="getIconName(entry.icon)"
                              :style="{ 'color': entry.color }">
@@ -20,7 +20,7 @@
 
                 {% block sw_admin_menu_item_text %}
                     <span :class="collapsibleText ? 'collapsible-text' : ''">
-                        {{ $tc(entry.label) }}
+                        {{ getEntryLabel }}
                     </span>
                 {% endblock %}
             </router-link>
@@ -35,7 +35,7 @@
 
                 {% block sw_admin_menu_item_icon %}
                     <sw-icon v-if="displayIcon"
-                             size="20px"
+                             :size="iconSize"
                              class="sw-admin-menu__navigation-link-icon"
                              :name="getIconName(entry.icon)"
                              :style="{ 'color': entry.color }">
@@ -55,7 +55,7 @@
 
                 {% block sw_admin_menu_item_icon %}
                     <sw-icon v-if="displayIcon"
-                             size="20px"
+                             :size="iconSize"
                              class="sw-admin-menu__navigation-link-icon"
                              :name="getIconName(entry.icon)"
                              :style="{ 'color': entry.color }">

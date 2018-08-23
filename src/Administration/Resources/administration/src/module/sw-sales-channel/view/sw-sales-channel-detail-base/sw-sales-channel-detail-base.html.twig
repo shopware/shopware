@@ -1,0 +1,133 @@
+{% block sw_sales_channel_detail_base %}
+    <div class="sw-sales-channel-detail-base">
+        {% block sw_sales_channel_detail_base_general %}
+            <sw-card :title="$tc('sw-sales-channel.detail.titleGeneralSettings')"
+                     :isLoading="salesChannel.isLoading"
+                     key="edit">
+                <sw-container grid="1fr 1fr" gap="0px 30px">
+                    {% block sw_sales_channel_detail_base_general_input_name %}
+                        <sw-field type="text"
+                                  validation="required"
+                                  :label="$tc('sw-sales-channel.detail.labelInputName')"
+                                  v-model="salesChannel.name">
+                        </sw-field>
+                    {% endblock %}
+
+                    {% block sw_sales_channel_detail_base_general_input_active %}
+                        <sw-field type="checkbox"
+                                  :label="$tc('sw-sales-channel.detail.labelInputActive')"
+                                  v-model="salesChannel.active">
+                        </sw-field>
+                    {% endblock %}
+
+                    {% block sw_sales_channel_detail_base_general_input_tax_calculation %}
+                        <sw-field type="select"
+                                  :label="$tc('sw-sales-channel.detail.labelInputTaxCalculation')"
+                                  v-model="salesChannel.taxCalculationType">
+                            <template slot="options">
+                                <option value="vertical">{{ $tc('sw-sales-channel.detail.labelOptionTaxVertical') }}</option>
+                                <option value="horizontal">{{ $tc('sw-sales-channel.detail.labelOptionTaxHorizontal') }}</option>
+                            </template>
+                        </sw-field>
+                    {% endblock %}
+                </sw-container>
+
+                {% block sw_sales_channel_detail_base_general_input_payments_methods %}
+                    <sw-multi-select id="paymentMethoIds"
+                                     :label="$tc('sw-sales-channel.detail.labelInputPaymentMethods')"
+                                     validation="required"
+                                     :serviceProvider="paymentMethodService"
+                                     :store="paymentMethodStore"
+                                     entityName="paymentMethod"
+                                     :defaultItemId="salesChannel.paymentMethodId"
+                                     v-model="salesChannel.paymentMethods"
+                                     @default_changed="changeDefaultPaymentMethod">
+                    </sw-multi-select>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_base_general_input_shipping_methods %}
+                    <sw-multi-select id="shippingMethodIds"
+                                     :label="$tc('sw-sales-channel.detail.labelInputShippingMethods')"
+                                     validation="required"
+                                     :serviceProvider="shippingMethodService"
+                                     :store="shippingMethodStore"
+                                     entityName="shippingMethod"
+                                     :defaultItemId="salesChannel.shippingMethodId"
+                                     v-model="salesChannel.shippingMethods"
+                                     @default_changed="changeDefaultShippingMethod">
+                    </sw-multi-select>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_base_general_input_countries %}
+                    <sw-multi-select id="countryIds"
+                                     :label="$tc('sw-sales-channel.detail.labelInputCountries')"
+                                     validation="required"
+                                     :serviceProvider="countryService"
+                                     :store="countryStore"
+                                     entityName="country"
+                                     :defaultItemId="salesChannel.countryId"
+                                     v-model="salesChannel.countries"
+                                     @default_changed="changeDefaultCountry">
+                    </sw-multi-select>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_base_general_input_currencies %}
+                    <sw-multi-select id="currencyIds"
+                                     :label="$tc('sw-sales-channel.detail.labelInputCurrencies')"
+                                     validation="required"
+                                     :serviceProvider="currencyService"
+                                     :store="currencyStore"
+                                     entityName="currency"
+                                     :defaultItemId="salesChannel.currencyId"
+                                     v-model="salesChannel.currencies"
+                                     @default_changed="changeDefaultCurrency">
+                    </sw-multi-select>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_base_general_input_languages %}
+                    <sw-multi-select id="languageIds"
+                                     :label="$tc('sw-sales-channel.detail.labelInputLanguages')"
+                                     validation="required"
+                                     :serviceProvider="languageService"
+                                     :store="languageStore"
+                                     entityName="language"
+                                     :defaultItemId="salesChannel.languageId"
+                                     v-model="salesChannel.languages"
+                                     @default_changed="changeDefaultLanguage">
+                    </sw-multi-select>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_base_general_input_catalogs %}
+                    <sw-multi-select id="catalogIds"
+                                     :label="$tc('sw-sales-channel.detail.labelInputCatalogs')"
+                                     :serviceProvider="catalogService"
+                                     :store="catalogStore"
+                                     entityName="catalog"
+                                     v-model="salesChannel.catalogs">
+                    </sw-multi-select>
+                {% endblock %}
+
+                <sw-container grid="1fr auto" gap="0 5px">
+                    {% block sw_sales_channel_detail_base_general_input_access_key %}
+                        <sw-field :label="$tc('sw-sales-channel.detail.labelAccessKeyField')"
+                                  :disabled="true"
+                                  v-model="salesChannel.accessKey"
+                                  :copyAble="true">
+                        </sw-field>
+                    {% endblock %}
+
+                    {% block sw_sales_channel_detail_base_general_input_actions %}
+                        <div class="sw-sales-channel-detail__action-button">
+                            <sw-button @click="onGenerateKeys"
+                                       class="sw-sales-channel-detail-base__button-generate-keys"
+                                       variant="danger">
+                                {{ $tc('sw-sales-channel.detail.buttonCreateNewApiKeys') }}
+                            </sw-button>
+                        </div>
+                    {% endblock %}
+                </sw-container>
+
+            </sw-card>
+        {% endblock %}
+    </div>
+{% endblock %}

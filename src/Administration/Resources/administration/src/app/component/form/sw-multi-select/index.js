@@ -1,10 +1,14 @@
-import { Component } from 'src/core/shopware';
+import { Component, Mixin } from 'src/core/shopware';
 import utils from 'src/core/service/util.service';
 import './sw-multi-select.less';
 import template from './sw-multi-select.html.twig';
 
 Component.register('sw-multi-select', {
     template,
+
+    mixins: [
+        Mixin.getByName('validation')
+    ],
 
     props: {
         serviceProvider: {
@@ -51,6 +55,10 @@ Component.register('sw-multi-select', {
         store: {
             type: Object,
             required: true
+        },
+        defaultItemId: {
+            type: String,
+            required: false
         }
     },
 
@@ -70,7 +78,7 @@ Component.register('sw-multi-select', {
     computed: {
         multiSelectClasses() {
             return {
-                'has--error': this.hasError,
+                'has--error': !this.isValid || this.hasError,
                 'is--disabled': this.disabled,
                 'is--expanded': this.isExpanded
             };
@@ -240,6 +248,10 @@ Component.register('sw-multi-select', {
             this.emitChanges(this.selections);
 
             this.setFocus();
+
+            if (this.selections.length === 1) {
+                this.changeDefaultItemId(result.id);
+            }
         },
 
         addSelectionOnEnter() {
@@ -269,6 +281,14 @@ Component.register('sw-multi-select', {
             this.emitChanges(this.selections);
 
             this.setFocus();
+
+            if (this.defaultItemId && this.defaultItemId === id) {
+                if (this.selections.length >= 1) {
+                    this.changeDefaultItemId(this.selections[0].id);
+                } else {
+                    this.changeDefaultItemId(null);
+                }
+            }
         },
 
         dismissLastSelection() {
@@ -307,6 +327,12 @@ Component.register('sw-multi-select', {
             });
 
             this.$emit('input', this.selections);
+        },
+
+        changeDefaultItemId(id) {
+            if (typeof this.defaultItemId !== 'undefined') {
+                this.$emit('default_changed', id);
+            }
         }
     }
 });

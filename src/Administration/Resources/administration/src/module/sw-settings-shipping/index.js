@@ -7,8 +7,8 @@ import './page/sw-settings-shipping-create';
 
 Module.register('sw-settings-shipping', {
     type: 'core',
-    name: 'Currency settings',
-    description: 'Tax section in the settings module',
+    name: 'Shipping settings',
+    description: 'Shipping section in the settings module',
     color: '#9AA8B5',
     icon: 'default-action-settings',
 

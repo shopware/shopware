@@ -83,6 +83,9 @@ class SalesChannelCreateCommand extends ContainerAwareCommand
             'catalogs' => [['id' => Defaults::CATALOG]],
             'currencies' => [['id' => $input->getOption('currencyId')]],
             'languages' => [['id' => Defaults::LANGUAGE]],
+            'shippingMethods' => [['id' => $input->getOption('shippingMethodId')]],
+            'paymentMethods' => [['id' => $input->getOption('paymentMethodId')]],
+            'countries' => [['id' => $input->getOption('countryId')]],
             'name' => $input->getOption('name'),
         ];
 

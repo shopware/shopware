@@ -462,11 +462,11 @@ class TenantProvisioner
     {
         $this->importTable(
             'sales_channel_type',
-            ['id', 'created_at', 'updated_at'],
+            ['id', 'icon_name', 'created_at'],
             ['tenant_id'],
             [
-                [hex2bin(Defaults::SALES_CHANNEL_STOREFRONT), $this->now(), null],
-                [hex2bin(Defaults::SALES_CHANNEL_STOREFRONT_API), $this->now(), null],
+                [hex2bin(Defaults::SALES_CHANNEL_STOREFRONT), 'default-building-shop', $this->now()],
+                [hex2bin(Defaults::SALES_CHANNEL_STOREFRONT_API), 'default-shopping-basket', $this->now()],
             ]
         );
 

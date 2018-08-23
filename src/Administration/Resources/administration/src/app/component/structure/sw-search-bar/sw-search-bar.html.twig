@@ -67,7 +67,7 @@
                     <div v-if="showResultsContainer" class="sw-search-bar__results">
 
                         {% block sw_search_bar_results_empty_message %}
-                            <sw-alert v-if="!searchResults.length" variant="info">
+                            <sw-alert v-if="!results.length" variant="info">
                                 {% block sw_search_bar_results_empty_message_text %}
                                     {{ $tc('global.sw-search-bar.textNoSearchResults') }}
                                 {% endblock %}
@@ -77,7 +77,7 @@
                         {% block sw_search_bar_results_list %}
                             <ul v-else class="sw-search-bar__results-list">
                                 {% block sw_search_bar_results_items %}
-                                    <sw-search-bar-item v-for="item in searchResults" :item="item" :key="item.id"></sw-search-bar-item>
+                                    <sw-search-bar-item v-for="item in results" :item="item" :key="item.id"></sw-search-bar-item>
                                 {% endblock %}
                             </ul>
                         {% endblock %}

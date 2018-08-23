@@ -36,10 +36,6 @@ Component.register('sw-search-bar', {
     },
 
     computed: {
-        searchResults() {
-            return this.results;
-        },
-
         searchTypeColor() {
             if (!this.$route.meta.$module) {
                 return false;

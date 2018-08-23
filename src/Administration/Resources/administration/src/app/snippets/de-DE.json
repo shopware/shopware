@@ -534,7 +534,14 @@
       "labelOptionTaxHorizontal": "Horizontal",
       "labelInputCurrencies": "Währungen",
       "labelInputLanguages": "Sprachen",
-      "labelInputCatalogs": "Kataloge"
+      "labelInputCatalogs": "Kataloge",
+      "titleOptionsCard": "Optionen",
+      "textDeleteInfo": "Achtung: Hier kannst Du diesen Verkaufskanal vollständig löschen. Dieser wird danach nicht mehr in der Shopware Administration verfügbar sein. Alle Bestellungen bleiben jedoch erhalten. Auch ausgespielte Kataloge werden nicht verändert.",
+      "buttonDelete": "Verkaufskanal löschen",
+      "deleteModalTitle": "Verkaufskanal löschen",
+      "textConfirmDelete": "Möchtest Du diesen Verkaufskanal wirklich löschen?",
+      "buttonCloseDeleteModal": "Abbrechen",
+      "buttonConfirmDelete": "Löschen"
     }
   },
   "sw-media": {

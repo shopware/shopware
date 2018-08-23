@@ -40,7 +40,7 @@ Component.register('sw-multi-select', {
         resultsLimit: {
             type: Number,
             required: false,
-            default: 20
+            default: 25
         },
         entityName: {
             type: String,
@@ -85,6 +85,12 @@ Component.register('sw-multi-select', {
         }
     },
 
+    watch: {
+        '$route.params.id'() {
+            this.createdComponent();
+        }
+    },
+
     created() {
         this.createdComponent();
     },
@@ -95,6 +101,9 @@ Component.register('sw-multi-select', {
 
     methods: {
         createdComponent() {
+            this.selections = [];
+            this.results = [];
+
             this.loadPreviewResults();
             this.loadSelections();
             this.addEventListeners();
@@ -221,7 +230,7 @@ Component.register('sw-multi-select', {
         closeOnClickOutside(event) {
             const target = event.target;
 
-            if (target.closest('.sw-multi-select') === null) {
+            if (target.closest('.sw-multi-select') !== this.$refs.swMultiSelect) {
                 this.isExpanded = false;
                 this.activeResultPosition = 0;
             }

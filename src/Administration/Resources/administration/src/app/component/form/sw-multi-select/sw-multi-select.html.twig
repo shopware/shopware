@@ -23,8 +23,8 @@
 
                         {% block sw_multi_select_selection_item %}
                             <li class="sw-multi-select__selection-item"
-                                :class="{ 'is--default': (selection.id === defaultItemId) }"
-                                @click="changeDefaultItemId(selection.id)"
+                                :class="{ 'is--default': (selection.id === defaultItemId), 'is--clickAble': (defaultItemId) }"
+                                @click.stop="changeDefaultItemId(selection.id)"
                                 v-for="selection in selections"
                                 :key="selection.id"
                                 :data-id="selection.id">

@@ -27,6 +27,12 @@ Component.register('sw-sales-channel-detail-base', {
         }
     },
 
+    data() {
+        return {
+            showDeleteModal: false
+        };
+    },
+
     computed: {
         secretAccessKeyFieldType() {
             return this.showSecretAccessKey ? 'text' : 'password';
@@ -57,20 +63,7 @@ Component.register('sw-sales-channel-detail-base', {
         }
     },
 
-    created() {
-        this.createdComponent();
-    },
-
-    watch: {
-        'salesChannel.id'() {
-            this.createdComponent();
-        }
-    },
-
     methods: {
-        createdComponent() {
-        },
-
         onGenerateKeys() {
             this.salesChannelService.generateKey().then((response) => {
                 this.salesChannel.accessKey = response.accessKey;
@@ -100,6 +93,17 @@ Component.register('sw-sales-channel-detail-base', {
 
         changeDefaultShippingMethod(id) {
             this.salesChannel.shippingMethodId = id;
+        },
+
+        onConfirmDelete() {
+            this.showDeleteModal = false;
+            this.$nextTick(() => {
+                this.salesChannel.delete(true).then(() => {
+                    this.$root.$emit('changedSalesChannels');
+                });
+
+                this.$router.push({ name: 'sw.dashboard.index' });
+            });
         }
     }
 });

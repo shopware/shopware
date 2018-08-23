@@ -21,11 +21,15 @@ Component.extend('sw-sales-channel-create', 'sw-sales-channel-detail', {
 
             this.salesChannel = this.salesChannelStore.create(this.$route.params.id);
             this.salesChannel.typeId = this.$route.params.typeId;
+
+            console.log('Create', this.salesChannelStore, this.salesChannel.id, this.$route.params.id);
+
             this.$super.createdComponent();
         },
 
         onSave() {
             this.$super.onSave().then(() => {
+                this.$root.$emit('changedSalesChannels');
                 this.$router.push({ name: 'sw.sales.channel.detail', params: { id: this.salesChannel.id } });
             });
         }

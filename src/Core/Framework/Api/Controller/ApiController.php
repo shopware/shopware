@@ -667,7 +667,7 @@ class ApiController extends Controller
                 case 'application/vnd.api+json':
                     return $this->serializer->decode($request->getContent(), 'jsonapi');
                 case 'application/json':
-                    return $this->serializer->decode($request->getContent(), 'json');
+                    return $request->request->all();
             }
         } catch (InvalidArgumentException | UnexpectedValueException $exception) {
             throw new BadRequestHttpException($exception->getMessage());

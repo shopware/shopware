@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\EventListener;
 
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
@@ -38,9 +39,17 @@ class CorsListener implements EventSubscriberInterface
             return;
         }
 
+        $corsHeaders = [
+            'Content-Type',
+            'Authorization',
+            PlatformRequest::HEADER_CONTEXT_TOKEN,
+            PlatformRequest::HEADER_ACCESS_KEY,
+            PlatformRequest::HEADER_LANGUAGE_ID,
+        ];
+
         $response = $event->getResponse();
         $response->headers->set('Access-Control-Allow-Origin', '*');
         $response->headers->set('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE');
-        $response->headers->set('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-SW-Context-Token,X-SW-Access-Key');
+        $response->headers->set('Access-Control-Allow-Headers', implode(',', $corsHeaders));
     }
 }

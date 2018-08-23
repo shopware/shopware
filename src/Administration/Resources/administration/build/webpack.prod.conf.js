@@ -1,3 +1,4 @@
+const fs = require('fs');
 const utils = require('./utils');
 const webpack = require('webpack');
 const config = require('../config');
@@ -111,17 +112,21 @@ if (pluginList.length) {
                     absolutePath: true,
                     sourceMap: true
                 }
-            }),
-            // copy custom static assets
-            new CopyWebpackPlugin([
-                {
-                    from: assetPath,
-                    to: publicStaticPath,
-                    ignore: [ '.*' ]
-                }
-            ])
+            })
         );
 
+        if(fs.existsSync(assetPath)) {
+            webpackConfig.plugins.push(
+                // copy custom static assets
+                new CopyWebpackPlugin([
+                    {
+                        from: assetPath,
+                        to: publicStaticPath,
+                        ignore: [ '.*' ]
+                    }
+                ])
+            );
+        }
     });
 }
 

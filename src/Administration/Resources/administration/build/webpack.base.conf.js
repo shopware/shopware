@@ -4,7 +4,7 @@ const utils = require('./utils');
 const config = require('../config');
 const vueLoaderConfig = require('./vue-loader.conf');
 
-const pluginList = utils.getPluginDefinitions('var/config_administration_plugins.json');
+const pluginList = utils.getPluginDefinitions('var/config_administration_plugins.json', true);
 
 const pluginSourceDirectories = pluginList.reduce((accumulator, plugin) => {
     const srcPath = `${plugin.basePath}Resources/views/administration`;
@@ -60,6 +60,7 @@ module.exports = {
                 enforce: 'pre',
                 include: includeDirectories,
                 options: {
+                    configFile: resolve('.eslintrc.js'),
                     formatter: require('eslint-friendly-formatter')
                 }
             }),
@@ -77,7 +78,8 @@ module.exports = {
                 loader: 'babel-loader',
                 include: includeDirectories,
                 options: {
-                    presets: [['env', { modules: false }]]
+                    presets: [
+                        [ resolve('node_modules/babel-preset-env'), { modules: false }]]
                 }
             },
             {

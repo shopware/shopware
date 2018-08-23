@@ -54,7 +54,7 @@ app.use(devMiddleware);
 // compilation error display
 app.use(hotMiddleware);
 
-const pluginList = utils.getPluginDefinitions('var/config_administration_plugins.json');
+const pluginList = utils.getPluginDefinitions('var/config_administration_plugins.json', true);
 const staticPaths = pluginList.reduce((accumulator, plugin) => {
     const assetPath = `/${plugin.basePath}Resources/views/administration/static/`;
 

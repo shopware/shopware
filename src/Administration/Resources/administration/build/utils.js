@@ -40,16 +40,21 @@ const includePaths = [
  * Tries to load the plugin definitions from the dumped configuration file.
  *
  * @param {String} definitionFilePath
+ * @param {Boolean} silent
  * @returns {Array}
  */
-exports.getPluginDefinitions = function(definitionFilePath) {
+exports.getPluginDefinitions = function(definitionFilePath, silent = false) {
     const plugins = [];
     const path = exports.resolveFromRootPath(definitionFilePath);
 
-    console.log('# Loading Shopware administration plugin definitions');
+    if (!silent) {
+        console.log('# Loading Shopware administration plugin definitions');
+    }
 
     try {
-        console.log(`Trying to load plugin definitions from "${path}"`);
+        if (!silent) {
+            console.log(`Trying to load plugin definitions from "${path}"`);
+        }
         const pluginsDefinition = require(path);
 
         Object.keys(pluginsDefinition).forEach(function (pluginName) {
@@ -64,13 +69,19 @@ exports.getPluginDefinitions = function(definitionFilePath) {
             });
         });
 
-        console.log(`Found ${plugins.length} plugin definition(s): ${plugins.map(plugin => plugin.name).join(', ')}`);
+        if (!silent) {
+            console.log(`Found ${plugins.length} plugin definition(s): ${plugins.map(plugin => plugin.name).join(', ')}`);
+        }
     } catch(err) {
-        console.log(`Could not load Shopware administration plugin definitions from "${path}"`);
+        if (!silent) {
+            console.log(`Could not load Shopware administration plugin definitions from "${path}"`);
+        }
     }
 
     // Generate an empty line
-    console.log();
+    if (!silent) {
+        console.log();
+    }
     return plugins;
 };
 
@@ -122,7 +133,7 @@ exports.pluginDefinitionWalker = function(baseWebPackConfig, pluginList) {
         };
 
         baseWebPackConfig.entry[name] = plugin.entryFile;
-        includePaths.push(exports.resolveFromRootPath(`${plugin.basePath}src`));
+        includePaths.push(`${plugin.basePath}Resources/views/administration/src`);
 
         if (plugin.webpackConfig) {
             console.log(`Plugin "${name}" using an extended Webpack config`);

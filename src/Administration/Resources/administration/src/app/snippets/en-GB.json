@@ -402,7 +402,8 @@
       "tabGeneral": "General",
       "tabAdvancedPrices": "Advanced pricing",
       "titleSaveSuccess": "Products",
-      "messageSaveSuccess": "The product \"{name}\" was saved successfully."
+      "messageSaveSuccess": "The product \"{name}\" was saved successfully.",
+      "messageUploadSuccess": "{count} of {total} files saved."
     },
     "file-upload": {
       "buttonUpload": "Upload files"

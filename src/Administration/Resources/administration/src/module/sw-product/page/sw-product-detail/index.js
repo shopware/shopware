@@ -1,6 +1,5 @@
 import { Component, Mixin, State } from 'src/core/shopware';
 import { warn } from 'src/core/service/utils/debug.utils';
-import { fileReader } from 'src/core/service/util.service';
 import template from './sw-product-detail.html.twig';
 
 Component.register('sw-product-detail', {
@@ -92,50 +91,17 @@ Component.register('sw-product-detail', {
                 'global.notification.notificationSaveErrorMessage', 0, { entityName: productName }
             );
 
-            return this.product.save().then(() => {
-                const newProductMediaItems = this.product.getChangedAssociations().media || [];
-                const count = newProductMediaItems.length;
-                let counter = 0;
+            this.product.save().then(() => {
+                const productId = this.product.id;
+                const totalTasks = this.uploadStore.getPendingTaskCount(productId);
 
-                return Promise.all(newProductMediaItems.map((productMedia) => {
-                    productMedia.isLoading = true;
-
-                    const upload = this.uploadStore.getUploadsForEntity(productMedia.media.id)[0];
-                    const file = upload.file;
-                    this.uploadStore.removeUpload(upload.id);
-
-                    return fileReader.readAsArrayBuffer(file).then((arrayBuffer) => {
-                        return this.mediaService.uploadMediaById(productMedia.media.id, file.type, arrayBuffer);
-                    }).then(() => {
-                        counter += 1;
-                        productMedia.isLoading = false;
-
-                        this.createNotification({
-                            title: titleSaveSuccess,
-                            message: `Uploaded ${counter}/${count} images`
-                        });
-                    }).catch(() => {
-                        // Delete the corresponding media entities when the upload fails
-                        this.product.getAssociation('media').getByIdAsync(productMedia.id).then((productMediaEntity) => {
-                            if (!productMediaEntity) {
-                                return;
-                            }
-
-                            if (productMediaEntity.media && productMediaEntity.media.id) {
-                                State.getStore('media').getByIdAsync(productMediaEntity.media.id).then((mediaEntity) => {
-                                    mediaEntity.delete(true);
-                                });
-                            }
-
-                            productMediaEntity.delete(true);
-                        });
-
-                        this.createNotificationWarning({
-                            title: titleSaveSuccess,
-                            message: `Failed to upload ${productMedia.media.name}`
-                        });
+                return this.uploadStore.runUploads(productId, (runningTasks) => {
+                    const count = totalTasks - runningTasks;
+                    this.createNotification({
+                        title: titleSaveSuccess,
+                        message: this.$tc('sw-product.detail.messageUploadSuccess', 0, { count, total: totalTasks })
                     });
-                }));
+                });
             }).then(() => {
                 this.createNotificationSuccess({
                     title: titleSaveSuccess,

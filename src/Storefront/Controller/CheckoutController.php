@@ -2,6 +2,8 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\Cart\Storefront\CartService;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
@@ -16,6 +18,7 @@ use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidTransactionException;
 use Shopware\Core\Checkout\Payment\Exception\TokenExpiredException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
+use Shopware\Core\Checkout\Payment\PaymentMethodStruct;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
@@ -27,7 +30,6 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\Serializer;
 
 class CheckoutController extends StorefrontController
 {
@@ -71,11 +73,6 @@ class CheckoutController extends StorefrontController
      */
     private $paymentHandlerRegistry;
 
-    /**
-     * @var Serializer
-     */
-    private $serializer;
-
     public function __construct(
         CartService $cartService,
         RepositoryInterface $orderRepository,
@@ -84,7 +81,6 @@ class CheckoutController extends StorefrontController
         PaymentTransactionTokenFactory $tokenFactory,
         RepositoryInterface $paymentMethodRepository,
         CheckoutContextPersister $contextPersister,
-        Serializer $serializer,
         PaymentHandlerRegistry $paymentHandlerRegistry
     ) {
         $this->cartService = $cartService;
@@ -94,14 +90,13 @@ class CheckoutController extends StorefrontController
         $this->paymentMethodRepository = $paymentMethodRepository;
         $this->tokenFactory = $tokenFactory;
         $this->contextPersister = $contextPersister;
-        $this->serializer = $serializer;
         $this->paymentHandlerRegistry = $paymentHandlerRegistry;
     }
 
     /**
      * @Route("/checkout", name="checkout_index", options={"seo"="false"})
      */
-    public function index()
+    public function index(): RedirectResponse
     {
         return $this->redirectToRoute('checkout_cart');
     }
@@ -268,14 +263,19 @@ class CheckoutController extends StorefrontController
 
     private function getOrder(string $orderId, CheckoutContext $context): OrderStruct
     {
+        $customer = $context->getCustomer();
+        if ($customer === null) {
+            throw new CustomerNotLoggedInException();
+        }
+
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('order.customer.id', $context->getCustomer()->getId()));
+        $criteria->addFilter(new TermQuery('order.orderCustomer.customerId', $customer->getId()));
         $criteria->addFilter(new TermQuery('order.id', $orderId));
 
         $searchResult = $this->orderRepository->search($criteria, $context->getContext());
 
         if ($searchResult->count() !== 1) {
-            throw new \Exception(sprintf('Unable to find order with id: %s', $orderId));
+            throw new OrderNotFoundException($orderId);
         }
 
         return $searchResult->first();
@@ -286,8 +286,13 @@ class CheckoutController extends StorefrontController
      */
     private function getOrderIdByTransactionId(string $transactionId, CheckoutContext $context): string
     {
+        $customer = $context->getCustomer();
+        if ($customer === null) {
+            throw new CustomerNotLoggedInException();
+        }
+
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('order.customer.id', $context->getCustomer()->getId()));
+        $criteria->addFilter(new TermQuery('order.orderCustomer.customerId', $customer->getId()));
         $criteria->addFilter(new TermQuery('order.transactions.id', $transactionId));
 
         $searchResult = $this->orderRepository->searchIds($criteria, $context->getContext());
@@ -316,6 +321,7 @@ class CheckoutController extends StorefrontController
     {
         $paymentMethods = $this->paymentMethodRepository->read(new ReadCriteria([$paymentMethodId]), $context);
 
+        /** @var PaymentMethodStruct $paymentMethod */
         $paymentMethod = $paymentMethods->get($paymentMethodId);
         if (!$paymentMethod) {
             throw new UnknownPaymentMethodException($paymentMethodId);

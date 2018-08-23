@@ -131,6 +131,7 @@ class StorefrontCustomerController extends Controller
         $registrationRequest = new RegistrationRequest();
 
         $registrationRequest->assign($request->request->all());
+        $registrationRequest->setGuest($request->request->getBoolean('guest'));
 
         $customerId = $this->accountService->createNewCustomer($registrationRequest, $context);
 

@@ -24,5 +24,6 @@ class RegistrationSubscriber implements EventSubscriberInterface
         $data = $request->request->get(self::PREFIX);
 
         $transformed->assign($data);
+        $transformed->setGuest((bool) $data['guest']);
     }
 }

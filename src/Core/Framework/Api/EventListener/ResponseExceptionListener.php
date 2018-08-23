@@ -16,10 +16,15 @@ class ResponseExceptionListener extends ExceptionListener
     {
         $exception = $event->getException();
 
-        $this->logException($exception, sprintf('Uncaught PHP Exception %s: "%s" at %s line %s', \get_class($exception), $exception->getMessage(), $exception->getFile(), $exception->getLine()));
+        $this->addExceptionLogEntry($exception);
 
         if ($exception instanceof ShopwareHttpException) {
-            $response = new JsonResponse(['errors' => iterator_to_array($exception->getErrors($this->debug))], $exception->getStatusCode());
+            $errors = iterator_to_array($exception->getErrors($this->debug));
+
+            $response = new JsonResponse(
+                ['errors' => $this->convert($errors)],
+                $exception->getStatusCode()
+            );
         } elseif ($exception instanceof OAuthServerException) {
             $error = [
                 'code' => (string) $exception->getCode(),
@@ -62,6 +67,22 @@ class ResponseExceptionListener extends ExceptionListener
         }
 
         return [$error];
+    }
+
+    private function addExceptionLogEntry(\Exception $exception): void
+    {
+        $logMessage = sprintf(
+            'Uncaught PHP Exception %s: "%s" at %s line %s',
+            \get_class($exception),
+            $exception->getMessage(),
+            $exception->getFile(),
+            $exception->getLine()
+        );
+
+        $this->logException(
+            $exception,
+            $logMessage
+        );
     }
 
     private function convert(array $array): array

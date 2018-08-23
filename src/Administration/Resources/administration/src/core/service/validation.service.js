@@ -1,3 +1,5 @@
+import { types } from 'src/core/service/util.service';
+
 /**
  * @module core/service/validation
  */
@@ -23,8 +25,8 @@ export function required(value) {
         return value === true;
     }
 
-    if (typeof value === 'object' && value !== null) {
-        return Object.keys(value).length !== 0 && value.constructor !== Object;
+    if (types.isObject(value)) {
+        return Object.keys(value).length > 0;
     }
 
     return typeof value !== 'undefined' && value !== null;

@@ -3,9 +3,9 @@ import template from './sw-sales-channel-modal.html.twig';
 import './sw-sales-channel-modal.less';
 
 Component.register('sw-sales-channel-modal', {
-    inject: ['salesChannelService'],
-
     template,
+
+    inject: ['salesChannelService'],
 
     props: {
         detailTypeId: {
@@ -21,14 +21,17 @@ Component.register('sw-sales-channel-modal', {
             detailType: false
         };
     },
+
     computed: {
         salesChannelStore() {
             return State.getStore('sales_channel');
         },
+
         salesChannelTypeStore() {
             return State.getStore('sales_channel_type');
         },
-        getModalTitle() {
+
+        modalTitle() {
             if (this.detailType) {
                 return `${this.$tc('sw-sales-channel.modal.titleDetailPrefix')} ${this.detailType.name}`;
             }
@@ -40,7 +43,7 @@ Component.register('sw-sales-channel-modal', {
     created() {
         const params = {
             limit: 500,
-            offset: 0
+            page: 1
         };
 
         this.isLoading = true;
@@ -56,9 +59,11 @@ Component.register('sw-sales-channel-modal', {
         onCloseModal() {
             this.$emit('closeModal');
         },
+
         onOpenDetail(id) {
             this.detailType = this.salesChannelTypes.find(a => a.id === id);
         },
+
         onAddChannel(id) {
             this.onCloseModal();
             if (id) {

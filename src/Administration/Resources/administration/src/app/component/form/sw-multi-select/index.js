@@ -282,8 +282,12 @@ Component.register('sw-multi-select', {
 
             this.setFocus();
 
-            if (this.defaultItemId && this.defaultItemId === id && this.selections.length >= 1) {
-                this.changeDefaultItemId(this.selections[0].id);
+            if (this.defaultItemId && this.defaultItemId === id) {
+                if (this.selections.length >= 1) {
+                    this.changeDefaultItemId(this.selections[0].id);
+                } else {
+                    this.changeDefaultItemId(null);
+                }
             }
         },
 

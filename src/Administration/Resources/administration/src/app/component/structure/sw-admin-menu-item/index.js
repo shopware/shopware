@@ -39,6 +39,7 @@ Component.register('sw-admin-menu-item', {
 
             return { name: this.entry.path };
         },
+
         getEntryLabel() {
             if (this.entry.label instanceof Object) {
                 return (this.entry.label.translated) ? this.entry.label.label : this.$tc(this.entry.label.label);

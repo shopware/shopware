@@ -1,7 +1,6 @@
 import { Component, State } from 'src/core/shopware';
 import FlatTree from 'src/core/helper/flattree.helper';
 import template from './sw-sales-channel-menu.html.twig';
-import './sw-sales-channel-menu.less';
 
 Component.register('sw-sales-channel-menu', {
     template,
@@ -22,7 +21,7 @@ Component.register('sw-sales-channel-menu', {
     created() {
         const params = {
             limit: 500,
-            offset: 0
+            page: 1
         };
 
         this.salesChannelStore.getList(params).then((response) => {

@@ -6,14 +6,18 @@
 
         {% block sw_sales_channel_menu_headline %}
             <div class="sw-admin-menu__headline">
-                <div class="collapsible-text">{{ $tc('sw-sales-channel.general.titleMenuItems') }}</div>
+                {% block sw_sales_channel_menu_headline_text %}
+                    <div class="collapsible-text">{{ $tc('sw-sales-channel.general.titleMenuItems') }}</div>
+                {% endblock %}
 
-                <button class="sw-admin-menu__headline-action" @click="showModal=true">
-                    <sw-icon class="sw-admin-menu__headline-icon"
-                             name="small-default-plus-circle"
-                             small>
-                    </sw-icon>
-                </button>
+                {% block sw_sales_channel_menu_headline_action %}
+                    <button class="sw-admin-menu__headline-action" @click="showModal=true">
+                        <sw-icon class="sw-admin-menu__headline-icon"
+                                 name="small-default-plus-circle"
+                                 small>
+                        </sw-icon>
+                    </button>
+                {% endblock %}
             </div>
         {% endblock %}
 

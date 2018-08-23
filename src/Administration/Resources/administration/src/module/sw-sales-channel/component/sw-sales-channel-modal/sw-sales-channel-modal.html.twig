@@ -17,7 +17,7 @@
 
                 {% block sw_sales_channel_modal_header_title %}
                     <h4 class="sw-sales-channel-modal__title">
-                        {{ getModalTitle }}
+                        {{ modalTitle }}
                     </h4>
                 {% endblock %}
 
@@ -35,7 +35,6 @@
         {% block sw_sales_channel_modal_grid %}
             <sw-grid v-if="!detailType"
                      :items="salesChannelTypes"
-                     gap="20px"
                      :selectable="false"
                      :header="false"
                      :table="true">
@@ -124,24 +123,30 @@
         {% block sw_sales_channel_modal_footer %}
             <template slot="modal-footer">
                 <div v-if="detailType">
-                    {% block sw_sales_channel_modal_footer_back %}
-                        <sw-button v-if="detailType" size="small" @click.prevent="detailType = false">
-                            {{ $tc('sw-sales-channel.modal.buttonBack') }}
-                        </sw-button>
-                    {% endblock %}
+                    {% block sw_sales_channel_modal_footer_detail_actions %}
+                        {% block sw_sales_channel_modal_footer_back %}
+                            <sw-button size="small" @click.prevent="detailType = false">
+                                {{ $tc('sw-sales-channel.modal.buttonBack') }}
+                            </sw-button>
+                        {% endblock %}
 
-                    {% block sw_sales_channel_modal_footer_add_channel %}
-                        <sw-button variant="primary" size="small" @click="onAddChannel">
-                            {{ $tc('sw-sales-channel.modal.buttonAddChannel') }}
-                        </sw-button>
+                        {% block sw_sales_channel_modal_footer_add_channel %}
+                            <sw-button variant="primary" size="small" @click="onAddChannel">
+                                {{ $tc('sw-sales-channel.modal.buttonAddChannel') }}
+                            </sw-button>
+                        {% endblock %}
                     {% endblock %}
                 </div>
 
-                {% block sw_sales_channel_modal_footer_cancel %}
-                    <sw-button v-else size="small" @click="onCloseModal">
-                        {{ $tc('sw-sales-channel.modal.buttonCancel') }}
-                    </sw-button>
-                {% endblock %}
+                <div v-else>
+                    {% block sw_sales_channel_modal_footer_actions %}
+                        {% block sw_sales_channel_modal_footer_cancel %}
+                        <sw-button size="small" @click="onCloseModal">
+                            {{ $tc('sw-sales-channel.modal.buttonCancel') }}
+                        </sw-button>
+                        {% endblock %}
+                    {% endblock %}
+                </div>
             </template>
         {% endblock %}
     </sw-modal>

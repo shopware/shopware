@@ -69,12 +69,12 @@
                          @mouseenter="openUserActions">
 
                         {% block sw_admin_menu_user_actions_avatar %}
-                            <sw-avatar class="sw-admin-menu__avatar" color="#189eff">SW</sw-avatar>
+                            <sw-avatar class="sw-admin-menu__avatar" color="#189eff">{{ userShortName }}</sw-avatar>
                         {% endblock %}
 
                         {% block sw_admin_menu_user_actions_attributes %}
                             <div class="sw-admin-menu__user-attributes collapsible-text">
-                                <div class="sw-admin-menu__user-name">admin</div>
+                                <div class="sw-admin-menu__user-name">{{ userName }}</div>
                                 <div class="sw-admin-menu__user-type">Administrator</div>
 
                                 {% block sw_admin_menu_user_actions_toggle_icon %}

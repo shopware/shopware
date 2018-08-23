@@ -11,7 +11,7 @@
         {% block sw_settings_tax_detail_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_settings_tax_detail_actions_abort %}
-                    <sw-button :disabled="tax.isLoading" link="sw.settings.tax.index">
+                    <sw-button :disabled="tax.isLoading" :routerLink="{ name: 'sw.settings.tax.index' }">
                         {{ $tc('sw-settings-tax.detail.buttonCancel') }}
                     </sw-button>
                 {% endblock %}

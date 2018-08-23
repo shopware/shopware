@@ -28,7 +28,7 @@
         {% block sw_product_list_smart_bar_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_product_list_smart_bar_actions_add %}
-                    <sw-button :link="'sw.product.create'" variant="primary">
+                    <sw-button :routerLink="{ name: 'sw.product.create' }" variant="primary">
                         {{ $tc('sw-product.list.buttonAddProduct') }}
                     </sw-button>
                 {% endblock %}

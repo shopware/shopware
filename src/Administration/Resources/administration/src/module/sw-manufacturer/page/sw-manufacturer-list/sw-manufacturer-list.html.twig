@@ -22,7 +22,7 @@
         {% block sw_manufacturer_list_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_manufacturer_list_smart_bar_actions %}
-                    <sw-button :link="'sw.manufacturer.create'" variant="primary">
+                    <sw-button :routerLink="{ name: 'sw.manufacturer.create' }" variant="primary">
                         {{ $tc('sw-manufacturer.list.buttonAddManufacturer') }}
                     </sw-button>
                 {% endblock %}

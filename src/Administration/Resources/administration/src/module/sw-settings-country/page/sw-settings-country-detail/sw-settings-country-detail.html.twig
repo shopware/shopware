@@ -11,7 +11,7 @@
         {% block sw_settings_country_detail_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_settings_country_detail_actions_abort %}
-                    <sw-button :disabled="country.isLoading" link="sw.settings.country.index">
+                    <sw-button :disabled="country.isLoading" :routerLink="{ name: 'sw.settings.country.index' }">
                         {{ $tc('sw-settings-country.detail.buttonCancel') }}
                     </sw-button>
                 {% endblock %}

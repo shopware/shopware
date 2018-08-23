@@ -19,7 +19,7 @@ Component.register('sw-button', {
                 if (!value.length) {
                     return true;
                 }
-                return ['primary', 'ghost', 'danger'].includes(value);
+                return ['primary', 'ghost', 'danger', 'contrast'].includes(value);
             }
         },
         size: {
@@ -38,10 +38,13 @@ Component.register('sw-button', {
             required: false,
             default: false
         },
+        routerLink: {
+            type: Object,
+            required: false
+        },
         link: {
             type: String,
-            required: false,
-            default: ''
+            required: false
         }
     },
 

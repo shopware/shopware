@@ -28,7 +28,7 @@
         {% block sw_customer_list_smart_bar_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_customer_list_smart_bar_actions_add %}
-                    <sw-button variant="primary" link="sw.customer.create">
+                    <sw-button variant="primary" :routerLink="{ name: 'sw.customer.create' }">
                         {{ $tc('sw-customer.list.buttonAddCustomer') }}
                     </sw-button>
                 {% endblock %}

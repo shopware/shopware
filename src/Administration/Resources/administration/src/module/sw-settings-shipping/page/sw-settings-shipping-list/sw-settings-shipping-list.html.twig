@@ -28,7 +28,7 @@
         {% block sw_settings_shipping_list_smart_bar_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_settings_shipping_list_smart_bar_actions_add %}
-                    <sw-button :link="'sw.settings.shipping.create'" variant="primary">
+                    <sw-button :routerLink="{ name: 'sw.settings.shipping.create' }" variant="primary">
                         {{ $tc('sw-settings-shipping.list.buttonAddShippingMethod') }}
                     </sw-button>
                 {% endblock %}

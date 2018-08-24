@@ -85,7 +85,18 @@
       "labelPassword": "Passwort",
       "placeholderUsername": "Gebe deinen Benutzernamen ein...",
       "placeholderPassword": "Gebe dein Passwort ein...",
-      "buttonLogin": "Anmelden"
+      "buttonLogin": "Anmelden",
+      "titleErrorMessage": "Anmeldung",
+      "messageUnsupportedGrantType": "Grant Type wird nicht unterstützt.",
+      "messageInvalidRequest": "Der Request war invalide.",
+      "messageInvalidClient": "Die Client Authentifizierung schlug fehl.",
+      "messageInvalidScope": "Der angegebene Scope ist invalide.",
+      "messageInvalidCredentials": "Die Benutzer-Informationen sind invalide.",
+      "messageServerError": "Ein allgemeiner Fehler beim Authenfizierungsserver ist aufgetreten.",
+      "messageInvalidRefreshToken": "Der angegebene Refresh Token ist invalide.",
+      "messageAccessDenied": "Der Zugriff wurde verweigert.",
+      "messageInvalidGrant": "Der Grant Type oder der Refresh Token ist invalide.",
+      "messageGeneralRequestError": "Der Request an \"{url}\" ist fehlgeschlagen."
     }
   },
   "sw-image": {

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Api;
 
+use Shopware\Core\Content\Media\Exception\MissingFileExtensionException;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\Upload\FileFetcher;
 use Shopware\Core\Content\Media\Upload\MediaUpdater;
@@ -53,13 +54,23 @@ class MediaUploadController extends Controller
     public function upload(Request $request, string $mediaId, Context $context): Response
     {
         $contentType = $request->headers->get('content_type');
+        $extension = $request->get('extension');
+        if ($extension === null) {
+            throw new MissingFileExtensionException();
+        }
 
         $tempFile = tempnam(sys_get_temp_dir(), '');
 
         try {
             $contentLength = $this->fetchFile($request, $contentType, $tempFile);
             $contentType = mime_content_type($tempFile);
-            $this->mediaUpdater->persistFileToMedia($tempFile, $mediaId, $contentType, $contentLength, $context);
+            $this->mediaUpdater->persistFileToMedia(
+                $tempFile,
+                $mediaId,
+                $contentType,
+                $extension,
+                $contentLength,
+                $context);
         } finally {
             unlink($tempFile);
         }

@@ -55,6 +55,7 @@ return [
                 'name' => 'Lagerkorn-5,0klein',
                 'userId' => 'f343a3c1-19cf-42a7-841a-a0ac5094908c',
                 'mimeType' => 'image/jpg',
+                'fileExtension' => 'jpg',
                 'fileSize' => 18921,
                 'metaData' => null,
                 'createdAt' => '2012-08-15T00:00:00+00:00',

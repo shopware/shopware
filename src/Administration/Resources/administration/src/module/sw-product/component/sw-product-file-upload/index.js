@@ -48,7 +48,12 @@ Component.register('sw-product-file-upload', {
 
                 const uploadTask = this.uploadStore.addUpload(this.product.id, () => {
                     return fileReader.readAsArrayBuffer(file).then((arrayBuffer) => {
-                        return this.mediaService.uploadMediaById(productMedia.media.id, file.type, arrayBuffer);
+                        return this.mediaService.uploadMediaById(
+                            productMedia.media.id,
+                            file.type,
+                            arrayBuffer,
+                            file.name.split('.').pop()
+                        );
                     }).catch(() => {
                         // Delete the corresponding media entities when the upload fails
                         this.product.getAssociation('media').getByIdAsync(productMedia.id).then((productMediaEntity) => {

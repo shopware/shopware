@@ -5,8 +5,8 @@ namespace Shopware\Core\Content\Test\Media\Subscriber;
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\Media\Upload\MediaUpdater;
-use Shopware\Core\Content\Media\Util\MimeType;
-use Shopware\Core\Content\Media\Util\Strategy\StrategyInterface;
+use Shopware\Core\Content\Media\Util\UrlGenerator;
+use Shopware\Core\Content\Media\Util\UrlGeneratorInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
@@ -32,8 +32,8 @@ class MediaDeletedSubscriberTest extends KernelTestCase
      */
     private $mediaUpdater;
 
-    /** @var StrategyInterface */
-    private $strategy;
+    /** @var UrlGenerator */
+    private $urlGenerator;
 
     /** @var FilesystemInterface */
     private $filesystem;
@@ -44,7 +44,7 @@ class MediaDeletedSubscriberTest extends KernelTestCase
         $this->mediaUpdater = self::$container->get(MediaUpdater::class);
         $this->repository = self::$container->get('media.repository');
         $this->connection = self::$container->get(Connection::class);
-        $this->strategy = self::$container->get(StrategyInterface::class);
+        $this->urlGenerator = self::$container->get(UrlGeneratorInterface::class);
         $this->filesystem = self::$container->get('shopware.filesystem.public');
         $this->connection->beginTransaction();
     }
@@ -78,19 +78,25 @@ class MediaDeletedSubscriberTest extends KernelTestCase
         );
 
         try {
-            $this->mediaUpdater->persistFileToMedia($tempFile, $mediaId->getHex(), $mimeType, $fileSize, $context);
+            $this->mediaUpdater->persistFileToMedia(
+                $tempFile,
+                $mediaId->getHex(),
+                $mimeType,
+                'png',
+                $fileSize,
+                $context);
         } finally {
             if (file_exists($tempFile)) {
                 unlink($tempFile);
             }
         }
 
-        $path = $this->strategy->encode($mediaId->getHex());
+        $url = $this->urlGenerator->getMediaUrl($mediaId->getHex(), 'png', false);
 
-        static::assertTrue($this->filesystem->has('media/' . $path . MimeType::getExtension($mimeType)));
+        static::assertTrue($this->filesystem->has($url));
 
         $this->repository->delete([['id' => $mediaId->getHex()]], $context);
 
-        static::assertFalse($this->filesystem->has('media/' . $path . MimeType::getExtension($mimeType)));
+        static::assertFalse($this->filesystem->has($url));
     }
 }

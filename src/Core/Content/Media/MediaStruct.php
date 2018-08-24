@@ -29,6 +29,11 @@ class MediaStruct extends Entity
     protected $mimeType;
 
     /**
+     * @var string|null
+     */
+    protected $fileExtension;
+
+    /**
      * @var int|null
      */
     protected $fileSize;
@@ -111,6 +116,16 @@ class MediaStruct extends Entity
     public function setMimeType(string $mimeType): void
     {
         $this->mimeType = $mimeType;
+    }
+
+    public function getFileExtension(): ?string
+    {
+        return $this->fileExtension;
+    }
+
+    public function setFileExtension(string $fileExtension): void
+    {
+        $this->fileExtension = $fileExtension;
     }
 
     public function getFileSize(): ?int

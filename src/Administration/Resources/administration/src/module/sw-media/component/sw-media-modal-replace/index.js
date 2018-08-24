@@ -74,9 +74,15 @@ Component.register('sw-media-modal-replace', {
         replaceMediaFromFile() {
             const mediaId = this.itemToReplace.id;
             const mimeType = this.uploadData.data.type;
+            const fileExtension = this.uploadData.data.name.split('.').pop();
 
             const replaceFromFile = fileReader.readAsArrayBuffer(this.uploadData.data).then((fileAsArray) => {
-                return this.mediaService.uploadMediaById(mediaId, mimeType, fileAsArray);
+                return this.mediaService.uploadMediaById(
+                    mediaId,
+                    mimeType,
+                    fileAsArray,
+                    fileExtension
+                );
             });
 
             this.emitReplaceStarted(replaceFromFile);

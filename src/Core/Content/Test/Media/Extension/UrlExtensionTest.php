@@ -6,7 +6,6 @@ use Ramsey\Uuid\Uuid;
 use Shopware\Core\Content\Media\Extension\MediaLinksStruct;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaStruct;
-use Shopware\Core\Content\Media\Util\MimeType;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\EntityCollection;
@@ -41,12 +40,13 @@ class UrlExtensionTest extends KernelTestCase
         $mediaStruct = new MediaStruct();
         $mediaStruct->setId($mediaId);
         $mediaStruct->setMimeType($mimeType);
+        $mediaStruct->setFileExtension('png');
 
         $mediaLoadedEvent = new EntityLoadedEvent(MediaDefinition::class, new EntityCollection([$mediaStruct]), $context);
         $urlExtension->mediaLoaded($mediaLoadedEvent);
 
         //find /media{path}mediaId.extension
-        $searchPattern = '/\/media(\/.+)*\/' . $mediaId . MimeType::getExtension($mimeType) . '/';
+        $searchPattern = '/\/media(\/.+)*\/' . $mediaId . '.png' . '/';
 
         static::assertEquals(MediaLinksStruct::class, get_class($mediaStruct->getExtension('links')));
         static::assertTrue(boolval(preg_match($searchPattern, $mediaStruct->getExtension('links')->getUrl())));

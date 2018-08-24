@@ -73,12 +73,13 @@ class ThumbnailServiceTest extends KernelTestCase
     {
         $mimeType = 'image/png';
 
-        $filePath = $this->urlGenerator->getMediaUrl($this->mediaId, $mimeType, false);
+        $filePath = $this->urlGenerator->getMediaUrl($this->mediaId, 'png', false);
         $this->fileSystem->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r'));
 
         $this->thumbnailService->generateThumbnails(
             $this->mediaId,
             $mimeType,
+            'png',
             $this->context
         );
 
@@ -104,7 +105,7 @@ class ThumbnailServiceTest extends KernelTestCase
         foreach ($thumbnails as $thumbnail) {
             $thumbnailPath = $this->urlGenerator->getThumbnailUrl(
                 $this->mediaId,
-                $mimeType,
+                'png',
                 $thumbnail->getWidth(),
                 $thumbnail->getHeight(),
                 false,
@@ -114,7 +115,7 @@ class ThumbnailServiceTest extends KernelTestCase
             if ($thumbnail->isHighDpi()) {
                 $thumbnailPath = $this->urlGenerator->getThumbnailUrl(
                     $this->mediaId,
-                    $mimeType,
+                    'png',
                     $thumbnail->getWidth(),
                     $thumbnail->getHeight(),
                     true,
@@ -132,6 +133,7 @@ class ThumbnailServiceTest extends KernelTestCase
         $this->thumbnailService->generateThumbnails(
             $this->mediaId,
             $mimeType,
+            'png',
             $this->context
         );
     }
@@ -140,13 +142,14 @@ class ThumbnailServiceTest extends KernelTestCase
     {
         $mimeType = 'image/png';
 
-        $filePath = $this->urlGenerator->getMediaUrl($this->mediaId, $mimeType, false);
+        $filePath = $this->urlGenerator->getMediaUrl($this->mediaId, 'png', false);
         $this->fileSystem->put($filePath, 'this is the content of the file, which is not a image');
 
         self::expectException(FileTypeNotSupportedException::class);
         $this->thumbnailService->generateThumbnails(
             $this->mediaId,
             $mimeType,
+            'png',
             $this->context
         );
     }

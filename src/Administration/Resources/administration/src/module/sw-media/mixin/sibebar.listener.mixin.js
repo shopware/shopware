@@ -15,7 +15,7 @@ const mediaSidebarListener = {
 
     methods: {
         handleSidebarMoveBatchRequest() {
-            warn('handleMediaGridSelectionRemoved', 'Handler must be overriden in component');
+            warn('handleSidebarMoveBatchRequest', 'Handler must be overriden in component');
         },
 
         handleSidebarRemoveBatchRequest() {

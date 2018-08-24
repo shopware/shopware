@@ -7,6 +7,7 @@ return [
         'attributes' => [
             'userId' => '6f51622e-b381-4c75-ae02-63cece27ce72',
             'mimeType' => 'image/jpg',
+            'fileExtension' => 'jpg',
             'fileSize' => 93889,
             'metaData' => null,
             'createdAt' => '2012-08-31T00:00:00+00:00',

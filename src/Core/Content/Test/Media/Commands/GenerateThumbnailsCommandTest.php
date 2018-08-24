@@ -112,7 +112,7 @@ class GenerateThumbnailsCommandTest extends KernelTestCase
             );
 
             foreach ($thumbnails as $thumbnail) {
-                $this->assertThumbnailExists($updatedMedia->getId(), $updatedMedia->getMimeType(), $thumbnail);
+                $this->assertThumbnailExists($updatedMedia->getId(), $updatedMedia->getFileExtension(), $thumbnail);
             }
         }
     }
@@ -147,17 +147,17 @@ class GenerateThumbnailsCommandTest extends KernelTestCase
                 );
 
                 foreach ($thumbnails as $thumbnail) {
-                    $this->assertThumbnailExists($updatedMedia->getId(), $updatedMedia->getMimeType(), $thumbnail);
+                    $this->assertThumbnailExists($updatedMedia->getId(), $updatedMedia->getFileExtension(), $thumbnail);
                 }
             }
         }
     }
 
-    protected function assertThumbnailExists(string $mediaId, string $mimeType, ThumbnailStruct $thumbnail): void
+    protected function assertThumbnailExists(string $mediaId, string $extension, ThumbnailStruct $thumbnail): void
     {
         $thumbnailPath = $this->urlGenerator->getThumbnailUrl(
             $mediaId,
-            $mimeType,
+            $extension,
             $thumbnail->getWidth(),
             $thumbnail->getHeight(),
             false,
@@ -167,7 +167,7 @@ class GenerateThumbnailsCommandTest extends KernelTestCase
         if ($thumbnail->isHighDpi()) {
             $thumbnailPath = $this->urlGenerator->getThumbnailUrl(
                 $mediaId,
-                $mimeType,
+                $extension,
                 $thumbnail->getWidth(),
                 $thumbnail->getHeight(),
                 true,
@@ -182,22 +182,24 @@ class GenerateThumbnailsCommandTest extends KernelTestCase
             'id' => Uuid::uuid4()->getHex(),
             'name' => 'test_media',
             'mimeType' => 'image/png',
+            'fileExtension' => 'png',
             'catalogId' => $this->catalogId,
         ];
 
         $this->repository->create([$media], $this->context);
-        $filePath = $this->urlGenerator->getMediaUrl($media['id'], 'image/png', false);
+        $filePath = $this->urlGenerator->getMediaUrl($media['id'], 'png', false);
         $this->filesystem->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r'));
 
         $media = [
             'id' => Uuid::uuid4()->getHex(),
             'name' => 'test_media2',
             'mimeType' => 'image/jpg',
+            'fileExtension' => 'jpg',
             'catalogId' => $this->catalogId,
         ];
 
         $this->repository->create([$media], $this->context);
-        $filePath = $this->urlGenerator->getMediaUrl($media['id'], 'image/jpg', false);
+        $filePath = $this->urlGenerator->getMediaUrl($media['id'], 'jpg', false);
         $this->filesystem->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware.jpg', 'r'));
     }
 
@@ -207,22 +209,24 @@ class GenerateThumbnailsCommandTest extends KernelTestCase
             'id' => Uuid::uuid4()->getHex(),
             'name' => 'test_media',
             'mimeType' => 'application/pdf',
+            'fileExtension' => 'pdf',
             'catalogId' => $this->catalogId,
         ];
 
         $this->repository->create([$media], $this->context);
-        $filePath = $this->urlGenerator->getMediaUrl($media['id'], 'application/pdf', false);
+        $filePath = $this->urlGenerator->getMediaUrl($media['id'], 'pdf', false);
         $this->filesystem->putStream($filePath, fopen(__DIR__ . '/../fixtures/Shopware_5_3_Broschuere.pdf', 'r'));
 
         $media = [
             'id' => Uuid::uuid4()->getHex(),
             'name' => 'test_media2',
             'mimeType' => 'image/jpg',
+            'fileExtension' => 'jpg',
             'catalogId' => $this->catalogId,
         ];
 
         $this->repository->create([$media], $this->context);
-        $filePath = $this->urlGenerator->getMediaUrl($media['id'], 'image/jpg', false);
+        $filePath = $this->urlGenerator->getMediaUrl($media['id'], 'jpg', false);
         $this->filesystem->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware.jpg', 'r'));
     }
 

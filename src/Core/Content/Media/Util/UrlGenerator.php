@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Media\Util;
 
 use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
-use Shopware\Core\Content\Media\Exception\IllegalMimeTypeException;
 use Shopware\Core\Content\Media\Util\Strategy\StrategyInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -34,33 +33,27 @@ class UrlGenerator implements UrlGeneratorInterface
 
     /**
      * @throws EmptyMediaFilenameException
-     * @throws IllegalMimeTypeException
      */
-    public function getMediaUrl(string $filename, string $mimeType, bool $absolute = true): string
+    public function getMediaUrl(string $filename, string $extension, bool $absolute = true): string
     {
-        $extension = MimeType::getExtension($mimeType);
-
         $encodedFileName = $this->encodeFilename($filename);
 
         $basePath = $absolute ? $this->getBaseUrl() . '/' : '';
 
-        return $basePath . 'media/' . $encodedFileName . $extension;
+        return $basePath . 'media/' . $encodedFileName . '.' . $extension;
     }
 
     /**
      * @throws EmptyMediaFilenameException
-     * @throws IllegalMimeTypeException
      */
     public function getThumbnailUrl(
         string $filename,
-        string $mimeType,
+        string $extension,
         int $width,
         int $height,
         bool $isHighDpi = false,
         bool $absolute = true): string
     {
-        $extension = MimeType::getExtension($mimeType);
-
         $encodedFileName = $this->encodeFilename($filename);
         $thumbnailExtension = "_${width}x${height}";
         if ($isHighDpi) {
@@ -69,7 +62,7 @@ class UrlGenerator implements UrlGeneratorInterface
 
         $basePath = $absolute ? $this->getBaseUrl() . '/' : '';
 
-        return $basePath . 'thumbnail/' . $encodedFileName . $thumbnailExtension . $extension;
+        return $basePath . 'thumbnail/' . $encodedFileName . $thumbnailExtension . '.' . $extension;
     }
 
     private function normalizeBaseUrl($baseUrl): ?string

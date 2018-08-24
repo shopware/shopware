@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemInterface;
 use League\Flysystem\Memory\MemoryAdapter;
-use Shopware\Core\Content\Media\Exception\IllegalMimeTypeException;
 use Shopware\Core\Content\Media\Upload\MediaUpdater;
 use Shopware\Core\Content\Media\Util\UrlGeneratorInterface;
 use Shopware\Core\Defaults;
@@ -90,30 +89,20 @@ class MediaUpdaterTest extends KernelTestCase
         );
 
         try {
-            $this->mediaUpdater->persistFileToMedia($tempFile, $mediaId->getHex(), $mimeType, $fileSize, $context);
+            $this->mediaUpdater->persistFileToMedia(
+                $tempFile, $mediaId->getHex(),
+                $mimeType,
+                'png',
+                $fileSize,
+                $context);
         } finally {
             if (file_exists($tempFile)) {
                 unlink($tempFile);
             }
         }
 
-        $path = $this->urlGenerator->getMediaUrl($mediaId->getHex(), $mimeType, false);
+        $path = $this->urlGenerator->getMediaUrl($mediaId->getHex(), 'png', false);
 
         static::assertTrue($this->filesystem->has($path));
-    }
-
-    public function testPersistFileToMediaWithIllegalMimeType()
-    {
-        $this->expectException(IllegalMimeTypeException::class);
-
-        $tempFile = tempnam(sys_get_temp_dir(), '');
-
-        $mimeType = 'application/java-archive';
-        $mediaId = Uuid::uuid4();
-
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
-        $context->getExtension('write_protection')->set('write_media', true);
-
-        $this->mediaUpdater->persistFileToMedia($tempFile, $mediaId->getHex(), $mimeType, 10, $context);
     }
 }

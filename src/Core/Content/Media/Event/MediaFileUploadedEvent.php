@@ -24,11 +24,17 @@ class MediaFileUploadedEvent extends Event
      */
     private $mimeType;
 
-    public function __construct(string $mediaId, string $mimeType, Context $context)
+    /**
+     * @var string
+     */
+    private $fileExtension;
+
+    public function __construct(string $mediaId, string $mimeType, string $fileExtension, Context $context)
     {
         $this->context = $context;
         $this->mediaId = $mediaId;
         $this->mimeType = $mimeType;
+        $this->fileExtension = $fileExtension;
     }
 
     public function getContext(): Context
@@ -44,5 +50,10 @@ class MediaFileUploadedEvent extends Event
     public function getMimeType(): string
     {
         return $this->mimeType;
+    }
+
+    public function getFileExtension(): string
+    {
+        return $this->fileExtension;
     }
 }

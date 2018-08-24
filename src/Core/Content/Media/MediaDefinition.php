@@ -49,6 +49,7 @@ class MediaDefinition extends EntityDefinition
             new FkField('user_id', 'userId', UserDefinition::class),
 
             (new StringField('mime_type', 'mimeType'))->setFlags(new SearchRanking(self::LOW_SEARCH_RAKING), new WriteProtected('write_media')),
+            (new StringField('file_extension', 'fileExtension'))->setFlags(new SearchRanking(self::MIDDLE_SEARCH_RANKING), new WriteProtected('write_media')),
             (new IntField('file_size', 'fileSize'))->setFlags(new WriteProtected('write_media')),
             (new LongTextField('meta_data', 'metaData'))->setFlags(new WriteProtected('write_media')),
             new CreatedAtField(),

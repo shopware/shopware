@@ -1,36 +1,74 @@
 /**
  * @module core/data/UploadStore
  */
-import utils from 'src/core/service/util.service';
+import noop from 'lodash/noop'
+import remove from 'lodash/remove';
+import UploadTask from 'src/core/helper/uploadTask.helper';
 
 class UploadStore {
     constructor() {
-        this.uploads = [];
+        this.tags = new Map();
     }
 
-    createUpload(entityId, file) {
-        const upload = { entityId, file, id: utils.createId() };
-        this.addUpload(upload);
+    isTagMissing(tag) {
+        return !this.tags.has(tag);
     }
 
-    addUpload(upload) {
-        this.uploads.push(upload);
+    addUpload(tag, uploadFunction) {
+        if (this.isTagMissing(tag)) {
+            this.tags.set(tag, []);
+        }
+
+        const task = new UploadTask(uploadFunction);
+
+        this.tags.get(tag).push(task);
+
+        return task;
     }
 
-    removeUpload(uploadId) {
-        this.uploads = this.uploads.filter(upload => upload.id !== uploadId);
+    removeUpload(id) {
+        this.tags.forEach((taskCollection, tag) => {
+            remove(taskCollection, (task) => {
+                return task.id === id;
+            });
+
+            if (taskCollection.length === 0) {
+                this.tags.delete(tag);
+            }
+        });
     }
 
-    getUploadById(id) {
-        return this.uploads.filter(u => u.id === id)[0];
+    runUploads(tag, callback = noop) {
+        if (this.isTagMissing(tag)) {
+            return Promise.resolve({});
+        }
+
+        return Promise.all(this.tags.get(tag).map((task) => {
+            return task.start().then(() => {
+                callback.apply(null, [this.getRunningTaskCount(tag)]);
+            });
+        })).finally(() => {
+            this.tags.delete(tag);
+        });
     }
 
-    getUploadsForEntity(id) {
-        return this.uploads.filter(u => u.entityId === id);
+    getRunningTaskCount(tag) {
+        if (this.isTagMissing(tag)) {
+            return 0;
+        }
+        return this.tags.get(tag).reduce((total, task) => {
+            return task.running ? total + 1 : total;
+        }, 0);
     }
 
-    removeUploadsForEntity(id) {
-        this.uploads = this.uploads.filter(u => u.entityId !== id);
+    getPendingTaskCount(tag) {
+        if (this.isTagMissing(tag)) {
+            return 0;
+        }
+        return this.tags.get(tag).reduce((total, task) => {
+            const isPending = !task.running && !task.resolved;
+            return isPending ? total + 1 : total;
+        }, 0);
     }
 }
 

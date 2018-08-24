@@ -1,10 +1,13 @@
 import { Component, State } from 'src/core/shopware';
 import { fileReader } from 'src/core/service/util.service';
+import find from 'lodash/find';
 import template from './sw-product-file-upload.html.twig';
 import './sw-product-file-upload.less';
 
 Component.register('sw-product-file-upload', {
     template,
+
+    inject: ['mediaService'],
 
     props: {
         product: {
@@ -17,6 +20,7 @@ Component.register('sw-product-file-upload', {
     data() {
         return {
             mediaItems: this.product.media,
+            uploads: [],
             previews: []
         };
     },
@@ -39,9 +43,31 @@ Component.register('sw-product-file-upload', {
         handleFileUploads() {
             const uploadedFiles = Array.from(this.$refs.fileInput.files);
 
-            uploadedFiles.forEach((file) => {
-                const mediaEntity = this.createEntities(file);
-                this.uploadStore.createUpload(mediaEntity.media.id, file);
+            this.uploads = uploadedFiles.map((file) => {
+                const productMedia = this.createEntities(file);
+
+                const uploadTask = this.uploadStore.addUpload(this.product.id, () => {
+                    return fileReader.readAsArrayBuffer(file).then((arrayBuffer) => {
+                        return this.mediaService.uploadMediaById(productMedia.media.id, file.type, arrayBuffer);
+                    }).catch(() => {
+                        // Delete the corresponding media entities when the upload fails
+                        this.product.getAssociation('media').getByIdAsync(productMedia.id).then((productMediaEntity) => {
+                            if (!productMediaEntity) {
+                                return;
+                            }
+
+                            if (productMediaEntity.media && productMediaEntity.media.id) {
+                                State.getStore('media').getByIdAsync(productMediaEntity.media.id).then((mediaEntity) => {
+                                    mediaEntity.delete(true);
+                                });
+                            }
+
+                            productMediaEntity.delete(true);
+                        });
+                    });
+                });
+
+                return { mediaId: productMedia.mediaId, uploadId: uploadTask.id };
             });
         },
 
@@ -90,9 +116,14 @@ Component.register('sw-product-file-upload', {
         },
 
         removeFile(key) {
-            const item = this.mediaItems.filter(e => e.mediaId === key)[0];
-            this.mediaItems = this.mediaItems.filter(e => e.mediaId !== key);
-            this.uploadStore.removeUploadsForEntity(item.media.id);
+            const item = find(this.mediaItems, (e) => e.mediaId === key);
+            const upload = find(this.uploads, (e) => e.mediaId === key);
+
+            if (upload) {
+                this.uploadStore.removeUpload(upload.uploadId);
+            }
+
+            this.mediaItems = this.mediaItems.filter((e) => e.mediaId !== key);
             item.delete();
         },
 

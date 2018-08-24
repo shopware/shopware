@@ -402,7 +402,8 @@
       "tabGeneral": "Allgemein",
       "tabAdvancedPrices": "Erweiterte Preise",
       "titleSaveSuccess": "Produkte",
-      "messageSaveSuccess": "Das Produkt \"{name}\" wurde erfolgreich gespeichert."
+      "messageSaveSuccess": "Das Produkt \"{name}\" wurde erfolgreich gespeichert.",
+      "messageUploadSuccess": "{count} von {total} Dateien erfolgreich gespeichert."
     },
     "file-upload": {
       "buttonUpload": "Datei hochladen"

@@ -39,14 +39,14 @@ Component.register('sw-settings-language-detail', {
 
             this.localeStore.getList({
                 offset: 0,
-                limit: 300
+                limit: 500
             }).then((response) => {
                 this.locales = response.items;
             });
 
             this.languageStore.getList({
                 offset: 0,
-                limit: 20
+                limit: 25
             }).then((response) => {
                 this.languages = response.items;
             });

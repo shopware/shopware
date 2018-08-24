@@ -92,6 +92,10 @@ Component.register('sw-field', {
         },
 
         name() {
+            return `sw-field--${this.boundExpression.replace('.', '-')}`;
+        },
+
+        id() {
             return `sw-field--${utils.createId()}`;
         },
 

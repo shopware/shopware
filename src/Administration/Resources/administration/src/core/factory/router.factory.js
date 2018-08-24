@@ -96,26 +96,21 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
             // Provide information about the module
             const moduleRegistry = moduleFactory.getModuleRegistry();
 
-            // Just get the first part of the name as the namespace
-            // The first part should be the module (e.g. core or plugin)
-            // The second part is the module indicator (index, list, detail etc.)
-            let moduleNamespace = to.name.split('.');
-            moduleNamespace = `${moduleNamespace[0]}-${moduleNamespace[1]}`;
+            let foundModule = null;
+            moduleRegistry.forEach((module) => {
+                const routes = module.routes;
 
-            // If the module namespace isn't registered, we let the router follow the route
-            if (!moduleRegistry.has(moduleNamespace)) {
-                return next();
-            }
+                if (!foundModule && routes.has(to.name)) {
+                    foundModule = module;
+                }
+            });
 
-            // Just make sure the route name is matching the registered name to ensure we're injecting the correct
-            // module into the route definition
-            const module = moduleRegistry.get(moduleNamespace);
-            if (!module.routes.has(to.name)) {
+            if (!foundModule) {
                 return next();
             }
 
             // Add the current navigation definition to the meta data
-            const navigation = module.navigation;
+            const navigation = foundModule.navigation;
             if (navigation) {
                 let currentNavigationEntry = {};
                 navigation.forEach((item) => {
@@ -127,7 +122,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
                 to.meta.$current = currentNavigationEntry;
             }
 
-            to.meta.$module = module.manifest;
+            to.meta.$module = foundModule.manifest;
             return next();
         });
 

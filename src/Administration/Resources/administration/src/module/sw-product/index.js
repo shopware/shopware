@@ -75,7 +75,8 @@ Module.register('sw-product', {
         label: 'sw-product.general.mainMenuItemGeneral',
         color: '#57D9A3',
         path: 'sw.product.index',
-        icon: 'default-symbol-products'
+        icon: 'default-symbol-products',
+        position: 20
     }, {
         path: 'sw.product.index',
         label: 'sw-product.general.mainMenuItemList',

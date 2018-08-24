@@ -40,6 +40,25 @@ export default function createMenuService(moduleFactory) {
             });
         });
 
-        return flatTree.convertToTree();
+        return flatTree.convertToTree().sort(sortTree);
+    }
+
+    /**
+     * Sorts the main menu entry tree using the "position" property of the entry.
+     *
+     * @memberOf module:app/service/menu
+     * @param {Object} prevItem
+     * @param {Object} nextItem
+     * @return {Number}
+     */
+    function sortTree(prevItem, nextItem) {
+        if (prevItem.position < nextItem.position) {
+            return -1;
+        }
+        if (prevItem.position > nextItem.position) {
+            return 1;
+        }
+
+        return 0;
     }
 }

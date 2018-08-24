@@ -33,6 +33,7 @@ Module.register('sw-media', {
         label: 'sw-media.general.mainMenuItemGeneral',
         color: '#FFD700',
         icon: 'default-object-image',
-        path: 'sw.media.index'
+        path: 'sw.media.index',
+        position: 40
     }]
 });

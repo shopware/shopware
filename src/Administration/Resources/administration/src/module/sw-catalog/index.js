@@ -40,7 +40,8 @@ Module.register('sw-catalog', {
         path: 'sw.catalog.index',
         label: 'sw-catalog.general.mainMenuItemIndex',
         color: '#FF85C2',
-        icon: 'default-package-closed'
+        icon: 'default-package-closed',
+        position: 30
     }, {
         path: 'sw.catalog.index',
         parent: 'sw-catalog',

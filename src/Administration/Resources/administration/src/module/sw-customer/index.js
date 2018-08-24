@@ -74,7 +74,8 @@ Module.register('sw-customer', {
         label: 'sw-customer.general.mainMenuItemGeneral',
         color: '#F88962',
         path: 'sw.customer.index',
-        icon: 'default-avatar-multiple'
+        icon: 'default-avatar-multiple',
+        position: 50
     }, {
         path: 'sw.customer.index',
         label: 'sw-customer.general.mainMenuItemList',

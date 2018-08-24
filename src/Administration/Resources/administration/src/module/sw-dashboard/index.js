@@ -24,6 +24,7 @@ Module.register('sw-dashboard', {
         label: 'sw-dashboard.general.mainMenuItemGeneral',
         color: '#6AD6F0',
         icon: 'default-device-dashboard',
-        path: 'sw.dashboard.index'
+        path: 'sw.dashboard.index',
+        position: 10
     }]
 });

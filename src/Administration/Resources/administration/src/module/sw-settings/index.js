@@ -23,6 +23,7 @@ Module.register('sw-settings', {
         label: 'sw-settings.general.mainMenuItemGeneral',
         color: '#9AA8B5',
         icon: 'default-action-settings',
-        path: 'sw.settings.index'
+        path: 'sw.settings.index',
+        position: 70
     }]
 });

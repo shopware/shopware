@@ -24,9 +24,11 @@ Component.register('sw-settings-shipping-list', {
     },
 
     created() {
-        this.$root.$on('search', (term) => {
-            this.onSearch(term);
-        });
+        this.$root.$on('search', this.onSearch);
+    },
+
+    destroyed() {
+        this.$root.$off('search', this.onSearch);
     },
 
     methods: {

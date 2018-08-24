@@ -40,11 +40,17 @@ Component.register('sw-media-catalog', {
         this.createdComponent();
     },
 
+    destroyed() {
+        this.destroyedComponent();
+    },
+
     methods: {
         createdComponent() {
-            this.$root.$on('search', (term) => {
-                this.onSearch(term);
-            });
+            this.$root.$on('search', this.onSearch);
+        },
+
+        destroyedComponent() {
+            this.$root.$off('search', this.onSearch);
         },
 
         onNewMedia() {

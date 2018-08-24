@@ -1,7 +1,7 @@
 /**
  * @module core/data/UploadStore
  */
-import noop from 'lodash/noop'
+import noop from 'lodash/noop';
 import remove from 'lodash/remove';
 import UploadTask from 'src/core/helper/uploadTask.helper';
 

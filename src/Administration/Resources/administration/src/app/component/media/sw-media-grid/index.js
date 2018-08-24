@@ -57,7 +57,8 @@ Component.register('sw-media-grid', {
 
     data() {
         return {
-            selection: []
+            selection: [],
+            listSelectionStartItem: null
         };
     },
 
@@ -121,12 +122,33 @@ Component.register('sw-media-grid', {
             if (this.selection.length === 0) {
                 return false;
             }
+            return this.findIndexInSelection(item) > -1;
+        },
 
-            const index = this.selection.findIndex((element) => {
-                return (element[this.idField] === item[this.idField]);
+        handleClick({ originalDomEvent, item }) {
+            if (this.selection.length > 0 || originalDomEvent.ctrlKey || originalDomEvent.shiftKey) {
+                this.handleSelection({ originalDomEvent, item });
+                return;
+            }
+
+            this.$emit('sw-media-grid-media-item-show-details', {
+                originalDomEvent,
+                item
             });
+        },
 
-            return index > -1;
+        handleSelection({ originalDomEvent, item }) {
+            if (originalDomEvent.shiftKey) {
+                this.listSelect({ originalDomEvent, item });
+                return;
+            }
+
+            this.addToSelection({ originalDomEvent, item });
+        },
+
+        singleSelect({ originalDomEvent, item }) {
+            this.emitSelectionCleared();
+            this.addToSelection({ originalDomEvent, item });
         },
 
         addToSelection({ originalDomEvent, item }) {
@@ -142,12 +164,56 @@ Component.register('sw-media-grid', {
             });
         },
 
+        listSelect({ originalDomEvent, item }) {
+            if (this.listSelectionStartItem === item) {
+                return;
+            }
+
+            if (!this.listSelectionStartItem) {
+                this.listSelectionStartItem = item;
+                this.addToSelection({ originalDomEvent, item });
+                return;
+            }
+
+            const result = this.getSelectedIndexes(this.listSelectionStartItem, item);
+
+            for (let i = result.startIndex; i <= result.endIndex; i += 1) {
+                const listItem = this.items[i];
+                this.addToSelection({ originalDomEvent, item: listItem });
+            }
+            this.listSelectionStartItem = null;
+        },
+
+        getSelectedIndexes(startItem, endItem) {
+            let startIndex = this.findIndexInItems(startItem);
+            let endIndex = this.findIndexInItems(endItem);
+            if (endIndex < startIndex) {
+                const tmp = endIndex;
+                endIndex = startIndex;
+                startIndex = tmp;
+            }
+
+            return { endIndex, startIndex };
+        },
+
+        findIndexInSelection(item) {
+            return this.selection.findIndex((element) => {
+                return (element[this.idField] === item[this.idField]);
+            });
+        },
+
+        findIndexInItems(item) {
+            return this.items.findIndex((element) => {
+                return (element[this.idField] === item[this.idField]);
+            });
+        },
+
         removeFromSelection({ originalDomEvent, item }) {
             this.selection = this.selection.filter((element) => {
                 return !(element[this.idField] === item[this.idField]);
             });
 
-            this.$emit('sw-media-grid-item-selection-add', {
+            this.$emit('sw-media-grid-item-selection-remove', {
                 originalDomEvent,
                 item
             });

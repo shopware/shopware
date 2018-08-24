@@ -43,7 +43,7 @@ Component.extend('sw-media-grid-media-item', 'sw-media-grid-item', {
                 }
             }
 
-            this.doSelectItem(originalDomEvent);
+            this.emitClickedEvent(originalDomEvent);
         },
 
         startInlineEdit() {

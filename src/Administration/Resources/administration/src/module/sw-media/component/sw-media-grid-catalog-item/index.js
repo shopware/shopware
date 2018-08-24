@@ -19,8 +19,7 @@ Component.extend('sw-media-grid-catalog-item', 'sw-media-grid-item', {
     computed: {
         gridItemListeners() {
             return {
-                click: this.doMainAction,
-                dblclick: this.viewCatalogContent
+                click: this.viewCatalogContent
             };
         }
     },

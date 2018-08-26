@@ -1,31 +1,24 @@
 require('babel-register');
 
 const process = require('process');
-const seleniumServer = require('selenium-server');
-const chromedriver = require('chromedriver');
 
 module.exports = {
     src_folders: ['vendor/shopware/platform/src/Administration/Resources/administration/test/e2e/specs'],
     output_folder: 'build/artifacts/e2e',
 
     selenium: {
-        start_process: true,
-        server_path: seleniumServer.path,
-        host: '127.0.0.1',
-        port: 4444,
-        cli_args: {
-            'webdriver.chrome.driver': chromedriver.path
-        }
+        start_process: false,
+        host: 'selenium',
+        port: 4444
     },
 
     test_settings: {
         default: {
             filter: '**/*.spec.js',
             launch_url: `${process.env.APP_URL}/admin`,
-            selenium_port: 4444,
-            selenium_host: 'localhost',
+            selenium_host: 'selenium',
             screenshots: {
-                enabled: true,
+                enabled: false,
                 on_failure: true,
                 path: 'build/artifacts/e2e/screenshots/'
             },

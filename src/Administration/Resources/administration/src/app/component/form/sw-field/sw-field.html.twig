@@ -14,8 +14,8 @@
                 <!-- Textarea -->
                 {% block sw_field_input_textarea %}
                     <textarea v-if="type === 'textarea'"
+                              :id="id"
                               :name="name"
-                              :id="name"
                               :placeholder="placeholder"
                               v-html="currentValue"
                               :disabled="disabled ? 'disabled' : false"
@@ -30,8 +30,8 @@
                 {% block sw_field_input_select %}
                     <div v-else-if="type === 'select' || type === 'combo'" class="sw-field__select" >
                         {% block sw_field_input_select_field %}
-                            <select :name="name"
-                                    :id="name"
+                            <select :id="id"
+                                    :name="name"
                                     :value="currentValue"
                                     :disabled="disabled ? 'disabled' : false"
                                     :class="{ 'is--placeholder': currentValue === null }"
@@ -108,8 +108,8 @@
 
                         {% block sw_field_input_checkbox_input %}
                             <input type="checkbox"
+                                   :id="id"
                                    :name="name"
-                                   :id="name"
                                    :disabled="disabled ? 'disabled' : false"
                                    :checked="currentValue ? 'checked' : false"
                                    @input="onInput"
@@ -132,8 +132,8 @@
 
                         {% block sw_field_input_switch_input %}
                             <input type="checkbox"
+                                   :id="id"
                                    :name="name"
-                                   :id="name"
                                    :disabled="disabled ? 'disabled' : false"
                                    :checked="currentValue ? 'checked' : false"
                                    @input="onInput"
@@ -154,8 +154,8 @@
                 {% block sw_field_input_datetime %}
                     <input v-else-if="type === 'datetime' || type === 'datetime-local'"
                            type="datetime-local"
+                           :id="id"
                            :name="name"
-                           :id="name"
                            :value="currentValue"
                            :disabled="disabled ? 'disabled' : false"
                            @input="onInput"
@@ -169,8 +169,8 @@
                     <template v-else-if="type === 'password'">
                         {% block sw_field_input_password_input %}
                             <input :type="showPassword ? 'text' : 'password'"
+                                   :id="id"
                                    :name="name"
-                                   :id="name"
                                    :placeholder="placeholder"
                                    :value="currentValue"
                                    :disabled="disabled ? 'disabled' : false"
@@ -202,8 +202,8 @@
                     <input v-else
                            ref="textfield"
                            :type="type"
+                           :id="id"
                            :name="name"
-                           :id="name"
                            :placeholder="placeholder"
                            :value="currentValue"
                            :disabled="disabled ? 'disabled' : false"

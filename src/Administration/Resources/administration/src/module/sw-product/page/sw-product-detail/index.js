@@ -97,7 +97,7 @@ Component.register('sw-product-detail', {
                 'global.notification.notificationSaveErrorMessage', 0, { entityName: productName }
             );
 
-            this.product.save().then(() => {
+            return this.product.save().then(() => {
                 const productId = this.product.id;
                 const totalTasks = this.uploadStore.getPendingTaskCount(productId);
 

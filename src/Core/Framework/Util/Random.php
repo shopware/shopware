@@ -75,6 +75,19 @@ class Random
         return $result;
     }
 
+    /**
+     * @see https://tools.ietf.org/html/rfc4648
+     */
+    public static function getBase64UrlString(int $length): string
+    {
+        $numBytes = ceil($length * 0.75);
+        $bytes = static::getBytes((int) $numBytes);
+
+        $base64 = mb_substr(rtrim(base64_encode($bytes), '='), 0, $length, '8bit');
+
+        return str_replace(['+', '/'], ['-', '_'], $base64);
+    }
+
     public static function getAlphanumericString(int $length): string
     {
         $charlist = implode(range('a', 'z')) . implode(range('A', 'Z')) . implode(range(0, 9));

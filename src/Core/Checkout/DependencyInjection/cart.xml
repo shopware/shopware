@@ -27,6 +27,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Processor"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Cart\CartPersister"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderPersister"/>
+            <argument type="service" id="order.repository"/>
         </service>
 
         <service class="Shopware\Core\Checkout\Cart\Price\PriceRounding" id="Shopware\Core\Checkout\Cart\Price\PriceRounding">
@@ -104,6 +105,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>
             <argument type="service" id="Shopware\Storefront\Page\Account\AccountService"/>
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextFactory"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Response\ResponseFactory" />
         </service>
 
         <service class="Shopware\Core\Checkout\Cart\PriceActionController" id="Shopware\Core\Checkout\Cart\PriceActionController" public="true">

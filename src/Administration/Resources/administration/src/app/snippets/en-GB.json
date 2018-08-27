@@ -534,7 +534,14 @@
       "labelOptionTaxHorizontal": "Horizontal",
       "labelInputCurrencies": "Currencies",
       "labelInputLanguages": "Languages",
-      "labelInputCatalogs": "Catalogs"
+      "labelInputCatalogs": "Catalogs",
+      "titleOptionsCard": "Options",
+      "textDeleteInfo": "Be careful: This will delete the sales channel permanently. It will no longer be available in the shopware administration. This has no effect on existing orders and catalogs.",
+      "buttonDelete": "Delete sales channel",
+      "deleteModalTitle": "Delete sales channel",
+      "textConfirmDelete": "Are you sure, you want to delete the sales channel?",
+      "buttonCloseDeleteModal": "Cancel",
+      "buttonConfirmDelete": "Delete"
     }
   },
   "sw-media": {

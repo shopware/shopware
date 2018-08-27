@@ -33,7 +33,7 @@
                 </sw-container>
 
                 {% block sw_sales_channel_detail_base_general_input_payments_methods %}
-                    <sw-multi-select id="paymentMethoIds"
+                    <sw-multi-select id="paymentMethodIds"
                                      :label="$tc('sw-sales-channel.detail.labelInputPaymentMethods')"
                                      validation="required"
                                      :serviceProvider="paymentMethodService"
@@ -106,26 +106,77 @@
                                      v-model="salesChannel.catalogs">
                     </sw-multi-select>
                 {% endblock %}
+            </sw-card>
+        {% endblock %}
 
-                <sw-container grid="1fr auto" gap="0 5px">
-                    {% block sw_sales_channel_detail_base_general_input_access_key %}
+        {% block sw_sales_channel_detail_base_options %}
+            <sw-card :title="$tc('sw-sales-channel.detail.titleOptionsCard')">
+                {% block sw_sales_channel_detail_base_options_api %}
+                    <sw-container grid="1fr auto" gap="30px">
+                        {% block sw_sales_channel_detail_base_options_input_access_key %}
                         <sw-field :label="$tc('sw-sales-channel.detail.labelAccessKeyField')"
                                   :disabled="true"
                                   v-model="salesChannel.accessKey"
                                   :copyAble="true">
                         </sw-field>
-                    {% endblock %}
+                        {% endblock %}
 
-                    {% block sw_sales_channel_detail_base_general_input_actions %}
+                        {% block sw_sales_channel_detail_base_options_input_generate_key %}
                         <div class="sw-sales-channel-detail__action-button">
                             <sw-button @click="onGenerateKeys"
-                                       class="sw-sales-channel-detail-base__button-generate-keys"
-                                       variant="danger">
+                                       class="sw-sales-channel-detail-base__button-generate-keys">
+                                <sw-icon name="small-arrow-360-right" size="18"></sw-icon>
                                 {{ $tc('sw-sales-channel.detail.buttonCreateNewApiKeys') }}
                             </sw-button>
                         </div>
+                        {% endblock %}
+                    </sw-container>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_base_options_delete %}
+                    <div class="sw-sales-channel-detail-base__delete">
+                        {% block sw_sales_channel_detail_base_options_delete_info %}
+                            <sw-alert variant="error" >
+                                {{ $tc('sw-sales-channel.detail.textDeleteInfo') }}
+                            </sw-alert>
+                        {% endblock %}
+
+                        {% block sw_sales_channel_detail_base_options_delete_button %}
+                            <div class="sw-sales-channel-detail-base__button-delete">
+                                <sw-button variant="danger"
+                                           @click="showDeleteModal = true">
+                                    {{ $tc('sw-sales-channel.detail.buttonDelete') }}
+                                </sw-button>
+                            </div>
+                        {% endblock %}
+                    </div>
+
+                    {% block sw_sales_channel_detail_base_options_delete_modal %}
+                        <sw-modal v-if="showDeleteModal"
+                                  ref="modal"
+                                  :title="$tc('sw-sales-channel.detail.deleteModalTitle')"
+                                  @closeModal="showDeleteModal = false">
+                            {% block sw_sales_channel_detail_options_delete_modal_confirmtext %}
+                                {{ $tc('sw-sales-channel.detail.textConfirmDelete') }}
+                                {{ salesChannel.name }}
+                            {% endblock %}
+
+                            {% block sw_sales_channel_detail_options_delete_modal_footer %}
+                                <template slot="modal-footer">
+                                    <sw-button size="small"
+                                               @click="showDeleteModal = false">
+                                        {{ $tc('sw-sales-channel.detail.buttonCloseDeleteModal') }}
+                                    </sw-button>
+                                    <sw-button size="small"
+                                               variant="primary"
+                                               @click="onConfirmDelete">
+                                        {{ $tc('sw-sales-channel.detail.buttonConfirmDelete') }}
+                                    </sw-button>
+                                </template>
+                            {% endblock %}
+                        </sw-modal>
                     {% endblock %}
-                </sw-container>
+                {% endblock %}
 
             </sw-card>
         {% endblock %}

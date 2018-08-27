@@ -19,18 +19,23 @@ Component.register('sw-sales-channel-menu', {
     },
 
     created() {
-        const params = {
-            limit: 500,
-            page: 1
-        };
-
-        this.salesChannelStore.getList(params).then((response) => {
-            this.salesChannels = response.items;
-            this.createMenuTree();
-        });
+        this.createdComponent();
+        this.$root.$on('changedSalesChannels', this.createdComponent);
     },
 
     methods: {
+        createdComponent() {
+            const params = {
+                limit: 500,
+                page: 1
+            };
+
+            this.salesChannelStore.getList(params).then((response) => {
+                this.salesChannels = response.items;
+                this.createMenuTree();
+            });
+        },
+
         createMenuTree() {
             const flatTree = new FlatTree();
 

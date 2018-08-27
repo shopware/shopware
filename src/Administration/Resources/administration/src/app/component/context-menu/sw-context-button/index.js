@@ -82,7 +82,7 @@ Component.register('sw-context-button', {
         },
 
         addMenuToBody() {
-            const menuEl = this.$children[1];
+            const menuEl = this.$refs.swContextMenu;
 
             if (menuEl) {
                 document.body.appendChild(menuEl.$el);
@@ -91,7 +91,7 @@ Component.register('sw-context-button', {
         },
 
         removeMenuFromBody() {
-            const menuEl = this.$children[1];
+            const menuEl = this.$refs.swContextMenu;
 
             if (menuEl) {
                 document.removeEventListener('click', this.closeMenu);

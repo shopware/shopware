@@ -21,9 +21,12 @@ Component.register('sw-media-catalog', {
         return {
             isLoading: false,
             previewType: 'media-grid-preview-as-grid',
+            catalogs: [],
             mediaItems: [],
             lastSelectedItem: null,
             selectionToDelete: null,
+            sortType: ['createdAt', 'dsc'],
+            catalogIconSize: 200,
             mediaItemToReplace: null
         };
     },
@@ -35,6 +38,10 @@ Component.register('sw-media-catalog', {
 
         catalogStore() {
             return State.getStore('catalog');
+        },
+
+        currentCatalog() {
+            return this.catalogStore.getById(this.$route.params.id);
         }
     },
 
@@ -49,6 +56,12 @@ Component.register('sw-media-catalog', {
     methods: {
         createdComponent() {
             this.$root.$on('search', this.onSearch);
+            this.catalogStore.getList({
+                page: 1
+            }).then((response) => {
+                this.catalogs = response.items;
+                this.isLoading = false;
+            });
         },
 
         destroyedComponent() {
@@ -62,11 +75,10 @@ Component.register('sw-media-catalog', {
         getList() {
             this.isLoading = true;
             const params = this.getListingParams();
-            const catalogId = this.$route.params.id;
 
-            params.criteria = CriteriaFactory.term('catalogId', catalogId);
-            params.sortBy = 'createdAt';
-            params.sortDirection = 'dsc';
+            params.criteria = CriteriaFactory.term('catalogId', this.currentCatalog.id);
+            params.sortBy = this.sortType[0];
+            params.sortDirection = this.sortType[1];
 
             return this.mediaItemStore.getList(params).then((response) => {
                 this.total = response.total;
@@ -75,6 +87,25 @@ Component.register('sw-media-catalog', {
 
                 return this.mediaItems;
             });
+        },
+
+        sortMediaItems(event) {
+            this.sortType = event.split(':');
+            this.getList();
+        },
+
+        changeCatalog(catalog) {
+            this.$router.push({
+                name: 'sw.media.catalog-content',
+                params: {
+                    id: catalog.id
+                },
+                query: {
+                    limit: this.$route.query.limit,
+                    page: 1
+                }
+            });
+            this.$router.go();
         },
 
         getCatalogId() {

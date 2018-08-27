@@ -10,6 +10,34 @@
         {% block sw_media_catalog_smart_bar %}
             <template slot="smart-bar-actions">
 
+                {% block sw_media_catalog_change %}
+                    <sw-context-button class="sw-media-catalog__change">
+                        {% block sw_media_catalog_change_button %}
+                            <template slot="button">
+                                <button class="sw-media-catalog__change-button">
+                                    {% block sw_media_change_button_label %}
+                                        <sw-icon name="folder-breadcums-dropdown" multicolor size="50"></sw-icon>
+
+                                        <span class="sw-media-catalog__button">
+                                             <sw-icon name="small-arrow-medium-right"></sw-icon>
+                                            {{ currentCatalog.name }}
+                                        </span>
+                                    {% endblock %}
+                                </button>
+                            </template>
+                        {% endblock %}
+
+                        {% block sw_media_griditem_context_item_detail %}
+                            <div v-for="catalog in catalogs">
+                                <sw-context-menu-item @click="changeCatalog(catalog)">
+                                    <sw-icon name="folder-breadcums" multicolor decorative size="50"></sw-icon>
+                                    {{ catalog.name }}
+                                </sw-context-menu-item>
+                            </div>
+                        {% endblock %}
+                    </sw-context-button>
+                {% endblock %}
+
                 {% block sw_media_catalog_smart_bar_media_upload %}
                     <sw-media-upload :catalogId="getCatalogId()" @new-media-entity="onNewMedia"></sw-media-upload>
                 {% endblock %}
@@ -24,6 +52,83 @@
                         <div class="sw-media-catalog__content-container">
                             {% block sw_media_catalog_content %}
                                 <div class="sw-media-catalog__content">
+
+                                    <div class="sw-media-catalog__options-container">
+                                        {% block sw_media_catalog_single_select_sort %}
+                                            <div class="sw-media-catalog__sort-by">
+                                                <sw-field type="select"
+                                                          name="sortType"
+                                                          :label=" $tc('sw-media.catalog.labelSort')"
+                                                          value="createdAt:dsc"
+                                                          @change="sortMediaItems">
+                                                    {% block sw_media_catalog_single_select_sort_createdAt_asc %}
+                                                        <option slot="options"
+                                                                value="createdAt:asc">
+                                                            {{ $tc('sw-media.catalog.labelSortByCreatedAsc') }}
+                                                        </option>
+                                                    {% endblock %}
+
+                                                    {% block sw_media_catalog_single_select_sort_createdAt_dsc %}
+                                                        <option slot="options"
+                                                                value="createdAt:dsc" selected>
+                                                            {{ $tc('sw-media.catalog.labelSortByCreatedDsc') }}
+                                                        </option>
+                                                    {% endblock %}
+
+                                                    {% block sw_media_catalog_single_select_sort_name_asc %}
+                                                        <option slot="options"
+                                                                value="name:asc">
+                                                            {{ $tc('sw-media.catalog.labelSortByNameAsc') }}
+                                                        </option>
+                                                    {% endblock %}
+
+                                                    {% block sw_media_catalog_single_select_sort_name_dsc %}
+                                                        <option slot="options"
+                                                                value="name:dsc">
+                                                            {{ $tc('sw-media.catalog.labelSortByNameDsc') }}
+                                                        </option>
+                                                    {% endblock %}
+
+                                                    {% block sw_media_catalog_single_select_sort_fileSize_asc %}
+                                                        <option slot="options"
+                                                                value="fileSize:asc">
+                                                            {{ $tc('sw-media.catalog.labelSortBySizeAsc') }}
+                                                        </option>
+                                                    {% endblock %}
+
+                                                    {% block sw_media_catalog_single_select_sort_fileSize_dsc %}
+                                                        <option slot="options"
+                                                                value="fileSize:dsc">
+                                                            {{ $tc('sw-media.catalog.labelSortBySizeDsc') }}
+                                                        </option>
+                                                    {% endblock %}
+                                                </sw-field>
+                                            </div>
+                                        {% endblock %}
+
+                                        {% block sw_media_catalog_icon_size %}
+                                            <div class="sw-media-catalog__icon-size">
+                                                {% block sw_media_catalog_icon_size_label %}
+                                                    <div class="sw-media-catalog__icon-size-label">
+                                                        {{ $tc('sw-media.catalog.labelIconSize') }}
+                                                    </div>
+                                                {% endblock %}
+
+                                                {% block sw_media_catalog_icon_size_slider %}
+                                                    <span class="sw-media-catalog__size-slider-border">
+                                                        <input type="range"
+                                                               step="1"
+                                                               min="100"
+                                                               max="400"
+                                                               class="sw-media-catalog__icon-size-slider"
+                                                               id="iconSizeSliderValue"
+                                                               v-model.number="catalogIconSize">
+                                                    </span>
+                                                {% endblock %}
+                                            </div>
+                                        {% endblock %}
+                                    </div>
+
                                     {% block sw_media_catalog_media_grid %}
                                         <sw-media-grid
                                             class="sw-media-catalog__media-grid"
@@ -33,17 +138,18 @@
                                             :editable="true"
                                             :items="mediaItems"
                                             ref="mediaGrid"
-                                            v-on="mediaMediaGridListener">
+                                            v-on="mediaMediaGridListener"
+                                            :gridColumnWidth="catalogIconSize" >
                                         </sw-media-grid>
                                     {% endblock %}
 
                                     {% block sw_media_catalog_pagination %}
-                                    <sw-pagination
-                                        :page="page"
-                                        :limit="limit"
-                                        :total="total"
-                                        @page-change="onPageChange">
-                                    </sw-pagination>
+                                        <sw-pagination
+                                            :page="page"
+                                            :limit="limit"
+                                            :total="total"
+                                            @page-change="onPageChange">
+                                        </sw-pagination>
                                     {% endblock %}
                                 </div>
                             {% endblock %}

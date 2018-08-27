@@ -3,14 +3,21 @@
 namespace Shopware\Core\Checkout\Test\Context\Storefront;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
-use Shopware\Core\Framework\Test\Api\ApiTestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Test\TestCaseBase\StorefrontApiTestBehaviour;
+use Shopware\Storefront\StorefrontRequest;
 
-class StorefrontCheckoutContextControllerTest extends ApiTestCase
+class StorefrontCheckoutContextControllerTest extends TestCase
 {
+    use StorefrontApiTestBehaviour,
+        DatabaseTransactionBehaviour;
+
     /**
      * @var RepositoryInterface
      */
@@ -28,20 +35,10 @@ class StorefrontCheckoutContextControllerTest extends ApiTestCase
 
     protected function setUp()
     {
-        parent::setUp();
-
-        self::bootKernel();
-
-        $this->customerRepository = self::$container->get('customer.repository');
-        $this->customerAddressRepository = self::$container->get('customer_address.repository');
-        $this->connection = self::$container->get(Connection::class);
-        $this->connection->beginTransaction();
-    }
-
-    public function tearDown()
-    {
-        $this->connection->rollBack();
-        parent::tearDown();
+        $kernel = KernelLifecycleManager::getKernel();
+        $this->customerRepository = $kernel->getContainer()->get('customer.repository');
+        $this->customerAddressRepository = $kernel->getContainer()->get('customer_address.repository');
+        $this->connection = $kernel->getContainer()->get(Connection::class);
     }
 
     public function testUpdateContextWithNonExistingParameters(): void
@@ -51,9 +48,9 @@ class StorefrontCheckoutContextControllerTest extends ApiTestCase
         /*
          * Shipping method
          */
-        $this->storefrontApiClient->request('PUT', '/storefront-api/context', ['shippingMethodId' => $testId]);
-        static::assertSame(400, $this->storefrontApiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
+        $this->getStoreFrontClient()->request('PUT', '/storefront-api/context', ['shippingMethodId' => $testId]);
+        static::assertSame(400, $this->getStoreFrontClient()->getResponse()->getStatusCode());
+        $content = json_decode($this->getStoreFrontClient()->getResponse()->getContent(), true);
 
         static::assertEquals(
             sprintf('Shipping method with id %s not found', $testId),
@@ -63,9 +60,9 @@ class StorefrontCheckoutContextControllerTest extends ApiTestCase
         /*
          * Payment method
          */
-        $this->storefrontApiClient->request('PUT', '/storefront-api/context', ['paymentMethodId' => $testId]);
-        static::assertSame(400, $this->storefrontApiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
+        $this->getStoreFrontClient()->request('PUT', '/storefront-api/context', ['paymentMethodId' => $testId]);
+        static::assertSame(400, $this->getStoreFrontClient()->getResponse()->getStatusCode());
+        $content = json_decode($this->getStoreFrontClient()->getResponse()->getContent(), true);
 
         static::assertEquals(
             sprintf('Payment method with id %s not found', $testId),
@@ -80,9 +77,9 @@ class StorefrontCheckoutContextControllerTest extends ApiTestCase
         /*
          * Billing address
          */
-        $this->storefrontApiClient->request('PUT', '/storefront-api/context', ['billingAddressId' => $testId]);
-        static::assertSame(403, $this->storefrontApiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
+        $this->getStoreFrontClient()->request('PUT', '/storefront-api/context', ['billingAddressId' => $testId]);
+        static::assertSame(403, $this->getStoreFrontClient()->getResponse()->getStatusCode());
+        $content = json_decode($this->getStoreFrontClient()->getResponse()->getContent(), true);
 
         static::assertEquals(
             'Customer is not logged in',
@@ -92,9 +89,9 @@ class StorefrontCheckoutContextControllerTest extends ApiTestCase
         /*
          * Shipping address
          */
-        $this->storefrontApiClient->request('PUT', '/storefront-api/context', ['shippingAddressId' => $testId]);
-        static::assertSame(403, $this->storefrontApiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
+        $this->getStoreFrontClient()->request('PUT', '/storefront-api/context', ['shippingAddressId' => $testId]);
+        static::assertSame(403, $this->getStoreFrontClient()->getResponse()->getStatusCode());
+        $content = json_decode($this->getStoreFrontClient()->getResponse()->getContent(), true);
 
         static::assertEquals(
             'Customer is not logged in',
@@ -111,9 +108,10 @@ class StorefrontCheckoutContextControllerTest extends ApiTestCase
         /*
          * Billing address
          */
-        $this->storefrontApiClient->request('PUT', '/storefront-api/context', ['billingAddressId' => $testId]);
-        static::assertSame(400, $this->storefrontApiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
+        $this->getStoreFrontClient()->request('PUT', '/storefront-api/context', ['billingAddressId' => $testId]);
+
+        static::assertSame(400, $this->getStoreFrontClient()->getResponse()->getStatusCode());
+        $content = json_decode($this->getStoreFrontClient()->getResponse()->getContent(), true);
 
         static::assertEquals(
             sprintf('Customer address with id %s not found', $testId),
@@ -123,9 +121,9 @@ class StorefrontCheckoutContextControllerTest extends ApiTestCase
         /*
          * Shipping address
          */
-        $this->storefrontApiClient->request('PUT', '/storefront-api/context', ['shippingAddressId' => $testId]);
-        static::assertSame(400, $this->storefrontApiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
+        $this->getStoreFrontClient()->request('PUT', '/storefront-api/context', ['shippingAddressId' => $testId]);
+        static::assertSame(400, $this->getStoreFrontClient()->getResponse()->getStatusCode());
+        $content = json_decode($this->getStoreFrontClient()->getResponse()->getContent(), true);
 
         static::assertEquals(
             sprintf('Customer address with id %s not found', $testId),
@@ -142,14 +140,16 @@ class StorefrontCheckoutContextControllerTest extends ApiTestCase
         /*
          * Billing address
          */
-        $this->storefrontApiClient->request('PUT', '/storefront-api/context', ['billingAddressId' => $billingId]);
-        static::assertSame(200, $this->storefrontApiClient->getResponse()->getStatusCode());
+        $this->getStoreFrontClient()
+            ->request('PUT', '/storefront-api/context', ['billingAddressId' => $billingId]);
+        static::assertSame(200, $this->getStoreFrontClient()->getResponse()->getStatusCode());
 
         /*
          * Shipping address
          */
-        $this->storefrontApiClient->request('PUT', '/storefront-api/context', ['shippingAddressId' => $shippingId]);
-        static::assertSame(200, $this->storefrontApiClient->getResponse()->getStatusCode());
+        $this->getStoreFrontClient()
+            ->request('PUT', '/storefront-api/context', ['shippingAddressId' => $shippingId]);
+        static::assertSame(200, $this->getStoreFrontClient()->getResponse()->getStatusCode());
     }
 
     private function createCustomerAndLogin(?string $email = null, string $password = 'shopware'): string
@@ -157,10 +157,11 @@ class StorefrontCheckoutContextControllerTest extends ApiTestCase
         $email = $email ?? Uuid::uuid4()->getHex() . '@example.com';
         $customerId = $this->createCustomer($email, $password);
 
-        $this->storefrontApiClient->request('POST', '/storefront-api/customer/login', [
+        $this->getStoreFrontClient()->request('POST', '/storefront-api/customer/login', [
             'username' => $email,
             'password' => $password,
         ]);
+        static::assertSame(200, $this->getStoreFrontClient()->getResponse()->getStatusCode());
 
         return $customerId;
     }
@@ -218,7 +219,8 @@ class StorefrontCheckoutContextControllerTest extends ApiTestCase
             'country' => ['name' => 'Germany'],
         ];
 
-        $this->customerAddressRepository->upsert([$data], Context::createDefaultContext(Defaults::TENANT_ID));
+        $this->customerAddressRepository
+            ->upsert([$data], Context::createDefaultContext(Defaults::TENANT_ID));
 
         return $addressId;
     }

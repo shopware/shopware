@@ -4,17 +4,25 @@ namespace Shopware\Core\Content\Test\Media\Controller;
 
 use League\Flysystem\FileNotFoundException;
 use League\Flysystem\FilesystemInterface;
+use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
 use Shopware\Core\Content\Media\Util\UrlGeneratorInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
-use Shopware\Core\Framework\Test\Api\ApiTestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 
-class MediaUploadControllerTest extends ApiTestCase
+class MediaUploadControllerTest extends TestCase
 {
+    use DatabaseTransactionBehaviour,
+        KernelTestBehaviour,
+        AdminApiTestBehaviour;
+
+
     const TEST_IMAGE = __DIR__ . '/../fixtures/shopware-logo.png';
 
     /** @var RepositoryInterface */
@@ -31,8 +39,6 @@ class MediaUploadControllerTest extends ApiTestCase
 
     protected function setUp()
     {
-        parent::setUp();
-
         $this->mediaRepository = $this->getContainer()->get('media.repository');
         $this->filesystem = $this->getContainer()->get('shopware.filesystem.public');
         $this->urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
@@ -65,6 +71,8 @@ class MediaUploadControllerTest extends ApiTestCase
             $this->filesystem->deleteDir($path);
         } catch (FileNotFoundException $e) {
         }
+
+        parent::tearDown();
     }
 
     public function testUploadFromBinary(): void
@@ -72,7 +80,7 @@ class MediaUploadControllerTest extends ApiTestCase
         $path = $this->urlGenerator->getMediaUrl($this->mediaId, 'png');
         static::assertFalse($this->filesystem->has($path));
 
-        $this->apiClient->request(
+        $this->getClient()->request(
             'POST',
             "/api/v1/media/{$this->mediaId}/actions/upload?extension=png",
             [],
@@ -83,7 +91,7 @@ class MediaUploadControllerTest extends ApiTestCase
             ],
             file_get_contents(self::TEST_IMAGE)
         );
-        $response = $this->apiClient->getResponse();
+        $response = $this->getClient()->getResponse();
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
 
@@ -98,13 +106,13 @@ class MediaUploadControllerTest extends ApiTestCase
         $path = $this->urlGenerator->getMediaUrl($this->mediaId, 'png');
         static::assertFalse($this->filesystem->has($path));
 
-        $target = self::$container->getParameter('kernel.project_dir') . '/public/shopware-logo.png';
+        $target = $this->getContainer()->getParameter('kernel.project_dir') . '/public/shopware-logo.png';
         copy(__DIR__ . '/../fixtures/shopware-logo.png', $target);
 
         $url = getenv('APP_URL');
 
         try {
-            $this->apiClient->request(
+            $this->getClient()->request(
                  'POST',
                  "/api/v1/media/{$this->mediaId}/actions/upload?extension=png",
                  [],
@@ -114,7 +122,7 @@ class MediaUploadControllerTest extends ApiTestCase
                  ],
                  json_encode(['url' => $url . '/shopware-logo.png'])
              );
-            $response = $this->apiClient->getResponse();
+            $response = $this->getClient()->getResponse();
         } finally {
             unlink($target);
         }

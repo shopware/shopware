@@ -3,14 +3,21 @@
 namespace Shopware\Core\Content\Test\Product;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
-use Shopware\Core\Framework\Test\Api\ApiTestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\StorefrontApiTestBehaviour;
 
-class ProductControllerTest extends ApiTestCase
+class ProductControllerTest extends TestCase
 {
+    use DatabaseTransactionBehaviour,
+        KernelTestBehaviour,
+        StorefrontApiTestBehaviour;
+
     /**
      * @var RepositoryInterface
      */
@@ -23,18 +30,8 @@ class ProductControllerTest extends ApiTestCase
 
     protected function setUp()
     {
-        parent::setUp();
-
-        $this->productRepository = self::$container->get('product.repository');
-        $this->connection = self::$container->get(Connection::class);
-        $this->connection->beginTransaction();
-        $this->connection->executeUpdate('DELETE FROM product');
-    }
-
-    public function tearDown()
-    {
-        $this->connection->rollBack();
-        parent::tearDown();
+        $this->productRepository = $this->getContainer()->get('product.repository');
+        $this->connection = $this->getContainer()->get(Connection::class);
     }
 
     public function testProductList(): void
@@ -52,11 +49,11 @@ class ProductControllerTest extends ApiTestCase
             ],
         ], Context::createDefaultContext(Defaults::TENANT_ID));
 
-        $this->storefrontApiClient->request('GET', '/storefront-api/product');
+        $this->getStoreFrontClient()->request('GET', '/storefront-api/product');
 
-        self::assertSame(200, $this->storefrontApiClient->getResponse()->getStatusCode(), $this->storefrontApiClient->getResponse()->getContent());
+        self::assertSame(200, $this->getStoreFrontClient()->getResponse()->getStatusCode(), $this->getStoreFrontClient()->getResponse()->getContent());
 
-        $content = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
+        $content = json_decode($this->getStoreFrontClient()->getResponse()->getContent(), true);
 
         static::assertNotEmpty($content);
         static::assertArrayHasKey('total', $content);
@@ -90,11 +87,11 @@ class ProductControllerTest extends ApiTestCase
             ],
         ], Context::createDefaultContext(Defaults::TENANT_ID));
 
-        $this->storefrontApiClient->request('GET', '/storefront-api/product/' . $productId);
+        $this->getStoreFrontClient()->request('GET', '/storefront-api/product/' . $productId);
 
-        self::assertSame(200, $this->storefrontApiClient->getResponse()->getStatusCode(), $this->storefrontApiClient->getResponse()->getContent());
+        self::assertSame(200, $this->getStoreFrontClient()->getResponse()->getStatusCode(), $this->getStoreFrontClient()->getResponse()->getContent());
 
-        $content = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
+        $content = json_decode($this->getStoreFrontClient()->getResponse()->getContent(), true);
 
         static::assertEquals($productId, $content['data']['id']);
         static::assertEquals(10, $content['data']['price']['gross']);

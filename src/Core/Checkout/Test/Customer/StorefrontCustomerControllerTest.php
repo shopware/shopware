@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Test\Customer;
 
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
 use Shopware\Core\Checkout\Customer\CustomerStruct;
 use Shopware\Core\Defaults;
@@ -10,12 +11,17 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Core\Framework\Test\Api\ApiTestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Test\TestCaseBase\StorefrontApiTestBehaviour;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Serializer;
 
-class StorefrontCustomerControllerTest extends ApiTestCase
+class StorefrontCustomerControllerTest extends TestCase
 {
+    use StorefrontApiTestBehaviour,
+        DatabaseTransactionBehaviour;
+
     /**
      * @var RepositoryInterface
      */
@@ -53,14 +59,14 @@ class StorefrontCustomerControllerTest extends ApiTestCase
 
     public function setUp()
     {
-        parent::setUp();
+        $kernel = KernelLifecycleManager::getKernel();
 
-        $this->serializer = $this->getContainer()->get('serializer');
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
-        $this->countryRepository = $this->getContainer()->get('country.repository');
-        $this->customerAddressRepository = $this->getContainer()->get('customer_address.repository');
-        $this->countryStateRepository = $this->getContainer()->get('country_state.repository');
+        $this->serializer = $kernel->getContainer()->get('serializer');
+        $this->productRepository = $kernel->getContainer()->get('product.repository');
+        $this->customerRepository = $kernel->getContainer()->get('customer.repository');
+        $this->countryRepository = $kernel->getContainer()->get('country.repository');
+        $this->customerAddressRepository = $kernel->getContainer()->get('customer_address.repository');
+        $this->countryStateRepository = $kernel->getContainer()->get('country_state.repository');
         $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
     }
 
@@ -70,11 +76,11 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         $password = 'shopware';
         $customerId = $this->createCustomer($email, $password);
 
-        $this->storefrontApiClient->request('POST', '/storefront-api/customer/login', [
+        $this->getStoreFrontClient()->request('POST', '/storefront-api/customer/login', [
             'username' => $email,
             'password' => $password,
         ]);
-        $response = $this->storefrontApiClient->getResponse();
+        $response = $this->getStoreFrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
 
         static::assertEquals(200, $response->getStatusCode());
@@ -82,8 +88,8 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         static::assertArrayHasKey('x-sw-context-token', $content);
         static::assertNotEmpty($content['x-sw-context-token']);
 
-        $this->storefrontApiClient->request('GET', '/storefront-api/customer');
-        $response = $this->storefrontApiClient->getResponse();
+        $this->getStoreFrontClient()->request('GET', '/storefront-api/customer');
+        $response = $this->getStoreFrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
 
         $customer = $this->serialize($this->readCustomer($customerId));
@@ -98,11 +104,11 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         $email = Uuid::uuid4()->getHex() . '@example.com';
         $password = 'shopware';
 
-        $this->storefrontApiClient->request('POST', '/storefront-api/customer/login', [
+        $this->getStoreFrontClient()->request('POST', '/storefront-api/customer/login', [
             'username' => $email,
             'password' => $password,
         ]);
-        $response = $this->storefrontApiClient->getResponse();
+        $response = $this->getStoreFrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
 
         static::assertEquals(401, $response->getStatusCode());
@@ -110,8 +116,8 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         static::assertArrayHasKey('errors', $content);
         static::assertNotEmpty($content['errors']);
 
-        $this->storefrontApiClient->request('GET', '/storefront-api/customer');
-        $response = $this->storefrontApiClient->getResponse();
+        $this->getStoreFrontClient()->request('GET', '/storefront-api/customer');
+        $response = $this->getStoreFrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
 
         static::assertEquals(403, $response->getStatusCode());
@@ -123,15 +129,15 @@ class StorefrontCustomerControllerTest extends ApiTestCase
     public function testLogout()
     {
         $this->createCustomerAndLogin();
-        $this->storefrontApiClient->request('POST', '/storefront-api/customer/logout');
-        $response = $this->storefrontApiClient->getResponse();
+        $this->getStoreFrontClient()->request('POST', '/storefront-api/customer/logout');
+        $response = $this->getStoreFrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
 
         static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
         static::assertNull($content);
 
-        $this->storefrontApiClient->request('GET', '/storefront-api/customer');
-        $response = $this->storefrontApiClient->getResponse();
+        $this->getStoreFrontClient()->request('GET', '/storefront-api/customer');
+        $response = $this->getStoreFrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
 
         static::assertEquals(403, $response->getStatusCode());
@@ -143,8 +149,8 @@ class StorefrontCustomerControllerTest extends ApiTestCase
     {
         $customerId = $this->createCustomerAndLogin();
 
-        $this->storefrontApiClient->request('GET', '/storefront-api/customer');
-        $response = $this->storefrontApiClient->getResponse();
+        $this->getStoreFrontClient()->request('GET', '/storefront-api/customer');
+        $response = $this->getStoreFrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
 
         $customer = $this->serialize($this->readCustomer($customerId));
@@ -159,8 +165,8 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         $customerId = $this->createCustomerAndLogin();
         $addressId = $this->createCustomerAddress($customerId);
 
-        $this->storefrontApiClient->request('GET', '/storefront-api/customer/address/' . $addressId);
-        $response = $this->storefrontApiClient->getResponse();
+        $this->getStoreFrontClient()->request('GET', '/storefront-api/customer/address/' . $addressId);
+        $response = $this->getStoreFrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
 
         static::assertEquals(200, $response->getStatusCode());
@@ -179,8 +185,8 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         $customerId = $this->createCustomerAndLogin();
         $this->createCustomerAddress($customerId);
 
-        $this->storefrontApiClient->request('GET', '/storefront-api/customer/addresses');
-        $response = $this->storefrontApiClient->getResponse();
+        $this->getStoreFrontClient()->request('GET', '/storefront-api/customer/addresses');
+        $response = $this->getStoreFrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
 
         static::assertEquals(200, $response->getStatusCode());
@@ -204,8 +210,8 @@ class StorefrontCustomerControllerTest extends ApiTestCase
             'company' => 'Shopware AG',
         ];
 
-        $this->storefrontApiClient->request('POST', '/storefront-api/customer/address', $address);
-        $response = $this->storefrontApiClient->getResponse();
+        $this->getStoreFrontClient()->request('POST', '/storefront-api/customer/address', $address);
+        $response = $this->getStoreFrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
 
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
@@ -235,7 +241,7 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         static::assertInstanceOf(CustomerAddressStruct::class, $customerAddress);
         static::assertEquals($addressId, $customerAddress->getId());
 
-        $this->storefrontApiClient->request('DELETE', '/storefront-api/customer/address/' . $addressId);
+        $this->getStoreFrontClient()->request('DELETE', '/storefront-api/customer/address/' . $addressId);
 
         $customerAddress = $this->readCustomerAddress($customerId);
         static::assertNull($customerAddress);
@@ -245,8 +251,8 @@ class StorefrontCustomerControllerTest extends ApiTestCase
     {
         $customerId = $this->createCustomerAndLogin();
         $addressId = $this->createCustomerAddress($customerId);
-        $this->storefrontApiClient->request('PUT', '/storefront-api/customer/default-shipping-address/' . $addressId);
-        $response = $this->storefrontApiClient->getResponse();
+        $this->getStoreFrontClient()->request('PUT', '/storefront-api/customer/default-shipping-address/' . $addressId);
+        $response = $this->getStoreFrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
 
         $customer = $this->readCustomer($customerId);
@@ -262,8 +268,8 @@ class StorefrontCustomerControllerTest extends ApiTestCase
     {
         $customerId = $this->createCustomerAndLogin();
         $addressId = $this->createCustomerAddress($customerId);
-        $this->storefrontApiClient->request('PUT', '/storefront-api/customer/default-billing-address/' . $addressId);
-        $response = $this->storefrontApiClient->getResponse();
+        $this->getStoreFrontClient()->request('PUT', '/storefront-api/customer/default-billing-address/' . $addressId);
+        $response = $this->getStoreFrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
 
         $customer = $this->readCustomer($customerId);
@@ -315,9 +321,9 @@ class StorefrontCustomerControllerTest extends ApiTestCase
             'shippingAdditionalAddressLine2' => 'Additional address line 02',
         ];
 
-        $this->storefrontApiClient->request('POST', '/storefront-api/customer', array_merge($personal, $billing, $shipping));
+        $this->getStoreFrontClient()->request('POST', '/storefront-api/customer', array_merge($personal, $billing, $shipping));
 
-        $response = $this->storefrontApiClient->getResponse();
+        $response = $this->getStoreFrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
 
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), print_r($response->getContent(), true));
@@ -380,8 +386,8 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         $customerId = $this->createCustomerAndLogin();
 
         $mail = 'test@exapmle.com';
-        $this->storefrontApiClient->request('PUT', '/storefront-api/customer/email', ['email' => $mail]);
-        $response = $this->storefrontApiClient->getResponse();
+        $this->getStoreFrontClient()->request('PUT', '/storefront-api/customer/email', ['email' => $mail]);
+        $response = $this->getStoreFrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
         static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($content, true));
 
@@ -396,8 +402,8 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         $customerId = $this->createCustomerAndLogin();
         $password = '1234';
 
-        $this->storefrontApiClient->request('PUT', '/storefront-api/customer/password', ['password' => $password]);
-        $response = $this->storefrontApiClient->getResponse();
+        $this->getStoreFrontClient()->request('PUT', '/storefront-api/customer/password', ['password' => $password]);
+        $response = $this->getStoreFrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
 
         $hash = $this->readCustomer($customerId)->getPassword();
@@ -420,8 +426,8 @@ class StorefrontCustomerControllerTest extends ApiTestCase
             'birthdayMonth' => 5,
             'birthdayDay' => 3,
         ];
-        $this->storefrontApiClient->request('PUT', '/storefront-api/customer/profile', $data);
-        $response = $this->storefrontApiClient->getResponse();
+        $this->getStoreFrontClient()->request('PUT', '/storefront-api/customer/profile', $data);
+        $response = $this->getStoreFrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
 
         $customer = $this->readCustomer($customerId);
@@ -443,8 +449,8 @@ class StorefrontCustomerControllerTest extends ApiTestCase
 
     public function testGetOrdersWithoutLogin(): void
     {
-        $this->storefrontApiClient->request('GET', '/storefront-api/customer/orders');
-        $response = $this->storefrontApiClient->getResponse();
+        $this->getStoreFrontClient()->request('GET', '/storefront-api/customer/orders');
+        $response = $this->getStoreFrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
 
         static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode());
@@ -457,8 +463,8 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         $this->createCustomerAndLogin();
         $this->createOrder();
 
-        $this->storefrontApiClient->request('GET', '/storefront-api/customer/orders');
-        $response = $this->storefrontApiClient->getResponse();
+        $this->getStoreFrontClient()->request('GET', '/storefront-api/customer/orders');
+        $response = $this->getStoreFrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
 
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
@@ -473,8 +479,8 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         $this->createOrder();
         $this->createOrder();
 
-        $this->storefrontApiClient->request('GET', '/storefront-api/customer/orders?limit=2');
-        $response = $this->storefrontApiClient->getResponse();
+        $this->getStoreFrontClient()->request('GET', '/storefront-api/customer/orders?limit=2');
+        $response = $this->getStoreFrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
 
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
@@ -489,8 +495,8 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         $this->createOrder();
         $this->createOrder();
 
-        $this->storefrontApiClient->request('GET', '/storefront-api/customer/orders?limit=2&page=2');
-        $response = $this->storefrontApiClient->getResponse();
+        $this->getStoreFrontClient()->request('GET', '/storefront-api/customer/orders?limit=2&page=2');
+        $response = $this->getStoreFrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
 
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
@@ -503,7 +509,7 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         $email = $email ?? Uuid::uuid4()->getHex() . '@example.com';
         $customerId = $this->createCustomer($email, $password);
 
-        $this->storefrontApiClient->request('POST', '/storefront-api/customer/login', [
+        $this->getStoreFrontClient()->request('POST', '/storefront-api/customer/login', [
             'username' => $email,
             'password' => $password,
         ]);
@@ -621,20 +627,20 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         ], $context);
 
         // create new cart
-        $this->storefrontApiClient->request('POST', '/storefront-api/checkout/cart');
-        $response = $this->storefrontApiClient->getResponse();
+        $this->getStoreFrontClient()->request('POST', '/storefront-api/checkout/cart');
+        $response = $this->getStoreFrontClient()->getResponse();
 
         static::assertEquals(200, $response->getStatusCode(), $response->getContent());
 
         // add product
-        $this->storefrontApiClient->request('POST', '/storefront-api/checkout/cart/product/' . $productId);
-        static::assertSame(200, $this->storefrontApiClient->getResponse()->getStatusCode(), $this->storefrontApiClient->getResponse()->getContent());
+        $this->getStoreFrontClient()->request('POST', '/storefront-api/checkout/cart/product/' . $productId);
+        static::assertSame(200, $this->getStoreFrontClient()->getResponse()->getStatusCode(), $this->getStoreFrontClient()->getResponse()->getContent());
 
         // finish checkout
-        $this->storefrontApiClient->request('POST', '/storefront-api/checkout/order');
-        static::assertSame(200, $this->storefrontApiClient->getResponse()->getStatusCode(), $this->storefrontApiClient->getResponse()->getContent());
+        $this->getStoreFrontClient()->request('POST', '/storefront-api/checkout/order');
+        static::assertSame(200, $this->getStoreFrontClient()->getResponse()->getStatusCode(), $this->getStoreFrontClient()->getResponse()->getContent());
 
-        $order = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
+        $order = json_decode($this->getStoreFrontClient()->getResponse()->getContent(), true);
         static::assertArrayHasKey('data', $order);
 
         $order = $order['data'];

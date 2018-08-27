@@ -3,15 +3,21 @@
 namespace Shopware\Core\Content\Test\Category\Storefront;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Core\Framework\Test\Api\ApiTestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Test\TestCaseBase\StorefrontApiTestBehaviour;
 
-class StorefrontCategoryControllerTest extends ApiTestCase
+class StorefrontCategoryControllerTest extends TestCase
 {
+    use StorefrontApiTestBehaviour,
+        DatabaseTransactionBehaviour;
+
     /**
      * @var RepositoryInterface
      */
@@ -29,19 +35,14 @@ class StorefrontCategoryControllerTest extends ApiTestCase
 
     protected function setUp()
     {
-        parent::setUp();
-        $this->connection = self::$container->get(Connection::class);
-        $this->repository = self::$container->get('category.repository');
+        $kernel = KernelLifecycleManager::getKernel();
+
+        $this->connection = $kernel->getContainer()->get(Connection::class);
+        $this->repository = $kernel->getContainer()->get('category.repository');
         $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
-        $this->connection->beginTransaction();
         $this->connection->executeUpdate('DELETE FROM category');
     }
 
-    public function tearDown()
-    {
-        $this->connection->rollBack();
-        parent::tearDown();
-    }
 
     public function testCategoryListRoute()
     {
@@ -51,9 +52,9 @@ class StorefrontCategoryControllerTest extends ApiTestCase
             ['id' => $id, 'name' => 'Test category'],
         ], $this->context);
 
-        $this->storefrontApiClient->request('GET', '/storefront-api/category');
+        $this->getStoreFrontClient()->request('GET', '/storefront-api/category');
 
-        $response = $this->storefrontApiClient->getResponse();
+        $response = $this->getStoreFrontClient()->getResponse();
 
         static::assertSame(200, $response->getStatusCode());
 
@@ -73,9 +74,9 @@ class StorefrontCategoryControllerTest extends ApiTestCase
             ['id' => $id, 'name' => 'Test category'],
         ], $this->context);
 
-        $this->storefrontApiClient->request('GET', '/storefront-api/category/' . $id);
+        $this->getStoreFrontClient()->request('GET', '/storefront-api/category/' . $id);
 
-        $response = $this->storefrontApiClient->getResponse();
+        $response = $this->getStoreFrontClient()->getResponse();
 
         static::assertSame(200, $response->getStatusCode());
 
@@ -98,16 +99,16 @@ class StorefrontCategoryControllerTest extends ApiTestCase
             ['id' => $categoryB, 'name' => 'Category B'],
         ], $this->context);
 
-        $this->storefrontApiClient->request('GET', '/storefront-api/category?sort=name');
+        $this->getStoreFrontClient()->request('GET', '/storefront-api/category?sort=name');
 
-        $response = $this->storefrontApiClient->getResponse();
+        $response = $this->getStoreFrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
         static::assertNotEmpty($content);
         $ids = array_column($content['data'], 'id');
         static::assertSame([$categoryA, $categoryB, $categoryC], $ids);
 
-        $this->storefrontApiClient->request('GET', '/storefront-api/category?sort=-name');
-        $response = $this->storefrontApiClient->getResponse();
+        $this->getStoreFrontClient()->request('GET', '/storefront-api/category?sort=-name');
+        $response = $this->getStoreFrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
         static::assertNotEmpty($content);
         $ids = array_column($content['data'], 'id');
@@ -126,9 +127,9 @@ class StorefrontCategoryControllerTest extends ApiTestCase
             ['id' => $categoryB, 'name' => 'Matching name'],
         ], $this->context);
 
-        $this->storefrontApiClient->request('GET', '/storefront-api/category?term=Matching');
+        $this->getStoreFrontClient()->request('GET', '/storefront-api/category?term=Matching');
 
-        $response = $this->storefrontApiClient->getResponse();
+        $response = $this->getStoreFrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
         static::assertNotEmpty($content);
         static::assertSame(2, $content['total']);
@@ -157,9 +158,9 @@ class StorefrontCategoryControllerTest extends ApiTestCase
             ],
         ]);
 
-        $this->storefrontApiClient->request('GET', '/storefront-api/category?' . $params);
+        $this->getStoreFrontClient()->request('GET', '/storefront-api/category?' . $params);
 
-        $response = $this->storefrontApiClient->getResponse();
+        $response = $this->getStoreFrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
         static::assertNotEmpty($content);
         static::assertSame(1, $content['total']);
@@ -192,9 +193,9 @@ class StorefrontCategoryControllerTest extends ApiTestCase
             ],
         ];
 
-        $this->storefrontApiClient->request('POST', '/storefront-api/category', $body);
+        $this->getStoreFrontClient()->request('POST', '/storefront-api/category', $body);
 
-        $response = $this->storefrontApiClient->getResponse();
+        $response = $this->getStoreFrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
         static::assertSame(200, $response->getStatusCode());
         static::assertSame(2, $content['total']);
@@ -215,8 +216,8 @@ class StorefrontCategoryControllerTest extends ApiTestCase
             ],
         ];
 
-        $this->storefrontApiClient->request('POST', '/storefront-api/category', $body);
-        $response = $this->storefrontApiClient->getResponse();
+        $this->getStoreFrontClient()->request('POST', '/storefront-api/category', $body);
+        $response = $this->getStoreFrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
 
         static::assertSame(200, $response->getStatusCode());
@@ -237,8 +238,8 @@ class StorefrontCategoryControllerTest extends ApiTestCase
             ],
         ];
 
-        $this->storefrontApiClient->request('POST', '/storefront-api/category', $body);
-        $response = $this->storefrontApiClient->getResponse();
+        $this->getStoreFrontClient()->request('POST', '/storefront-api/category', $body);
+        $response = $this->getStoreFrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
 
         static::assertSame(200, $response->getStatusCode());
@@ -260,8 +261,8 @@ class StorefrontCategoryControllerTest extends ApiTestCase
             ],
         ];
 
-        $this->storefrontApiClient->request('POST', '/storefront-api/category', $body);
-        $response = $this->storefrontApiClient->getResponse();
+        $this->getStoreFrontClient()->request('POST', '/storefront-api/category', $body);
+        $response = $this->getStoreFrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
 
         static::assertSame(200, $response->getStatusCode());
@@ -293,8 +294,8 @@ class StorefrontCategoryControllerTest extends ApiTestCase
     {
         $id = Uuid::uuid4()->getHex();
 
-        $this->storefrontApiClient->request('GET', '/storefront-api/category/' . $id);
-        $response = $this->storefrontApiClient->getResponse();
+        $this->getStoreFrontClient()->request('GET', '/storefront-api/category/' . $id);
+        $response = $this->getStoreFrontClient()->getResponse();
 
         static::assertSame(404, $response->getStatusCode());
         $content = json_decode($response->getContent(), true);

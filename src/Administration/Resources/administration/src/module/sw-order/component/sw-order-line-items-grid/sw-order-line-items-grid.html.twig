@@ -23,7 +23,7 @@
                                     align="right"
                                     :label="$tc('sw-order.detailBase.columnPrice')">
                         {% block sw_order_line_items_grid_columns_unit_price_label %}
-                            {{ item.unitPrice }} {{ order.currency.symbol }}
+                            {{ item.unitPrice | currency(order.currency.shortName) }}
                         {% endblock %}
                     </sw-grid-column>
                 {% endblock %}
@@ -43,7 +43,7 @@
                                     align="right"
                                     :label="$tc('sw-order.detailBase.columnTotalPrice')">
                         {% block sw_order_line_items_grid_columns_total_price_label %}
-                            {{ item.totalPrice }} {{ order.currency.symbol }}
+                            {{ item.totalPrice | currency(order.currency.shortName) }}
                         {% endblock %}
                     </sw-grid-column>
                 {% endblock %}

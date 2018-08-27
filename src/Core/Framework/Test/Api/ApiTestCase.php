@@ -13,6 +13,9 @@ use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @deprecated Use the traits instead.
+ */
 class ApiTestCase extends WebTestCase
 {
     /**
@@ -71,8 +74,16 @@ class ApiTestCase extends WebTestCase
         $connection = self::$container->get(Connection::class);
 
         try {
-            $connection->executeQuery('DELETE FROM user WHERE username IN (:usernames)', ['usernames' => $this->apiUsernames], ['usernames' => Connection::PARAM_STR_ARRAY]);
-            $connection->executeQuery('DELETE FROM sales_channel WHERE id = :salesChannelId', ['salesChannelId' => $this->storefrontApiSalesChannelId]);
+            $connection->executeQuery(
+                'DELETE FROM user WHERE username IN (:usernames)',
+                ['usernames' => $this->apiUsernames],
+                ['usernames' => Connection::PARAM_STR_ARRAY]
+            );
+
+            $connection->executeQuery(
+                'DELETE FROM sales_channel WHERE id = :salesChannelId',
+                ['salesChannelId' => $this->storefrontApiSalesChannelId]
+            );
         } catch (\Exception $ex) {
         }
 
@@ -103,7 +114,11 @@ class ApiTestCase extends WebTestCase
 
         $this->apiClient->request('GET', $url);
 
-        $this->assertSame(Response::HTTP_OK, $this->apiClient->getResponse()->getStatusCode(), 'Entity does not exists but should do.');
+        $this->assertSame(
+            Response::HTTP_OK,
+            $this->apiClient->getResponse()->getStatusCode(),
+            'Entity does not exists but should do.'
+        );
     }
 
     public function assertEntityNotExists(...$params): void
@@ -112,7 +127,11 @@ class ApiTestCase extends WebTestCase
 
         $this->apiClient->request('GET', $url);
 
-        $this->assertSame(Response::HTTP_NOT_FOUND, $this->apiClient->getResponse()->getStatusCode(), 'Entity exists but should not.');
+        $this->assertSame(
+            Response::HTTP_NOT_FOUND,
+            $this->apiClient->getResponse()->getStatusCode(),
+            'Entity exists but should not.'
+        );
     }
 
     /**

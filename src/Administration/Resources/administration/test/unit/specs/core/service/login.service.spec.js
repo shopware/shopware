@@ -24,30 +24,33 @@ describe('core/service/login.service.js', () => {
     });
 
     it('should store the bearer authentication object in the localStorage', () => {
-        const authObject = loginService.setBearerAuthentication(
-            'foobar',
-            9999999999
-        );
+        const authObject = loginService.setBearerAuthentication({
+            expiry: 9999999999,
+            access: 'foobar',
+            refresh: 'barbatz'
+        });
         const localStorageObject = JSON.parse(localStorage.getItem(loginService.getLocalStorageKey()));
 
         expect(localStorageObject).to.deep.equal(authObject);
     });
 
     it('should get the bearer authentication object from the localStorage', () => {
-        const authObject = loginService.setBearerAuthentication(
-            'foobar',
-            9999999999
-        );
+        const authObject = loginService.setBearerAuthentication({
+            expiry: 9999999999,
+            access: 'foobar',
+            refresh: 'barbatz'
+        });
         const localStorageObject = loginService.getBearerAuthentication();
 
         expect(localStorageObject).to.deep.equal(authObject);
     });
 
     it('should clear the localStorage entry', () => {
-        const authObject = loginService.setBearerAuthentication(
-            'foobar',
-            9999999999
-        );
+        const authObject = loginService.setBearerAuthentication({
+            expiry: 9999999999,
+            access: 'foobar',
+            refresh: 'barbatz'
+        });
 
         const localStorageObject = JSON.parse(localStorage.getItem(loginService.getLocalStorageKey()));
 
@@ -60,30 +63,33 @@ describe('core/service/login.service.js', () => {
     });
 
     it('should provide the bearer token', () => {
-        const authObject = loginService.setBearerAuthentication(
-            'foobar',
-            9999999999
-        );
+        const authObject = loginService.setBearerAuthentication({
+            expiry: 9999999999,
+            access: 'foobar',
+            refresh: 'barbatz'
+        });
         const token = loginService.getToken();
 
-        expect(token).to.equal(authObject.token);
+        expect(token).to.equal(authObject.access);
     });
 
     it('should provide the expiry date', () => {
-        const authObject = loginService.setBearerAuthentication(
-            'foobar',
-            9999999999
-        );
+        const authObject = loginService.setBearerAuthentication({
+            expiry: 9999999999,
+            access: 'foobar',
+            refresh: 'barbatz'
+        });
         const expiry = loginService.getExpiry();
 
         expect(expiry).to.equal(authObject.expiry);
     });
 
     it('should validate the expiry date', () => {
-        loginService.setBearerAuthentication(
-            'foobar',
-            9999999999
-        );
+        loginService.setBearerAuthentication({
+            expiry: 9999999999,
+            access: 'foobar',
+            refresh: 'barbatz'
+        });
         const expiry = loginService.getExpiry();
 
         expect(loginService.validateExpiry(expiry)).to.equal(true);
@@ -103,16 +109,18 @@ describe('core/service/login.service.js', () => {
 
     it('should set a new the localStorage key and clear the previous entry', () => {
         const oldKey = loginService.getLocalStorageKey();
-        loginService.setBearerAuthentication(
-            'foobar',
-            9999999999
-        );
+        loginService.setBearerAuthentication({
+            expiry: 9999999999,
+            access: 'foobar',
+            refresh: 'barbatz'
+        });
         const newKey = loginService.setLocalStorageKey('storageKey');
 
-        const authObject = loginService.setBearerAuthentication(
-            'foobar',
-            9999999999
-        );
+        const authObject = loginService.setBearerAuthentication({
+            expiry: 9999999999,
+            access: 'foobar',
+            refresh: 'barbatz'
+        });
 
         expect(localStorage.getItem(oldKey)).to.equal(null);
         expect(JSON.parse(localStorage.getItem(newKey))).to.deep.equal(authObject);

@@ -17,7 +17,9 @@ export default function createLoginService(httpClient) {
 
     return {
         loginByUsername,
+        refreshTokenUsingRefreshToken,
         getToken,
+        getRefreshToken,
         setBearerAuthentication,
         getExpiry,
         validateExpiry,
@@ -51,6 +53,26 @@ export default function createLoginService(httpClient) {
     }
 
     /**
+     * Sends an AJAX request to the authentication end point and retries to refresh the token.
+     *
+     * @memberOf module:core/service/login
+     * @param {String} token
+     * @returns {Observable<AjaxResponse>|AxiosPromise}
+     */
+    function refreshTokenUsingRefreshToken(token) {
+        const contextService = Application.getContainer('init').contextService;
+
+        return httpClient.post('/oauth/token', {
+            grant_type: 'refresh_token',
+            client_id: 'administration',
+            scopes: 'write',
+            refresh_token: token
+        }, {
+            baseURL: contextService.apiPath
+        });
+    }
+
+    /**
      * Saves the bearer authentication object in the localStorage using the {@link localStorageKey} as the
      * object identifier.
      *
@@ -59,9 +81,9 @@ export default function createLoginService(httpClient) {
      * @param {Number} expiry - Expiry date as an unix timestamp
      * @returns {Object} saved authentication object
      */
-    function setBearerAuthentication(token, expiry) {
+    function setBearerAuthentication({ access, refresh, expiry }) {
         expiry = Math.round(+new Date() / 1000) + expiry;
-        const authObject = { token, expiry };
+        const authObject = { access, refresh, expiry };
         localStorage.setItem(localStorageKey, JSON.stringify(authObject));
 
         return authObject;
@@ -72,7 +94,7 @@ export default function createLoginService(httpClient) {
      * the `section` argument and getting either the token or the expiry date.
      *
      * @memberOf module:core/service/login
-     * @param {String} {section=null}
+     * @param {null|String} [section=null]
      * @returns {Boolean|String|Number}
      */
     function getBearerAuthentication(section = null) {
@@ -107,7 +129,17 @@ export default function createLoginService(httpClient) {
      * @returns {Boolean|String}
      */
     function getToken() {
-        return getBearerAuthentication('token');
+        return getBearerAuthentication('access');
+    }
+
+    /**
+     * Returns the refresh token
+     *
+     * @memberOf module:core/service/login
+     * @returns {Boolean|String}
+     */
+    function getRefreshToken() {
+        return getBearerAuthentication('refresh');
     }
 
     /**

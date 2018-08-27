@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Product\Storefront;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Framework\Api\Response\ResponseFactory;
+use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Exception\InvalidUuidException;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\RequestCriteriaBuilder;
@@ -23,29 +23,22 @@ class StorefrontProductController extends Controller
     private $repository;
 
     /**
-     * @var ResponseFactory
-     */
-    private $responseFactory;
-
-    /**
      * @var RequestCriteriaBuilder
      */
     private $criteriaBuilder;
 
     public function __construct(
         StorefrontProductRepository $repository,
-        ResponseFactory $responseFactory,
         RequestCriteriaBuilder $criteriaBuilder
     ) {
         $this->repository = $repository;
-        $this->responseFactory = $responseFactory;
         $this->criteriaBuilder = $criteriaBuilder;
     }
 
     /**
      * @Route("/storefront-api/product", name="storefront.api.product.list")
      */
-    public function list(Request $request, CheckoutContext $checkoutContext): Response
+    public function list(Request $request, CheckoutContext $checkoutContext, ResponseFactoryInterface $responseFactory): Response
     {
         $criteria = new Criteria();
 
@@ -58,7 +51,7 @@ class StorefrontProductController extends Controller
 
         $result = $this->repository->search($criteria, $checkoutContext);
 
-        return $this->responseFactory->createListingResponse(
+        return $responseFactory->createListingResponse(
             $result,
             ProductDefinition::class,
             $request,
@@ -72,7 +65,7 @@ class StorefrontProductController extends Controller
      * @throws ProductNotFoundException
      * @throws InvalidUuidException
      */
-    public function detail(string $productId, Request $request, CheckoutContext $checkoutContext): Response
+    public function detail(string $productId, Request $request, CheckoutContext $checkoutContext, ResponseFactoryInterface $responseFactory): Response
     {
         if (!Uuid::isValid($productId)) {
             throw new InvalidUuidException($productId);
@@ -83,7 +76,7 @@ class StorefrontProductController extends Controller
             throw new ProductNotFoundException($productId);
         }
 
-        return $this->responseFactory->createDetailResponse(
+        return $responseFactory->createDetailResponse(
             $products->get($productId),
             ProductDefinition::class,
             $request,

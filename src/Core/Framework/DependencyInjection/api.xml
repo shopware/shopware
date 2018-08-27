@@ -24,7 +24,6 @@
         <service class="Shopware\Core\Framework\Api\Controller\ApiController" id="Shopware\Core\Framework\Api\Controller\ApiController" public="true">
             <argument id="Shopware\Core\Framework\ORM\DefinitionRegistry" type="service"/>
             <argument id="serializer" type="service"/>
-            <argument id="Shopware\Core\Framework\Api\Response\ResponseFactory" type="service"/>
             <argument id="Shopware\Core\Framework\ORM\Write\EntityWriter" type="service"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\Search\RequestCriteriaBuilder"/>
         </service>
@@ -41,18 +40,32 @@
         </service>
 
         <!-- Response types -->
-        <service class="Shopware\Core\Framework\Api\Response\ResponseFactory" id="Shopware\Core\Framework\Api\Response\ResponseFactory">
+        <service class="Shopware\Core\Framework\Api\Response\ResponseFactoryRegistry" id="Shopware\Core\Framework\Api\Response\ResponseFactoryRegistry">
             <argument type="tagged" tag="shopware.rest.response_type"/>
         </service>
 
-        <service class="Shopware\Core\Framework\Api\Response\Type\JsonApiType" id="Shopware\Core\Framework\Api\Response\Type\JsonApiType">
+        <service class="Shopware\Core\Framework\Api\Response\Type\Api\JsonApiType" id="Shopware\Core\Framework\Api\Response\Type\Api\JsonApiType">
             <argument type="service" id="Shopware\Core\Framework\Api\Serializer\JsonApiEncoder" />
             <tag name="shopware.rest.response_type" />
         </service>
 
+
+        <service class="Shopware\Core\Framework\Api\Response\Type\Storefront\JsonApiType" id="Shopware\Core\Framework\Api\Response\Type\Storefront\JsonApiType">
+            <argument type="service" id="Shopware\Core\Framework\Api\Serializer\JsonStorefrontApiEncoder" />
+            <!-- deactivated, the current storefront api design does not match the json api requirements -->
+            <!-- <tag name="shopware.rest.response_type" /> -->
+        </service>
+
         <service class="Shopware\Core\Framework\Api\Serializer\JsonApiEncoder" id="Shopware\Core\Framework\Api\Serializer\JsonApiEncoder" />
 
-        <service class="Shopware\Core\Framework\Api\Response\Type\JsonType" id="Shopware\Core\Framework\Api\Response\Type\JsonType">
+        <service class="Shopware\Core\Framework\Api\Serializer\JsonStorefrontApiEncoder" id="Shopware\Core\Framework\Api\Serializer\JsonStorefrontApiEncoder" />
+
+        <service class="Shopware\Core\Framework\Api\Response\Type\Api\JsonType" id="Shopware\Core\Framework\Api\Response\Type\Api\JsonType">
+            <argument type="service" id="serializer" />
+            <tag name="shopware.rest.response_type" />
+        </service>
+
+        <service class="Shopware\Core\Framework\Api\Response\Type\Storefront\JsonType" id="Shopware\Core\Framework\Api\Response\Type\Storefront\JsonType">
             <argument type="service" id="serializer" />
             <tag name="shopware.rest.response_type" />
         </service>
@@ -145,8 +158,12 @@
 
         <service class="Shopware\Core\Framework\Api\Controller\UserController" id="Shopware\Core\Framework\Api\Controller\UserController" public="true">
             <argument id="user.repository" type="service"/>
-            <argument id="Shopware\Core\Framework\Api\Response\ResponseFactory" type="service"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Api\Response\ResponseFactoryInterfaceValueResolver">
+            <tag name="controller.argument_value_resolver" priority="50" />
+
+            <argument type="service" id="Shopware\Core\Framework\Api\Response\ResponseFactoryRegistry"/>
+        </service>
     </services>
 </container>

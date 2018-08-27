@@ -109,7 +109,6 @@
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister" />
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextFactory"/>
             <argument type="service" id="Shopware\Storefront\Page\Account\AccountService"/>
-            <argument type="service" id="Shopware\Core\Framework\Api\Response\ResponseFactory" />
             <argument type="service" id="serializer"/>
             <argument type="service" id="order.repository"/>
         </service>

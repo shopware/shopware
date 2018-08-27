@@ -8,9 +8,9 @@ use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-interface ResponseTypeInterface
+interface ResponseFactoryInterface
 {
-    public function supportsContentType(string $contentType): bool;
+    public function supports(string $contentType, string $origin): bool;
 
     public function createDetailResponse(Entity $entity, string $definition, Request $request, Context $context, bool $setLocationHeader = false): Response;
 

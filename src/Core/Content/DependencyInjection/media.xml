@@ -86,7 +86,6 @@
         </service>
 
         <service class="Shopware\Core\Content\Media\Api\MediaUploadController" id="Shopware\Core\Content\Media\Api\MediaUploadController" public="true">
-            <argument type="service" id="Shopware\Core\Framework\Api\Response\ResponseFactory"/>
             <argument type="service" id="Shopware\Core\Content\Media\File\FileFetcher"/>
             <argument type="service" id="Shopware\Core\Content\Media\File\FileSaver"/>
             <call method="setContainer">

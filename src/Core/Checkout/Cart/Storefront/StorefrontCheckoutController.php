@@ -15,8 +15,8 @@ use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidTransactionException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentService;
-use Shopware\Core\Framework\Api\Response\ResponseFactory;
-use Shopware\Core\Framework\Api\Response\Type\JsonType;
+use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
+use Shopware\Core\Framework\Api\Response\Type\Storefront\JsonType;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
@@ -57,11 +57,6 @@ class StorefrontCheckoutController extends Controller
     private $accountService;
 
     /**
-     * @var ResponseFactory
-     */
-    private $responseFactory;
-
-    /**
      * @var Serializer
      */
     private $serializer;
@@ -77,7 +72,6 @@ class StorefrontCheckoutController extends Controller
         CheckoutContextPersister $contextPersister,
         CheckoutContextFactory $checkoutContextFactory,
         AccountService $accountService,
-        ResponseFactory $responseFactory,
         Serializer $serializer,
         RepositoryInterface $orderRepository
     ) {
@@ -88,7 +82,6 @@ class StorefrontCheckoutController extends Controller
         $this->accountService = $accountService;
         $this->orderRepository = $orderRepository;
         $this->serializer = $serializer;
-        $this->responseFactory = $responseFactory;
     }
 
     /**
@@ -135,12 +128,12 @@ class StorefrontCheckoutController extends Controller
      *
      * @throws OrderNotFoundException
      */
-    public function getDeepLinkOrder(string $id, Request $request, Context $context): Response
+    public function getDeepLinkOrder(string $id, Request $request, Context $context, ResponseFactoryInterface $responseFactory): Response
     {
         $deepLinkCode = (string) $request->query->get('accessCode');
         $order = $this->cartService->getOrderByDeepLinkCode($id, $deepLinkCode, $context);
 
-        return $this->responseFactory->createDetailResponse(
+        return $responseFactory->createDetailResponse(
             $order,
             OrderDefinition::class,
             $request,

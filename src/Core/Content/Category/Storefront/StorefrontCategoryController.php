@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Category\Storefront;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
-use Shopware\Core\Framework\Api\Response\ResponseFactory;
+use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Exception\InvalidUuidException;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
@@ -24,29 +24,22 @@ class StorefrontCategoryController extends Controller
     private $repository;
 
     /**
-     * @var ResponseFactory
-     */
-    private $responseFactory;
-
-    /**
      * @var RequestCriteriaBuilder
      */
     private $criteriaBuilder;
 
     public function __construct(
         RepositoryInterface $repository,
-        ResponseFactory $responseFactory,
         RequestCriteriaBuilder $criteriaBuilder
     ) {
         $this->repository = $repository;
-        $this->responseFactory = $responseFactory;
         $this->criteriaBuilder = $criteriaBuilder;
     }
 
     /**
      * @Route("/storefront-api/category", name="storefront.api.category.list")
      */
-    public function list(Request $request, CheckoutContext $checkoutContext): Response
+    public function list(Request $request, CheckoutContext $checkoutContext, ResponseFactoryInterface $responseFactory): Response
     {
         $criteria = new Criteria();
 
@@ -59,7 +52,7 @@ class StorefrontCategoryController extends Controller
 
         $result = $this->repository->search($criteria, $checkoutContext->getContext());
 
-        return $this->responseFactory->createListingResponse(
+        return $responseFactory->createListingResponse(
             $result,
             CategoryDefinition::class,
             $request,
@@ -73,14 +66,14 @@ class StorefrontCategoryController extends Controller
      * @throws CategoryNotFoundException
      * @throws InvalidUuidException
      */
-    public function detail(string $categoryId, Request $request, CheckoutContext $checkoutContext): Response
+    public function detail(string $categoryId, Request $request, CheckoutContext $checkoutContext, ResponseFactoryInterface $responseFactory): Response
     {
         $categories = $this->repository->read(new ReadCriteria([$categoryId]), $checkoutContext->getContext());
         if (!$categories->has($categoryId)) {
             throw new CategoryNotFoundException($categoryId);
         }
 
-        return $this->responseFactory->createDetailResponse(
+        return $responseFactory->createDetailResponse(
             $categories->get($categoryId),
             CategoryDefinition::class,
             $request,

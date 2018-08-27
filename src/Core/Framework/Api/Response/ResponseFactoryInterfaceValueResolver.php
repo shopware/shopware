@@ -6,25 +6,25 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ArgumentValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 
-class ResponseFactoryValueResolver implements ArgumentValueResolverInterface
+class ResponseFactoryInterfaceValueResolver implements ArgumentValueResolverInterface
 {
     /**
-     * @var ResponseFactory
+     * @var ResponseFactoryRegistry
      */
-    private $jsonApiFactory;
+    private $responseTypeRegistry;
 
-    public function __construct(ResponseFactory $jsonApiFactory)
+    public function __construct(ResponseFactoryRegistry $responseTypeRegistry)
     {
-        $this->jsonApiFactory = $jsonApiFactory;
+        $this->responseTypeRegistry = $responseTypeRegistry;
     }
 
     public function supports(Request $request, ArgumentMetadata $argument): bool
     {
-        return $argument->getType() === ResponseFactory::class;
+        return $argument->getType() === ResponseFactoryInterface::class;
     }
 
     public function resolve(Request $request, ArgumentMetadata $argument): iterable
     {
-        yield $this->jsonApiFactory;
+        yield $this->responseTypeRegistry->getType($request);
     }
 }

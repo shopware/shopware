@@ -5,7 +5,7 @@ namespace Shopware\Core\System\SalesChannel\Storefront;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
-use Shopware\Core\Framework\Api\Response\ResponseFactory;
+use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Exception\InvalidParameterException;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
@@ -23,11 +23,6 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class StorefrontSalesChannelController extends Controller
 {
-    /**
-     * @var ResponseFactory
-     */
-    private $responseFactory;
-
     /**
      * @var RepositoryInterface
      */
@@ -59,7 +54,6 @@ class StorefrontSalesChannelController extends Controller
     private $shippingMethodRepository;
 
     public function __construct(
-        ResponseFactory $responseFactory,
         RepositoryInterface $currencyRepository,
         RepositoryInterface $languageRepository,
         RepositoryInterface $countryRepository,
@@ -73,18 +67,17 @@ class StorefrontSalesChannelController extends Controller
         $this->countryStateRepository = $countryStateRepository;
         $this->paymentMethodRepository = $paymentMethodRepository;
         $this->shippingMethodRepository = $shippingMethodRepository;
-        $this->responseFactory = $responseFactory;
     }
 
     /**
      * @Route("/storefront-api/sales-channel/currencies", name="storefront.api.sales-channel.currencies", methods={"GET"})
      */
-    public function getCurrencies(Request $request, CheckoutContext $context): Response
+    public function getCurrencies(Request $request, CheckoutContext $context, ResponseFactoryInterface $responseFactory): Response
     {
         $criteria = $this->createCriteria($request, CurrencyDefinition::class, $context);
         $currencies = $this->currencyRepository->search($criteria, $context->getContext());
 
-        return $this->responseFactory->createListingResponse(
+        return $responseFactory->createListingResponse(
             $currencies,
             CurrencyDefinition::class,
             $request,
@@ -95,12 +88,12 @@ class StorefrontSalesChannelController extends Controller
     /**
      * @Route("/storefront-api/sales-channel/languages", name="storefront.api.sales-channel.languages", methods={"GET"})
      */
-    public function getLanguages(Request $request, CheckoutContext $context): Response
+    public function getLanguages(Request $request, CheckoutContext $context, ResponseFactoryInterface $responseFactory): Response
     {
         $criteria = $this->createCriteria($request, LanguageDefinition::class, $context);
         $languages = $this->languageRepository->search($criteria, $context->getContext());
 
-        return $this->responseFactory->createListingResponse(
+        return $responseFactory->createListingResponse(
             $languages,
             LanguageDefinition::class,
             $request,
@@ -111,12 +104,12 @@ class StorefrontSalesChannelController extends Controller
     /**
      * @Route("/storefront-api/sales-channel/countries", name="storefront.api.sales-channel.countries", methods={"GET"})
      */
-    public function getCountries(Request $request, CheckoutContext $context): Response
+    public function getCountries(Request $request, CheckoutContext $context, ResponseFactoryInterface $responseFactory): Response
     {
         $criteria = $this->createCriteria($request, CountryDefinition::class, $context);
         $countries = $this->countryRepository->search($criteria, $context->getContext());
 
-        return $this->responseFactory->createListingResponse(
+        return $responseFactory->createListingResponse(
             $countries,
             CountryDefinition::class,
             $request,
@@ -129,12 +122,12 @@ class StorefrontSalesChannelController extends Controller
      *
      * @throws InvalidParameterException
      */
-    public function getCountryStates(Request $request, CheckoutContext $context): Response
+    public function getCountryStates(Request $request, CheckoutContext $context, ResponseFactoryInterface $responseFactory): Response
     {
         $criteria = $this->createCountryStates($request, $context);
         $countryStates = $this->countryStateRepository->search($criteria, $context->getContext());
 
-        return $this->responseFactory->createListingResponse(
+        return $responseFactory->createListingResponse(
             $countryStates,
             CountryStateDefinition::class,
             $request,
@@ -145,12 +138,12 @@ class StorefrontSalesChannelController extends Controller
     /**
      * @Route("/storefront-api/sales-channel/payment-methods", name="storefront.api.sales-channel.payment-methods", methods={"GET"})
      */
-    public function getPaymentMethods(Request $request, CheckoutContext $context): Response
+    public function getPaymentMethods(Request $request, CheckoutContext $context, ResponseFactoryInterface $responseFactory): Response
     {
         $criteria = $this->createCriteria($request, PaymentMethodDefinition::class, $context);
         $paymentMethods = $this->paymentMethodRepository->search($criteria, $context->getContext());
 
-        return $this->responseFactory->createListingResponse(
+        return $responseFactory->createListingResponse(
             $paymentMethods,
             PaymentMethodDefinition::class,
             $request,
@@ -161,12 +154,12 @@ class StorefrontSalesChannelController extends Controller
     /**
      * @Route("/storefront-api/sales-channel/shipping-methods", name="storefront.api.sales-channel.shipping-methods", methods={"GET"})
      */
-    public function getShippingMethods(Request $request, CheckoutContext $context): Response
+    public function getShippingMethods(Request $request, CheckoutContext $context, ResponseFactoryInterface $responseFactory): Response
     {
         $criteria = $this->createCriteria($request, ShippingMethodDefinition::class, $context);
         $shippingMethods = $this->shippingMethodRepository->search($criteria, $context->getContext());
 
-        return $this->responseFactory->createListingResponse(
+        return $responseFactory->createListingResponse(
             $shippingMethods,
             ShippingMethodDefinition::class,
             $request,

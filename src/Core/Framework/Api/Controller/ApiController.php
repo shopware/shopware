@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Api\Controller;
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
 use Shopware\Core\Framework\Api\Exception\UnknownRepositoryVersionException;
 use Shopware\Core\Framework\Api\OAuth\Scope\WriteScope;
-use Shopware\Core\Framework\Api\Response\ResponseFactory;
+use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\DefinitionRegistry;
 use Shopware\Core\Framework\ORM\Entity;
@@ -58,11 +58,6 @@ class ApiController extends Controller
     private $serializer;
 
     /**
-     * @var ResponseFactory
-     */
-    private $responseFactory;
-
-    /**
      * @var EntityWriterInterface
      */
     private $entityWriter;
@@ -75,19 +70,17 @@ class ApiController extends Controller
     public function __construct(
         DefinitionRegistry $definitionRegistry,
         Serializer $serializer,
-        ResponseFactory $responseFactory,
         EntityWriterInterface $entityWriter,
         RequestCriteriaBuilder $searchCriteriaBuilder
     ) {
         $this->definitionRegistry = $definitionRegistry;
         $this->serializer = $serializer;
-        $this->responseFactory = $responseFactory;
         $this->entityWriter = $entityWriter;
 
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
     }
 
-    public function detail(Request $request, Context $context, string $path): Response
+    public function detail(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $path): Response
     {
         $pathSegments = $this->buildEntityPath($path);
 
@@ -122,46 +115,46 @@ class ApiController extends Controller
             throw new ResourceNotFoundException($definition::getEntityName(), ['id' => $id]);
         }
 
-        return $this->responseFactory->createDetailResponse($entity, (string) $definition, $request, $context);
+        return $responseFactory->createDetailResponse($entity, (string) $definition, $request, $context);
     }
 
-    public function search(Request $request, Context $context, string $path): Response
+    public function search(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $path): Response
     {
-        $result = $this->fetchListing($request, $context, $path);
+        $result = $this->fetchListing($request, $context, $responseFactory, $path);
 
         $definition = $this->getDefinitionOfPath($path);
 
-        return $this->responseFactory->createListingResponse($result, $definition, $request, $context);
+        return $responseFactory->createListingResponse($result, $definition, $request, $context);
     }
 
-    public function list(Request $request, Context $context, string $path): Response
+    public function list(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $path): Response
     {
-        $result = $this->fetchListing($request, $context, $path);
+        $result = $this->fetchListing($request, $context, $responseFactory, $path);
 
         $definition = $this->getDefinitionOfPath($path);
 
-        return $this->responseFactory->createListingResponse($result, $definition, $request, $context);
+        return $responseFactory->createListingResponse($result, $definition, $request, $context);
     }
 
-    public function create(Request $request, Context $context, string $path): Response
+    public function create(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $path): Response
     {
         if (!$this->hasScope($request, WriteScope::IDENTIFIER)) {
             throw new AccessDeniedHttpException('You don\'t have write access using this access key.');
         }
 
-        return $this->write($request, $context, $path, self::WRITE_CREATE);
+        return $this->write($request, $context, $responseFactory, $path, self::WRITE_CREATE);
     }
 
-    public function update(Request $request, Context $context, string $path)
+    public function update(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $path)
     {
         if (!$this->hasScope($request, WriteScope::IDENTIFIER)) {
             throw new AccessDeniedHttpException('You don\'t have write access using this access key.');
         }
 
-        return $this->write($request, $context, $path, self::WRITE_UPDATE);
+        return $this->write($request, $context, $responseFactory, $path, self::WRITE_UPDATE);
     }
 
-    public function delete(Request $request, Context $context, string $path): Response
+    public function delete(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $path): Response
     {
         if (!$this->hasScope($request, WriteScope::IDENTIFIER)) {
             throw new AccessDeniedHttpException('You don\'t have write access using this access key.');
@@ -182,7 +175,7 @@ class ApiController extends Controller
 
             $this->doDelete($request, $context, $definition, $id);
 
-            return $this->responseFactory->createRedirectResponse($definition, $id, $request, $context);
+            return $responseFactory->createRedirectResponse($definition, $id, $request, $context);
         }
 
         $child = array_pop($pathSegments);
@@ -199,14 +192,14 @@ class ApiController extends Controller
         if ($association instanceof OneToManyAssociationField) {
             $this->doDelete($request, $context, $definition, $id);
 
-            return $this->responseFactory->createRedirectResponse($definition, $id, $request, $context);
+            return $responseFactory->createRedirectResponse($definition, $id, $request, $context);
         }
 
         // DELETE api/product/{id}/manufacturer/{id}
         if ($association instanceof ManyToOneAssociationField) {
             $this->doDelete($request, $context, $definition, $id);
 
-            return $this->responseFactory->createRedirectResponse($definition, $id, $request, $context);
+            return $responseFactory->createRedirectResponse($definition, $id, $request, $context);
         }
 
         // DELETE api/product/{id}/category/{id}
@@ -234,13 +227,13 @@ class ApiController extends Controller
                 throw new ResourceNotFoundException($definition::getEntityName(), $mapping);
             }
 
-            return $this->responseFactory->createRedirectResponse($definition, $id, $request, $context);
+            return $responseFactory->createRedirectResponse($definition, $id, $request, $context);
         }
 
         throw new \RuntimeException(sprintf('Unsupported association for field %s', $association->getPropertyName()));
     }
 
-    private function fetchListing(Request $request, Context $context, string $path): EntitySearchResult
+    private function fetchListing(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $path): EntitySearchResult
     {
         $pathSegments = $this->buildEntityPath($path);
 
@@ -377,7 +370,7 @@ class ApiController extends Controller
         return $child['definition'];
     }
 
-    private function write(Request $request, Context $context, string $path, string $type): Response
+    private function write(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $path, string $type): Response
     {
         $payload = $this->getRequestBody($request);
         $noContent = !$request->query->has('_response');
@@ -414,12 +407,12 @@ class ApiController extends Controller
             $entityId = array_shift($eventIds);
 
             if ($noContent) {
-                return $this->responseFactory->createRedirectResponse($definition, $entityId, $request, $context);
+                return $responseFactory->createRedirectResponse($definition, $entityId, $request, $context);
             }
 
             $entities = $repository->read(new ReadCriteria($event->getIds()), $context);
 
-            return $this->responseFactory->createDetailResponse($entities->first(), $definition, $request, $context, $appendLocationHeader);
+            return $responseFactory->createDetailResponse($entities->first(), $definition, $request, $context, $appendLocationHeader);
         }
 
         $child = array_pop($pathSegments);
@@ -447,7 +440,7 @@ class ApiController extends Controller
             $events = $this->executeWriteOperation($repository, $payload, $context, $type);
 
             if ($noContent) {
-                return $this->responseFactory->createRedirectResponse($definition, $parent['value'], $request, $context);
+                return $responseFactory->createRedirectResponse($definition, $parent['value'], $request, $context);
             }
 
             $event = $events->getEventByDefinition($definition);
@@ -456,7 +449,7 @@ class ApiController extends Controller
 
             $entities = $repository->read(new ReadCriteria($event->getIds()), $context);
 
-            return $this->responseFactory->createDetailResponse($entities->first(), $definition, $request, $context, $appendLocationHeader);
+            return $responseFactory->createDetailResponse($entities->first(), $definition, $request, $context, $appendLocationHeader);
         }
 
         if ($association instanceof ManyToOneAssociationField) {
@@ -478,12 +471,12 @@ class ApiController extends Controller
             $repository->update([$payload], $context);
 
             if ($noContent) {
-                return $this->responseFactory->createRedirectResponse($definition, $entityId, $request, $context);
+                return $responseFactory->createRedirectResponse($definition, $entityId, $request, $context);
             }
 
             $entities = $repository->read(new ReadCriteria($event->getIds()), $context);
 
-            return $this->responseFactory->createDetailResponse($entities->first(), $definition, $request, $context, $appendLocationHeader);
+            return $responseFactory->createDetailResponse($entities->first(), $definition, $request, $context, $appendLocationHeader);
         }
 
         /** @var ManyToManyAssociationField $association */
@@ -513,10 +506,10 @@ class ApiController extends Controller
         $repository->update([$payload], $context);
 
         if ($noContent) {
-            return $this->responseFactory->createRedirectResponse($reference, $entity->getId(), $request, $context);
+            return $responseFactory->createRedirectResponse($reference, $entity->getId(), $request, $context);
         }
 
-        return $this->responseFactory->createDetailResponse($entity, $definition, $request, $context, $appendLocationHeader);
+        return $responseFactory->createDetailResponse($entity, $definition, $request, $context, $appendLocationHeader);
     }
 
     /**

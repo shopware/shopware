@@ -8,8 +8,6 @@ class AuthStore {
     constructor() {
         this.username = '';
         this.password = '';
-        this.token = '';
-        this.expiry = -1;
         this.errorTitle = '';
         this.errorMessage = '';
         this.lastUrl = '';
@@ -26,9 +24,13 @@ class AuthStore {
 
         return loginService.loginByUsername(this.username, this.password)
             .then((response) => {
-                loginService.setBearerAuthentication(response.data.access_token, response.data.expires_in);
+                loginService.setBearerAuthentication({
+                    access: response.data.access_token,
+                    refresh: response.data.refresh_token,
+                    expiry: response.data.expires_in
+                });
 
-                this.loginSuccess(response);
+                this.loginSuccess();
                 return true;
             })
             .catch((response) => {
@@ -38,13 +40,11 @@ class AuthStore {
     }
 
     /**
-     * Callback for a successful login.
+     * Callback for a successful login. Resets the state object of the store.
      *
-     * @param payload
+     * @return {void}
      */
-    loginSuccess(payload) {
-        this.token = payload.data.access_token;
-        this.expiry = payload.data.expires_in;
+    loginSuccess() {
         this.errorTitle = '';
         this.errorMessage = '';
         this.password = '';
@@ -70,8 +70,6 @@ class AuthStore {
         let error = payload.response.data.errors;
         error = error.length > 1 ? error : error[0];
 
-        this.token = '';
-        this.expiry = -1;
         this.password = '';
 
         if (error.code && error.code.length) {

@@ -74,10 +74,6 @@ Component.register('sw-login', {
             const previousRoute = JSON.parse(sessionStorage.getItem('sw-admin-previous-route'));
             sessionStorage.removeItem('sw-admin-previous-route');
 
-            if (!this.authStore.token.length || this.authStore.expiry === -1) {
-                return;
-            }
-
             if (previousRoute && previousRoute.name && previousRoute.fullPath) {
                 this.$router.push(previousRoute.fullPath);
                 return;

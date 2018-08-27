@@ -2,6 +2,7 @@
  * @module core/factory/http
  */
 import Axios from 'axios';
+import RefreshTokenHelper from 'src/core/helper/refresh-token.helper';
 
 /**
  * Initializes the HTTP client with the provided context. The context provides the API end point and will be used as
@@ -23,7 +24,46 @@ export default function createHTTPClient(context) {
  * @returns {AxiosInstance}
  */
 function createClient(context) {
-    return Axios.create({
+    const client = Axios.create({
         baseURL: context.apiResourcePath
     });
+
+    return refreshTokenInterceptor(client);
+}
+
+/**
+ * Sets up an interceptor to refresh the token, cache the requests and retry them after the token got refreshed.
+ *
+ * @param {AxiosInstance} client
+ * @returns {AxiosInstance}
+ */
+function refreshTokenInterceptor(client) {
+    const tokenHandler = new RefreshTokenHelper();
+
+    client.interceptors.response.use((response) => {
+        return response;
+    }, (error) => {
+        const { config, response: { status } } = error;
+        const originalRequest = config;
+
+        if (status === 401) {
+            if (!tokenHandler.isRefreshing) {
+                tokenHandler.fireRefreshTokenRequest().then((newToken) => {
+                    tokenHandler.onRefreshToken(newToken);
+                });
+            }
+
+            return new Promise((resolve) => {
+                tokenHandler.subscribe((newToken) => {
+                    // replace the expired token and retry
+                    originalRequest.headers.Authorization = `Bearer ${newToken}`;
+                    resolve(Axios(originalRequest));
+                });
+            });
+        }
+
+        return Promise.reject(error);
+    });
+
+    return client;
 }

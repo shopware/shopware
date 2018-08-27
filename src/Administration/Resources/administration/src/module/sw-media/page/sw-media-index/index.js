@@ -100,12 +100,12 @@ Component.register('sw-media-index', {
             this.selectionToDelete = [item];
         },
 
-        handleMediaGridItemDelete({ item }) {
-            this.selectionToDelete = [item];
-        },
-
         handleSidebarRemoveBatchRequest() {
             this.selectionToDelete = this.$refs.mediaGrid.selection;
+        },
+
+        handleMediaGridItemDelete({ item }) {
+            this.selectionToDelete = [item];
         },
 
         closeDeleteModal() {

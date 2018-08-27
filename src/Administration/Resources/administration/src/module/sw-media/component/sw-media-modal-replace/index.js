@@ -68,7 +68,7 @@ Component.register('sw-media-modal-replace', {
         },
 
         replaceMediaFromUrl() {
-            debug.warn('Uploading rom Url is not supported right now');
+            debug.warn('Uploading from Url is not supported right now');
         },
 
         replaceMediaFromFile() {

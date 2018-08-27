@@ -53,7 +53,7 @@ class KeywordSearchTermInterpreter implements KeywordSearchTermInterpreterInterf
         $scoring = \array_slice($scoring, 0, 8);
 
         foreach ($scoring as $keyword => $score) {
-            $this->logger->info('Search match: ' . $keyword . ' with score ' . (float) $score);
+            $this->logger->debug('Search match: ' . $keyword . ' with score ' . (float) $score);
         }
 
         $pattern = new SearchPattern(new SearchTerm($word), $scope);

@@ -350,6 +350,7 @@ class AccountService
             'defaultShippingAddressId' => $shippingAddressId ?? $billingAddressId,
             'addresses' => $addresses,
             'birthday' => $registrationRequest->getBirthday(),
+            'guest' => $registrationRequest->getGuest(),
         ];
 
         if (!$registrationRequest->getGuest()) {

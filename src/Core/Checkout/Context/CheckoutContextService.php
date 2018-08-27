@@ -100,9 +100,9 @@ class CheckoutContextService implements CheckoutContextServiceInterface
     {
         $key = $salesChannelId . '-' . $token . '-' . $tenantId;
 
-        if (isset($this->context[$key])) {
-            return $this->context[$key];
-        }
+//        if (isset($this->context[$key])) {
+//            return $this->context[$key];
+//        }
 
         $parameters = $this->contextPersister->load($token, $tenantId);
 
@@ -132,7 +132,7 @@ class CheckoutContextService implements CheckoutContextServiceInterface
         $context->setRuleIds($rules->getIds());
         $context->lockRules();
 
-        $this->context[$key] = $context;
+//        $this->context[$key] = $context;
 
         return $context;
     }

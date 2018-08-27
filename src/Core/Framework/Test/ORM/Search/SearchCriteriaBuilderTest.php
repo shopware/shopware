@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\ORM\Search;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -11,12 +12,18 @@ use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\ORM\Search\SearchBuilder;
-use Shopware\Core\Framework\Test\Api\ApiTestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 
-class SearchCriteriaBuilderTest extends ApiTestCase
+class SearchCriteriaBuilderTest extends TestCase
 {
+    use DatabaseTransactionBehaviour,
+        KernelTestBehaviour,
+        AdminApiTestBehaviour;
+
     /**
      * @var Connection
      */
@@ -34,21 +41,13 @@ class SearchCriteriaBuilderTest extends ApiTestCase
 
     protected function setUp()
     {
-        parent::setUp();
-
-        $this->manufacturerRepository = self::$container->get('product_manufacturer.repository');
-        $this->connection = self::$container->get(Connection::class);
-        $this->connection->beginTransaction();
+        $this->manufacturerRepository = $this->getContainer()->get('product_manufacturer.repository');
+        $this->connection = $this->getContainer()->get(Connection::class);
         $this->url = '/api/v' . PlatformRequest::API_VERSION;
 
+        // @todo deleting products should not be necessary
         $this->connection->executeUpdate('DELETE FROM product');
         $this->connection->executeUpdate('DELETE FROM product_manufacturer');
-    }
-
-    public function tearDown()
-    {
-        $this->connection->rollBack();
-        parent::tearDown();
     }
 
     /**
@@ -61,23 +60,23 @@ class SearchCriteriaBuilderTest extends ApiTestCase
         }
 
         // no count, equals to fetched entities
-        $this->apiClient->request('GET', $this->url . '/product-manufacturer', ['fetch-count' => Criteria::FETCH_COUNT_NONE, 'filter' => ['product_manufacturer.link' => 'test'], 'limit' => 5]);
-        static::assertSame(200, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
-        $content = \json_decode($this->apiClient->getResponse()->getContent(), true);
+        $this->getClient()->request('GET', $this->url . '/product-manufacturer', ['fetch-count' => Criteria::FETCH_COUNT_NONE, 'filter' => ['product_manufacturer.link' => 'test'], 'limit' => 5]);
+        static::assertSame(200, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
+        $content = \json_decode($this->getClient()->getResponse()->getContent(), true);
 
         static::assertEquals(5, $content['meta']['total'], print_r($content, true));
 
         // calculates all matching rows
-        $this->apiClient->request('GET', $this->url . '/product-manufacturer', ['fetch-count' => Criteria::FETCH_COUNT_TOTAL, 'filter' => ['product_manufacturer.link' => 'test'], 'limit' => 5]);
-        static::assertSame(200, $this->apiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
+        $this->getClient()->request('GET', $this->url . '/product-manufacturer', ['fetch-count' => Criteria::FETCH_COUNT_TOTAL, 'filter' => ['product_manufacturer.link' => 'test'], 'limit' => 5]);
+        static::assertSame(200, $this->getClient()->getResponse()->getStatusCode());
+        $content = json_decode($this->getClient()->getResponse()->getContent(), true);
 
         static::assertEquals(35, $content['meta']['total']);
 
         // returns the count of 5 next pages plus 1 if there are more
-        $this->apiClient->request('GET', $this->url . '/product-manufacturer', ['fetch-count' => Criteria::FETCH_COUNT_NEXT_PAGES, 'filter' => ['product_manufacturer.link' => 'test'], 'limit' => 5]);
-        static::assertSame(200, $this->apiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
+        $this->getClient()->request('GET', $this->url . '/product-manufacturer', ['fetch-count' => Criteria::FETCH_COUNT_NEXT_PAGES, 'filter' => ['product_manufacturer.link' => 'test'], 'limit' => 5]);
+        static::assertSame(200, $this->getClient()->getResponse()->getStatusCode());
+        $content = json_decode($this->getClient()->getResponse()->getContent(), true);
 
         static::assertEquals(31, $content['meta']['total']);
     }
@@ -91,11 +90,11 @@ class SearchCriteriaBuilderTest extends ApiTestCase
         $this->createManufacturer(['link' => 'b']);
         $this->createManufacturer(['link' => 'c']);
 
-        $this->apiClient->request('GET', $this->url . '/product-manufacturer', ['sort' => 'product_manufacturer.link']);
-        static::assertSame(200, $this->apiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
+        $this->getClient()->request('GET', $this->url . '/product-manufacturer', ['sort' => 'product_manufacturer.link']);
+        static::assertSame(200, $this->getClient()->getResponse()->getStatusCode());
+        $content = json_decode($this->getClient()->getResponse()->getContent(), true);
 
-        static::assertEquals('a', $content['data'][0]['attributes']['link']);
+        static::assertEquals('a', $content['data'][0]['attributes']['link'], print_r($content, true));
         static::assertEquals('b', $content['data'][1]['attributes']['link']);
         static::assertEquals('c', $content['data'][2]['attributes']['link']);
     }
@@ -106,9 +105,9 @@ class SearchCriteriaBuilderTest extends ApiTestCase
         $this->createManufacturer(['link' => 'b']);
         $this->createManufacturer(['link' => 'c']);
 
-        $this->apiClient->request('GET', $this->url . '/product-manufacturer', ['sort' => '-product_manufacturer.link']);
-        static::assertSame(200, $this->apiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
+        $this->getClient()->request('GET', $this->url . '/product-manufacturer', ['sort' => '-product_manufacturer.link']);
+        static::assertSame(200, $this->getClient()->getResponse()->getStatusCode());
+        $content = json_decode($this->getClient()->getResponse()->getContent(), true);
 
         static::assertEquals('c', $content['data'][0]['attributes']['link']);
         static::assertEquals('b', $content['data'][1]['attributes']['link']);
@@ -124,9 +123,9 @@ class SearchCriteriaBuilderTest extends ApiTestCase
         /*
          * Sort by stock ASC, minStock ASC
          */
-        $this->apiClient->request('GET', $this->url . '/product-manufacturer', ['sort' => 'product_manufacturer.link,product_manufacturer.description']);
-        static::assertSame(200, $this->apiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
+        $this->getClient()->request('GET', $this->url . '/product-manufacturer', ['sort' => 'product_manufacturer.link,product_manufacturer.description']);
+        static::assertSame(200, $this->getClient()->getResponse()->getStatusCode());
+        $content = json_decode($this->getClient()->getResponse()->getContent(), true);
 
         $expectedSort = [$manufacturer1, $manufacturer2, $manufacturer3];
         $actualSort = array_column($content['data'], 'id');
@@ -136,9 +135,9 @@ class SearchCriteriaBuilderTest extends ApiTestCase
         /*
          * Sort by stock ASC, minStock DESC
          */
-        $this->apiClient->request('GET', $this->url . '/product-manufacturer', ['sort' => 'product_manufacturer.link,-product_manufacturer.description']);
-        static::assertSame(200, $this->apiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
+        $this->getClient()->request('GET', $this->url . '/product-manufacturer', ['sort' => 'product_manufacturer.link,-product_manufacturer.description']);
+        static::assertSame(200, $this->getClient()->getResponse()->getStatusCode());
+        $content = json_decode($this->getClient()->getResponse()->getContent(), true);
 
         $expectedSort = [$manufacturer1, $manufacturer3, $manufacturer2];
         $actualSort = array_column($content['data'], 'id');
@@ -148,9 +147,9 @@ class SearchCriteriaBuilderTest extends ApiTestCase
         /*
          * Sort by stock DESC, minStock ASC
          */
-        $this->apiClient->request('GET', $this->url . '/product-manufacturer', ['sort' => '-product_manufacturer.link,product_manufacturer.description']);
-        static::assertSame(200, $this->apiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
+        $this->getClient()->request('GET', $this->url . '/product-manufacturer', ['sort' => '-product_manufacturer.link,product_manufacturer.description']);
+        static::assertSame(200, $this->getClient()->getResponse()->getStatusCode());
+        $content = json_decode($this->getClient()->getResponse()->getContent(), true);
 
         $expectedSort = [$manufacturer2, $manufacturer3, $manufacturer1];
         $actualSort = array_column($content['data'], 'id');
@@ -160,9 +159,9 @@ class SearchCriteriaBuilderTest extends ApiTestCase
         /*
          * Sort by stock DESC, minStock DESC
          */
-        $this->apiClient->request('GET', $this->url . '/product-manufacturer', ['sort' => '-product_manufacturer.link,-product_manufacturer.description']);
-        static::assertSame(200, $this->apiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
+        $this->getClient()->request('GET', $this->url . '/product-manufacturer', ['sort' => '-product_manufacturer.link,-product_manufacturer.description']);
+        static::assertSame(200, $this->getClient()->getResponse()->getStatusCode());
+        $content = json_decode($this->getClient()->getResponse()->getContent(), true);
 
         $expectedSort = [$manufacturer3, $manufacturer2, $manufacturer1];
         $actualSort = array_column($content['data'], 'id');
@@ -172,18 +171,18 @@ class SearchCriteriaBuilderTest extends ApiTestCase
 
     public function testSortingWithInvalidField(): void
     {
-        $this->apiClient->request('GET', $this->url . '/product', ['sort' => 'product.unknown']);
-        static::assertSame(400, $this->apiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
+        $this->getClient()->request('GET', $this->url . '/product', ['sort' => 'product.unknown']);
+        static::assertSame(400, $this->getClient()->getResponse()->getStatusCode());
+        $content = json_decode($this->getClient()->getResponse()->getContent(), true);
 
         static::assertEquals('Field "unknown" in entity "product" was not found.', $content['errors'][0]['detail']);
     }
 
     public function testSortingWithEmptyField(): void
     {
-        $this->apiClient->request('GET', $this->url . '/product', ['sort' => '']);
-        static::assertSame(400, $this->apiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
+        $this->getClient()->request('GET', $this->url . '/product', ['sort' => '']);
+        static::assertSame(400, $this->getClient()->getResponse()->getStatusCode());
+        $content = json_decode($this->getClient()->getResponse()->getContent(), true);
 
         static::assertEquals('A value for the sort parameter is required.', $content['errors'][0]['detail']);
         static::assertEquals('/sort', $content['errors'][0]['source']['pointer']);
@@ -200,9 +199,9 @@ class SearchCriteriaBuilderTest extends ApiTestCase
         $ids = $this->createData($link, $limit * $pageCount);
 
         $requestedPage = 2;
-        $this->apiClient->request('GET', $this->url . '/product-manufacturer', ['page' => $requestedPage, 'limit' => $limit, 'filter' => ['product_manufacturer.link' => $link], 'sort' => 'product_manufacturer.id']);
-        static::assertSame(200, $this->apiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
+        $this->getClient()->request('GET', $this->url . '/product-manufacturer', ['page' => $requestedPage, 'limit' => $limit, 'filter' => ['product_manufacturer.link' => $link], 'sort' => 'product_manufacturer.id']);
+        static::assertSame(200, $this->getClient()->getResponse()->getStatusCode());
+        $content = json_decode($this->getClient()->getResponse()->getContent(), true);
 
         $expectedIds = array_slice($ids, $limit * ($requestedPage - 1), $limit);
         $actualIds = array_column($content['data'], 'id');
@@ -218,9 +217,9 @@ class SearchCriteriaBuilderTest extends ApiTestCase
         $this->createData($link, $limit * $pageCount);
 
         $requestedPage = 3;
-        $this->apiClient->request('GET', $this->url . '/product-manufacturer', ['page' => $requestedPage, 'limit' => $limit, 'filter' => ['product_manufacturer.link' => $link], 'sort' => 'product_manufacturer.id']);
-        static::assertSame(200, $this->apiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
+        $this->getClient()->request('GET', $this->url . '/product-manufacturer', ['page' => $requestedPage, 'limit' => $limit, 'filter' => ['product_manufacturer.link' => $link], 'sort' => 'product_manufacturer.id']);
+        static::assertSame(200, $this->getClient()->getResponse()->getStatusCode());
+        $content = json_decode($this->getClient()->getResponse()->getContent(), true);
 
         $expectedIds = [];
         $actualIds = array_column($content['data'], 'id');
@@ -236,9 +235,9 @@ class SearchCriteriaBuilderTest extends ApiTestCase
         $ids = $this->createData($link, $limit * $pageCount + 1);
 
         $requestedPage = 3;
-        $this->apiClient->request('GET', $this->url . '/product-manufacturer', ['page' => $requestedPage, 'limit' => $limit, 'filter' => ['product_manufacturer.link' => $link], 'sort' => 'product_manufacturer.id']);
-        static::assertSame(200, $this->apiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
+        $this->getClient()->request('GET', $this->url . '/product-manufacturer', ['page' => $requestedPage, 'limit' => $limit, 'filter' => ['product_manufacturer.link' => $link], 'sort' => 'product_manufacturer.id']);
+        static::assertSame(200, $this->getClient()->getResponse()->getStatusCode());
+        $content = json_decode($this->getClient()->getResponse()->getContent(), true);
 
         $expectedIds = array_slice($ids, $limit * ($requestedPage - 1), $limit);
         $actualIds = array_column($content['data'], 'id');
@@ -248,9 +247,9 @@ class SearchCriteriaBuilderTest extends ApiTestCase
 
     public function testNegativePage(): void
     {
-        $this->apiClient->request('GET', $this->url . '/product', ['page' => -1]);
-        static::assertSame(400, $this->apiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
+        $this->getClient()->request('GET', $this->url . '/product', ['page' => -1]);
+        static::assertSame(400, $this->getClient()->getResponse()->getStatusCode());
+        $content = json_decode($this->getClient()->getResponse()->getContent(), true);
 
         static::assertEquals('The page parameter must be a positive integer. Given: -1', $content['errors'][0]['detail']);
         static::assertEquals('/page', $content['errors'][0]['source']['pointer']);
@@ -258,9 +257,9 @@ class SearchCriteriaBuilderTest extends ApiTestCase
 
     public function testNonIntegerPage(): void
     {
-        $this->apiClient->request('GET', $this->url . '/product', ['page' => 'foo']);
-        static::assertSame(400, $this->apiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
+        $this->getClient()->request('GET', $this->url . '/product', ['page' => 'foo']);
+        static::assertSame(400, $this->getClient()->getResponse()->getStatusCode());
+        $content = json_decode($this->getClient()->getResponse()->getContent(), true);
 
         static::assertEquals('The page parameter must be a positive integer. Given: foo', $content['errors'][0]['detail']);
         static::assertEquals('/page', $content['errors'][0]['source']['pointer']);
@@ -268,9 +267,9 @@ class SearchCriteriaBuilderTest extends ApiTestCase
 
     public function testEmptyPage(): void
     {
-        $this->apiClient->request('GET', $this->url . '/product', ['page' => '']);
-        static::assertSame(400, $this->apiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
+        $this->getClient()->request('GET', $this->url . '/product', ['page' => '']);
+        static::assertSame(400, $this->getClient()->getResponse()->getStatusCode());
+        $content = json_decode($this->getClient()->getResponse()->getContent(), true);
 
         static::assertEquals('The page parameter must be a positive integer. Given: (empty)', $content['errors'][0]['detail']);
         static::assertEquals('/page', $content['errors'][0]['source']['pointer']);
@@ -285,9 +284,9 @@ class SearchCriteriaBuilderTest extends ApiTestCase
             $this->createManufacturer(['link' => 'testLimit']);
         }
 
-        $this->apiClient->request('GET', $this->url . '/product-manufacturer', ['limit' => 5, 'filter' => ['product_manufacturer.link' => 'testLimit'], 'sort' => 'product_manufacturer.id']);
-        static::assertSame(200, $this->apiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
+        $this->getClient()->request('GET', $this->url . '/product-manufacturer', ['limit' => 5, 'filter' => ['product_manufacturer.link' => 'testLimit'], 'sort' => 'product_manufacturer.id']);
+        static::assertSame(200, $this->getClient()->getResponse()->getStatusCode());
+        $content = json_decode($this->getClient()->getResponse()->getContent(), true);
 
         static::assertCount(5, $content['data']);
     }
@@ -298,25 +297,25 @@ class SearchCriteriaBuilderTest extends ApiTestCase
             $this->createManufacturer(['link' => 'testLimitWithNumericString']);
         }
 
-        $this->apiClient->request('GET', $this->url . '/product-manufacturer', ['limit' => '5', 'filter' => ['product_manufacturer.link' => 'testLimitWithNumericString'], 'sort' => 'product_manufacturer.id']);
-        static::assertSame(200, $this->apiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
+        $this->getClient()->request('GET', $this->url . '/product-manufacturer', ['limit' => '5', 'filter' => ['product_manufacturer.link' => 'testLimitWithNumericString'], 'sort' => 'product_manufacturer.id']);
+        static::assertSame(200, $this->getClient()->getResponse()->getStatusCode());
+        $content = json_decode($this->getClient()->getResponse()->getContent(), true);
 
         static::assertCount(5, $content['data']);
     }
 
     public function testNegativeLimit(): void
     {
-        $this->apiClient->request('GET', $this->url . '/product', ['limit' => 0]);
-        static::assertSame(400, $this->apiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
+        $this->getClient()->request('GET', $this->url . '/product', ['limit' => 0]);
+        static::assertSame(400, $this->getClient()->getResponse()->getStatusCode());
+        $content = json_decode($this->getClient()->getResponse()->getContent(), true);
 
         static::assertEquals('The limit parameter must be a positive integer greater or equals than 1. Given: 0', $content['errors'][0]['detail']);
         static::assertEquals('/limit', $content['errors'][0]['source']['pointer']);
 
-        $this->apiClient->request('GET', $this->url . '/product', ['limit' => -1]);
-        static::assertSame(400, $this->apiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
+        $this->getClient()->request('GET', $this->url . '/product', ['limit' => -1]);
+        static::assertSame(400, $this->getClient()->getResponse()->getStatusCode());
+        $content = json_decode($this->getClient()->getResponse()->getContent(), true);
 
         static::assertEquals('The limit parameter must be a positive integer greater or equals than 1. Given: -1', $content['errors'][0]['detail']);
         static::assertEquals('/limit', $content['errors'][0]['source']['pointer']);
@@ -324,9 +323,9 @@ class SearchCriteriaBuilderTest extends ApiTestCase
 
     public function testNonIntegerLimit(): void
     {
-        $this->apiClient->request('GET', $this->url . '/product', ['limit' => 'foo']);
-        static::assertSame(400, $this->apiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
+        $this->getClient()->request('GET', $this->url . '/product', ['limit' => 'foo']);
+        static::assertSame(400, $this->getClient()->getResponse()->getStatusCode());
+        $content = json_decode($this->getClient()->getResponse()->getContent(), true);
 
         static::assertEquals('The limit parameter must be a positive integer greater or equals than 1. Given: foo', $content['errors'][0]['detail']);
         static::assertEquals('/limit', $content['errors'][0]['source']['pointer']);
@@ -334,9 +333,9 @@ class SearchCriteriaBuilderTest extends ApiTestCase
 
     public function testEmptyLimit(): void
     {
-        $this->apiClient->request('GET', $this->url . '/product', ['limit' => '']);
-        static::assertSame(400, $this->apiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
+        $this->getClient()->request('GET', $this->url . '/product', ['limit' => '']);
+        static::assertSame(400, $this->getClient()->getResponse()->getStatusCode());
+        $content = json_decode($this->getClient()->getResponse()->getContent(), true);
 
         static::assertEquals('The limit parameter must be a positive integer greater or equals than 1. Given: (empty)', $content['errors'][0]['detail']);
         static::assertEquals('/limit', $content['errors'][0]['source']['pointer']);
@@ -405,9 +404,9 @@ class SearchCriteriaBuilderTest extends ApiTestCase
             ],
         ];
 
-        $this->apiClient->request('GET', $this->url . '/product', $query);
-        static::assertSame(400, $this->apiClient->getResponse()->getStatusCode());
-        $content = json_decode($this->apiClient->getResponse()->getContent(), true);
+        $this->getClient()->request('GET', $this->url . '/product', $query);
+        static::assertSame(400, $this->getClient()->getResponse()->getStatusCode());
+        $content = json_decode($this->getClient()->getResponse()->getContent(), true);
 
         static::assertCount(6, $content['errors'], print_r($content['errors'], true));
         static::assertEquals('/limit', $content['errors'][0]['source']['pointer']);
@@ -420,7 +419,7 @@ class SearchCriteriaBuilderTest extends ApiTestCase
 
     private function fakeHandleRequest($maxLimit = 0, $allowedLimits = [], $params = [])
     {
-        $searchBuilder = $this::$container->get(SearchBuilder::class);
+        $searchBuilder = $this->getContainer()->get(SearchBuilder::class);
         $requestBuilder = new RequestCriteriaBuilder($searchBuilder, $maxLimit, $allowedLimits);
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
         $definition = 'Shopware\Core\Content\Product\ProductDefinition';

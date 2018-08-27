@@ -39,6 +39,7 @@ class Kernel extends HttpKernel
         parent::__construct($environment, $debug);
 
         self::$plugins = new BundleCollection();
+        self::$connection = null;
     }
 
     public function registerBundles()
@@ -291,5 +292,14 @@ class Kernel extends HttpKernel
         }
 
         $this->initializePlugins();
+    }
+
+    public function shutdown()
+    {
+        $this->booted = false;
+        self::$plugins =  new BundleCollection();
+        self::$connection = null;
+
+        return parent::shutdown();
     }
 }

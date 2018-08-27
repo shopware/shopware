@@ -22,8 +22,6 @@ Component.extend('sw-sales-channel-create', 'sw-sales-channel-detail', {
             this.salesChannel = this.salesChannelStore.create(this.$route.params.id);
             this.salesChannel.typeId = this.$route.params.typeId;
 
-            console.log('Create', this.salesChannelStore, this.salesChannel.id, this.$route.params.id);
-
             this.$super.createdComponent();
         },
 

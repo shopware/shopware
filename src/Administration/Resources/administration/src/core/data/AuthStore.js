@@ -2,6 +2,7 @@
  * @module core/data/AuthStore
  */
 import { Application } from 'src/core/shopware';
+import getErrorCode from 'src/core/data/error-codes/login.error-codes';
 
 class AuthStore {
     constructor() {
@@ -11,6 +12,7 @@ class AuthStore {
         this.expiry = -1;
         this.errorTitle = '';
         this.errorMessage = '';
+        this.lastUrl = '';
     }
 
     /**
@@ -46,6 +48,7 @@ class AuthStore {
         this.errorTitle = '';
         this.errorMessage = '';
         this.password = '';
+        this.lastUrl = '';
     }
 
     /**
@@ -54,9 +57,13 @@ class AuthStore {
      * @param payload
      */
     loginFailure(payload) {
+        const generalMessage = 'sw-login.index.messageGeneralRequestError';
+        this.lastUrl = payload.config.url;
+
         if (!payload.response) {
             this.errorTitle = payload.message;
-            this.errorMessage = `Something went wrong requesting "${payload.config.url}".`;
+            this.errorMessage = generalMessage;
+
             return;
         }
 
@@ -67,8 +74,11 @@ class AuthStore {
         this.expiry = -1;
         this.password = '';
 
-        this.errorTitle = error.title;
-        this.errorMessage = error.detail;
+        if (error.code && error.code.length) {
+            const { message, title } = getErrorCode(parseInt(error.code, 10));
+            this.errorTitle = title;
+            this.errorMessage = message;
+        }
     }
 }
 

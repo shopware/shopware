@@ -85,7 +85,18 @@
       "labelPassword": "Password",
       "placeholderUsername": "Enter your username...",
       "placeholderPassword": "Enter your password...",
-      "buttonLogin": "Log in"
+      "buttonLogin": "Log in",
+      "titleErrorMessage": "Login",
+      "messageUnsupportedGrantType": "The authorization grant type is not supported by the authorization server.",
+      "messageInvalidRequest": "The request was invalid.",
+      "messageInvalidClient": "Client authentication failed.",
+      "messageInvalidScope": "The requested scope is invalid.",
+      "messageInvalidCredentials": "The user credentials are incorrect.",
+      "messageServerError": "The authorization server encountered an unexpected condition which prevented it from fulfilling.",
+      "messageInvalidRefreshToken": "The refresh token is invalid.",
+      "messageAccessDenied": "The authorization server denied the request.",
+      "messageInvalidGrant": "The provided authorization grant or refresh token is invalid.",
+      "messageGeneralRequestError": "Something went wrong requesting \"{url}\"."
     }
   },
   "sw-image": {

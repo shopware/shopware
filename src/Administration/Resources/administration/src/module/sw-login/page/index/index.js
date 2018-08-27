@@ -65,8 +65,8 @@ Component.register('sw-login', {
             }, 500);
 
             this.createNotificationError({
-                title: this.authStore.errorTitle,
-                message: this.authStore.errorMessage
+                title: this.$tc(this.authStore.errorTitle),
+                message: this.$tc(this.authStore.errorMessage, 0, { url: this.authStore.lastUrl })
             });
         },
 

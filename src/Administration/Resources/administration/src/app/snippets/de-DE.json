@@ -187,7 +187,7 @@
       "modalTitleAddress": "Adresse",
       "modalTitleEditAddress": "Adresse bearbeiten",
       "modalTitleDeleteAddress": "Adresse löschen",
-      "textDeleteAddressConfirm": "Möchten Sie diese Adresse wirklich löschen?",
+      "textDeleteAddressConfirm": "Möchtest Du diese Adresse wirklich löschen?",
       "columnDefaultShippingAddress": "Standard Lieferadresse",
       "columnDefaultBillingAddress": "Standard Rechnungsadresse",
       "columnCompany": "Firma",
@@ -292,10 +292,10 @@
       "writeAccessFieldLabel": "Schreibrechte",
       "titleSaveSuccess": "Integration",
       "messageSaveSuccess": "Integration erfolgreich gespeichert",
-      "titleSaveError": "Ups! Ein Fehler ist aufgetreten!",
-      "messageSaveError": "Wir wurden bereits über das Problem informiert und arbeiten an einer Lösung, bitte versuchen Sie es in Kürze erneut.",
-      "titleCreateNewError": "Ups! Ein Fehler ist aufgetreten!",
-      "messageCreateNewError": "Wir wurden bereits über das Problem informiert und arbeiten an einer Lösung, bitte versuchen Sie es in Kürze erneut."
+      "titleSaveError": "Integration",
+      "messageSaveError": "Die Integration konnte leider nicht gespeichert werden.",
+      "titleCreateNewError": "Integration",
+      "messageCreateNewError": "Die Integration konnte leider nicht gespeichert werden."
     }
   },
   "sw-product": {
@@ -403,7 +403,7 @@
       "contextMenuDuplicate": "Duplizieren",
       "messageEmpty": "Noch keine Produkte",
       "modalTitleDelete": "Produkte",
-      "textDeleteConfirm": "Möchten Sie das Produkt \"{name}\" wirklich löschen?"
+      "textDeleteConfirm": "Möchtest Du das Produkt \"{name}\" wirklich löschen?"
     },
     "detail": {
       "textHeadline": "Neues Produkt",
@@ -435,7 +435,7 @@
       "contextMenuDelete": "Löschen",
       "contextMenuDuplicate": "Duplizieren",
       "modalTitleDelete": "Hersteller löschen",
-      "textDeleteConfirm": "Sind Sie sich sicher dass sie den Hersteller {name} löschen möchten?",
+      "textDeleteConfirm": "Bist Du sicher, dass Du den Hersteller {name} löschen möchtest?",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen"
     },
@@ -599,7 +599,7 @@
     },
     "modalDelete": {
       "modalHeader": "Medien löschen",
-      "deleteMessage":"Möchten sie \"{mediaName}\" wirklich löschen? | Diese {count} Medien löschen",
+      "deleteMessage":"Möchtest Du \"{mediaName}\" wirklich löschen? | Diese {count} Medien löschen",
       "modalButtonDelete": "Löschen",
       "modalButtonAbort": "Abbrechen"
     },
@@ -623,7 +623,7 @@
     },
     "list": {
       "textHeadline": "Währungen",
-      "textDeleteConfirm": "Sind Sie sich sicher dass sie die Währung {name} löschen möchten?",
+      "textDeleteConfirm": "Bist Du sicher, dass Du die Währung {name} löschen möchtest?",
       "columnName": "Name",
       "columnShortName": "Kurzname",
       "columnSymbol": "Symbol",
@@ -655,11 +655,12 @@
   },
   "sw-settings-tax": {
     "general": {
-      "mainMenuItemGeneral": "Steuern"
+      "mainMenuItemGeneral": "Steuern",
+      "taxRateSymbol": "&#037;"
     },
     "list": {
       "textHeadline": "Steuern",
-      "textDeleteConfirm": "Sind Sie sich sicher dass sie die Steuer {name} löschen möchten?",
+      "textDeleteConfirm": "Bist Du sicher, dass Du die Steuer {name} löschen möchtest?",
       "columnName": "Name",
       "columnTaxRate": "Steuersatz",
       "buttonAddTax": "Steuer anlegen",
@@ -689,7 +690,7 @@
     },
     "list": {
       "textHeadline": "Sprachen",
-      "textDeleteConfirm": "Sind Sie sich sicher dass sie die Sprache {name} löschen möchten?",
+      "textDeleteConfirm": "Bist Du sicher, dass Du die Sprache {name} löschen möchtest?",
       "columnName": "Name",
       "columnLocaleName": "Region",
       "buttonAddLanguage": "Sprache anlegen",
@@ -720,7 +721,7 @@
     },
     "list": {
       "textHeadline": "Zahlungsarten",
-      "textDeleteConfirm": "Sind Sie sich sicher dass sie die Zahlungsart {name} löschen möchten?",
+      "textDeleteConfirm": "Bist Du sicher, dass Du die Zahlungsart {name} löschen möchtest?",
       "columnName": "Name",
       "columnDescription": "Beschreibung",
       "columnActive": "Aktiv",
@@ -740,51 +741,40 @@
       "labelName": "Name",
       "labelTechnicalName": "Technischer Name",
       "labelActive": "Aktiv",
-      "labelAllowEsd": "Aktiv für ESD Produkte",
       "labelMobileInactive": "Inaktiv für Smartphones",
       "labelAdditionalDescription": "Beschreibung",
-      "labelTemplate": "Template",
-      "labelUsedIframe": "URL für iFrame",
-      "labelAbsoluteSurcharge": "Pauschaler Aufschlag",
-      "labelPercentageSurcharge": "Prozentualer Aufschlag",
-      "labelTable": "Datenbank-Tabelle",
-      "labelClass": "Klasse",
+      "labelHandler": "Handler",
       "placeholderName": "Name eingeben...",
       "placeholderTechnicalName": "Technischer Name eingeben...",
       "placeholderAdditionalDescription": "Beschreibung eingeben...",
-      "placeholderTemplate": "Template eingeben...",
-      "placeholderUsedIframe": "URL eingeben...",
-      "placeholderAbsoluteSurcharge": "Aufschlag eingeben...",
-      "placeholderPercentageSurcharge": "Prozentualer Aufschlag eingeben...",
-      "placeholderTable": "Datenbank-Tabelle eingeben...",
-      "placeholderClass": "Klasse eingeben...",
+      "placeholderHandler": "Handler eingeben...",
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern"
     }
   },
   "sw-settings-shipping": {
     "general": {
-      "mainMenuItemGeneral": "Versandkosten"
+      "mainMenuItemGeneral": "Versandarten"
     },
     "list": {
-      "textHeadline": "Versandkosten",
-      "textDeleteConfirm": "Sind Sie sich sicher dass sie die Versandkosten {name} löschen möchten?",
+      "textHeadline": "Versandarten",
+      "textDeleteConfirm": "Bist Du sicher, dass du die Versandart {name} löschen möchtest?",
       "columnName": "Name",
       "columnActive": "Aktiv",
       "columnShippingfree": "Versandkostenfrei",
-      "buttonAddShippingMethod": "Versandkosten anlegen",
+      "buttonAddShippingMethod": "Versandart anlegen",
       "contextMenuEdit": "Bearbeiten",
-      "modalTitleDelete": "Versandkosten löschen",
-      "titleDeleteSuccess": "Versandkosten",
-      "messageDeleteSuccess": "Die Versandkosten {name} wurde erfolgreich gelöscht.",
+      "modalTitleDelete": "Versandart löschen",
+      "titleDeleteSuccess": "Versandart",
+      "messageDeleteSuccess": "Die Versandart {name} wurde erfolgreich gelöscht.",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen"
     },
     "detail": {
-      "textHeadline": "Neue Versandkosten",
+      "textHeadline": "Neue Versandart",
       "titleCard": "Einstellungen",
-      "titleSaveSuccess": "Versandkosten",
-      "messageSaveSuccess": "Die Versandkosten {name} wurde erfolgreich gespeichert.",
+      "titleSaveSuccess": "Versandart",
+      "messageSaveSuccess": "Die Versandart {name} wurde erfolgreich gespeichert.",
       "labelName": "Name",
       "labelActive": "Aktiv",
       "labelBindShippingfree": "Versandkostenfrei",
@@ -799,7 +789,7 @@
     },
     "list": {
       "textHeadline": "Länder",
-      "textDeleteConfirm": "Sind Sie sich sicher dass Sie das Land {name} löschen möchten?",
+      "textDeleteConfirm": "Bist Du sicher, dass Du das Land {name} löschen möchtest?",
       "columnName": "Name",
       "columnActive": "Aktiv",
       "buttonAddCountry": "Land anlegen",

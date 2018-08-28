@@ -292,10 +292,10 @@
       "writeAccessFieldLabel": "Write access",
       "titleSaveSuccess": "Integration",
       "messageSaveSuccess": "Integration saved successful",
-      "titleSaveError": "Something went wrong",
-      "messageSaveError": "We have been informed",
-      "titleCreateNewError": "Something went wrong",
-      "messageCreateNewError": "We have been informed."
+      "titleSaveError": "Integration",
+      "messageSaveError": "The integration could not be saved",
+      "titleCreateNewError": "Integration",
+      "messageCreateNewError": "The integration could not be saved."
     }
   },
   "sw-product": {
@@ -656,7 +656,8 @@
   },
   "sw-settings-tax": {
     "general": {
-      "mainMenuItemGeneral": "Tax"
+      "mainMenuItemGeneral": "Tax",
+      "taxRateSymbol": "&#037;"
     },
     "list": {
       "textHeadline": "Tax",
@@ -741,24 +742,13 @@
       "labelName": "Name",
       "labelTechnicalName": "Technical name",
       "labelActive": "Active",
-      "labelAllowEsd": "Active for ESD products",
       "labelMobileInactive": "Inactive for smartphones",
       "labelAdditionalDescription": "Description",
-      "labelTemplate": "Template",
-      "labelUsedIframe": "URL for iFrame",
-      "labelAbsoluteSurcharge": "General surcharge",
-      "labelPercentageSurcharge": "Percentage surcharge",
-      "labelTable": "Database table",
-      "labelClass": "Class",
+      "labelHandler": "Handler",
       "placeholderName": "Enter name...",
       "placeholderTechnicalName": "Enter technical name...",
       "placeholderAdditionalDescription": "Enter description...",
-      "placeholderTemplate": "Enter template...",
-      "placeholderUsedIframe": "Enter URL...",
-      "placeholderAbsoluteSurcharge": "Enter surcharge...",
-      "placeholderPercentageSurcharge": "Enter percentage surcharge...",
-      "placeholderTable": "Enter database table...",
-      "placeholderClass": "Enter class...",
+      "placeholderHandler": "Enter handler...",
       "buttonCancel": "Cancel",
       "buttonSave": "Save"
     }

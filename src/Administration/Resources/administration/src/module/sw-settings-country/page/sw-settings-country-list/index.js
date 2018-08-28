@@ -73,6 +73,16 @@ Component.register('sw-settings-country-list', {
 
                 this.getList();
             });
+        },
+
+        onInlineEditSave(item) {
+            this.isLoading = true;
+
+            item.save().then(() => {
+                this.isLoading = false;
+            }).catch(() => {
+                this.isLoading = false;
+            });
         }
     }
 });

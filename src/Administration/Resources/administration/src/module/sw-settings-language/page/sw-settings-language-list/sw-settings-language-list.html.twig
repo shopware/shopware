@@ -40,12 +40,18 @@
                 {% block sw_settings_language_list_content_card %}
                     <sw-card :isLoading="isLoading">
                         {% block sw_settings_language_list_grid %}
-                            <sw-grid slot="grid" class="sw-settings-language-list-grid" :items="languages" table>
+                            <sw-grid slot="grid"
+                                     class="sw-settings-language-list-grid"
+                                     :items="languages"
+                                     :selectable="false"
+                                     @inline-edit-finish="onInlineEditSave"
+                                     table>
                                 <template slot="columns" slot-scope="{ item }">
                                     {% block sw_product_list_grid_columns %}
 
                                         {% block sw_settings_language_list_columns_name %}
                                             <sw-grid-column flex="minmax(180px, 1fr)"
+                                                            editable
                                                             :label="$tc('sw-settings-language.list.columnName')">
 
                                                 {% block sw_settings_language_list_columns_name_link %}
@@ -55,6 +61,13 @@
                                                             {{ item.name }}
                                                         {% endblock %}
                                                     </router-link>
+                                                {% endblock %}
+
+                                                {% block sw_settings_language_list_columns_name_editor %}
+                                                    <sw-field type="text"
+                                                              v-model="item.text"
+                                                              slot="inline-edit">
+                                                    </sw-field>
                                                 {% endblock %}
                                             </sw-grid-column>
                                         {% endblock %}
@@ -71,8 +84,7 @@
                                         {% block sw_settings_language_list_columns_actions %}
                                             <sw-grid-column flex="minmax(70px, 70px)"
                                                             align="center"
-                                                            label=""
-                                                            iconLabel="small-search">
+                                                            label="">
                                                 <sw-context-button>
 
                                                     {% block sw_settings_language_list_columns_actions_edit %}

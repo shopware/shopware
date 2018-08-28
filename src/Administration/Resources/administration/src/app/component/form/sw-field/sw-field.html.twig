@@ -1,5 +1,7 @@
 {% block sw_field %}
-    <div class="sw-field" :class="fieldClasses">
+    <div class="sw-field"
+         @click="onClick"
+         :class="fieldClasses">
 
         <!-- Label -->
         {% block sw_field_label %}
@@ -104,7 +106,8 @@
 
                 <!-- Checkbox -->
                 {% block sw_field_input_checkbox %}
-                    <div v-else-if="type === 'checkbox'" class="sw-field__checkbox">
+                    <div v-else-if="type === 'checkbox'"
+                         class="sw-field__checkbox">
 
                         {% block sw_field_input_checkbox_input %}
                             <input type="checkbox"

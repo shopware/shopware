@@ -40,12 +40,18 @@
                 {% block sw_settings_shipping_list_content_card %}
                     <sw-card :isLoading="isLoading">
                         {% block sw_settings_shipping_list_grid %}
-                            <sw-grid slot="grid" class="sw-settings-shipping-list-grid" :items="shippingMethods" table>
+                            <sw-grid slot="grid"
+                                     class="sw-settings-shipping-list-grid"
+                                     :selectable="false"
+                                     :items="shippingMethods"
+                                     @inline-edit-finish="onInlineEditSave"
+                                     table>
                                 <template slot="columns" slot-scope="{ item }">
                                     {% block sw_product_list_grid_columns %}
 
                                         {% block sw_settings_shipping_list_columns_name %}
                                             <sw-grid-column flex="minmax(180px, 2fr)"
+                                                            editable
                                                             :label="$tc('sw-settings-shipping.list.columnName')">
 
                                                 {% block sw_settings_shipping_list_columns_name_link %}
@@ -56,25 +62,50 @@
                                                         {% endblock %}
                                                     </router-link>
                                                 {% endblock %}
+
+                                                {% block sw_settings_shipping_list_columns_name_editor %}
+                                                    <sw-field type="text"
+                                                              v-model="item.name"
+                                                              slot="inline-edit">
+                                                    </sw-field>
+                                                {% endblock %}
                                             </sw-grid-column>
                                         {% endblock %}
 
                                         {% block sw_settings_shipping_list_columns_active %}
                                             <sw-grid-column flex="minmax(100px, 1fr)"
+                                                            align="center"
+                                                            editable
                                                             :label="$tc('sw-settings-shipping.list.columnActive')">
                                                 {% block sw_settings_shipping_list_columns_active_label %}
                                                     <sw-icon name="small-default-checkmark-line-medium" small v-if="item.active" class="is--active"></sw-icon>
                                                     <sw-icon name="small-default-x-line-medium" small v-else class="is--inactive"></sw-icon>
+                                                {% endblock %}
+
+                                                {% block sw_settings_shipping_list_columns_active_editor %}
+                                                    <sw-field type="checkbox"
+                                                              v-model="item.active"
+                                                              slot="inline-edit">
+                                                    </sw-field>
                                                 {% endblock %}
                                             </sw-grid-column>
                                         {% endblock %}
 
                                         {% block sw_settings_shipping_list_columns_shipping_free %}
                                             <sw-grid-column flex="minmax(180px, 1fr)"
+                                                            align="center"
+                                                            editable
                                                             :label="$tc('sw-settings-shipping.list.columnShippingfree')">
                                                 {% block sw_settings_shipping_list_columns_shipping_free_label %}
                                                     <sw-icon name="small-default-checkmark-line-medium" small v-if="item.bindShippingfree" class="is--active"></sw-icon>
                                                     <sw-icon name="small-default-x-line-medium" small v-else class="is--inactive"></sw-icon>
+                                                {% endblock %}
+
+                                                {% block sw_settings_shipping_list_columns_shipping_free_editor %}
+                                                    <sw-field type="checkbox"
+                                                              v-model="item.bindShippingfree"
+                                                              slot="inline-edit">
+                                                    </sw-field>
                                                 {% endblock %}
                                             </sw-grid-column>
                                         {% endblock %}
@@ -82,8 +113,7 @@
                                         {% block sw_settings_shipping_list_columns_actions %}
                                             <sw-grid-column flex="minmax(70px, 70px)"
                                                             align="center"
-                                                            label=""
-                                                            iconLabel="small-search">
+                                                            label="">
                                                 <sw-context-button>
 
                                                     {% block sw_settings_shipping_list_columns_actions_edit %}

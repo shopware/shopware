@@ -40,12 +40,18 @@
                 {% block sw_settings_payment_list_content_card %}
                     <sw-card :isLoading="isLoading">
                         {% block sw_settings_payment_list_grid %}
-                            <sw-grid slot="grid" class="sw-settings-payment-list-grid" :items="paymentMethods" table>
+                            <sw-grid slot="grid"
+                                     class="sw-settings-payment-list-grid"
+                                     :selectable="false"
+                                     :items="paymentMethods"
+                                     @inline-edit-finish="onInlineEditSave"
+                                     table>
                                 <template slot="columns" slot-scope="{ item }">
                                     {% block sw_product_list_grid_columns %}
 
                                         {% block sw_settings_payment_list_columns_name %}
                                             <sw-grid-column flex="minmax(180px, 1fr)"
+                                                            editable
                                                             :label="$tc('sw-settings-payment.list.columnName')">
 
                                                 {% block sw_settings_payment_list_columns_name_link %}
@@ -56,15 +62,30 @@
                                                         {% endblock %}
                                                     </router-link>
                                                 {% endblock %}
+
+                                                {% block sw_settings_payment_list_columns_name_editor %}
+                                                    <sw-field type="text"
+                                                              v-model="item.name"
+                                                              slot="inline-edit">
+                                                    </sw-field>
+                                                {% endblock %}
                                             </sw-grid-column>
                                         {% endblock %}
 
                                         {% block sw_settings_payment_list_columns_active %}
                                             <sw-grid-column flex="minmax(100px, 100px)"
+                                                            editable
                                                             :label="$tc('sw-settings-payment.list.columnActive')">
                                                 {% block sw_settings_payment_list_columns_active_label %}
                                                     <sw-icon name="small-default-checkmark-line-medium" small v-if="item.active" class="is--active"></sw-icon>
                                                     <sw-icon name="small-default-x-line-medium" small v-else class="is--inactive"></sw-icon>
+                                                {% endblock %}
+
+                                                {% block sw_settings_payment_list_columns_active_editor %}
+                                                    <sw-field type="checkbox"
+                                                              v-model="item.active"
+                                                              slot="inline-edit">
+                                                    </sw-field>
                                                 {% endblock %}
                                             </sw-grid-column>
                                         {% endblock %}
@@ -81,8 +102,7 @@
                                         {% block sw_settings_payment_list_columns_actions %}
                                             <sw-grid-column flex="minmax(70px, 70px)"
                                                             align="center"
-                                                            label=""
-                                                            iconLabel="small-search">
+                                                            label="">
                                                 <sw-context-button>
 
                                                     {% block sw_settings_payment_list_columns_actions_edit %}

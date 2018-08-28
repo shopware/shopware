@@ -41,10 +41,12 @@
 
                             {% block sw_settings_tax_detail_content_field_tax_rate %}
                                 <sw-field type="number"
-                                          suffix="%"
                                           :label="$tc('sw-settings-tax.detail.labelTaxRate')"
                                           :placeholder="$tc('sw-settings-tax.detail.placeholderTaxRate')"
                                           v-model="tax.taxRate">
+                                    <span slot="suffix">
+                                        <span v-html="$tc('sw-settings-tax.general.taxRateSymbol')"></span>
+                                    </span>
                                 </sw-field>
                             {% endblock %}
                         </sw-container>

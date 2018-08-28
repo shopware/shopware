@@ -248,6 +248,7 @@
         <service class="Shopware\Storefront\Seo\Product\UrlGeneratorExtension" id="Shopware\Storefront\Seo\Product\UrlGeneratorExtension">
             <argument id="request_stack" type="service"/>
             <tag name="kernel.event_subscriber"/>
+            <tag name="shopware.entity.extension"/>
         </service>
 
         <service class="Shopware\Storefront\Seo\Product\CanonicalUrlExtension" id="Shopware\Storefront\Seo\Product\CanonicalUrlExtension">

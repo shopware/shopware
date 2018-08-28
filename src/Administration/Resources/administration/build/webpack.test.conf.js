@@ -4,6 +4,7 @@ const webpack = require('webpack');
 const merge = require('webpack-merge');
 const baseConfig = require('./webpack.base.conf');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const KillProcessOnFailedBuildPlugin = require('./plugins/kill-process-on-failed-build');
 
 const webpackConfig = merge(baseConfig, {
     // use inline sourcemap for karma-sourcemap-loader
@@ -18,7 +19,8 @@ const webpackConfig = merge(baseConfig, {
         }),
         new MiniCssExtractPlugin({
             filename: utils.assetsPath('css/[name].css')
-        })
+        }),
+        new KillProcessOnFailedBuildPlugin()
     ]
 });
 

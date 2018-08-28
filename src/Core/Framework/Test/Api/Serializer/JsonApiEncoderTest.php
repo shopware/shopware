@@ -79,10 +79,7 @@ class JsonApiEncoderTest extends TestCase
                     'catalogId' => null,
                     'tenantId' => null,
                     'userId' => null,
-                    'extensions' => [
-                        'links' => null,
-                    ],
-                    'thumbnails' => null,
+                    'url' => '',
                 ],
                 'links' => [
                     'self' => '/api/media/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe',
@@ -116,6 +113,12 @@ class JsonApiEncoderTest extends TestCase
                         'data' => [],
                         'links' => [
                             'related' => '/api/media/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/product-media',
+                        ],
+                    ],
+                    'thumbnails' => [
+                        'data' => [],
+                        'links' => [
+                            'related' => '/api/media/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/thumbnails',
                         ],
                     ],
                 ],

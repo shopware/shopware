@@ -16,10 +16,7 @@ return [
             'description' => null,
             'catalogId' => null,
             'tenantId' => null,
-            'extensions' => [
-                'links' => null,
-            ],
-            'thumbnails' => null,
+            'url' => '',
         ],
         'links' => [
             'self' => '/api/media/548faa1f-7846-436c-8594-4f4aea792d96',
@@ -56,6 +53,12 @@ return [
                 'data' => null,
                 'links' => [
                     'related' => '/api/media/548faa1f-7846-436c-8594-4f4aea792d96/catalog',
+                ],
+            ],
+            'thumbnails' => [
+                'data' => [],
+                'links' => [
+                    'related' => '/api/media/548faa1f-7846-436c-8594-4f4aea792d96/thumbnails',
                 ],
             ],
         ],

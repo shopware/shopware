@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Media;
 use Shopware\Core\Content\Catalog\CatalogDefinition;
 use Shopware\Core\Content\Catalog\ORM\CatalogField;
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
@@ -15,7 +16,6 @@ use Shopware\Core\Framework\ORM\Field\IdField;
 use Shopware\Core\Framework\ORM\Field\IntField;
 use Shopware\Core\Framework\ORM\Field\LongTextField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Core\Framework\ORM\Field\ObjectField;
 use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\Field\TenantIdField;
@@ -25,6 +25,7 @@ use Shopware\Core\Framework\ORM\Field\UpdatedAtField;
 use Shopware\Core\Framework\ORM\Field\VersionField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
+use Shopware\Core\Framework\ORM\Write\Flag\Deferred;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
@@ -54,10 +55,9 @@ class MediaDefinition extends EntityDefinition
             (new LongTextField('meta_data', 'metaData'))->setFlags(new WriteProtected('write_media')),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new ObjectField('thumbnails', 'thumbnails'))->setFlags(new WriteProtected('write_thumbnails')),
             (new TranslatedField(new LongTextField('description', 'description')))->setFlags(new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
-
             (new TranslatedField(new StringField('name', 'name')))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
+            (new StringField('url', 'url'))->setFlags(new Deferred()),
 
             new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, false),
 
@@ -66,6 +66,7 @@ class MediaDefinition extends EntityDefinition
             (new OneToManyAssociationField('productMedia', ProductMediaDefinition::class, 'media_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('translations', MediaTranslationDefinition::class, 'media_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
             new ManyToOneAssociationField('catalog', 'catalog_id', CatalogDefinition::class, false, 'id'),
+            (new OneToManyAssociationField('thumbnails', MediaThumbnailDefinition::class, 'media_id', true)),
         ]);
     }
 

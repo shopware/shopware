@@ -10,7 +10,6 @@ use Shopware\Core\Content\Media\Exception\ThumbnailCouldNotBeSavedException;
 use Shopware\Core\Content\Media\Util\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\EntityRepository;
-use Shopware\Core\Framework\Struct\StructCollection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class ThumbnailService implements EventSubscriberInterface
@@ -77,37 +76,23 @@ class ThumbnailService implements EventSubscriberInterface
         $mediaImage = $this->getImageResource($mediaId, $extension);
         $originalImageSize = $this->getOriginalImageSize($mediaImage);
 
-        $savedThumbnails = new StructCollection();
+        $savedThumbnails = [];
         try {
             foreach ($this->configuration->getThumbnailSizes() as $size) {
                 $thumbnailSize = $this->calculateThumbnailSize($originalImageSize, $size);
                 $thumbnail = $this->createNewImage($mediaImage, $mimeType, $originalImageSize, $thumbnailSize);
 
-                $url = $this->urlGenerator->getThumbnailUrl($mediaId, $extension, $size['width'], $size['height'], false, false);
-                $this->saveThumbnail($thumbnail, $mimeType, $url, $this->configuration->getStandardQuality());
-                $this->addThumbnailStruct($savedThumbnails, $size, false);
+                $savedThumbnails[] = $this->saveThumbnail($mediaId, $mimeType, $extension, $size, $thumbnail, false);
 
                 if ($this->configuration->isHighDpi()) {
-                    $url = $this->urlGenerator->getThumbnailUrl($mediaId, $extension, $size['width'], $size['height'], true, false);
-                    $this->saveThumbnail($thumbnail, $mimeType, $url, $this->configuration->getHighDpiQuality());
-                    $this->addThumbnailStruct($savedThumbnails, $size, true);
+                    $savedThumbnails[] = $this->saveThumbnail($mediaId, $mimeType, $extension, $size, $thumbnail, true);
                 }
 
                 imagedestroy($thumbnail);
             }
             imagedestroy($mediaImage);
         } finally {
-            $mediaData = [
-                'id' => $mediaId,
-                'thumbnails' => $savedThumbnails,
-            ];
-
-            $writeProtection = $context->getExtension('write_protection');
-            $wereThumbnailsWritable = $writeProtection->getExtension('write_thumbnails');
-            $writeProtection->set('write_thumbnails', true);
-
-            $this->mediaRepository->update([$mediaData], $context);
-            $writeProtection->set('write_thumbnails', $wereThumbnailsWritable);
+            $this->persistThumbnailData($mediaId, $savedThumbnails, $context);
         }
     }
 
@@ -191,14 +176,30 @@ class ThumbnailService implements EventSubscriberInterface
     }
 
     /**
-     * @param resource $thumbnail
-     * @param string   $mimeType
-     * @param string   $url
-     * @param int      $quality
+     * @throws ThumbnailCouldNotBeSavedException
      *
+     * @return array
+     */
+    private function saveThumbnail(
+        string $mediaId,
+        string $mimeType,
+        string $extension,
+        array $size,
+        $thumbnail,
+        bool $isHighDpi
+    ): array {
+        $quality = $isHighDpi ?
+            $this->configuration->getHighDpiQuality() : $this->configuration->getStandardQuality();
+        $url = $this->urlGenerator->getThumbnailUrl($mediaId, $extension, $size['width'], $size['height'], $isHighDpi, false);
+        $this->writeThumbnail($thumbnail, $mimeType, $url, $quality);
+
+        return $this->createThumbnailData($size, $isHighDpi);
+    }
+
+    /**
      * @throws ThumbnailCouldNotBeSavedException
      */
-    private function saveThumbnail($thumbnail, string $mimeType, string $url, int $quality): void
+    private function writeThumbnail($thumbnail, string $mimeType, string $url, int $quality): void
     {
         ob_start();
         switch ($mimeType) {
@@ -221,13 +222,27 @@ class ThumbnailService implements EventSubscriberInterface
         }
     }
 
-    private function addThumbnailStruct(StructCollection $collection, array $size, bool $isHighDpi): void
+    private function createThumbnailData(array $size, bool $isHighDpi): array
     {
-        $thumbnailStruct = new ThumbnailStruct();
-        $thumbnailStruct->setWidth($size['width']);
-        $thumbnailStruct->setHeight($size['height']);
-        $thumbnailStruct->setHighDpi($isHighDpi);
+        return [
+            'width' => $size['width'],
+            'height' => $size['height'],
+            'highDpi' => $isHighDpi,
+        ];
+    }
 
-        $collection->add($thumbnailStruct);
+    private function persistThumbnailData(string $mediaId, array $savedThumbnails, Context $context): void
+    {
+        $mediaData = [
+            'id' => $mediaId,
+            'thumbnails' => $savedThumbnails,
+        ];
+
+        $writeProtection = $context->getExtension('write_protection');
+        $wereThumbnailsWritable = $writeProtection->getExtension('write_thumbnails');
+        $writeProtection->set('write_thumbnails', true);
+
+        $this->mediaRepository->update([$mediaData], $context);
+        $writeProtection->set('write_thumbnails', $wereThumbnailsWritable);
     }
 }

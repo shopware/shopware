@@ -788,7 +788,6 @@ CREATE TABLE `media` (
   `file_extension` varchar(50) COLLATE utf8mb4_unicode_ci NULL,
   `file_size` int(10) unsigned NULL,
   `meta_data` text COLLATE utf8mb4_unicode_ci,
-  `thumbnails`text COLLATE utf8mb4_unicode_ci,
   `created_at` datetime(3) NOT NULL,
   `updated_at` datetime(3),
    PRIMARY KEY (`id`, `version_id`, `tenant_id`),
@@ -815,6 +814,21 @@ CREATE TABLE `media_translation` (
   CONSTRAINT `media_translation_ibfk_3` FOREIGN KEY (`catalog_id`, `catalog_tenant_id`) REFERENCES `catalog` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+DROP TABLE IF EXISTS `media_thumbnail`;
+CREATE TABLE `media_thumbnail` (
+  `id` binary(16) NOT NULL,
+  `tenant_id` binary(16) NOT NULL,
+  `media_id` binary(16) NOT NULL,
+  `media_version_id` binary(16) NOT NULL,
+  `media_tenant_id` binary(16) NOT NULL,
+  `width` int(10) unsigned NOT NULL,
+  `height` int(10) unsigned NOT NULL,
+  `highDpi` tinyint(1) NOT NULL,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
+   PRIMARY KEY (`id`, `tenant_id`),
+   CONSTRAINT `fk_media_thumbnail.media_id` FOREIGN KEY (`media_id`, `media_version_id`, `media_tenant_id`) REFERENCES `media` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `order`;
 CREATE TABLE `order` (

@@ -17,10 +17,7 @@ return [
                 'description' => null,
                 'catalogId' => null,
                 'tenantId' => null,
-                'extensions' => [
-                    'links' => null,
-                ],
-                'thumbnails' => null,
+                'url' => '',
             ],
             'links' => [
                 'self' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870',
@@ -59,6 +56,12 @@ return [
                         'related' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870/catalog',
                     ],
                 ],
+                'thumbnails' => [
+                    'data' => [],
+                    'links' => [
+                        'related' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870/thumbnails',
+                    ],
+                ],
             ],
         ],
         [
@@ -76,10 +79,7 @@ return [
                 'description' => null,
                 'catalogId' => null,
                 'tenantId' => null,
-                'extensions' => [
-                    'links' => null,
-                ],
-                'thumbnails' => null,
+                'url' => '',
             ],
             'relationships' => [
                 'user' => [
@@ -113,6 +113,12 @@ return [
                     'data' => null,
                     'links' => [
                         'related' => '/api/media/f1ad1d0c-0245-4a40-abf2-50f764d16248/catalog',
+                    ],
+                ],
+                'thumbnails' => [
+                    'data' => [],
+                    'links' => [
+                        'related' => '/api/media/f1ad1d0c-0245-4a40-abf2-50f764d16248/thumbnails',
                     ],
                 ],
             ],

@@ -34,7 +34,7 @@
         {% endblock %}
 
         {% block sw_media_griditem_context_item_replace %}
-            <sw-context-menu-item @click="replaceitem($event)" :disabled="true">
+            <sw-context-menu-item @click="replaceItem($event)">
                 {{ $tc('global.sw-media-grid-media-item.contextMenuReplaceLabel') }}
             </sw-context-menu-item>
         {% endblock %}

@@ -6,6 +6,7 @@ import '../../component/sw-media-upload';
 import template from './sw-media-catalog.html.twig';
 import './sw-media-catalog.less';
 import '../../component/sw-media-modal-delete';
+import '../../component/sw-media-modal-replace';
 
 Component.register('sw-media-catalog', {
     template,
@@ -22,7 +23,8 @@ Component.register('sw-media-catalog', {
             previewType: 'media-grid-preview-as-grid',
             mediaItems: [],
             lastSelectedItem: null,
-            selectionToDelete: null
+            selectionToDelete: null,
+            mediaItemToReplace: null
         };
     },
 
@@ -102,6 +104,10 @@ Component.register('sw-media-catalog', {
             this.getLastSelectedItem();
         },
 
+        handleMediaGridItemReplace({ item }) {
+            this.mediaItemToReplace = item;
+        },
+
         handleMediaGridItemShowDetails({ item }) {
             this.lastSelectedItem = item;
             this.$refs.mediaSidebar.showQuickInfo();
@@ -134,6 +140,22 @@ Component.register('sw-media-catalog', {
 
             Promise.all(mediaItemsDeletion).then(() => {
                 this.selectionToDelete = null;
+                this.getList();
+            });
+        },
+
+        handleSidebarReplaceItem({ item }) {
+            this.mediaItemToReplace = item;
+        },
+
+        closeReplaceModal() {
+            this.mediaItemToReplace = null;
+        },
+
+        handleReplacementStarted(replacementPromise) {
+            this.closeReplaceModal();
+
+            replacementPromise.then(() => {
                 this.getList();
             });
         }

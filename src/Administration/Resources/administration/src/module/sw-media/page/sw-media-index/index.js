@@ -21,6 +21,7 @@ Component.register('sw-media-index', {
             mediaItems: [],
             lastSelectedItem: null,
             selectionToDelete: null,
+            mediaItemToReplace: null,
             searchId: this.$route.query.mediaId
         };
     },
@@ -86,6 +87,10 @@ Component.register('sw-media-index', {
             this.getLastSelectedItem();
         },
 
+        handleMediaGridItemReplace({ item }) {
+            this.mediaItemToReplace = item;
+        },
+
         handleMediaGridItemShowDetails({ item }) {
             this.lastSelectedItem = item;
             this.$refs.mediaSidebar.showQuickInfo();
@@ -117,6 +122,22 @@ Component.register('sw-media-index', {
 
             Promise.all(mediaItemsDeletion).then(() => {
                 this.selectionToDelete = null;
+                this.loadMedia();
+            });
+        },
+
+        handleSidebarReplaceItem({ item }) {
+            this.mediaItemToReplace = item;
+        },
+
+        closeReplaceModal() {
+            this.mediaItemToReplace = null;
+        },
+
+        handleReplacementStarted(replacementPromise) {
+            this.closeReplaceModal();
+
+            replacementPromise.then(() => {
                 this.loadMedia();
             });
         },

@@ -61,7 +61,7 @@ Component.register('sw-media-preview', {
             return fileExtensions[this.item.mimeType] || 'unknown';
         },
 
-        getPlaceholderIcon() {
+        placeholderIcon() {
             const regEx = /^video\/+/;
 
             if (regEx.test(this.item.mimeType)) {
@@ -78,6 +78,10 @@ Component.register('sw-media-preview', {
             };
 
             return fileExtensions[this.item.mimeType] || 'file-thumbnail-normal';
+        },
+
+        imageURLFromItem() {
+            return `${this.item.extensions.links.url}?${Date.now()}`;
         }
     },
 

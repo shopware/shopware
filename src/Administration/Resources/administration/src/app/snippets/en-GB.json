@@ -600,10 +600,15 @@
       }
     },
     "modalDelete": {
-      "modalHeader": "Media",
+      "modalHeader": "Delete media files",
       "deleteMessage": "Do you want to delete \"{mediaName}\" ? | Delete {count} Media items?",
       "modalButtonDelete": "Delete",
       "modalButtonAbort": "Cancel"
+    },
+    "modalReplace": {
+      "modalTitle": "Replace media files",
+      "cancelButton": "Cancel",
+      "replaceButton": "Replace"
     }
   },
   "sw-settings": {

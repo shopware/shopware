@@ -599,10 +599,15 @@
       }
     },
     "modalDelete": {
-      "modalHeader": "Medien",
+      "modalHeader": "Medien löschen",
       "deleteMessage":"Möchten sie \"{mediaName}\" wirklich löschen? | Diese {count} Medien löschen",
       "modalButtonDelete": "Löschen",
       "modalButtonAbort": "Abbrechen"
+    },
+    "modalReplace": {
+      "modalTitle": "Medien ersetzen",
+      "cancelButton": "Abbrechen",
+      "replaceButton": "Ersetzen"
     }
   },
   "sw-settings": {

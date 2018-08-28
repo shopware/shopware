@@ -57,23 +57,5 @@
                 {% endblock %}
             </div>
         {% endblock %}
-
-        {% block sw_media_upload_container_create_from_url_container %}
-            <div class="sw-media-upload-container__create-from-url-link-container" @click="openUrlDialog">
-                {% block sw_media_upload_container_create_from_url_container_text %}
-                    <span class="sw-media-upload-container__create-from-url-link">
-                        {{ $tc('global.sw-media-upload-container.createFromURLText') }}
-                    </span>
-                {% endblock %}
-            </div>
-        {% endblock %}
-
-        {% block sw_media_upload_container_url_modal %}
-            <sw-media-upload-url-modal
-               v-if="showUrlModal"
-               @sw-media-upload-url-modal-submit="uploadFromUrl"
-               @closeModal="closeUrlDialog">
-            </sw-media-upload-url-modal>
-        {% endblock %}
     </div>
 {% endblock %}

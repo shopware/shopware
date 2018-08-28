@@ -61,7 +61,7 @@ Component.register('sw-settings-language-list', {
             const titleSaveSuccess = this.$tc('sw-settings-language.list.titleDeleteSuccess');
             const messageSaveSuccess = this.$tc('sw-settings-language.list.messageDeleteSuccess', 0, { name: languageName });
 
-            return this.languageStore.store[id].delete(true).then(() => {
+            this.languageStore.store[id].delete(true).then(() => {
                 this.showDeleteModal = false;
 
                 this.createNotificationSuccess({
@@ -70,7 +70,7 @@ Component.register('sw-settings-language-list', {
                 });
 
                 this.getList();
-            });
+            }).catch(this.onCloseDeleteModal());
         },
 
         onInlineEditSave(item) {

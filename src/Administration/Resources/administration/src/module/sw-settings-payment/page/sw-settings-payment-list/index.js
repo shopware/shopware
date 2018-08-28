@@ -63,7 +63,7 @@ Component.register('sw-settings-payment-list', {
                 name: paymentMethodName
             });
 
-            return this.paymentMethodStore.store[id].delete(true).then(() => {
+            this.paymentMethodStore.store[id].delete(true).then(() => {
                 this.showDeleteModal = false;
 
                 this.createNotificationSuccess({
@@ -72,7 +72,7 @@ Component.register('sw-settings-payment-list', {
                 });
 
                 this.getList();
-            });
+            }).catch(this.onCloseDeleteModal());
         },
 
         onInlineEditSave(item) {

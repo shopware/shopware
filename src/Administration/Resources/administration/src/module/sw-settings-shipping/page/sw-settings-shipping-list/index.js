@@ -63,7 +63,7 @@ Component.register('sw-settings-shipping-list', {
                 name: shippingMethodName
             });
 
-            return this.shippingMethodStore.store[id].delete(true).then(() => {
+            this.shippingMethodStore.store[id].delete(true).then(() => {
                 this.showDeleteModal = false;
 
                 this.createNotificationSuccess({
@@ -72,7 +72,7 @@ Component.register('sw-settings-shipping-list', {
                 });
 
                 this.getList();
-            });
+            }).catch(this.onCloseDeleteModal());
         },
 
         onInlineEditSave(item) {

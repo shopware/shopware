@@ -63,7 +63,7 @@ Component.register('sw-settings-country-list', {
                 name: countryName
             });
 
-            return this.countryStore.store[id].delete(true).then(() => {
+            this.countryStore.store[id].delete(true).then(() => {
                 this.showDeleteModal = false;
 
                 this.createNotificationSuccess({
@@ -72,7 +72,7 @@ Component.register('sw-settings-country-list', {
                 });
 
                 this.getList();
-            });
+            }).catch(this.onCloseDeleteModal());
         },
 
         onInlineEditSave(item) {

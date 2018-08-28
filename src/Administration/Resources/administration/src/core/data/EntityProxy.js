@@ -316,7 +316,7 @@ export default class EntityProxy {
     delete(directDelete = false) {
         this.isDeleted = true;
 
-        if (directDelete !== true) {
+        if (directDelete === false) {
             return Promise.resolve();
         }
 
@@ -327,6 +327,8 @@ export default class EntityProxy {
 
         return this.apiService.delete(this.id).then(() => {
             this.remove();
+        }).catch((exception) => {
+            return Promise.reject(this.handleException(exception));
         });
     }
 

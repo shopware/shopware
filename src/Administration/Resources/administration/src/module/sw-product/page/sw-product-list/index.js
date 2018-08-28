@@ -107,7 +107,7 @@ Component.register('sw-product-list', {
 
             return this.productStore.getById(id).delete(true).then(() => {
                 this.getList();
-            });
+            }).catch(this.onCloseDeleteModal());
         }
     }
 });

@@ -61,7 +61,7 @@ Component.register('sw-settings-currency-list', {
             const titleSaveSuccess = this.$tc('sw-settings-currency.list.titleDeleteSuccess');
             const messageSaveSuccess = this.$tc('sw-settings-currency.list.messageDeleteSuccess', 0, { name: currencyName });
 
-            return this.currencyStore.store[id].delete(true).then(() => {
+            this.currencyStore.store[id].delete(true).then(() => {
                 this.showDeleteModal = false;
 
                 this.createNotificationSuccess({
@@ -70,7 +70,7 @@ Component.register('sw-settings-currency-list', {
                 });
 
                 this.getList();
-            });
+            }).catch(this.onCloseDeleteModal());
         },
 
         onInlineEditSave(item) {

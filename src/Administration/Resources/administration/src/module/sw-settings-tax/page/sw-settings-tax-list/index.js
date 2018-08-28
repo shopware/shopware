@@ -61,7 +61,7 @@ Component.register('sw-settings-tax-list', {
             const titleSaveSuccess = this.$tc('sw-settings-tax.list.titleDeleteSuccess');
             const messageSaveSuccess = this.$tc('sw-settings-tax.list.messageDeleteSuccess', 0, { name: currencyName });
 
-            return this.taxStore.store[id].delete(true).then(() => {
+            this.taxStore.store[id].delete(true).then(() => {
                 this.showDeleteModal = false;
 
                 this.createNotificationSuccess({
@@ -70,7 +70,7 @@ Component.register('sw-settings-tax-list', {
                 });
 
                 this.getList();
-            });
+            }).catch(this.onCloseDeleteModal());
         },
 
         onInlineEditSave(item) {

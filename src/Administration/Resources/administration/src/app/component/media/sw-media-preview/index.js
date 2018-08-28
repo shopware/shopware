@@ -9,18 +9,6 @@ Component.register('sw-media-preview', {
         item: {
             required: true,
             type: Object
-        },
-
-        altText: {
-            type: String,
-            required: false,
-            default: ''
-        },
-
-        downloadable: {
-            type: Boolean,
-            required: false,
-            default: true
         }
     },
 
@@ -44,6 +32,10 @@ Component.register('sw-media-preview', {
             const regEx = /^audio\/+/;
 
             return (regEx.test(filePath));
+        },
+
+        checkForInMemoryFile() {
+            return this.item.mimeType === 'in-memory-file';
         },
 
         checkForMimeType() {

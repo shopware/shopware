@@ -1,6 +1,7 @@
 import { Component } from 'src/core/shopware';
 import { debug, fileReader } from 'src/core/service/util.service';
-import template from './sw-media-modal-replace.thml.twig';
+import template from './sw-media-modal-replace.html.twig';
+import './sw-media-modal-replace.less';
 
 Component.register('sw-media-modal-replace', {
     template,
@@ -16,7 +17,8 @@ Component.register('sw-media-modal-replace', {
 
     data() {
         return {
-            uploadData: null
+            uploadData: null,
+            previewMediaEntity: null
         };
     },
 
@@ -31,24 +33,26 @@ Component.register('sw-media-modal-replace', {
             this.$emit('sw-media-modal-replace-close');
         },
 
-        handleUploadData(uploadCollection) {
-            if (uploadCollection.files.length > 0) {
-                this.uploadData = {
-                    type: 'file',
-                    data: uploadCollection.files[0]
-                };
-                return;
-            }
+        onClickUpload() {
+            this.$refs.fileInput.click();
+        },
 
-            if (uploadCollection.urls.length > 0) {
-                this.uploadData = {
-                    type: 'URL',
-                    data: uploadCollection.urls[0]
-                };
-                return;
-            }
+        onFileInputChange() {
+            const file = Array.from(this.$refs.fileInput.files).pop();
 
-            this.uploadData = null;
+            this.previewMediaEntity = null;
+            this.uploadData = {
+                type: 'file',
+                data: file
+            };
+
+            fileReader.readAsDataURL(file).then((result) => {
+                this.previewMediaEntity = {
+                    name: this.uploadData.data.name,
+                    mimeType: 'in-memory-file',
+                    dataUrl: result
+                };
+            });
         },
 
         replaceMediaItem() {
@@ -89,7 +93,12 @@ Component.register('sw-media-modal-replace', {
         },
 
         emitReplaceStarted(itemUpload) {
-            this.$emit('sw-media-modal-replace-replace-started', itemUpload);
+            this.$emit('sw-media-modal-replace-confirmed', itemUpload);
+        },
+
+        removeSelectedFile() {
+            this.uploadData = null;
+            this.previewMediaEntity = null;
         }
     }
 });

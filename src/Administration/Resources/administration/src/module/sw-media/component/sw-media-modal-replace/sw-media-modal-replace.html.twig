@@ -1,0 +1,51 @@
+{% block sw_media_modal_replace %}
+    <sw-modal class="sw-media-modal-replace"
+              v-if="showReplaceModal"
+              :title="$tc('sw-media.modalReplace.modalTitle')"
+              @closeModal="emitCloseReplaceModal">
+
+        {% block sw_media_modal_replace_file_input %}
+            <input class="sw-media-modal-replace__file-input" type="file" id="replaceFileDialog" ref="fileInput" accept="image/*" @change="onFileInputChange"/>
+        {% endblock %}
+
+        {% block sw_media_modal_replace_upload_button %}
+            <div class="sw-media-modal-replace__upload-button">
+                <sw-button variant="primary" @click="onClickUpload">{{ $tc('sw-media.smart-bar.buttonUpload') }}</sw-button>
+            </div>
+        {% endblock %}
+
+        {% block sw_media_modal_replace_preview_container %}
+            <div class="sw-media-modal-replace__preview-container" v-if="previewMediaEntity">
+                {% block sw_media_modal_replace_media_preview %}
+                    <sw-media-preview class="sw-media-modal-replace__preview" :item="previewMediaEntity"></sw-media-preview>
+                {% endblock %}
+
+                {% block sw_media_modal_replace_file_name %}
+                    <div class="sw-media-modal-replace__filename">{{ previewMediaEntity.name}}</div>
+                {% endblock %}
+
+                {% block sw_media_modal_replace_remove_selection %}
+                    <div @click="removeSelectedFile"><sw-icon size="16px" name="small-default-x-line-medium"></sw-icon></div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block sw_media_modal_replace_modal_footer %}
+            <template slot="modal-footer">
+
+                {% block sw_media_modal_replace_cancel_button %}
+                    <sw-button size="small" @click="emitCloseReplaceModal">
+                        {{ $tc('sw-media.modalReplace.cancelButton') }}
+                    </sw-button>
+                {% endblock %}
+
+                {% block sw_media_modal_replace_replace_button %}
+                    <sw-button size="small" variant="primary" @click="replaceMediaItem">
+                        {{ $tc('sw-media.modalReplace.replaceButton') }}
+                    </sw-button>
+                {% endblock %}
+
+            </template>
+        {% endblock %}
+    </sw-modal>
+{% endblock %}

@@ -1,5 +1,5 @@
 paths:
-  - ./src/Core/
+  - ./vendor/shopware/platform/src/Core/
 exclude_files:
   - .*test.*
   - .*Definition.php

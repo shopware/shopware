@@ -3,8 +3,7 @@ module.exports = {
         username = username || 'admin';
         password = password || 'shopware';
 
-        browser.resizeWindow(1920, 1080);
-        browser.url(browser.launch_url)
+        browser
             .waitForElementVisible('.sw-login')
             .assert.containsText('h2', 'Log in to your Shopware store')
             .setValue('input[name=sw-field--authStore-username]', username)

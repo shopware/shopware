@@ -13,6 +13,7 @@ use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\StorefrontApiTestBehaviour;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Serializer;
@@ -20,7 +21,8 @@ use Symfony\Component\Serializer\Serializer;
 class StorefrontCustomerControllerTest extends TestCase
 {
     use StorefrontApiTestBehaviour,
-        DatabaseTransactionBehaviour;
+        DatabaseTransactionBehaviour,
+        KernelTestBehaviour;
 
     /**
      * @var RepositoryInterface
@@ -59,14 +61,12 @@ class StorefrontCustomerControllerTest extends TestCase
 
     public function setUp()
     {
-        $kernel = KernelLifecycleManager::getKernel();
-
-        $this->serializer = $kernel->getContainer()->get('serializer');
-        $this->productRepository = $kernel->getContainer()->get('product.repository');
-        $this->customerRepository = $kernel->getContainer()->get('customer.repository');
-        $this->countryRepository = $kernel->getContainer()->get('country.repository');
-        $this->customerAddressRepository = $kernel->getContainer()->get('customer_address.repository');
-        $this->countryStateRepository = $kernel->getContainer()->get('country_state.repository');
+        $this->serializer = $this->getContainer()->get('serializer');
+        $this->productRepository = $this->getContainer()->get('product.repository');
+        $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->countryRepository = $this->getContainer()->get('country.repository');
+        $this->customerAddressRepository = $this->getContainer()->get('customer_address.repository');
+        $this->countryStateRepository = $this->getContainer()->get('country_state.repository');
         $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
     }
 

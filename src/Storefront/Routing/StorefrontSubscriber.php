@@ -37,10 +37,8 @@ class StorefrontSubscriber implements EventSubscriberInterface
         return [
             KernelEvents::REQUEST => [
                 ['startSession', 40],
-//                ['seoRedirect', 2]
             ],
             KernelEvents::EXCEPTION => [
-////                ['redirectIfNotFound'],
                 ['showHtmlExceptionResponse', -100],
                 ['customerNotLoggedInHandler'],
             ],
@@ -103,30 +101,4 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
         $event->setResponse($redirectResponse);
     }
-
-//
-//    public function redirectIfNotFound(GetResponseForExceptionEvent $event)
-//    {
-//        if (false === $event->getRequest()->attributes->has(self::STOREFRONT_REQUEST_ATTRIBUTE)) {
-//            return;
-//        }
-//
-//        if ($event->getException() instanceof NotFoundHttpException === false) {
-//            return;
-//        }
-//
-//        $redirectResponse = new RedirectResponse($this->router->generate('homepage'));
-//
-//        $event->setResponse($redirectResponse);
-//    }
-//
-//    public function seoRedirect(GetResponseEvent $event)
-//    {
-//        if (false === $event->getRequest()->attributes->has(self::STOREFRONT_SEO_REDIRECT)) {
-//            return;
-//        }
-//
-//        $event->stopPropagation();
-//        $event->setResponse(new RedirectResponse($event->getRequest()->attributes->get(self::STOREFRONT_SEO_REDIRECT)));
-//    }
 }

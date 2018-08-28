@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Test\Customer\Repository;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -11,11 +12,15 @@ use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\ORM\Search\Term\SearchTermInterpreter;
 use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class CustomerRepositoryTest extends KernelTestCase
+class CustomerRepositoryTest extends TestCase
 {
+    use KernelTestBehaviour,
+        DatabaseTransactionBehaviour;
+
     /**
      * @var Connection
      */
@@ -28,16 +33,8 @@ class CustomerRepositoryTest extends KernelTestCase
 
     public function setUp()
     {
-        self::bootKernel();
-        $this->repository = self::$container->get('customer.repository');
-        $this->connection = self::$container->get(Connection::class);
-        $this->connection->beginTransaction();
-    }
-
-    protected function tearDown()
-    {
-        $this->connection->rollBack();
-        parent::tearDown();
+        $this->repository = $this->getContainer()->get('customer.repository');
+        $this->connection = $this->getContainer()->get(Connection::class);
     }
 
     public function testSearchRanking()
@@ -118,8 +115,8 @@ class CustomerRepositoryTest extends KernelTestCase
 
         $criteria = new Criteria();
 
-        $builder = self::$container->get(EntityScoreQueryBuilder::class);
-        $pattern = self::$container->get(SearchTermInterpreter::class)->interpret($matchTerm, Context::createDefaultContext(Defaults::TENANT_ID));
+        $builder = $this->getContainer()->get(EntityScoreQueryBuilder::class);
+        $pattern = $this->getContainer()->get(SearchTermInterpreter::class)->interpret($matchTerm, Context::createDefaultContext(Defaults::TENANT_ID));
         $queries = $builder->buildScoreQueries($pattern, CustomerDefinition::class, CustomerDefinition::getEntityName());
         $criteria->addQueries($queries);
 

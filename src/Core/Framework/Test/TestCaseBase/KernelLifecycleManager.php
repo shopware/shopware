@@ -21,7 +21,6 @@ class KernelLifecycleManager
      */
     protected static $container;
 
-
     /**
      * Get the currently active kernel
      */

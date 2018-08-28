@@ -58,7 +58,6 @@ trait AdminApiTestBehaviour
         }
 
         return $this->apiClient = $this->createClient();
-
     }
 
     public function createClient(

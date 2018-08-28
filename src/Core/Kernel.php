@@ -296,7 +296,10 @@ class Kernel extends HttpKernel
 
     public function shutdown()
     {
-        $this->booted = false;
+        if(!$this->booted) {
+            return;
+        }
+
         self::$plugins =  new BundleCollection();
         self::$connection = null;
 

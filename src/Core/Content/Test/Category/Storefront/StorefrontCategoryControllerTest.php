@@ -52,9 +52,9 @@ class StorefrontCategoryControllerTest extends TestCase
             ['id' => $id, 'name' => 'Test category'],
         ], $this->context);
 
-        $this->getStoreFrontClient()->request('GET', '/storefront-api/category');
+        $this->getStorefrontClient()->request('GET', '/storefront-api/category');
 
-        $response = $this->getStoreFrontClient()->getResponse();
+        $response = $this->getStorefrontClient()->getResponse();
 
         static::assertSame(200, $response->getStatusCode());
 
@@ -74,9 +74,9 @@ class StorefrontCategoryControllerTest extends TestCase
             ['id' => $id, 'name' => 'Test category'],
         ], $this->context);
 
-        $this->getStoreFrontClient()->request('GET', '/storefront-api/category/' . $id);
+        $this->getStorefrontClient()->request('GET', '/storefront-api/category/' . $id);
 
-        $response = $this->getStoreFrontClient()->getResponse();
+        $response = $this->getStorefrontClient()->getResponse();
 
         static::assertSame(200, $response->getStatusCode());
 
@@ -99,16 +99,16 @@ class StorefrontCategoryControllerTest extends TestCase
             ['id' => $categoryB, 'name' => 'Category B'],
         ], $this->context);
 
-        $this->getStoreFrontClient()->request('GET', '/storefront-api/category?sort=name');
+        $this->getStorefrontClient()->request('GET', '/storefront-api/category?sort=name');
 
-        $response = $this->getStoreFrontClient()->getResponse();
+        $response = $this->getStorefrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
         static::assertNotEmpty($content);
         $ids = array_column($content['data'], 'id');
         static::assertSame([$categoryA, $categoryB, $categoryC], $ids);
 
-        $this->getStoreFrontClient()->request('GET', '/storefront-api/category?sort=-name');
-        $response = $this->getStoreFrontClient()->getResponse();
+        $this->getStorefrontClient()->request('GET', '/storefront-api/category?sort=-name');
+        $response = $this->getStorefrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
         static::assertNotEmpty($content);
         $ids = array_column($content['data'], 'id');
@@ -127,9 +127,9 @@ class StorefrontCategoryControllerTest extends TestCase
             ['id' => $categoryB, 'name' => 'Matching name'],
         ], $this->context);
 
-        $this->getStoreFrontClient()->request('GET', '/storefront-api/category?term=Matching');
+        $this->getStorefrontClient()->request('GET', '/storefront-api/category?term=Matching');
 
-        $response = $this->getStoreFrontClient()->getResponse();
+        $response = $this->getStorefrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
         static::assertNotEmpty($content);
         static::assertSame(2, $content['total']);
@@ -158,9 +158,9 @@ class StorefrontCategoryControllerTest extends TestCase
             ],
         ]);
 
-        $this->getStoreFrontClient()->request('GET', '/storefront-api/category?' . $params);
+        $this->getStorefrontClient()->request('GET', '/storefront-api/category?' . $params);
 
-        $response = $this->getStoreFrontClient()->getResponse();
+        $response = $this->getStorefrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
         static::assertNotEmpty($content);
         static::assertSame(1, $content['total']);
@@ -193,9 +193,9 @@ class StorefrontCategoryControllerTest extends TestCase
             ],
         ];
 
-        $this->getStoreFrontClient()->request('POST', '/storefront-api/category', $body);
+        $this->getStorefrontClient()->request('POST', '/storefront-api/category', $body);
 
-        $response = $this->getStoreFrontClient()->getResponse();
+        $response = $this->getStorefrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
         static::assertSame(200, $response->getStatusCode());
         static::assertSame(2, $content['total']);
@@ -216,8 +216,8 @@ class StorefrontCategoryControllerTest extends TestCase
             ],
         ];
 
-        $this->getStoreFrontClient()->request('POST', '/storefront-api/category', $body);
-        $response = $this->getStoreFrontClient()->getResponse();
+        $this->getStorefrontClient()->request('POST', '/storefront-api/category', $body);
+        $response = $this->getStorefrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
 
         static::assertSame(200, $response->getStatusCode());
@@ -238,8 +238,8 @@ class StorefrontCategoryControllerTest extends TestCase
             ],
         ];
 
-        $this->getStoreFrontClient()->request('POST', '/storefront-api/category', $body);
-        $response = $this->getStoreFrontClient()->getResponse();
+        $this->getStorefrontClient()->request('POST', '/storefront-api/category', $body);
+        $response = $this->getStorefrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
 
         static::assertSame(200, $response->getStatusCode());
@@ -261,8 +261,8 @@ class StorefrontCategoryControllerTest extends TestCase
             ],
         ];
 
-        $this->getStoreFrontClient()->request('POST', '/storefront-api/category', $body);
-        $response = $this->getStoreFrontClient()->getResponse();
+        $this->getStorefrontClient()->request('POST', '/storefront-api/category', $body);
+        $response = $this->getStorefrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
 
         static::assertSame(200, $response->getStatusCode());
@@ -294,8 +294,8 @@ class StorefrontCategoryControllerTest extends TestCase
     {
         $id = Uuid::uuid4()->getHex();
 
-        $this->getStoreFrontClient()->request('GET', '/storefront-api/category/' . $id);
-        $response = $this->getStoreFrontClient()->getResponse();
+        $this->getStorefrontClient()->request('GET', '/storefront-api/category/' . $id);
+        $response = $this->getStorefrontClient()->getResponse();
 
         static::assertSame(404, $response->getStatusCode());
         $content = json_decode($response->getContent(), true);

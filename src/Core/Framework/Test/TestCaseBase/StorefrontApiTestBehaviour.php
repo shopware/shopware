@@ -25,7 +25,7 @@ trait StorefrontApiTestBehaviour
     private $storeFrontClient;
 
 
-    protected function getStoreFrontClient(): Client
+    protected function getStorefrontClient(): Client
     {
         if($this->storeFrontClient) {
             return $this->storeFrontClient;

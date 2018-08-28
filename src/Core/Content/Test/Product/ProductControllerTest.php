@@ -49,11 +49,11 @@ class ProductControllerTest extends TestCase
             ],
         ], Context::createDefaultContext(Defaults::TENANT_ID));
 
-        $this->getStoreFrontClient()->request('GET', '/storefront-api/product');
+        $this->getStorefrontClient()->request('GET', '/storefront-api/product');
 
-        self::assertSame(200, $this->getStoreFrontClient()->getResponse()->getStatusCode(), $this->getStoreFrontClient()->getResponse()->getContent());
+        self::assertSame(200, $this->getStorefrontClient()->getResponse()->getStatusCode(), $this->getStorefrontClient()->getResponse()->getContent());
 
-        $content = json_decode($this->getStoreFrontClient()->getResponse()->getContent(), true);
+        $content = json_decode($this->getStorefrontClient()->getResponse()->getContent(), true);
 
         static::assertNotEmpty($content);
         static::assertArrayHasKey('total', $content);
@@ -87,11 +87,11 @@ class ProductControllerTest extends TestCase
             ],
         ], Context::createDefaultContext(Defaults::TENANT_ID));
 
-        $this->getStoreFrontClient()->request('GET', '/storefront-api/product/' . $productId);
+        $this->getStorefrontClient()->request('GET', '/storefront-api/product/' . $productId);
 
-        self::assertSame(200, $this->getStoreFrontClient()->getResponse()->getStatusCode(), $this->getStoreFrontClient()->getResponse()->getContent());
+        self::assertSame(200, $this->getStorefrontClient()->getResponse()->getStatusCode(), $this->getStorefrontClient()->getResponse()->getContent());
 
-        $content = json_decode($this->getStoreFrontClient()->getResponse()->getContent(), true);
+        $content = json_decode($this->getStorefrontClient()->getResponse()->getContent(), true);
 
         static::assertEquals($productId, $content['data']['id']);
         static::assertEquals(10, $content['data']['price']['gross']);

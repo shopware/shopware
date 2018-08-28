@@ -816,12 +816,12 @@ class StorefrontCartControllerTest extends TestCase
         $expectedOrder = $this->createGuestOrder();
 
         $accessHeader = 'HTTP_' . str_replace('-', '_', strtoupper(PlatformRequest::HEADER_ACCESS_KEY));
-        $this->getStoreFrontClient()->setServerParameter($accessHeader, '');
+        $this->getStorefrontClient()->setServerParameter($accessHeader, '');
 
         $orderId = $expectedOrder['data']['id'];
         $accessCode = $expectedOrder['data']['deepLinkCode'];
-        $this->getStoreFrontClient()->request('GET', '/storefront-api/checkout/guest-order/' . $orderId, ['accessCode' => $accessCode]);
-        $response = $this->getStoreFrontClient()->getResponse();
+        $this->getStorefrontClient()->request('GET', '/storefront-api/checkout/guest-order/' . $orderId, ['accessCode' => $accessCode]);
+        $response = $this->getStorefrontClient()->getResponse();
         static::assertSame(200, $response->getStatusCode());
 
         $actualOrder = json_decode($response->getContent(), true);
@@ -834,9 +834,9 @@ class StorefrontCartControllerTest extends TestCase
 
         $orderId = $expectedOrder['data']['id'];
         $accessCode = $expectedOrder['data']['deepLinkCode'];
-        $this->getStoreFrontClient()->request('GET', '/storefront-api/checkout/guest-order/' . $orderId, ['accessCode' => $accessCode]);
+        $this->getStorefrontClient()->request('GET', '/storefront-api/checkout/guest-order/' . $orderId, ['accessCode' => $accessCode]);
 
-        $response = $this->getStoreFrontClient()->getResponse();
+        $response = $this->getStorefrontClient()->getResponse();
         static::assertSame(200, $response->getStatusCode());
 
         $actualOrder = json_decode($response->getContent(), true);
@@ -848,13 +848,13 @@ class StorefrontCartControllerTest extends TestCase
         $order = $this->createGuestOrder();
 
         $accessHeader = 'HTTP_' . str_replace('-', '_', strtoupper(PlatformRequest::HEADER_ACCESS_KEY));
-        $this->getStoreFrontClient()->setServerParameter($accessHeader, '');
+        $this->getStorefrontClient()->setServerParameter($accessHeader, '');
 
         $orderId = $order['data']['id'];
         $accessCode = Random::getBase64UrlString(32);
-        $this->getStoreFrontClient()->request('GET', '/storefront-api/checkout/guest-order/' . $orderId, ['accessCode' => $accessCode]);
+        $this->getStorefrontClient()->request('GET', '/storefront-api/checkout/guest-order/' . $orderId, ['accessCode' => $accessCode]);
 
-        $response = $this->getStoreFrontClient()->getResponse();
+        $response = $this->getStorefrontClient()->getResponse();
         static::assertSame(400, $response->getStatusCode());
 
         $content = json_decode($response->getContent(), true);
@@ -866,12 +866,12 @@ class StorefrontCartControllerTest extends TestCase
         $order = $this->createGuestOrder();
 
         $accessHeader = 'HTTP_' . str_replace('-', '_', strtoupper(PlatformRequest::HEADER_ACCESS_KEY));
-        $this->getStoreFrontClient()->setServerParameter($accessHeader, '');
+        $this->getStorefrontClient()->setServerParameter($accessHeader, '');
 
         $orderId = $order['data']['id'];
-        $this->getStoreFrontClient()->request('GET', '/storefront-api/checkout/guest-order/' . $orderId);
+        $this->getStorefrontClient()->request('GET', '/storefront-api/checkout/guest-order/' . $orderId);
 
-        $response = $this->getStoreFrontClient()->getResponse();
+        $response = $this->getStorefrontClient()->getResponse();
         static::assertSame(400, $response->getStatusCode());
 
         $content = json_decode($response->getContent(), true);
@@ -883,13 +883,13 @@ class StorefrontCartControllerTest extends TestCase
         $order = $this->createGuestOrder();
 
         $accessHeader = 'HTTP_' . str_replace('-', '_', strtoupper(PlatformRequest::HEADER_ACCESS_KEY));
-        $this->getStoreFrontClient()->setServerParameter($accessHeader, '');
+        $this->getStorefrontClient()->setServerParameter($accessHeader, '');
 
         $orderId = Uuid::uuid4()->getHex();
         $accessCode = $order['data']['deepLinkCode'];
-        $this->getStoreFrontClient()->request('GET', '/storefront-api/checkout/guest-order/' . $orderId, ['accessCode' => $accessCode]);
+        $this->getStorefrontClient()->request('GET', '/storefront-api/checkout/guest-order/' . $orderId, ['accessCode' => $accessCode]);
 
-        $response = $this->getStoreFrontClient()->getResponse();
+        $response = $this->getStorefrontClient()->getResponse();
         static::assertSame(400, $response->getStatusCode());
 
         $content = json_decode($response->getContent(), true);
@@ -899,10 +899,10 @@ class StorefrontCartControllerTest extends TestCase
     public function testCheckoutCartWithoutAccessKey(): void
     {
         $accessHeader = 'HTTP_' . str_replace('-', '_', strtoupper(PlatformRequest::HEADER_ACCESS_KEY));
-        $this->getStoreFrontClient()->setServerParameter($accessHeader, '');
+        $this->getStorefrontClient()->setServerParameter($accessHeader, '');
 
-        $this->getStoreFrontClient()->request('GET', '/storefront-api/checkout/cart');
-        $response = $this->getStoreFrontClient()->getResponse();
+        $this->getStorefrontClient()->request('GET', '/storefront-api/checkout/cart');
+        $response = $this->getStorefrontClient()->getResponse();
         static::assertEquals(500, $response->getStatusCode(), $response->getContent());
         $content = json_decode($response->getContent(), true);
         static::assertEquals('Access key is invalid and could not be identified.', $content['errors'][0]['detail']);
@@ -1002,14 +1002,14 @@ class StorefrontCartControllerTest extends TestCase
 
     private function createCart(): Client
     {
-        $this->getStoreFrontClient()->request('POST', '/storefront-api/checkout/cart');
-        $response = $this->getStoreFrontClient()->getResponse();
+        $this->getStorefrontClient()->request('POST', '/storefront-api/checkout/cart');
+        $response = $this->getStorefrontClient()->getResponse();
 
         static::assertEquals(200, $response->getStatusCode(), $response->getContent());
 
         $content = json_decode($response->getContent(), true);
 
-        $client = clone $this->getStoreFrontClient();
+        $client = clone $this->getStorefrontClient();
         $client->setServerParameter('HTTP_X_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);
 
         return $client;
@@ -1017,7 +1017,7 @@ class StorefrontCartControllerTest extends TestCase
 
     private function getCart(Client $client)
     {
-        $this->getStoreFrontClient()->request('GET', '/storefront-api/checkout/cart');
+        $this->getStorefrontClient()->request('GET', '/storefront-api/checkout/cart');
 
         $cart = json_decode($client->getResponse()->getContent(), true);
 

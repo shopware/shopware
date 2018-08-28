@@ -74,7 +74,11 @@ Component.register('sw-media-preview', {
                 'application/msword': 'file-thumbnail-doc',
                 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'file-thumbnail-doc',
                 'application/vnd.ms-excel': 'file-thumbnail-xls',
-                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'file-thumbnail-xls'
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'file-thumbnail-xls',
+                'application/svg': 'file-thumbnail-svg',
+                'application/vnd.ms-powerpoint': 'file-thumbnail-ppt',
+                'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'file-thumbnail-ppt',
+                'application/svg+xml': 'file-thumbnail-svg'
             };
 
             return fileExtensions[this.item.mimeType] || 'file-thumbnail-normal';

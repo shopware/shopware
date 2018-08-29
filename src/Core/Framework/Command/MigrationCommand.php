@@ -8,45 +8,68 @@ use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\DependencyInjection\Container;
 
 class MigrationCommand extends ContainerAwareCommand
 {
     /**
-     * @var Container
+     * @var string[]
      */
-    private $container;
+    private $directories;
 
-    public function __construct(Container $container)
-    {
+    /**
+     * @var MigrationCollectionLoader
+     */
+    private $collector;
+
+    /**
+     * @var MigrationRuntime
+     */
+    private $runner;
+
+    /**
+     * @param string[] $directories
+     */
+    public function __construct(
+        MigrationCollectionLoader $collector,
+        MigrationRuntime $runner,
+        array $directories
+    ) {
         parent::__construct();
 
-        $this->container = $container;
+        $this->collector = $collector;
+        $this->runner = $runner;
+        $this->directories = $directories;
     }
 
     protected function configure()
     {
-        $this->addOption('destructive', 'd', InputOption::VALUE_NONE);
+        $this->addOption('destructive', 'd', InputOption::VALUE_NONE)
+            ->addOption('limit', 'l', InputOption::VALUE_OPTIONAL, '', 0);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $output->writeln('Get collection from directory: "' . __DIR__ . '/../../Version"');
+        $output->writeln('Get collection from directories');
 
-        $collectionLoader = MigrationCollectionLoader::create();
+        foreach ($this->directories as $namespace => $directory) {
+            $this->collector->addDirectory($directory, $namespace);
+        }
 
-        $collectionLoader->addDirectory(__DIR__ . '/../../Version', 'Shopware\Core\Version');
-
-        $collection = $collectionLoader->getMigrationCollection();
-
-        $output->writeln('Create Runner');
-
-        $runner = MigrationRuntime::create('test_migration_table', $this->container);
+        $this->collector->syncMigrationCollection();
 
         $output->writeln('migrate Migrations');
 
         $destructive = (bool) $input->getOption('destructive');
+        $limit = (int) $input->getOption('limit');
 
-        $runner->migrate($collection, $destructive);
+        try {
+            $this->runner->migrate($destructive, $limit);
+        } catch (\Exception $e) {
+            $output->writeln('migrate error "' . $e->getMessage() . '"');
+
+            return;
+        }
+
+        $output->writeln('all migrations executed');
     }
 }

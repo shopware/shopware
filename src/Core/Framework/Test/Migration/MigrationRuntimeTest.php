@@ -1,0 +1,245 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Framework\Test\Migration\Integration;
+
+use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
+use Shopware\Core\Framework\Migration\MigrationRuntime;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+
+class MigrationRuntimeTest extends TestCase
+{
+    use IntegrationTestBehaviour;
+
+    /**
+     * @var Connection
+     */
+    private $connection;
+
+    /**
+     * @var MigrationRuntime
+     */
+    private $runner;
+
+    protected function setUp()
+    {
+        $container = self::getKernel()->getContainer();
+        $this->connection = $container->get(Connection::class);
+        $this->runner = $container->get(MigrationRuntime::class);
+
+        $collector = $this->getCollector();
+        $collector->addDirectory(
+            __DIR__ . '/_test_migrations_valid_run_time',
+            'Shopware\Core\Framework\Test\Migration\_test_migrations_valid_run_time'
+        );
+        $collector->syncMigrationCollection();
+    }
+
+    protected function tearDown()
+    {
+        $this->connection->executeQuery(
+            'DELETE FROM `migration`
+              WHERE `class` LIKE \'%_test_migrations_valid_run_time%\'
+              OR `class` LIKE \'%_test_migrations_valid_run_time_exceptions%\''
+        );
+    }
+
+    public function test_it_works_with_a_single_migration()
+    {
+        $migrations = $this->getMigrations();
+        self::assertNull($migrations[0]['update']);
+        self::assertNull($migrations[0]['update_destructive']);
+        self::assertNull($migrations[1]['update']);
+        self::assertNull($migrations[1]['update_destructive']);
+
+        $this->runner->migrate(false, 1);
+
+        $migrations = $this->getMigrations();
+        self::assertNotNull($migrations[0]['update']);
+        self::assertNull($migrations[0]['update_destructive']);
+        self::assertNull($migrations[1]['update']);
+        self::assertNull($migrations[1]['update_destructive']);
+    }
+
+    public function test_it_works_with_multiple_migrations()
+    {
+        $migrations = $this->getMigrations();
+        self::assertNull($migrations[0]['update']);
+        self::assertNull($migrations[0]['update_destructive']);
+        self::assertNull($migrations[1]['update']);
+        self::assertNull($migrations[1]['update_destructive']);
+
+        $this->runner->migrate(false, 0);
+
+        $migrations = $this->getMigrations();
+        self::assertNotNull($migrations[0]['update']);
+        self::assertNull($migrations[0]['update_destructive']);
+        self::assertNotNull($migrations[1]['update']);
+        self::assertNull($migrations[1]['update_destructive']);
+    }
+
+    public function test_it_skips_already_executed_migrations()
+    {
+        $migrations = $this->getMigrations();
+        self::assertNull($migrations[0]['update']);
+        self::assertNull($migrations[0]['update_destructive']);
+        self::assertNull($migrations[1]['update']);
+        self::assertNull($migrations[1]['update_destructive']);
+
+        $this->runner->migrate(false, 0);
+
+        $migrations = $this->getMigrations();
+        self::assertNotNull($migrations[0]['update']);
+        self::assertNull($migrations[0]['update_destructive']);
+        self::assertNotNull($migrations[1]['update']);
+        self::assertNull($migrations[1]['update_destructive']);
+
+        $oldDate = $migrations[0]['update'];
+
+        $this->runner->migrate(false, 0);
+
+        $migrations = $this->getMigrations();
+        self::assertSame($oldDate, $migrations[0]['update']);
+        self::assertNotNull($migrations[0]['update']);
+        self::assertNull($migrations[0]['update_destructive']);
+        self::assertNotNull($migrations[1]['update']);
+        self::assertNull($migrations[1]['update_destructive']);
+    }
+
+    public function test_no_destructive_if_no_none_destructive()
+    {
+        $migrations = $this->getMigrations();
+        self::assertNull($migrations[0]['update']);
+        self::assertNull($migrations[0]['update_destructive']);
+        self::assertNull($migrations[1]['update']);
+        self::assertNull($migrations[1]['update_destructive']);
+
+        $this->runner->migrate(true, 0);
+
+        $migrations = $this->getMigrations();
+        self::assertNull($migrations[0]['update']);
+        self::assertNull($migrations[0]['update_destructive']);
+        self::assertNull($migrations[1]['update']);
+        self::assertNull($migrations[1]['update_destructive']);
+    }
+
+    public function test_destructive_if_one_none_destructive()
+    {
+        $migrations = $this->getMigrations();
+        self::assertNull($migrations[0]['update']);
+        self::assertNull($migrations[0]['update_destructive']);
+        self::assertNull($migrations[1]['update']);
+        self::assertNull($migrations[1]['update_destructive']);
+
+        $this->runner->migrate(false, 1);
+
+        $migrations = $this->getMigrations();
+        self::assertNotNull($migrations[0]['update']);
+        self::assertNull($migrations[0]['update_destructive']);
+        self::assertNull($migrations[1]['update']);
+        self::assertNull($migrations[1]['update_destructive']);
+
+        $this->runner->migrate(true, 0);
+
+        $migrations = $this->getMigrations();
+        self::assertNotNull($migrations[0]['update']);
+        self::assertNotNull($migrations[0]['update_destructive']);
+        self::assertNull($migrations[1]['update']);
+        self::assertNull($migrations[1]['update_destructive']);
+    }
+
+    public function test_destructive_if_multiple_none_destructive()
+    {
+        $migrations = $this->getMigrations();
+        self::assertNull($migrations[0]['update']);
+        self::assertNull($migrations[0]['update_destructive']);
+        self::assertNull($migrations[1]['update']);
+        self::assertNull($migrations[1]['update_destructive']);
+
+        $this->runner->migrate(false, 0);
+
+        $migrations = $this->getMigrations();
+        self::assertNotNull($migrations[0]['update']);
+        self::assertNull($migrations[0]['update_destructive']);
+        self::assertNotNull($migrations[1]['update']);
+        self::assertNull($migrations[1]['update_destructive']);
+
+        $this->runner->migrate(true, 0);
+
+        $migrations = $this->getMigrations();
+        self::assertNotNull($migrations[0]['update']);
+        self::assertNotNull($migrations[0]['update_destructive']);
+        self::assertNotNull($migrations[1]['update']);
+        self::assertNotNull($migrations[1]['update_destructive']);
+    }
+
+    public function test_exception_handling()
+    {
+        $collector = $this->getCollector();
+        $collector->addDirectory(
+            __DIR__ . '/_test_migrations_valid_run_time_exceptions',
+            'Shopware\Core\Framework\Test\Migration\_test_migrations_valid_run_time_exceptions'
+        );
+        $collector->syncMigrationCollection();
+
+        try {
+            $this->runner->migrate(false, 0);
+        } catch (\Exception $e) {
+            //nth
+        }
+
+        $migrations = $this->getMigrations();
+        self::assertNull($migrations[0]['message']);
+        self::assertNotNull($migrations[0]['update']);
+        self::assertSame('update', $migrations[3]['message']);
+        self::assertNull($migrations[3]['update']);
+    }
+
+    public function test_exception_handling_destructive()
+    {
+        $collector = $this->getCollector();
+        $collector->addDirectory(
+            __DIR__ . '/_test_migrations_valid_run_time_exceptions',
+            'Shopware\Core\Framework\Test\Migration\_test_migrations_valid_run_time_exceptions'
+        );
+        $collector->syncMigrationCollection();
+
+        try {
+            $this->runner->migrate(false, 0);
+        } catch (\Exception $e) {
+            //nth
+        }
+
+        try {
+            $this->runner->migrate(true, 0);
+        } catch (\Exception $e) {
+            //nth
+        }
+
+        $migrations = $this->getMigrations();
+        self::assertNull($migrations[0]['message']);
+        self::assertNotNull($migrations[0]['update_destructive']);
+        self::assertSame('update destructive', $migrations[2]['message']);
+        self::assertNull($migrations[2]['update_destructive']);
+        self::assertNull($migrations[3]['update_destructive']);
+        self::assertSame('update', $migrations[3]['message']);
+    }
+
+    private function getCollector(): MigrationCollectionLoader
+    {
+        return self::getKernel()->getContainer()->get(MigrationCollectionLoader::class);
+    }
+
+    private function getMigrations(): array
+    {
+        return $this->connection->createQueryBuilder()
+            ->select('*')
+            ->from('migration')
+            ->where('`class` LIKE \'%_test_migrations_valid_run_time%\'
+              OR `class` LIKE \'%_test_migrations_valid_run_time_exceptions%\'')
+            ->orderBy('creation_time_stamp', 'ASC')
+            ->execute()
+            ->fetchAll();
+    }
+}

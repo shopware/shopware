@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Media\Util;
+namespace Shopware\Core\Content\Media\Migration;
 
 use League\Flysystem\FilesystemInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Media\Event\MigrateAdvanceEvent;
 use Shopware\Core\Content\Media\Event\MigrateFinishEvent;
 use Shopware\Core\Content\Media\Event\MigrateStartEvent;
-use Shopware\Core\Content\Media\Util\PathnameStrategy\PathnameStrategyInterface;
+use Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class MediaMigration implements MediaMigrationInterface

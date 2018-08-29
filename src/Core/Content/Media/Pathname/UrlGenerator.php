@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Media\Util;
+namespace Shopware\Core\Content\Media\Pathname;
 
 use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
-use Shopware\Core\Content\Media\Util\PathnameStrategy\PathnameStrategyInterface;
+use Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 class UrlGenerator implements UrlGeneratorInterface

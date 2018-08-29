@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Media\Subscriber;
 
 use League\Flysystem\FilesystemInterface;
-use Shopware\Core\Content\Media\Util\PathnameStrategy\PathnameStrategyInterface;
+use Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface;
 use Shopware\Core\Framework\ORM\Event\EntityDeletedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 

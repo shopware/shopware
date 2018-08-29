@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\Media\Upload;
+namespace Shopware\Core\Content\Test\Media\File;
 
 use Doctrine\DBAL\Connection;
 use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemInterface;
 use League\Flysystem\Memory\MemoryAdapter;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\Upload\FileSaver;
-use Shopware\Core\Content\Media\Util\UrlGeneratorInterface;
+use Shopware\Core\Content\Media\File\FileSaver;
+use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;

@@ -7,7 +7,7 @@ use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\Media\Event\MediaFileUploadedEvent;
 use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
 use Shopware\Core\Content\Media\Exception\ThumbnailCouldNotBeSavedException;
-use Shopware\Core\Content\Media\Util\UrlGeneratorInterface;
+use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\EntityRepository;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;

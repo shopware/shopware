@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Media\Util\PathnameStrategy;
+namespace Shopware\Core\Content\Media\Pathname\PathnameStrategy;
 
 use Shopware\Core\Content\Media\Exception\StrategyNotFoundException;
 

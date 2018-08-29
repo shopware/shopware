@@ -3,9 +3,9 @@
 namespace Shopware\Core\Content\Media\Api;
 
 use Shopware\Core\Content\Media\Exception\MissingFileExtensionException;
+use Shopware\Core\Content\Media\File\FileFetcher;
+use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\MediaDefinition;
-use Shopware\Core\Content\Media\Upload\FileFetcher;
-use Shopware\Core\Content\Media\Upload\FileSaver;
 use Shopware\Core\Framework\Api\Response\ResponseFactory;
 use Shopware\Core\Framework\Context;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;

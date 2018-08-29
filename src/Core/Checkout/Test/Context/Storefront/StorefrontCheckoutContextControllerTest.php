@@ -11,7 +11,6 @@ use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\StorefrontApiTestBehaviour;
-use Shopware\Storefront\StorefrontRequest;
 
 class StorefrontCheckoutContextControllerTest extends TestCase
 {

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Test\Payment;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
@@ -14,10 +15,14 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
-class TokenFactoryTest extends KernelTestCase
+class TokenFactoryTest extends TestCase
 {
+    use DatabaseTransactionBehaviour,
+        KernelTestBehaviour;
+
     /**
      * @var PaymentTransactionTokenFactory
      */
@@ -55,16 +60,14 @@ class TokenFactoryTest extends KernelTestCase
 
     public function setUp()
     {
-        self::bootKernel();
-
-        $this->tokenFactory = self::$container->get(PaymentTransactionTokenFactory::class);
+        $this->tokenFactory = $this->getContainer()->get(PaymentTransactionTokenFactory::class);
         $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
-        $this->connection = self::$container->get(Connection::class);
+        $this->connection = $this->getContainer()->get(Connection::class);
 
-        $this->orderRepository = self::$container->get('order.repository');
-        $this->customerRepository = self::$container->get('customer.repository');
-        $this->orderTransactionRepository = self::$container->get('order_transaction.repository');
-        $this->countryRepository = self::$container->get('country.repository');
+        $this->orderRepository = $this->getContainer()->get('order.repository');
+        $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->orderTransactionRepository = $this->getContainer()->get('order_transaction.repository');
+        $this->countryRepository = $this->getContainer()->get('country.repository');
     }
 
     /**

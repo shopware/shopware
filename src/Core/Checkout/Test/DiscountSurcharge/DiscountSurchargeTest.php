@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Test\DiscountSurcharge;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Enrichment;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -19,10 +20,14 @@ use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Uuid;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
-class DiscountSurchargeTest extends KernelTestCase
+class DiscountSurchargeTest extends TestCase
 {
+    use KernelTestBehaviour,
+        DatabaseTransactionBehaviour;
+
     /**
      * @var RepositoryInterface
      */
@@ -65,28 +70,18 @@ class DiscountSurchargeTest extends KernelTestCase
 
     public function setUp()
     {
-        parent::setUp();
+        self::$ruleRepository = $this->getContainer()->get('rule.repository');
 
-        self::bootKernel();
-        self::$ruleRepository = self::$container->get('rule.repository');
+        self::$connection = $this->getContainer()->get(Connection::class);
 
-        self::$connection = self::$container->get(Connection::class);
-        self::$connection->beginTransaction();
-
-        self::$productRepository = self::$container->get('product.repository');
-        self::$discountSurchargeRepository = self::$kernel->getContainer()->get('discount_surcharge.repository');
-        self::$factory = self::$container->get(CheckoutContextFactory::class);
+        self::$productRepository = $this->getContainer()->get('product.repository');
+        self::$discountSurchargeRepository = $this->getContainer()->get('discount_surcharge.repository');
+        self::$factory = $this->getContainer()->get(CheckoutContextFactory::class);
 
         self::$context = self::$factory->create(Defaults::TENANT_ID, Defaults::TENANT_ID, Defaults::SALES_CHANNEL);
 
-        self::$processor = self::$container->get(Processor::class);
-        self::$enrichment = self::$container->get(Enrichment::class);
-    }
-
-    protected function tearDown()
-    {
-        self::$connection->rollBack();
-        parent::tearDown();
+        self::$processor = $this->getContainer()->get(Processor::class);
+        self::$enrichment = $this->getContainer()->get(Enrichment::class);
     }
 
     public function testAbsoulteSurcharge()

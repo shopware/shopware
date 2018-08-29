@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Repository;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
@@ -10,10 +11,14 @@ use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Struct\Uuid;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
-class ContextRepositoryTest extends KernelTestCase
+class ContextRepositoryTest extends TestCase
 {
+    use KernelTestBehaviour,
+        DatabaseTransactionBehaviour;
+
     /**
      * @var Connection
      */
@@ -31,17 +36,9 @@ class ContextRepositoryTest extends KernelTestCase
 
     public function setUp()
     {
-        self::bootKernel();
-        $this->repository = self::$container->get('rule.repository');
-        $this->connection = self::$container->get(Connection::class);
+        $this->repository = $this->getContainer()->get('rule.repository');
+        $this->connection = $this->getContainer()->get(Connection::class);
         $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
-        $this->connection->beginTransaction();
-    }
-
-    public function tearDown(): void
-    {
-        $this->connection->rollBack();
-        parent::tearDown();
     }
 
     public function testWriteRuleWithObject()

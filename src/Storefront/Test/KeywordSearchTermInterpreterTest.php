@@ -3,15 +3,18 @@
 namespace Shopware\Storefront\Test;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Search\Term\SearchTerm;
 use Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreterInterface;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
-class KeywordSearchTermInterpreterTest extends KernelTestCase
+class KeywordSearchTermInterpreterTest extends TestCase
 {
+    use IntegrationTestBehaviour;
+
     /**
      * @var \Doctrine\DBAL\Connection
      */
@@ -24,21 +27,9 @@ class KeywordSearchTermInterpreterTest extends KernelTestCase
 
     public function setUp()
     {
-        self::bootKernel();
-
-        $this->connection = self::$container->get(Connection::class);
-        $this->interpreter = self::$container->get(KeywordSearchTermInterpreterInterface::class);
-        $this->connection->beginTransaction();
-        $this->connection->executeUpdate('DELETE FROM search_dictionary');
-
+        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->interpreter = $this->getContainer()->get(KeywordSearchTermInterpreterInterface::class);
         $this->setupKeywords();
-    }
-
-    public function tearDown()
-    {
-        $this->connection->rollBack();
-
-        parent::tearDown();
     }
 
     /**

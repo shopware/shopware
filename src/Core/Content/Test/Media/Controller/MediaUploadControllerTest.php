@@ -10,18 +10,13 @@ use Shopware\Core\Content\Media\Util\UrlGeneratorInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
-use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 
 class MediaUploadControllerTest extends TestCase
 {
-    use DatabaseTransactionBehaviour,
-        KernelTestBehaviour,
-        AdminApiTestBehaviour;
-
+    use AdminFunctionalTestBehaviour;
 
     const TEST_IMAGE = __DIR__ . '/../fixtures/shopware-logo.png';
 

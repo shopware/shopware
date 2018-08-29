@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\ORM;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -17,29 +18,17 @@ use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\ORM\VersionManager;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Locale\LocaleDefinition;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class EntityRepositoryTest extends KernelTestCase
+class EntityRepositoryTest extends TestCase
 {
+    use IntegrationTestBehaviour;
+
     /**
      * @var Connection
      */
     private $connection;
-
-    protected function setUp()
-    {
-        self::bootKernel();
-        parent::setUp();
-        $this->connection = self::$container->get(Connection::class);
-        $this->connection->beginTransaction();
-    }
-
-    protected function tearDown()
-    {
-        $this->connection->rollBack();
-        parent::tearDown();
-    }
 
     public function testWrite()
     {
@@ -67,7 +56,7 @@ class EntityRepositoryTest extends KernelTestCase
 
         $id = Uuid::uuid4()->getHex();
 
-        $dispatcher = self::$container->get('event_dispatcher');
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::exactly(1))->method('__invoke');
@@ -126,7 +115,7 @@ class EntityRepositoryTest extends KernelTestCase
             $context
         );
 
-        $dispatcher = self::$container->get('event_dispatcher');
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::exactly(1))->method('__invoke');
@@ -172,7 +161,7 @@ class EntityRepositoryTest extends KernelTestCase
             $context
         );
 
-        $dispatcher = self::$container->get('event_dispatcher');
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::exactly(1))->method('__invoke');
@@ -206,7 +195,7 @@ class EntityRepositoryTest extends KernelTestCase
         $id = Uuid::uuid4()->getHex();
         $id2 = Uuid::uuid4()->getHex();
 
-        $dispatcher = self::$container->get('event_dispatcher');
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::exactly(1))->method('__invoke');
@@ -325,11 +314,11 @@ class EntityRepositoryTest extends KernelTestCase
     {
         return new EntityRepository(
             $definition,
-            self::$container->get(EntityReaderInterface::class),
-            self::$container->get(VersionManager::class),
-            self::$container->get(EntitySearcherInterface::class),
-            self::$container->get(EntityAggregatorInterface::class),
-            self::$container->get('event_dispatcher')
+            $this->getContainer()->get(EntityReaderInterface::class),
+            $this->getContainer()->get(VersionManager::class),
+            $this->getContainer()->get(EntitySearcherInterface::class),
+            $this->getContainer()->get(EntityAggregatorInterface::class),
+            $this->getContainer()->get('event_dispatcher')
         );
     }
 }

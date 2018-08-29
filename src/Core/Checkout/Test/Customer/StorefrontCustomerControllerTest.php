@@ -11,18 +11,13 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\StorefrontApiTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\StorefrontFunctionalTestBehaviour;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Serializer;
 
 class StorefrontCustomerControllerTest extends TestCase
 {
-    use StorefrontApiTestBehaviour,
-        DatabaseTransactionBehaviour,
-        KernelTestBehaviour;
+    use StorefrontFunctionalTestBehaviour;
 
     /**
      * @var RepositoryInterface

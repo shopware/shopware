@@ -3,16 +3,19 @@
 namespace Shopware\Core\Framework\Test\Api\Controller;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Api\Controller\SyncController;
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Core\Framework\Test\Api\ApiTestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 
-class SyncControllerTest extends ApiTestCase
+class SyncControllerTest extends TestCase
 {
+    use AdminFunctionalTestBehaviour;
+
     /**
      * @var Connection
      */
@@ -20,8 +23,6 @@ class SyncControllerTest extends ApiTestCase
 
     protected function setUp()
     {
-        parent::setUp();
-
         $this->connection = $this->getContainer()->get(Connection::class);
     }
 
@@ -54,22 +55,22 @@ class SyncControllerTest extends ApiTestCase
             ],
         ];
 
-        $this->apiClient->request('POST', '/api/sync', [], [], [], json_encode($data));
-        $response = $this->apiClient->getResponse();
+        $this->getClient()->request('POST', '/api/sync', [], [], [], json_encode($data));
+        $response = $this->getClient()->getResponse();
 
         self::assertSame(200, $response->getStatusCode(), $response->getContent());
 
-        $this->apiClient->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id1->getHex());
-        static::assertSame(Response::HTTP_OK, $this->apiClient->getResponse()->getStatusCode());
+        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id1->getHex());
+        static::assertSame(Response::HTTP_OK, $this->getClient()->getResponse()->getStatusCode());
 
-        $this->apiClient->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id2->getHex());
-        static::assertSame(Response::HTTP_OK, $this->apiClient->getResponse()->getStatusCode());
+        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id2->getHex());
+        static::assertSame(Response::HTTP_OK, $this->getClient()->getResponse()->getStatusCode());
 
-        $this->apiClient->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id1->getHex());
-        static::assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode());
+        $this->getClient()->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id1->getHex());
+        static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode());
 
-        $this->apiClient->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id2->getHex());
-        static::assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode());
+        $this->getClient()->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id2->getHex());
+        static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode());
     }
 
     public function testInsertAndUpdateSameEntity(): void
@@ -102,17 +103,17 @@ class SyncControllerTest extends ApiTestCase
             ],
         ];
 
-        $this->apiClient->request('POST', '/api/sync', [], [], [], json_encode($data));
-        self::assertSame(200, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
+        $this->getClient()->request('POST', '/api/sync', [], [], [], json_encode($data));
+        self::assertSame(200, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
 
-        $this->apiClient->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id);
-        static::assertSame(Response::HTTP_OK, $this->apiClient->getResponse()->getStatusCode());
+        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id);
+        static::assertSame(Response::HTTP_OK, $this->getClient()->getResponse()->getStatusCode());
 
-        $responseData = json_decode($this->apiClient->getResponse()->getContent(), true);
+        $responseData = json_decode($this->getClient()->getResponse()->getContent(), true);
         static::assertEquals(false, $responseData['data']['attributes']['active']);
 
-        $this->apiClient->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id);
-        static::assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode());
+        $this->getClient()->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id);
+        static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode());
     }
 
     public function testInsertAndLinkEntities(): void
@@ -146,25 +147,25 @@ class SyncControllerTest extends ApiTestCase
             ],
         ];
 
-        $this->apiClient->request('POST', '/api/sync', [], [], [], json_encode($data));
+        $this->getClient()->request('POST', '/api/sync', [], [], [], json_encode($data));
 
-        $response = $this->apiClient->getResponse();
+        $response = $this->getClient()->getResponse();
         self::assertSame(200, $response->getStatusCode());
 
-        $this->apiClient->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $productId . '/categories');
-        $responseData = json_decode($this->apiClient->getResponse()->getContent(), true);
+        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $productId . '/categories');
+        $responseData = json_decode($this->getClient()->getResponse()->getContent(), true);
 
-        static::assertSame(Response::HTTP_OK, $this->apiClient->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $this->getClient()->getResponse()->getStatusCode());
         $categories = array_column($responseData['data'], 'id');
 
         static::assertContains($categoryId, $categories);
         static::assertCount(1, $categories, 'Category Ids should not contain: ' . print_r(array_diff($categories, [$categoryId]), true));
 
-        $this->apiClient->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/category/' . $categoryId);
-        static::assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
+        $this->getClient()->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/category/' . $categoryId);
+        static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
 
-        $this->apiClient->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $productId);
-        static::assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
+        $this->getClient()->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $productId);
+        static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
     }
 
     public function testNestedInsertAndLinkAfter(): void
@@ -204,23 +205,23 @@ class SyncControllerTest extends ApiTestCase
             ],
         ];
 
-        $this->apiClient->request('POST', '/api/sync', [], [], [], json_encode($data));
+        $this->getClient()->request('POST', '/api/sync', [], [], [], json_encode($data));
 
-        $this->apiClient->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $product . '/categories');
-        $responseData = json_decode($this->apiClient->getResponse()->getContent(), true);
+        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $product . '/categories');
+        $responseData = json_decode($this->getClient()->getResponse()->getContent(), true);
         $categories = array_column($responseData['data'], 'id');
         static::assertContains($category, $categories);
         static::assertCount(1, $categories);
 
-        $this->apiClient->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $product2 . '/categories');
-        $responseData = json_decode($this->apiClient->getResponse()->getContent(), true);
+        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $product2 . '/categories');
+        $responseData = json_decode($this->getClient()->getResponse()->getContent(), true);
 
         $categories = array_column($responseData['data'], 'id');
         static::assertContains($category, $categories);
         static::assertCount(1, $categories);
 
-        $this->apiClient->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/category/' . $category . '/products/');
-        $responseData = json_decode($this->apiClient->getResponse()->getContent(), true);
+        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/category/' . $category . '/products/');
+        $responseData = json_decode($this->getClient()->getResponse()->getContent(), true);
         $products = array_column($responseData['data'], 'id');
 
         static::assertContains($product, $products);
@@ -257,7 +258,7 @@ class SyncControllerTest extends ApiTestCase
             ],
         ];
 
-        $this->apiClient->request('POST', '/api/sync', [], [], [], json_encode($data));
+        $this->getClient()->request('POST', '/api/sync', [], [], [], json_encode($data));
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM product WHERE id IN(:id)',
@@ -279,7 +280,7 @@ class SyncControllerTest extends ApiTestCase
             ],
         ];
 
-        $this->apiClient->request('POST', '/api/sync', [], [], [], json_encode($data));
+        $this->getClient()->request('POST', '/api/sync', [], [], [], json_encode($data));
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM product WHERE id IN (:id)',

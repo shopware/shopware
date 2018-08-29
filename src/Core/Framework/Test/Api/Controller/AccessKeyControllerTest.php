@@ -3,17 +3,20 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\Test\Api\Controller;
 
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
-use Shopware\Core\Framework\Test\Api\ApiTestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\PlatformRequest;
 
-class AccessKeyControllerTest extends ApiTestCase
+class AccessKeyControllerTest extends TestCase
 {
+    use AdminFunctionalTestBehaviour;
+
     public function testIntegrationAccessKey()
     {
-        $this->apiClient->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/integration/actions/generate-key');
+        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/integration/actions/generate-key');
 
-        $response = $this->apiClient->getResponse();
+        $response = $this->getClient()->getResponse();
         $body = json_decode($response->getContent(), true);
 
         static::assertSame(200, $response->getStatusCode(), print_r($body, true));
@@ -33,9 +36,9 @@ class AccessKeyControllerTest extends ApiTestCase
 
     public function testUserAccessKey()
     {
-        $this->apiClient->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/user/actions/generate-key');
+        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/user/actions/generate-key');
 
-        $response = $this->apiClient->getResponse();
+        $response = $this->getClient()->getResponse();
         $body = json_decode($response->getContent(), true);
 
         static::assertSame(200, $response->getStatusCode(), print_r($body, true));
@@ -55,9 +58,9 @@ class AccessKeyControllerTest extends ApiTestCase
 
     public function testSalesChannelAccessKey()
     {
-        $this->apiClient->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/sales-channel/actions/generate-key');
+        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/sales-channel/actions/generate-key');
 
-        $response = $this->apiClient->getResponse();
+        $response = $this->getClient()->getResponse();
         $body = json_decode($response->getContent(), true);
 
         static::assertSame(200, $response->getStatusCode(), print_r($body, true));

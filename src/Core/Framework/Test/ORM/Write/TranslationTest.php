@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Shopware\Core\Framework\Test\ORM\Write;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
@@ -11,11 +12,13 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Language\LanguageDefinition;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class TranslationTest extends KernelTestCase
+class TranslationTest extends TestCase
 {
+    use IntegrationTestBehaviour;
+
     /**
      * @var RepositoryInterface
      */
@@ -33,20 +36,9 @@ class TranslationTest extends KernelTestCase
 
     protected function setUp()
     {
-        self::bootKernel();
-        parent::setUp();
-
-        $this->repository = self::$container->get('product.repository');
-        $this->connection = self::$container->get(Connection::class);
-        $this->connection->beginTransaction();
-
+        $this->repository = $this->getContainer()->get('product.repository');
+        $this->connection = $this->getContainer()->get(Connection::class);
         $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
-    }
-
-    protected function tearDown()
-    {
-        $this->connection->rollBack();
-        parent::tearDown();
     }
 
     public function testProductWithDifferentTranslations(): void

@@ -3,18 +3,21 @@
 namespace Shopware\Core\Framework\Test\Translation;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Translation\Translator;
 use Shopware\Core\PlatformRequest;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
-class TranslatorTest extends KernelTestCase
+class TranslatorTest extends TestCase
 {
+    use IntegrationTestBehaviour;
+
     /**
      * @var Connection
      */
@@ -37,20 +40,12 @@ class TranslatorTest extends KernelTestCase
 
     protected function setUp()
     {
-        self::bootKernel();
+        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->translator = $this->getContainer()->get(Translator::class);
+        $this->snippetRepository = $this->getContainer()->get('snippet.repository');
+        $this->languageRepository = $this->getContainer()->get('language.repository');
 
-        $this->connection = self::$container->get(Connection::class);
-        $this->translator = self::$container->get(Translator::class);
-        $this->snippetRepository = self::$container->get('snippet.repository');
-        $this->languageRepository = self::$container->get('language.repository');
-
-        $this->connection->beginTransaction();
-    }
-
-    protected function tearDown()
-    {
-        $this->connection->rollBack();
-        parent::tearDown();
+        $this->translator->resetInMemoryCache();
     }
 
     public function testPassthru(): void
@@ -75,12 +70,16 @@ class TranslatorTest extends KernelTestCase
         // fake request
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context);
-        self::$container->get(RequestStack::class)->push($request);
+        $this->getContainer()->get(RequestStack::class)->push($request);
 
         // get overwritten string
         static::assertEquals(
             $snippet['value'],
             $this->translator->getCatalogue('en_GB')->get('frontend.index.footer.IndexCopyright')
+        );
+        static::assertSame(
+            $request,
+            $this->getContainer()->get(RequestStack::class)->pop()
         );
     }
 
@@ -120,16 +119,16 @@ class TranslatorTest extends KernelTestCase
         // fake request
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context);
-        self::$container->get(RequestStack::class)->push($request);
+        $this->getContainer()->get(RequestStack::class)->push($request);
 
         // get default snippet because of default context
         static::assertEquals(
-            $snippets[1]['value'],
+            'Realisiert with default language',
             $this->translator->getCatalogue('en_GB')->get('frontend.index.footer.IndexCopyright')
         );
 
         // remove old faked request
-        $oldRequest = self::$container->get(RequestStack::class)->pop();
+        $oldRequest = $this->getContainer()->get(RequestStack::class)->pop();
         static::assertSame($request, $oldRequest);
 
         /**
@@ -150,16 +149,16 @@ class TranslatorTest extends KernelTestCase
         // fake new request
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context);
-        self::$container->get(RequestStack::class)->push($request);
+        $this->getContainer()->get(RequestStack::class)->push($request);
 
         // get overwritten string because changed languages
         static::assertEquals(
-            $snippets[0]['value'],
+            'Realisiert mit Unit test',
             $this->translator->getCatalogue('en_GB')->get('frontend.index.footer.IndexCopyright')
         );
 
         // remove old faked request
-        $oldRequest = self::$container->get(RequestStack::class)->pop();
+        $oldRequest = $this->getContainer()->get(RequestStack::class)->pop();
         static::assertSame($request, $oldRequest);
 
         /**
@@ -178,7 +177,7 @@ class TranslatorTest extends KernelTestCase
         // fake new request
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context);
-        self::$container->get(RequestStack::class)->push($request);
+        $this->getContainer()->get(RequestStack::class)->push($request);
 
         // get overwritten string because changed languages
         static::assertEquals(

@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Test\Media\Subscriber;
 
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemInterface;
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Upload\MediaUpdater;
 use Shopware\Core\Content\Media\Util\UrlGenerator;
 use Shopware\Core\Content\Media\Util\UrlGeneratorInterface;
@@ -11,10 +12,12 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
-class MediaDeletedSubscriberTest extends KernelTestCase
+class MediaDeletedSubscriberTest extends TestCase
 {
+    use IntegrationTestBehaviour;
+
     const TEST_IMAGE = __DIR__ . '/../fixtures/shopware-logo.png';
 
     /**
@@ -40,19 +43,11 @@ class MediaDeletedSubscriberTest extends KernelTestCase
 
     public function setUp()
     {
-        self::bootKernel();
-        $this->mediaUpdater = self::$container->get(MediaUpdater::class);
-        $this->repository = self::$container->get('media.repository');
-        $this->connection = self::$container->get(Connection::class);
-        $this->urlGenerator = self::$container->get(UrlGeneratorInterface::class);
-        $this->filesystem = self::$container->get('shopware.filesystem.public');
-        $this->connection->beginTransaction();
-    }
-
-    public function tearDown(): void
-    {
-        $this->connection->rollBack();
-        parent::tearDown();
+        $this->mediaUpdater = $this->getContainer()->get(MediaUpdater::class);
+        $this->repository = $this->getContainer()->get('media.repository');
+        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
+        $this->filesystem = $this->getContainer()->get('shopware.filesystem.public');
     }
 
     public function testDeleteSubscriber()

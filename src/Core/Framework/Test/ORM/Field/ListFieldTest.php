@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\ORM\Field;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Write\EntityWriter;
@@ -12,10 +13,12 @@ use Shopware\Core\Framework\ORM\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\ORM\Write\WriteContext;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\ORM\Field\TestDefinition\ListDefinition;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
-class ListFieldTest extends KernelTestCase
+class ListFieldTest extends TestCase
 {
+    use KernelTestBehaviour;
+
     /**
      * @var Connection
      */
@@ -23,9 +26,7 @@ class ListFieldTest extends KernelTestCase
 
     public function setUp()
     {
-        self::bootKernel();
-        $this->connection = self::$container->get(Connection::class);
-        $this->connection->beginTransaction();
+        $this->connection = $this->getContainer()->get(Connection::class);
 
         $nullableTable = <<<EOF
 CREATE TABLE `_test_nullable` (
@@ -35,13 +36,14 @@ CREATE TABLE `_test_nullable` (
 );
 EOF;
         $this->connection->executeUpdate($nullableTable);
+        $this->connection->beginTransaction();
     }
 
     public function tearDown(): void
     {
+        $this->connection->rollBack();
         $this->connection->executeUpdate('DROP TABLE `_test_nullable`');
 
-        $this->connection->rollBack();
         parent::tearDown();
     }
 
@@ -143,6 +145,6 @@ EOF;
 
     private function getWriter(): EntityWriterInterface
     {
-        return self::$container->get(EntityWriter::class);
+        return $this->getContainer()->get(EntityWriter::class);
     }
 }

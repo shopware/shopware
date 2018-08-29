@@ -9,16 +9,11 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\StorefrontApiTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\StorefrontFunctionalTestBehaviour;
 
 class StorefrontCategoryControllerTest extends TestCase
 {
-    use StorefrontApiTestBehaviour,
-        DatabaseTransactionBehaviour,
-        KernelTestBehaviour;
+    use StorefrontFunctionalTestBehaviour;
 
     /**
      * @var RepositoryInterface
@@ -40,9 +35,7 @@ class StorefrontCategoryControllerTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->repository = $this->getContainer()->get('category.repository');
         $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
-        $this->connection->executeUpdate('DELETE FROM category');
     }
-
 
     public function testCategoryListRoute()
     {

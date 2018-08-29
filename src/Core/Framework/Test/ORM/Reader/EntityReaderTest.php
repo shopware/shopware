@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\ORM\Reader;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\CustomerStruct;
 use Shopware\Core\Content\Category\CategoryCollection;
@@ -20,10 +21,12 @@ use Shopware\Core\Framework\ORM\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Uuid;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
-class EntityReaderTest extends KernelTestCase
+class EntityReaderTest extends TestCase
 {
+    use IntegrationTestBehaviour;
+
     /**
      * @var Connection
      */
@@ -36,19 +39,8 @@ class EntityReaderTest extends KernelTestCase
 
     protected function setUp()
     {
-        self::bootKernel();
-        parent::setUp();
-
-        $this->connection = self::$container->get(Connection::class);
-        $this->connection->beginTransaction();
-
-        $this->repository = self::$container->get('product.repository');
-    }
-
-    protected function tearDown()
-    {
-        $this->connection->rollBack();
-        parent::tearDown();
+        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->repository = $this->getContainer()->get('product.repository');
     }
 
     public function testInheritanceExtension()
@@ -109,7 +101,7 @@ class EntityReaderTest extends KernelTestCase
     {
         $ruleA = Uuid::uuid4()->getHex();
 
-        self::$container->get('rule.repository')->create([
+        $this->getContainer()->get('rule.repository')->create([
             [
                 'id' => $ruleA,
                 'name' => 'test',
@@ -254,7 +246,7 @@ class EntityReaderTest extends KernelTestCase
         $id = Uuid::uuid4()->getHex();
         $defaultAddressId = Uuid::uuid4()->getHex();
 
-        $repository = self::$container->get('customer.repository');
+        $repository = $this->getContainer()->get('customer.repository');
 
         $address = [
             'street' => 'A',
@@ -303,7 +295,7 @@ class EntityReaderTest extends KernelTestCase
         $id = Uuid::uuid4()->getHex();
         $defaultAddressId = Uuid::uuid4()->getHex();
 
-        $repository = self::$container->get('customer.repository');
+        $repository = $this->getContainer()->get('customer.repository');
 
         $address = [
             'street' => 'A',
@@ -359,7 +351,7 @@ class EntityReaderTest extends KernelTestCase
         $defaultAddressId1 = Uuid::uuid4()->getHex();
         $defaultAddressId2 = Uuid::uuid4()->getHex();
 
-        $repository = self::$container->get('customer.repository');
+        $repository = $this->getContainer()->get('customer.repository');
 
         $address = [
             'street' => 'A',
@@ -456,7 +448,7 @@ class EntityReaderTest extends KernelTestCase
         $addressId5 = Uuid::uuid4()->getHex();
         $addressId6 = Uuid::uuid4()->getHex();
 
-        $repository = self::$container->get('customer.repository');
+        $repository = $this->getContainer()->get('customer.repository');
 
         $address = [
             'street' => 'A',
@@ -573,7 +565,7 @@ class EntityReaderTest extends KernelTestCase
         $id = Uuid::uuid4()->getHex();
         $defaultAddressId = Uuid::uuid4()->getHex();
 
-        $repository = self::$container->get('customer.repository');
+        $repository = $this->getContainer()->get('customer.repository');
 
         $address = [
             'street' => 'A',
@@ -656,7 +648,7 @@ class EntityReaderTest extends KernelTestCase
             'tax' => ['taxRate' => 13, 'name' => 'green'],
         ];
 
-        $repository = self::$container->get('category.repository');
+        $repository = $this->getContainer()->get('category.repository');
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
 
         $repository->upsert(
@@ -719,7 +711,7 @@ class EntityReaderTest extends KernelTestCase
             'tax' => ['taxRate' => 13, 'name' => 'green'],
         ];
 
-        $repository = self::$container->get('category.repository');
+        $repository = $this->getContainer()->get('category.repository');
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
 
         $repository->upsert(
@@ -793,7 +785,7 @@ class EntityReaderTest extends KernelTestCase
             'tax' => ['taxRate' => 13, 'name' => 'green'],
         ];
 
-        $repository = self::$container->get('category.repository');
+        $repository = $this->getContainer()->get('category.repository');
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
 
         $repository->upsert(
@@ -863,7 +855,7 @@ class EntityReaderTest extends KernelTestCase
             'tax' => ['taxRate' => 13, 'name' => 'green'],
         ];
 
-        $repository = self::$container->get('category.repository');
+        $repository = $this->getContainer()->get('category.repository');
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
 
         $repository->upsert(

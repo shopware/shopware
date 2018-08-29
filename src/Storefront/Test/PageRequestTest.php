@@ -3,17 +3,20 @@
 namespace Shopware\Storefront\Test;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Framework\ORM\EntityRepository;
 use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Page\Account\AccountService;
 use Shopware\Storefront\Page\Account\EmailSaveRequest;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class PageRequestTest extends KernelTestCase
+class PageRequestTest extends TestCase
 {
+    use IntegrationTestBehaviour;
+
     /**
      * @var \Doctrine\DBAL\Connection
      */
@@ -21,9 +24,7 @@ class PageRequestTest extends KernelTestCase
 
     public function setUp()
     {
-        self::bootKernel();
-
-        $this->connection = self::$container->get(Connection::class);
+        $this->connection = $this->getContainer()->get(Connection::class);
     }
 
     public function testPageRequestExtension()

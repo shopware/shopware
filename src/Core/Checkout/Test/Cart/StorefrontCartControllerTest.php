@@ -11,9 +11,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
-use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\StorefrontApiTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\StorefrontFunctionalTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Client;
@@ -21,9 +19,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class StorefrontCartControllerTest extends TestCase
 {
-    use KernelTestBehaviour,
-        StorefrontApiTestBehaviour,
-        DatabaseTransactionBehaviour;
+    use StorefrontFunctionalTestBehaviour;
 
     /**
      * @var RepositoryInterface
@@ -966,10 +962,6 @@ class StorefrontCartControllerTest extends TestCase
 
     private function createCutomer(string $addressId, string $mail, string $password, Context $context)
     {
-        $this->connection->executeUpdate('DELETE FROM customer WHERE email = :mail', [
-            'mail' => $mail,
-        ]);
-
         $this->customerRepository->create([
             [
                 'salesChannelId' => $context->getSourceContext()->getSalesChannelId(),

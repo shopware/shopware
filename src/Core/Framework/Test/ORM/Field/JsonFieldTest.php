@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\ORM\Field;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -15,11 +16,13 @@ use Shopware\Core\Framework\ORM\Write\WriteContext;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\ORM\Field\TestDefinition\JsonDefinition;
 use Shopware\Core\Framework\Test\ORM\Field\TestDefinition\NestedDefinition;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class JsonFieldTest extends KernelTestCase
+class JsonFieldTest extends TestCase
 {
+    use KernelTestBehaviour;
+
     /**
      * @var Connection
      */
@@ -27,9 +30,7 @@ class JsonFieldTest extends KernelTestCase
 
     public function setUp()
     {
-        self::bootKernel();
-        $this->connection = self::$container->get(Connection::class);
-        $this->connection->beginTransaction();
+        $this->connection = $this->getContainer()->get(Connection::class);
 
         $nullableTable = <<<EOF
 DROP TABLE IF EXISTS _test_nullable;
@@ -40,14 +41,13 @@ CREATE TABLE `_test_nullable` (
 );
 EOF;
         $this->connection->executeUpdate($nullableTable);
+        $this->connection->beginTransaction();
     }
 
     public function tearDown(): void
     {
-        $this->connection->executeUpdate('DROP TABLE `_test_nullable`');
-
         $this->connection->rollBack();
-        parent::tearDown();
+        $this->connection->executeUpdate('DROP TABLE `_test_nullable`');
     }
 
     public function testNullableJsonField(): void
@@ -275,6 +275,6 @@ EOF;
 
     private function getWriter(): EntityWriterInterface
     {
-        return self::$container->get(EntityWriter::class);
+        return $this->getContainer()->get(EntityWriter::class);
     }
 }

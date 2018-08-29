@@ -3,15 +3,18 @@
 namespace Shopware\Core\Framework\Test\Api\Controller;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Core\Framework\Test\Api\ApiTestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 
-class AuthControllerTest extends ApiTestCase
+class AuthControllerTest extends TestCase
 {
+    use AdminFunctionalTestBehaviour;
+
     public function testRequiresAuthentication(): void
     {
         $client = $this->getClient();
@@ -95,11 +98,11 @@ class AuthControllerTest extends ApiTestCase
 
     public function testAccessProtectedResourceWithToken(): void
     {
-        $this->apiClient->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/tax');
+        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/tax');
 
-        static::assertEquals(200, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
+        static::assertEquals(200, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
 
-        $response = json_decode($this->apiClient->getResponse()->getContent(), true);
+        $response = json_decode($this->getClient()->getResponse()->getContent(), true);
 
         static::assertArrayNotHasKey('errors', $response);
     }
@@ -142,7 +145,7 @@ class AuthControllerTest extends ApiTestCase
         $username = Uuid::uuid4()->getHex();
         $password = Uuid::uuid4()->getHex();
 
-        self::$container->get(Connection::class)->insert('user', [
+        $this->getContainer()->get(Connection::class)->insert('user', [
             'id' => Uuid::uuid4()->getBytes(),
             'tenant_id' => Uuid::fromHexToBytes(Defaults::TENANT_ID),
             'name' => $username,
@@ -195,8 +198,8 @@ class AuthControllerTest extends ApiTestCase
         $client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['access_token']));
         $client->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/tax');
 
-        static::assertEquals(200, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
-        $response = json_decode($this->apiClient->getResponse()->getContent(), true);
+        static::assertEquals(200, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
+        $response = json_decode($this->getClient()->getResponse()->getContent(), true);
         static::assertArrayNotHasKey('errors', $response);
     }
 
@@ -212,7 +215,7 @@ class AuthControllerTest extends ApiTestCase
         $accessKey = AccessKeyHelper::generateAccessKey('integration');
         $secretKey = AccessKeyHelper::generateSecretAccessKey();
 
-        self::$container->get(Connection::class)->insert('integration', [
+        $this->getContainer()->get(Connection::class)->insert('integration', [
             'id' => Uuid::uuid4()->getBytes(),
             'tenant_id' => Uuid::fromHexToBytes(Defaults::TENANT_ID),
             'label' => 'test integration',

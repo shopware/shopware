@@ -12,17 +12,13 @@ use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\ORM\Search\SearchBuilder;
-use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 
 class SearchCriteriaBuilderTest extends TestCase
 {
-    use DatabaseTransactionBehaviour,
-        KernelTestBehaviour,
-        AdminApiTestBehaviour;
+    use AdminFunctionalTestBehaviour;
 
     /**
      * @var Connection
@@ -45,8 +41,6 @@ class SearchCriteriaBuilderTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->url = '/api/v' . PlatformRequest::API_VERSION;
 
-        // @todo deleting products should not be necessary
-        $this->connection->executeUpdate('DELETE FROM product');
         $this->connection->executeUpdate('DELETE FROM product_manufacturer');
     }
 

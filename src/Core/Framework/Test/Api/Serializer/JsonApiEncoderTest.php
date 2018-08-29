@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Api\Serializer;
 
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -10,9 +11,8 @@ use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
 use Shopware\Core\Framework\Api\Serializer\JsonApiEncoder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\System\User\UserDefinition;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class JsonApiEncoderTest extends KernelTestCase
+class JsonApiEncoderTest extends TestCase
 {
     /**
      * @var JsonApiEncoder
@@ -21,7 +21,6 @@ class JsonApiEncoderTest extends KernelTestCase
 
     public function setUp()
     {
-        self::bootKernel();
         $this->encoder = new JsonApiEncoder();
     }
 

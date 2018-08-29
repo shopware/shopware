@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\Content\Test\Media\Thumbnail;
 
-use Doctrine\DBAL\Connection;
 use League\Flysystem\FileNotFoundException;
 use League\Flysystem\Filesystem;
 use League\Flysystem\Memory\MemoryAdapter;
+use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
 use Shopware\Core\Content\Media\Event\MediaFileUploadedEvent;
 use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
@@ -18,50 +18,59 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\EntityRepository;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
-class ThumbnailServiceTest extends KernelTestCase
+class ThumbnailServiceTest extends TestCase
 {
-    /** @var Filesystem */
+    use IntegrationTestBehaviour;
+
+    /**
+     * @varFilesystem
+     */
     private $fileSystem;
-    /** @var UrlGeneratorInterface */
+
+    /**
+     * @var UrlGeneratorInterface
+     */
     private $urlGenerator;
-    /** @var ThumbnailConfiguration */
+
+    /**
+     * @var ThumbnailConfiguration
+     */
     private $thumbnailConfiguration;
-    /** @var Context */
+
+    /**
+     * @var Context
+     */
     private $context;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     private $mediaId;
-    /** @var ThumbnailService */
+
+    /**
+     * @var ThumbnailService
+     */
     private $thumbnailService;
-    /** @var EntityRepository */
+
+    /**
+     * @var EntityRepository
+     */
     private $repository;
 
     public function setUp()
     {
-        self::bootKernel();
-
         $this->fileSystem = new Filesystem(new MemoryAdapter());
-        $this->urlGenerator = self::$container->get(UrlGeneratorInterface::class);
-        $this->repository = self::$container->get('media.repository');
-        $this->thumbnailConfiguration = self::$container->get(ThumbnailConfiguration::class);
+        $this->urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
+        $this->repository = $this->getContainer()->get('media.repository');
+        $this->thumbnailConfiguration = $this->getContainer()->get(ThumbnailConfiguration::class);
         $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
 
         $this->thumbnailService = new ThumbnailService($this->repository, $this->fileSystem, $this->urlGenerator, $this->thumbnailConfiguration);
 
-        $connection = self::$container->get(Connection::class);
-        $connection->beginTransaction();
-
         $this->mediaId = Uuid::uuid4()->getHex();
         $this->createTestEntity();
-    }
-
-    public function tearDown()
-    {
-        $connection = self::$container->get(Connection::class);
-        $connection->rollBack();
-        parent::tearDown();
     }
 
     public function testSubscribesToMediaFileUploadedEvent()

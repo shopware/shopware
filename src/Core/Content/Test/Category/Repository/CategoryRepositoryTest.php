@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Test\Category\Repository;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -14,10 +15,12 @@ use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\ORM\Search\Term\SearchTermInterpreter;
 use Shopware\Core\Framework\Struct\Uuid;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
-class CategoryRepositoryTest extends KernelTestCase
+class CategoryRepositoryTest extends TestCase
 {
+    use IntegrationTestBehaviour;
+
     /**
      * @var Connection
      */
@@ -30,16 +33,8 @@ class CategoryRepositoryTest extends KernelTestCase
 
     public function setUp()
     {
-        self::bootKernel();
-        $this->repository = self::$container->get('category.repository');
-        $this->connection = self::$container->get(Connection::class);
-        $this->connection->beginTransaction();
-    }
-
-    public function tearDown(): void
-    {
-        $this->connection->rollBack();
-        parent::tearDown();
+        $this->repository = $this->getContainer()->get('category.repository');
+        $this->connection = $this->getContainer()->get(Connection::class);
     }
 
     public function testDeleteParentCategoryDeletesSubCategories()
@@ -203,9 +198,9 @@ class CategoryRepositoryTest extends KernelTestCase
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('category.parentId', $parent));
 
-        $builder = self::$container->get(EntityScoreQueryBuilder::class);
+        $builder = $this->getContainer()->get(EntityScoreQueryBuilder::class);
 
-        $pattern = self::$container->get(SearchTermInterpreter::class)->interpret('match', Context::createDefaultContext(Defaults::TENANT_ID));
+        $pattern = $this->getContainer()->get(SearchTermInterpreter::class)->interpret('match', Context::createDefaultContext(Defaults::TENANT_ID));
         $queries = $builder->buildScoreQueries($pattern, CategoryDefinition::class, 'category');
         $criteria->addQueries($queries);
 

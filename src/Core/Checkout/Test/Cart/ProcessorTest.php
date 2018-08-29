@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Test\Cart;
 
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
@@ -14,10 +15,12 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextFactory;
 use Shopware\Core\Defaults;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
-class ProcessorTest extends KernelTestCase
+class ProcessorTest extends TestCase
 {
+    use KernelTestBehaviour;
+
     /**
      * @var CheckoutContextFactory
      */
@@ -35,11 +38,8 @@ class ProcessorTest extends KernelTestCase
 
     protected function setUp()
     {
-        self::bootKernel();
-        parent::setUp();
-
-        $this->processor = self::$container->get(Processor::class);
-        $this->factory = self::$container->get(CheckoutContextFactory::class);
+        $this->processor = $this->getContainer()->get(Processor::class);
+        $this->factory = $this->getContainer()->get(CheckoutContextFactory::class);
         $this->context = $this->factory->create(Defaults::TENANT_ID, Defaults::TENANT_ID, Defaults::SALES_CHANNEL);
     }
 

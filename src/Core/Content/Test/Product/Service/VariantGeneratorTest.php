@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Test\Product\Service;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductStruct;
 use Shopware\Core\Content\Product\Util\VariantGenerator;
@@ -14,10 +15,12 @@ use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\Framework\Struct\Uuid;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
-class VariantGeneratorTest extends KernelTestCase
+class VariantGeneratorTest extends TestCase
 {
+    use IntegrationTestBehaviour;
+
     /**
      * @var RepositoryInterface
      */
@@ -35,18 +38,9 @@ class VariantGeneratorTest extends KernelTestCase
 
     protected function setUp()
     {
-        self::bootKernel();
-        $this->connection = self::$container->get(Connection::class);
-        $this->generator = self::$container->get(VariantGenerator::class);
-        $this->repository = self::$container->get('product.repository');
-        $this->connection->beginTransaction();
-        parent::setUp();
-    }
-
-    protected function tearDown()
-    {
-        $this->connection->rollBack();
-        parent::tearDown();
+        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->generator = $this->getContainer()->get(VariantGenerator::class);
+        $this->repository = $this->getContainer()->get('product.repository');
     }
 
     public function testGenerateOneDimension()

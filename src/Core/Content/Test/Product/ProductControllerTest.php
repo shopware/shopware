@@ -8,15 +8,11 @@ use Ramsey\Uuid\Uuid;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
-use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\StorefrontApiTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\StorefrontFunctionalTestBehaviour;
 
 class ProductControllerTest extends TestCase
 {
-    use DatabaseTransactionBehaviour,
-        KernelTestBehaviour,
-        StorefrontApiTestBehaviour;
+    use StorefrontFunctionalTestBehaviour;
 
     /**
      * @var RepositoryInterface

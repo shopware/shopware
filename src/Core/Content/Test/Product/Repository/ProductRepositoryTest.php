@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Test\Product\Repository;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerStruct;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleStruct;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -21,13 +22,15 @@ use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Tax\TaxStruct;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class ProductRepositoryTest extends KernelTestCase
+class ProductRepositoryTest extends TestCase
 {
+    use IntegrationTestBehaviour;
+
     /**
      * @var RepositoryInterface
      */
@@ -50,20 +53,10 @@ class ProductRepositoryTest extends KernelTestCase
 
     protected function setUp()
     {
-        self::bootKernel();
-        parent::setUp();
-        $this->repository = self::$container->get('product.repository');
-        $this->eventDispatcher = self::$container->get('event_dispatcher');
-        $this->connection = self::$container->get(Connection::class);
-        $this->connection->beginTransaction();
-        $this->connection->executeUpdate('DELETE FROM product');
+        $this->repository = $this->getContainer()->get('product.repository');
+        $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
+        $this->connection = $this->getContainer()->get(Connection::class);
         $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
-    }
-
-    protected function tearDown()
-    {
-        $this->connection->rollBack();
-        parent::tearDown();
     }
 
     public function testWriteCategories()
@@ -285,7 +278,7 @@ class ProductRepositoryTest extends KernelTestCase
         $ruleA = Uuid::uuid4()->getHex();
         $ruleB = Uuid::uuid4()->getHex();
 
-        self::$container->get('rule.repository')->create([
+        $this->getContainer()->get('rule.repository')->create([
             ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
             ['id' => $ruleB, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 2],
         ], Context::createDefaultContext(Defaults::TENANT_ID));
@@ -348,7 +341,7 @@ class ProductRepositoryTest extends KernelTestCase
 
         $ruleA = Uuid::uuid4()->getHex();
 
-        self::$container->get('rule.repository')->create([
+        $this->getContainer()->get('rule.repository')->create([
             ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
         ], Context::createDefaultContext(Defaults::TENANT_ID));
 
@@ -740,7 +733,6 @@ class ProductRepositoryTest extends KernelTestCase
 
     public function testWriteProductWithSameTaxes()
     {
-        $this->connection->executeUpdate('DELETE FROM tax');
         $tax = ['id' => Uuid::uuid4()->getHex(), 'taxRate' => 19, 'name' => 'test'];
 
         $data = [
@@ -1043,7 +1035,7 @@ class ProductRepositoryTest extends KernelTestCase
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('category.products.price', $greenPrice['gross']));
 
-        $repository = self::$container->get('category.repository');
+        $repository = $this->getContainer()->get('category.repository');
         $categories = $repository->searchIds($criteria, Context::createDefaultContext(Defaults::TENANT_ID));
 
         static::assertEquals(1, $categories->getTotal());
@@ -1053,7 +1045,7 @@ class ProductRepositoryTest extends KernelTestCase
         $criteria->addFilter(new TermQuery('category.products.price', $parentPrice['gross']));
         $criteria->addFilter(new TermQuery('category.products.parentId', null));
 
-        $repository = self::$container->get('category.repository');
+        $repository = $this->getContainer()->get('category.repository');
         $categories = $repository->searchIds($criteria, Context::createDefaultContext(Defaults::TENANT_ID));
 
         static::assertEquals(1, $categories->getTotal());
@@ -1100,7 +1092,7 @@ class ProductRepositoryTest extends KernelTestCase
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('category.products.name', 'Parent'));
 
-        $repo = self::$container->get('category.repository');
+        $repo = $this->getContainer()->get('category.repository');
         $result = $repo->search($criteria, $this->context);
         static::assertCount(1, $result);
         static::assertTrue($result->has($parentId));
@@ -1157,7 +1149,7 @@ class ProductRepositoryTest extends KernelTestCase
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('product_manufacturer.products.price', $greenPrice['gross']));
 
-        $repository = self::$container->get('product_manufacturer.repository');
+        $repository = $this->getContainer()->get('product_manufacturer.repository');
         $result = $repository->searchIds($criteria, Context::createDefaultContext(Defaults::TENANT_ID));
 
         static::assertEquals(1, $result->getTotal());
@@ -1185,7 +1177,7 @@ class ProductRepositoryTest extends KernelTestCase
             ],
         ];
 
-        $repository = self::$container->get('category.repository');
+        $repository = $this->getContainer()->get('category.repository');
 
         $repository->create($categories, Context::createDefaultContext(Defaults::TENANT_ID));
 
@@ -1222,7 +1214,7 @@ class ProductRepositoryTest extends KernelTestCase
             ],
         ];
 
-        $repository = self::$container->get('product_manufacturer.repository');
+        $repository = $this->getContainer()->get('product_manufacturer.repository');
 
         $repository->create($manufacturers, Context::createDefaultContext(Defaults::TENANT_ID));
 
@@ -1474,7 +1466,7 @@ class ProductRepositoryTest extends KernelTestCase
         $ruleA = Uuid::uuid4()->getHex();
         $ruleB = Uuid::uuid4()->getHex();
 
-        self::$container->get('rule.repository')->create([
+        $this->getContainer()->get('rule.repository')->create([
             ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
             ['id' => $ruleB, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 2],
         ], Context::createDefaultContext(Defaults::TENANT_ID));
@@ -1539,7 +1531,7 @@ class ProductRepositoryTest extends KernelTestCase
         $ruleA = Uuid::uuid4()->getHex();
         $ruleB = Uuid::uuid4()->getHex();
 
-        self::$container->get('rule.repository')->create([
+        $this->getContainer()->get('rule.repository')->create([
             ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
             ['id' => $ruleB, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 2],
         ], Context::createDefaultContext(Defaults::TENANT_ID));

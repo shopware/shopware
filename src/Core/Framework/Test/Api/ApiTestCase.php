@@ -14,7 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @deprecated Use the traits instead.
+ * @deprecated use the traits instead
  */
 class ApiTestCase extends WebTestCase
 {

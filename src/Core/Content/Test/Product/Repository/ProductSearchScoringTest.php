@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Test\Product\Repository;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -14,30 +15,26 @@ use Shopware\Core\Framework\ORM\Search\Term\SearchPattern;
 use Shopware\Core\Framework\ORM\Search\Term\SearchTerm;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Uuid;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
-class ProductSearchScoringTest extends KernelTestCase
+class ProductSearchScoringTest extends TestCase
 {
-    /** @var Connection */
+    use IntegrationTestBehaviour;
+
+    /**
+     * @var Connection
+     */
     private $connection;
 
-    /** @var RepositoryInterface */
+    /**
+     * @var RepositoryInterface
+     */
     private $repository;
 
     protected function setUp()
     {
-        parent::setUp();
-        self::bootKernel();
-        $this->connection = self::$container->get(Connection::class);
-        $this->repository = self::$container->get('product.repository');
-        $this->connection->beginTransaction();
-        $this->connection->executeUpdate('DELETE FROM product');
-    }
-
-    protected function tearDown()
-    {
-        $this->connection->rollBack();
-        parent::tearDown();
+        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->repository = $this->getContainer()->get('product.repository');
     }
 
     public function testScoringExtensionExists()

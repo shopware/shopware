@@ -252,7 +252,11 @@ class StorefrontCustomerController extends Controller
 
         $addressId = $this->accountService->saveAddress($addressSaveRequest, $context);
 
-        $this->checkoutContextService->refresh($context->getTenantId(), $context->getSalesChannel()->getId(), $context->getToken());
+        $this->checkoutContextService->refresh(
+            $context->getTenantId(),
+            $context->getSalesChannel()->getId(),
+            $context->getToken()
+        );
 
         return new JsonResponse($this->serialize($addressId));
     }

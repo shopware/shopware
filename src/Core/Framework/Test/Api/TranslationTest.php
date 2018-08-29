@@ -2,12 +2,16 @@
 
 namespace Shopware\Core\Framework\Test\Api;
 
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\PlatformRequest;
 
-class TranslationTest extends ApiTestCase
+class TranslationTest extends TestCase
 {
+    use AdminFunctionalTestBehaviour;
+
     public function testNoOverride()
     {
         $langId = Uuid::uuid4()->getHex();
@@ -89,7 +93,7 @@ class TranslationTest extends ApiTestCase
         $response = $this->apiClient->getResponse();
         $this->assertEquals(204, $response->getStatusCode());
 
-        $this->assertEntityExists('category', $id);
+        $this->assertEntityExists($this->getClient(), 'category', $id);
 
         $this->apiClient->request('GET', $baseResource . '/' . $id, [], [], [$headerName => $langId]);
         $response = $this->apiClient->getResponse();
@@ -111,12 +115,12 @@ class TranslationTest extends ApiTestCase
             'translations' => $translations,
         ];
 
-        $this->apiClient->request('POST', $baseResource, $categoryData);
-        $response = $this->apiClient->getResponse();
+        $this->getClient()->request('POST', $baseResource, $categoryData);
+        $response = $this->getClient()->getResponse();
 
         $this->assertEquals(204, $response->getStatusCode());
 
-        $this->assertEntityExists('category', $id);
+        $this->assertEntityExists($this->getClient(), 'category', $id);
 
         $headers = [];
         if ($langIdOverride) {
@@ -124,7 +128,7 @@ class TranslationTest extends ApiTestCase
             $headers = [$headerName => $langIdOverride];
         }
 
-        $this->apiClient->request('GET', $baseResource . '/' . $id, [], [], $headers);
+        $this->getClient()->request('GET', $baseResource . '/' . $id, [], [], $headers);
 
         $response = $this->apiClient->getResponse();
         $responseData = json_decode($response->getContent());
@@ -140,7 +144,7 @@ class TranslationTest extends ApiTestCase
             'name' => 'test language ' . $langId,
             'localeId' => Defaults::LOCALE,
         ];
-        $this->apiClient->request('POST', $baseUrl . '/language', $languageData);
+        $this->getClient()->request('POST', $baseUrl . '/language', $languageData);
 
         $this->assertEquals(204, $this->apiClient->getResponse()->getStatusCode());
     }

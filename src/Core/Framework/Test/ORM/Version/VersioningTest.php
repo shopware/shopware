@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\ORM\Version;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -14,14 +15,16 @@ use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\RangeQuery;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\Pricing\PriceStruct;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition;
 use Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\TaxAreaRuleTranslationDefinition;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Tax\TaxStruct;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class VersioningTest extends KernelTestCase
+class VersioningTest extends TestCase
 {
+    use IntegrationTestBehaviour;
+
     /**
      * @var RepositoryInterface
      */
@@ -44,22 +47,10 @@ class VersioningTest extends KernelTestCase
 
     public function setUp()
     {
-        static::bootKernel();
-
-        $this->taxRepository = self::$container->get('tax.repository');
-        $this->productRepository = self::$container->get('product.repository');
-        $this->categoryRepository = self::$container->get('category.repository');
-        $this->connection = self::$container->get(Connection::class);
-        $this->connection->beginTransaction();
-        $this->connection->executeUpdate('DELETE FROM product');
-        $this->connection->executeUpdate('DELETE FROM tax');
-        $this->connection->executeUpdate('DELETE FROM version_commit');
-        $this->connection->executeUpdate('DELETE FROM version_commit_data');
-    }
-
-    public function tearDown()
-    {
-        $this->connection->rollBack();
+        $this->taxRepository = $this->getContainer()->get('tax.repository');
+        $this->productRepository = $this->getContainer()->get('product.repository');
+        $this->categoryRepository = $this->getContainer()->get('category.repository');
+        $this->connection = $this->getContainer()->get(Connection::class);
     }
 
     public function testVersionChangeOnInsert(): void
@@ -848,7 +839,7 @@ class VersioningTest extends KernelTestCase
             $override
         );
 
-        self::$container->get('category.repository')->create([$payload], $context);
+        $this->getContainer()->get('category.repository')->create([$payload], $context);
 
         return $payload['id'];
     }

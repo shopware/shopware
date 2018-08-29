@@ -9,6 +9,7 @@ use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Field\CreatedAtField;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\IdField;
+use Shopware\Core\Framework\ORM\Field\JsonField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\ORM\Field\ObjectField;
 use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
@@ -41,6 +42,7 @@ class OrderTransactionDefinition extends EntityDefinition
             (new FkField('order_transaction_state_id', 'orderTransactionStateId', OrderTransactionStateDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(OrderTransactionStateDefinition::class))->setFlags(new Required()),
             (new ObjectField('amount', 'amount'))->setFlags(new Required()),
+            new JsonField('details', 'details'),
             new CreatedAtField(),
             new UpdatedAtField(),
             (new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, false))->setFlags(new CascadeDelete()),

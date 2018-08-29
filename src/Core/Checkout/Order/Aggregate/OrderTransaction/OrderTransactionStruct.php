@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransaction;
 
+use DateTime;
 use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState\OrderTransactionStateStruct;
 use Shopware\Core\Checkout\Order\OrderStruct;
@@ -31,12 +32,12 @@ class OrderTransactionStruct extends Entity
     protected $amount;
 
     /**
-     * @var \DateTime|null
+     * @var DateTime|null
      */
     protected $createdAt;
 
     /**
-     * @var \DateTime|null
+     * @var DateTime|null
      */
     protected $updatedAt;
 
@@ -49,6 +50,11 @@ class OrderTransactionStruct extends Entity
      * @var OrderStruct|null
      */
     protected $order;
+
+    /**
+     * @var array|null
+     */
+    protected $details;
 
     /***
      * @var OrderTransactionStateStruct
@@ -95,22 +101,32 @@ class OrderTransactionStruct extends Entity
         $this->amount = $amount;
     }
 
-    public function getCreatedAt(): ?\DateTime
+    public function getDetails(): ?array
+    {
+        return $this->details;
+    }
+
+    public function setDetails(array $details): void
+    {
+        $this->details = $details;
+    }
+
+    public function getCreatedAt(): ?DateTime
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTime $createdAt): void
+    public function setCreatedAt(DateTime $createdAt): void
     {
         $this->createdAt = $createdAt;
     }
 
-    public function getUpdatedAt(): ?\DateTime
+    public function getUpdatedAt(): ?DateTime
     {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(\DateTime $updatedAt): void
+    public function setUpdatedAt(DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
     }

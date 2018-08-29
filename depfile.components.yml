@@ -1,0 +1,28 @@
+paths:
+  - ./vendor/shopware/platform/src/
+exclude_files:
+  - .*test.*
+  - .*Definition.php
+  - .*Struct.php
+  - .*Collection.php
+  - .*Event.php
+  - .*DemodataCommand.php
+
+layers:
+  - name: Core
+    collectors:
+      - type: className
+        regex: Shopware\\Core\\
+  - name: Storefront
+    collectors:
+      - type: className
+        regex: Shopware\\Storefront\\
+  - name: Administration
+    collectors:
+      - type: className
+        regex: Shopware\\Administration\\
+ruleset:
+  Storefront:
+    - Core
+  Administration:
+    - Core

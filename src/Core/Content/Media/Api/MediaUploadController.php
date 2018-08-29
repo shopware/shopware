@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Media\Api;
 use Shopware\Core\Content\Media\Exception\MissingFileExtensionException;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\Upload\FileFetcher;
-use Shopware\Core\Content\Media\Upload\MediaUpdater;
+use Shopware\Core\Content\Media\Upload\FileSaver;
 use Shopware\Core\Framework\Api\Response\ResponseFactory;
 use Shopware\Core\Framework\Context;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -26,20 +26,20 @@ class MediaUploadController extends Controller
     private $fileFetcher;
 
     /**
-     * @var MediaUpdater
+     * @var FileSaver
      */
-    private $mediaUpdater;
+    private $fileSaver;
 
     /**
      * @param ResponseFactory $responseFactory
      * @param FileFetcher     $fileFetcher
-     * @param MediaUpdater    $mediaUpdater
+     * @param FileSaver       $fileSaver
      */
-    public function __construct(ResponseFactory $responseFactory, FileFetcher $fileFetcher, MediaUpdater $mediaUpdater)
+    public function __construct(ResponseFactory $responseFactory, FileFetcher $fileFetcher, FileSaver $fileSaver)
     {
         $this->responseFactory = $responseFactory;
         $this->fileFetcher = $fileFetcher;
-        $this->mediaUpdater = $mediaUpdater;
+        $this->fileSaver = $fileSaver;
     }
 
     /**
@@ -64,13 +64,14 @@ class MediaUploadController extends Controller
         try {
             $contentLength = $this->fetchFile($request, $contentType, $tempFile);
             $contentType = mime_content_type($tempFile);
-            $this->mediaUpdater->persistFileToMedia(
+            $this->fileSaver->persistFileToMedia(
                 $tempFile,
                 $mediaId,
                 $contentType,
                 $extension,
                 $contentLength,
-                $context);
+                $context
+            );
         } finally {
             unlink($tempFile);
         }

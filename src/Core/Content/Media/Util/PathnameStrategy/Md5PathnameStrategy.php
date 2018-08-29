@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Media\Util\Strategy;
+namespace Shopware\Core\Content\Media\Util\PathnameStrategy;
 
 use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
 
-class Md5Strategy implements StrategyInterface
+class Md5PathnameStrategy implements PathnameStrategyInterface
 {
     /**
      * @var array

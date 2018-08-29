@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Test\Media\Subscriber;
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemInterface;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\Upload\MediaUpdater;
+use Shopware\Core\Content\Media\Upload\FileSaver;
 use Shopware\Core\Content\Media\Util\UrlGenerator;
 use Shopware\Core\Content\Media\Util\UrlGeneratorInterface;
 use Shopware\Core\Defaults;
@@ -31,9 +31,9 @@ class MediaDeletedSubscriberTest extends TestCase
     private $repository;
 
     /**
-     * @var MediaUpdater
+     * @var FileSaver
      */
-    private $mediaUpdater;
+    private $fileSaver;
 
     /** @var UrlGenerator */
     private $urlGenerator;
@@ -43,7 +43,7 @@ class MediaDeletedSubscriberTest extends TestCase
 
     public function setUp()
     {
-        $this->mediaUpdater = $this->getContainer()->get(MediaUpdater::class);
+        $this->fileSaver = $this->getContainer()->get(FileSaver::class);
         $this->repository = $this->getContainer()->get('media.repository');
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
@@ -73,20 +73,21 @@ class MediaDeletedSubscriberTest extends TestCase
         );
 
         try {
-            $this->mediaUpdater->persistFileToMedia(
+            $this->fileSaver->persistFileToMedia(
                 $tempFile,
                 $mediaId->getHex(),
                 $mimeType,
                 'png',
                 $fileSize,
-                $context);
+                $context
+            );
         } finally {
             if (file_exists($tempFile)) {
                 unlink($tempFile);
             }
         }
 
-        $url = $this->urlGenerator->getMediaUrl($mediaId->getHex(), 'png', false);
+        $url = $this->urlGenerator->getRelativeMediaUrl($mediaId->getHex(), 'png');
 
         static::assertTrue($this->filesystem->has($url));
 

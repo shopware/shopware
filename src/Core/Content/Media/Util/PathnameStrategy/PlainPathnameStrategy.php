@@ -22,9 +22,9 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Core\Content\Media\Util\Strategy;
+namespace Shopware\Core\Content\Media\Util\PathnameStrategy;
 
-class PlainStrategy implements StrategyInterface
+class PlainPathnameStrategy implements PathnameStrategyInterface
 {
     public function decode(string $path): string
     {

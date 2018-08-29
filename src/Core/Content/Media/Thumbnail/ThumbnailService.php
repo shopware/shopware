@@ -104,7 +104,7 @@ class ThumbnailService implements EventSubscriberInterface
      */
     private function getImageResource(string $mediaId, string $extension)
     {
-        $filePath = $this->urlGenerator->getMediaUrl($mediaId, $extension, false);
+        $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaId, $extension);
         $file = $this->fileSystem->read($filePath);
         $image = @imagecreatefromstring($file);
         if (!$image) {
@@ -190,7 +190,7 @@ class ThumbnailService implements EventSubscriberInterface
     ): array {
         $quality = $isHighDpi ?
             $this->configuration->getHighDpiQuality() : $this->configuration->getStandardQuality();
-        $url = $this->urlGenerator->getThumbnailUrl($mediaId, $extension, $size['width'], $size['height'], $isHighDpi, false);
+        $url = $this->urlGenerator->getRelativeThumbnailUrl($mediaId, $extension, $size['width'], $size['height'], $isHighDpi);
         $this->writeThumbnail($thumbnail, $mimeType, $url, $quality);
 
         return $this->createThumbnailData($size, $isHighDpi);

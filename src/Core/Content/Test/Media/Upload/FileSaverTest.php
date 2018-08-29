@@ -7,7 +7,7 @@ use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemInterface;
 use League\Flysystem\Memory\MemoryAdapter;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\Upload\MediaUpdater;
+use Shopware\Core\Content\Media\Upload\FileSaver;
 use Shopware\Core\Content\Media\Util\UrlGeneratorInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class MediaUpdaterTest extends TestCase
+class FileSaverTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
@@ -33,9 +33,9 @@ class MediaUpdaterTest extends TestCase
     private $repository;
 
     /**
-     * @var MediaUpdater
+     * @var FileSaver
      */
-    private $mediaUpdater;
+    private $fileSaver;
 
     /** @var FilesystemInterface */
     private $filesystem;
@@ -51,7 +51,7 @@ class MediaUpdaterTest extends TestCase
         $this->urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
 
         // create media updater with in memory filesystem, so we do not need to clean up files afterwards
-        $this->mediaUpdater = new MediaUpdater(
+        $this->fileSaver = new FileSaver(
             $this->repository,
             $this->filesystem,
             $this->urlGenerator,
@@ -83,19 +83,21 @@ class MediaUpdaterTest extends TestCase
         );
 
         try {
-            $this->mediaUpdater->persistFileToMedia(
-                $tempFile, $mediaId->getHex(),
+            $this->fileSaver->persistFileToMedia(
+                $tempFile,
+                $mediaId->getHex(),
                 $mimeType,
                 'png',
                 $fileSize,
-                $context);
+                $context
+            );
         } finally {
             if (file_exists($tempFile)) {
                 unlink($tempFile);
             }
         }
 
-        $path = $this->urlGenerator->getMediaUrl($mediaId->getHex(), 'png', false);
+        $path = $this->urlGenerator->getRelativeMediaUrl($mediaId->getHex(), 'png');
 
         static::assertTrue($this->filesystem->has($path));
     }

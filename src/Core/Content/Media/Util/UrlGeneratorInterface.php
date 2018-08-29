@@ -4,7 +4,11 @@ namespace Shopware\Core\Content\Media\Util;
 
 interface UrlGeneratorInterface
 {
-    public function getMediaUrl(string $filename, string $extension, bool $absolute = true): string;
+    public function getAbsoluteMediaUrl(string $filename, string $extension): string;
 
-    public function getThumbnailUrl(string $filename, string $extension, int $width, int $height, bool $isHighDpi = false, bool $absolute = true): string;
+    public function getRelativeMediaUrl(string $filename, string $extension): string;
+
+    public function getAbsoluteThumbnailUrl(string $filename, string $extension, int $width, int $height, bool $isHighDpi = false): string;
+
+    public function getRelativeThumbnailUrl(string $filename, string $extension, int $width, int $height, bool $isHighDpi = false): string;
 }

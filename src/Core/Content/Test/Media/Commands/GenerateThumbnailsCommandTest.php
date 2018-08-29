@@ -150,23 +150,23 @@ class GenerateThumbnailsCommandTest extends TestCase
 
     protected function assertThumbnailExists(string $mediaId, string $extension, MediaThumbnailStruct $thumbnail): void
     {
-        $thumbnailPath = $this->urlGenerator->getThumbnailUrl(
+        $thumbnailPath = $this->urlGenerator->getRelativeThumbnailUrl(
             $mediaId,
             $extension,
             $thumbnail->getWidth(),
             $thumbnail->getHeight(),
-            false,
-            false);
+            false
+        );
         static::assertTrue($this->filesystem->has($thumbnailPath));
 
         if ($thumbnail->getHighDpi()) {
-            $thumbnailPath = $this->urlGenerator->getThumbnailUrl(
+            $thumbnailPath = $this->urlGenerator->getRelativeThumbnailUrl(
                 $mediaId,
                 $extension,
                 $thumbnail->getWidth(),
                 $thumbnail->getHeight(),
-                true,
-                false);
+                true
+            );
             static::assertTrue($this->filesystem->has($thumbnailPath));
         }
     }
@@ -182,7 +182,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         ];
 
         $this->repository->create([$media], $this->context);
-        $filePath = $this->urlGenerator->getMediaUrl($media['id'], 'png', false);
+        $filePath = $this->urlGenerator->getRelativeMediaUrl($media['id'], 'png');
         $this->filesystem->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r'));
 
         $media = [
@@ -194,7 +194,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         ];
 
         $this->repository->create([$media], $this->context);
-        $filePath = $this->urlGenerator->getMediaUrl($media['id'], 'jpg', false);
+        $filePath = $this->urlGenerator->getRelativeMediaUrl($media['id'], 'jpg');
         $this->filesystem->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware.jpg', 'r'));
     }
 
@@ -209,7 +209,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         ];
 
         $this->repository->create([$media], $this->context);
-        $filePath = $this->urlGenerator->getMediaUrl($media['id'], 'pdf', false);
+        $filePath = $this->urlGenerator->getRelativeMediaUrl($media['id'], 'pdf');
         $this->filesystem->putStream($filePath, fopen(__DIR__ . '/../fixtures/Shopware_5_3_Broschuere.pdf', 'r'));
 
         $media = [
@@ -221,7 +221,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         ];
 
         $this->repository->create([$media], $this->context);
-        $filePath = $this->urlGenerator->getMediaUrl($media['id'], 'jpg', false);
+        $filePath = $this->urlGenerator->getRelativeMediaUrl($media['id'], 'jpg');
         $this->filesystem->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware.jpg', 'r'));
     }
 

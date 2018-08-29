@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Media\Subscriber;
 
 use League\Flysystem\FilesystemInterface;
-use Shopware\Core\Content\Media\Util\Strategy\StrategyInterface;
+use Shopware\Core\Content\Media\Util\PathnameStrategy\PathnameStrategyInterface;
 use Shopware\Core\Framework\ORM\Event\EntityDeletedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -15,11 +15,11 @@ class MediaDeletedSubscriber implements EventSubscriberInterface
     private $filesystem;
 
     /**
-     * @var StrategyInterface
+     * @var PathnameStrategyInterface
      */
     private $strategy;
 
-    public function __construct(FilesystemInterface $filesystem, StrategyInterface $strategy)
+    public function __construct(FilesystemInterface $filesystem, PathnameStrategyInterface $strategy)
     {
         $this->filesystem = $filesystem;
         $this->strategy = $strategy;

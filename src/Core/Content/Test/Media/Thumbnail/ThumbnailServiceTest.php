@@ -82,7 +82,7 @@ class ThumbnailServiceTest extends TestCase
     {
         $mimeType = 'image/png';
 
-        $filePath = $this->urlGenerator->getMediaUrl($this->mediaId, 'png', false);
+        $filePath = $this->urlGenerator->getRelativeMediaUrl($this->mediaId, 'png');
         $this->fileSystem->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r'));
 
         $this->thumbnailService->generateThumbnails(
@@ -112,7 +112,7 @@ class ThumbnailServiceTest extends TestCase
         );
 
         foreach ($thumbnails as $thumbnail) {
-            $thumbnailPath = $this->urlGenerator->getThumbnailUrl(
+            $thumbnailPath = $this->urlGenerator->getAbsoluteThumbnailUrl(
                 $this->mediaId,
                 'png',
                 $thumbnail->getWidth(),
@@ -122,7 +122,7 @@ class ThumbnailServiceTest extends TestCase
             static::assertTrue($this->fileSystem->has($thumbnailPath));
 
             if ($thumbnail->getHighDpi()) {
-                $thumbnailPath = $this->urlGenerator->getThumbnailUrl(
+                $thumbnailPath = $this->urlGenerator->getAbsoluteThumbnailUrl(
                     $this->mediaId,
                     'png',
                     $thumbnail->getWidth(),
@@ -151,7 +151,7 @@ class ThumbnailServiceTest extends TestCase
     {
         $mimeType = 'image/png';
 
-        $filePath = $this->urlGenerator->getMediaUrl($this->mediaId, 'png', false);
+        $filePath = $this->urlGenerator->getRelativeMediaUrl($this->mediaId, 'png');
         $this->fileSystem->put($filePath, 'this is the content of the file, which is not a image');
 
         self::expectException(FileTypeNotSupportedException::class);

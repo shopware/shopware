@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Media\Util;
 
 use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
-use Shopware\Core\Content\Media\Util\Strategy\StrategyInterface;
+use Shopware\Core\Content\Media\Util\PathnameStrategy\PathnameStrategyInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 class UrlGenerator implements UrlGeneratorInterface
@@ -19,12 +19,15 @@ class UrlGenerator implements UrlGeneratorInterface
     private $baseUrl = null;
 
     /**
-     * @var StrategyInterface
+     * @var PathnameStrategyInterface
      */
     private $strategy;
 
-    public function __construct(StrategyInterface $strategy, RequestStack $requestStack, string $baseUrl = null)
-    {
+    public function __construct(
+        PathnameStrategyInterface $strategy,
+        RequestStack $requestStack,
+        string $baseUrl = null
+    ) {
         $this->strategy = $strategy;
         $this->requestStack = $requestStack;
 
@@ -34,25 +37,27 @@ class UrlGenerator implements UrlGeneratorInterface
     /**
      * @throws EmptyMediaFilenameException
      */
-    public function getMediaUrl(string $filename, string $extension, bool $absolute = true): string
+    public function getRelativeMediaUrl(string $filename, string $extension): string
     {
         $encodedFileName = $this->encodeFilename($filename);
 
-        $basePath = $absolute ? $this->getBaseUrl() . '/' : '';
-
-        return $basePath . 'media/' . $encodedFileName . '.' . $extension;
+        return 'media/' . $encodedFileName . '.' . $extension;
     }
 
     /**
      * @throws EmptyMediaFilenameException
      */
-    public function getThumbnailUrl(
-        string $filename,
-        string $extension,
-        int $width,
-        int $height,
-        bool $isHighDpi = false,
-        bool $absolute = true): string
+    public function getAbsoluteMediaUrl(string $filename, string $extension): string
+    {
+        return $this->getBaseUrl() . '/' . $this->getRelativeMediaUrl($filename, $extension);
+    }
+
+    /**
+     * @throws EmptyMediaFilenameException
+     *
+     * @return string
+     */
+    public function getRelativeThumbnailUrl(string $filename, string $extension, int $width, int $height, bool $isHighDpi = false): string
     {
         $encodedFileName = $this->encodeFilename($filename);
         $thumbnailExtension = "_${width}x${height}";
@@ -60,9 +65,15 @@ class UrlGenerator implements UrlGeneratorInterface
             $thumbnailExtension .= '@2x';
         }
 
-        $basePath = $absolute ? $this->getBaseUrl() . '/' : '';
+        return 'thumbnail/' . $encodedFileName . $thumbnailExtension . '.' . $extension;
+    }
 
-        return $basePath . 'thumbnail/' . $encodedFileName . $thumbnailExtension . '.' . $extension;
+    /**
+     * @throws EmptyMediaFilenameException
+     */
+    public function getAbsoluteThumbnailUrl(string $filename, string $extension, int $width, int $height, bool $isHighDpi = false): string
+    {
+        return $this->getBaseUrl() . '/' . $this->getRelativeThumbnailUrl($filename, $extension, $width, $height, $isHighDpi);
     }
 
     private function normalizeBaseUrl($baseUrl): ?string

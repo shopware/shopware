@@ -15,7 +15,7 @@ use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class MediaUpdater
+class FileSaver
 {
     /**
      * @var RepositoryInterface
@@ -77,7 +77,7 @@ class MediaUpdater
     private function saveFileToMediaDir(string $filePath, string $mediaId, string $extension): void
     {
         $stream = fopen($filePath, 'r');
-        $path = $this->urlGenerator->getMediaUrl($mediaId, $extension, false);
+        $path = $this->urlGenerator->getRelativeMediaUrl($mediaId, $extension);
         try {
             $this->filesystem->putStream($path, $stream);
         } finally {

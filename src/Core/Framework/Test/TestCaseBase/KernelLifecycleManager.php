@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
 use Symfony\Bundle\FrameworkBundle\Client;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\ResettableContainerInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
@@ -17,16 +16,11 @@ class KernelLifecycleManager
     protected static $kernel;
 
     /**
-     * @var ContainerInterface
-     */
-    protected static $container;
-
-    /**
      * Get the currently active kernel
      */
     public static function getKernel(): KernelInterface
     {
-        if(static::$kernel) {
+        if (static::$kernel) {
             return static::$kernel;
         }
 
@@ -40,32 +34,13 @@ class KernelLifecycleManager
     {
         $apiClient = $kernel->getContainer()->get('test.client');
 
-        if($enableReboot) {
+        if ($enableReboot) {
             $apiClient->enableReboot();
         } else {
             $apiClient->disableReboot();
         }
 
         return $apiClient;
-    }
-
-    /**
-     * @return string The Kernel class name
-     *
-     * @throws \RuntimeException
-     * @throws \LogicException
-     */
-    private static function getKernelClass()
-    {
-        if (!isset($_SERVER['KERNEL_CLASS']) && !isset($_ENV['KERNEL_CLASS'])) {
-            throw new \LogicException(sprintf('You must set the KERNEL_CLASS environment variable to the fully-qualified class name of your Kernel in phpunit.xml / phpunit.xml.dist or override the %1$s::createKernel() or %1$s::getKernelClass() method.', static::class));
-        }
-
-        if (!class_exists($class = $_ENV['KERNEL_CLASS'] ?? $_SERVER['KERNEL_CLASS'])) {
-            throw new \RuntimeException(sprintf('Class "%s" doesn\'t exist or cannot be autoloaded. Check that the KERNEL_CLASS value in phpunit.xml matches the fully-qualified class name of your Kernel or override the %s::createKernel() method.', $class, static::class));
-        }
-
-        return $class;
     }
 
     /**
@@ -80,15 +55,31 @@ class KernelLifecycleManager
         static::$kernel = static::createKernel();
         static::$kernel->boot();
 
-        $container = static::$kernel->getContainer();
-        static::$container = $container->has('test.service_container') ? $container->get('test.service_container') : $container;
-
         return static::$kernel;
+    }
+
+    /**
+     * @throws \RuntimeException
+     * @throws \LogicException
+     *
+     * @return string The Kernel class name
+     */
+    private static function getKernelClass()
+    {
+        if (!isset($_SERVER['KERNEL_CLASS']) && !isset($_ENV['KERNEL_CLASS'])) {
+            throw new \LogicException(sprintf('You must set the KERNEL_CLASS environment variable to the fully-qualified class name of your Kernel in phpunit.xml / phpunit.xml.dist or override the %1$s::createKernel() or %1$s::getKernelClass() method.', static::class));
+        }
+
+        if (!class_exists($class = $_ENV['KERNEL_CLASS'] ?? $_SERVER['KERNEL_CLASS'])) {
+            throw new \RuntimeException(sprintf('Class "%s" doesn\'t exist or cannot be autoloaded. Check that the KERNEL_CLASS value in phpunit.xml matches the fully-qualified class name of your Kernel or override the %s::createKernel() method.', $class, static::class));
+        }
+
+        return $class;
     }
 
     private static function createKernel(): KernelInterface
     {
-        if (null === static::$class) {
+        if (static::$class === null) {
             static::$class = static::getKernelClass();
         }
 
@@ -111,20 +102,20 @@ class KernelLifecycleManager
         return new static::$class($env, $debug);
     }
 
-
     /**
      * Shuts the kernel down if it was used in the test.
      */
     private static function ensureKernelShutdown()
     {
-        if (null !== static::$kernel) {
-            $container = static::$kernel->getContainer();
-            static::$kernel->shutdown();
-
-            if ($container instanceof ResettableContainerInterface) {
-                $container->reset();
-            }
+        if (static::$kernel === null) {
+            return;
         }
-        static::$container = null;
+
+        $container = static::$kernel->getContainer();
+        static::$kernel->shutdown();
+
+        if ($container instanceof ResettableContainerInterface) {
+            $container->reset();
+        }
     }
 }

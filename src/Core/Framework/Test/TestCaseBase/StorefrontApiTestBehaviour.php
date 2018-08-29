@@ -24,42 +24,12 @@ trait StorefrontApiTestBehaviour
      */
     private $storeFrontClient;
 
-
-    protected function getStorefrontClient(): Client
-    {
-        if($this->storeFrontClient) {
-            return $this->storeFrontClient;
-        }
-
-        return $this->storeFrontClient = $this->createStorefrontClient();
-    }
-
-    protected function createStorefrontClient(
-        KernelInterface $kernel = null,
-        bool $enableReboot = false
-    ): Client {
-        if(!$kernel) {
-            $kernel = KernelLifecycleManager::getKernel();
-        }
-
-        $storefrontApiClient = KernelLifecycleManager::createClient($kernel, $enableReboot);
-        $storefrontApiClient->setServerParameters([
-            'HTTP_X-Requested-With' => 'XMLHttpRequest',
-            'HTTP_Accept' => 'application/json',
-            'HTTP_X_SW_CONTEXT_TOKEN' => Uuid::uuid4()->getHex(),
-            'HTTP_X_SW_TENANT_ID' => Defaults::TENANT_ID,
-        ]);
-        $this->authorizeStorefrontClient($storefrontApiClient);
-
-        return $storefrontApiClient;
-    }
-
     /**
      * @after
      */
     public function resetStorefrontApiTestCaseTrait()
     {
-        if(!$this->storeFrontClient) {
+        if (!$this->storeFrontClient) {
             return;
         }
 
@@ -80,6 +50,35 @@ trait StorefrontApiTestBehaviour
 
         $this->salesChannelIds = [];
         $this->storeFrontClient = null;
+    }
+
+    protected function getStorefrontClient(): Client
+    {
+        if ($this->storeFrontClient) {
+            return $this->storeFrontClient;
+        }
+
+        return $this->storeFrontClient = $this->createStorefrontClient();
+    }
+
+    protected function createStorefrontClient(
+        KernelInterface $kernel = null,
+        bool $enableReboot = false
+    ): Client {
+        if (!$kernel) {
+            $kernel = KernelLifecycleManager::getKernel();
+        }
+
+        $storefrontApiClient = KernelLifecycleManager::createClient($kernel, $enableReboot);
+        $storefrontApiClient->setServerParameters([
+            'HTTP_X-Requested-With' => 'XMLHttpRequest',
+            'HTTP_Accept' => 'application/json',
+            'HTTP_X_SW_CONTEXT_TOKEN' => Uuid::uuid4()->getHex(),
+            'HTTP_X_SW_TENANT_ID' => Defaults::TENANT_ID,
+        ]);
+        $this->authorizeStorefrontClient($storefrontApiClient);
+
+        return $storefrontApiClient;
     }
 
     protected function authorizeStorefrontClient(Client $storefrontApiClient): void

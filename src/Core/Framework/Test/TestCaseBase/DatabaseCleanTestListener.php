@@ -9,7 +9,6 @@ use PHPUnit\Framework\TestSuite;
 use PHPUnit\Framework\Warning;
 use Shopware\Core\Kernel;
 
-
 /**
  * Helper class to debug data problems in the test suite
  */
@@ -24,56 +23,16 @@ class DatabaseCleanTestListener implements TestListener
     {
         $stateResult = $this->getCurrentDbState();
 
-        if($this->lastDataPoint) {
+        if ($this->lastDataPoint) {
             $diff = $this->createDiff($stateResult);
 
-            if(count($diff)) {
+            if (count($diff)) {
                 echo PHP_EOL . get_class($test) . PHP_EOL;
                 print_r($diff);
             }
         }
 
         $this->lastDataPoint = $stateResult;
-    }
-
-    /**
-     * @return array
-     */
-    private function getCurrentDbState(): array
-    {
-        $connection = Kernel::getConnection();
-
-        $rawTables = $connection->query('SHOW TABLES')->fetchAll();
-        $stateResult = [];
-
-        foreach ($rawTables as $nested) {
-            $tableName = end($nested);
-            $count = $connection->query("SELECT COUNT(*) FROM `{$tableName}`")->fetchColumn(0);
-
-            $stateResult[$tableName] = $count;
-        }
-        return $stateResult;
-    }
-
-    /**
-     * @param $tableNames
-     * @return array
-     */
-    private function createDiff($tableNames): array
-    {
-        $diff = array_diff($this->lastDataPoint, $tableNames);
-
-        foreach (array_keys($diff) as $index) {
-            $diff[$index] = $tableNames[$index] - $this->lastDataPoint[$index];
-
-            if ($diff[$index] > 0) {
-                $diff[$index] = '+' . $diff[$index];
-            } else {
-                $diff[$index] = '-' . $diff[$index];
-            }
-        }
-
-        return $diff;
     }
 
     /**
@@ -146,5 +105,47 @@ class DatabaseCleanTestListener implements TestListener
     public function startTest(Test $test): void
     {
         //nth
+    }
+
+    /**
+     * @return array
+     */
+    private function getCurrentDbState(): array
+    {
+        $connection = Kernel::getConnection();
+
+        $rawTables = $connection->query('SHOW TABLES')->fetchAll();
+        $stateResult = [];
+
+        foreach ($rawTables as $nested) {
+            $tableName = end($nested);
+            $count = $connection->query("SELECT COUNT(*) FROM `{$tableName}`")->fetchColumn(0);
+
+            $stateResult[$tableName] = $count;
+        }
+
+        return $stateResult;
+    }
+
+    /**
+     * @param $tableNames
+     *
+     * @return array
+     */
+    private function createDiff($tableNames): array
+    {
+        $diff = array_diff($this->lastDataPoint, $tableNames);
+
+        foreach (array_keys($diff) as $index) {
+            $diff[$index] = $tableNames[$index] - $this->lastDataPoint[$index];
+
+            if ($diff[$index] > 0) {
+                $diff[$index] = '+' . $diff[$index];
+            } else {
+                $diff[$index] = '-' . $diff[$index];
+            }
+        }
+
+        return $diff;
     }
 }

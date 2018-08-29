@@ -29,7 +29,7 @@ trait AdminApiTestBehaviour
      */
     public function resetAdminApiTestCaseTrait()
     {
-        if(!$this->apiClient) {
+        if (!$this->apiClient) {
             return;
         }
 
@@ -51,20 +51,11 @@ trait AdminApiTestBehaviour
         $this->apiClient = null;
     }
 
-    protected function getClient(): Client
-    {
-        if($this->apiClient) {
-            return $this->apiClient;
-        }
-
-        return $this->apiClient = $this->createClient();
-    }
-
     public function createClient(
         KernelInterface $kernel = null,
         bool $enableReboot = false
     ): Client {
-        if(!$kernel) {
+        if (!$kernel) {
             $kernel = KernelLifecycleManager::getKernel();
         }
 
@@ -145,18 +136,27 @@ trait AdminApiTestBehaviour
 
         $data = json_decode($client->getResponse()->getContent(), true);
 
-        if(!array_key_exists('access_token', $data)) {
+        if (!array_key_exists('access_token', $data)) {
             throw new \RuntimeException(
                 'No token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error' . print_r($data, true))
             );
         }
 
-        if(!array_key_exists('refresh_token', $data)) {
+        if (!array_key_exists('refresh_token', $data)) {
             throw new \RuntimeException(
                 $data, 'No refresh_token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error')
             );
         }
 
         $client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['access_token']));
+    }
+
+    protected function getClient(): Client
+    {
+        if ($this->apiClient) {
+            return $this->apiClient;
+        }
+
+        return $this->apiClient = $this->createClient();
     }
 }

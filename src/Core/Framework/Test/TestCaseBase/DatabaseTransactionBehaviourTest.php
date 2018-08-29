@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Test\TestCaseBase;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 
-
 class DatabaseTransactionBehaviourTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -35,7 +34,7 @@ class DatabaseTransactionBehaviourTest extends TestCase
             ->get(Connection::class)
             ->isTransactionActive();
 
-        if(!$tearDownIsInTransaction) {
+        if (!$tearDownIsInTransaction) {
             throw new \RuntimeException('TearDown does not work correctly');
         }
     }

@@ -2,13 +2,11 @@
 
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
-
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 trait KernelTestBehaviour
 {
-
     protected function getKernel(): KernelInterface
     {
         return KernelLifecycleManager::getKernel();
@@ -21,7 +19,7 @@ trait KernelTestBehaviour
     {
         $container = $this->getKernel()->getContainer();
 
-        if($container->has('test.service_container')) {
+        if ($container->has('test.service_container')) {
             return $container->get('test.service_container');
         }
 

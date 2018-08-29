@@ -132,6 +132,18 @@ class Kernel extends HttpKernel
         return $this->getProjectDir() . '/custom/plugins';
     }
 
+    public function shutdown()
+    {
+        if (!$this->booted) {
+            return;
+        }
+
+        self::$plugins = new BundleCollection();
+        self::$connection = null;
+
+        return parent::shutdown();
+    }
+
     protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader)
     {
         $container->setParameter('container.dumper.inline_class_loader', true);
@@ -292,17 +304,5 @@ class Kernel extends HttpKernel
         }
 
         $this->initializePlugins();
-    }
-
-    public function shutdown()
-    {
-        if(!$this->booted) {
-            return;
-        }
-
-        self::$plugins =  new BundleCollection();
-        self::$connection = null;
-
-        return parent::shutdown();
     }
 }

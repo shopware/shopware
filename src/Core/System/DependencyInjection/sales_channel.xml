@@ -49,5 +49,16 @@
             <argument id="sales_channel.repository" type="service"/>
             <tag name="console.command"/>
         </service>
+
+        <service class="Shopware\Core\System\SalesChannel\Storefront\StorefrontSalesChannelController" id="Shopware\Core\System\SalesChannel\Storefront\StorefrontSalesChannelController" public="true">
+            <argument id="Shopware\Core\Framework\Api\Response\ResponseFactory" type="service"/>
+            <argument id="currency.repository" type="service"/>
+            <argument id="language.repository" type="service"/>
+            <argument id="country.repository" type="service"/>
+            <argument id="country_state.repository" type="service"/>
+            <argument id="payment_method.repository" type="service"/>
+            <argument id="shipping_method.repository" type="service"/>
+        </service>
+
     </services>
 </container>                

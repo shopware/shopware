@@ -31,9 +31,9 @@ class ApiTestCase extends WebTestCase
     protected $storefrontApiClient;
 
     /**
-     * @var array
+     * @var string
      */
-    protected $salesChannelIds = [];
+    protected $storefrontApiSalesChannelId;
 
     /**
      * @throws \Shopware\Core\Framework\Exception\InvalidUuidException
@@ -72,7 +72,7 @@ class ApiTestCase extends WebTestCase
 
         try {
             $connection->executeQuery('DELETE FROM user WHERE username IN (:usernames)', ['usernames' => $this->apiUsernames], ['usernames' => Connection::PARAM_STR_ARRAY]);
-            $connection->executeQuery('DELETE FROM sales_channel WHERE id IN (:salesChannelIds)', ['salesChannelIds' => $this->salesChannelIds], ['salesChannelIds' => Connection::PARAM_STR_ARRAY]);
+            $connection->executeQuery('DELETE FROM sales_channel WHERE id = :salesChannelId', ['salesChannelId' => $this->storefrontApiSalesChannelId]);
         } catch (\Exception $ex) {
         }
 
@@ -90,6 +90,11 @@ class ApiTestCase extends WebTestCase
     public function getContainer()
     {
         return self::$container;
+    }
+
+    public function getStorefrontApiSalesChannelId(): string
+    {
+        return $this->storefrontApiSalesChannelId;
     }
 
     public function assertEntityExists(...$params): void
@@ -175,7 +180,7 @@ class ApiTestCase extends WebTestCase
             'languages' => [['id' => Defaults::LANGUAGE]],
         ]], Context::createDefaultContext(Defaults::TENANT_ID));
 
-        $this->salesChannelIds[] = $salesChannelId->getBytes();
+        $this->storefrontApiSalesChannelId = $salesChannelId->getHex();
 
         $header = 'HTTP_' . str_replace('-', '_', strtoupper(PlatformRequest::HEADER_ACCESS_KEY));
         $storefrontApiClient->setServerParameter($header, $accessKey);

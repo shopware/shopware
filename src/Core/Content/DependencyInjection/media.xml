@@ -70,12 +70,6 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service class="Shopware\Core\Content\Media\Commands\MediaOptimizeCommand" id="Shopware\Core\Content\Media\Commands\MediaOptimizeCommand">
-            <argument type="service" id="Shopware\Core\Content\Media\Util\Optimizer\CacheOptimizerService.inner"/>
-            <argument>%kernel.project_dir%/web/media</argument>
-            <tag name="console.command"/>
-        </service>
-
         <!-- Strategies -->
         <service class="Shopware\Core\Content\Media\Util\Strategy\Md5Strategy" id="Shopware\Core\Content\Media\Util\Strategy\StrategyInterface.md5">
             <tag name="Shopware\Core\Content\Media\Util\Strategy\StrategyInterface"/>
@@ -83,37 +77,6 @@
 
         <service class="Shopware\Core\Content\Media\Util\Strategy\PlainStrategy" id="Shopware\Core\Content\Media\Util\Strategy\StrategyInterface.plain">
             <tag name="Shopware\Core\Content\Media\Util\Strategy\StrategyInterface"/>
-        </service>
-
-        <!-- Optimizer -->
-        <service class="Shopware\Core\Content\Media\Util\Optimizer\OptimizerService" id="Shopware\Core\Content\Media\Util\Optimizer\OptimizerService">
-            <argument type="tagged" tag="shopware.media.optimizer"/>
-            <argument type="service" id="Shopware\Core\Content\Media\Util\Strategy\StrategyFilesystem"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Media\Util\Optimizer\CacheOptimizerService" class="Shopware\Core\Content\Media\Util\Optimizer\CacheOptimizerService"
-                 decorates="Shopware\Core\Content\Media\Util\Optimizer\OptimizerService" public="false">
-            <argument type="service" id="Shopware\Core\Content\Media\Util\Optimizer\CacheOptimizerService.inner"/>
-        </service>
-
-        <service class="Shopware\Core\Content\Media\Util\Optimizer\JpegoptimOptimizer" id="Shopware\Core\Content\Media\Util\Optimizer\JpegoptimOptimizer">
-            <tag name="shopware.media.optimizer" priority="100"/>
-        </service>
-
-        <service class="Shopware\Core\Content\Media\Util\Optimizer\JpegtranOptimizer" id="Shopware\Core\Content\Media\Util\Optimizer\JpegtranOptimizer">
-            <tag name="shopware.media.optimizer" priority="90"/>
-        </service>
-
-        <service class="Shopware\Core\Content\Media\Util\Optimizer\PngoutOptimizer" id="Shopware\Core\Content\Media\Util\Optimizer\PngoutOptimizer">
-            <tag name="shopware.media.optimizer" priority="100"/>
-        </service>
-
-        <service class="Shopware\Core\Content\Media\Util\Optimizer\OptipngOptimizer" id="Shopware\Core\Content\Media\Util\Optimizer\OptipngOptimizer">
-            <tag name="shopware.media.optimizer" priority="90"/>
-        </service>
-
-        <service class="Shopware\Core\Content\Media\Util\Optimizer\PngcrushOptimizer" id="Shopware\Core\Content\Media\Util\Optimizer\PngcrushOptimizer">
-            <tag name="shopware.media.optimizer" priority="80"/>
         </service>
 
         <service class="Shopware\Core\Content\Media\Api\MediaUploadController" id="Shopware\Core\Content\Media\Api\MediaUploadController" public="true">

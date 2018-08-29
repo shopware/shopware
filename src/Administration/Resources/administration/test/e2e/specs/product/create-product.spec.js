@@ -1,14 +1,13 @@
 module.exports = {
     'open product listing': (browser) => {
         browser
-        // open product listing
             .assert.containsText('.sw-admin-menu__navigation-list-item.sw-product span.collapsible-text', 'Products')
             .click('a.sw-admin-menu__navigation-link[href="#/sw/product/index"]')
             .waitForElementVisible('.smart-bar__actions a')
             .waitForElementVisible('.sw-page__smart-bar-amount')
             .assert.containsText('.sw-page__smart-bar-amount', '(0)');
     },
-    'goto create page, fill and save': (browser) => {
+    'go to create page, fill and save the new product': (browser) => {
         browser
             .click('a[href="#/sw/product/create"]')
             .waitForElementVisible('.sw-product-detail-base')
@@ -34,14 +33,14 @@ module.exports = {
             .waitForElementVisible('.sw-page__smart-bar-amount')
             .assert.containsText('.sw-page__smart-bar-amount', '(1)');
     },
-    'edit product via inline editing and verify change': (browser) => {
+    'edit product name via inline editing and verify change': (browser) => {
         browser
             .moveToElement('.sw-grid-row:first-child', 0, 0).doubleClick()
             .clearValue('input[name=sw-field--item-name]')
             .setValue('input[name=sw-field--item-name]', 'Marci Darci, the second!')
             .useXpath()
             .waitForElementVisible("//span[contains(text(), 'Save')]", 5000)
-            .click("//span[contains(text(), 'Save')]")
+            .click('//span[contains(text(), "Save")]')
             .useCss()
             .assert.containsText('.sw-grid-row:first-child .sw-grid-column a', 'Marci Darci, the second!');
     },
@@ -53,7 +52,10 @@ module.exports = {
             .waitForElementVisible('.sw-modal')
             .assert.containsText('.sw-modal .sw-product-list__confirm-delete-text', 'Do you really want to delete the product "Marci Darci, the second!"?')
             .click('.sw-modal__footer button.sw-button--primary')
-            .pause(1000)
+            .useXpath()
+            .click('//span[contains(text(), "Save")]')
+            .waitForElementPresent('//h2[contains(text(), "Products")]', 5000)
+            .useCss()
             .assert.containsText('.sw-page__smart-bar-amount', '(0)')
             .end();
     }

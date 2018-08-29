@@ -23,8 +23,8 @@ class OrderTransactionCollection extends EntityCollection
 
     public function filterByOrderStateId(string $state)
     {
-        return self::filter(function (OrderTransactionStruct $transaction) use ($state) {
-            return $transaction->getOrderTransactionStateId() == $state;
+        return $this->filter(function (OrderTransactionStruct $transaction) use ($state) {
+            return $transaction->getOrderTransactionStateId() === $state;
         });
     }
 

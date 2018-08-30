@@ -9,7 +9,8 @@
                       :notificationIndex="notification.uuid"
                       :closable="true"
                       @swAlertClose="onClose">
-                {{ notification.message }}
+
+                <div slot="default" v-html="notification.message"></div>
             </sw-alert>
         </transition-group>
     </div>

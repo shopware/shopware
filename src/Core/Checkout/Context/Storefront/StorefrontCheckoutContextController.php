@@ -6,8 +6,8 @@ use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
-use Shopware\Core\Checkout\Payment\Exception\PaymentMethodNotFoundHttpException;
-use Shopware\Core\Checkout\Shipping\Exception\ShippingMethodNotFoundHttpException;
+use Shopware\Core\Checkout\Payment\Exception\PaymentMethodNotFoundException;
+use Shopware\Core\Checkout\Shipping\Exception\ShippingMethodNotFoundException;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
@@ -99,7 +99,7 @@ class StorefrontCheckoutContextController extends Controller
 
         $valid = $this->paymentMethodRepository->searchIds($criteria, $context->getContext());
         if (!in_array($paymentMethodId, $valid->getIds(), true)) {
-            throw new PaymentMethodNotFoundHttpException($paymentMethodId);
+            throw new PaymentMethodNotFoundException($paymentMethodId);
         }
 
         return $paymentMethodId;
@@ -112,7 +112,7 @@ class StorefrontCheckoutContextController extends Controller
 
         $valid = $this->shippingMethodRepository->searchIds($criteria, $context->getContext());
         if (!in_array($shippingMethodId, $valid->getIds(), true)) {
-            throw new ShippingMethodNotFoundHttpException($shippingMethodId);
+            throw new ShippingMethodNotFoundException($shippingMethodId);
         }
 
         return $shippingMethodId;

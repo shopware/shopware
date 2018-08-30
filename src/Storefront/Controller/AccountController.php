@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
-use Shopware\Core\Checkout\Payment\Exception\PaymentMethodNotFoundHttpException;
+use Shopware\Core\Checkout\Payment\Exception\PaymentMethodNotFoundException;
 use Shopware\Core\Framework\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Storefront\Exception\AddressNotFoundException;
@@ -209,7 +209,7 @@ class AccountController extends StorefrontController
         $data = $request->request->get('register');
 
         if (!array_key_exists('payment', $data) or !Uuid::isValid($data['payment'])) {
-            throw new PaymentMethodNotFoundHttpException($data['payment']);
+            throw new PaymentMethodNotFoundException($data['payment']);
         }
 
         $this->contextPersister->save(

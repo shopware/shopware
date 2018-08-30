@@ -9,18 +9,10 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
 use Shopware\Core\Checkout\Order\OrderStruct;
-use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerInterface;
-use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
-use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor;
-use Shopware\Core\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactory;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
-use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
-use Shopware\Core\Checkout\Payment\Exception\InvalidTransactionException;
-use Shopware\Core\Checkout\Payment\Exception\TokenExpiredException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
-use Shopware\Core\Checkout\Payment\PaymentMethodStruct;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\ORM\Read\ReadCriteria;
+use Shopware\Core\Checkout\Payment\PaymentService;
+use Shopware\Core\Framework\Exception\InvalidParameterException;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
@@ -30,6 +22,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\RouterInterface;
 
 class CheckoutController extends StorefrontController
 {
@@ -49,48 +42,34 @@ class CheckoutController extends StorefrontController
     private $paymentMethodLoader;
 
     /**
-     * @var PaymentTransactionChainProcessor
-     */
-    private $paymentProcessor;
-
-    /**
-     * @var RepositoryInterface
-     */
-    private $paymentMethodRepository;
-
-    /**
-     * @var PaymentTransactionTokenFactory
-     */
-    private $tokenFactory;
-
-    /**
      * @var CheckoutContextPersister
      */
     private $contextPersister;
 
     /**
-     * @var PaymentHandlerRegistry
+     * @var PaymentService
      */
-    private $paymentHandlerRegistry;
+    private $paymentService;
+
+    /**
+     * @var RouterInterface
+     */
+    private $router;
 
     public function __construct(
         CartService $cartService,
         RepositoryInterface $orderRepository,
         PaymentMethodLoader $paymentMethodLoader,
-        PaymentTransactionChainProcessor $paymentProcessor,
-        PaymentTransactionTokenFactory $tokenFactory,
-        RepositoryInterface $paymentMethodRepository,
         CheckoutContextPersister $contextPersister,
-        PaymentHandlerRegistry $paymentHandlerRegistry
+        PaymentService $paymentService,
+        RouterInterface $router
     ) {
         $this->cartService = $cartService;
         $this->orderRepository = $orderRepository;
         $this->paymentMethodLoader = $paymentMethodLoader;
-        $this->paymentProcessor = $paymentProcessor;
-        $this->paymentMethodRepository = $paymentMethodRepository;
-        $this->tokenFactory = $tokenFactory;
         $this->contextPersister = $contextPersister;
-        $this->paymentHandlerRegistry = $paymentHandlerRegistry;
+        $this->paymentService = $paymentService;
+        $this->router = $router;
     }
 
     /**
@@ -113,6 +92,8 @@ class CheckoutController extends StorefrontController
 
     /**
      * @Route("/checkout/shippingPayment", name="checkout_shipping_payment", options={"seo"="false"})
+     *
+     * @throws CustomerNotLoggedInException
      */
     public function shippingPayment(Request $request, CheckoutContext $context): Response
     {
@@ -127,6 +108,7 @@ class CheckoutController extends StorefrontController
      * @Route("/checkout/saveShippingPayment", name="checkout_save_shipping_payment", options={"seo"="false"}, methods={"POST"})
      *
      * @throws UnknownPaymentMethodException
+     * @throws CustomerNotLoggedInException
      */
     public function saveShippingPayment(Request $request, CheckoutContext $context): Response
     {
@@ -135,7 +117,7 @@ class CheckoutController extends StorefrontController
         $paymentMethodId = (string) $request->request->get('paymentMethodId', '');
 
         if (!Uuid::isValid($paymentMethodId)) {
-            throw new UnknownPaymentMethodException(sprintf('Unknown payment method with with id %s', $paymentMethodId));
+            throw new UnknownPaymentMethodException($paymentMethodId);
         }
 
         $this->contextPersister->save(
@@ -151,10 +133,7 @@ class CheckoutController extends StorefrontController
     /**
      * @Route("/checkout/confirm", name="checkout_confirm", options={"seo"="false"})
      *
-     * @param Request         $request
-     * @param CheckoutContext $context
-     *
-     * @return RedirectResponse|Response
+     * @throws CustomerNotLoggedInException
      */
     public function confirm(Request $request, CheckoutContext $context): Response
     {
@@ -171,31 +150,10 @@ class CheckoutController extends StorefrontController
     }
 
     /**
-     * @Route("/checkout/pay", name="checkout_pay", options={"seo"="false"})
-     *
-     * @param Request         $request
-     * @param CheckoutContext $context
-     *
-     * @throws InvalidOrderException
-     * @throws InvalidTransactionException
-     * @throws UnknownPaymentMethodException
-     *
-     * @return RedirectResponse
+     * @Route("/checkout/order", name="checkout_order", options={"seo"="false"})
      */
-    public function pay(Request $request, CheckoutContext $context): RedirectResponse
+    public function order(CheckoutContext $context): RedirectResponse
     {
-        $this->denyAccessUnlessLoggedIn();
-
-        $applicationContext = $context->getContext();
-        $transaction = $request->get('transaction');
-
-        // check if customer is inside transaction loop
-        if ($transaction && Uuid::isValid($transaction)) {
-            $orderId = $this->getOrderIdByTransactionId($transaction, $context);
-
-            return $this->processPayment($orderId, $applicationContext);
-        }
-
         $cart = $this->cartService->getCart($context);
         // customer is not inside transaction loop and tries to finish the order
         if ($cart->getLineItems()->count() === 0) {
@@ -205,55 +163,46 @@ class CheckoutController extends StorefrontController
         // save order and start transaction loop
         $orderId = $this->cartService->order($context);
 
-        return $this->processPayment($orderId, $applicationContext);
+        return $this->redirectToRoute('checkout_pay', ['orderId' => $orderId]);
     }
 
     /**
-     * @Route("/checkout/finalize-transaction", name="checkout_finalize_transaction", options={"seo"="false"})
+     * @Route("/checkout/pay", name="checkout_pay", options={"seo"="false"})
      *
-     * @param Request         $request
-     * @param CheckoutContext $context
-     *
+     * @throws InvalidOrderException
      * @throws UnknownPaymentMethodException
-     * @throws \Doctrine\DBAL\Exception\InvalidArgumentException
-     * @throws InvalidTokenException
-     * @throws TokenExpiredException
-     *
-     * @return RedirectResponse
+     * @throws CustomerNotLoggedInException
      */
-    public function finalizeTransaction(Request $request, CheckoutContext $context): RedirectResponse
+    public function pay(Request $request, CheckoutContext $context): RedirectResponse
     {
         $this->denyAccessUnlessLoggedIn();
 
-        $paymentToken = $this->tokenFactory->validateToken(
-            $request->get('_sw_payment_token'),
-            $context->getContext()
-        );
+        $orderId = $request->query->get('orderId');
+        $finishUrl = $this->router->generate('checkout_finish', ['orderId' => $orderId]);
 
-        $this->tokenFactory->invalidateToken(
-            $paymentToken->getToken(),
-            $context->getContext()
-        );
+        $response = $this->paymentService->handlePaymentByOrder($orderId, $context, $finishUrl);
 
-        $paymentHandler = $this->getPaymentHandlerById($paymentToken->getPaymentMethodId(), $context->getContext());
-        $paymentHandler->finalize($paymentToken->getTransactionId(), $request, $context->getContext());
-
-        return $this->redirectToRoute('checkout_pay', ['transaction' => $paymentToken->getTransactionId()]);
+        return $response ?? $this->redirectToRoute('checkout_finish', ['orderId' => $orderId]);
     }
 
     /**
      * @Route("/checkout/finish", name="checkout_finish", options={"seo"="false"}, methods={"GET"})
      *
-     * @throws \Exception
+     * @throws CustomerNotLoggedInException
+     * @throws OrderNotFoundException
+     * @throws InvalidParameterException
      */
     public function finish(Request $request, CheckoutContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
-        $this->getOrder($request->get('order'), $context);
+        $orderId = $request->get('orderId');
+        if (!Uuid::isValid($orderId)) {
+            throw new InvalidParameterException('orderId');
+        }
+        $this->getOrder($orderId, $context);
 
-        //todo@dr restore cart from order - NEXT-406
-//        $cart = $this->serializer->denormalize(json_decode($order->getPayload(), true), 'json');
+        //todo@dr restore cart from order - NEXT-406 - can be realised with order recalculation/order converter
 
         return $this->renderStorefront('@Storefront/frontend/checkout/finish.html.twig', [
 //            'cart' => $cart,
@@ -261,6 +210,10 @@ class CheckoutController extends StorefrontController
         ]);
     }
 
+    /**
+     * @throws CustomerNotLoggedInException
+     * @throws OrderNotFoundException
+     */
     private function getOrder(string $orderId, CheckoutContext $context): OrderStruct
     {
         $customer = $context->getCustomer();
@@ -279,54 +232,5 @@ class CheckoutController extends StorefrontController
         }
 
         return $searchResult->first();
-    }
-
-    /**
-     * @throws InvalidTransactionException
-     */
-    private function getOrderIdByTransactionId(string $transactionId, CheckoutContext $context): string
-    {
-        $customer = $context->getCustomer();
-        if ($customer === null) {
-            throw new CustomerNotLoggedInException();
-        }
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('order.orderCustomer.customerId', $customer->getId()));
-        $criteria->addFilter(new TermQuery('order.transactions.id', $transactionId));
-
-        $searchResult = $this->orderRepository->searchIds($criteria, $context->getContext());
-
-        if ($searchResult->getTotal() !== 1) {
-            throw new InvalidTransactionException($transactionId);
-        }
-
-        $ids = $searchResult->getIds();
-
-        return array_shift($ids);
-    }
-
-    private function processPayment(string $orderId, Context $applicationContext): RedirectResponse
-    {
-        $redirect = $this->paymentProcessor->process($orderId, $applicationContext);
-
-        if ($redirect) {
-            return $redirect;
-        }
-
-        return $this->redirectToRoute('checkout_finish', ['order' => $orderId]);
-    }
-
-    private function getPaymentHandlerById(string $paymentMethodId, Context $context): PaymentHandlerInterface
-    {
-        $paymentMethods = $this->paymentMethodRepository->read(new ReadCriteria([$paymentMethodId]), $context);
-
-        /** @var PaymentMethodStruct $paymentMethod */
-        $paymentMethod = $paymentMethods->get($paymentMethodId);
-        if (!$paymentMethod) {
-            throw new UnknownPaymentMethodException($paymentMethodId);
-        }
-
-        return $this->paymentHandlerRegistry->get($paymentMethod->getClass());
     }
 }

@@ -13,6 +13,17 @@
             <tag name="shopware.entity.definition" entity="payment_method_translation"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Payment\PaymentService">
+            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor"/>
+            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactory"/>
+            <argument type="service" id="payment_method.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry"/>
+        </service>
+
+        <service class="Shopware\Core\Checkout\Payment\Controller\PaymentController" id="Shopware\Core\Checkout\Payment\Controller\PaymentController" public="true">
+            <argument type="service" id="Shopware\Core\Checkout\Payment\PaymentService"/>
+        </service>
+
         <service class="Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor" id="Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor">
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactory"/>
             <argument type="service" id="order.repository"/>
@@ -54,5 +65,4 @@
             <argument type="service" id="order_transaction.repository"/>
         </service>
     </services>
-</container>                
-                
+</container>

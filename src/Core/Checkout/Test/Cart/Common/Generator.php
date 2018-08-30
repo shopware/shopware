@@ -72,7 +72,8 @@ class Generator extends TestCase
         $state = null,
         $shipping = null,
         $language = null,
-        $fallbackLanguage = null
+        $fallbackLanguage = null,
+        $paymentMethod = null
     ) {
         if ($salesChannel === null) {
             $salesChannel = new SalesChannelStruct();
@@ -158,7 +159,10 @@ class Generator extends TestCase
             $fallbackLanguage->setName('Fallback Language 1');
         }
 
-        $paymentMethod = (new PaymentMethodStruct())->assign(['id' => '19d144ff-e15f-4772-860d-59fca7f207c1']);
+        if (!$paymentMethod) {
+            $paymentMethod = (new PaymentMethodStruct())->assign(['id' => '19d144ff-e15f-4772-860d-59fca7f207c1']);
+        }
+
         $shippingMethod = new ShippingMethodStruct();
         $shippingMethod->setId('8beeb66e9dda46b18891a059257a590e');
         $shippingMethod->setCalculation(DeliveryCalculator::CALCULATION_BY_PRICE);

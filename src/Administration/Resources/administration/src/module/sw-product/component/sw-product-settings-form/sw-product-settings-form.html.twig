@@ -103,21 +103,35 @@
                     </sw-field>
                 {% endblock %}
 
-                <sw-container grid="1fr 1fr" gap="0px 30px" align="center">
-                    {% block sw_product_settings_form_shipping_free_field %}
-                        <sw-field type="checkbox"
-                                  :label="$tc('sw-product.settingsForm.labelShippingFree')"
-                                  v-model="product.shippingFree">
-                        </sw-field>
-                    {% endblock %}
+                {% block sw_product_settings_form_stock_field %}
+                    <sw-field type="number"
+                              :label="$tc('sw-product.settingsForm.labelStock')"
+                              :placeholder="$tc('sw-product.settingsForm.placeholderStock')"
+                              v-model="product.stock">
+                    </sw-field>
+                {% endblock %}
+            </sw-container>
+            <sw-container grid="1fr 1fr 1fr" gap="0px 30px" align="center">
+                {% block sw_product_settings_form_active_field %}
+                    <sw-field type="checkbox"
+                              :label="$tc('sw-product.settingsForm.labelActive')"
+                              v-model="product.active">
+                    </sw-field>
+                {% endblock %}
 
-                    {% block sw_product_settings_form_mark_as_topseller_field %}
-                        <sw-field type="checkbox"
-                                  :label="$tc('sw-product.settingsForm.labelMarkAsTopseller')"
-                                  v-model="product.markAsTopseller">
-                        </sw-field>
-                    {% endblock %}
-                </sw-container>
+                {% block sw_product_settings_form_shipping_free_field %}
+                    <sw-field type="checkbox"
+                              :label="$tc('sw-product.settingsForm.labelShippingFree')"
+                              v-model="product.shippingFree">
+                    </sw-field>
+                {% endblock %}
+
+                {% block sw_product_settings_form_mark_as_topseller_field %}
+                    <sw-field type="checkbox"
+                              :label="$tc('sw-product.settingsForm.labelMarkAsTopseller')"
+                              v-model="product.markAsTopseller">
+                    </sw-field>
+                {% endblock %}
             </sw-container>
         {% endblock %}
     </div>

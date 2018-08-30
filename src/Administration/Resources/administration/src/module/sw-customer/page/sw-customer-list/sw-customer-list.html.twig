@@ -3,7 +3,7 @@
 
         {% block sw_order_list_search_bar_type %}
             <template slot="search-bar-type">
-                {{ $tc('sw-customer.general.mainMenuItemGeneral') }}:
+                {{ $tc('sw-customer.general.mainMenuItemGeneral') }}
             </template>
         {% endblock %}
 
@@ -129,7 +129,7 @@
                                         {% endblock %}
 
                                         {% block sw_customer_list_grid_columns_email %}
-                                            <sw-grid-column flex="minmax(250px, 1fr)"
+                                            <sw-grid-column flex="minmax(300px, 1fr)"
                                                             :label="$tc('sw-customer.list.columnEmail')"
                                                             dataIndex="email"
                                                             sortable

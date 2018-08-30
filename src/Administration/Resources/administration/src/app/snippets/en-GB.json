@@ -128,7 +128,7 @@
       "columnStreet": "Street",
       "columnZip": "Zip code",
       "columnCity": "City",
-      "columnEmail": "e-mail",
+      "columnEmail": "Email",
       "columnLastLogin": "Last login",
       "columnActions": "Action(s)",
       "contextMenuView": "View",
@@ -141,20 +141,20 @@
       "labelSalutation": "Salutation",
       "labelFirstName": "First name",
       "labelLastName": "Last name",
-      "labelEmail": "e-mail",
+      "labelEmail": "Email",
       "labelPhoneNumber": "Phone number",
       "labelCompany": "Company",
       "labelCustomerGroup": "Customer group",
-      "labelApplication": "Application",
+      "labelSalesChannel": "Sales Channel",
       "labelPaymentMethod": "Payment method",
       "labelCustomerNumber": "Customer number",
       "labelBirthday": "Date of birth",
       "placeholderCustomerGroup": "Please select a customer group...",
-      "placeholderApplication": "Please select an application...",
+      "placeholderSalesChannel": "Please select a sales channel...",
       "placeholderPaymentMethod": "lease select a payment method..."
     },
     "baseInfo": {
-      "contactEmail": "e-mail",
+      "contactEmail": "Email",
       "labelCustomerNumber": "Customer number",
       "labelCustomerGroup": "Customer group",
       "labelBirthday": "Date of birth",
@@ -316,11 +316,11 @@
       "placeholderManufacturer": "Enter product manufacturer..."
     },
     "categoryForm": {
-      "labelCatalog": "Catalog",
+      "labelCatalog": "Catalogue",
       "labelCategory": "Category",
-      "placeholderCatalog": "Select product catalog...",
+      "placeholderCatalog": "Select product catalogue...",
       "placeholderCategory": "Type to search for categories...",
-      "optionDefaultCatalog": "Default catalog"
+      "optionDefaultCatalog": "Default catalogue"
     },
     "priceForm": {
       "labelTaxRate": "Tax rate",
@@ -350,6 +350,8 @@
       "labelMaxPurchase": "Max. order quantity",
       "labelEan": "EAN",
       "labelPseudoSales": "Pseudo sales",
+      "labelStock": "Stock",
+      "labelActive": "Active",
       "labelShippingFree": "Free shipping",
       "labelMarkAsTopseller": "Promote product",
       "placeholderCreatedAt": "Enter date of creation...",
@@ -358,8 +360,9 @@
       "placeholderHeight": "200mm...",
       "placeholderLength": "100mm...",
       "placeholderWeight": "0,4kg...",
-      "placeholderMinPurchase": "Minimum purchase...",
-      "placeholderMaxPurchase": "Maximum purchase...",
+      "placeholderStock": "Enter stock...",
+      "placeholderMinPurchase": "Min. purchase...",
+      "placeholderMaxPurchase": "Max. purchase...",
       "placeholderEan": "Enter EAN number...",
       "placeholderPseudoSales": "Enter pseudo sales..."
     },
@@ -403,7 +406,9 @@
       "contextMenuDuplicate": "Duplicate",
       "messageEmpty": "No products yet",
       "modalTitleDelete": "Product",
-      "textDeleteConfirm": "Do you really want to delete the product \"{name}\"?"
+      "textDeleteConfirm": "Do you really want to delete the product \"{name}\"?",
+      "titleRefresh": "Refresh",
+      "titleFilter": "Filter"
     },
     "detail": {
       "textHeadline": "New product",
@@ -544,9 +549,9 @@
       "labelOptionTaxHorizontal": "Horizontal",
       "labelInputCurrencies": "Currencies",
       "labelInputLanguages": "Languages",
-      "labelInputCatalogs": "Catalogs",
+      "labelInputCatalogs": "Catalogues",
       "titleOptionsCard": "Options",
-      "textDeleteInfo": "Be careful: This will delete the sales channel permanently. It will no longer be available in the shopware administration. This has no effect on existing orders and catalogs.",
+      "textDeleteInfo": "Be careful: This will delete the sales channel permanently. It will no longer be available in the shopware administration. This has no effect on existing orders and catalogues.",
       "buttonDelete": "Delete sales channel",
       "deleteModalTitle": "Delete sales channel",
       "textConfirmDelete": "Are you sure, you want to delete the sales channel?",

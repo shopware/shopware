@@ -3,7 +3,7 @@
 
         {% block sw_settings_language_list_search_bar_type %}
             <template slot="search-bar-type">
-                {{ $tc('sw-settings-language.list.textHeadline') }}:
+                {{ $tc('sw-settings-language.list.textHeadline') }}
             </template>
         {% endblock %}
 
@@ -65,7 +65,7 @@
 
                                                 {% block sw_settings_language_list_columns_name_editor %}
                                                     <sw-field type="text"
-                                                              v-model="item.text"
+                                                              v-model="item.name"
                                                               slot="inline-edit">
                                                     </sw-field>
                                                 {% endblock %}

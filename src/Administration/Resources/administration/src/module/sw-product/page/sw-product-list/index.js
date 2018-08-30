@@ -58,7 +58,6 @@ Component.register('sw-product-list', {
 
     methods: {
         onEdit(product) {
-            console.log('editing');
             if (product && product.id) {
                 this.$router.push({
                     name: 'sw.product.detail',

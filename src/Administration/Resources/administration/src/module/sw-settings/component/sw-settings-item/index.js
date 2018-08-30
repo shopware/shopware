@@ -17,6 +17,11 @@ Component.register('sw-settings-item', {
             default() {
                 return {};
             }
+        },
+        disabled: {
+            required: false,
+            type: Boolean,
+            default: false
         }
     }
 });

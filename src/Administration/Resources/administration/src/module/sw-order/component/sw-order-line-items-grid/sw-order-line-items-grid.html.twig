@@ -1,5 +1,8 @@
 {% block sw_order_line_items_grid %}
-    <sw-grid class="sw-order-line-items-grid" :items="orderLineItems" table>
+    <sw-grid class="sw-order-line-items-grid"
+             :selectable="false"
+             :items="orderLineItems"
+             table>
 
         {% block sw_order_line_items_grid_columns %}
             <template slot="columns" slot-scope="{ item }">

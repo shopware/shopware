@@ -38,15 +38,6 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
         if (!$master->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN)) {
             $master->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, Uuid::uuid4()->getHex());
         }
-        if (!$master->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN)) {
-            try {
-                $this->decorated->resolve($master, $request);
-            } catch (\Exception $e) {
-                throw new \RuntimeException('No context token detected', 400, $e);
-            }
-
-            return;
-        }
 
         $contextToken = $master->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
         $tenantId = $master->headers->get(PlatformRequest::HEADER_TENANT_ID);

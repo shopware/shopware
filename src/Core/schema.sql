@@ -785,6 +785,7 @@ CREATE TABLE `media` (
   `user_id` binary(16) DEFAULT NULL,
   `user_tenant_id` binary(16) DEFAULT NULL,
   `mime_type` varchar(50) COLLATE utf8mb4_unicode_ci NULL,
+  `file_extension` varchar(50) COLLATE utf8mb4_unicode_ci NULL,
   `file_size` int(10) unsigned NULL,
   `meta_data` text COLLATE utf8mb4_unicode_ci,
   `thumbnails`text COLLATE utf8mb4_unicode_ci,

@@ -59,7 +59,12 @@ class ThumbnailService implements EventSubscriberInterface
         if (!$this->configuration->isAutoGenerateAfterUpload()) {
             return;
         }
-        $this->generateThumbnails($event->getMediaId(), $event->getMimeType(), $event->getContext());
+        $this->generateThumbnails(
+            $event->getMediaId(),
+            $event->getMimeType(),
+            $event->getFileExtension(),
+            $event->getContext()
+        );
     }
 
     /**
@@ -67,9 +72,9 @@ class ThumbnailService implements EventSubscriberInterface
      * @throws FileTypeNotSupportedException
      * @throws ThumbnailCouldNotBeSavedException
      */
-    public function generateThumbnails(string $mediaId, string $mimeType, Context $context): void
+    public function generateThumbnails(string $mediaId, string $mimeType, string $extension, Context $context): void
     {
-        $mediaImage = $this->getImageResource($mediaId, $mimeType);
+        $mediaImage = $this->getImageResource($mediaId, $extension);
         $originalImageSize = $this->getOriginalImageSize($mediaImage);
 
         $savedThumbnails = new StructCollection();
@@ -78,12 +83,12 @@ class ThumbnailService implements EventSubscriberInterface
                 $thumbnailSize = $this->calculateThumbnailSize($originalImageSize, $size);
                 $thumbnail = $this->createNewImage($mediaImage, $mimeType, $originalImageSize, $thumbnailSize);
 
-                $url = $this->urlGenerator->getThumbnailUrl($mediaId, $mimeType, $size['width'], $size['height'], false, false);
+                $url = $this->urlGenerator->getThumbnailUrl($mediaId, $extension, $size['width'], $size['height'], false, false);
                 $this->saveThumbnail($thumbnail, $mimeType, $url, $this->configuration->getStandardQuality());
                 $this->addThumbnailStruct($savedThumbnails, $size, false);
 
                 if ($this->configuration->isHighDpi()) {
-                    $url = $this->urlGenerator->getThumbnailUrl($mediaId, $mimeType, $size['width'], $size['height'], true, false);
+                    $url = $this->urlGenerator->getThumbnailUrl($mediaId, $extension, $size['width'], $size['height'], true, false);
                     $this->saveThumbnail($thumbnail, $mimeType, $url, $this->configuration->getHighDpiQuality());
                     $this->addThumbnailStruct($savedThumbnails, $size, true);
                 }
@@ -112,9 +117,9 @@ class ThumbnailService implements EventSubscriberInterface
      *
      * @return resource
      */
-    private function getImageResource(string $mediaId, string $mimeType)
+    private function getImageResource(string $mediaId, string $extension)
     {
-        $filePath = $this->urlGenerator->getMediaUrl($mediaId, $mimeType, false);
+        $filePath = $this->urlGenerator->getMediaUrl($mediaId, $extension, false);
         $file = $this->fileSystem->read($filePath);
         $image = @imagecreatefromstring($file);
         if (!$image) {
@@ -197,15 +202,16 @@ class ThumbnailService implements EventSubscriberInterface
     {
         ob_start();
         switch ($mimeType) {
-        case 'image/png':
-            imagepng($thumbnail);
-            break;
-        case 'image/gif':
-            imagegif($thumbnail);
-            break;
-        default:
-            imagejpeg($thumbnail, null, $quality);
-            break;
+            case 'image/png':
+                imagepng($thumbnail);
+                break;
+            case 'image/gif':
+                imagegif($thumbnail);
+                break;
+            case 'image/jpg':
+            case 'image/jpeg':
+                imagejpeg($thumbnail, null, $quality);
+                break;
         }
         $imageFile = ob_get_contents();
         ob_end_clean();

@@ -47,7 +47,12 @@ Component.register('sw-media-upload', {
 
                 return mediaEntity.save().then(() => {
                     return fileReader.readAsArrayBuffer(file).then((buffer) => {
-                        return this.mediaService.uploadMediaById(mediaEntity.id, file.type, buffer);
+                        return this.mediaService.uploadMediaById(
+                            mediaEntity.id,
+                            file.type,
+                            buffer,
+                            file.name.split('.').pop()
+                        );
                     });
                 }).catch(() => {
                     mediaEntity.delete(true);

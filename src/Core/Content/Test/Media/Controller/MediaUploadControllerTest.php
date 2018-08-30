@@ -16,7 +16,6 @@ use Symfony\Component\HttpFoundation\Response;
 class MediaUploadControllerTest extends ApiTestCase
 {
     const TEST_IMAGE = __DIR__ . '/../fixtures/shopware-logo.png';
-    const TEST_IMAGE_MIME_TYPE = 'image/png';
 
     /** @var RepositoryInterface */
     private $mediaRepository;
@@ -53,7 +52,7 @@ class MediaUploadControllerTest extends ApiTestCase
 
     public function tearDown()
     {
-        $path = $this->urlGenerator->getMediaUrl($this->mediaId, self::TEST_IMAGE_MIME_TYPE);
+        $path = $this->urlGenerator->getMediaUrl($this->mediaId, 'png');
         $path = pathinfo($path, PATHINFO_DIRNAME);
 
         try {
@@ -70,12 +69,12 @@ class MediaUploadControllerTest extends ApiTestCase
 
     public function testUploadFromBinary(): void
     {
-        $path = $this->urlGenerator->getMediaUrl($this->mediaId, self::TEST_IMAGE_MIME_TYPE);
+        $path = $this->urlGenerator->getMediaUrl($this->mediaId, 'png');
         static::assertFalse($this->filesystem->has($path));
 
         $this->apiClient->request(
             'POST',
-            "/api/v1/media/{$this->mediaId}/actions/upload",
+            "/api/v1/media/{$this->mediaId}/actions/upload?extension=png",
             [],
             [],
             [
@@ -96,7 +95,7 @@ class MediaUploadControllerTest extends ApiTestCase
 
     public function testUploadFromURL(): void
     {
-        $path = $this->urlGenerator->getMediaUrl($this->mediaId, self::TEST_IMAGE_MIME_TYPE);
+        $path = $this->urlGenerator->getMediaUrl($this->mediaId, 'png');
         static::assertFalse($this->filesystem->has($path));
 
         $target = self::$container->getParameter('kernel.project_dir') . '/public/shopware-logo.png';
@@ -107,7 +106,7 @@ class MediaUploadControllerTest extends ApiTestCase
         try {
             $this->apiClient->request(
                  'POST',
-                 "/api/v1/media/{$this->mediaId}/actions/upload",
+                 "/api/v1/media/{$this->mediaId}/actions/upload?extension=png",
                  [],
                  [],
                  [

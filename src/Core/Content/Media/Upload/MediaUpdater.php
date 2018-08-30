@@ -6,10 +6,13 @@ use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\Media\Event\MediaFileUploadedEvent;
 use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
 use Shopware\Core\Content\Media\Exception\IllegalMimeTypeException;
-use Shopware\Core\Content\Media\Util\MimeType;
+use Shopware\Core\Content\Media\Exception\MediaNotFoundException;
+use Shopware\Core\Content\Media\Exception\UploadException;
 use Shopware\Core\Content\Media\Util\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class MediaUpdater
@@ -48,30 +51,33 @@ class MediaUpdater
 
     /**
      * @throws IllegalMimeTypeException
+     * @throws UploadException
      */
-    public function persistFileToMedia(string $filePath, string $mediaId, string $mimeType, int $fileSize, Context $context): void
+    public function persistFileToMedia(string $filePath, string $mediaId, string $mimeType, string $extension, int $fileSize, Context $context): void
     {
-        if (!MimeType::isSupported($mimeType)) {
-            throw new IllegalMimeTypeException($mimeType);
+        $criteria = new Criteria();
+        $criteria->addFilter(new TermQuery('id', $mediaId));
+        if ($mediaEntity = $this->repository->searchIds($criteria, $context)->getTotal() !== 1) {
+            throw new MediaNotFoundException($mediaId);
         }
 
-        $this->saveFileToMediaDir($filePath, $mediaId, $mimeType);
-        $this->updateMediaEntity($mediaId, $mimeType, $fileSize, $context);
+        $this->saveFileToMediaDir($filePath, $mediaId, $extension);
+        $this->updateMediaEntity($mediaId, $mimeType, $extension, $fileSize, $context);
 
         try {
             $this->eventDispatcher->dispatch(
                 MediaFileUploadedEvent::EVENT_NAME,
-                new MediaFileUploadedEvent($mediaId, $mimeType, $context)
+                new MediaFileUploadedEvent($mediaId, $mimeType, $extension, $context)
             );
         } catch (FileTypeNotSupportedException $e) {
             //ignore that a thumbnail was not created
         }
     }
 
-    private function saveFileToMediaDir(string $filePath, string $mediaId, string $mimeType): void
+    private function saveFileToMediaDir(string $filePath, string $mediaId, string $extension): void
     {
         $stream = fopen($filePath, 'r');
-        $path = $this->urlGenerator->getMediaUrl($mediaId, $mimeType, false);
+        $path = $this->urlGenerator->getMediaUrl($mediaId, $extension, false);
         try {
             $this->filesystem->putStream($path, $stream);
         } finally {
@@ -79,11 +85,12 @@ class MediaUpdater
         }
     }
 
-    private function updateMediaEntity(string $mediaId, string $mimeType, int $fileSize, Context $context): void
+    private function updateMediaEntity(string $mediaId, string $mimeType, string $extension, int $fileSize, Context $context): void
     {
         $data = [
             'id' => $mediaId,
             'mimeType' => $mimeType,
+            'fileExtension' => $extension,
             'fileSize' => $fileSize,
             'thumbnailsCreated' => false,
         ];

@@ -445,6 +445,7 @@ class DemodataCommand extends ContainerAwareCommand
                     $file,
                     $id,
                     mime_content_type($file),
+                    pathinfo($file, PATHINFO_EXTENSION),
                     filesize($file),
                     $context
                 );
@@ -467,6 +468,7 @@ class DemodataCommand extends ContainerAwareCommand
                         'media' => [
                             'id' => $mediaId,
                             'mimeType' => mime_content_type($imagePath),
+                            'fileExtension' => pathinfo($imagePath, PATHINFO_EXTENSION),
                             'fileSize' => filesize($imagePath),
                             'name' => 'Product image of ' . $product['name'],
                         ],
@@ -514,6 +516,7 @@ class DemodataCommand extends ContainerAwareCommand
                                     'id' => $mediaId,
                                     'mimeType' => mime_content_type($imagePath),
                                     'fileSize' => filesize($imagePath),
+                                    'fileExtension' => pathinfo($imagePath, PATHINFO_EXTENSION),
                                     'name' => 'Product image of ' . $product['name'],
                                 ],
                             ],
@@ -1006,6 +1009,7 @@ class DemodataCommand extends ContainerAwareCommand
                 $file,
                 $mediaId,
                 mime_content_type($file),
+                pathinfo($file, PATHINFO_EXTENSION),
                 filesize($file),
                 $context
             );

@@ -57,6 +57,7 @@ class JsonApiEncoderTest extends KernelTestCase
         $struct->setId('1d23c1b0-15bf-43fb-97e8-9008cf42d6fe');
         $struct->setName('Manufacturer');
         $struct->setMimeType('image/png');
+        $struct->setFileExtension('png');
         $struct->setFileSize(310818);
 
         $struct->setDescription('A media object description');
@@ -71,6 +72,7 @@ class JsonApiEncoderTest extends KernelTestCase
                     'name' => 'Manufacturer',
                     'description' => 'A media object description',
                     'mimeType' => 'image/png',
+                    'fileExtension' => 'png',
                     'fileSize' => 310818,
                     'metaData' => null,
                     'createdAt' => '2018-01-15T08:01:16+00:00',

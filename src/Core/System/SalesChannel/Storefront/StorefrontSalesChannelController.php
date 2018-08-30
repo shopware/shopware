@@ -164,7 +164,7 @@ class StorefrontSalesChannelController extends Controller
     public function getShippingMethods(Request $request, CheckoutContext $context): Response
     {
         $criteria = $this->createCriteria($request, ShippingMethodDefinition::class, $context);
-        $shippingMethods = $this->paymentMethodRepository->search($criteria, $context->getContext());
+        $shippingMethods = $this->shippingMethodRepository->search($criteria, $context->getContext());
 
         return $this->responseFactory->createListingResponse(
             $shippingMethods,

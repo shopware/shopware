@@ -1,5 +1,7 @@
 <?php declare(strict_types=1);
 
+namespace Shopware\Core\System\Test\SalesChannel\Storefront;
+
 use Doctrine\DBAL\Driver\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -153,6 +155,29 @@ class StorefrontSalesChannelControllerTest extends ApiTestCase
         static::fail('Unable to find payment method');
     }
 
+    public function testGetSalesChannelShippingMethods()
+    {
+        $originalShippingMethod = $this->addShippingMethod();
+
+        $this->storefrontApiClient->request('GET', '/storefront-api/sales-channel/shipping-methods');
+        $response = $this->storefrontApiClient->getResponse();
+        static::assertEquals(200, $response->getStatusCode());
+
+        $content = json_decode($response->getContent(), true);
+
+        foreach ($content['data'] as $shippingMethod) {
+            if (!$shippingMethod['id'] === $originalShippingMethod['id']) {
+                continue;
+            }
+
+            static::assertArraySubset($originalShippingMethod, $shippingMethod);
+
+            return;
+        }
+
+        static::fail('Unable to find shipping method');
+    }
+
     private function sortById(&$array): void
     {
         usort($array, function ($a, $b) {
@@ -264,5 +289,24 @@ class StorefrontSalesChannelControllerTest extends ApiTestCase
         $this->salesChannelRepository->update([$data], $this->context);
 
         return $paymentMethod;
+    }
+
+    private function addShippingMethod(): array
+    {
+        $shippingMethod = [
+            'id' => Uuid::uuid4()->getHex(),
+            'name' => 'Express shipping',
+            'type' => 1,
+            'bindShippingfree' => false,
+        ];
+        $data = [
+            'id' => $this->getStorefrontApiSalesChannelId(),
+            'shippingMethods' => [
+                $shippingMethod,
+            ],
+        ];
+        $this->salesChannelRepository->update([$data], $this->context);
+
+        return $shippingMethod;
     }
 }

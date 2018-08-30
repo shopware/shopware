@@ -184,5 +184,7 @@ class TranslatorTest extends TestCase
             'Realized with Shopware',
             $this->translator->getCatalogue('en_GB')->get('frontend.index.footer.IndexCopyright')
         );
+
+        $this->getContainer()->get(RequestStack::class)->pop();
     }
 }

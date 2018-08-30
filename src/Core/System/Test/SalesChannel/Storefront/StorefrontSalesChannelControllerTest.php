@@ -3,14 +3,17 @@
 namespace Shopware\Core\System\Test\SalesChannel\Storefront;
 
 use Doctrine\DBAL\Driver\Connection;
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Core\Framework\Test\Api\ApiTestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\StorefrontFunctionalTestBehaviour;
 
-class StorefrontSalesChannelControllerTest extends ApiTestCase
+class StorefrontSalesChannelControllerTest extends TestCase
 {
+    use StorefrontFunctionalTestBehaviour;
+
     /**
      * @var Connection
      */
@@ -28,28 +31,19 @@ class StorefrontSalesChannelControllerTest extends ApiTestCase
 
     public function setUp()
     {
-        parent::setUp();
-
-        $this->storefrontApiClient->setServerParameter('CONTENT_TYPE', 'application/json');
+        $this->getStorefrontClient()->setServerParameter('CONTENT_TYPE', 'application/json');
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
         $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
-        $this->connection->beginTransaction();
-    }
-
-    public function tearDown()
-    {
-        $this->connection->rollBack();
-        parent::tearDown();
     }
 
     public function testGetSalesChannelCurrencies()
     {
         $originalCurrency = $this->addCurrency();
 
-        $this->storefrontApiClient->request('GET', '/storefront-api/sales-channel/currencies');
-        $response = $this->storefrontApiClient->getResponse();
-        static::assertEquals(200, $response->getStatusCode());
+        $this->getStorefrontClient()->request('GET', '/storefront-api/sales-channel/currencies');
+        $response = $this->getStorefrontClient()->getResponse();
+        static::assertEquals(200, $response->getStatusCode(), $response->getContent());
 
         $content = json_decode($response->getContent(), true);
 
@@ -70,8 +64,8 @@ class StorefrontSalesChannelControllerTest extends ApiTestCase
     {
         $originalLanguage = $this->addLanguage();
 
-        $this->storefrontApiClient->request('GET', '/storefront-api/sales-channel/languages');
-        $response = $this->storefrontApiClient->getResponse();
+        $this->getStorefrontClient()->request('GET', '/storefront-api/sales-channel/languages');
+        $response = $this->getStorefrontClient()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 
         $content = json_decode($response->getContent(), true);
@@ -93,8 +87,8 @@ class StorefrontSalesChannelControllerTest extends ApiTestCase
     {
         $originalCountry = $this->addCountry();
 
-        $this->storefrontApiClient->request('GET', '/storefront-api/sales-channel/countries');
-        $response = $this->storefrontApiClient->getResponse();
+        $this->getStorefrontClient()->request('GET', '/storefront-api/sales-channel/countries');
+        $response = $this->getStorefrontClient()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 
         $content = json_decode($response->getContent(), true);
@@ -117,8 +111,8 @@ class StorefrontSalesChannelControllerTest extends ApiTestCase
         $originalCountryWithStates = $this->addCountryWithStates();
         $countryId = $originalCountryWithStates['id'];
 
-        $this->storefrontApiClient->request('GET', '/storefront-api/sales-channel/country/states', ['countryId' => $countryId]);
-        $response = $this->storefrontApiClient->getResponse();
+        $this->getStorefrontClient()->request('GET', '/storefront-api/sales-channel/country/states', ['countryId' => $countryId]);
+        $response = $this->getStorefrontClient()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 
         $content = json_decode($response->getContent(), true);
@@ -136,8 +130,8 @@ class StorefrontSalesChannelControllerTest extends ApiTestCase
     {
         $originalPaymentMethod = $this->addPaymentMethod();
 
-        $this->storefrontApiClient->request('GET', '/storefront-api/sales-channel/payment-methods');
-        $response = $this->storefrontApiClient->getResponse();
+        $this->getStorefrontClient()->request('GET', '/storefront-api/sales-channel/payment-methods');
+        $response = $this->getStorefrontClient()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 
         $content = json_decode($response->getContent(), true);

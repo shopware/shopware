@@ -81,7 +81,7 @@ trait StorefrontApiTestBehaviour
         return $storefrontApiClient;
     }
 
-    protected function authorizeStorefrontClient(Client $storefrontApiClient): void
+    private function authorizeStorefrontClient(Client $storefrontApiClient): void
     {
         $salesChannelId = Uuid::uuid4();
         $accessKey = AccessKeyHelper::generateAccessKey('sales-channel');
@@ -106,10 +106,19 @@ trait StorefrontApiTestBehaviour
             'languages' => [['id' => Defaults::LANGUAGE]],
         ]], Context::createDefaultContext(Defaults::TENANT_ID));
 
-        $this->salesChannelIds[] = $salesChannelId->getBytes();
+        $this->salesChannelIds[] = $salesChannelId->getHex();
 
         $header = 'HTTP_' . str_replace('-', '_', strtoupper(PlatformRequest::HEADER_ACCESS_KEY));
-
         $storefrontApiClient->setServerParameter($header, $accessKey);
+    }
+
+    public function getStorefrontApiSalesChannelId(): string
+    {
+        if(!$this->salesChannelIds) {
+            throw new \LogicException('The sales channel id con only be requested after calling `createStorefrontClient`.');
+        }
+
+        return end($this->salesChannelIds);
+
     }
 }

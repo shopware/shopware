@@ -6,8 +6,11 @@ import { Application } from 'src/core/shopware';
  */
 export default class RefreshTokenHelper {
     constructor() {
-        this._subscribers = [];
         this._isRefreshing = false;
+        this._subscribers = [];
+        this._whitelist = [
+            '/oauth/token'
+        ];
     }
 
     /**
@@ -42,6 +45,10 @@ export default class RefreshTokenHelper {
         const loginService = providerContainer.loginService;
         const refreshToken = loginService.getRefreshToken();
 
+        if (!refreshToken || !refreshToken.length) {
+            return Promise.reject(new Error('No refresh token found.'));
+        }
+
         this.isRefreshing = true;
         return loginService.refreshTokenUsingRefreshToken(refreshToken).then((response) => {
             const refresh = loginService.getBearerAuthentication('refresh');
@@ -54,6 +61,14 @@ export default class RefreshTokenHelper {
             });
             return response.data.access_token;
         });
+    }
+
+    get whitelist() {
+        return this._whitelist;
+    }
+
+    set whitelist(urls) {
+        this._whitelists = urls;
     }
 
     get isRefreshing() {

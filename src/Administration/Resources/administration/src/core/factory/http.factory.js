@@ -45,11 +45,18 @@ function refreshTokenInterceptor(client) {
     }, (error) => {
         const { config, response: { status } } = error;
         const originalRequest = config;
+        const resource = originalRequest.url.replace(originalRequest.baseURL, '');
+
+        if (tokenHandler.whitelist.includes(resource)) {
+            return Promise.reject(error);
+        }
 
         if (status === 401) {
             if (!tokenHandler.isRefreshing) {
                 tokenHandler.fireRefreshTokenRequest().then((newToken) => {
                     tokenHandler.onRefreshToken(newToken);
+                }).catch(() => {
+                    return Promise.reject(error);
                 });
             }
 

@@ -153,8 +153,8 @@ class StorefrontSalesChannelControllerTest extends TestCase
     {
         $originalShippingMethod = $this->addShippingMethod();
 
-        $this->storefrontApiClient->request('GET', '/storefront-api/sales-channel/shipping-methods');
-        $response = $this->storefrontApiClient->getResponse();
+        $this->getStorefrontClient()->request('GET', '/storefront-api/sales-channel/shipping-methods');
+        $response = $this->getStorefrontClient()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 
         $content = json_decode($response->getContent(), true);

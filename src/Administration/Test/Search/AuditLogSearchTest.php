@@ -3,6 +3,7 @@
 namespace Shopware\Administration\Test\Search;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Search\AdministrationSearch;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductStruct;
@@ -10,10 +11,12 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
-class AuditLogSearchTest extends KernelTestCase
+class AuditLogSearchTest extends TestCase
 {
+    use IntegrationTestBehaviour;
+
     /**
      * @var RepositoryInterface
      */
@@ -41,29 +44,16 @@ class AuditLogSearchTest extends KernelTestCase
 
     protected function setUp()
     {
-        self::bootKernel();
+        $this->connection = $this->getContainer()->get(Connection::class);
 
-        $this->connection = self::$container->get(Connection::class);
-        $this->connection->beginTransaction();
-
-        $this->productRepository = self::$container->get('product.repository');
-        $this->search = self::$container->get(AdministrationSearch::class);
+        $this->productRepository = $this->getContainer()->get('product.repository');
+        $this->search = $this->getContainer()->get(AdministrationSearch::class);
         $this->context = $context = Context::createDefaultContext(Defaults::TENANT_ID);
-
-        $this->connection->executeUpdate('
-            DELETE FROM `version`;
-            DELETE FROM `version_commit`;
-            DELETE FROM `version_commit_data`;
-            DELETE FROM `user`;
-            DELETE FROM `order`;
-            DELETE FROM `customer`;
-            DELETE FROM `product`;
-        ');
 
         $this->userId = Uuid::uuid4()->getHex();
         $this->context->getSourceContext()->setUserId($this->userId);
 
-        $repo = self::$container->get('user.repository');
+        $repo = $this->getContainer()->get('user.repository');
         $repo->upsert([
             [
                 'id' => $this->userId,
@@ -74,14 +64,6 @@ class AuditLogSearchTest extends KernelTestCase
                 'password' => 'shopware',
             ],
         ], $context);
-
-        parent::setUp();
-    }
-
-    protected function tearDown()
-    {
-        $this->connection->rollBack();
-        parent::tearDown();
     }
 
     public function testProductRanking()

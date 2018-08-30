@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Test\SalesChannel\Repository;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
@@ -11,11 +12,13 @@ use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelStruct;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class SalesChannelRepositoryTest extends KernelTestCase
+class SalesChannelRepositoryTest extends TestCase
 {
+    use IntegrationTestBehaviour;
+
     /**
      * @var Connection
      */
@@ -57,22 +60,14 @@ class SalesChannelRepositoryTest extends KernelTestCase
 
     public function setUp()
     {
-        self::bootKernel();
-        $this->salesChannelRepository = self::$container->get('sales_channel.repository');
-        $this->catalogRepository = self::$container->get('catalog.repository');
-        $this->currencyRepository = self::$container->get('currency.repository');
-        $this->languageRepository = self::$container->get('language.repository');
-        $this->paymentMethodRepository = self::$container->get('payment_method.repository');
-        $this->countryRepository = self::$container->get('country.repository');
-        $this->shippingMethodRepository = self::$container->get('shipping_method.repository');
-        $this->connection = self::$container->get(Connection::class);
-        $this->connection->beginTransaction();
-    }
-
-    protected function tearDown()
-    {
-        $this->connection->rollBack();
-        parent::tearDown();
+        $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        $this->catalogRepository = $this->getContainer()->get('catalog.repository');
+        $this->currencyRepository = $this->getContainer()->get('currency.repository');
+        $this->languageRepository = $this->getContainer()->get('language.repository');
+        $this->paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
+        $this->countryRepository = $this->getContainer()->get('country.repository');
+        $this->shippingMethodRepository = $this->getContainer()->get('shipping_method.repository');
+        $this->connection = $this->getContainer()->get(Connection::class);
     }
 
     public function testCreateSalesChannelTest()

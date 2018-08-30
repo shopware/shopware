@@ -2,12 +2,16 @@
 
 namespace Shopware\Core\Framework\Test\Api;
 
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Client;
 
-class VersionTest extends ApiTestCase
+class VersionTest extends TestCase
 {
+    use AdminFunctionalTestBehaviour;
+
     /**
      * @var Client
      */
@@ -15,8 +19,6 @@ class VersionTest extends ApiTestCase
 
     protected function setUp()
     {
-        parent::setUp();
-
         $this->unauthorizedClient = $this->getClient();
         $this->unauthorizedClient->setServerParameters([
             'CONTENT_TYPE' => 'application/json',

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\ORM\Field;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Write\EntityWriter;
@@ -14,10 +15,12 @@ use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\ORM\Field\TestDefinition\WriteProtectedDefinition;
 use Shopware\Core\Framework\Test\ORM\Field\TestDefinition\WriteProtectedRelationDefinition;
 use Shopware\Core\Framework\Test\ORM\Field\TestDefinition\WriteProtectedTranslatedDefinition;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
-class WriteProtectedFieldTest extends KernelTestCase
+class WriteProtectedFieldTest extends TestCase
 {
+    use KernelTestBehaviour;
+
     /**
      * @var Connection
      */
@@ -25,9 +28,7 @@ class WriteProtectedFieldTest extends KernelTestCase
 
     public function setUp()
     {
-        self::bootKernel();
-        $this->connection = self::$container->get(Connection::class);
-        $this->connection->beginTransaction();
+        $this->connection = $this->getContainer()->get(Connection::class);
 
         $nullableTable = <<<EOF
 DROP TABLE IF EXISTS _test_relation;
@@ -68,16 +69,18 @@ CREATE TABLE `_test_nullable` (
 );
 EOF;
         $this->connection->executeUpdate($nullableTable);
+        $this->connection->beginTransaction();
     }
 
     public function tearDown(): void
     {
+        $this->connection->rollBack();
+
         $this->connection->executeUpdate('DROP TABLE `_test_nullable`');
         $this->connection->executeUpdate('DROP TABLE `_test_relation`');
         $this->connection->executeUpdate('DROP TABLE `_test_nullable_translation`');
         $this->connection->executeUpdate('DROP TABLE `_test_nullable_reference`');
 
-        $this->connection->rollBack();
         parent::tearDown();
     }
 
@@ -355,7 +358,7 @@ EOF;
 
     private function getWriter(): EntityWriterInterface
     {
-        return self::$container->get(EntityWriter::class);
+        return $this->getContainer()->get(EntityWriter::class);
     }
 
     private function getValidationExceptionMessage(WriteStackException $ex, string $field = 'protected'): string

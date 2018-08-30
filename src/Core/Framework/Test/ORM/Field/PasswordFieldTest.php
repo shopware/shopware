@@ -2,18 +2,21 @@
 
 namespace Shopware\Core\Framework\Test\ORM\Field;
 
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ORM\Field\PasswordField;
 use Shopware\Core\Framework\ORM\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\ORM\Write\EntityExistence;
 use Shopware\Core\Framework\ORM\Write\FieldException\InvalidFieldException;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Validation\ConstraintBuilder;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\User\UserDefinition;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-class PasswordFieldTest extends KernelTestCase
+class PasswordFieldTest extends TestCase
 {
+    use IntegrationTestBehaviour;
+
     /**
      * @var PasswordField
      */
@@ -21,12 +24,9 @@ class PasswordFieldTest extends KernelTestCase
 
     public function setUp()
     {
-        parent::setUp();
-        parent::bootKernel();
-
         $this->field = new PasswordField('password', 'password');
-        $this->field->setConstraintBuilder(self::$container->get(ConstraintBuilder::class));
-        $this->field->setValidator(self::$container->get('validator'));
+        $this->field->setConstraintBuilder($this->getContainer()->get(ConstraintBuilder::class));
+        $this->field->setValidator($this->getContainer()->get('validator'));
     }
 
     public function testGetStorage(): void

@@ -3,16 +3,19 @@
 namespace Shopware\Core\System\Test\Integration;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
-class IntegrationRepositoryTest extends KernelTestCase
+class IntegrationRepositoryTest extends TestCase
 {
+    use IntegrationTestBehaviour;
+
     /**
      * @var Connection
      */
@@ -25,16 +28,8 @@ class IntegrationRepositoryTest extends KernelTestCase
 
     public function setUp()
     {
-        self::bootKernel();
-        $this->repository = self::$container->get('integration.repository');
-        $this->connection = self::$container->get(Connection::class);
-        $this->connection->beginTransaction();
-    }
-
-    protected function tearDown()
-    {
-        $this->connection->rollBack();
-        parent::tearDown();
+        $this->repository = $this->getContainer()->get('integration.repository');
+        $this->connection = $this->getContainer()->get(Connection::class);
     }
 
     public function testCreationWithAccessKeys()

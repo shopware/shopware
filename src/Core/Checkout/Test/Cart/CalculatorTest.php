@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Test\Cart;
 
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Calculator;
 use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -16,10 +17,12 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextFactory;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Rule\Container\AndRule;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
-class CalculatorTest extends KernelTestCase
+class CalculatorTest extends TestCase
 {
+    use KernelTestBehaviour;
+
     /**
      * @var CheckoutContextFactory
      */
@@ -37,11 +40,8 @@ class CalculatorTest extends KernelTestCase
 
     protected function setUp()
     {
-        self::bootKernel();
-        parent::setUp();
-
-        $this->calculator = self::$container->get(Calculator::class);
-        $this->factory = self::$container->get(CheckoutContextFactory::class);
+        $this->calculator = $this->getContainer()->get(Calculator::class);
+        $this->factory = $this->getContainer()->get(CheckoutContextFactory::class);
         $this->context = $this->factory->create(Defaults::TENANT_ID, Defaults::TENANT_ID, Defaults::SALES_CHANNEL);
     }
 

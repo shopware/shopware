@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Test\Cart;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Enrichment;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -14,10 +15,14 @@ use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ORM\EntityRepository;
 use Shopware\Core\Framework\Struct\Uuid;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
-class EnrichmentTest extends KernelTestCase
+class EnrichmentTest extends TestCase
 {
+    use KernelTestBehaviour,
+        DatabaseTransactionBehaviour;
+
     /**
      * @var EntityRepository
      */
@@ -45,22 +50,11 @@ class EnrichmentTest extends KernelTestCase
 
     protected function setUp()
     {
-        self::bootKernel();
-        parent::setUp();
-
-        $this->productRepository = self::$container->get('product.repository');
-        $this->factory = self::$container->get(CheckoutContextFactory::class);
+        $this->productRepository = $this->getContainer()->get('product.repository');
+        $this->factory = $this->getContainer()->get(CheckoutContextFactory::class);
         $this->context = $this->factory->create(Defaults::TENANT_ID, Defaults::TENANT_ID, Defaults::SALES_CHANNEL);
-        $this->enrichment = self::$container->get(Enrichment::class);
-
-        $this->connection = self::$container->get(Connection::class);
-        $this->connection->beginTransaction();
-    }
-
-    protected function tearDown()
-    {
-        $this->connection->rollBack();
-        parent::tearDown();
+        $this->enrichment = $this->getContainer()->get(Enrichment::class);
+        $this->connection = $this->getContainer()->get(Connection::class);
     }
 
     public function testMissingProductData()

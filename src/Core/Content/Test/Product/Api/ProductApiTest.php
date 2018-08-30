@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Content\Test\Product\Api;
 
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleStruct;
 use Shopware\Core\Content\Product\ProductStruct;
 use Shopware\Core\Defaults;
@@ -12,12 +13,14 @@ use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Core\Framework\Test\Api\ApiTestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 
-class ProductApiTest extends ApiTestCase
+class ProductApiTest extends TestCase
 {
+    use AdminFunctionalTestBehaviour;
+
     /**
      * @var RepositoryInterface
      */
@@ -25,14 +28,7 @@ class ProductApiTest extends ApiTestCase
 
     protected function setUp()
     {
-        self::bootKernel();
-        parent::setUp();
-        $this->repository = self::$container->get('product.repository');
-    }
-
-    public function tearDown()
-    {
-        parent::tearDown();
+        $this->repository = $this->getContainer()->get('product.repository');
     }
 
     public function testModifyProductPriceMatrixOverApi(): void
@@ -40,7 +36,7 @@ class ProductApiTest extends ApiTestCase
         $ruleA = Uuid::uuid4()->getHex();
         $ruleB = Uuid::uuid4()->getHex();
 
-        self::$container->get('rule.repository')->create([
+        $this->getContainer()->get('rule.repository')->create([
             ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
             ['id' => $ruleB, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 2],
         ], Context::createDefaultContext(Defaults::TENANT_ID));
@@ -64,8 +60,8 @@ class ProductApiTest extends ApiTestCase
             ],
         ];
 
-        $this->apiClient->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', [], [], [], json_encode($data));
-        static::assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', [], [], [], json_encode($data));
+        static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
 
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
         $products = $this->repository->read(new ReadCriteria([$id]), $context);
@@ -100,8 +96,8 @@ class ProductApiTest extends ApiTestCase
             ],
         ];
 
-        $this->apiClient->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id, [], [], [], json_encode($data));
-        static::assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
+        $this->getClient()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id, [], [], [], json_encode($data));
+        static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
 
         $products = $this->repository->read(new ReadCriteria([$id]), $context);
         static::assertTrue($products->has($id));
@@ -134,8 +130,8 @@ class ProductApiTest extends ApiTestCase
             ],
         ];
 
-        $this->apiClient->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id, [], [], [], json_encode($data));
-        static::assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
+        $this->getClient()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id, [], [], [], json_encode($data));
+        static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
 
         $products = $this->repository->read(new ReadCriteria([$id]), $context);
         static::assertTrue($products->has($id));
@@ -169,14 +165,14 @@ class ProductApiTest extends ApiTestCase
             'descriptionLong' => $description,
         ];
 
-        $this->apiClient->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', [], [], [], json_encode($data));
-        static::assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', [], [], [], json_encode($data));
+        static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
 
-        $this->apiClient->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id, [], [], [
+        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id, [], [], [
             'HTTP_ACCEPT' => 'application/json',
         ]);
 
-        $response = $this->apiClient->getResponse();
+        $response = $this->getClient()->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
         $product = json_decode($response->getContent(), true);

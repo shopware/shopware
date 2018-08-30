@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Test\Catalog;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -12,10 +13,12 @@ use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\ORM\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\Struct\Uuid;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
-class CatalogTest extends KernelTestCase
+class CatalogTest extends TestCase
 {
+    use IntegrationTestBehaviour;
+
     /**
      * @var RepositoryInterface
      */
@@ -38,19 +41,10 @@ class CatalogTest extends KernelTestCase
 
     public function setUp()
     {
-        static::bootKernel();
-
-        $this->categoryRepository = self::$container->get('category.repository');
-        $this->catalogRepository = self::$container->get('catalog.repository');
-        $this->productRepository = self::$container->get('product.repository');
-        $this->connection = self::$container->get(Connection::class);
-        $this->connection->beginTransaction();
-    }
-
-    public function tearDown()
-    {
-        $this->connection->rollBack();
-        parent::tearDown();
+        $this->categoryRepository = $this->getContainer()->get('category.repository');
+        $this->catalogRepository = $this->getContainer()->get('catalog.repository');
+        $this->productRepository = $this->getContainer()->get('product.repository');
+        $this->connection = $this->getContainer()->get(Connection::class);
     }
 
     public function testCreateWithoutCatalogProvided(): void

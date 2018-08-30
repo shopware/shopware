@@ -3,17 +3,20 @@
 namespace Shopware\Core\Framework\Test\ORM\Dbal;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Dbal\Indexing\ChildCountIndexer;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class ChildCountIndexerTest extends KernelTestCase
+class ChildCountIndexerTest extends TestCase
 {
+    use IntegrationTestBehaviour;
+
     /**
      * @var RepositoryInterface
      */
@@ -41,12 +44,11 @@ class ChildCountIndexerTest extends KernelTestCase
 
     public function setUp()
     {
-        self::bootKernel();
-        $this->categoryRepository = self::$container->get('category.repository');
+        $this->categoryRepository = $this->getContainer()->get('category.repository');
         $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
-        $this->childCountIndexer = self::$container->get(ChildCountIndexer::class);
-        $this->eventDispatcher = self::$container->get('event_dispatcher');
-        $this->connection = self::$container->get(Connection::class);
+        $this->childCountIndexer = $this->getContainer()->get(ChildCountIndexer::class);
+        $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
+        $this->connection = $this->getContainer()->get(Connection::class);
     }
 
     public function testCreateChildCategory()

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Api\Controller;
 
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -9,11 +10,13 @@ use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Core\Framework\Test\Api\ApiTestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\PlatformRequest;
 
-class ProductActionControllerTest extends ApiTestCase
+class ProductActionControllerTest extends TestCase
 {
+    use AdminFunctionalTestBehaviour;
+
     /**
      * @var RepositoryInterface
      */
@@ -21,8 +24,6 @@ class ProductActionControllerTest extends ApiTestCase
 
     protected function setUp()
     {
-        parent::setUp();
-
         $this->productRepository = $this->getContainer()->get('product.repository');
     }
 
@@ -61,9 +62,9 @@ class ProductActionControllerTest extends ApiTestCase
             ],
         ];
 
-        $this->apiClient->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', [], [], [], json_encode($data));
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', [], [], [], json_encode($data));
 
-        static::assertSame(204, $this->apiClient->getResponse()->getStatusCode());
+        static::assertSame(204, $this->getClient()->getResponse()->getStatusCode());
 
         $criteria = new ReadCriteria([$id]);
         $criteria->addAssociation('product.configurators');
@@ -89,10 +90,10 @@ class ProductActionControllerTest extends ApiTestCase
         static::assertEquals($colorId, $red->getOption()->getGroupId());
         static::assertEquals($colorId, $blue->getOption()->getGroupId());
 
-        $this->apiClient->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '/actions/generate-variants');
-        static::assertSame(200, $this->apiClient->getResponse()->getStatusCode());
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '/actions/generate-variants');
+        static::assertSame(200, $this->getClient()->getResponse()->getStatusCode());
 
-        $ids = $this->apiClient->getResponse()->getContent();
+        $ids = $this->getClient()->getResponse()->getContent();
         static::assertNotEmpty($ids);
 
         $ids = json_decode($ids, true);

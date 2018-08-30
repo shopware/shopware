@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Shopware\Core\Framework\Test\ORM\Field;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\EntityRepository;
@@ -15,10 +16,12 @@ use Shopware\Core\Framework\ORM\VersionManager;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\ORM\Field\TestDefinition\DateTimeDefinition;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
-class CreateAtAndUpdatedAtFieldTest extends KernelTestCase
+class CreateAtAndUpdatedAtFieldTest extends TestCase
 {
+    use KernelTestBehaviour;
+
     /**
      * @var Connection
      */
@@ -31,16 +34,14 @@ class CreateAtAndUpdatedAtFieldTest extends KernelTestCase
 
     public function setUp()
     {
-        self::bootKernel();
-        $this->connection = self::$container->get(Connection::class);
-        $this->connection->beginTransaction();
+        $this->connection = $this->getContainer()->get(Connection::class);
         $this->repo = new EntityRepository(
             DateTimeDefinition::class,
-            self::$container->get(EntityReaderInterface::class),
-            self::$container->get(VersionManager::class),
-            self::$container->get(EntitySearcherInterface::class),
-            self::$container->get(EntityAggregatorInterface::class),
-            self::$container->get('event_dispatcher')
+            $this->getContainer()->get(EntityReaderInterface::class),
+            $this->getContainer()->get(VersionManager::class),
+            $this->getContainer()->get(EntitySearcherInterface::class),
+            $this->getContainer()->get(EntityAggregatorInterface::class),
+            $this->getContainer()->get('event_dispatcher')
         );
 
         $nullableTable = <<<EOF
@@ -54,14 +55,13 @@ CREATE TABLE IF NOT EXISTS `date_time_test` (
 );
 EOF;
         $this->connection->executeUpdate($nullableTable);
+        $this->connection->beginTransaction();
     }
 
     public function tearDown(): void
     {
-        $this->connection->executeUpdate('DROP TABLE `date_time_test`');
         $this->connection->rollBack();
-
-        parent::tearDown();
+        $this->connection->executeUpdate('DROP TABLE `date_time_test`');
     }
 
     public function testCreatedAtDefinedAutomatically(): void

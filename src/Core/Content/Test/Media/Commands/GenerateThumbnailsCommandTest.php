@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemInterface;
 use League\Flysystem\Memory\MemoryAdapter;
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Commands\GenerateThumbnailsCommand;
 use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailConfiguration;
@@ -17,12 +18,14 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\Struct\Uuid;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 
-class GenerateThumbnailsCommandTest extends KernelTestCase
+class GenerateThumbnailsCommandTest extends TestCase
 {
+    use IntegrationTestBehaviour;
+
     /**
      * @var Connection
      */
@@ -58,12 +61,11 @@ class GenerateThumbnailsCommandTest extends KernelTestCase
 
     public function setUp()
     {
-        self::bootKernel();
-        $this->repository = self::$container->get('media.repository');
-        $this->connection = self::$container->get(Connection::class);
+        $this->repository = $this->getContainer()->get('media.repository');
+        $this->connection = $this->getContainer()->get(Connection::class);
         $this->filesystem = new Filesystem(new MemoryAdapter());
-        $this->urlGenerator = self::$container->get(UrlGeneratorInterface::class);
-        $this->thumbnailConfiguration = self::$container->get(ThumbnailConfiguration::class);
+        $this->urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
+        $this->thumbnailConfiguration = $this->getContainer()->get(ThumbnailConfiguration::class);
         $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
         $this->thumbnailService = new ThumbnailService($this->repository, $this->filesystem, $this->urlGenerator, $this->thumbnailConfiguration);
 
@@ -72,15 +74,8 @@ class GenerateThumbnailsCommandTest extends KernelTestCase
             $this->repository
         );
 
-        $this->connection->beginTransaction();
         $this->createNewCatalog();
         $this->context->getExtension('write_protection')->set('write_media', true);
-    }
-
-    public function tearDown(): void
-    {
-        $this->connection->rollBack();
-        parent::tearDown();
     }
 
     public function testExecuteHappyPath()
@@ -232,7 +227,7 @@ class GenerateThumbnailsCommandTest extends KernelTestCase
 
     private function createNewCatalog(): void
     {
-        $catalogRepository = self::$container->get('catalog.repository');
+        $catalogRepository = $this->getContainer()->get('catalog.repository');
         $this->catalogId = Uuid::uuid4()->getHex();
         $catalogRepository->create([['id' => $this->catalogId, 'name' => 'test catalog']], $this->context);
         $this->context = $this->context->createWithCatalogIds([$this->catalogId]);

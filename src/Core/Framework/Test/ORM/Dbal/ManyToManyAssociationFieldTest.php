@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\ORM\Dbal;
 
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
@@ -14,11 +15,13 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Tax\TaxDefinition;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class ManyToManyAssociationFieldTest extends KernelTestCase
+class ManyToManyAssociationFieldTest extends TestCase
 {
+    use IntegrationTestBehaviour;
+
     /**
      * @var RepositoryInterface
      */
@@ -36,10 +39,8 @@ class ManyToManyAssociationFieldTest extends KernelTestCase
 
     protected function setUp()
     {
-        self::bootKernel();
-        parent::setUp();
-        $this->productRepository = self::$container->get('product.repository');
-        $this->categoryRepository = self::$container->get('category.repository');
+        $this->productRepository = $this->getContainer()->get('product.repository');
+        $this->categoryRepository = $this->getContainer()->get('category.repository');
         $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
     }
 

@@ -39,6 +39,7 @@ class Kernel extends HttpKernel
         parent::__construct($environment, $debug);
 
         self::$plugins = new BundleCollection();
+        self::$connection = null;
     }
 
     public function registerBundles()
@@ -129,6 +130,18 @@ class Kernel extends HttpKernel
     public function getPluginDir()
     {
         return $this->getProjectDir() . '/custom/plugins';
+    }
+
+    public function shutdown()
+    {
+        if (!$this->booted) {
+            return;
+        }
+
+        self::$plugins = new BundleCollection();
+        self::$connection = null;
+
+        return parent::shutdown();
     }
 
     protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader)

@@ -90,6 +90,11 @@ class Translator implements TranslatorInterface, TranslatorBagInterface
         return $this->translator->getLocale();
     }
 
+    public function resetInMemoryCache(): void
+    {
+        $this->isCustomized = [];
+    }
+
     /**
      * Add tenant and language specific snippets provided by the admin
      *

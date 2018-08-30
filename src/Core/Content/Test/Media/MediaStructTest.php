@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Test\Media;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailStruct;
 use Shopware\Core\Defaults;
@@ -13,10 +14,12 @@ use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\ORM\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\Struct\StructCollection;
 use Shopware\Core\Framework\Struct\Uuid;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
-class MediaStructTest extends KernelTestCase
+class MediaStructTest extends TestCase
 {
+    use IntegrationTestBehaviour;
+
     /** @var Connection */
     private $connection;
 
@@ -28,18 +31,9 @@ class MediaStructTest extends KernelTestCase
 
     public function setUp()
     {
-        self::bootKernel();
-        $this->connection = self::$container->get(Connection::class);
-        $this->repository = self::$container->get('media.repository');
+        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->repository = $this->getContainer()->get('media.repository');
         $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
-
-        $this->connection->beginTransaction();
-    }
-
-    public function tearDown()
-    {
-        $this->connection->rollBack();
-        parent::tearDown();
     }
 
     public function testWriteReadMinimalFields()

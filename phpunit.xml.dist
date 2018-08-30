@@ -37,5 +37,7 @@
     <listeners>
         <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener" />
         <listener class="JohnKary\PHPUnit\Listener\SpeedTrapListener" />
+        <!--Enable to see the db sideeffects of the tests. -->
+        <!--<listener class="Shopware\Core\Framework\Test\TestCaseBase\DatabaseCleanTestListener" />-->
     </listeners>
 </phpunit>

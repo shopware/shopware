@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Api\Controller;
 
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
@@ -11,12 +12,14 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Core\Framework\Test\Api\ApiTestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\Serializer\Serializer;
 
-class PriceActionControllerTest extends ApiTestCase
+class PriceActionControllerTest extends TestCase
 {
+    use AdminFunctionalTestBehaviour;
+
     /**
      * @var RepositoryInterface
      */
@@ -29,17 +32,15 @@ class PriceActionControllerTest extends ApiTestCase
 
     protected function setUp()
     {
-        parent::setUp();
-
         $this->taxRepository = $this->getContainer()->get('tax.repository');
         $this->serializer = $this->getContainer()->get('serializer');
     }
 
     public function testPriceMissingExecption()
     {
-        $this->apiClient->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/price/actions/calculate');
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/price/actions/calculate');
 
-        $response = $this->apiClient->getResponse()->getContent();
+        $response = $this->getClient()->getResponse()->getContent();
         $response = json_decode($response, true);
 
         static::assertArrayHasKey('errors', $response);
@@ -47,11 +48,11 @@ class PriceActionControllerTest extends ApiTestCase
 
     public function testTaxIdMissingException()
     {
-        $this->apiClient->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/price/actions/calculate', [], [], [], json_encode([
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/price/actions/calculate', [], [], [], json_encode([
             'price' => 10,
         ]));
 
-        $response = $this->apiClient->getResponse()->getContent();
+        $response = $this->getClient()->getResponse()->getContent();
 
         $response = json_decode($response, true);
 
@@ -60,12 +61,12 @@ class PriceActionControllerTest extends ApiTestCase
 
     public function testTaxNotFoundException()
     {
-        $this->apiClient->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/price/actions/calculate', [], [], [], json_encode([
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/price/actions/calculate', [], [], [], json_encode([
             'price' => 10,
             'taxId' => Uuid::uuid4()->getHex(),
         ]));
 
-        $response = $this->apiClient->getResponse()->getContent();
+        $response = $this->getClient()->getResponse()->getContent();
 
         $response = json_decode($response, true);
 
@@ -248,9 +249,9 @@ class PriceActionControllerTest extends ApiTestCase
 
     private function sendRequest(array $data): Price
     {
-        $this->apiClient->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/price/actions/calculate', [], [], [], json_encode($data));
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/price/actions/calculate', [], [], [], json_encode($data));
 
-        $response = $this->apiClient->getResponse()->getContent();
+        $response = $this->getClient()->getResponse()->getContent();
 
         $response = json_decode($response, true);
 

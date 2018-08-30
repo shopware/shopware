@@ -165,6 +165,8 @@ Component.register('sw-grid', {
                     this.selection[item.id] = item;
                 });
             }
+
+            this.$emit('sw-grid-select-all', this.selection);
         },
 
         getSelection() {
@@ -182,6 +184,8 @@ Component.register('sw-grid', {
 
             this.selection = {};
             this.selection = selection;
+
+            this.$emit('sw-grid-select-item', this.selection);
         },
 
         isSelected(itemId) {

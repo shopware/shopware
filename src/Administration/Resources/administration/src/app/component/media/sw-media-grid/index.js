@@ -1,9 +1,13 @@
-import { Component } from 'src/core/shopware';
+import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-media-grid.html.twig';
 import './sw-media-grid.less';
 
 Component.register('sw-media-grid', {
     template,
+
+    mixins: [
+        Mixin.getByName('drag-selector')
+    ],
 
     props: {
         previewType: {
@@ -63,6 +67,10 @@ Component.register('sw-media-grid', {
     },
 
     computed: {
+        dragSelectorClass() {
+            return 'sw-media-grid-item';
+        },
+
         mediaColumnDefinitions() {
             let columnDefinition;
 
@@ -217,6 +225,14 @@ Component.register('sw-media-grid', {
                 originalDomEvent,
                 item
             });
+        },
+
+        onDragSelection({ originalDomEvent, item }) {
+            item.selectItem(originalDomEvent);
+        },
+
+        onDragDeselection({ originalDomEvent, item }) {
+            item.removeFromSelection(originalDomEvent);
         }
     }
 });

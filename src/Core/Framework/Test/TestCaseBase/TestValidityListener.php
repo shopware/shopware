@@ -19,9 +19,9 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 /**
  * Helper class to debug data problems in the test suite
  */
-class InheritanceTestListener implements TestListener
+class TestValidityListener implements TestListener
 {
-    private $wrongIngheritance = [
+    private $wrongTestClasses = [
         'KernelTestCase' => [],
         'beginTransaction' => [],
         'traits' => [],
@@ -55,22 +55,41 @@ class InheritanceTestListener implements TestListener
         $class = get_class($test);
 
         if ($test instanceof KernelTestCase && !in_array($class, $this->whitelist['KernelTestCase'], true)) {
-            $this->wrongIngheritance['KernelTestCase'][$refl->getFileName()] = $class;
+            $this->wrongTestClasses['KernelTestCase'][$refl->getFileName()] = $class;
         }
 
         if (strpos($contents, 'beginTransaction()') && !in_array($class, $this->whitelist['beginTransaction'], true)) {
-            $this->wrongIngheritance['beginTransaction'][$refl->getFileName()] = $class;
+            $this->wrongTestClasses['beginTransaction'][$refl->getFileName()] = $class;
         }
 
-        // @todo multiple traits
-
         if (count($refl->getTraitNames()) > 2 && !in_array($class, $this->whitelist['traits'], true)) {
-            $this->wrongIngheritance['traits'][$refl->getFileName()] = $class;
+            $this->wrongTestClasses['traits'][$refl->getFileName()] = $class;
         }
 
         if (strpos($contents, 'DELETE FROM') && !in_array($class, $this->whitelist['deletes'], true)) {
-            $this->wrongIngheritance['deletes'][$refl->getFileName()] = $class;
+            $this->wrongTestClasses['deletes'][$refl->getFileName()] = $class;
         }
+    }
+
+    /**
+     * A test suite ended.
+     */
+    public function endTestSuite(TestSuite $suite): void
+    {
+        $totalCount = count($this->wrongTestClasses['beginTransaction'])
+            + count($this->wrongTestClasses['KernelTestCase'])
+            + count($this->wrongTestClasses['traits'])
+            + count($this->wrongTestClasses['deletes']);
+
+        if (!$totalCount) {
+            return;
+        }
+
+        echo sprintf(
+            "Found %s Errors: \n",
+            $totalCount
+        );
+        echo str_replace("\n", "\n\t", print_r($this->wrongTestClasses, true));
     }
 
     /**
@@ -127,27 +146,6 @@ class InheritanceTestListener implements TestListener
     public function startTestSuite(TestSuite $suite): void
     {
         //nth
-    }
-
-    /**
-     * A test suite ended.
-     */
-    public function endTestSuite(TestSuite $suite): void
-    {
-        $totalCount = count($this->wrongIngheritance['beginTransaction'])
-            + count($this->wrongIngheritance['KernelTestCase'])
-            + count($this->wrongIngheritance['traits'])
-            + count($this->wrongIngheritance['deletes']);
-
-        if (!$totalCount) {
-            return;
-        }
-
-        echo sprintf(
-            "Found %s Errors: \n",
-            $totalCount
-        );
-        echo str_replace("\n", "\n\t", print_r($this->wrongIngheritance, true));
     }
 
     /**

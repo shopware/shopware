@@ -40,7 +40,7 @@
                                 {% block sw_multi_select_selection_dismiss %}
                                     <button class="sw-multi-select__selection-dismiss"
                                             :title="$tc('global.sw-multi-select.buttonDismiss')"
-                                            @click.prevent.stop="dismissSelection(selection.id)">
+                                            @click.prevent.stop="onDismissSelection(selection.id)">
                                         {% block sw_multi_select_selection_dismiss_icon %}
                                             <sw-icon name="small-default-x-line-medium"
                                                      :class="{ 'is--default': (selection.id === defaultItemId) }">

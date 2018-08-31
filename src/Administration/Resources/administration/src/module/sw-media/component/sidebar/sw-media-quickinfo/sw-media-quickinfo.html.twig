@@ -93,7 +93,9 @@
                             <div class="sw-media-quickinfo__collapse-content">
                                 <div class="sw-media-quickinfo__preview">
                                     {% block sw_media_quickinfo_preview_item %}
-                                        <sw-media-preview :item="item"></sw-media-preview>
+                                        <sw-media-preview :item="item"
+                                                          :playable="true">
+                                        </sw-media-preview>
                                     {% endblock %}
                                 </div>
                             </div>

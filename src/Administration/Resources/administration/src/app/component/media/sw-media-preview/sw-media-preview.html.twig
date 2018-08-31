@@ -15,7 +15,7 @@
 
             <template v-else-if="checkForFileTypeVideo">
                 {% block sw_media_preview_file_type_video %}
-                    <video controls class="sw-media-preview-item">
+                    <video :controls="playable" :autoplay="autoplay" class="sw-media-preview-item">
                         <source :src="item.url" :type="item.mimeType">
                         {{ $tc('global.sw-media-preview.fallbackVideoTagSupport') }}
                     </video>
@@ -24,7 +24,7 @@
 
             <template v-else-if="checkForFileTypeAudio">
                 {% block sw_media_preview_file_type_audio %}
-                    <audio controls>
+                    <audio :controls="playable" :autoplay="autoplay">
                         <source :src="item.url" :type="item.mimeType">
                         {{ $tc('global.sw-media-preview.fallbackAudioTagSupport') }}
                     </audio>

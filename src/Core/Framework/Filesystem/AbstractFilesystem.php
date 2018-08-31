@@ -276,6 +276,11 @@ abstract class AbstractFilesystem implements FilesystemInterface
         throw new \RuntimeException('Filesystem plugins are not allowed in abstract filesystems.');
     }
 
+    public function getAdapter(): FilesystemInterface
+    {
+        return $this->filesystem;
+    }
+
     /**
      * Modify the path before it will be passed to the filesystem
      *

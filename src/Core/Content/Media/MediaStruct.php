@@ -4,11 +4,11 @@ namespace Shopware\Core\Content\Media;
 
 use Shopware\Core\Content\Catalog\CatalogStruct;
 use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\Framework\Struct\StructCollection;
 use Shopware\Core\System\User\UserStruct;
 
 class MediaStruct extends Entity
@@ -64,6 +64,11 @@ class MediaStruct extends Entity
     protected $description;
 
     /**
+     * @var string
+     */
+    protected $url = '';
+
+    /**
      * @var UserStruct|null
      */
     protected $user;
@@ -94,7 +99,7 @@ class MediaStruct extends Entity
     protected $catalog;
 
     /**
-     * @var StructCollection
+     * @var MediaThumbnailCollection|null
      */
     protected $thumbnails;
 
@@ -258,17 +263,27 @@ class MediaStruct extends Entity
         $this->catalog = $catalog;
     }
 
-    public function getThumbnails(): StructCollection
+    public function getThumbnails(): MediaThumbnailCollection
     {
         if ($this->thumbnails === null) {
-            $this->thumbnails = new StructCollection();
+            $this->thumbnails = new MediaThumbnailCollection();
         }
 
         return $this->thumbnails;
     }
 
-    public function setThumbnails(StructCollection $thumbnailCollection): void
+    public function setThumbnails(MediaThumbnailCollection $thumbnailCollection): void
     {
         $this->thumbnails = $thumbnailCollection;
+    }
+
+    public function getUrl(): string
+    {
+        return $this->url;
+    }
+
+    public function setUrl(string $url)
+    {
+        $this->url = $url;
     }
 }

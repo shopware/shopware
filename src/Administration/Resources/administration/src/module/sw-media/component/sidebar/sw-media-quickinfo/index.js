@@ -33,7 +33,7 @@ Component.register('sw-media-quickinfo', {
                 mimeType: this.item.mimeType,
                 fileSize: this.item.fileSize,
                 createdAt: format.date(this.item.createdAt),
-                url: this.item.extensions.links.url
+                url: this.item.url
             };
         }
     },
@@ -48,7 +48,7 @@ Component.register('sw-media-quickinfo', {
 
         copyLinkToClipboard() {
             if (this.itemIsAvailable) {
-                domUtils.copyToClipboard(this.item.extensions.links.url);
+                domUtils.copyToClipboard(this.item.url);
             }
         }
     }

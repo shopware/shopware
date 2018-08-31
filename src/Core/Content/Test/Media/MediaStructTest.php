@@ -4,15 +4,15 @@ namespace Shopware\Core\Content\Test\Media;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailStruct;
 use Shopware\Core\Content\Media\MediaStruct;
-use Shopware\Core\Content\Media\Thumbnail\ThumbnailStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\EntityRepository;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\ORM\Write\FieldException\WriteStackException;
-use Shopware\Core\Framework\Struct\StructCollection;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
@@ -74,60 +74,36 @@ class MediaStructTest extends TestCase
     {
         $mediaId = Uuid::uuid4()->getHex();
 
-        $thumbnailCollection = new StructCollection();
-        $thumbnailCollection->add(new ThumbnailStruct());
-
         $mediaData = [
             'id' => $mediaId,
             'name' => 'test_media',
-            'thumbnails' => $thumbnailCollection,
+            'thumbnails' => [
+                [
+                    'width' => 200,
+                    'height' => 200,
+                    'highDpi' => false,
+                ],
+            ],
         ];
 
         $this->expectException(WriteStackException::class);
         $this->repository->create([$mediaData], $this->context);
     }
 
-    public function testThumbnailsArePersistedAsJson()
-    {
-        $mediaId = Uuid::uuid4()->getHex();
-
-        $thumbnail = new ThumbnailStruct();
-        $thumbnail->setHeight(200);
-        $thumbnail->setWidth(200);
-        $thumbnail->setHighDpi(false);
-
-        $thumbnailCollection = new StructCollection([$thumbnail]);
-
-        $mediaData = [
-            'id' => $mediaId,
-            'name' => 'test_media',
-            'thumbnails' => $thumbnailCollection,
-        ];
-
-        $this->context->getExtension('write_protection')->set('write_thumbnails', true);
-        $this->repository->create([$mediaData], $this->context);
-
-        $stmt = $this->connection->executeQuery('SELECT `thumbnails` from `media` WHERE id = ?', [Uuid::fromHexToBytes($mediaId)]);
-        $thumbnailsFromDb = $stmt->fetchColumn();
-
-        static::assertEquals(json_encode($thumbnailCollection), $thumbnailsFromDb);
-    }
-
     public function testThumbnailsAreConvertedToStructWhenFetchedFromDb()
     {
         $mediaId = Uuid::uuid4()->getHex();
 
-        $thumbnail = new ThumbnailStruct();
-        $thumbnail->setHeight(200);
-        $thumbnail->setWidth(200);
-        $thumbnail->setHighDpi(false);
-
-        $thumbnailCollection = new StructCollection([$thumbnail]);
-
         $mediaData = [
             'id' => $mediaId,
             'name' => 'test_media',
-            'thumbnails' => $thumbnailCollection,
+            'thumbnails' => [
+                [
+                    'width' => 200,
+                    'height' => 200,
+                    'highDpi' => false,
+                ],
+            ],
         ];
 
         $this->context->getExtension('write_protection')->set('write_thumbnails', true);
@@ -138,13 +114,13 @@ class MediaStructTest extends TestCase
         $searchResult = $this->repository->search($criteria, $this->context);
         $media = $searchResult->getEntities()->get($mediaId);
 
-        static::assertEquals(StructCollection::class, get_class($media->getThumbnails()));
+        static::assertEquals(MediaThumbnailCollection::class, get_class($media->getThumbnails()));
 
         $persistedThumbnail = $media->getThumbnails()->first();
-        static::assertEquals(ThumbnailStruct::class, get_class($persistedThumbnail));
+        static::assertEquals(MediaThumbnailStruct::class, get_class($persistedThumbnail));
         static::assertEquals(200, $persistedThumbnail->getWidth());
         static::assertEquals(200, $persistedThumbnail->getHeight());
-        static::assertFalse($persistedThumbnail->isHighDpi());
+        static::assertFalse($persistedThumbnail->getHighDpi());
     }
 
     private function getIdCriteria($mediaId)

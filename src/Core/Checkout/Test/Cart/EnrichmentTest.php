@@ -80,6 +80,7 @@ class EnrichmentTest extends TestCase
                         'media' => [
                             'name' => 'test',
                             'mimeType' => 'image/jpeg',
+                            'fileExtension' => 'jpeg',
                             'fileName' => 'test',
                             'fileSize' => 0,
                         ],
@@ -138,6 +139,7 @@ class EnrichmentTest extends TestCase
                         'media' => [
                             'name' => 'test',
                             'mimeType' => 'image/jpeg',
+                            'fileExtension' => 'jpeg',
                             'fileName' => 'test',
                             'fileSize' => 0,
                         ],

@@ -85,7 +85,7 @@ Component.register('sw-media-preview', {
         },
 
         imageURLFromItem() {
-            return `${this.item.extensions.links.url}?${Date.now()}`;
+            return `${this.item.url}?${Date.now()}`;
         }
     },
 

@@ -63,10 +63,7 @@ return [
                 'description' => null,
                 'catalogId' => null,
                 'tenantId' => null,
-                'extensions' => [
-                    'links' => null,
-                ],
-                'thumbnails' => null,
+                'url' => '',
             ],
             'relationships' => [
                 'user' => [
@@ -100,6 +97,12 @@ return [
                     'data' => null,
                     'links' => [
                         'related' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870/catalog',
+                    ],
+                ],
+                'thumbnails' => [
+                    'data' => [],
+                    'links' => [
+                        'related' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870/thumbnails',
                     ],
                 ],
             ],

@@ -7,11 +7,11 @@ use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemInterface;
 use League\Flysystem\Memory\MemoryAdapter;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailStruct;
 use Shopware\Core\Content\Media\Commands\GenerateThumbnailsCommand;
 use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailConfiguration;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
-use Shopware\Core\Content\Media\Thumbnail\ThumbnailStruct;
 use Shopware\Core\Content\Media\Util\UrlGeneratorInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -148,7 +148,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         }
     }
 
-    protected function assertThumbnailExists(string $mediaId, string $extension, ThumbnailStruct $thumbnail): void
+    protected function assertThumbnailExists(string $mediaId, string $extension, MediaThumbnailStruct $thumbnail): void
     {
         $thumbnailPath = $this->urlGenerator->getThumbnailUrl(
             $mediaId,
@@ -159,7 +159,7 @@ class GenerateThumbnailsCommandTest extends TestCase
             false);
         static::assertTrue($this->filesystem->has($thumbnailPath));
 
-        if ($thumbnail->isHighDpi()) {
+        if ($thumbnail->getHighDpi()) {
             $thumbnailPath = $this->urlGenerator->getThumbnailUrl(
                 $mediaId,
                 $extension,

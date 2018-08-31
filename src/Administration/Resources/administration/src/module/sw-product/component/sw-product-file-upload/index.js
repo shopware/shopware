@@ -113,7 +113,7 @@ Component.register('sw-product-file-upload', {
             if (mediaEntity.isLocal) {
                 return mediaEntity.id in this.previews ? this.previews[mediaEntity.id] : '';
             }
-            return mediaEntity.extensions.links.url;
+            return mediaEntity.url;
         },
 
         addFiles() {

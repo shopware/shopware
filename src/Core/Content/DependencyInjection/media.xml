@@ -9,14 +9,17 @@
             <tag name="shopware.entity.definition" entity="media"/>
         </service>
 
+        <service class="Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailDefinition" id="Shopware\Core\Content\Media\Aggregate\Thumbnail\ThumbnailDefinition">
+            <tag name="shopware.entity.definition" entity="media_thumbnail"/>
+        </service>
+
         <service class="Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition" id="Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition">
             <tag name="shopware.entity.definition" entity="media_translation"/>
         </service>
 
-        <service class="Shopware\Core\Content\Media\Extension\UrlExtension" id="Shopware\Core\Content\Media\Extension\UrlExtension">
+        <service class="Shopware\Core\Content\Media\Subscriber\MediaLoadedSubscriber" id="Shopware\Core\Content\Media\Subscriber\MediaLoadedSubscriber">
             <argument id="Shopware\Core\Content\Media\Util\UrlGeneratorInterface" type="service"/>
             <tag name="kernel.event_subscriber"/>
-            <tag name="shopware.entity.extension"/>
         </service>
 
         <service class="Shopware\Core\Content\Media\Util\Strategy\StrategyFilesystem" id="Shopware\Core\Content\Media\Util\Strategy\StrategyFilesystem">

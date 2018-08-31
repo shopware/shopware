@@ -121,7 +121,7 @@ class ThumbnailServiceTest extends TestCase
                 false);
             static::assertTrue($this->fileSystem->has($thumbnailPath));
 
-            if ($thumbnail->isHighDpi()) {
+            if ($thumbnail->getHighDpi()) {
                 $thumbnailPath = $this->urlGenerator->getThumbnailUrl(
                     $this->mediaId,
                     'png',

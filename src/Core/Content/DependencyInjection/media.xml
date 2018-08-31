@@ -22,11 +22,6 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service class="Shopware\Core\Content\Media\Pathname\PathnameStrategy\StrategyFilesystem" id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\StrategyFilesystem">
-            <argument type="service" id="Shopware\Core\Framework\Filesystem\PrefixFilesystem"/>
-            <argument type="service" id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface"/>
-        </service>
-
         <service class="Shopware\Core\Content\Media\Pathname\UrlGenerator" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface">
             <argument type="service" id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface"/>
             <argument type="service" id="request_stack"/>

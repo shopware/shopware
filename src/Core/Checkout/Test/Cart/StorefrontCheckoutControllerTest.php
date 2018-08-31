@@ -157,8 +157,6 @@ class StorefrontCheckoutControllerTest extends TestCase
         $this->addProduct($client, $productId, $quantity);
         static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
-        echo json_encode(array_merge($personal, $billing));
-
         $this->guestOrder($client, array_merge($personal, $billing));
         static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 

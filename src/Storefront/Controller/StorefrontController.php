@@ -25,6 +25,7 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Twig\TemplateFinder;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -78,9 +79,10 @@ abstract class StorefrontController extends Controller
             return;
         }
 
+        /** @var CheckoutContext $context */
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT);
 
-        if ($context->getCustomer()) {
+        if ($context && $context->getCustomer() && $context->getCustomer()->getGuest() === false) {
             return;
         }
 

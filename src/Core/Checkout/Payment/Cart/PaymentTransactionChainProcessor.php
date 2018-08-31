@@ -68,7 +68,7 @@ class PaymentTransactionChainProcessor
      *
      * @return null|RedirectResponse
      */
-    public function process(string $orderId, Context $context): ?RedirectResponse
+    public function process(string $orderId, Context $context, ?string $finishUrl = null): ?RedirectResponse
     {
         /** @var OrderStruct $order */
         $criteria = new ReadCriteria([$orderId]);
@@ -87,7 +87,7 @@ class PaymentTransactionChainProcessor
         foreach ($transactions as $transaction) {
             $token = $this->tokenFactory->generateToken($transaction, $context);
 
-            $returnUrl = $this->assembleReturnUrl($token);
+            $returnUrl = $this->assembleReturnUrl($token, $finishUrl);
 
             $paymentTransaction = new PaymentTransactionStruct(
                 $transaction->getId(),
@@ -108,6 +108,9 @@ class PaymentTransactionChainProcessor
         return null;
     }
 
+    /**
+     * @throws UnknownPaymentMethodException
+     */
     private function getPaymentHandlerById(string $paymentMethodId, Context $context): PaymentHandlerInterface
     {
         $paymentMethods = $this->paymentMethodRepository->read(new ReadCriteria([$paymentMethodId]), $context);
@@ -120,12 +123,18 @@ class PaymentTransactionChainProcessor
         return $this->paymentHandlerRegistry->get($paymentMethod->getClass());
     }
 
-    private function assembleReturnUrl(string $token): string
+    private function assembleReturnUrl(string $token, ?string $finishUrl = null): string
     {
-        return $this->router->generate(
-            'checkout_finalize_transaction',
-            ['_sw_payment_token' => $token],
-            UrlGeneratorInterface::ABSOLUTE_URL
-        );
+        $parameter = [
+            '_sw_payment_token' => $token,
+        ];
+
+        // todo@ju when implementing transactions, finishUrl per transaction and per order is needed.
+
+        if ($finishUrl) {
+            $parameter['_sw_finish_url'] = $finishUrl;
+        }
+
+        return $this->router->generate('payment.finalize.transaction', $parameter, UrlGeneratorInterface::ABSOLUTE_URL);
     }
 }

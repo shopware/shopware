@@ -1,0 +1,112 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Checkout\Payment;
+
+use Doctrine\DBAL\Exception\InvalidArgumentException;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerInterface;
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
+use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor;
+use Shopware\Core\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactory;
+use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
+use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\Struct\Uuid;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
+
+class PaymentService
+{
+    /**
+     * @var PaymentTransactionChainProcessor
+     */
+    private $paymentProcessor;
+
+    /**
+     * @var PaymentTransactionTokenFactory
+     */
+    private $tokenFactory;
+
+    /**
+     * @var RepositoryInterface
+     */
+    private $paymentMethodRepository;
+
+    /**
+     * @var PaymentHandlerRegistry
+     */
+    private $paymentHandlerRegistry;
+
+    public function __construct(
+        PaymentTransactionChainProcessor $paymentProcessor,
+        PaymentTransactionTokenFactory $tokenFactory,
+        RepositoryInterface $paymentMethodRepository,
+        PaymentHandlerRegistry $paymentHandlerRegistry
+    ) {
+        $this->paymentProcessor = $paymentProcessor;
+        $this->tokenFactory = $tokenFactory;
+        $this->paymentMethodRepository = $paymentMethodRepository;
+        $this->paymentHandlerRegistry = $paymentHandlerRegistry;
+    }
+
+    /**
+     * @throws InvalidOrderException
+     * @throws UnknownPaymentMethodException
+     */
+    public function handlePaymentByOrder(string $orderId, CheckoutContext $context, ?string $finishUrl = null): ?RedirectResponse
+    {
+        if (!Uuid::isValid($orderId)) {
+            throw new InvalidOrderException($orderId);
+        }
+
+        $redirect = $this->paymentProcessor->process($orderId, $context->getContext(), $finishUrl);
+
+        if ($redirect) {
+            return $redirect;
+        }
+
+        return null;
+    }
+
+    /**
+     * @throws Exception\InvalidTokenException
+     * @throws Exception\TokenExpiredException
+     * @throws InvalidArgumentException
+     * @throws UnknownPaymentMethodException
+     */
+    public function finalizeTransaction(string $paymentToken, Request $request, Context $context): string
+    {
+        $paymentToken = $this->tokenFactory->getToken(
+            $paymentToken,
+            $context
+        );
+
+        $this->tokenFactory->invalidateToken(
+            $paymentToken->getToken(),
+            $context
+        );
+
+        $paymentHandler = $this->getPaymentHandlerById($paymentToken->getPaymentMethodId(), $context);
+        $paymentHandler->finalize($paymentToken->getTransactionId(), $request, $context);
+
+        return $paymentToken->getTransactionId();
+    }
+
+    /**
+     * @throws UnknownPaymentMethodException
+     */
+    private function getPaymentHandlerById(string $paymentMethodId, Context $context): PaymentHandlerInterface
+    {
+        $paymentMethods = $this->paymentMethodRepository->read(new ReadCriteria([$paymentMethodId]), $context);
+
+        /** @var PaymentMethodStruct $paymentMethod */
+        $paymentMethod = $paymentMethods->get($paymentMethodId);
+        if (!$paymentMethod) {
+            throw new UnknownPaymentMethodException($paymentMethodId);
+        }
+
+        return $this->paymentHandlerRegistry->get($paymentMethod->getClass());
+    }
+}

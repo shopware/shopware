@@ -98,15 +98,22 @@
         </service>
 
         <service class="Shopware\Core\Checkout\Cart\Storefront\StorefrontCartController" id="Shopware\Core\Checkout\Cart\Storefront\StorefrontCartController" public="true">
-            <argument id="Shopware\Core\Checkout\Cart\Storefront\CartService" type="service"/>
-            <argument type="service" id="order.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService" />
             <argument type="service" id="media.repository"/>
             <argument type="service" id="serializer"/>
-            <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>
-            <argument type="service" id="Shopware\Storefront\Page\Account\AccountService"/>
-            <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextFactory"/>
-            <argument type="service" id="Shopware\Core\Framework\Api\Response\ResponseFactory" />
         </service>
+
+        <service class="Shopware\Core\Checkout\Cart\Storefront\StorefrontCheckoutController" id="Shopware\Core\Checkout\Cart\Storefront\StorefrontCheckoutController" public="true">
+            <argument type="service" id="Shopware\Core\Checkout\Payment\PaymentService" />
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService" />
+            <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister" />
+            <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextFactory"/>
+            <argument type="service" id="Shopware\Storefront\Page\Account\AccountService"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Response\ResponseFactory" />
+            <argument type="service" id="serializer"/>
+            <argument type="service" id="order.repository"/>
+        </service>
+
 
         <service class="Shopware\Core\Checkout\Cart\PriceActionController" id="Shopware\Core\Checkout\Cart\PriceActionController" public="true">
             <argument type="service" id="serializer"/>

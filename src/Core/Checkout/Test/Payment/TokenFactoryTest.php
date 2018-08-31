@@ -3,6 +3,8 @@
 namespace Shopware\Core\Checkout\Test\Payment;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception\InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
@@ -12,6 +14,8 @@ use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
 use Shopware\Core\Checkout\Payment\Exception\TokenExpiredException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Exception\InvalidUuidException;
+use Shopware\Core\Framework\Exception\InvalidUuidLengthException;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -71,8 +75,9 @@ class TokenFactoryTest extends TestCase
     }
 
     /**
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
+     * @throws DBALException
+     * @throws InvalidUuidException
+     * @throws InvalidUuidLengthException
      */
     public function testGenerateToken()
     {
@@ -112,7 +117,7 @@ class TokenFactoryTest extends TestCase
             $context
         );
 
-        $token = $this->tokenFactory->validateToken($tokenIdentifier, $context);
+        $token = $this->tokenFactory->getToken($tokenIdentifier, $context);
 
         self::assertEquals($transactionId, $token->getTransactionId());
         self::assertEquals($tokenIdentifier, $token->getToken());
@@ -120,7 +125,7 @@ class TokenFactoryTest extends TestCase
     }
 
     /**
-     * @throws \Doctrine\DBAL\Exception\InvalidArgumentException
+     * @throws InvalidArgumentException
      * @throws InvalidTokenException
      */
     public function testInvalidateToken()

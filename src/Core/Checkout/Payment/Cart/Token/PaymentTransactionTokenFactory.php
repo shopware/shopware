@@ -56,7 +56,7 @@ class PaymentTransactionTokenFactory implements PaymentTransactionTokenFactoryIn
      * @throws InvalidTokenException
      * @throws TokenExpiredException
      */
-    public function validateToken(string $token, Context $context): TokenStruct
+    public function getToken(string $token, Context $context): TokenStruct
     {
         $row = $this->connection->fetchAssoc(
             'SELECT * FROM payment_token WHERE token = :token AND tenant_id = :tenant',

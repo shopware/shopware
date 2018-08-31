@@ -2,32 +2,21 @@
 
 namespace Shopware\Core\Checkout\Cart\Storefront;
 
-use Shopware\Core\Checkout\Cart\Exception\CustomerAccountExistsException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemCoverNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotRemoveableException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
-use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Context\CheckoutContextFactory;
-use Shopware\Core\Checkout\Context\CheckoutContextPersister;
-use Shopware\Core\Checkout\Context\CheckoutContextService;
-use Shopware\Core\Checkout\Order\OrderDefinition;
-use Shopware\Core\Checkout\Order\OrderStruct;
 use Shopware\Core\Content\Product\Cart\ProductCollector;
-use Shopware\Core\Framework\Api\Response\ResponseFactory;
 use Shopware\Core\Framework\Api\Response\Type\JsonType;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Exception\MissingParameterException;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\PlatformRequest;
-use Shopware\Storefront\Exception\CustomerNotFoundException;
-use Shopware\Storefront\Page\Account\AccountService;
-use Shopware\Storefront\Page\Account\RegistrationRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -46,11 +35,6 @@ class StorefrontCartController extends Controller
     /**
      * @var RepositoryInterface
      */
-    private $orderRepository;
-
-    /**
-     * @var RepositoryInterface
-     */
     private $mediaRepository;
 
     /**
@@ -58,44 +42,14 @@ class StorefrontCartController extends Controller
      */
     private $serializer;
 
-    /**
-     * @var CheckoutContextPersister
-     */
-    private $contextPersister;
-
-    /**
-     * @var AccountService
-     */
-    private $accountService;
-
-    /**
-     * @var CheckoutContextFactory
-     */
-    private $checkoutContextFactory;
-
-    /**
-     * @var ResponseFactory
-     */
-    private $responseFactory;
-
     public function __construct(
         CartService $service,
-        RepositoryInterface $orderRepository,
         RepositoryInterface $mediaRepository,
-        Serializer $serializer,
-        CheckoutContextPersister $contextPersister,
-        AccountService $accountService,
-        CheckoutContextFactory $checkoutContextFactory,
-        ResponseFactory $responseFactory
+        Serializer $serializer
     ) {
-        $this->orderRepository = $orderRepository;
         $this->serializer = $serializer;
-        $this->contextPersister = $contextPersister;
         $this->cartService = $service;
         $this->mediaRepository = $mediaRepository;
-        $this->accountService = $accountService;
-        $this->checkoutContextFactory = $checkoutContextFactory;
-        $this->responseFactory = $responseFactory;
     }
 
     /**
@@ -239,76 +193,6 @@ class StorefrontCartController extends Controller
     }
 
     /**
-     * @Route("/storefront-api/checkout/order", name="storefront.api.checkout.order", methods={"POST"})
-     *
-     * @throws OrderNotFoundException
-     */
-    public function createOrder(CheckoutContext $context): JsonResponse
-    {
-        $orderId = $this->cartService->order($context);
-        $order = $this->getOrderById($orderId, $context);
-
-        $this->contextPersister->save($context->getToken(), ['cartToken' => null], $context->getTenantId());
-
-        return new JsonResponse(
-            $this->serialize($order)
-        );
-    }
-
-    /**
-     * @Route("/storefront-api/checkout/guest-order", name="storefront.api.checkout.guest-order", methods={"POST"})
-     *
-     * @throws CustomerAccountExistsException
-     * @throws OrderNotFoundException
-     */
-    public function createGuestOrder(Request $request, CheckoutContext $context): JsonResponse
-    {
-        $registrationRequest = new RegistrationRequest();
-        $registrationRequest->assign($request->request->all());
-        $registrationRequest->setGuest(true);
-
-        $customerId = null;
-
-        try {
-            $customer = $this->accountService->getCustomerByEmail($registrationRequest->getEmail(), $context);
-
-            if (!$customer->getGuest()) {
-                throw new CustomerAccountExistsException($registrationRequest->getEmail());
-            }
-        } catch (CustomerNotFoundException $exception) {
-            // Check if customer already exists and has a real account.
-            // The empty catch is therefore intended.
-        }
-
-        $customerId = $this->accountService->createNewCustomer($registrationRequest, $context);
-
-        $orderId = $this->cartService->order($this->createOrderContext($customerId, $context));
-        $this->contextPersister->save($context->getToken(), ['cartToken' => null], $context->getTenantId());
-
-        return new JsonResponse(
-            $this->serialize($this->getOrderById($orderId, $context))
-        );
-    }
-
-    /**
-     * @Route("/storefront-api/checkout/guest-order/{id}", name="storefront.api.checkout.guest-order.deep-link", methods={"GET"})
-     *
-     * @throws OrderNotFoundException
-     */
-    public function getDeepLinkOrder(string $id, Request $request, Context $context): JsonResponse
-    {
-        $deepLinkCode = (string) $request->query->get('accessCode');
-        $order = $this->cartService->getOrderByDeepLinkCode($id, $deepLinkCode, $context);
-
-        return $this->responseFactory->createDetailResponse(
-            $order,
-            OrderDefinition::class,
-            $request,
-            $context
-        );
-    }
-
-    /**
      * @throws InvalidQuantityException
      * @throws LineItemCoverNotFoundException
      * @throws LineItemNotStackableException
@@ -369,32 +253,5 @@ class StorefrontCartController extends Controller
         return [
             'data' => JsonType::format($decoded),
         ];
-    }
-
-    private function createOrderContext(string $customerId, CheckoutContext $context): CheckoutContext
-    {
-        $orderContext = $this->checkoutContextFactory->create(
-            $context->getTenantId(),
-            $context->getToken(),
-            $context->getSalesChannel()->getId(),
-            [CheckoutContextService::CUSTOMER_ID => $customerId]
-        );
-
-        return $orderContext;
-    }
-
-    /**
-     * @throws OrderNotFoundException
-     */
-    private function getOrderById($orderId, CheckoutContext $context): OrderStruct
-    {
-        $criteria = new ReadCriteria([$orderId]);
-        $order = $this->orderRepository->read($criteria, $context->getContext())->get($orderId);
-
-        if (!$order) {
-            throw new OrderNotFoundException($orderId);
-        }
-
-        return $order;
     }
 }

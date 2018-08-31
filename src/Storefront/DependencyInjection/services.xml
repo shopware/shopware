@@ -116,11 +116,9 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService"/>
             <argument type="service" id="order.repository"/>
             <argument type="service" id="Shopware\Storefront\Page\Checkout\PaymentMethodLoader"/>
-            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor"/>
-            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactory"/>
-            <argument type="service" id="payment_method.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>
-            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry"/>
+            <argument type="service" id="Shopware\Core\Checkout\Payment\PaymentService"/>
+            <argument type="service" id="router"/>
         </service>
 
         <service class="Shopware\Storefront\Controller\SearchController" public="true" id="Shopware\Storefront\Controller\SearchController">

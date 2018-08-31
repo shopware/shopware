@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Media\Util\Strategy;
+namespace Shopware\Core\Content\Media\Pathname\PathnameStrategy;
 
 use Shopware\Core\Content\Media\Exception\StrategyNotFoundException;
 
-class StrategyFactory implements StrategyFactoryInterface
+class StrategyFactory
 {
     /**
-     * @var StrategyInterface[]
+     * @var PathnameStrategyInterface[]
      */
     private $strategies;
 
@@ -16,7 +16,7 @@ class StrategyFactory implements StrategyFactoryInterface
         $this->strategies = $strategies;
     }
 
-    public function factory(string $strategyName): StrategyInterface
+    public function factory(string $strategyName): PathnameStrategyInterface
     {
         return $this->findStrategyByName($strategyName);
     }
@@ -24,7 +24,7 @@ class StrategyFactory implements StrategyFactoryInterface
     /**
      * @throws StrategyNotFoundException
      */
-    private function findStrategyByName(string $strategyName): StrategyInterface
+    private function findStrategyByName(string $strategyName): PathnameStrategyInterface
     {
         foreach ($this->strategies as $strategy) {
             if ($strategy->getName() === $strategyName) {

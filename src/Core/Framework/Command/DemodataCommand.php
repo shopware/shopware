@@ -22,8 +22,8 @@ use Shopware\Core\Checkout\Customer\Rule\CustomerGroupRule;
 use Shopware\Core\Checkout\Customer\Rule\IsNewCustomerRule;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Configuration\ConfigurationGroupDefinition;
+use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\MediaDefinition;
-use Shopware\Core\Content\Media\Upload\MediaUpdater;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Cart\ProductCollector;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -131,7 +131,7 @@ class DemodataCommand extends ContainerAwareCommand
     private $taxRepository;
 
     /**
-     * @var MediaUpdater
+     * @var FileSaver
      */
     private $mediaUpdater;
 
@@ -144,7 +144,7 @@ class DemodataCommand extends ContainerAwareCommand
         Connection $connection,
         CheckoutContextFactory $contextFactory,
         Processor $calculator,
-        MediaUpdater $mediaUpdater
+        FileSaver $mediaUpdater
     ) {
         parent::__construct($name);
         $this->writer = $writer;

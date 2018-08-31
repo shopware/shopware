@@ -18,43 +18,38 @@
         </service>
 
         <service class="Shopware\Core\Content\Media\Subscriber\MediaLoadedSubscriber" id="Shopware\Core\Content\Media\Subscriber\MediaLoadedSubscriber">
-            <argument id="Shopware\Core\Content\Media\Util\UrlGeneratorInterface" type="service"/>
+            <argument id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface" type="service"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service class="Shopware\Core\Content\Media\Util\Strategy\StrategyFilesystem" id="Shopware\Core\Content\Media\Util\Strategy\StrategyFilesystem">
-            <argument type="service" id="Shopware\Core\Framework\Filesystem\PrefixFilesystem"/>
-            <argument type="service" id="Shopware\Core\Content\Media\Util\Strategy\StrategyInterface"/>
-        </service>
-
-        <service class="Shopware\Core\Content\Media\Util\UrlGenerator" id="Shopware\Core\Content\Media\Util\UrlGeneratorInterface">
-            <argument type="service" id="Shopware\Core\Content\Media\Util\Strategy\StrategyInterface"/>
+        <service class="Shopware\Core\Content\Media\Pathname\UrlGenerator" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface">
+            <argument type="service" id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface"/>
             <argument type="service" id="request_stack"/>
             <argument>%shopware.cdn.url%</argument>
         </service>
 
-        <service class="Shopware\Core\Content\Media\Util\Strategy\StrategyFactory" id="Shopware\Core\Content\Media\Util\Strategy\StrategyFactory">
-            <argument type="tagged" tag="Shopware\Core\Content\Media\Util\Strategy\StrategyInterface"/>
+        <service class="Shopware\Core\Content\Media\Pathname\PathnameStrategy\StrategyFactory" id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\StrategyFactory">
+            <argument type="tagged" tag="Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface"/>
         </service>
 
-        <service class="Shopware\Core\Content\Media\Util\Strategy\StrategyInterface" id="Shopware\Core\Content\Media\Util\Strategy\StrategyInterface">
-            <factory service="Shopware\Core\Content\Media\Util\Strategy\StrategyFactory" method="factory"/>
+        <service class="Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface" id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface">
+            <factory service="Shopware\Core\Content\Media\Pathname\PathnameStrategy\StrategyFactory" method="factory"/>
             <argument>%shopware.cdn.strategy%</argument>
         </service>
 
-        <service class="Shopware\Core\Content\Media\Upload\FileFetcher" id="Shopware\Core\Content\Media\Upload\FileFetcher">
+        <service class="Shopware\Core\Content\Media\File\FileFetcher" id="Shopware\Core\Content\Media\File\FileFetcher">
         </service>
 
-        <service class="Shopware\Core\Content\Media\Upload\MediaUpdater" id="Shopware\Core\Content\Media\Upload\MediaUpdater" public="true">
+        <service class="Shopware\Core\Content\Media\File\FileSaver" id="Shopware\Core\Content\Media\File\FileSaver" public="true">
             <argument type="service" id="media.repository"/>
             <argument type="service" id="shopware.filesystem.public"/>
-            <argument type="service" id="Shopware\Core\Content\Media\Util\UrlGeneratorInterface"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service class="Shopware\Core\Content\Media\Subscriber\MediaDeletedSubscriber" id="Shopware\Core\Content\Media\Subscriber\MediaDeletedSubscriber">
             <argument type="service" id="shopware.filesystem.public"/>
-            <argument type="service" id="Shopware\Core\Content\Media\Util\Strategy\StrategyInterface"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -66,26 +61,26 @@
         </service>
 
         <service class="Shopware\Core\Content\Media\Commands\MediaMigrateCommand" id="Shopware\Core\Content\Media\Commands\MediaMigrateCommand">
-            <argument type="service" id="Shopware\Core\Content\Media\Util\Strategy\StrategyFilesystem"/>
-            <argument type="service" id="Shopware\Core\Content\Media\Util\Strategy\StrategyFactory"/>
+            <argument type="service" id="Shopware\Core\Framework\Filesystem\PrefixFilesystem"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\StrategyFactory"/>
             <argument type="service" id="event_dispatcher"/>
             <tag name="console.command"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <!-- Strategies -->
-        <service class="Shopware\Core\Content\Media\Util\Strategy\Md5Strategy" id="Shopware\Core\Content\Media\Util\Strategy\StrategyInterface.md5">
-            <tag name="Shopware\Core\Content\Media\Util\Strategy\StrategyInterface"/>
+        <!-- Pathname strategies -->
+        <service class="Shopware\Core\Content\Media\Pathname\PathnameStrategy\Md5PathnameStrategy" id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface.md5">
+            <tag name="Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface"/>
         </service>
 
-        <service class="Shopware\Core\Content\Media\Util\Strategy\PlainStrategy" id="Shopware\Core\Content\Media\Util\Strategy\StrategyInterface.plain">
-            <tag name="Shopware\Core\Content\Media\Util\Strategy\StrategyInterface"/>
+        <service class="Shopware\Core\Content\Media\Pathname\PathnameStrategy\PlainPathnameStrategy" id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface.plain">
+            <tag name="Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface"/>
         </service>
 
         <service class="Shopware\Core\Content\Media\Api\MediaUploadController" id="Shopware\Core\Content\Media\Api\MediaUploadController" public="true">
             <argument type="service" id="Shopware\Core\Framework\Api\Response\ResponseFactory"/>
-            <argument type="service" id="Shopware\Core\Content\Media\Upload\FileFetcher"/>
-            <argument type="service" id="Shopware\Core\Content\Media\Upload\MediaUpdater"/>
+            <argument type="service" id="Shopware\Core\Content\Media\File\FileFetcher"/>
+            <argument type="service" id="Shopware\Core\Content\Media\File\FileSaver"/>
             <call method="setContainer">
                 <argument id="service_container" type="service"/>
             </call>
@@ -99,7 +94,7 @@
         <service class="Shopware\Core\Content\Media\Thumbnail\ThumbnailService" id="Shopware\Core\Content\Media\Thumbnail\ThumbnailService">
             <argument type="service" id="media.repository"/>
             <argument type="service" id="shopware.filesystem.public"/>
-            <argument type="service" id="Shopware\Core\Content\Media\Util\UrlGeneratorInterface"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface"/>
             <argument type="service" id="Shopware\Core\Content\Media\Thumbnail\ThumbnailConfiguration"/>
 
             <tag name="kernel.event_subscriber" />

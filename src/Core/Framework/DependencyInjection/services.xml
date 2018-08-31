@@ -106,7 +106,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextFactory"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Processor"/>
-            <argument type="service" id="Shopware\Core\Content\Media\Upload\MediaUpdater"/>
+            <argument type="service" id="Shopware\Core\Content\Media\File\FileSaver"/>
         </service>
 
         <service class="Shopware\Core\Framework\Provisioning\TenantProvisioner" id="Shopware\Core\Framework\Provisioning\TenantProvisioner">

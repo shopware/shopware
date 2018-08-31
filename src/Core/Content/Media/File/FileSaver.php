@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Media\Upload;
+namespace Shopware\Core\Content\Media\File;
 
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\Media\Event\MediaFileUploadedEvent;
@@ -8,14 +8,14 @@ use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
 use Shopware\Core\Content\Media\Exception\IllegalMimeTypeException;
 use Shopware\Core\Content\Media\Exception\MediaNotFoundException;
 use Shopware\Core\Content\Media\Exception\UploadException;
-use Shopware\Core\Content\Media\Util\UrlGeneratorInterface;
+use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class MediaUpdater
+class FileSaver
 {
     /**
      * @var RepositoryInterface
@@ -77,7 +77,7 @@ class MediaUpdater
     private function saveFileToMediaDir(string $filePath, string $mediaId, string $extension): void
     {
         $stream = fopen($filePath, 'r');
-        $path = $this->urlGenerator->getMediaUrl($mediaId, $extension, false);
+        $path = $this->urlGenerator->getRelativeMediaUrl($mediaId, $extension);
         try {
             $this->filesystem->putStream($path, $stream);
         } finally {

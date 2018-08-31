@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Media\Subscriber;
 
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailStruct;
 use Shopware\Core\Content\Media\MediaStruct;
-use Shopware\Core\Content\Media\Util\UrlGeneratorInterface;
+use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\ORM\Event\EntityLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -35,7 +35,7 @@ class MediaLoadedSubscriber implements EventSubscriberInterface
                 continue;
             }
 
-            $media->setUrl($this->urlGenerator->getMediaUrl($media->getId(), $media->getFileExtension()));
+            $media->setUrl($this->urlGenerator->getAbsoluteMediaUrl($media->getId(), $media->getFileExtension()));
 
             foreach ($media->getThumbnails()->getElements() as $thumbnail) {
                 $this->addThumbnailUrl($thumbnail, $media);
@@ -46,7 +46,7 @@ class MediaLoadedSubscriber implements EventSubscriberInterface
     private function addThumbnailUrl(MediaThumbnailStruct $thumbnail, MediaStruct $media): void
     {
         $thumbnail->setUrl(
-            $this->urlGenerator->getThumbnailUrl(
+            $this->urlGenerator->getAbsoluteThumbnailUrl(
                 $media->getId(),
                 $media->getFileExtension(),
                 $thumbnail->getWidth(),

@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\Media\Upload;
+namespace Shopware\Core\Content\Test\Media\File;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Exception\MimeTypeMismatchException;
 use Shopware\Core\Content\Media\Exception\UploadException;
-use Shopware\Core\Content\Media\Upload\FileFetcher;
+use Shopware\Core\Content\Media\File\FileFetcher;
 use Symfony\Component\HttpFoundation\Request;
 
 class FileFetcherTest extends TestCase

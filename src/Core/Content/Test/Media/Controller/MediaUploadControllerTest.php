@@ -6,7 +6,7 @@ use League\Flysystem\FileNotFoundException;
 use League\Flysystem\FilesystemInterface;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
-use Shopware\Core\Content\Media\Util\UrlGeneratorInterface;
+use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
@@ -53,7 +53,7 @@ class MediaUploadControllerTest extends TestCase
 
     public function tearDown()
     {
-        $path = $this->urlGenerator->getMediaUrl($this->mediaId, 'png');
+        $path = $this->urlGenerator->getAbsoluteMediaUrl($this->mediaId, 'png');
         $path = pathinfo($path, PATHINFO_DIRNAME);
 
         try {
@@ -72,7 +72,7 @@ class MediaUploadControllerTest extends TestCase
 
     public function testUploadFromBinary(): void
     {
-        $path = $this->urlGenerator->getMediaUrl($this->mediaId, 'png');
+        $path = $this->urlGenerator->getAbsoluteMediaUrl($this->mediaId, 'png');
         static::assertFalse($this->filesystem->has($path));
 
         $this->getClient()->request(
@@ -98,7 +98,7 @@ class MediaUploadControllerTest extends TestCase
 
     public function testUploadFromURL(): void
     {
-        $path = $this->urlGenerator->getMediaUrl($this->mediaId, 'png');
+        $path = $this->urlGenerator->getAbsoluteMediaUrl($this->mediaId, 'png');
         static::assertFalse($this->filesystem->has($path));
 
         $target = $this->getContainer()->getParameter('kernel.project_dir') . '/public/shopware-logo.png';

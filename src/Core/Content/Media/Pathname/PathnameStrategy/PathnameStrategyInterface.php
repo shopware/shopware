@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Media\Util\Strategy;
+namespace Shopware\Core\Content\Media\Pathname\PathnameStrategy;
 
-interface StrategyInterface
+interface PathnameStrategyInterface
 {
     public function getName(): string;
 

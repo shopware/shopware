@@ -171,7 +171,7 @@ class DemodataCommand extends ContainerAwareCommand
         $this->addOption('customers', 'cs', InputOption::VALUE_REQUIRED, 'Customer count', 200);
         $this->addOption('media', '', InputOption::VALUE_REQUIRED, 'Media count', 100);
 
-        $this->addOption('with-configurator', 'w', InputOption::VALUE_OPTIONAL, 'Enables configurator products', 1);
+        $this->addOption('with-configurator', 'w', InputOption::VALUE_OPTIONAL, 'Enables configurator products', 0);
         $this->addOption('with-services', 'x', InputOption::VALUE_OPTIONAL, 'Enables serivces for products', 1);
         $this->addOption('with-media', 'y', InputOption::VALUE_OPTIONAL, 'Enables media for products', 1);
     }

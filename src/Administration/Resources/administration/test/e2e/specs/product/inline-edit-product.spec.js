@@ -1,5 +1,5 @@
 module.exports = {
-    '@tags': ['product-create'],
+    '@tags': ['product-inline-edit'],
     'open product listing': (browser) => {
         browser
             .assert.containsText('.sw-admin-menu__navigation-list-item.sw-product span.collapsible-text', 'Products')
@@ -8,31 +8,41 @@ module.exports = {
             .waitForElementVisible('.sw-page__smart-bar-amount')
             .assert.containsText('.sw-page__smart-bar-amount', '(0)');
     },
-    'go to create page, fill and save the new product': (browser) => {
+    'create the product': (browser) => {
         browser
             .click('a[href="#/sw/product/create"]')
             .waitForElementVisible('.sw-product-detail-base')
             .assert.urlContains('#/sw/product/create')
             .assert.containsText('.sw-card__title', 'Product information')
-            .setValue('input[name=sw-field--product-name]', 'Marci Darci')
+            .setValue('input[name=sw-field--product-name]', 'First one')
             .setValue('select[name=sw-field--product-manufacturerId]', 'shopware AG')
             .setValue('select[name=sw-field--product-catalogId]', 'Default catalogue')
             .setValue('select[name=sw-field--product-taxId]', '19%')
             .setValue('input[name=sw-field--price-gross]', '99')
             .click('.smart-bar__actions button.sw-button--primary')
             .waitForElementVisible('.sw-notifications .sw-alert')
-            .assert.containsText('.sw-alert__message', 'The product "Marci Darci" was saved successfully.')
+            .assert.containsText('.sw-alert__message', 'The product "First one" was saved successfully.')
             .assert.urlContains('#/sw/product/detail');
     },
-    'go back to listing, search and verify creation': (browser) => {
+    'go back to listing': (browser) => {
         browser
             .click('a.smart-bar__back-btn')
-            .waitForElementVisible('.sw-product-list__content')
-            .setValue('input.sw-search-bar__input', ['Marci Darci', browser.Keys.ENTER])
+            .useXpath()
+            .waitForElementPresent('//a[contains(text(), "First one")]', 5000)
+            .useCss()
             .click('.sw-alert button.sw-alert__close')
-            .waitForElementNotPresent('.sw-alert__message')
-            .waitForElementVisible('.sw-page__smart-bar-amount')
-            .assert.containsText('.sw-page__smart-bar-amount', '(1)');
+            .waitForElementNotPresent('.sw-alert__message');
+    },
+    'edit product name via inline editing and verify change': (browser) => {
+        browser
+            .moveToElement('.sw-grid-row:first-child', 0, 0).doubleClick()
+            .clearValue('input[name=sw-field--item-name]')
+            .setValue('input[name=sw-field--item-name]', 'Second one')
+            .useXpath()
+            .waitForElementVisible("//span[contains(text(), 'Save')]", 5000)
+            .click('//span[contains(text(), "Save")]')
+            .useCss()
+            .assert.containsText('.sw-grid-row:first-child .sw-grid-column a', 'Second one');
     },
     'delete created product and verify deletion': (browser) => {
         browser
@@ -40,13 +50,11 @@ module.exports = {
             .waitForElementPresent('body > .sw-context-menu')
             .click('body > .sw-context-menu .sw-context-menu-item--danger')
             .waitForElementVisible('.sw-modal')
-            .assert.containsText('.sw-modal .sw-product-list__confirm-delete-text', 'Do you really want to delete the product "Marci Darci"?')
+            .assert.containsText('.sw-modal .sw-product-list__confirm-delete-text', 'Do you really want to delete the product "Second one"?')
             .click('.sw-modal__footer button.sw-button--primary')
             .useXpath()
             .click('//span[contains(text(), "Save")]')
-            .waitForElementNotPresent('//a[contains(text(), "Marci Darci")]', 5000)
-            .useCss()
-            .assert.containsText('.sw-page__smart-bar-amount', '(0)')
+            .waitForElementNotPresent('//a[contains(text(), "Second one")]', 5000)
             .end();
     }
 };

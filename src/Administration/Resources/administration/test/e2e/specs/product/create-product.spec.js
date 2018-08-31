@@ -1,22 +1,44 @@
 module.exports = {
+    '@tags': ['product-create'],
+    'create simple category to assign the product to it later ': (browser) => {
+        browser
+            .click('a.sw-admin-menu__navigation-link[href="#/sw/catalog/index"]')
+            .waitForElementPresent('.sw-catalog-list__intro')
+            .useXpath()
+            .waitForElementPresent('//div[contains(text(), "Default catalogue")]')
+            .useCss()
+            .waitForElementPresent('.sw-catalog-list__edit-action')
+            .click('.sw-catalog-list__edit-action')
+            .waitForElementPresent('input[name=sw-field--addCategoryName]')
+            .getLocationInView('.sw-catalog-detail__categories')
+            .setValue('input[name=sw-field--addCategoryName]', 'MainCategory')
+            .click('.sw-catalog-detail__add-button')
+            .useXpath()
+            .waitForElementPresent('//span[contains(text(), "MainCategory")]')
+            .useCss()
+            .click('.sw-button--primary')
+            .waitForElementNotPresent('.sw-catalog-detail__properties .sw-card__content .sw-loader');
+    },
     'open product listing': (browser) => {
         browser
-            // open product listing
             .assert.containsText('.sw-admin-menu__navigation-list-item.sw-product span.collapsible-text', 'Products')
             .click('a.sw-admin-menu__navigation-link[href="#/sw/product/index"]')
             .waitForElementVisible('.smart-bar__actions a')
             .waitForElementVisible('.sw-page__smart-bar-amount')
             .assert.containsText('.sw-page__smart-bar-amount', '(0)');
     },
-    'goto create page, fill and save': (browser) => {
+    'go to create page, fill and save the new product': (browser) => {
         browser
             .click('a[href="#/sw/product/create"]')
             .waitForElementVisible('.sw-product-detail-base')
             .assert.urlContains('#/sw/product/create')
             .assert.containsText('.sw-card__title', 'Information')
             .setValue('input[name=sw-field--product-name]', 'Marci Darci')
+            .setValue('.ql-editor', 'My very first description')
             .setValue('select[name=sw-field--product-manufacturerId]', 'shopware AG')
             .setValue('select[name=sw-field--product-catalogId]', 'Default catalogue')
+            .setValue('.sw-multi-select__input', ['MainCategory', browser.Keys.ENTER])
+            .setValue('.sw-multi-select__input', [browser.Keys.ESCAPE])
             .setValue('select[name=sw-field--product-taxId]', '19%')
             .setValue('input[name=sw-field--price-gross]', '99')
             .click('.smart-bar__actions button.sw-button--primary')
@@ -34,17 +56,62 @@ module.exports = {
             .waitForElementVisible('.sw-page__smart-bar-amount')
             .assert.containsText('.sw-page__smart-bar-amount', '(1)');
     },
+    'check if the data of the product is assigned correctly': (browser) => {
+        browser
+            .waitForElementVisible('.sw-grid-row:first-child .sw-context-button__button')
+            .assert.containsText('.sw-grid-row:first-child .sw-grid-column a', 'Marci Darci')
+            .useXpath()
+            .waitForElementPresent('//div[contains(text(), "shopware AG")]')
+            .useCss()
+            .click('.sw-grid-row:first-child .sw-context-button__button')
+            .useXpath()
+            .waitForElementPresent('//span[contains(text(), "Edit")]')
+            .click('//span[contains(text(), "Edit")]')
+            .waitForElementPresent('//div[contains(text(), "Product information")]')
+            .waitForElementPresent('//span[contains(text(), "MainCategory")]')
+            .useCss()
+            .assert.containsText('.ql-editor', 'My very first description')
+            .assert.containsText('.sw-multi-select__selection-text', 'MainCategory')
+            .click('a.smart-bar__back-btn');
+    },
     'delete created product and verify deletion': (browser) => {
         browser
-            .assert.containsText('.sw-grid-row:first-child .sw-grid-column a', 'Marci Darci')
+            .waitForElementVisible('.sw-grid-row:first-child .sw-context-button__button')
             .click('.sw-grid-row:first-child .sw-context-button__button')
             .waitForElementPresent('body > .sw-context-menu')
             .click('body > .sw-context-menu .sw-context-menu-item--danger')
             .waitForElementVisible('.sw-modal')
             .assert.containsText('.sw-modal .sw-product-list__confirm-delete-text', 'Do you really want to delete the product "Marci Darci"?')
             .click('.sw-modal__footer button.sw-button--primary')
-            .pause(1000)
-            .assert.containsText('.sw-page__smart-bar-amount', '(0)')
+            .useXpath()
+            .click('//span[contains(text(), "Save")]')
+            .waitForElementNotPresent('//a[contains(text(), "Marci Darci")]')
+            .useCss()
+            .waitForElementNotPresent('.sw-modal')
+            .waitForElementPresent('.sw-empty-state__title')
+            .assert.containsText('.sw-page__smart-bar-amount', '(0)');
+    },
+    'delete category': (browser) => {
+        browser
+            .click('a.sw-admin-menu__navigation-link[href="#/sw/catalog/index"]')
+            .useXpath()
+            .waitForElementPresent('//h3[contains(text(), "Welcome to the catalogue management")]')
+            .waitForElementPresent('//div[contains(text(), "Default catalogue")]')
+            .useCss()
+            .waitForElementPresent('.sw-catalog-list__edit-action')
+            .click('.sw-catalog-list__edit-action')
+            .waitForElementPresent('input[name=sw-field--addCategoryName]')
+            .getLocationInView('.sw-catalog-detail__categories')
+            .waitForElementPresent('.sw-context-button__button')
+            .click('.sw-context-button__button')
+            .waitForElementVisible('body > .sw-context-menu')
+            .waitForElementVisible('.sw-context-menu-item--danger')
+            .click('.sw-context-menu-item--danger')
+            .useXpath()
+            .waitForElementNotPresent('//span[contains(text(), "MainCategory")]')
+            .useCss()
+            .click('.sw-button--primary')
+            .waitForElementNotPresent('.sw-catalog-detail__properties .sw-card__content .sw-loader')
             .end();
-    }
+    },
 };

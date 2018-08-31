@@ -99,7 +99,7 @@
                                     <template slot="actions">
                                         <sw-container grid="3fr 1fr" gap="0 20px">
                                             <sw-field v-model="addCategoryName" @keyup.enter="onAddCategory" :placeholder="$tc('sw-catalog.detail.fieldPlaceholderAddCategory')"></sw-field>
-                                            <sw-button @click="onAddCategory">{{ $tc('sw-catalog.detail.buttonAddCategory') }}</sw-button>
+                                            <sw-button @click="onAddCategory" class="sw-catalog-detail__add-button">{{ $tc('sw-catalog.detail.buttonAddCategory') }}</sw-button>
                                         </sw-container>
                                     </template>
                                 {% endblock %}

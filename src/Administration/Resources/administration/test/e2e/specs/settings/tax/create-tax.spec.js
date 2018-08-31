@@ -1,7 +1,7 @@
 module.exports = {
     'open tax module': (browser) => {
         browser
-            // open tax listing
+        // open tax listing
             .assert.containsText('.sw-admin-menu__navigation-list-item.sw-settings span.collapsible-text', 'Settings')
             .click('a.sw-admin-menu__navigation-link[href="#/sw/settings/index"]')
             .waitForElementVisible('a.sw-settings-item[href="#/sw/settings/tax/index"]')

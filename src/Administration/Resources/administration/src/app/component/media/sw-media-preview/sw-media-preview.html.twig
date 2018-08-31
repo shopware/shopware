@@ -7,6 +7,12 @@
                 {% endblock %}
             </template>
 
+            <template v-else-if="checkForInMemoryFile">
+                {% block sw_media_preview_file_type_in_memory_image %}
+                    <img :src="item.dataUrl" :alt="item.name" class="sw-media-preview-item">
+                {% endblock %}
+            </template>
+
             <template v-else-if="checkForFileTypeVideo">
                 {% block sw_media_preview_file_type_video %}
                     <video controls class="sw-media-preview-item">

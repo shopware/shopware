@@ -152,7 +152,7 @@ Component.register('sw-media-catalog', {
             this.mediaItemToReplace = null;
         },
 
-        handleReplacementStarted(replacementPromise) {
+        handleItemReplaced(replacementPromise) {
             this.closeReplaceModal();
 
             replacementPromise.then(() => {

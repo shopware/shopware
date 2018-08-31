@@ -1,0 +1,41 @@
+@import "~less/variables";
+@import "~less/mixins";
+
+@color-sw-media-modal-replace-preview-border:  @color-steam-cloud;
+@border-radius-sw-media-modal-replace-preview: @border-radius-default;
+
+.sw-media-modal-replace {
+    .sw-media-modal-replace__upload-button {
+        text-align: center;
+        margin-bottom: 16px;
+    }
+
+    .sw-media-modal-replace__file-input {
+        display: none;
+    }
+
+    .sw-media-modal-replace__preview-container {
+        display: grid;
+        grid-template-columns: 50px auto 16px;
+        grid-column-gap: 5px;
+        align-items: center;
+        height: 62px;
+        width: 50%;
+        margin: 0 auto;
+        padding: 5px;
+        border: 1px solid @color-sw-media-modal-replace-preview-border;
+        border-radius: @border-radius-sw-media-modal-replace-preview;
+    }
+
+    .sw-media-modal-replace__preview {
+        width: 50px;
+        height: 50px;
+        position: relative;
+        border: 1px solid @color-sw-media-modal-replace-preview-border;
+        border-radius: @border-radius-sw-media-modal-replace-preview;
+    }
+
+    .sw-media-modal-replace__filename {
+        .truncate()
+    }
+}

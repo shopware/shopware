@@ -64,7 +64,6 @@
     },
     "sw-media-upload-container": {
       "dropZoneText": "Dateien zum Hochladen hierhin ziehen",
-      "dropZoneDemoText": "(Achtung! Drag and Drop ist in der Demo nicht verfügbar)",
       "upload": "Datei hochladen",
       "openMedia": "Medien öffnen",
       "createFromURLText": "Datei über URL hinzufügen"

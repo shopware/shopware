@@ -134,7 +134,7 @@ Component.register('sw-media-index', {
             this.mediaItemToReplace = null;
         },
 
-        handleReplacementStarted(replacementPromise) {
+        handleItemReplaced(replacementPromise) {
             this.closeReplaceModal();
 
             replacementPromise.then(() => {

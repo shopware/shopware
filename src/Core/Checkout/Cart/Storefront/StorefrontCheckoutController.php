@@ -176,13 +176,7 @@ class StorefrontCheckoutController extends Controller
         $response = $this->paymentService->handlePaymentByOrder($orderId, $context, $finishUrl);
 
         if ($response) {
-            return new JsonResponse(
-                [
-                    'paymentUrl' => $response->getTargetUrl(),
-                ],
-                200,
-                ['Location' => $response->getTargetUrl()]
-            );
+            return new JsonResponse(['paymentUrl' => $response->getTargetUrl()]);
         }
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);

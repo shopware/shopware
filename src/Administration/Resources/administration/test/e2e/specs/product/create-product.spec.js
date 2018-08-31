@@ -1,14 +1,14 @@
 module.exports = {
-    '@tags': ['product-create'],
     'open product listing': (browser) => {
         browser
+            // open product listing
             .assert.containsText('.sw-admin-menu__navigation-list-item.sw-product span.collapsible-text', 'Products')
             .click('a.sw-admin-menu__navigation-link[href="#/sw/product/index"]')
             .waitForElementVisible('.smart-bar__actions a')
             .waitForElementVisible('.sw-page__smart-bar-amount')
             .assert.containsText('.sw-page__smart-bar-amount', '(0)');
     },
-    'go to create page, fill and save the new product': (browser) => {
+    'goto create page, fill and save': (browser) => {
         browser
             .click('a[href="#/sw/product/create"]')
             .waitForElementVisible('.sw-product-detail-base')
@@ -36,16 +36,14 @@ module.exports = {
     },
     'delete created product and verify deletion': (browser) => {
         browser
+            .assert.containsText('.sw-grid-row:first-child .sw-grid-column a', 'Marci Darci')
             .click('.sw-grid-row:first-child .sw-context-button__button')
             .waitForElementPresent('body > .sw-context-menu')
             .click('body > .sw-context-menu .sw-context-menu-item--danger')
             .waitForElementVisible('.sw-modal')
             .assert.containsText('.sw-modal .sw-product-list__confirm-delete-text', 'Do you really want to delete the product "Marci Darci"?')
             .click('.sw-modal__footer button.sw-button--primary')
-            .useXpath()
-            .click('//span[contains(text(), "Save")]')
-            .waitForElementNotPresent('//a[contains(text(), "Marci Darci")]', 5000)
-            .useCss()
+            .pause(1000)
             .assert.containsText('.sw-page__smart-bar-amount', '(0)')
             .end();
     }

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Media\Subscriber;
 
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailStruct;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -11,21 +12,21 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\EntityCollection;
 use Shopware\Core\Framework\ORM\Event\EntityLoadedEvent;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
-class MediaLoadedSubscriberTest extends KernelTestCase
+class MediaLoadedSubscriberTest extends TestCase
 {
+    use IntegrationTestBehaviour;
+
     public function testExtensionSubscribesToMediaLoaded()
     {
-        self::bootKernel();
-        $subscriber = self::$container->get(MediaLoadedSubscriber::class);
+        $subscriber = $this->getContainer()->get(MediaLoadedSubscriber::class);
         static::assertEquals(['media.loaded' => 'mediaLoaded'], $subscriber->getSubscribedEvents());
     }
 
     public function testItAddsUrl()
     {
-        self::bootKernel();
-        $subscriber = self::$container->get(MediaLoadedSubscriber::class);
+        $subscriber = $this->getContainer()->get(MediaLoadedSubscriber::class);
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
 
         $mediaId = '34556f108ab14969a0dcf9d9522fd7df';
@@ -47,8 +48,7 @@ class MediaLoadedSubscriberTest extends KernelTestCase
 
     public function testItAddsThumbnailUrl()
     {
-        self::bootKernel();
-        $subscriber = self::$container->get(MediaLoadedSubscriber::class);
+        $subscriber = $this->getContainer()->get(MediaLoadedSubscriber::class);
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
 
         $mediaId = '34556f108ab14969a0dcf9d9522fd7df';

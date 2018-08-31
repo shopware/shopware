@@ -66,12 +66,8 @@
                 {% block sw_search_bar_results %}
                     <div v-if="showResultsContainer" class="sw-search-bar__results">
 
-                        {% block sw_search_bar_results_empty_message %}
-                            <sw-alert v-if="!results.length" variant="info">
-                                {% block sw_search_bar_results_empty_message_text %}
-                                    {{ $tc('global.sw-search-bar.textNoSearchResults') }}
-                                {% endblock %}
-                            </sw-alert>
+                        {% block sw_search_bar_results_empty_state %}
+                            <sw-loader v-if="!results.length"></sw-loader>
                         {% endblock %}
 
                         {% block sw_search_bar_results_list %}

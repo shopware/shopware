@@ -22,19 +22,6 @@ Component.register('sw-search-bar', {
         };
     },
 
-    created() {
-        const that = this;
-
-        this.showSearchFieldOnLargerViewports();
-
-        this.$device.onResize({
-            listener() {
-                that.showSearchFieldOnLargerViewports();
-            },
-            component: this
-        });
-    },
-
     computed: {
         searchTypeColor() {
             if (!this.$route.meta.$module) {
@@ -67,11 +54,28 @@ Component.register('sw-search-bar', {
         }
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     updated() {
         this.setScrollbarOffset();
     },
 
     methods: {
+        createdComponent() {
+            const that = this;
+
+            this.showSearchFieldOnLargerViewports();
+
+            this.$device.onResize({
+                listener() {
+                    that.showSearchFieldOnLargerViewports();
+                },
+                component: this
+            });
+        },
+
         clearSearchTerm() {
             this.searchTerm = '';
             this.showResultsContainer = false;
@@ -81,12 +85,6 @@ Component.register('sw-search-bar', {
 
         onFocusInput() {
             this.isActive = true;
-
-            if (this.useTypeSearch) {
-                return;
-            }
-
-            this.showResultsContainer = true;
         },
 
         onBlur() {
@@ -114,6 +112,7 @@ Component.register('sw-search-bar', {
         },
 
         onSearchTermChange() {
+            console.log('onSearchTermChange');
             if (this.useTypeSearch) {
                 this.doListSearch();
             } else {
@@ -153,6 +152,7 @@ Component.register('sw-search-bar', {
         }, 400),
 
         loadResults(searchTerm) {
+            this.results = [];
             this.searchService.search({ term: searchTerm }).then((response) => {
                 this.results = response.data;
                 this.isLoading = false;

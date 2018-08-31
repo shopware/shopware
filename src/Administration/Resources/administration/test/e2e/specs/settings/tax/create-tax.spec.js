@@ -1,5 +1,4 @@
 module.exports = {
-    '@tags': ['setting-tax'],
     'open tax module': (browser) => {
         browser
             // open tax listing

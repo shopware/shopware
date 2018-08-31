@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Media\File;
 
 use League\Flysystem\FilesystemInterface;
-use Shopware\Core\Content\Media\Event\MediaFileUploadedEvent;
 use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
 use Shopware\Core\Content\Media\Exception\IllegalMimeTypeException;
 use Shopware\Core\Content\Media\Exception\MediaNotFoundException;
@@ -13,11 +12,11 @@ use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Content\Media\Metadata\Metadata;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
+use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class FileSaver
 {
@@ -37,9 +36,9 @@ class FileSaver
     protected $urlGenerator;
 
     /**
-     * @var EventDispatcherInterface
+     * @var ThumbnailService
      */
-    protected $eventDispatcher;
+    private $thumbnailService;
 
     /**
      * @var MetadataLoader
@@ -50,13 +49,13 @@ class FileSaver
         RepositoryInterface $repository,
         FilesystemInterface $filesystem,
         UrlGeneratorInterface $urlGenerator,
-        EventDispatcherInterface $eventDispatcher,
+        ThumbnailService $thumbnailService,
         MetadataLoader $metadataLoader
     ) {
         $this->repository = $repository;
         $this->filesystem = $filesystem;
         $this->urlGenerator = $urlGenerator;
-        $this->eventDispatcher = $eventDispatcher;
+        $this->thumbnailService = $thumbnailService;
         $this->metadataLoader = $metadataLoader;
     }
 
@@ -77,13 +76,12 @@ class FileSaver
         $this->saveFileToMediaDir($mediaFile, $mediaId);
         $media = $this->updateMediaEntity($mediaFile, $mediaId, $rawMetadata, $context);
 
-        try {
-            $this->eventDispatcher->dispatch(
-                MediaFileUploadedEvent::EVENT_NAME,
-                new MediaFileUploadedEvent($media, $context)
-            );
-        } catch (FileTypeNotSupportedException $e) {
-            //ignore that a thumbnail was not created
+        if ($this->thumbnailService->shouldGenerateThumbnailsOnUpload()) {
+            try {
+                $this->thumbnailService->generateThumbnails($media, $context);
+            } catch (FileTypeNotSupportedException $e) {
+                //ignore wrong filetype
+            }
         }
     }
 

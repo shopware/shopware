@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Media\Thumbnail;
 
 use League\Flysystem\FileNotFoundException;
 use League\Flysystem\FilesystemInterface;
-use Shopware\Core\Content\Media\Event\MediaFileUploadedEvent;
 use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
 use Shopware\Core\Content\Media\Exception\ThumbnailCouldNotBeSavedException;
 use Shopware\Core\Content\Media\MediaProtectionFlags;
@@ -14,7 +13,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\EntityRepository;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class ThumbnailService implements EventSubscriberInterface
+class ThumbnailService
 {
     /**
      * @var EntityRepository
@@ -46,21 +45,6 @@ class ThumbnailService implements EventSubscriberInterface
         $this->fileSystem = $fileSystem;
         $this->urlGenerator = $urlGenerator;
         $this->configuration = $configuration;
-    }
-
-    public static function getSubscribedEvents()
-    {
-        return [
-            MediaFileUploadedEvent::EVENT_NAME => 'updateMediaThumbnails',
-        ];
-    }
-
-    public function updateMediaThumbnails(MediaFileUploadedEvent $event): void
-    {
-        if (!$this->configuration->isAutoGenerateAfterUpload()) {
-            return;
-        }
-        $this->generateThumbnails($event->getMedia(), $event->getContext());
     }
 
     /**
@@ -96,6 +80,11 @@ class ThumbnailService implements EventSubscriberInterface
         } finally {
             $this->persistThumbnailData($media, $savedThumbnails, $context);
         }
+    }
+
+    public function shouldGenerateThumbnailsOnUpload(): bool
+    {
+        return $this->configuration->isAutoGenerateAfterUpload();
     }
 
     /**

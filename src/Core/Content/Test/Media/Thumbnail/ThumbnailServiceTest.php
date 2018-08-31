@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Test\Media\Thumbnail;
 use League\Flysystem\FileNotFoundException;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
-use Shopware\Core\Content\Media\Event\MediaFileUploadedEvent;
 use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
 use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\MediaStruct;
@@ -64,11 +63,6 @@ class ThumbnailServiceTest extends TestCase
         $this->thumbnailService = $this->getContainer()->get(ThumbnailService::class);
 
         $this->media = $this->createTestEntity();
-    }
-
-    public function testSubscribesToMediaFileUploadedEvent(): void
-    {
-        static::assertArrayHasKey(MediaFileUploadedEvent::EVENT_NAME, $this->thumbnailService::getSubscribedEvents());
     }
 
     public function testThumbnailGeneration(): void

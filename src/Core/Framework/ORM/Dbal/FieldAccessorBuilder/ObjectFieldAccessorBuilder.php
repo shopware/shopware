@@ -22,7 +22,7 @@ class ObjectFieldAccessorBuilder implements FieldAccessorBuilderInterface
         return sprintf(
             'JSON_UNQUOTE(JSON_EXTRACT(`%s`.`%s`, "$.%s"))',
             $root,
-            $field->getPropertyName(),
+            $field->getStorageName(),
             $accessor
         );
     }

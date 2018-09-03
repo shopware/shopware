@@ -26,7 +26,12 @@ class GenerateThumbnailsCommandTest extends TestCase
     /**
      * @var RepositoryInterface
      */
-    private $repository;
+    private $mediaRepository;
+
+    /**
+     * @var RepositoryInterface
+     */
+    private $thumbnailRepository;
 
     /**
      * @var GenerateThumbnailsCommand
@@ -55,7 +60,7 @@ class GenerateThumbnailsCommandTest extends TestCase
 
     public function setUp()
     {
-        $this->repository = $this->getContainer()->get('media.repository');
+        $this->mediaRepository = $this->getContainer()->get('media.repository');
         $this->urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
         $this->thumbnailConfiguration = $this->getContainer()->get(ThumbnailConfiguration::class);
         $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
@@ -85,7 +90,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         }
 
         $searchCriteria = new Criteria();
-        $mediaResult = $this->repository->search($searchCriteria, $this->context);
+        $mediaResult = $this->mediaRepository->search($searchCriteria, $this->context);
         /** @var MediaStruct $updatedMedia */
         foreach ($mediaResult->getEntities() as $updatedMedia) {
             $thumbnails = $updatedMedia->getThumbnails();
@@ -119,7 +124,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         }
 
         $searchCriteria = new Criteria();
-        $mediaResult = $this->repository->search($searchCriteria, $this->context);
+        $mediaResult = $this->mediaRepository->search($searchCriteria, $this->context);
         /** @var MediaStruct $updatedMedia */
         foreach ($mediaResult->getEntities() as $updatedMedia) {
             if (strpos($updatedMedia->getMimeType(), 'image') === 0) {
@@ -168,7 +173,7 @@ class GenerateThumbnailsCommandTest extends TestCase
             'catalogId' => $this->catalogId,
         ];
 
-        $this->repository->create([$media], $this->context);
+        $this->mediaRepository->create([$media], $this->context);
         $filePath = $this->urlGenerator->getRelativeMediaUrl($media['id'], 'png');
         $this->getPublicFilesystem()->putStream(
             $filePath,
@@ -183,7 +188,7 @@ class GenerateThumbnailsCommandTest extends TestCase
             'catalogId' => $this->catalogId,
         ];
 
-        $this->repository->create([$media], $this->context);
+        $this->mediaRepository->create([$media], $this->context);
         $filePath = $this->urlGenerator->getRelativeMediaUrl($media['id'], 'jpg');
         $this->getPublicFilesystem()->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware.jpg', 'r'));
     }
@@ -198,7 +203,7 @@ class GenerateThumbnailsCommandTest extends TestCase
             'catalogId' => $this->catalogId,
         ];
 
-        $this->repository->create([$media], $this->context);
+        $this->mediaRepository->create([$media], $this->context);
         $filePath = $this->urlGenerator->getRelativeMediaUrl($media['id'], 'pdf');
         $this->getPublicFilesystem()->putStream(
             $filePath,
@@ -213,7 +218,7 @@ class GenerateThumbnailsCommandTest extends TestCase
             'catalogId' => $this->catalogId,
         ];
 
-        $this->repository->create([$media], $this->context);
+        $this->mediaRepository->create([$media], $this->context);
         $filePath = $this->urlGenerator->getRelativeMediaUrl($media['id'], 'jpg');
         $this->getPublicFilesystem()->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware.jpg', 'r'));
     }

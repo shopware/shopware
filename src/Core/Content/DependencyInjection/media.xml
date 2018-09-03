@@ -58,6 +58,7 @@
         <service class="Shopware\Core\Content\Media\Subscriber\MediaDeletedSubscriber" id="Shopware\Core\Content\Media\Subscriber\MediaDeletedSubscriber">
             <argument type="service" id="shopware.filesystem.public"/>
             <argument type="service" id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Thumbnail\ThumbnailService"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -100,6 +101,7 @@
 
         <service class="Shopware\Core\Content\Media\Thumbnail\ThumbnailService" id="Shopware\Core\Content\Media\Thumbnail\ThumbnailService">
             <argument type="service" id="media.repository"/>
+            <argument type="service" id="thumbnail.repository"/>
             <argument type="service" id="shopware.filesystem.public"/>
             <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface"/>
             <argument type="service" id="Shopware\Core\Content\Media\Thumbnail\ThumbnailConfiguration"/>

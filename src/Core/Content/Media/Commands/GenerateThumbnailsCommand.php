@@ -153,9 +153,9 @@ class GenerateThumbnailsCommand extends Command
     private function generateThumbnail(Context $context, MediaStruct $media): void
     {
         try {
-            $this->thumbnailService->generateThumbnails(
-                $media,
-                $context);
+            $this->thumbnailService->deleteThumbnails($media, $context);
+            $this->thumbnailService->generateThumbnails($media, $context);
+
             ++$this->generatedCounter;
         } catch (FileTypeNotSupportedException $e) {
             ++$this->skippedCounter;

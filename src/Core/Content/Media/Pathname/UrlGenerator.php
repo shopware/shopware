@@ -52,6 +52,13 @@ class UrlGenerator implements UrlGeneratorInterface
         return $this->getBaseUrl() . '/' . $this->getRelativeMediaUrl($filename, $extension);
     }
 
+    public function getThumbnailFolderForFileName($filename): string
+    {
+        $folderName = pathinfo($this->encodeFilename($filename), PATHINFO_DIRNAME);
+
+        return 'thumbnail/' . $folderName;
+    }
+
     /**
      * @throws EmptyMediaFilenameException
      *

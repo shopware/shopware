@@ -611,6 +611,15 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
+        <service class="Shopware\Core\Framework\ORM\EntityRepository" id="thumbnail.repository" public="false">
+            <argument>Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailDefinition</argument>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\VersionManager"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntitySearcherInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
         <service class="Shopware\Core\Framework\ORM\EntityRepository" id="media_translation.repository" public="true">
             <argument>Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition</argument>
             <argument type="service" id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface"/>

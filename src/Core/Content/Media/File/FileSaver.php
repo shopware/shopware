@@ -68,11 +68,15 @@ class FileSaver
         // @todo remove with NEXT-817
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('id', $mediaId));
-        if ($this->repository->searchIds($criteria, $context)->getTotal() !== 1) {
+
+        $searchResult = $this->repository->search($criteria, $context);
+        if (($media = $searchResult->getEntities()->get($mediaId)) === null) {
             throw new MediaNotFoundException($mediaId);
         }
 
         $rawMetadata = $this->metadataLoader->loadFromFile($mediaFile);
+        $this->thumbnailService->deleteThumbnails($media, $context);
+
         $this->saveFileToMediaDir($mediaFile, $mediaId);
         $media = $this->updateMediaEntity($mediaFile, $mediaId, $rawMetadata, $context);
 

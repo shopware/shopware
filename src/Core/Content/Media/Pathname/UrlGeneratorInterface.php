@@ -8,6 +8,8 @@ interface UrlGeneratorInterface
 
     public function getRelativeMediaUrl(string $filename, string $extension): string;
 
+    public function getThumbnailFolderForFileName($filename): string;
+
     public function getAbsoluteThumbnailUrl(string $filename, string $extension, int $width, int $height, bool $isHighDpi = false): string;
 
     public function getRelativeThumbnailUrl(string $filename, string $extension, int $width, int $height, bool $isHighDpi = false): string;

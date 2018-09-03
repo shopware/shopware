@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\ORM;
 
+use Doctrine\Common\Inflector\Inflector;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Index;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\ORM\Field\SearchKeywordAssociationField;
 use Shopware\Core\Framework\ORM\Field\TenantIdField;
 use Shopware\Core\Framework\ORM\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\ORM\Field\VersionField;
+use Shopware\Core\Framework\ORM\Write\FieldAware\StorageAware;
 use Shopware\Core\Framework\ORM\Write\Flag\Extension;
 use Shopware\Core\Framework\ORM\Write\Flag\Inherited;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
@@ -32,10 +34,37 @@ class DefinitionValidator
         'customer.activeBillingAddress',
         'product_configurator.selected',
     ];
+
     /**
      * @var DefinitionRegistry
      */
     protected $registry;
+
+    private static $pluralExceptions = [
+        'children', 'categoriesRo', 'datasheet',
+    ];
+
+    private static $customPrefixedNames = [
+        'username', 'customerNumber', 'taxRate',
+    ];
+
+    private static $customShortNames = [
+        'configuration_group' => 'group',
+        'configuration_group_option' => 'option',
+        'version_commit' => 'commit',
+    ];
+
+    private static $ignoredInPrefixCheck = [
+        'datasheet', 'variations',
+    ];
+
+    private static $tablesWithoutDefinition = [
+        'schema_version', 'search_dictionary',
+    ];
+
+    private static $unversionedTables = [
+        'sales_channel',
+    ];
 
     /**
      * @var Connection
@@ -106,6 +135,10 @@ class DefinitionValidator
                     $this->findStructNotices($struct, $definition)
                 );
             }
+            $notices[$definition] = array_merge_recursive(
+                $notices[$definition],
+                $this->validateDataFieldNotPrefixedByEntityName($definition)
+            );
 
             $entityName = $definition::getEntityName();
             if (!$container->has($entityName . '.repository')) {
@@ -127,6 +160,9 @@ class DefinitionValidator
         $violations = [];
 
         foreach ($tables as $table) {
+            if (\in_array($table->getName(), self::$tablesWithoutDefinition)) {
+                continue;
+            }
             try {
                 $this->registry->get($table->getName());
             } catch (Exception\DefinitionNotFoundException $e) {
@@ -154,7 +190,7 @@ class DefinitionValidator
                 continue;
             }
 
-            if ($reflection->getParentClass() === MappingEntityDefinition::class) {
+            if ($reflection->getParentClass()->getName() === MappingEntityDefinition::class) {
                 continue;
             }
 
@@ -223,6 +259,7 @@ class DefinitionValidator
         $associations = $definition::getFields()->filterInstance(AssociationInterface::class);
 
         $instance = new $definition();
+
         if ($instance instanceof MappingEntityDefinition) {
             return [];
         }
@@ -242,6 +279,11 @@ class DefinitionValidator
             if ($association->is(Extension::class)) {
                 continue;
             }
+
+            $violations = array_merge_recursive(
+                $violations,
+                $this->validateReferenceNameContainedInName($definition, $association)
+            );
 
             if ($association instanceof OneToManyAssociationField) {
                 $violations = array_merge_recursive(
@@ -276,8 +318,9 @@ class DefinitionValidator
 
     private function validateManyToOne(string $definition, ManyToOneAssociationField $association): array
     {
-        $associationViolations = [];
         $reference = $association->getReferenceClass();
+
+        $associationViolations = [];
 
         /** @var string|EntityDefinition $definition */
         $reverseSide = $reference::getFields()->filter(
@@ -305,8 +348,9 @@ class DefinitionValidator
 
     private function validateOneToMany(string $definition, OneToManyAssociationField $association): array
     {
-        $associationViolations = [];
         $reference = $association->getReferenceClass();
+
+        $associationViolations = $this->validateIsPlural($definition, $association);
 
         /** @var string|EntityDefinition $definition */
         $reverseSide = $reference::getFields()->filter(
@@ -346,9 +390,9 @@ class DefinitionValidator
     {
         $reference = $association->getReferenceDefinition();
 
-        $mapping = $association->getMappingDefinition();
+        $violations = $this->validateIsPlural($definition, $association);
 
-        $violations = [];
+        $mapping = $association->getMappingDefinition();
         $column = $association->getMappingReferenceColumn();
         $fk = $mapping::getFields()->getByStorageName($column);
 
@@ -385,11 +429,11 @@ class DefinitionValidator
                 $violations[$mapping][] = sprintf('Missing reference version field for definition %s in mapping definition %s', $definition, $mapping);
             }
 
-            $versionField = $mapping::getFields()->filter(function (Field $field) use ($reference) {
+            $referenceVersionField = $mapping::getFields()->filter(function (Field $field) use ($reference) {
                 return $field instanceof ReferenceVersionField && $field->getVersionReference() === $reference;
             })->first();
 
-            if (!$versionField) {
+            if ($reference::isVersionAware() && !$referenceVersionField) {
                 $violations[$mapping][] = sprintf('Missing reference version field for definition %s in mapping definition %s', $reference, $mapping);
             }
         }
@@ -474,5 +518,164 @@ class DefinitionValidator
         }
 
         return [$definition => $violations];
+    }
+
+    private function validateIsPlural(string $definition, AssociationInterface $association): array
+    {
+        if (!$association instanceof ManyToManyAssociationField && !$association instanceof OneToManyAssociationField) {
+            return [];
+        }
+
+        $propName = $association->getPropertyName();
+        if (substr($propName, -1) === 's' || in_array($propName, self::$pluralExceptions)) {
+            return [];
+        }
+
+        $ref = $this->getShortClassName($association->getReferenceClass());
+        $def = $this->getShortClassName($definition);
+
+        $ref = str_replace($def, '', $ref);
+        $refPlural = Inflector::pluralize($ref);
+
+        if (stripos($propName, $refPlural) === strlen($propName) - strlen($refPlural)) {
+            return [];
+        }
+
+        return [$definition => [
+                sprintf(
+                    'Association %s.%s does not end with a \'s\'.',
+                    $definition::getEntityName(),
+                    $association->getPropertyName()
+                ),
+            ],
+        ];
+    }
+
+    private function mapRefNameContainedName(string $ref): string
+    {
+        $normalized = strtolower(Inflector::tableize($ref));
+        if (!isset(self::$customShortNames[$normalized])) {
+            return $ref;
+        }
+
+        return self::$customShortNames[$normalized];
+    }
+
+    private function validateReferenceNameContainedInName(string $definition, AssociationInterface $association): array
+    {
+        if ($definition === $association->getReferenceClass()) {
+            return [];
+        }
+        $prop = $association->getPropertyName();
+
+        if (in_array(strtolower($prop), self::$ignoredInPrefixCheck)) {
+            return [];
+        }
+
+        $ref = $association instanceof ManyToManyAssociationField
+            ? $association->getReferenceDefinition()
+            : $association->getReferenceClass();
+
+        $ref = $this->getShortClassName($ref);
+        $def = $this->getShortClassName($definition);
+
+        $ref = str_replace($def, '', $ref);
+
+        $ref = $this->mapRefNameContainedName($ref);
+        $refPlural = Inflector::pluralize($ref);
+
+        if (stripos($prop, $ref) === false && stripos($prop, $refPlural) === false) {
+            $ret = [$definition => [
+                    sprintf(
+                        'Association %s.%s does not contain reference class name `%s` or `%s`.',
+                        $definition::getEntityName(),
+                        $association->getPropertyName(),
+                        $ref,
+                        $refPlural
+                    ),
+                ],
+            ];
+
+            return $ret;
+        }
+
+        return [];
+    }
+
+    /**
+     * @param string|EntityDefinition $definition
+     */
+    private function validateDataFieldNotPrefixedByEntityName(string $definition): array
+    {
+        $violations = [];
+
+        foreach ($definition::getFields() as $field) {
+            if (!$field instanceof StorageAware) {
+                continue;
+            }
+
+            if ($field instanceof ManyToManyAssociationField
+                || $field instanceof ManyToOneAssociationField
+                || $field instanceof OneToManyAssociationField) {
+                continue;
+            }
+
+            if (!$field instanceof Field) {
+                continue;
+            }
+
+            if (in_array($field->getPropertyName(), self::$customPrefixedNames)) {
+                continue;
+            }
+
+            /* Skip fields where Entity class name is prefix of reference class name */
+            if ($field instanceof FkField) {
+                $refClass = $field instanceof ReferenceVersionField
+                    ? $field->getVersionReference()
+                    : $field->getReferenceClass();
+
+                $ref = $this->getShortClassName($refClass);
+                $def = $this->getShortClassName($definition);
+
+                if (stripos($ref, $def) === 0) {
+                    continue;
+                }
+            }
+
+            $entityNamePrefix = $definition::getEntityName() . '_';
+            if (strpos($field->getStorageName(), $entityNamePrefix) === 0) {
+                $violations[] = sprintf(
+                    'Storage name `%s` is prefixed by entity name `%s`. Use storage name `%s` instead.',
+                    $field->getStorageName(),
+                    substr($entityNamePrefix, 0, -1),
+                    substr($field->getStorageName(), strlen($entityNamePrefix))
+                );
+            }
+
+            $defPrefix = $this->getShortClassName($definition);
+            if (strpos($field->getPropertyName(), $defPrefix) === 0) {
+                $violations[] = sprintf(
+                    'Property name `%s` is prefixed by struct name `%s`. Use property name `%s` instead',
+                    $field->getPropertyName(),
+                    $defPrefix,
+                    lcfirst(substr($field->getPropertyName(), strlen($defPrefix)))
+                );
+            }
+        }
+
+        return $violations;
+    }
+
+    private function getShortClassName(string $defintion): string
+    {
+        return lcfirst(preg_replace('/.*\\\\([^\\\\]+)Definition/', '$1', $defintion));
+    }
+
+    private function getShortRefName(string $definition, string $refClass): string
+    {
+        $shortRef = $this->getShortClassName($refClass);
+        $def = $this->getShortClassName($definition);
+
+        return str_replace($def, '', $shortRef);
     }
 }

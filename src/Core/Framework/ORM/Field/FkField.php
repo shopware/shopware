@@ -72,6 +72,16 @@ class FkField extends Field implements StorageAware
         return $this->storageName;
     }
 
+    public function getReferenceClass(): string
+    {
+        return $this->referenceClass;
+    }
+
+    public function getReferenceField(): string
+    {
+        return $this->referenceField;
+    }
+
     public function getExtractPriority(): int
     {
         return 70;

@@ -95,12 +95,16 @@ Component.register('sw-sales-channel-detail-base', {
             this.salesChannel.shippingMethodId = id;
         },
 
+        onCloseDeleteModal() {
+            this.showDeleteModal = false;
+        },
+
         onConfirmDelete() {
             this.showDeleteModal = false;
             this.$nextTick(() => {
                 this.salesChannel.delete(true).then(() => {
                     this.$root.$emit('changedSalesChannels');
-                });
+                }).catch(this.onCloseDeleteModal());
 
                 this.$router.push({ name: 'sw.dashboard.index' });
             });

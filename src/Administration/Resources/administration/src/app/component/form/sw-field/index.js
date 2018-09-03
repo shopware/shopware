@@ -167,6 +167,13 @@ Component.register('sw-field', {
             }
         },
 
+        onClick() {
+            if (this.type === 'checkbox') {
+                this.currentValue = !this.currentValue;
+                this.$emit('input', this.currentValue);
+            }
+        },
+
         onChange(event) {
             this.currentValue = this.getValueFromEvent(event);
 

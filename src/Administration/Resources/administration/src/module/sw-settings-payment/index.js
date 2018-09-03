@@ -34,13 +34,5 @@ Module.register('sw-settings-payment', {
                 parentPath: 'sw.settings.payment.index'
             }
         }
-    },
-
-    navigation: [{
-        label: 'sw-settings-payment.general.mainMenuItemGeneral',
-        color: '#9AA8B5',
-        icon: 'default-action-settings',
-        path: 'sw.settings.payment.index',
-        parent: 'sw-settings'
-    }]
+    }
 });

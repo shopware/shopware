@@ -2,7 +2,9 @@
     {% parent %}
 
     {% block sw_settings_payment_item %}
-        <sw-settings-item :label="$tc('sw-settings-payment.general.mainMenuItemGeneral')" :to="{ name: 'sw.settings.payment.index' }">
+        <sw-settings-item :label="$tc('sw-settings-payment.general.mainMenuItemGeneral')"
+                          :to="{ name: 'sw.settings.payment.index' }"
+                          disabled>
             <template slot="icon">
                 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="80" height="80" viewBox="0 0 80 80">
                     <defs>

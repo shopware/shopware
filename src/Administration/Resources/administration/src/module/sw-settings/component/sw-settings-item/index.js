@@ -17,6 +17,19 @@ Component.register('sw-settings-item', {
             default() {
                 return {};
             }
+        },
+        disabled: {
+            required: false,
+            type: Boolean,
+            default: false
+        }
+    },
+
+    computed: {
+        classes() {
+            return {
+                'is--disabled': this.disabled
+            };
         }
     }
 });

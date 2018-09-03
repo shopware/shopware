@@ -56,12 +56,12 @@
                 </sw-field>
             {% endblock %}
 
-            {% block sw_customer_base_form_shop_field %}
+            {% block sw_customer_base_form_sales_channel_field %}
                 <sw-field type="select"
-                          :label="$tc('sw-customer.baseForm.labelApplication')"
-                          :placeholder="$tc('sw-customer.baseForm.placeholderApplication')"
+                          :label="$tc('sw-customer.baseForm.labelSalesChannel')"
+                          :placeholder="$tc('sw-customer.baseForm.placeholderSalesChannel')"
                           v-model="customer.salesChannelId">
-                    {% block sw_customer_base_form_shop_field_options %}
+                    {% block sw_customer_base_form_sales_channel_field_options %}
                         <option slot="options" v-for="salesChannel in salesChannels" :key="salesChannel.id" :value="salesChannel.id">
                             {{ salesChannel.name }}
                         </option>

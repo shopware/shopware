@@ -155,7 +155,7 @@
                         <sw-modal v-if="showDeleteModal"
                                   ref="modal"
                                   :title="$tc('sw-sales-channel.detail.deleteModalTitle')"
-                                  @closeModal="showDeleteModal = false">
+                                  @closeModal="onCloseDeleteModal">
                             {% block sw_sales_channel_detail_options_delete_modal_confirmtext %}
                                 {{ $tc('sw-sales-channel.detail.textConfirmDelete') }}
                                 {{ salesChannel.name }}
@@ -163,8 +163,7 @@
 
                             {% block sw_sales_channel_detail_options_delete_modal_footer %}
                                 <template slot="modal-footer">
-                                    <sw-button size="small"
-                                               @click="showDeleteModal = false">
+                                    <sw-button size="small" @click="onCloseDeleteModal">
                                         {{ $tc('sw-sales-channel.detail.buttonCloseDeleteModal') }}
                                     </sw-button>
                                     <sw-button size="small"

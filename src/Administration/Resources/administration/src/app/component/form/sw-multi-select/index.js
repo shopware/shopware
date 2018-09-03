@@ -15,6 +15,11 @@ Component.register('sw-multi-select', {
             type: Object,
             required: true
         },
+        criteria: {
+            type: Object,
+            required: false,
+            default: null
+        },
         placeholder: {
             type: String,
             required: false,
@@ -88,7 +93,10 @@ Component.register('sw-multi-select', {
     watch: {
         '$route.params.id'() {
             this.createdComponent();
-        }
+        },
+
+        disabled: 'loadPreviewResults',
+        criteria: 'loadPreviewResults'
     },
 
     created() {
@@ -104,7 +112,9 @@ Component.register('sw-multi-select', {
             this.selections = [];
             this.results = [];
 
-            this.loadPreviewResults();
+            if (!this.disabled) {
+                this.loadPreviewResults();
+            }
             this.loadSelections();
             this.addEventListeners();
         },
@@ -137,7 +147,8 @@ Component.register('sw-multi-select', {
             this.serviceProvider.getList({
                 page: 1,
                 limit: this.resultsLimit,
-                term: this.searchTerm
+                term: this.searchTerm,
+                criteria: this.criteria
             }).then((response) => {
                 this.results = response.data;
                 this.isLoading = false;
@@ -149,7 +160,11 @@ Component.register('sw-multi-select', {
         loadPreviewResults() {
             this.isLoading = true;
 
-            this.serviceProvider.getList({ page: 1, limit: this.previewResultsLimit }).then((response) => {
+            this.serviceProvider.getList({
+                page: 1,
+                limit: this.previewResultsLimit,
+                criteria: this.criteria
+            }).then((response) => {
                 this.results = response.data;
                 this.isLoading = false;
             });
@@ -280,6 +295,11 @@ Component.register('sw-multi-select', {
             this.addSelection(result[0]);
         },
 
+        onDismissSelection(id) {
+            this.dismissLastSelection(id);
+            this.setFocus();
+        },
+
         dismissSelection(id) {
             if (!id) {
                 return;
@@ -288,8 +308,6 @@ Component.register('sw-multi-select', {
             this.selections = this.selections.filter((entry) => entry.id !== id);
 
             this.emitChanges(this.selections);
-
-            this.setFocus();
 
             if (this.defaultItemId && this.defaultItemId === id) {
                 if (this.selections.length >= 1) {

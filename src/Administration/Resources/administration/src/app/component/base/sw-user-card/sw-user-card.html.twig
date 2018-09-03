@@ -2,7 +2,7 @@
     <sw-card class="sw-user-card" :title="title" :isLoading="isLoading">
 
         {% block sw_user_card_rows %}
-            <sw-container slot="grid" type="row">
+            <sw-container slot="grid" type="row" grid="auto auto">
 
                 {% block sw_user_card_row_primary %}
                     <sw-card-section divider="bottom">

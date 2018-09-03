@@ -18,6 +18,13 @@
         box-shadow: 0 1px 6px 0 rgba(120, 138, 155, 0.3);
     }
 
+    &.is--disabled {
+        opacity: 0.4;
+        cursor: default;
+        pointer-events: none;
+        filter: grayscale(50%);
+    }
+
     .sw-settings-item__icon {
         margin-bottom: 8px;
     }

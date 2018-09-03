@@ -12,6 +12,7 @@ Component.register('sw-sales-channel-menu', {
             showModal: false
         };
     },
+
     computed: {
         salesChannelStore() {
             return State.getStore('sales_channel');

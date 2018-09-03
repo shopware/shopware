@@ -128,7 +128,7 @@
       "columnStreet": "Street",
       "columnZip": "Zip code",
       "columnCity": "City",
-      "columnEmail": "e-mail",
+      "columnEmail": "Email",
       "columnLastLogin": "Last login",
       "columnActions": "Action(s)",
       "contextMenuView": "View",
@@ -141,20 +141,20 @@
       "labelSalutation": "Salutation",
       "labelFirstName": "First name",
       "labelLastName": "Last name",
-      "labelEmail": "e-mail",
+      "labelEmail": "Email",
       "labelPhoneNumber": "Phone number",
       "labelCompany": "Company",
       "labelCustomerGroup": "Customer group",
-      "labelApplication": "Application",
+      "labelSalesChannel": "Sales Channel",
       "labelPaymentMethod": "Payment method",
       "labelCustomerNumber": "Customer number",
       "labelBirthday": "Date of birth",
       "placeholderCustomerGroup": "Please select a customer group...",
-      "placeholderApplication": "Please select an application...",
+      "placeholderSalesChannel": "Please select a sales channel...",
       "placeholderPaymentMethod": "lease select a payment method..."
     },
     "baseInfo": {
-      "contactEmail": "e-mail",
+      "contactEmail": "Email",
       "labelCustomerNumber": "Customer number",
       "labelCustomerGroup": "Customer group",
       "labelBirthday": "Date of birth",
@@ -292,10 +292,10 @@
       "writeAccessFieldLabel": "Write access",
       "titleSaveSuccess": "Integration",
       "messageSaveSuccess": "Integration saved successful",
-      "titleSaveError": "Something went wrong",
-      "messageSaveError": "We have been informed",
-      "titleCreateNewError": "Something went wrong",
-      "messageCreateNewError": "We have been informed."
+      "titleSaveError": "Integration",
+      "messageSaveError": "The integration could not be saved",
+      "titleCreateNewError": "Integration",
+      "messageCreateNewError": "The integration could not be saved."
     }
   },
   "sw-product": {
@@ -316,11 +316,11 @@
       "placeholderManufacturer": "Enter product manufacturer..."
     },
     "categoryForm": {
-      "labelCatalog": "Catalog",
+      "labelCatalog": "Catalogue",
       "labelCategory": "Category",
-      "placeholderCatalog": "Select product catalog...",
+      "placeholderCatalog": "Select product catalogue...",
       "placeholderCategory": "Type to search for categories...",
-      "optionDefaultCatalog": "Default catalog"
+      "optionDefaultCatalog": "Default catalogue"
     },
     "priceForm": {
       "labelTaxRate": "Tax rate",
@@ -350,6 +350,8 @@
       "labelMaxPurchase": "Max. order quantity",
       "labelEan": "EAN",
       "labelPseudoSales": "Pseudo sales",
+      "labelStock": "Stock",
+      "labelActive": "Active",
       "labelShippingFree": "Free shipping",
       "labelMarkAsTopseller": "Promote product",
       "placeholderCreatedAt": "Enter date of creation...",
@@ -358,8 +360,9 @@
       "placeholderHeight": "200mm...",
       "placeholderLength": "100mm...",
       "placeholderWeight": "0,4kg...",
-      "placeholderMinPurchase": "Minimum purchase...",
-      "placeholderMaxPurchase": "Maximum purchase...",
+      "placeholderStock": "Enter stock...",
+      "placeholderMinPurchase": "Min. purchase...",
+      "placeholderMaxPurchase": "Max. purchase...",
       "placeholderEan": "Enter EAN number...",
       "placeholderPseudoSales": "Enter pseudo sales..."
     },
@@ -403,7 +406,9 @@
       "contextMenuDuplicate": "Duplicate",
       "messageEmpty": "No products yet",
       "modalTitleDelete": "Product",
-      "textDeleteConfirm": "Do you really want to delete the product \"{name}\"?"
+      "textDeleteConfirm": "Do you really want to delete the product \"{name}\"?",
+      "titleRefresh": "Refresh",
+      "titleFilter": "Filter"
     },
     "detail": {
       "textHeadline": "New product",
@@ -495,7 +500,7 @@
       "summaryLabelAmountTotal": "Total amount",
       "summaryLabelShippingCosts": "Shipping costs",
       "labelOrderStatus": "Order status",
-      "labelSalesChanel": "Sales chanel",
+      "labelSalesChannel": "Sales channel",
       "labelOrderDate": "Order date",
       "headlineBillingAddress": "Billing address",
       "buttonPrint": "Print order",
@@ -544,9 +549,9 @@
       "labelOptionTaxHorizontal": "Horizontal",
       "labelInputCurrencies": "Currencies",
       "labelInputLanguages": "Languages",
-      "labelInputCatalogs": "Catalogs",
+      "labelInputCatalogs": "Catalogues",
       "titleOptionsCard": "Options",
-      "textDeleteInfo": "Be careful: This will delete the sales channel permanently. It will no longer be available in the shopware administration. This has no effect on existing orders and catalogs.",
+      "textDeleteInfo": "Be careful: This will delete the sales channel permanently. It will no longer be available in the shopware administration. This has no effect on existing orders and catalogues.",
       "buttonDelete": "Delete sales channel",
       "deleteModalTitle": "Delete sales channel",
       "textConfirmDelete": "Are you sure, you want to delete the sales channel?",
@@ -570,7 +575,6 @@
       "catalogs": "Catalogues",
       "lastAdded": "Last added",
       "searchResult": "Search result"
-
     },
     "sidebar": {
       "actions": {
@@ -656,7 +660,8 @@
   },
   "sw-settings-tax": {
     "general": {
-      "mainMenuItemGeneral": "Tax"
+      "mainMenuItemGeneral": "Tax",
+      "taxRateSymbol": "&#037;"
     },
     "list": {
       "textHeadline": "Tax",
@@ -741,24 +746,13 @@
       "labelName": "Name",
       "labelTechnicalName": "Technical name",
       "labelActive": "Active",
-      "labelAllowEsd": "Active for ESD products",
       "labelMobileInactive": "Inactive for smartphones",
       "labelAdditionalDescription": "Description",
-      "labelTemplate": "Template",
-      "labelUsedIframe": "URL for iFrame",
-      "labelAbsoluteSurcharge": "General surcharge",
-      "labelPercentageSurcharge": "Percentage surcharge",
-      "labelTable": "Database table",
-      "labelClass": "Class",
+      "labelHandler": "Handler",
       "placeholderName": "Enter name...",
       "placeholderTechnicalName": "Enter technical name...",
       "placeholderAdditionalDescription": "Enter description...",
-      "placeholderTemplate": "Enter template...",
-      "placeholderUsedIframe": "Enter URL...",
-      "placeholderAbsoluteSurcharge": "Enter surcharge...",
-      "placeholderPercentageSurcharge": "Enter percentage surcharge...",
-      "placeholderTable": "Enter database table...",
-      "placeholderClass": "Enter class...",
+      "placeholderHandler": "Enter handler...",
       "buttonCancel": "Cancel",
       "buttonSave": "Save"
     }

@@ -48,6 +48,16 @@ Component.register('sw-grid-column', {
         this.registerColumn();
     },
 
+    watch: {
+        label(newLabel, oldLabel) {
+            const index = this.$parent.columns.findIndex((col) => col.label === oldLabel);
+
+            if (index !== -1 && newLabel) {
+                this.$parent.columns[index].label = newLabel;
+            }
+        }
+    },
+
     methods: {
         registerColumn() {
             const hasColumn = this.$parent.columns.findIndex((column) => column.label === this.label);

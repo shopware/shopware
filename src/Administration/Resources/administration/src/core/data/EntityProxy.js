@@ -327,6 +327,8 @@ export default class EntityProxy {
 
         return this.apiService.delete(this.id).then(() => {
             this.remove();
+        }).catch((exception) => {
+            return Promise.reject(this.handleException(exception));
         });
     }
 
@@ -652,6 +654,7 @@ export default class EntityProxy {
      */
     get privateData() {
         return {
+            isDeleted: this.isDeleted,
             isLoading: this.isLoading,
             errors: this.errors
         };

@@ -34,13 +34,5 @@ Module.register('sw-settings-shipping', {
                 parentPath: 'sw.settings.shipping.index'
             }
         }
-    },
-
-    navigation: [{
-        label: 'sw-settings-shipping.general.mainMenuItemGeneral',
-        color: '#9AA8B5',
-        icon: 'default-action-settings',
-        path: 'sw.settings.shipping.index',
-        parent: 'sw-settings'
-    }]
+    }
 });

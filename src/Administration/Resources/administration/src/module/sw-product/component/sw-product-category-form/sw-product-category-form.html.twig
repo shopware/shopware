@@ -7,19 +7,21 @@
                           :label="$tc('sw-product.categoryForm.labelCatalog')"
                           :placeholder="$tc('sw-product.categoryForm.placeholderCatalog')"
                           validation="required"
+                          @change="onChangeCatalog"
                           v-model="product.catalogId">
-                    <option slot="options" value="20080911ffff4fffafffffff19830531">
-                        {{ $tc('sw-product.categoryForm.optionDefaultCatalog') }}
-                    </option>
+                    <option slot="options" v-for="catalog in catalogs" :value="catalog.id">{{ catalog.name }}</option>
                 </sw-field>
             {% endblock %}
 
             {% block sw_product_category_form_category_field %}
                 <sw-multi-select id="categories"
+                                 ref="multiSelectCategories"
                                  :label="$tc('sw-product.categoryForm.labelCategory')"
                                  :placeholder="$tc('sw-product.categoryForm.placeholderCategory')"
                                  :serviceProvider="categoryService"
                                  :store="categoriesStore"
+                                 :criteria="criteria"
+                                 :disabled="!hasCriteria"
                                  v-model="product.categories">
                 </sw-multi-select>
             {% endblock %}

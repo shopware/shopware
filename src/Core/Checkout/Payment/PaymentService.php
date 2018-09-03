@@ -2,13 +2,14 @@
 
 namespace Shopware\Core\Checkout\Payment;
 
-use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor;
-use Shopware\Core\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactory;
+use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterface;
+use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
+use Shopware\Core\Checkout\Payment\Exception\TokenExpiredException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
@@ -25,7 +26,7 @@ class PaymentService
     private $paymentProcessor;
 
     /**
-     * @var PaymentTransactionTokenFactory
+     * @var TokenFactoryInterface
      */
     private $tokenFactory;
 
@@ -41,7 +42,7 @@ class PaymentService
 
     public function __construct(
         PaymentTransactionChainProcessor $paymentProcessor,
-        PaymentTransactionTokenFactory $tokenFactory,
+        TokenFactoryInterface $tokenFactory,
         RepositoryInterface $paymentMethodRepository,
         PaymentHandlerRegistry $paymentHandlerRegistry
     ) {
@@ -71,27 +72,39 @@ class PaymentService
     }
 
     /**
-     * @throws Exception\InvalidTokenException
-     * @throws Exception\TokenExpiredException
-     * @throws InvalidArgumentException
      * @throws UnknownPaymentMethodException
+     * @throws TokenExpiredException
      */
     public function finalizeTransaction(string $paymentToken, Request $request, Context $context): string
     {
-        $paymentToken = $this->tokenFactory->getToken(
-            $paymentToken,
-            $context
-        );
-
-        $this->tokenFactory->invalidateToken(
-            $paymentToken->getToken(),
-            $context
-        );
+        $paymentToken = $this->parseToken($paymentToken, $context);
 
         $paymentHandler = $this->getPaymentHandlerById($paymentToken->getPaymentMethodId(), $context);
         $paymentHandler->finalize($paymentToken->getTransactionId(), $request, $context);
 
         return $paymentToken->getTransactionId();
+    }
+
+    /**
+     * @throws TokenExpiredException
+     */
+    private function parseToken(string $token, Context $context): TokenStruct
+    {
+        $tokenStruct = $this->tokenFactory->parseToken(
+            $token,
+            $context
+        );
+
+        if ($tokenStruct->isExpired()) {
+            throw new TokenExpiredException($tokenStruct->getToken());
+        }
+
+        $this->tokenFactory->invalidateToken(
+            $tokenStruct->getToken(),
+            $context
+        );
+
+        return $tokenStruct;
     }
 
     /**

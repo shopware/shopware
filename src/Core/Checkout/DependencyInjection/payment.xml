@@ -15,7 +15,7 @@
 
         <service id="Shopware\Core\Checkout\Payment\PaymentService">
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor"/>
-            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactory"/>
+            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\JWTFactory"/>
             <argument type="service" id="payment_method.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry"/>
         </service>
@@ -25,15 +25,15 @@
         </service>
 
         <service class="Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor" id="Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor">
-            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactory"/>
+            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\JWTFactory"/>
             <argument type="service" id="order.repository"/>
             <argument type="service" id="payment_method.repository"/>
             <argument type="service" id="router.default"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactory" id="Shopware\Core\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactory" public="true">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        <service class="Shopware\Core\Checkout\Payment\Cart\Token\JWTFactory" id="Shopware\Core\Checkout\Payment\Cart\Token\JWTFactory">
+            <argument type="service" id="shopware.private_key"/>
         </service>
 
         <service class="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry" id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry">

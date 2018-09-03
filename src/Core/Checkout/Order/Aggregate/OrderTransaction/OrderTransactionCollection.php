@@ -21,7 +21,7 @@ class OrderTransactionCollection extends EntityCollection
         return parent::current();
     }
 
-    public function filterByOrderStateId(string $state)
+    public function filterByOrderStateId(string $state): self
     {
         return $this->filter(function (OrderTransactionStruct $transaction) use ($state) {
             return $transaction->getOrderTransactionStateId() === $state;

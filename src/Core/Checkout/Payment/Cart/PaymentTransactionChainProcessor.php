@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Checkout\Payment\Cart;
 
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\OrderStruct;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
-use Shopware\Core\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactoryInterface;
+use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterface;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Defaults;
@@ -20,7 +19,7 @@ use Symfony\Component\Routing\RouterInterface;
 class PaymentTransactionChainProcessor
 {
     /**
-     * @var PaymentTransactionTokenFactoryInterface
+     * @var TokenFactoryInterface
      */
     private $tokenFactory;
 
@@ -45,7 +44,7 @@ class PaymentTransactionChainProcessor
     private $paymentHandlerRegistry;
 
     public function __construct(
-        PaymentTransactionTokenFactoryInterface $tokenFactory,
+        TokenFactoryInterface $tokenFactory,
         RepositoryInterface $orderRepository,
         RepositoryInterface $paymentMethodRepository,
         RouterInterface $router,
@@ -59,33 +58,25 @@ class PaymentTransactionChainProcessor
     }
 
     /**
-     * @param string  $orderId
-     * @param Context $context
-     *
      * @throws InvalidOrderException
      * @throws UnknownPaymentMethodException
-     *
-     * @return null|RedirectResponse
      */
     public function process(string $orderId, Context $context, ?string $finishUrl = null): ?RedirectResponse
     {
-        /** @var OrderStruct $order */
         $criteria = new ReadCriteria([$orderId]);
         $criteria->addAssociation('order.transactions');
 
+        /** @var OrderStruct $order */
         $order = $this->orderRepository->read($criteria, $context)->first();
 
         if (!$order) {
             throw new InvalidOrderException($orderId);
         }
 
-        /** @var OrderTransactionCollection $transactions */
-        $transactions = $order->getTransactions();
-        $transactions = $transactions->filterByOrderStateId(Defaults::ORDER_TRANSACTION_OPEN);
+        $transactions = $order->getTransactions()->filterByOrderStateId(Defaults::ORDER_TRANSACTION_OPEN);
 
         foreach ($transactions as $transaction) {
             $token = $this->tokenFactory->generateToken($transaction, $context);
-
             $returnUrl = $this->assembleReturnUrl($token, $finishUrl);
 
             $paymentTransaction = new PaymentTransactionStruct(
@@ -97,7 +88,6 @@ class PaymentTransactionChainProcessor
             );
 
             $handler = $this->getPaymentHandlerById($transaction->getPaymentMethodId(), $context);
-
             $response = $handler->pay($paymentTransaction, $context);
             if ($response) {
                 return $response;

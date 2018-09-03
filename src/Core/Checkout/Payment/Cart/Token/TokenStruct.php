@@ -27,7 +27,7 @@ class TokenStruct extends Struct
     private $transactionId;
 
     /**
-     * @var \DateTime
+     * @var int Unix Timestamp
      */
     private $expires;
 
@@ -36,7 +36,7 @@ class TokenStruct extends Struct
         string $token,
         string $paymentMethodId,
         string $transactionId,
-        \DateTime $expires
+        int $expires
     ) {
         $this->id = $id;
         $this->token = $token;
@@ -77,13 +77,13 @@ class TokenStruct extends Struct
         return $this->transactionId;
     }
 
-    public function getExpires(): \DateTime
+    public function getExpires(): int
     {
         return $this->expires;
     }
 
     public function isExpired(): bool
     {
-        return $this->expires < new \DateTime();
+        return $this->expires < time();
     }
 }

@@ -1,0 +1,75 @@
+{% block sw_profile_index %}
+    <sw-page class="sw-profile-index">
+
+        <template slot="smart-bar-header">
+            {% block sw_profile_index_headline %}
+                <h2>{{ $tc('sw-profile.general.headlineProfile') }}</h2>
+            {% endblock %}
+        </template>
+
+        <template slot="smart-bar-actions">
+            {% block sw_profile_index_actions %}
+                <sw-button variant="primary" :disabled="user.isLoading" @click.prevent="onSave">
+                    {{ $tc('sw-profile.index.buttonSaveLabel') }}
+                </sw-button>
+            {% endblock %}
+        </template>
+
+        <sw-card-view slot="content">
+            {% block sw_profile_index_content %}
+                {% block sw_profile_index_info_card %}
+                    <sw-card class="sw-profile__card" :title="$tc('sw-profile.index.titleInfoCard')" :isLoading="user.isLoading">
+                        <sw-container grid="1fr 1fr" gap="0 30px">
+                            {% block sw_profile_index_info_card_name_field %}
+                                <sw-field type="text" :label="$tc('sw-profile.index.labelNameField')" v-model="user.name"></sw-field>
+                            {% endblock %}
+
+                            {% block sw_profile_index_info_card_username_field %}
+                                <sw-field type="text" :label="$tc('sw-profile.index.labelUsernameField')" v-model="user.username" disabled></sw-field>
+                            {% endblock %}
+                        </sw-container>
+
+                        {% block sw_profile_index_info_card_email_field %}
+                            <sw-field type="email" :label="$tc('sw-profile.index.labelEmailField')" v-model="user.email"></sw-field>
+                        {% endblock %}
+                    </sw-card>
+                {% endblock %}
+
+                {% block sw_profile_index_image_card %}
+                    <sw-card class="sw-profile__card" :title="$tc('sw-profile.index.titleImageCard')" :isLoading="user.isLoading">
+                        <div class="sw-profile-index__user-image">
+                            {% block sw_profile_index_image_card_gravatar_image %}
+                                <img :src="gravatarImage" class="sw-profile-index__user-image-gravatar">
+                            {% endblock %}
+
+                            {% block sw_profile_index_image_card_info %}
+                                <div class="sw-profile-index__user-image-info" v-html="$tc('sw-profile.index.textImageInfo')"></div>
+                            {% endblock %}
+                        </div>
+                    </sw-card>
+                {% endblock %}
+
+                {% block sw_profile_index_password_card %}
+                    <sw-card class="sw-profile__card" :title="$tc('sw-profile.index.titlePasswordCard')" :isLoading="user.isLoading">
+                        {% block sw_profile_index_password_card_password_field %}
+                            <sw-field type="password"
+                                      :label="$tc('sw-profile.index.labelPasswordField')"
+                                      v-model="newPassword"
+                                      autocomplete="off">
+                            </sw-field>
+                        {% endblock %}
+
+                        {% block sw_profile_index_password_card_confirm_password_field %}
+                            <sw-field type="password"
+                                      :label="$tc('sw-profile.index.labelPasswordConfirmField')"
+                                      v-model="newPasswordConfirm"
+                                      autocomplete="off"
+                                      :validation="newPassword === newPasswordConfirm">
+                            </sw-field>
+                        {% endblock %}
+                    </sw-card>
+                {% endblock %}
+            {% endblock %}
+        </sw-card-view>
+    </sw-page>
+{% endblock %}

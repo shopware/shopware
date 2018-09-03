@@ -816,5 +816,26 @@
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern"
     }
+  },
+  "sw-profile": {
+    "general": {
+      "headlineProfile": "Dein Profil"
+    },
+    "index": {
+      "buttonSaveLabel": "Speichern",
+      "titleInfoCard": "Profil Information",
+      "titleImageCard": "Profilbild",
+      "titlePasswordCard": "Passwort",
+      "labelNameField": "Name",
+      "labelUsernameField": "Benutzername",
+      "labelEmailField": "E-Mail",
+      "labelPasswordField": "Neues Passwort",
+      "labelPasswordConfirmField": "Passwort bestätigen",
+      "textImageInfo": "Wir benutzen das <a href=\"https://gravatar.com/\" target=\"_blank\">Gravatar</a> Profilbild, welches für Deine E-Mail Addresse hinterlegt ist.",
+      "notificationPasswordErrorTitle": "Passwort Fehler",
+      "notificationPasswordErrorMessage": "Die eingegebenen Passwortinformationen sind nicht valide.",
+      "notificationSaveSuccessTitle": "Dein Profil",
+      "notificationSaveSuccessMessage": "Deine Profilinformationen wurden erfolgreich gespeichert."
+    }
   }
 }

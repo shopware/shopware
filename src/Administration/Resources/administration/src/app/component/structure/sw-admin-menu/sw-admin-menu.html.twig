@@ -69,7 +69,7 @@
                          @mouseenter="openUserActions">
 
                         {% block sw_admin_menu_user_actions_avatar %}
-                            <sw-avatar class="sw-admin-menu__avatar" color="#189eff">{{ userShortName }}</sw-avatar>
+                            <sw-avatar class="sw-admin-menu__avatar" :user="user" useGravatar></sw-avatar>
                         {% endblock %}
 
                         {% block sw_admin_menu_user_actions_attributes %}
@@ -80,7 +80,6 @@
                                 {% block sw_admin_menu_user_actions_toggle_icon %}
                                     <sw-icon :name="userActionsToggleIcon" class="sw-admin-menu__user-actions-indicator" small></sw-icon>
                                 {% endblock %}
-
                             </div>
                         {% endblock %}
                     </div>
@@ -93,7 +92,7 @@
 
                         {% block sw_admin_menu_user_actions_label %}
                             <div v-if="!isExpanded" class="sw-admin-menu__user-actions-label">
-                                admin
+                                {{ userName }}
                             </div>
                         {% endblock %}
 

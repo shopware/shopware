@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Exception\MimeTypeMismatchException;
 use Shopware\Core\Content\Media\Exception\UploadException;
 use Shopware\Core\Content\Media\File\FileFetcher;
+use Shopware\Core\Content\Media\File\MediaFile;
 use Symfony\Component\HttpFoundation\Request;
 
 class FileFetcherTest extends TestCase
@@ -33,7 +34,10 @@ class FileFetcherTest extends TestCase
         $fileSize = filesize(self::TEST_IMAGE);
 
         try {
-            $this->fileFetcher->fetchRequestData($request, $tempFile, 'image/png', $fileSize);
+            $this->fileFetcher->fetchRequestData(
+                $request,
+                new MediaFile($tempFile, 'image/png', 'png', $fileSize)
+            );
             $mimeType = mime_content_type($tempFile);
 
             static::assertEquals('image/png', $mimeType);
@@ -56,7 +60,10 @@ class FileFetcherTest extends TestCase
 
         $fileSize = filesize(self::TEST_IMAGE);
 
-        $this->fileFetcher->fetchRequestData($request, $tempFile, 'image/jpeg', $fileSize);
+        $this->fileFetcher->fetchRequestData(
+            $request,
+            new MediaFile($tempFile, 'image/jpeg', 'jpeg', $fileSize)
+        );
     }
 
     public function testFetchRequestDataWithWrongFileSize()
@@ -70,7 +77,10 @@ class FileFetcherTest extends TestCase
             ->method('getContent')
             ->willReturn(fopen(self::TEST_IMAGE, 'r'));
 
-        $this->fileFetcher->fetchRequestData($request, $tempFile, 'image/png', 10);
+        $this->fileFetcher->fetchRequestData(
+            $request,
+            new MediaFile($tempFile, 'image/png', 'png', 10)
+        );
     }
 
     public function testFetchFileFromUrl()
@@ -80,11 +90,14 @@ class FileFetcherTest extends TestCase
         $tempFile = tempnam(sys_get_temp_dir(), '');
 
         try {
-            $writtenBytes = $this->fileFetcher->fetchFileFromURL($tempFile, $url);
+            $mediaFile = $this->fileFetcher->fetchFileFromURL(
+                new MediaFile($tempFile, 'image/jpeg', 'jpg', 10),
+                $url
+            );
             $mimeType = mime_content_type($tempFile);
 
             static::assertEquals('image/jpeg', $mimeType);
-            static::assertGreaterThan(0, $writtenBytes);
+            static::assertGreaterThan(0, $mediaFile->getFileSize());
             static::assertTrue(file_exists($tempFile));
         } finally {
             unlink($tempFile);
@@ -99,6 +112,9 @@ class FileFetcherTest extends TestCase
         $url = 'ssh://de.shopware.com/press/company/Shopware_Jamaica.jpg';
         $tempFile = tempnam(sys_get_temp_dir(), '');
 
-        $this->fileFetcher->fetchFileFromURL($tempFile, $url);
+        $this->fileFetcher->fetchFileFromURL(
+            new MediaFile($tempFile, 'image/jpeg', 'jpg', 10),
+            $url
+        );
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Event;
 
+use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Framework\Context;
 use Symfony\Component\EventDispatcher\Event;
 
@@ -15,26 +16,14 @@ class MediaFileUploadedEvent extends Event
     private $context;
 
     /**
-     * @var string
+     * @var MediaStruct
      */
-    private $mediaId;
+    private $media;
 
-    /**
-     * @var string
-     */
-    private $mimeType;
-
-    /**
-     * @var string
-     */
-    private $fileExtension;
-
-    public function __construct(string $mediaId, string $mimeType, string $fileExtension, Context $context)
+    public function __construct(MediaStruct $media, Context $context)
     {
         $this->context = $context;
-        $this->mediaId = $mediaId;
-        $this->mimeType = $mimeType;
-        $this->fileExtension = $fileExtension;
+        $this->media = $media;
     }
 
     public function getContext(): Context
@@ -42,18 +31,8 @@ class MediaFileUploadedEvent extends Event
         return $this->context;
     }
 
-    public function getMediaId(): string
+    public function getMedia(): MediaStruct
     {
-        return $this->mediaId;
-    }
-
-    public function getMimeType(): string
-    {
-        return $this->mimeType;
-    }
-
-    public function getFileExtension(): string
-    {
-        return $this->fileExtension;
+        return $this->media;
     }
 }

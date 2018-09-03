@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemInterface;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\File\FileSaver;
+use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\Pathname\UrlGenerator;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Defaults;
@@ -53,11 +54,11 @@ class MediaDeletedSubscriberTest extends TestCase
     public function testDeleteSubscriber()
     {
         $tempFile = tempnam(sys_get_temp_dir(), '');
-
         file_put_contents($tempFile, file_get_contents(self::TEST_IMAGE));
 
-        $mimeType = 'image/png';
         $fileSize = filesize($tempFile);
+        $mediaFile = new MediaFile($tempFile, 'image/png', 'png', $fileSize);
+
         $mediaId = Uuid::uuid4();
 
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
@@ -74,11 +75,8 @@ class MediaDeletedSubscriberTest extends TestCase
 
         try {
             $this->fileSaver->persistFileToMedia(
-                $tempFile,
+                $mediaFile,
                 $mediaId->getHex(),
-                $mimeType,
-                'png',
-                $fileSize,
                 $context
             );
         } finally {

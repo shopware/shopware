@@ -8,46 +8,32 @@ use Symfony\Component\HttpFoundation\Request;
 
 class FileFetcher
 {
-    /**
-     * @param Request $request
-     * @param string  $destination
-     * @param string  $mimeType
-     * @param int     $length
-     *
-     * @throws MimeTypeMismatchException
-     */
-    public function fetchRequestData(Request $request, string $destination, string $mimeType, int $length): void
+    public function fetchRequestData(Request $request, MediaFile $mediaFile): void
     {
         $inputStream = $request->getContent(true);
-        $destStream = $this->openStream($destination, 'w');
+        $destStream = $this->openStream($mediaFile->getFileName(), 'w');
 
         try {
-            $this->copyStreams($length, $inputStream, $destStream);
+            $this->copyStreams($mediaFile->getFileSize(), $inputStream, $destStream);
         } finally {
             fclose($inputStream);
             fclose($destStream);
         }
 
-        $fileType = mime_content_type($destination);
-        if ($fileType != $mimeType) {
-            throw new MimeTypeMismatchException($mimeType, $fileType);
+        $mimeType = mime_content_type($mediaFile->getFileName());
+        if ($mimeType != $mediaFile->getMimeType()) {
+            throw new MimeTypeMismatchException($mediaFile->getMimeType(), $mimeType);
         }
     }
 
-    /**
-     * @param string $destination
-     * @param string $url
-     *
-     * @return int
-     */
-    public function fetchFileFromURL(string $destination, string $url): int
+    public function fetchFileFromURL(MediaFile $mediaFile, string $url): MediaFile
     {
         if (!$this->isUrlValid($url)) {
             throw new UploadException('malformed url: ' . $url);
         }
 
         $inputStream = $this->openStream($url, 'r');
-        $destStream = $this->openStream($destination, 'w');
+        $destStream = $this->openStream($mediaFile->getFileName(), 'w');
 
         try {
             $writtenBytes = stream_copy_to_stream($inputStream, $destStream);
@@ -56,12 +42,16 @@ class FileFetcher
             fclose($destStream);
         }
 
-        return $writtenBytes;
+        return new MediaFile(
+            $mediaFile->getFileName(),
+            mime_content_type($mediaFile->getFileName()),
+            $mediaFile->getFileExtension(),
+            $writtenBytes
+        );
     }
 
     /**
-     * @param string $source
-     * @param string $mode
+     * @throws UploadException
      *
      * @return resource
      */
@@ -76,11 +66,6 @@ class FileFetcher
         return $inputStream;
     }
 
-    /**
-     * @param int      $length
-     * @param resource $inputStream
-     * @param resource $tempStream
-     */
     private function copyStreams(int $length, $inputStream, $tempStream): void
     {
         $bytesWritten = stream_copy_to_stream($inputStream, $tempStream);
@@ -90,11 +75,6 @@ class FileFetcher
         }
     }
 
-    /**
-     * @param string $url
-     *
-     * @return bool
-     */
     private function isUrlValid(string $url): bool
     {
         return (bool) filter_var($url, FILTER_VALIDATE_URL) && preg_match('/^https?:/', $url);

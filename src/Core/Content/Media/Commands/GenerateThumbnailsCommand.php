@@ -155,9 +155,7 @@ class GenerateThumbnailsCommand extends Command
     {
         try {
             $this->thumbnailService->generateThumbnails(
-                $media->getId(),
-                $media->getMimeType(),
-                $media->getFileExtension(),
+                $media,
                 $context);
             ++$this->generatedCounter;
         } catch (FileTypeNotSupportedException $e) {

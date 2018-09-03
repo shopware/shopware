@@ -316,7 +316,7 @@ export default class EntityProxy {
     delete(directDelete = false) {
         this.isDeleted = true;
 
-        if (directDelete === false) {
+        if (directDelete !== true) {
             return Promise.resolve();
         }
 
@@ -654,6 +654,7 @@ export default class EntityProxy {
      */
     get privateData() {
         return {
+            isDeleted: this.isDeleted,
             isLoading: this.isLoading,
             errors: this.errors
         };

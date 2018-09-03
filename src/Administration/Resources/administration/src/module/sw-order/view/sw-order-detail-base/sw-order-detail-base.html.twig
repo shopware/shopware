@@ -38,7 +38,7 @@
                                 <dt>{{ $tc('sw-order.detailBase.labelOrderStatus') }}</dt>
                                 <dd>{{ order.state.description }}</dd>
                                 <dt>{{ $tc('sw-order.detailBase.summaryLabelAmountTotal') }}</dt>
-                                <dd>{{ order.amountTotal }} {{ order.currency.symbol }}</dd>
+                                <dd>{{ order.amountTotal | currency(order.currency.shortName) }}</dd>
                                 <dt>{{ $tc('sw-order.detailBase.labelOrderDate') }}</dt>
                                 <dd>{{ order.date | date }}</dd>
                                 <dt>{{ $tc('sw-order.detailBase.labelSalesChannel') }}</dt>

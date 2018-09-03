@@ -23,5 +23,13 @@ Component.register('sw-settings-item', {
             type: Boolean,
             default: false
         }
+    },
+
+    computed: {
+        classes() {
+            return {
+                'is--disabled': this.disabled
+            };
+        }
     }
 });

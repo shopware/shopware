@@ -23,6 +23,7 @@ use Shopware\Core\Checkout\Customer\Rule\IsNewCustomerRule;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Configuration\ConfigurationGroupDefinition;
 use Shopware\Core\Content\Media\File\FileSaver;
+use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Cart\ProductCollector;
@@ -442,11 +443,12 @@ class DemodataCommand extends ContainerAwareCommand
         $importImages = function () use (&$productImages, $context) {
             foreach ($productImages as $id => $file) {
                 $this->mediaUpdater->persistFileToMedia(
-                    $file,
+                    new MediaFile(
+                        $file,
+                        mime_content_type($file),
+                        pathinfo($file, PATHINFO_EXTENSION),
+                        filesize($file)),
                     $id,
-                    mime_content_type($file),
-                    pathinfo($file, PATHINFO_EXTENSION),
-                    filesize($file),
                     $context
                 );
             }
@@ -1006,11 +1008,12 @@ class DemodataCommand extends ContainerAwareCommand
             );
 
             $this->mediaUpdater->persistFileToMedia(
-                $file,
+                new MediaFile(
+                    $file,
+                    mime_content_type($file),
+                    pathinfo($file, PATHINFO_EXTENSION),
+                    filesize($file)),
                 $mediaId,
-                mime_content_type($file),
-                pathinfo($file, PATHINFO_EXTENSION),
-                filesize($file),
                 $context
             );
 

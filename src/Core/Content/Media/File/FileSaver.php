@@ -8,6 +8,7 @@ use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
 use Shopware\Core\Content\Media\Exception\IllegalMimeTypeException;
 use Shopware\Core\Content\Media\Exception\MediaNotFoundException;
 use Shopware\Core\Content\Media\Exception\UploadException;
+use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
@@ -53,31 +54,31 @@ class FileSaver
      * @throws IllegalMimeTypeException
      * @throws UploadException
      */
-    public function persistFileToMedia(string $filePath, string $mediaId, string $mimeType, string $extension, int $fileSize, Context $context): void
+    public function persistFileToMedia(MediaFile $mediaFile, string $mediaId, Context $context): void
     {
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('id', $mediaId));
-        if ($mediaEntity = $this->repository->searchIds($criteria, $context)->getTotal() !== 1) {
+        if ($this->repository->searchIds($criteria, $context)->getTotal() !== 1) {
             throw new MediaNotFoundException($mediaId);
         }
 
-        $this->saveFileToMediaDir($filePath, $mediaId, $extension);
-        $this->updateMediaEntity($mediaId, $mimeType, $extension, $fileSize, $context);
+        $this->saveFileToMediaDir($mediaFile, $mediaId);
+        $media = $this->updateMediaEntity($mediaFile, $mediaId, $context);
 
         try {
             $this->eventDispatcher->dispatch(
                 MediaFileUploadedEvent::EVENT_NAME,
-                new MediaFileUploadedEvent($mediaId, $mimeType, $extension, $context)
+                new MediaFileUploadedEvent($media, $context)
             );
         } catch (FileTypeNotSupportedException $e) {
             //ignore that a thumbnail was not created
         }
     }
 
-    private function saveFileToMediaDir(string $filePath, string $mediaId, string $extension): void
+    private function saveFileToMediaDir(MediaFile $mediaFile, string $mediaId): void
     {
-        $stream = fopen($filePath, 'r');
-        $path = $this->urlGenerator->getRelativeMediaUrl($mediaId, $extension);
+        $stream = fopen($mediaFile->getFileName(), 'r');
+        $path = $this->urlGenerator->getRelativeMediaUrl($mediaId, $mediaFile->getFileExtension());
         try {
             $this->filesystem->putStream($path, $stream);
         } finally {
@@ -85,17 +86,22 @@ class FileSaver
         }
     }
 
-    private function updateMediaEntity(string $mediaId, string $mimeType, string $extension, int $fileSize, Context $context): void
+    private function updateMediaEntity(MediaFile $mediaFile, string $mediaId, Context $context): MediaStruct
     {
         $data = [
             'id' => $mediaId,
-            'mimeType' => $mimeType,
-            'fileExtension' => $extension,
-            'fileSize' => $fileSize,
+            'mimeType' => $mediaFile->getMimeType(),
+            'fileExtension' => $mediaFile->getFileExtension(),
+            'fileSize' => $mediaFile->getFileSize(),
             'thumbnailsCreated' => false,
         ];
 
         $context->getExtension('write_protection')->set('write_media', true);
         $this->repository->update([$data], $context);
+
+        $media = new MediaStruct();
+        $media->assign($data);
+
+        return $media->assign($data);
     }
 }

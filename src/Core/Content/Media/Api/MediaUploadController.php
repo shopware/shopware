@@ -2,9 +2,12 @@
 
 namespace Shopware\Core\Content\Media\Api;
 
+use Shopware\Core\Content\Media\Exception\MimeTypeMismatchException;
 use Shopware\Core\Content\Media\Exception\MissingFileExtensionException;
+use Shopware\Core\Content\Media\Exception\UploadException;
 use Shopware\Core\Content\Media\File\FileFetcher;
 use Shopware\Core\Content\Media\File\FileSaver;
+use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\Api\Response\ResponseFactory;
 use Shopware\Core\Framework\Context;
@@ -30,11 +33,6 @@ class MediaUploadController extends Controller
      */
     private $fileSaver;
 
-    /**
-     * @param ResponseFactory $responseFactory
-     * @param FileFetcher     $fileFetcher
-     * @param FileSaver       $fileSaver
-     */
     public function __construct(ResponseFactory $responseFactory, FileFetcher $fileFetcher, FileSaver $fileSaver)
     {
         $this->responseFactory = $responseFactory;
@@ -45,31 +43,17 @@ class MediaUploadController extends Controller
     /**
      * @Route("/api/v{version}/media/{mediaId}/actions/upload", name="api.media.actions.upload", methods={"POST"})
      *
-     * @param Request $request
-     * @param string  $mediaId
-     * @param Context $context
-     *
      * @return Response
      */
     public function upload(Request $request, string $mediaId, Context $context): Response
     {
-        $contentType = $request->headers->get('content_type');
-        $extension = $request->get('extension');
-        if ($extension === null) {
-            throw new MissingFileExtensionException();
-        }
-
         $tempFile = tempnam(sys_get_temp_dir(), '');
 
         try {
-            $contentLength = $this->fetchFile($request, $contentType, $tempFile);
-            $contentType = mime_content_type($tempFile);
+            $mediaFile = $this->fetchFile($request, $tempFile);
             $this->fileSaver->persistFileToMedia(
-                $tempFile,
+                $mediaFile,
                 $mediaId,
-                $contentType,
-                $extension,
-                $contentLength,
                 $context
             );
         } finally {
@@ -80,21 +64,27 @@ class MediaUploadController extends Controller
     }
 
     /**
-     * @param Request $request
-     * @param string  $contentType
-     * @param string  $tempFile
-     *
-     * @return int
+     * @throws MissingFileExtensionException
+     * @throws MimeTypeMismatchException
+     * @throws UploadException
      */
-    private function fetchFile(Request $request, string $contentType, string $tempFile): int
+    private function fetchFile(Request $request, string $tempFile): MediaFile
     {
-        if ($contentType === 'application/json') {
-            $contentLength = $this->fileFetcher->fetchFileFromURL($tempFile, $request->request->get('url'));
-        } else {
-            $contentLength = (int) $request->headers->get('content-length');
-            $this->fileFetcher->fetchRequestData($request, $tempFile, $contentType, $contentLength);
+        $contentType = $request->headers->get('content_type');
+        $extension = $request->get('extension');
+        if ($extension === null) {
+            throw new MissingFileExtensionException();
         }
 
-        return $contentLength;
+        $contentLength = (int) $request->headers->get('content-length');
+        $mediaFile = new MediaFile($tempFile, $contentType, $extension, $contentLength);
+
+        if ($mediaFile->getMimeType() === 'application/json') {
+            $mediaFile = $this->fileFetcher->fetchFileFromURL($mediaFile, $request->request->get('url'));
+        } else {
+            $this->fileFetcher->fetchRequestData($request, $mediaFile);
+        }
+
+        return $mediaFile;
     }
 }

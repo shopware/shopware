@@ -348,6 +348,11 @@ class ProductStruct extends Entity
      */
     protected $catalog;
 
+    /**
+     * @var string|null
+     */
+    protected $coverId;
+
     public function __construct()
     {
         $this->priceRules = new ProductPriceRuleCollection();
@@ -1109,5 +1114,15 @@ class ProductStruct extends Entity
     public function setCatalog(CatalogStruct $catalog): void
     {
         $this->catalog = $catalog;
+    }
+
+    public function getCoverId(): ?string
+    {
+        return $this->coverId;
+    }
+
+    public function setCoverId(string $coverId): void
+    {
+        $this->coverId = $coverId;
     }
 }

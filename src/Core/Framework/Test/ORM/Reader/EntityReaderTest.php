@@ -1083,4 +1083,42 @@ class EntityReaderTest extends TestCase
             array_values($products->getIds())
         );
     }
+
+    public function testReadRelationWithNestedToManyRelations(): void
+    {
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context->getExtension('write_protection')->set('write_media', true);
+        $context->getExtension('write_protection')->set('write_thumbnails', true);
+
+        $data = [
+            'id' => Uuid::uuid4()->getHex(),
+            'price' => ['gross' => 10, 'net' => 9],
+            'active' => true,
+            'manufacturer' => ['name' => 'test'],
+            'name' => 'test',
+            'tax' => ['taxRate' => 13, 'name' => 'green'],
+            'cover' => [
+                'position' => 1,
+                'media' => [
+                    'name' => 'test-image',
+                    'thumbnails' => [
+                        ['id' => Uuid::uuid4()->getHex(), 'width' => 10, 'height' => 10, 'highDpi' => true],
+                        ['id' => Uuid::uuid4()->getHex(), 'width' => 20, 'height' => 20, 'highDpi' => true],
+                        ['id' => Uuid::uuid4()->getHex(), 'width' => 30, 'height' => 30, 'highDpi' => true],
+                    ],
+                ],
+            ],
+        ];
+
+        $this->repository->create([$data], $context);
+        $results = $this->repository->read(new ReadCriteria([$data['id']]), $context);
+
+        /** @var ProductStruct $product */
+        $product = $results->first();
+
+        static::assertNotNull($product, 'Product has not been created.');
+        static::assertNotNull($product->getCover(), 'Cover was not fetched.');
+        static::assertNotNull($product->getCover()->getMedia(), 'Media for cover was not fetched.');
+        static::assertCount(3, $product->getCover()->getMedia()->getThumbnails()->getElements(), 'Thumbnails were not fetched or is incomplete.');
+    }
 }

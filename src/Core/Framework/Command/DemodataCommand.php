@@ -462,16 +462,13 @@ class DemodataCommand extends ContainerAwareCommand
             if ($withMedia) {
                 $imagePath = $this->getRandomImage($product['name']);
                 $mediaId = Uuid::uuid4()->getHex();
-                $product['media'] = [
-                    [
-                        'isCover' => true,
-                        'media' => [
-                            'id' => $mediaId,
-                            'mimeType' => mime_content_type($imagePath),
-                            'fileExtension' => pathinfo($imagePath, PATHINFO_EXTENSION),
-                            'fileSize' => filesize($imagePath),
-                            'name' => 'Product image of ' . $product['name'],
-                        ],
+                $product['cover'] = [
+                    'media' => [
+                        'id' => $mediaId,
+                        'mimeType' => mime_content_type($imagePath),
+                        'fileExtension' => pathinfo($imagePath, PATHINFO_EXTENSION),
+                        'fileSize' => filesize($imagePath),
+                        'name' => 'Product image of ' . $product['name'],
                     ],
                 ];
 
@@ -509,16 +506,14 @@ class DemodataCommand extends ContainerAwareCommand
                     $mediaId = Uuid::uuid4()->getHex();
                     $variantImagePayload[] = [
                         'id' => $variantProductId,
-                        'media' => [
-                            [
-                                'isCover' => true,
-                                'media' => [
-                                    'id' => $mediaId,
-                                    'mimeType' => mime_content_type($imagePath),
-                                    'fileSize' => filesize($imagePath),
-                                    'fileExtension' => pathinfo($imagePath, PATHINFO_EXTENSION),
-                                    'name' => 'Product image of ' . $product['name'],
-                                ],
+                        'cover' => [
+                            'isCover' => true,
+                            'media' => [
+                                'id' => $mediaId,
+                                'mimeType' => mime_content_type($imagePath),
+                                'fileSize' => filesize($imagePath),
+                                'fileExtension' => pathinfo($imagePath, PATHINFO_EXTENSION),
+                                'name' => 'Product image of ' . $product['name'],
                             ],
                         ],
                     ];

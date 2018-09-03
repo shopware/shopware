@@ -25,11 +25,6 @@ class ProductMediaStruct extends Entity
     protected $catalogId;
 
     /**
-     * @var bool
-     */
-    protected $isCover;
-
-    /**
      * @var int
      */
     protected $position;
@@ -77,16 +72,6 @@ class ProductMediaStruct extends Entity
     public function setMediaId(string $mediaId): void
     {
         $this->mediaId = $mediaId;
-    }
-
-    public function getIsCover(): bool
-    {
-        return $this->isCover;
-    }
-
-    public function setIsCover(bool $isCover): void
-    {
-        $this->isCover = $isCover;
     }
 
     public function getPosition(): int

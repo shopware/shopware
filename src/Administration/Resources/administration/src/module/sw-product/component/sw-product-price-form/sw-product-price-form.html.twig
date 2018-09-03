@@ -18,7 +18,8 @@
                 <sw-field type="number"
                           :label="$tc('sw-product.priceForm.labelPurchasePriceGross')"
                           :placeholder="$tc('sw-product.priceForm.placeholderPurchasePriceGross')"
-                          suffix="EUR"
+                          suffix="€"
+                          class="sw-product-price-form__field-price"
                           min="0.00"
                           step="0.01"
                           v-model="product.purchasePrice">

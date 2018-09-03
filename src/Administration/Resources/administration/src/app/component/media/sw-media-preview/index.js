@@ -9,6 +9,19 @@ Component.register('sw-media-preview', {
         item: {
             required: true,
             type: Object
+
+        },
+
+        playable: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+
+        autoplay: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 

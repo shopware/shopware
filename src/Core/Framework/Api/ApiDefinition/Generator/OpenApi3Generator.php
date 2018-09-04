@@ -259,13 +259,14 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
     private function getType(string $fieldClass): string
     {
-        switch ($fieldClass) {
-            case FloatField::class:
-                return 'number';
-            case IntField::class:
-                return 'integer';
-            case BoolField::class:
-                return 'boolean';
+        if (\is_a($fieldClass, FloatField::class, true)) {
+            return 'number';
+        }
+        if (\is_a($fieldClass, IntField::class, true)) {
+            return 'integer';
+        }
+        if (\is_a($fieldClass, BoolField::class, true)) {
+            return 'boolean';
         }
 
         return 'string';
@@ -277,23 +278,18 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             'type' => $this->getType($fieldClass),
         ];
 
-        switch ($fieldClass) {
-            case DateField::class:
-                $property['format'] = 'date-time';
-                break;
-            case FloatField::class:
-                $property['format'] = 'float';
-                break;
-            case IntField::class:
-                $property['format'] = 'int64';
-                break;
-            case VersionField::class:
-            case ReferenceVersionField::class:
-            case FkField::class:
-            case IdField::class:
-                $property['type'] = 'string';
-                $property['format'] = 'uuid';
-                break;
+        if (\is_a($fieldClass, DateField::class, true)) {
+            $property['format'] = 'date-time';
+        }
+        if (\is_a($fieldClass, FloatField::class, true)) {
+            $property['format'] = 'float';
+        }
+        if (\is_a($fieldClass, IntField::class, true)) {
+            $property['format'] = 'int64';
+        }
+        if (\is_a($fieldClass, IdField::class, true)) {
+            $property['type'] = 'string';
+            $property['format'] = 'uuid';
         }
 
         return $property;

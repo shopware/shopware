@@ -112,7 +112,6 @@ Component.register('sw-search-bar', {
         },
 
         onSearchTermChange() {
-            console.log('onSearchTermChange');
             if (this.useTypeSearch) {
                 this.doListSearch();
             } else {

@@ -76,27 +76,24 @@ class TranslationTest extends TestCase
                         'name' => 'Test En',
                     ],
                 ],
-                'media' => [
-                    [
-                        'id' => 'd610dccf27754a7faa5c22d7368e6d8f',
-                        'productId' => '79dc5e0b5bd1404a9dec7841f6254c7e',
-                        'isCover' => true,
-                        'position' => 1,
-                        'media' => [
-                                'id' => '4b2252d11baa49f3a62e292888f5e439',
-                                'name' => 'Backform-gelb',
-                                'album' => [
-                                        'id' => 'a7104eb19fc649fa86cf6fe6c26ad65a',
-                                        'name' => 'Artikel',
-                                        'position' => 2,
-                                        'createThumbnails' => false,
-                                        'thumbnailSize' => '200x200;600x600;1280x1280',
-                                        'icon' => 'sprite-inbox',
-                                        'thumbnailHighDpi' => true,
-                                        'thumbnailQuality' => 90,
-                                        'thumbnailHighDpiQuality' => 60,
-                                    ],
-                            ],
+                'cover' => [
+                    'id' => 'd610dccf27754a7faa5c22d7368e6d8f',
+                    'productId' => '79dc5e0b5bd1404a9dec7841f6254c7e',
+                    'position' => 1,
+                    'media' => [
+                        'id' => '4b2252d11baa49f3a62e292888f5e439',
+                        'name' => 'Backform-gelb',
+                        'album' => [
+                            'id' => 'a7104eb19fc649fa86cf6fe6c26ad65a',
+                            'name' => 'Artikel',
+                            'position' => 2,
+                            'createThumbnails' => false,
+                            'thumbnailSize' => '200x200;600x600;1280x1280',
+                            'icon' => 'sprite-inbox',
+                            'thumbnailHighDpi' => true,
+                            'thumbnailQuality' => 90,
+                            'thumbnailHighDpiQuality' => 60,
+                        ],
                     ],
                 ],
                 'active' => true,
@@ -118,26 +115,26 @@ class TranslationTest extends TestCase
         $result = $this->repository->create($data, $this->context);
 
         $products = $result->getEventByDefinition(ProductDefinition::class);
-        $this->assertCount(1, $products->getIds());
+        static::assertCount(1, $products->getIds());
 
         $languages = $result->getEventByDefinition(LanguageDefinition::class);
-        $this->assertCount(1, array_unique($languages->getIds()));
-        $this->assertContains('f32f19ca62994c4bbd004296b35a5c24', $languages->getIds());
+        static::assertCount(1, array_unique($languages->getIds()));
+        static::assertContains('f32f19ca62994c4bbd004296b35a5c24', $languages->getIds());
 
         $translations = $result->getEventByDefinition(MediaTranslationDefinition::class);
-        $this->assertCount(1, $translations->getIds());
+        static::assertCount(1, $translations->getIds());
         $translations = array_column($translations->getPayload(), 'languageId');
-        $this->assertContains('f32f19ca62994c4bbd004296b35a5c24', $translations);
+        static::assertContains('f32f19ca62994c4bbd004296b35a5c24', $translations);
 
         $translations = $result->getEventByDefinition(ProductManufacturerTranslationDefinition::class);
-        $this->assertCount(1, $translations->getIds());
+        static::assertCount(1, $translations->getIds());
         $translations = array_column($translations->getPayload(), 'languageId');
-        $this->assertContains('f32f19ca62994c4bbd004296b35a5c24', $translations);
+        static::assertContains('f32f19ca62994c4bbd004296b35a5c24', $translations);
 
         $translations = $result->getEventByDefinition(ProductTranslationDefinition::class);
-        $this->assertCount(2, $translations->getIds());
+        static::assertCount(2, $translations->getIds());
         $translations = array_column($translations->getPayload(), 'languageId');
-        $this->assertContains(Defaults::LANGUAGE, $translations);
-        $this->assertContains('f32f19ca62994c4bbd004296b35a5c24', $translations);
+        static::assertContains(Defaults::LANGUAGE, $translations);
+        static::assertContains('f32f19ca62994c4bbd004296b35a5c24', $translations);
     }
 }

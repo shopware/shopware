@@ -3,9 +3,12 @@
 namespace Shopware\Core\Framework\Command;
 
 use bheller\ImagesGenerator\ImagesGeneratorProvider;
+use DateTime;
 use Doctrine\DBAL\Connection;
+use Exception;
 use Faker\Factory;
 use Faker\Generator;
+use RuntimeException;
 use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -162,7 +165,7 @@ class DemodataCommand extends ContainerAwareCommand
         $this->mediaUpdater = $mediaUpdater;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->addOption('tenant-id', 't', InputOption::VALUE_REQUIRED, 'Tenant id');
         $this->addOption('products', 'p', InputOption::VALUE_REQUIRED, 'Product count', 500);
@@ -173,7 +176,7 @@ class DemodataCommand extends ContainerAwareCommand
         $this->addOption('media', '', InputOption::VALUE_REQUIRED, 'Media count', 100);
 
         $this->addOption('with-configurator', 'w', InputOption::VALUE_OPTIONAL, 'Enables configurator products', 0);
-        $this->addOption('with-services', 'x', InputOption::VALUE_OPTIONAL, 'Enables serivces for products', 1);
+        $this->addOption('with-services', 'x', InputOption::VALUE_OPTIONAL, 'Enables services for products', 1);
         $this->addOption('with-media', 'y', InputOption::VALUE_OPTIONAL, 'Enables media for products', 1);
     }
 
@@ -189,10 +192,10 @@ class DemodataCommand extends ContainerAwareCommand
         $tenantId = $input->getOption('tenant-id');
 
         if (!$tenantId) {
-            throw new \Exception('No tenant id provided');
+            throw new RuntimeException('No tenant id provided');
         }
         if (!Uuid::isValid($tenantId)) {
-            throw new \Exception('Invalid uuid provided');
+            throw new RuntimeException('Invalid uuid provided');
         }
         $this->tenantId = $tenantId;
 
@@ -209,7 +212,7 @@ class DemodataCommand extends ContainerAwareCommand
 
         try {
             $this->createDefaultCustomer();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->io->warning('Could not create default customer: ' . $e->getMessage());
         }
 
@@ -222,9 +225,9 @@ class DemodataCommand extends ContainerAwareCommand
             $manufacturer,
             $ruleIds,
             $input->getOption('products'),
-            $input->getOption('with-media') == 1,
-            $input->getOption('with-configurator') == 1,
-            $input->getOption('with-services') == 1
+            (int) $input->getOption('with-media') === 1,
+            (int) $input->getOption('with-configurator') === 1,
+            (int) $input->getOption('with-services') === 1
         );
 
         $this->createOrders((int) $input->getOption('orders'));
@@ -238,7 +241,7 @@ class DemodataCommand extends ContainerAwareCommand
         $this->io->success('Successfully created demodata.');
     }
 
-    private function getContext()
+    private function getContext(): WriteContext
     {
         return WriteContext::createFromContext(
             Context::createDefaultContext($this->tenantId)
@@ -257,8 +260,7 @@ class DemodataCommand extends ContainerAwareCommand
             ];
         }
 
-        $parents = $payload;
-        foreach ($parents as $category) {
+        foreach ($payload as $category) {
             for ($x = 0; $x < 40; ++$x) {
                 $payload[] = [
                     'id' => Uuid::uuid4()->getHex(),
@@ -270,14 +272,13 @@ class DemodataCommand extends ContainerAwareCommand
             }
         }
 
-        $count = count($payload);
+        $count = \count($payload);
         $this->io->section("Generating {$count} categories...");
         $this->io->progressStart($count);
 
-        $chunks = array_chunk($payload, 100);
-        foreach ($chunks as $chunk) {
+        foreach (array_chunk($payload, 100) as $chunk) {
             $this->categoryRepository->upsert($chunk, Context::createDefaultContext($this->tenantId));
-            $this->io->progressAdvance(count($chunk));
+            $this->io->progressAdvance(\count($chunk));
         }
 
         $this->io->progressFinish();
@@ -286,7 +287,7 @@ class DemodataCommand extends ContainerAwareCommand
         return array_column($payload, 'id');
     }
 
-    private function createCustomer($count = 500)
+    private function createCustomer($count = 500): void
     {
         $number = $this->faker->randomNumber();
 
@@ -345,23 +346,23 @@ class DemodataCommand extends ContainerAwareCommand
 
             $payload[] = $customer;
 
-            if (count($payload) >= 100) {
+            if (\count($payload) >= 100) {
                 $this->writer->upsert(CustomerDefinition::class, $payload, $this->getContext());
-                $this->io->progressAdvance(count($payload));
+                $this->io->progressAdvance(\count($payload));
                 $payload = [];
             }
         }
 
         if (!empty($payload)) {
             $this->writer->upsert(CustomerDefinition::class, $payload, $this->getContext());
-            $this->io->progressAdvance(count($payload));
+            $this->io->progressAdvance(\count($payload));
         }
 
         $this->io->progressFinish();
         $this->io->comment('Writing to database...');
     }
 
-    private function createDefaultCustomer()
+    private function createDefaultCustomer(): void
     {
         $id = Uuid::uuid4()->getHex();
         $shippingAddressId = Uuid::uuid4()->getHex();
@@ -417,7 +418,7 @@ class DemodataCommand extends ContainerAwareCommand
         bool $withMedia = false,
         bool $withConfigurator = false,
         bool $withServices = false
-    ) {
+    ): void {
         $payload = [];
         $productImages = [];
 
@@ -447,7 +448,8 @@ class DemodataCommand extends ContainerAwareCommand
                         $file,
                         mime_content_type($file),
                         pathinfo($file, PATHINFO_EXTENSION),
-                        filesize($file)),
+                        filesize($file)
+                    ),
                     $id,
                     $context
                 );
@@ -509,7 +511,6 @@ class DemodataCommand extends ContainerAwareCommand
                     $variantImagePayload[] = [
                         'id' => $variantProductId,
                         'cover' => [
-                            'isCover' => true,
                             'media' => [
                                 'id' => $mediaId,
                                 'mimeType' => mime_content_type($imagePath),
@@ -530,8 +531,8 @@ class DemodataCommand extends ContainerAwareCommand
 
             $payload[] = $product;
 
-            if (count($payload) >= 50) {
-                $this->io->progressAdvance(count($payload));
+            if (\count($payload) >= 50) {
+                $this->io->progressAdvance(\count($payload));
                 $this->writer->upsert(ProductDefinition::class, $payload, WriteContext::createFromContext($context));
                 $importImages();
                 $payload = [];
@@ -560,11 +561,9 @@ class DemodataCommand extends ContainerAwareCommand
             ];
         }
 
-        $chunks = array_chunk($payload, 100);
-
-        foreach ($chunks as $chunk) {
+        foreach (array_chunk($payload, 100) as $chunk) {
             $this->writer->upsert(ProductManufacturerDefinition::class, $chunk, $this->getContext());
-            $this->io->progressAdvance(count($chunk));
+            $this->io->progressAdvance(\count($chunk));
         }
 
         $this->io->progressFinish();
@@ -586,7 +585,7 @@ class DemodataCommand extends ContainerAwareCommand
                 'name' => 'New customer',
             ],
             [
-                'rule' => new DateRangeRule(new \DateTime(), (new \DateTime())->modify('+2 day')),
+                'rule' => new DateRangeRule(new DateTime(), (new DateTime())->modify('+2 day')),
                 'name' => 'Next two days',
             ],
             [
@@ -605,7 +604,7 @@ class DemodataCommand extends ContainerAwareCommand
 
         $payload = [];
         for ($i = 0; $i < 20; ++$i) {
-            $rules = \array_slice($pool, random_int(0, count($pool) - 2), random_int(1, 2));
+            $rules = \array_slice($pool, random_int(0, \count($pool) - 2), random_int(1, 2));
 
             $classes = array_column($rules, 'rule');
             $names = array_column($rules, 'name');
@@ -623,12 +622,12 @@ class DemodataCommand extends ContainerAwareCommand
         return array_column($payload, 'id');
     }
 
-    private function createPrices(array $rules)
+    private function createPrices(array $rules): array
     {
         $prices = [];
         $rules = \array_slice(
             $rules,
-            random_int(0, count($rules) - 5),
+            random_int(0, \count($rules) - 5),
             random_int(1, 5)
         );
 
@@ -664,15 +663,15 @@ class DemodataCommand extends ContainerAwareCommand
         do {
             $categories = [];
 
-            while (count($categories) < $max) {
+            while (\count($categories) < $max) {
                 $category = $this->faker->category();
-                if (!in_array($category, $categories)) {
+                if (!\in_array($category, $categories)) {
                     $categories[] = $category;
                 }
             }
 
-            if (count($categories) >= 2) {
-                $commaSeparatedCategories = implode(', ', array_slice($categories, 0, -1));
+            if (\count($categories) >= 2) {
+                $commaSeparatedCategories = implode(', ', \array_slice($categories, 0, -1));
                 $categories = [
                     $commaSeparatedCategories,
                     end($categories),
@@ -680,7 +679,7 @@ class DemodataCommand extends ContainerAwareCommand
             }
             ++$max;
             $categoryName = implode(' & ', $categories);
-        } while (in_array($categoryName, $this->categories) && $unique);
+        } while (\in_array($categoryName, $this->categories) && $unique);
         $this->categories[] = $categoryName;
 
         return $categoryName;
@@ -696,7 +695,7 @@ class DemodataCommand extends ContainerAwareCommand
      */
     private function createSimpleProduct(array $categories, array $manufacturer, array $rules, array $taxes): array
     {
-        $price = mt_rand(1, 1000);
+        $price = random_int(1, 1000);
 
         $product = [
             'id' => Uuid::uuid4()->getHex(),
@@ -704,11 +703,11 @@ class DemodataCommand extends ContainerAwareCommand
             'name' => $this->faker->productName,
             'description' => $this->faker->text(),
             'descriptionLong' => $this->generateRandomHTML(10, ['b', 'i', 'u', 'p', 'h1', 'h2', 'h3', 'h4', 'cite']),
-            'taxId' => $taxes[random_int(0, count($taxes) - 1)],
-            'manufacturerId' => $manufacturer[random_int(0, count($manufacturer) - 1)],
+            'taxId' => $taxes[random_int(0, \count($taxes) - 1)],
+            'manufacturerId' => $manufacturer[random_int(0, \count($manufacturer) - 1)],
             'active' => true,
             'categories' => [
-                ['id' => $categories[random_int(0, count($categories) - 1)]],
+                ['id' => $categories[random_int(0, \count($categories) - 1)]],
             ],
             'stock' => $this->faker->randomNumber(),
             'priceRules' => $this->createPrices($rules),
@@ -722,7 +721,7 @@ class DemodataCommand extends ContainerAwareCommand
         $output = '';
         for ($i = 0; $i < $count; ++$i) {
             $tag = Random::getRandomArrayElement($tags);
-            $text = $this->faker->words(rand(1, 10), true);
+            $text = $this->faker->words(random_int(1, 10), true);
             $output .= sprintf('<%1$s>%2$s</%1$s>', $tag, $text);
             $output .= '<br/>';
         }
@@ -730,7 +729,7 @@ class DemodataCommand extends ContainerAwareCommand
         return $output;
     }
 
-    private function createConfigurators()
+    private function createConfigurators(): array
     {
         $data = [
             [
@@ -808,7 +807,7 @@ class DemodataCommand extends ContainerAwareCommand
 
             $optionIds = array_merge(
                 $optionIds,
-                array_slice($ids, $offset, $count)
+                \array_slice($ids, $offset, $count)
             );
         }
 
@@ -851,7 +850,7 @@ class DemodataCommand extends ContainerAwareCommand
 
             return [
                 'price' => ['gross' => $price, 'net' => $price / 1.19, 'linked' => true],
-                'taxId' => $taxes[random_int(0, count($taxes) - 1)],
+                'taxId' => $taxes[random_int(0, \count($taxes) - 1)],
                 'optionId' => $optionId,
             ];
         }, $optionIds);
@@ -867,7 +866,7 @@ class DemodataCommand extends ContainerAwareCommand
 
         $images = array_values(iterator_to_array($images));
 
-        if (count($images)) {
+        if (\count($images)) {
             return $images[random_int(0, \count($images) - 1)]->getPathname();
         }
 
@@ -878,14 +877,14 @@ class DemodataCommand extends ContainerAwareCommand
         return $this->tmpImages[] = $this->faker->imageGenerator(null, $this->faker->numberBetween(600, 800), $this->faker->numberBetween(400, 600), 'jpg', true, $text, '#d8dde6', '#333333');
     }
 
-    private function cleanupImages()
+    private function cleanupImages(): void
     {
         foreach ($this->tmpImages as $image) {
             unlink($image);
         }
     }
 
-    private function createOrders(int $limit)
+    private function createOrders(int $limit): void
     {
         $products = $this->connection->fetchAll('
         SELECT LOWER(HEX(product.id)) AS id,
@@ -964,9 +963,9 @@ class DemodataCommand extends ContainerAwareCommand
 
             $payload[] = $this->orderConverter->convert($cart, $context);
 
-            if (count($payload) >= 20) {
+            if (\count($payload) >= 20) {
                 $this->writer->upsert(OrderDefinition::class, $payload, $this->getContext());
-                $this->io->progressAdvance(count($payload));
+                $this->io->progressAdvance(\count($payload));
                 $payload = [];
             }
         }
@@ -978,7 +977,7 @@ class DemodataCommand extends ContainerAwareCommand
         $this->io->progressFinish();
     }
 
-    private function createMedia(int $limit)
+    private function createMedia(int $limit): void
     {
         $context = Context::createDefaultContext($this->tenantId);
         $context->getExtension('write_protection')->set('write_media', true);
@@ -1007,7 +1006,8 @@ class DemodataCommand extends ContainerAwareCommand
                     $file,
                     mime_content_type($file),
                     pathinfo($file, PATHINFO_EXTENSION),
-                    filesize($file)),
+                    filesize($file)
+                ),
                 $mediaId,
                 $context
             );
@@ -1026,6 +1026,6 @@ class DemodataCommand extends ContainerAwareCommand
             ->getIterator()
         ));
 
-        return $files[random_int(0, count($files) - 1)];
+        return $files[random_int(0, \count($files) - 1)];
     }
 }

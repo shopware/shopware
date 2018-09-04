@@ -122,11 +122,15 @@ class CategoryPathBuilder implements EventSubscriberInterface
             ]);
         }
 
-        return $categories->getEntities();
+        /** @var CategoryCollection $entities */
+        $entities = $categories->getEntities();
+
+        return $entities;
     }
 
     private function loadParents(string $parentId, Context $context): CategoryCollection
     {
+        /** @var CategoryCollection $parents */
         $parents = $this->repository->read(new ReadCriteria([$parentId]), $context);
         $parent = $parents->get($parentId);
 

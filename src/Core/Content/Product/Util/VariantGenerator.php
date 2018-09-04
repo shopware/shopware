@@ -90,7 +90,10 @@ class VariantGenerator
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('product_configurator.productId', $productId));
 
-        return $this->configuratorRepository->search($criteria, $context)->getEntities();
+        /** @var ProductConfiguratorCollection $result */
+        $result = $this->configuratorRepository->search($criteria, $context)->getEntities();
+
+        return $result;
     }
 
     private function buildCombinations(ProductConfiguratorCollection $configurator): array

@@ -52,7 +52,7 @@ class ExtensionCompilerPass implements CompilerPassInterface
      * @param string           $tagName
      * @param ContainerBuilder $container
      *
-     * @return Reference[]
+     * @return array[]
      */
     private function findAndSortTaggedServices($tagName, ContainerBuilder $container): array
     {

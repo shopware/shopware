@@ -306,7 +306,6 @@ class VersionManager
 
         $associationFields = $definition::getFields()->filterByFlag(CascadeDelete::class);
 
-        /** @var Field|AssociationInterface $field */
         foreach ($associationFields as $field) {
             $key = $field->getPropertyName();
 
@@ -410,13 +409,12 @@ class VersionManager
 
         $commands = [$insert];
 
-
-        /**
-         * @var string|EntityDefinition $definition
-         * @var array $items
-         */
         foreach ($writtenEvents as $definition => $items) {
-            if (strpos('version', $definition::getEntityName()) === 0) {
+            $definition = (string) $definition;
+            /** @var EntityDefinition|string $definition */
+            $entityName = $definition::getEntityName();
+
+            if (strpos('version', $entityName) === 0) {
                 continue;
             }
 
@@ -438,7 +436,7 @@ class VersionManager
                         'tenant_id' => $tenantId,
                         'version_commit_id' => $commitId->getBytes(),
                         'version_commit_tenant_id' => $tenantId,
-                        'entity_name' => $definition::getEntityName(),
+                        'entity_name' => $entityName,
                         'entity_id' => json_encode($primary),
                         'payload' => json_encode($payload),
                         'user_id' => $userId,

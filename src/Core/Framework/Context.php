@@ -52,7 +52,7 @@ class Context extends Struct
     protected $versionId;
 
     /**
-     * @var string
+     * @var SourceContext
      */
     protected $sourceContext;
 

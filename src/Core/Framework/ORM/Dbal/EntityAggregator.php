@@ -36,7 +36,7 @@ class EntityAggregator implements EntityAggregatorInterface
     private $connection;
 
     /**
-     * @var EntityReader
+     * @var EntityReaderInterface
      */
     private $reader;
 

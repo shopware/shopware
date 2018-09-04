@@ -124,11 +124,16 @@ class AdministrationSearch
     {
         $results = [];
 
-        /** @var EntityDefinition|string $definition */
-        /** @var string[] $rows */
         foreach ($grouped as $definition => $rows) {
-            /** @var RepositoryInterface $repository */
-            $repository = $this->container->get($definition::getEntityName() . '.repository');
+            $definition = (string) $definition;
+
+            /** @var EntityDefinition|string $definition */
+            $name = $definition::getEntityName();
+
+            $repository = $this->container->get($name . '.repository');
+            if (!$repository instanceof RepositoryInterface) {
+                continue;
+            }
 
             $criteria = new ReadCriteria(\array_keys($rows));
 
@@ -141,7 +146,7 @@ class AdministrationSearch
                 $entity->addExtension('search', new ArrayStruct(['_score' => $score]));
 
                 $results[] = [
-                    'type' => $definition::getEntityName(),
+                    'type' => $name,
                     '_score' => $score,
                     'entity' => $entity,
                 ];

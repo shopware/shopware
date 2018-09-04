@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class FileSaver
@@ -96,8 +97,11 @@ class FileSaver
             'thumbnailsCreated' => false,
         ];
 
-        $context->getExtension('write_protection')->set('write_media', true);
-        $this->repository->update([$data], $context);
+        $writeProtection = $context->getExtension('write_protection');
+        if ($writeProtection instanceof ArrayStruct) {
+            $writeProtection->set('write_media', true);
+            $this->repository->update([$data], $context);
+        }
 
         $media = new MediaStruct();
         $media->assign($data);

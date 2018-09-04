@@ -22,7 +22,7 @@ class Kernel extends HttpKernel
     const CONFIG_EXTS = '.{php,xml,yaml,yml}';
 
     /**
-     * @var \PDO
+     * @var \PDO|null
      */
     protected static $connection;
 

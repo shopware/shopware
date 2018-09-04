@@ -24,6 +24,7 @@
 
 namespace Shopware\Core\Checkout\Test\Cart\Common;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator;
@@ -215,10 +216,11 @@ class Generator extends TestCase
     /**
      * @param QuantityPriceDefinition[] $priceDefinitions indexed by product number
      *
-     * @return \PHPUnit_Framework_MockObject_MockObject|ProductGateway
+     * @return ProductGateway
      */
     public function createProductPriceGateway($priceDefinitions)
     {
+        /** @var MockObject|ProductGateway $mock */
         $mock = $this->createMock(ProductGateway::class);
         $mock->expects(static::any())
             ->method('get')

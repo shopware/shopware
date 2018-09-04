@@ -29,12 +29,12 @@ class RestrictDeleteViolationException extends ShopwareHttpException
         $restriction = $restrictions[0];
         $usages = [];
 
-        /**
-         * @var string|EntityDefinition $entityDefinition
-         * @var string[]                $ids
-         */
+        /** @var string[] $ids */
         foreach ($restriction->getRestrictions() as $entityDefinition => $ids) {
-            $usages[] = sprintf('%s (%d)', $entityDefinition::getEntityName(), \count($ids));
+            $entityDefinition = (string) $entityDefinition;
+            /** @var EntityDefinition|string $definition */
+            $name = $entityDefinition::getEntityName();
+            $usages[] = sprintf('%s (%d)', $name, \count($ids));
         }
 
         $message = sprintf(

@@ -446,7 +446,7 @@ class EntityReader implements EntityReaderInterface
         return $ids;
     }
 
-    private function shouldBeLoadedDelayed(AssociationInterface $association, string $definition, array $fields): bool
+    private function shouldBeLoadedDelayed(Field $association, string $definition, array $fields): bool
     {
         if ($association->is(DelayedLoad::class)) {
             return true;

@@ -72,7 +72,7 @@ class SliderAggregation extends Struct implements AggregationViewInterface
         string $minFieldName,
         string $maxFieldName,
         ?string $suffix = null,
-        float $digits = 2
+        int $digits = 2
     ) {
         $this->name = $name;
         $this->active = $active;

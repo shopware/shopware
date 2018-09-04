@@ -29,7 +29,6 @@ use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\HttpKernel\KernelInterface;
 
 class AdministrationDumpPluginsCommand extends ContainerAwareCommand
 {
@@ -38,7 +37,7 @@ class AdministrationDumpPluginsCommand extends ContainerAwareCommand
      */
     private $kernel;
 
-    public function __construct(KernelInterface $kernel)
+    public function __construct(Kernel $kernel)
     {
         parent::__construct();
         $this->kernel = $kernel;

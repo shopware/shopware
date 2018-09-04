@@ -36,16 +36,6 @@ class Random
         return random_int($min, $max);
     }
 
-    public static function getFloat(): float
-    {
-        $bytes = static::getBytes(7);
-        $bytes[6] |= (int) chr(0xF0);
-        $bytes .= chr(63); // exponent bias (1023)
-        list(, $float) = unpack('d', $bytes);
-
-        return $float - 1;
-    }
-
     public static function getString(int $length, string $charlist = null): string
     {
         if ($length < 1) {

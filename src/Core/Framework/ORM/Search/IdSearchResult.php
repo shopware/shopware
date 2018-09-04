@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Struct\Struct;
 class IdSearchResult extends Struct
 {
     /**
-     * @var string[]
+     * @var array[]
      */
     protected $data;
 

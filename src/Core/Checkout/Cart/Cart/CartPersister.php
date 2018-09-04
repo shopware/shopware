@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace Shopware\Core\Checkout\Cart\Cart;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Cart\Exception\CartDeserializeFailedException;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Defaults;
@@ -61,7 +62,12 @@ class CartPersister implements CartPersisterInterface
             throw new CartTokenNotFoundException($token);
         }
 
-        return $this->serializer->deserialize((string) $content, '', 'json');
+        $cart = $this->serializer->deserialize((string) $content, '', 'json');
+        if (!$cart instanceof Cart) {
+            throw new CartDeserializeFailedException();
+        }
+
+        return $cart;
     }
 
     public function save(Cart $cart, CheckoutContext $context): void

@@ -20,8 +20,7 @@ class MediaLoadedSubscriberTest extends TestCase
 
     public function testExtensionSubscribesToMediaLoaded()
     {
-        $subscriber = $this->getContainer()->get(MediaLoadedSubscriber::class);
-        static::assertEquals(['media.loaded' => 'mediaLoaded'], $subscriber->getSubscribedEvents());
+        static::assertCount(2, MediaLoadedSubscriber::getSubscribedEvents()['media.loaded']);
     }
 
     public function testItAddsUrl()
@@ -38,10 +37,10 @@ class MediaLoadedSubscriberTest extends TestCase
         $mediaStruct->setFileExtension('png');
 
         $mediaLoadedEvent = new EntityLoadedEvent(MediaDefinition::class, new EntityCollection([$mediaStruct]), $context);
-        $subscriber->mediaLoaded($mediaLoadedEvent);
+        $subscriber->addUrls($mediaLoadedEvent);
 
         static::assertEquals(
-            '/media/88/6c/ed/34556f108ab14969a0dcf9d9522fd7df.png',
+            'http://localhost/media/88/6c/ed/34556f108ab14969a0dcf9d9522fd7df.png',
             $mediaStruct->getUrl());
         static::assertEquals([], $mediaStruct->getThumbnails()->getElements());
     }
@@ -66,10 +65,10 @@ class MediaLoadedSubscriberTest extends TestCase
         $mediaStruct->setThumbnails(new MediaThumbnailCollection([$thumbnailStruct]));
 
         $mediaLoadedEvent = new EntityLoadedEvent(MediaDefinition::class, new EntityCollection([$mediaStruct]), $context);
-        $subscriber->mediaLoaded($mediaLoadedEvent);
+        $subscriber->addUrls($mediaLoadedEvent);
 
         static::assertEquals(
-            '/thumbnail/88/6c/ed/34556f108ab14969a0dcf9d9522fd7df_100x100.png',
+            'http://localhost/thumbnail/88/6c/ed/34556f108ab14969a0dcf9d9522fd7df_100x100.png',
             $mediaStruct->getThumbnails()->get($thumbnailStruct->getId())->getUrl());
     }
 }

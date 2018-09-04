@@ -4,6 +4,13 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
+    <parameters>
+        <parameter type="collection" key="shopware.media.metadata.types">
+            <parameter type="string">\Shopware\Core\Content\Media\Metadata\Type\ImageMetadata</parameter>
+            <parameter type="string">\Shopware\Core\Content\Media\Metadata\Type\DocumentMetadata</parameter>
+            <parameter type="string">\Shopware\Core\Content\Media\Metadata\Type\VideoMetadata</parameter>
+        </parameter>
+    </parameters>
     <services>
         <service class="Shopware\Core\Content\Media\MediaDefinition" id="Shopware\Core\Content\Media\MediaDefinition">
             <tag name="shopware.entity.definition" entity="media"/>
@@ -19,6 +26,7 @@
 
         <service class="Shopware\Core\Content\Media\Subscriber\MediaLoadedSubscriber" id="Shopware\Core\Content\Media\Subscriber\MediaLoadedSubscriber">
             <argument id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface" type="service"/>
+            <argument id="Shopware\Core\Content\Media\Metadata\MetadataLoader" type="service"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -45,6 +53,7 @@
             <argument type="service" id="shopware.filesystem.public"/>
             <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Metadata\MetadataLoader"/>
         </service>
 
         <service class="Shopware\Core\Content\Media\Subscriber\MediaDeletedSubscriber" id="Shopware\Core\Content\Media\Subscriber\MediaDeletedSubscriber">
@@ -100,5 +109,19 @@
             <tag name="kernel.event_subscriber" />
         </service>
 
+        <!-- Metadata -->
+        <service id="Shopware\Core\Content\Media\Metadata\MetadataLoader\GetId3Loader" class="Shopware\Core\Content\Media\Metadata\MetadataLoader\GetId3Loader">
+            <tag name="\Shopware\Core\Content\Media\Metadata\MetadataLoader\MetadataLoaderInterface" />
+        </service>
+        <service id="Shopware\Core\Content\Media\Metadata\MetadataLoader\PdfParserLoader" class="Shopware\Core\Content\Media\Metadata\MetadataLoader\PdfParserLoader">
+            <tag name="\Shopware\Core\Content\Media\Metadata\MetadataLoader\MetadataLoaderInterface" />
+        </service>
+        <service id="Shopware\Core\Content\Media\Metadata\MetadataLoader\WordLoader" class="Shopware\Core\Content\Media\Metadata\MetadataLoader\WordLoader">
+            <tag name="\Shopware\Core\Content\Media\Metadata\MetadataLoader\MetadataLoaderInterface" />
+        </service>
+        <service id="Shopware\Core\Content\Media\Metadata\MetadataLoader" class="Shopware\Core\Content\Media\Metadata\MetadataLoader">
+            <argument type="tagged" tag="\Shopware\Core\Content\Media\Metadata\MetadataLoader\MetadataLoaderInterface" />
+            <argument>%shopware.media.metadata.types%</argument>
+        </service>
     </services>
 </container>

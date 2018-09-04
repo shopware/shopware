@@ -91,8 +91,10 @@ class MediaUploadControllerTest extends TestCase
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
 
         static::assertNotEmpty($response->headers->get('Location'));
-        static::assertEquals('http://localhost/api/v' . PlatformRequest::API_VERSION . '/media/' . $this->mediaId, $response->headers->get('Location'));
-
+        static::assertEquals(
+            'http://localhost/api/v' . PlatformRequest::API_VERSION . '/media/' . $this->mediaId,
+            $response->headers->get('Location')
+        );
         static::assertTrue($this->filesystem->has($path));
     }
 
@@ -123,9 +125,29 @@ class MediaUploadControllerTest extends TestCase
         }
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
-
         static::assertNotEmpty($response->headers->get('Location'));
-        static::assertEquals('http://localhost/api/v' . PlatformRequest::API_VERSION . '/media/' . $this->mediaId, $response->headers->get('Location'));
+        static::assertEquals(
+            'http://localhost/api/v' . PlatformRequest::API_VERSION . '/media/' . $this->mediaId,
+            $response->headers->get('Location')
+        );
         static::assertTrue($this->filesystem->has($path));
+
+        $this->getClient()->request(
+            'GET',
+            "/api/v1/media/{$this->mediaId}"
+        );
+
+        $responseData = json_decode($this->getClient()->getResponse()->getContent(), true);
+
+        static::assertCount(
+            3,
+            $responseData['data']['attributes']['metaData'],
+            print_r($responseData['data']['attributes'], true)
+        );
+        static::assertSame(
+            266,
+            $responseData['data']['attributes']['metaData']['type']['width'],
+            print_r($responseData['data']['attributes'], true)
+        );
     }
 }

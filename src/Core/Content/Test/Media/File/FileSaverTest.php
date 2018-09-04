@@ -3,9 +3,7 @@
 namespace Shopware\Core\Content\Test\Media\File;
 
 use Doctrine\DBAL\Connection;
-use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemInterface;
-use League\Flysystem\Memory\MemoryAdapter;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
@@ -15,7 +13,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class FileSaverTest extends TestCase
 {
@@ -48,22 +45,16 @@ class FileSaverTest extends TestCase
     {
         $this->repository = $this->getContainer()->get('media.repository');
         $this->connection = $this->getContainer()->get(Connection::class);
-        $this->filesystem = new Filesystem(new MemoryAdapter());
+        $this->filesystem = $this->getContainer()->get('shopware.filesystem.public');
         $this->urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
 
-        // create media updater with in memory filesystem, so we do not need to clean up files afterwards
-        $this->fileSaver = new FileSaver(
-            $this->repository,
-            $this->filesystem,
-            $this->urlGenerator,
-            $this->createMock(EventDispatcherInterface::class)
-        );
+        $this->fileSaver = $this->getContainer()->get(FileSaver::class);
     }
 
     public function testPersistFileToMedia()
     {
         $tempFile = tempnam(sys_get_temp_dir(), '');
-        file_put_contents($tempFile, file_get_contents(self::TEST_IMAGE));
+        copy(self::TEST_IMAGE, $tempFile);
 
         $fileSize = filesize($tempFile);
         $mediaFile = new MediaFile($tempFile, 'image/png', 'png', $fileSize);
@@ -96,7 +87,6 @@ class FileSaverTest extends TestCase
         }
 
         $path = $this->urlGenerator->getRelativeMediaUrl($mediaId->getHex(), 'png');
-
         static::assertTrue($this->filesystem->has($path));
     }
 }

@@ -41,7 +41,7 @@
                             <slot name="search-input">
                                 {% block sw_search_bar_slot_input %}
                                     <input class="sw-search-bar__input"
-                                           :placeholder="$tc('global.sw-search-bar.placeholderSearchField')"
+                                           :placeholder="placeholderSearchInput"
                                            v-model="searchTerm"
                                            @input="onSearchTermChange"
                                            @focus="onFocusInput"

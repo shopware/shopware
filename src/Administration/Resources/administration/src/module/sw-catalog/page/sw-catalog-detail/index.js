@@ -1,4 +1,4 @@
-import { Component, State } from 'src/core/shopware';
+import { Component, State, Mixin } from 'src/core/shopware';
 import { warn } from 'src/core/service/utils/debug.utils';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-catalog-detail.html.twig';
@@ -6,6 +6,10 @@ import './sw-catalog-detail.less';
 
 Component.register('sw-catalog-detail', {
     template,
+
+    mixins: [
+        Mixin.getByName('notification')
+    ],
 
     inject: ['catalogService'],
 
@@ -145,6 +149,7 @@ Component.register('sw-catalog-detail', {
                 newCategory.catalogId = this.catalogId;
                 newCategory.parentId = parentCategory.id;
                 newCategory.position = 0;
+                newCategory.childCount = 0;
 
                 this.categories.forEach((category) => {
                     if (category.parentId === parentCategory.id) {
@@ -152,10 +157,10 @@ Component.register('sw-catalog-detail', {
                     }
                 });
 
-                parentCategory.childCount += 1;
+                parentCategory.childCount = parseInt(parentCategory.childCount, 10) + 1;
 
                 this.categories.push(newCategory);
-                this.currentEditCategory = newCategory.id;
+                this.onEditCategory(newCategory);
             });
         },
 
@@ -194,6 +199,10 @@ Component.register('sw-catalog-detail', {
             const messageSaveError = this.$tc(
                 'global.notification.notificationSaveErrorMessage', 0, { entityName: this.catalog.name }
             );
+            const titleSaveSuccess = this.$tc('global.notification.notificationSaveSuccessTitle');
+            const messageSaveSuccess = this.$tc(
+                'global.notification.notificationSaveSuccessMessage', 0, { entityName: this.catalog.name }
+            );
 
             Object.keys(this.categoryStore.store).forEach((id) => {
                 const category = this.categoryStore.store[id];
@@ -207,6 +216,12 @@ Component.register('sw-catalog-detail', {
 
             return this.catalog.save().then((response) => {
                 this.isLoading = false;
+
+                this.createNotificationSuccess({
+                    title: titleSaveSuccess,
+                    message: messageSaveSuccess
+                });
+
                 return response;
             }).catch((exception) => {
                 this.createNotificationError({

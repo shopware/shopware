@@ -51,6 +51,20 @@ Component.register('sw-search-bar', {
             return {
                 'is--active': this.isActive
             };
+        },
+
+        placeholderSearchInput() {
+            if (this.useTypeSearch) {
+                let entity = this.$slots['search-type'].shift().text.trim();
+
+                if (this.$root.$i18n.locale !== 'de-DE') {
+                    entity = entity.toLowerCase();
+                }
+
+                return this.$tc('global.sw-search-bar.placeholderTypeSearchField', 0, { entity: entity });
+            }
+
+            return this.$tc('global.sw-search-bar.placeholderSearchField');
         }
     },
 

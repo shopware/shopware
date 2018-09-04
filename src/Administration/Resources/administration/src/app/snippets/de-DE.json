@@ -2,7 +2,9 @@
   "global": {
     "notification": {
       "notificationSaveErrorTitle": "Fehler",
-      "notificationSaveErrorMessage": "Beim Speichern der Entität \"{entityName}\" ist ein Fehler aufgetreten."
+      "notificationSaveErrorMessage": "Beim Speichern der Entität \"{entityName}\" ist ein Fehler aufgetreten." ,
+      "notificationSaveSuccessTitle": "Erfolgreich",
+      "notificationSaveSuccessMessage": "Die Entität \"{entityName}\" wurde erfolgreich gespeichert."
     },
     "sw-admin-menu": {
       "linkChangeLanguage": "Sprache wechseln",
@@ -54,7 +56,8 @@
     },
     "sw-search-bar": {
       "textNoSearchResults": "Es wurden keine Ergebnisse gefunden",
-      "placeholderSearchField": "Finde Produkte, Kunden, Bestellungen"
+      "placeholderSearchField": "Finde Produkte, Kunden, Bestellungen",
+      "placeholderTypeSearchField": "Durchsuchen aller {entity}"
     },
     "sw-search-bar-item": {
       "typeLabelCustomer": "Kunde",
@@ -77,13 +80,13 @@
   },
   "sw-login": {
     "index": {
-      "headlineMain": "Hallo",
+      "headlineMain": "Hallo!",
       "subheadlineMain": "Willkommen zurück!",
-      "headlineForm": "Melde dich in Deinen Shopware Shop an",
+      "headlineForm": "Melde Dich in Deinem Shopware Shop an.",
       "labelUsername": "Benutzername",
       "labelPassword": "Passwort",
-      "placeholderUsername": "Gib deinen Benutzernamen ein...",
-      "placeholderPassword": "Gib dein Passwort ein...",
+      "placeholderUsername": "Gib Deinen Benutzernamen ein...",
+      "placeholderPassword": "Gib Dein Passwort ein...",
       "buttonLogin": "Anmelden",
       "titleErrorMessage": "Anmeldung",
       "messageUnsupportedGrantType": "Grant Type wird nicht unterstützt.",
@@ -114,13 +117,13 @@
     "general": {
       "mainMenuItemGeneral": "Kunden",
       "mainMenuItemList": "Übersicht",
-      "mainMenuItemAdd": "Kunde anlegen",
+      "mainMenuItemAdd": "Kunden anlegen",
       "descriptionTextModule": "Modul zur Verwaltung von Kunden."
     },
     "list": {
       "textCustomers": "Kunden",
       "textCustomersTotal": "Kein Kunde | Ein Kunde | {count} Kunden",
-      "buttonAddCustomer": "Kunde anlegen",
+      "buttonAddCustomer": "Kunden anlegen",
       "columnCustomerNumber": "Kd. Nr.",
       "columnName": "Name",
       "columnFirstName": "Vorname",
@@ -174,8 +177,8 @@
       "buttonAddAddress": "Adresse anlegen",
       "buttonTitleEditAddress": "Adresse bearbeiten",
       "buttonSave": "Speichern",
-      "buttonEdit": "Kunde bearbeiten",
-      "buttonChangePassword" : "Password ändern",
+      "buttonEdit": "Kunden bearbeiten",
+      "buttonChangePassword" : "Passwort ändern",
       "labelAccountActiveField": "Konto ist aktiv"
     },
     "detailAddresses": {
@@ -245,7 +248,7 @@
       "buttonAbortLabel": "Abbrechen",
       "buttonSaveLabel": "Speichern",
       "introHeadlineDetail": "Kataloginhalt",
-      "introDescriptionDetail": "Dies ist eine Übersicht Deines Kataloges \"{name}\". <br>Hier kannst Du die Kategorien des Kataloges bearbeiten und den Katalog auf weiteren Sales Channels ausspielen.",
+      "introDescriptionDetail": "Dies ist die Übersicht Deines Kataloges \"{name}\". <br>Hier kannst Du die Kategorien des Kataloges bearbeiten und den Katalog auf weiteren Verkaufskanälen ausspielen.",
       "labelOverviewProducts": "Produkte",
       "labelOverviewCategories": "Kategorien",
       "labelOverviewPages": "Seiten",
@@ -257,7 +260,7 @@
       "buttonAddCategory": "Hinzufügen",
       "contextButtonEditCategory": "Bearbeiten",
       "contextButtonDeleteCategory": "Löschen",
-      "contextButtonAddChildCategory": "Neue Kind-Kategorie"
+      "contextButtonAddChildCategory": "Neue Unterkategorie"
     },
     "create": {
       "headlineNewCatalog": "Neuer Katalog"
@@ -311,8 +314,8 @@
       "labelProductNumber": "Produktnummer",
       "labelManufacturer": "Hersteller",
       "placeholderTitle": "Gib einen Produkt-Namen ein...",
-      "placeholderDescription": "Gib deine Produkt-Beschreibung ein...",
-      "placeholderProductNumber": "Gib deine Produkt-Nummer ein...",
+      "placeholderDescription": "Gib Deine Produkt-Beschreibung ein...",
+      "placeholderProductNumber": "Gib Deine Produkt-Nummer ein...",
       "placeholderManufacturer": "Gib einen Produkt-Hersteller ein..."
     },
     "categoryForm": {
@@ -828,6 +831,11 @@
       "placeholderName": "Name eingeben...",
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern"
+    }
+  },
+  "sw-tree": {
+    "general": {
+      "placeholderSearch": "Suche"
     }
   },
   "sw-profile": {

@@ -615,7 +615,9 @@
         "frameRate": "Bildrate",
         "title": "Titel",
         "creator": "Erstellt durch",
-        "pages": "Seiten"
+        "pages": "Seiten",
+        "fileCount": "{count} ausgewählte Dateien",
+        "totalSize": "insgesamt"
       }
     },
     "catalog": {

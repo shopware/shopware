@@ -1,4 +1,5 @@
 @import "~less/variables";
+@import "~less/mixins";
 
 @sw-media-grid-item-color-selected:          @color-shopware-blue;
 @sw-media-grid-item-pseudo-padding:          15px;
@@ -70,7 +71,7 @@
         margin: 0 5px;
         display: grid;
 
-        grid-template-columns: 50px auto 200px;
+        grid-template-columns: 60px minmax(60px, 1fr);
         grid-template-rows: 50% 50%;
         grid-auto-flow: column;
         align-items: center;
@@ -117,7 +118,8 @@
     }
 
     .sw-media-grid-item__name {
-        text-align: center;
+        max-width: 100%;
+        .truncate();
     }
 
     .sw-media-grid-item__selected-indicator {

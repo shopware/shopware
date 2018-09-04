@@ -17,7 +17,8 @@
                                 @sw-media-grid-item-clicked="mediaItemClicked"
                                 @sw-media-grid-item-play="mediaItemPlayed"
                                 @sw-media-grid-item-selection-remove="removeFromSelection"
-                                v-on="$listeners">
+                                v-on="$listeners"
+                                :showContextMenuButton="showContextMenuButton">
                             </component>
                         </div>
                     {% endblock %}

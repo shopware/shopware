@@ -48,7 +48,7 @@
                     {% block sw_media_index_sidebar %}
                         <div class="sw-media-index__sidebar">
                             <sw-media-sidebar
-                                :item="lastSelectedItem"
+                                :items="selectedItems"
                                 v-on="mediaSidebarListener"
                                 ref="mediaSidebar">
                             </sw-media-sidebar>

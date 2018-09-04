@@ -19,7 +19,7 @@ Component.register('sw-media-index', {
             isLoading: false,
             catalogs: [],
             mediaItems: [],
-            lastSelectedItem: null,
+            selectedItems: null,
             selectionToDelete: null,
             mediaItemToReplace: null,
             searchId: this.$route.query.mediaId
@@ -64,27 +64,27 @@ Component.register('sw-media-index', {
             this.loadMedia();
         },
 
-        getLastSelectedItem() {
+        getselectedItemss() {
             const selection = this.$refs.mediaGrid.selection;
 
             if (selection.length === 0) {
-                this.lastSelectedItem = null;
+                this.selectedItems = null;
                 return;
             }
 
-            this.lastSelectedItem = selection[selection.length - 1];
+            this.selectedItems = selection;
         },
 
         handleMediaGridSelectionRemoved() {
-            this.getLastSelectedItem();
+            this.getselectedItemss();
         },
 
         handleMediaGridItemSelected() {
-            this.getLastSelectedItem();
+            this.getselectedItemss();
         },
 
         handleMediaGridItemUnselected() {
-            this.getLastSelectedItem();
+            this.getselectedItemss();
         },
 
         handleMediaGridItemReplace({ item }) {
@@ -92,7 +92,7 @@ Component.register('sw-media-index', {
         },
 
         handleMediaGridItemShowDetails({ item, autoplay }) {
-            this.lastSelectedItem = item;
+            this.lastSelectedItems = [item];
             this.$refs.mediaSidebar.autoplay = autoplay;
             this.$refs.mediaSidebar.showQuickInfo();
         },
@@ -125,6 +125,7 @@ Component.register('sw-media-index', {
                 this.selectionToDelete = null;
                 this.loadMedia();
             });
+            this.selectedItems = null;
         },
 
         handleSidebarReplaceItem({ item }) {
@@ -176,7 +177,7 @@ Component.register('sw-media-index', {
 
             this.mediaItemStore.getList(params).then((response) => {
                 this.mediaItems = response.items;
-                this.lastSelectedItem = this.mediaItems[0];
+                this.selectedItems = this.mediaItems[0];
                 this.handleMediaGridItemShowDetails({ item: this.mediaItems[0] });
             });
         }

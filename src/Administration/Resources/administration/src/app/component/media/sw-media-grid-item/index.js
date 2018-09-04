@@ -19,6 +19,12 @@ Component.register('sw-media-grid-item', {
         containerOptions: {
             required: true,
             type: Object
+        },
+
+        showContextMenuButton: {
+            required: false,
+            type: Boolean,
+            default: true
         }
     },
 

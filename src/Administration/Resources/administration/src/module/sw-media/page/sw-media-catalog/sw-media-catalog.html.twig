@@ -159,7 +159,7 @@
                     {% block sw_media_catalog_sidebar %}
                         <div class="sw-media-catalog__sidebar">
                             <sw-media-sidebar
-                                :item="lastSelectedItem"
+                                :items="selectedItems"
                                 v-on="mediaSidebarListener"
                                 ref="mediaSidebar">
                             </sw-media-sidebar>

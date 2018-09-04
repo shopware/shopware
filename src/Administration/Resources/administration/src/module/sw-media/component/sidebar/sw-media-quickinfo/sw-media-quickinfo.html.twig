@@ -2,7 +2,7 @@
     <div class="sw-media-quickinfo">
         {% block sw_media_quickinfo_quickactions %}
             <sw-media-collapse
-                class="sw-media-quickinfo-collapse"
+                class="sw-media-quickinfo__collapse"
                 :title="$tc('sw-media.sidebar.quickinfo.actions')"
                 :expandOnLoading="true">
 
@@ -65,7 +65,7 @@
 
         {% block sw_media_quickinfo_preview %}
             <sw-media-collapse
-                class="sw-media-quickinfo-collapse"
+                class="sw-media-quickinfo__collapse"
                 :expandOnLoading="true"
                 :title="$tc('sw-media.sidebar.quickinfo.preview')">
 
@@ -89,7 +89,7 @@
 
         {% block sw_media_quickinfo_metadata %}
             <sw-media-collapse
-                class="sw-media-quickinfo-collapse"
+                class="sw-media-quickinfo__collapse"
                 :expandOnLoading="true"
                 :title="$tc('sw-media.sidebar.quickinfo.metadata')">
 

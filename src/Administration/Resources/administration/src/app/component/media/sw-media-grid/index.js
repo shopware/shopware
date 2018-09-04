@@ -56,6 +56,12 @@ Component.register('sw-media-grid', {
             validator(value) {
                 return value > 0;
             }
+        },
+
+        showContextMenuButton: {
+            required: false,
+            type: Boolean,
+            default: true
         }
     },
 

@@ -2,16 +2,20 @@ import { Component } from 'src/core/shopware';
 import template from './sw-media-sidebar.html.twig';
 import './sw-media-sidebar.less';
 import '../sw-media-quickinfo';
+import '../sw-media-quickinfo-multiple';
 
 Component.register('sw-media-sidebar', {
     template,
 
     props: {
-        item: {
+        items: {
             required: false,
-            type: [Object],
+            type: [Array],
             validator(value) {
-                return value.type === 'media';
+                const invalidElements = value.filter((element) => {
+                    return element.type !== 'media';
+                });
+                return invalidElements.length === 0;
             }
         }
     },
@@ -31,6 +35,10 @@ Component.register('sw-media-sidebar', {
     },
 
     computed: {
+        isSingleFile() {
+            return this.items != null && this.items.length === 1;
+        },
+
         getKey() {
             let key = '';
             if (this.item) {

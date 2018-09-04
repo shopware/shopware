@@ -615,7 +615,9 @@
         "frameRate": "Framerate",
         "title": "Title",
         "creator": "Created by",
-        "pages": "Pages"
+        "pages": "Pages",
+        "fileCount": "{count} files chosen",
+        "totalSize": "a total of"
       }
     },
     "catalog": {

@@ -10,7 +10,8 @@
                                                  :title="$tc('sw-media.sidebar.actions.quickInfo')"
                                                  ref="quickInfoButton"
                                                  :disabled="!hasItem">
-                                    <sw-media-quickinfo :key="getKey" :item="item" :autoplay="autoplay" v-on="$listeners"></sw-media-quickinfo>
+                                    <sw-media-quickinfo v-if="isSingleFile" :key="getKey" :item="items[0]" :autoplay="autoplay" v-on="$listeners"></sw-media-quickinfo>
+                                    <sw-media-quickinfo-multiple :items="items" v-else v-on="$listeners"></sw-media-quickinfo-multiple>
                                 </sw-sidebar-item>
                             {% endblock %}
                         </div>

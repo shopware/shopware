@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Content\Test\Media\File;
 
-use Doctrine\DBAL\Connection;
-use League\Flysystem\FilesystemInterface;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
@@ -21,11 +19,6 @@ class FileSaverTest extends TestCase
     const TEST_IMAGE = __DIR__ . '/../fixtures/shopware-logo.png';
 
     /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
      * @var RepositoryInterface
      */
     private $repository;
@@ -35,19 +28,13 @@ class FileSaverTest extends TestCase
      */
     private $fileSaver;
 
-    /** @var FilesystemInterface */
-    private $filesystem;
-
     /** @var UrlGeneratorInterface */
     private $urlGenerator;
 
     public function setUp()
     {
         $this->repository = $this->getContainer()->get('media.repository');
-        $this->connection = $this->getContainer()->get(Connection::class);
-        $this->filesystem = $this->getContainer()->get('shopware.filesystem.public');
         $this->urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
-
         $this->fileSaver = $this->getContainer()->get(FileSaver::class);
     }
 
@@ -87,6 +74,6 @@ class FileSaverTest extends TestCase
         }
 
         $path = $this->urlGenerator->getRelativeMediaUrl($mediaId->getHex(), 'png');
-        static::assertTrue($this->filesystem->has($path));
+        static::assertTrue($this->getPublicFilesystem()->has($path));
     }
 }

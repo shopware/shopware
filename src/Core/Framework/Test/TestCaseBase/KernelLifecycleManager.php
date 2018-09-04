@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
+use Shopware\Core\Framework\Filesystem\Adapter\MemoryAdapterFactory;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Component\DependencyInjection\ResettableContainerInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -55,6 +56,7 @@ class KernelLifecycleManager
 
         static::$kernel = static::createKernel();
         static::$kernel->boot();
+        MemoryAdapterFactory::resetInstances();
 
         return static::$kernel;
     }

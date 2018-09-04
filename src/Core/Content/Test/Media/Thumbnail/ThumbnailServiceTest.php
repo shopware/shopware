@@ -3,8 +3,6 @@
 namespace Shopware\Core\Content\Test\Media\Thumbnail;
 
 use League\Flysystem\FileNotFoundException;
-use League\Flysystem\Filesystem;
-use League\Flysystem\Memory\MemoryAdapter;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
 use Shopware\Core\Content\Media\Event\MediaFileUploadedEvent;
@@ -23,11 +21,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 class ThumbnailServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
-
-    /**
-     * @varFilesystem
-     */
-    private $fileSystem;
 
     /**
      * @var UrlGeneratorInterface
@@ -61,14 +54,13 @@ class ThumbnailServiceTest extends TestCase
 
     public function setUp()
     {
-        $this->fileSystem = new Filesystem(new MemoryAdapter());
         $this->urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
         $this->repository = $this->getContainer()->get('media.repository');
         $this->thumbnailConfiguration = $this->getContainer()->get(ThumbnailConfiguration::class);
         $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
         $this->context->getExtension('write_protection')->set('write_media', true);
 
-        $this->thumbnailService = new ThumbnailService($this->repository, $this->fileSystem, $this->urlGenerator, $this->thumbnailConfiguration);
+        $this->thumbnailService = $this->getContainer()->get(ThumbnailService::class);
 
         $this->media = $this->createTestEntity();
     }
@@ -81,7 +73,7 @@ class ThumbnailServiceTest extends TestCase
     public function testThumbnailGeneration()
     {
         $filePath = $this->urlGenerator->getRelativeMediaUrl($this->media->getId(), $this->media->getFileExtension());
-        $this->fileSystem->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r'));
+        $this->getPublicFilesystem()->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r'));
 
         $this->thumbnailService->generateThumbnails(
             $this->media,
@@ -115,7 +107,7 @@ class ThumbnailServiceTest extends TestCase
                 $thumbnail->getHeight(),
                 false
             );
-            static::assertTrue($this->fileSystem->has($thumbnailPath));
+            static::assertTrue($this->getPublicFilesystem()->has($thumbnailPath));
 
             if ($thumbnail->getHighDpi()) {
                 $thumbnailPath = $this->urlGenerator->getRelativeThumbnailUrl(
@@ -125,7 +117,7 @@ class ThumbnailServiceTest extends TestCase
                     $thumbnail->getHeight(),
                     true
                 );
-                static::assertTrue($this->fileSystem->has($thumbnailPath));
+                static::assertTrue($this->getPublicFilesystem()->has($thumbnailPath));
             }
         }
     }
@@ -142,7 +134,7 @@ class ThumbnailServiceTest extends TestCase
     public function testGeneratorThrowsExceptionIfFileIsNoImage()
     {
         $filePath = $this->urlGenerator->getRelativeMediaUrl($this->media->getId(), $this->media->getFileExtension());
-        $this->fileSystem->put($filePath, 'this is the content of the file, which is not a image');
+        $this->getPublicFilesystem()->put($filePath, 'this is the content of the file, which is not a image');
 
         self::expectException(FileTypeNotSupportedException::class);
         $this->thumbnailService->generateThumbnails(

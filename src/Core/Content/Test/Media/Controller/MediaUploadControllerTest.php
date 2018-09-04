@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Content\Test\Media\Controller;
 
-use League\Flysystem\FileNotFoundException;
-use League\Flysystem\FilesystemInterface;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
@@ -23,9 +21,6 @@ class MediaUploadControllerTest extends TestCase
     /** @var RepositoryInterface */
     private $mediaRepository;
 
-    /** @var FilesystemInterface */
-    private $filesystem;
-
     /** @var UrlGeneratorInterface */
     private $urlGenerator;
 
@@ -35,7 +30,6 @@ class MediaUploadControllerTest extends TestCase
     protected function setUp()
     {
         $this->mediaRepository = $this->getContainer()->get('media.repository');
-        $this->filesystem = $this->getContainer()->get('shopware.filesystem.public');
         $this->urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
 
         $this->mediaId = Uuid::uuid4()->getHex();
@@ -51,29 +45,10 @@ class MediaUploadControllerTest extends TestCase
         );
     }
 
-    public function tearDown()
-    {
-        $path = $this->urlGenerator->getAbsoluteMediaUrl($this->mediaId, 'png');
-        $path = pathinfo($path, PATHINFO_DIRNAME);
-
-        try {
-            $this->filesystem->deleteDir($path);
-        } catch (FileNotFoundException $e) {
-        }
-
-        $path = preg_replace('/media/', 'thumbnail', $path);
-        try {
-            $this->filesystem->deleteDir($path);
-        } catch (FileNotFoundException $e) {
-        }
-
-        parent::tearDown();
-    }
-
     public function testUploadFromBinary(): void
     {
         $path = $this->urlGenerator->getAbsoluteMediaUrl($this->mediaId, 'png');
-        static::assertFalse($this->filesystem->has($path));
+        static::assertFalse($this->getPublicFilesystem()->has($path));
 
         $this->getClient()->request(
             'POST',
@@ -95,13 +70,14 @@ class MediaUploadControllerTest extends TestCase
             'http://localhost/api/v' . PlatformRequest::API_VERSION . '/media/' . $this->mediaId,
             $response->headers->get('Location')
         );
-        static::assertTrue($this->filesystem->has($path));
+
+        static::assertTrue($this->getPublicFilesystem()->has($path));
     }
 
     public function testUploadFromURL(): void
     {
         $path = $this->urlGenerator->getAbsoluteMediaUrl($this->mediaId, 'png');
-        static::assertFalse($this->filesystem->has($path));
+        static::assertFalse($this->getPublicFilesystem()->has($path));
 
         $target = $this->getContainer()->getParameter('kernel.project_dir') . '/public/shopware-logo.png';
         copy(__DIR__ . '/../fixtures/shopware-logo.png', $target);
@@ -130,7 +106,7 @@ class MediaUploadControllerTest extends TestCase
             'http://localhost/api/v' . PlatformRequest::API_VERSION . '/media/' . $this->mediaId,
             $response->headers->get('Location')
         );
-        static::assertTrue($this->filesystem->has($path));
+        static::assertTrue($this->getPublicFilesystem()->has($path));
 
         $this->getClient()->request(
             'GET',

@@ -16,7 +16,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleDef
 use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVariation\ProductVariationDefinition;
-use Shopware\Core\Content\Product\ORM\Field\ProductCoverField;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Field\BoolField;
 use Shopware\Core\Framework\ORM\Field\ChildrenAssociationField;
@@ -99,6 +98,9 @@ class ProductDefinition extends EntityDefinition
             (new FkField('tax_id', 'taxId', TaxDefinition::class))->setFlags(new Inherited(), new Required()),
             (new ReferenceVersionField(TaxDefinition::class))->setFlags(new Inherited(), new Required()),
 
+            (new FkField('product_media_id', 'coverId', ProductMediaDefinition::class))->setFlags(new Inherited()),
+            (new ReferenceVersionField(ProductMediaDefinition::class))->setFlags(new Inherited()),
+
             //inherited data fields
             (new PriceField('price', 'price'))->setFlags(new Inherited(), new Required()),
             (new PriceRulesJsonField('listing_prices', 'listingPrices'))->setFlags(new Inherited()),
@@ -148,6 +150,7 @@ class ProductDefinition extends EntityDefinition
             (new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class, true, 'id'))->setFlags(new Inherited()),
             (new ManyToOneAssociationField('manufacturer', 'product_manufacturer_id', ProductManufacturerDefinition::class, true, 'id'))->setFlags(new Inherited(), new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
             (new ManyToOneAssociationField('unit', 'unit_id', UnitDefinition::class, true, 'id'))->setFlags(new Inherited()),
+            (new ManyToOneAssociationField('cover', 'product_media_id', ProductMediaDefinition::class, true, 'id'))->setFlags(new Inherited()),
             (new OneToManyAssociationField('media', ProductMediaDefinition::class, 'product_id', false))->setFlags(new CascadeDelete(), new Inherited()),
             (new OneToManyAssociationField('priceRules', ProductPriceRuleDefinition::class, 'product_id', true))->setFlags(new CascadeDelete(), new Inherited()),
             (new OneToManyAssociationField('services', ProductServiceDefinition::class, 'product_id', false, 'id'))->setFlags(new CascadeDelete(), new Inherited()),
@@ -158,7 +161,6 @@ class ProductDefinition extends EntityDefinition
             (new ManyToManyAssociationField('categoriesRo', CategoryDefinition::class, ProductCategoryTreeDefinition::class, false, 'product_id', 'category_id'))->setFlags(new CascadeDelete()),
             new SearchKeywordAssociationField(),
             (new TranslationsAssociationField('translations', ProductTranslationDefinition::class, 'product_id', false, 'id'))->setFlags(new Inherited(), new CascadeDelete(), new Required()),
-            (new ProductCoverField('cover', true))->setFlags(new ReadOnly()),
 
             (new OneToManyAssociationField('configurators', ProductConfiguratorDefinition::class, 'product_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new ManyToManyAssociationField('variations', ConfigurationGroupOptionDefinition::class, ProductVariationDefinition::class, false, 'product_id', 'configuration_group_option_id'))->setFlags(new CascadeDelete()),

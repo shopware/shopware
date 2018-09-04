@@ -79,11 +79,11 @@ Component.register('sw-product-file-upload', {
         createEntities(file) {
             const productMedia = this.productMediaStore.create();
             productMedia.isLoading = true;
-            productMedia.isCover = this.mediaItems === [];
             productMedia.catalogId = this.product.catalogId;
 
-            if (productMedia.isCover || this.mediaItems.length <= 0) {
+            if (this.mediaItems.length <= 0) {
                 productMedia.position = 0;
+                this.product.coverId = productMedia.id;
             } else {
                 productMedia.position = this.mediaItems[this.mediaItems.length - 1].position + 1;
             }
@@ -129,18 +129,24 @@ Component.register('sw-product-file-upload', {
             }
 
             this.mediaItems = this.mediaItems.filter((e) => e.mediaId !== key);
+
+            if (this.isCover(item)) {
+                if (this.mediaItems.length === 0) {
+                    this.product.coverId = null;
+                } else {
+                    this.product.coverId = this.mediaItems[0].id;
+                }
+            }
+
             item.delete();
         },
 
-        markMediaAsCover(mediaItem) {
-            this.removeIsCoverFlag();
-            mediaItem.isCover = true;
+        isCover(productMedia) {
+            return this.product.coverId === productMedia.id;
         },
 
-        removeIsCoverFlag() {
-            this.mediaItems.filter(item => item.isCover === true).forEach((item) => {
-                item.isCover = false;
-            });
+        markMediaAsCover(productMedia) {
+            this.product.coverId = productMedia.id;
         }
     }
 });

@@ -84,10 +84,6 @@
             <argument type="service" id="product.repository"/>
         </service>
 
-        <service class="Shopware\Core\Content\Product\ORM\Field\ProductCoverFieldResolver" id="Shopware\Core\Content\Product\ORM\Field\ProductCoverFieldResolver">
-            <tag name="shopware.entity.field_resolver"/>
-        </service>
-
         <service class="Shopware\Core\Content\Product\ORM\Indexing\ProductVariationIndexer" id="Shopware\Core\Content\Product\ORM\Indexing\ProductVariationIndexer">
             <argument id="event_dispatcher" type="service"/>
             <argument id="Shopware\Core\Content\Product\Util\EventIdExtractor" type="service"/>

@@ -72,18 +72,15 @@ class EnrichmentTest extends TestCase
                 'price' => ['gross' => 15, 'net' => 15],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
-                'media' => [
-                    [
-                        'id' => $id,
+                'cover' => [
+                    'id' => $id,
+                    'name' => 'test',
+                    'media' => [
                         'name' => 'test',
-                        'isCover' => true,
-                        'media' => [
-                            'name' => 'test',
-                            'mimeType' => 'image/jpeg',
-                            'fileExtension' => 'jpeg',
-                            'fileName' => 'test',
-                            'fileSize' => 0,
-                        ],
+                        'mimeType' => 'image/jpeg',
+                        'fileExtension' => 'jpeg',
+                        'fileName' => 'test',
+                        'fileSize' => 0,
                     ],
                 ],
             ],
@@ -135,7 +132,6 @@ class EnrichmentTest extends TestCase
                     [
                         'id' => $id,
                         'name' => 'test',
-                        'isCover' => true,
                         'media' => [
                             'name' => 'test',
                             'mimeType' => 'image/jpeg',

@@ -7,7 +7,6 @@ use Shopware\Core\Content\Catalog\ORM\CatalogField;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\Field\BoolField;
 use Shopware\Core\Framework\ORM\Field\CreatedAtField;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\IdField;
@@ -43,7 +42,6 @@ class ProductMediaDefinition extends EntityDefinition
             (new FkField('media_id', 'mediaId', MediaDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(MediaDefinition::class))->setFlags(new Required()),
 
-            (new BoolField('is_cover', 'isCover'))->setFlags(new Required()),
             new IntField('position', 'position'),
             new CreatedAtField(),
             new UpdatedAtField(),

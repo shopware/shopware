@@ -19,7 +19,7 @@
                               @sw-image-cover="markMediaAsCover( mediaItem )"
                               :key="mediaItem.mediaId"
                               :ref="'image' + mediaItem.mediaId"
-                              :isCover="mediaItem.isCover"
+                              :isCover="isCover(mediaItem)"
                               :altText="mediaItem.media.name"
                               :url="getPreviewForMedia(mediaItem.media)"
                               :downloadable="true"></sw-image>

@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\Migration;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Doctrine\MultiInsertQueryQueue;
+use Shopware\Core\Framework\Migration\Exception\InvalidMigrationClassException;
 
 class MigrationCollectionLoader
 {
@@ -49,7 +51,7 @@ class MigrationCollectionLoader
                 }
 
                 if (!class_exists($className)) {
-                    throw new \RuntimeException('Unable to load "' . $className . '" at "' . $path . '"');
+                    throw new InvalidMigrationClassException('Unable to load "' . $className . '" at "' . $path . '"');
                 }
 
                 if (!is_a($className, MigrationStep::class, true)) {
@@ -72,18 +74,13 @@ class MigrationCollectionLoader
      */
     private function addMigrationsToTable(array $migrations)
     {
-        $insertValues = [];
+        $insertQuery = new MultiInsertQueryQueue($this->connection, 250, true);
         foreach ($migrations as $className => $migration) {
-            $insertValues[] = '('
-                . $this->connection->quote($className)
-                . ','
-                . $this->connection->quote($migration->getCreationTimeStamp())
-                . ')';
+            $insertQuery->addInsert('migration', [
+                '`class`' => $className,
+                '`creation_time_stamp`' => $migration->getCreationTimeStamp(),
+            ]);
         }
-
-        $this->connection->executeQuery(
-            'INSERT IGNORE INTO `migration` (`class`, `creation_time_stamp`) VALUES '
-            . implode(',', $insertValues)
-        );
+        $insertQuery->execute();
     }
 }

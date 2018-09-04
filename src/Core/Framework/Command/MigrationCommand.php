@@ -2,14 +2,21 @@
 
 namespace Shopware\Core\Framework\Command;
 
+use Shopware\Core\Framework\Migration\Event\MigrateAdvanceEvent;
+use Shopware\Core\Framework\Migration\Event\MigrateFinishEvent;
+use Shopware\Core\Framework\Migration\Event\MigrateStartEvent;
+use Shopware\Core\Framework\Migration\Exception\MigrateException;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationRuntime;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class MigrationCommand extends ContainerAwareCommand
+class MigrationCommand extends ContainerAwareCommand implements EventSubscriberInterface
 {
     /**
      * @var string[]
@@ -27,6 +34,11 @@ class MigrationCommand extends ContainerAwareCommand
     private $runner;
 
     /**
+     * @var SymfonyStyle
+     */
+    private $io;
+
+    /**
      * @param string[] $directories
      */
     public function __construct(
@@ -41,15 +53,63 @@ class MigrationCommand extends ContainerAwareCommand
         $this->directories = $directories;
     }
 
+    public static function getSubscribedEvents()
+    {
+        return [
+            MigrateAdvanceEvent::EVENT_NAME => 'onAdvance',
+            MigrateStartEvent::EVENT_NAME => 'onStart',
+            MigrateFinishEvent::EVENT_NAME => 'onFinish',
+        ];
+    }
+
+    public function onStart(MigrateStartEvent $event)
+    {
+        if (!$this->io) {
+            return;
+        }
+
+        $this->io->progressStart($event->getNumberOfMigrations());
+    }
+
+    public function onAdvance(MigrateAdvanceEvent $event)
+    {
+        if (!$this->io) {
+            return;
+        }
+
+        $this->io->progressAdvance();
+    }
+
+    public function onFinish(MigrateFinishEvent $event)
+    {
+        if (!$this->io) {
+            return;
+        }
+
+        if ($event->getMigrated() === $event->getTotal()) {
+            $this->io->progressFinish();
+        }
+
+        $this->io->table(
+            ['Action', 'Number of migrations'],
+            [
+                ['Migrated', $event->getMigrated() . ' from ' . $event->getTotal()],
+            ]
+        );
+    }
+
     protected function configure()
     {
         $this->addOption('destructive', 'd', InputOption::VALUE_NONE)
-            ->addOption('limit', 'l', InputOption::VALUE_OPTIONAL, '', 0);
+            ->addOption('limit', 'l', InputOption::VALUE_OPTIONAL, '', 0)
+            ->addArgument('timeStamp', InputArgument::REQUIRED, 'timestamp cap for migrations');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $output->writeln('Get collection from directories');
+        $this->io = new SymfonyStyle($input, $output);
+
+        $this->io->writeln('Get collection from directories');
 
         foreach ($this->directories as $namespace => $directory) {
             $this->collector->addDirectory($directory, $namespace);
@@ -57,19 +117,18 @@ class MigrationCommand extends ContainerAwareCommand
 
         $this->collector->syncMigrationCollection();
 
-        $output->writeln('migrate Migrations');
+        $this->io->writeln('migrate Migrations');
 
         $destructive = (bool) $input->getOption('destructive');
         $limit = (int) $input->getOption('limit');
+        $timeStamp = (int) $input->getArgument('timeStamp');
 
         try {
-            $this->runner->migrate($destructive, $limit);
+            $this->runner->migrate($destructive, $limit, $timeStamp);
         } catch (\Exception $e) {
-            $output->writeln('migrate error "' . $e->getMessage() . '"');
-
-            return;
+            throw new MigrateException('Migration Error: "' . $e->getMessage() . '"');
         }
 
-        $output->writeln('all migrations executed');
+        $this->io->writeln('all migrations executed');
     }
 }

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\Migration;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Migration\Exception\InvalidMigrationClassException;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
@@ -25,7 +26,7 @@ class MigrationCollectorTest extends TestCase
     {
         $container = self::getKernel()->getContainer();
         $this->connection = $container->get(Connection::class);
-        $this->collector = $container->get(MigrationCollectionLoader::class);
+        $this->collector = new MigrationCollectionLoader($this->connection);
     }
 
     protected function tearDown()
@@ -64,7 +65,7 @@ class MigrationCollectorTest extends TestCase
     {
         $this->collector->addDirectory(__DIR__ . '/_test_migrations_invalid_namespace', 'Shopware\Core\Framework\Test\Migration\_test_migrations_invalid_namespace');
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(InvalidMigrationClassException::class);
         $this->collector->syncMigrationCollection();
     }
 

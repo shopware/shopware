@@ -4,6 +4,10 @@ namespace Shopware\Core\Framework\Migration;
 
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Migration\Event\MigrateAdvanceEvent;
+use Shopware\Core\Framework\Migration\Event\MigrateFinishEvent;
+use Shopware\Core\Framework\Migration\Event\MigrateStartEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class MigrationRuntime
 {
@@ -17,18 +21,30 @@ class MigrationRuntime
      */
     private $logger;
 
-    public function __construct(Connection $connection, LoggerInterface $logger)
-    {
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $event;
+
+    public function __construct(
+        Connection $connection,
+        LoggerInterface $logger,
+        EventDispatcherInterface $event
+    ) {
         $this->connection = $connection;
         $this->logger = $logger;
+        $this->event = $event;
     }
 
-    public function migrate(bool $destructive, int $limit)
+    public function migrate(bool $destructive, int $limit, int $timeStamp)
     {
-        $this->ensureMigrationTableExists($this->connection);
+        self::ensureMigrationTableExists($this->connection);
 
-        $migrations = $this->getMigrations($destructive, $limit);
+        $migrations = $this->getMigrations($destructive, $limit, $timeStamp);
 
+        $this->event->dispatch(MigrateStartEvent::EVENT_NAME, new MigrateStartEvent(count($migrations)));
+
+        $counter = 0;
         foreach ($migrations as $migration) {
             /** @var MigrationStep $migration */
             $migration = new $migration();
@@ -42,12 +58,17 @@ class MigrationRuntime
             } catch (\Exception $e) {
                 $this->setError($migration, $e->getMessage());
                 $this->logger->error('Migration: "' . get_class($migration) . '" failed: "' . $e->getMessage() . '"');
+                $this->event->dispatch(MigrateFinishEvent::EVENT_NAME, new MigrateFinishEvent($counter, count($migrations)));
 
                 throw $e;
             }
 
             $this->setExecuted($migration, $destructive);
+            $this->event->dispatch(MigrateAdvanceEvent::EVENT_NAME, new MigrateAdvanceEvent(get_class($migration)));
+            ++$counter;
         }
+
+        $this->event->dispatch(MigrateFinishEvent::EVENT_NAME, new MigrateFinishEvent($counter, count($migrations)));
     }
 
     public static function ensureMigrationTableExists(Connection $connection)
@@ -66,7 +87,7 @@ class MigrationRuntime
         ');
     }
 
-    private function getMigrations(bool $destructive, int $limit)
+    private function getMigrations(bool $destructive, int $limit, int $timeStamp)
     {
         $query = $this->connection->createQueryBuilder()
             ->select('`class`')
@@ -78,6 +99,9 @@ class MigrationRuntime
             $query->where('`update` IS NOT NULL')
                 ->andWhere('`update_destructive` IS NULL');
         }
+
+        $query->andWhere('`creation_time_stamp` <= :timeStamp');
+        $query->setParameter('timeStamp', $timeStamp);
 
         if ($limit) {
             $query->setMaxResults($limit);
@@ -91,7 +115,7 @@ class MigrationRuntime
         $this->connection->update(
             'migration',
             [
-                'message' => $message,
+                '`message`' => $message,
             ],
             [
                 '`class`' => get_class($migration),
@@ -103,7 +127,7 @@ class MigrationRuntime
     {
         $query = $this->connection->createQueryBuilder()
             ->update('migration')
-            ->set('message', 'NULL')
+            ->set('`message`', 'NULL')
             ->where('`class` = :class')
             ->setParameter('class', get_class($migrationStep));
 

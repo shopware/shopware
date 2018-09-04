@@ -370,7 +370,7 @@
       "placeholderPseudoSales": "Enter pseudo sales..."
     },
     "detailBase": {
-      "cardTitleProductInfo": "Product information",
+      "cardTitleProductInfo": "Information",
       "cardTitleAssignment": "Assignment",
       "cardTitlePrices": "Prices",
       "cardTitleSettings": "Settings",

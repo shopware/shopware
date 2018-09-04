@@ -45,6 +45,7 @@
                                          class="sw-settings-shipping-list-grid"
                                          :selectable="false"
                                          :items="items"
+                                         @inline-edit-cancel="onInlineEditCancel"
                                          @inline-edit-finish="onInlineEditSave"
                                          table>
                                     <template slot="columns" slot-scope="{ item }">

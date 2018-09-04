@@ -41,6 +41,10 @@ Component.register('sw-customer-list', {
             });
         },
 
+        onInlineEditCancel(customer) {
+            customer.discardChanges();
+        },
+
         getList() {
             this.isLoading = true;
             const params = this.getListingParams();

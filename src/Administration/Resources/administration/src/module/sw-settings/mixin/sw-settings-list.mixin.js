@@ -89,6 +89,10 @@ Mixin.register('sw-settings-list', {
             }).catch(() => {
                 this.isLoading = false;
             });
+        },
+
+        onInlineEditCancel(item) {
+            item.discardChanges();
         }
     }
 });

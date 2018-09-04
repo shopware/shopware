@@ -37,8 +37,8 @@ Component.register('sw-grid-row', {
         // Bubble up columns declaration for the column header definition
         this.$parent.columns = this.columns;
 
-        this.$parent.$on('sw-grid-disable-inline-editing', () => {
-            this.onInlineEditCancel();
+        this.$parent.$on('sw-grid-disable-inline-editing', (id) => {
+            this.onInlineEditCancel(id);
         });
     },
 
@@ -66,9 +66,14 @@ Component.register('sw-grid-row', {
             this.$parent.$emit('sw-row-inline-edit-start', this.id);
         },
 
-        onInlineEditCancel() {
+        onInlineEditCancel(id) {
+            if (id && id !== this.id) {
+                return;
+            }
+
             this.isEditingActive = false;
             this.$parent.$emit('sw-row-inline-edit-cancel', this.id);
+            this.$parent.$emit('inline-edit-cancel', this.item);
         },
 
         onInlineEditFinish() {

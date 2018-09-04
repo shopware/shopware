@@ -78,6 +78,10 @@ Component.register('sw-product-list', {
             });
         },
 
+        onInlineEditCancel(product) {
+            product.discardChanges();
+        },
+
         getList() {
             this.isLoading = true;
             const params = this.getListingParams();

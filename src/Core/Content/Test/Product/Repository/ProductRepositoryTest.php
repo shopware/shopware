@@ -345,6 +345,8 @@ class ProductRepositoryTest extends TestCase
             ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
         ], Context::createDefaultContext(Defaults::TENANT_ID));
 
+        $filterId = Uuid::uuid4()->getHex();
+
         $data = [
             [
                 'id' => $id->getHex(),
@@ -352,6 +354,7 @@ class ProductRepositoryTest extends TestCase
                 'price' => ['gross' => 500, 'net' => 400],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
+                'template' => $filterId,
                 'priceRules' => [
                     [
                         'currencyId' => Defaults::CURRENCY,
@@ -367,6 +370,7 @@ class ProductRepositoryTest extends TestCase
                 'price' => ['gross' => 500, 'net' => 400],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
+                'template' => $filterId,
                 'priceRules' => [
                     [
                         'currencyId' => Defaults::CURRENCY,
@@ -382,6 +386,7 @@ class ProductRepositoryTest extends TestCase
                 'price' => ['gross' => 500, 'net' => 400],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
+                'template' => $filterId,
                 'priceRules' => [
                     [
                         'currencyId' => Defaults::CURRENCY,
@@ -397,6 +402,7 @@ class ProductRepositoryTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addSorting(new FieldSorting('product.priceRules.price', FieldSorting::ASCENDING));
+        $criteria->addFilter(new TermQuery('product.template', $filterId));
 
         $sourceContext = new SourceContext();
         $sourceContext->setSalesChannelId(Defaults::SALES_CHANNEL);
@@ -419,6 +425,7 @@ class ProductRepositoryTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addSorting(new FieldSorting('product.priceRules.price', FieldSorting::DESCENDING));
+        $criteria->addFilter(new TermQuery('product.template', $filterId));
 
         /** @var IdSearchResult $products */
         $products = $this->repository->searchIds($criteria, $context);
@@ -504,10 +511,22 @@ class ProductRepositoryTest extends TestCase
     public function testInsertAndUpdateInOneStep()
     {
         $id = Uuid::uuid4()->getHex();
-
+        $filterId = Uuid::uuid4()->getHex();
         $data = [
-            ['id' => $id, 'name' => 'Insert', 'price' => ['gross' => 10, 'net' => 9], 'tax' => ['name' => 'test', 'taxRate' => 10], 'manufacturer' => ['name' => 'test']],
-            ['id' => $id, 'name' => 'Update', 'price' => ['gross' => 12, 'net' => 10]],
+            [
+                'id' => $id,
+                'name' => 'Insert',
+                'price' => ['gross' => 10, 'net' => 9],
+                'tax' => ['name' => 'test', 'taxRate' => 10],
+                'manufacturer' => ['name' => 'test'],
+                'template' => $filterId,
+            ],
+            [
+                'id' => $id,
+                'name' => 'Update',
+                'price' => ['gross' => 12, 'net' => 10],
+                'template' => $filterId,
+            ],
         ];
 
         $this->repository->upsert($data, Context::createDefaultContext(Defaults::TENANT_ID));
@@ -521,7 +540,7 @@ class ProductRepositoryTest extends TestCase
         static::assertEquals('Update', $product->getName());
         static::assertEquals(12, $product->getPrice()->getGross());
 
-        $count = $this->connection->fetchColumn('SELECT COUNT(id) FROM product');
+        $count = $this->connection->fetchColumn('SELECT COUNT(id) FROM product WHERE template = :filterId', ['filterId' => $filterId]);
         static::assertEquals(1, $count);
     }
 
@@ -530,9 +549,10 @@ class ProductRepositoryTest extends TestCase
         $id = Uuid::uuid4()->getHex();
         $child = Uuid::uuid4()->getHex();
 
+        $filterId = Uuid::uuid4()->getHex();
         $data = [
-            ['id' => $id, 'name' => 'Insert', 'price' => ['gross' => 10, 'net' => 9], 'tax' => ['name' => 'test', 'taxRate' => 10], 'manufacturer' => ['name' => 'test']],
-            ['id' => $child, 'parentId' => $id, 'name' => 'Update', 'price' => ['gross' => 12, 'net' => 11]],
+            ['id' => $id, 'name' => 'Insert', 'price' => ['gross' => 10, 'net' => 9], 'tax' => ['name' => 'test', 'taxRate' => 10], 'manufacturer' => ['name' => 'test'], 'template' => $filterId],
+            ['id' => $child, 'parentId' => $id, 'name' => 'Update', 'price' => ['gross' => 12, 'net' => 11], 'template' => $filterId],
         ];
 
         $this->repository->upsert($data, Context::createDefaultContext(Defaults::TENANT_ID));
@@ -541,7 +561,7 @@ class ProductRepositoryTest extends TestCase
         static::assertTrue($products->has($id));
         static::assertTrue($products->has($child));
 
-        $raw = $this->connection->fetchAll('SELECT * FROM product');
+        $raw = $this->connection->fetchAll('SELECT * FROM product WHERE template = :filterId', ['filterId' => $filterId]);
         static::assertCount(2, $raw);
 
         $name = $this->connection->fetchColumn('SELECT name FROM product_translation WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($child)]);

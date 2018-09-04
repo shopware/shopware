@@ -71,14 +71,16 @@ class AuditLogSearchTest extends TestCase
         $productId1 = Uuid::uuid4()->getHex();
         $productId2 = Uuid::uuid4()->getHex();
 
+        $filterId = Uuid::uuid4()->getHex();
+
         $this->productRepository->upsert([
-            ['id' => $productId1, 'name' => 'test product 1', 'price' => ['gross' => 10, 'net' => 9], 'tax' => ['name' => 'test', 'taxRate' => 5], 'manufacturer' => ['name' => 'test']],
-            ['id' => $productId2, 'name' => 'test product 2', 'price' => ['gross' => 10, 'net' => 9], 'tax' => ['name' => 'test', 'taxRate' => 5], 'manufacturer' => ['name' => 'test']],
+            ['id' => $productId1, 'name' => "${filterId}_test ${filterId}_product 1", 'price' => ['gross' => 10, 'net' => 9], 'tax' => ['name' => 'test', 'taxRate' => 5], 'manufacturer' => ['name' => 'test']],
+            ['id' => $productId2, 'name' => "${filterId}_test ${filterId}_product 2", 'price' => ['gross' => 10, 'net' => 9], 'tax' => ['name' => 'test', 'taxRate' => 5], 'manufacturer' => ['name' => 'test']],
             ['id' => Uuid::uuid4()->getHex(), 'name' => 'notmatch', 'price' => ['gross' => 10, 'net' => 9], 'tax' => ['name' => 'notmatch', 'taxRate' => 5], 'manufacturer' => ['name' => 'notmatch']],
             ['id' => Uuid::uuid4()->getHex(), 'name' => 'notmatch', 'price' => ['gross' => 10, 'net' => 9], 'tax' => ['name' => 'notmatch', 'taxRate' => 5], 'manufacturer' => ['name' => 'notmatch']],
         ], $this->context);
 
-        $result = $this->search->search('test product', 20, $this->context, $this->userId);
+        $result = $this->search->search("${filterId}_test ${filterId}_product", 20, $this->context, $this->userId);
 
         /** @var ProductStruct $first */
         $first = $result['data'][0]['entity'];
@@ -103,7 +105,7 @@ class AuditLogSearchTest extends TestCase
         $changes = $this->getVersionData(ProductDefinition::getEntityName(), $productId2, Defaults::LIVE_VERSION);
         static::assertNotEmpty($changes);
 
-        $result = $this->search->search('test product', 20, $this->context, $this->userId);
+        $result = $this->search->search("${filterId}_test ${filterId}_product", 20, $this->context, $this->userId);
 
         self::assertCount(2, $result['data']);
 

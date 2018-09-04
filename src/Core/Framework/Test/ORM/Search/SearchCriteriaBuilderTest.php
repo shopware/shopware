@@ -40,8 +40,6 @@ class SearchCriteriaBuilderTest extends TestCase
         $this->manufacturerRepository = $this->getContainer()->get('product_manufacturer.repository');
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->url = '/api/v' . PlatformRequest::API_VERSION;
-
-        $this->connection->executeUpdate('DELETE FROM product_manufacturer');
     }
 
     /**
@@ -80,11 +78,17 @@ class SearchCriteriaBuilderTest extends TestCase
      */
     public function testSortingAscending(): void
     {
-        $this->createManufacturer(['link' => 'a']);
-        $this->createManufacturer(['link' => 'b']);
-        $this->createManufacturer(['link' => 'c']);
+        $filterId = Uuid::uuid4()->getHex();
+        $this->createManufacturer(['link' => 'a', 'description' => $filterId]);
+        $this->createManufacturer(['link' => 'b', 'description' => $filterId]);
+        $this->createManufacturer(['link' => 'c', 'description' => $filterId]);
 
-        $this->getClient()->request('GET', $this->url . '/product-manufacturer', ['sort' => 'product_manufacturer.link']);
+        $this->getClient()->request('GET', $this->url . '/product-manufacturer',
+            [
+                'sort' => 'product_manufacturer.link',
+                'filter' => ['description' => $filterId],
+            ]
+        );
         static::assertSame(200, $this->getClient()->getResponse()->getStatusCode());
         $content = json_decode($this->getClient()->getResponse()->getContent(), true);
 
@@ -95,11 +99,17 @@ class SearchCriteriaBuilderTest extends TestCase
 
     public function testSortingDescending(): void
     {
-        $this->createManufacturer(['link' => 'a']);
-        $this->createManufacturer(['link' => 'b']);
-        $this->createManufacturer(['link' => 'c']);
+        $filterId = Uuid::uuid4()->getHex();
+        $this->createManufacturer(['link' => 'a', 'description' => $filterId]);
+        $this->createManufacturer(['link' => 'b', 'description' => $filterId]);
+        $this->createManufacturer(['link' => 'c', 'description' => $filterId]);
 
-        $this->getClient()->request('GET', $this->url . '/product-manufacturer', ['sort' => '-product_manufacturer.link']);
+        $this->getClient()->request('GET', $this->url . '/product-manufacturer',
+            [
+                'sort' => '-product_manufacturer.link',
+                'filter' => ['description' => $filterId],
+            ]
+        );
         static::assertSame(200, $this->getClient()->getResponse()->getStatusCode());
         $content = json_decode($this->getClient()->getResponse()->getContent(), true);
 
@@ -110,14 +120,20 @@ class SearchCriteriaBuilderTest extends TestCase
 
     public function testMultipleSorting(): void
     {
-        $manufacturer1 = $this->createManufacturer(['link' => 'a', 'description' => 'a']);
-        $manufacturer2 = $this->createManufacturer(['link' => 'b', 'description' => 'a']);
-        $manufacturer3 = $this->createManufacturer(['link' => 'b', 'description' => 'c']);
+        $filterid = Uuid::uuid4()->getHex() . '_';
+        $manufacturer1 = $this->createManufacturer(['link' => 'a', 'description' => $filterid . 'a']);
+        $manufacturer2 = $this->createManufacturer(['link' => 'b', 'description' => $filterid . 'a']);
+        $manufacturer3 = $this->createManufacturer(['link' => 'b', 'description' => $filterid . 'c']);
 
         /*
          * Sort by stock ASC, minStock ASC
          */
-        $this->getClient()->request('GET', $this->url . '/product-manufacturer', ['sort' => 'product_manufacturer.link,product_manufacturer.description']);
+        $this->getClient()->request('GET', $this->url . '/product-manufacturer',
+            [
+                'sort' => 'product_manufacturer.link,product_manufacturer.description',
+                'filter' => [['field' => 'description', 'type' => 'match', 'value' => $filterid]],
+            ]
+        );
         static::assertSame(200, $this->getClient()->getResponse()->getStatusCode());
         $content = json_decode($this->getClient()->getResponse()->getContent(), true);
 
@@ -129,7 +145,12 @@ class SearchCriteriaBuilderTest extends TestCase
         /*
          * Sort by stock ASC, minStock DESC
          */
-        $this->getClient()->request('GET', $this->url . '/product-manufacturer', ['sort' => 'product_manufacturer.link,-product_manufacturer.description']);
+        $this->getClient()->request('GET', $this->url . '/product-manufacturer',
+            [
+                'sort' => 'product_manufacturer.link,-product_manufacturer.description',
+                'filter' => [['field' => 'description', 'type' => 'match', 'value' => $filterid]],
+            ]
+        );
         static::assertSame(200, $this->getClient()->getResponse()->getStatusCode());
         $content = json_decode($this->getClient()->getResponse()->getContent(), true);
 
@@ -141,7 +162,12 @@ class SearchCriteriaBuilderTest extends TestCase
         /*
          * Sort by stock DESC, minStock ASC
          */
-        $this->getClient()->request('GET', $this->url . '/product-manufacturer', ['sort' => '-product_manufacturer.link,product_manufacturer.description']);
+        $this->getClient()->request('GET', $this->url . '/product-manufacturer',
+            [
+                'sort' => '-product_manufacturer.link,product_manufacturer.description',
+                'filter' => [['field' => 'description', 'type' => 'match', 'value' => $filterid]],
+            ]
+        );
         static::assertSame(200, $this->getClient()->getResponse()->getStatusCode());
         $content = json_decode($this->getClient()->getResponse()->getContent(), true);
 
@@ -153,7 +179,12 @@ class SearchCriteriaBuilderTest extends TestCase
         /*
          * Sort by stock DESC, minStock DESC
          */
-        $this->getClient()->request('GET', $this->url . '/product-manufacturer', ['sort' => '-product_manufacturer.link,-product_manufacturer.description']);
+        $this->getClient()->request('GET', $this->url . '/product-manufacturer',
+            [
+                'sort' => '-product_manufacturer.link,-product_manufacturer.description',
+                'filter' => [['field' => 'description', 'type' => 'match', 'value' => $filterid]],
+            ]
+        );
         static::assertSame(200, $this->getClient()->getResponse()->getStatusCode());
         $content = json_decode($this->getClient()->getResponse()->getContent(), true);
 

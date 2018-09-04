@@ -7,13 +7,6 @@ Component.register('sw-sales-channel-modal', {
 
     inject: ['salesChannelService'],
 
-    props: {
-        detailTypeId: {
-            type: Number,
-            required: false
-        }
-    },
-
     data() {
         return {
             salesChannelTypes: [],

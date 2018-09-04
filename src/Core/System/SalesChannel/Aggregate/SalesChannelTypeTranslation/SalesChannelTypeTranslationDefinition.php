@@ -5,6 +5,7 @@ namespace Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTypeTranslatio
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Field\CreatedAtField;
 use Shopware\Core\Framework\ORM\Field\FkField;
+use Shopware\Core\Framework\ORM\Field\LongTextWithHtmlField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\Field\UpdatedAtField;
@@ -30,7 +31,7 @@ class SalesChannelTypeTranslationDefinition extends EntityDefinition
             (new StringField('name', 'name'))->setFlags(new Required()),
             new StringField('manufacturer', 'manufacturer'),
             new StringField('description', 'description'),
-            new StringField('description_long', 'descriptionLong'),
+            new LongTextWithHtmlField('description_long', 'descriptionLong'),
             new CreatedAtField(),
             new UpdatedAtField(),
             new ManyToOneAssociationField('salesChannelType', 'sales_channel_type_id', SalesChannelTypeDefinition::class, false),

@@ -7,6 +7,7 @@
             <template slot="modal-header">
                 {% block sw_sales_channel_modal_header_back %}
                     <button v-if="detailType"
+                            :disabled="isLoading"
                             class="sw-sales-channel-modal__back"
                             :title="$tc('sw-sales-channel.modal.buttonBack')"
                             :aria-label="$tc('sw-sales-channel.modal.buttonBack')"
@@ -125,7 +126,7 @@
                 <div v-if="detailType">
                     {% block sw_sales_channel_modal_footer_detail_actions %}
                         {% block sw_sales_channel_modal_footer_back %}
-                            <sw-button size="small" @click.prevent="detailType = false">
+                            <sw-button size="small" @click.prevent="detailType = false" :disabled="isLoading">
                                 {{ $tc('sw-sales-channel.modal.buttonBack') }}
                             </sw-button>
                         {% endblock %}

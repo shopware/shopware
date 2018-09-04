@@ -6,6 +6,7 @@ use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Field\CreatedAtField;
 use Shopware\Core\Framework\ORM\Field\IdField;
 use Shopware\Core\Framework\ORM\Field\ListField;
+use Shopware\Core\Framework\ORM\Field\LongTextWithHtmlField;
 use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\Field\TenantIdField;
@@ -37,7 +38,7 @@ class SalesChannelTypeDefinition extends EntityDefinition
             (new TranslatedField(new StringField('name', 'name')))->setFlags(new Required()),
             new TranslatedField(new StringField('manufacturer', 'manufacturer')),
             new TranslatedField(new StringField('description', 'description')),
-            new TranslatedField(new StringField('description_long', 'descriptionLong')),
+            new TranslatedField(new LongTextWithHtmlField('description_long', 'descriptionLong')),
             new CreatedAtField(),
             new UpdatedAtField(),
             (new TranslationsAssociationField('translations', SalesChannelTypeTranslationDefinition::class, 'sales_channel_type_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),

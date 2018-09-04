@@ -41,8 +41,12 @@
     .sw-sales-channel-modal__detail-cover {
         width: 165px;
         height: 165px;
-        background: lighten(@sw-sales-channel-modal-color-text, 25%);
+        background-color: @color-light-gray;
         border-radius: 3px;
+
+        img {
+            max-width: 100%;
+        }
     }
 
     .sw-sales-channel-modal__detail-name {

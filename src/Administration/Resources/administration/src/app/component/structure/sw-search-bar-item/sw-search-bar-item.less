@@ -14,15 +14,21 @@
         border-radius: @sw-search-bar-item-border-radius;
         display: flex;
         text-decoration: none;
+        line-height: 20px;
     }
 
     .sw-icon {
         margin-right: 20px;
+        flex-shrink: 0;
     }
 
     .sw-search-bar-item__label {
         color: @sw-search-bar-item-color-label;
         font-size: 15px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-right: 10px;
     }
 
     .sw-search-bar-item__type {

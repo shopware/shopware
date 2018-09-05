@@ -19,20 +19,6 @@ class DocumentMetadata extends MetadataType
      */
     protected $creator;
 
-    public static function getValidFileExtensions(): array
-    {
-        return [
-            'pdf',
-            'doc',
-            'docx',
-        ];
-    }
-
-    public static function create(): MetadataType
-    {
-        return new self();
-    }
-
     public function getName(): string
     {
         return 'document';

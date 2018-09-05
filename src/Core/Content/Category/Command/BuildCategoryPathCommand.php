@@ -35,7 +35,6 @@ use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -100,7 +99,6 @@ class BuildCategoryPathCommand extends ContainerAwareCommand implements EventSub
     {
         $this
             ->setName('category:build:path')
-            ->addOption('tenant-id', 't', InputOption::VALUE_REQUIRED, 'Tenant id')
             ->setDescription('Rebuilds the category path');
     }
 

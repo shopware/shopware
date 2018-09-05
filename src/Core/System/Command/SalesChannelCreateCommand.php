@@ -34,7 +34,6 @@ class SalesChannelCreateCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this->setName('sales-channel:create')
-            ->addOption('tenant-id', 't', InputOption::VALUE_REQUIRED, 'Tenant id')
             ->addOption('id', null, InputOption::VALUE_REQUIRED, 'Id for the sales channel', Uuid::uuid4()->getHex())
             ->addOption('name', null, InputOption::VALUE_REQUIRED, 'Name for the application', 'Storefront API endpoint')
             ->addOption('languageId', null, InputOption::VALUE_REQUIRED, 'Default language', Defaults::LANGUAGE)

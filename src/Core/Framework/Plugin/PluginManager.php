@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Plugin;
 use Doctrine\DBAL\Connection;
 use Psr\Container\ContainerInterface;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Framework;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
+use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Kernel;
 use Symfony\Component\Finder\Finder;
 
@@ -78,14 +80,14 @@ class PluginManager
         return $this->hydrate($plugin);
     }
 
-    public function installPlugin(PluginStruct $plugin): InstallContext
+    public function installPlugin(PluginStruct $plugin, string $tenantId): InstallContext
     {
         $pluginBootstrap = $this->getPluginBootstrap($plugin->getName());
 
         // set container because the plugin has not been initialized yet and therefore has no container set
         $pluginBootstrap->setContainer($this->container);
 
-        $context = new InstallContext($pluginBootstrap, Framework::VERSION, $plugin->getVersion());
+        $context = new InstallContext($pluginBootstrap, $this->createContext($tenantId), Framework::VERSION, $plugin->getVersion());
 
         if ($plugin->getInstallationDate()) {
             return $context;
@@ -117,14 +119,14 @@ class PluginManager
         return $context;
     }
 
-    public function uninstallPlugin(PluginStruct $plugin, bool $removeUserData = true): Context\UninstallContext
+    public function uninstallPlugin(PluginStruct $plugin, string $tenantId, bool $removeUserData = true): UninstallContext
     {
         $pluginBootstrap = $this->getPluginBootstrap($plugin->getName());
 
         // set container because the plugin has not been initialized yet and therefore has no container set
         $pluginBootstrap->setContainer($this->container);
 
-        $context = new UninstallContext($pluginBootstrap, Framework::VERSION, $plugin->getVersion(), !$removeUserData);
+        $context = new UninstallContext($pluginBootstrap, $this->createContext($tenantId), Framework::VERSION, $plugin->getVersion(), !$removeUserData);
 
         if ($plugin->getInstallationDate() === null) {
             throw new PluginNotInstalledException($plugin->getName());
@@ -148,13 +150,14 @@ class PluginManager
         return $context;
     }
 
-    public function updatePlugin(PluginStruct $plugin): Context\UpdateContext
+    public function updatePlugin(PluginStruct $plugin, string $tenantId): UpdateContext
     {
         $pluginBootstrap = $this->getPluginBootstrap($plugin->getName());
         $this->requirementValidator->validate($pluginBootstrap->getPath() . '/plugin.xml', Framework::VERSION, $this->getPlugins());
 
         $context = new UpdateContext(
             $pluginBootstrap,
+            $this->createContext($tenantId),
             Framework::VERSION,
             $plugin->getVersion(),
             $plugin->getUpdateVersion() ?? $plugin->getVersion()
@@ -183,10 +186,10 @@ class PluginManager
         return $context;
     }
 
-    public function activatePlugin(PluginStruct $plugin): Context\ActivateContext
+    public function activatePlugin(PluginStruct $plugin, string $tenantId): ActivateContext
     {
         $pluginBootstrap = $this->getPluginBootstrap($plugin->getName());
-        $context = new ActivateContext($pluginBootstrap, Framework::VERSION, $plugin->getVersion());
+        $context = new ActivateContext($pluginBootstrap, $this->createContext($tenantId), Framework::VERSION, $plugin->getVersion());
 
         if ($plugin->getActive()) {
             return $context;
@@ -207,10 +210,10 @@ class PluginManager
         return $context;
     }
 
-    public function deactivatePlugin(PluginStruct $plugin): Context\DeactivateContext
+    public function deactivatePlugin(PluginStruct $plugin, string $tenantId): DeactivateContext
     {
         $pluginBootstrap = $this->getPluginBootstrap($plugin->getName());
-        $context = new DeactivateContext($pluginBootstrap, Framework::VERSION, $plugin->getVersion());
+        $context = new DeactivateContext($pluginBootstrap, $this->createContext($tenantId), Framework::VERSION, $plugin->getVersion());
 
         if (!$plugin->getInstallationDate()) {
             throw new PluginNotInstalledException($plugin->getName());
@@ -368,5 +371,17 @@ class PluginManager
     private function getPluginBootstrap(string $pluginName): Plugin
     {
         return $this->kernel::getPlugins()->get($pluginName);
+    }
+
+    private function createContext(string $tenantId): Context
+    {
+        return new Context(
+            $tenantId,
+            new SourceContext(),
+            null, [],
+            Defaults::CURRENCY,
+            Defaults::LANGUAGE,
+            Defaults::LANGUAGE
+        );
     }
 }

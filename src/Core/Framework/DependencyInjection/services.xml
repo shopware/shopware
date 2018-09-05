@@ -72,7 +72,6 @@
 
         <service class="Shopware\Core\Framework\Command\OrmValidateCommand" id="Shopware\Core\Framework\Command\OrmValidateCommand">
             <tag name="console.command"/>
-            <argument>orm:validate</argument>
             <argument id="Shopware\Core\Framework\ORM\DefinitionValidator" type="service"/>
         </service>
 
@@ -185,6 +184,10 @@
 
             <argument id="Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver.inner" type="service"/>
             <argument id="Shopware\Core\Checkout\Context\CheckoutContextService" type="service"/>
+        </service>
+
+        <service class="Shopware\Core\Framework\Cli\CliContextSubscriber" id="Shopware\Core\Framework\Cli\CliContextSubscriber">
+            <tag name="kernel.event_subscriber"/>
         </service>
     </services>
 </container>

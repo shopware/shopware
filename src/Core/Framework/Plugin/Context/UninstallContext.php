@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Plugin\Context;
 
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin;
 
 class UninstallContext extends InstallContext
@@ -11,25 +12,17 @@ class UninstallContext extends InstallContext
      */
     private $keepUserData;
 
-    /**
-     * @param Plugin $plugin
-     * @param string $shopwareVersion
-     * @param string $currentVersion
-     * @param bool   $keepUserData
-     */
     public function __construct(
         Plugin $plugin,
-        $shopwareVersion,
-        $currentVersion,
-        $keepUserData
+        Context $context,
+        string $shopwareVersion,
+        string $currentVersion,
+        bool $keepUserData
     ) {
-        parent::__construct($plugin, $shopwareVersion, $currentVersion);
+        parent::__construct($plugin, $context, $shopwareVersion, $currentVersion);
         $this->keepUserData = $keepUserData;
     }
 
-    /**
-     * @return bool
-     */
     public function keepUserData(): bool
     {
         return $this->keepUserData;

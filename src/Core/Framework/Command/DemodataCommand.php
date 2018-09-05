@@ -167,7 +167,6 @@ class DemodataCommand extends ContainerAwareCommand
 
     protected function configure(): void
     {
-        $this->addOption('tenant-id', 't', InputOption::VALUE_REQUIRED, 'Tenant id');
         $this->addOption('products', 'p', InputOption::VALUE_REQUIRED, 'Product count', 500);
         $this->addOption('categories', 'c', InputOption::VALUE_REQUIRED, 'Category count', 10);
         $this->addOption('orders', 'o', InputOption::VALUE_REQUIRED, 'Order count', 50);

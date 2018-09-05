@@ -63,6 +63,8 @@ EOF
         $io->text(sprintf('Deactivating %d plugins:', count($plugins)));
         $io->listing($this->formatPluginList($plugins));
 
+        $tenantId = $input->getOption('tenant-id');
+
         /** @var PluginStruct $plugin */
         foreach ($plugins as $plugin) {
             if ($plugin->getInstallationDate() === null) {
@@ -77,7 +79,7 @@ EOF
                 continue;
             }
 
-            $this->pluginManager->deactivatePlugin($plugin);
+            $this->pluginManager->deactivatePlugin($plugin, $tenantId);
 
             $io->text(sprintf('Plugin "%s" has been deactivated successfully.', $plugin->getLabel()));
         }

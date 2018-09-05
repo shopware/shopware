@@ -52,7 +52,6 @@ class GenerateThumbnailsCommand extends Command
         $this
             ->setName('media:generate-thumbnails')
             ->setDescription('generates the thumbnails for all media entities')
-            ->addOption('tenant-id', 't', InputOption::VALUE_REQUIRED, 'Tenant id')
             ->addOption('batch-size', 'b', InputOption::VALUE_REQUIRED, 'Batch Size')
             ->addOption('catalog-id', 'c', InputOption::VALUE_REQUIRED, 'Catalog Id')
         ;

@@ -66,15 +66,17 @@ EOF
         $io->text(sprintf('Installing %d plugins:', count($plugins)));
         $io->listing($this->formatPluginList($plugins));
 
+        $tenantId = $input->getOption('tenant-id');
+
         /** @var PluginStruct $plugin */
         foreach ($plugins as $plugin) {
             if ($input->getOption('reinstall') && $plugin->getInstallationDate()) {
-                $this->pluginManager->uninstallPlugin($plugin);
+                $this->pluginManager->uninstallPlugin($plugin, $tenantId);
             }
 
             if ($input->getOption('activate') && $plugin->getInstallationDate() && $plugin->getActive() === false) {
                 $io->note(sprintf('Plugin "%s" is already installed. Activating.', $plugin->getName()));
-                $this->pluginManager->activatePlugin($plugin);
+                $this->pluginManager->activatePlugin($plugin, $tenantId);
 
                 continue;
             }
@@ -88,10 +90,10 @@ EOF
             $activationSuffix = '';
             $message = 'Plugin "%s" has been installed%s successfully.';
 
-            $this->pluginManager->installPlugin($plugin);
+            $this->pluginManager->installPlugin($plugin, $tenantId);
 
             if ($input->getOption('activate')) {
-                $this->pluginManager->activatePlugin($plugin);
+                $this->pluginManager->activatePlugin($plugin, $tenantId);
                 $activationSuffix = ' and activated';
             }
 

@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Command;
 use Shopware\Core\Framework\Plugin\PluginManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class PluginUpdateCommand extends Command
@@ -39,7 +40,8 @@ class PluginUpdateCommand extends Command
     {
         $this->pluginManager->updatePlugins();
 
-        $listCommand = $this->getApplication()->find('plugin:list');
-        $listCommand->run($input, $output);
+        $input = new StringInput(sprintf('plugin:list --tenant-id=%s', $input->getOption('tenant-id')));
+
+        $this->getApplication()->doRun($input, $output);
     }
 }

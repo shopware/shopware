@@ -52,7 +52,6 @@ class GenerateThumbnailsCommand extends Command
         $this
             ->setName('media:generate-thumbnails')
             ->setDescription('generates the thumbnails for all media entities')
-            ->addOption('tenant-id', 't', InputOption::VALUE_REQUIRED, 'Tenant id')
             ->addOption('batch-size', 'b', InputOption::VALUE_REQUIRED, 'Batch Size')
             ->addOption('catalog-id', 'c', InputOption::VALUE_REQUIRED, 'Catalog Id')
         ;
@@ -88,9 +87,6 @@ class GenerateThumbnailsCommand extends Command
     private function validateTenantId(InputInterface $input): string
     {
         $tenantId = $input->getOption('tenant-id');
-        if (!$tenantId) {
-            return Defaults::TENANT_ID;
-        }
 
         if (!Uuid::isValid($tenantId)) {
             throw new \Exception('Invalid uuid provided for tenantId');

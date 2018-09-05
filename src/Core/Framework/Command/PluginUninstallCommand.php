@@ -63,6 +63,8 @@ EOF
         $io->text(sprintf('Installing %d plugins:', count($plugins)));
         $io->listing($this->formatPluginList($plugins));
 
+        $tenantId = $input->getOption('tenant-id');
+
         /** @var PluginStruct $plugin */
         foreach ($plugins as $plugin) {
             if ($plugin->getInstallationDate() === null) {
@@ -71,7 +73,7 @@ EOF
                 continue;
             }
 
-            $this->pluginManager->uninstallPlugin($plugin);
+            $this->pluginManager->uninstallPlugin($plugin, $tenantId);
 
             $io->text(sprintf('Plugin "%s" has been uninstalled successfully.', $plugin->getLabel()));
         }

@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Command;
 use Shopware\Core\Framework\Provisioning\TenantProvisioner;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class CreateTenantCommand extends ContainerAwareCommand
@@ -20,11 +19,6 @@ class CreateTenantCommand extends ContainerAwareCommand
         parent::__construct();
 
         $this->tenantProvisioner = $tenantProvisioner;
-    }
-
-    protected function configure()
-    {
-        $this->addOption('tenant-id', 'id', InputOption::VALUE_REQUIRED);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

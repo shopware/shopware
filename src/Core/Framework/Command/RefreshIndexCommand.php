@@ -31,7 +31,6 @@ use Shopware\Core\Framework\ORM\Dbal\Indexing\IndexerInterface;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -96,8 +95,7 @@ class RefreshIndexCommand extends ContainerAwareCommand implements EventSubscrib
     {
         $this
             ->setName('dbal:refresh:index')
-            ->addOption('tenant-id', 't', InputOption::VALUE_REQUIRED, 'Tenant id')
-            ->setDescription('Refreshs the shop indices');
+            ->setDescription('Refreshes the shop indices');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

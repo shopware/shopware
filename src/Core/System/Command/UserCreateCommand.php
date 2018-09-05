@@ -33,7 +33,6 @@ class UserCreateCommand extends Command
         $this->setName('rest:user:create')
             ->addArgument('username', InputArgument::REQUIRED, 'Username for the user')
             ->addOption('password', 'p', InputOption::VALUE_REQUIRED, 'Password for the user')
-            ->addOption('tenant-id', 't', InputOption::VALUE_REQUIRED, 'Tenant id')
         ;
     }
 

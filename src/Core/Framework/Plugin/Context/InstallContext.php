@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Plugin\Context;
 
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin;
 
 class InstallContext implements \JsonSerializable
@@ -65,31 +66,27 @@ class InstallContext implements \JsonSerializable
     private $shopwareVersion;
 
     /**
-     * @param Plugin $plugin
-     * @param string $shopwareVersion
-     * @param string $currentVersion
+     * @var Context
      */
-    public function __construct(Plugin $plugin, $shopwareVersion, $currentVersion)
+    private $context;
+
+    public function __construct(Plugin $plugin, Context $context, string $shopwareVersion, string $currentVersion)
     {
         $this->plugin = $plugin;
         $this->currentVersion = $currentVersion;
         $this->shopwareVersion = $shopwareVersion;
+        $this->context = $context;
     }
 
     /**
      * @return string
      */
-    public function getCurrentVersion()
+    public function getCurrentVersion(): string
     {
         return $this->currentVersion;
     }
 
-    /**
-     * @param string $requiredVersion
-     *
-     * @return bool
-     */
-    public function assertMinimumVersion($requiredVersion)
+    public function assertMinimumVersion(string $requiredVersion): bool
     {
         if ($this->shopwareVersion === '___VERSION___') {
             return true;
@@ -98,10 +95,7 @@ class InstallContext implements \JsonSerializable
         return version_compare($this->shopwareVersion, $requiredVersion, '>=');
     }
 
-    /**
-     * @param string $message
-     */
-    public function scheduleMessage($message)
+    public function scheduleMessage(string $message): void
     {
         $this->scheduled['message'] = $message;
     }
@@ -111,7 +105,7 @@ class InstallContext implements \JsonSerializable
      *
      * @param string[] $caches
      */
-    public function scheduleClearCache(array $caches)
+    public function scheduleClearCache(array $caches): void
     {
         if (!array_key_exists('cache', $this->scheduled)) {
             $this->scheduled['cache'] = [];
@@ -120,9 +114,9 @@ class InstallContext implements \JsonSerializable
     }
 
     /**
-     * @return array
+     * @return string[]
      */
-    public function getScheduled()
+    public function getScheduled(): array
     {
         return $this->scheduled;
     }
@@ -130,16 +124,18 @@ class InstallContext implements \JsonSerializable
     /**
      * @return Plugin
      */
-    public function getPlugin()
+    public function getPlugin(): Plugin
     {
         return $this->plugin;
     }
 
-    /**
-     * @return array
-     */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return ['scheduled' => $this->scheduled];
+    }
+
+    public function getContext(): Context
+    {
+        return $this->context;
     }
 }

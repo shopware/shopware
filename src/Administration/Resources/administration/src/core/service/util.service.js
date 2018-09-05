@@ -13,7 +13,7 @@ import {
     merge
 } from './utils/object.utils';
 import { warn } from './utils/debug.utils';
-import { currency, date } from './utils/format.utils';
+import { currency, date, fileSize } from './utils/format.utils';
 import domUtils from './utils/dom.utils';
 import stringUtils from './utils/string.utils';
 import typesUtils from './utils/types.utils';
@@ -33,7 +33,8 @@ export const debug = {
 
 export const format = {
     currency: currency,
-    date: date
+    date: date,
+    fileSize: fileSize
 };
 
 export const dom = {

@@ -1,0 +1,20 @@
+@import "~less/variables";
+@import "~less/mixins";
+
+@color-icon-quickaction:             @color-shopware-blue;
+@color-text-quickaction-hover:       @color-shopware-blue;
+@color-background-quickaction-hover: @color-cadet-blue;
+
+.sw-media-quickinfo-metadata-item {
+    display: grid;
+    grid-template-columns: 50% 50%;
+
+    > dt {
+        color: @color-gutenberg;
+        font-weight: bold;
+    }
+
+    > dd {
+        .truncate();
+    }
+}

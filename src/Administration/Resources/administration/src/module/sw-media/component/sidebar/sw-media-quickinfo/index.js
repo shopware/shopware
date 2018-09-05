@@ -4,6 +4,7 @@ import domUtils from 'src/core/service/utils/dom.utils';
 import '../../sw-media-collapse';
 import template from './sw-media-quickinfo.html.twig';
 import './sw-media-quickinfo.less';
+import '../sw-media-quickinfo-metadata-item';
 
 Component.register('sw-media-quickinfo', {
     template,
@@ -25,26 +26,20 @@ Component.register('sw-media-quickinfo', {
     },
 
     computed: {
-        getMetadata() {
-            if (this.item === null) {
-                return {};
-            }
-
-            return {
-                fileName: this.item.name,
-                mimeType: this.item.mimeType,
-                fileSize: this.item.fileSize,
-                createdAt: format.date(this.item.createdAt),
-                url: this.item.url
-            };
-        },
-
         getUrl() {
             if (this.item === null) {
                 return '';
             }
 
             return this.item.url;
+        },
+
+        getFileSize() {
+            return format.fileSize(this.item.fileSize);
+        },
+
+        getCreatedAt() {
+            return format.date(this.item.createdAt);
         }
     },
 

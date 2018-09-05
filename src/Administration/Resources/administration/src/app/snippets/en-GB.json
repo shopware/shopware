@@ -605,11 +605,17 @@
         "metadata": "Meta data"
       },
       "metadata": {
-        "fileName": "Name",
+        "name": "Name",
         "mimeType": "MIME-Type",
         "fileSize": "Size",
         "createdAt": "Uploaded at",
-        "url": "URL"
+        "url": "URL",
+        "width": "Width",
+        "height": "Height",
+        "frameRate": "Framerate",
+        "title": "Title",
+        "creator": "Created by",
+        "pages": "Pages"
       }
     },
     "catalog": {

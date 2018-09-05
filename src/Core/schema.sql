@@ -853,7 +853,7 @@ CREATE TABLE `order` (
   `billing_address_id` binary(16) NOT NULL,
   `billing_address_tenant_id` binary(16) NOT NULL,
   `billing_address_version_id` binary(16) NOT NULL,
-  `order_date` datetime(3) NOT NULL,
+  `date` datetime(3) NOT NULL,
   `amount_total` double NOT NULL,
   `position_price` double NOT NULL,
   `shipping_total` double NOT NULL,
@@ -934,9 +934,9 @@ CREATE TABLE `order_delivery` (
   `order_id` binary(16) NOT NULL,
   `order_tenant_id` binary(16) NOT NULL,
   `order_version_id` binary(16) NOT NULL,
-  `shipping_address_id` binary(16) NOT NULL,
-  `shipping_address_tenant_id` binary(16) NOT NULL,
-  `shipping_address_version_id` binary(16) NOT NULL,
+  `shipping_order_address_id` binary(16) NOT NULL,
+  `shipping_order_address_tenant_id` binary(16) NOT NULL,
+  `shipping_order_address_version_id` binary(16) NOT NULL,
   `shipping_method_id` binary(16) NOT NULL,
   `shipping_method_tenant_id` binary(16) NOT NULL,
   `shipping_method_version_id` binary(16) NOT NULL,
@@ -951,7 +951,7 @@ CREATE TABLE `order_delivery` (
   PRIMARY KEY (`id`, `version_id`, `tenant_id`),
   CONSTRAINT `fk_order_delivery.order_id` FOREIGN KEY (`order_id`, `order_version_id`, `order_tenant_id`) REFERENCES `order` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_order_delivery.order_state_id` FOREIGN KEY (`order_state_id`, `order_state_version_id`, `order_state_tenant_id`) REFERENCES `order_state` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `fk_order_delivery.shipping_address_id` FOREIGN KEY (`shipping_address_id`, `shipping_address_version_id`, `shipping_address_tenant_id`) REFERENCES `order_address` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_order_delivery.shipping_address_id` FOREIGN KEY (`shipping_order_address_id`, `shipping_order_address_version_id`, `shipping_order_address_tenant_id`) REFERENCES `order_address` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_order_delivery.shipping_method_id` FOREIGN KEY (`shipping_method_id`, `shipping_method_version_id`, `shipping_method_tenant_id`) REFERENCES `shipping_method` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1413,26 +1413,6 @@ CREATE TABLE `seo_url` (
   INDEX `entity_canonical_url` (`sales_channel_id`, `foreign_key`, `name`, `is_canonical`, `tenant_id`),
   CONSTRAINT `fk_seo_url.sales_channel_id` FOREIGN KEY (`sales_channel_id`, `sales_channel_tenant_id`) REFERENCES `sales_channel` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-DROP TABLE IF EXISTS `session`;
-CREATE TABLE `session` (
-  `id` varchar(128) COLLATE utf8mb4_bin NOT NULL,
-  `data` mediumblob NOT NULL,
-  `modified` int(10) unsigned NOT NULL,
-  `expiry` int(10) unsigned NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `idx_sess_expiry` (`expiry`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
-DROP TABLE IF EXISTS `sessions`;
-CREATE TABLE `sessions` (
-  `sess_id` varchar(128) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `sess_data` blob NOT NULL,
-  `sess_time` int(10) unsigned NOT NULL,
-  `sess_lifetime` mediumint(9) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 
 DROP TABLE IF EXISTS `shipping_method`;
 CREATE TABLE `shipping_method` (

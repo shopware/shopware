@@ -72,7 +72,7 @@ class OrderDefinition extends EntityDefinition
             (new FkField('billing_address_id', 'billingAddressId', OrderAddressDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(OrderAddressDefinition::class, 'billing_address_version_id'))->setFlags(new Required()),
 
-            (new DateField('order_date', 'date'))->setFlags(new Required()),
+            (new DateField('date', 'date'))->setFlags(new Required()),
             (new FloatField('amount_total', 'amountTotal'))->setFlags(new Required()),
             (new FloatField('position_price', 'positionPrice'))->setFlags(new Required()),
             (new FloatField('shipping_total', 'shippingTotal'))->setFlags(new Required()),

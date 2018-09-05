@@ -54,7 +54,8 @@
     "voku/stop-words": "2.0.0",
     "league/oauth2-server": "7.2.0",
     "symfony/psr-http-message-bridge": "1.0.2",
-    "zendframework/zend-diactoros": "1.8.3"
+    "zendframework/zend-diactoros": "1.8.3",
+    "doctrine/inflector": "1.3.0"
   },
   "require-dev": {
     "bheller/images-generator": "1.0.1",

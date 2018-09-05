@@ -41,14 +41,14 @@ class OrderDeliveryCollection extends EntityCollection
     public function getShippingAddressIds(): array
     {
         return $this->fmap(function (OrderDeliveryStruct $orderDelivery) {
-            return $orderDelivery->getShippingAddressId();
+            return $orderDelivery->getShippingOrderAddressId();
         });
     }
 
     public function filterByShippingAddressId(string $id): self
     {
         return $this->filter(function (OrderDeliveryStruct $orderDelivery) use ($id) {
-            return $orderDelivery->getShippingAddressId() === $id;
+            return $orderDelivery->getShippingOrderAddressId() === $id;
         });
     }
 
@@ -84,7 +84,7 @@ class OrderDeliveryCollection extends EntityCollection
     {
         return new OrderAddressCollection(
             $this->fmap(function (OrderDeliveryStruct $orderDelivery) {
-                return $orderDelivery->getShippingAddress();
+                return $orderDelivery->getShippingOrderAddress();
             })
         );
     }

@@ -87,9 +87,6 @@ class GenerateThumbnailsCommand extends Command
     private function validateTenantId(InputInterface $input): string
     {
         $tenantId = $input->getOption('tenant-id');
-        if (!$tenantId) {
-            return Defaults::TENANT_ID;
-        }
 
         if (!Uuid::isValid($tenantId)) {
             throw new \Exception('Invalid uuid provided for tenantId');

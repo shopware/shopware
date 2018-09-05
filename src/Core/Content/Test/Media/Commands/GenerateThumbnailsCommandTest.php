@@ -18,13 +18,14 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Test\TestCaseBase\CommandTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 
 class GenerateThumbnailsCommandTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use IntegrationTestBehaviour, CommandTestBehaviour;
 
     /**
      * @var Connection
@@ -82,10 +83,10 @@ class GenerateThumbnailsCommandTest extends TestCase
     {
         $this->createValidMediaFiles();
 
-        $input = new StringInput(sprintf('-t %s -c %s', Defaults::TENANT_ID, $this->catalogId));
+        $input = new StringInput(sprintf('--tenant-id %s -c %s', Defaults::TENANT_ID, $this->catalogId));
         $output = new BufferedOutput();
 
-        $this->thumbnailCommand->run($input, $output);
+        $this->runCommand($this->thumbnailCommand, $input, $output);
 
         $string = $output->fetch();
         $this->assertEquals(1, preg_match('/.*Generated\s*2.*/', $string));
@@ -116,10 +117,10 @@ class GenerateThumbnailsCommandTest extends TestCase
     {
         $this->createNotSupportedMediaFiles();
 
-        $input = new StringInput(sprintf('-t %s -c %s', Defaults::TENANT_ID, $this->catalogId));
+        $input = new StringInput(sprintf('--tenant-id %s -c %s', Defaults::TENANT_ID, $this->catalogId));
         $output = new BufferedOutput();
 
-        $this->thumbnailCommand->run($input, $output);
+        $this->runCommand($this->thumbnailCommand, $input, $output);
 
         $string = $output->fetch();
         $this->assertEquals(1, preg_match('/.*Generated\s*1.*/', $string));

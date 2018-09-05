@@ -628,7 +628,7 @@ class DefinitionValidator
                 continue;
             }
 
-            /* Skip fields where Entity class name is prefix of reference class name */
+            // Skip fields where Entity class name is prefix of reference class name
             if ($field instanceof FkField) {
                 $refClass = $field instanceof ReferenceVersionField
                     ? $field->getVersionReference()

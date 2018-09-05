@@ -42,8 +42,8 @@ class OrderDeliveryDefinition extends EntityDefinition
             (new FkField('order_id', 'orderId', OrderDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(OrderDefinition::class))->setFlags(new Required()),
 
-            (new FkField('shipping_address_id', 'shippingAddressId', OrderAddressDefinition::class))->setFlags(new Required()),
-            (new ReferenceVersionField(OrderAddressDefinition::class, 'shipping_address_version_id'))->setFlags(new Required()),
+            (new FkField('shipping_order_address_id', 'shippingOrderAddressId', OrderAddressDefinition::class))->setFlags(new Required()),
+            (new ReferenceVersionField(OrderAddressDefinition::class, 'shipping_order_address_version_id'))->setFlags(new Required()),
 
             (new FkField('order_state_id', 'orderStateId', OrderStateDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(OrderStateDefinition::class))->setFlags(new Required()),
@@ -57,7 +57,7 @@ class OrderDeliveryDefinition extends EntityDefinition
             new CreatedAtField(),
             new UpdatedAtField(),
             new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, false),
-            (new ManyToOneAssociationField('shippingAddress', 'shipping_address_id', OrderAddressDefinition::class, true))->setFlags(new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
+            (new ManyToOneAssociationField('shippingOrderAddress', 'shipping_order_address_id', OrderAddressDefinition::class, true))->setFlags(new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
             (new ManyToOneAssociationField('orderState', 'order_state_id', OrderStateDefinition::class, true))->setFlags(new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
             (new ManyToOneAssociationField('shippingMethod', 'shipping_method_id', ShippingMethodDefinition::class, true))->setFlags(new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
             (new OneToManyAssociationField('positions', OrderDeliveryPositionDefinition::class, 'order_delivery_id', false, 'id'))->setFlags(new CascadeDelete(), new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),

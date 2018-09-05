@@ -19,7 +19,7 @@ class OrderDeliveryStruct extends Entity
     /**
      * @var string
      */
-    protected $shippingAddressId;
+    protected $shippingOrderAddressId;
 
     /**
      * @var string
@@ -59,7 +59,7 @@ class OrderDeliveryStruct extends Entity
     /**
      * @var OrderAddressStruct
      */
-    protected $shippingAddress;
+    protected $shippingOrderAddress;
 
     /**
      * @var OrderStateStruct
@@ -91,14 +91,14 @@ class OrderDeliveryStruct extends Entity
         $this->orderId = $orderId;
     }
 
-    public function getShippingAddressId(): string
+    public function getShippingOrderAddressId(): string
     {
-        return $this->shippingAddressId;
+        return $this->shippingOrderAddressId;
     }
 
-    public function setShippingAddressId(string $shippingAddressId): void
+    public function setShippingOrderAddressId(string $shippingOrderAddressId): void
     {
-        $this->shippingAddressId = $shippingAddressId;
+        $this->shippingOrderAddressId = $shippingOrderAddressId;
     }
 
     public function getOrderStateId(): string
@@ -171,14 +171,14 @@ class OrderDeliveryStruct extends Entity
         $this->updatedAt = $updatedAt;
     }
 
-    public function getShippingAddress(): OrderAddressStruct
+    public function getShippingOrderAddress(): OrderAddressStruct
     {
-        return $this->shippingAddress;
+        return $this->shippingOrderAddress;
     }
 
-    public function setShippingAddress(OrderAddressStruct $shippingAddress): void
+    public function setShippingOrderAddress(OrderAddressStruct $shippingOrderAddress): void
     {
-        $this->shippingAddress = $shippingAddress;
+        $this->shippingOrderAddress = $shippingOrderAddress;
     }
 
     public function getOrderState(): OrderStateStruct

@@ -135,7 +135,7 @@ class PaymentMethodStruct extends Entity
     /**
      * @var OrderTransactionCollection|null
      */
-    protected $transactions;
+    protected $orderTransactions;
 
     /**
      * @var OrderCollection|null
@@ -397,14 +397,14 @@ class PaymentMethodStruct extends Entity
         $this->translations = $translations;
     }
 
-    public function getTransactions(): ?OrderTransactionCollection
+    public function getOrderTransactions(): ?OrderTransactionCollection
     {
-        return $this->transactions;
+        return $this->orderTransactions;
     }
 
-    public function setTransactions(OrderTransactionCollection $transactions): void
+    public function setOrderTransactions(OrderTransactionCollection $orderTransactions): void
     {
-        $this->transactions = $transactions;
+        $this->orderTransactions = $orderTransactions;
     }
 
     public function getOrders(): ?OrderCollection

@@ -7,7 +7,7 @@ class VideoMetadata extends ImageMetadata
     /**
      * @var int|null
      */
-    protected $frameRate = self::UNKNOWN;
+    protected $frameRate;
 
     public static function getValidFileExtensions(): array
     {

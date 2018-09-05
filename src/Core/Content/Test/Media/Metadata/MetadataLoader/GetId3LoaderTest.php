@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Test\Media\Metadata\MetadataLoader;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\Metadata\MetadataLoader\CanNotLoadMetadataException;
+use Shopware\Core\Content\Media\Exception\CanNotLoadMetadataException;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader\GetId3Loader;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 

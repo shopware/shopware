@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Media\Metadata\MetadataLoader;
 
 use getID3;
 use getid3_exception;
+use Shopware\Core\Content\Media\Exception\CanNotLoadMetadataException;
 use Shopware\Core\Content\Media\Metadata\Type\ImageMetadata;
 use Shopware\Core\Content\Media\Metadata\Type\MetadataType;
 use Shopware\Core\Content\Media\Metadata\Type\VideoMetadata;

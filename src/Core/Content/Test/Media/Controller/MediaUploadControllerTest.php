@@ -149,5 +149,10 @@ class MediaUploadControllerTest extends TestCase
             $responseData['data']['attributes']['metaData']['type']['width'],
             print_r($responseData['data']['attributes'], true)
         );
+        static::assertSame(
+            'image',
+            $responseData['data']['attributes']['metaData']['typeName'],
+            print_r($responseData['data']['attributes'], true)
+        );
     }
 }

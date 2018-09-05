@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Metadata\MetadataLoader;
 
+use Shopware\Core\Content\Media\Exception\CanNotLoadMetadataException;
 use Shopware\Core\Content\Media\Metadata\Type\DocumentMetadata;
 use Shopware\Core\Content\Media\Metadata\Type\MetadataType;
 use Smalot\PdfParser\Parser;
@@ -9,7 +10,7 @@ use Smalot\PdfParser\Parser;
 class PdfParserLoader implements MetadataLoaderInterface
 {
     /**
-     * @var \getID3
+     * @var Parser
      */
     private $pdfParser;
 

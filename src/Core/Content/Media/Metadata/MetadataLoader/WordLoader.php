@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Media\Metadata\MetadataLoader;
 
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
+use Shopware\Core\Content\Media\Exception\CanNotLoadMetadataException;
 use Shopware\Core\Content\Media\Metadata\Type\DocumentMetadata;
 use Shopware\Core\Content\Media\Metadata\Type\MetadataType;
 

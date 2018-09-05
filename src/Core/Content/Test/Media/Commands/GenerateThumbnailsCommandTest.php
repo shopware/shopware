@@ -10,7 +10,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailStruct;
 use Shopware\Core\Content\Media\Commands\GenerateThumbnailsCommand;
 use Shopware\Core\Content\Media\MediaStruct;
-use Shopware\Core\Content\Media\Metadata\MetadataLoader;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailConfiguration;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
@@ -61,9 +60,6 @@ class GenerateThumbnailsCommandTest extends TestCase
     /** @var string */
     private $catalogId;
 
-    /** @var MetadataLoader */
-    private $metadataLoader;
-
     public function setUp()
     {
         $this->repository = $this->getContainer()->get('media.repository');
@@ -71,7 +67,6 @@ class GenerateThumbnailsCommandTest extends TestCase
         $this->filesystem = new Filesystem(new MemoryAdapter());
         $this->urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
         $this->thumbnailConfiguration = $this->getContainer()->get(ThumbnailConfiguration::class);
-        $this->metadataLoader = $this->getContainer()->get(MetadataLoader::class);
         $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
         $this->thumbnailService = new ThumbnailService($this->repository, $this->filesystem, $this->urlGenerator, $this->thumbnailConfiguration);
 

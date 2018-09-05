@@ -7,17 +7,17 @@ class DocumentMetadata extends MetadataType
     /**
      * @var string|null
      */
-    protected $pages = self::UNKNOWN;
+    protected $pages;
 
     /**
      * @var string|null
      */
-    protected $title = self::UNKNOWN;
+    protected $title;
 
     /**
      * @var string|null
      */
-    protected $creator = self::UNKNOWN;
+    protected $creator;
 
     public static function getValidFileExtensions(): array
     {

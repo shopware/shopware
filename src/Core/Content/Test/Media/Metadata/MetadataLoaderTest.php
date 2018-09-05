@@ -69,7 +69,7 @@ class MetadataLoaderTest extends TestCase
 
         self::assertCount(1, $result->getRawMetadata(), print_r($result, true));
         self::assertArrayNotHasKey('error', $result->getRawMetadata(), print_r($result, true));
-        $this->assertDocumentMetadata($result, 19, 'Adobe InDesign CC 13.0 (Macintosh)', MetadataType::UNKNOWN);
+        $this->assertDocumentMetadata($result, 19, 'Adobe InDesign CC 13.0 (Macintosh)', null);
     }
 
     public function testMp4()

@@ -7,12 +7,12 @@ class ImageMetadata extends MetadataType
     /**
      * @var int|null
      */
-    protected $width = self::UNKNOWN;
+    protected $width;
 
     /**
      * @var int|null
      */
-    protected $height = self::UNKNOWN;
+    protected $height;
 
     public static function getValidFileExtensions(): array
     {

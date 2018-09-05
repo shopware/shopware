@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Media\Metadata;
 
 use Shopware\Core\Content\Media\File\MediaFile;
-use Shopware\Core\Content\Media\Metadata\MetadataLoader\CanNotLoadMetadataException;
+use Shopware\Core\Content\Media\Exception\CanNotLoadMetadataException;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader\MetadataLoaderInterface;
 use Shopware\Core\Content\Media\Metadata\Type\MetadataType;
 use Shopware\Core\Content\Media\Metadata\Type\NoMetadata;
@@ -16,8 +16,10 @@ class MetadataLoader
     private $metadataLoader;
 
     /**
-     * @param iterable $metadataLoader
+     * @var array
      */
+    private $metadataTypes;
+
     public function __construct(iterable $metadataLoader, array $typeClasses)
     {
         $this->metadataLoader = $metadataLoader;
@@ -42,7 +44,6 @@ class MetadataLoader
         $metadata = new Metadata();
         $metadata->setRawMetadata($this->convertBinaryToUtf($rawMetadata));
         $metadata->setType($type);
-        $metadata->setTypeName($type->getName());
 
         return $metadata;
     }

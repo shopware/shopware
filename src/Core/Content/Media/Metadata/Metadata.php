@@ -37,7 +37,7 @@ class Metadata extends Struct
         $this->type = $type;
         $this->typeName = null;
 
-        if($type) {
+        if ($type) {
             $this->typeName = $type->getName();
         }
     }

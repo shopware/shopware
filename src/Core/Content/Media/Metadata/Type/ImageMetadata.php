@@ -14,6 +14,20 @@ class ImageMetadata extends MetadataType
      */
     protected $height;
 
+    public static function getValidFileExtensions(): array
+    {
+        return [
+            'jpg',
+            'gif',
+            'png',
+        ];
+    }
+
+    public static function create(): MetadataType
+    {
+        return new self();
+    }
+
     public function getWidth(): ?int
     {
         return $this->width;

@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Content\Media\Metadata;
 
-use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\Exception\CanNotLoadMetadataException;
+use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader\MetadataLoaderInterface;
 use Shopware\Core\Content\Media\Metadata\Type\MetadataType;
-use Shopware\Core\Content\Media\Metadata\Type\MetadataTypeLoader;
 use Shopware\Core\Content\Media\Metadata\Type\NoMetadata;
 
 class MetadataLoader
@@ -17,14 +16,14 @@ class MetadataLoader
     private $metadataLoader;
 
     /**
-     * @var MetadataTypeLoader[]
+     * @var array
      */
-    private $typeLoaders;
+    private $metadataTypes;
 
-    public function __construct(iterable $metadataLoader, iterable $typeLoaders)
+    public function __construct(iterable $metadataLoader, array $typeClasses)
     {
         $this->metadataLoader = $metadataLoader;
-        $this->typeLoaders = $typeLoaders;
+        $this->metadataTypes = $typeClasses;
     }
 
     public function loadFromFile(MediaFile $mediaFile): Metadata
@@ -67,9 +66,9 @@ class MetadataLoader
 
     private function determineMetadataType(MediaFile $mediaFile): MetadataType
     {
-        foreach ($this->typeLoaders as $typeLoader) {
-            if (in_array($mediaFile->getFileExtension(), $typeLoader->getValidFileExtensions(), true)) {
-                return $typeLoader->create();
+        foreach ($this->metadataTypes as $typeLoaderClassName) {
+            if (in_array($mediaFile->getFileExtension(), $typeLoaderClassName::getValidFileExtensions(), true)) {
+                return $typeLoaderClassName::create();
             }
         }
 

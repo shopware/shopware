@@ -9,6 +9,20 @@ class VideoMetadata extends ImageMetadata
      */
     protected $frameRate;
 
+    public static function getValidFileExtensions(): array
+    {
+        return [
+            'mp4',
+            'avi',
+            'webm',
+        ];
+    }
+
+    public static function create(): MetadataType
+    {
+        return new VideoMetadata();
+    }
+
     public function getFrameRate(): ?float
     {
         return $this->frameRate;
@@ -17,5 +31,10 @@ class VideoMetadata extends ImageMetadata
     public function setFrameRate(float $frameRate): void
     {
         $this->frameRate = $frameRate;
+    }
+
+    public function getName(): string
+    {
+        return 'video';
     }
 }

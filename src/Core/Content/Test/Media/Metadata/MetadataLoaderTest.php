@@ -8,7 +8,6 @@ use Shopware\Core\Content\Media\Metadata\Metadata;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader;
 use Shopware\Core\Content\Media\Metadata\Type\DocumentMetadata;
 use Shopware\Core\Content\Media\Metadata\Type\ImageMetadata;
-use Shopware\Core\Content\Media\Metadata\Type\MetadataType;
 use Shopware\Core\Content\Media\Metadata\Type\NoMetadata;
 use Shopware\Core\Content\Media\Metadata\Type\VideoMetadata;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;

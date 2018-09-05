@@ -6,5 +6,9 @@ use Shopware\Core\Framework\Struct\Struct;
 
 abstract class MetadataType extends Struct
 {
+    abstract public static function getValidFileExtensions(): array;
+
+    abstract public static function create(): MetadataType;
+
     abstract public function getName(): string;
 }

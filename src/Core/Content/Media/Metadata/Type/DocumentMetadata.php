@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Media\Metadata\Type;
 class DocumentMetadata extends MetadataType
 {
     /**
-     * @var string|null
+     * @var int|null
      */
     protected $pages;
 

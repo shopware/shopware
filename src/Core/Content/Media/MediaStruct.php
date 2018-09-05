@@ -159,7 +159,7 @@ class MediaStruct extends Entity
         return $this->metaData;
     }
 
-    public function setMetaData(?string $metaData): void
+    public function setMetaData(Metadata $metaData): void
     {
         $this->metaData = $metaData;
     }

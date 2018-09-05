@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Media\Metadata\Type;
 class VideoMetadata extends ImageMetadata
 {
     /**
-     * @var int|null
+     * @var float|null
      */
     protected $frameRate;
 

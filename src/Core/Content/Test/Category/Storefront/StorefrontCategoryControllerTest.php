@@ -86,13 +86,15 @@ class StorefrontCategoryControllerTest extends TestCase
         $categoryA = Uuid::uuid4()->getHex();
         $categoryB = Uuid::uuid4()->getHex();
 
+        $filterId = Uuid::uuid4()->getHex();
         $this->repository->create([
-            ['id' => $categoryC, 'name' => 'Category C'],
-            ['id' => $categoryA, 'name' => 'Category A'],
-            ['id' => $categoryB, 'name' => 'Category B'],
+            ['id' => $categoryC, 'name' => 'Category C', 'template' => $filterId],
+            ['id' => $categoryA, 'name' => 'Category A', 'template' => $filterId],
+            ['id' => $categoryB, 'name' => 'Category B', 'template' => $filterId],
         ], $this->context);
 
-        $this->getStorefrontClient()->request('GET', '/storefront-api/category?sort=name');
+        $params = ['sort' => 'name', 'filter' => ['template' => $filterId]];
+        $this->getStorefrontClient()->request('GET', '/storefront-api/category', $params);
 
         $response = $this->getStorefrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
@@ -100,11 +102,13 @@ class StorefrontCategoryControllerTest extends TestCase
         $ids = array_column($content['data'], 'id');
         static::assertSame([$categoryA, $categoryB, $categoryC], $ids);
 
-        $this->getStorefrontClient()->request('GET', '/storefront-api/category?sort=-name');
+        $params['sort'] = '-name';
+        $this->getStorefrontClient()->request('GET', '/storefront-api/category', $params);
         $response = $this->getStorefrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
         static::assertNotEmpty($content);
         $ids = array_column($content['data'], 'id');
+
         static::assertSame([$categoryC, $categoryB, $categoryA], $ids);
     }
 
@@ -114,16 +118,18 @@ class StorefrontCategoryControllerTest extends TestCase
         $categoryA = Uuid::uuid4()->getHex();
         $categoryB = Uuid::uuid4()->getHex();
 
+        $filterId = Uuid::uuid4()->getHex();
         $this->repository->create([
-            ['id' => $categoryC, 'name' => 'Matching name'],
-            ['id' => $categoryA, 'name' => 'Not'],
-            ['id' => $categoryB, 'name' => 'Matching name'],
+            ['id' => $categoryC, 'name' => 'Matching name', 'template' => $filterId],
+            ['id' => $categoryA, 'name' => 'Not', 'template' => $filterId],
+            ['id' => $categoryB, 'name' => 'Matching name', 'template' => $filterId],
         ], $this->context);
 
-        $this->getStorefrontClient()->request('GET', '/storefront-api/category?term=Matching');
+        $this->getStorefrontClient()->request('GET', '/storefront-api/category', ['term' => 'Matching', 'filter' => ['template' => $filterId]]);
 
         $response = $this->getStorefrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
+
         static::assertNotEmpty($content);
         static::assertSame(2, $content['total']);
 
@@ -138,20 +144,22 @@ class StorefrontCategoryControllerTest extends TestCase
         $categoryA = Uuid::uuid4()->getHex();
         $categoryB = Uuid::uuid4()->getHex();
 
+        $filterId = Uuid::uuid4()->getHex();
         $this->repository->create([
-            ['id' => $categoryC, 'name' => 'Matching name', 'active' => true],
-            ['id' => $categoryA, 'name' => 'Not', 'active' => false],
-            ['id' => $categoryB, 'name' => 'Matching name', 'active' => false],
+            ['id' => $categoryC, 'name' => 'Matching name', 'active' => true, 'template' => $filterId],
+            ['id' => $categoryA, 'name' => 'Not', 'active' => false, 'template' => $filterId],
+            ['id' => $categoryB, 'name' => 'Matching name', 'active' => false, 'template' => $filterId],
         ], $this->context);
 
-        $params = http_build_query([
+        $params = [
             'filter' => [
                 'name' => 'Matching name',
                 'active' => true,
+                'template' => $filterId,
             ],
-        ]);
+        ];
 
-        $this->getStorefrontClient()->request('GET', '/storefront-api/category?' . $params);
+        $this->getStorefrontClient()->request('GET', '/storefront-api/category', $params);
 
         $response = $this->getStorefrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
@@ -169,11 +177,12 @@ class StorefrontCategoryControllerTest extends TestCase
         $categoryB = Uuid::uuid4()->getHex();
         $categoryA2 = Uuid::uuid4()->getHex();
 
+        $filterId = Uuid::uuid4()->getHex();
         $this->repository->create([
-            ['id' => $categoryC, 'name' => 'C', 'active' => true],
-            ['id' => $categoryA, 'name' => 'A', 'active' => true],
-            ['id' => $categoryA2, 'name' => 'A', 'active' => false],
-            ['id' => $categoryB, 'name' => 'B', 'active' => false],
+            ['id' => $categoryC, 'name' => 'C', 'active' => true, 'template' => $filterId],
+            ['id' => $categoryA, 'name' => 'A', 'active' => true, 'template' => $filterId],
+            ['id' => $categoryA2, 'name' => 'A', 'active' => false, 'template' => $filterId],
+            ['id' => $categoryB, 'name' => 'B', 'active' => false, 'template' => $filterId],
         ], $this->context);
 
         $body = [
@@ -203,6 +212,11 @@ class StorefrontCategoryControllerTest extends TestCase
                     'field' => 'category.active',
                     'value' => true,
                 ],
+                [
+                    'type' => 'term',
+                    'field' => 'category.template',
+                    'value' => $filterId,
+                ],
             ],
             'sort' => [
                 ['field' => 'category.name'],
@@ -228,6 +242,11 @@ class StorefrontCategoryControllerTest extends TestCase
                         ['type' => 'term', 'field' => 'category.name', 'value' => 'B'],
                     ],
                 ],
+                [
+                    'type' => 'term',
+                    'field' => 'category.template',
+                    'value' => $filterId,
+                ],
             ],
         ];
 
@@ -244,6 +263,9 @@ class StorefrontCategoryControllerTest extends TestCase
         static::assertContains($categoryC, $ids);
 
         $body = [
+            'filter' => [
+                ['type' => 'term', 'field' => 'category.template', 'value' => $filterId],
+            ],
             'post-filter' => [
                 ['type' => 'term', 'field' => 'category.active', 'value' => true],
             ],

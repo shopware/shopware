@@ -1,9 +1,12 @@
+import crypto from 'crypto';
+
 /**
  * @module core/service/utils/format
  */
 export default {
     currency,
-    date
+    date,
+    md5
 };
 
 /**
@@ -35,4 +38,14 @@ export function currency(val, sign) {
 export function date(val, locale = 'de-DE') {
     const dateObj = new Date(val);
     return dateObj.toLocaleString(locale);
+}
+
+/**
+ * Generates a md5 hash of the given value.
+ *
+ * @param {String} value
+ * @return {String}
+ */
+export function md5(value) {
+    return crypto.createHash('md5').update(value).digest('hex');
 }

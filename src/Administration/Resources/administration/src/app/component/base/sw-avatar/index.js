@@ -1,4 +1,5 @@
 import { Component } from 'src/core/shopware';
+import { md5 } from 'src/core/service/utils/format.utils';
 import template from './sw-avatar.html.twig';
 import './sw-avatar.less';
 
@@ -6,11 +7,6 @@ Component.register('sw-avatar', {
     template,
 
     props: {
-        image: {
-            type: String,
-            required: false,
-            default: ''
-        },
         color: {
             type: String,
             required: false,
@@ -29,6 +25,11 @@ Component.register('sw-avatar', {
                     lastName: ''
                 };
             }
+        },
+        useGravatar: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -69,9 +70,17 @@ Component.register('sw-avatar', {
             };
         },
 
+        userImage() {
+            if (this.useGravatar && this.user && this.user.email) {
+                return this.getGravatarUserImage();
+            }
+
+            return '';
+        },
+
         avatarImage() {
             return {
-                'background-image': `url(${this.image})`
+                'background-image': `url(${this.userImage})`
             };
         },
 
@@ -96,6 +105,10 @@ Component.register('sw-avatar', {
 
             this.fontSize = Math.round(avatarSize * 0.4);
             this.lineHeight = Math.round(avatarSize * 0.98);
+        },
+
+        getGravatarUserImage() {
+            return `https://www.gravatar.com/avatar/${md5(this.user.email)}?s=100`;
         }
     }
 });

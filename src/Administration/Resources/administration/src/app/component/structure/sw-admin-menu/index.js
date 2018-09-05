@@ -18,11 +18,16 @@ Component.register('sw-admin-menu', {
             flyoutLabel: '',
             subMenuOpen: false,
             scrollbarOffset: '',
+            userProfile: {},
             user: {}
         };
     },
 
     computed: {
+        userStore() {
+            return State.getStore('user');
+        },
+
         localeStore() {
             return State.getStore('adminLocale');
         },
@@ -56,10 +61,6 @@ Component.register('sw-admin-menu', {
 
         userName() {
             return this.user.name;
-        },
-
-        userShortName() {
-            return this.user.shortName;
         }
     },
 
@@ -67,8 +68,8 @@ Component.register('sw-admin-menu', {
         this.collapseMenuOnSmallViewports();
 
         this.userService.getUser().then((response) => {
-            this.user = response.data;
-            this.user.shortName = this.user.name[0];
+            this.userProfile = response.data;
+            this.user = this.userStore.getById(this.userProfile.id);
         });
 
         this.$root.$on('toggleOffCanvas', (state) => {

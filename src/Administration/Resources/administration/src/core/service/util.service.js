@@ -43,7 +43,8 @@ export const dom = {
 
 export const string = {
     capitalizeString: stringUtils.capitalizeString,
-    camelCase: stringUtils.camelCase
+    camelCase: stringUtils.camelCase,
+    md5: stringUtils.md5
 };
 
 export const types = {

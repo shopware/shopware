@@ -816,5 +816,26 @@
       "buttonCancel": "Cancel",
       "buttonSave": "Save"
     }
+  },
+  "sw-profile": {
+    "general": {
+      "headlineProfile": "Your profile"
+    },
+    "index": {
+      "buttonSaveLabel": "Save",
+      "titleInfoCard": "Profile information",
+      "titleImageCard": "Profile image",
+      "titlePasswordCard": "Password",
+      "labelNameField": "Name",
+      "labelUsernameField": "Username",
+      "labelEmailField": "Email",
+      "labelPasswordField": "New password",
+      "labelPasswordConfirmField": "Confirm password",
+      "textImageInfo": "We are using the <a href=\"https://gravatar.com/\" target=\"_blank\">Gravatar</a> profile image configured for your mail address.",
+      "notificationPasswordErrorTitle": "Password issue",
+      "notificationPasswordErrorMessage": "The entered password information is invalid.",
+      "notificationSaveSuccessTitle": "Your profile",
+      "notificationSaveSuccessMessage": "Your profile information are saved successfully."
+    }
   }
 }

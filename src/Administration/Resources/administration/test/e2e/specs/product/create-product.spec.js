@@ -13,7 +13,7 @@ module.exports = {
             .click('a[href="#/sw/product/create"]')
             .waitForElementVisible('.sw-product-detail-base')
             .assert.urlContains('#/sw/product/create')
-            .assert.containsText('.sw-card__title', 'Product information')
+            .assert.containsText('.sw-card__title', 'Information')
             .setValue('input[name=sw-field--product-name]', 'Marci Darci')
             .setValue('select[name=sw-field--product-manufacturerId]', 'shopware AG')
             .setValue('select[name=sw-field--product-catalogId]', 'Default catalogue')

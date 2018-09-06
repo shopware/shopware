@@ -33,7 +33,7 @@ class DiscountSurchargeDefinition extends EntityDefinition
         return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new TranslatedField(new StringField('name', 'name')))->setFlags(new Required()),
+            new TranslatedField(new StringField('name', 'name')),
             (new FkField('rule_id', 'ruleId', RuleDefinition::class))->setFlags(new Required()),
             (new ObjectField('filter_rule', 'filterRule'))->setFlags(new Required()),
             (new StringField('type', 'type'))->setFlags(new Required()),

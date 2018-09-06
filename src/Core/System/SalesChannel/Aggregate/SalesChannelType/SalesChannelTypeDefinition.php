@@ -35,7 +35,7 @@ class SalesChannelTypeDefinition extends EntityDefinition
             new StringField('cover_url', 'coverUrl'),
             new StringField('icon_name', 'iconName'),
             new ListField('screenshot_urls', 'screenshotUrls', StringField::class),
-            (new TranslatedField(new StringField('name', 'name')))->setFlags(new Required()),
+            new TranslatedField(new StringField('name', 'name')),
             new TranslatedField(new StringField('manufacturer', 'manufacturer')),
             new TranslatedField(new StringField('description', 'description')),
             new TranslatedField(new LongTextWithHtmlField('description_long', 'descriptionLong')),

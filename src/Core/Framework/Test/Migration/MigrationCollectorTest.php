@@ -56,9 +56,9 @@ class MigrationCollectorTest extends TestCase
         self::assertNull($migrations[0]['update_destructive']);
         self::assertNull($migrations[0]['message']);
         self::assertNotNull($migrations[0]['class']);
-        self::assertNotNull($migrations[0]['creation_time_stamp']);
-        self::assertEquals(1, $migrationsObjects[0]->getCreationTimeStamp());
-        self::assertEquals(2, $migrationsObjects[1]->getCreationTimeStamp());
+        self::assertNotNull($migrations[0]['creation_timestamp']);
+        self::assertEquals(1, $migrationsObjects[0]->getCreationTimestamp());
+        self::assertEquals(2, $migrationsObjects[1]->getCreationTimestamp());
     }
 
     public function test_it_throws_invalid_php_file()
@@ -75,7 +75,7 @@ class MigrationCollectorTest extends TestCase
             ->select('*')
             ->from('migration')
             ->where('`class` LIKE \'%_test_migrations_valid%\'')
-            ->orderBy('creation_time_stamp', 'ASC')
+            ->orderBy('creation_timestamp', 'ASC')
             ->execute()
             ->fetchAll();
     }

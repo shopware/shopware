@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 class Migration%%timestamp%% extends MigrationStep
 {
-    public function getCreationTimeStamp(): int
+    public function getCreationTimestamp(): int
     {
         return %%timestamp%%;
     }

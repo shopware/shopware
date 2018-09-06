@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Api\Controller;
 
 use Shopware\Core\Framework\Migration\Exception\MigrateException;
-use Shopware\Core\Framework\Migration\Exception\MissingMigrateTimstampException;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationRuntime;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -60,15 +59,43 @@ class MigrationController extends Controller
      */
     public function migrate(Request $request): JsonResponse
     {
-        $destructive = (bool) $request->get('destructive', false);
-        $limit = (int) $request->get('limit', 0);
-
-        if (!($timeStamp = (int) $request->get('timeStamp'))) {
-            throw new MissingMigrateTimstampException('timeStamp cap missing');
+        if (!($limit = $request->request->getInt('limit'))) {
+            $limit = null;
         }
 
+        if (!($until = $request->request->getInt('until'))) {
+            $until = null;
+        }
+
+        $generator = $this->runner->migrate($until, $limit);
+
+        return $this->migrateGenerator($generator);
+    }
+
+    /**
+     * @Route("/api/v{version}/migration/migrate-destructive", name="migration.migrate-destructive", methods={"POST"})
+     */
+    public function migrateDestructive(Request $request): JsonResponse
+    {
+        if (!($limit = $request->request->getInt('limit'))) {
+            $limit = null;
+        }
+
+        if (!($until = $request->request->getInt('until'))) {
+            $until = null;
+        }
+
+        $generator = $this->runner->migrateDestructive($until, $limit);
+
+        return $this->migrateGenerator($generator);
+    }
+
+    private function migrateGenerator(\Generator $generator): JsonResponse
+    {
         try {
-            $this->runner->migrate($destructive, $limit, $timeStamp);
+            while ($generator->valid()) {
+                $generator->next();
+            }
         } catch (\Exception $e) {
             throw new MigrateException('Migration Error: "' . $e->getMessage() . '"');
         }

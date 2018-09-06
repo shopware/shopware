@@ -3,11 +3,8 @@
 namespace Shopware\Core\Framework\Migration;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Query\QueryBuilder;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Framework\Migration\Event\MigrateAdvanceEvent;
-use Shopware\Core\Framework\Migration\Event\MigrateFinishEvent;
-use Shopware\Core\Framework\Migration\Event\MigrateStartEvent;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class MigrationRuntime
 {
@@ -21,96 +18,93 @@ class MigrationRuntime
      */
     private $logger;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $event;
-
     public function __construct(
         Connection $connection,
-        LoggerInterface $logger,
-        EventDispatcherInterface $event
+        LoggerInterface $logger
     ) {
         $this->connection = $connection;
         $this->logger = $logger;
-        $this->event = $event;
     }
 
-    public function migrate(bool $destructive, int $limit, int $timeStamp)
+    public function migrate(int $until = null, int $limit = null): \Generator
     {
-        self::ensureMigrationTableExists($this->connection);
+        $migrations = $this->getExecutableMigrations($until, $limit);
 
-        $migrations = $this->getMigrations($destructive, $limit, $timeStamp);
-
-        $this->event->dispatch(MigrateStartEvent::EVENT_NAME, new MigrateStartEvent(count($migrations)));
-
-        $counter = 0;
         foreach ($migrations as $migration) {
             /** @var MigrationStep $migration */
             $migration = new $migration();
 
             try {
-                if ($destructive) {
-                    $migration->updateDestructive($this->connection);
-                } else {
-                    $migration->update($this->connection);
-                }
+                $migration->update($this->connection);
             } catch (\Exception $e) {
-                $this->setError($migration, $e->getMessage());
-                $this->logger->error('Migration: "' . get_class($migration) . '" failed: "' . $e->getMessage() . '"');
-                $this->event->dispatch(MigrateFinishEvent::EVENT_NAME, new MigrateFinishEvent($counter, count($migrations)));
+                $this->logError($migration, $e->getMessage());
 
                 throw $e;
             }
 
-            $this->setExecuted($migration, $destructive);
-            $this->event->dispatch(MigrateAdvanceEvent::EVENT_NAME, new MigrateAdvanceEvent(get_class($migration)));
-            ++$counter;
+            $this->setExecuted($migration);
+            yield get_class($migration);
         }
-
-        $this->event->dispatch(MigrateFinishEvent::EVENT_NAME, new MigrateFinishEvent($counter, count($migrations)));
     }
 
-    public static function ensureMigrationTableExists(Connection $connection)
+    public function migrateDestructive(int $until = null, int $limit = null): \Generator
     {
-        $connection->exec('
-                CREATE TABLE IF NOT EXISTS `migration` (
-                    `class` VARCHAR(255) NOT NULL,
-                    `creation_time_stamp` INT(8) NOT NULL,
-                    `update` TIMESTAMP(6) NULL DEFAULT NULL,
-                    `update_destructive` TIMESTAMP(6) NULL DEFAULT NULL,
-                    `message` TEXT DEFAULT NULL,
-                    PRIMARY KEY (`class`)
-                )
-                COLLATE=\'utf8_unicode_ci\'
-                ENGINE=InnoDB;
-        ');
+        $migrations = $this->getExecutableDestructiveMigrations($until, $limit);
+
+        foreach ($migrations as $migration) {
+            /** @var MigrationStep $migration */
+            $migration = new $migration();
+
+            try {
+                $migration->updateDestructive($this->connection);
+            } catch (\Exception $e) {
+                $this->logError($migration, $e->getMessage());
+
+                throw $e;
+            }
+
+            $this->setExecutedDestructive($migration);
+            yield get_class($migration);
+        }
     }
 
-    private function getMigrations(bool $destructive, int $limit, int $timeStamp)
+    public function getExecutableMigrations(int $until = null, int $limit = null): array
+    {
+        return $this->getExecutableMigrationsBaseQuery($until, $limit)
+            ->andWhere('`update` IS NULL')
+            ->execute()
+            ->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
+    public function getExecutableDestructiveMigrations(int $until = null, int $limit = null): array
+    {
+        return $this->getExecutableMigrationsBaseQuery($until, $limit)
+            ->andWhere('`update` IS NOT NULL')
+            ->andWhere('`update_destructive` IS NULL')
+            ->execute()
+            ->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
+    private function getExecutableMigrationsBaseQuery(int $until = null, int $limit = null): QueryBuilder
     {
         $query = $this->connection->createQueryBuilder()
             ->select('`class`')
             ->from('migration')
-            ->orderBy('`creation_time_stamp`', 'ASC')
-            ->where('`update` IS NULL');
+            ->orderBy('`creation_timestamp`', 'ASC');
 
-        if ($destructive) {
-            $query->where('`update` IS NOT NULL')
-                ->andWhere('`update_destructive` IS NULL');
+        if ($until) {
+            $query->where('`creation_timestamp` <= :timestamp');
+            $query->setParameter('timestamp', $until);
         }
-
-        $query->andWhere('`creation_time_stamp` <= :timeStamp');
-        $query->setParameter('timeStamp', $timeStamp);
 
         if ($limit) {
             $query->setMaxResults($limit);
         }
 
-        return $query->execute()->fetchAll(\PDO::FETCH_COLUMN);
+        return $query;
     }
 
-    private function setError(MigrationStep $migration, string $message)
+    private function logError(MigrationStep $migration, string $message): void
     {
         $this->connection->update(
             'migration',
@@ -121,22 +115,30 @@ class MigrationRuntime
                 '`class`' => get_class($migration),
             ]
         );
+
+        $this->logger->error('Migration: "' . get_class($migration) . '" failed: "' . $message . '"');
     }
 
-    private function setExecuted(MigrationStep $migrationStep, bool $destructive)
+    private function getSetExecutedBaseQuery(string $class): QueryBuilder
     {
-        $query = $this->connection->createQueryBuilder()
+        return $this->connection->createQueryBuilder()
             ->update('migration')
             ->set('`message`', 'NULL')
             ->where('`class` = :class')
-            ->setParameter('class', get_class($migrationStep));
+            ->setParameter('class', $class);
+    }
 
-        if ($destructive) {
-            $query->set('`update_destructive`', 'NOW(6)');
-        } else {
-            $query->set('`update`', 'NOW(6)');
-        }
+    private function setExecutedDestructive(MigrationStep $migrationStep): void
+    {
+        $this->getSetExecutedBaseQuery(get_class($migrationStep))
+            ->set('`update_destructive`', 'NOW(6)')
+            ->execute();
+    }
 
-        $query->execute();
+    private function setExecuted(MigrationStep $migrationStep): void
+    {
+        $this->getSetExecutedBaseQuery(get_class($migrationStep))
+            ->set('`update`', 'NOW(6)')
+            ->execute();
     }
 }

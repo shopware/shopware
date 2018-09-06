@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Migration\Exception\InvalidMigrationClassException;
 
 class MigrationCollectionLoader
 {
-    const CORE_MIGRATIONS = __DIR__ . '/../../Version';
+    public const CORE_MIGRATIONS = __DIR__ . '/../../Version';
 
     /**
      * @var string[]
@@ -35,14 +35,12 @@ class MigrationCollectionLoader
         return $this;
     }
 
-    public function syncMigrationCollection()
+    public function syncMigrationCollection(): void
     {
         $migrations = [];
 
-        MigrationRuntime::ensureMigrationTableExists($this->connection);
-
         foreach ($this->directories as $directory => $namespace) {
-            foreach (scandir($directory) as $classFileName) {
+            foreach (scandir($directory, SCANDIR_SORT_ASCENDING) as $classFileName) {
                 $path = $directory . '/' . $classFileName;
                 $className = $namespace . '\\' . pathinfo($classFileName, PATHINFO_FILENAME);
 
@@ -72,13 +70,13 @@ class MigrationCollectionLoader
     /**
      * @param MigrationStep[] $migrations
      */
-    private function addMigrationsToTable(array $migrations)
+    private function addMigrationsToTable(array $migrations): void
     {
         $insertQuery = new MultiInsertQueryQueue($this->connection, 250, true);
         foreach ($migrations as $className => $migration) {
             $insertQuery->addInsert('migration', [
                 '`class`' => $className,
-                '`creation_time_stamp`' => $migration->getCreationTimeStamp(),
+                '`creation_timestamp`' => $migration->getCreationTimestamp(),
             ]);
         }
         $insertQuery->execute();

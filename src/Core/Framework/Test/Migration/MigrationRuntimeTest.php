@@ -54,7 +54,10 @@ class MigrationRuntimeTest extends TestCase
         self::assertNull($migrations[1]['update']);
         self::assertNull($migrations[1]['update_destructive']);
 
-        $this->runner->migrate(false, 1, PHP_INT_MAX);
+        $runner = $this->runner->migrate(null, 1);
+        while ($runner->valid()) {
+            $runner->next();
+        }
 
         $migrations = $this->getMigrations();
         self::assertNotNull($migrations[0]['update']);
@@ -71,7 +74,10 @@ class MigrationRuntimeTest extends TestCase
         self::assertNull($migrations[1]['update']);
         self::assertNull($migrations[1]['update_destructive']);
 
-        $this->runner->migrate(false, 0, PHP_INT_MAX);
+        $runner = $this->runner->migrate();
+        while ($runner->valid()) {
+            $runner->next();
+        }
 
         $migrations = $this->getMigrations();
         self::assertNotNull($migrations[0]['update']);
@@ -88,7 +94,10 @@ class MigrationRuntimeTest extends TestCase
         self::assertNull($migrations[1]['update']);
         self::assertNull($migrations[1]['update_destructive']);
 
-        $this->runner->migrate(false, 0, PHP_INT_MAX);
+        $runner = $this->runner->migrate();
+        while ($runner->valid()) {
+            $runner->next();
+        }
 
         $migrations = $this->getMigrations();
         self::assertNotNull($migrations[0]['update']);
@@ -98,7 +107,10 @@ class MigrationRuntimeTest extends TestCase
 
         $oldDate = $migrations[0]['update'];
 
-        $this->runner->migrate(false, 0, PHP_INT_MAX);
+        $runner = $this->runner->migrate();
+        while ($runner->valid()) {
+            $runner->next();
+        }
 
         $migrations = $this->getMigrations();
         self::assertSame($oldDate, $migrations[0]['update']);
@@ -116,7 +128,10 @@ class MigrationRuntimeTest extends TestCase
         self::assertNull($migrations[1]['update']);
         self::assertNull($migrations[1]['update_destructive']);
 
-        $this->runner->migrate(true, 0, PHP_INT_MAX);
+        $runner = $this->runner->migrateDestructive();
+        while ($runner->valid()) {
+            $runner->next();
+        }
 
         $migrations = $this->getMigrations();
         self::assertNull($migrations[0]['update']);
@@ -133,7 +148,10 @@ class MigrationRuntimeTest extends TestCase
         self::assertNull($migrations[1]['update']);
         self::assertNull($migrations[1]['update_destructive']);
 
-        $this->runner->migrate(false, 1, PHP_INT_MAX);
+        $runner = $this->runner->migrate(null, 1);
+        while ($runner->valid()) {
+            $runner->next();
+        }
 
         $migrations = $this->getMigrations();
         self::assertNotNull($migrations[0]['update']);
@@ -141,7 +159,10 @@ class MigrationRuntimeTest extends TestCase
         self::assertNull($migrations[1]['update']);
         self::assertNull($migrations[1]['update_destructive']);
 
-        $this->runner->migrate(true, 0, PHP_INT_MAX);
+        $runner = $this->runner->migrateDestructive();
+        while ($runner->valid()) {
+            $runner->next();
+        }
 
         $migrations = $this->getMigrations();
         self::assertNotNull($migrations[0]['update']);
@@ -158,7 +179,10 @@ class MigrationRuntimeTest extends TestCase
         self::assertNull($migrations[1]['update']);
         self::assertNull($migrations[1]['update_destructive']);
 
-        $this->runner->migrate(false, 0, PHP_INT_MAX);
+        $runner = $this->runner->migrate();
+        while ($runner->valid()) {
+            $runner->next();
+        }
 
         $migrations = $this->getMigrations();
         self::assertNotNull($migrations[0]['update']);
@@ -166,7 +190,10 @@ class MigrationRuntimeTest extends TestCase
         self::assertNotNull($migrations[1]['update']);
         self::assertNull($migrations[1]['update_destructive']);
 
-        $this->runner->migrate(true, 0, PHP_INT_MAX);
+        $runner = $this->runner->migrateDestructive();
+        while ($runner->valid()) {
+            $runner->next();
+        }
 
         $migrations = $this->getMigrations();
         self::assertNotNull($migrations[0]['update']);
@@ -175,7 +202,7 @@ class MigrationRuntimeTest extends TestCase
         self::assertNotNull($migrations[1]['update_destructive']);
     }
 
-    public function test_time_stamp_cap()
+    public function test_timestamp_cap()
     {
         $migrations = $this->getMigrations();
         self::assertNull($migrations[0]['update']);
@@ -183,7 +210,10 @@ class MigrationRuntimeTest extends TestCase
         self::assertNull($migrations[1]['update']);
         self::assertNull($migrations[1]['update_destructive']);
 
-        $this->runner->migrate(false, 0, 1);
+        $runner = $this->runner->migrate(1);
+        while ($runner->valid()) {
+            $runner->next();
+        }
 
         $migrations = $this->getMigrations();
         self::assertNotNull($migrations[0]['update']);
@@ -202,7 +232,10 @@ class MigrationRuntimeTest extends TestCase
         $collector->syncMigrationCollection();
 
         try {
-            $this->runner->migrate(false, 0, PHP_INT_MAX);
+            $runner = $this->runner->migrate();
+            while ($runner->valid()) {
+                $runner->next();
+            }
         } catch (\Exception $e) {
             //nth
         }
@@ -224,13 +257,19 @@ class MigrationRuntimeTest extends TestCase
         $collector->syncMigrationCollection();
 
         try {
-            $this->runner->migrate(false, 0, PHP_INT_MAX);
+            $runner = $this->runner->migrate();
+            while ($runner->valid()) {
+                $runner->next();
+            }
         } catch (\Exception $e) {
             //nth
         }
 
         try {
-            $this->runner->migrate(true, 0, PHP_INT_MAX);
+            $runner = $this->runner->migrateDestructive();
+            while ($runner->valid()) {
+                $runner->next();
+            }
         } catch (\Exception $e) {
             //nth
         }
@@ -256,7 +295,7 @@ class MigrationRuntimeTest extends TestCase
             ->from('migration')
             ->where('`class` LIKE \'%_test_migrations_valid_run_time%\'
               OR `class` LIKE \'%_test_migrations_valid_run_time_exceptions%\'')
-            ->orderBy('creation_time_stamp', 'ASC')
+            ->orderBy('creation_timestamp', 'ASC')
             ->execute()
             ->fetchAll();
     }

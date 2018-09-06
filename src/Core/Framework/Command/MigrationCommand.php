@@ -2,21 +2,17 @@
 
 namespace Shopware\Core\Framework\Command;
 
-use Shopware\Core\Framework\Migration\Event\MigrateAdvanceEvent;
-use Shopware\Core\Framework\Migration\Event\MigrateFinishEvent;
-use Shopware\Core\Framework\Migration\Event\MigrateStartEvent;
 use Shopware\Core\Framework\Migration\Exception\MigrateException;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationRuntime;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class MigrationCommand extends ContainerAwareCommand implements EventSubscriberInterface
+class MigrationCommand extends Command
 {
     /**
      * @var string[]
@@ -53,60 +49,20 @@ class MigrationCommand extends ContainerAwareCommand implements EventSubscriberI
         $this->directories = $directories;
     }
 
-    public static function getSubscribedEvents()
-    {
-        return [
-            MigrateAdvanceEvent::EVENT_NAME => 'onAdvance',
-            MigrateStartEvent::EVENT_NAME => 'onStart',
-            MigrateFinishEvent::EVENT_NAME => 'onFinish',
-        ];
-    }
-
-    public function onStart(MigrateStartEvent $event)
-    {
-        if (!$this->io) {
-            return;
-        }
-
-        $this->io->progressStart($event->getNumberOfMigrations());
-    }
-
-    public function onAdvance(MigrateAdvanceEvent $event)
-    {
-        if (!$this->io) {
-            return;
-        }
-
-        $this->io->progressAdvance();
-    }
-
-    public function onFinish(MigrateFinishEvent $event)
-    {
-        if (!$this->io) {
-            return;
-        }
-
-        if ($event->getMigrated() === $event->getTotal()) {
-            $this->io->progressFinish();
-        }
-
-        $this->io->table(
-            ['Action', 'Number of migrations'],
-            [
-                ['Migrated', $event->getMigrated() . ' from ' . $event->getTotal()],
-            ]
-        );
-    }
-
     protected function configure()
     {
-        $this->addOption('destructive', 'd', InputOption::VALUE_NONE)
-            ->addOption('limit', 'l', InputOption::VALUE_OPTIONAL, '', 0)
-            ->addArgument('timeStamp', InputArgument::REQUIRED, 'timestamp cap for migrations');
+        $this->setName('database:migrate')
+            ->addArgument('until', InputArgument::OPTIONAL, 'timestamp cap for migrations')
+            ->addOption('all', 'all', InputOption::VALUE_NONE, 'no migration timestamp cap')
+            ->addOption('limit', 'l', InputOption::VALUE_OPTIONAL, '', 0);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        if (!$input->getArgument('until') && !$input->getOption('all')) {
+            throw new \InvalidArgumentException('missing timestamp cap or --all option');
+        }
+
         $this->io = new SymfonyStyle($input, $output);
 
         $this->io->writeln('Get collection from directories');
@@ -119,16 +75,43 @@ class MigrationCommand extends ContainerAwareCommand implements EventSubscriberI
 
         $this->io->writeln('migrate Migrations');
 
-        $destructive = (bool) $input->getOption('destructive');
+        $until = (int) $input->getArgument('until');
         $limit = (int) $input->getOption('limit');
-        $timeStamp = (int) $input->getArgument('timeStamp');
+
+        if ($input->getOption('all')) {
+            $until = null;
+        }
+
+        $total = count($this->runner->getExecutableMigrations($until, $limit));
+        $this->io->progressStart($total);
+        $migratedCounter = 0;
 
         try {
-            $this->runner->migrate($destructive, $limit, $timeStamp);
+            $generator = $this->runner->migrate($until, $limit);
+            foreach ($generator as $key => $return) {
+                $this->io->progressAdvance();
+                ++$migratedCounter;
+            }
         } catch (\Exception $e) {
+            $this->finishProgress($migratedCounter, $total);
             throw new MigrateException('Migration Error: "' . $e->getMessage() . '"');
         }
 
+        $this->finishProgress($migratedCounter, $total);
         $this->io->writeln('all migrations executed');
+    }
+
+    private function finishProgress(int $migrated, int $total)
+    {
+        if ($migrated === $total) {
+            $this->io->progressFinish();
+        }
+
+        $this->io->table(
+            ['Action', 'Number of migrations'],
+            [
+                ['Migrated', $migrated . ' from ' . $total],
+            ]
+        );
     }
 }

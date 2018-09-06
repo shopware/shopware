@@ -131,7 +131,6 @@
         <service class="Shopware\Core\Framework\Migration\MigrationRuntime" id="Shopware\Core\Framework\Migration\MigrationRuntime" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="logger"/>
-            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service class="Shopware\Core\Framework\Migration\MigrationCollectionLoader" id="Shopware\Core\Framework\Migration\MigrationCollectionLoader" public="true">
@@ -143,11 +142,17 @@
         </service>
 
         <service class="Shopware\Core\Framework\Command\MigrationCommand" id="Shopware\Core\Framework\Command\MigrationCommand">
-            <tag name="console.command" command="framework:migrate"/>
+            <tag name="console.command"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollectionLoader"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationRuntime"/>
             <argument>%migration.directories%</argument>
-            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service class="Shopware\Core\Framework\Command\MigrationDestructiveCommand" id="shopware.core.framework.command.migration_destructive_command">
+            <tag name="console.command"/>
+            <argument id="Shopware\Core\Framework\Migration\MigrationCollectionLoader" type="service"/>
+            <argument id="Shopware\Core\Framework\Migration\MigrationRuntime" type="service"/>
+            <argument>%migration.directories%</argument>
         </service>
 
         <service class="Shopware\Core\Framework\Api\Controller\MigrationController" id="Shopware\Core\Framework\Api\Controller\MigrationController" public="true">

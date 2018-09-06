@@ -142,6 +142,7 @@
     },
     "baseForm": {
       "labelSalutation": "Anrede",
+      "labelTitle": "Titel",
       "labelFirstName": "Vorname",
       "labelLastName": "Nachname",
       "labelEmail": "E-Mail",
@@ -410,8 +411,7 @@
       "messageEmpty": "Noch keine Produkte",
       "modalTitleDelete": "Produkte",
       "textDeleteConfirm": "Möchtest Du das Produkt \"{name}\" wirklich löschen?",
-      "titleRefresh": "Aktualisieren",
-      "titleFilter": "Filter"
+      "titleRefresh": "Aktualisieren"
     },
     "detail": {
       "textHeadline": "Neues Produkt",

@@ -42,10 +42,11 @@ Component.register('sw-user-card', {
             }
 
             const salutation = user.salutation ? user.salutation : '';
+            const title = user.title ? user.title : '';
             const firstName = user.firstName ? user.firstName : '';
             const lastName = user.lastName ? user.lastName : '';
 
-            return `${salutation} ${firstName} ${lastName}`;
+            return `${salutation} ${title} ${firstName} ${lastName}`;
         }
     }
 });

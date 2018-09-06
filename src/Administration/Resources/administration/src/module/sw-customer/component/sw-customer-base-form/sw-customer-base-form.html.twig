@@ -1,12 +1,21 @@
 {% block sw_customer_base_form %}
     <div class="sw-customer-base-form">
         <sw-container grid="1fr 1fr" gap="0px 30px">
-            {% block sw_customer_base_form_first_salutation_field %}
-                <sw-field type="text"
-                          :label="$tc('sw-customer.baseForm.labelSalutation')"
-                          v-model="customer.salutation">
-                </sw-field>
-            {% endblock %}
+            <sw-container grid="1fr 1fr" gap="10px">
+                {% block sw_customer_base_form_first_salutation_field %}
+                    <sw-field type="text"
+                              :label="$tc('sw-customer.baseForm.labelSalutation')"
+                              v-model="customer.salutation">
+                    </sw-field>
+                {% endblock %}
+
+                {% block sw_customer_base_form_title_field %}
+                    <sw-field type="text"
+                              :label="$tc('sw-customer.baseForm.labelTitle')"
+                              v-model="customer.title">
+                    </sw-field>
+                {% endblock %}
+            </sw-container>
 
             {% block sw_customer_base_form_first_name_field %}
                 <sw-field type="text"
@@ -26,20 +35,6 @@
                 <sw-field type="email"
                           :label="$tc('sw-customer.baseForm.labelEmail')"
                           v-model="customer.email">
-                </sw-field>
-            {% endblock %}
-
-            {% block sw_customer_base_form_phone_field %}
-                <sw-field type="text"
-                          :label="$tc('sw-customer.baseForm.labelPhoneNumber')"
-                          disabled>
-                </sw-field>
-            {% endblock %}
-
-            {% block sw_customer_base_form_company_field %}
-                <sw-field type="text"
-                          :label="$tc('sw-customer.baseForm.labelCompany')"
-                          disabled>
                 </sw-field>
             {% endblock %}
 

@@ -34,21 +34,25 @@ Component.register('sw-sales-channel-modal', {
     },
 
     created() {
-        const params = {
-            limit: 500,
-            page: 1
-        };
-
-        this.isLoading = true;
-
-        this.salesChannelTypeStore.getList(params).then((response) => {
-            this.total = response.total;
-            this.salesChannelTypes = response.items;
-            this.isLoading = false;
-        });
+        this.createdComponent();
     },
 
     methods: {
+        createdComponent() {
+            const params = {
+                limit: 500,
+                page: 1
+            };
+
+            this.isLoading = true;
+
+            this.salesChannelTypeStore.getList(params).then((response) => {
+                this.total = response.total;
+                this.salesChannelTypes = response.items;
+                this.isLoading = false;
+            });
+        },
+
         onCloseModal() {
             this.$emit('closeModal');
         },

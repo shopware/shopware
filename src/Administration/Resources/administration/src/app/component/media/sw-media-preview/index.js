@@ -37,41 +37,31 @@ Component.register('sw-media-preview', {
             const filePath = this.item.mimeType;
             const regEx = /^video\/+/;
 
-            return (regEx.test(filePath) && this.isPlayable());
+            return (regEx.test(filePath) && this.isVideoPlayable());
         },
 
         checkForFileTypeAudio() {
             const filePath = this.item.mimeType;
             const regEx = /^audio\/+/;
 
-            return (regEx.test(filePath));
+            return (regEx.test(filePath) && this.isAudioPlayable());
         },
 
         checkForInMemoryFile() {
             return this.item.mimeType === 'in-memory-file';
         },
 
-        checkForMimeType() {
-            const fileExtensions = {
-                'application/pdf': '.pdf',
-                'application/msword': '.doc',
-                'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '.docx',
-                'application/vnd.ms-excel': '.xls',
-                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': '.xlsx',
-                'application/vnd.ms-powerpoint': '.ppt',
-                'application/vnd.openxmlformats-officedocument.presentationml.presentation': '.pptx',
-                'application/svg': '.svg'
-            };
-
-            return fileExtensions[this.item.mimeType] || 'unknown';
-        },
-
         placeholderIcon() {
-            const regEx = /^video\/+/;
-
+            let regEx = /^video\/+/;
             if (regEx.test(this.item.mimeType)) {
                 // show movie placeholder image if video format is not playable
                 return 'file-thumbnail-mov';
+            }
+
+            regEx = /^audio\/+/;
+            if (regEx.test(this.item.mimeType)) {
+                // show movie placeholder image if video format is not playable
+                return 'file-thumbnail-mp3';
             }
 
             const fileExtensions = {
@@ -95,13 +85,21 @@ Component.register('sw-media-preview', {
     },
 
     methods: {
-        isPlayable() {
-            const playableFormats = {
-                'video/mp4': true,
-                'video/webm': true
-            };
+        isVideoPlayable() {
+            return [
+                'video/mp4',
+                'video/ogg',
+                'video/webm'
+            ].includes(this.item.mimeType);
+        },
 
-            return playableFormats[this.item.mimeType] || false;
+        isAudioPlayable() {
+            return [
+                'audio/mp3',
+                'audio/mpeg',
+                'audio/ogg',
+                'audio/wav'
+            ].includes(this.item.mimeType);
         }
     }
 });

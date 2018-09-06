@@ -33,7 +33,7 @@ class ConfigurationGroupDefinition extends EntityDefinition
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
-            (new TranslatedField(new StringField('name', 'name')))->setFlags(new Required()),
+            new TranslatedField(new StringField('name', 'name')),
             new IntField('position', 'position'),
             new BoolField('filterable', 'filterable'),
             new BoolField('comparable', 'comparable'),

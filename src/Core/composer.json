@@ -46,7 +46,10 @@
     "symfony/yaml": "^4.0",
     "twig/extensions": "^1.5",
     "twig/twig": "^2.4",
-    "voku/stop-words": "^2.0"
+    "voku/stop-words": "^2.0",
+    "phpoffice/phpword": "^0.15.0",
+    "smalot/pdfparser": "^0.13.2",
+    "james-heinrich/getid3": "^1.9"
   },
   "require-dev": {
     "bheller/images-generator": "^1.0",

@@ -16,8 +16,8 @@
         </service>
 
         <service class="Shopware\Core\Framework\ORM\DefinitionValidator" id="Shopware\Core\Framework\ORM\DefinitionValidator">
-            <argument id="Shopware\Core\Framework\ORM\DefinitionRegistry" type="service"/>
-            <argument id="Doctrine\DBAL\Connection" type="service"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\DefinitionRegistry"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service class="Shopware\Core\Framework\ORM\Search\Term\Tokenizer" id="Shopware\Core\Framework\ORM\Search\Term\Tokenizer"/>
@@ -25,15 +25,15 @@
         <service class="Shopware\Core\Framework\ORM\Search\Term\StopWordFilter" id="Shopware\Core\Framework\ORM\Search\Term\StopWordFilter"/>
 
         <service class="Shopware\Core\Framework\ORM\Search\Term\SearchTermInterpreter" id="Shopware\Core\Framework\ORM\Search\Term\SearchTermInterpreter" public="true">
-            <argument id="Shopware\Core\Framework\ORM\Search\Term\Tokenizer" type="service"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Search\Term\Tokenizer"/>
         </service>
 
         <service class="Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder" id="Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder" public="true"/>
 
         <service class="Shopware\Core\Framework\ORM\Search\SearchBuilder" id="Shopware\Core\Framework\ORM\Search\SearchBuilder">
-            <argument id="Shopware\Core\Framework\ORM\Search\Term\SearchTermInterpreter" type="service"/>
-            <argument id="Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder" type="service"/>
-            <argument id="Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreterInterface" type="service"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Search\Term\SearchTermInterpreter"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder"/>
+            <argument type="service" id="Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreterInterface"/>
         </service>
 
         <service class="Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreter" id="Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreterInterface" public="true">
@@ -46,13 +46,13 @@
                  id="Shopware\Core\Framework\Search\Util\CachedKeywordSearchTermInterpreter"
                  decorates="Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreterInterface">
 
-            <argument id="Shopware\Core\Framework\Search\Util\CachedKeywordSearchTermInterpreter.inner" type="service"/>
-            <argument id="shopware.cache" type="service"/>
+            <argument type="service" id="Shopware\Core\Framework\Search\Util\CachedKeywordSearchTermInterpreter.inner"/>
+            <argument type="service" id="shopware.cache"/>
         </service>
 
         <service class="Shopware\Core\Framework\Search\Util\LanguageAnalyzer" id="Shopware\Core\Framework\Search\Util\LanguageAnalyzer">
-            <argument id="Shopware\Core\Framework\ORM\Search\Term\Tokenizer" type="service"/>
-            <argument id="Shopware\Core\Framework\ORM\Search\Term\StopWordFilter" type="service"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Search\Term\Tokenizer"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Search\Term\StopWordFilter"/>
             <tag name="shopware.search_analyzer"/>
         </service>
 
@@ -61,7 +61,7 @@
         </service>
 
         <service class="Shopware\Core\Framework\Search\ORM\Indexing\SearchKeywordIndexer" id="Shopware\Core\Framework\Search\ORM\Indexing\SearchKeywordIndexer" public="true">
-            <argument id="Doctrine\DBAL\Connection" type="service"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="service_container" />
             <argument type="service" id="Shopware\Core\Framework\ORM\DefinitionRegistry" />
             <argument type="service" id="event_dispatcher"/>
@@ -87,7 +87,7 @@
         </service>
 
         <service class="Shopware\Core\Framework\ORM\Dbal\EntityReader" id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface">
-            <argument id="Doctrine\DBAL\Connection" type="service"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntitySearcherInterface"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\Dbal\EntityHydrator"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\Dbal\EntityDefinitionQueryHelper"/>
@@ -95,15 +95,15 @@
         </service>
 
         <service class="Shopware\Core\Framework\ORM\Dbal\EntityAggregator" id="Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface">
-            <argument id="Doctrine\DBAL\Connection" type="service"/>
-            <argument id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface" type="service"/>
-            <tag name="shopware.traceable" label="entity.aggregator"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\Search\Parser\SqlQueryParser"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\Dbal\EntityDefinitionQueryHelper"/>
+            <tag name="shopware.traceable" label="entity.aggregator"/>
         </service>
 
         <service class="Shopware\Core\Framework\ORM\Dbal\EntitySearcher" id="Shopware\Core\Framework\ORM\Search\EntitySearcherInterface">
-            <argument id="Doctrine\DBAL\Connection" type="service"/>
+            <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument type="service" id="Shopware\Core\Framework\ORM\Search\Parser\SqlQueryParser"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\Dbal\EntityDefinitionQueryHelper"/>
         </service>
@@ -112,27 +112,28 @@
             <argument type="service" id="Shopware\Core\Framework\ORM\Write\WriteCommandExtractor"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\Write\FieldAware\DefaultExtender"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\Dbal\EntityForeignKeyResolver"/>
-            <argument id="Shopware\Core\Framework\ORM\Write\EntityWriteGatewayInterface" type="service"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Write\EntityWriteGatewayInterface" />
             <tag name="shopware.traceable" label="entity.writer"/>
         </service>
 
         <service class="Shopware\Core\Framework\ORM\Write\WriteCommandExtractor" id="Shopware\Core\Framework\ORM\Write\WriteCommandExtractor">
-            <argument id="Shopware\Core\Framework\ORM\Write\EntityWriteGatewayInterface" type="service"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Write\EntityWriteGatewayInterface"/>
+            <argument type="service" id="Shopware\Core\System\Locale\LocaleLanguageResolver"/>
         </service>
 
         <service class="Shopware\Core\Framework\ORM\Dbal\EntityWriteGateway" id="Shopware\Core\Framework\ORM\Write\EntityWriteGatewayInterface">
-            <argument id="Doctrine\DBAL\Connection" type="service"/>
+            <argument type="service" id="Doctrine\DBAL\Connection" />
             <tag name="shopware.traceable" label="entity.write-gateway"/>
         </service>
 
         <service id="Shopware\Core\Framework\ORM\Write\Validation\ConstraintBuilder" class="Shopware\Core\Framework\ORM\Write\Validation\ConstraintBuilder"/>
 
         <service class="Shopware\Core\Framework\ORM\Write\FieldAware\DefaultExtender" id="Shopware\Core\Framework\ORM\Write\FieldAware\DefaultExtender">
-            <argument id="validator" type="service"/>
-            <argument id="Shopware\Core\Framework\ORM\Write\Validation\ConstraintBuilder" type="service"/>
-            <argument id="Shopware\Core\Framework\ORM\Write\IdGenerator\GeneratorRegistry" type="service"/>
-            <argument id="Shopware\Core\Framework\ORM\Write\Filter\FilterRegistry" type="service"/>
-            <argument id="Shopware\Core\Framework\ORM\Write\ValueTransformer\ValueTransformerRegistry" type="service"/>
+            <argument type="service" id="validator"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Write\Validation\ConstraintBuilder"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Write\IdGenerator\GeneratorRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Write\Filter\FilterRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Write\ValueTransformer\ValueTransformerRegistry"/>
         </service>
 
         <service class="Shopware\Core\Framework\ORM\Search\Parser\SqlQueryParser" id="Shopware\Core\Framework\ORM\Search\Parser\SqlQueryParser">
@@ -172,7 +173,7 @@
         </service>
 
         <service class="Shopware\Core\Framework\ORM\Dbal\EntityForeignKeyResolver" id="Shopware\Core\Framework\ORM\Dbal\EntityForeignKeyResolver">
-            <argument id="Doctrine\DBAL\Connection" type="service"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\Dbal\EntityDefinitionQueryHelper"/>
         </service>
 
@@ -233,12 +234,12 @@
         </service>
 
         <service class="Shopware\Core\Framework\ORM\Dbal\Common\IndexTableOperator" id="Shopware\Core\Framework\ORM\Dbal\Common\IndexTableOperator">
-            <argument id="Doctrine\DBAL\Connection" type="service"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service class="Shopware\Core\Framework\ORM\Dbal\Indexing\ChildCountIndexer" id="Shopware\Core\Framework\ORM\Dbal\Indexing\ChildCountIndexer">
-            <argument id="Doctrine\DBAL\Connection" type="service"/>
-            <argument id="event_dispatcher" type="service"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\DefinitionRegistry"/>
             <tag name="shopware.dbal_indexing.indexer" priority="1000"/>
         </service>

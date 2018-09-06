@@ -1371,6 +1371,7 @@ CREATE TABLE `language` (
   `created_at` datetime(3) NOT NULL,
   `updated_at` datetime(3),
   PRIMARY KEY (`id`, `tenant_id`),
+  UNIQUE (`locale_id`, `locale_tenant_id`, `locale_version_id`, `parent_id`, `parent_tenant_id`),
   CONSTRAINT `fk_language.parent_id` FOREIGN KEY (`parent_id`, `parent_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_language.locale_id` FOREIGN KEY (`locale_id`, `locale_version_id`, `locale_tenant_id`) REFERENCES `locale` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

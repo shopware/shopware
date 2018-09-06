@@ -41,6 +41,7 @@ use Shopware\Core\Framework\ORM\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\ORM\Write\WriteContext;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\System\Locale\LocaleLanguageResolverInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -58,64 +59,69 @@ abstract class Field extends Struct
     protected $propertyName;
 
     /**
-     * @var ConstraintBuilder
+     * @var ConstraintBuilder|null
      */
     protected $constraintBuilder;
 
     /**
-     * @var string|EntityDefinition
+     * @var string|EntityDefinition|null
      */
     protected $definition;
 
     /**
-     * @var FieldExceptionStack
+     * @var FieldExceptionStack|null
      */
     protected $exceptionStack;
 
     /**
-     * @var FieldExtenderCollection
+     * @var FieldExtenderCollection|null
      */
     protected $fieldExtenderCollection;
 
     /**
-     * @var FilterRegistry
+     * @var FilterRegistry|null
      */
     protected $filterRegistry;
 
     /**
-     * @var GeneratorRegistry
+     * @var GeneratorRegistry|null
      */
     protected $generatorRegistry;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $path = '';
 
     /**
-     * @var ValidatorInterface
+     * @var ValidatorInterface|null
      */
     protected $validator;
 
     /**
-     * @var ValueTransformerRegistry
+     * @var ValueTransformerRegistry|null
      */
     protected $valueTransformerRegistry;
 
     /**
-     * @var WriteContext
+     * @var WriteContext|null
      */
     protected $writeContext;
 
     /**
-     * @var WriteCommandQueue
+     * @var WriteCommandQueue|null
      */
     protected $commandQueue;
 
     /**
-     * @var WriteCommandExtractor
+     * @var WriteCommandExtractor|null
      */
     protected $writeResource;
+
+    /**
+     * @var LocaleLanguageResolverInterface|null
+     */
+    protected $localeLanguageResolver;
 
     public function __construct(string $propertyName)
     {
@@ -248,6 +254,16 @@ abstract class Field extends Struct
     public function setWriteResource(WriteCommandExtractor $writeResource): void
     {
         $this->writeResource = $writeResource;
+    }
+
+    public function getLocaleLanguageResolver(): ?LocaleLanguageResolverInterface
+    {
+        return $this->localeLanguageResolver;
+    }
+
+    public function setLocaleLanguageResolver(LocaleLanguageResolverInterface $localeLanguageResolver): void
+    {
+        $this->localeLanguageResolver = $localeLanguageResolver;
     }
 
     abstract protected function invoke(EntityExistence $existence, KeyValuePair $data): \Generator;

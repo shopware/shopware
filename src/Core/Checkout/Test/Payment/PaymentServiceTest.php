@@ -6,8 +6,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Payment\Cart\Token\JWTFactory;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
+use Shopware\Core\Checkout\Payment\Exception\TokenExpiredException;
+use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentMethodStruct;
 use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
@@ -29,6 +32,11 @@ class PaymentServiceTest extends TestCase
      * @var PaymentService
      */
     private $paymentService;
+
+    /**
+     * @var JWTFactory
+     */
+    private $tokenFactory;
 
     /**
      * @var RepositoryInterface
@@ -58,6 +66,7 @@ class PaymentServiceTest extends TestCase
     protected function setUp()
     {
         $this->paymentService = $this->getContainer()->get(PaymentService::class);
+        $this->tokenFactory = $this->getContainer()->get(JWTFactory::class);
         $this->orderRepository = $this->getContainer()->get('order.repository');
         $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->orderTransactionRepository = $this->getContainer()->get('order_transaction.repository');
@@ -65,6 +74,10 @@ class PaymentServiceTest extends TestCase
         $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
     }
 
+    /**
+     * @throws InvalidOrderException
+     * @throws UnknownPaymentMethodException
+     */
     public function testHandlePaymentByOrderWithInvalidOrderId()
     {
         $orderId = Uuid::uuid4()->getHex();
@@ -76,6 +89,10 @@ class PaymentServiceTest extends TestCase
         );
     }
 
+    /**
+     * @throws InvalidOrderException
+     * @throws UnknownPaymentMethodException
+     */
     public function testHandlePaymentByOrder()
     {
         $paymentMethodId = $this->createPaymentMethod($this->context);
@@ -93,16 +110,35 @@ class PaymentServiceTest extends TestCase
         static::assertEquals(TestPaymentHandler::REDIRECT_URL, $response->getTargetUrl());
     }
 
+    /**
+     * @throws TokenExpiredException
+     * @throws UnknownPaymentMethodException
+     */
     public function testFinalizeTransactionWithInvalidToken()
     {
-        $transactionId = Uuid::uuid4()->getHex();
+        $token = Uuid::uuid4()->getHex();
         $request = new Request();
         self::expectException(InvalidTokenException::class);
         $this->paymentService->finalizeTransaction(
-            $transactionId,
+            $token,
             $request,
             Context::createDefaultContext(Defaults::TENANT_ID)
         );
+    }
+
+    /**
+     * @throws TokenExpiredException
+     * @throws UnknownPaymentMethodException
+     */
+    public function testFinalizeTransactionWithExpiredToken()
+    {
+        $request = new Request();
+        $transaction = JWTFactoryTest::createTransaction();
+
+        $token = $this->tokenFactory->generateToken($transaction, $this->context, -1);
+
+        static::expectException(TokenExpiredException::class);
+        $this->paymentService->finalizeTransaction($token, $request, $this->context);
     }
 
     private function getCheckoutContext(string $paymentMethodId)

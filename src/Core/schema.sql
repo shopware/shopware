@@ -1078,24 +1078,6 @@ CREATE TABLE `payment_method_translation` (
   CONSTRAINT `payment_method_translation_ibfk_2` FOREIGN KEY (`payment_method_id`, `payment_method_version_id`, `payment_method_tenant_id`) REFERENCES `payment_method` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-DROP TABLE IF EXISTS `payment_token`;
-CREATE TABLE `payment_token` (
-  `id` binary(16) NOT NULL,
-  `tenant_id` binary(16) NOT NULL,
-  `token` varchar(255) NOT NULL,
-  `payment_method_id` binary(16) NOT NULL,
-  `payment_method_tenant_id` binary(16) NOT NULL,
-  `payment_method_version_id` binary(16) NOT NULL,
-  `order_transaction_id` binary(16) NOT NULL,
-  `order_transaction_tenant_id` binary(16) NOT NULL,
-  `order_transaction_version_id` binary(16) NOT NULL,
-  `expires` datetime(3) NOT NULL,
-  PRIMARY KEY (`id`, `tenant_id`),
-  UNIQUE KEY `token` (`token`, `tenant_id`),
-  CONSTRAINT `fk_payment_token.payment_method_id` FOREIGN KEY (`payment_method_id`, `payment_method_version_id`, `payment_method_tenant_id`) REFERENCES `payment_method` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_payment_token.order_transaction_id` FOREIGN KEY (`order_transaction_id`, `order_transaction_tenant_id`, `order_transaction_version_id`) REFERENCES `order_transaction` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 DROP TABLE IF EXISTS `plugin`;
 CREATE TABLE `plugin` (
   `id` VARCHAR(250) NOT NULL,

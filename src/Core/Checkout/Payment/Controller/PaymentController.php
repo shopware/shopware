@@ -41,6 +41,7 @@ class PaymentController extends Controller
     {
         $paymentToken = $request->get('_sw_payment_token');
         $finishUrl = $request->get('_sw_finish_url');
+
         $this->paymentService->finalizeTransaction($paymentToken, $request, $context);
 
         if ($finishUrl) {

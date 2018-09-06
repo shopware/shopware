@@ -19,6 +19,6 @@ class InvalidTokenException extends ShopwareHttpException
 
     public function getStatusCode(): int
     {
-        return Response::HTTP_NOT_FOUND;
+        return Response::HTTP_BAD_REQUEST;
     }
 }

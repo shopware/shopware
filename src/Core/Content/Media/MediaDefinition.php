@@ -16,6 +16,7 @@ use Shopware\Core\Framework\ORM\Field\IdField;
 use Shopware\Core\Framework\ORM\Field\IntField;
 use Shopware\Core\Framework\ORM\Field\LongTextField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Field\ObjectField;
 use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\Field\TenantIdField;
@@ -52,7 +53,7 @@ class MediaDefinition extends EntityDefinition
             (new StringField('mime_type', 'mimeType'))->setFlags(new SearchRanking(self::LOW_SEARCH_RAKING), new WriteProtected('write_media')),
             (new StringField('file_extension', 'fileExtension'))->setFlags(new SearchRanking(self::MIDDLE_SEARCH_RANKING), new WriteProtected('write_media')),
             (new IntField('file_size', 'fileSize'))->setFlags(new WriteProtected('write_media')),
-            (new LongTextField('meta_data', 'metaData'))->setFlags(new WriteProtected('write_media')),
+            (new ObjectField('meta_data', 'metaData'))->setFlags(new WriteProtected('write_media')),
             new CreatedAtField(),
             new UpdatedAtField(),
             (new TranslatedField(new LongTextField('description', 'description')))->setFlags(new SearchRanking(self::MIDDLE_SEARCH_RANKING)),

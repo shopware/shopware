@@ -184,7 +184,10 @@ class GenerateThumbnailsCommandTest extends TestCase
 
         $this->repository->create([$media], $this->context);
         $filePath = $this->urlGenerator->getRelativeMediaUrl($media['id'], 'png');
-        $this->filesystem->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r'));
+        $this->filesystem->putStream(
+            $filePath,
+            fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r')
+        );
 
         $media = [
             'id' => Uuid::uuid4()->getHex(),
@@ -211,7 +214,10 @@ class GenerateThumbnailsCommandTest extends TestCase
 
         $this->repository->create([$media], $this->context);
         $filePath = $this->urlGenerator->getRelativeMediaUrl($media['id'], 'pdf');
-        $this->filesystem->putStream($filePath, fopen(__DIR__ . '/../fixtures/Shopware_5_3_Broschuere.pdf', 'r'));
+        $this->filesystem->putStream(
+            $filePath,
+            fopen(__DIR__ . '/../fixtures/Shopware_5_3_Broschuere.pdf', 'r')
+        );
 
         $media = [
             'id' => Uuid::uuid4()->getHex(),

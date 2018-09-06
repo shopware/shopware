@@ -9,6 +9,8 @@ use Shopware\Core\Content\Media\Exception\IllegalMimeTypeException;
 use Shopware\Core\Content\Media\Exception\MediaNotFoundException;
 use Shopware\Core\Content\Media\Exception\UploadException;
 use Shopware\Core\Content\Media\MediaStruct;
+use Shopware\Core\Content\Media\Metadata\Metadata;
+use Shopware\Core\Content\Media\Metadata\MetadataLoader;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
@@ -39,16 +41,23 @@ class FileSaver
      */
     protected $eventDispatcher;
 
+    /**
+     * @var MetadataLoader
+     */
+    private $metadataLoader;
+
     public function __construct(
         RepositoryInterface $repository,
         FilesystemInterface $filesystem,
         UrlGeneratorInterface $urlGenerator,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        MetadataLoader $metadataLoader
     ) {
         $this->repository = $repository;
         $this->filesystem = $filesystem;
         $this->urlGenerator = $urlGenerator;
         $this->eventDispatcher = $eventDispatcher;
+        $this->metadataLoader = $metadataLoader;
     }
 
     /**
@@ -57,14 +66,16 @@ class FileSaver
      */
     public function persistFileToMedia(MediaFile $mediaFile, string $mediaId, Context $context): void
     {
+        // @todo remove with NEXT-817
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('id', $mediaId));
         if ($this->repository->searchIds($criteria, $context)->getTotal() !== 1) {
             throw new MediaNotFoundException($mediaId);
         }
 
+        $rawMetadata = $this->metadataLoader->loadFromFile($mediaFile);
         $this->saveFileToMediaDir($mediaFile, $mediaId);
-        $media = $this->updateMediaEntity($mediaFile, $mediaId, $context);
+        $media = $this->updateMediaEntity($mediaFile, $mediaId, $rawMetadata, $context);
 
         try {
             $this->eventDispatcher->dispatch(
@@ -87,13 +98,18 @@ class FileSaver
         }
     }
 
-    private function updateMediaEntity(MediaFile $mediaFile, string $mediaId, Context $context): MediaStruct
-    {
+    private function updateMediaEntity(
+        MediaFile $mediaFile,
+        string $mediaId,
+        Metadata $metadata,
+        Context $context
+    ): MediaStruct {
         $data = [
             'id' => $mediaId,
             'mimeType' => $mediaFile->getMimeType(),
             'fileExtension' => $mediaFile->getFileExtension(),
             'fileSize' => $mediaFile->getFileSize(),
+            'metaData' => $metadata,
             'thumbnailsCreated' => false,
         ];
 

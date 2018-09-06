@@ -787,9 +787,10 @@ CREATE TABLE `media` (
   `mime_type` varchar(50) COLLATE utf8mb4_unicode_ci NULL,
   `file_extension` varchar(50) COLLATE utf8mb4_unicode_ci NULL,
   `file_size` int(10) unsigned NULL,
-  `meta_data` text COLLATE utf8mb4_unicode_ci,
+  `meta_data` LONGTEXT DEFAULT NULL,
   `created_at` datetime(3) NOT NULL,
   `updated_at` datetime(3),
+   CHECK (JSON_VALID(`meta_data`)),
    PRIMARY KEY (`id`, `version_id`, `tenant_id`),
    CONSTRAINT `fk_media.user_id` FOREIGN KEY (`user_id`, `user_tenant_id`) REFERENCES `user` (`id`, `tenant_id`) ON DELETE SET NULL ON UPDATE CASCADE,
    CONSTRAINT `fk_media.catalog_id` FOREIGN KEY (`catalog_id`, `catalog_tenant_id`) REFERENCES `catalog` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE

@@ -215,8 +215,6 @@ Component.register('sw-catalog-detail', {
             });
 
             return this.catalog.save().then((response) => {
-                this.isLoading = false;
-
                 this.createNotificationSuccess({
                     title: titleSaveSuccess,
                     message: messageSaveSuccess
@@ -229,6 +227,8 @@ Component.register('sw-catalog-detail', {
                     message: messageSaveError
                 });
                 warn(this._name, exception.message, exception.response);
+            }).finally(() => {
+                this.isLoading = false;
             });
         }
     }

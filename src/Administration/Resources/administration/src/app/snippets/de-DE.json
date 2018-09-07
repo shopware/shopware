@@ -118,7 +118,8 @@
       "mainMenuItemGeneral": "Kunden",
       "mainMenuItemList": "Übersicht",
       "mainMenuItemAdd": "Kunden anlegen",
-      "descriptionTextModule": "Modul zur Verwaltung von Kunden."
+      "descriptionTextModule": "Modul zur Verwaltung von Kunden.",
+      "placeholderSearchBar": "Durchsuchen aller Kunden"
     },
     "list": {
       "textCustomers": "Kunden",
@@ -307,7 +308,8 @@
       "mainMenuItemGeneral": "Produkte",
       "mainMenuItemList": "Übersicht",
       "mainMenuItemAdd": "Produkt anlegen",
-      "descriptionTextModule": "Modul zur Verwaltung von Produkten."
+      "descriptionTextModule": "Modul zur Verwaltung von Produkten.",
+      "placeholderSearchBar": "Durchsuchen aller Produkte"
     },
     "basicForm": {
       "labelTitle": "Titel",
@@ -429,7 +431,9 @@
   },
   "sw-manufacturer": {
     "general": {
-      "mainMenuItemList": "Hersteller"
+      "mainMenuItemList": "Hersteller",
+      "mainMenuItemGeneral": "Hersteller",
+      "placeholderSearchBar": "Durchsuchen aller Hersteller"
     },
     "list": {
       "textManufacturerOverview": "Hersteller",
@@ -467,7 +471,8 @@
     "general": {
       "mainMenuItemGeneral": "Bestellungen",
       "mainMenuItemList": "Übersicht",
-      "descriptionTextModule": "Modul zur Verwaltung von Bestellungen."
+      "descriptionTextModule": "Modul zur Verwaltung von Bestellungen.",
+      "placeholderSearchBar": "Durchsuchen aller Bestellungen"
     },
     "list": {
       "columnCustomerName": "Kundenname",
@@ -565,7 +570,8 @@
   "sw-media": {
     "general": {
       "mainMenuItemGeneral": "Medien",
-      "descriptionTextModule": "Modul zum Verwalten von Mediendateien"
+      "descriptionTextModule": "Modul zum Verwalten von Mediendateien",
+      "placeholderSearchBar": "Durchsuchen aller Medien"
     },
     "smart-bar": {
       "buttonUpload": "Dateien hochladen"
@@ -640,7 +646,8 @@
   },
   "sw-settings-currency": {
     "general": {
-      "mainMenuItemGeneral": "Währungen"
+      "mainMenuItemGeneral": "Währungen",
+      "placeholderSearchBar": "Durchsuchen aller Währungen"
     },
     "list": {
       "textHeadline": "Währungen",
@@ -677,7 +684,8 @@
   "sw-settings-tax": {
     "general": {
       "mainMenuItemGeneral": "Steuern",
-      "taxRateSymbol": "&#037;"
+      "taxRateSymbol": "&#037;",
+      "placeholderSearchBar": "Durchsuchen aller Steuern"
     },
     "list": {
       "textHeadline": "Steuern",
@@ -707,7 +715,8 @@
   },
   "sw-settings-language": {
     "general": {
-      "mainMenuItemGeneral": "Sprachen"
+      "mainMenuItemGeneral": "Sprachen",
+      "placeholderSearchBar": "Durchsuchen aller Sprachen"
     },
     "list": {
       "textHeadline": "Sprachen",
@@ -738,7 +747,8 @@
   },
   "sw-settings-payment": {
     "general": {
-      "mainMenuItemGeneral": "Zahlungsarten"
+      "mainMenuItemGeneral": "Zahlungsarten",
+      "placeholderSearchBar": "Durchsuchen aller Zahlungsarten"
     },
     "list": {
       "textHeadline": "Zahlungsarten",
@@ -775,7 +785,8 @@
   },
   "sw-settings-shipping": {
     "general": {
-      "mainMenuItemGeneral": "Versandarten"
+      "mainMenuItemGeneral": "Versandarten",
+      "placeholderSearchBar": "Durchsuchen aller Versandarten"
     },
     "list": {
       "textHeadline": "Versandarten",
@@ -806,7 +817,8 @@
   },
   "sw-settings-country": {
     "general": {
-      "mainMenuItemGeneral": "Länder"
+      "mainMenuItemGeneral": "Länder",
+      "placeholderSearchBar": "Durchsuchen aller Länder"
     },
     "list": {
       "textHeadline": "Länder",

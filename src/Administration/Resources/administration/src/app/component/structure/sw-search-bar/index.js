@@ -9,6 +9,19 @@ Component.register('sw-search-bar', {
 
     inject: ['searchService'],
 
+    props: {
+        searchType: {
+            type: String,
+            required: false,
+            default: ''
+        },
+        placeholder: {
+            type: String,
+            required: false,
+            default: ''
+        }
+    },
+
     data() {
         return {
             showResultsContainer: false,
@@ -34,7 +47,7 @@ Component.register('sw-search-bar', {
         },
 
         useTypeSearch() {
-            return !!(this.$slots['search-type'] && this.useSearchTypeWhenSet);
+            return this.searchType !== '' && this.useSearchTypeWhenSet;
         },
 
         showSearchResults() {
@@ -54,14 +67,8 @@ Component.register('sw-search-bar', {
         },
 
         placeholderSearchInput() {
-            if (this.useTypeSearch) {
-                let entity = this.$slots['search-type'].shift().text.trim();
-
-                if (this.$root.$i18n.locale !== 'de-DE') {
-                    entity = entity.toLowerCase();
-                }
-
-                return this.$tc('global.sw-search-bar.placeholderTypeSearchField', 0, { entity: entity });
+            if (this.useTypeSearch && this.placeholder !== '') {
+                return this.placeholder;
             }
 
             return this.$tc('global.sw-search-bar.placeholderSearchField');
@@ -147,7 +154,7 @@ Component.register('sw-search-bar', {
 
         doListSearch: utils.debounce(function debouncedSearch() {
             const searchTerm = this.searchTerm.trim();
-            this.$root.$emit('search', searchTerm);
+            this.$emit('search', searchTerm);
         }, 400),
 
         doGlobalSearch: utils.debounce(function debouncedSearch() {

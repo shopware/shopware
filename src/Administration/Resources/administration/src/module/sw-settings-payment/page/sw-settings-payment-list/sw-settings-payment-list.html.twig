@@ -2,9 +2,12 @@
     {% block sw_settings_payment_index %}
         <sw-page class="sw-settings-payment-list">
 
-            {% block sw_settings_payment_list_search_bar_type %}
-                <template slot="search-bar-type">
-                    {{ $tc('sw-settings-payment.list.textHeadline') }}
+            {% block sw_settings_payment_list_search_bar %}
+                <template slot="search-bar">
+                    <sw-search-bar :placeholder="$tc('sw-settings-payment.general.placeholderSearchBar')"
+                                   :searchType="$tc('sw-settings-payment.general.mainMenuItemGeneral')"
+                                   @search="this.onSearch">
+                    </sw-search-bar>
                 </template>
             {% endblock %}
 

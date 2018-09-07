@@ -5,6 +5,7 @@ import './component/sw-product-price-form';
 import './component/sw-product-settings-form';
 import './component/sw-product-file-upload';
 import './view/sw-product-detail-base';
+import './view/sw-product-create-base';
 import './view/sw-product-detail-context-prices';
 import './page/sw-product-list';
 import './page/sw-product-detail';
@@ -36,7 +37,7 @@ Module.register('sw-product', {
             },
             children: {
                 base: {
-                    component: 'sw-product-detail-base',
+                    component: 'sw-product-create-base',
                     path: 'base',
                     meta: {
                         parentPath: 'sw.product.index'

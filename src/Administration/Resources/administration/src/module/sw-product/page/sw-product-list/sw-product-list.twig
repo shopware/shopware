@@ -1,9 +1,12 @@
 {% block sw_product_list %}
     <sw-page class="sw-product-list">
 
-        {% block sw_order_list_search_bar_type %}
-            <template slot="search-bar-type">
-                {{ $tc('sw-product.general.mainMenuItemGeneral') }}
+        {% block sw_order_list_search_bar %}
+            <template slot="search-bar">
+                <sw-search-bar :placeholder="$tc('sw-order.general.placeholderSearchBar')"
+                               :searchType="$tc('sw-order.general.mainMenuItemGeneral')"
+                               @search="this.onSearch">
+                </sw-search-bar>
             </template>
         {% endblock %}
 

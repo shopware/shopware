@@ -31,9 +31,7 @@
 
                         {% block sw_search_bar_type %}
                             <span v-if="useTypeSearch" class="sw-search-bar__type" :style="searchTypeColor">
-                                <slot name="search-type">
-                                    {% block sw_search_bar_slot_type %}{% endblock %}
-                                </slot>
+                                {{ searchType }}
                             </span>
                         {% endblock %}
 

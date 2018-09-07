@@ -118,7 +118,8 @@
       "mainMenuItemGeneral": "Customers",
       "mainMenuItemList": "Overview",
       "mainMenuItemAdd": "Add new customer",
-      "descriptionTextModule": "The module for managing customers."
+      "descriptionTextModule": "The module for managing customers.",
+      "placeholderSearchBar": "Search in all customers"
     },
     "list": {
       "textCustomers": "Customers",
@@ -307,7 +308,8 @@
       "mainMenuItemGeneral": "Products",
       "mainMenuItemList": "Overview",
       "mainMenuItemAdd": "Add new product",
-      "descriptionTextModule": "The module for managing products."
+      "descriptionTextModule": "The module for managing products.",
+      "placeholderSearchBar": "Search in all products"
     },
     "basicForm": {
       "labelTitle": "Title",
@@ -429,7 +431,9 @@
   },
   "sw-manufacturer": {
     "general": {
-      "mainMenuItemList": "Manufacturer"
+      "mainMenuItemList": "Manufacturer",
+      "mainMenuItemGeneral": "Manufacturer",
+      "placeholderSearchBar": "Search in all manufacturers"
     },
     "list": {
       "textManufacturerOverview": "Manufacturer",
@@ -467,7 +471,8 @@
     "general": {
       "mainMenuItemGeneral": "Orders",
       "mainMenuItemList": "Overview",
-      "descriptionTextModule": "The module for managing orders."
+      "descriptionTextModule": "The module for managing orders.",
+      "placeholderSearchBar": "Search in all orders"
     },
     "list": {
       "columnCustomerName": "Customer name",
@@ -565,7 +570,8 @@
   "sw-media": {
     "general": {
       "mainMenuItemGeneral": "Media",
-      "descriptionTextModule": "Module to manage your media data"
+      "descriptionTextModule": "Module to manage your media data",
+      "placeholderSearchBar": "Search in all media"
     },
     "catalogItem": {
       "showCatalogContent": "Show contents",
@@ -640,7 +646,8 @@
   },
   "sw-settings-currency": {
     "general": {
-      "mainMenuItemGeneral": "Currencies"
+      "mainMenuItemGeneral": "Currencies",
+      "placeholderSearchBar": "Search in all currencies"
     },
     "list": {
       "textHeadline": "Currencies",
@@ -677,7 +684,8 @@
   "sw-settings-tax": {
     "general": {
       "mainMenuItemGeneral": "Tax",
-      "taxRateSymbol": "&#037;"
+      "taxRateSymbol": "&#037;",
+      "placeholderSearchBar": "Search in all taxes"
     },
     "list": {
       "textHeadline": "Tax",
@@ -707,7 +715,8 @@
   },
   "sw-settings-language": {
     "general": {
-      "mainMenuItemGeneral": "Languages"
+      "mainMenuItemGeneral": "Languages",
+      "placeholderSearchBar": "Search in all languages"
     },
     "list": {
       "textHeadline": "Sprachen",
@@ -738,7 +747,8 @@
   },
   "sw-settings-payment": {
     "general": {
-      "mainMenuItemGeneral": "Payment methods"
+      "mainMenuItemGeneral": "Payment methods",
+      "placeholderSearchBar": "Search in all payment methods"
     },
     "list": {
       "textHeadline": "Payment methods",
@@ -775,7 +785,8 @@
   },
   "sw-settings-shipping": {
     "general": {
-      "mainMenuItemGeneral": "Shipping costs"
+      "mainMenuItemGeneral": "Shipping costs",
+      "placeholderSearchBar": "Search in all shipping costs"
     },
     "list": {
       "textHeadline": "Shipping costs",
@@ -806,7 +817,8 @@
   },
   "sw-settings-country": {
     "general": {
-      "mainMenuItemGeneral": "Countries"
+      "mainMenuItemGeneral": "Countries",
+      "placeholderSearchBar": "Search in all countries"
     },
     "list": {
       "textHeadline": "Countries",

@@ -601,6 +601,20 @@
         "url": "URL"
       }
     },
+    "catalog": {
+      "labelSort": "Sort by:",
+      "labelIconSize": "Preview size:",
+      "labelCatalog": "Selected catalog:",
+      "labelSize": "Size:",
+      "labelSortByNameAsc": "Name ascending",
+      "labelSortByNameDsc": "Name descending",
+      "labelSortBySizeAsc": "Size ascending",
+      "labelSortBySizeDsc": "Size descending",
+      "labelSortByCreatedAsc": "Created ascending",
+      "labelSortByCreatedDsc": "Created descending",
+      "labelSortByDataTypeAsc": "Data-Type ascending",
+      "labelSortByDataTypeDsc": "Data-Type descending"
+    },
     "modalDelete": {
       "modalHeader": "Delete media files",
       "deleteMessage": "Do you want to delete \"{mediaName}\" ? | Delete {count} Media items?",

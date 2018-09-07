@@ -9,7 +9,7 @@
         {% endblock %}
 
         {% block sw_context_button_menu %}
-            <sw-context-menu :style="menuStyles">
+            <sw-context-menu :style="menuStyles" ref="swContextMenu">
                 <slot>{% block sw_context_button_menu_slot_default %}{% endblock %}</slot>
             </sw-context-menu>
         {% endblock %}

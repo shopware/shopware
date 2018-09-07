@@ -601,6 +601,20 @@
         "url": "URL"
       }
     },
+    "catalog": {
+      "labelSort": "Sortiere nach:",
+      "labelIconSize": "Vorschau-Größe:",
+      "labelCatalog": "Ausgewählter Katalog:",
+      "labelSize": "Größe:",
+      "labelSortByNameAsc": "Name aufsteigend",
+      "labelSortByNameDsc": "Name absteigend",
+      "labelSortBySizeAsc": "Größe aufsteigend",
+      "labelSortBySizeDsc": "Größe absteigend",
+      "labelSortByCreatedAsc": "Erstelldatum aufsteigend",
+      "labelSortByCreatedDsc": "Erstelldatum absteigend",
+      "labelSortByDataTypeAsc": "Dateityp aufsteigend",
+      "labelSortByDataTypeDsc": "Dateityp absteigend"
+    },
     "modalDelete": {
       "modalHeader": "Medien löschen",
       "deleteMessage":"Möchtest Du \"{mediaName}\" wirklich löschen? | Diese {count} Medien löschen",

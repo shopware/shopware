@@ -57,7 +57,7 @@ Component.register('sw-media-quickinfo', {
         },
 
         copyLinkToClipboard() {
-            if (this.itemIsAvailable) {
+            if (this.item) {
                 domUtils.copyToClipboard(this.item.url);
             }
         }

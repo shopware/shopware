@@ -8,15 +8,9 @@
                             {% block sw_media_sidebar_actions_quickinfo %}
                                 <sw-sidebar-item icon="default-action-document-view"
                                                  :title="$tc('sw-media.sidebar.actions.quickInfo')"
-                                                 ref="quickInfoButton">
+                                                 ref="quickInfoButton"
+                                                 :disabled="!hasItem">
                                     <sw-media-quickinfo :key="getKey" :item="item" :autoplay="autoplay" v-on="$listeners"></sw-media-quickinfo>
-                                </sw-sidebar-item>
-                            {% endblock %}
-
-                            {% block sw_media_sidebar_actions_filter %}
-                                <sw-sidebar-item icon="default-action-filter"
-                                                 :title="$tc('sw-media.sidebar.actions.filter')"
-                                                 :disabled="true">
                                 </sw-sidebar-item>
                             {% endblock %}
                         </div>
@@ -33,13 +27,6 @@
                             {% block sw_media_sidebar_actions_delete_file %}
                                 <sw-sidebar-item icon="default-action-trash"
                                                  @click="emitRequestRemoveSelection">
-                                </sw-sidebar-item>
-                            {% endblock %}
-
-                            {% block sw_media_sidebar_actions_settings %}
-                                <sw-sidebar-item icon="default-action-settings"
-                                                 :title="$tc('sw-media.sidebar.actions.settings')"
-                                                 :disabled="true">
                                 </sw-sidebar-item>
                             {% endblock %}
                         </div>

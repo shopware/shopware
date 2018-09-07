@@ -29,6 +29,10 @@ Component.register('sw-media-sidebar', {
                 key = this.item.id;
             }
             return key + this.autoplay;
+        },
+
+        hasItem() {
+            return this.item !== null;
         }
     },
 

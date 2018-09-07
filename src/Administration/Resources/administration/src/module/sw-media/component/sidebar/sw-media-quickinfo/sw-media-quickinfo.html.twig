@@ -24,6 +24,7 @@
                                 <li>
                                     <a class="sw-media-quickinfo__quickaction"
                                        :href="this.item.url"
+                                       target="_blank"
                                        download>
                                         <sw-icon small
                                                  name="default-action-cloud-download"
@@ -31,17 +32,6 @@
                                         </sw-icon>
                                         {{ $tc('sw-media.sidebar.quickinfo.download') }}
                                     </a>
-                                </li>
-                            {% endblock %}
-
-                            {% block sw_media_quickinfo_quickactions_move %}
-                                <li class="sw-media-quickinfo__quickaction"
-                                     @click="emitQuickAction($event, 'move-item')">
-                                    <sw-icon small
-                                             name="default-action-move-file"
-                                             class="sw-media-quickinfo__quickactions-icon">
-                                    </sw-icon>
-                                    {{ $tc('sw-media.sidebar.quickinfo.move') }}
                                 </li>
                             {% endblock %}
 
@@ -64,16 +54,6 @@
                                              class="sw-media-quickinfo__quickactions-icon">
                                     </sw-icon>
                                     {{ $tc('sw-media.sidebar.quickinfo.copyLink') }}
-                                </li>
-                            {% endblock %}
-
-                            {% block sw_media_quickinfo_quickactions_more %}
-                                <li class="sw-media-quickinfo__quickaction">
-                                    <sw-icon name="default-action-more-horizontal"
-                                             class="sw-media-quickinfo__quickactions-icon"
-                                             small>
-                                    </sw-icon>
-                                    {{ $tc('sw-media.sidebar.quickinfo.more') }}
                                 </li>
                             {% endblock %}
                         </ul>

@@ -52,70 +52,67 @@
                         <div class="sw-media-catalog__content-container">
                             {% block sw_media_catalog_content %}
                                 <div class="sw-media-catalog__content">
-
                                     <div class="sw-media-catalog__options-container">
                                         {% block sw_media_catalog_single_select_sort %}
-                                            <div class="sw-media-catalog__sort-by">
-                                                <sw-field type="select"
-                                                          name="sortType"
-                                                          :label=" $tc('sw-media.catalog.labelSort')"
-                                                          value="createdAt:dsc"
-                                                          @change="sortMediaItems">
-                                                    {% block sw_media_catalog_single_select_sort_createdAt_asc %}
-                                                        <option slot="options"
-                                                                value="createdAt:asc">
-                                                            {{ $tc('sw-media.catalog.labelSortByCreatedAsc') }}
-                                                        </option>
-                                                    {% endblock %}
+                                            <sw-field type="select"
+                                                      name="sortType"
+                                                      :label=" $tc('sw-media.catalog.labelSort')"
+                                                      value="createdAt:dsc"
+                                                      @change="sortMediaItems">
+                                                {% block sw_media_catalog_single_select_sort_createdAt_asc %}
+                                                    <option slot="options"
+                                                            value="createdAt:asc">
+                                                        {{ $tc('sw-media.catalog.labelSortByCreatedAsc') }}
+                                                    </option>
+                                                {% endblock %}
 
-                                                    {% block sw_media_catalog_single_select_sort_createdAt_dsc %}
-                                                        <option slot="options"
-                                                                value="createdAt:dsc" selected>
-                                                            {{ $tc('sw-media.catalog.labelSortByCreatedDsc') }}
-                                                        </option>
-                                                    {% endblock %}
+                                                {% block sw_media_catalog_single_select_sort_createdAt_dsc %}
+                                                    <option slot="options"
+                                                            value="createdAt:dsc" selected>
+                                                        {{ $tc('sw-media.catalog.labelSortByCreatedDsc') }}
+                                                    </option>
+                                                {% endblock %}
 
-                                                    {% block sw_media_catalog_single_select_sort_name_asc %}
-                                                        <option slot="options"
-                                                                value="name:asc">
-                                                            {{ $tc('sw-media.catalog.labelSortByNameAsc') }}
-                                                        </option>
-                                                    {% endblock %}
+                                                {% block sw_media_catalog_single_select_sort_name_asc %}
+                                                    <option slot="options"
+                                                            value="name:asc">
+                                                        {{ $tc('sw-media.catalog.labelSortByNameAsc') }}
+                                                    </option>
+                                                {% endblock %}
 
-                                                    {% block sw_media_catalog_single_select_sort_name_dsc %}
-                                                        <option slot="options"
-                                                                value="name:dsc">
-                                                            {{ $tc('sw-media.catalog.labelSortByNameDsc') }}
-                                                        </option>
-                                                    {% endblock %}
+                                                {% block sw_media_catalog_single_select_sort_name_dsc %}
+                                                    <option slot="options"
+                                                            value="name:dsc">
+                                                        {{ $tc('sw-media.catalog.labelSortByNameDsc') }}
+                                                    </option>
+                                                {% endblock %}
 
-                                                    {% block sw_media_catalog_single_select_sort_fileSize_asc %}
-                                                        <option slot="options"
-                                                                value="fileSize:asc">
-                                                            {{ $tc('sw-media.catalog.labelSortBySizeAsc') }}
-                                                        </option>
-                                                    {% endblock %}
+                                                {% block sw_media_catalog_single_select_sort_fileSize_asc %}
+                                                    <option slot="options"
+                                                            value="fileSize:asc">
+                                                        {{ $tc('sw-media.catalog.labelSortBySizeAsc') }}
+                                                    </option>
+                                                {% endblock %}
 
-                                                    {% block sw_media_catalog_single_select_sort_fileSize_dsc %}
-                                                        <option slot="options"
-                                                                value="fileSize:dsc">
-                                                            {{ $tc('sw-media.catalog.labelSortBySizeDsc') }}
-                                                        </option>
-                                                    {% endblock %}
-                                                </sw-field>
-                                            </div>
+                                                {% block sw_media_catalog_single_select_sort_fileSize_dsc %}
+                                                    <option slot="options"
+                                                            value="fileSize:dsc">
+                                                        {{ $tc('sw-media.catalog.labelSortBySizeDsc') }}
+                                                    </option>
+                                                {% endblock %}
+                                            </sw-field>
                                         {% endblock %}
 
                                         {% block sw_media_catalog_icon_size %}
                                             <div class="sw-media-catalog__icon-size">
                                                 {% block sw_media_catalog_icon_size_label %}
                                                     <div class="sw-media-catalog__icon-size-label">
-                                                        {{ $tc('sw-media.catalog.labelIconSize') }}
+                                                        {{$tc('sw-media.catalog.labelIconSize')}}
                                                     </div>
                                                 {% endblock %}
 
                                                 {% block sw_media_catalog_icon_size_slider %}
-                                                    <span class="sw-media-catalog__size-slider-border">
+                                                    <div class="sw-media-catalog__size-slider-container">
                                                         <input type="range"
                                                                step="1"
                                                                min="100"
@@ -123,7 +120,7 @@
                                                                class="sw-media-catalog__icon-size-slider"
                                                                id="iconSizeSliderValue"
                                                                v-model.number="catalogIconSize">
-                                                    </span>
+                                                    </div>
                                                 {% endblock %}
                                             </div>
                                         {% endblock %}

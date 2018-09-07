@@ -14,14 +14,6 @@
     position: relative;
     border-color: @sw-media-grid-item-color-border;
 
-    &.sw-media-grid-item:hover {
-        .sw-media-grid-item__content {
-            .sw-media-grid-item__selected-indicator {
-                display: block;
-            }
-        }
-    }
-
     &.is--selected {
         color: @sw-media-grid-item-color-selected;
 
@@ -129,13 +121,19 @@
     }
 
     .sw-media-grid-item__selected-indicator {
-        display:none;
+        visibility: hidden;
         position: absolute;
         top: @sw-media-grid-item-pseudo-padding;
         left: @sw-media-grid-item-pseudo-padding;
     }
 
+    &:hover {
+        .sw-media-grid-item__selected-indicator {
+            visibility: visible;
+        }
+    }
+
     .selected-indicator--visible {
-        display: block;
+        visibility: visible;
     }
 }

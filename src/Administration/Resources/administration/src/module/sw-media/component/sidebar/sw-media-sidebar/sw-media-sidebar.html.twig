@@ -9,7 +9,7 @@
                                 <sw-sidebar-item icon="default-action-document-view"
                                                  :title="$tc('sw-media.sidebar.actions.quickInfo')"
                                                  ref="quickInfoButton">
-                                    <sw-media-quickinfo :item="item" v-on="$listeners"></sw-media-quickinfo>
+                                    <sw-media-quickinfo :key="getKey" :item="item" :autoplay="autoplay" v-on="$listeners"></sw-media-quickinfo>
                                 </sw-sidebar-item>
                             {% endblock %}
 

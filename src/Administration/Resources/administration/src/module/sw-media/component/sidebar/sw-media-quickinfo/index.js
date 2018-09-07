@@ -15,6 +15,12 @@ Component.register('sw-media-quickinfo', {
             validator(value) {
                 return value.type === 'media';
             }
+        },
+
+        autoplay: {
+            required: false,
+            type: Boolean,
+            default: false
         }
     },
 

@@ -12,7 +12,7 @@ Component.register('sw-media-preview', {
 
         },
 
-        playable: {
+        showControls: {
             type: Boolean,
             required: false,
             default: false
@@ -85,6 +85,13 @@ Component.register('sw-media-preview', {
     },
 
     methods: {
+        onPlayClick(originalDomEvent) {
+            this.$emit('sw-media-preview-play', {
+                originalDomEvent,
+                item: this.item
+            });
+        },
+
         isVideoPlayable() {
             return [
                 'video/mp4',

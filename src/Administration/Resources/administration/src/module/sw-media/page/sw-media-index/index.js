@@ -91,8 +91,9 @@ Component.register('sw-media-index', {
             this.mediaItemToReplace = item;
         },
 
-        handleMediaGridItemShowDetails({ item }) {
+        handleMediaGridItemShowDetails({ item, autoplay }) {
             this.lastSelectedItem = item;
+            this.$refs.mediaSidebar.autoplay = autoplay;
             this.$refs.mediaSidebar.showQuickInfo();
         },
 

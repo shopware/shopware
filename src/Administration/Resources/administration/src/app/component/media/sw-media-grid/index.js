@@ -161,7 +161,15 @@ Component.register('sw-media-grid', {
             return this.findIndexInSelection(item) > -1;
         },
 
-        handleClick({ originalDomEvent, item }) {
+        mediaItemClicked({ originalDomEvent, item }) {
+            this.handleClick({ originalDomEvent, item, autoplay: false });
+        },
+
+        mediaItemPlayed({ originalDomEvent, item }) {
+            this.handleClick({ originalDomEvent, item, autoplay: true });
+        },
+
+        handleClick({ originalDomEvent, item, autoplay }) {
             if (this.selection.length > 0 || originalDomEvent.ctrlKey || originalDomEvent.shiftKey) {
                 this.handleSelection({ originalDomEvent, item });
                 return;
@@ -169,7 +177,8 @@ Component.register('sw-media-grid', {
 
             this.$emit('sw-media-grid-media-item-show-details', {
                 originalDomEvent,
-                item
+                item,
+                autoplay
             });
         },
 

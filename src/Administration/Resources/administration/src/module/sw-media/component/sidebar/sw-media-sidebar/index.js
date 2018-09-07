@@ -16,6 +16,22 @@ Component.register('sw-media-sidebar', {
         }
     },
 
+    data() {
+        return {
+            autoplay: false
+        };
+    },
+
+    computed: {
+        getKey() {
+            let key = '';
+            if (this.item) {
+                key = this.item.id;
+            }
+            return key + this.autoplay;
+        }
+    },
+
     methods: {
         emitRequestMoveSelection(originalDomEvent) {
             this.$emit('sw-media-sidebar-move-batch', { originalDomEvent });

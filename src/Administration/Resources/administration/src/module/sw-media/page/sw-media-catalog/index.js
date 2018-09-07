@@ -134,8 +134,9 @@ Component.register('sw-media-catalog', {
             this.mediaItemToReplace = item;
         },
 
-        handleMediaGridItemShowDetails({ item }) {
+        handleMediaGridItemShowDetails({ item, autoplay }) {
             this.lastSelectedItem = item;
+            this.$refs.mediaSidebar.autoplay = autoplay;
             this.$refs.mediaSidebar.showQuickInfo();
         },
 

@@ -95,7 +95,8 @@
                             <div class="sw-media-quickinfo__preview">
                                 {% block sw_media_quickinfo_preview_item %}
                                     <sw-media-preview :item="item"
-                                                      :playable="true">
+                                                      :showControls="true"
+                                                      :autoplay="autoplay">
                                     </sw-media-preview>
                                 {% endblock %}
                             </div>

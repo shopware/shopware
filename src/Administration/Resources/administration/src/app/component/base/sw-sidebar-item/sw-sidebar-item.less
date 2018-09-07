@@ -6,11 +6,12 @@
 @sw-sidebar-icon-color:              @color-gutenberg;
 @sw-sidebar-active-icon-color:       @color-shopware-blue;
 @sw-sidebar-active-color-background: @color-cadet-blue;
+@sw-sidebar-z-index:                 @z-index-sidebar;
 
 .sw-sidebar-item {
     .sw-sidebar-item__content {
         position: absolute;
-        z-index: 1;
+        z-index: @sw-sidebar-z-index;
         right: 64px;
         width: 400px;
         top: 0; bottom: 0;

@@ -46,6 +46,18 @@ Component.extend('sw-media-grid-media-item', 'sw-media-grid-item', {
             this.emitClickedEvent(originalDomEvent);
         },
 
+        emitPlayEvent(originalDomEvent) {
+            if (!this.selected) {
+                this.$emit('sw-media-grid-item-play', {
+                    originalDomEvent,
+                    item: this.item
+                });
+                return;
+            }
+
+            this.removeFromSelection(originalDomEvent);
+        },
+
         startInlineEdit() {
             if (this.containerOptions.editable) {
                 const input = this.$refs.inputItemName;

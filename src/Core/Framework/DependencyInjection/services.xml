@@ -22,7 +22,7 @@
 
         <!-- Database / Doctrine -->
         <service id="Doctrine\DBAL\Connection" public="true">
-            <factory class="Shopware\Core\Kernel" method="getConnection" />
+            <factory class="Shopware\Core\Kernel" method="getConnection"/>
         </service>
 
         <!-- Plugins -->
@@ -38,7 +38,7 @@
         </service>
 
         <!--Event Listener -->
-        <service class="Shopware\Core\Framework\Event\NestedEventDispatcher" decorates="event_dispatcher" id="Shopware\Core\Framework\Event\NestedEventDispatcher">
+        <service class="Shopware\Core\Framework\Event\NestedEventDispatcher" id="Shopware\Core\Framework\Event\NestedEventDispatcher" decorates="event_dispatcher">
             <argument type="service" id="Shopware\Core\Framework\Event\NestedEventDispatcher.inner"/>
         </service>
 
@@ -56,7 +56,7 @@
         <service class="Shopware\Core\Framework\Plugin\XmlPluginInfoReader" id="Shopware\Core\Framework\Plugin\XmlPluginInfoReader"/>
 
         <service class="Shopware\Core\Framework\Plugin\RequirementValidator" id="Shopware\Core\Framework\Plugin\RequirementValidator">
-            <argument id="Shopware\Core\Framework\Plugin\XmlPluginInfoReader" type="service"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\XmlPluginInfoReader"/>
         </service>
 
         <service class="Shopware\Core\Framework\Command\PluginUpdateCommand" id="Shopware\Core\Framework\Command\PluginUpdateCommand">
@@ -76,7 +76,7 @@
 
         <service class="Shopware\Core\Framework\Command\OrmValidateCommand" id="Shopware\Core\Framework\Command\OrmValidateCommand">
             <tag name="console.command"/>
-            <argument id="Shopware\Core\Framework\ORM\DefinitionValidator" type="service"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\DefinitionValidator"/>
         </service>
 
         <service class="Shopware\Core\Framework\Command\PluginDeactivateCommand" id="Shopware\Core\Framework\Command\PluginDeactivateCommand">
@@ -113,11 +113,11 @@
         </service>
 
         <service class="Shopware\Core\Framework\Provisioning\TenantProvisioner" id="Shopware\Core\Framework\Provisioning\TenantProvisioner">
-            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service class="Shopware\Core\Framework\Provisioning\UserProvisioner" id="Shopware\Core\Framework\Provisioning\UserProvisioner">
-            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service class="Shopware\Core\Framework\Command\CreateTenantCommand" id="Shopware\Core\Framework\Command\CreateTenantCommand">
@@ -150,8 +150,8 @@
 
         <service class="Shopware\Core\Framework\Command\MigrationDestructiveCommand" id="shopware.core.framework.command.migration_destructive_command">
             <tag name="console.command"/>
-            <argument id="Shopware\Core\Framework\Migration\MigrationCollectionLoader" type="service"/>
-            <argument id="Shopware\Core\Framework\Migration\MigrationRuntime" type="service"/>
+            <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollectionLoader"/>
+            <argument type="service" id="Shopware\Core\Framework\Migration\MigrationRuntime"/>
             <argument>%migration.directories%</argument>
         </service>
 
@@ -184,10 +184,10 @@
 
         <!-- Translation -->
         <service class="Shopware\Core\Framework\Translation\Translator" id="Shopware\Core\Framework\Translation\Translator" decorates="translator">
-            <argument id="Shopware\Core\Framework\Translation\Translator.inner" type="service"/>
-            <argument id="request_stack" type="service"/>
-            <argument id="Doctrine\DBAL\Connection" type="service"/>
-            <argument id="shopware.cache" type="service"/>
+            <argument type="service" id="Shopware\Core\Framework\Translation\Translator.inner"/>
+            <argument type="service" id="request_stack"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="shopware.cache"/>
             <tag name="monolog.logger"/>
         </service>
 
@@ -197,11 +197,11 @@
         </service>
 
         <!-- Twig -->
-        <service class="Shopware\Core\Framework\Twig\TemplateFinder" public="true" id="Shopware\Core\Framework\Twig\TemplateFinder">
-            <argument id="twig.loader" type="service"/>
+        <service class="Shopware\Core\Framework\Twig\TemplateFinder" id="Shopware\Core\Framework\Twig\TemplateFinder" public="true">
+            <argument type="service" id="twig.loader"/>
         </service>
 
-        <service class="Shopware\Core\Framework\Twig\InheritanceExtension" public="false" id="Shopware\Core\Framework\Twig\InheritanceExtension">
+        <service class="Shopware\Core\Framework\Twig\InheritanceExtension" id="Shopware\Core\Framework\Twig\InheritanceExtension">
             <tag name="twig.extension"/>
 
             <argument type="service" id="Shopware\Core\Framework\Twig\TemplateFinder"/>
@@ -224,11 +224,11 @@
         </service>
 
         <service class="Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver"
-                 decorates="Shopware\Core\Framework\Routing\ApiRequestContextResolver"
-                 id="Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver">
+                 id="Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver"
+                 decorates="Shopware\Core\Framework\Routing\ApiRequestContextResolver">
 
-            <argument id="Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver.inner" type="service"/>
-            <argument id="Shopware\Core\Checkout\Context\CheckoutContextService" type="service"/>
+            <argument type="service" id="Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver.inner"/>
+            <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextService"/>
         </service>
 
         <service class="Shopware\Core\Framework\Cli\CliContextSubscriber" id="Shopware\Core\Framework\Cli\CliContextSubscriber">

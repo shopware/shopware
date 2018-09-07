@@ -24,8 +24,8 @@
         </service>
 
         <service class="Shopware\Core\Content\Media\Subscriber\MediaLoadedSubscriber" id="Shopware\Core\Content\Media\Subscriber\MediaLoadedSubscriber">
-            <argument id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface" type="service"/>
-            <argument id="Shopware\Core\Content\Media\Metadata\MetadataLoader" type="service"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Metadata\MetadataLoader"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -89,7 +89,7 @@
             <argument type="service" id="Shopware\Core\Content\Media\File\FileFetcher"/>
             <argument type="service" id="Shopware\Core\Content\Media\File\FileSaver"/>
             <call method="setContainer">
-                <argument id="service_container" type="service"/>
+                <argument type="service" id="service_container"/>
             </call>
         </service>
 
@@ -104,21 +104,21 @@
             <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface"/>
             <argument type="service" id="Shopware\Core\Content\Media\Thumbnail\ThumbnailConfiguration"/>
 
-            <tag name="kernel.event_subscriber" />
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <!-- Metadata -->
-        <service id="Shopware\Core\Content\Media\Metadata\MetadataLoader\GetId3Loader" class="Shopware\Core\Content\Media\Metadata\MetadataLoader\GetId3Loader">
-            <tag name="\Shopware\Core\Content\Media\Metadata\MetadataLoader\MetadataLoaderInterface" />
+        <service class="Shopware\Core\Content\Media\Metadata\MetadataLoader\GetId3Loader" id="Shopware\Core\Content\Media\Metadata\MetadataLoader\GetId3Loader">
+            <tag name="\Shopware\Core\Content\Media\Metadata\MetadataLoader\MetadataLoaderInterface"/>
         </service>
-        <service id="Shopware\Core\Content\Media\Metadata\MetadataLoader\PdfParserLoader" class="Shopware\Core\Content\Media\Metadata\MetadataLoader\PdfParserLoader">
-            <tag name="\Shopware\Core\Content\Media\Metadata\MetadataLoader\MetadataLoaderInterface" />
+        <service class="Shopware\Core\Content\Media\Metadata\MetadataLoader\PdfParserLoader" id="Shopware\Core\Content\Media\Metadata\MetadataLoader\PdfParserLoader">
+            <tag name="\Shopware\Core\Content\Media\Metadata\MetadataLoader\MetadataLoaderInterface"/>
         </service>
-        <service id="Shopware\Core\Content\Media\Metadata\MetadataLoader\WordLoader" class="Shopware\Core\Content\Media\Metadata\MetadataLoader\WordLoader">
-            <tag name="\Shopware\Core\Content\Media\Metadata\MetadataLoader\MetadataLoaderInterface" />
+        <service class="Shopware\Core\Content\Media\Metadata\MetadataLoader\WordLoader" id="Shopware\Core\Content\Media\Metadata\MetadataLoader\WordLoader">
+            <tag name="\Shopware\Core\Content\Media\Metadata\MetadataLoader\MetadataLoaderInterface"/>
         </service>
-        <service id="Shopware\Core\Content\Media\Metadata\MetadataLoader" class="Shopware\Core\Content\Media\Metadata\MetadataLoader">
-            <argument type="tagged" tag="\Shopware\Core\Content\Media\Metadata\MetadataLoader\MetadataLoaderInterface" />
+        <service class="Shopware\Core\Content\Media\Metadata\MetadataLoader" id="Shopware\Core\Content\Media\Metadata\MetadataLoader">
+            <argument type="tagged" tag="\Shopware\Core\Content\Media\Metadata\MetadataLoader\MetadataLoaderInterface"/>
             <argument>%shopware.media.metadata.types%</argument>
         </service>
     </services>

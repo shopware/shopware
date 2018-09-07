@@ -12,13 +12,13 @@
         </service>
 
         <service class="Shopware\Core\Content\Product\Storefront\StorefrontProductController" id="Shopware\Core\Content\Product\Storefront\StorefrontProductController" public="true">
-            <argument id="Shopware\Core\Content\Product\Storefront\StorefrontProductRepository" type="service"/>
+            <argument type="service" id="Shopware\Core\Content\Product\Storefront\StorefrontProductRepository"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\Search\RequestCriteriaBuilder"/>
         </service>
 
         <service class="Shopware\Core\Content\Category\Storefront\StorefrontCategoryController" id="Shopware\Core\Content\Category\Storefront\StorefrontCategoryController" public="true">
-            <argument id="category.repository" type="service"/>
-            <argument id="Shopware\Core\Framework\ORM\Search\RequestCriteriaBuilder" type="service"/>
+            <argument type="service" id="category.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Search\RequestCriteriaBuilder"/>
         </service>
 
         <service class="Shopware\Core\Content\Product\ProductDefinition" id="Shopware\Core\Content\Product\ProductDefinition">
@@ -74,50 +74,50 @@
         </service>
 
         <service class="Shopware\Core\Content\Product\Util\VariantGenerator" id="Shopware\Core\Content\Product\Util\VariantGenerator" public="true">
-            <argument id="product.repository" type="service"/>
-            <argument id="product_configurator.repository" type="service"/>
+            <argument type="service" id="product.repository"/>
+            <argument type="service" id="product_configurator.repository"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\Cart\ProductGateway" class="Shopware\Core\Content\Product\Cart\ProductGateway">
+        <service class="Shopware\Core\Content\Product\Cart\ProductGateway" id="Shopware\Core\Content\Product\Cart\ProductGateway">
             <argument type="service" id="product.repository"/>
         </service>
 
         <service class="Shopware\Core\Content\Product\ORM\Indexing\ProductVariationIndexer" id="Shopware\Core\Content\Product\ORM\Indexing\ProductVariationIndexer">
-            <argument id="event_dispatcher" type="service"/>
-            <argument id="Shopware\Core\Content\Product\Util\EventIdExtractor" type="service"/>
-            <argument id="Doctrine\DBAL\Connection" type="service"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Product\Util\EventIdExtractor"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="shopware.dbal_indexing.indexer" priority="900"/>
         </service>
 
         <service class="Shopware\Core\Content\Product\ORM\Indexing\ProductDatasheetIndexer" id="Shopware\Core\Content\Product\ORM\Indexing\ProductDatasheetIndexer">
-            <argument id="Doctrine\DBAL\Connection" type="service"/>
-            <argument id="event_dispatcher" type="service"/>
-            <argument id="Shopware\Core\Content\Product\Util\EventIdExtractor" type="service"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Product\Util\EventIdExtractor"/>
             <tag name="shopware.dbal_indexing.indexer" priority="400"/>
         </service>
 
         <service class="Shopware\Core\Content\Product\ORM\Indexing\ProductListingPriceIndexer" id="Shopware\Core\Content\Product\ORM\Indexing\ProductListingPriceIndexer">
-            <argument id="event_dispatcher" type="service"/>
-            <argument id="Shopware\Core\Content\Product\Util\EventIdExtractor" type="service"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Product\Util\EventIdExtractor"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="shopware.dbal_indexing.indexer" priority="300"/>
         </service>
 
         <service class="Shopware\Core\Content\Product\ProductActionController" id="Shopware\Core\Content\Product\ProductActionController" public="true">
-            <argument id="Shopware\Core\Content\Product\Util\VariantGenerator" type="service"/>
+            <argument type="service" id="Shopware\Core\Content\Product\Util\VariantGenerator"/>
             <call method="setContainer">
-                <argument id="service_container" type="service"/>
+                <argument type="service" id="service_container"/>
             </call>
         </service>
 
         <service class="Shopware\Core\Content\Product\Util\EventIdExtractor" id="Shopware\Core\Content\Product\Util\EventIdExtractor"/>
 
         <service class="Shopware\Core\Content\Product\ORM\Indexing\ProductCategoryTreeIndexer" id="Shopware\Core\Content\Product\ORM\Indexing\ProductCategoryTreeIndexer">
-            <argument id="Doctrine\DBAL\Connection" type="service"/>
-            <argument id="event_dispatcher" type="service"/>
-            <argument id="Shopware\Core\Content\Category\Util\CategoryPathBuilder" type="service"/>
-            <argument id="Shopware\Core\Content\Product\Util\EventIdExtractor" type="service"/>
-            <argument id="category.repository" type="service"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Category\Util\CategoryPathBuilder"/>
+            <argument type="service" id="Shopware\Core\Content\Product\Util\EventIdExtractor"/>
+            <argument type="service" id="category.repository"/>
             <tag name="shopware.dbal_indexing.indexer" priority="1000"/>
         </service>
 

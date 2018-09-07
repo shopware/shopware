@@ -82,7 +82,7 @@ Component.extend('sw-media-grid-media-item', 'sw-media-grid-item', {
         },
 
         copyItemLink() {
-            domUtils.copyToClipboard(this.item.extensions.links.url);
+            domUtils.copyToClipboard(this.item.url);
         },
 
         deleteItem(originalDomEvent) {

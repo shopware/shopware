@@ -45,7 +45,9 @@
                         {% endblock %}
 
                         {% block sw_product_detail_prices_price_card_action_duplicate %}
-                            <sw-button @click="onPriceGroupDuplicate(priceGroup)" :disabled="priceGroup.ruleId === null">
+                            <sw-button v-if="canAddPriceRule"
+                                       @click="onPriceGroupDuplicate(priceGroup)"
+                                       :disabled="priceGroup.ruleId === null">
                                 <sw-icon name="small-copy" size="20"></sw-icon> {{ $tc('sw-product.priceRules.buttonPriceRuleDuplicate') }}
                             </sw-button>
                         {% endblock %}
@@ -158,7 +160,7 @@
         {% block sw_product_detail_prices_actions %}
             <div class="context-prices__actions" v-if="!isLoading">
                 {% block sw_product_detail_prices_actions_add_button %}
-                    <sw-button @click="onAddNewPriceGroup">
+                    <sw-button v-if="canAddPriceRule" @click="onAddNewPriceGroup">
                         {{ $tc('sw-product.priceRules.buttonAddAdditionalPriceRule') }}
                     </sw-button>
                 {% endblock %}

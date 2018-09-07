@@ -2,6 +2,7 @@
  * @module core/factory/router
  */
 import { hasOwnProperty } from 'src/core/service/utils/object.utils';
+import RefreshTokenHelper from 'src/core/helper/refresh-token.helper';
 
 /**
  * Initializes the router for the application.
@@ -69,6 +70,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
         router.beforeEach((to, from, next) => {
             const bearerAuthExpiry = LoginService.getExpiry();
             const loggedIn = LoginService.validateExpiry(bearerAuthExpiry);
+            const tokenHandler = new RefreshTokenHelper();
 
             // The login route will be called and the user is not logged in, let him see the login
             if ((to.name === 'login' || to.path === '/login') && !loggedIn) {
@@ -88,45 +90,63 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
                     name: to.name
                 }));
 
-                return next({
-                    name: 'sw.login.index'
-                });
-            }
-
-            // Provide information about the module
-            const moduleRegistry = moduleFactory.getModuleRegistry();
-
-            let foundModule = null;
-            moduleRegistry.forEach((module) => {
-                const routes = module.routes;
-
-                if (!foundModule && routes.has(to.name)) {
-                    foundModule = module;
+                if (!tokenHandler.isRefreshing) {
+                    return tokenHandler.fireRefreshTokenRequest().then(() => {
+                        return getModuleInformation(to, next);
+                    }).catch(() => {
+                        return next({
+                            name: 'sw.login.index'
+                        });
+                    });
                 }
-            });
-
-            if (!foundModule) {
-                return next();
             }
 
-            // Add the current navigation definition to the meta data
-            const navigation = foundModule.navigation;
-            if (navigation) {
-                let currentNavigationEntry = {};
-                navigation.forEach((item) => {
-                    if (item.path === to.name) {
-                        currentNavigationEntry = item;
-                    }
-                });
-
-                to.meta.$current = currentNavigationEntry;
-            }
-
-            to.meta.$module = foundModule.manifest;
-            return next();
+            return getModuleInformation(to, next);
         });
 
         return router;
+    }
+
+    /**
+     * Fetches module information based on the route the user wants to enter. After the module information got fetched
+     * the router navigation guard hook will be resolved.
+     *
+     * @param {Object} to
+     * @param {Function} next
+     * @returns {Function}
+     */
+    function getModuleInformation(to, next) {
+        // Provide information about the module
+        const moduleRegistry = moduleFactory.getModuleRegistry();
+
+        let foundModule = null;
+        moduleRegistry.forEach((module) => {
+            const routes = module.routes;
+
+            if (!foundModule && routes.has(to.name)) {
+                foundModule = module;
+            }
+        });
+
+        if (!foundModule) {
+            return next();
+        }
+
+        // Add the current navigation definition to the meta data
+        const navigation = foundModule.navigation;
+        if (navigation) {
+            let currentNavigationEntry = {};
+            navigation.forEach((item) => {
+                if (item.path === to.name) {
+                    currentNavigationEntry = item;
+                }
+            });
+
+            to.meta.$current = currentNavigationEntry;
+        }
+
+        to.meta.$module = foundModule.manifest;
+        return next();
     }
 
     /**

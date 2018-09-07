@@ -24,17 +24,9 @@ Component.register('sw-media-quickinfo', {
         }
     },
 
-    watch: {
-        item(value) {
-            if (value === undefined || value === null) {
-                this.$parent.toggleContentPanel(false);
-            }
-        }
-    },
-
     computed: {
         getMetadata() {
-            if (!this.itemIsAvailable) {
+            if (this.item === null) {
                 return {};
             }
 
@@ -45,6 +37,14 @@ Component.register('sw-media-quickinfo', {
                 createdAt: format.date(this.item.createdAt),
                 url: this.item.url
             };
+        },
+
+        getUrl() {
+            if (this.item === null) {
+                return '';
+            }
+
+            return this.item.url;
         }
     },
 

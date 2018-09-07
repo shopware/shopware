@@ -128,15 +128,27 @@ Component.register('sw-media-grid', {
         },
 
         clearSelectionOnClickOutside(event) {
-            const target = event.target;
-
-            const clickedChildren = this.$children.filter((child) => {
-                return child.$el === target || child.$el.contains(target);
-            });
-
-            if (clickedChildren.length === 0 && !target.classList.contains('sw-context-menu-item')) {
+            if (!this.isEmittedFromChildren(event.target) &&
+              !this.isEmittedFromContextMenu(event.target) &&
+              !this.isEmittedFromSidebar(event.path)) {
                 this.emitSelectionCleared(event);
             }
+        },
+
+        isEmittedFromSidebar(path) {
+            return path.some((parent) => {
+                return parent.classList && parent.classList.contains('sw-sidebar');
+            });
+        },
+
+        isEmittedFromChildren(target) {
+            return this.$children.some((child) => {
+                return child.$el === target || child.$el.contains(target);
+            });
+        },
+
+        isEmittedFromContextMenu(target) {
+            return target.classList.contains('sw-context-menu-item');
         },
 
         getSelection() {

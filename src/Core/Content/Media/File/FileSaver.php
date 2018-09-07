@@ -74,8 +74,8 @@ class FileSaver
             throw new MediaNotFoundException($mediaId);
         }
 
+        $this->removeOldMediaData($media, $context);
         $rawMetadata = $this->metadataLoader->loadFromFile($mediaFile);
-        $this->thumbnailService->deleteThumbnails($media, $context);
 
         $this->saveFileToMediaDir($mediaFile, $mediaId);
         $media = $this->updateMediaEntity($mediaFile, $mediaId, $rawMetadata, $context);
@@ -87,6 +87,20 @@ class FileSaver
                 //ignore wrong filetype
             }
         }
+    }
+
+    private function removeOldMediaData(MediaStruct $media, Context $context)
+    {
+        if ($media->getMimeType() === null || $media->getFileExtension() === null) {
+            //media was not uploaded before
+            return;
+        }
+
+        $oldMediaFilePath = $this->urlGenerator->getRelativeMediaUrl($media->getId(), $media->getFileExtension());
+        if ($this->filesystem->has($oldMediaFilePath)) {
+            $this->filesystem->delete($oldMediaFilePath);
+        }
+        $this->thumbnailService->deleteThumbnails($media, $context);
     }
 
     private function saveFileToMediaDir(MediaFile $mediaFile, string $mediaId): void

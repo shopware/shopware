@@ -29,11 +29,6 @@ class GenerateThumbnailsCommandTest extends TestCase
     private $mediaRepository;
 
     /**
-     * @var RepositoryInterface
-     */
-    private $thumbnailRepository;
-
-    /**
      * @var GenerateThumbnailsCommand
      */
     private $thumbnailCommand;

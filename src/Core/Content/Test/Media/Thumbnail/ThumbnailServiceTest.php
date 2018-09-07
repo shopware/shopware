@@ -149,17 +149,17 @@ class ThumbnailServiceTest extends TestCase
             $this->urlGenerator->getRelativeThumbnailUrl($testId, $testExtension, 140, 140, true, false),
         ];
 
-        $this->fileSystem->put($mediaFilePath, 'testContent');
+        $this->getPublicFilesystem()->put($mediaFilePath, 'testContent');
         foreach ($thumbnailPaths as $thumbnailPath) {
-            $this->fileSystem->put($thumbnailPath, 'testContent');
+            $this->getPublicFilesystem()->put($thumbnailPath, 'testContent');
         }
 
         $this->thumbnailService->deleteThumbnailFiles($testId);
 
         foreach ($thumbnailPaths as $thumbnailPath) {
-            static::assertFalse($this->fileSystem->has($thumbnailPath));
+            static::assertFalse($this->getPublicFilesystem()->has($thumbnailPath));
         }
-        static::assertTrue($this->fileSystem->has($mediaFilePath));
+        static::assertTrue($this->getPublicFilesystem()->has($mediaFilePath));
     }
 
     public function testDeleteThumbnailFiles_ignoresFilesFromOtherMediaIds()
@@ -179,13 +179,13 @@ class ThumbnailServiceTest extends TestCase
         ];
 
         foreach ($thumbnailPaths as $thumbnailPath) {
-            $this->fileSystem->put($thumbnailPath, 'test content');
+            $this->getPublicFilesystem()->put($thumbnailPath, 'test content');
         }
 
         $this->thumbnailService->deleteThumbnailFiles($testId);
 
         foreach ($thumbnailPaths as $thumbnailPath) {
-            static::assertTrue($this->fileSystem->has($thumbnailPath));
+            static::assertTrue($this->getPublicFilesystem()->has($thumbnailPath));
         }
     }
 
@@ -230,7 +230,7 @@ class ThumbnailServiceTest extends TestCase
 
         self::assertSame(2, $media->getThumbnails()->count());
 
-        $this->fileSystem->put($mediaUrl, 'test content');
+        $this->getPublicFilesystem()->put($mediaUrl, 'test content');
 
         $thumbnailUrls = [];
         foreach ($media->getThumbnails() as $thumbnail) {
@@ -241,7 +241,7 @@ class ThumbnailServiceTest extends TestCase
                 $thumbnail->getHeight(),
                 $thumbnail->getHighDpi()
             );
-            $this->fileSystem->put($thumbnailUrl, 'test content');
+            $this->getPublicFilesystem()->put($thumbnailUrl, 'test content');
             $thumbnailUrls[] = $thumbnailUrl;
         }
 
@@ -252,9 +252,9 @@ class ThumbnailServiceTest extends TestCase
         $media = $searchResult->getEntities()->get($mediaId);
 
         self::assertSame(0, $media->getThumbnails()->count());
-        self::assertTrue($this->fileSystem->has($mediaUrl));
+        self::assertTrue($this->getPublicFilesystem()->has($mediaUrl));
         foreach ($thumbnailUrls as $thumbnailUrl) {
-            self::assertFalse($this->fileSystem->has($thumbnailUrl));
+            self::assertFalse($this->getPublicFilesystem()->has($thumbnailUrl));
         }
     }
 

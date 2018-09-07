@@ -7,7 +7,6 @@ use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
-use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
@@ -40,7 +39,7 @@ class FileSaverTest extends TestCase
         $this->fileSaver = $this->getContainer()->get(FileSaver::class);
     }
 
-    public function testPersistFileToMedia(): void
+    public function test_PersistFileToMedia_happyPathForInitialUpload(): void
     {
         $tempFile = tempnam(sys_get_temp_dir(), '');
         copy(self::TEST_IMAGE, $tempFile);
@@ -48,7 +47,7 @@ class FileSaverTest extends TestCase
         $fileSize = filesize($tempFile);
         $mediaFile = new MediaFile($tempFile, 'image/png', 'png', $fileSize);
 
-        $mediaId = Uuid::uuid4();
+        $mediaId = Uuid::uuid4()->getHex();
 
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
         $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
@@ -56,7 +55,7 @@ class FileSaverTest extends TestCase
         $this->repository->create(
             [
                 [
-                    'id' => $mediaId->getHex(),
+                    'id' => $mediaId,
                     'name' => 'test file',
                 ],
             ],
@@ -66,7 +65,7 @@ class FileSaverTest extends TestCase
         try {
             $this->fileSaver->persistFileToMedia(
                 $mediaFile,
-                $mediaId->getHex(),
+                $mediaId,
                 $context
             );
         } finally {
@@ -75,7 +74,51 @@ class FileSaverTest extends TestCase
             }
         }
 
-        $path = $this->urlGenerator->getRelativeMediaUrl($mediaId->getHex(), 'png');
+        $path = $this->urlGenerator->getRelativeMediaUrl($mediaId, 'png');
         static::assertTrue($this->getPublicFilesystem()->has($path));
+    }
+
+    public function test_persistFileToMedia_removesOldFile()
+    {
+        $tempFile = tempnam(sys_get_temp_dir(), '');
+        copy(self::TEST_IMAGE, $tempFile);
+
+        $fileSize = filesize($tempFile);
+        $mediaFile = new MediaFile($tempFile, 'image/png', 'png', $fileSize);
+
+        $mediaId = Uuid::uuid4()->getHex();
+
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context->getExtension('write_protection')->set('write_media', true);
+
+        $this->repository->create(
+            [
+                [
+                    'id' => $mediaId,
+                    'name' => 'test file',
+                    'mimeType' => 'plain/txt',
+                    'fileExtension' => 'txt',
+                ],
+            ],
+            $context
+        );
+        $oldMediaFilePath = $this->urlGenerator->getRelativeMediaUrl($mediaId, 'txt');
+        $this->getPublicFilesystem()->put($oldMediaFilePath, 'Some ');
+
+        try {
+            $this->fileSaver->persistFileToMedia(
+                $mediaFile,
+                $mediaId,
+                $context
+            );
+        } finally {
+            if (file_exists($tempFile)) {
+                unlink($tempFile);
+            }
+        }
+
+        $path = $this->urlGenerator->getRelativeMediaUrl($mediaId, 'png');
+        static::assertTrue($this->getPublicFilesystem()->has($path));
+        static::assertFalse($this->getPublicFilesystem()->has($oldMediaFilePath));
     }
 }

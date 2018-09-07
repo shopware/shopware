@@ -104,6 +104,14 @@ Component.register('sw-media-grid', {
         }
     },
 
+    created() {
+        this.componentCreated();
+    },
+
+    beforeDestroy() {
+        this.beforeComponentDestroyed();
+    },
+
     watch: {
         items() {
             this.clearSelection();
@@ -111,6 +119,26 @@ Component.register('sw-media-grid', {
     },
 
     methods: {
+        componentCreated() {
+            window.addEventListener('click', this.clearSelectionOnClickOutside, false);
+        },
+
+        beforeComponentDestroyed() {
+            window.removeEventListener('click', this.clearSelectionOnClickOutside);
+        },
+
+        clearSelectionOnClickOutside(event) {
+            const target = event.target;
+
+            const clickedChildren = this.$children.filter((child) => {
+                return child.$el === target || child.$el.contains(target);
+            });
+
+            if (clickedChildren.length === 0 && !target.classList.contains('sw-context-menu-item')) {
+                this.emitSelectionCleared(event);
+            }
+        },
+
         getSelection() {
             return this.selection;
         },
@@ -146,7 +174,7 @@ Component.register('sw-media-grid', {
         },
 
         handleSelection({ originalDomEvent, item }) {
-            if (originalDomEvent.shiftKey) {
+            if (originalDomEvent && originalDomEvent.shiftKey) {
                 this.listSelect({ originalDomEvent, item });
                 return;
             }

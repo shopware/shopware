@@ -3,8 +3,7 @@
         <slot name="content">
             {% block sw_media_grid_slot_content %}
                 <div class="sw-media-grid__content"
-                     :style="mediaColumnDefinitions"
-                     @click.self="emitSelectionCleared">
+                     :style="mediaColumnDefinitions">
                     {% block sw_media_grid_content_cell %}
                         <div class="sw-media-grid__content-cell"
                              v-for="item in items"

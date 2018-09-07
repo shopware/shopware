@@ -18,11 +18,15 @@ Component.register('sw-media-quickinfo', {
         }
     },
 
-    computed: {
-        itemIsAvailable() {
-            return this.item !== undefined && this.item !== null;
-        },
+    watch: {
+        item(value) {
+            if (value === undefined || value === null) {
+                this.$parent.toggleContentPanel(false);
+            }
+        }
+    },
 
+    computed: {
         getMetadata() {
             if (!this.itemIsAvailable) {
                 return {};

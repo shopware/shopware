@@ -25,7 +25,7 @@ export default function createMenuService(moduleFactory) {
      * the flat tree instance.
      *
      * @memberOf module:app/service/menu
-     * @returns {Object} main menu as a data tree hierarchy
+     * @returns {Array} main menu as a data tree hierarchy
      */
     function getMainMenu() {
         const modules = moduleFactory.getModuleRegistry();
@@ -40,7 +40,24 @@ export default function createMenuService(moduleFactory) {
             });
         });
 
-        return flatTree.convertToTree().sort(sortTree);
+        return sort(flatTree.convertToTree());
+    }
+
+    /**
+     * Recursively iterate over elements and sort them.
+     *
+     * @param {Array} elements
+     * @returns {Array}
+     */
+    function sort(elements) {
+        elements = elements.sort(sortTree).map((element) => {
+            if (element.children && element.children.length) {
+                element.children = sort(element.children);
+            }
+            return element;
+        });
+
+        return elements;
     }
 
     /**

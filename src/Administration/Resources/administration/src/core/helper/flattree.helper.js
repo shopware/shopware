@@ -14,12 +14,13 @@ class FlatTree {
      */
     constructor() {
         this._registeredNodes = new Map();
+        this._defaultPosition = 1000;
     }
 
     /**
      * Converts the flat objects into the data tree hierarchy
      *
-     * @returns {Object} registered nodes as a data tree
+     * @returns {Array} registered nodes as a data tree
      */
     convertToTree() {
         return this._tree(undefined, this._registeredNodes);
@@ -71,6 +72,10 @@ class FlatTree {
             node.target = '_self';
         }
 
+        if (!node.position) {
+            node.position = this.defaultPosition;
+        }
+
         if (this._registeredNodes.has(nodeIdentifier)) {
             warn(
                 'FlatTree',
@@ -107,6 +112,14 @@ class FlatTree {
      */
     getRegisteredNodes() {
         return this._registeredNodes;
+    }
+
+    get defaultPosition() {
+        return this._defaultPosition;
+    }
+
+    set defaultPosition(value) {
+        this._defaultPosition = value;
     }
 }
 

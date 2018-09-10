@@ -308,10 +308,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $this->guestOrder($client, array_merge($personal, $billing));
-        static::assertSame(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
-
-        $content = json_decode($client->getResponse()->getContent(), true);
-        static::assertEquals(sprintf('Customer with email "%s" already has an account', $mail), $content['errors'][0]['detail'] ?? '');
+        static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
     }
 
     public function testGuestOrderProcessWithLoggedInCustomer()

@@ -355,7 +355,7 @@ class ApplicationBootstrapper {
         const asyncInitializers = [];
         Object.keys(container).forEach((serviceKey) => {
             const service = container[serviceKey];
-            if (service && service instanceof Promise) {
+            if (service && service.constructor.name === 'Promise') {
                 asyncInitializers.push(service);
             }
         });

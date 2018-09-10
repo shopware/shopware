@@ -18,6 +18,12 @@ Component.register('sw-image', {
             default: false
         },
 
+        isPlaceholder: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+
         downloadable: {
             type: Boolean,
             required: false,
@@ -34,6 +40,7 @@ Component.register('sw-image', {
     computed: {
         swImageClasses() {
             return {
+                'is--placeholder': this.isPlaceholder,
                 'is--cover': this.isCover
             };
         }

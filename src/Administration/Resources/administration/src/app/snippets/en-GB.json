@@ -377,7 +377,8 @@
       "cardTitleAssignment": "Assignment",
       "cardTitlePrices": "Prices",
       "cardTitleSettings": "Settings",
-      "linkAdvancedPrices": "Use advanced pricing"
+      "linkAdvancedPrices": "Use advanced pricing",
+      "cardTitleMedia": "Media"
     },
     "priceRules": {
       "cardTitlePriceRule": "New price rule",
@@ -425,7 +426,8 @@
       "messageSaveSuccess": "The product \"{name}\" was saved successfully.",
       "messageUploadSuccess": "{count} of {total} files saved."
     },
-    "file-upload": {
+    "mediaForm": {
+      "title": "Product images",
       "buttonUpload": "Upload files"
     }
   },

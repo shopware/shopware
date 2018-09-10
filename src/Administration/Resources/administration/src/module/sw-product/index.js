@@ -3,7 +3,7 @@ import './component/sw-product-basic-form';
 import './component/sw-product-category-form';
 import './component/sw-product-price-form';
 import './component/sw-product-settings-form';
-import './component/sw-product-file-upload';
+import './component/sw-product-media-form';
 import './view/sw-product-detail-base';
 import './view/sw-product-create-base';
 import './view/sw-product-detail-context-prices';

@@ -1,10 +1,10 @@
 import { Component, State } from 'src/core/shopware';
 import { fileReader } from 'src/core/service/util.service';
 import find from 'lodash/find';
-import template from './sw-product-file-upload.html.twig';
-import './sw-product-file-upload.less';
+import template from './sw-product-media-form.html.twig';
+import './sw-product-media-form.less';
 
-Component.register('sw-product-file-upload', {
+Component.register('sw-product-media-form', {
     template,
 
     inject: ['mediaService'],
@@ -19,13 +19,28 @@ Component.register('sw-product-file-upload', {
 
     data() {
         return {
-            mediaItems: this.product.media,
+            columnCount: 7,
             uploads: [],
-            previews: []
+            previews: [],
+            columnWidth: 90
         };
     },
 
     computed: {
+        mediaItems() {
+            const mediaItems = this.product.media.slice();
+            const placeholderCount = this.getPlaceholderCount(this.columnCount);
+            if (placeholderCount === 0) {
+                return mediaItems;
+            }
+
+            for (let i = 0; i < placeholderCount; i += 1) {
+                mediaItems.push(this.createPlaceholderMedia(mediaItems));
+            }
+
+            return mediaItems;
+        },
+
         productMediaStore() {
             return this.product.getAssociation('media');
         },
@@ -36,10 +51,62 @@ Component.register('sw-product-file-upload', {
 
         uploadStore() {
             return State.getStore('upload');
+        },
+
+        gridAutoRows() {
+            return `grid-auto-rows: ${this.columnWidth}`;
         }
     },
 
+    mounted() {
+        this.mountedComponent();
+    },
+
     methods: {
+        mountedComponent() {
+            const that = this;
+            this.$device.onResize({
+                listener() {
+                    that.updateColumnCount();
+                },
+                component: this
+            });
+            this.updateColumnCount();
+        },
+
+        updateColumnCount() {
+            const cssColumns = window.getComputedStyle(this.$refs.grid, null)
+                .getPropertyValue('grid-template-columns')
+                .split(' ');
+            this.columnCount = cssColumns.length;
+            this.columnWidth = cssColumns[0];
+        },
+
+        getPlaceholderCount(columnCount) {
+            if (this.product.media.length + 3 < columnCount * 2) {
+                columnCount *= 2;
+            }
+            const placeholderCount = columnCount - ((this.product.media.length + 3) % columnCount);
+
+            if (placeholderCount === columnCount) {
+                return 0;
+            }
+
+            return placeholderCount;
+        },
+
+        createPlaceholderMedia(mediaItems) {
+            return {
+                isPlaceholder: true,
+                isCover: mediaItems.length === 0,
+                media: {
+                    isPlaceholder: true,
+                    name: ''
+                },
+                mediaId: mediaItems.length
+            };
+        },
+
         handleFileUploads() {
             const uploadedFiles = Array.from(this.$refs.fileInput.files);
 
@@ -81,11 +148,11 @@ Component.register('sw-product-file-upload', {
             productMedia.isLoading = true;
             productMedia.catalogId = this.product.catalogId;
 
-            if (this.mediaItems.length <= 0) {
+            if (this.product.media.length === 0) {
                 productMedia.position = 0;
                 this.product.coverId = productMedia.id;
             } else {
-                productMedia.position = this.mediaItems[this.mediaItems.length - 1].position + 1;
+                productMedia.position = this.product.media.length + 1;
             }
 
             const mediaEntity = this.mediaStore.create();
@@ -110,6 +177,10 @@ Component.register('sw-product-file-upload', {
         },
 
         getPreviewForMedia(mediaEntity) {
+            if (mediaEntity.isPlaceholder) {
+                return '';
+            }
+
             if (mediaEntity.isLocal) {
                 return mediaEntity.id in this.previews ? this.previews[mediaEntity.id] : '';
             }
@@ -128,13 +199,12 @@ Component.register('sw-product-file-upload', {
                 this.uploadStore.removeUpload(upload.uploadId);
             }
 
-            this.mediaItems = this.mediaItems.filter((e) => e.mediaId !== key);
-
+            this.product.media = this.product.media.filter((e) => e.mediaId !== key);
             if (this.isCover(item)) {
-                if (this.mediaItems.length === 0) {
+                if (this.product.media.length === 0) {
                     this.product.coverId = null;
                 } else {
-                    this.product.coverId = this.mediaItems[0].id;
+                    this.product.coverId = this.product.media[0].id;
                 }
             }
 
@@ -142,6 +212,9 @@ Component.register('sw-product-file-upload', {
         },
 
         isCover(productMedia) {
+            if (productMedia.isPlaceholder) {
+                return productMedia.isCover;
+            }
             return this.product.coverId === productMedia.id;
         },
 

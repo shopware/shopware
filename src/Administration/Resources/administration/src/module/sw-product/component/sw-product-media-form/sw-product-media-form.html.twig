@@ -1,0 +1,35 @@
+{% block sw_product_media_form %}
+    <div class="sw-product-media-form">
+        {% block sw_product_media_form_title %}
+            <h4>{{ $tc('sw-product.mediaForm.title') }}</h4>
+        {%  endblock %}
+
+        {% block sw_product_media_form_file_input %}
+            <input class="sw-product-media-form__file-input" type="file" id="files" ref="fileInput" accept="image/*" multiple @change="handleFileUploads"/>
+        {% endblock %}
+
+        {% block sw_product_media_form_upload_button %}
+            <div class="sw-product-media-form__dropzone">
+                <sw-button class="sw-product-media-form__upload-button" @click="addFiles" variant="primary">
+                    {{ $tc('sw-product.mediaForm.buttonUpload') }}
+                </sw-button>
+            </div>
+        {% endblock %}
+
+        {% block sw_product_media_form_grid %}
+            <div class="sw-product-media-form__grid" ref="grid" :style="gridAutoRows">
+                {%  block sw_product_media_form_grid_items %}
+                    <sw-image v-for="mediaItem in mediaItems"
+                              @sw-image-delete="removeFile(mediaItem.mediaId)"
+                              @sw-image-cover="markMediaAsCover(mediaItem)"
+                              :key="mediaItem.mediaId"
+                              :isCover="isCover(mediaItem)"
+                              :isPlaceholder="mediaItem.isPlaceholder"
+                              :altText="mediaItem.media.name"
+                              :url="getPreviewForMedia(mediaItem.media)"
+                              :downloadable="true"></sw-image>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

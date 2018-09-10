@@ -1,27 +1,29 @@
 @import "~less/variables";
 
-.sw-product-file-upload {
+.sw-product-media-form {
 
-    .sw-product-file-upload__file-input {
+    .sw-product-media-form__file-input {
         display: none;
     }
 
-    .sw-product-file-upload__dropzone {
+    .sw-product-media-form__dropzone {
         text-align: center;
     }
 
-    .sw-product-file-upload__upload-button {
+    .sw-product-media-form__upload-button {
         display: block;
         margin: 0 auto;
         margin-bottom: 20px;
     }
 
-    .sw-product-file-upload__grid {
+    .sw-product-media-form__grid {
+        border-radius: @border-radius-default;
+        border: 1px solid @color-steam-cloud;
         display: grid;
-        grid-template-columns: repeat(6, 1fr);
+        padding: 20px;
+        grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
         grid-gap: 10px;
         grid-auto-flow: dense;
-        grid-auto-rows: 114.66px;
     }
 
     .sw-image.is--cover {

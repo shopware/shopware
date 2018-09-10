@@ -371,7 +371,8 @@
       "cardTitleAssignment": "Zuordnung",
       "cardTitlePrices": "Preise",
       "cardTitleSettings": "Einstellungen",
-      "linkAdvancedPrices": "Erweitere Preisansicht öffnen"
+      "linkAdvancedPrices": "Erweitere Preisansicht öffnen",
+      "cardTitleMedia": "Medien"
     },
     "priceRules": {
       "cardTitlePriceRule": "Neue Preisregel",
@@ -420,7 +421,8 @@
       "messageSaveSuccess": "Das Produkt \"{name}\" wurde erfolgreich gespeichert.",
       "messageUploadSuccess": "{count} von {total} Dateien erfolgreich gespeichert."
     },
-    "file-upload": {
+    "mediaForm": {
+      "title": "Produktfotos",
       "buttonUpload": "Datei hochladen"
     }
   },

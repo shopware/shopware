@@ -5,11 +5,24 @@
 @sw-image-color-hover: @color-black;
 @sw-image-border-radius: @border-radius-default;
 @sw-image-tooltip-border-radius: @border-radius-default;
+@sw-image-placeholder-color: lighten(@color-steam-cloud, 5%);
 
 .sw-image {
     position: relative;
     display: inline-block;
     border-radius: @sw-image-border-radius;
+
+    &.is--placeholder {
+        border: 2px dashed @sw-image-placeholder-color;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &:hover {
+            background-color: transparent;
+        }
+    }
 
     &:hover {
         background-color: @sw-image-color-hover;
@@ -59,5 +72,9 @@
         position: absolute;
         top: 2px;
         right: 2px;
+    }
+
+    .sw-image__placeholder-icon {
+        color: @sw-image-placeholder-color;
     }
 }

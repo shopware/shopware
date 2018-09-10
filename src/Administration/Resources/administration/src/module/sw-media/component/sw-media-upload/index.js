@@ -1,5 +1,5 @@
 import { Component, State } from 'src/core/shopware';
-import util, { fileReader } from 'src/core/service/util.service';
+import { fileReader } from 'src/core/service/util.service';
 import template from './sw-media-upload.html.twig';
 import './sw-media-upload.less';
 
@@ -36,14 +36,11 @@ Component.register('sw-media-upload', {
         },
 
         addMediaEntityFromFile(file) {
-            return fileReader.readAsDataURL(file).then((url) => {
-                const mediaEntity = this.mediaItemStore.create(util.createId(),
-                    {
-                        catalogId: this.catalogId,
-                        extensions: { links: { url } }
-                    });
+            return fileReader.readAsDataURL(file).then(() => {
+                const mediaEntity = this.mediaItemStore.create();
 
                 mediaEntity.name = file.name;
+                mediaEntity.catalogId = this.catalogId;
 
                 return mediaEntity.save().then(() => {
                     return fileReader.readAsArrayBuffer(file).then((buffer) => {

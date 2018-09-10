@@ -7,7 +7,8 @@ Mixin.register('drag-selector', {
             mouseDown: false,
             startPoint: null,
             endPoint: null,
-            dragSelection: []
+            dragSelection: [],
+            originalScroll: null
         };
     },
 
@@ -29,11 +30,14 @@ Mixin.register('drag-selector', {
                 return null;
             }
 
+            const points = this._getPoints();
+            const scroll = this._getScroll();
+
             const rect = this.$el.parentNode.getBoundingClientRect();
-            const left = Math.min(this.startPoint.x, this.endPoint.x) - rect.left;
-            const top = Math.min(this.startPoint.y, this.endPoint.y) - rect.top;
-            const width = Math.abs(this.startPoint.x - this.endPoint.x);
-            const height = Math.abs(this.startPoint.y - this.endPoint.y);
+            const left = Math.min(points.start.x, points.end.x) - rect.left - scroll.x;
+            const top = Math.min(points.start.y, points.end.y) - rect.top - scroll.y;
+            const width = Math.abs(points.start.x - points.end.x);
+            const height = Math.abs(points.start.y - points.end.y);
 
             return {
                 left,
@@ -74,8 +78,90 @@ Mixin.register('drag-selector', {
                 x: originalDomEvent.pageX,
                 y: originalDomEvent.pageY
             };
+            this.endPoint = null;
+
+            this.originalScroll = this._getScroll();
             window.addEventListener('mousemove', this._onMouseMove);
             window.addEventListener('mouseup', this._onMouseUp);
+        },
+
+        // determines whether a click-events originates from a drag
+        isDragEvent(event) {
+            return this.endPoint && this.endPoint.x === event.pageX && this.endPoint.y === event.pageY;
+        },
+
+        _getPoints() {
+            const scroll = this._getScroll();
+            const border = this.$el.getBoundingClientRect();
+            const points = {
+                start: {
+                    x: this.startPoint.x + this.originalScroll.x,
+                    y: this.startPoint.y + this.originalScroll.y
+                },
+                end: {
+                    x: this.endPoint.x + scroll.x,
+                    y: this.endPoint.y + scroll.y
+                }
+            };
+            points.start.x = Math.max(points.start.x, border.left + scroll.x);
+            points.start.x = Math.min(points.start.x, border.right + scroll.x);
+            points.start.y = Math.max(points.start.y, border.top + scroll.y);
+            points.start.y = Math.min(points.start.y, border.bottom + scroll.y);
+
+            this._scrollLeft(points, border, scroll);
+            this._scrollRight(points, border, scroll);
+            this._scrollUp(points, border, scroll);
+            this._scrollDown(points, border, scroll);
+
+            return points;
+        },
+
+        _scrollLeft(points, border, scroll) {
+            if (this.endPoint.x < border.left) {
+                const distance = (this.endPoint.x - border.left) / 3;
+                points.end.x = border.left + scroll.x;
+                this.$el.scrollTo(scroll.x + distance, scroll.y);
+                const newScroll = this._getScroll();
+                if (newScroll.x !== scroll.x) {
+                    points.end.x += newScroll.x - scroll.x;
+                }
+            }
+        },
+
+        _scrollRight(points, border, scroll) {
+            if (this.endPoint.x > border.right) {
+                const distance = (this.endPoint.x - border.right) / 3;
+                points.end.x = border.right + scroll.x;
+                this.$el.scrollTo(scroll.x + distance, scroll.y);
+                const newScroll = this._getScroll();
+                if (newScroll.x !== scroll.x) {
+                    points.end.x += newScroll.x - scroll.x;
+                }
+            }
+        },
+
+        _scrollUp(points, border, scroll) {
+            if (this.endPoint.y < border.top) {
+                const distance = (this.endPoint.y - border.top) / 3;
+                points.end.y = border.top + scroll.y;
+                this.$el.scrollTo(scroll.x, scroll.y + distance);
+                const newScroll = this._getScroll();
+                if (newScroll.y !== scroll.y) {
+                    points.end.y += newScroll.y - scroll.y;
+                }
+            }
+        },
+
+        _scrollDown(points, border, scroll) {
+            if (this.endPoint.y > border.bottom) {
+                const distance = (this.endPoint.y - border.bottom) / 3;
+                points.end.y = border.bottom + scroll.y;
+                this.$el.scrollTo(scroll.x, scroll.y + distance);
+                const newScroll = this._getScroll();
+                if (newScroll.y !== scroll.y) {
+                    points.end.y += newScroll.y - scroll.y;
+                }
+            }
         },
 
         _getScroll() {
@@ -115,10 +201,12 @@ Mixin.register('drag-selector', {
         _handleSelection(children, originalDomEvent) {
             const newSelection = children.reduce((filtered, item) => {
                 if (this._isItemInSelectBox(item.$el)) {
-                    this.onDragSelection({
-                        originalDomEvent,
-                        item
-                    });
+                    if (!this.dragSelection.includes(item)) {
+                        this.onDragSelection({
+                            originalDomEvent,
+                            item
+                        });
+                    }
                     filtered.push(item);
                 }
 
@@ -147,24 +235,42 @@ Mixin.register('drag-selector', {
 
             this.mouseDown = false;
             this.startPoint = null;
-            this.endPoint = null;
+            this.dragSelection = [];
         },
 
         _isItemInSelectBox(el) {
             if (el.classList.contains(this.dragSelectorClass)) {
                 const scroll = this._getScroll();
                 const element = {
-                    top: el.offsetTop - scroll.y,
-                    left: el.offsetLeft - scroll.x,
+                    top: el.offsetTop,
+                    left: el.offsetLeft,
                     width: el.clientWidth,
                     height: el.clientHeight
                 };
 
+                const rect = this.$el.parentNode.getBoundingClientRect();
+                const left = Math.min(
+                    this.startPoint.x + this.originalScroll.x,
+                    this.endPoint.x + scroll.x
+                ) - rect.left;
+                const top = Math.min(
+                    this.startPoint.y + this.originalScroll.y,
+                    this.endPoint.y + scroll.y
+                ) - rect.top;
+                const width = Math.abs(
+                    (this.startPoint.x + this.originalScroll.x) -
+                    (this.endPoint.x + scroll.x)
+                );
+                const height = Math.abs(
+                    (this.startPoint.y + this.originalScroll.y) -
+                    (this.endPoint.y + scroll.y)
+                );
+
                 return (
-                    this._selectionBox.left <= element.left + element.width &&
-                    this._selectionBox.left + this._selectionBox.width >= element.left &&
-                    this._selectionBox.top <= element.top + element.height &&
-                    this._selectionBox.top + this._selectionBox.height >= element.top
+                    left <= element.left + element.width &&
+                    left + width >= element.left &&
+                    top <= element.top + element.height &&
+                    top + height >= element.top
                 );
             }
 

@@ -134,9 +134,10 @@ Component.register('sw-media-grid', {
         },
 
         clearSelectionOnClickOutside(event) {
-            if (!this.isEmittedFromChildren(event.target) &&
+            if (!this.isDragEvent(event) &&
+              !this.isEmittedFromChildren(event.target) &&
               !this.isEmittedFromContextMenu(event.target) &&
-              !this.isEmittedFromSidebar(event.path)) {
+              !this.isEmittedFromSidebar(event.composedPath())) {
                 this.emitSelectionCleared(event);
             }
         },

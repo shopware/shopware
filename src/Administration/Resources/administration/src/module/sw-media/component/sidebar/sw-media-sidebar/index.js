@@ -21,7 +21,7 @@ Component.register('sw-media-sidebar', {
     },
 
     watch: {
-        item(value) {
+        items(value) {
             if (value === undefined || value === null) {
                 this.$refs.quickInfoButton.toggleContentPanel(false);
             }
@@ -35,28 +35,30 @@ Component.register('sw-media-sidebar', {
     },
 
     computed: {
+        hasItems() {
+            return Array.isArray(this.items);
+        },
+
         isSingleFile() {
-            return this.items != null && this.items.length === 1;
+            return this.hasItems && this.items.length === 1;
         },
 
         getKey() {
+            if (this.isSingleFile) {
+                return '';
+            }
+
+            const item = this.items[0];
             let key = '';
+
             if (this.item) {
-                key = this.item.id;
+                key = item.id;
             }
             return key + this.autoplay;
-        },
-
-        hasItem() {
-            return this.item !== null;
         }
     },
 
     methods: {
-        emitRequestMoveSelection(originalDomEvent) {
-            this.$emit('sw-media-sidebar-move-batch', { originalDomEvent });
-        },
-
         emitRequestRemoveSelection(originalDomEvent) {
             this.$emit('sw-media-sidebar-remove-batch', { originalDomEvent });
         },

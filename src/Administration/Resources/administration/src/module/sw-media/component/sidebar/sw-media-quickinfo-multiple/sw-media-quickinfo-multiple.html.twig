@@ -8,9 +8,9 @@
 
                 <template slot="content">
                     {% block sw_media_quickinfo_multiple_quickactions_content %}
-                        <div class="sw-media-quickinfo-multiple__collapse-content sw-media-quickinfo-multiple__two-columns">
+                        <ul class="sw-media-quickinfo-multiple__collapse-content sw-media-quickinfo-multiple__two-columns">
                             {% block sw_media_quickinfo_multiple_quickactions_delete %}
-                                <div class="sw-media-quickinfo-multiple__quickaction"
+                                <li class="sw-media-quickinfo-multiple__quickaction"
                                      @click="emitQuickAction($event, 'remove-batch')">
                                     {% block sw_media_quickinfo_multiple_quickactions_delete_icon %}
                                         <sw-icon small
@@ -22,24 +22,9 @@
                                     {% block sw_media_quickinfo_multiple_quickactions_delete_label %}
                                         {{ $tc('sw-media.sidebar.quickinfo.delete') }}
                                     {% endblock %}
-                                </div>
+                                </li>
                             {% endblock %}
-
-                            {% block sw_media_quickinfo_multiple_quickactions_more %}
-                                <div class="sw-media-quickinfo-multiple__quickaction">
-                                    {% block sw_media_quickinfo_multiple_quickactions_more_icon %}
-                                        <sw-icon name="default-action-more-horizontal"
-                                                 class="sw-media-quickinfo-multiple__quickactions-icon"
-                                                 small>
-                                        </sw-icon>
-                                    {% endblock %}
-
-                                    {% block sw_media_quickinfo_multiple_quickactions_more_label %}
-                                        {{ $tc('sw-media.sidebar.quickinfo.more') }}
-                                    {% endblock %}
-                                </div>
-                            {% endblock %}
-                        </div>
+                        </ul>
                     {% endblock %}
                 </template>
 

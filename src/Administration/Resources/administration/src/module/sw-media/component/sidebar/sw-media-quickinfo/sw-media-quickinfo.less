@@ -47,38 +47,13 @@
     .sw-media-quickinfo__preview {
         position: relative;
         margin: 10px 0;
-        width: 100%;
         border: 1px solid @sw-media-quickinfo-border-color;
         border-radius: @sw-media-quickinfo-border-radius;
-    }
 
-    .sw-media-quickinfo__preview:before {
-        content: "";
-        display: block;
-        padding-top: 75%;
-    }
-
-    .sw-media-quickinfo__image {
-        max-width: 100%;
-        max-height: 100%;
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-    }
-
-    .sw-media-quickinfo__metadata-grid {
-        margin: 10px;
-        display: grid;
-        grid-template-columns: 50% 50%;
-    }
-
-    .sw-media-quickinfo__two-columns > dt {
-        color: @sw-media-quickinfo-metadata-color;
-        font-weight: bold;
-    }
-
-    .sw-media-quickinfo__two-columns > dd {
-        .truncate();
+        &:before {
+            content: "";
+            display: block;
+            padding-top: 75%;
+        }
     }
 }

@@ -9,9 +9,15 @@
                                 <sw-sidebar-item icon="default-action-document-view"
                                                  :title="$tc('sw-media.sidebar.actions.quickInfo')"
                                                  ref="quickInfoButton"
-                                                 :disabled="!hasItem">
-                                    <sw-media-quickinfo v-if="isSingleFile" :key="getKey" :item="items[0]" :autoplay="autoplay" v-on="$listeners"></sw-media-quickinfo>
-                                    <sw-media-quickinfo-multiple :items="items" v-else v-on="$listeners"></sw-media-quickinfo-multiple>
+                                                 :disabled="!hasItems">
+                                    <sw-media-quickinfo
+                                            v-if="isSingleFile"
+                                            :key="getKey"
+                                            :item="items[0]"
+                                            :autoplay="autoplay"
+                                            v-on="$listeners">
+                                    </sw-media-quickinfo>
+                                    <sw-media-quickinfo-multiple v-else :items="items" v-on="$listeners"></sw-media-quickinfo-multiple>
                                 </sw-sidebar-item>
                             {% endblock %}
                         </div>
@@ -19,15 +25,10 @@
 
                     {% block sw_media_sidebar_items_bottom %}
                         <div class="sw-media-sidebar__items-bottom">
-                            {% block sw_media_sidebar_actions_move_file %}
-                                <sw-sidebar-item icon="default-action-move-file"
-                                                 @click="emitRequestMoveSelection">
-                                </sw-sidebar-item>
-                            {% endblock %}
-
                             {% block sw_media_sidebar_actions_delete_file %}
                                 <sw-sidebar-item icon="default-action-trash"
-                                                 @click="emitRequestRemoveSelection">
+                                                 @click="emitRequestRemoveSelection"
+                                                 :disabled="!hasItems">
                                 </sw-sidebar-item>
                             {% endblock %}
                         </div>

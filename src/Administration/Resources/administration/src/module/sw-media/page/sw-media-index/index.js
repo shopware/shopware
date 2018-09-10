@@ -64,10 +64,10 @@ Component.register('sw-media-index', {
             this.loadMedia();
         },
 
-        getselectedItemss() {
+        getSelectedItems() {
             const selection = this.$refs.mediaGrid.selection;
 
-            if (selection.length === 0) {
+            if (!Array.isArray(selection) || selection.length === 0) {
                 this.selectedItems = null;
                 return;
             }
@@ -76,15 +76,15 @@ Component.register('sw-media-index', {
         },
 
         handleMediaGridSelectionRemoved() {
-            this.getselectedItemss();
+            this.getSelectedItems();
         },
 
         handleMediaGridItemSelected() {
-            this.getselectedItemss();
+            this.getSelectedItems();
         },
 
         handleMediaGridItemUnselected() {
-            this.getselectedItemss();
+            this.getSelectedItems();
         },
 
         handleMediaGridItemReplace({ item }) {
@@ -92,7 +92,7 @@ Component.register('sw-media-index', {
         },
 
         handleMediaGridItemShowDetails({ item, autoplay }) {
-            this.lastSelectedItems = [item];
+            this.selectedItems = [item];
             this.$refs.mediaSidebar.autoplay = autoplay;
             this.$refs.mediaSidebar.showQuickInfo();
         },

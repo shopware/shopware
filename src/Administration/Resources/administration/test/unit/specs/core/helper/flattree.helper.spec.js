@@ -113,13 +113,16 @@ describe('core/helper/flattree.helper.js', () => {
 
         expect(flatTree.convertToTree()).to.deep.equal([{
             path: 'sw.a',
+            position: flatTree.defaultPosition,
             children: [{
                 path: 'sw.b',
                 parent: 'sw.a',
+                position: flatTree.defaultPosition,
                 children: []
             }]
         }, {
             path: 'sw.c',
+            position: flatTree.defaultPosition,
             children: []
         }]);
     });

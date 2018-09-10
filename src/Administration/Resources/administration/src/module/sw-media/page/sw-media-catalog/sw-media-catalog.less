@@ -13,11 +13,9 @@
 .sw-media-catalog {
     .sw-media-catalog__page-content {
         display: grid;
-        position: absolute;
         padding-left: 10px;
         height: 100%;
-        width: 100%;
-        grid-template-columns: auto 64px;
+        grid-template-columns: 1fr auto;
     }
 
     .sw-media-catalog__content-container {
@@ -32,13 +30,6 @@
         position:absolute;
         height: 100%;
         width: 100%;
-    }
-
-    .sw-media-catalog__media-grid {
-        width: 100%;
-        justify-self: stretch;
-        overflow-y: auto;
-        overflow-x: hidden;
     }
 
     .sw-media-catalog__sidebar {

@@ -27,6 +27,12 @@ Component.extend('sw-media-grid-media-item', 'sw-media-grid-item', {
                 click: this.doMainAction,
                 dblclick: this.startInlineEdit
             };
+        },
+
+        highlightedPreviewBorderClass() {
+            return {
+                'sw-media-preview--highlighted': this.selected && this.containerOptions.selectionInProgress
+            };
         }
     },
 

@@ -21,11 +21,6 @@ Component.register('sw-media-grid', {
             }
         },
 
-        previewComponent: {
-            require: true,
-            type: String
-        },
-
         items: {
             required: true,
             type: Array

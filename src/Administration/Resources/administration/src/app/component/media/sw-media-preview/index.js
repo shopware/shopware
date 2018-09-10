@@ -81,6 +81,12 @@ Component.register('sw-media-preview', {
 
         imageURLFromItem() {
             return `${this.item.url}?${Date.now()}`;
+        },
+
+        imageBackgroundClass() {
+            return {
+                'sw-media-preview--shows-transparency': (this.checkForFileTypeImage || this.checkForInMemoryFile)
+            };
         }
     },
 

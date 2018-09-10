@@ -13,11 +13,7 @@
                     </div>
                 {% endblock %}
 
-                {% block sw_media_grid_item_preview_container %}
-                    <div class="sw-media-grid-item__preview">
-                        {% block sw_media_grid_item_preview %}{% endblock %}
-                    </div>
-                {% endblock %}
+                {% block sw_media_grid_item_preview %}{% endblock %}
 
                 {% block sw_media_grid_item_name_container %}
                     <div class="sw-media-grid-item__name-container">
@@ -36,11 +32,9 @@
                 {% endblock %}
 
                 {% block sw_media_grid_item_context_menu %}
-                    <div v-if="showContextMenuButton" class="sw-media-grid-item__context-button">
-                        <sw-context-button ref="swContextButton">
-                            {% block sw_media_grid_item_context_items%}{% endblock %}
-                        </sw-context-button>
-                    </div>
+                    <sw-context-button v-if="showContextMenuButton" ref="swContextButton">
+                        {% block sw_media_grid_item_context_items%}{% endblock %}
+                    </sw-context-button>
                 {% endblock %}
             </div>
         {% endblock %}

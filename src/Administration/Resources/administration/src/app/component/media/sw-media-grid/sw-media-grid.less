@@ -1,6 +1,7 @@
 @import "~less/variables";
 
-@media-grid-cell-color-highlight: @color-cadet-blue;
+@media-grid-cell-color-highlight:       @color-cadet-blue;
+@media-grid-border-radius-content-cell: @border-radius-default;
 
 .sw-media-grid {
     width: 100%;
@@ -9,13 +10,11 @@
 
     .sw-media-grid__content {
         display: grid;
-        justify-items: stretch;
-        grid-row-gap: 10px;
-        grid-auto-flow: row;
+        grid-gap: 0;
     }
 
     .sw-media-grid__content-cell:hover {
         background-color: @media-grid-cell-color-highlight;
-        border-radius: 5px;
+        border-radius: @media-grid-border-radius-content-cell;
     }
 }

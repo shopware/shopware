@@ -49,11 +49,14 @@
         margin: 10px 0;
         border: 1px solid @sw-media-quickinfo-border-color;
         border-radius: @sw-media-quickinfo-border-radius;
+    }
 
-        &:before {
-            content: "";
-            display: block;
-            padding-top: 75%;
-        }
+    .sw-media-quickinfo__image {
+        max-width: 100%;
+        max-height: 100%;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
     }
 }

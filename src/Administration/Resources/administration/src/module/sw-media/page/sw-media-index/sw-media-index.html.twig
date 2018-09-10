@@ -7,12 +7,11 @@
                         <div class="sw-media-index__content">
                             {% block sw_media_index_catalogs %}
                                 {% block sw_media_index_catalogs_title %}
-                                    <h4>{{ $tc('sw-media.index.catalogs') }}</h4>
+                                    <h4 class="sw-media-index__headline">{{ $tc('sw-media.index.catalogs') }}</h4>
                                 {% endblock %}
 
                                 {% block sw_media_index_catalogs_grid %}
                                     <sw-media-grid previewType="media-grid-preview-as-grid"
-                                                   previewComponent="sw-media-grid-catalog-item"
                                                    :selectable="false"
                                                    :items="catalogs">
                                     </sw-media-grid>
@@ -25,15 +24,14 @@
 
                             {% block sw_media_index_items %}
                                 {% block sw_media_index_items_title %}
-                                    <h4 v-if="!isSearch">{{ $tc('sw-media.index.lastAdded') }}</h4>
+                                    <h4 class="sw-media-index__headline" v-if="!isSearch">{{ $tc('sw-media.index.lastAdded') }}</h4>
                                 {% endblock %}
                                 {% block sw_media_index_searched_item_title %}
-                                    <h4 v-if="isSearch">{{ $tc('sw-media.index.searchResult') }}</h4>
+                                    <h4 class="sw-media-index__headline" v-if="isSearch">{{ $tc('sw-media.index.searchResult') }}</h4>
                                 {% endblock %}
 
                                 {% block sw_media_index_items_grid %}
                                     <sw-media-grid previewType="media-grid-preview-as-grid"
-                                           previewComponent="sw-media-grid-media-item"
                                            :editable="true"
                                            :selectable="true"
                                            :items="mediaItems"

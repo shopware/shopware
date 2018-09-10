@@ -20,7 +20,7 @@ Component.register('sw-media-catalog', {
     data() {
         return {
             isLoading: false,
-            previewType: 'media-grid-preview-as-grid',
+            previewType: 'media-grid-preview-as-list',
             catalogs: [],
             mediaItems: [],
             selectedItems: null,

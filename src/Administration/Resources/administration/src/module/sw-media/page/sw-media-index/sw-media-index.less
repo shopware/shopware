@@ -3,10 +3,8 @@
 .sw-media-index {
     .sw-media-index__page {
         display: grid;
-        position: absolute;
+        grid-template-columns: 1fr auto;
         height: 100%;
-        width: 100%;
-        grid-template-columns: auto 64px;
     }
 
     .sw-media-index__content {
@@ -20,11 +18,11 @@
     .sw-media-index__divider {
         border: 0;
         height: 1px;
+        margin: 30px 10px 30px 10px;
         background: @color-steam-cloud;
-        margin: 10px 0;
     }
 
-    .sw-media-index__sidebar{
-        width: 64px;
+    .sw-media-index__headline {
+        margin-left: 10px;
     }
 }

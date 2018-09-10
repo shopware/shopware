@@ -11,7 +11,7 @@ Component.extend('sw-media-grid-catalog-item', 'sw-media-grid-item', {
             required: true,
             type: Object,
             validator(value) {
-                return value.type !== undefined && value.type === 'catalog';
+                return value.type === 'catalog';
             }
         }
     },

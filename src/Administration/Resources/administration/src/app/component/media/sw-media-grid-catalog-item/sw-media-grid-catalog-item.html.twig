@@ -1,11 +1,13 @@
 {% block sw_media_grid_item_selection_identifier %}{% endblock %}
 
 {% block sw_media_grid_item_preview %}
-    <sw-icon class="sw-media-grid-item__catalog-item"
-        name="folder-thumbnail"
-        multicolor
-        size="64px">
-    </sw-icon>
+    <div class="sw-media-grid-item__svg-container">
+        <sw-icon class="sw-media-grid-item__catalog-item"
+            name="folder-thumbnail"
+            multicolor
+            size="64px">
+        </sw-icon>
+    </div>
 {% endblock %}
 
 {% block sw_media_grid_item_context_items%}

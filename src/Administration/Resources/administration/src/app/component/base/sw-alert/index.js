@@ -2,13 +2,26 @@ import { Component } from 'src/core/shopware';
 import template from './sw-alert.html.twig';
 import './sw-alert.less';
 
+/**
+ * @description
+ * The <u>sw-alert</u> component is used to convey important information to the user. It comes in 4 variations,
+ * <strong>success</strong>, <strong>info</strong>, <strong>warning</strong> and <strong>error</strong>. These have
+ * default icons assigned which can be changed and represent different actions
+ * @status ready
+ * @example-type dynamic
+ * @component-example
+ * <sw-alert variant="info" title="Example title" :closable="true">
+ *    Sample text
+ * </sw-alert>
+ */
 Component.register('sw-alert', {
     template,
 
     props: {
         variant: {
             type: String,
-            default: '',
+            default: 'info',
+            validValues: ['info', 'warning', 'error', 'success'],
             validator(value) {
                 return ['info', 'warning', 'error', 'success'].includes(value);
             }
@@ -16,13 +29,15 @@ Component.register('sw-alert', {
         appearance: {
             type: String,
             default: 'default',
+            validValues: ['default', 'notification', 'system'],
             validator(value) {
                 return ['default', 'notification', 'system'].includes(value);
             }
         },
         title: {
             type: String,
-            required: false
+            required: false,
+            default: ''
         },
         showIcon: {
             type: Boolean,

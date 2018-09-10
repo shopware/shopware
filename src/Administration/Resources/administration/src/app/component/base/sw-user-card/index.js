@@ -2,6 +2,48 @@ import { Component } from 'src/core/shopware';
 import template from './sw-user-card.html.twig';
 import './sw-user-card.less';
 
+/**
+ * @public
+ * @description Renders a tab navigation. Each tab item references a route and the tab content will be rendered
+ * using <code>&lt;router-view&gt;</code> in the parent component.
+ * @status ready
+ * @example-type static
+ * @component-example
+ * <sw-user-card title="Account" :user="{
+ *     email: 'test@example.com',
+ *     active: true,
+ *     addresses: [{
+ *         salutation: 'Mister',
+ *         title: 'Doctor',
+ *         firstName: 'Joe',
+ *         lastName: 'Doe',
+ *         street: 'Main St 123',
+ *         zipcode: '12456',
+ *         city: 'Anytown',
+ *         country: { name: 'Germany' }
+ *     }],
+ *     salutation: 'Mister',
+ *     title: 'Doctor',
+ *     firstName: 'Joe',
+ *     lastName: 'Doe',
+ *     street: 'Main St 123',
+ *     zipcode: '12456',
+ *     city: 'Anytown',
+ *     country: { name: 'Germany' }
+ * }">
+ * <template slot="actions">
+ *     <sw-button size="small" disabled>
+ *         <sw-icon name="small-pencil" small></sw-icon>
+ *         Edit user
+ *     </sw-button>
+ *
+ *     <sw-button size="small" disabled>
+ *         <sw-icon name="default-lock-key" small></sw-icon>
+ *         Change password
+ *      </sw-button>
+ * </template>
+ * </sw-user-card>
+ */
 Component.register('sw-user-card', {
     template,
 
@@ -31,6 +73,9 @@ Component.register('sw-user-card', {
         },
 
         moduleColor() {
+            if (!this.$route.meta.$module) {
+                return '';
+            }
             return this.$route.meta.$module.color;
         },
 

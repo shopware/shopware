@@ -3,6 +3,43 @@ import dom from 'src/core/service/utils/dom.utils';
 import template from './sw-tabs.html.twig';
 import './sw-tabs.less';
 
+/**
+ * @public
+ * @description Renders a tab navigation. Each tab item references a route and the tab content will be rendered
+ * using <code>&lt;router-view&gt;</code> in the parent component.
+ * @status ready
+ * @example-type static
+ * @component-example
+ * <sw-tabs>
+ *     <sw-tabs-item title="General">
+ *         General
+ *     </sw-tabs-item>
+ *
+ *     <sw-tabs-item title="Product information">
+ *         Product information
+ *     </sw-tabs-item>
+ *
+ *     <sw-tabs-item title="Variants">
+ *         Variants
+ *     </sw-tabs-item>
+ *
+ *     <sw-tabs-item title="Properties">
+ *         Properties
+ *     </sw-tabs-item>
+ *
+ *     <sw-tabs-item title="Product images">
+ *         Product images
+ *     </sw-tabs-item>
+ *
+ *     <sw-tabs-item title="Advanced pricing">
+ *         Advanced pricing
+ *     </sw-tabs-item>
+ *
+ *     <sw-tabs-item title="Sales analyses">
+ *         Sales analyses
+ *     </sw-tabs-item>
+ * </sw-tabs>
+ */
 Component.register('sw-tabs', {
     template,
 

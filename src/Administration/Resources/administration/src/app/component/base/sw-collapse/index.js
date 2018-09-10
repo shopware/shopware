@@ -1,6 +1,17 @@
 import { Component } from 'src/core/shopware';
 import template from './sw-collapse.html.twig';
 
+/**
+ * @public
+ * @description A container which creates a collapsible list of items.
+ * @status ready
+ * @example-type static
+ * @component-example
+ * <sw-collapse>
+ *     <div slot="header">Header slot</div>
+ *     <div slot="content">Content slot</div>
+ * </sw-collapse>
+ */
 Component.register('sw-collapse', {
     template,
 

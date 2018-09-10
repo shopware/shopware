@@ -2,14 +2,43 @@ import { Component } from 'src/core/shopware';
 import template from './sw-address.html.twig';
 import './sw-address.less';
 
+/**
+ * @public
+ * @description Component which renders a compact panel with user information
+ * @status ready
+ * @example-type static
+ * @component-example
+ * <sw-address headline="Billing address" :address="{
+ *     salutation: 'Mister',
+ *     title: 'Doctor',
+ *     firstName: 'Joe',
+ *     lastName: 'Doe',
+ *     street: 'Main St 123',
+ *     zipcode: '12456',
+ *     city: 'Anytown',
+ *     country: { name: 'Germany' }
+ * }"></sw-address>
+ */
 Component.register('sw-address', {
     template,
 
     props: {
         address: {
             type: Object,
-            required: true,
-            default: {}
+            default() {
+                return {
+                    salutation: '',
+                    title: '',
+                    firstName: '',
+                    lastName: '',
+                    street: '',
+                    zipcode: '',
+                    city: '',
+                    country: {
+                        name: ''
+                    }
+                };
+            }
         },
         headline: {
             type: String,

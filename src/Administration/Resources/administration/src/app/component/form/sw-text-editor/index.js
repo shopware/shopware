@@ -4,6 +4,14 @@ import { Component } from 'src/core/shopware';
 import template from './sw-text-editor.html.twig';
 import './sw-text-editor.less';
 
+/**
+ * @public
+ * @status ready
+ * @example-type dynamic
+ * @component-example
+ * <sw-text-editor label="Description" placeholder="Enter your description...">
+ * </sw-text-editor>
+ */
 Component.register('sw-text-editor', {
     template,
 

@@ -2,6 +2,16 @@ import { Component } from 'src/core/shopware';
 import './sw-button.less';
 import template from './sw-button.html.twig';
 
+/**
+ * @status ready
+ * @description The <u>sw-button</u> component replaces the standard html button with a custom button and a multitude
+ * of options.
+ * @example-type dynamic
+ * @component-example
+ * <sw-button>
+ *     Button
+ * </sw-button>
+ */
 Component.register('sw-button', {
     template,
 
@@ -15,6 +25,7 @@ Component.register('sw-button', {
             type: String,
             required: false,
             default: '',
+            validValues: ['primary', 'ghost', 'danger', 'contrast'],
             validator(value) {
                 if (!value.length) {
                     return true;
@@ -26,6 +37,7 @@ Component.register('sw-button', {
             type: String,
             required: false,
             default: '',
+            validValues: ['small', 'large'],
             validator(value) {
                 if (!value.length) {
                     return true;

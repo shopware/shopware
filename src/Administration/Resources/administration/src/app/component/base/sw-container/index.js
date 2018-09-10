@@ -3,6 +3,17 @@ import { warn } from 'src/core/service/utils/debug.utils';
 import template from './sw-container.html.twig';
 import './sw-container.less';
 
+/**
+ * @public
+ * @description Provides a container element which is divided in multiple section with the use of CSS grid.
+ * @status ready
+ * @example-type static
+ * @component-example
+ * <sw-container columns="1fr 1fr">
+ *     <div>Left content</div>
+ *     <div>Right content</div>
+ * </sw-container>
+ */
 Component.register('sw-container', {
     template,
 
@@ -26,6 +37,7 @@ Component.register('sw-container', {
             type: String,
             required: false,
             default: 'stretch',
+            validValues: ['start', 'end', 'center', 'stretch', 'left', 'right'],
             validator(value) {
                 return ['start', 'end', 'center', 'stretch', 'left', 'right'].includes(value);
             }
@@ -34,6 +46,7 @@ Component.register('sw-container', {
             type: String,
             required: false,
             default: 'stretch',
+            validValues: ['start', 'end', 'center', 'stretch'],
             validator(value) {
                 return ['start', 'end', 'center', 'stretch'].includes(value);
             }

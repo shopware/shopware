@@ -3,6 +3,28 @@ import dom from 'src/core/service/utils/dom.utils';
 import template from './sw-grid.html.twig';
 import './sw-grid.less';
 
+/**
+ * @public
+ * @status ready
+ * @example-type static
+ * @component-example
+ * <sw-grid :items="[
+ *     {company:'Wordify',name:'Portia Jobson'},
+ *     {company:'Twitternation',name:'Baxy Eardley'},
+ *     {company:'Skidoo',name:'Arturo Staker'},
+ *     {company:'Meetz',name:'Dalston Top'},
+ *     {company:'Photojam',name:'Neddy Jensen'}]">
+ *     <template slot="columns" slot-scope="{ item }">
+ *         <sw-grid-column flex="minmax(200px, 1fr)" label="Company">
+ *             <strong>{{ item.company }}</strong>
+ *         </sw-grid-column>
+ *
+ *         <sw-grid-column flex="minmax(200px, 1fr)" label="Full name">
+ *             {{ item.name }}
+ *         </sw-grid-column>
+ *     </template>
+ * </sw-grid>
+ */
 Component.register('sw-grid', {
     template,
 

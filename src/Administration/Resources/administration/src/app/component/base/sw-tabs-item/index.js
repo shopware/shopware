@@ -3,6 +3,9 @@ import { Component } from 'src/core/shopware';
 import template from './sw-tabs-item.html.twig';
 import './sw-tabs-item.less';
 
+/**
+ * @private
+ */
 Component.register('sw-tabs-item', {
     template,
 

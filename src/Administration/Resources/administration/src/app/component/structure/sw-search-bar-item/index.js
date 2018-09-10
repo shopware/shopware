@@ -6,6 +6,12 @@ Component.register('sw-search-bar-item', {
     template,
 
     props: {
-        item: null
+        item: {
+            type: Object,
+            required: true,
+            default() {
+                return {};
+            }
+        }
     }
 });

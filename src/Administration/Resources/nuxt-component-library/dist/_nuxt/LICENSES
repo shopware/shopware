@@ -1,0 +1,60 @@
+/*!
+ * Determine if an object is a Buffer
+ *
+ * @author   Feross Aboukhadijeh <https://feross.org>
+ * @license  MIT
+ */
+
+/*!
+ * is-extendable <https://github.com/jonschlinkert/is-extendable>
+ *
+ * Copyright (c) 2015, Jon Schlinkert.
+ * Licensed under the MIT License.
+ */
+
+/*!
+ * condense-newlines <https://github.com/jonschlinkert/condense-newlines>
+ *
+ * Copyright (c) 2014 Jon Schlinkert, contributors.
+ * Licensed under the MIT License
+ */
+
+/*!
+ * pretty <https://github.com/jonschlinkert/pretty>
+ *
+ * Copyright (c) 2013-2015, 2017, Jon Schlinkert.
+ * Released under the MIT License.
+ */
+
+/*!
+ * is-whitespace <https://github.com/jonschlinkert/is-whitespace>
+ *
+ * Copyright (c) 2014-2015, Jon Schlinkert.
+ * Licensed under the MIT License.
+ */
+
+/*!
+ * Vue.js v2.5.17
+ * (c) 2014-2018 Evan You
+ * Released under the MIT License.
+ */
+
+/*!
+ * @overview es6-promise - a tiny implementation of Promises/A+.
+ * @copyright Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors (Conversion to ES6 API by Jake Archibald)
+ * @license   Licensed under MIT license
+ *            See https://raw.githubusercontent.com/stefanpenner/es6-promise/master/LICENSE
+ * @version   v4.2.4+314e4831
+ */
+
+/**
+ * vue-meta v1.5.3
+ * (c) 2018 Declan de Wet & Sébastien Chopin (@Atinux)
+ * @license MIT
+ */
+
+/*
+object-assign
+(c) Sindre Sorhus
+@license MIT
+*/

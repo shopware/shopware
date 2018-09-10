@@ -3,6 +3,17 @@ import utils from 'src/core/service/util.service';
 import './sw-select.less';
 import template from './sw-select.html.twig';
 
+/**
+ * @public
+ * @status ready
+ * @example-type code-only
+ * @component-example
+ * // Single select
+ * <sw-select id="language" label="Language" :store="languageStore"></sw-select>
+ *
+ * // Multi select
+ * <sw-select multi id="language" label="Language" :store="languageStore" :serviceProvider="languageService"></sw-select>
+ */
 Component.register('sw-select', {
     template,
 

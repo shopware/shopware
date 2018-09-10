@@ -2,6 +2,9 @@ import { Component } from 'src/core/shopware';
 import template from './sw-sidebar-item.html.twig';
 import './sw-sidebar-item.less';
 
+/**
+ * @private
+ */
 Component.register('sw-sidebar-item', {
     template,
 

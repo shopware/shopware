@@ -2,6 +2,16 @@ import { Component } from 'src/core/shopware';
 import template from './sw-card.html.twig';
 import './sw-card.less';
 
+/**
+ * @public
+ * @description A card is a flexible and extensible content container.
+ * @status ready
+ * @example-type dynamic
+ * @component-example
+ * <sw-card title="Test title">
+ *     Your content
+ * </sw-card>
+ */
 Component.register('sw-card', {
     template,
 

@@ -2,6 +2,23 @@ import { Component } from 'src/core/shopware';
 import template from './sw-card-section.html.twig';
 import './sw-card-section.less';
 
+/**
+ * @public
+ * @description A container component which separates the content of <code>sw-card</code> into multiple sections.
+ * @status ready
+ * @example-type static
+ * @component-example
+ * <sw-card title="Split card view" large>
+ *     <sw-container columns="1fr 1fr">
+ *         <sw-card-section divider="right">
+ *             bar
+ *         </sw-card-section>
+ *         <sw-card-section>
+ *             foo
+ *         </sw-card-section>
+ *     </sw-container>
+ * </sw-card>
+ */
 Component.register('sw-card-section', {
     template,
 
@@ -10,6 +27,7 @@ Component.register('sw-card-section', {
             type: String,
             required: false,
             default: '',
+            validValues: ['top', 'right', 'bottom', 'left'],
             validator(value) {
                 if (!value.length) {
                     return true;

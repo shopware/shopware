@@ -4,8 +4,9 @@
         {% block sw_product_media_item_image %}
             <img class="sw-image__image" :src="url" :alt="altText">
         {% endblock %}
+
         {% block sw_product_media_item_tooltip %}
-            <div class="sw-image__tooltip">{{ altText }}</div>
+            <div class="sw-image__tooltip" v-if="altText">{{ altText }}</div>
         {% endblock %}
         <sw-context-button class="sw-image__context-button">
             {% block sw_product_media_item_context %}

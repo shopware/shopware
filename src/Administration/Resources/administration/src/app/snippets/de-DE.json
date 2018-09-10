@@ -2,7 +2,9 @@
   "global": {
     "notification": {
       "notificationSaveErrorTitle": "Fehler",
-      "notificationSaveErrorMessage": "Beim Speichern der Entität \"{entityName}\" ist ein Fehler aufgetreten."
+      "notificationSaveErrorMessage": "Beim Speichern der Entität \"{entityName}\" ist ein Fehler aufgetreten." ,
+      "notificationSaveSuccessTitle": "Erfolgreich",
+      "notificationSaveSuccessMessage": "Die Entität \"{entityName}\" wurde erfolgreich gespeichert."
     },
     "sw-admin-menu": {
       "linkChangeLanguage": "Sprache wechseln",
@@ -54,7 +56,8 @@
     },
     "sw-search-bar": {
       "textNoSearchResults": "Es wurden keine Ergebnisse gefunden",
-      "placeholderSearchField": "Finde Produkte, Kunden, Bestellungen"
+      "placeholderSearchField": "Finde Produkte, Kunden, Bestellungen",
+      "placeholderTypeSearchField": "Durchsuchen aller {entity}"
     },
     "sw-search-bar-item": {
       "typeLabelCustomer": "Kunde",
@@ -77,13 +80,13 @@
   },
   "sw-login": {
     "index": {
-      "headlineMain": "Hallo",
+      "headlineMain": "Hallo!",
       "subheadlineMain": "Willkommen zurück!",
-      "headlineForm": "Melde dich in Deinen Shopware Shop an",
+      "headlineForm": "Melde Dich in Deinem Shopware Shop an.",
       "labelUsername": "Benutzername",
       "labelPassword": "Passwort",
-      "placeholderUsername": "Gib deinen Benutzernamen ein...",
-      "placeholderPassword": "Gib dein Passwort ein...",
+      "placeholderUsername": "Gib Deinen Benutzernamen ein...",
+      "placeholderPassword": "Gib Dein Passwort ein...",
       "buttonLogin": "Anmelden",
       "titleErrorMessage": "Anmeldung",
       "messageUnsupportedGrantType": "Grant Type wird nicht unterstützt.",
@@ -114,13 +117,14 @@
     "general": {
       "mainMenuItemGeneral": "Kunden",
       "mainMenuItemList": "Übersicht",
-      "mainMenuItemAdd": "Kunde anlegen",
-      "descriptionTextModule": "Modul zur Verwaltung von Kunden."
+      "mainMenuItemAdd": "Kunden anlegen",
+      "descriptionTextModule": "Modul zur Verwaltung von Kunden.",
+      "placeholderSearchBar": "Durchsuchen aller Kunden"
     },
     "list": {
       "textCustomers": "Kunden",
       "textCustomersTotal": "Kein Kunde | Ein Kunde | {count} Kunden",
-      "buttonAddCustomer": "Kunde anlegen",
+      "buttonAddCustomer": "Kunden anlegen",
       "columnCustomerNumber": "Kd. Nr.",
       "columnName": "Name",
       "columnFirstName": "Vorname",
@@ -139,6 +143,7 @@
     },
     "baseForm": {
       "labelSalutation": "Anrede",
+      "labelTitle": "Titel",
       "labelFirstName": "Vorname",
       "labelLastName": "Nachname",
       "labelEmail": "E-Mail",
@@ -174,8 +179,8 @@
       "buttonAddAddress": "Adresse anlegen",
       "buttonTitleEditAddress": "Adresse bearbeiten",
       "buttonSave": "Speichern",
-      "buttonEdit": "Kunde bearbeiten",
-      "buttonChangePassword" : "Password ändern",
+      "buttonEdit": "Kunden bearbeiten",
+      "buttonChangePassword" : "Passwort ändern",
       "labelAccountActiveField": "Konto ist aktiv"
     },
     "detailAddresses": {
@@ -245,7 +250,7 @@
       "buttonAbortLabel": "Abbrechen",
       "buttonSaveLabel": "Speichern",
       "introHeadlineDetail": "Kataloginhalt",
-      "introDescriptionDetail": "Dies ist eine Übersicht Deines Kataloges \"{name}\". <br>Hier kannst Du die Kategorien des Kataloges bearbeiten und den Katalog auf weiteren Sales Channels ausspielen.",
+      "introDescriptionDetail": "Dies ist die Übersicht Deines Kataloges \"{name}\". <br>Hier kannst Du die Kategorien des Kataloges bearbeiten und den Katalog auf weiteren Verkaufskanälen ausspielen.",
       "labelOverviewProducts": "Produkte",
       "labelOverviewCategories": "Kategorien",
       "labelOverviewPages": "Seiten",
@@ -257,7 +262,7 @@
       "buttonAddCategory": "Hinzufügen",
       "contextButtonEditCategory": "Bearbeiten",
       "contextButtonDeleteCategory": "Löschen",
-      "contextButtonAddChildCategory": "Neue Kind-Kategorie"
+      "contextButtonAddChildCategory": "Neue Unterkategorie"
     },
     "create": {
       "headlineNewCatalog": "Neuer Katalog"
@@ -303,7 +308,8 @@
       "mainMenuItemGeneral": "Produkte",
       "mainMenuItemList": "Übersicht",
       "mainMenuItemAdd": "Produkt anlegen",
-      "descriptionTextModule": "Modul zur Verwaltung von Produkten."
+      "descriptionTextModule": "Modul zur Verwaltung von Produkten.",
+      "placeholderSearchBar": "Durchsuchen aller Produkte"
     },
     "basicForm": {
       "labelTitle": "Titel",
@@ -311,8 +317,8 @@
       "labelProductNumber": "Produktnummer",
       "labelManufacturer": "Hersteller",
       "placeholderTitle": "Gib einen Produkt-Namen ein...",
-      "placeholderDescription": "Gib deine Produkt-Beschreibung ein...",
-      "placeholderProductNumber": "Gib deine Produkt-Nummer ein...",
+      "placeholderDescription": "Gib Deine Produkt-Beschreibung ein...",
+      "placeholderProductNumber": "Gib Deine Produkt-Nummer ein...",
       "placeholderManufacturer": "Gib einen Produkt-Hersteller ein..."
     },
     "categoryForm": {
@@ -367,7 +373,7 @@
       "placeholderPseudoSales": "Gib die Pseudo-Verkäufe ein..."
     },
     "detailBase": {
-      "cardTitleProductInfo": "Produkt Informationen",
+      "cardTitleProductInfo": "Informationen",
       "cardTitleAssignment": "Zuordnung",
       "cardTitlePrices": "Preise",
       "cardTitleSettings": "Einstellungen",
@@ -407,8 +413,7 @@
       "messageEmpty": "Noch keine Produkte",
       "modalTitleDelete": "Produkte",
       "textDeleteConfirm": "Möchtest Du das Produkt \"{name}\" wirklich löschen?",
-      "titleRefresh": "Aktualisieren",
-      "titleFilter": "Filter"
+      "titleRefresh": "Aktualisieren"
     },
     "detail": {
       "textHeadline": "Neues Produkt",
@@ -426,7 +431,9 @@
   },
   "sw-manufacturer": {
     "general": {
-      "mainMenuItemList": "Hersteller"
+      "mainMenuItemList": "Hersteller",
+      "mainMenuItemGeneral": "Hersteller",
+      "placeholderSearchBar": "Durchsuchen aller Hersteller"
     },
     "list": {
       "textManufacturerOverview": "Hersteller",
@@ -464,7 +471,8 @@
     "general": {
       "mainMenuItemGeneral": "Bestellungen",
       "mainMenuItemList": "Übersicht",
-      "descriptionTextModule": "Modul zur Verwaltung von Bestellungen."
+      "descriptionTextModule": "Modul zur Verwaltung von Bestellungen.",
+      "placeholderSearchBar": "Durchsuchen aller Bestellungen"
     },
     "list": {
       "columnCustomerName": "Kundenname",
@@ -562,7 +570,8 @@
   "sw-media": {
     "general": {
       "mainMenuItemGeneral": "Medien",
-      "descriptionTextModule": "Modul zum Verwalten von Mediendateien"
+      "descriptionTextModule": "Modul zum Verwalten von Mediendateien",
+      "placeholderSearchBar": "Durchsuchen aller Medien"
     },
     "smart-bar": {
       "buttonUpload": "Dateien hochladen"
@@ -637,7 +646,8 @@
   },
   "sw-settings-currency": {
     "general": {
-      "mainMenuItemGeneral": "Währungen"
+      "mainMenuItemGeneral": "Währungen",
+      "placeholderSearchBar": "Durchsuchen aller Währungen"
     },
     "list": {
       "textHeadline": "Währungen",
@@ -674,7 +684,8 @@
   "sw-settings-tax": {
     "general": {
       "mainMenuItemGeneral": "Steuern",
-      "taxRateSymbol": "&#037;"
+      "taxRateSymbol": "&#037;",
+      "placeholderSearchBar": "Durchsuchen aller Steuern"
     },
     "list": {
       "textHeadline": "Steuern",
@@ -704,7 +715,8 @@
   },
   "sw-settings-language": {
     "general": {
-      "mainMenuItemGeneral": "Sprachen"
+      "mainMenuItemGeneral": "Sprachen",
+      "placeholderSearchBar": "Durchsuchen aller Sprachen"
     },
     "list": {
       "textHeadline": "Sprachen",
@@ -735,7 +747,8 @@
   },
   "sw-settings-payment": {
     "general": {
-      "mainMenuItemGeneral": "Zahlungsarten"
+      "mainMenuItemGeneral": "Zahlungsarten",
+      "placeholderSearchBar": "Durchsuchen aller Zahlungsarten"
     },
     "list": {
       "textHeadline": "Zahlungsarten",
@@ -772,7 +785,8 @@
   },
   "sw-settings-shipping": {
     "general": {
-      "mainMenuItemGeneral": "Versandarten"
+      "mainMenuItemGeneral": "Versandarten",
+      "placeholderSearchBar": "Durchsuchen aller Versandarten"
     },
     "list": {
       "textHeadline": "Versandarten",
@@ -803,7 +817,8 @@
   },
   "sw-settings-country": {
     "general": {
-      "mainMenuItemGeneral": "Länder"
+      "mainMenuItemGeneral": "Länder",
+      "placeholderSearchBar": "Durchsuchen aller Länder"
     },
     "list": {
       "textHeadline": "Länder",
@@ -828,6 +843,11 @@
       "placeholderName": "Name eingeben...",
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern"
+    }
+  },
+  "sw-tree": {
+    "general": {
+      "placeholderSearch": "Suche"
     }
   },
   "sw-profile": {

@@ -1,18 +1,10 @@
 {% block sw_page %}
     <div class="sw-page">
 
-        {% block sw_page_search_bar %}
-            <sw-search-bar>
-
-                {% block sw_page_search_bar_type %}
-                    <template slot="search-type">
-                        <slot name="search-bar-type">
-                            {% block sw_page_search_bar_type_slot %}{% endblock %}
-                        </slot>
-                    </template>
-                {% endblock %}
-
-            </sw-search-bar>
+        {% block sw_page_slot_search_bar %}
+            <slot name="search-bar">
+                <sw-search-bar></sw-search-bar>
+            </slot>
         {% endblock %}
 
         {% block sw_page_smart_container %}

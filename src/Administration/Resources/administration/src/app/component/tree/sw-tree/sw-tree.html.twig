@@ -3,7 +3,7 @@
         {% block sw_tree_search %}
             <div class="sw-tree__search">
                 <sw-icon name="default-action-search" size="18"></sw-icon>
-                <sw-field type="text" name="treeSearch" placeholder="Search" v-model="currentTreeSearch" @input="searchItems"></sw-field>
+                <sw-field type="text" name="treeSearch" :placeholder="$tc('sw-tree.general.placeholderSearch')" v-model="currentTreeSearch" @input="searchItems"></sw-field>
             </div>
         {% endblock %}
 
@@ -18,7 +18,12 @@
                 {% block sw_tree_items %}
                     <slot name="items" :treeItems="treeItems" :sortable="isSortable" :draggedItem="draggedItem">
                         {% block sw_tree_slot_items %}
-                            <sw-tree-item v-for="item in treeItems" :key="item.id" :item="item" :sortable="sortable" :draggedItem="draggedItem"></sw-tree-item>
+                            <sw-tree-item v-for="item in treeItems"
+                                          :key="item.id"
+                                          :item="item"
+                                          :sortable="sortable"
+                                          :draggedItem="draggedItem">
+                            </sw-tree-item>
                         {% endblock %}
                     </slot>
                 {% endblock %}

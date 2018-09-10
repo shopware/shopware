@@ -71,6 +71,13 @@ Component.register('sw-product-detail-context-prices', {
             return priceRuleGroups;
         },
 
+        canAddPriceRule() {
+            const usedRules = Object.keys(this.priceRuleGroups).length;
+            const availableRules = this.rules.length;
+
+            return usedRules !== availableRules;
+        },
+
         isLoaded() {
             return !this.isLoading &&
                    !this.isLoadingRules &&

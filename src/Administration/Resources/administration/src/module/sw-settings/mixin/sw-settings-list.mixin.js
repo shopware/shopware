@@ -24,15 +24,9 @@ Mixin.register('sw-settings-list', {
     },
 
     created() {
-        this.$root.$on('search', this.onSearch);
-
         if (this.entityName === '') {
             debug.warn('sw-settings-list mixin', 'You need to define the data property "entityName".');
         }
-    },
-
-    destroyed() {
-        this.$root.$off('search', this.onSearch);
     },
 
     methods: {
@@ -89,6 +83,10 @@ Mixin.register('sw-settings-list', {
             }).catch(() => {
                 this.isLoading = false;
             });
+        },
+
+        onInlineEditCancel(item) {
+            item.discardChanges();
         }
     }
 });

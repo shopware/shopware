@@ -31,9 +31,7 @@
 
                         {% block sw_search_bar_type %}
                             <span v-if="useTypeSearch" class="sw-search-bar__type" :style="searchTypeColor">
-                                <slot name="search-type">
-                                    {% block sw_search_bar_slot_type %}{% endblock %}
-                                </slot>
+                                {{ searchType }}
                             </span>
                         {% endblock %}
 
@@ -41,7 +39,7 @@
                             <slot name="search-input">
                                 {% block sw_search_bar_slot_input %}
                                     <input class="sw-search-bar__input"
-                                           :placeholder="$tc('global.sw-search-bar.placeholderSearchField')"
+                                           :placeholder="placeholderSearchInput"
                                            v-model="searchTerm"
                                            @input="onSearchTermChange"
                                            @focus="onFocusInput"

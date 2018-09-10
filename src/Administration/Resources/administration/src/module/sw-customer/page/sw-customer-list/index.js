@@ -16,14 +16,6 @@ Component.register('sw-customer-list', {
         };
     },
 
-    created() {
-        this.$root.$on('search', this.onSearch);
-    },
-
-    destroyed() {
-        this.$root.$off('search', this.onSearch);
-    },
-
     computed: {
         customerStore() {
             return Shopware.State.getStore('customer');
@@ -39,6 +31,10 @@ Component.register('sw-customer-list', {
             }).catch(() => {
                 this.isLoading = false;
             });
+        },
+
+        onInlineEditCancel(customer) {
+            customer.discardChanges();
         },
 
         getList() {

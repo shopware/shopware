@@ -2,9 +2,12 @@
     {% block sw_settings_language_index %}
         <sw-page class="sw-settings-language-list">
 
-            {% block sw_settings_language_list_search_bar_type %}
-                <template slot="search-bar-type">
-                    {{ $tc('sw-settings-language.list.textHeadline') }}
+            {% block sw_settings_language_list_search_bar %}
+                <template slot="search-bar">
+                    <sw-search-bar :placeholder="$tc('sw-settings-language.general.placeholderSearchBar')"
+                                   :searchType="$tc('sw-settings-language.general.mainMenuItemGeneral')"
+                                   @search="this.onSearch">
+                    </sw-search-bar>
                 </template>
             {% endblock %}
 
@@ -45,6 +48,7 @@
                                          class="sw-settings-language-list-grid"
                                          :items="items"
                                          :selectable="false"
+                                         @inline-edit-cancel="onInlineEditCancel"
                                          @inline-edit-finish="onInlineEditSave"
                                          table>
                                     <template slot="columns" slot-scope="{ item }">

@@ -35,14 +35,6 @@ Component.register('sw-product-list', {
         }
     },
 
-    created() {
-        this.$root.$on('search', this.onSearch);
-    },
-
-    destroyed() {
-        this.$root.$off('search', this.onSearch);
-    },
-
     filters: {
         stockColorVariant(value) {
             if (value > 25) {
@@ -76,6 +68,10 @@ Component.register('sw-product-list', {
             }).catch(() => {
                 this.isLoading = false;
             });
+        },
+
+        onInlineEditCancel(product) {
+            product.discardChanges();
         },
 
         getList() {

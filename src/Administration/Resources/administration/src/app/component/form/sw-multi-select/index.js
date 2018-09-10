@@ -296,7 +296,7 @@ Component.register('sw-multi-select', {
         },
 
         onDismissSelection(id) {
-            this.dismissLastSelection(id);
+            this.dismissSelection(id);
             this.setFocus();
         },
 

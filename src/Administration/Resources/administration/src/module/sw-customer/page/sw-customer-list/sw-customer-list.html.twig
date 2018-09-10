@@ -1,9 +1,12 @@
 {% block sw_customer_list %}
     <sw-page class="sw-customer-list">
 
-        {% block sw_order_list_search_bar_type %}
-            <template slot="search-bar-type">
-                {{ $tc('sw-customer.general.mainMenuItemGeneral') }}
+        {% block sw_customer_list_search_bar %}
+            <template slot="search-bar">
+                <sw-search-bar :placeholder="$tc('sw-customer.general.placeholderSearchBar')"
+                               :searchType="$tc('sw-customer.general.mainMenuItemGeneral')"
+                               @search="this.onSearch">
+                </sw-search-bar>
             </template>
         {% endblock %}
 
@@ -47,6 +50,7 @@
                                  :selectable="false"
                                  :isFullpage="true"
                                  @sort-column="onSortColumn"
+                                 @inline-edit-cancel="onInlineEditCancel"
                                  @inline-edit-finish="onInlineEditSave">
 
                             {% block sw_customer_list_grid_slots %}

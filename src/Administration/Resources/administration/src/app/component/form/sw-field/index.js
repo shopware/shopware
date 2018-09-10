@@ -82,7 +82,9 @@ Component.register('sw-field', {
             boundExpression: '',
             boundExpressionPath: [],
             showPassword: false,
-            formError: {}
+            formError: {},
+            /** Array of white listed key codes from 0 to 9 including comma and period */
+            whitelistNumberKeys: [44, 46, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57]
         };
     },
 
@@ -171,6 +173,20 @@ Component.register('sw-field', {
             if (this.type === 'checkbox') {
                 this.currentValue = !this.currentValue;
                 this.$emit('input', this.currentValue);
+            }
+        },
+
+        onKeyPress(event) {
+            const key = event.key;
+            let code = 0;
+            if (key !== undefined) {
+                code = key.charCodeAt(0);
+            }
+
+            if (this.type === 'number') {
+                if (this.whitelistNumberKeys.indexOf(code) === -1) {
+                    event.preventDefault();
+                }
             }
         },
 
@@ -268,6 +284,16 @@ Component.register('sw-field', {
             if (this.disabled) {
                 el.setAttribute('disabled', 'disabled');
             }
+        },
+
+        addKeyCodeToWhitelistNumberKeys(keyCode) {
+            this.whitelistNumberKeys.push(keyCode);
+        },
+
+        removeKeyCodeFromWhitelistNumberKeys(keyCode) {
+            this.whitelistNumberKeys = this.whitelistNumberKeys.filter((code) => {
+                return code !== keyCode;
+            });
         }
     }
 });

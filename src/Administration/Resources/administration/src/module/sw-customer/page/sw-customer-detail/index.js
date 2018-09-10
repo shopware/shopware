@@ -99,7 +99,7 @@ Component.register('sw-customer-detail', {
                     this.customerGroups = response.items;
                 });
 
-                this.countryStore.getList({ page: 1, limit: 100 }).then((response) => {
+                this.countryStore.getList({ page: 1, limit: 100, sortBy: 'name' }).then((response) => {
                     this.countries = response.items;
                 });
 

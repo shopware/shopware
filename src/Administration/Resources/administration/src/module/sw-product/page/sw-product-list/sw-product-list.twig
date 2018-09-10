@@ -1,9 +1,12 @@
 {% block sw_product_list %}
     <sw-page class="sw-product-list">
 
-        {% block sw_order_list_search_bar_type %}
-            <template slot="search-bar-type">
-                {{ $tc('sw-product.general.mainMenuItemGeneral') }}
+        {% block sw_order_list_search_bar %}
+            <template slot="search-bar">
+                <sw-search-bar :placeholder="$tc('sw-order.general.placeholderSearchBar')"
+                               :searchType="$tc('sw-order.general.mainMenuItemGeneral')"
+                               @search="this.onSearch">
+                </sw-search-bar>
             </template>
         {% endblock %}
 
@@ -48,6 +51,7 @@
                                  :selectable="false"
                                  @edit="onEdit"
                                  @sort-column="onSortColumn"
+                                 @inline-edit-cancel="onInlineEditCancel"
                                  @inline-edit-finish="onInlineEditSave">
 
                             {% block sw_product_list_grid_slots %}
@@ -202,23 +206,6 @@
 
                                 {% block sw_product_list_grid_sidebar %}
                                     <sw-sidebar slot="sidebar">
-                                        {% block sw_product_list_grid_sidebar_filter %}
-                                            <sw-sidebar-item icon="default-action-filter"
-                                                             :title="$tc('sw-product.list.titleFilter')">
-                                                <sw-field type="switch"
-                                                          v-for="(filter, index) in filters"
-                                                          :label="filter.label"
-                                                          :value="filter.active"
-                                                          :key="index"
-                                                          @change="onSwitchFilter(filter.criteria, index)">
-                                                </sw-field>
-
-                                                <sw-alert variant="warning" :showIcon="false">
-                                                    <strong>Demo</strong> filters which will be replaced with more meaningful filters in the future.
-                                                </sw-alert>
-                                            </sw-sidebar-item>
-                                        {% endblock %}
-
                                         {% block sw_product_list_grid_sidebar_refresh %}
                                             <sw-sidebar-item icon="default-arrow-360-left"
                                                              :title="$tc('sw-product.list.titleRefresh')"

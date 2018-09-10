@@ -1,5 +1,6 @@
 import { Component } from 'src/core/shopware';
 import template from './sw-product-price-form.html.twig';
+import './sw-product-price-form.less';
 
 Component.register('sw-product-price-form', {
     template,

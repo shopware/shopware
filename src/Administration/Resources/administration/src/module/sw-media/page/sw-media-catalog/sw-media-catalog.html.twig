@@ -1,9 +1,12 @@
 {% block sw_media_catalog %}
     <sw-page class="sw-media-catalog">
 
-        {% block sw_media_list_search_bar_type %}
-            <template slot="search-bar-type">
-                {{ $tc('sw-media.general.mainMenuItemGeneral') }}
+        {% block sw_media_list_search_bar %}
+            <template slot="search-bar">
+                <sw-search-bar :placeholder="$tc('sw-media.general.placeholderSearchBar')"
+                               :searchType="$tc('sw-media.general.mainMenuItemGeneral')"
+                               @search="this.onSearch">
+                </sw-search-bar>
             </template>
         {% endblock %}
 

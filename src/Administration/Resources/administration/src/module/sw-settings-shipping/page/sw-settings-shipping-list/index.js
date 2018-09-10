@@ -1,5 +1,6 @@
 import { Component, Mixin, State } from 'src/core/shopware';
 import template from './sw-settings-shipping-list.html.twig';
+import './sw-settings-shipping-list.less';
 
 Component.register('sw-settings-shipping-list', {
     template,

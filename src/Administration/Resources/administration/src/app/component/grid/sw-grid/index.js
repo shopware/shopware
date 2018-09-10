@@ -66,7 +66,7 @@ Component.register('sw-grid', {
             columns: [],
             selection: {},
             scrollbarOffset: 0,
-            editing: []
+            editing: null
         };
     },
 
@@ -148,13 +148,15 @@ Component.register('sw-grid', {
         },
 
         inlineEditingStart(id) {
-            this.editing.push(id);
+            if (this.editing != null) {
+                this.$emit('sw-grid-disable-inline-editing', this.editing);
+            }
+
+            this.editing = id;
         },
 
-        disableActiveInlineEditing(id) {
-            this.editing = this.editing.filter((item) => {
-                return item !== id;
-            });
+        disableActiveInlineEditing() {
+            this.editing = null;
         },
 
         selectAll(selected) {

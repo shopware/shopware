@@ -49,13 +49,8 @@ Component.register('sw-media-catalog', {
         this.createdComponent();
     },
 
-    destroyed() {
-        this.destroyedComponent();
-    },
-
     methods: {
         createdComponent() {
-            this.$root.$on('search', this.onSearch);
             this.catalogStore.getList({
                 page: 1
             }).then((response) => {

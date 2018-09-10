@@ -4,14 +4,12 @@
             <sw-container grid="1fr 1fr" gap="0px 30px">
                 {% block sw_customer_address_form_company_field %}
                     <sw-field :label="$tc('sw-customer.addressForm.labelCompany')"
-                              name="addressCompany"
                               v-model="address.company">
                     </sw-field>
                 {% endblock %}
 
                 {% block sw_customer_address_form_department_field %}
                     <sw-field :label="$tc('sw-customer.addressForm.labelDepartment')"
-                              name="addressDepartment"
                               v-model="address.department">
                     </sw-field>
                 {% endblock %}
@@ -20,7 +18,6 @@
                     <sw-container grid="1fr 1fr" gap="10px">
                         {% block sw_customer_address_form_salutation_field %}
                             <sw-field :label="$tc('sw-customer.addressForm.labelSalutation')"
-                                      name="addressSalutation"
                                       validation="required"
                                       v-model="address.salutation">
                             </sw-field>
@@ -28,7 +25,6 @@
 
                         {% block sw_customer_address_form_title_field %}
                             <sw-field :label="$tc('sw-customer.addressForm.labelTitle')"
-                                      name="addressTitle"
                                       v-model="address.title">
                             </sw-field>
                         {% endblock %}
@@ -37,7 +33,6 @@
 
                 {% block sw_customer_address_form_first_name_field %}
                     <sw-field :label="$tc('sw-customer.addressForm.labelFirstName')"
-                              name="addressFirstName"
                               validation="required"
                               v-model="address.firstName">
                     </sw-field>
@@ -45,7 +40,6 @@
 
                 {% block sw_customer_address_form_last_name_field %}
                     <sw-field :label="$tc('sw-customer.addressForm.labelLastName')"
-                              name="addressLastName"
                               validation="required"
                               v-model="address.lastName">
                     </sw-field>
@@ -53,7 +47,6 @@
 
                 {% block sw_customer_address_form_street_field %}
                     <sw-field :label="$tc('sw-customer.addressForm.labelStreet')"
-                              name="addressStreet"
                               validation="required"
                               v-model="address.street">
                     </sw-field>
@@ -61,14 +54,12 @@
 
                 {% block sw_customer_address_form_additional_address_line_1_field %}
                     <sw-field :label="$tc('sw-customer.addressForm.labelAdditionalAddressLine1')"
-                              name="addressAdditionalAddressLine1"
                               v-model="address.additionalAddressLine1">
                     </sw-field>
                 {% endblock %}
 
                 {% block sw_customer_address_form_additional_address_line_2_field %}
                     <sw-field :label="$tc('sw-customer.addressForm.labelAdditionalAddressLine2')"
-                              name="addressAdditionalAddressLine2"
                               v-model="address.additionalAddressLine2">
                     </sw-field>
                 {% endblock %}
@@ -77,7 +68,6 @@
                     <sw-container grid="90px 1fr" gap="10px">
                         {% block sw_customer_address_form_zipcode_field %}
                             <sw-field :label="$tc('sw-customer.addressForm.labelZipcode')"
-                                      name="addressZipcode"
                                       validation="required"
                                       v-model="address.zipcode">
                             </sw-field>
@@ -85,7 +75,6 @@
 
                         {% block sw_customer_address_form_city_field %}
                             <sw-field :label="$tc('sw-customer.addressForm.labelCity')"
-                                      name="addressCity"
                                       validation="required"
                                       v-model="address.city">
                             </sw-field>
@@ -96,7 +85,6 @@
                 {% block sw_customer_address_form_country_field %}
                     <sw-field type="select"
                               :label="$tc('sw-customer.addressForm.labelCountry')"
-                              name="addressCountry"
                               validation="required"
                               v-model="address.countryId">
                         {% block sw_customer_address_form_country_field_options %}
@@ -109,7 +97,6 @@
 
                 {% block sw_customer_address_form_phone_number_field %}
                     <sw-field :label="$tc('sw-customer.addressForm.labelPhoneNumber')"
-                              name="addressPhoneNumber"
                               v-model="address.phoneNumber">
                     </sw-field>
                 {% endblock %}

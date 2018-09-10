@@ -1,0 +1,14 @@
+@import "~less/variables";
+
+@sw-shipping-list-color-error:      @color-crimson;
+@sw-shipping-list-color-success:    @color-emerald;
+
+.sw-settings-shipping-list {
+    .is--inactive {
+        color: @sw-shipping-list-color-error;
+    }
+
+    .is--active {
+        color: @sw-shipping-list-color-success;
+    }
+}

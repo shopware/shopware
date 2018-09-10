@@ -4,7 +4,7 @@
             <div class="sw-grid-row__actions">
                 <slot name="actions">
                     {% block sw_grid_row_slot_actions %}
-                        <sw-button @click="onInlineEditCancel" size="small">
+                        <sw-button @click="onInlineEditCancel(id)" size="small">
                             {{ $tc('global.sw-grid-row.buttonInlineEditCancel') }}
                         </sw-button>
                         <sw-button variant="primary" @click="onInlineEditFinish" size="small">

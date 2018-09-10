@@ -212,6 +212,7 @@
                            :disabled="disabled ? 'disabled' : false"
                            @input="onInput"
                            @change="onChange"
+                           @keypress="onKeyPress"
                            v-bind="$attrs"
                            v-on="additionalEventListeners">
                 {% endblock %}

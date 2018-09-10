@@ -10,8 +10,8 @@
 
     .context-prices__toolbar {
         display: grid;
-        grid-template-columns: 300px auto auto auto 1fr;
-        grid-column-gap: 20px;
+        grid-template-columns: repeat(auto-fill, minmax(200px, auto));
+        grid-gap: 10px 20px;
         margin-bottom: 30px;
 
         .sw-field--select {
@@ -24,6 +24,12 @@
 
             .sw-icon {
                 top: 13px;
+            }
+        }
+
+        .sw-context-button {
+            .sw-button {
+                width: 100%;
             }
         }
     }

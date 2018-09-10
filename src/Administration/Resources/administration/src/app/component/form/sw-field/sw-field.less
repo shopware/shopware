@@ -39,19 +39,37 @@
 
     &.sw-field--checkbox {
         display: grid;
-        grid-template-columns: 140px 16px 1fr;
+        grid-template-columns: 16px 140px 1fr;
+        grid-column-gap: 10px;
 
         .sw-field__help {
             margin: 0 0 0 10px;
+        }
+
+        label {
+            order: 2;
+        }
+
+        .sw-field__input {
+            order: 1;
         }
     }
 
     &.sw-field--switch {
         display: grid;
-        grid-template-columns: 180px 24px 1fr;
+        grid-template-columns: 24px 180px 1fr;
+        grid-column-gap: 10px;
 
         .sw-field__help {
             margin: 0 0 0 10px;
+        }
+
+        label {
+            order: 2;
+        }
+
+        .sw-field__input {
+            order: 1;
         }
     }
 

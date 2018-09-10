@@ -2,7 +2,9 @@
   "global": {
     "notification": {
       "notificationSaveErrorTitle": "Error",
-      "notificationSaveErrorMessage": "An error occurred while saving the entity \"{entityName}\"."
+      "notificationSaveErrorMessage": "An error occurred while saving the entity \"{entityName}\".",
+      "notificationSaveSuccessTitle": "Successful",
+      "notificationSaveSuccessMessage": "The entity \"{entityName}\" has been saved successfully.."
     },
     "sw-admin-menu": {
       "linkChangeLanguage": "Change language",
@@ -54,7 +56,8 @@
     },
     "sw-search-bar": {
       "textNoSearchResults": "Could not find any results",
-      "placeholderSearchField": "Find products, customers, orders"
+      "placeholderSearchField": "Find products, customers, orders",
+      "placeholderTypeSearchField": "Search in {entity}"
     },
     "sw-search-bar-item": {
       "typeLabelCustomer": "Customer",
@@ -115,7 +118,8 @@
       "mainMenuItemGeneral": "Customers",
       "mainMenuItemList": "Overview",
       "mainMenuItemAdd": "Add new customer",
-      "descriptionTextModule": "The module for managing customers."
+      "descriptionTextModule": "The module for managing customers.",
+      "placeholderSearchBar": "Search in all customers"
     },
     "list": {
       "textCustomers": "Customers",
@@ -139,6 +143,7 @@
     },
     "baseForm": {
       "labelSalutation": "Salutation",
+      "labelTitle": "Title",
       "labelFirstName": "First name",
       "labelLastName": "Last name",
       "labelEmail": "Email",
@@ -151,7 +156,7 @@
       "labelBirthday": "Date of birth",
       "placeholderCustomerGroup": "Please select a customer group...",
       "placeholderSalesChannel": "Please select a sales channel...",
-      "placeholderPaymentMethod": "lease select a payment method..."
+      "placeholderPaymentMethod": "Please select a payment method..."
     },
     "baseInfo": {
       "contactEmail": "Email",
@@ -303,7 +308,8 @@
       "mainMenuItemGeneral": "Products",
       "mainMenuItemList": "Overview",
       "mainMenuItemAdd": "Add new product",
-      "descriptionTextModule": "The module for managing products."
+      "descriptionTextModule": "The module for managing products.",
+      "placeholderSearchBar": "Search in all products"
     },
     "basicForm": {
       "labelTitle": "Title",
@@ -367,7 +373,7 @@
       "placeholderPseudoSales": "Enter pseudo sales..."
     },
     "detailBase": {
-      "cardTitleProductInfo": "Product information",
+      "cardTitleProductInfo": "Information",
       "cardTitleAssignment": "Assignment",
       "cardTitlePrices": "Prices",
       "cardTitleSettings": "Settings",
@@ -407,8 +413,7 @@
       "messageEmpty": "No products yet",
       "modalTitleDelete": "Product",
       "textDeleteConfirm": "Do you really want to delete the product \"{name}\"?",
-      "titleRefresh": "Refresh",
-      "titleFilter": "Filter"
+      "titleRefresh": "Refresh"
     },
     "detail": {
       "textHeadline": "New product",
@@ -426,7 +431,9 @@
   },
   "sw-manufacturer": {
     "general": {
-      "mainMenuItemList": "Manufacturer"
+      "mainMenuItemList": "Manufacturer",
+      "mainMenuItemGeneral": "Manufacturer",
+      "placeholderSearchBar": "Search in all manufacturers"
     },
     "list": {
       "textManufacturerOverview": "Manufacturer",
@@ -464,7 +471,8 @@
     "general": {
       "mainMenuItemGeneral": "Orders",
       "mainMenuItemList": "Overview",
-      "descriptionTextModule": "The module for managing orders."
+      "descriptionTextModule": "The module for managing orders.",
+      "placeholderSearchBar": "Search in all orders"
     },
     "list": {
       "columnCustomerName": "Customer name",
@@ -562,7 +570,8 @@
   "sw-media": {
     "general": {
       "mainMenuItemGeneral": "Media",
-      "descriptionTextModule": "Module to manage your media data"
+      "descriptionTextModule": "Module to manage your media data",
+      "placeholderSearchBar": "Search in all media"
     },
     "catalogItem": {
       "showCatalogContent": "Show contents",
@@ -637,7 +646,8 @@
   },
   "sw-settings-currency": {
     "general": {
-      "mainMenuItemGeneral": "Currencies"
+      "mainMenuItemGeneral": "Currencies",
+      "placeholderSearchBar": "Search in all currencies"
     },
     "list": {
       "textHeadline": "Currencies",
@@ -674,7 +684,8 @@
   "sw-settings-tax": {
     "general": {
       "mainMenuItemGeneral": "Tax",
-      "taxRateSymbol": "&#037;"
+      "taxRateSymbol": "&#037;",
+      "placeholderSearchBar": "Search in all taxes"
     },
     "list": {
       "textHeadline": "Tax",
@@ -704,7 +715,8 @@
   },
   "sw-settings-language": {
     "general": {
-      "mainMenuItemGeneral": "Languages"
+      "mainMenuItemGeneral": "Languages",
+      "placeholderSearchBar": "Search in all languages"
     },
     "list": {
       "textHeadline": "Sprachen",
@@ -735,7 +747,8 @@
   },
   "sw-settings-payment": {
     "general": {
-      "mainMenuItemGeneral": "Payment methods"
+      "mainMenuItemGeneral": "Payment methods",
+      "placeholderSearchBar": "Search in all payment methods"
     },
     "list": {
       "textHeadline": "Payment methods",
@@ -772,7 +785,8 @@
   },
   "sw-settings-shipping": {
     "general": {
-      "mainMenuItemGeneral": "Shipping costs"
+      "mainMenuItemGeneral": "Shipping costs",
+      "placeholderSearchBar": "Search in all shipping costs"
     },
     "list": {
       "textHeadline": "Shipping costs",
@@ -803,7 +817,8 @@
   },
   "sw-settings-country": {
     "general": {
-      "mainMenuItemGeneral": "Countries"
+      "mainMenuItemGeneral": "Countries",
+      "placeholderSearchBar": "Search in all countries"
     },
     "list": {
       "textHeadline": "Countries",
@@ -828,6 +843,11 @@
       "placeholderName": "Enter name...",
       "buttonCancel": "Cancel",
       "buttonSave": "Save"
+    }
+  },
+  "sw-tree": {
+    "general": {
+      "placeholderSearch": "Search"
     }
   },
   "sw-profile": {

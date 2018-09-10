@@ -1,5 +1,5 @@
 import { Component, State } from 'src/core/shopware';
-import { fileReader } from 'src/core/service/util.service';
+import util, { fileReader } from 'src/core/service/util.service';
 import template from './sw-media-upload.html.twig';
 import './sw-media-upload.less';
 
@@ -15,9 +15,23 @@ Component.register('sw-media-upload', {
         }
     },
 
+    data() {
+        return {
+            showUrlModal: false
+        };
+    },
+
     computed: {
         mediaItemStore() {
             return State.getStore('media');
+        },
+
+        uploadStore() {
+            return State.getStore('upload');
+        },
+
+        notificationStore() {
+            return State.getStore('notification');
         }
     },
 
@@ -26,21 +40,34 @@ Component.register('sw-media-upload', {
             this.$refs.fileInput.click();
         },
 
+        openUrlModal() {
+            this.showUrlModal = true;
+        },
+
+        closeUrlModal() {
+            this.showUrlModal = false;
+        },
+
+        onUrlUpload({ url }) {
+            this.createMediaEntityFromUrl(url);
+        },
+
         onFileInputChange() {
             const newMediaFiles = Array.from(this.$refs.fileInput.files);
-            const uploads = newMediaFiles.map(this.addMediaEntityFromFile);
+            const uploadTag = util.createId();
 
-            Promise.all(uploads).then(() => {
+            newMediaFiles.forEach((file) => {
+                this.addMediaEntityFromFile(file, uploadTag);
+            });
+
+            this.uploadStore.runUploads(uploadTag).then(() => {
                 this.$emit('new-media-entity');
             });
         },
 
-        addMediaEntityFromFile(file) {
-            return fileReader.readAsDataURL(file).then(() => {
-                const mediaEntity = this.mediaItemStore.create();
-
-                mediaEntity.name = file.name;
-                mediaEntity.catalogId = this.catalogId;
+        addMediaEntityFromFile(file, tag) {
+            this.uploadStore.addUpload(tag, () => {
+                const mediaEntity = this.createNewMedia(file.name);
 
                 return mediaEntity.save().then(() => {
                     return fileReader.readAsArrayBuffer(file).then((buffer) => {
@@ -51,10 +78,69 @@ Component.register('sw-media-upload', {
                             file.name.split('.').pop()
                         );
                     });
+                }).then(() => {
+                    this.notificationStore.createNotification({
+                        message: this.$tc('sw-media.upload.notificationSuccess'),
+                        variant: 'success'
+                    });
                 }).catch(() => {
-                    mediaEntity.delete(true);
+                    this.cleanUpFailure(mediaEntity);
                 });
             });
+        },
+
+        createMediaEntityFromUrl(url) {
+            const mediaEntity = this.createNewMedia(this.getNameFromURL(url));
+
+            mediaEntity.save().then(() => {
+                const uploadTag = mediaEntity.id;
+                const fileExtension = this.getFileExtensionFromURL(url);
+                const mediaService = this.mediaService;
+
+                this.uploadStore.addUpload(uploadTag, () => {
+                    return mediaService.uploadMediaFromUrl(mediaEntity.id, url.href, fileExtension).then(() => {
+                        this.notificationStore.createNotification({
+                            message: this.$tc('sw-media.upload.notificationSuccess'),
+                            variant: 'success'
+                        });
+                    }).catch(() => {
+                        return this.cleanUpFailure(mediaEntity);
+                    });
+                });
+
+                this.uploadStore.runUploads(uploadTag).then(() => {
+                    this.$emit('new-media-entity');
+                });
+                this.closeUrlModal();
+            });
+        },
+
+        cleanUpFailure(mediaEntity) {
+            this.notificationStore.createNotification({
+                message: this.$tc('sw-media.upload.notificationFailure', 0, { mediaName: mediaEntity.name }),
+                variant: 'error'
+            });
+            // delete media entity on failed upload
+            return this.mediaItemStore.getByIdAsync(mediaEntity.id).then((media) => {
+                media.delete(true);
+            });
+        },
+
+        createNewMedia(name) {
+            const mediaEntity = this.mediaItemStore.create();
+
+            mediaEntity.catalogId = this.catalogId;
+            mediaEntity.name = name;
+
+            return mediaEntity;
+        },
+
+        getNameFromURL(url) {
+            return url.pathname.split('/').pop().split('.')[0];
+        },
+
+        getFileExtensionFromURL(url) {
+            return url.pathname.split('.').pop();
         }
     }
 });

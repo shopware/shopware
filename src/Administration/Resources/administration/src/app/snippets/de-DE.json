@@ -576,7 +576,13 @@
       "placeholderSearchBar": "Durchsuchen aller Medien"
     },
     "smart-bar": {
-      "buttonUpload": "Dateien hochladen"
+      "buttonUpload": "Hochladen",
+      "buttonFileUpload": "Dateien hochladen",
+      "buttonUrlUpload": "Über URL hochladen"
+    },
+    "upload": {
+      "notificationSuccess": "Datei erfolgreich gespeichert",
+      "notificationFailure": "Fehler beim hochladen von {mediaName}"
     },
     "catalogItem": {
       "showCatalogContent": "Inhalt anzeigen",

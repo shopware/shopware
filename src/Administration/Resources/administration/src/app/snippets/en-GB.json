@@ -580,7 +580,13 @@
       "showCatalogDetails": "Show Catalogue details"
     },
     "smart-bar": {
-      "buttonUpload": "Upload files"
+      "buttonUpload": "Upload",
+      "buttonFileUpload": "File upload",
+      "buttonUrlUpload": "URL upload"
+    },
+    "upload": {
+      "notificationSuccess": "File saved",
+      "notificationFailure": "There was an error uploading {mediaName}"
     },
     "index": {
       "catalogs": "Catalogues",

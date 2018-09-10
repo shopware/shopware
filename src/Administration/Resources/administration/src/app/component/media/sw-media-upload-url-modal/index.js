@@ -14,7 +14,7 @@ Component.register('sw-media-upload-url-modal', {
         emitUrl(originalDomEvent) {
             this.$emit('sw-media-upload-url-modal-submit', {
                 originalDomEvent,
-                url: this.url
+                url: new URL(this.url)
             });
             this.closeModal();
         },

@@ -53,11 +53,22 @@ Component.register('sw-context-button', {
         }
     },
 
+    mounted() {
+        this.mountedComponent();
+    },
+
     beforeDestroy() {
         this.removeMenuFromBody();
     },
 
     methods: {
+        mountedComponent() {
+            if (this.showMenu) {
+                return;
+            }
+            this.removeMenuFromBody();
+        },
+
         openMenu() {
             const boundingBox = this.$el.getBoundingClientRect();
             const secureOffset = 5;
@@ -66,9 +77,8 @@ Component.register('sw-context-button', {
             this.positionLeft = (boundingBox.left + boundingBox.width + this.menuOffsetLeft) - this.menuWidth;
             this.paddingTop = boundingBox.height + secureOffset + this.menuOffsetTop;
 
-            this.showMenu = true;
-
             this.addMenuToBody();
+            this.showMenu = true;
         },
 
         closeMenu(event) {

@@ -23,6 +23,22 @@ class MediaApiService extends ApiService {
             return ApiService.handleResponse(response);
         });
     }
+
+    uploadMediaFromUrl(id, url, fileExtension) {
+        const apiRoute = `${this.getApiBasePath(id)}/actions/upload?extension=${fileExtension}`;
+        const headers = this.getBasicHeaders({ 'Content-Type': 'application/json' });
+        const params = {};
+
+        const body = JSON.stringify({ url });
+
+        return this.httpClient.post(
+            apiRoute,
+            body,
+            { params, headers }
+        ).then((response) => {
+            return ApiService.handleResponse(response);
+        });
+    }
 }
 
 export default MediaApiService;

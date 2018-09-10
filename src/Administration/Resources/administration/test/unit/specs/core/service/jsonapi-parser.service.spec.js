@@ -173,9 +173,13 @@ describe('core/service/jsonapi-parser.service.js', () => {
 
                     expect(data.meta.fetchCount).to.be.equal(1);
                     expect(data.meta.total).to.be.equal(1);
-                    done();
-                })
-                .catch((err) => {
+
+                    catalogEntity.delete(true).then(() => {
+                        done();
+                    }).catch((err) => {
+                        done(err);
+                    });
+                }).catch((err) => {
                     done(err);
                 });
         }).catch((err) => {

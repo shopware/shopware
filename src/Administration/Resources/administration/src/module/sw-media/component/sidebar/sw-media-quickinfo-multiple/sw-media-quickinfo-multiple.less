@@ -1,9 +1,7 @@
 @import "~less/variables";
 @import "~less/mixins";
 
-@color-icon-quickaction:             @color-shopware-blue;
-@color-text-quickaction-hover:       @color-shopware-blue;
-@color-background-quickaction-hover: @color-cadet-blue;
+@sw-media-quickinfo-multiple-color-highlighted: @color-shopware-blue;
 
 .sw-media-quickinfo-multiple {
 
@@ -16,8 +14,7 @@
     }
 
     .sw-media-quickinfo-multiple__collapse-content {
-        padding: 0 25px;
-        margin-top: 16px;
+        padding: 25px;
     }
 
     .sw-media-quickinfo-multiple__two-columns {
@@ -29,27 +26,14 @@
     .sw-media-quickinfo-multiple__quickaction {
         cursor: pointer;
         border-radius: 4px;
-        margin-bottom: 16px;
 
         &:hover {
-            color: @color-text-quickaction-hover;
+            color: @sw-media-quickinfo-multiple-color-highlighted;
         }
     }
 
     .sw-media-quickinfo-multiple__quickactions-icon {
-        color: @color-icon-quickaction;
+        color: @sw-media-quickinfo-multiple-color-highlighted;
         margin-right: 20px;
-    }
-
-    .sw-media-quickinfo-multiple__preview {
-        position: relative;
-        margin: 10px 0;
-        width: 100%;
-        border: 1px solid @color-steam-cloud;
-        border-radius: @border-radius-default;
-    }
-
-    .sw-media-quickinfo_multiple__media-grid {
-        margin-top: 10px;
     }
 }

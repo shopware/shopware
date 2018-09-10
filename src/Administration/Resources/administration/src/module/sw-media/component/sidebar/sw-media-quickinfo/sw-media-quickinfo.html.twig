@@ -72,14 +72,10 @@
                 <template slot="content">
                     {% block sw_media_quickinfo_preview_content %}
                         <div class="sw-media-quickinfo__collapse-content">
-                            <div class="sw-media-quickinfo__preview">
-                                {% block sw_media_quickinfo_preview_item %}
-                                    <sw-media-preview :item="item"
-                                                      :showControls="true"
-                                                      :autoplay="autoplay">
-                                    </sw-media-preview>
-                                {% endblock %}
-                            </div>
+                            {% block sw_media_quickinfo_preview_item %}
+                                <sw-media-preview :item="item" :showControls="true" :autoplay="autoplay">
+                                </sw-media-preview>
+                            {% endblock %}
                         </div>
                     {% endblock %}
                 </template>

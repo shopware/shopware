@@ -65,11 +65,12 @@ Component.register('sw-media-grid-item', {
 
     methods: {
         emitClickedEvent(originalDomEvent) {
-            const el = this.$refs.swContextButton.$el;
             const target = originalDomEvent.target;
-
-            if ((el === target) || el.contains(target)) {
-                return;
+            if (this.showContextMenuButton) {
+                const el = this.$refs.swContextButton.$el;
+                if ((el === target) || el.contains(target)) {
+                    return;
+                }
             }
 
             if (!this.selected) {

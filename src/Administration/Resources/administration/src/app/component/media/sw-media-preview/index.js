@@ -26,6 +26,12 @@ Component.register('sw-media-preview', {
     },
 
     computed: {
+        mediaPreviewClasses() {
+            return {
+                'shows--transparency': (this.checkForFileTypeImage || this.checkForInMemoryFile)
+            };
+        },
+
         checkForFileTypeImage() {
             const filePath = this.item.mimeType;
             const regEx = /^image\/+/;
@@ -81,12 +87,6 @@ Component.register('sw-media-preview', {
 
         imageURLFromItem() {
             return `${this.item.url}?${Date.now()}`;
-        },
-
-        imageBackgroundClass() {
-            return {
-                'sw-media-preview--shows-transparency': (this.checkForFileTypeImage || this.checkForInMemoryFile)
-            };
         }
     },
 

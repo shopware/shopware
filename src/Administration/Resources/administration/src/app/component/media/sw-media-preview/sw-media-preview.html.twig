@@ -1,5 +1,5 @@
 {% block sw_media_preview %}
-    <div class="sw-media-preview" :class="imageBackgroundClass">
+    <div class="sw-media-preview" :class="mediaPreviewClasses">
         {% block sw_media_preview_file_type_check %}
             <template v-if="checkForFileTypeImage">
                 {% block sw_media_preview_file_type_image %}

@@ -4,13 +4,11 @@
 @media-grid-border-radius-content-cell: @border-radius-default;
 
 .sw-media-grid {
-    width: 100%;
-    justify-self: stretch;
+    overflow-y: auto;
     user-select: none;
 
     .sw-media-grid__content {
         display: grid;
-        grid-gap: 0;
     }
 
     .sw-media-grid__content-cell:hover {

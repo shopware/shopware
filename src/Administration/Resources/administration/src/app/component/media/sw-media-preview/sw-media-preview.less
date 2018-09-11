@@ -1,21 +1,21 @@
 @import "~less/variables";
 
-@sw-media-preview-play-button-size:    35px;
-@sw-media-preview-play-button-z-index: 50;
-@sw-media-preview-border-color:        @color-steam-cloud;
+@sw-media-preview-play-button-size:         35px;
+@sw-media-preview-play-button-z-index:      50;
+@sw-media-preview-border-color:             @color-steam-cloud;
 @sw-media-preview-border-color-highlighted: @color-shopware-blue;
-@sw-media-preview-border-radius:       @border-radius-default;
+@sw-media-preview-border-radius:            @border-radius-default;
 
 .sw-media-preview {
     position: relative;
     border: 1px solid @sw-media-preview-border-color;
     border-radius: @sw-media-preview-border-radius;
 
-    &.sw-media-preview--highlighted {
+    &.is--highlighted {
         border: 1px solid @sw-media-preview-border-color-highlighted;
     }
 
-    &.sw-media-preview--shows-transparency {
+    &.shows--transparency {
         background: url('../img/sw-media-background.png');
     }
 

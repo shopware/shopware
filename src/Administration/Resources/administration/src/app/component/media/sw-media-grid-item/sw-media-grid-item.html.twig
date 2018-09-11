@@ -25,12 +25,6 @@
                     </div>
                 {% endblock %}
 
-                {% block sw_media_grid_item_details_condition %}
-                    <div v-if="isListItemPreview">
-                        {% block sw_media_grid_item_details%}{% endblock %}
-                    </div>
-                {% endblock %}
-
                 {% block sw_media_grid_item_context_menu %}
                     <sw-context-button v-if="showContextMenuButton" ref="swContextButton">
                         {% block sw_media_grid_item_context_items%}{% endblock %}

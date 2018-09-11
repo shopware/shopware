@@ -28,7 +28,8 @@ Component.register('sw-media-preview', {
     computed: {
         mediaPreviewClasses() {
             return {
-                'shows--transparency': (this.checkForFileTypeImage || this.checkForInMemoryFile)
+                'shows--transparency': (this.checkForFileTypeImage || this.checkForInMemoryFile),
+                'is--icon': this.checkForFileTypeSvg
             };
         },
 
@@ -51,6 +52,12 @@ Component.register('sw-media-preview', {
             const regEx = /^audio\/+/;
 
             return (regEx.test(filePath) && this.isAudioPlayable());
+        },
+
+        checkForFileTypeSvg() {
+            const filePath = this.item.mimeType;
+
+            return filePath.includes('svg');
         },
 
         checkForInMemoryFile() {

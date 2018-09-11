@@ -9,6 +9,8 @@
 @sw-media-catalog-background-color-slider-container: @color-white;
 @sw-media-catalog-border-radius-size-slider:         @border-radius-default;
 @sw-media-catalog-font-family:                       @font-family-default;
+@sw-media-catalog-pagination-background:             @color-light-gray;
+@sw-media-catalog-pagination-border-color:           @color-steam-cloud;
 
 .sw-media-catalog {
     .sw-media-catalog__page-content {
@@ -140,8 +142,8 @@
     }
 
     .sw-media-catalog__sw-pagination {
-        background: @color-light-gray;
-        border-top: 1px solid @color-steam-cloud;
+        background: @sw-media-catalog-pagination-background;
+        border-top: 1px solid @sw-media-catalog-pagination-border-color;
     }
 }
 

@@ -66,7 +66,8 @@ Component.register('sw-grid', {
             columns: [],
             selection: {},
             scrollbarOffset: 0,
-            editing: null
+            editing: null,
+            allSelectedChecked: false
         };
     },
 
@@ -168,6 +169,7 @@ Component.register('sw-grid', {
                 });
             }
 
+            this.allSelectedChecked = selected;
             this.$emit('sw-grid-select-all', this.selection);
         },
 
@@ -187,11 +189,18 @@ Component.register('sw-grid', {
             this.selection = {};
             this.selection = selection;
 
+            this.checkSelection();
             this.$emit('sw-grid-select-item', this.selection);
         },
 
         isSelected(itemId) {
             return typeof this.selection[itemId] !== 'undefined';
+        },
+
+        checkSelection() {
+            this.allSelectedChecked = !this.items.some((item) => {
+                return this.selection[item.id] === undefined;
+            });
         },
 
         getScrollBarWidth() {

@@ -10,7 +10,7 @@
                                 {% block sw_grid_slot_header_cell_selectable %}
                                     <div class="sw-grid-column" v-if="selectable">
                                         <div class="sw-grid__cell-content">
-                                            <sw-field type="checkbox" @change="selectAll"></sw-field>
+                                            <sw-field type="checkbox" v-model="allSelectedChecked" @change="selectAll"></sw-field>
                                         </div>
                                     </div>
                                 {% endblock %}

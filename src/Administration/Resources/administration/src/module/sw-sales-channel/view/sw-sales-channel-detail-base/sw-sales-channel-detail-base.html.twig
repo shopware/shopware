@@ -19,17 +19,6 @@
                                   v-model="salesChannel.active">
                         </sw-field>
                     {% endblock %}
-
-                    {% block sw_sales_channel_detail_base_general_input_tax_calculation %}
-                        <sw-field type="select"
-                                  :label="$tc('sw-sales-channel.detail.labelInputTaxCalculation')"
-                                  v-model="salesChannel.taxCalculationType">
-                            <template slot="options">
-                                <option value="vertical">{{ $tc('sw-sales-channel.detail.labelOptionTaxVertical') }}</option>
-                                <option value="horizontal">{{ $tc('sw-sales-channel.detail.labelOptionTaxHorizontal') }}</option>
-                            </template>
-                        </sw-field>
-                    {% endblock %}
                 </sw-container>
 
                 {% block sw_sales_channel_detail_base_general_input_payments_methods %}

@@ -4,20 +4,18 @@ module.exports = {
         browser
             .click('a.sw-admin-menu__navigation-link[href="#/sw/catalog/index"]')
             .waitForElementPresent('.sw-catalog-list__intro')
-            .useXpath()
-            .waitForElementPresent('//div[contains(text(), "Default catalogue")]')
-            .useCss()
             .waitForElementPresent('.sw-catalog-list__edit-action')
             .click('.sw-catalog-list__edit-action')
             .waitForElementPresent('input[name=sw-field--addCategoryName]')
             .getLocationInView('.sw-catalog-detail__categories')
             .setValue('input[name=sw-field--addCategoryName]', 'MainCategory')
             .click('.sw-catalog-detail__add-button')
-            .useXpath()
-            .waitForElementPresent('//span[contains(text(), "MainCategory")]')
-            .useCss()
+            .waitForElementPresent('.sw-tree-item__label')
+            .assert.containsText('.sw-tree-item__label', 'MainCategory')
             .click('.sw-button--primary')
-            .waitForElementNotPresent('.sw-catalog-detail__properties .sw-card__content .sw-loader');
+            .waitForElementNotPresent('.sw-catalog-detail__properties .sw-card__content .sw-loader')
+            .click('.sw-alert button.sw-alert__close')
+            .waitForElementNotPresent('.sw-alert__message');
     },
     'open product listing': (browser) => {
         browser
@@ -41,9 +39,9 @@ module.exports = {
             .setValue('.sw-multi-select__input', [browser.Keys.ESCAPE])
             .setValue('select[name=sw-field--product-taxId]', '19%')
             .setValue('input[name=sw-field--price-gross]', '99')
-            .click('.smart-bar__actions button.sw-button--primary')
+            .click('.sw-product-detail__save-action')
             .waitForElementVisible('.sw-notifications .sw-alert')
-            .assert.containsText('.sw-alert__message', 'The product "Marci Darci" was saved successfully.')
+            .assert.containsText('.sw-alert .sw-alert__message', 'The product "Marci Darci" was saved successfully.')
             .assert.urlContains('#/sw/product/detail');
     },
     'go back to listing, search and verify creation': (browser) => {
@@ -58,20 +56,18 @@ module.exports = {
     },
     'check if the data of the product is assigned correctly': (browser) => {
         browser
-            .waitForElementVisible('.sw-grid-row:first-child .sw-context-button__button')
-            .assert.containsText('.sw-grid-row:first-child .sw-grid-column a', 'Marci Darci')
-            .useXpath()
-            .waitForElementPresent('//div[contains(text(), "shopware AG")]')
-            .useCss()
-            .click('.sw-grid-row:first-child .sw-context-button__button')
-            .useXpath()
-            .waitForElementPresent('//span[contains(text(), "Edit")]')
-            .click('//span[contains(text(), "Edit")]')
-            .waitForElementPresent('//div[contains(text(), "Product information")]')
-            .waitForElementPresent('//span[contains(text(), "MainCategory")]')
-            .useCss()
+            .waitForElementVisible('.sw-product-list__column-product-name')
+            .assert.containsText('.sw-product-list__column-product-name', 'Marci Darci')
+            .waitForElementPresent('.sw-product-list__column-manufacturer-name')
+            .assert.containsText('.sw-product-list__column-manufacturer-name', 'shopware AG')
+            .click('.sw-context-button__button')
+            .waitForElementVisible('body > .sw-context-menu')
+            .waitForElementVisible('.sw_product_list__edit-action')
+            .click('.sw_product_list__edit-action')
+            .waitForElementVisible('.sw-product-detail-base',10000)
+            .waitForElementPresent('.sw-product-category-form .sw-multi-select__selection-text')
             .assert.containsText('.ql-editor', 'My very first description')
-            .assert.containsText('.sw-multi-select__selection-text', 'MainCategory')
+            .assert.containsText('.sw-product-category-form .sw-multi-select__selection-text', 'MainCategory')
             .click('a.smart-bar__back-btn');
     },
     'delete created product and verify deletion': (browser) => {
@@ -83,10 +79,7 @@ module.exports = {
             .waitForElementVisible('.sw-modal')
             .assert.containsText('.sw-modal .sw-product-list__confirm-delete-text', 'Do you really want to delete the product "Marci Darci"?')
             .click('.sw-modal__footer button.sw-button--primary')
-            .useXpath()
-            .click('//span[contains(text(), "Save")]')
-            .waitForElementNotPresent('//a[contains(text(), "Marci Darci")]')
-            .useCss()
+            .waitForElementNotPresent('.sw-product-list__column-product-name')
             .waitForElementNotPresent('.sw-modal')
             .waitForElementPresent('.sw-empty-state__title')
             .assert.containsText('.sw-page__smart-bar-amount', '(0)');
@@ -94,10 +87,7 @@ module.exports = {
     'delete category': (browser) => {
         browser
             .click('a.sw-admin-menu__navigation-link[href="#/sw/catalog/index"]')
-            .useXpath()
-            .waitForElementPresent('//h3[contains(text(), "Welcome to the catalogue management")]')
-            .waitForElementPresent('//div[contains(text(), "Default catalogue")]')
-            .useCss()
+            .waitForElementPresent('.sw-catalog-list__intro')
             .waitForElementPresent('.sw-catalog-list__edit-action')
             .click('.sw-catalog-list__edit-action')
             .waitForElementPresent('input[name=sw-field--addCategoryName]')
@@ -107,9 +97,7 @@ module.exports = {
             .waitForElementVisible('body > .sw-context-menu')
             .waitForElementVisible('.sw-context-menu-item--danger')
             .click('.sw-context-menu-item--danger')
-            .useXpath()
-            .waitForElementNotPresent('//span[contains(text(), "MainCategory")]')
-            .useCss()
+            .waitForElementNotPresent('.sw-tree-item__label')
             .click('.sw-button--primary')
             .waitForElementNotPresent('.sw-catalog-detail__properties .sw-card__content .sw-loader')
             .end();

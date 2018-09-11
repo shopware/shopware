@@ -215,6 +215,11 @@ Component.register('sw-product-media-form', {
             if (productMedia.isPlaceholder) {
                 return productMedia.isCover;
             }
+
+            if (this.product.coverId === null) {
+                this.product.coverId = productMedia.id;
+            }
+
             return this.product.coverId === productMedia.id;
         },
 

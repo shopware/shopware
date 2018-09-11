@@ -2,6 +2,7 @@
 @import "~less/mixins";
 
 @sw-media-grid-item-color-selected:          @color-shopware-blue;
+@sw-media-grid-media-color-unselected:       @color-kashmir;
 @sw-media-grid-item-pseudo-padding:          10px;
 @sw-media-grid-item-border-radius:           @border-radius-default;
 
@@ -11,6 +12,7 @@
 
 .sw-media-grid-item {
     padding: 10px;
+    color: @sw-media-grid-media-color-unselected;
 
     &.is--selected {
         color: @sw-media-grid-item-color-selected;

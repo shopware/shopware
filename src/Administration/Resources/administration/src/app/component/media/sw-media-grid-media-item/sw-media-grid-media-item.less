@@ -1,7 +1,8 @@
 @import "~less/variables";
 
 @sw-media-grid-media-item-border-radius-input: @border-radius-default;
-@sw-media-grid-media-color-input:              @color-steam-cloud;
+@sw-media-grid-media-color-input-border:       @color-steam-cloud;
+@sw-media-grid-media-color-input:              @color-black;
 
 .sw-media-grid-item {
     .sw-media-grid-item__content.is--grid {
@@ -24,6 +25,7 @@
             -webkit-appearance: none;
             color: inherit;
             background-color: inherit;
+            font-weight: 600;
 
             border-radius: @sw-media-grid-media-item-border-radius-input;
             border: 1px solid transparent;
@@ -32,8 +34,8 @@
         }
 
         input[type="text"]:focus {
-            border: 1px solid @sw-media-grid-media-color-input;
-            color: black;
+            border: 1px solid @sw-media-grid-media-color-input-border;
+            color: @sw-media-grid-media-color-input;
             background-color: @color-white;
         }
     }

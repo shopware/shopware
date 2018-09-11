@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\ORM\Field;
 
 use Shopware\Core\Framework\ORM\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\ORM\Write\EntityExistence;
+use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\System\Exception\InvalidLocaleCodeException;
 
 class TranslationsAssociationField extends SubresourceField implements AssociationInterface
 {
@@ -47,6 +49,9 @@ class TranslationsAssociationField extends SubresourceField implements Associati
         return 90;
     }
 
+    /**
+     * @throws InvalidLocaleCodeException
+     */
     protected function invoke(EntityExistence $existence, KeyValuePair $data): \Generator
     {
         $value = $data->getValue();
@@ -55,7 +60,26 @@ class TranslationsAssociationField extends SubresourceField implements Associati
                 $this->writeContext->getContext()->getLanguageId() => [],
             ];
             $data = new KeyValuePair($data->getKey(), $value, $data->isRaw());
+
+            return parent::invoke($existence, $data);
         }
+
+        foreach ($value as $identifier => $fields) {
+            if (Uuid::isValid($identifier)) {
+                continue;
+            }
+
+            $languageId = $this->localeLanguageResolver->getLanguageByLocale($identifier, $this->writeContext->getContext());
+
+            if (!isset($value[$languageId])) {
+                $value[$languageId] = $fields;
+            } else {
+                $value[$languageId] = array_merge($value[$identifier], $value[$languageId]);
+            }
+
+            unset($value[$identifier]);
+        }
+        $data = new KeyValuePair($data->getKey(), $value, $data->isRaw());
 
         return parent::invoke($existence, $data);
     }

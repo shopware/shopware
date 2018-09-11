@@ -12,8 +12,13 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition;
+use Shopware\Core\System\Currency\CurrencyDefinition;
+use Shopware\Core\System\Exception\InvalidLocaleCodeException;
 use Shopware\Core\System\Language\LanguageDefinition;
+use Shopware\Core\System\Locale\LocaleLanguageResolverInterface;
 
 class TranslationTest extends TestCase
 {
@@ -22,13 +27,27 @@ class TranslationTest extends TestCase
     /**
      * @var RepositoryInterface
      */
-    private $repository;
+    private $productRepository;
+
+    /**
+     * @var RepositoryInterface
+     */
+    private $currencyRepository;
+
+    /**
+     * @var RepositoryInterface
+     */
+    private $languageRepository;
+
+    /**
+     * @var LocaleLanguageResolverInterface
+     */
+    private $localeLanguageResolver;
 
     /**
      * @var Connection
      */
     private $connection;
-
     /**
      * @var Context
      */
@@ -36,13 +55,319 @@ class TranslationTest extends TestCase
 
     protected function setUp()
     {
-        $this->repository = $this->getContainer()->get('product.repository');
+        $this->productRepository = $this->getContainer()->get('product.repository');
+        $this->currencyRepository = $this->getContainer()->get('currency.repository');
+        $this->languageRepository = $this->getContainer()->get('language.repository');
+        $this->localeLanguageResolver = $this->getContainer()->get('Shopware\Core\System\Locale\LocaleLanguageResolver');
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
     }
 
+    public function testCurrencyWithTranslationViaLocale(): void
+    {
+        $name = 'US Dollar';
+        $shortName = 'USD';
+
+        $data = [
+            'factor' => 1,
+            'symbol' => '$',
+            'translations' => [
+                'en_GB' => [
+                    'name' => 'US Dollar',
+                    'shortName' => 'USD',
+                ],
+            ],
+        ];
+
+        $result = $this->currencyRepository->create([$data], $this->context);
+
+        $currencies = $result->getEventByDefinition(CurrencyDefinition::class);
+        static::assertCount(1, $currencies->getIds());
+
+        $translations = $result->getEventByDefinition(CurrencyTranslationDefinition::class);
+        static::assertCount(1, $translations->getIds());
+        $languageIds = array_column($translations->getPayload(), 'languageId');
+        static::assertContains(Defaults::LANGUAGE, $languageIds);
+
+        $payload = $translations->getPayload()[0];
+        static::assertArraySubset(['name' => $name], $payload);
+        static::assertArraySubset(['shortName' => $shortName], $payload);
+    }
+
+    public function testCurrencyWithTranslationMergeViaLocaleAndLanguageId(): void
+    {
+        $name = 'US Dollar';
+        $shortName = 'USD';
+
+        $data = [
+            'factor' => 1,
+            'symbol' => '$',
+            'translations' => [
+                'en_GB' => [
+                    'name' => $name,
+                ],
+
+                Defaults::LANGUAGE => [
+                    'shortName' => $shortName,
+                ],
+            ],
+        ];
+
+        $result = $this->currencyRepository->create([$data], $this->context);
+
+        $currencies = $result->getEventByDefinition(CurrencyDefinition::class);
+        static::assertCount(1, $currencies->getIds());
+
+        $translations = $result->getEventByDefinition(CurrencyTranslationDefinition::class);
+        static::assertCount(1, $translations->getIds());
+        $languageIds = array_column($translations->getPayload(), 'languageId');
+        static::assertContains(Defaults::LANGUAGE, $languageIds);
+
+        $payload = $translations->getPayload()[0];
+        static::assertArraySubset(['name' => $name], $payload);
+        static::assertArraySubset(['shortName' => $shortName], $payload);
+    }
+
+    public function testCurrencyWithTranslationMergeOverwriteViaLocaleAndLanguageId(): void
+    {
+        $name = 'US Dollar';
+        $shortName = 'USD';
+
+        $data = [
+            'factor' => 1,
+            'symbol' => '$',
+            'translations' => [
+                'en_GB' => [
+                    'name' => $name,
+                    'shortName' => 'should be overwritten',
+                ],
+
+                Defaults::LANGUAGE => [
+                    'shortName' => $shortName,
+                ],
+            ],
+        ];
+
+        $result = $this->currencyRepository->create([$data], $this->context);
+
+        $currencies = $result->getEventByDefinition(CurrencyDefinition::class);
+        static::assertCount(1, $currencies->getIds());
+
+        $translations = $result->getEventByDefinition(CurrencyTranslationDefinition::class);
+        static::assertCount(1, $translations->getIds());
+        $languageIds = array_column($translations->getPayload(), 'languageId');
+        static::assertContains(Defaults::LANGUAGE, $languageIds);
+
+        $payload = $translations->getPayload()[0];
+        static::assertArraySubset(['name' => $name], $payload);
+        static::assertArraySubset(['shortName' => $shortName], $payload);
+    }
+
+    public function testCurrencyWithTranslationViaLocaleAndLanguageId(): void
+    {
+        $germanLanguageId = Uuid::uuid4()->getHex();
+        $germanName = 'Amerikanischer Dollar';
+        $germanShortName = 'US Dollar Deutsch';
+        $englishName = 'US Dollar';
+        $englishShortName = 'USD';
+
+        $data = [
+            'factor' => 1,
+            'symbol' => '$',
+            'translations' => [
+                'en_GB' => [
+                    'name' => $englishName,
+                    'shortName' => $englishShortName,
+                ],
+
+                $germanLanguageId => [
+                    'name' => $germanName,
+                    'shortName' => $germanShortName,
+                    'language' => [
+                        'id' => $germanLanguageId,
+                        'localeId' => Defaults::LOCALE,
+                        'name' => 'de_DE',
+                    ],
+                ],
+            ],
+        ];
+
+        $result = $this->currencyRepository->create([$data], $this->context);
+
+        $currencies = $result->getEventByDefinition(CurrencyDefinition::class);
+        static::assertCount(1, $currencies->getIds());
+
+        $translations = $result->getEventByDefinition(CurrencyTranslationDefinition::class);
+        static::assertCount(2, $translations->getIds());
+        $languageIds = array_column($translations->getPayload(), 'languageId');
+        static::assertContains(Defaults::LANGUAGE, $languageIds);
+        static::assertContains($germanLanguageId, $languageIds);
+
+        $payload1 = $translations->getPayload()[0];
+        $payload2 = $translations->getPayload()[1];
+
+        static::assertArraySubset(
+            [
+                'shortName' => $germanShortName,
+                'name' => $germanName,
+            ],
+            $payload1
+        );
+
+        static::assertArraySubset(
+            [
+                'shortName' => $englishShortName,
+                'name' => $englishName,
+            ],
+            $payload2
+        );
+    }
+
+    public function testCurrencyTranslationCaching(): void
+    {
+        $englishName = 'US Dollar';
+        $englishShortName = 'USD';
+
+        $data = [
+            'factor' => 1,
+            'symbol' => '$',
+            'translations' => [
+                'en_GB' => [
+                    'name' => $englishName,
+                    'shortName' => $englishShortName,
+                ],
+            ],
+        ];
+
+        $result = $this->currencyRepository->create([$data], $this->context);
+
+        $currencies = $result->getEventByDefinition(CurrencyDefinition::class);
+        static::assertCount(1, $currencies->getIds());
+
+        $translations = $result->getEventByDefinition(CurrencyTranslationDefinition::class);
+        static::assertCount(1, $translations->getIds());
+        $languageIds = array_column($translations->getPayload(), 'languageId');
+        static::assertContains(Defaults::LANGUAGE, $languageIds);
+
+        $payload = $translations->getPayload()[0];
+        static::assertArraySubset(['name' => $englishName], $payload);
+        static::assertArraySubset(['shortName' => $englishShortName], $payload);
+
+        $germanLanguageId = Uuid::uuid4()->getHex();
+        $data = [
+            'id' => $germanLanguageId,
+            'localeId' => '2f3663edb7614308a60188c21c7963d5',
+            'name' => 'de_DE',
+        ];
+
+        $this->languageRepository->create([$data], $this->context);
+
+        $data = [
+            'factor' => 1,
+            'symbol' => '$',
+            'translations' => [
+                'de_DE' => [
+                    'name' => 'Amerikanische Dollar',
+                    'shortName' => 'US Dollar German',
+                ],
+            ],
+        ];
+
+        static::expectException(InvalidLocaleCodeException::class);
+        $this->currencyRepository->create([$data], $this->context);
+    }
+
+    public function testCurrencyTranslationWithCachingAndInvalidation(): void
+    {
+        $englishName = 'US Dollar';
+        $englishShortName = 'USD';
+
+        $data = [
+            'factor' => 1,
+            'symbol' => '$',
+            'translations' => [
+                'en_GB' => [
+                    'name' => $englishName,
+                    'shortName' => $englishShortName,
+                ],
+            ],
+        ];
+
+        $result = $this->currencyRepository->create([$data], $this->context);
+
+        $currencies = $result->getEventByDefinition(CurrencyDefinition::class);
+        static::assertCount(1, $currencies->getIds());
+
+        $translations = $result->getEventByDefinition(CurrencyTranslationDefinition::class);
+        static::assertCount(1, $translations->getIds());
+        $languageIds = array_column($translations->getPayload(), 'languageId');
+        static::assertContains(Defaults::LANGUAGE, $languageIds);
+
+        $payload = $translations->getPayload()[0];
+        static::assertArraySubset(['name' => $englishName], $payload);
+        static::assertArraySubset(['shortName' => $englishShortName], $payload);
+
+        $germanLanguageId = Uuid::uuid4()->getHex();
+        $data = [
+            'id' => $germanLanguageId,
+            'localeId' => '2f3663edb7614308a60188c21c7963d5',
+            'name' => 'de_DE',
+        ];
+
+        $this->languageRepository->create([$data], $this->context);
+
+        $this->localeLanguageResolver->invalidate();
+
+        $germanName = 'Amerikanische Dollar';
+        $germanShortName = 'US Dollar German';
+
+        $data = [
+            'factor' => 1,
+            'symbol' => '$',
+            'translations' => [
+                'de_DE' => [
+                    'name' => $germanName,
+                    'shortName' => $germanShortName,
+                ],
+            ],
+        ];
+
+        $result = $this->currencyRepository->create([$data], $this->context);
+
+        $currencies = $result->getEventByDefinition(CurrencyDefinition::class);
+        static::assertCount(1, $currencies->getIds());
+
+        $translations = $result->getEventByDefinition(CurrencyTranslationDefinition::class);
+        static::assertCount(1, $translations->getIds());
+        $languageIds = array_column($translations->getPayload(), 'languageId');
+        static::assertContains($germanLanguageId, $languageIds);
+
+        $payload = $translations->getPayload()[0];
+        static::assertArraySubset(['name' => $germanName], $payload);
+        static::assertArraySubset(['shortName' => $germanShortName], $payload);
+    }
+
+    public function testCurrencyTranslationWithInvalidLocaleCode(): void
+    {
+        $data = [
+            'factor' => 1,
+            'symbol' => '$',
+            'translations' => [
+                'en_UK' => [
+                    'name' => 'US Dollar',
+                    'shortName' => 'USD',
+                ],
+            ],
+        ];
+
+        static::expectException(InvalidLocaleCodeException::class);
+        $this->currencyRepository->create([$data], $this->context);
+    }
+
     public function testProductWithDifferentTranslations(): void
     {
+        $germanLanguageId = Uuid::uuid4()->getHex();
+
         $data = [
             [
                 'id' => '79dc5e0b5bd1404a9dec7841f6254c7e',
@@ -61,13 +386,13 @@ class TranslationTest extends TestCase
                     'net' => 6.7142857142857,
                 ],
                 'translations' => [
-                    'f32f19ca62994c4bbd004296b35a5c24' => [
+                    $germanLanguageId => [
                         'id' => '4f1bcf3bc0fb4e62989e88b3bd37d1a2',
                         'productId' => '79dc5e0b5bd1404a9dec7841f6254c7e',
                         'name' => 'Backform gelb',
                         'description' => 'inflo decertatio. His Manus dilabor do, eia lumen, sed Desisto qua evello sono hinc, ars his misericordite.',
                         'language' => [
-                                'id' => 'f32f19ca62994c4bbd004296b35a5c24',
+                                'id' => $germanLanguageId,
                                 'localeId' => '20080911ffff4fffafffffff19830531',
                                 'name' => 'de_DE',
                             ],
@@ -112,29 +437,29 @@ class TranslationTest extends TestCase
             ],
         ];
 
-        $result = $this->repository->create($data, $this->context);
+        $result = $this->productRepository->create($data, $this->context);
 
         $products = $result->getEventByDefinition(ProductDefinition::class);
         static::assertCount(1, $products->getIds());
 
         $languages = $result->getEventByDefinition(LanguageDefinition::class);
         static::assertCount(1, array_unique($languages->getIds()));
-        static::assertContains('f32f19ca62994c4bbd004296b35a5c24', $languages->getIds());
+        static::assertContains($germanLanguageId, $languages->getIds());
 
         $translations = $result->getEventByDefinition(MediaTranslationDefinition::class);
         static::assertCount(1, $translations->getIds());
-        $translations = array_column($translations->getPayload(), 'languageId');
-        static::assertContains('f32f19ca62994c4bbd004296b35a5c24', $translations);
+        $languageIds = array_column($translations->getPayload(), 'languageId');
+        static::assertContains($germanLanguageId, $languageIds);
 
         $translations = $result->getEventByDefinition(ProductManufacturerTranslationDefinition::class);
         static::assertCount(1, $translations->getIds());
-        $translations = array_column($translations->getPayload(), 'languageId');
-        static::assertContains('f32f19ca62994c4bbd004296b35a5c24', $translations);
+        $languageIds = array_column($translations->getPayload(), 'languageId');
+        static::assertContains($germanLanguageId, $languageIds);
 
         $translations = $result->getEventByDefinition(ProductTranslationDefinition::class);
         static::assertCount(2, $translations->getIds());
-        $translations = array_column($translations->getPayload(), 'languageId');
-        static::assertContains(Defaults::LANGUAGE, $translations);
-        static::assertContains('f32f19ca62994c4bbd004296b35a5c24', $translations);
+        $languageIds = array_column($translations->getPayload(), 'languageId');
+        static::assertContains(Defaults::LANGUAGE, $languageIds);
+        static::assertContains($germanLanguageId, $languageIds);
     }
 }

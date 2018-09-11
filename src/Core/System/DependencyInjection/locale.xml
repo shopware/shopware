@@ -12,6 +12,10 @@
         <service class="Shopware\Core\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationDefinition" id="Shopware\Core\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationDefinition">
             <tag name="shopware.entity.definition" entity="locale_translation"/>
         </service>
+
+        <service class="Shopware\Core\System\Locale\LocaleLanguageResolver" id="Shopware\Core\System\Locale\LocaleLanguageResolver">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
     </services>
 </container>                
                 

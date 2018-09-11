@@ -48,6 +48,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\Inherited;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\ReadOnly;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\System\Locale\LocaleLanguageResolverInterface;
 
 /**
  * Builds the command queue for write operations.
@@ -61,9 +62,15 @@ class WriteCommandExtractor
      */
     private $entityExistenceGateway;
 
-    public function __construct(EntityWriteGatewayInterface $entityExistenceGateway)
+    /**
+     * @var LocaleLanguageResolverInterface
+     */
+    private $localeLanguageResolver;
+
+    public function __construct(EntityWriteGatewayInterface $entityExistenceGateway, LocaleLanguageResolverInterface $localeLanguageResolver)
     {
         $this->entityExistenceGateway = $entityExistenceGateway;
+        $this->localeLanguageResolver = $localeLanguageResolver;
     }
 
     public function extract(
@@ -77,7 +84,15 @@ class WriteCommandExtractor
     ): array {
         $extender = clone $extender;
         $extender->addExtender(
-            new RuntimeExtender($definition, $writeContext, $commandQueue, $exceptionStack, $path, $this)
+            new RuntimeExtender(
+                $definition,
+                $writeContext,
+                $commandQueue,
+                $exceptionStack,
+                $path,
+                $this,
+                $this->localeLanguageResolver
+            )
         );
 
         /* @var EntityDefinition $definition */

@@ -21,13 +21,19 @@
     }
 
     .sw-context-button {
-        button.is--active, button:hover {
-            border: none;
-            color: #293647;
+        .sw-icon {
+            width: 16px;
+            height: 16px;
         }
 
-        .sw-icon {
-            width: 15px;
+        .sw-context-button__button {
+            .sw-icon {
+                height: 100%;
+            }
+
+            height: 18px;
+            padding: 0 2px;
+            line-height: 16px;
         }
     }
 
@@ -41,14 +47,8 @@
 
         .sw-context-button {
             position: absolute;
-            top: @sw-media-grid-item-pseudo-padding;
-            right: @sw-media-grid-item-pseudo-padding;
-        }
-
-        .sw-media-grid-item__select-box {
-            position: absolute;
-            top: @sw-media-grid-item-pseudo-padding;
-            left: @sw-media-grid-item-pseudo-padding;
+            top: 5px;
+            right: 9px;
         }
     }
 
@@ -79,6 +79,12 @@
     &:hover {
         .sw-media-grid-item__selected-indicator {
             visibility: visible;
+        }
+
+        .sw-context-button__button {
+            background: #fff;
+            border: 1px solid @sw-media-grid-item-color-border;
+            border-radius: @sw-media-grid-item-border-radius;
         }
     }
 

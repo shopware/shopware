@@ -131,7 +131,7 @@ Component.register('sw-media-grid', {
         clearSelectionOnClickOutside(event) {
             if (!this.isDragEvent(event) &&
               !this.isEmittedFromChildren(event.target) &&
-              !this.isEmittedFromContextMenu(event.target) &&
+              !this.isEmittedFromContextMenu(event.composedPath()) &&
               !this.isEmittedFromSidebar(event.composedPath())) {
                 this.emitSelectionCleared(event);
             }
@@ -149,8 +149,10 @@ Component.register('sw-media-grid', {
             });
         },
 
-        isEmittedFromContextMenu(target) {
-            return target.classList.contains('sw-context-menu-item');
+        isEmittedFromContextMenu(path) {
+            return path.some((parent) => {
+                return parent.classList && parent.classList.contains('sw-context-menu');
+            });
         },
 
         getSelection() {

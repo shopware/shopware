@@ -40,7 +40,13 @@ Component.extend('sw-media-grid-catalog-item', 'sw-media-grid-item', {
         viewCatalogContent() {
             this.$router.push({
                 name: 'sw.media.catalog-content',
-                params: { id: this.item.id }
+                params: {
+                    id: this.item.id
+                },
+                query: {
+                    limit: 25,
+                    page: 1
+                }
             });
         }
     }

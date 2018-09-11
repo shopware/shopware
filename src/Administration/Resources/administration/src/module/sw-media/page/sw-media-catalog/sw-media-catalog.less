@@ -28,7 +28,7 @@
 
     .sw-media-catalog__content {
         display: grid;
-        grid-template-rows: 64px 1fr 64px;
+        grid-template-rows: auto;
         position:absolute;
         height: 100%;
         width: 100%;
@@ -47,7 +47,6 @@
 
     .sw-media-catalog__options-container {
         margin-left: auto;
-        height: 64px;
         padding: 10px;
 
         .sw-field {
@@ -119,6 +118,10 @@
         background: @sw-media-catalog-color-change-icon-size-slide;
         opacity: 0.7;
         transform: translate(0px, 50%);
+    }
+
+    .sw-media-catalog__icon-size-slider:focus {
+        outline: none;
     }
 
     .sw-media-catalog__icon-size-slider::-webkit-slider-thumb {

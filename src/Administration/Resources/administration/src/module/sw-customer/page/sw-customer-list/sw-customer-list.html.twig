@@ -178,7 +178,7 @@
                                                         {% endblock %}
 
                                                         {% block sw_customer_list_grid_columns_actions_delete %}
-                                                            <sw-context-menu-item variant="danger" :disabled="true">
+                                                            <sw-context-menu-item variant="danger" @click="onDelete(item.id)">
                                                                 {{ $tc('sw-customer.list.contextMenuDelete') }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}
@@ -186,6 +186,38 @@
                                                 {% endblock %}
                                             </sw-grid-column>
                                         {% endblock %}
+                                    {% endblock %}
+
+                                    {% block sw_customer_list_delete_modal %}
+                                        <sw-modal v-if="showDeleteModal === item.id"
+                                                  @closeModal="onCloseDeleteModal"
+                                                  :title="$tc('sw-customer.list.modalTitleDelete')"
+                                                  variant="small">
+                                            {% block sw_customer_list_delete_modal_confirm_delete_text %}
+                                                <p class="sw-customer-list__confirm-delete-text">
+                                                    {{ $tc('sw-customer.list.textDeleteConfirm', 0, { name: `${item.firstName} ${item.lastName}` }) }}
+                                                </p>
+                                            {% endblock %}
+
+                                            {% block sw_customer_list_delete_modal_footer %}
+                                                <template slot="modal-footer">
+                                                    {% block sw_customer_list_delete_modal_cancel %}
+                                                        <sw-button @click="onCloseDeleteModal"
+                                                                   size="small">
+                                                            {{ $tc('sw-customer.list.buttonCancel') }}
+                                                        </sw-button>
+                                                    {% endblock %}
+
+                                                    {% block sw_customer_list_delete_modal_confirm %}
+                                                        <sw-button @click="onConfirmDelete(item.id)"
+                                                                   variant="primary"
+                                                                   size="small">
+                                                            {{ $tc('sw-customer.list.buttonDelete') }}
+                                                        </sw-button>
+                                                    {% endblock %}
+                                                </template>
+                                            {% endblock %}
+                                        </sw-modal>
                                     {% endblock %}
                                 </template>
                             {% endblock %}

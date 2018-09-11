@@ -139,7 +139,11 @@
       "contextMenuDuplicate": "Duplizieren",
       "contextMenuDelete": "Löschen",
       "contextMenuEdit": "Bearbeiten",
-      "messageEmpty": "Noch keine Kunden"
+      "messageEmpty": "Noch keine Kunden",
+      "modalTitleDelete": "Kunden löschen",
+      "textDeleteConfirm": "Möchtest Du den Kunden \"{name}\" wirklich löschen?",
+      "buttonCancel": "Abbrechen",
+      "buttonDelete": "Löschen"
     },
     "baseForm": {
       "labelSalutation": "Anrede",

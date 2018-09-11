@@ -139,7 +139,11 @@
       "contextMenuDelete": "Delete",
       "contextMenuDuplicate": "Duplicate",
       "contextMenuEdit": "Edit",
-      "messageEmpty": "No customers yet"
+      "messageEmpty": "No customers yet",
+      "modalTitleDelete": "Delete customer",
+      "textDeleteConfirm": "Do you really want to delete the customer \"{name}\"?",
+      "buttonCancel": "Cancel",
+      "buttonDelete": "Delete"
     },
     "baseForm": {
       "labelSalutation": "Salutation",

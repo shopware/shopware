@@ -163,10 +163,26 @@ Component.register('sw-product-media-form', {
             mediaEntity.name = file.name;
 
             fileReader.readAsDataURL(file).then((dataURL) => {
-                this.previews[mediaEntity.id] = dataURL;
-                productMedia.isLoading = false;
+                const canvas = document.createElement('canvas');
+                const columnWidth = this.columnWidth.split('px')[0];
+                const size = this.isCover(productMedia) ? columnWidth * 2 : columnWidth;
+                const img = new Image();
+                img.onload = (() => {
+                    // resize image with aspect ratio
+                    const dimensions = this.getImageDimensions(img, size);
+                    canvas.setAttribute('width', dimensions.width);
+                    canvas.setAttribute('height', dimensions.height);
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(
+                        img, 0, 0, canvas.width, canvas.height
+                    );
 
-                this.$forceUpdate();
+                    this.previews[mediaEntity.id] = canvas.toDataURL();
+                    productMedia.isLoading = false;
+
+                    this.$forceUpdate();
+                });
+                img.src = dataURL;
             });
 
             productMedia.media = mediaEntity;
@@ -174,6 +190,20 @@ Component.register('sw-product-media-form', {
             this.product.media.push(productMedia);
 
             return productMedia;
+        },
+
+        getImageDimensions(img, size) {
+            if (img.width > img.height) {
+                return {
+                    height: size,
+                    width: size * (img.width / img.height)
+                };
+            }
+
+            return {
+                width: size,
+                height: size * (img.height / img.width)
+            };
         },
 
         getPreviewForMedia(mediaEntity) {

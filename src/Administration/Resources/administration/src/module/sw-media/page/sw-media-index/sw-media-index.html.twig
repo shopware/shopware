@@ -1,5 +1,17 @@
 {% block sw_media_index %}
     <sw-page class="sw-media-index">
+        {% block sw_media_index_smart_bar_header %}
+            <template slot="smart-bar-header">
+                {% block sw_media_index_smart_bar_header %}
+                    <h2>
+                        {% block sw_media_index_smart_bar_heading %}
+                            {{ $tc('sw-media.smart-bar.smartBarHeader') }}
+                        {% endblock %}
+                    </h2>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
         <template slot="content">
             {% block sw_media_index_page_content %}
                 <div class="sw-media-index__page">

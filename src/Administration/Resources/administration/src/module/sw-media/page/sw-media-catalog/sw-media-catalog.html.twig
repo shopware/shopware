@@ -11,6 +11,18 @@
         {% endblock %}
 
         {% block sw_media_catalog_smart_bar %}
+            {% block sw_media_catalog_smart_bar_header %}
+                <template slot="smart-bar-header">
+                    {% block sw_media_catalog_smart_bar_header %}
+                        <h2>
+                            {% block sw_media_catalog_smart_bar_heading %}
+                                {{ $tc('sw-media.smart-bar.smartBarHeader') }}
+                            {% endblock %}
+                        </h2>
+                    {% endblock %}
+                </template>
+            {% endblock %}
+
             <template slot="smart-bar-actions">
 
                 {% block sw_media_catalog_change %}
@@ -50,7 +62,7 @@
 
         <template slot="content">
             {% block sw_media_catalog_page_content %}
-                <div class="sw-media-catalog__page-content">
+                <div v-if="total" class="sw-media-catalog__page-content">
                     {% block sw_media_catalog_content_container %}
                         <div class="sw-media-catalog__content-container">
                             {% block sw_media_catalog_content %}
@@ -167,6 +179,10 @@
                         </div>
                     {% endblock %}
                 </div>
+            {% endblock %}
+
+            {% block sw_media_catalog_empty_state %}
+                <sw-empty-state v-else :title="$tc('sw-media.catalog.messageEmpty')"></sw-empty-state>
             {% endblock %}
 
             {% block sw_media_catalog_modal_delete %}

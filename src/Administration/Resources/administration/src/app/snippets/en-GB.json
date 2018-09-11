@@ -580,6 +580,7 @@
       "showCatalogDetails": "Show Catalogue details"
     },
     "smart-bar": {
+      "smartBarHeader": "Media",
       "buttonUpload": "Upload",
       "buttonFileUpload": "File upload",
       "buttonUrlUpload": "URL upload"
@@ -627,6 +628,7 @@
       }
     },
     "catalog": {
+      "messageEmpty": "No Media in this catalogue yet",
       "labelSort": "Sort by:",
       "labelIconSize": "Preview size:",
       "labelCatalog": "Selected catalog:",

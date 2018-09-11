@@ -576,6 +576,7 @@
       "placeholderSearchBar": "Durchsuchen aller Medien"
     },
     "smart-bar": {
+      "smartBarHeader": "Medien",
       "buttonUpload": "Hochladen",
       "buttonFileUpload": "Dateien hochladen",
       "buttonUrlUpload": "Über URL hochladen"
@@ -627,6 +628,7 @@
       }
     },
     "catalog": {
+      "messageEmpty": "Noch keine Medien in diesem Katalog",
       "labelSort": "Sortiere nach:",
       "labelIconSize": "Vorschau-Größe:",
       "labelCatalog": "Ausgewählter Katalog:",

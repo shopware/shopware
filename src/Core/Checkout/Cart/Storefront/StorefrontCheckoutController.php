@@ -20,7 +20,6 @@ use Shopware\Core\Framework\Api\Response\Type\JsonType;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
-use Shopware\Storefront\Exception\CustomerNotFoundException;
 use Shopware\Storefront\Page\Account\AccountService;
 use Shopware\Storefront\Page\Account\RegistrationRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -120,19 +119,6 @@ class StorefrontCheckoutController extends Controller
         $registrationRequest = new RegistrationRequest();
         $registrationRequest->assign($request->request->all());
         $registrationRequest->setGuest(true);
-
-        $customerId = null;
-
-        try {
-            $customer = $this->accountService->getCustomerByEmail($registrationRequest->getEmail(), $context);
-
-            if (!$customer->getGuest()) {
-                throw new CustomerAccountExistsException($registrationRequest->getEmail());
-            }
-        } catch (CustomerNotFoundException $exception) {
-            // Check if customer already exists and has a real account.
-            // The empty catch is therefore intended.
-        }
 
         $customerId = $this->accountService->createNewCustomer($registrationRequest, $context);
 

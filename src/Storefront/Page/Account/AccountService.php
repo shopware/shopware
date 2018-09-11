@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Account;
 
+use Shopware\Core\Checkout\Cart\Exception\CustomerAccountExistsException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\Exception\InvalidUuidException;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
@@ -59,19 +61,7 @@ class AccountService
      */
     public function getCustomerByLogin(string $email, string $password, CheckoutContext $context): CustomerStruct
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('customer.email', $email));
-        // TODO NEXT-389 we have to check an option like "bind customer to salesChannel"
-        // todo in this case we have to filter "customer.salesChannelId is null or salesChannelId = :current"
-
-        $customers = $this->customerRepository->search($criteria, $context->getContext());
-
-        if ($customers->count() !== 1) {
-            throw new CustomerNotFoundException($email);
-        }
-
-        /** @var CustomerStruct $customer */
-        $customer = $customers->first();
+        $customer = $this->getCustomerByEmail($email, $context, false);
 
         if (!password_verify($password, $customer->getPassword())) {
             throw new BadCredentialsException();
@@ -83,12 +73,9 @@ class AccountService
     /**
      * @throws CustomerNotFoundException
      */
-    public function getCustomerByEmail(string $email, CheckoutContext $context): CustomerStruct
+    public function getCustomerByEmail(string $email, CheckoutContext $context, bool $includeGuest = false): CustomerStruct
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('customer.email', $email));
-
-        $customers = $this->customerRepository->search($criteria, $context->getContext());
+        $customers = $this->getCustomersByEmail($email, $context, $includeGuest);
 
         if ($customers->count() !== 1) {
             throw new CustomerNotFoundException($email);
@@ -98,6 +85,19 @@ class AccountService
         $customer = $customers->first();
 
         return $customer;
+    }
+
+    public function getCustomersByEmail(string $email, CheckoutContext $context, bool $includeGuests = true): EntitySearchResult
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new TermQuery('customer.email', $email));
+        if (!$includeGuests) {
+            $criteria->addFilter(new TermQuery('customer.guest', 0));
+        }
+        // TODO NEXT-389 we have to check an option like "bind customer to salesChannel"
+        // todo in this case we have to filter "customer.salesChannelId is null or salesChannelId = :current"
+
+        return $this->customerRepository->search($criteria, $context->getContext());
     }
 
     /**
@@ -291,6 +291,8 @@ class AccountService
 
     public function createNewCustomer(RegistrationRequest $registrationRequest, CheckoutContext $context): string
     {
+        $this->validateRegistrationRequest($registrationRequest, $context);
+
         $customerId = Uuid::uuid4()->getHex();
         $billingAddressId = Uuid::uuid4()->getHex();
 
@@ -410,6 +412,16 @@ class AccountService
             ],
             $context->getTenantId()
         );
+    }
+
+    private function validateRegistrationRequest(RegistrationRequest $registrationRequest, CheckoutContext $context): void
+    {
+        if (!$registrationRequest->getGuest()) {
+            $customers = $this->getCustomersByEmail($registrationRequest->getEmail(), $context, false);
+            if ($customers->getTotal() > 0) {
+                throw new CustomerAccountExistsException($registrationRequest->getEmail());
+            }
+        }
     }
 
     /**

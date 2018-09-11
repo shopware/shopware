@@ -21,8 +21,8 @@ class RegistrationRequest extends Struct
     /** @var string|null */
     protected $lastName;
 
-    /** @var bool|null */
-    protected $guest;
+    /** @var bool */
+    protected $guest = false;
 
     /** @var string|null */
     protected $email;

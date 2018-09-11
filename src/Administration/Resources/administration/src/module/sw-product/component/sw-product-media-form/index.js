@@ -121,6 +121,8 @@ Component.register('sw-product-media-form', {
                             arrayBuffer,
                             file.name.split('.').pop()
                         );
+                    }).then(() => {
+                        this.product.getAssociation('media').getByIdAsync(productMedia.id);
                     }).catch(() => {
                         // Delete the corresponding media entities when the upload fails
                         this.product.getAssociation('media').getByIdAsync(productMedia.id).then((productMediaEntity) => {

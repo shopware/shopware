@@ -44,7 +44,7 @@ Component.register('sw-media-sidebar', {
         },
 
         getKey() {
-            if (this.isSingleFile) {
+            if (!this.isSingleFile) {
                 return '';
             }
 

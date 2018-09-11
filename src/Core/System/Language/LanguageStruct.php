@@ -17,7 +17,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\Produ
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\Search\SearchDocumentCollection;
-use Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\CountryAreaTranslationCollection;
 use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationCollection;
 use Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationCollection;
 use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationCollection;
@@ -29,7 +28,6 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesCha
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTypeTranslation\SalesChannelTypeTranslationCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\Snippet\SnippetCollection;
-use Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\TaxAreaRuleTranslationCollection;
 use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationCollection;
 
 class LanguageStruct extends Entity
@@ -93,11 +91,6 @@ class LanguageStruct extends Entity
      * @var CatalogTranslationCollection|null
      */
     protected $catalogTranslations;
-
-    /**
-     * @var CountryAreaTranslationCollection|null
-     */
-    protected $countryAreaTranslations;
 
     /**
      * @var CategoryTranslationCollection|null
@@ -168,11 +161,6 @@ class LanguageStruct extends Entity
      * @var ShippingMethodTranslationCollection|null
      */
     protected $shippingMethodTranslations;
-
-    /**
-     * @var TaxAreaRuleTranslationCollection|null
-     */
-    protected $taxAreaRuleTranslations;
 
     /**
      * @var UnitTranslationCollection|null
@@ -319,16 +307,6 @@ class LanguageStruct extends Entity
         $this->catalogTranslations = $catalogTranslations;
     }
 
-    public function getCountryAreaTranslations(): ?CountryAreaTranslationCollection
-    {
-        return $this->countryAreaTranslations;
-    }
-
-    public function setCountryAreaTranslations(CountryAreaTranslationCollection $countryAreaTranslations): void
-    {
-        $this->countryAreaTranslations = $countryAreaTranslations;
-    }
-
     public function getCategoryTranslations(): ?CategoryTranslationCollection
     {
         return $this->categoryTranslations;
@@ -467,16 +445,6 @@ class LanguageStruct extends Entity
     public function setShippingMethodTranslations(ShippingMethodTranslationCollection $shippingMethodTranslations): void
     {
         $this->shippingMethodTranslations = $shippingMethodTranslations;
-    }
-
-    public function getTaxAreaRuleTranslations(): ?TaxAreaRuleTranslationCollection
-    {
-        return $this->taxAreaRuleTranslations;
-    }
-
-    public function setTaxAreaRuleTranslations(TaxAreaRuleTranslationCollection $taxAreaRuleTranslations): void
-    {
-        $this->taxAreaRuleTranslations = $taxAreaRuleTranslations;
     }
 
     public function getUnitTranslations(): ?UnitTranslationCollection

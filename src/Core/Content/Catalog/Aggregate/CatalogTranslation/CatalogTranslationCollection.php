@@ -37,15 +37,15 @@ class CatalogTranslationCollection extends EntityCollection
 
     public function getLanguageIds(): array
     {
-        return $this->fmap(function (CatalogTranslationStruct $countryAreaTranslation) {
-            return $countryAreaTranslation->getLanguageId();
+        return $this->fmap(function (CatalogTranslationStruct $catalogTranslation) {
+            return $catalogTranslation->getLanguageId();
         });
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (CatalogTranslationStruct $countryAreaTranslation) use ($id) {
-            return $countryAreaTranslation->getLanguageId() === $id;
+        return $this->filter(function (CatalogTranslationStruct $catalogTranslation) use ($id) {
+            return $catalogTranslation->getLanguageId() === $id;
         });
     }
 

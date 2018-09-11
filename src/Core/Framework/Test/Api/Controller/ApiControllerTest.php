@@ -9,13 +9,70 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\FilesystemBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 
 class ApiControllerTest extends TestCase
 {
-    use AdminFunctionalTestBehaviour;
+    use KernelTestBehaviour,
+        FilesystemBehaviour,
+        AdminApiTestBehaviour;
+
+    /**
+     * @var Connection
+     */
+    private $connection;
+
+    public function setUp(): void
+    {
+        $dropStatement = <<<EOF
+DROP TABLE IF EXISTS `named`;
+DROP TABLE IF EXISTS `named_optional_group`;
+EOF;
+
+        $namedOptionalGroupStatement = <<<EOF
+CREATE TABLE `named_optional_group` (
+    `id` binary(16) NOT NULL,
+    `tenant_id` binary(16) NOT NULL,
+    `version_id` binary(16) NOT NULL,    
+    `name` varchar(255) NOT NULL,
+    PRIMARY KEY `id` (`id`, `version_id`, `tenant_id`)
+);
+EOF;
+
+        $namedStatement = <<<EOF
+CREATE TABLE `named` (
+    `id` binary(16) NOT NULL,
+    `version_id` binary(16) NOT NULL,
+    `tenant_id` binary(16) NOT NULL,    
+    `name` varchar(255) NOT NULL,    
+    `optional_group_id` varbinary(16) NULL,    
+    `optional_group_tenant_id` binary(16) DEFAULT NULL,
+    `optional_group_version_id` varbinary(16) NULL,
+    PRIMARY KEY `id` (`id`, `version_id`, `tenant_id`),  
+    CONSTRAINT `fk` FOREIGN KEY (`optional_group_id`, `optional_group_version_id`, `optional_group_tenant_id`) REFERENCES `named_optional_group` (`id`, `version_id`, `tenant_id`)
+);
+EOF;
+        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection->executeUpdate($dropStatement);
+        $this->connection->executeUpdate($namedOptionalGroupStatement);
+        $this->connection->executeUpdate($namedStatement);
+
+        $this->connection->beginTransaction();
+    }
+
+    public function tearDown(): void
+    {
+        $this->connection->rollBack();
+
+        $this->connection->executeUpdate('DROP TABLE IF EXISTS `named`');
+        $this->connection->executeUpdate('DROP TABLE IF EXISTS `named_optional_group`');
+
+        parent::tearDown();
+    }
 
     public function testInsert(): void
     {
@@ -223,29 +280,31 @@ class ApiControllerTest extends TestCase
 
     public function testDeleteManyToOne(): void
     {
-        $country = Uuid::uuid4();
-        $area = Uuid::uuid4();
+        $id = Uuid::uuid4()->getHex();
+        $groupId = Uuid::uuid4()->getHex();
 
         $data = [
-            'id' => $country->getHex(),
-            'name' => 'Country',
-            'area' => ['id' => $area->getHex(), 'name' => 'Test'],
+            'id' => $id,
+            'name' => 'Test product',
+            'optionalGroup' => [
+                'id' => $groupId,
+                'name' => 'Gramm',
+            ],
         ];
-
-        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/country', [], [], [], json_encode($data));
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/named', [], [], [], json_encode($data));
         $response = $this->getClient()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
-        static::assertEquals('http://localhost/api/v' . PlatformRequest::API_VERSION . '/country/' . $country->getHex(), $response->headers->get('Location'));
+        static::assertEquals('http://localhost/api/v' . PlatformRequest::API_VERSION . '/named/' . $id, $response->headers->get('Location'));
 
-        $this->assertEntityExists($this->getClient(), 'country', $country->getHex());
-        $this->assertEntityExists($this->getClient(), 'country-area', $area->getHex());
+        $this->assertEntityExists($this->getClient(), 'named', $id);
+        $this->assertEntityExists($this->getClient(), 'named-optional-group', $groupId);
 
-        $this->getClient()->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/country/' . $country->getHex() . '/area/' . $area->getHex());
+        $this->getClient()->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/named/' . $id . '/optional-group/' . $groupId);
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
 
-        $this->assertEntityExists($this->getClient(), 'country', $country->getHex());
-        $this->assertEntityNotExists($this->getClient(), 'country-area', $area->getHex());
+        $this->assertEntityExists($this->getClient(), 'named', $id);
+        $this->assertEntityNotExists($this->getClient(), 'named-optional-group', $groupId);
     }
 
     public function testDeleteManyToMany(): void

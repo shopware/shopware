@@ -6,7 +6,6 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGrou
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleCollection;
 
 class CustomerGroupStruct extends Entity
 {
@@ -64,11 +63,6 @@ class CustomerGroupStruct extends Entity
      * @var CustomerGroupTranslationCollection|null
      */
     protected $translations;
-
-    /**
-     * @var TaxAreaRuleCollection|null
-     */
-    protected $taxAreaRules;
 
     /**
      * @var CustomerCollection|null
@@ -183,16 +177,6 @@ class CustomerGroupStruct extends Entity
     public function setTranslations(CustomerGroupTranslationCollection $translations): void
     {
         $this->translations = $translations;
-    }
-
-    public function getTaxAreaRules(): ?TaxAreaRuleCollection
-    {
-        return $this->taxAreaRules;
-    }
-
-    public function setTaxAreaRules(TaxAreaRuleCollection $taxAreaRules): void
-    {
-        $this->taxAreaRules = $taxAreaRules;
     }
 
     public function getCustomers(): ?CustomerCollection

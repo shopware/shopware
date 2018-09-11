@@ -5,19 +5,12 @@ namespace Shopware\Core\System\Country;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
 use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\System\Country\Aggregate\CountryArea\CountryAreaStruct;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateCollection;
 use Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
-use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleCollection;
 
 class CountryStruct extends Entity
 {
-    /**
-     * @var string|null
-     */
-    protected $areaId;
-
     /**
      * @var string
      */
@@ -84,11 +77,6 @@ class CountryStruct extends Entity
     protected $updatedAt;
 
     /**
-     * @var CountryAreaStruct|null
-     */
-    protected $area;
-
-    /**
      * @var CountryStateCollection|null
      */
     protected $states;
@@ -97,11 +85,6 @@ class CountryStruct extends Entity
      * @var CountryTranslationCollection|null
      */
     protected $translations;
-
-    /**
-     * @var TaxAreaRuleCollection|null
-     */
-    protected $taxAreaRules;
 
     /**
      * @var OrderAddressCollection|null
@@ -122,16 +105,6 @@ class CountryStruct extends Entity
      * @var SalesChannelCollection|null
      */
     protected $salesChannels;
-
-    public function getAreaId(): ?string
-    {
-        return $this->areaId;
-    }
-
-    public function setAreaId(?string $areaId): void
-    {
-        $this->areaId = $areaId;
-    }
 
     public function getName(): string
     {
@@ -263,16 +236,6 @@ class CountryStruct extends Entity
         $this->updatedAt = $updatedAt;
     }
 
-    public function getArea(): ?CountryAreaStruct
-    {
-        return $this->area;
-    }
-
-    public function setArea(CountryAreaStruct $area): void
-    {
-        $this->area = $area;
-    }
-
     public function getStates(): ?CountryStateCollection
     {
         return $this->states;
@@ -291,16 +254,6 @@ class CountryStruct extends Entity
     public function setTranslations(CountryTranslationCollection $translations): void
     {
         $this->translations = $translations;
-    }
-
-    public function getTaxAreaRules(): ?TaxAreaRuleCollection
-    {
-        return $this->taxAreaRules;
-    }
-
-    public function setTaxAreaRules(TaxAreaRuleCollection $taxAreaRules): void
-    {
-        $this->taxAreaRules = $taxAreaRules;
     }
 
     public function getOrderAddresses(): ?OrderAddressCollection

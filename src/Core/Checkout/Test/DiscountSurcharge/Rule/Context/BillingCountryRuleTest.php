@@ -23,7 +23,6 @@ class BillingCountryRuleTest extends TestCase
 
         $country = new CountryStruct();
         $country->setId('SWAG-AREA-COUNTRY-ID-1');
-        $country->setAreaId('SWAG-AREA-ID-1');
 
         $billing = new CustomerAddressStruct();
         $billing->setCountry($country);
@@ -50,7 +49,6 @@ class BillingCountryRuleTest extends TestCase
 
         $country = new CountryStruct();
         $country->setId('SWAG-AREA-COUNTRY-ID-1');
-        $country->setAreaId('SWAG-AREA-ID-1');
 
         $billing = new CustomerAddressStruct();
         $billing->setCountry($country);
@@ -77,7 +75,6 @@ class BillingCountryRuleTest extends TestCase
 
         $country = new CountryStruct();
         $country->setId('SWAG-AREA-COUNTRY-ID-1');
-        $country->setAreaId('SWAG-AREA-ID-1');
 
         $billing = new CustomerAddressStruct();
         $billing->setCountry($country);

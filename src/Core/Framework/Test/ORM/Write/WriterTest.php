@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\ORM\Write;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
@@ -15,7 +16,6 @@ use Shopware\Core\Framework\ORM\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\ORM\Write\WriteContext;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\System\Country\Aggregate\CountryArea\CountryAreaDefinition;
 
 class WriterTest extends TestCase
 {
@@ -44,25 +44,25 @@ class WriterTest extends TestCase
         $context = $this->createWriteContext();
 
         $this->getWriter()->insert(
-            CountryAreaDefinition::class,
+            CategoryDefinition::class,
             [
                 ['id' => $id->getHex(), 'name' => 'test-country'],
             ],
             $context
         );
 
-        $exists = $this->connection->fetchAll('SELECT * FROM country_area WHERE id = :id', ['id' => $id->getBytes()]);
+        $exists = $this->connection->fetchAll('SELECT * FROM category WHERE id = :id', ['id' => $id->getBytes()]);
         static::assertNotEmpty($exists);
 
         $deleteResult = $this->getWriter()->delete(
-            CountryAreaDefinition::class,
+            CategoryDefinition::class,
             [
                 ['id' => $id->getHex()],
             ],
             $context
         );
 
-        $exists = $this->connection->fetchAll('SELECT * FROM country_area WHERE id = :id', ['id' => $id->getBytes()]);
+        $exists = $this->connection->fetchAll('SELECT * FROM category WHERE id = :id', ['id' => $id->getBytes()]);
         static::assertEmpty($exists);
         static::assertEmpty($deleteResult->getNotFound());
         static::assertNotEmpty($deleteResult->getDeleted());
@@ -76,7 +76,7 @@ class WriterTest extends TestCase
         $context = $this->createWriteContext();
 
         $this->getWriter()->insert(
-            CountryAreaDefinition::class,
+            CategoryDefinition::class,
             [
                 ['id' => $id->getHex(), 'name' => 'test-country1'],
                 ['id' => $id2->getHex(), 'name' => 'test-country2'],
@@ -84,32 +84,48 @@ class WriterTest extends TestCase
             $context
         );
 
-        $exists = $this->connection->fetchAll(
-            'SELECT * FROM country_area WHERE id IN (:id) ',
+        $categories = $this->connection->fetchAll(
+            'SELECT * FROM category WHERE id IN (:id) ',
             ['id' => [$id->getBytes(), $id2->getBytes()]],
             ['id' => Connection::PARAM_STR_ARRAY]
         );
 
-        static::assertCount(2, $exists);
+        static::assertCount(2, $categories);
+
+        $translations = $this->connection->fetchAll(
+            'SELECT * FROM category_translation WHERE category_id IN (:id) ',
+            ['id' => [$id->getBytes(), $id2->getBytes()]],
+            ['id' => Connection::PARAM_STR_ARRAY]
+        );
+
+        static::assertCount(2, $translations);
 
         $deleteResult = $this->getWriter()->delete(
-            CountryAreaDefinition::class,
+            CategoryDefinition::class,
             [
                 ['id' => $id->getHex()],
                 ['id' => $id2->getHex()],
             ],
             $context
         );
+        static::assertEmpty($deleteResult->getNotFound());
+        static::assertNotEmpty($deleteResult->getDeleted()[CategoryDefinition::class]);
 
-        $exists = $this->connection->fetchAll(
-            'SELECT * FROM country_area WHERE id IN (:id) ',
+        $categories = $this->connection->fetchAll(
+            'SELECT * FROM category WHERE id IN (:id) ',
             ['id' => [$id->getBytes(), $id2->getBytes()]],
             ['id' => Connection::PARAM_STR_ARRAY]
         );
 
-        static::assertEmpty($exists);
-        static::assertEmpty($deleteResult->getNotFound());
-        static::assertNotEmpty($deleteResult->getDeleted()[CountryAreaDefinition::class]);
+        static::assertEmpty($categories);
+
+        $translations = $this->connection->fetchAll(
+            'SELECT * FROM category_translation WHERE category_id IN (:id) ',
+            ['id' => [$id->getBytes(), $id2->getBytes()]],
+            ['id' => Connection::PARAM_STR_ARRAY]
+        );
+
+        static::assertEmpty($translations);
     }
 
     public function testMultiDeleteWithNoneExistingId(): void
@@ -120,7 +136,7 @@ class WriterTest extends TestCase
         $context = $this->createWriteContext();
 
         $this->getWriter()->insert(
-            CountryAreaDefinition::class,
+            CategoryDefinition::class,
             [
                 ['id' => $id->getHex(), 'name' => 'test-country1'],
                 ['id' => $id2->getHex(), 'name' => 'test-country2'],
@@ -129,7 +145,7 @@ class WriterTest extends TestCase
         );
 
         $exists = $this->connection->fetchAll(
-            'SELECT * FROM country_area WHERE id IN (:id) ',
+            'SELECT * FROM category WHERE id IN (:id) ',
             ['id' => [$id->getBytes(), $id2->getBytes()]],
             ['id' => Connection::PARAM_STR_ARRAY]
         );
@@ -137,7 +153,7 @@ class WriterTest extends TestCase
         static::assertCount(2, $exists);
 
         $deleteResult = $this->getWriter()->delete(
-            CountryAreaDefinition::class,
+            CategoryDefinition::class,
             [
                 ['id' => $id->getHex()],
                 ['id' => $id2->getHex()],
@@ -148,11 +164,11 @@ class WriterTest extends TestCase
             $context
         );
 
-        static::assertCount(3, $deleteResult->getNotFound()[CountryAreaDefinition::class]);
-        static::assertCount(2, $deleteResult->getDeleted()[CountryAreaDefinition::class]);
+        static::assertCount(3, $deleteResult->getNotFound()[CategoryDefinition::class]);
+        static::assertCount(2, $deleteResult->getDeleted()[CategoryDefinition::class]);
 
         $exists = $this->connection->fetchAll(
-            'SELECT * FROM country_area WHERE id IN (:id) ',
+            'SELECT * FROM category WHERE id IN (:id) ',
             ['id' => [$id->getBytes(), $id2->getBytes()]],
             ['id' => Connection::PARAM_STR_ARRAY]
         );

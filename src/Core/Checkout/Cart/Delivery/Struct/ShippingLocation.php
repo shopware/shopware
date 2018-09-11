@@ -67,9 +67,4 @@ class ShippingLocation extends Struct
     {
         return $this->address;
     }
-
-    public function getAreaId(): string
-    {
-        return $this->getCountry()->getAreaId();
-    }
 }

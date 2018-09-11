@@ -21,20 +21,6 @@ class CountryCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getAreaIds(): array
-    {
-        return $this->fmap(function (CountryStruct $country) {
-            return $country->getAreaId();
-        });
-    }
-
-    public function filterByAreaId(string $id): self
-    {
-        return $this->filter(function (CountryStruct $country) use ($id) {
-            return $country->getAreaId() === $id;
-        });
-    }
-
     public function getTaxfreeForVatIds(): array
     {
         return $this->fmap(function (CountryStruct $country) {

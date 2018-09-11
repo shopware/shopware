@@ -268,8 +268,7 @@ curl -X GET \
                                 "name": true
                             }
                         },
-                        "versionId": null,
-                        "countryAreaVersionId": null
+                        "versionId": null
                     },
                     "state": null,
                     "address": null,

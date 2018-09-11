@@ -143,12 +143,14 @@
                                     {% endblock %}
 
                                     {% block sw_media_catalog_pagination %}
-                                        <sw-pagination
-                                            :page="page"
-                                            :limit="limit"
-                                            :total="total"
-                                            @page-change="onPageChange">
-                                        </sw-pagination>
+                                        <div class="sw-media-catalog__sw-pagination">
+                                            <sw-pagination
+                                                :page="page"
+                                                :limit="limit"
+                                                :total="total"
+                                                @page-change="onPageChange">
+                                            </sw-pagination>
+                                        </div>
                                     {% endblock %}
                                 </div>
                             {% endblock %}

@@ -100,7 +100,9 @@ Component.register('sw-media-catalog', {
                     page: 1
                 }
             });
-            this.$router.go();
+
+            this.updateRoute();
+            this.getList();
         },
 
         getCatalogId() {

@@ -19,12 +19,24 @@ Component.extend('sw-media-grid-catalog-item', 'sw-media-grid-item', {
     computed: {
         gridItemListeners() {
             return {
-                click: this.viewCatalogContent
+                click: this.emitClickedEvent
             };
         }
     },
 
     methods: {
+        emitClickedEvent(originalDomEvent) {
+            const target = originalDomEvent.target;
+            if (this.showContextMenuButton) {
+                const el = this.$refs.swContextButton.$el;
+                if ((el === target) || el.contains(target)) {
+                    return;
+                }
+            }
+
+            this.viewCatalogContent();
+        },
+
         viewCatalogContent() {
             this.$router.push({
                 name: 'sw.media.catalog-content',

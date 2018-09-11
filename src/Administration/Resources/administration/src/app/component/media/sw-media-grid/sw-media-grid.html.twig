@@ -12,9 +12,9 @@
                                 {% block sw_media_grid_media_item_component %}
                                     <sw-media-grid-media-item
                                         v-if="item.type === 'media'"
+                                        :containerOptions="containerOptions"
                                         :selected="isItemSelected(item)"
                                         :item="item"
-                                        :containerOptions="containerOptions"
                                         :showContextMenuButton="showContextMenuButton"
                                         @sw-media-grid-item-selection-add="handleSelection"
                                         @sw-media-grid-item-clicked="mediaItemClicked"

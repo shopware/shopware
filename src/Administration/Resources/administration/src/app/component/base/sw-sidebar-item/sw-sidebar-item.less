@@ -6,6 +6,7 @@
 @sw-sidebar-icon-color:              @color-gutenberg;
 @sw-sidebar-active-icon-color:       @color-shopware-blue;
 @sw-sidebar-active-color-background: @color-cadet-blue;
+@sw-sidebar-color-white:             @color-white;
 @sw-sidebar-z-index:                 @z-index-sidebar;
 
 .sw-sidebar-item {
@@ -19,7 +20,7 @@
         top: 0; bottom: 0;
         border-left: 1px solid @sw-sidebar-color-border;
         overflow-y: auto;
-        background: #fff;
+        background: @sw-sidebar-color-white;
         padding:0 25px;
     }
 
@@ -28,7 +29,7 @@
         grid-template-columns: auto 64px;
         position: sticky;
         top: 0px;
-        background-color: #fff;
+        background-color: @sw-sidebar-color-white;
         margin: 0 -25px;
         padding: 25px 25px 0;
     }

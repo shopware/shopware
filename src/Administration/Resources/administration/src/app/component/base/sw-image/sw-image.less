@@ -1,7 +1,7 @@
 @import "~less/variables";
 
 @sw-image-tooltip-color-background: @color-biscay;
-@sw-image-tooltip-color-text:       @color-white;
+@sw-image-color-white:              @color-white;
 @sw-image-color-hover:              @color-black;
 @sw-image-color-border:             @color-steam-cloud;
 @sw-image-border-radius:            @border-radius-default;
@@ -35,7 +35,7 @@
     .sw-image__tooltip {
         visibility: hidden;
         background-color: @sw-image-tooltip-color-background;
-        color: @sw-image-tooltip-color-text;
+        color: @sw-image-color-white;
         text-align: center;
         border-radius: @sw-image-tooltip-border-radius;
         position: absolute;
@@ -83,7 +83,7 @@
     .sw-context-button__button {
         visibility: hidden;
         .sw-icon {
-            color: #fff;
+            color: @sw-image-color-white;
             height: 100%;
         }
     }

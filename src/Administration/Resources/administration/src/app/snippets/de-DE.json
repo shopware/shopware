@@ -585,6 +585,10 @@
       "notificationSuccess": "Datei erfolgreich gespeichert",
       "notificationFailure": "Fehler beim hochladen von {mediaName}"
     },
+    "replace": {
+      "notificationSuccess": "Datei erfolgreich ersetzt",
+      "notificationFailure": "Fehler beim ersetzen von {mediaName}"
+    },
     "catalogItem": {
       "showCatalogContent": "Inhalt anzeigen",
       "showCatalogDetails": "Katalogdetails anzeigen"
@@ -617,7 +621,7 @@
         "fileSize": "Größe",
         "createdAt": "Hochgeladen am",
         "url": "URL",
-        "width": "Weite",
+        "width": "Breite",
         "height": "Höhe",
         "frameRate": "Bildrate",
         "title": "Titel",

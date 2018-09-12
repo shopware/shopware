@@ -17,6 +17,7 @@
                 {% block sw_media_preview_file_type_video %}
                     <video :controls="showControls"
                            :autoplay="autoplay"
+                           controlsList="nodownload"
                            class="sw-media-preview__item">
                         <source :src="item.url" :type="item.mimeType">
                         {{ $tc('global.sw-media-preview.fallbackVideoTagSupport') }}
@@ -36,6 +37,7 @@
                     </sw-icon>
                     <audio :controls="showControls"
                            :autoplay="autoplay"
+                           controlsList="nodownload"
                            class="sw-media-preview__item sw-media-preview__item--audio">
                         <source :src="item.url" :type="item.mimeType">
                         {{ $tc('global.sw-media-preview.fallbackAudioTagSupport') }}

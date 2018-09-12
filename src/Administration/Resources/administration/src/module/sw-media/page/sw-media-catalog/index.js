@@ -42,6 +42,22 @@ Component.register('sw-media-catalog', {
 
         currentCatalog() {
             return this.catalogStore.getById(this.$route.params.id);
+        },
+
+        changeableCatalogs() {
+            return this.catalogs.filter((catalog) => {
+                return catalog.id !== this.getCatalogId();
+            });
+        },
+
+        // ToDo remove it with NEXT-867
+        contextMenuWidth() {
+            const characterCount = this.changeableCatalogs.reduce((count, catalog) => {
+                return catalog.name.length > count ? catalog.name.length : count;
+            }, 0);
+
+            // fixed 100px for Icon and padding and stuff
+            return 100 + characterCount * 8;
         }
     },
 
@@ -61,6 +77,12 @@ Component.register('sw-media-catalog', {
 
         destroyedComponent() {
             this.$root.$off('search', this.onSearch);
+        },
+
+        onContextMenuClick(event) {
+            if (this.changeableCatalogs.length === 0) {
+                event.stopPropagation();
+            }
         },
 
         onNewMedia() {

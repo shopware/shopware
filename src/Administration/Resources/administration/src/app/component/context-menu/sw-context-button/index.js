@@ -28,6 +28,12 @@ Component.register('sw-context-button', {
             type: Number,
             required: false,
             default: 15
+        },
+
+        alignLeft: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -49,6 +55,18 @@ Component.register('sw-context-button', {
                 display: this.showMenu ? 'block' : 'none',
                 width: `${this.menuWidth}px`,
                 'padding-top': `${this.paddingTop}px`
+            };
+        },
+
+        contextButtonClass() {
+            return {
+                'is--active': this.showMenu
+            };
+        },
+
+        contextMenuClass() {
+            return {
+                'is--left-align': this.alignLeft
             };
         }
     },
@@ -74,7 +92,11 @@ Component.register('sw-context-button', {
             const secureOffset = 5;
 
             this.positionTop = boundingBox.top - secureOffset;
-            this.positionLeft = (boundingBox.left + boundingBox.width + this.menuOffsetLeft) - this.menuWidth;
+            if (this.alignLeft) {
+                this.positionLeft = boundingBox.left - secureOffset;
+            } else {
+                this.positionLeft = (boundingBox.left + boundingBox.width + this.menuOffsetLeft) - this.menuWidth;
+            }
             this.paddingTop = boundingBox.height + secureOffset + this.menuOffsetTop;
 
             this.addMenuToBody();

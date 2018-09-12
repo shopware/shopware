@@ -26,12 +26,12 @@
             <template slot="smart-bar-actions">
 
                 {% block sw_media_catalog_change %}
-                    <sw-context-button class="sw-media-catalog__change">
+                    <sw-context-button class="sw-media-catalog__change" :menuWidth="contextMenuWidth" :alignLeft="true">
                         {% block sw_media_catalog_change_button %}
                             <template slot="button">
-                                <button class="sw-media-catalog__change-button">
+                                <button class="sw-media-catalog__change-button" @click="onContextMenuClick">
                                     {% block sw_media_change_button_label %}
-                                        <sw-icon name="folder-breadcums-dropdown" multicolor size="50"></sw-icon>
+                                        <sw-icon name="folder-breadcums-dropdown" multicolor size="32"></sw-icon>
 
                                         <span class="sw-media-catalog__button">
                                              <sw-icon name="small-arrow-medium-right"></sw-icon>
@@ -43,9 +43,9 @@
                         {% endblock %}
 
                         {% block sw_media_griditem_context_item_detail %}
-                            <div v-for="catalog in catalogs">
-                                <sw-context-menu-item @click="changeCatalog(catalog)">
-                                    <sw-icon name="folder-breadcums" multicolor decorative size="50"></sw-icon>
+                            <div v-for="catalog in changeableCatalogs">
+                                <sw-context-menu-item class="sw-media-catalog__context-menu" @click="changeCatalog(catalog)">
+                                    <sw-icon name="folder-breadcums" multicolor decorative size="32"></sw-icon>
                                     {{ catalog.name }}
                                 </sw-context-menu-item>
                             </div>

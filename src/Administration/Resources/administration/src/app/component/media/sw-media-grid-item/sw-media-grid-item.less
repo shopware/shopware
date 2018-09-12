@@ -34,8 +34,11 @@
             }
 
             height: 18px;
-            padding: 0 2px;
+            padding: 0 4px;
             line-height: 16px;
+            background: #fff;
+            border: 1px solid @sw-media-grid-item-color-border;
+            border-radius: @sw-media-grid-item-border-radius;
         }
     }
 
@@ -81,12 +84,6 @@
     &:hover {
         .sw-media-grid-item__selected-indicator {
             visibility: visible;
-        }
-
-        .sw-context-button__button {
-            background: #fff;
-            border: 1px solid @sw-media-grid-item-color-border;
-            border-radius: @sw-media-grid-item-border-radius;
         }
     }
 

@@ -11,7 +11,8 @@ class CreateMigrationCommand extends ContainerAwareCommand
 {
     protected function configure()
     {
-        $this->addArgument('directory', InputArgument::REQUIRED)
+        $this->setName('database:create-migration')
+            ->addArgument('directory', InputArgument::REQUIRED)
             ->addArgument('namespace', InputArgument::REQUIRED);
     }
 

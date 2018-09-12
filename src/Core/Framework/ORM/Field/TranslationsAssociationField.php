@@ -65,7 +65,12 @@ class TranslationsAssociationField extends SubresourceField implements Associati
         }
 
         foreach ($value as $identifier => $fields) {
-            if (Uuid::isValid($identifier)) {
+            /* multiple formats are supported.
+                translations => [['property' => 'translation', 'languageId' => '{languageUuid}']] -> skip
+                translations => ['{languageUuid}' => ['property' => 'translation']] -> skip
+                translations => ['en_GB' => ['property' => 'translation']] -> proceed and use localeLanguageResolver
+            */
+            if (is_numeric($identifier) || Uuid::isValid($identifier)) {
                 continue;
             }
 

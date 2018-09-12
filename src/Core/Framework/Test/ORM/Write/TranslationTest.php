@@ -94,6 +94,38 @@ class TranslationTest extends TestCase
         static::assertArraySubset(['shortName' => $shortName], $payload);
     }
 
+    public function testCurrencyWithTranslationViaLanguageIdSimpleNotation(): void
+    {
+        $name = 'US Dollar';
+        $shortName = 'USD';
+
+        $data = [
+            'factor' => 1,
+            'symbol' => '$',
+            'translations' => [
+                [
+                    'languageId' => Defaults::LANGUAGE,
+                    'name' => 'US Dollar',
+                    'shortName' => 'USD',
+                ],
+            ],
+        ];
+
+        $result = $this->currencyRepository->create([$data], $this->context);
+
+        $currencies = $result->getEventByDefinition(CurrencyDefinition::class);
+        static::assertCount(1, $currencies->getIds());
+
+        $translations = $result->getEventByDefinition(CurrencyTranslationDefinition::class);
+        static::assertCount(1, $translations->getIds());
+        $languageIds = array_column($translations->getPayload(), 'languageId');
+        static::assertContains(Defaults::LANGUAGE, $languageIds);
+
+        $payload = $translations->getPayload()[0];
+        static::assertArraySubset(['name' => $name], $payload);
+        static::assertArraySubset(['shortName' => $shortName], $payload);
+    }
+
     public function testCurrencyWithTranslationMergeViaLocaleAndLanguageId(): void
     {
         $name = 'US Dollar';

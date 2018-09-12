@@ -61,7 +61,7 @@ class Uuid
         throw new InvalidUuidException($hex);
     }
 
-    public static function isValid($id): bool
+    public static function isValid(string $id): bool
     {
         if (!preg_match('/' . self::VALID_PATTERN . '/', $id)) {
             return false;

@@ -1,5 +1,7 @@
 @import "~less/variables";
 
+@sw-media-sidebar-z-index:  @z-index-sidebar;
+
 .sw-media-sidebar {
     height: 100%;
 
@@ -16,5 +18,9 @@
         .sw-media-sidebar__items-bottom {
             align-self: end;
         }
+    }
+
+    .sw-sidebar-item__headline {
+        z-index: calc(@sw-media-sidebar-z-index + 1);
     }
 }

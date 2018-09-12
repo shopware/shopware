@@ -40,6 +40,10 @@ Component.register('sw-media-catalog', {
             return State.getStore('catalog');
         },
 
+        notificationStore() {
+            return State.getStore('notification');
+        },
+
         currentCatalog() {
             return this.catalogStore.getById(this.$route.params.id);
         },
@@ -204,11 +208,20 @@ Component.register('sw-media-catalog', {
             this.mediaItemToReplace = null;
         },
 
-        handleItemReplaced(replacementPromise) {
+        handleItemReplaced(replacementPromise, fileName) {
             this.closeReplaceModal();
 
             replacementPromise.then(() => {
                 this.getList();
+                this.notificationStore.createNotification({
+                    message: this.$tc('sw-media.replace.notificationSuccess'),
+                    variant: 'success'
+                });
+            }).catch(() => {
+                this.notificationStore.createNotification({
+                    message: this.$tc('sw-media.replace.notificationFailure', 0, { mediaName: fileName }),
+                    variant: 'error'
+                });
             });
         }
     }

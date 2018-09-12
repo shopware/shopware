@@ -35,6 +35,10 @@ Component.register('sw-media-index', {
             return State.getStore('media');
         },
 
+        notificationStore() {
+            return State.getStore('notification');
+        },
+
         isSearch() {
             return this.searchId !== null && this.searchId !== undefined;
         }
@@ -136,11 +140,20 @@ Component.register('sw-media-index', {
             this.mediaItemToReplace = null;
         },
 
-        handleItemReplaced(replacementPromise) {
+        handleItemReplaced(replacementPromise, fileName) {
             this.closeReplaceModal();
 
             replacementPromise.then(() => {
-                this.loadMedia();
+                this.getList();
+                this.notificationStore.createNotification({
+                    message: this.$tc('sw-media.replace.notificationSuccess'),
+                    variant: 'success'
+                });
+            }).catch(() => {
+                this.notificationStore.createNotification({
+                    message: this.$tc('sw-media.replace.notificationFailure', 0, { mediaName: fileName }),
+                    variant: 'error'
+                });
             });
         },
 

@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Plugin\PluginStruct;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -38,6 +39,7 @@ class PluginUninstallCommand extends Command
             ->setName('plugin:uninstall')
             ->setDescription('Uninstalls a plugin.')
             ->addArgument('plugins', InputArgument::REQUIRED | InputArgument::IS_ARRAY, 'Name of the plugins to be uninstalled.')
+            ->addOption('remove-userdata', null, InputOption::VALUE_NONE, 'The plugin removes all created data')
             ->setHelp(<<<'EOF'
 The <info>%command.name%</info> uninstalls a plugin.
 EOF
@@ -64,6 +66,7 @@ EOF
         $io->listing($this->formatPluginList($plugins));
 
         $tenantId = $input->getOption('tenant-id');
+        $removeUserdata = (bool) $input->getOption('remove-userdata');
 
         /** @var PluginStruct $plugin */
         foreach ($plugins as $plugin) {
@@ -73,7 +76,7 @@ EOF
                 continue;
             }
 
-            $this->pluginManager->uninstallPlugin($plugin, $tenantId);
+            $this->pluginManager->uninstallPlugin($plugin, $tenantId, $removeUserdata);
 
             $io->text(sprintf('Plugin "%s" has been uninstalled successfully.', $plugin->getLabel()));
         }

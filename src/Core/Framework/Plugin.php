@@ -75,6 +75,10 @@ class Plugin extends Bundle
     {
     }
 
+    public function postInstall(InstallContext $context): void
+    {
+    }
+
     /**
      * This method can be overridden
      *
@@ -83,6 +87,10 @@ class Plugin extends Bundle
     public function update(UpdateContext $context)
     {
         $context->scheduleClearCache(InstallContext::CACHE_LIST_DEFAULT);
+    }
+
+    public function postUpdate(UpdateContext $context): void
+    {
     }
 
     /**
@@ -119,6 +127,7 @@ class Plugin extends Bundle
     {
         $this->registerFilesystem($container, 'private');
         $this->registerFilesystem($container, 'public');
+        $this->registerMigrationPath($container);
     }
 
     public function configureRoutes(RouteCollectionBuilder $routes, string $environment): void
@@ -128,6 +137,11 @@ class Plugin extends Bundle
         $routes->import($confDir . '/{routes}/*' . Kernel::CONFIG_EXTS, '/', 'glob');
         $routes->import($confDir . '/{routes}/' . $environment . '/**/*' . Kernel::CONFIG_EXTS, '/', 'glob');
         $routes->import($confDir . '/{routes}' . Kernel::CONFIG_EXTS, '/', 'glob');
+    }
+
+    public function getMigrationNamespace(): string
+    {
+        return $this->getNamespace() . '\Migration';
     }
 
     public function getContainerPrefix(): string
@@ -158,5 +172,19 @@ class Plugin extends Bundle
     private function camelCaseToUnderscore(string $string): string
     {
         return strtolower(ltrim(preg_replace('/[A-Z]/', '_$0', $string), '_'));
+    }
+
+    private function registerMigrationPath(ContainerBuilder $container): void
+    {
+        $migrationPath = $this->getPath() . str_replace($this->getNamespace(), '', str_replace('\\', '/', $this->getMigrationNamespace()));
+
+        if (!is_dir($migrationPath)) {
+            return;
+        }
+
+        $directories = $container->getParameter('migration.directories');
+        $directories[$this->getMigrationNamespace()] = $migrationPath;
+
+        $container->setParameter('migration.directories', $directories);
     }
 }

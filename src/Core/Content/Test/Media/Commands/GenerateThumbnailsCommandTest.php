@@ -2,17 +2,12 @@
 
 namespace Shopware\Core\Content\Test\Media\Commands;
 
-use Doctrine\DBAL\Connection;
-use League\Flysystem\Filesystem;
-use League\Flysystem\FilesystemInterface;
-use League\Flysystem\Memory\MemoryAdapter;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailStruct;
 use Shopware\Core\Content\Media\Commands\GenerateThumbnailsCommand;
 use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailConfiguration;
-use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
@@ -28,11 +23,6 @@ class GenerateThumbnailsCommandTest extends TestCase
     use IntegrationTestBehaviour, CommandTestBehaviour;
 
     /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
      * @var RepositoryInterface
      */
     private $repository;
@@ -42,38 +32,34 @@ class GenerateThumbnailsCommandTest extends TestCase
      */
     private $thumbnailCommand;
 
-    /** @var FilesystemInterface */
-    private $filesystem;
-
-    /** @var UrlGeneratorInterface */
+    /**
+     * @var UrlGeneratorInterface
+     */
     private $urlGenerator;
 
-    /** @var ThumbnailService */
-    private $thumbnailService;
-
-    /** @var ThumbnailConfiguration */
+    /**
+     * @var ThumbnailConfiguration
+     */
     private $thumbnailConfiguration;
 
-    /** @var Context */
+    /**
+     * @var Context
+     */
     private $context;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     private $catalogId;
 
     public function setUp()
     {
         $this->repository = $this->getContainer()->get('media.repository');
-        $this->connection = $this->getContainer()->get(Connection::class);
-        $this->filesystem = new Filesystem(new MemoryAdapter());
         $this->urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
         $this->thumbnailConfiguration = $this->getContainer()->get(ThumbnailConfiguration::class);
         $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
-        $this->thumbnailService = new ThumbnailService($this->repository, $this->filesystem, $this->urlGenerator, $this->thumbnailConfiguration);
 
-        $this->thumbnailCommand = new GenerateThumbnailsCommand(
-            $this->thumbnailService,
-            $this->repository
-        );
+        $this->thumbnailCommand = $this->getContainer()->get(GenerateThumbnailsCommand::class);
 
         $this->createNewCatalog();
         $this->context->getExtension('write_protection')->set('write_media', true);
@@ -158,7 +144,7 @@ class GenerateThumbnailsCommandTest extends TestCase
             $thumbnail->getHeight(),
             false
         );
-        static::assertTrue($this->filesystem->has($thumbnailPath));
+        static::assertTrue($this->getPublicFilesystem()->has($thumbnailPath));
 
         if ($thumbnail->getHighDpi()) {
             $thumbnailPath = $this->urlGenerator->getRelativeThumbnailUrl(
@@ -168,7 +154,7 @@ class GenerateThumbnailsCommandTest extends TestCase
                 $thumbnail->getHeight(),
                 true
             );
-            static::assertTrue($this->filesystem->has($thumbnailPath));
+            static::assertTrue($this->getPublicFilesystem()->has($thumbnailPath));
         }
     }
 
@@ -184,7 +170,7 @@ class GenerateThumbnailsCommandTest extends TestCase
 
         $this->repository->create([$media], $this->context);
         $filePath = $this->urlGenerator->getRelativeMediaUrl($media['id'], 'png');
-        $this->filesystem->putStream(
+        $this->getPublicFilesystem()->putStream(
             $filePath,
             fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r')
         );
@@ -199,7 +185,7 @@ class GenerateThumbnailsCommandTest extends TestCase
 
         $this->repository->create([$media], $this->context);
         $filePath = $this->urlGenerator->getRelativeMediaUrl($media['id'], 'jpg');
-        $this->filesystem->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware.jpg', 'r'));
+        $this->getPublicFilesystem()->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware.jpg', 'r'));
     }
 
     protected function createNotSupportedMediaFiles(): void
@@ -214,7 +200,7 @@ class GenerateThumbnailsCommandTest extends TestCase
 
         $this->repository->create([$media], $this->context);
         $filePath = $this->urlGenerator->getRelativeMediaUrl($media['id'], 'pdf');
-        $this->filesystem->putStream(
+        $this->getPublicFilesystem()->putStream(
             $filePath,
             fopen(__DIR__ . '/../fixtures/Shopware_5_3_Broschuere.pdf', 'r')
         );
@@ -229,7 +215,7 @@ class GenerateThumbnailsCommandTest extends TestCase
 
         $this->repository->create([$media], $this->context);
         $filePath = $this->urlGenerator->getRelativeMediaUrl($media['id'], 'jpg');
-        $this->filesystem->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware.jpg', 'r'));
+        $this->getPublicFilesystem()->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware.jpg', 'r'));
     }
 
     private function createNewCatalog(): void

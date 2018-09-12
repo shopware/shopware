@@ -5,5 +5,6 @@ namespace Shopware\Core\Framework\Test\TestCaseBase;
 trait IntegrationTestBehaviour
 {
     use KernelTestBehaviour,
-        DatabaseTransactionBehaviour;
+        DatabaseTransactionBehaviour,
+        FilesystemBehaviour;
 }

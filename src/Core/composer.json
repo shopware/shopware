@@ -11,7 +11,10 @@
   ],
   "autoload": {
     "psr-4": {
-      "Shopware\\Core\\": "src/"
+      "Shopware\\Core\\": "",
+      "exclude-from-classmap": [
+        "*/Test/"
+      ]
     }
   },
   "require": {

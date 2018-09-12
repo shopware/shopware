@@ -14,11 +14,6 @@ class DatabaseTransactionBehaviourTest extends TestCase
      */
     private $setUpIsInTransaction = false;
 
-    /**
-     * @var bool
-     */
-    private $tearDownIsInTransaction = false;
-
     protected function setUp()
     {
         $this->setUpIsInTransaction = KernelLifecycleManager::getKernel()

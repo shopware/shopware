@@ -28,10 +28,10 @@ class GenerateThumbnailsCommand extends Command
     private $mediaRepository;
 
     /** @var int int */
-    private $generatedCounter = 0;
+    private $generatedCounter;
 
     /** @var int int */
-    private $skippedCounter = 0;
+    private $skippedCounter;
 
     /** @var int */
     private $batchSize;
@@ -62,6 +62,9 @@ class GenerateThumbnailsCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $this->generatedCounter = 0;
+        $this->skippedCounter = 0;
+
         $this->io = new SymfonyStyle($input, $output);
 
         $tenantId = $this->validateTenantId($input);

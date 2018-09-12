@@ -169,13 +169,6 @@ Component.register('sw-field', {
             }
         },
 
-        onClick() {
-            if (this.type === 'checkbox') {
-                this.currentValue = !this.currentValue;
-                this.$emit('input', this.currentValue);
-            }
-        },
-
         onKeyPress(event) {
             const key = event.key;
             let code = 0;
@@ -195,7 +188,7 @@ Component.register('sw-field', {
 
             this.$emit('change', this.currentValue);
 
-            if (['checkbox', 'radio', 'switch'].includes(this.type)) {
+            if (['checkbox', 'radio', 'switch', 'boolean'].includes(this.type)) {
                 this.$emit('input', this.currentValue);
             }
 

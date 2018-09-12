@@ -542,22 +542,6 @@ class TenantProvisioner
             $salesChannelCatalogs
         );
 
-        $salesChannelCurrency = $this->connection->executeQuery(sprintf('SELECT "%s" as sales_channel_id, id, version_id, "%s" as now FROM currency', $salesChannels[0][0], $this->now()))->fetchAll();
-        $this->importTable(
-            'sales_channel_currency',
-            ['sales_channel_id', 'currency_id', 'currency_version_id', 'created_at'],
-            ['sales_channel_tenant_id', 'currency_tenant_id'],
-            $salesChannelCurrency
-        );
-
-        $salesChannelLanguages = $this->connection->executeQuery(sprintf('SELECT "%s" as sales_channel_id, id, "%s" as now FROM language', $salesChannels[0][0], $this->now()))->fetchAll();
-        $this->importTable(
-            'sales_channel_language',
-            ['sales_channel_id', 'language_id', 'created_at'],
-            ['sales_channel_tenant_id', 'language_tenant_id'],
-            $salesChannelLanguages
-        );
-
         $salesChannelCountries = [
             [$salesChannels[0][0], $this->defaultId, $this->defaultId, $this->now()],
             [$salesChannels[0][0], Uuid::fromHexToBytes('6c72828ec5e240588a35114cf1d4d5ef'), $this->defaultId, $this->now()],
@@ -569,7 +553,32 @@ class TenantProvisioner
             $salesChannelCountries
         );
 
-        $salesChannelShippingMethods = $this->connection->executeQuery(sprintf('SELECT "%s" as sales_channel_id, id, version_id, "%s" as now FROM shipping_method', $salesChannels[0][0], $this->now()))->fetchAll();
+        $salesChannelCurrency = $this->connection->executeQuery('SELECT id FROM currency')->fetchAll();
+        foreach ($salesChannelCurrency as &$currency) {
+            $currency = [$salesChannels[0][0], $currency['id'], $this->defaultId, $this->now()];
+        }
+        $this->importTable(
+            'sales_channel_currency',
+            ['sales_channel_id', 'currency_id', 'currency_version_id', 'created_at'],
+            ['sales_channel_tenant_id', 'currency_tenant_id'],
+            $salesChannelCurrency
+        );
+
+        $salesChannelLanguages = $this->connection->executeQuery('SELECT id FROM language')->fetchAll();
+        foreach ($salesChannelLanguages as &$language) {
+            $language = [$salesChannels[0][0], $language['id'], $this->now()];
+        }
+        $this->importTable(
+            'sales_channel_language',
+            ['sales_channel_id', 'language_id', 'created_at'],
+            ['sales_channel_tenant_id', 'language_tenant_id'],
+            $salesChannelLanguages
+        );
+
+        $salesChannelShippingMethods = $this->connection->executeQuery('SELECT id FROM shipping_method')->fetchAll();
+        foreach ($salesChannelShippingMethods as &$shippingMethod) {
+            $shippingMethod = [$salesChannels[0][0], $shippingMethod['id'], $this->defaultId, $this->now()];
+        }
         $this->importTable(
             'sales_channel_shipping_method',
             ['sales_channel_id', 'shipping_method_id', 'shipping_method_version_id', 'created_at'],
@@ -577,7 +586,10 @@ class TenantProvisioner
             $salesChannelShippingMethods
         );
 
-        $salesChannelPaymentMethods = $this->connection->executeQuery(sprintf('SELECT "%s" as sales_channel_id, id, version_id, "%s" as now FROM payment_method', $salesChannels[0][0], $this->now()))->fetchAll();
+        $salesChannelPaymentMethods = $this->connection->executeQuery('SELECT id FROM payment_method')->fetchAll();
+        foreach ($salesChannelPaymentMethods as &$paymentMethod) {
+            $paymentMethod = [$salesChannels[0][0], $paymentMethod['id'], $this->defaultId, $this->now()];
+        }
         $this->importTable(
             'sales_channel_payment_method',
             ['sales_channel_id', 'payment_method_id', 'payment_method_version_id', 'created_at'],

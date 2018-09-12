@@ -5,6 +5,7 @@
 @sw-media-grid-media-color-unselected:       @color-kashmir;
 @sw-media-grid-item-pseudo-padding:          10px;
 @sw-media-grid-item-border-radius:           @border-radius-default;
+@sw-media-grid-item-small-font-size:          @font-size-small;
 
 @sw-media-grid-item-color-border:            @color-steam-cloud;
 @sw-media-grid-item-color-text-inline-input: @color-gutenberg;
@@ -46,7 +47,8 @@
         position: relative;
 
         .sw-media-grid-item__name-container {
-            margin-top: 10px;
+            margin-top: 15px;
+            margin-bottom: 5px;
             text-align: center;
         }
 
@@ -70,6 +72,7 @@
     }
 
     .sw-media-grid-item__name {
+        font-size: @sw-media-grid-item-small-font-size;
         max-width: 100%;
         .truncate();
     }

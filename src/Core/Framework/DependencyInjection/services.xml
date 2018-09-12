@@ -138,7 +138,7 @@
         </service>
 
         <service class="Shopware\Core\Framework\Command\CreateMigrationCommand" id="Shopware\Core\Framework\Command\CreateMigrationCommand">
-            <tag name="console.command" command="framework:migrate:create"/>
+            <tag name="console.command"/>
         </service>
 
         <service class="Shopware\Core\Framework\Command\MigrationCommand" id="Shopware\Core\Framework\Command\MigrationCommand">

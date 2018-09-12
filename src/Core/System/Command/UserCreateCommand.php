@@ -33,6 +33,8 @@ class UserCreateCommand extends Command
         $this->setName('rest:user:create')
             ->addArgument('username', InputArgument::REQUIRED, 'Username for the user')
             ->addOption('password', 'p', InputOption::VALUE_REQUIRED, 'Password for the user')
+            ->addOption('name', null, InputOption::VALUE_REQUIRED, 'Name for the user')
+            ->addOption('email', null, InputOption::VALUE_REQUIRED, 'E-Mail for the user')
         ;
     }
 
@@ -63,7 +65,15 @@ class UserCreateCommand extends Command
             $password = $io->askQuestion($passwordQuestion);
         }
 
-        $this->userProvisioner->provision($tenantId, $username, $password);
+        $additionalData = [];
+        if ($input->getOption('name')) {
+            $additionalData['name'] = $input->getOption('name');
+        }
+        if ($input->getOption('email')) {
+            $additionalData['email'] = $input->getOption('email');
+        }
+
+        $this->userProvisioner->provision($tenantId, $username, $password, $additionalData);
 
         $io->success(sprintf('User "%s" successfully created.', $username));
     }

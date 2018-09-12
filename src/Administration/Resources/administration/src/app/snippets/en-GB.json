@@ -575,10 +575,6 @@
       "descriptionTextModule": "Module to manage your media data",
       "placeholderSearchBar": "Search in all media"
     },
-    "catalogItem": {
-      "showCatalogContent": "Show contents",
-      "showCatalogDetails": "Show Catalogue details"
-    },
     "smart-bar": {
       "smartBarHeader": "Media",
       "buttonUpload": "Upload",
@@ -588,6 +584,10 @@
     "upload": {
       "notificationSuccess": "File saved",
       "notificationFailure": "There was an error uploading {mediaName}"
+    },
+    "catalogItem": {
+      "showCatalogContent": "Show contents",
+      "showCatalogDetails": "Show Catalogue details"
     },
     "index": {
       "catalogs": "Catalogues",

@@ -5,7 +5,7 @@
 @sw-media-grid-media-color-unselected:       @color-kashmir;
 @sw-media-grid-item-pseudo-padding:          10px;
 @sw-media-grid-item-border-radius:           @border-radius-default;
-@sw-media-grid-item-small-font-size:          @font-size-small;
+@sw-media-grid-item-small-font-size:         @font-size-small;
 
 @sw-media-grid-item-color-border:            @color-steam-cloud;
 @sw-media-grid-item-color-text-inline-input: @color-gutenberg;
@@ -24,22 +24,19 @@
     }
 
     .sw-context-button {
-        .sw-icon {
-            width: 16px;
-            height: 16px;
-        }
 
         .sw-context-button__button {
-            .sw-icon {
-                height: 100%;
-            }
-
             height: 18px;
             padding: 0 4px;
             line-height: 16px;
             background: #fff;
             border: 1px solid @sw-media-grid-item-color-border;
             border-radius: @sw-media-grid-item-border-radius;
+
+            .sw-icon {
+                width: 16px;
+                height: 100%;
+            }
         }
     }
 

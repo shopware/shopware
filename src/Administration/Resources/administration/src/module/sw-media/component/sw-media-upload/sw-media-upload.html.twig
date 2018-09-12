@@ -26,21 +26,20 @@
 
         <form class="sw-media-upload__form" ref="fileForm">
             {% block sw_media_upload_file_input %}
-                <input
-                        class="sw-media-upload__file-input"
-                        type="file" id="files"
-                        ref="fileInput"
-                        accept="image/*"
-                        multiple
-                        @change="onFileInputChange"/>
+                <input class="sw-media-upload__file-input"
+                       type="file" id="files"
+                       ref="fileInput"
+                       accept="image/*"
+                       multiple
+                       @change="onFileInputChange"/>
             {% endblock %}
         </form>
 
         {% block sw_media_catalog_modal_upload %}
             <sw-media-upload-url-modal
-                    v-if="showUrlModal"
-                    @closeModal="closeUrlModal"
-                    @sw-media-upload-url-modal-submit="onUrlUpload">
+                v-if="showUrlModal"
+                @closeModal="closeUrlModal"
+                @sw-media-upload-url-modal-submit="onUrlUpload">
             </sw-media-upload-url-modal>
         {% endblock %}
     </div>

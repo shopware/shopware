@@ -1,9 +1,7 @@
 @import "~less/variables";
 @import "~less/mixins";
 
-@color-icon-quickaction:             @color-shopware-blue;
-@color-text-quickaction-hover:       @color-shopware-blue;
-@color-background-quickaction-hover: @color-cadet-blue;
+@sw-metadata-item-caption-color: @color-gutenberg;
 
 .sw-media-quickinfo-metadata-item {
     display: grid;
@@ -11,7 +9,7 @@
     grid-auto-rows: 40px;
 
     > dt {
-        color: @color-gutenberg;
+        color: @sw-metadata-item-caption-color;
         font-weight: bold;
     }
 

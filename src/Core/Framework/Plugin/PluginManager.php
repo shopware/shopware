@@ -409,6 +409,10 @@ class PluginManager
     {
         $migrationPath = $pluginBootstrap->getPath() . str_replace($pluginBootstrap->getNamespace(), '', str_replace('\\', '/', $pluginBootstrap->getMigrationNamespace()));
 
+        if (!is_dir($migrationPath)) {
+            return;
+        }
+
         $this->migrationLoader->addDirectory($migrationPath, $pluginBootstrap->getMigrationNamespace());
         $this->migrationLoader->syncMigrationCollection();
         iterator_to_array($this->migrationRunner->migrate());

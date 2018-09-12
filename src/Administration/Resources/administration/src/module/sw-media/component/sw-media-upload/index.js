@@ -63,6 +63,8 @@ Component.register('sw-media-upload', {
             this.uploadStore.runUploads(uploadTag).then(() => {
                 this.$emit('new-media-entity');
             });
+
+            this.$refs.fileForm.reset();
         },
 
         addMediaEntityFromFile(file, tag) {

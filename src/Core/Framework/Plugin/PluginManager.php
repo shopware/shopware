@@ -7,6 +7,8 @@ use Psr\Container\ContainerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Framework;
+use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
+use Shopware\Core\Framework\Migration\MigrationRuntime;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
@@ -47,13 +49,32 @@ class PluginManager
      */
     private $requirementValidator;
 
-    public function __construct(string $pluginPath, Kernel $kernel, Connection $connection, ContainerInterface $container, RequirementValidator $requirementValidator)
-    {
+    /**
+     * @var MigrationCollectionLoader
+     */
+    private $migrationLoader;
+
+    /**
+     * @var MigrationRuntime
+     */
+    private $migrationRunner;
+
+    public function __construct(
+        string $pluginPath,
+        Kernel $kernel,
+        Connection $connection,
+        ContainerInterface $container,
+        RequirementValidator $requirementValidator,
+        MigrationCollectionLoader $migrationLoader,
+        MigrationRuntime $migrationRunner
+    ) {
         $this->pluginPath = $pluginPath;
         $this->kernel = $kernel;
         $this->connection = $connection;
         $this->container = $container;
         $this->requirementValidator = $requirementValidator;
+        $this->migrationLoader = $migrationLoader;
+        $this->migrationRunner = $migrationRunner;
     }
 
     /**
@@ -95,26 +116,25 @@ class PluginManager
 
         $this->requirementValidator->validate($pluginBootstrap->getPath() . '/plugin.xml', Framework::VERSION, $this->getPlugins());
 
-        $this->connection->transactional(function (Connection $connection) use ($pluginBootstrap, $plugin, $context) {
-//            $this->installResources($pluginBootstrap, $plugin);
+        // Makes sure the version is updated in the db after a re-installation
+        if ($this->hasInfoNewerVersion((string) $plugin->getUpdateVersion(), $plugin->getVersion())) {
+            $plugin->setVersion((string) $plugin->getUpdateVersion());
+        }
 
-            $updates = [];
+        $pluginBootstrap->install($context);
 
-            // Makes sure the version is updated in the db after a re-installation
-            if ($this->hasInfoNewerVersion((string) $plugin->getUpdateVersion(), $plugin->getVersion())) {
-                $plugin->setVersion((string) $plugin->getUpdateVersion());
-            }
+        $this->runMigrations($pluginBootstrap);
 
-            $pluginBootstrap->install($context);
+        $plugin->setInstallationDate(new \DateTime());
+        $plugin->setUpdateDate(new \DateTime());
 
-            $plugin->setInstallationDate(new \DateTime());
-            $plugin->setUpdateDate(new \DateTime());
+        $updates = [];
+        $updates['installation_date'] = $plugin->getInstallationDate()->format(Defaults::DATE_FORMAT);
+        $updates['update_date'] = $plugin->getUpdateDate()->format(Defaults::DATE_FORMAT);
 
-            $updates['installation_date'] = $plugin->getInstallationDate()->format(Defaults::DATE_FORMAT);
-            $updates['update_date'] = $plugin->getUpdateDate()->format(Defaults::DATE_FORMAT);
+        $this->connection->update('plugin', $updates, ['name' => $plugin->getName()]);
 
-            $connection->update('plugin', $updates, ['name' => $plugin->getName()]);
-        });
+        $pluginBootstrap->postInstall($context);
 
         return $context;
     }
@@ -138,7 +158,7 @@ class PluginManager
         $plugin->setActive(false);
 
         if ($removeUserData) {
-            //$this->removeFormsAndElements($pluginName);
+            $this->removeMigrations($pluginBootstrap);
         }
 
         $this->connection->update(
@@ -163,25 +183,25 @@ class PluginManager
             $plugin->getUpdateVersion() ?? $plugin->getVersion()
         );
 
-        $this->connection->transactional(function (Connection $connection) use ($pluginBootstrap, $plugin, $context) {
-//            $this->installResources($pluginBootstrap, $plugin);
+        $pluginBootstrap->update($context);
 
-            $pluginBootstrap->update($context);
+        $this->runMigrations($pluginBootstrap);
 
-            $plugin->setVersion($context->getUpdateVersion());
-            $plugin->setUpdateVersion(null);
-            $plugin->setUpdateSource(null);
-            $plugin->setUpdateDate(new \DateTime());
+        $plugin->setVersion($context->getUpdateVersion());
+        $plugin->setUpdateVersion(null);
+        $plugin->setUpdateSource(null);
+        $plugin->setUpdateDate(new \DateTime());
 
-            $updates = [
-                'version' => $context->getUpdateVersion(),
-                'update_version' => null,
-                'update_source' => null,
-                'update_date' => $plugin->getUpdateDate()->format(Defaults::DATE_FORMAT),
-            ];
+        $updates = [
+            'version' => $context->getUpdateVersion(),
+            'update_version' => null,
+            'update_source' => null,
+            'update_date' => $plugin->getUpdateDate()->format(Defaults::DATE_FORMAT),
+        ];
 
-            $connection->update('plugin', $updates, ['name' => $plugin->getName()]);
-        });
+        $this->connection->update('plugin', $updates, ['name' => $plugin->getName()]);
+
+        $pluginBootstrap->postUpdate($context);
 
         return $context;
     }
@@ -383,5 +403,22 @@ class PluginManager
             Defaults::LANGUAGE,
             Defaults::LANGUAGE
         );
+    }
+
+    private function runMigrations(Plugin $pluginBootstrap): void
+    {
+        $migrationPath = $pluginBootstrap->getPath() . str_replace($pluginBootstrap->getNamespace(), '', str_replace('\\', '/', $pluginBootstrap->getMigrationNamespace()));
+
+        $this->migrationLoader->addDirectory($migrationPath, $pluginBootstrap->getMigrationNamespace());
+        $this->migrationLoader->syncMigrationCollection();
+        iterator_to_array($this->migrationRunner->migrate());
+    }
+
+    private function removeMigrations(Plugin $pluginBootstrap): void
+    {
+        $class = $pluginBootstrap->getMigrationNamespace() . '\%';
+        $class = str_replace('\\', '\\\\', $class);
+
+        $this->connection->executeQuery('DELETE FROM migration WHERE class LIKE :class', ['class' => $class]);
     }
 }

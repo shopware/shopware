@@ -12,12 +12,12 @@ class Migration%%timestamp%% extends MigrationStep
         return %%timestamp%%;
     }
 
-    public function update(Connection $connection)
+    public function update(Connection $connection): void
     {
         // implement update
     }
 
-    public function updateDestructive(Connection $connection)
+    public function updateDestructive(Connection $connection): void
     {
         // implement update destructive
     }

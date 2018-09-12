@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Test\TestCaseBase;
 
 use League\Flysystem\Filesystem;
 use League\Flysystem\Memory\MemoryAdapter;
-use Shopware\Core\Framework\Filesystem\Adapter\MemoryAdapterFactory;
+use Shopware\Core\Framework\Test\Filesystem\Adapter\MemoryAdapterFactory;
 
 /**
  * Use this trait if your test operates with a filesystem

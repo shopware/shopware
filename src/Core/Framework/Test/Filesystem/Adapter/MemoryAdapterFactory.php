@@ -1,9 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Filesystem\Adapter;
+namespace Shopware\Core\Framework\Test\Filesystem\Adapter;
 
 use League\Flysystem\AdapterInterface;
 use League\Flysystem\Memory\MemoryAdapter;
+use Shopware\Core\Framework\Filesystem\Adapter\AdapterFactoryInterface;
 
 class MemoryAdapterFactory implements AdapterFactoryInterface
 {

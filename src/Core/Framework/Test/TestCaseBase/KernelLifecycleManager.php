@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
-use Shopware\Core\Framework\Filesystem\Adapter\MemoryAdapterFactory;
+use Shopware\Core\Framework\Test\Filesystem\Adapter\MemoryAdapterFactory;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Component\DependencyInjection\ResettableContainerInterface;
 use Symfony\Component\HttpKernel\KernelInterface;

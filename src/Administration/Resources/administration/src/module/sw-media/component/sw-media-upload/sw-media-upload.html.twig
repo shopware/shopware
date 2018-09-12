@@ -34,14 +34,14 @@
                         multiple
                         @change="onFileInputChange"/>
             {% endblock %}
-
-            {% block sw_media_catalog_modal_upload %}
-                <sw-media-upload-url-modal
-                        v-if="showUrlModal"
-                        @closeModal="closeUrlModal"
-                        @sw-media-upload-url-modal-submit="onUrlUpload">
-                </sw-media-upload-url-modal>
-            {% endblock %}
         </form>
+
+        {% block sw_media_catalog_modal_upload %}
+            <sw-media-upload-url-modal
+                    v-if="showUrlModal"
+                    @closeModal="closeUrlModal"
+                    @sw-media-upload-url-modal-submit="onUrlUpload">
+            </sw-media-upload-url-modal>
+        {% endblock %}
     </div>
 {% endblock %}

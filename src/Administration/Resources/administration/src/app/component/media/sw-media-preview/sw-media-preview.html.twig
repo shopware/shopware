@@ -22,7 +22,7 @@
                         <source :src="item.url" :type="item.mimeType">
                         {{ $tc('global.sw-media-preview.fallbackVideoTagSupport') }}
                     </video>
-                    <button class="sw-media-preview__play-button" v-if="!showControls" @click.stop="onPlayClick">
+                    <button class="sw-media-preview__play-button" v-if="!showControls" @click="onPlayClick">
                         <sw-icon class="sw-media-preview__play-icon" name="default-action-play" multicolor></sw-icon>
                     </button>
                 {% endblock %}
@@ -42,7 +42,7 @@
                         <source :src="item.url" :type="item.mimeType">
                         {{ $tc('global.sw-media-preview.fallbackAudioTagSupport') }}
                     </audio>
-                    <button class="sw-media-preview__play-button" v-if="!showControls" @click.stop="onPlayClick">
+                    <button class="sw-media-preview__play-button" v-if="!showControls" @click="onPlayClick">
                         <sw-icon class="sw-media-preview__play-icon" name="default-action-play" multicolor></sw-icon>
                     </button>
                 {% endblock %}

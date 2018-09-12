@@ -1,11 +1,12 @@
 @import "~less/variables";
 @import "~less/mixins";
 
-@sw-media-quickinfo-icon-color:       @color-shopware-blue;
-@sw-media-quickinfo-hover-background: @color-cadet-blue;
-@sw-media-quickinfo-border-color:     @color-steam-cloud;
-@sw-media-quickinfo-border-radius:    @border-radius-default;
-@sw-media-quickinfo-metadata-color:   @color-gutenberg;
+@sw-media-quickinfo-icon-color:         @color-shopware-blue;
+@sw-media-quickinfo-icon-color-danger:  @color-crimson;
+@sw-media-quickinfo-hover-background:   @color-cadet-blue;
+@sw-media-quickinfo-border-color:       @color-steam-cloud;
+@sw-media-quickinfo-border-radius:      @border-radius-default;
+@sw-media-quickinfo-metadata-color:     @color-gutenberg;
 
 .sw-media-quickinfo {
 
@@ -35,11 +36,21 @@
 
         &:hover {
             color: @sw-media-quickinfo-icon-color;
+
+            &.is--danger {
+                color: @sw-media-quickinfo-icon-color-danger;
+            }
         }
     }
 
     .sw-media-quickinfo__quickactions-icon {
+        position: relative;
+        top: -2px;
         color: @sw-media-quickinfo-icon-color;
         margin-right: 20px;
+
+        &.is--danger {
+            color: @sw-media-quickinfo-icon-color-danger;
+        }
     }
 }

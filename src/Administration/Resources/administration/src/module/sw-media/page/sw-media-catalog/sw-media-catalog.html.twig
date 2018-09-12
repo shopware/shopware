@@ -182,7 +182,7 @@
             {% endblock %}
 
             {% block sw_media_catalog_empty_state %}
-                <sw-empty-state v-else :title="$tc('sw-media.catalog.messageEmpty')"></sw-empty-state>
+                <sw-empty-state v-else-if="!isLoading && !total" :title="$tc('sw-media.catalog.messageEmpty')"></sw-empty-state>
             {% endblock %}
 
             {% block sw_media_catalog_modal_delete %}

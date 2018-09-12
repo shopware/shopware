@@ -41,7 +41,7 @@
       "labelClose": "Schließen"
     },
     "sw-media-grid-media-item": {
-      "contextMenuDetailLabel": "Details",
+      "contextMenuDetailLabel": "Informationen",
       "contextMenuDeleteLabel": "Löschen",
       "contextMenuCopyLinkLabel": "Link kopieren",
       "contextMenuReplaceLabel": "Ersetzen"

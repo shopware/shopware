@@ -120,9 +120,6 @@ class EntityReader implements EntityReaderInterface
 
     private function _read(ReadCriteria $criteria, string $definition, Context $context, string $entity, EntityCollection $collection, FieldCollection $fields, bool $raw = false): EntityCollection
     {
-        /** @var EntityDefinition|string $definition */
-        $ids = array_filter($criteria->getIds());
-
         if (empty($criteria->getAllFilters()->getQueries()) && empty($criteria->getIds())) {
             return $collection;
         }
@@ -164,8 +161,8 @@ class EntityReader implements EntityReaderInterface
             $struct->removeExtension(self::MANY_TO_MANY_EXTENSION_STORAGE);
         }
 
-        if (empty($criteria->getSortings()) && !empty($ids)) {
-            $collection->sortByIdArray($ids);
+        if (empty($criteria->getSortings()) && !empty($criteria->getIds())) {
+            $collection->sortByIdArray($criteria->getIds());
         }
 
         return $collection;
@@ -310,12 +307,10 @@ class EntityReader implements EntityReaderInterface
 
         $this->joinBasic($criteria, $definition, $context, $table, $query, $fields, $raw);
 
-        $ids = array_filter($criteria->getIds());
-
-        if (!empty($ids)) {
+        if (!empty($criteria->getIds())) {
             $bytes = array_map(function (string $id) {
                 return Uuid::fromStringToBytes($id);
-            }, $ids);
+            }, $criteria->getIds());
 
             $query->andWhere(EntityDefinitionQueryHelper::escape($table) . '.`id` IN (:ids)');
             $query->setParameter('ids', array_values($bytes), Connection::PARAM_STR_ARRAY);
@@ -335,10 +330,11 @@ class EntityReader implements EntityReaderInterface
 
         /** @var string|EntityDefinition $definition */
         $field = $definition::getFields()->getByStorageName($association->getStorageName());
-
         $ids = $collection->map(function (Entity $entity) use ($field) {
             return $entity->get($field->getPropertyName());
         });
+
+        $ids = array_filter($ids);
 
         $referenceClass = $association->getReferenceClass();
 

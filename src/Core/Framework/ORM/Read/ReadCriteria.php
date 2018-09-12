@@ -14,6 +14,10 @@ class ReadCriteria extends Criteria
 
     public function __construct(array $ids)
     {
+        if (\count($ids) > \count(array_filter($ids))) {
+            throw new \RuntimeException('Inconsistent argument for ReadCriteria. Please filter all invalid values first.');
+        }
+
         $this->ids = $ids;
     }
 

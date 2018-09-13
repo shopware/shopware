@@ -89,11 +89,11 @@ Component.register('sw-media-modal-replace', {
                 );
             });
 
-            this.emitReplaceStarted(replaceFromFile);
+            this.emitReplaceStarted(replaceFromFile, this.itemToReplace.name);
         },
 
-        emitReplaceStarted(itemUpload) {
-            this.$emit('sw-media-modal-replace-confirmed', itemUpload);
+        emitReplaceStarted(itemUpload, fileName) {
+            this.$emit('sw-media-modal-replace-confirmed', itemUpload, fileName);
         },
 
         removeSelectedFile() {

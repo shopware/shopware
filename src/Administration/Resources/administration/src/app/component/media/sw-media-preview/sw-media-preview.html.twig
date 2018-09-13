@@ -1,50 +1,58 @@
 {% block sw_media_preview %}
-    <div class="sw-media-preview">
+    <div class="sw-media-preview" :class="mediaPreviewClasses">
         {% block sw_media_preview_file_type_check %}
             <template v-if="checkForFileTypeImage">
                 {% block sw_media_preview_file_type_image %}
-                    <img :src="imageURLFromItem" :alt="item.name" class="sw-media-preview-item">
+                    <img :src="imageURLFromItem" :alt="item.name" class="sw-media-preview__item">
                 {% endblock %}
             </template>
 
             <template v-else-if="checkForInMemoryFile">
                 {% block sw_media_preview_file_type_in_memory_image %}
-                    <img :src="item.dataUrl" :alt="item.name" class="sw-media-preview-item">
+                    <img :src="item.dataUrl" :alt="item.name" class="sw-media-preview__item">
                 {% endblock %}
             </template>
 
             <template v-else-if="checkForFileTypeVideo">
                 {% block sw_media_preview_file_type_video %}
-                    <video :controls="playable"
+                    <video :controls="showControls"
                            :autoplay="autoplay"
-                           class="sw-media-preview-item">
+                           controlsList="nodownload"
+                           class="sw-media-preview__item">
                         <source :src="item.url" :type="item.mimeType">
                         {{ $tc('global.sw-media-preview.fallbackVideoTagSupport') }}
                     </video>
+                    <button class="sw-media-preview__play-button" v-if="!showControls" @click="onPlayClick">
+                        <sw-icon class="sw-media-preview__play-icon" name="default-action-play" multicolor></sw-icon>
+                    </button>
                 {% endblock %}
             </template>
 
             <template v-else-if="checkForFileTypeAudio">
                 {% block sw_media_preview_file_type_audio %}
                     <sw-icon name="file-thumbnail-mp3"
-                             class="sw-media-preview-item"
+                             class="sw-media-preview__item"
                              size="80%"
                              multicolor>
                     </sw-icon>
-                    <audio :controls="playable"
+                    <audio :controls="showControls"
                            :autoplay="autoplay"
-                           class="sw-media-preview-item sw-media-preview-item__audio">
+                           controlsList="nodownload"
+                           class="sw-media-preview__item sw-media-preview__item--audio">
                         <source :src="item.url" :type="item.mimeType">
                         {{ $tc('global.sw-media-preview.fallbackAudioTagSupport') }}
                     </audio>
+                    <button class="sw-media-preview__play-button" v-if="!showControls" @click="onPlayClick">
+                        <sw-icon class="sw-media-preview__play-icon" name="default-action-play" multicolor></sw-icon>
+                    </button>
                 {% endblock %}
             </template>
 
             <template v-else>
                 {% block sw_media_preview_file_type_else %}
-                    <sw-icon class="sw-media-preview-item"
+                    <sw-icon class="sw-media-preview__item"
                              :name="placeholderIcon"
-                             size="80%"
+                             size="90%"
                              multicolor>
                     </sw-icon>
                 {% endblock %}

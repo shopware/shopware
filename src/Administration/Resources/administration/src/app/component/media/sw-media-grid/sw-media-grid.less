@@ -1,23 +1,21 @@
 @import "~less/variables";
 
-@media-grid-cell-color-highlight: @color-cadet-blue;
+@media-grid-cell-color-highlight:       @color-cadet-blue;
+@media-grid-border-radius-content-cell: @border-radius-default;
 
 .sw-media-grid {
-    width: 100%;
-    justify-self: stretch;
-    overflow-x: hidden;
     overflow-y: auto;
+    overflow-x: hidden;
     user-select: none;
 
     .sw-media-grid__content {
         display: grid;
-        justify-items: stretch;
+        grid-column-gap: 15px;
         grid-row-gap: 10px;
-        grid-auto-flow: row;
     }
 
     .sw-media-grid__content-cell:hover {
         background-color: @media-grid-cell-color-highlight;
-        border-radius: 5px;
+        border-radius: @media-grid-border-radius-content-cell;
     }
 }

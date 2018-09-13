@@ -21,7 +21,9 @@
                         {% endblock %}
                     </div>
                 {% endblock %}
-                <slot>{% block sw_sidebar_item_slot_default %}{% endblock %}</slot>
+                <div class="sw-sidebar-item__scroll-container">
+                    <slot>{% block sw_sidebar_item_slot_default %}{% endblock %}</slot>
+                </div>
             </div>
         {% endblock %}
     </div>

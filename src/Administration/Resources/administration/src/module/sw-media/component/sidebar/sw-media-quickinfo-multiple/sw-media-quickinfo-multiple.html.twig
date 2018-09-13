@@ -1,0 +1,55 @@
+{% block sw_media_quickinfo_multiple %}
+    <div class="sw-media-quickinfo-multiple">
+        {% block sw_media_quickinfo_multiple_quickactions %}
+            <sw-media-collapse
+                class="sw-media-quickinfo-multiple__collapse"
+                :title="$tc('sw-media.sidebar.quickinfo.actions')"
+                :expandOnLoading="true">
+
+                <template slot="content">
+                    {% block sw_media_quickinfo_multiple_quickactions_content %}
+                        <ul class="sw-media-quickinfo-multiple__collapse-content sw-media-quickinfo-multiple__two-columns">
+                            {% block sw_media_quickinfo_multiple_quickactions_delete %}
+                                <li class="sw-media-quickinfo-multiple__quickaction is--danger"
+                                     @click="emitQuickAction($event, 'remove-batch')">
+                                    {% block sw_media_quickinfo_multiple_quickactions_delete_icon %}
+                                        <sw-icon small
+                                                 name="default-action-trash"
+                                                 class="sw-media-quickinfo-multiple__quickactions-icon is--danger">
+                                        </sw-icon>
+                                    {% endblock %}
+
+                                    {% block sw_media_quickinfo_multiple_quickactions_delete_label %}
+                                        {{ $tc('sw-media.sidebar.quickinfo.delete') }}
+                                    {% endblock %}
+                                </li>
+                            {% endblock %}
+                        </ul>
+                    {% endblock %}
+                </template>
+
+            </sw-media-collapse>
+        {% endblock %}
+
+        {% block sw_media_quickinfo_multiple_file_names %}
+            <sw-media-collapse
+                    class="sw-media-quickinfo-multiple__collapse sw-media-quickinfo-multiple__collapse-streched"
+                    :expandOnLoading="true"
+                    :title="getFileSizeLabel">
+
+                <template slot="content">
+                    {% block sw_media_quickinfo_multiple_file_names_content %}
+                        <sw-media-grid
+                            previewType="media-grid-preview-as-list"
+                            :selectable="false"
+                            :editable="false"
+                            :items="items"
+                            :showContextMenuButton="false">
+                        </sw-media-grid>
+                    {% endblock %}
+                </template>
+            </sw-media-collapse>
+        {% endblock %}
+    </div>
+{% endblock %}
+

@@ -1,0 +1,26 @@
+@import "~less/variables";
+
+@sw-media-grid-catalog-item-border:        1px solid @color-steam-cloud;
+@sw-media-grid-catalog-item-border-radius: @border-radius-default;
+
+
+.sw-media-grid-item {
+    .sw-media-grid-item__svg-container {
+        border: @sw-media-grid-catalog-item-border;
+        border-radius: @sw-media-grid-catalog-item-border-radius;
+        position: relative;
+
+        &:after {
+            content: "";
+            display: block;
+            padding-bottom: 75%;
+        }
+    }
+
+    .sw-media-grid-item__catalog-item {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+}

@@ -19,6 +19,12 @@ Component.register('sw-media-grid-item', {
         containerOptions: {
             required: true,
             type: Object
+        },
+
+        showContextMenuButton: {
+            required: false,
+            type: Boolean,
+            default: true
         }
     },
 
@@ -59,11 +65,12 @@ Component.register('sw-media-grid-item', {
 
     methods: {
         emitClickedEvent(originalDomEvent) {
-            const el = this.$refs.swContextButton.$el;
             const target = originalDomEvent.target;
-
-            if ((el === target) || el.contains(target)) {
-                return;
+            if (this.showContextMenuButton) {
+                const el = this.$refs.swContextButton.$el;
+                if ((el === target) || el.contains(target)) {
+                    return;
+                }
             }
 
             if (!this.selected) {

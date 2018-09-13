@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Test\Media\File;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\Exception\MimeTypeMismatchException;
 use Shopware\Core\Content\Media\Exception\UploadException;
 use Shopware\Core\Content\Media\File\FileFetcher;
 use Shopware\Core\Content\Media\File\MediaFile;
@@ -45,25 +44,6 @@ class FileFetcherTest extends TestCase
         } finally {
             unlink($tempFile);
         }
-    }
-
-    public function testFetchRequestDataWithWrongMimeType()
-    {
-        $this->expectException(MimeTypeMismatchException::class);
-        $this->expectExceptionMessage('Content-type \'image/jpeg\' sent in Header does not match Mime-Type \'image/png\' of binary');
-
-        $tempFile = tempnam(sys_get_temp_dir(), '');
-        $request = $this->createMock(Request::class);
-        $request->expects(static::once())
-            ->method('getContent')
-            ->willReturn(fopen(self::TEST_IMAGE, 'r'));
-
-        $fileSize = filesize(self::TEST_IMAGE);
-
-        $this->fileFetcher->fetchRequestData(
-            $request,
-            new MediaFile($tempFile, 'image/jpeg', 'jpeg', $fileSize)
-        );
     }
 
     public function testFetchRequestDataWithWrongFileSize()

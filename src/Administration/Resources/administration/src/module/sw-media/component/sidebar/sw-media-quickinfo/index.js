@@ -4,6 +4,7 @@ import domUtils from 'src/core/service/utils/dom.utils';
 import '../../sw-media-collapse';
 import template from './sw-media-quickinfo.html.twig';
 import './sw-media-quickinfo.less';
+import '../sw-media-quickinfo-metadata-item';
 
 Component.register('sw-media-quickinfo', {
     template,
@@ -15,30 +16,30 @@ Component.register('sw-media-quickinfo', {
             validator(value) {
                 return value.type === 'media';
             }
-        }
-    },
+        },
 
-    watch: {
-        item(value) {
-            if (value === undefined || value === null) {
-                this.$parent.toggleContentPanel(false);
-            }
+        autoplay: {
+            required: false,
+            type: Boolean,
+            default: false
         }
     },
 
     computed: {
-        getMetadata() {
-            if (!this.itemIsAvailable) {
-                return {};
+        url() {
+            if (this.item === null) {
+                return '';
             }
 
-            return {
-                fileName: this.item.name,
-                mimeType: this.item.mimeType,
-                fileSize: this.item.fileSize,
-                createdAt: format.date(this.item.createdAt),
-                url: this.item.url
-            };
+            return this.item.url;
+        },
+
+        fileSize() {
+            return format.fileSize(this.item.fileSize);
+        },
+
+        createdAt() {
+            return format.date(this.item.createdAt);
         }
     },
 
@@ -51,7 +52,7 @@ Component.register('sw-media-quickinfo', {
         },
 
         copyLinkToClipboard() {
-            if (this.itemIsAvailable) {
+            if (this.item) {
                 domUtils.copyToClipboard(this.item.url);
             }
         }

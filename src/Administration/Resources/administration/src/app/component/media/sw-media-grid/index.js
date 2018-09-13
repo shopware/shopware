@@ -21,11 +21,6 @@ Component.register('sw-media-grid', {
             }
         },
 
-        previewComponent: {
-            require: true,
-            type: String
-        },
-
         items: {
             required: true,
             type: Array
@@ -56,6 +51,12 @@ Component.register('sw-media-grid', {
             validator(value) {
                 return value > 0;
             }
+        },
+
+        showContextMenuButton: {
+            required: false,
+            type: Boolean,
+            default: true
         }
     },
 
@@ -128,15 +129,30 @@ Component.register('sw-media-grid', {
         },
 
         clearSelectionOnClickOutside(event) {
-            const target = event.target;
-
-            const clickedChildren = this.$children.filter((child) => {
-                return child.$el === target || child.$el.contains(target);
-            });
-
-            if (clickedChildren.length === 0 && !target.classList.contains('sw-context-menu-item')) {
+            if (!this.isDragEvent(event) &&
+              !this.isEmittedFromChildren(event.target) &&
+              !this.isEmittedFromContextMenu(event.composedPath()) &&
+              !this.isEmittedFromSidebar(event.composedPath())) {
                 this.emitSelectionCleared(event);
             }
+        },
+
+        isEmittedFromSidebar(path) {
+            return path.some((parent) => {
+                return parent.classList && parent.classList.contains('sw-sidebar');
+            });
+        },
+
+        isEmittedFromChildren(target) {
+            return this.$children.some((child) => {
+                return child.$el === target || child.$el.contains(target);
+            });
+        },
+
+        isEmittedFromContextMenu(path) {
+            return path.some((parent) => {
+                return parent.classList && parent.classList.contains('sw-context-menu');
+            });
         },
 
         getSelection() {
@@ -145,6 +161,7 @@ Component.register('sw-media-grid', {
 
         clearSelection() {
             this.selection = [];
+            this.listSelectionStartItem = null;
         },
 
         emitSelectionCleared(originalDomEvent) {
@@ -161,7 +178,15 @@ Component.register('sw-media-grid', {
             return this.findIndexInSelection(item) > -1;
         },
 
-        handleClick({ originalDomEvent, item }) {
+        mediaItemClicked({ originalDomEvent, item }) {
+            this.handleClick({ originalDomEvent, item, autoplay: false });
+        },
+
+        mediaItemPlayed({ originalDomEvent, item }) {
+            this.handleClick({ originalDomEvent, item, autoplay: true });
+        },
+
+        handleClick({ originalDomEvent, item, autoplay }) {
             if (this.selection.length > 0 || originalDomEvent.ctrlKey || originalDomEvent.shiftKey) {
                 this.handleSelection({ originalDomEvent, item });
                 return;
@@ -169,7 +194,8 @@ Component.register('sw-media-grid', {
 
             this.$emit('sw-media-grid-media-item-show-details', {
                 originalDomEvent,
-                item
+                item,
+                autoplay
             });
         },
 
@@ -202,6 +228,7 @@ Component.register('sw-media-grid', {
 
         listSelect({ originalDomEvent, item }) {
             if (this.listSelectionStartItem === item) {
+                this.listSelectionStartItem = null;
                 return;
             }
 
@@ -245,6 +272,7 @@ Component.register('sw-media-grid', {
         },
 
         removeFromSelection({ originalDomEvent, item }) {
+            this.listSelectionStartItem = null;
             this.selection = this.selection.filter((element) => {
                 return !(element[this.idField] === item[this.idField]);
             });

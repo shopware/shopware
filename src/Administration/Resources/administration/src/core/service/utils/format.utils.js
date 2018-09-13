@@ -6,7 +6,8 @@ import crypto from 'crypto';
 export default {
     currency,
     date,
-    md5
+    md5,
+    fileSize
 };
 
 /**
@@ -48,4 +49,30 @@ export function date(val, locale = 'de-DE') {
  */
 export function md5(value) {
     return crypto.createHash('md5').update(value).digest('hex');
+}
+
+/**
+ * Formats a number of bytes to a string with a unit
+ *
+ * @param {int} bytes
+ * @returns {string}
+ */
+export function fileSize(bytes, locale = 'de-DE') {
+    const denominator = 1024;
+    const units = ['B', 'KB', 'MB', 'GB'];
+
+    let result = Number.parseInt(bytes, 10);
+    let i = 0;
+
+    for (; i < units.length; i += 1) {
+        const currentResult = result / denominator;
+
+        if (currentResult < 0.9) {
+            break;
+        }
+
+        result = currentResult;
+    }
+
+    return result.toFixed(2).toLocaleString(locale) + units[i];
 }

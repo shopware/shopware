@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Media\Api;
 
-use Shopware\Core\Content\Media\Exception\MimeTypeMismatchException;
 use Shopware\Core\Content\Media\Exception\MissingFileExtensionException;
 use Shopware\Core\Content\Media\Exception\UploadException;
 use Shopware\Core\Content\Media\File\FileFetcher;
@@ -59,7 +58,6 @@ class MediaUploadController extends Controller
 
     /**
      * @throws MissingFileExtensionException
-     * @throws MimeTypeMismatchException
      * @throws UploadException
      */
     private function fetchFile(Request $request, string $tempFile): MediaFile

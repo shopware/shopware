@@ -11,15 +11,27 @@
         {% endblock %}
 
         {% block sw_media_catalog_smart_bar %}
+            {% block sw_media_catalog_smart_bar_header %}
+                <template slot="smart-bar-header">
+                    {% block sw_media_catalog_smart_bar_header %}
+                        <h2>
+                            {% block sw_media_catalog_smart_bar_heading %}
+                                {{ $tc('sw-media.smart-bar.smartBarHeader') }}
+                            {% endblock %}
+                        </h2>
+                    {% endblock %}
+                </template>
+            {% endblock %}
+
             <template slot="smart-bar-actions">
 
                 {% block sw_media_catalog_change %}
-                    <sw-context-button class="sw-media-catalog__change">
+                    <sw-context-button class="sw-media-catalog__change" :menuWidth="350" menuAlign="left">
                         {% block sw_media_catalog_change_button %}
                             <template slot="button">
-                                <button class="sw-media-catalog__change-button">
+                                <button class="sw-media-catalog__change-button" @click="onContextMenuClick">
                                     {% block sw_media_change_button_label %}
-                                        <sw-icon name="folder-breadcums-dropdown" multicolor size="50"></sw-icon>
+                                        <sw-icon name="folder-breadcums-dropdown" multicolor size="32"></sw-icon>
 
                                         <span class="sw-media-catalog__button">
                                              <sw-icon name="small-arrow-medium-right"></sw-icon>
@@ -31,9 +43,9 @@
                         {% endblock %}
 
                         {% block sw_media_griditem_context_item_detail %}
-                            <div v-for="catalog in catalogs">
-                                <sw-context-menu-item @click="changeCatalog(catalog)">
-                                    <sw-icon name="folder-breadcums" multicolor decorative size="50"></sw-icon>
+                            <div v-for="catalog in changeableCatalogs">
+                                <sw-context-menu-item class="sw-media-catalog__context-menu" @click="changeCatalog(catalog)">
+                                    <sw-icon name="folder-breadcums" multicolor decorative size="32"></sw-icon>
                                     {{ catalog.name }}
                                 </sw-context-menu-item>
                             </div>
@@ -50,7 +62,7 @@
 
         <template slot="content">
             {% block sw_media_catalog_page_content %}
-                <div class="sw-media-catalog__page-content">
+                <div v-if="total" class="sw-media-catalog__page-content">
                     {% block sw_media_catalog_content_container %}
                         <div class="sw-media-catalog__content-container">
                             {% block sw_media_catalog_content %}
@@ -133,23 +145,24 @@
                                         <sw-media-grid
                                             class="sw-media-catalog__media-grid"
                                             :previewType="previewType"
-                                            previewComponent="sw-media-grid-media-item"
                                             :selectable="true"
-                                            :editable="true"
+                                            :editable="false"
                                             :items="mediaItems"
                                             ref="mediaGrid"
                                             v-on="mediaMediaGridListener"
-                                            :gridColumnWidth="catalogIconSize" >
+                                            :gridColumnWidth="catalogIconSize">
                                         </sw-media-grid>
                                     {% endblock %}
 
                                     {% block sw_media_catalog_pagination %}
-                                        <sw-pagination
-                                            :page="page"
-                                            :limit="limit"
-                                            :total="total"
-                                            @page-change="onPageChange">
-                                        </sw-pagination>
+                                        <div class="sw-media-catalog__sw-pagination">
+                                            <sw-pagination
+                                                :page="page"
+                                                :limit="limit"
+                                                :total="total"
+                                                @page-change="onPageChange">
+                                            </sw-pagination>
+                                        </div>
                                     {% endblock %}
                                 </div>
                             {% endblock %}
@@ -159,13 +172,21 @@
                     {% block sw_media_catalog_sidebar %}
                         <div class="sw-media-catalog__sidebar">
                             <sw-media-sidebar
-                                :item="lastSelectedItem"
+                                :items="selectedItems"
                                 v-on="mediaSidebarListener"
-                                ref="mediaSidebar"
-                            ></sw-media-sidebar>
+                                ref="mediaSidebar">
+                            </sw-media-sidebar>
                         </div>
                     {% endblock %}
                 </div>
+            {% endblock %}
+
+            {% block sw_media_catalog_list_grid_loader %}
+                <sw-loader v-if="isLoading"></sw-loader>
+            {% endblock %}
+
+            {% block sw_media_catalog_empty_state %}
+                <sw-empty-state v-else-if="!isLoading && !total" :title="$tc('sw-media.catalog.messageEmpty')"></sw-empty-state>
             {% endblock %}
 
             {% block sw_media_catalog_modal_delete %}

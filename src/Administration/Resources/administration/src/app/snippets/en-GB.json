@@ -119,7 +119,7 @@
       "mainMenuItemList": "Overview",
       "mainMenuItemAdd": "Add new customer",
       "descriptionTextModule": "The module for managing customers.",
-      "placeholderSearchBar": "Search in all customers"
+      "placeholderSearchBar": "Search all customers"
     },
     "list": {
       "textCustomers": "Customers",
@@ -313,7 +313,7 @@
       "mainMenuItemList": "Overview",
       "mainMenuItemAdd": "Add new product",
       "descriptionTextModule": "The module for managing products.",
-      "placeholderSearchBar": "Search in all products"
+      "placeholderSearchBar": "Search all products"
     },
     "basicForm": {
       "labelTitle": "Title",
@@ -439,7 +439,7 @@
     "general": {
       "mainMenuItemList": "Manufacturer",
       "mainMenuItemGeneral": "Manufacturer",
-      "placeholderSearchBar": "Search in all manufacturers"
+      "placeholderSearchBar": "Search all manufacturers"
     },
     "list": {
       "textManufacturerOverview": "Manufacturer",
@@ -478,7 +478,7 @@
       "mainMenuItemGeneral": "Orders",
       "mainMenuItemList": "Overview",
       "descriptionTextModule": "The module for managing orders.",
-      "placeholderSearchBar": "Search in all orders"
+      "placeholderSearchBar": "Search all orders"
     },
     "list": {
       "columnCustomerName": "Customer name",
@@ -577,14 +577,25 @@
     "general": {
       "mainMenuItemGeneral": "Media",
       "descriptionTextModule": "Module to manage your media data",
-      "placeholderSearchBar": "Search in all media"
+      "placeholderSearchBar": "Search all media"
+    },
+    "smart-bar": {
+      "smartBarHeader": "Media",
+      "buttonUpload": "Upload",
+      "buttonFileUpload": "File upload",
+      "buttonUrlUpload": "Upload from URL"
+    },
+    "upload": {
+      "notificationSuccess": "File saved",
+      "notificationFailure": "There was an error uploading {mediaName}"
+    },
+    "replace": {
+      "notificationSuccess": "File replaced",
+      "notificationFailure": "There was an error replacing {mediaName}"
     },
     "catalogItem": {
       "showCatalogContent": "Show contents",
       "showCatalogDetails": "Show Catalogue details"
-    },
-    "smart-bar": {
-      "buttonUpload": "Upload files"
     },
     "index": {
       "catalogs": "Catalogues",
@@ -609,14 +620,23 @@
         "metadata": "Meta data"
       },
       "metadata": {
-        "fileName": "Name",
+        "name": "Name",
         "mimeType": "MIME-Type",
         "fileSize": "Size",
         "createdAt": "Uploaded at",
-        "url": "URL"
+        "url": "URL",
+        "width": "Width",
+        "height": "Height",
+        "frameRate": "Framerate",
+        "title": "Title",
+        "creator": "Created by",
+        "pages": "Pages",
+        "fileCount": "{count} files selected",
+        "totalSize": "a total of"
       }
     },
     "catalog": {
+      "messageEmpty": "No media in this catalogue yet",
       "labelSort": "Sort by:",
       "labelIconSize": "Preview size:",
       "labelCatalog": "Selected catalog:",
@@ -625,8 +645,8 @@
       "labelSortByNameDsc": "Name descending",
       "labelSortBySizeAsc": "Size ascending",
       "labelSortBySizeDsc": "Size descending",
-      "labelSortByCreatedAsc": "Created ascending",
-      "labelSortByCreatedDsc": "Created descending",
+      "labelSortByCreatedAsc": "Creation date ascending",
+      "labelSortByCreatedDsc": "Creation date descending",
       "labelSortByDataTypeAsc": "Data-Type ascending",
       "labelSortByDataTypeDsc": "Data-Type descending"
     },
@@ -653,7 +673,7 @@
   "sw-settings-currency": {
     "general": {
       "mainMenuItemGeneral": "Currencies",
-      "placeholderSearchBar": "Search in all currencies"
+      "placeholderSearchBar": "Search all currencies"
     },
     "list": {
       "textHeadline": "Currencies",
@@ -691,7 +711,7 @@
     "general": {
       "mainMenuItemGeneral": "Tax",
       "taxRateSymbol": "&#037;",
-      "placeholderSearchBar": "Search in all taxes"
+      "placeholderSearchBar": "Search all taxes"
     },
     "list": {
       "textHeadline": "Tax",
@@ -722,7 +742,7 @@
   "sw-settings-language": {
     "general": {
       "mainMenuItemGeneral": "Languages",
-      "placeholderSearchBar": "Search in all languages"
+      "placeholderSearchBar": "Search all languages"
     },
     "list": {
       "textHeadline": "Sprachen",
@@ -754,7 +774,7 @@
   "sw-settings-payment": {
     "general": {
       "mainMenuItemGeneral": "Payment methods",
-      "placeholderSearchBar": "Search in all payment methods"
+      "placeholderSearchBar": "Search all payment methods"
     },
     "list": {
       "textHeadline": "Payment methods",
@@ -792,7 +812,7 @@
   "sw-settings-shipping": {
     "general": {
       "mainMenuItemGeneral": "Shipping costs",
-      "placeholderSearchBar": "Search in all shipping costs"
+      "placeholderSearchBar": "Search all shipping costs"
     },
     "list": {
       "textHeadline": "Shipping costs",
@@ -824,7 +844,7 @@
   "sw-settings-country": {
     "general": {
       "mainMenuItemGeneral": "Countries",
-      "placeholderSearchBar": "Search in all countries"
+      "placeholderSearchBar": "Search all countries"
     },
     "list": {
       "textHeadline": "Countries",

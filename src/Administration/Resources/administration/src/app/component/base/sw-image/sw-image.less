@@ -1,11 +1,12 @@
 @import "~less/variables";
 
 @sw-image-tooltip-color-background: @color-biscay;
-@sw-image-tooltip-color-text: @color-white;
-@sw-image-color-hover: @color-black;
-@sw-image-border-radius: @border-radius-default;
-@sw-image-tooltip-border-radius: @border-radius-default;
-@sw-image-placeholder-color: lighten(@color-steam-cloud, 5%);
+@sw-image-color-white:              @color-white;
+@sw-image-color-hover:              @color-black;
+@sw-image-color-border:             @color-steam-cloud;
+@sw-image-border-radius:            @border-radius-default;
+@sw-image-tooltip-border-radius:    @border-radius-default;
+@sw-image-placeholder-color:        lighten(@color-steam-cloud, 5%);
 
 .sw-image {
     position: relative;
@@ -24,25 +25,17 @@
         }
     }
 
-    &:hover {
-        background-color: @sw-image-color-hover;
-    }
-
     .sw-image__image {
         border-radius: @sw-image-border-radius;
         width: 100%;
         height: 100%;
         object-fit: cover;
-
-        &:hover {
-            opacity: 0.7;
-        }
     }
 
     .sw-image__tooltip {
         visibility: hidden;
         background-color: @sw-image-tooltip-color-background;
-        color: @sw-image-tooltip-color-text;
+        color: @sw-image-color-white;
         text-align: center;
         border-radius: @sw-image-tooltip-border-radius;
         position: absolute;
@@ -62,16 +55,38 @@
         }
     }
 
-    &:hover .sw-image__tooltip {
-        visibility: visible;
-        left: 0;
-        right: 0;
+    &:hover {
+        background-color: @sw-image-color-hover;
+        
+        .sw-image__image {
+            opacity: 0.7;
+        }
+
+        .sw-image__tooltip {
+            visibility: visible;
+            left: 0;
+            right: 0;
+        }
+
+        .sw-context-button__button {
+            visibility: visible;
+            border: none;
+        }
     }
 
     .sw-image__context-button {
         position: absolute;
-        top: 2px;
-        right: 2px;
+        top: 9px;
+        right: 9px;
+    }
+
+    .sw-context-button__button {
+        visibility: hidden;
+
+        .sw-icon {
+            color: @sw-image-color-white;
+            height: 100%;
+        }
     }
 
     .sw-image__placeholder-icon {

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Media\File;
 
-use Shopware\Core\Content\Media\Exception\MimeTypeMismatchException;
 use Shopware\Core\Content\Media\Exception\UploadException;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -18,11 +17,6 @@ class FileFetcher
         } finally {
             fclose($inputStream);
             fclose($destStream);
-        }
-
-        $mimeType = mime_content_type($mediaFile->getFileName());
-        if ($mimeType != $mediaFile->getMimeType()) {
-            throw new MimeTypeMismatchException($mediaFile->getMimeType(), $mimeType);
         }
     }
 

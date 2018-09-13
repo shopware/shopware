@@ -2,7 +2,6 @@ import { Module } from 'src/core/shopware';
 import './page/sw-media-index';
 import './page/sw-media-catalog';
 import './component/sidebar/sw-media-sidebar';
-import './component/sw-media-grid-catalog-item';
 
 Module.register('sw-media', {
     type: 'core',

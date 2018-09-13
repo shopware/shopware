@@ -13,6 +13,7 @@ Component.register('sw-media-catalog', {
 
     mixins: [
         Mixin.getByName('listing'),
+        Mixin.getByName('notification'),
         mediaMediaGridListener,
         mediaSidebarListener
     ],
@@ -23,7 +24,7 @@ Component.register('sw-media-catalog', {
             previewType: 'media-grid-preview-as-grid',
             catalogs: [],
             mediaItems: [],
-            lastSelectedItem: null,
+            selectedItems: null,
             selectionToDelete: null,
             sortType: ['createdAt', 'dsc'],
             catalogIconSize: 200,
@@ -42,6 +43,12 @@ Component.register('sw-media-catalog', {
 
         currentCatalog() {
             return this.catalogStore.getById(this.$route.params.id);
+        },
+
+        changeableCatalogs() {
+            return this.catalogs.filter((catalog) => {
+                return catalog.id !== this.getCatalogId();
+            });
         }
     },
 
@@ -61,6 +68,12 @@ Component.register('sw-media-catalog', {
 
         destroyedComponent() {
             this.$root.$off('search', this.onSearch);
+        },
+
+        onContextMenuClick(event) {
+            if (this.changeableCatalogs.length === 0) {
+                event.stopPropagation();
+            }
         },
 
         onNewMedia() {
@@ -100,42 +113,45 @@ Component.register('sw-media-catalog', {
                     page: 1
                 }
             });
-            this.$router.go();
+
+            this.updateRoute();
+            this.getList();
         },
 
         getCatalogId() {
             return this.$route.params.id;
         },
 
-        getLastSelectedItem() {
+        getSelectedItems() {
             const selection = this.$refs.mediaGrid.selection;
 
-            if (selection.length === 0) {
-                this.lastSelectedItem = null;
-
+            if (!Array.isArray(selection) || selection.length === 0) {
+                this.selectedItems = null;
                 return;
             }
-            this.lastSelectedItem = selection[selection.length - 1];
+
+            this.selectedItems = selection;
         },
 
         handleMediaGridSelectionRemoved() {
-            this.getLastSelectedItem();
+            this.getSelectedItems();
         },
 
         handleMediaGridItemSelected() {
-            this.getLastSelectedItem();
+            this.getSelectedItems();
         },
 
         handleMediaGridItemUnselected() {
-            this.getLastSelectedItem();
+            this.getSelectedItems();
         },
 
         handleMediaGridItemReplace({ item }) {
             this.mediaItemToReplace = item;
         },
 
-        handleMediaGridItemShowDetails({ item }) {
-            this.lastSelectedItem = item;
+        handleMediaGridItemShowDetails({ item, autoplay }) {
+            this.selectedItems = [item];
+            this.$refs.mediaSidebar.autoplay = autoplay;
             this.$refs.mediaSidebar.showQuickInfo();
         },
 
@@ -144,7 +160,7 @@ Component.register('sw-media-catalog', {
         },
 
         handleSidebarRemoveBatchRequest() {
-            this.selectionToDelete = this.$refs.mediaGrid.selection;
+            this.selectionToDelete = this.selectedItems;
         },
 
         handleMediaGridItemDelete({ item }) {
@@ -168,6 +184,7 @@ Component.register('sw-media-catalog', {
                 this.selectionToDelete = null;
                 this.getList();
             });
+            this.selectedItems = null;
         },
 
         handleSidebarReplaceItem({ item }) {
@@ -178,11 +195,18 @@ Component.register('sw-media-catalog', {
             this.mediaItemToReplace = null;
         },
 
-        handleItemReplaced(replacementPromise) {
+        handleItemReplaced(replacementPromise, fileName) {
             this.closeReplaceModal();
 
             replacementPromise.then(() => {
                 this.getList();
+                this.createNotificationSuccess({
+                    message: this.$tc('sw-media.replace.notificationSuccess')
+                });
+            }).catch(() => {
+                this.createNotificationError({
+                    message: this.$tc('sw-media.replace.notificationFailure', 0, { mediaName: fileName })
+                });
             });
         }
     }

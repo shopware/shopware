@@ -3,28 +3,34 @@
 .sw-media-index {
     .sw-media-index__page {
         display: grid;
-        position: absolute;
+        grid-template-columns: 1fr auto;
+        height: 100%;
+    }
+
+    .sw-media-index__content-container{
+        position: relative;
         height: 100%;
         width: 100%;
-        grid-template-columns: auto 64px;
     }
 
     .sw-media-index__content {
         padding-left: 20px;
-        padding-top: 30px;
-        justify-self: stretch;
-        overflow-x: hidden;
+        padding-top: 50px;
         overflow-y: auto;
+        position: absolute;
+        height: 100%;
+        width: 100%;
     }
 
     .sw-media-index__divider {
         border: 0;
         height: 1px;
+        margin: 18px 10px 18px 10px;
         background: @color-steam-cloud;
-        margin: 10px 0;
     }
 
-    .sw-media-index__sidebar{
-        width: 64px;
+    .sw-media-index__headline {
+        margin-left: 10px;
+        margin-bottom: 15px;
     }
 }

@@ -41,7 +41,7 @@
       "labelClose": "Schließen"
     },
     "sw-media-grid-media-item": {
-      "contextMenuDetailLabel": "Details",
+      "contextMenuDetailLabel": "Informationen",
       "contextMenuDeleteLabel": "Löschen",
       "contextMenuCopyLinkLabel": "Link kopieren",
       "contextMenuReplaceLabel": "Ersetzen"
@@ -580,7 +580,18 @@
       "placeholderSearchBar": "Durchsuchen aller Medien"
     },
     "smart-bar": {
-      "buttonUpload": "Dateien hochladen"
+      "smartBarHeader": "Medien",
+      "buttonUpload": "Hochladen",
+      "buttonFileUpload": "Dateien hochladen",
+      "buttonUrlUpload": "Über URL hochladen"
+    },
+    "upload": {
+      "notificationSuccess": "Datei erfolgreich gespeichert",
+      "notificationFailure": "Fehler beim hochladen von {mediaName}"
+    },
+    "replace": {
+      "notificationSuccess": "Datei erfolgreich ersetzt",
+      "notificationFailure": "Fehler beim ersetzen von {mediaName}"
     },
     "catalogItem": {
       "showCatalogContent": "Inhalt anzeigen",
@@ -609,14 +620,23 @@
         "metadata": "Metadaten"
       },
       "metadata": {
-        "fileName": "Name",
+        "name": "Name",
         "mimeType": "MIME-Type",
         "fileSize": "Größe",
         "createdAt": "Hochgeladen am",
-        "url": "URL"
+        "url": "URL",
+        "width": "Breite",
+        "height": "Höhe",
+        "frameRate": "Bildrate",
+        "title": "Titel",
+        "creator": "Erstellt durch",
+        "pages": "Seiten",
+        "fileCount": "{count} ausgewählte Dateien",
+        "totalSize": "insgesamt"
       }
     },
     "catalog": {
+      "messageEmpty": "Noch keine Medien in diesem Katalog",
       "labelSort": "Sortiere nach:",
       "labelIconSize": "Vorschau-Größe:",
       "labelCatalog": "Ausgewählter Katalog:",

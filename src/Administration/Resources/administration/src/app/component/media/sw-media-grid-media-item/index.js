@@ -1,5 +1,6 @@
 import { Component } from 'src/core/shopware';
 import template from './sw-media-grid-media-item.html.twig';
+import './sw-media-grid-media-item.less';
 import domUtils from '../../../../core/service/utils/dom.utils';
 
 Component.extend('sw-media-grid-media-item', 'sw-media-grid-item', {
@@ -27,6 +28,12 @@ Component.extend('sw-media-grid-media-item', 'sw-media-grid-item', {
                 click: this.doMainAction,
                 dblclick: this.startInlineEdit
             };
+        },
+
+        mediaPreviewClasses() {
+            return {
+                'is--highlighted': this.selected && this.containerOptions.selectionInProgress
+            };
         }
     },
 
@@ -44,6 +51,18 @@ Component.extend('sw-media-grid-media-item', 'sw-media-grid-item', {
             }
 
             this.emitClickedEvent(originalDomEvent);
+        },
+
+        emitPlayEvent(originalDomEvent) {
+            if (!this.selected) {
+                this.$emit('sw-media-grid-item-play', {
+                    originalDomEvent,
+                    item: this.item
+                });
+                return;
+            }
+
+            this.removeFromSelection(originalDomEvent);
         },
 
         startInlineEdit() {

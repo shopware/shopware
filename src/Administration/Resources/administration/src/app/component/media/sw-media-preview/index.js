@@ -12,7 +12,7 @@ Component.register('sw-media-preview', {
 
         },
 
-        playable: {
+        showControls: {
             type: Boolean,
             required: false,
             default: false
@@ -26,6 +26,13 @@ Component.register('sw-media-preview', {
     },
 
     computed: {
+        mediaPreviewClasses() {
+            return {
+                'shows--transparency': (this.checkForFileTypeImage || this.checkForInMemoryFile),
+                'is--icon': this.checkForFileTypeSvg
+            };
+        },
+
         checkForFileTypeImage() {
             const filePath = this.item.mimeType;
             const regEx = /^image\/+/;
@@ -45,6 +52,12 @@ Component.register('sw-media-preview', {
             const regEx = /^audio\/+/;
 
             return (regEx.test(filePath) && this.isAudioPlayable());
+        },
+
+        checkForFileTypeSvg() {
+            const filePath = this.item.mimeType;
+
+            return filePath.includes('svg');
         },
 
         checkForInMemoryFile() {
@@ -85,6 +98,16 @@ Component.register('sw-media-preview', {
     },
 
     methods: {
+        onPlayClick(originalDomEvent) {
+            if (!(originalDomEvent.shiftKey || originalDomEvent.ctrlKey)) {
+                originalDomEvent.stopPropagation();
+                this.$emit('sw-media-preview-play', {
+                    originalDomEvent,
+                    item: this.item
+                });
+            }
+        },
+
         isVideoPlayable() {
             return [
                 'video/mp4',

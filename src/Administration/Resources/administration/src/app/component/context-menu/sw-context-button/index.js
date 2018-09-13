@@ -28,6 +28,18 @@ Component.register('sw-context-button', {
             type: Number,
             required: false,
             default: 15
+        },
+
+        menuAlign: {
+            type: String,
+            required: false,
+            default: 'right',
+            validator(value) {
+                if (!value.length) {
+                    return true;
+                }
+                return ['right', 'left'].includes(value);
+            }
         }
     },
 
@@ -50,25 +62,55 @@ Component.register('sw-context-button', {
                 width: `${this.menuWidth}px`,
                 'padding-top': `${this.paddingTop}px`
             };
+        },
+
+        contextButtonClass() {
+            return {
+                'is--active': this.showMenu
+            };
+        },
+
+        contextMenuClass() {
+            return {
+                'is--left-align': this.menuAlign === 'left'
+            };
         }
     },
 
+    mounted() {
+        this.mountedComponent();
+    },
+
     beforeDestroy() {
-        this.removeMenuFromBody();
+        this.beforeDestroyComponent();
     },
 
     methods: {
+        mountedComponent() {
+            if (this.showMenu) {
+                return;
+            }
+            this.removeMenuFromBody();
+        },
+
+        beforeDestroyComponent() {
+            this.removeMenuFromBody();
+        },
+
         openMenu() {
             const boundingBox = this.$el.getBoundingClientRect();
             const secureOffset = 5;
 
             this.positionTop = boundingBox.top - secureOffset;
-            this.positionLeft = (boundingBox.left + boundingBox.width + this.menuOffsetLeft) - this.menuWidth;
+            if (this.menuAlign === 'left') {
+                this.positionLeft = boundingBox.left - secureOffset;
+            } else {
+                this.positionLeft = (boundingBox.left + boundingBox.width + this.menuOffsetLeft) - this.menuWidth;
+            }
             this.paddingTop = boundingBox.height + secureOffset + this.menuOffsetTop;
 
-            this.showMenu = true;
-
             this.addMenuToBody();
+            this.showMenu = true;
         },
 
         closeMenu(event) {

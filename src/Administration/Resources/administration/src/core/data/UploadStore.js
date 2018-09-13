@@ -47,7 +47,9 @@ class UploadStore {
             return task.start().then(() => {
                 callback.apply(null, [this.getRunningTaskCount(tag)]);
             });
-        })).finally(() => {
+        })).then(() => {
+            this.tags.delete(tag);
+        }).catch(() => {
             this.tags.delete(tag);
         });
     }

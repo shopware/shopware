@@ -219,6 +219,7 @@ Component.register('sw-catalog-detail', {
                     title: titleSaveSuccess,
                     message: messageSaveSuccess
                 });
+                this.isLoading = false;
 
                 return response;
             }).catch((exception) => {
@@ -227,7 +228,6 @@ Component.register('sw-catalog-detail', {
                     message: messageSaveError
                 });
                 warn(this._name, exception.message, exception.response);
-            }).finally(() => {
                 this.isLoading = false;
             });
         }

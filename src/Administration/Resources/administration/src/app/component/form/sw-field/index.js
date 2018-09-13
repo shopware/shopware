@@ -93,7 +93,11 @@ Component.register('sw-field', {
             return this.suffix.length || !!this.$slots.suffix;
         },
 
-        name() {
+        displayName() {
+            if (this.$attrs.name && this.$attrs.name.length > 0) {
+                return this.$attrs.name;
+            }
+
             return `sw-field--${this.boundExpression.replace('.', '-')}`;
         },
 

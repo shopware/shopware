@@ -1,11 +1,10 @@
 {% block sw_field %}
     <div class="sw-field"
-         @click="onClick"
          :class="fieldClasses">
 
         <!-- Label -->
         {% block sw_field_label %}
-            <label v-if="label" :for="name">
+            <label v-if="label" :for="id">
                 <slot name="label">{{ label }}</slot>
             </label>
         {% endblock %}
@@ -153,6 +152,36 @@
                     </div>
                 {% endblock %}
 
+                <!-- Boolean Input -->
+                {% block sw_field_input_boolean %}
+                    <template v-else-if="type === 'boolean'">
+                        <div class="sw-field__switch sw-field__boolean">
+                            {% block sw_field_input_boolean_input %}
+                                <input type="checkbox"
+                                       :id="id"
+                                       :name="name"
+                                       :disabled="disabled ? 'disabled' : false"
+                                       :checked="currentValue ? 'checked' : false"
+                                       @input="onInput"
+                                       @change="onChange"
+                                       v-bind="$attrs"
+                                       v-on="additionalEventListeners">
+                            {% endblock %}
+
+                            {% block sw_field_input_boolean_state %}
+                                <div class="sw-field__switch-state">
+                                    <div class="sw-field__switch-state-knob"></div>
+                                </div>
+                            {% endblock %}
+                        </div>
+                        {% block sw_field_label_boolean %}
+                            <label v-if="label" :for="id">
+                                <slot name="label">{{ label }}</slot>
+                            </label>
+                        {% endblock %}
+                    </template>
+                {% endblock %}
+
                 <!-- Date -->
                 {% block sw_field_input_datetime %}
                     <input v-else-if="type === 'datetime' || type === 'datetime-local'"
@@ -242,7 +271,7 @@
         {% endblock %}
 
         {% block sw_field_help_text %}
-            <div class="sw-field__help" v-if="helpText" :for="name">
+            <div class="sw-field__help" v-if="helpText" :for="id">
                 <slot name="help-text">
                     {% block sw_field_slot_help_text %}
                         {{ helpText }}

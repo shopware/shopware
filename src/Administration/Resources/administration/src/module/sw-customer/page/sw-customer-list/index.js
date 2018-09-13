@@ -12,7 +12,8 @@ Component.register('sw-customer-list', {
     data() {
         return {
             customers: [],
-            isLoading: false
+            isLoading: false,
+            showDeleteModal: false
         };
     },
 
@@ -56,6 +57,22 @@ Component.register('sw-customer-list', {
 
                 return this.customers;
             });
+        },
+
+        onDelete(id) {
+            this.showDeleteModal = id;
+        },
+
+        onCloseDeleteModal() {
+            this.showDeleteModal = false;
+        },
+
+        onConfirmDelete(id) {
+            this.showDeleteModal = false;
+
+            return this.customerStore.getById(id).delete(true).then(() => {
+                this.getList();
+            }).catch(this.onCloseDeleteModal());
         }
     }
 });

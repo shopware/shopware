@@ -44,6 +44,7 @@
 
         .sw-field__help {
             margin: 0 0 0 10px;
+            order: 3;
         }
 
         label {
@@ -62,6 +63,7 @@
 
         .sw-field__help {
             margin: 0 0 0 10px;
+            order: 3;
         }
 
         label {
@@ -70,6 +72,38 @@
 
         .sw-field__input {
             order: 1;
+        }
+    }
+
+    &.sw-field--boolean {
+        > label {
+            visibility: hidden;
+        }
+
+        .sw-field__switch {
+            display: inline-block;
+            padding-top: 3px;
+            margin-right: 10px;
+        }
+
+        .sw-field__input {
+            display: block;
+            width: 100%;
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: 1px solid @sw-field-color-border;
+            background: @sw-field-color-background;
+            font-size: 14px;
+            line-height: 27px;
+            transition: border-color 0.3s ease-out;
+            color: @sw-field-color-text;
+            -webkit-appearance: none;
+            white-space: nowrap;
+
+            label {
+                display: inline-block;
+                margin: 0;
+            }
         }
     }
 

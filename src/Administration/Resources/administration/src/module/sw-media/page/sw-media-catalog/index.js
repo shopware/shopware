@@ -201,11 +201,11 @@ Component.register('sw-media-catalog', {
             replacementPromise.then(() => {
                 this.getList();
                 this.createNotificationSuccess({
-                    message: this.$tc('sw-media.replace.notificationSuccess'),
+                    message: this.$tc('sw-media.replace.notificationSuccess')
                 });
             }).catch(() => {
                 this.createNotificationError({
-                    message: this.$tc('sw-media.replace.notificationFailure', 0, { mediaName: fileName }),
+                    message: this.$tc('sw-media.replace.notificationFailure', 0, { mediaName: fileName })
                 });
             });
         }

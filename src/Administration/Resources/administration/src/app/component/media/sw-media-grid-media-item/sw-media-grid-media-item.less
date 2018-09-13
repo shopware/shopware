@@ -27,17 +27,16 @@
             -webkit-appearance: none;
             color: inherit;
             background-color: inherit;
-
             border-radius: @sw-media-grid-media-item-border-radius-input;
             border: 1px solid transparent;
             padding: 0 5px;
             line-height: 2;
-        }
 
-        input[type="text"]:focus {
-            border: 1px solid @sw-media-grid-media-color-input-border;
-            color: @sw-media-grid-media-color-input;
-            background-color: @color-white;
+            &:focus {
+                border: 1px solid @sw-media-grid-media-color-input-border;
+                color: @sw-media-grid-media-color-input;
+                background-color: @color-white;
+            }
         }
     }
 }

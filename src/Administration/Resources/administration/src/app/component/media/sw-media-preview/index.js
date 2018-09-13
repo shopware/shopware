@@ -99,10 +99,13 @@ Component.register('sw-media-preview', {
 
     methods: {
         onPlayClick(originalDomEvent) {
-            this.$emit('sw-media-preview-play', {
-                originalDomEvent,
-                item: this.item
-            });
+            if (!(originalDomEvent.shiftKey || originalDomEvent.ctrlKey)) {
+                originalDomEvent.stopPropagation();
+                this.$emit('sw-media-preview-play', {
+                    originalDomEvent,
+                    item: this.item
+                });
+            }
         },
 
         isVideoPlayable() {

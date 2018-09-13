@@ -161,6 +161,7 @@ Component.register('sw-media-grid', {
 
         clearSelection() {
             this.selection = [];
+            this.listSelectionStartItem = null;
         },
 
         emitSelectionCleared(originalDomEvent) {
@@ -227,6 +228,7 @@ Component.register('sw-media-grid', {
 
         listSelect({ originalDomEvent, item }) {
             if (this.listSelectionStartItem === item) {
+                this.listSelectionStartItem = null;
                 return;
             }
 
@@ -270,6 +272,7 @@ Component.register('sw-media-grid', {
         },
 
         removeFromSelection({ originalDomEvent, item }) {
+            this.listSelectionStartItem = null;
             this.selection = this.selection.filter((element) => {
                 return !(element[this.idField] === item[this.idField]);
             });

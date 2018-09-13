@@ -10,12 +10,12 @@
                     {% block sw_media_quickinfo_multiple_quickactions_content %}
                         <ul class="sw-media-quickinfo-multiple__collapse-content sw-media-quickinfo-multiple__two-columns">
                             {% block sw_media_quickinfo_multiple_quickactions_delete %}
-                                <li class="sw-media-quickinfo-multiple__quickaction"
+                                <li class="sw-media-quickinfo-multiple__quickaction is--danger"
                                      @click="emitQuickAction($event, 'remove-batch')">
                                     {% block sw_media_quickinfo_multiple_quickactions_delete_icon %}
                                         <sw-icon small
                                                  name="default-action-trash"
-                                                 class="sw-media-quickinfo-multiple__quickactions-icon">
+                                                 class="sw-media-quickinfo-multiple__quickactions-icon is--danger">
                                         </sw-icon>
                                     {% endblock %}
 

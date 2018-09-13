@@ -12,9 +12,7 @@ Component.register('sw-media-quickinfo-metadata-item', {
         },
         value: {
             required: false,
-            validator: (value) => {
-                return (typeof value === 'string') || (typeof value === 'number');
-            }
+            type: [String, Number]
         },
         suffix: {
             required: false,

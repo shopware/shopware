@@ -83,7 +83,7 @@ Component.register('sw-media-upload', {
                     });
                 }).then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-media.upload.notificationSuccess'),
+                        message: this.$tc('sw-media.upload.notificationSuccess')
                     });
                 }).catch(() => {
                     this.cleanUpFailure(mediaEntity);
@@ -102,7 +102,7 @@ Component.register('sw-media-upload', {
                 this.uploadStore.addUpload(uploadTag, () => {
                     return mediaService.uploadMediaFromUrl(mediaEntity.id, url.href, fileExtension).then(() => {
                         this.createNotificationSuccess({
-                            message: this.$tc('sw-media.upload.notificationSuccess'),
+                            message: this.$tc('sw-media.upload.notificationSuccess')
                         });
                     }).catch(() => {
                         return this.cleanUpFailure(mediaEntity);
@@ -118,7 +118,7 @@ Component.register('sw-media-upload', {
 
         cleanUpFailure(mediaEntity) {
             this.createNotificationError({
-                message: this.$tc('sw-media.upload.notificationFailure', 0, { mediaName: mediaEntity.name }),
+                message: this.$tc('sw-media.upload.notificationFailure', 0, { mediaName: mediaEntity.name })
             });
             // delete media entity on failed upload
             return this.mediaItemStore.getByIdAsync(mediaEntity.id).then((media) => {

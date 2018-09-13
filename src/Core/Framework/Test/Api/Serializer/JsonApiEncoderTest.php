@@ -78,6 +78,7 @@ class JsonApiEncoderTest extends TestCase
                     'tenantId' => null,
                     'userId' => null,
                     'url' => '',
+                    'hasFile' => false,
                 ],
                 'links' => [
                     'self' => '/api/media/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe',

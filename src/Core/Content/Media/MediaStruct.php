@@ -104,6 +104,11 @@ class MediaStruct extends Entity
      */
     protected $thumbnails;
 
+    /**
+     * @var bool
+     */
+    protected $hasFile;
+
     public function getUserId(): ?string
     {
         return $this->userId;
@@ -286,5 +291,21 @@ class MediaStruct extends Entity
     public function setUrl(string $url): void
     {
         $this->url = $url;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getHasFile(): bool
+    {
+        return $this->hasFile;
+    }
+
+    /**
+     * @param bool $hasFile
+     */
+    public function setHasFile(bool $hasFile): void
+    {
+        $this->hasFile = $hasFile;
     }
 }

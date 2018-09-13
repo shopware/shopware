@@ -70,36 +70,36 @@ class FileSaver
         $criteria->addFilter(new TermQuery('id', $mediaId));
 
         $searchResult = $this->repository->search($criteria, $context);
-        if (($media = $searchResult->getEntities()->get($mediaId)) === null) {
+        if (($currentMedia = $searchResult->getEntities()->get($mediaId)) === null) {
             throw new MediaNotFoundException($mediaId);
         }
 
-        $this->removeOldMediaData($media, $context);
+        $this->removeOldMediaData($currentMedia, $mediaFile, $context);
         $rawMetadata = $this->metadataLoader->loadFromFile($mediaFile);
 
         $this->saveFileToMediaDir($mediaFile, $mediaId);
         $media = $this->updateMediaEntity($mediaFile, $mediaId, $rawMetadata, $context);
 
-        if ($this->thumbnailService->shouldGenerateThumbnailsOnUpload()) {
-            try {
-                $this->thumbnailService->generateThumbnails($media, $context);
-            } catch (FileTypeNotSupportedException $e) {
-                //ignore wrong filetype
-            }
+        try {
+            $this->thumbnailService->updateThumbnailsAfterUpload($media, $context);
+        } catch (FileTypeNotSupportedException $e) {
+            //ignore wrong filetype
         }
     }
 
-    private function removeOldMediaData(MediaStruct $media, Context $context)
+    private function removeOldMediaData(MediaStruct $media, MediaFile $mediaFile, Context $context)
     {
-        if ($media->getMimeType() === null || $media->getFileExtension() === null) {
-            //media was not uploaded before
+        if (!$media->getHasFile()) {
+            return;
+        }
+
+        if ($mediaFile->getFileExtension() === $media->getFileExtension()) {
             return;
         }
 
         $oldMediaFilePath = $this->urlGenerator->getRelativeMediaUrl($media->getId(), $media->getFileExtension());
-        if ($this->filesystem->has($oldMediaFilePath)) {
-            $this->filesystem->delete($oldMediaFilePath);
-        }
+        $this->filesystem->delete($oldMediaFilePath);
+
         $this->thumbnailService->deleteThumbnails($media, $context);
     }
 
@@ -126,7 +126,7 @@ class FileSaver
             'fileExtension' => $mediaFile->getFileExtension(),
             'fileSize' => $mediaFile->getFileSize(),
             'metaData' => $metadata,
-            'thumbnailsCreated' => false,
+            'hasFile' => true,
         ];
 
         $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);

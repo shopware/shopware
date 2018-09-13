@@ -98,6 +98,7 @@ class FileSaverTest extends TestCase
                     'name' => 'test file',
                     'mimeType' => 'plain/txt',
                     'fileExtension' => 'txt',
+                    'hasFile' => true,
                 ],
             ],
             $context

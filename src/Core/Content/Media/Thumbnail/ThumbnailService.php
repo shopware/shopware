@@ -8,19 +8,20 @@ use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
 use Shopware\Core\Content\Media\Exception\ThumbnailCouldNotBeSavedException;
 use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\MediaStruct;
+use Shopware\Core\Content\Media\ORM\MediaRepository;
+use Shopware\Core\Content\Media\ORM\MediaThumbnailRepository;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\ORM\EntityRepository;
 
 class ThumbnailService
 {
     /**
-     * @var EntityRepository
+     * @var MediaRepository
      */
     private $mediaRepository;
 
     /**
-     * @var EntityRepository
+     * @var MediaThumbnailRepository
      */
     private $thumbnailRepository;
 
@@ -40,8 +41,8 @@ class ThumbnailService
     private $configuration;
 
     public function __construct(
-        EntityRepository $mediaRepository,
-        EntityRepository $thumbnailRepository,
+        MediaRepository $mediaRepository,
+        MediaThumbnailRepository $thumbnailRepository,
         FilesystemInterface $fileSystem,
         UrlGeneratorInterface $urlGenerator,
         ThumbnailConfiguration $configuration
@@ -51,6 +52,15 @@ class ThumbnailService
         $this->fileSystem = $fileSystem;
         $this->urlGenerator = $urlGenerator;
         $this->configuration = $configuration;
+    }
+
+    public function updateThumbnailsAfterUpload(MediaStruct $media, Context $context): void
+    {
+        if (!$this->configuration->isAutoGenerateAfterUpload()) {
+            return;
+        }
+
+        $this->generateThumbnails($media, $context);
     }
 
     /**
@@ -88,35 +98,9 @@ class ThumbnailService
         }
     }
 
-    public function shouldGenerateThumbnailsOnUpload(): bool
-    {
-        return $this->configuration->isAutoGenerateAfterUpload();
-    }
-
     public function deleteThumbnails(MediaStruct $media, Context $context)
     {
-        $thumbnails = $media->getThumbnails();
-
-        if ($thumbnails->count() > 0) {
-            $thumbnailIds = array_map(function ($thumbnailId) {
-                return ['id' => $thumbnailId];
-            },
-                array_keys($thumbnails->getElements())
-            );
-            $this->thumbnailRepository->delete($thumbnailIds, $context);
-        }
-
-        $this->deleteThumbnailFiles($media->getId());
-    }
-
-    public function deleteThumbnailFiles(string $mediaId)
-    {
-        foreach ($this->fileSystem->listContents($this->urlGenerator->getThumbnailFolderForFileName($mediaId)) as $file) {
-            //check if the failname matches <id>_<width>x<width>[@2x].*
-            if (preg_match('/^' . $mediaId . '_[\d]+x[\d]+(@2x)?\..*/', $file['basename']) === 1) {
-                $this->fileSystem->delete($file['path']);
-            }
-        }
+        $this->thumbnailRepository->deleteCascadingFromMedia($media, $context);
     }
 
     /**

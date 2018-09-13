@@ -138,57 +138,6 @@ class ThumbnailServiceTest extends TestCase
         );
     }
 
-    public function testDeleteThumbnailFiles_deletesFilesWithThumbnailExtension()
-    {
-        $testId = Uuid::uuid4()->getHex();
-        $testExtension = 'png';
-
-        $mediaFilePath = $this->urlGenerator->getRelativeMediaUrl($testId, $testExtension);
-        $thumbnailPaths = [
-            $this->urlGenerator->getRelativeThumbnailUrl($testId, $testExtension, 100, 150, false, false),
-            $this->urlGenerator->getRelativeThumbnailUrl($testId, $testExtension, 140, 140, true, false),
-        ];
-
-        $this->getPublicFilesystem()->put($mediaFilePath, 'testContent');
-        foreach ($thumbnailPaths as $thumbnailPath) {
-            $this->getPublicFilesystem()->put($thumbnailPath, 'testContent');
-        }
-
-        $this->thumbnailService->deleteThumbnailFiles($testId);
-
-        foreach ($thumbnailPaths as $thumbnailPath) {
-            static::assertFalse($this->getPublicFilesystem()->has($thumbnailPath));
-        }
-        static::assertTrue($this->getPublicFilesystem()->has($mediaFilePath));
-    }
-
-    public function testDeleteThumbnailFiles_ignoresFilesFromOtherMediaIds()
-    {
-        $testId = Uuid::uuid4()->getHex();
-        $otherId = Uuid::uuid4()->getHex();
-        $testExtension = 'png';
-
-        $thumbnailFolder = pathinfo(
-            $this->urlGenerator->getRelativeThumbnailUrl($testId, $testExtension, 100, 150, false, false),
-            PATHINFO_DIRNAME
-        );
-
-        $thumbnailPaths = [
-            $thumbnailFolder . $otherId . '_120_120@2x.png',
-            $thumbnailFolder . $otherId . '_120_120.png',
-        ];
-
-        foreach ($thumbnailPaths as $thumbnailPath) {
-            $this->getPublicFilesystem()->put($thumbnailPath, 'test content');
-        }
-
-        $this->thumbnailService->deleteThumbnailFiles($testId);
-
-        foreach ($thumbnailPaths as $thumbnailPath) {
-            static::assertTrue($this->getPublicFilesystem()->has($thumbnailPath));
-        }
-    }
-
     public function testDeleteThumbnails_withSavedThumbnails()
     {
         $mediaId = Uuid::uuid4()->getHex();

@@ -593,31 +593,27 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service class="Shopware\Core\Framework\ORM\EntityRepository" id="media_thumbnail.repository" public="true">
+        <service class="Shopware\Core\Content\Media\ORM\MediaThumbnailRepository" id="media_thumbnail.repository" public="false">
             <argument>Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailDefinition</argument>
             <argument type="service" id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\VersionManager"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntitySearcherInterface"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface"/>
+            <argument type="service" id="shopware.filesystem.public"/>
         </service>
 
-        <service class="Shopware\Core\Framework\ORM\EntityRepository" id="media.repository" public="true">
+        <service class="Shopware\Core\Content\Media\ORM\MediaRepository" id="media.repository" public="true">
             <argument>Shopware\Core\Content\Media\MediaDefinition</argument>
             <argument type="service" id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\VersionManager"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntitySearcherInterface"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface"/>
             <argument type="service" id="event_dispatcher"/>
-        </service>
-
-        <service class="Shopware\Core\Framework\ORM\EntityRepository" id="thumbnail.repository" public="false">
-            <argument>Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailDefinition</argument>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\VersionManager"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntitySearcherInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface"/>
-            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface"/>
+            <argument type="service" id="shopware.filesystem.public"/>
+            <argument type="service" id="media_thumbnail.repository"/>
         </service>
 
         <service class="Shopware\Core\Framework\ORM\EntityRepository" id="media_translation.repository" public="true">

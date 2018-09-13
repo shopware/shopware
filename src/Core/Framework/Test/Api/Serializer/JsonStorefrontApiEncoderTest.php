@@ -59,6 +59,7 @@ class JsonStorefrontApiEncoderTest extends TestCase
         $struct->setMimeType('image/png');
         $struct->setFileExtension('png');
         $struct->setFileSize(310818);
+        $struct->setHasFile(false);
 
         $struct->setDescription('A media object description');
 
@@ -81,6 +82,7 @@ class JsonStorefrontApiEncoderTest extends TestCase
                     'tenantId' => null,
                     'userId' => null,
                     'url' => '',
+                    'hasFile' => false,
                 ],
                 'links' => [
                     'self' => '/api/media/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe',

@@ -16,7 +16,7 @@
                 {% block sw_field_input_textarea %}
                     <textarea v-if="type === 'textarea'"
                               :id="id"
-                              :name="name"
+                              :name="displayName"
                               :placeholder="placeholder"
                               v-html="currentValue"
                               :disabled="disabled ? 'disabled' : false"
@@ -32,7 +32,7 @@
                     <div v-else-if="type === 'select' || type === 'combo'" class="sw-field__select" >
                         {% block sw_field_input_select_field %}
                             <select :id="id"
-                                    :name="name"
+                                    :name="displayName"
                                     :value="currentValue"
                                     :disabled="disabled ? 'disabled' : false"
                                     :class="{ 'is--placeholder': currentValue === null }"
@@ -81,8 +81,8 @@
                                         <div class="sw-field__radio-option" v-for="(option, index) in options">
                                             <div class="sw-field__radio-input">
                                                 <input type="radio"
-                                                       :name="name"
-                                                       :id="`${name}-${index}`"
+                                                       :name="displayName"
+                                                       :id="`${displayName}-${index}`"
                                                        :value="option.value"
                                                        :disabled="disabled ? 'disabled' : false"
                                                        :checked="currentValue === option.value ? 'checked' : false"
@@ -94,7 +94,7 @@
                                                 <div class="sw-field__radio-state"></div>
                                             </div>
 
-                                            <label :for="`${name}-${index}`">{{ option.label }}</label>
+                                            <label :for="`${displayName}-${index}`">{{ option.label }}</label>
                                         </div>
                                     </template>
                                 {% endblock %}
@@ -111,7 +111,7 @@
                         {% block sw_field_input_checkbox_input %}
                             <input type="checkbox"
                                    :id="id"
-                                   :name="name"
+                                   :name="displayName"
                                    :disabled="disabled ? 'disabled' : false"
                                    :checked="currentValue ? 'checked' : false"
                                    @input="onInput"
@@ -135,7 +135,7 @@
                         {% block sw_field_input_switch_input %}
                             <input type="checkbox"
                                    :id="id"
-                                   :name="name"
+                                   :name="displayName"
                                    :disabled="disabled ? 'disabled' : false"
                                    :checked="currentValue ? 'checked' : false"
                                    @input="onInput"
@@ -187,7 +187,7 @@
                     <input v-else-if="type === 'datetime' || type === 'datetime-local'"
                            type="datetime-local"
                            :id="id"
-                           :name="name"
+                           :name="displayName"
                            :value="currentValue"
                            :disabled="disabled ? 'disabled' : false"
                            @input="onInput"
@@ -202,7 +202,7 @@
                         {% block sw_field_input_password_input %}
                             <input :type="showPassword ? 'text' : 'password'"
                                    :id="id"
-                                   :name="name"
+                                   :name="displayName"
                                    :placeholder="placeholder"
                                    :value="currentValue"
                                    :disabled="disabled ? 'disabled' : false"
@@ -235,7 +235,7 @@
                            ref="textfield"
                            :type="type"
                            :id="id"
-                           :name="name"
+                           :name="displayName"
                            :placeholder="placeholder"
                            :value="currentValue"
                            :disabled="disabled ? 'disabled' : false"

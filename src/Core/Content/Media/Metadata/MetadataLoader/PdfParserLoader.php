@@ -45,8 +45,19 @@ class PdfParserLoader implements MetadataLoaderInterface
             return;
         }
 
-        $metadataType->setPages($rawMetadata['Pages']);
-        $metadataType->setCreator($rawMetadata['Creator']);
+        if (isset($rawMetadata['Pages'])) {
+            $metadataType->setPages($rawMetadata['Pages']);
+        } else {
+            $metadataType->setPages(0);
+        }
+
+        if (isset($rawMetadata['Creator'])) {
+            $metadataType->setCreator($rawMetadata['Creator']);
+        } elseif (isset($rawMetadata['Producer'])) {
+            $metadataType->setCreator($rawMetadata['Producer']);
+        } else {
+            $metadataType->setCreator($rawMetadata['Unknown']);
+        }
     }
 
     /**

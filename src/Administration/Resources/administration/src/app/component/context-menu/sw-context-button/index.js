@@ -30,10 +30,16 @@ Component.register('sw-context-button', {
             default: 15
         },
 
-        alignLeft: {
-            type: Boolean,
+        menuAlign: {
+            type: String,
             required: false,
-            default: false
+            default: 'right',
+            validator(value) {
+                if (!value.length) {
+                    return true;
+                }
+                return ['right', 'left'].includes(value);
+            }
         }
     },
 
@@ -66,7 +72,7 @@ Component.register('sw-context-button', {
 
         contextMenuClass() {
             return {
-                'is--left-align': this.alignLeft
+                'is--left-align': this.menuAlign === 'left'
             };
         }
     },
@@ -76,7 +82,7 @@ Component.register('sw-context-button', {
     },
 
     beforeDestroy() {
-        this.removeMenuFromBody();
+        this.beforeDestroyComponent();
     },
 
     methods: {
@@ -87,12 +93,16 @@ Component.register('sw-context-button', {
             this.removeMenuFromBody();
         },
 
+        beforeDestroyComponent() {
+            this.removeMenuFromBody();
+        },
+
         openMenu() {
             const boundingBox = this.$el.getBoundingClientRect();
             const secureOffset = 5;
 
             this.positionTop = boundingBox.top - secureOffset;
-            if (this.alignLeft) {
+            if (this.menuAlign === 'left') {
                 this.positionLeft = boundingBox.left - secureOffset;
             } else {
                 this.positionLeft = (boundingBox.left + boundingBox.width + this.menuOffsetLeft) - this.menuWidth;

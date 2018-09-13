@@ -26,7 +26,7 @@ Component.register('sw-media-quickinfo', {
     },
 
     computed: {
-        getUrl() {
+        url() {
             if (this.item === null) {
                 return '';
             }
@@ -34,11 +34,11 @@ Component.register('sw-media-quickinfo', {
             return this.item.url;
         },
 
-        getFileSize() {
+        fileSize() {
             return format.fileSize(this.item.fileSize);
         },
 
-        getCreatedAt() {
+        createdAt() {
             return format.date(this.item.createdAt);
         }
     },

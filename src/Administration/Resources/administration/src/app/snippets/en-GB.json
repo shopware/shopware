@@ -627,7 +627,7 @@
         "title": "Title",
         "creator": "Created by",
         "pages": "Pages",
-        "fileCount": "{count} files chosen",
+        "fileCount": "{count} files selected",
         "totalSize": "a total of"
       }
     },

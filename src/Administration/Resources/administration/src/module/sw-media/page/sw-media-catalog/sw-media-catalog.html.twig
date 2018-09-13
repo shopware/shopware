@@ -26,7 +26,7 @@
             <template slot="smart-bar-actions">
 
                 {% block sw_media_catalog_change %}
-                    <sw-context-button class="sw-media-catalog__change" :menuWidth="350" :alignLeft="true">
+                    <sw-context-button class="sw-media-catalog__change" :menuWidth="350" menuAlign="left">
                         {% block sw_media_catalog_change_button %}
                             <template slot="button">
                                 <button class="sw-media-catalog__change-button" @click="onContextMenuClick">

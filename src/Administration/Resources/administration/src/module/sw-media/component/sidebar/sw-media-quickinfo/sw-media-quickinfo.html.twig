@@ -23,7 +23,7 @@
                             {% block sw_media_quickinfo_quickactions_download %}
                                 <li>
                                     <a class="sw-media-quickinfo__quickaction"
-                                       :href="getUrl"
+                                       :href="url"
                                        target="_blank"
                                        download>
                                         <sw-icon small
@@ -98,10 +98,10 @@
                                 :value="this.item.mimeType">
                             </sw-media-quickinfo-metadata-item>
                             <sw-media-quickinfo-metadata-item label-name="fileSize"
-                                :value="getFileSize">
+                                :value="fileSize">
                             </sw-media-quickinfo-metadata-item>
                             <sw-media-quickinfo-metadata-item label-name="createdAt"
-                                :value="getCreatedAt">
+                                :value="createdAt">
                             </sw-media-quickinfo-metadata-item>
                             <sw-media-quickinfo-metadata-item label-name="url"
                                 :value="this.item.url">

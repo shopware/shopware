@@ -17,10 +17,10 @@ class ObjectFieldAccessorBuilder implements FieldAccessorBuilderInterface
             return null;
         }
 
-        $accessor = str_replace($field->getPropertyName() . '.', '', $accessor);
+        $accessor = preg_replace('#^' . $field->getPropertyName() . '#', '', $accessor);
 
         return sprintf(
-            'JSON_UNQUOTE(JSON_EXTRACT(`%s`.`%s`, "$.%s"))',
+            'JSON_UNQUOTE(JSON_EXTRACT(`%s`.`%s`, "$%s"))',
             $root,
             $field->getStorageName(),
             $accessor

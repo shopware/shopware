@@ -7,6 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\ORM\Write\EntityWriter;
 use Shopware\Core\Framework\ORM\Write\EntityWriterInterface;
 use Shopware\Core\Framework\ORM\Write\FieldException\InvalidFieldException;
@@ -48,6 +51,34 @@ EOF;
     {
         $this->connection->rollBack();
         $this->connection->executeUpdate('DROP TABLE `_test_nullable`');
+    }
+
+    public function testSearchForNullFields(): void
+    {
+        $context = $this->createWriteContext();
+
+        $data = [
+            ['id' => Uuid::uuid4()->getHex(), 'data' => null],
+            ['id' => Uuid::uuid4()->getHex(), 'data' => []],
+            ['id' => Uuid::uuid4()->getHex(), 'data' => ['url' => 'foo']],
+        ];
+
+        $this->getWriter()->insert(JsonDefinition::class, $data, $context);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new TermQuery('_test_nullable.data', null));
+        $result = $this->getRepository()->search(JsonDefinition::class, $criteria, $context->getContext());
+        static::assertEquals(1, $result->getTotal());
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new TermQuery('_test_nullable.data', '[]'));
+        $result = $this->getRepository()->search(JsonDefinition::class, $criteria, $context->getContext());
+        static::assertEquals(1, $result->getTotal());
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new TermQuery('_test_nullable.data.url', 'foo'));
+        $result = $this->getRepository()->search(JsonDefinition::class, $criteria, $context->getContext());
+        static::assertEquals(1, $result->getTotal());
     }
 
     public function testNullableJsonField(): void
@@ -276,5 +307,10 @@ EOF;
     private function getWriter(): EntityWriterInterface
     {
         return $this->getContainer()->get(EntityWriter::class);
+    }
+
+    private function getRepository(): EntitySearcherInterface
+    {
+        return $this->getContainer()->get(EntitySearcherInterface::class);
     }
 }

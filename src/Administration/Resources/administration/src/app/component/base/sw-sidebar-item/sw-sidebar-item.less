@@ -2,7 +2,7 @@
 
 @sw-sidebar-color-border:            @color-steam-cloud;
 @sw-sidebar-hover-color-background:  @color-light-gray;
-@sw-sidebar-color-headline:          @color-black;
+@sw-sidebar-color-headline:          @color-kashmir;
 @sw-sidebar-icon-color:              @color-gutenberg;
 @sw-sidebar-active-icon-color:       @color-shopware-blue;
 @sw-sidebar-active-color-background: @color-cadet-blue;
@@ -14,14 +14,13 @@
         position: absolute;
         z-index: @sw-sidebar-z-index;
         right: 64px;
-        width: 30%;
-        min-width: 356px;
-        max-width: 400px;
-        top: 0; bottom: 0;
+        width: 356px;
+        top: 0;
+        bottom: 0;
         border-left: 1px solid @sw-sidebar-color-border;
         overflow-y: auto;
         background: @sw-sidebar-color-white;
-        padding:0 25px;
+        padding: 0 25px;
     }
 
     .sw-sidebar-item__headline {
@@ -32,17 +31,17 @@
         background-color: @sw-sidebar-color-white;
         margin: 0 -25px;
         padding: 25px 25px 0;
+        color: @sw-sidebar-color-headline;
     }
-
 
     .sw-sidebar-item__title {
         font-size: 18px;
         line-height: 23px;
-        color: @sw-sidebar-color-headline;
     }
 
     .sw-sidebar-item__close-button {
         justify-self: end;
+        cursor: pointer;
     }
 
     .sw-sidebar-item__button {

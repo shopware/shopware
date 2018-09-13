@@ -16,42 +16,44 @@
             {% block sw_media_index_page_content %}
                 <div class="sw-media-index__page">
                     {% block sw_media_index_content %}
-                        <div class="sw-media-index__content">
-                            {% block sw_media_index_catalogs %}
-                                {% block sw_media_index_catalogs_title %}
-                                    <h4 class="sw-media-index__headline">{{ $tc('sw-media.index.catalogs') }}</h4>
+                        <div class="sw-media-index__content-container">
+                            <div class="sw-media-index__content">
+                                {% block sw_media_index_catalogs %}
+                                    {% block sw_media_index_catalogs_title %}
+                                        <h4 class="sw-media-index__headline">{{ $tc('sw-media.index.catalogs') }}</h4>
+                                    {% endblock %}
+
+                                    {% block sw_media_index_catalogs_grid %}
+                                        <sw-media-grid previewType="media-grid-preview-as-grid"
+                                                       :selectable="false"
+                                                       :items="catalogs">
+                                        </sw-media-grid>
+                                    {% endblock %}
+
+                                    {% block sw_media_index_catalogs_divider %}
+                                        <hr class="sw-media-index__divider">
+                                    {% endblock %}
                                 {% endblock %}
 
-                                {% block sw_media_index_catalogs_grid %}
-                                    <sw-media-grid previewType="media-grid-preview-as-grid"
-                                                   :selectable="false"
-                                                   :items="catalogs">
-                                    </sw-media-grid>
-                                {% endblock %}
+                                {% block sw_media_index_items %}
+                                    {% block sw_media_index_items_title %}
+                                        <h4 class="sw-media-index__headline" v-if="!isSearch">{{ $tc('sw-media.index.lastAdded') }}</h4>
+                                    {% endblock %}
+                                    {% block sw_media_index_searched_item_title %}
+                                        <h4 class="sw-media-index__headline" v-if="isSearch">{{ $tc('sw-media.index.searchResult') }}</h4>
+                                    {% endblock %}
 
-                                {% block sw_media_index_catalogs_divider %}
-                                    <hr class="sw-media-index__divider">
+                                    {% block sw_media_index_items_grid %}
+                                        <sw-media-grid previewType="media-grid-preview-as-grid"
+                                            :editable="false"
+                                            :selectable="true"
+                                            :items="mediaItems"
+                                            ref="mediaGrid"
+                                            v-on="mediaMediaGridListener">
+                                        </sw-media-grid>
+                                    {% endblock %}
                                 {% endblock %}
-                            {% endblock %}
-
-                            {% block sw_media_index_items %}
-                                {% block sw_media_index_items_title %}
-                                    <h4 class="sw-media-index__headline" v-if="!isSearch">{{ $tc('sw-media.index.lastAdded') }}</h4>
-                                {% endblock %}
-                                {% block sw_media_index_searched_item_title %}
-                                    <h4 class="sw-media-index__headline" v-if="isSearch">{{ $tc('sw-media.index.searchResult') }}</h4>
-                                {% endblock %}
-
-                                {% block sw_media_index_items_grid %}
-                                    <sw-media-grid previewType="media-grid-preview-as-grid"
-                                           :editable="false"
-                                           :selectable="true"
-                                           :items="mediaItems"
-                                           ref="mediaGrid"
-                                           v-on="mediaMediaGridListener">
-                                    </sw-media-grid>
-                                {% endblock %}
-                            {% endblock %}
+                            </div>
                         </div>
                     {% endblock %}
 

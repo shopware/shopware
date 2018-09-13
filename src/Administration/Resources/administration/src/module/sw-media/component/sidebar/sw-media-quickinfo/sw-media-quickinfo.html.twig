@@ -93,33 +93,62 @@
                     {% block sw_media_quickinfo_metadata_content %}
                     <dl class="sw-media-quickinfo__collapse-content">
                         {% block sw_media_quickinfo_metadata_content_base %}
-                            <sw-media-quickinfo-metadata-item label-name="name" :value="this.item.name" />
-                            <sw-media-quickinfo-metadata-item label-name="mimeType" :value="this.item.mimeType" />
-                            <sw-media-quickinfo-metadata-item label-name="fileSize" :value="getFileSize" />
-                            <sw-media-quickinfo-metadata-item label-name="createdAt" :value="getCreatedAt" />
-                            <sw-media-quickinfo-metadata-item label-name="url" :value="this.item.url" />
+                        <sw-media-quickinfo-metadata-item label-name="name" :value="this.item.name"></sw-media-quickinfo-metadata-item>
+                            <sw-media-quickinfo-metadata-item label-name="mimeType"
+                                :value="this.item.mimeType">
+                            </sw-media-quickinfo-metadata-item>
+                            <sw-media-quickinfo-metadata-item label-name="fileSize"
+                                :value="getFileSize">
+                            </sw-media-quickinfo-metadata-item>
+                            <sw-media-quickinfo-metadata-item label-name="createdAt"
+                                :value="getCreatedAt">
+                            </sw-media-quickinfo-metadata-item>
+                            <sw-media-quickinfo-metadata-item label-name="url"
+                                :value="this.item.url">
+                            </sw-media-quickinfo-metadata-item>
                         {% endblock %}
 
                         <template v-if="this.item.metaData.typeName === 'image'">
                             {% block sw_media_quickinfo_metadata_content_image %}
-                                <sw-media-quickinfo-metadata-item label-name="width" :value="this.item.metaData.type.width" suffix="px" />
-                                <sw-media-quickinfo-metadata-item label-name="height" :value="this.item.metaData.type.height" suffix="px"/>
+                                <sw-media-quickinfo-metadata-item label-name="width"
+                                    :value="this.item.metaData.type.width"
+                                    suffix="px">
+                                </sw-media-quickinfo-metadata-item>
+                                <sw-media-quickinfo-metadata-item label-name="height"
+                                    :value="this.item.metaData.type.height"
+                                    suffix="px">
+                                </sw-media-quickinfo-metadata-item>
                             {% endblock %}
                         </template>
 
                         <template v-if="this.item.metaData.typeName === 'video'">
                             {% block sw_media_quickinfo_metadata_content_video %}
-                                <sw-media-quickinfo-metadata-item label-name="width" :value="this.item.metaData.type.width" suffix="px" />
-                                <sw-media-quickinfo-metadata-item label-name="height" :value="this.item.metaData.type.height" suffix="px"/>
-                                <sw-media-quickinfo-metadata-item label-name="frameRate" :value="this.item.metaData.type.frameRate" suffix="Hz"/>
+                                <sw-media-quickinfo-metadata-item label-name="width"
+                                    :value="this.item.metaData.type.width"
+                                    suffix="px">
+                                </sw-media-quickinfo-metadata-item>
+                                <sw-media-quickinfo-metadata-item label-name="height"
+                                    :value="this.item.metaData.type.height"
+                                    suffix="px">
+                                </sw-media-quickinfo-metadata-item>
+                                <sw-media-quickinfo-metadata-item label-name="frameRate"
+                                    :value="this.item.metaData.type.frameRate"
+                                    suffix="Hz">
+                                </sw-media-quickinfo-metadata-item>
                             {% endblock %}
                         </template>
 
                         <template v-if="this.item.metaData.typeName === 'document'">
                             {% block sw_media_quickinfo_metadata_content_document %}
-                                <sw-media-quickinfo-metadata-item label-name="pages" :value="this.item.metaData.type.pages"/>
-                                <sw-media-quickinfo-metadata-item label-name="title" :value="this.item.metaData.type.title"/>
-                                <sw-media-quickinfo-metadata-item label-name="creator" :value="this.item.metaData.type.creator"/>
+                                <sw-media-quickinfo-metadata-item label-name="pages"
+                                    :value="this.item.metaData.type.pages">
+                                </sw-media-quickinfo-metadata-item>
+                                <sw-media-quickinfo-metadata-item label-name="title"
+                                    :value="this.item.metaData.type.title">
+                                </sw-media-quickinfo-metadata-item>
+                                <sw-media-quickinfo-metadata-item label-name="creator"
+                                    :value="this.item.metaData.type.creator">
+                                </sw-media-quickinfo-metadata-item>
                             {% endblock %}
                         </template>
                     </dl>

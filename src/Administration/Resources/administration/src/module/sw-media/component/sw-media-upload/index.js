@@ -1,12 +1,17 @@
-import { Component, State } from 'src/core/shopware';
+import { Component, Mixin, State } from 'src/core/shopware';
 import util, { fileReader } from 'src/core/service/util.service';
 import template from './sw-media-upload.html.twig';
 import './sw-media-upload.less';
+
 
 Component.register('sw-media-upload', {
     template,
 
     inject: ['mediaService'],
+
+    mixins: [
+        Mixin.getByName('notification')
+    ],
 
     props: {
         catalogId: {
@@ -28,10 +33,6 @@ Component.register('sw-media-upload', {
 
         uploadStore() {
             return State.getStore('upload');
-        },
-
-        notificationStore() {
-            return State.getStore('notification');
         }
     },
 
@@ -81,9 +82,8 @@ Component.register('sw-media-upload', {
                         );
                     });
                 }).then(() => {
-                    this.notificationStore.createNotification({
+                    this.createNotificationSuccess({
                         message: this.$tc('sw-media.upload.notificationSuccess'),
-                        variant: 'success'
                     });
                 }).catch(() => {
                     this.cleanUpFailure(mediaEntity);
@@ -101,9 +101,8 @@ Component.register('sw-media-upload', {
 
                 this.uploadStore.addUpload(uploadTag, () => {
                     return mediaService.uploadMediaFromUrl(mediaEntity.id, url.href, fileExtension).then(() => {
-                        this.notificationStore.createNotification({
+                        this.createNotificationSuccess({
                             message: this.$tc('sw-media.upload.notificationSuccess'),
-                            variant: 'success'
                         });
                     }).catch(() => {
                         return this.cleanUpFailure(mediaEntity);
@@ -118,9 +117,8 @@ Component.register('sw-media-upload', {
         },
 
         cleanUpFailure(mediaEntity) {
-            this.notificationStore.createNotification({
+            this.createNotificationError({
                 message: this.$tc('sw-media.upload.notificationFailure', 0, { mediaName: mediaEntity.name }),
-                variant: 'error'
             });
             // delete media entity on failed upload
             return this.mediaItemStore.getByIdAsync(mediaEntity.id).then((media) => {

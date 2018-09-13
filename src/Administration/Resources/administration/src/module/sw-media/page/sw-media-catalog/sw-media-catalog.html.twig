@@ -26,7 +26,7 @@
             <template slot="smart-bar-actions">
 
                 {% block sw_media_catalog_change %}
-                    <sw-context-button class="sw-media-catalog__change" :menuWidth="contextMenuWidth" :alignLeft="true">
+                    <sw-context-button class="sw-media-catalog__change" :menuWidth="350" :alignLeft="true">
                         {% block sw_media_catalog_change_button %}
                             <template slot="button">
                                 <button class="sw-media-catalog__change-button" @click="onContextMenuClick">
@@ -179,6 +179,10 @@
                         </div>
                     {% endblock %}
                 </div>
+            {% endblock %}
+
+            {% block sw_media_catalog_list_grid_loader %}
+                <sw-loader v-if="isLoading"></sw-loader>
             {% endblock %}
 
             {% block sw_media_catalog_empty_state %}

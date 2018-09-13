@@ -13,6 +13,7 @@ Component.register('sw-media-catalog', {
 
     mixins: [
         Mixin.getByName('listing'),
+        Mixin.getByName('notification'),
         mediaMediaGridListener,
         mediaSidebarListener
     ],
@@ -40,10 +41,6 @@ Component.register('sw-media-catalog', {
             return State.getStore('catalog');
         },
 
-        notificationStore() {
-            return State.getStore('notification');
-        },
-
         currentCatalog() {
             return this.catalogStore.getById(this.$route.params.id);
         },
@@ -52,16 +49,6 @@ Component.register('sw-media-catalog', {
             return this.catalogs.filter((catalog) => {
                 return catalog.id !== this.getCatalogId();
             });
-        },
-
-        // ToDo remove it with NEXT-867
-        contextMenuWidth() {
-            const characterCount = this.changeableCatalogs.reduce((count, catalog) => {
-                return catalog.name.length > count ? catalog.name.length : count;
-            }, 0);
-
-            // fixed 100px for Icon and padding and stuff
-            return 100 + characterCount * 8;
         }
     },
 
@@ -213,14 +200,12 @@ Component.register('sw-media-catalog', {
 
             replacementPromise.then(() => {
                 this.getList();
-                this.notificationStore.createNotification({
+                this.createNotificationSuccess({
                     message: this.$tc('sw-media.replace.notificationSuccess'),
-                    variant: 'success'
                 });
             }).catch(() => {
-                this.notificationStore.createNotification({
+                this.createNotificationError({
                     message: this.$tc('sw-media.replace.notificationFailure', 0, { mediaName: fileName }),
-                    variant: 'error'
                 });
             });
         }

@@ -1,4 +1,4 @@
-import { Component, State } from 'src/core/shopware';
+import { Component, State, Mixin } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import '../../component/sw-media-modal-delete';
 import mediaMediaGridListener from '../../mixin/mediagrid.listener.mixin';
@@ -11,7 +11,8 @@ Component.register('sw-media-index', {
 
     mixins: [
         mediaMediaGridListener,
-        mediaSidebarListener
+        mediaSidebarListener,
+        Mixin.getByName('notification')
     ],
 
     data() {
@@ -33,10 +34,6 @@ Component.register('sw-media-index', {
 
         mediaItemStore() {
             return State.getStore('media');
-        },
-
-        notificationStore() {
-            return State.getStore('notification');
         },
 
         isSearch() {
@@ -144,15 +141,13 @@ Component.register('sw-media-index', {
             this.closeReplaceModal();
 
             replacementPromise.then(() => {
-                this.getList();
-                this.notificationStore.createNotification({
-                    message: this.$tc('sw-media.replace.notificationSuccess'),
-                    variant: 'success'
+                this.loadMedia();
+                this.createNotificationSuccess({
+                    message: this.$tc('sw-media.replace.notificationSuccess')
                 });
             }).catch(() => {
-                this.notificationStore.createNotification({
-                    message: this.$tc('sw-media.replace.notificationFailure', 0, { mediaName: fileName }),
-                    variant: 'error'
+                this.createNotificationError({
+                    message: this.$tc('sw-media.replace.notificationFailure', 0, { mediaName: fileName })
                 });
             });
         },

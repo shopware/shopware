@@ -19,15 +19,19 @@
         {% block sw_product_media_form_grid %}
             <div class="sw-product-media-form__grid" ref="grid" :style="gridAutoRows">
                 {%  block sw_product_media_form_grid_items %}
-                    <sw-image v-for="mediaItem in mediaItems"
-                              @sw-image-delete="removeFile(mediaItem.mediaId)"
-                              @sw-image-cover="markMediaAsCover(mediaItem)"
-                              :key="mediaItem.mediaId"
-                              :isCover="isCover(mediaItem)"
-                              :isPlaceholder="mediaItem.isPlaceholder"
-                              :altText="mediaItem.media.name"
-                              :url="getPreviewForMedia(mediaItem.media)"
-                              :downloadable="true"></sw-image>
+                    <template v-for="mediaItem in mediaItems">
+                        <sw-loader v-if="mediaItem.isLoading"></sw-loader>
+                        <sw-image v-else
+                                @sw-image-delete="removeFile(mediaItem.mediaId)"
+                                @sw-image-cover="markMediaAsCover(mediaItem)"
+                                :key="mediaItem.mediaId"
+                                :isCover="isCover(mediaItem)"
+                                :isPlaceholder="mediaItem.isPlaceholder"
+                                :altText="mediaItem.media.name"
+                                :url="getPreviewForMedia(mediaItem.media)"
+                                :downloadable="true"></sw-image>
+                    </template>
+
                 {% endblock %}
             </div>
         {% endblock %}

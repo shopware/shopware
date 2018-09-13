@@ -29,7 +29,6 @@
             <argument id="serializer" type="service"/>
             <argument type="service" id="Shopware\Storefront\Page\Account\AccountService"/>
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextService"/>
-            <argument type="service" id="Shopware\Core\Framework\Api\Response\ResponseFactory"/>
             <argument type="service" id="order.repository"/>
         </service>
 

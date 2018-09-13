@@ -51,7 +51,6 @@
         </service>
 
         <service class="Shopware\Core\System\SalesChannel\Storefront\StorefrontSalesChannelController" id="Shopware\Core\System\SalesChannel\Storefront\StorefrontSalesChannelController" public="true">
-            <argument id="Shopware\Core\Framework\Api\Response\ResponseFactory" type="service"/>
             <argument id="currency.repository" type="service"/>
             <argument id="language.repository" type="service"/>
             <argument id="country.repository" type="service"/>

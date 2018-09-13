@@ -9,7 +9,7 @@ use Shopware\Core\Content\Media\File\FileFetcher;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaDefinition;
-use Shopware\Core\Framework\Api\Response\ResponseFactory;
+use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,11 +18,6 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class MediaUploadController extends Controller
 {
-    /**
-     * @var ResponseFactory
-     */
-    private $responseFactory;
-
     /**
      * @var FileFetcher
      */
@@ -33,9 +28,8 @@ class MediaUploadController extends Controller
      */
     private $fileSaver;
 
-    public function __construct(ResponseFactory $responseFactory, FileFetcher $fileFetcher, FileSaver $fileSaver)
+    public function __construct(FileFetcher $fileFetcher, FileSaver $fileSaver)
     {
-        $this->responseFactory = $responseFactory;
         $this->fileFetcher = $fileFetcher;
         $this->fileSaver = $fileSaver;
     }
@@ -45,7 +39,7 @@ class MediaUploadController extends Controller
      *
      * @return Response
      */
-    public function upload(Request $request, string $mediaId, Context $context): Response
+    public function upload(Request $request, string $mediaId, Context $context, ResponseFactoryInterface $responseFactory): Response
     {
         $tempFile = tempnam(sys_get_temp_dir(), '');
 
@@ -60,7 +54,7 @@ class MediaUploadController extends Controller
             unlink($tempFile);
         }
 
-        return $this->responseFactory->createRedirectResponse(MediaDefinition::class, $mediaId, $request, $context);
+        return $responseFactory->createRedirectResponse(MediaDefinition::class, $mediaId, $request, $context);
     }
 
     /**

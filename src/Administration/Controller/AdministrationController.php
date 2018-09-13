@@ -3,7 +3,7 @@
 namespace Shopware\Administration\Controller;
 
 use Shopware\Administration\Search\AdministrationSearch;
-use Shopware\Core\Framework\Api\Response\Type\JsonType;
+use Shopware\Core\Framework\Api\Response\Type\Api\JsonType;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Twig\TemplateFinder;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;

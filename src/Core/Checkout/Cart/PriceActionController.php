@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\PercentageTaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Framework\Api\Response\Type\JsonType;
+use Shopware\Core\Framework\Api\Response\Type\Api\JsonType;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;

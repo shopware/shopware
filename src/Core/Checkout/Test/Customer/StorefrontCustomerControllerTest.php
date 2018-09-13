@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
 use Shopware\Core\Checkout\Customer\CustomerStruct;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Api\Response\Type\JsonType;
+use Shopware\Core\Framework\Api\Response\Type\Storefront\JsonType;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;

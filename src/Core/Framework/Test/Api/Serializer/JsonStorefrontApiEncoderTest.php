@@ -7,19 +7,22 @@ use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
-use Shopware\Core\Framework\Api\Serializer\JsonApiEncoder;
+use Shopware\Core\Framework\Api\Serializer\JsonStorefrontApiEncoder;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\User\UserDefinition;
 
-class JsonApiEncoderTest extends TestCase
+class JsonStorefrontApiEncoderTest extends TestCase
 {
+    use KernelTestBehaviour;
+
     /**
-     * @var JsonApiEncoder
+     * @var JsonStorefrontApiEncoder
      */
     private $encoder;
 
     public function setUp()
     {
-        $this->encoder = new JsonApiEncoder();
+        $this->encoder = new JsonStorefrontApiEncoder([]);
     }
 
     public function emptyInputProvider(): array
@@ -45,7 +48,7 @@ class JsonApiEncoderTest extends TestCase
     {
         $this->expectException(UnsupportedEncoderInputException::class);
 
-        $this->encoder->encode(ProductDefinition::class, $input, '/api');
+        $this->encoder->encode(ProductDefinition::class, $input, '/storefront-api');
     }
 
     public function testEncodeStruct(): void
@@ -82,44 +85,7 @@ class JsonApiEncoderTest extends TestCase
                 'links' => [
                     'self' => '/api/media/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe',
                 ],
-                'relationships' => [
-                    'catalog' => [
-                        'data' => null,
-                        'links' => [
-                            'related' => '/api/media/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/catalog',
-                        ],
-                    ],
-                    'user' => [
-                        'data' => null,
-                        'links' => [
-                            'related' => '/api/media/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/user',
-                        ],
-                    ],
-                    'categories' => [
-                        'data' => [],
-                        'links' => [
-                            'related' => '/api/media/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/categories',
-                        ],
-                    ],
-                    'productManufacturers' => [
-                        'data' => [],
-                        'links' => [
-                            'related' => '/api/media/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/product-manufacturers',
-                        ],
-                    ],
-                    'productMedia' => [
-                        'data' => [],
-                        'links' => [
-                            'related' => '/api/media/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/product-media',
-                        ],
-                    ],
-                    'thumbnails' => [
-                        'data' => [],
-                        'links' => [
-                            'related' => '/api/media/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/thumbnails',
-                        ],
-                    ],
-                ],
+                'relationships' => [],
             ],
             'included' => [],
         ];
@@ -132,6 +98,7 @@ class JsonApiEncoderTest extends TestCase
     {
         $struct = include __DIR__ . '/fixtures/testBasicWithToOneRelationship.php';
         $expected = include __DIR__ . '/fixtures/testBasicWithToOneRelationshipExpectation.php';
+        $expected = $this->removeRelationships($expected);
 
         $actual = $this->encoder->encode(MediaDefinition::class, $struct, '/api');
         static::assertEquals($expected, json_decode($actual, true));
@@ -141,6 +108,7 @@ class JsonApiEncoderTest extends TestCase
     {
         $struct = include __DIR__ . '/fixtures/testBasicWithToManyRelationships.php';
         $expected = include __DIR__ . '/fixtures/testBasicWithToManyRelationshipsExpectation.php';
+        $expected = $this->removeRelationships($expected);
 
         $actual = $this->encoder->encode(UserDefinition::class, $struct, '/api');
 
@@ -151,6 +119,7 @@ class JsonApiEncoderTest extends TestCase
     {
         $collection = include __DIR__ . '/fixtures/testCollectionWithToOneRelationship.php';
         $expected = include __DIR__ . '/fixtures/testCollectionWithToOneRelationshipExpectation.php';
+        $expected = $this->removeRelationships($expected);
 
         $actual = $this->encoder->encode(MediaDefinition::class, $collection, '/api');
         static::assertEquals($expected, json_decode($actual, true));
@@ -160,9 +129,29 @@ class JsonApiEncoderTest extends TestCase
     {
         $struct = include __DIR__ . '/fixtures/testMainResourceShouldNotBeInIncluded.php';
         $expected = include __DIR__ . '/fixtures/testMainResourceShouldNotBeInIncludedExpectation.php';
+        $expected = $this->removeRelationships($expected);
 
         $actual = $this->encoder->encode(UserDefinition::class, $struct, '/api');
 
         static::assertEquals($expected, json_decode($actual, true));
+    }
+
+    private function removeRelationships(array $data): array
+    {
+        foreach ($data['included'] as $key => $value) {
+            $value['relationships'] = [];
+            $data['included'][$key] = $value;
+        }
+
+        if (isset($data['data']['attributes'])) {
+            $data['data']['relationships'] = [];
+        } else {
+            foreach ($data['data'] as $key => $value) {
+                $value['relationships'] = [];
+                $data['data'][$key] = $value;
+            }
+        }
+
+        return $data;
     }
 }

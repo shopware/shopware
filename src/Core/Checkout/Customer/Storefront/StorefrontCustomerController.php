@@ -6,8 +6,8 @@ use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
-use Shopware\Core\Framework\Api\Response\ResponseFactory;
-use Shopware\Core\Framework\Api\Response\Type\JsonType;
+use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
+use Shopware\Core\Framework\Api\Response\Type\Storefront\JsonType;
 use Shopware\Core\Framework\Exception\InvalidUuidException;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
@@ -48,11 +48,6 @@ class StorefrontCustomerController extends Controller
     private $checkoutContextService;
 
     /**
-     * @var ResponseFactory
-     */
-    private $responseFactory;
-
-    /**
      * @var RepositoryInterface
      */
     private $orderRepository;
@@ -61,13 +56,11 @@ class StorefrontCustomerController extends Controller
         Serializer $serializer,
         AccountService $accountService,
         CheckoutContextService $checkoutContextService,
-        ResponseFactory $responseFactory,
         RepositoryInterface $orderRepository
     ) {
         $this->serializer = $serializer;
         $this->accountService = $accountService;
         $this->checkoutContextService = $checkoutContextService;
-        $this->responseFactory = $responseFactory;
         $this->orderRepository = $orderRepository;
     }
 
@@ -201,9 +194,9 @@ class StorefrontCustomerController extends Controller
      *
      * @throws CustomerNotLoggedInException
      */
-    public function getCustomerDetail(Request $request, CheckoutContext $context): Response
+    public function getCustomerDetail(Request $request, CheckoutContext $context, ResponseFactoryInterface $responseFactory): Response
     {
-        return $this->responseFactory->createDetailResponse(
+        return $responseFactory->createDetailResponse(
             $this->accountService->getCustomerByContext($context),
             CustomerDefinition::class,
             $request,

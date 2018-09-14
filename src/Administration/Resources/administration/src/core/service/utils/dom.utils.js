@@ -15,7 +15,7 @@ function getScrollbarHeight(element) {
         warn('DOM Utilities', 'The provided element needs to be an instance of "HTMLElement".', element);
         return 0;
     }
-    return (element.offsetHeight - element.scrollHeight);
+    return (element.offsetHeight - element.clientHeight);
 }
 
 /**
@@ -29,7 +29,7 @@ function getScrollbarWidth(element) {
         warn('DOM Utilities', 'The provided element needs to be an instance of "HTMLElement".', element);
         return 0;
     }
-    return (element.offsetWidth - element.scrollWidth);
+    return (element.offsetWidth - element.clientWidth);
 }
 
 /**

@@ -3,13 +3,7 @@
         {% block sw_media_preview_file_type_check %}
             <template v-if="checkForFileTypeImage">
                 {% block sw_media_preview_file_type_image %}
-                    <img :src="imageURLFromItem" :alt="item.name" class="sw-media-preview__item">
-                {% endblock %}
-            </template>
-
-            <template v-else-if="checkForInMemoryFile">
-                {% block sw_media_preview_file_type_in_memory_image %}
-                    <img :src="item.dataUrl" :alt="item.name" class="sw-media-preview__item">
+                    <img :src="urlFromItem" :alt="item.name" class="sw-media-preview__item">
                 {% endblock %}
             </template>
 
@@ -19,7 +13,7 @@
                            :autoplay="autoplay"
                            controlsList="nodownload"
                            class="sw-media-preview__item">
-                        <source :src="item.url" :type="item.mimeType">
+                        <source :src="urlFromItem" :type="item.mimeType">
                         {{ $tc('global.sw-media-preview.fallbackVideoTagSupport') }}
                     </video>
                     <button class="sw-media-preview__play-button" v-if="!showControls" @click="onPlayClick">

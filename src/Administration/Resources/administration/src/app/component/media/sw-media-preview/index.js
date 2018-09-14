@@ -92,7 +92,11 @@ Component.register('sw-media-preview', {
             return fileExtensions[this.item.mimeType] || 'file-thumbnail-normal';
         },
 
-        imageURLFromItem() {
+        urlFromItem() {
+            if (this.item.dataUrl) {
+                return this.item.dataUrl;
+            }
+
             return `${this.item.url}?${Date.now()}`;
         }
     },

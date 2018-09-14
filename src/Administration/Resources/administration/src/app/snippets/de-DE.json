@@ -432,7 +432,8 @@
     },
     "mediaForm": {
       "title": "Produktfotos",
-      "buttonUpload": "Datei hochladen"
+      "buttonUpload": "Datei hochladen",
+      "noImageError": "\"{file}\" ist kein Bild"
     }
   },
   "sw-manufacturer": {

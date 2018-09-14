@@ -432,7 +432,8 @@
     },
     "mediaForm": {
       "title": "Product images",
-      "buttonUpload": "Upload files"
+      "buttonUpload": "Upload files",
+      "noImageError": "\"{file}\" is not an image"
     }
   },
   "sw-manufacturer": {

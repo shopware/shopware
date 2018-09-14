@@ -49,7 +49,7 @@ Component.register('sw-media-modal-replace', {
             fileReader.readAsDataURL(file).then((result) => {
                 this.previewMediaEntity = {
                     name: this.uploadData.data.name,
-                    mimeType: 'in-memory-file',
+                    mimeType: this.uploadData.data.type,
                     dataUrl: result
                 };
             });

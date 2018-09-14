@@ -1,4 +1,4 @@
-import { Component, State } from 'src/core/shopware';
+import { Component, Mixin, State } from 'src/core/shopware';
 import { fileReader } from 'src/core/service/util.service';
 import find from 'lodash/find';
 import template from './sw-product-media-form.html.twig';
@@ -8,6 +8,10 @@ Component.register('sw-product-media-form', {
     template,
 
     inject: ['mediaService'],
+
+    mixins: [
+        Mixin.getByName('notification')
+    ],
 
     props: {
         product: {
@@ -110,7 +114,17 @@ Component.register('sw-product-media-form', {
         handleFileUploads() {
             const uploadedFiles = Array.from(this.$refs.fileInput.files);
 
-            this.uploads = uploadedFiles.map((file) => {
+            this.uploads = uploadedFiles.filter((file) => {
+                if (!file.type.startsWith('image/')) {
+                    this.createNotificationError({
+                        message: this.$tc('sw-product.mediaForm.noImageError', 0, { file: file.name })
+                    });
+                    return false;
+                }
+
+                return true;
+            });
+            this.uploads = this.uploads.map((file) => {
                 const productMedia = this.createEntities(file);
 
                 const uploadTask = this.uploadStore.addUpload(this.product.id, () => {

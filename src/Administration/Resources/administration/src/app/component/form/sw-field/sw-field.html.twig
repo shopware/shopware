@@ -159,7 +159,7 @@
                             {% block sw_field_input_boolean_input %}
                                 <input type="checkbox"
                                        :id="id"
-                                       :name="name"
+                                       :name="displayName"
                                        :disabled="disabled ? 'disabled' : false"
                                        :checked="currentValue ? 'checked' : false"
                                        @input="onInput"

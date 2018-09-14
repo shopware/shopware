@@ -79,11 +79,19 @@ Component.register('sw-search-bar', {
         this.createdComponent();
     },
 
+    mounted() {
+        this.mountedComponent();
+    },
+
     updated() {
         this.setScrollbarOffset();
     },
 
     methods: {
+        mountedComponent() {
+            this.setScrollbarOffset();
+        },
+
         createdComponent() {
             const that = this;
 

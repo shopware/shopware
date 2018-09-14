@@ -205,6 +205,7 @@ Component.register('sw-media-grid', {
                 return;
             }
 
+            this.listSelectionStartItem = item;
             this.addToSelection({ originalDomEvent, item });
         },
 

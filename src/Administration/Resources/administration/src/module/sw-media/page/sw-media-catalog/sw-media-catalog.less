@@ -76,6 +76,12 @@
         left: 20px;
         top: 0;
 
+        &.is--disabled {
+            .sw-media-catalog__change-button {
+                cursor: default;
+            }
+        }
+
         @media screen and (max-width: 1620px) {
             display: none;
         }

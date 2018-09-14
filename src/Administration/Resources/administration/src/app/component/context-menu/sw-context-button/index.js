@@ -40,6 +40,12 @@ Component.register('sw-context-button', {
                 }
                 return ['right', 'left'].includes(value);
             }
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -61,6 +67,12 @@ Component.register('sw-context-button', {
                 display: this.showMenu ? 'block' : 'none',
                 width: `${this.menuWidth}px`,
                 'padding-top': `${this.paddingTop}px`
+            };
+        },
+
+        contextClass() {
+            return {
+                'is--disabled': this.disabled
             };
         },
 
@@ -98,6 +110,10 @@ Component.register('sw-context-button', {
         },
 
         openMenu() {
+            if (this.disabled) {
+                return;
+            }
+
             const boundingBox = this.$el.getBoundingClientRect();
             const secureOffset = 5;
 

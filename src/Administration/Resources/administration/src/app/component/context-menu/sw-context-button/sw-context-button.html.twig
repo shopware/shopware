@@ -1,5 +1,5 @@
 {% block sw_context_button %}
-    <div class="sw-context-button" @click="openMenu" ref="swContextButton">
+    <div class="sw-context-button" :class="contextClass" @click="openMenu" ref="swContextButton">
         {% block sw_context_button_button %}
             <slot name="button">
                 <button class="sw-context-button__button" :class="contextButtonClass">

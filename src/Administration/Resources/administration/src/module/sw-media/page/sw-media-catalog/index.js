@@ -70,12 +70,6 @@ Component.register('sw-media-catalog', {
             this.$root.$off('search', this.onSearch);
         },
 
-        onContextMenuClick(event) {
-            if (this.changeableCatalogs.length === 0) {
-                event.stopPropagation();
-            }
-        },
-
         onNewMedia() {
             this.getList();
         },

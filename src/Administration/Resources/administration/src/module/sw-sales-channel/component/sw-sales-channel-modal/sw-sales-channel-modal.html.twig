@@ -93,7 +93,7 @@
                                 <div class="sw-sales-channel-modal__detail-manufacturer">{{ detailType.manufacturer }}</div>
                                 <div class="sw-sales-channel-modal__detail-description">{{ detailType.description }}</div>
                                 <div class="sw-sales-channel-modal__detail-actions">
-                                    <sw-button variant="primary" size="small" @click="onAddChannel">
+                                    <sw-button variant="primary" size="small" @click="onAddChannel(detailType.id)">
                                         {{ $tc('sw-sales-channel.modal.buttonAddChannel') }}
                                     </sw-button>
                                 </div>
@@ -132,7 +132,7 @@
                         {% endblock %}
 
                         {% block sw_sales_channel_modal_footer_add_channel %}
-                            <sw-button variant="primary" size="small" @click="onAddChannel">
+                            <sw-button variant="primary" size="small" @click="onAddChannel(detailType.id)">
                                 {{ $tc('sw-sales-channel.modal.buttonAddChannel') }}
                             </sw-button>
                         {% endblock %}

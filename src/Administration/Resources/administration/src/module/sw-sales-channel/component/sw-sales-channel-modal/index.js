@@ -65,10 +65,7 @@ Component.register('sw-sales-channel-modal', {
             this.onCloseModal();
             if (id) {
                 this.$router.push({ name: 'sw.sales.channel.create', params: { typeId: id } });
-                return;
             }
-
-            this.$router.push({ name: 'sw.sales.channel.create', params: { typeId: this.detailType.id } });
         }
     }
 });

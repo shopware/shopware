@@ -69,7 +69,7 @@ class MediaDefinition extends EntityDefinition
             (new TranslationsAssociationField(MediaTranslationDefinition::class))->setFlags(new Required(), new CascadeDelete()),
             new ManyToOneAssociationField('catalog', 'catalog_id', CatalogDefinition::class, false, 'id'),
             (new OneToManyAssociationField('thumbnails', MediaThumbnailDefinition::class, 'media_id', true))->setFlags(new CascadeDelete()),
-            (new BoolField('has_file', 'hasFile'))->setFlags(new WriteProtected('write_media')),
+            (new BoolField('has_file', 'hasFile'))->setFlags(new Deferred()),
         ]);
     }
 

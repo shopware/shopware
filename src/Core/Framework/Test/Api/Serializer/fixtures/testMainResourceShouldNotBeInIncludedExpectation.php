@@ -64,7 +64,7 @@ return [
                 'catalogId' => null,
                 'tenantId' => null,
                 'url' => '',
-                'hasFile' => false,
+                'hasFile' => true,
             ],
             'relationships' => [
                 'user' => [

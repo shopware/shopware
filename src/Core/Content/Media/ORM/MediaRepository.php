@@ -70,7 +70,7 @@ class MediaRepository extends EntityRepository
         }
 
         foreach ($affectedMedia->getEntities() as $mediaStruct) {
-            if (!$mediaStruct->gethasFile()) {
+            if (!$mediaStruct->hasFile()) {
                 continue;
             }
 

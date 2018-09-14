@@ -17,7 +17,7 @@ return [
             'catalogId' => null,
             'tenantId' => null,
             'url' => '',
-            'hasFile' => false,
+            'hasFile' => true,
         ],
         'links' => [
             'self' => '/api/media/548faa1f-7846-436c-8594-4f4aea792d96',

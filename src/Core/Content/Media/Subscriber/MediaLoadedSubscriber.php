@@ -43,7 +43,7 @@ class MediaLoadedSubscriber implements EventSubscriberInterface
     {
         /** @var MediaStruct $media */
         foreach ($event->getEntities() as $media) {
-            if (!$media->getHasFile()) {
+            if (!$media->hasFile()) {
                 continue;
             }
 

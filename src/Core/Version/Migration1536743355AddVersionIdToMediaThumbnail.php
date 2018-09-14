@@ -16,15 +16,7 @@ class Migration1536743355AddVersionIdToMediaThumbnail extends MigrationStep
     {
         $connection->executeQuery('
             ALTER TABLE `media_thumbnail`
-              ADD COLUMN `version_id` binary(16) NOT NULL
-        ');
-
-        $connection->executeQuery('
-            ALTER TABLE `media_thumbnail` DROP PRIMARY KEY 
-        ');
-
-        $connection->executeQuery('
-            ALTER TABLE `media_thumbnail` ADD PRIMARY KEY(`id`, `tenant_id`, `version_id`) 
+              ADD COLUMN `version_id` binary(16)
         ');
 
         $connection->executeQuery('

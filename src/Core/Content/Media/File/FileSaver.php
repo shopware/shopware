@@ -89,7 +89,7 @@ class FileSaver
 
     private function removeOldMediaData(MediaStruct $media, MediaFile $mediaFile, Context $context)
     {
-        if (!$media->getHasFile()) {
+        if (!$media->hasFile()) {
             return;
         }
 
@@ -126,7 +126,6 @@ class FileSaver
             'fileExtension' => $mediaFile->getFileExtension(),
             'fileSize' => $mediaFile->getFileSize(),
             'metaData' => $metadata,
-            'hasFile' => true,
         ];
 
         $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);

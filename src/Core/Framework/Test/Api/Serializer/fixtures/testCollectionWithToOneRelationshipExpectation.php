@@ -18,7 +18,7 @@ return [
                 'catalogId' => null,
                 'tenantId' => null,
                 'url' => '',
-                'hasFile' => false,
+                'hasFile' => true,
             ],
             'links' => [
                 'self' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870',
@@ -81,7 +81,7 @@ return [
                 'catalogId' => null,
                 'tenantId' => null,
                 'url' => '',
-                'hasFile' => false,
+                'hasFile' => true,
             ],
             'relationships' => [
                 'user' => [

@@ -45,7 +45,6 @@ class MediaRepositoryTest extends TestCase
                     'name' => 'test media',
                     'mimeType' => 'image/png',
                     'fileExtension' => 'png',
-                    'hasFile' => true,
                 ],
             ],
             $this->context
@@ -74,7 +73,6 @@ class MediaRepositoryTest extends TestCase
                 'name' => 'test media',
                 'mimeType' => 'image/png',
                 'fileExtension' => 'png',
-                'hasFile' => true,
                 'thumbnails' => [
                     [
                         'width' => 100,

@@ -70,6 +70,10 @@ class ThumbnailService
      */
     public function generateThumbnails(MediaStruct $media, Context $context): void
     {
+        if (!$media->hasFile()) {
+            return;
+        }
+
         $mediaImage = $this->getImageResource($media);
         $originalImageSize = $this->getOriginalImageSize($mediaImage);
 

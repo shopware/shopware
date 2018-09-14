@@ -97,7 +97,7 @@ Component.register('sw-media-preview', {
                 return this.item.dataUrl;
             }
 
-            return `${this.item.url}?${Date.now()}`;
+            return this.item.url;
         }
     },
 

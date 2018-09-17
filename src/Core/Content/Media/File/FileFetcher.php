@@ -31,6 +31,10 @@ class FileFetcher
 
         try {
             $writtenBytes = stream_copy_to_stream($inputStream, $destStream);
+
+            if ($writtenBytes === false) {
+                throw new UploadException('Could not read file from origin: ' . $url);
+            }
         } finally {
             fclose($inputStream);
             fclose($destStream);

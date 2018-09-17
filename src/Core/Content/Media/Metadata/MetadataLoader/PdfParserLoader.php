@@ -9,8 +9,10 @@ use Smalot\PdfParser\Parser;
 
 class PdfParserLoader implements MetadataLoaderInterface
 {
+    const MAX_FILE_SIZE = 128000000; // 128mb
+
     /**
-     * @var Parser
+     * @var Parser|null
      */
     private $pdfParser;
 
@@ -21,6 +23,10 @@ class PdfParserLoader implements MetadataLoaderInterface
      */
     public function extractMetadata(string $filePath): array
     {
+        if (!$this->isAllowedToHandle($filePath)) {
+            throw new CanNotLoadMetadataException(sprintf('File %s is not supported by library pdfparser', $filePath));
+        }
+
         try {
             $document = $this->getPdfParser()
                 ->parseFile($filePath);
@@ -58,6 +64,14 @@ class PdfParserLoader implements MetadataLoaderInterface
         } else {
             $metadataType->setCreator($rawMetadata['Unknown']);
         }
+    }
+
+    private function isAllowedToHandle(string $filePath)
+    {
+        $isPdf = mime_content_type($filePath) === 'application/pdf';
+        $isTooLarge = filesize($filePath) > self::MAX_FILE_SIZE;
+
+        return $isPdf && !$isTooLarge;
     }
 
     /**

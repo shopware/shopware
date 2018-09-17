@@ -21,7 +21,6 @@ function resolve(dir) {
 
 // Refactor the usage of eslint
 const eslintDisable = (process.env.ESLINT_DISABLE === 'true');
-
 const includeDirectories =  [...[ resolve('src'), resolve('test') ], ...pluginSourceDirectories];
 
 module.exports = {
@@ -36,7 +35,8 @@ module.exports = {
     },
     output: {
         path: config.build.assetsRoot,
-        filename: '[name].js',
+        filename: utils.assetsPath('js/[name].js'),
+        chunkFilename: utils.assetsPath('js/[name].js'),
         publicPath: process.env.NODE_ENV === 'production'
             ? config.build.assetsPublicPath
             : config.dev.assetsPublicPath

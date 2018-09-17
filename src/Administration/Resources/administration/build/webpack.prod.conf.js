@@ -27,12 +27,19 @@ const webpackConfig = merge(baseWebpackConfig, {
     },
     optimization: {
         splitChunks: {
+            minSize: 0,
             cacheGroups: {
-                app: {
-                    name: 'app',
-                    test: /\.css$/,
+                vendors: {
+                    test: /[\\/]node_modules[\\/]/,
+                    name: 'vendors',
                     chunks: 'all',
-                    enforce: true
+                    priority: 10
+                },
+                components: {
+                    test: /[\\/]src[\\/]app[\\/]component[\\/]/,
+                    name: 'components',
+                    chunks: 'all',
+                    priority: 10
                 }
             }
         },
@@ -45,7 +52,7 @@ const webpackConfig = merge(baseWebpackConfig, {
                 },
                 cache: true,
                 parallel: true,
-                sourceMap: true
+                sourceMap: false
             }),
             new OptimizeCSSAssetsPlugin()
         ]

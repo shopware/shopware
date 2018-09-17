@@ -17,7 +17,7 @@ WebpackCopyAfterBuild.prototype.apply = function(compiler) {
     const files = this._filesMap;
     const opts = this._opts;
 
-    compiler.hooks.done.tapAsync('sw-copy-after-build', (stats) => {
+    compiler.hooks.done.tap('sw-copy-after-build', (stats) => {
         stats = stats.toJson();
         const chunks = stats.chunks;
 
@@ -61,7 +61,10 @@ WebpackCopyAfterBuild.prototype.apply = function(compiler) {
                 }
 
                 fs.createReadStream(from).pipe(fs.createWriteStream(to));
-                fs.unlinkSync(from);
+
+                if (fs.existsSync(from)) {
+                    fs.unlinkSync(from);
+                }
             });
         });
     });

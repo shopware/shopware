@@ -11,6 +11,10 @@ const webpackConfig = merge(baseConfig, {
     module: {
         rules: utils.styleLoaders()
     },
+    output: {
+        filename: utils.assetsPath('js/[name].js'),
+        chunkFilename: utils.assetsPath('js/[name].js')
+    },
     mode: 'development',
     devtool: '#inline-source-map',
     plugins: [

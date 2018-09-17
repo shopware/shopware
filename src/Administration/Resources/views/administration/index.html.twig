@@ -4,10 +4,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>
-        Shopware Administration {Shopware\Core::VERSION} {Shopware\Core::VERSION_TEXT} (Rev. {Shopware\Core::REVISION}) -
-        Backend (c) shopware AG
+        Shopware Administration (c) shopware AG
     </title>
 
+    <link rel="stylesheet" href="{{ asset('bundles/administration/static/css/vendors.css') }}?{{ 'now'|date('U') }}">
+    <link rel="stylesheet" href="{{ asset('bundles/administration/static/css/components.css') }}?{{ 'now'|date('U') }}">
     <link rel="stylesheet" href="{{ asset('bundles/administration/static/css/app.css') }}?{{ 'now'|date('U') }}">
     {% block administration_stylesheets %}{% endblock %}
 </head>
@@ -17,7 +18,9 @@
 
 {% block administration_templates %}{% endblock %}
 
+<script src="{{ asset('bundles/administration/static/js/vendors.js') }}?{{ 'now'|date('U') }}"></script>
 <script src="{{ asset('bundles/administration/static/js/commons.js') }}?{{ 'now'|date('U') }}"></script>
+<script src="{{ asset('bundles/administration/static/js/components.js') }}?{{ 'now'|date('U') }}"></script>
 <script src="{{ asset('bundles/administration/static/js/app.js') }}?{{ 'now'|date('U') }}"></script>
 
 {# Plugins #}

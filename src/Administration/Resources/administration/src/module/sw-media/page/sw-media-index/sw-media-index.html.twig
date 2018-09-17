@@ -24,8 +24,9 @@
                                     {% endblock %}
 
                                     {% block sw_media_index_catalogs_grid %}
-                                        <sw-media-grid>
+                                        <sw-media-grid class="sw-media-index__catalog-grid">
                                             <sw-media-grid-catalog-item
+                                                class="sw-media-grid__content-cell"
                                                 v-for="catalog in catalogs"
                                                 :key="catalog.id"
                                                 :catalog="catalog">
@@ -48,10 +49,12 @@
 
                                     {% block sw_media_index_items_grid %}
                                         <sw-media-grid
+                                            class="sw-media-index__media-grid"
                                             dragSelectorClass="sw-media-grid-media-item"
                                             @sw-media-grid-selection-clear="clearSelection">
 
                                             <sw-media-grid-media-item
+                                                class="sw-media-grid__content-cell"
                                                 v-for="mediaItem in mediaItems"
                                                 :key="mediaItem.id"
                                                 :item="mediaItem"

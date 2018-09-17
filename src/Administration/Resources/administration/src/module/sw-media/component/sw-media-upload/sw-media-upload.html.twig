@@ -4,7 +4,7 @@
         <sw-context-button>
             <template slot="button">
                 {% block sw_media_upload_button %}
-                    <sw-button variant="primary" class="sw-media-upload__context-button">
+                    <sw-button class="sw-media-upload__context-button" variant="primary">
                         {{ $tc('sw-media.smart-bar.buttonUpload') }}
                         <sw-icon name="small-arrow-small-down" decorative></sw-icon>
                     </sw-button>
@@ -12,13 +12,13 @@
             </template>
 
             {% block sw_media_upload_context_item_file_upload %}
-                <sw-context-menu-item @click="onClickUpload">
+                <sw-context-menu-item class="sw-media-upload__file" @click="onClickUpload">
                     {{ $tc('sw-media.smart-bar.buttonFileUpload') }}
                 </sw-context-menu-item>
             {% endblock %}
 
             {% block sw_media_upload_context_item_url_upload %}
-                <sw-context-menu-item @click="openUrlModal">
+                <sw-context-menu-item class="sw-media-upload__url" @click="openUrlModal">
                     {{ $tc('sw-media.smart-bar.buttonUrlUpload') }}
                 </sw-context-menu-item>
             {% endblock %}

@@ -214,8 +214,7 @@ exports.injectHtmlPlugin = function(config) {
     return new HtmlWebpackPlugin({
         filename: 'index.html',
         template: 'index.html',
-        inject: 'head',
-        chunks: exports.getChunks(config)
+        inject: 'head'
     });
 };
 

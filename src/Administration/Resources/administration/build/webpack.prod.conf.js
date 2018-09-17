@@ -25,17 +25,7 @@ const webpackConfig = merge(baseWebpackConfig, {
             sourceMap: config.build.productionSourceMap
         })
     },
-    optimization: {
-        splitChunks: {
-            cacheGroups: {
-                app: {
-                    name: 'app',
-                    test: /\.css$/,
-                    chunks: 'all',
-                    enforce: true
-                }
-            }
-        },
+    /* optimization: {
         minimizer: [
             new UglifyJsPlugin({
                 uglifyOptions: {
@@ -49,7 +39,7 @@ const webpackConfig = merge(baseWebpackConfig, {
             }),
             new OptimizeCSSAssetsPlugin()
         ]
-    },
+    }, */
     devtool: config.build.productionSourceMap ? '#source-map' : false,
     output: {
         path: config.build.assetsRoot,

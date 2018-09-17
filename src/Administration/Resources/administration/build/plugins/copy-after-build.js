@@ -62,7 +62,7 @@ WebpackCopyAfterBuild.prototype.apply = function(compiler) {
 
                 fs.createReadStream(from).pipe(fs.createWriteStream(to));
 
-                if (!fs.existsSync(from)) {
+                if (fs.existsSync(from)) {
                     fs.unlinkSync(from);
                 }
             });

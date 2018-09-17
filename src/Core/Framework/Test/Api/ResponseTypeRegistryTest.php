@@ -43,19 +43,19 @@ class ResponseTypeRegistryTest extends TestCase
         return new Context(Defaults::TENANT_ID, $sourceContext, [Defaults::CATALOG], [], Defaults::CURRENCY, Defaults::LANGUAGE);
     }
 
-    public function testAdminApi()
+    public function testAdminApi(): void
     {
         $id = Uuid::uuid4()->getHex();
         $accept = 'application/json';
         $context = $this->getAdminContext();
         $response = $this->getDetailResponse($context, $id, '/api/v1/category/' . $id, 1, $accept, false);
 
-        $this->assertEquals($accept, $response->headers->get('content-type'));
+        static::assertEquals($accept, $response->headers->get('content-type'));
         $content = json_decode($response->getContent(), true);
-        $this->assertEquals($id, $content['data']['name']);
+        static::assertEquals($id, $content['data']['name']);
     }
 
-    public function testAdminJsonApi()
+    public function testAdminJsonApi(): void
     {
         $id = Uuid::uuid4()->getHex();
         $accept = 'application/vnd.api+json';
@@ -63,16 +63,16 @@ class ResponseTypeRegistryTest extends TestCase
         $context = $this->getAdminContext();
         $response = $this->getDetailResponse($context, $id, $self, 1, $accept, false);
 
-        $this->assertEquals($accept, $response->headers->get('content-type'));
+        static::assertEquals($accept, $response->headers->get('content-type'));
         $content = json_decode($response->getContent(), true);
 
         $this->assertDetailJsonApiStructure($content);
-        $this->assertEquals($id, $content['data']['attributes']['name']);
-        $this->assertEquals($self, $content['links']['self']);
-        $this->assertEquals($self, $content['data']['links']['self']);
+        static::assertEquals($id, $content['data']['attributes']['name']);
+        static::assertEquals($self, $content['links']['self']);
+        static::assertEquals($self, $content['data']['links']['self']);
     }
 
-    public function testAdminJsonApiDefault()
+    public function testAdminJsonApiDefault(): void
     {
         $id = Uuid::uuid4()->getHex();
         $accept = '*/*';
@@ -80,16 +80,16 @@ class ResponseTypeRegistryTest extends TestCase
         $context = $this->getAdminContext();
         $response = $this->getDetailResponse($context, $id, $self, 1, $accept, false);
 
-        $this->assertEquals('application/vnd.api+json', $response->headers->get('content-type'));
+        static::assertEquals('application/vnd.api+json', $response->headers->get('content-type'));
         $content = json_decode($response->getContent(), true);
 
         $this->assertDetailJsonApiStructure($content);
-        $this->assertEquals($id, $content['data']['attributes']['name']);
-        $this->assertEquals($self, $content['links']['self']);
-        $this->assertEquals($self, $content['data']['links']['self']);
+        static::assertEquals($id, $content['data']['attributes']['name']);
+        static::assertEquals($self, $content['links']['self']);
+        static::assertEquals($self, $content['data']['links']['self']);
     }
 
-    public function testAdminApiUnsupportedContentType()
+    public function testAdminApiUnsupportedContentType(): void
     {
         $this->expectException(UnsupportedMediaTypeHttpException::class);
         $id = Uuid::uuid4()->getHex();
@@ -99,19 +99,19 @@ class ResponseTypeRegistryTest extends TestCase
         $this->getDetailResponse($context, $id, $self, 1, $accept, false);
     }
 
-    public function testStorefrontApi()
+    public function testStorefrontApi(): void
     {
         $id = Uuid::uuid4()->getHex();
         $accept = 'application/json';
         $context = $this->getStorefrontContext();
         $response = $this->getDetailResponse($context, $id, '/storefront-api/category/' . $id, '', $accept, false);
 
-        $this->assertEquals($accept, $response->headers->get('content-type'));
+        static::assertEquals($accept, $response->headers->get('content-type'));
         $content = json_decode($response->getContent(), true);
-        $this->assertEquals($id, $content['data']['name']);
+        static::assertEquals($id, $content['data']['name']);
     }
 
-    public function testStorefrontJsonApi()
+    public function testStorefrontJsonApi(): void
     {
         // jsonapi support for storefront is deactivated
         $this->expectException(UnsupportedMediaTypeHttpException::class);
@@ -122,18 +122,18 @@ class ResponseTypeRegistryTest extends TestCase
         $context = $this->getStorefrontContext();
         $response = $this->getDetailResponse($context, $id, $self, '', $accept, false);
 
-        $this->assertEquals($accept, $response->headers->get('content-type'));
+        static::assertEquals($accept, $response->headers->get('content-type'));
         $content = json_decode($response->getContent(), true);
 
         $this->assertDetailJsonApiStructure($content);
-        $this->assertEquals($id, $content['data']['attributes']['name']);
-        $this->assertEquals($self, $content['links']['self']);
-        $this->assertEquals($self, $content['data']['links']['self']);
+        static::assertEquals($id, $content['data']['attributes']['name']);
+        static::assertEquals($self, $content['links']['self']);
+        static::assertEquals($self, $content['data']['links']['self']);
 
         $this->assertEmptyRelationships($content);
     }
 
-    public function testStorefrontDefaultContentType()
+    public function testStorefrontDefaultContentType(): void
     {
         $id = Uuid::uuid4()->getHex();
         $accept = '*/*';
@@ -141,12 +141,12 @@ class ResponseTypeRegistryTest extends TestCase
         $context = $this->getStorefrontContext();
         $response = $this->getDetailResponse($context, $id, $self, '', $accept, false);
 
-        $this->assertEquals('application/json', $response->headers->get('content-type'));
+        static::assertEquals('application/json', $response->headers->get('content-type'));
         $content = json_decode($response->getContent(), true);
-        $this->assertEquals($id, $content['data']['name']);
+        static::assertEquals($id, $content['data']['name']);
     }
 
-    public function testStorefrontApiUnsupportedContentType()
+    public function testStorefrontApiUnsupportedContentType(): void
     {
         $this->expectException(UnsupportedMediaTypeHttpException::class);
         $id = Uuid::uuid4()->getHex();
@@ -156,7 +156,7 @@ class ResponseTypeRegistryTest extends TestCase
         $this->getDetailResponse($context, $id, $self, '', $accept, false);
     }
 
-    public function testStorefrontJsonApiList()
+    public function testStorefrontJsonApiList(): void
     {
         // jsonapi support for storefront is deactivated
         $this->expectException(UnsupportedMediaTypeHttpException::class);
@@ -167,17 +167,17 @@ class ResponseTypeRegistryTest extends TestCase
         $context = $this->getStorefrontContext();
         $response = $this->getListResponse($context, $id, $self, '', $accept);
 
-        $this->assertEquals($accept, $response->headers->get('content-type'));
+        static::assertEquals($accept, $response->headers->get('content-type'));
         $content = json_decode($response->getContent(), true);
 
         $this->assertDetailJsonApiStructure($content);
-        $this->assertNotEmpty($content['data']);
-        $this->assertEquals($id, $content['data'][0]['attributes']['name']);
-        $this->assertEquals($self, $content['links']['self']);
-        $this->assertEquals($self . '/' . $id, $content['data'][0]['links']['self']);
+        static::assertNotEmpty($content['data']);
+        static::assertEquals($id, $content['data'][0]['attributes']['name']);
+        static::assertEquals($self, $content['links']['self']);
+        static::assertEquals($self . '/' . $id, $content['data'][0]['links']['self']);
     }
 
-    public function testAdminJsonApiList()
+    public function testAdminJsonApiList(): void
     {
         $id = Uuid::uuid4()->getHex();
         $accept = 'application/vnd.api+json';
@@ -185,32 +185,32 @@ class ResponseTypeRegistryTest extends TestCase
         $context = $this->getAdminContext();
         $response = $this->getListResponse($context, $id, $self, 1, $accept);
 
-        $this->assertEquals($accept, $response->headers->get('content-type'));
+        static::assertEquals($accept, $response->headers->get('content-type'));
         $content = json_decode($response->getContent(), true);
 
         $this->assertDetailJsonApiStructure($content);
-        $this->assertNotEmpty($content['data']);
-        $this->assertEquals($id, $content['data'][0]['attributes']['name']);
-        $this->assertEquals($self, $content['links']['self']);
-        $this->assertEquals($self . '/' . $id, $content['data'][0]['links']['self']);
+        static::assertNotEmpty($content['data']);
+        static::assertEquals($id, $content['data'][0]['attributes']['name']);
+        static::assertEquals($self, $content['links']['self']);
+        static::assertEquals($self . '/' . $id, $content['data'][0]['links']['self']);
     }
 
-    protected function assertEmptyRelationships($content)
+    protected function assertEmptyRelationships($content): void
     {
-        $this->assertEmpty($content['data']['relationships']);
+        static::assertEmpty($content['data']['relationships']);
 
         if (isset($content['included'])) {
             foreach ($content['included'] as $inc) {
-                $this->assertEmpty($inc['relationships']);
+                static::assertEmpty($inc['relationships']);
             }
         }
     }
 
-    protected function assertDetailJsonApiStructure($content)
+    protected function assertDetailJsonApiStructure($content): void
     {
-        $this->assertArrayHasKey('data', $content);
-        $this->assertArrayHasKey('links', $content);
-        $this->assertArrayHasKey('included', $content);
+        static::assertArrayHasKey('data', $content);
+        static::assertArrayHasKey('links', $content);
+        static::assertArrayHasKey('included', $content);
     }
 
     private function getStorefrontContext(): Context
@@ -220,7 +220,7 @@ class ResponseTypeRegistryTest extends TestCase
         return new Context(Defaults::TENANT_ID, $sourceContext, [Defaults::CATALOG], [], Defaults::CURRENCY, Defaults::LANGUAGE);
     }
 
-    private function getDetailResponse(Context $context, $id, $path, $version = '', $accept, $setLocationHeader)
+    private function getDetailResponse(Context $context, $id, $path, $version = '', $accept, $setLocationHeader): \Symfony\Component\HttpFoundation\Response
     {
         $category = $this->getTestCategory($id);
 
@@ -232,7 +232,7 @@ class ResponseTypeRegistryTest extends TestCase
         return $this->getFactory($request)->createDetailResponse($category, $definition, $request, $context, $setLocationHeader);
     }
 
-    private function getListResponse($context, $id, $path, $version = '', $accept)
+    private function getListResponse($context, $id, $path, $version = '', $accept): \Symfony\Component\HttpFoundation\Response
     {
         $category = $this->getTestCategory($id);
 
@@ -247,7 +247,7 @@ class ResponseTypeRegistryTest extends TestCase
         return $this->getFactory($request)->createListingResponse($searchResult, $definition, $request, $context);
     }
 
-    private function getTestCategory($id)
+    private function getTestCategory($id): CategoryStruct
     {
         $category = new CategoryStruct();
         $category->setId($id);
@@ -264,19 +264,19 @@ class ResponseTypeRegistryTest extends TestCase
         return $category;
     }
 
-    private function setVersionHack(Request $request, $version)
+    private function setVersionHack(Request $request, $version): void
     {
         if ($version) {
             $this->setRequestAttributeHack($request, 'version', $version);
         }
     }
 
-    private function setOrigin(Request $request, Context $context)
+    private function setOrigin(Request $request, Context $context): void
     {
         $this->setRequestAttributeHack($request, PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context);
     }
 
-    private function setRequestAttributeHack(Request $request, $key, $value)
+    private function setRequestAttributeHack(Request $request, $key, $value): void
     {
         $r = new ReflectionProperty(Request::class, 'attributes');
         $r->setAccessible(true);

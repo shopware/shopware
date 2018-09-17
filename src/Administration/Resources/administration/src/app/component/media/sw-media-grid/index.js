@@ -68,6 +68,10 @@ Component.register('sw-media-grid', {
     },
 
     computed: {
+        showAsList() {
+            return this.previewType === 'media-grid-preview-as-list';
+        },
+
         mediaGridClasses() {
             return {
                 'is--grid': this.previewType === 'media-grid-preview-as-grid',
@@ -75,20 +79,12 @@ Component.register('sw-media-grid', {
             };
         },
 
-        dragSelectorClass() {
-            return 'sw-media-grid-item';
-        },
-
         mediaColumnDefinitions() {
             let columnDefinition;
 
-            switch (this.previewType) {
-            case 'media-grid-preview-as-list':
+            if (this.showAsList) {
                 columnDefinition = '100%';
-                break;
-
-            case 'media-grid-preview-as-grid':
-            default:
+            } else {
                 columnDefinition = `repeat(auto-fit, ${this.gridColumnWidth}px)`;
             }
 
@@ -99,16 +95,6 @@ Component.register('sw-media-grid', {
 
         showSelectedIndicator() {
             return this.selectable && this.selection.length > 0;
-        },
-
-        containerOptions() {
-            return {
-                previewType: this.previewType,
-                selectionInProgress: this.showSelectedIndicator,
-                previewSize: this.gridColumnWidth,
-                selectable: this.selectable,
-                editable: this.editable
-            };
         }
     },
 

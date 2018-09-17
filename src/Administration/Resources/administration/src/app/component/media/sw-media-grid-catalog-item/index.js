@@ -3,11 +3,11 @@ import 'src/app/component/media/sw-media-grid-item';
 import template from './sw-media-grid-catalog-item.html.twig';
 import './sw-media-grid-catalog-item.less';
 
-Component.extend('sw-media-grid-catalog-item', 'sw-media-grid-item', {
+Component.register('sw-media-grid-catalog-item', {
     template,
 
     props: {
-        item: {
+        catalog: {
             required: true,
             type: Object,
             validator(value) {
@@ -16,32 +16,12 @@ Component.extend('sw-media-grid-catalog-item', 'sw-media-grid-item', {
         }
     },
 
-    computed: {
-        gridItemListeners() {
-            return {
-                click: this.emitClickedEvent
-            };
-        }
-    },
-
     methods: {
-        emitClickedEvent(originalDomEvent) {
-            const target = originalDomEvent.target;
-            if (this.showContextMenuButton) {
-                const el = this.$refs.swContextButton.$el;
-                if ((el === target) || el.contains(target)) {
-                    return;
-                }
-            }
-
-            this.viewCatalogContent();
-        },
-
         viewCatalogContent() {
             this.$router.push({
                 name: 'sw.media.catalog-content',
                 params: {
-                    id: this.item.id
+                    id: this.catalog.id
                 },
                 query: {
                     limit: 25,

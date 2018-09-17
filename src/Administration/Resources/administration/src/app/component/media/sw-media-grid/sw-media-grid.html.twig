@@ -12,7 +12,8 @@
                                 {% block sw_media_grid_media_item_component %}
                                     <sw-media-grid-media-item
                                         v-if="item.type === 'media'"
-                                        :containerOptions="containerOptions"
+                                        :multiSelectInProgress="showSelectedIndicator"
+                                        :isList="showAsList"
                                         :selected="isItemSelected(item)"
                                         :item="item"
                                         :showContextMenuButton="showContextMenuButton"
@@ -27,14 +28,7 @@
                                 {% block sw_media_grid_catalog_item_component %}
                                     <sw-media-grid-catalog-item
                                         v-if="item.type === 'catalog'"
-                                        :containerOptions="containerOptions"
-                                        :selected="isItemSelected(item)"
-                                        :item="item"
-                                        @sw-media-grid-item-selection-add="handleSelection"
-                                        @sw-media-grid-item-clicked="mediaItemClicked"
-                                        @sw-media-grid-item-play="mediaItemPlayed"
-                                        @sw-media-grid-item-selection-remove="removeFromSelection"
-                                        v-on="$listeners">
+                                        :catalog="item" >
                                     </sw-media-grid-catalog-item>
                                 {% endblock %}
                             {% endblock %}

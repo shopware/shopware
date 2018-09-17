@@ -1,48 +1,70 @@
-{% block sw_media_grid_item_preview %}
-    <sw-media-preview :item="item" :class="mediaPreviewClasses" @sw-media-preview-play="emitPlayEvent">
-    </sw-media-preview>
-{% endblock %}
+{% block sw_media_grid_media_item %}
+    <div class="sw-media-grid-media-item">
+        {% block sw_media_grid_media_item_selected_idicator %}
+            <div class="sw-media-grid-media-item__selected-indicator"
+                 :class="selectedIndicatorClasses"
+                 v-if="!isList">
 
-{% block sw_media_grid_item_name %}
-    <input v-if="containerOptions.editable"
-        type="text"
-        ref="inputItemName"
-        tabindex="-1"
-        :value="item.name"
-        :disabled="true"
-        @keydown.enter="emitNameChanged"
-        @keydown.esc="cancelInlineEdit"
-        @blur="cancelInlineEditFromBlur">
-
-    <div v-else class="sw-media-grid-item__name" :title="itemTitle">
-        {{ itemTitle }}
-    </div>
-{% endblock %}
-
-{% block sw_media_grid_item_context_items%}
-    {% block sw_media_griditem_context_item_detail %}
-        <sw-context-menu-item @click="showItemDetails">
-            {{ $tc('global.sw-media-grid-media-item.contextMenuDetailLabel') }}
-        </sw-context-menu-item>
-    {% endblock %}
-
-    <div class="sw-context-menu__group">
-        {% block sw_media_griditem_context_item_copy_item_link %}
-            <sw-context-menu-item @click="copyItemLink">
-                {{ $tc('global.sw-media-grid-media-item.contextMenuCopyLinkLabel') }}
-            </sw-context-menu-item>
+                {% block sw_media_grid_item_selected_indicator %}
+                    <sw-field type="checkbox" :value="selected" @click.self.stop="doSelectItem"></sw-field>
+                {% endblock %}
+            </div>
         {% endblock %}
 
-        {% block sw_media_griditem_context_item_replace %}
-            <sw-context-menu-item @click="replaceItem">
-                {{ $tc('global.sw-media-grid-media-item.contextMenuReplaceLabel') }}
-            </sw-context-menu-item>
-        {% endblock %}
+        {% block sw_media_grid_media_item_grid_item %}
+            <sw-media-grid-item
+                :isList="isList"
+                :selected="multiSelectInProgress && selected"
+                :showContextMenuButton="showContextMenuButton"
+                @sw-media-grid-item-clicked="handleGridItemClick">
 
-        {% block sw_media_griditem_context_item_delete %}
-            <sw-context-menu-item @click="deleteItem" variant="danger">
-                {{ $tc('global.sw-media-grid-media-item.contextMenuDeleteLabel') }}
-            </sw-context-menu-item>
+                {% block sw_media_grid_media_item_slot_media_preview %}
+                    <template slot="media-item-preview">
+                        {% block sw_media_grid_media_item_preview %}
+                            <sw-media-preview :item="item" :class="mediaPreviewClasses" @sw-media-preview-play="emitPlayEvent">
+                            </sw-media-preview>
+                        {% endblock %}
+                    </template>
+                {% endblock %}
+
+                {% block sw_media_grid_media_item_slot_name %}
+                    <template slot="media-item-name">
+                                {{ item.name }}
+                    </template>
+                {% endblock %}
+
+                {% block sw_media_grid_media_item_context_menu %}
+                    <template slot="media-item-context-menu">
+                        {% block sw_media_griditem_context_item_detail %}
+                            <sw-context-menu-item @click="showItemDetails">
+                                {{ $tc('global.sw-media-grid-media-item.contextMenuDetailLabel') }}
+                            </sw-context-menu-item>
+                        {% endblock %}
+
+                        {% block sw_media_grid_media_item_context_group_quick_actions %}
+                            <div class="sw-context-menu__group">
+                                {% block sw_media_griditem_context_item_copy_item_link %}
+                                    <sw-context-menu-item @click="copyItemLink">
+                                        {{ $tc('global.sw-media-grid-media-item.contextMenuCopyLinkLabel') }}
+                                    </sw-context-menu-item>
+                                {% endblock %}
+
+                                {% block sw_media_griditem_context_item_replace %}
+                                    <sw-context-menu-item @click="replaceItem">
+                                        {{ $tc('global.sw-media-grid-media-item.contextMenuReplaceLabel') }}
+                                    </sw-context-menu-item>
+                                {% endblock %}
+
+                                {% block sw_media_griditem_context_item_delete %}
+                                    <sw-context-menu-item @click="deleteItem" variant="danger">
+                                        {{ $tc('global.sw-media-grid-media-item.contextMenuDeleteLabel') }}
+                                    </sw-context-menu-item>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    </template>
+                {% endblock %}
+            </sw-media-grid-item>
         {% endblock %}
     </div>
 {% endblock %}

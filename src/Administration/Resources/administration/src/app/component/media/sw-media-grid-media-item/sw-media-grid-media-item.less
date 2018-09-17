@@ -3,40 +3,25 @@
 @sw-media-grid-media-item-border-radius-input: @border-radius-default;
 @sw-media-grid-media-color-input-border:       @color-steam-cloud;
 @sw-media-grid-media-color-input:              @color-black;
+@sw-media-grid-item-pseudo-padding:            20px;
 
-.sw-media-grid-item {
-    .sw-media-grid-item__content.is--grid {
-        input[type="text"] {
-            text-align: center;
-            width: 100%;
+.sw-media-grid-media-item {
+    position: relative;
+
+    .sw-media-grid-media-item__selected-indicator {
+        visibility: hidden;
+        position: absolute;
+        top: @sw-media-grid-item-pseudo-padding;
+        left: @sw-media-grid-item-pseudo-padding;
+    }
+
+    &:hover {
+        .sw-media-grid-media-item__selected-indicator {
+            visibility: visible;
         }
     }
 
-    .sw-media-grid-item__content.is--list {
-        .sw-media-preview {
-            width: 40px;
-            height: 40px;
-        }
-    }
-
-    .sw-media-grid-item__name-container {
-        font-weight: 600;
-        
-        input[type="text"] {
-            outline: none;
-            -webkit-appearance: none;
-            color: inherit;
-            background-color: inherit;
-            border-radius: @sw-media-grid-media-item-border-radius-input;
-            border: 1px solid transparent;
-            padding: 0 5px;
-            line-height: 2;
-
-            &:focus {
-                border: 1px solid @sw-media-grid-media-color-input-border;
-                color: @sw-media-grid-media-color-input;
-                background-color: @color-white;
-            }
-        }
+    .selected-indicator--visible {
+        visibility: visible;
     }
 }

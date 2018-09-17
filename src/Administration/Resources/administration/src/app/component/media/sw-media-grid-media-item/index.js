@@ -3,7 +3,7 @@ import template from './sw-media-grid-media-item.html.twig';
 import './sw-media-grid-media-item.less';
 import domUtils from '../../../../core/service/utils/dom.utils';
 
-Component.extend('sw-media-grid-media-item', 'sw-media-grid-item', {
+Component.register('sw-media-grid-media-item', {
     template,
 
     props: {
@@ -11,46 +11,81 @@ Component.extend('sw-media-grid-media-item', 'sw-media-grid-item', {
             required: true,
             type: Object,
             validator(value) {
-                return value.type !== undefined && value.type === 'media';
+                return value.type === 'media';
             }
+        },
+
+        multiSelectInProgress: {
+            required: true,
+            type: Boolean
+        },
+
+        selected: {
+            type: Boolean,
+            required: true
+        },
+
+        isList: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+
+        showContextMenuButton: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
 
-    data() {
-        return {
-            fromBlur: false
-        };
-    },
-
     computed: {
-        gridItemListeners() {
+        mediaPreviewClasses() {
             return {
-                click: this.doMainAction,
-                dblclick: this.startInlineEdit
+                'is--highlighted': this.selected && this.multiSelectInProgress
             };
         },
 
-        mediaPreviewClasses() {
+        selectedIndicatorClasses() {
             return {
-                'is--highlighted': this.selected && this.containerOptions.selectionInProgress
+                'selected-indicator--visible': this.multiSelectInProgress
             };
         }
     },
 
     methods: {
-        doMainAction(originalDomEvent) {
-            if (this.containerOptions.editable) {
-                if (!this.$refs.inputItemName.disabled) {
-                    return;
-                }
-
-                if (this.fromBlur) {
-                    this.fromBlur = false;
-                    return;
-                }
+        handleGridItemClick({ originalDomEvent }) {
+            if (!this.selected) {
+                this.$emit('sw-media-grid-item-clicked', {
+                    originalDomEvent,
+                    item: this.item
+                });
+                return;
             }
 
-            this.emitClickedEvent(originalDomEvent);
+            this.removeFromSelection(originalDomEvent);
+        },
+
+        doSelectItem(originalDomEvent) {
+            if (!this.selected) {
+                this.selectItem(originalDomEvent);
+                return;
+            }
+
+            this.removeFromSelection(originalDomEvent);
+        },
+
+        selectItem(originalDomEvent) {
+            this.$emit('sw-media-grid-item-selection-add', {
+                originalDomEvent,
+                item: this.item
+            });
+        },
+
+        removeFromSelection(originalDomEvent) {
+            this.$emit('sw-media-grid-item-selection-remove', {
+                originalDomEvent,
+                item: this.item
+            });
         },
 
         emitPlayEvent(originalDomEvent) {
@@ -63,34 +98,6 @@ Component.extend('sw-media-grid-media-item', 'sw-media-grid-item', {
             }
 
             this.removeFromSelection(originalDomEvent);
-        },
-
-        startInlineEdit() {
-            if (this.containerOptions.editable) {
-                const input = this.$refs.inputItemName;
-
-                this.selectItem();
-                input.disabled = false;
-                input.focus();
-            }
-        },
-
-        cancelInlineEditFromBlur() {
-            this.fromBlur = true;
-            this.cancelInlineEdit();
-        },
-
-        cancelInlineEdit() {
-            this.$refs.inputItemName.value = this.item.name;
-            this.$refs.inputItemName.disabled = true;
-        },
-
-        emitNameChanged(originalDomEvent) {
-            this.$emit('sw-media-grid-media-item-change-name', {
-                originalDomEvent,
-                item: this.item,
-                newName: this.$refs.inputItemName.value
-            });
         },
 
         showItemDetails(originalDomEvent) {

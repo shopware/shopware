@@ -21,8 +21,22 @@ rm(path.join(config.build.assetsRoot, config.build.assetsSubDirectory), (removeD
 
     webpack(webpackConfig, (webpackError, stats) => {
         spinner.stop();
+
         if (webpackError) {
-            throw webpackError;
+            console.error(webpackError.stack || err);
+            if (webpackError.details) {
+                console.error(webpackError.details);
+            }
+            return;
+        }
+
+        const info = stats.toJson();
+        if (stats.hasErrors()) {
+            console.error(info.errors);
+        }
+
+        if (stats.hasWarnings()) {
+            console.warn(info.warnings);
         }
 
         process.stdout.write(stats.toString({
@@ -34,9 +48,5 @@ rm(path.join(config.build.assetsRoot, config.build.assetsSubDirectory), (removeD
         }) + '\n\n');
 
         console.log(chalk.cyan('  Build complete.\n'));
-        console.log(chalk.yellow(
-            '  Tip: built files are meant to be served over an HTTP server.\n' +
-            '  Opening index.html over file:// won\'t work.\n'
-        ));
     });
 });

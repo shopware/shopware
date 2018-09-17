@@ -137,34 +137,40 @@ Component.register('sw-media-index', {
             this.mediaItemToReplace = null;
         },
 
-        handleItemReplaced(replacementPromise, fileName) {
+        handleItemReplaced(replacementPromise, file) {
             this.closeReplaceModal();
 
             replacementPromise.then(() => {
-                this.loadMedia();
-                this.createNotificationSuccess({
-                    message: this.$tc('sw-media.replace.notificationSuccess')
+                this.loadMedia().then(() => {
+                    const media = this.mediaItems.find((item) => {
+                        return item.id === file.id;
+                    });
+                    media.url = `${media.url}?${Date.now()}`;
+                    this.createNotificationSuccess({
+                        message: this.$tc('sw-media.replace.notificationSuccess')
+                    });
                 });
             }).catch(() => {
                 this.createNotificationError({
-                    message: this.$tc('sw-media.replace.notificationFailure', 0, { mediaName: fileName })
+                    message: this.$tc('sw-media.replace.notificationFailure', 0, { mediaName: file.name })
                 });
             });
         },
 
         loadMedia() {
             if (this.isSearch) {
-                this.loadSearchedMedia();
-                this.isLoading = false;
-                return;
+                return this.loadSearchedMedia().then(() => {
+                    this.isLoading = false;
+                });
             }
 
-            this.loadLastAddedMedia();
-            this.isLoading = false;
+            return this.loadLastAddedMedia().then(() => {
+                this.isLoading = false;
+            });
         },
 
         loadLastAddedMedia() {
-            this.mediaItemStore.getList({
+            return this.mediaItemStore.getList({
                 page: 1,
                 limit: 10,
                 sortBy: 'createdAt',
@@ -183,7 +189,7 @@ Component.register('sw-media-index', {
                 sortDirection: 'desc'
             };
 
-            this.mediaItemStore.getList(params).then((response) => {
+            return this.mediaItemStore.getList(params).then((response) => {
                 this.mediaItems = response.items;
                 this.selectedItems = this.mediaItems[0];
                 this.handleMediaGridItemShowDetails({ item: this.mediaItems[0] });

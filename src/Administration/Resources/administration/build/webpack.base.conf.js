@@ -33,25 +33,6 @@ module.exports = {
         commons: [ resolve('src') + '/core/common.js', resolve('src') + '/core/shopware.js' ],
         app: resolve('src') + '/app/main.js'
     },
-    optimization: {
-        splitChunks: {
-            minSize: 0,
-            cacheGroups: {
-                vendors: {
-                    test: /[\\/]node_modules[\\/]/,
-                    name: 'vendors',
-                    chunks: 'all',
-                    priority: 10
-                },
-                components: {
-                    test: /[\\/]src[\\/]app[\\/]component[\\/]/,
-                    name: 'components',
-                    chunks: 'all',
-                    priority: 10
-                }
-            }
-        }
-    },
     output: {
         path: config.build.assetsRoot,
         filename: utils.assetsPath('js/[name].js'),

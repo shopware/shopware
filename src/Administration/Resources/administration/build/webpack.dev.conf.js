@@ -19,6 +19,25 @@ let mergedWebpackConfig = merge(baseWebpackConfig, {
     module: {
         rules: utils.styleLoaders({ sourceMap: config.dev.cssSourceMap })
     },
+    optimization: {
+        splitChunks: {
+            minSize: 0,
+            cacheGroups: {
+                vendors: {
+                    test: /[\\/]node_modules[\\/]/,
+                    name: 'vendors',
+                    chunks: 'all',
+                    priority: 10
+                },
+                components: {
+                    test: /[\\/]src[\\/]app[\\/]component[\\/]/,
+                    name: 'components',
+                    chunks: 'all',
+                    priority: 10
+                }
+            }
+        }
+    },
     // cheap-module-eval-source-map is faster for development
     devtool: '#cheap-module-eval-source-map',
     plugins: [

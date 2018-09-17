@@ -588,7 +588,8 @@
     },
     "upload": {
       "notificationSuccess": "File saved",
-      "notificationFailure": "There was an error uploading {mediaName}"
+      "notificationFailure": "There was an error uploading {mediaName}",
+      "notificationInfo": "Upload from one file started | Upload from {count} files started"
     },
     "replace": {
       "notificationSuccess": "File replaced",

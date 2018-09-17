@@ -7,8 +7,8 @@ Component.register('sw-media-grid-item', {
 
     props: {
         isList: {
-            required: false,
             type: Boolean,
+            required: false,
             default: false
         },
 
@@ -19,25 +19,28 @@ Component.register('sw-media-grid-item', {
         },
 
         showContextMenuButton: {
-            required: false,
             type: Boolean,
+            required: false,
             default: true
+        },
+
+        isLoading: {
+            type: Boolean,
+            required: true
         }
     },
 
     computed: {
         mediaItemClasses() {
             return {
-                'is--selected': this.selected,
-                'is--grid': !this.isListItemPreview,
-                'is--list': this.isListItemPreview
+                'is--grid': !this.isList,
+                'is--list': this.isList
             };
         },
 
-        mediaItemContentClasses() {
+        isSelectedClass() {
             return {
-                'is--grid': !this.isList,
-                'is--list': this.isList
+                'is--selected': this.selected
             };
         }
     },

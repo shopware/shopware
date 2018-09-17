@@ -80,12 +80,10 @@ Component.register('sw-media-grid', {
         },
 
         mediaColumnDefinitions() {
-            let columnDefinition;
+            let columnDefinition = `repeat(auto-fit, ${this.gridColumnWidth}px)`;
 
             if (this.showAsList) {
-                columnDefinition = '100%';
-            } else {
-                columnDefinition = `repeat(auto-fit, ${this.gridColumnWidth}px)`;
+                columnDefinition = '1fr';
             }
 
             return {

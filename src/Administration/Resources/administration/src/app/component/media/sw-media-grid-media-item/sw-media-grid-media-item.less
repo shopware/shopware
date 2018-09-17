@@ -1,4 +1,5 @@
 @import "~less/variables";
+@import "~less/mixins";
 
 @sw-media-grid-media-item-border-radius-input: @border-radius-default;
 @sw-media-grid-media-color-input-border:       @color-steam-cloud;
@@ -23,5 +24,9 @@
 
     .selected-indicator--visible {
         visibility: visible;
+    }
+
+    .sw-media-grid-media-item__name {
+        .truncate()
     }
 }

@@ -1,7 +1,7 @@
 {%  block sw_media_grid_item %}
-    <div class="sw-media-grid-item" :class="mediaItemClasses" @click.stop="emitClickedEvent">
+    <div class="sw-media-grid-item" :class="[mediaItemClasses, isSelectedClass]" @click="emitClickedEvent">
         {% block sw_media_grid_item_content %}
-            <div class="sw-media-grid-item__content" :class="mediaItemContentClasses">
+            <div class="sw-media-grid-item__content" :class="mediaItemClasses">
                 {% block sw_media_grid_item_preview %}
                     <slot name="media-item-preview"></slot>
                 {% endblock %}
@@ -16,12 +16,21 @@
                 {% endblock %}
 
                 {% block sw_media_grid_item_context_menu %}
-                    <sw-context-button v-if="showContextMenuButton" ref="swContextButton">
+                    <sw-context-button v-if="showContextMenuButton && !isLoading" ref="swContextButton">
                         {% block sw_media_grid_item_context_items%}
 
                             <slot name="media-item-context-menu"></slot>
                         {% endblock %}
                     </sw-context-button>
+                {% endblock %}
+
+                {% block sw_media_grid_item_loading_indicator %}
+                    <sw-icon
+                        v-if="isLoading"
+                        class="sw-media-grid-item__loader"
+                        name="default-web-loading-star"
+                        size="16px">
+                    </sw-icon>
                 {% endblock %}
             </div>
         {% endblock %}

@@ -1,5 +1,8 @@
 {% block sw_media_grid_catalog_item %}
-    <sw-media-grid-item @sw-media-grid-item-clicked="viewCatalogContent" class="sw-media-grid-catalog-item">
+    <sw-media-grid-item
+        class="sw-media-grid-catalog-item"
+        :isLoading="catalog.isLoading"
+        @sw-media-grid-item-clicked="viewCatalogContent">
 
         {% block sw_media_grid_catalog_item_slot_preview %}
             <template slot="media-item-preview">
@@ -19,9 +22,9 @@
 
         {% block sw_media_grid_catalog_item_slot_item_name %}
             <template slot="media-item-name">
-                {% block sw_media_grid_catalog_item_name %}
+                <div class="sw-media-grid-catalog-item__name" :title="catalog.name">
                     {{ catalog.name }}
-                {% endblock %}
+                </div>
             </template>
         {% endblock %}
 

@@ -6,7 +6,7 @@
                  v-if="!isList">
 
                 {% block sw_media_grid_item_selected_indicator %}
-                    <sw-field type="checkbox" :value="selected" @click.self.stop="doSelectItem"></sw-field>
+                    <sw-field type="checkbox" :value="selected" @click.self="doSelectItem"></sw-field>
                 {% endblock %}
             </div>
         {% endblock %}
@@ -15,6 +15,7 @@
             <sw-media-grid-item
                 :isList="isList"
                 :selected="multiSelectInProgress && selected"
+                :isLoading="item.isLoading"
                 :showContextMenuButton="showContextMenuButton"
                 @sw-media-grid-item-clicked="handleGridItemClick">
 
@@ -29,7 +30,9 @@
 
                 {% block sw_media_grid_media_item_slot_name %}
                     <template slot="media-item-name">
-                                {{ item.name }}
+                        <div class="sw-media-grid-media-item__name" :title="item.name">
+                            {{ item.name }}
+                        </div>
                     </template>
                 {% endblock %}
 

@@ -16,32 +16,34 @@
             </div>
         {% endblock %}
 
-        {% block sw_admin_menu_body %}
-            <div class="sw-admin-menu__body" ref="swAdminMenuBody" :style="scrollbarOffsetStyle">
+        {% block sw_admin_menu_body_container %}
+            <div class="sw-admin-menu__body-container">
 
-                {% block sw_admin_menu_navigation_main %}
-                    <nav class="sw-admin-menu__navigation">
+                {% block sw_admin_menu_body %}
+                    <div class="sw-admin-menu__body" ref="swAdminMenuBody" :style="scrollbarOffsetStyle">
 
-                        {% block sw_admin_menu_navigation_main_list %}
-                            <ul class="sw-admin-menu__navigation-list">
+                        {% block sw_admin_menu_navigation_main %}
+                            <nav class="sw-admin-menu__navigation">
 
-                                {% block sw_admin_menu_navigation_main_items %}
-                                    <sw-admin-menu-item v-for="entry in mainMenuEntries"
-                                                        @menuItemHovered="openFlyout"
-                                                        @menuItemClicked="openSubMenu"
-                                                        :sidebarExpanded="isExpanded"
-                                                        :entry="entry"
-                                                        :key="entry.id || entry.path"
-                                                        :class="entry.label">
-                                    </sw-admin-menu-item>
+                                {% block sw_admin_menu_navigation_main_list %}
+                                    <ul class="sw-admin-menu__navigation-list">
+
+                                        {% block sw_admin_menu_navigation_main_items %}
+                                            <sw-admin-menu-item v-for="entry in mainMenuEntries"
+                                                                @menuItemHovered="openFlyout"
+                                                                @menuItemClicked="openSubMenu"
+                                                                :sidebarExpanded="isExpanded"
+                                                                :entry="entry"
+                                                                :key="entry.id || entry.path"
+                                                                :class="entry.label">
+                                            </sw-admin-menu-item>
+                                        {% endblock %}
+                                    </ul>
                                 {% endblock %}
-
-                            </ul>
+                            </nav>
                         {% endblock %}
-
-                    </nav>
+                    </div>
                 {% endblock %}
-
             </div>
         {% endblock %}
 

@@ -57,6 +57,10 @@ Component.register('sw-media-upload', {
             const newMediaFiles = Array.from(this.$refs.fileInput.files);
             const uploadTag = util.createId();
 
+            this.createNotificationInfo({
+                message: this.$tc('sw-media.upload.notificationInfo', newMediaFiles.length, { count: newMediaFiles.length })
+            });
+
             newMediaFiles.forEach((file) => {
                 this.addMediaEntityFromFile(file, uploadTag);
             });
@@ -93,6 +97,10 @@ Component.register('sw-media-upload', {
 
         createMediaEntityFromUrl(url) {
             const mediaEntity = this.createNewMedia(this.getNameFromURL(url));
+
+            this.createNotificationInfo({
+                message: this.$tc('sw-media.upload.notificationInfo', 1, { count: 1 })
+            });
 
             mediaEntity.save().then(() => {
                 const uploadTag = mediaEntity.id;

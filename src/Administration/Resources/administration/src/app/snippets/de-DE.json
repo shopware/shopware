@@ -588,7 +588,8 @@
     },
     "upload": {
       "notificationSuccess": "Datei erfolgreich gespeichert",
-      "notificationFailure": "Fehler beim hochladen von {mediaName}"
+      "notificationFailure": "Fehler beim hochladen von {mediaName}",
+      "notificationInfo": "Hochladen von einer Datei gestartet | Upload von {count} Dateien gestartet"
     },
     "replace": {
       "notificationSuccess": "Datei erfolgreich ersetzt",

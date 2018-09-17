@@ -117,8 +117,7 @@ Unlike a voucher, most products in a shopping cart are goods that need to be del
 In order to mark an element for the cart as an deliverable element, it is necessary to implement the interface `\Shopware\Core\Checkout\Cart\LineItem\DeliverableLineItemInterface`.
 These interface provides all functions which are required to determine the delivery time and to calculate the shipping costs:
 ```php
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Cart\LineItem;
 

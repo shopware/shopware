@@ -12,5 +12,12 @@ Component.register('sw-settings-language-list', {
         return {
             entityName: 'language'
         };
+    },
+
+    methods: {
+        isDefault(id) {
+            const defaultLanguageId = '20080911ffff4fffafffffff19830531';
+            return defaultLanguageId === id;
+        }
     }
 });

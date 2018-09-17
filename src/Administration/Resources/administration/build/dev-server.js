@@ -29,7 +29,8 @@ app.use('/__open-in-editor', openInEditor(config.dev.editor));
 
 const devMiddleware = require('webpack-dev-middleware')(compiler, {
     publicPath: webpackConfig.output.publicPath,
-    hot: true
+    hot: true,
+    stats: 'minimal'
 });
 
 const hotMiddleware = require('webpack-hot-middleware')(compiler, {

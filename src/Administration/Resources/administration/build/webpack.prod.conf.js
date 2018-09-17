@@ -25,7 +25,7 @@ const webpackConfig = merge(baseWebpackConfig, {
             sourceMap: config.build.productionSourceMap
         })
     },
-    /* optimization: {
+    optimization: {
         minimizer: [
             new UglifyJsPlugin({
                 uglifyOptions: {
@@ -35,11 +35,11 @@ const webpackConfig = merge(baseWebpackConfig, {
                 },
                 cache: true,
                 parallel: true,
-                sourceMap: true
+                sourceMap: false
             }),
             new OptimizeCSSAssetsPlugin()
         ]
-    }, */
+    },
     devtool: config.build.productionSourceMap ? '#source-map' : false,
     output: {
         path: config.build.assetsRoot,

@@ -10,12 +10,17 @@
 
     .sw-media-grid__content {
         display: grid;
-        grid-column-gap: 15px;
-        grid-row-gap: 10px;
     }
 
-    .sw-media-grid__content-cell:hover {
-        background-color: @media-grid-cell-color-highlight;
-        border-radius: @media-grid-border-radius-content-cell;
+    &.is--grid {
+        .sw-media-grid__content {
+            grid-column-gap: 15px;
+            grid-row-gap: 10px;
+        }
+
+        .sw-media-grid__content-cell:hover {
+            background-color: @media-grid-cell-color-highlight;
+            border-radius: @media-grid-border-radius-content-cell;
+        }
     }
 }

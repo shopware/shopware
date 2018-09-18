@@ -93,7 +93,9 @@
                     {% block sw_media_quickinfo_metadata_content %}
                     <dl class="sw-media-quickinfo__collapse-content">
                         {% block sw_media_quickinfo_metadata_content_base %}
-                        <sw-media-quickinfo-metadata-item label-name="name" :value="this.item.name"></sw-media-quickinfo-metadata-item>
+                            <sw-media-quickinfo-metadata-item label-name="name"
+                                :value="this.item.name">
+                            </sw-media-quickinfo-metadata-item>
                             <sw-media-quickinfo-metadata-item label-name="mimeType"
                                 :value="this.item.mimeType">
                             </sw-media-quickinfo-metadata-item>

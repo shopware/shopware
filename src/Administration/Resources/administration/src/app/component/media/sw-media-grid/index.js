@@ -68,6 +68,13 @@ Component.register('sw-media-grid', {
     },
 
     computed: {
+        mediaGridClasses() {
+            return {
+                'is--grid': this.previewType === 'media-grid-preview-as-grid',
+                'is--list': this.previewType === 'media-grid-preview-as-list'
+            };
+        },
+
         dragSelectorClass() {
             return 'sw-media-grid-item';
         },

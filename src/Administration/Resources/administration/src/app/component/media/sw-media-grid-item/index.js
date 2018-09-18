@@ -45,7 +45,9 @@ Component.register('sw-media-grid-item', {
 
         mediaItemClasses() {
             return {
-                'is--selected': this.selected
+                'is--selected': this.selected,
+                'is--grid': !this.isListItemPreview,
+                'is--list': this.isListItemPreview
             };
         },
 

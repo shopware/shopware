@@ -14,7 +14,7 @@
         @keydown.esc="cancelInlineEdit"
         @blur="cancelInlineEditFromBlur">
 
-    <div v-else class="sw-media-grid-item__name">
+    <div v-else class="sw-media-grid-item__name" :title="itemTitle">
         {{ itemTitle }}
     </div>
 {% endblock %}

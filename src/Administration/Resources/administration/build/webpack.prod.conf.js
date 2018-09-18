@@ -27,21 +27,7 @@ const webpackConfig = merge(baseWebpackConfig, {
     },
     optimization: {
         splitChunks: {
-            minSize: 0,
-            cacheGroups: {
-                vendors: {
-                    test: /[\\/]node_modules[\\/]/,
-                    name: 'vendors',
-                    chunks: 'all',
-                    priority: 10
-                },
-                components: {
-                    test: /[\\/]src[\\/]app[\\/]component[\\/]/,
-                    name: 'components',
-                    chunks: 'all',
-                    priority: 10
-                }
-            }
+            minSize: 0
         },
         minimizer: [
             new UglifyJsPlugin({

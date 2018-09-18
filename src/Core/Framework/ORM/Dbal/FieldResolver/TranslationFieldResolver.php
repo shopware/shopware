@@ -98,7 +98,7 @@ class TranslationFieldResolver implements FieldResolverInterface
                 array_keys($parameters),
                 array_values($parameters),
                 '#alias#.`#entity#_id` = #root#.`id` AND #alias#.`language_id` = :fallbackLanguageId' . $versionJoin .
-                ' AND #alias#.``#entity#_tenant_id` = #root#.`tenant_id`'
+                ' AND #alias#.`#entity#_tenant_id` = #root#.`tenant_id`'
             )
         );
         $languageId = Uuid::fromStringToBytes($context->getFallbackLanguageId());

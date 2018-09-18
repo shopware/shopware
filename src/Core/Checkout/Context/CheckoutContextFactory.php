@@ -166,7 +166,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
 
         $fallbackLanguage = null;
         if ($language->getParentId()) {
-            $language = $this->languageRepository->read(new ReadCriteria([$language->getParentId()]), $context)->get($language->getParentId());
+            $fallbackLanguage = $this->languageRepository->read(new ReadCriteria([$language->getParentId()]), $context)->get($language->getParentId());
         }
 
         //fallback customer group is hard coded to 'EK'

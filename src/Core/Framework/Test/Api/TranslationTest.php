@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\PlatformRequest;
 
+/**
+ * TODO: test language fallback (currently only works in storefront api, but cant override language in storefront)
+ */
 class TranslationTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -18,10 +21,10 @@ class TranslationTest extends TestCase
         $this->createLanguage($langId);
 
         $this->assertTranslation(
-            'not translated',
+            ['name' => 'not translated'],
             [
-                Defaults::LANGUAGE => 'not translated',
-                $langId => 'translated',
+                Defaults::LANGUAGE => ['name' => 'not translated'],
+                $langId => ['name' => 'translated'],
             ],
             null
         );
@@ -33,10 +36,10 @@ class TranslationTest extends TestCase
         $this->createLanguage($langId);
 
         $this->assertTranslation(
-            'translated',
+            ['name' => 'translated'],
             [
-                Defaults::LANGUAGE => 'not translated',
-                $langId => 'translated',
+                Defaults::LANGUAGE => ['name' => 'not translated'],
+                $langId => ['name' => 'translated'],
             ],
             $langId
         );
@@ -48,9 +51,9 @@ class TranslationTest extends TestCase
         $this->createLanguage($langId);
 
         $this->assertTranslation(
-            'translated',
+            ['name' => 'translated'],
             [
-                $langId => 'translated',
+                $langId => ['name' => 'translated'],
             ],
             $langId
         );
@@ -62,10 +65,10 @@ class TranslationTest extends TestCase
         $this->createLanguage($langId);
 
         $this->assertTranslation(
-            'not translated',
+            ['name' => 'not translated'],
             [
-                Defaults::LANGUAGE => 'not translated',
-                $langId => 'translated',
+                Defaults::LANGUAGE => ['name' => 'not translated'],
+                $langId => ['name' => 'translated'],
             ],
             Defaults::LANGUAGE
         );
@@ -89,26 +92,22 @@ class TranslationTest extends TestCase
 
         $headerName = 'HTTP_' . strtoupper(str_replace('-', '_', PlatformRequest::HEADER_LANGUAGE_ID));
 
-        $this->apiClient->request('POST', $baseResource, $categoryData, [], [$headerName => $langId]);
-        $response = $this->apiClient->getResponse();
+        $this->getClient()->request('POST', $baseResource, $categoryData, [], [$headerName => $langId]);
+        $response = $this->getClient()->getResponse();
         $this->assertEquals(204, $response->getStatusCode());
 
         $this->assertEntityExists($this->getClient(), 'category', $id);
 
-        $this->apiClient->request('GET', $baseResource . '/' . $id, [], [], [$headerName => $langId]);
-        $response = $this->apiClient->getResponse();
+        $this->getClient()->request('GET', $baseResource . '/' . $id, [], [], [$headerName => $langId]);
+        $response = $this->getClient()->getResponse();
         $responseData = json_decode($response->getContent());
         $this->assertEquals($translatedName, $responseData->data->attributes->name);
     }
 
-    private function assertTranslation($expectedTranslation, $translations, $langIdOverride = null)
+    private function assertTranslation($expectedTranslations, $translations, $langIdOverride = null)
     {
         $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
         $id = Uuid::uuid4()->getHex();
-
-        $translations = array_map(function ($t) {
-            return ['name' => $t];
-        }, $translations);
 
         $categoryData = [
             'id' => $id,
@@ -130,22 +129,33 @@ class TranslationTest extends TestCase
 
         $this->getClient()->request('GET', $baseResource . '/' . $id, [], [], $headers);
 
-        $response = $this->apiClient->getResponse();
+        $response = $this->getClient()->getResponse();
         $responseData = json_decode($response->getContent());
 
-        $this->assertEquals($expectedTranslation, $responseData->data->attributes->name);
+        $this->assertArraySubset($expectedTranslations, (array) $responseData->data->attributes);
     }
 
-    private function createLanguage($langId)
+    private function createLanguage($langId, $fallbackId = null)
     {
         $baseUrl = '/api/v' . PlatformRequest::API_VERSION;
+
+        if ($fallbackId) {
+            $parentLanguageData = [
+                'id' => $fallbackId,
+                'name' => 'test language ' . $fallbackId,
+                'localeId' => Defaults::LOCALE,
+            ];
+            $this->getClient()->request('POST', $baseUrl . '/language', $parentLanguageData);
+            $this->assertEquals(204, $this->getClient()->getResponse()->getStatusCode());
+        }
+
         $languageData = [
             'id' => $langId,
             'name' => 'test language ' . $langId,
             'localeId' => Defaults::LOCALE,
+            'parentId' => $fallbackId,
         ];
         $this->getClient()->request('POST', $baseUrl . '/language', $languageData);
-
-        $this->assertEquals(204, $this->apiClient->getResponse()->getStatusCode());
+        $this->assertEquals(204, $this->getClient()->getResponse()->getStatusCode());
     }
 }

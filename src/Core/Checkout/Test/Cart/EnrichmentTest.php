@@ -57,7 +57,7 @@ class EnrichmentTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
     }
 
-    public function testMissingProductData()
+    public function testMissingProductData(): void
     {
         $id = Uuid::uuid4()->getHex();
 
@@ -113,7 +113,7 @@ class EnrichmentTest extends TestCase
         self::assertSame('test', $product->getCover()->getName());
     }
 
-    public function testProductCollectorDoNotOverrideData()
+    public function testProductCollectorDoNotOverrideData(): void
     {
         $id = Uuid::uuid4()->getHex();
 

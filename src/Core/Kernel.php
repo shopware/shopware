@@ -127,7 +127,7 @@ class Kernel extends HttpKernel
         return $this->getProjectDir() . '/var/logs';
     }
 
-    public function getPluginDir()
+    public function getPluginDir(): string
     {
         return $this->getProjectDir() . '/custom/plugins';
     }
@@ -144,7 +144,7 @@ class Kernel extends HttpKernel
         return parent::shutdown();
     }
 
-    protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader)
+    protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader): void
     {
         $container->setParameter('container.dumper.inline_class_loader', true);
 
@@ -156,7 +156,7 @@ class Kernel extends HttpKernel
         $loader->load($confDir . '/{services}_' . $this->environment . self::CONFIG_EXTS, 'glob');
     }
 
-    protected function configureRoutes(RouteCollectionBuilder $routes)
+    protected function configureRoutes(RouteCollectionBuilder $routes): void
     {
         $confDir = $this->getProjectDir() . '/config';
 

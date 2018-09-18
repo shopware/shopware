@@ -50,7 +50,7 @@ class KernelLifecycleManager
      *
      * @return KernelInterface A KernelInterface instance
      */
-    public static function bootKernel()
+    public static function bootKernel(): KernelInterface
     {
         static::ensureKernelShutdown();
 
@@ -67,7 +67,7 @@ class KernelLifecycleManager
      *
      * @return string The Kernel class name
      */
-    private static function getKernelClass()
+    private static function getKernelClass(): string
     {
         if (!isset($_SERVER['KERNEL_CLASS']) && !isset($_ENV['KERNEL_CLASS'])) {
             throw new \LogicException(sprintf('You must set the KERNEL_CLASS environment variable to the fully-qualified class name of your Kernel in phpunit.xml / phpunit.xml.dist or override the %1$s::createKernel() or %1$s::getKernelClass() method.', static::class));
@@ -108,7 +108,7 @@ class KernelLifecycleManager
     /**
      * Shuts the kernel down if it was used in the test.
      */
-    private static function ensureKernelShutdown()
+    private static function ensureKernelShutdown(): void
     {
         if (static::$kernel === null) {
             return;

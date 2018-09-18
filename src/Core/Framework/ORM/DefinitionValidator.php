@@ -386,7 +386,7 @@ class DefinitionValidator
         return $associationViolations;
     }
 
-    private function validateManyToMany(string $definition, ManyToManyAssociationField $association)
+    private function validateManyToMany(string $definition, ManyToManyAssociationField $association): array
     {
         $reference = $association->getReferenceDefinition();
 

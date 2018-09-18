@@ -68,7 +68,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
     }
 
-    public function testOrderProcess()
+    public function testOrderProcess(): void
     {
         $productId = Uuid::uuid4()->getHex();
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
@@ -111,7 +111,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         static::assertEquals($mail, $order['orderCustomer']['email']);
     }
 
-    public function testGuestOrderProcess()
+    public function testGuestOrderProcess(): void
     {
         $productId = Uuid::uuid4()->getHex();
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
@@ -183,7 +183,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         // todo@ju check shippingAddress when deliveries are implemented again
     }
 
-    public function testGuestOrderProcessWithPayment()
+    public function testGuestOrderProcessWithPayment(): void
     {
         // todo write test
         $productId = Uuid::uuid4()->getHex();
@@ -257,7 +257,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         // todo@ju check shippingAddress when deliveries are implemented again
     }
 
-    public function testGuestOrderProcessWithExistingCustomer()
+    public function testGuestOrderProcessWithExistingCustomer(): void
     {
         $productId = Uuid::uuid4()->getHex();
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
@@ -311,7 +311,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
     }
 
-    public function testGuestOrderProcessWithLoggedInCustomer()
+    public function testGuestOrderProcessWithLoggedInCustomer(): void
     {
         $productId = Uuid::uuid4()->getHex();
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
@@ -392,7 +392,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         // todo@ju check shippingAddress when deliveries are implemented again
     }
 
-    public function testOrderProcessWithEmptyCart()
+    public function testOrderProcessWithEmptyCart(): void
     {
         $addressId = Uuid::uuid4()->getHex();
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
@@ -557,7 +557,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         return $order;
     }
 
-    private function createCutomer(string $addressId, string $mail, string $password, Context $context)
+    private function createCutomer(string $addressId, string $mail, string $password, Context $context): void
     {
         $this->connection->executeUpdate('DELETE FROM customer WHERE email = :mail', [
             'mail' => $mail,
@@ -608,7 +608,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         return $client;
     }
 
-    private function addProduct(Client $client, string $id, int $quantity = 1)
+    private function addProduct(Client $client, string $id, int $quantity = 1): void
     {
         $client->request(
             'POST',
@@ -619,17 +619,17 @@ class StorefrontCheckoutControllerTest extends TestCase
         );
     }
 
-    private function order(Client $client)
+    private function order(Client $client): void
     {
         $client->request('POST', '/storefront-api/checkout/order');
     }
 
-    private function guestOrder(Client $client, array $payload)
+    private function guestOrder(Client $client, array $payload): void
     {
         $client->request('POST', '/storefront-api/checkout/guest-order', $payload);
     }
 
-    private function login(Client $client, string $email, string $password)
+    private function login(Client $client, string $email, string $password): void
     {
         $client->request('POST', '/storefront-api/customer/login', [
             'username' => $email,
@@ -637,7 +637,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         ]);
     }
 
-    private function pay(Client $client, string $orderId)
+    private function pay(Client $client, string $orderId): void
     {
         $client->request('GET', '/storefront-api/checkout/pay', ['transaction']);
     }

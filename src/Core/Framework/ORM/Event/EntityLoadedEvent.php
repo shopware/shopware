@@ -44,7 +44,7 @@ class EntityLoadedEvent extends NestedEvent
         $this->name = $this->definition::getEntityName() . '.loaded';
     }
 
-    public function getEntities()
+    public function getEntities(): EntityCollection
     {
         return $this->entities;
     }

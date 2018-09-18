@@ -74,7 +74,7 @@ class Delivery extends Struct
         return $this->deliveryDate;
     }
 
-    public function getEndDeliveryDate()
+    public function getEndDeliveryDate(): DeliveryDate
     {
         return $this->endDeliveryDate;
     }

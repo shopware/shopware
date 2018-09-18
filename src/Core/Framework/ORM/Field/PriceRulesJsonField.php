@@ -7,7 +7,7 @@ use Shopware\Core\Framework\ORM\Write\EntityExistence;
 
 class PriceRulesJsonField extends JsonField
 {
-    public static function format(string $ruleId, string $currencyId, float $gross, float $net)
+    public static function format(string $ruleId, string $currencyId, float $gross, float $net): array
     {
         return [
             'r' . $ruleId => [

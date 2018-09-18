@@ -163,7 +163,7 @@ class Cart extends Struct
         return $this->lineItems->get($lineItemKey);
     }
 
-    public function has(string $lineItemKey)
+    public function has(string $lineItemKey): bool
     {
         return $this->lineItems->has($lineItemKey);
     }
@@ -172,7 +172,7 @@ class Cart extends Struct
      * @throws LineItemNotFoundException
      * @throws LineItemNotRemoveableException
      */
-    public function remove(string $key)
+    public function remove(string $key): void
     {
         if (!$this->has($key)) {
             throw new LineItemNotFoundException($key);

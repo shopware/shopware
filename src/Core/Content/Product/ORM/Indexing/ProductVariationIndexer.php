@@ -78,7 +78,7 @@ class ProductVariationIndexer implements IndexerInterface
         $this->update($ids, $event->getContext());
     }
 
-    private function update(array $productIds, Context $context)
+    private function update(array $productIds, Context $context): void
     {
         if (empty($productIds)) {
             return;

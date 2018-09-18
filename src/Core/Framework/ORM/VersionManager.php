@@ -325,6 +325,9 @@ class VersionManager
         return $payload;
     }
 
+    /**
+     * @return array|string
+     */
     private function convertValue($value)
     {
         if ($value instanceof \DateTime) {

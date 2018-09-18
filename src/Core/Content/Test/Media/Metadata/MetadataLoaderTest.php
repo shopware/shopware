@@ -16,7 +16,7 @@ class MetadataLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public function testJpg()
+    public function testJpg(): void
     {
         $result = $this
             ->getMetadataLoader()
@@ -27,7 +27,7 @@ class MetadataLoaderTest extends TestCase
         $this->assertImageMetadata($result, 1021, 1530);
     }
 
-    public function testGif()
+    public function testGif(): void
     {
         $result = $this
             ->getMetadataLoader()
@@ -38,7 +38,7 @@ class MetadataLoaderTest extends TestCase
         $this->assertImageMetadata($result, 37, 142);
     }
 
-    public function testPng()
+    public function testPng(): void
     {
         $result = $this
             ->getMetadataLoader()
@@ -49,7 +49,7 @@ class MetadataLoaderTest extends TestCase
         $this->assertImageMetadata($result, 266, 499);
     }
 
-    public function testSvg()
+    public function testSvg(): void
     {
         $result = $this
             ->getMetadataLoader()
@@ -60,7 +60,7 @@ class MetadataLoaderTest extends TestCase
         $this->assertNoMetadata($result);
     }
 
-    public function testPdf()
+    public function testPdf(): void
     {
         $result = $this
             ->getMetadataLoader()
@@ -71,7 +71,7 @@ class MetadataLoaderTest extends TestCase
         $this->assertDocumentMetadata($result, 19, 'Adobe InDesign CC 13.0 (Macintosh)', null);
     }
 
-    public function testMp4()
+    public function testMp4(): void
     {
         $result = $this
             ->getMetadataLoader()
@@ -84,7 +84,7 @@ class MetadataLoaderTest extends TestCase
         $this->assertVideoMetadata($result, 30.0);
     }
 
-    public function testWebm()
+    public function testWebm(): void
     {
         $result = $this
             ->getMetadataLoader()
@@ -97,7 +97,7 @@ class MetadataLoaderTest extends TestCase
         $this->assertVideoMetadata($result, 30.0);
     }
 
-    public function testAvi()
+    public function testAvi(): void
     {
         $result = $this
             ->getMetadataLoader()
@@ -110,7 +110,7 @@ class MetadataLoaderTest extends TestCase
         $this->assertVideoMetadata($result, 30.0);
     }
 
-    public function testDoc()
+    public function testDoc(): void
     {
         $result = $this
             ->getMetadataLoader()
@@ -120,7 +120,7 @@ class MetadataLoaderTest extends TestCase
         $this->assertDocumentMetadata($result, null, '', '');
     }
 
-    public function testDocx()
+    public function testDocx(): void
     {
         $result = $this
             ->getMetadataLoader()

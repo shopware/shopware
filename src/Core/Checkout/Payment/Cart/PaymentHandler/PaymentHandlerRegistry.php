@@ -18,7 +18,7 @@ class PaymentHandlerRegistry
         }
     }
 
-    public function get(string $class)
+    public function get(string $class): PaymentHandlerInterface
     {
         if (!array_key_exists($class, $this->handlers)) {
             throw new UnknownPaymentMethodException($class);
@@ -27,7 +27,7 @@ class PaymentHandlerRegistry
         return $this->handlers[$class];
     }
 
-    private function add(PaymentHandlerInterface $handler)
+    private function add(PaymentHandlerInterface $handler): void
     {
         $this->handlers[\get_class($handler)] = $handler;
     }

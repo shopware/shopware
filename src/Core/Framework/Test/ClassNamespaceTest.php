@@ -8,7 +8,7 @@ use Symfony\Component\Finder\SplFileInfo;
 
 class ClassNamespaceTest extends TestCase
 {
-    public function test_all_production_files_are_namespaced_correctly()
+    public function test_all_production_files_are_namespaced_correctly(): void
     {
         $basePath = __DIR__ . '/../../../';
         $basePathParts = explode('/', $basePath);
@@ -53,7 +53,7 @@ class ClassNamespaceTest extends TestCase
         return $parts;
     }
 
-    private function hasNamespaceDefined(SplFileInfo $file)
+    private function hasNamespaceDefined(SplFileInfo $file): bool
     {
         $lines = explode("\n", $file->getContents());
 

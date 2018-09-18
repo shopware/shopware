@@ -75,7 +75,7 @@ class ValidationException extends \InvalidArgumentException implements ShopwareE
     /**
      * @return ConstraintViolationListInterface
      */
-    public function getViolations()
+    public function getViolations(): ConstraintViolationListInterface
     {
         return $this->violations;
     }

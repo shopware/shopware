@@ -37,7 +37,7 @@ class CategoryRepositoryTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
     }
 
-    public function testDeleteParentCategoryDeletesSubCategories()
+    public function testDeleteParentCategoryDeletesSubCategories(): void
     {
         $parentId = Uuid::uuid4();
         $childId = Uuid::uuid4();
@@ -90,7 +90,7 @@ class CategoryRepositoryTest extends TestCase
         static::assertEmpty($exists);
     }
 
-    public function testDeleteChildCategory()
+    public function testDeleteChildCategory(): void
     {
         $parentId = Uuid::uuid4();
         $childId = Uuid::uuid4();
@@ -141,7 +141,7 @@ class CategoryRepositoryTest extends TestCase
         static::assertNotEmpty($exists);
     }
 
-    public function testWriterConsidersDeleteParent()
+    public function testWriterConsidersDeleteParent(): void
     {
         $parentId = Uuid::uuid4();
         $childId = Uuid::uuid4();
@@ -181,7 +181,7 @@ class CategoryRepositoryTest extends TestCase
         static::assertContains($childId->getHex(), $event->getIds(), 'Category children id did not detected by delete');
     }
 
-    public function testSearchRanking()
+    public function testSearchRanking(): void
     {
         $parent = Uuid::uuid4()->getHex();
         $recordA = Uuid::uuid4()->getHex();

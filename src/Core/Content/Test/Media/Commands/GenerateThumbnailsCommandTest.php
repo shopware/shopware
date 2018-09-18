@@ -65,7 +65,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         $this->context->getExtension('write_protection')->set('write_media', true);
     }
 
-    public function testExecuteHappyPath()
+    public function testExecuteHappyPath(): void
     {
         $this->createValidMediaFiles();
 
@@ -99,7 +99,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         }
     }
 
-    public function testItSkipsNotSupportedMediaTypes()
+    public function testItSkipsNotSupportedMediaTypes(): void
     {
         $this->createNotSupportedMediaFiles();
 

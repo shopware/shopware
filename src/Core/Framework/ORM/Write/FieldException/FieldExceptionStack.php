@@ -6,12 +6,12 @@ class FieldExceptionStack
 {
     private $exceptions = [];
 
-    public function add(WriteFieldException $exception)
+    public function add(WriteFieldException $exception): void
     {
         $this->exceptions[] = $exception;
     }
 
-    public function tryToThrow()
+    public function tryToThrow(): void
     {
         $exceptions = $this->exceptions;
         $this->exceptions = [];

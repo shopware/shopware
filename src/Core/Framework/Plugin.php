@@ -61,7 +61,7 @@ class Plugin extends Bundle
      *
      * @param UpdateContext $context
      */
-    public function update(UpdateContext $context)
+    public function update(UpdateContext $context): void
     {
         $context->scheduleClearCache(InstallContext::CACHE_LIST_DEFAULT);
     }
@@ -130,7 +130,7 @@ class Plugin extends Bundle
      * @param ContainerBuilder $container
      * @param string           $key
      */
-    private function registerFilesystem(ContainerBuilder $container, string $key)
+    private function registerFilesystem(ContainerBuilder $container, string $key): void
     {
         $parameterKey = sprintf('shopware.filesystem.%s', $key);
         $serviceId = sprintf('%s.filesystem.%s', $this->getContainerPrefix(), $key);

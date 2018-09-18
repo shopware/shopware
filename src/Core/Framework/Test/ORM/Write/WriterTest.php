@@ -37,7 +37,7 @@ class WriterTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
     }
 
-    public function testDelete()
+    public function testDelete(): void
     {
         $id = Uuid::uuid4();
 
@@ -68,7 +68,7 @@ class WriterTest extends TestCase
         static::assertNotEmpty($deleteResult->getDeleted());
     }
 
-    public function testMultiDelete()
+    public function testMultiDelete(): void
     {
         $id = Uuid::uuid4();
         $id2 = Uuid::uuid4();
@@ -112,7 +112,7 @@ class WriterTest extends TestCase
         static::assertNotEmpty($deleteResult->getDeleted()[CountryAreaDefinition::class]);
     }
 
-    public function testMultiDeleteWithNoneExistingId()
+    public function testMultiDeleteWithNoneExistingId(): void
     {
         $id = Uuid::uuid4();
         $id2 = Uuid::uuid4();
@@ -160,7 +160,7 @@ class WriterTest extends TestCase
         static::assertEmpty($exists);
     }
 
-    public function testDeleteWithMultiplePrimaryColumns()
+    public function testDeleteWithMultiplePrimaryColumns(): void
     {
         $productId = Uuid::uuid4();
         $categoryId = Uuid::uuid4();
@@ -199,7 +199,7 @@ class WriterTest extends TestCase
         static::assertCount(0, $deleteResult->getNotFound());
     }
 
-    public function testRequiresAllPrimaryKeyValuesForDelete()
+    public function testRequiresAllPrimaryKeyValuesForDelete(): void
     {
         $this->expectException(IncompletePrimaryKeyException::class);
 
@@ -210,7 +210,7 @@ class WriterTest extends TestCase
         ], $this->createWriteContext());
     }
 
-    public function testMultiDeleteWithMultiplePrimaryColumns()
+    public function testMultiDeleteWithMultiplePrimaryColumns(): void
     {
         $productId = Uuid::uuid4();
         $productId2 = Uuid::uuid4();
@@ -272,7 +272,7 @@ class WriterTest extends TestCase
         static::assertCount(0, $deleteResult->getNotFound());
     }
 
-    public function testInsertWithId()
+    public function testInsertWithId(): void
     {
         $this->getWriter()->insert(
             ProductDefinition::class,
@@ -303,7 +303,7 @@ class WriterTest extends TestCase
         self::assertNotEmpty($product['id']);
     }
 
-    public function testInsertWithoutId()
+    public function testInsertWithoutId(): void
     {
         $productCountBefore = (int) $this->connection->fetchColumn('SELECT COUNT(*) FROM product');
 
@@ -326,7 +326,7 @@ class WriterTest extends TestCase
         self::assertSame($productCountBefore + 1, $productCountAfter);
     }
 
-    public function testInsertFromDocs()
+    public function testInsertFromDocs(): void
     {
         $this->getWriter()->insert(
             ProductDefinition::class,
@@ -364,7 +364,7 @@ class WriterTest extends TestCase
         self::assertNotEmpty($product);
     }
 
-    public function testUpdate()
+    public function testUpdate(): void
     {
         $this->insertEmptyProduct();
 
@@ -404,7 +404,7 @@ class WriterTest extends TestCase
         self::assertSame('http://www.shopware.com', $productManufacturer['link']);
     }
 
-    public function testUpdateWritesDefaultColumnsIfOmmitted()
+    public function testUpdateWritesDefaultColumnsIfOmmitted(): void
     {
         $this->insertEmptyProduct();
 
@@ -431,7 +431,7 @@ class WriterTest extends TestCase
         self::assertNotEquals('2011-01-01 15:03:01', $newProduct['created_at']);
     }
 
-    public function testUpdateWritesMultipleTranslations()
+    public function testUpdateWritesMultipleTranslations(): void
     {
         $this->insertEmptyProduct();
 
@@ -530,7 +530,7 @@ class WriterTest extends TestCase
         }
     }
 
-    public function testUpdateInvalid()
+    public function testUpdateInvalid(): void
     {
         $this->insertEmptyProduct();
 

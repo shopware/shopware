@@ -26,7 +26,7 @@ class Configuration implements ConfigurationInterface
         return $treeBuilder;
     }
 
-    private function createFilesystemSection()
+    private function createFilesystemSection(): ArrayNodeDefinition
     {
         $treeBuilder = new TreeBuilder();
 
@@ -55,7 +55,7 @@ class Configuration implements ConfigurationInterface
         return $node;
     }
 
-    private function createCdnSection()
+    private function createCdnSection(): ArrayNodeDefinition
     {
         $treeBuilder = new TreeBuilder();
 
@@ -72,7 +72,7 @@ class Configuration implements ConfigurationInterface
         return $node;
     }
 
-    private function createApiSection()
+    private function createApiSection(): ArrayNodeDefinition
     {
         $treeBuilder = new TreeBuilder();
 

@@ -27,7 +27,7 @@ trait AdminApiTestBehaviour
     /**
      * @after
      */
-    public function resetAdminApiTestCaseTrait()
+    public function resetAdminApiTestCaseTrait(): void
     {
         if (!$this->apiClient) {
             return;

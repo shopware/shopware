@@ -120,7 +120,7 @@ class OrderConverter
         return $data;
     }
 
-    private function convertNestedLineItem(LineItem $lineItem, string $parentId = null)
+    private function convertNestedLineItem(LineItem $lineItem, string $parentId = null): array
     {
         $children = $lineItem->getChildren();
 

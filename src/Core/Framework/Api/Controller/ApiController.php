@@ -145,7 +145,7 @@ class ApiController extends Controller
         return $this->write($request, $context, $responseFactory, $path, self::WRITE_CREATE);
     }
 
-    public function update(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $path)
+    public function update(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $path): Response
     {
         if (!$this->hasScope($request, WriteScope::IDENTIFIER)) {
             throw new AccessDeniedHttpException('You don\'t have write access using this access key.');

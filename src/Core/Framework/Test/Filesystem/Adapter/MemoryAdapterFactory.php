@@ -13,7 +13,7 @@ class MemoryAdapterFactory implements AdapterFactoryInterface
      */
     private static $instances;
 
-    public static function clearInstancesMemory()
+    public static function clearInstancesMemory(): void
     {
         if (!static::$instances) {
             static::$instances = [];
@@ -35,7 +35,7 @@ class MemoryAdapterFactory implements AdapterFactoryInterface
         }
     }
 
-    public static function resetInstances()
+    public static function resetInstances(): void
     {
         static::clearInstancesMemory();
         static::$instances = [];
@@ -54,7 +54,7 @@ class MemoryAdapterFactory implements AdapterFactoryInterface
         return 'memory';
     }
 
-    private static function addAdapter(MemoryAdapter $adapter)
+    private static function addAdapter(MemoryAdapter $adapter): void
     {
         if (!static::$instances) {
             static::$instances = [];

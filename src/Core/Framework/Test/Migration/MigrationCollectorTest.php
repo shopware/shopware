@@ -38,7 +38,7 @@ class MigrationCollectorTest extends TestCase
         );
     }
 
-    public function test_it_loads_the_valid_migrations()
+    public function test_it_loads_the_valid_migrations(): void
     {
         $this->collector
             ->addDirectory(__DIR__ . '/_test_migrations_valid', 'Shopware\Core\Framework\Test\Migration\_test_migrations_valid')
@@ -61,7 +61,7 @@ class MigrationCollectorTest extends TestCase
         self::assertEquals(2, $migrationsObjects[1]->getCreationTimestamp());
     }
 
-    public function test_it_throws_invalid_php_file()
+    public function test_it_throws_invalid_php_file(): void
     {
         $this->collector->addDirectory(__DIR__ . '/_test_migrations_invalid_namespace', 'Shopware\Core\Framework\Test\Migration\_test_migrations_invalid_namespace');
 

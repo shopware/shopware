@@ -5,14 +5,11 @@ namespace Shopware\Core\Checkout\Test\Cart;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
-use Shopware\Core\Checkout\Customer\CustomerStruct;
 use Shopware\Core\Content\Product\Cart\ProductCollector;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\StorefrontFunctionalTestBehaviour;
-use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Component\HttpFoundation\Response;
@@ -67,7 +64,7 @@ class StorefrontCartControllerTest extends TestCase
         $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
     }
 
-    public function testAddNonExistingProduct()
+    public function testAddNonExistingProduct(): void
     {
         $productId = Uuid::uuid4()->getHex();
 
@@ -115,7 +112,7 @@ class StorefrontCartControllerTest extends TestCase
         static::assertEquals($productId, $product['key']);
     }
 
-    public function testAddMultipleProducts()
+    public function testAddMultipleProducts(): void
     {
         $productId1 = Uuid::uuid4()->getHex();
         $productId2 = Uuid::uuid4()->getHex();
@@ -153,7 +150,7 @@ class StorefrontCartControllerTest extends TestCase
         static::assertCount(2, $cart['lineItems']);
     }
 
-    public function testChangeQuantity()
+    public function testChangeQuantity(): void
     {
         $productId1 = Uuid::uuid4()->getHex();
 
@@ -184,7 +181,7 @@ class StorefrontCartControllerTest extends TestCase
         static::assertEquals(10, $lineItem['quantity']);
     }
 
-    public function testChangeLineItemQuantity()
+    public function testChangeLineItemQuantity(): void
     {
         $productId1 = Uuid::uuid4()->getHex();
 
@@ -215,7 +212,7 @@ class StorefrontCartControllerTest extends TestCase
         static::assertEquals(10, $lineItem['quantity']);
     }
 
-    public function testChangeWithInvalidQuantity()
+    public function testChangeWithInvalidQuantity(): void
     {
         $productId1 = Uuid::uuid4()->getHex();
 
@@ -244,7 +241,7 @@ class StorefrontCartControllerTest extends TestCase
         static::assertEquals('CART-INVALID-QUANTITY', $cart['errors'][0]['code']);
     }
 
-    public function testRemoveLineItem()
+    public function testRemoveLineItem(): void
     {
         $productId1 = Uuid::uuid4()->getHex();
         $productId2 = Uuid::uuid4()->getHex();
@@ -287,7 +284,7 @@ class StorefrontCartControllerTest extends TestCase
         static::assertNotContains($productId1, $keys);
     }
 
-    public function testRemoveNonExistingLineItem()
+    public function testRemoveNonExistingLineItem(): void
     {
         $productId1 = Uuid::uuid4()->getHex();
         $client = $this->createCart();
@@ -308,7 +305,7 @@ class StorefrontCartControllerTest extends TestCase
         );
     }
 
-    public function testMergeSameProduct()
+    public function testMergeSameProduct(): void
     {
         $productId1 = Uuid::uuid4()->getHex();
         $productId2 = Uuid::uuid4()->getHex();
@@ -362,7 +359,7 @@ class StorefrontCartControllerTest extends TestCase
         }
     }
 
-    public function testAddProductUsingGenericLineItemRoute()
+    public function testAddProductUsingGenericLineItemRoute(): void
     {
         $productId = Uuid::uuid4()->getHex();
         $this->productRepository->create([
@@ -438,7 +435,7 @@ class StorefrontCartControllerTest extends TestCase
         static::assertEquals($coverName, $product['cover']['name']);
     }
 
-    public function testUpdateLineItem()
+    public function testUpdateLineItem(): void
     {
         $productId = Uuid::uuid4()->getHex();
         $this->productRepository->create([
@@ -566,7 +563,7 @@ class StorefrontCartControllerTest extends TestCase
         return $cart['data'] ?? $cart;
     }
 
-    private function addProduct(Client $client, string $id, int $quantity = 1)
+    private function addProduct(Client $client, string $id, int $quantity = 1): void
     {
         $client->request(
             'POST',

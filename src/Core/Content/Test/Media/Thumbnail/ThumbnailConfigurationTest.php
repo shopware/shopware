@@ -6,14 +6,14 @@ use Shopware\Core\Content\Media\Thumbnail\ThumbnailConfiguration;
 
 class ThumbnailConfigurationTest extends \PHPUnit\Framework\TestCase
 {
-    public function testGetSizeArray()
+    public function testGetSizeArray(): void
     {
         $sizeArray = ThumbnailConfiguration::getSizeArray(100, 200);
         static::assertEquals(100, $sizeArray['width']);
         static::assertEquals(200, $sizeArray['height']);
     }
 
-    public function testGetDefaults()
+    public function testGetDefaults(): void
     {
         $defaultConfiguration = ThumbnailConfiguration::getDefaultThumbnailConfiguration();
 

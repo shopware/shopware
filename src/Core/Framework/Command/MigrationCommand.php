@@ -101,7 +101,7 @@ class MigrationCommand extends Command
         $this->io->writeln('all migrations executed');
     }
 
-    private function finishProgress(int $migrated, int $total)
+    private function finishProgress(int $migrated, int $total): void
     {
         if ($migrated === $total) {
             $this->io->progressFinish();

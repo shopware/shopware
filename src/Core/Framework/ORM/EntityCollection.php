@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Struct\Collection;
 
 class EntityCollection extends Collection
 {
-    public function add(Entity $entity)
+    public function add(Entity $entity): void
     {
         $class = $this->getExpectedClass();
         if (!$entity instanceof $class) {
@@ -43,7 +43,7 @@ class EntityCollection extends Collection
         );
     }
 
-    public function merge(self $collection)
+    public function merge(self $collection): void
     {
         /** @var Entity $entity */
         foreach ($collection as $entity) {
@@ -64,7 +64,7 @@ class EntityCollection extends Collection
         return new static(array_intersect_key($this->elements, array_flip($ids)));
     }
 
-    public function sortByIdArray(array $ids)
+    public function sortByIdArray(array $ids): void
     {
         $sorted = [];
         foreach ($ids as $id) {

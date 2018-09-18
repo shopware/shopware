@@ -42,7 +42,7 @@ class ProcessorTest extends TestCase
         $this->context = $this->factory->create(Defaults::TENANT_ID, Defaults::TENANT_ID, Defaults::SALES_CHANNEL);
     }
 
-    public function testAddOwnLineItem()
+    public function testAddOwnLineItem(): void
     {
         $cart = new Cart('test', 'test');
 

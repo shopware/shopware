@@ -52,7 +52,7 @@ class MediaThumbnailStruct extends Entity
         return $this->width;
     }
 
-    public function setWidth(int $width)
+    public function setWidth(int $width): void
     {
         $this->width = $width;
     }
@@ -62,7 +62,7 @@ class MediaThumbnailStruct extends Entity
         return $this->height;
     }
 
-    public function setHeight(int $height)
+    public function setHeight(int $height): void
     {
         $this->height = $height;
     }
@@ -72,7 +72,7 @@ class MediaThumbnailStruct extends Entity
         return $this->highDpi;
     }
 
-    public function setHighDpi(bool $highDpi)
+    public function setHighDpi(bool $highDpi): void
     {
         $this->highDpi = $highDpi;
     }
@@ -82,7 +82,7 @@ class MediaThumbnailStruct extends Entity
         return $this->url;
     }
 
-    public function setUrl(string $url)
+    public function setUrl(string $url): void
     {
         $this->url = $url;
     }

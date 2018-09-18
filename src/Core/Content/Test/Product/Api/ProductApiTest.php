@@ -149,7 +149,7 @@ class ProductApiTest extends TestCase
         static::assertNull($price->getQuantityEnd());
     }
 
-    public function testSpecialCharacterInDescriptionTest()
+    public function testSpecialCharacterInDescriptionTest(): void
     {
         $id = Uuid::uuid4()->getHex();
 

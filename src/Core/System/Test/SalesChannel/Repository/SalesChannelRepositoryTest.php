@@ -70,7 +70,7 @@ class SalesChannelRepositoryTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
     }
 
-    public function testCreateSalesChannelTest()
+    public function testCreateSalesChannelTest(): void
     {
         $salesChannelId = Uuid::uuid4()->getHex();
         $accessKey = AccessKeyHelper::generateAccessKey('sales-channel');

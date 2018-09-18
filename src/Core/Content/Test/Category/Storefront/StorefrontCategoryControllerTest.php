@@ -37,7 +37,7 @@ class StorefrontCategoryControllerTest extends TestCase
         $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
     }
 
-    public function testCategoryListRoute()
+    public function testCategoryListRoute(): void
     {
         $id = Uuid::uuid4()->getHex();
 
@@ -59,7 +59,7 @@ class StorefrontCategoryControllerTest extends TestCase
         static::assertGreaterThanOrEqual(1, $content['total']);
     }
 
-    public function testCategoryDetailRoute()
+    public function testCategoryDetailRoute(): void
     {
         $id = Uuid::uuid4()->getHex();
 
@@ -80,7 +80,7 @@ class StorefrontCategoryControllerTest extends TestCase
         static::assertSame('Test category', $content['data']['name']);
     }
 
-    public function testSortingOnListRoute()
+    public function testSortingOnListRoute(): void
     {
         $categoryC = Uuid::uuid4()->getHex();
         $categoryA = Uuid::uuid4()->getHex();
@@ -112,7 +112,7 @@ class StorefrontCategoryControllerTest extends TestCase
         static::assertSame([$categoryC, $categoryB, $categoryA], $ids);
     }
 
-    public function testTermOnListRoute()
+    public function testTermOnListRoute(): void
     {
         $categoryC = Uuid::uuid4()->getHex();
         $categoryA = Uuid::uuid4()->getHex();
@@ -138,7 +138,7 @@ class StorefrontCategoryControllerTest extends TestCase
         static::assertContains($categoryB, $ids);
     }
 
-    public function testFilterOnListRoute()
+    public function testFilterOnListRoute(): void
     {
         $categoryC = Uuid::uuid4()->getHex();
         $categoryA = Uuid::uuid4()->getHex();
@@ -170,7 +170,7 @@ class StorefrontCategoryControllerTest extends TestCase
         static::assertContains($categoryC, $ids);
     }
 
-    public function testSwagQLForListRoute()
+    public function testSwagQLForListRoute(): void
     {
         $categoryC = Uuid::uuid4()->getHex();
         $categoryA = Uuid::uuid4()->getHex();
@@ -305,7 +305,7 @@ class StorefrontCategoryControllerTest extends TestCase
         );
     }
 
-    public function testDetailWithNoneExistingCategory()
+    public function testDetailWithNoneExistingCategory(): void
     {
         $id = Uuid::uuid4()->getHex();
 

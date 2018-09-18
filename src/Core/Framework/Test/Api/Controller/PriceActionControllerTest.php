@@ -36,7 +36,7 @@ class PriceActionControllerTest extends TestCase
         $this->serializer = $this->getContainer()->get('serializer');
     }
 
-    public function testPriceMissingExecption()
+    public function testPriceMissingExecption(): void
     {
         $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/price/actions/calculate');
 
@@ -46,7 +46,7 @@ class PriceActionControllerTest extends TestCase
         static::assertArrayHasKey('errors', $response);
     }
 
-    public function testTaxIdMissingException()
+    public function testTaxIdMissingException(): void
     {
         $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/price/actions/calculate', [], [], [], json_encode([
             'price' => 10,
@@ -59,7 +59,7 @@ class PriceActionControllerTest extends TestCase
         static::assertArrayHasKey('errors', $response);
     }
 
-    public function testTaxNotFoundException()
+    public function testTaxNotFoundException(): void
     {
         $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/price/actions/calculate', [], [], [], json_encode([
             'price' => 10,
@@ -73,7 +73,7 @@ class PriceActionControllerTest extends TestCase
         static::assertArrayHasKey('errors', $response);
     }
 
-    public function testNetToGross()
+    public function testNetToGross(): void
     {
         $taxId = Uuid::uuid4()->getHex();
         $this->taxRepository->create([
@@ -101,7 +101,7 @@ class PriceActionControllerTest extends TestCase
         );
     }
 
-    public function testNetToNet()
+    public function testNetToNet(): void
     {
         $taxId = Uuid::uuid4()->getHex();
         $this->taxRepository->create([
@@ -130,7 +130,7 @@ class PriceActionControllerTest extends TestCase
         );
     }
 
-    public function testGrossToGross()
+    public function testGrossToGross(): void
     {
         $taxId = Uuid::uuid4()->getHex();
         $this->taxRepository->create([
@@ -158,7 +158,7 @@ class PriceActionControllerTest extends TestCase
         );
     }
 
-    public function testNetToGrossWithQuantity()
+    public function testNetToGrossWithQuantity(): void
     {
         $taxId = Uuid::uuid4()->getHex();
         $this->taxRepository->create([
@@ -188,7 +188,7 @@ class PriceActionControllerTest extends TestCase
         );
     }
 
-    public function testGrossToGrossWithQuantity()
+    public function testGrossToGrossWithQuantity(): void
     {
         $taxId = Uuid::uuid4()->getHex();
         $this->taxRepository->create([
@@ -218,7 +218,7 @@ class PriceActionControllerTest extends TestCase
         );
     }
 
-    public function testGrossToNet()
+    public function testGrossToNet(): void
     {
         $taxId = Uuid::uuid4()->getHex();
         $this->taxRepository->create([

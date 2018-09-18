@@ -22,7 +22,7 @@ class FileFetcherTest extends TestCase
         $this->fileFetcher = new FileFetcher();
     }
 
-    public function testFetchRequestData()
+    public function testFetchRequestData(): void
     {
         $tempFile = tempnam(sys_get_temp_dir(), '');
         $request = $this->createMock(Request::class);
@@ -46,7 +46,7 @@ class FileFetcherTest extends TestCase
         }
     }
 
-    public function testFetchRequestDataWithWrongFileSize()
+    public function testFetchRequestDataWithWrongFileSize(): void
     {
         $this->expectException(UploadException::class);
         $this->expectExceptionMessage('expected content-length did not match actual size');
@@ -63,7 +63,7 @@ class FileFetcherTest extends TestCase
         );
     }
 
-    public function testFetchFileFromUrl()
+    public function testFetchFileFromUrl(): void
     {
         $url = 'https://de.shopware.com/press/company/Shopware_Jamaica.jpg';
 
@@ -84,7 +84,7 @@ class FileFetcherTest extends TestCase
         }
     }
 
-    public function testFetchFileFromUrlWithMalformedUrl()
+    public function testFetchFileFromUrlWithMalformedUrl(): void
     {
         $this->expectException(UploadException::class);
         $this->expectExceptionMessage('malformed url');

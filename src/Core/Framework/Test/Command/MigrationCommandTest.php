@@ -69,7 +69,7 @@ class MigrationCommandTest extends TestCase
         );
     }
 
-    public function test_command_migrate_no_until_no_all_option()
+    public function test_command_migrate_no_until_no_all_option(): void
     {
         self::assertSame(0, $this->getMigrationCount(true));
 
@@ -79,7 +79,7 @@ class MigrationCommandTest extends TestCase
         $command->run(new ArrayInput([]), new DummyOutput());
     }
 
-    public function test_command_migrate_all_option()
+    public function test_command_migrate_all_option(): void
     {
         self::assertSame(0, $this->getMigrationCount());
 
@@ -90,7 +90,7 @@ class MigrationCommandTest extends TestCase
         self::assertSame(2, $this->getMigrationCount());
     }
 
-    public function test_command_add_Migrations()
+    public function test_command_add_Migrations(): void
     {
         self::assertSame(0, $this->getMigrationCount());
 
@@ -101,7 +101,7 @@ class MigrationCommandTest extends TestCase
         self::assertSame(2, $this->getMigrationCount());
     }
 
-    public function test_command_migrate_migration_exception()
+    public function test_command_migrate_migration_exception(): void
     {
         self::assertSame(0, $this->getMigrationCount(true));
 
@@ -116,7 +116,7 @@ class MigrationCommandTest extends TestCase
         self::assertSame(3, $this->getMigrationCount(true));
     }
 
-    public function test_destructive_command_migrate_no_until_no_all_option()
+    public function test_destructive_command_migrate_no_until_no_all_option(): void
     {
         self::assertSame(0, $this->getMigrationCount(true));
 
@@ -126,7 +126,7 @@ class MigrationCommandTest extends TestCase
         $command->run(new ArrayInput([]), new DummyOutput());
     }
 
-    public function test_destructive_command_migrate_all_option()
+    public function test_destructive_command_migrate_all_option(): void
     {
         self::assertSame(0, $this->getMigrationCount());
 
@@ -137,7 +137,7 @@ class MigrationCommandTest extends TestCase
         self::assertSame(2, $this->getMigrationCount());
     }
 
-    public function test_destructive_command_add_Migrations()
+    public function test_destructive_command_add_Migrations(): void
     {
         self::assertSame(0, $this->getMigrationCount());
 
@@ -148,7 +148,7 @@ class MigrationCommandTest extends TestCase
         self::assertSame(2, $this->getMigrationCount());
     }
 
-    public function test_command_migrate_migration_destructive()
+    public function test_command_migrate_migration_destructive(): void
     {
         self::assertSame(0, $this->getMigrationCount(true, true));
 
@@ -171,7 +171,7 @@ class MigrationCommandTest extends TestCase
         self::assertSame(2, $this->getMigrationCount(true, true));
     }
 
-    public function test_command_migrate()
+    public function test_command_migrate(): void
     {
         self::assertSame(0, $this->getMigrationCount(true));
 

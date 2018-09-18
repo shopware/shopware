@@ -11,7 +11,7 @@ class AggregationResultCollection extends Collection
      */
     protected $elements = [];
 
-    public function add(AggregationResult $result)
+    public function add(AggregationResult $result): void
     {
         $this->elements[$result->getAggregation()->getName()] = $result;
     }

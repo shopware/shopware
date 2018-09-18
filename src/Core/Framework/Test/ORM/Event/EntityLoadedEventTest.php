@@ -98,7 +98,7 @@ class EntityLoadedEventTest extends TestCase
         );
     }
 
-    public function testExtractOneToManyRecursive()
+    public function testExtractOneToManyRecursive(): void
     {
         $a = new ArrayStruct(['id' => 'one_to_many_A']);
         $b = new ArrayStruct(['id' => 'one_to_many_B']);
@@ -144,7 +144,7 @@ class EntityLoadedEventTest extends TestCase
         );
     }
 
-    public function testExtractManyToManyRecursive()
+    public function testExtractManyToManyRecursive(): void
     {
         $a = new ArrayStruct(['id' => 'many_to_many_A']);
         $b = new ArrayStruct(['id' => 'many_to_many_B']);

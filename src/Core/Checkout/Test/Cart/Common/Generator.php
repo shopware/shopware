@@ -53,7 +53,7 @@ class Generator extends TestCase
         $language = null,
         $fallbackLanguage = null,
         $paymentMethod = null
-    ) {
+    ): CheckoutContext {
         if ($salesChannel === null) {
             $salesChannel = new SalesChannelStruct();
             $salesChannel->setId('ffa32a50e2d04cf38389a53f8d6cd594');
@@ -170,21 +170,21 @@ class Generator extends TestCase
         );
     }
 
-    public static function createGrossPriceDetector()
+    public static function createGrossPriceDetector(): TaxDetector
     {
         $self = new self();
 
         return $self->createTaxDetector(true, false);
     }
 
-    public static function createNetPriceDetector()
+    public static function createNetPriceDetector(): TaxDetector
     {
         $self = new self();
 
         return $self->createTaxDetector(false, false);
     }
 
-    public static function createNetDeliveryDetector()
+    public static function createNetDeliveryDetector(): TaxDetector
     {
         $self = new self();
 
@@ -196,7 +196,7 @@ class Generator extends TestCase
      *
      * @return ProductGateway
      */
-    public function createProductPriceGateway($priceDefinitions)
+    public function createProductPriceGateway($priceDefinitions): ProductGateway
     {
         /** @var MockObject|ProductGateway $mock */
         $mock = $this->createMock(ProductGateway::class);
@@ -227,8 +227,9 @@ class Generator extends TestCase
         return $cart;
     }
 
-    private function createTaxDetector($useGross, $isNetDelivery)
+    private function createTaxDetector($useGross, $isNetDelivery): TaxDetector
     {
+        /** @var MockObject|TaxDetector $mock */
         $mock = $this->createMock(TaxDetector::class);
         $mock->expects(static::any())
             ->method('useGross')

@@ -98,7 +98,7 @@ class CartPrice extends Struct
         return $this->taxStatus === self::TAX_STATE_FREE;
     }
 
-    public static function createEmpty(string $taxState = self::TAX_STATE_GROSS)
+    public static function createEmpty(string $taxState = self::TAX_STATE_GROSS): CartPrice
     {
         return new self(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), $taxState);
     }

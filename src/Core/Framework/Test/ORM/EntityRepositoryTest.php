@@ -30,7 +30,7 @@ class EntityRepositoryTest extends TestCase
      */
     private $connection;
 
-    public function testWrite()
+    public function testWrite(): void
     {
         $repository = $this->createRepository(LocaleDefinition::class);
 
@@ -48,7 +48,7 @@ class EntityRepositoryTest extends TestCase
         static::assertInstanceOf(EntityWrittenEvent::class, $event->getEventByDefinition(LocaleDefinition::class));
     }
 
-    public function testWrittenEventsFired()
+    public function testWrittenEventsFired(): void
     {
         $repository = $this->createRepository(LocaleDefinition::class);
 
@@ -74,7 +74,7 @@ class EntityRepositoryTest extends TestCase
         );
     }
 
-    public function testRead()
+    public function testRead(): void
     {
         $repository = $this->createRepository(LocaleDefinition::class);
 
@@ -132,7 +132,7 @@ class EntityRepositoryTest extends TestCase
         static::assertSame('Test', $locale->get($id)->getName());
     }
 
-    public function testReadWithManyToOneAssociation()
+    public function testReadWithManyToOneAssociation(): void
     {
         $repository = $this->createRepository(ProductDefinition::class);
 
@@ -186,7 +186,7 @@ class EntityRepositoryTest extends TestCase
         static::assertSame('Test', $locale->get($id)->getName());
     }
 
-    public function testReadAndWriteWithOneToMany()
+    public function testReadAndWriteWithOneToMany(): void
     {
         $repository = $this->createRepository(ProductDefinition::class);
 
@@ -310,7 +310,7 @@ class EntityRepositoryTest extends TestCase
         static::assertSame('Test', $locale->get($id)->getName());
     }
 
-    protected function createRepository(string $definition)
+    protected function createRepository(string $definition): EntityRepository
     {
         return new EntityRepository(
             $definition,

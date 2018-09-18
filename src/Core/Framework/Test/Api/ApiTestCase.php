@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -98,7 +99,7 @@ class ApiTestCase extends WebTestCase
         return $clientKernel->getContainer()->get('test.client');
     }
 
-    public function getContainer()
+    public function getContainer(): ContainerInterface
     {
         return self::$container;
     }

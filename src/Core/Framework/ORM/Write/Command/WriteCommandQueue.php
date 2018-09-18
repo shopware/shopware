@@ -92,7 +92,7 @@ class WriteCommandQueue
         return $this->order;
     }
 
-    public function add(string $senderIdentification, WriteCommandInterface $command)
+    public function add(string $senderIdentification, WriteCommandInterface $command): void
     {
         if (!is_array($this->commands[$senderIdentification])) {
             throw new \InvalidArgumentException(sprintf('Unable to set write command for %s, it was not beforehand registered.', $senderIdentification));

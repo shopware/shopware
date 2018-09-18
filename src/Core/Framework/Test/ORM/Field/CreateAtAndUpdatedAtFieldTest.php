@@ -86,7 +86,7 @@ EOF;
         static::assertNull($entity->get('updatedAt'));
     }
 
-    public function testICanProvideCreatedAt()
+    public function testICanProvideCreatedAt(): void
     {
         $id = Uuid::uuid4()->getHex();
 
@@ -116,7 +116,7 @@ EOF;
         );
     }
 
-    public function testCreatedAtWithNullWillBeOverwritten()
+    public function testCreatedAtWithNullWillBeOverwritten(): void
     {
         $id = Uuid::uuid4()->getHex();
 
@@ -167,7 +167,7 @@ EOF;
         static::assertNotNull($entity->get('updatedAt'));
     }
 
-    public function testUpdatedAtWithNullWorks()
+    public function testUpdatedAtWithNullWorks(): void
     {
         $id = Uuid::uuid4()->getHex();
 
@@ -195,7 +195,7 @@ EOF;
         static::assertNotNull($entity->get('updatedAt'));
     }
 
-    public function testUpdatedAtCanNotBeDefined()
+    public function testUpdatedAtCanNotBeDefined(): void
     {
         $id = Uuid::uuid4()->getHex();
 

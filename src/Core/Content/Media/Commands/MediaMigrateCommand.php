@@ -40,8 +40,11 @@ class MediaMigrateCommand extends Command implements EventSubscriberInterface
      */
     private $io;
 
-    public function __construct(PrefixFilesystem $filesystem, StrategyFactory $strategyFactory, EventDispatcherInterface $event)
-    {
+    public function __construct(
+        PrefixFilesystem $filesystem,
+        StrategyFactory $strategyFactory,
+        EventDispatcherInterface $event
+    ) {
         parent::__construct();
 
         $this->filesystem = $filesystem;
@@ -49,7 +52,7 @@ class MediaMigrateCommand extends Command implements EventSubscriberInterface
         $this->event = $event;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             MigrateAdvanceEvent::EVENT_NAME => 'onAdvance',
@@ -58,17 +61,17 @@ class MediaMigrateCommand extends Command implements EventSubscriberInterface
         ];
     }
 
-    public function onStart(MigrateStartEvent $event)
+    public function onStart(MigrateStartEvent $event): void
     {
         $this->io->progressStart($event->getNumberOfFiles());
     }
 
-    public function onAdvance(MigrateAdvanceEvent $event)
+    public function onAdvance(): void
     {
         $this->io->progressAdvance();
     }
 
-    public function onFinish(MigrateFinishEvent $event)
+    public function onFinish(MigrateFinishEvent $event): void
     {
         $this->io->progressFinish();
         $this->io->table(
@@ -83,7 +86,7 @@ class MediaMigrateCommand extends Command implements EventSubscriberInterface
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('media:migrate')
@@ -96,7 +99,7 @@ class MediaMigrateCommand extends Command implements EventSubscriberInterface
     /**
      * {@inheritdoc}
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): void
     {
         $this->io = new SymfonyStyle($input, $output);
         $logger = new ConsoleLogger($output);

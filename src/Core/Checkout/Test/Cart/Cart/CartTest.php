@@ -76,7 +76,7 @@ class CartTest extends TestCase
      * @throws LineItemNotFoundException
      * @throws LineItemNotRemoveableException
      */
-    public function testRemoveNonRemovableLineItemFromCart()
+    public function testRemoveNonRemovableLineItemFromCart(): void
     {
         $cart = new Cart('test', 'test');
 

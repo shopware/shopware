@@ -267,7 +267,7 @@ class RequestCriteriaBuilder
         }
     }
 
-    private function setPage(array $payload, Criteria $criteria, SearchRequestException $searchRequestException)
+    private function setPage(array $payload, Criteria $criteria, SearchRequestException $searchRequestException): void
     {
         if ($payload['page'] === '') {
             $searchRequestException->add(new InvalidPageQueryException('(empty)'), '/page');

@@ -6,7 +6,7 @@ use Symfony\Component\Config\Util\XmlUtils;
 
 class XmlPluginInfoReader
 {
-    public function read($file)
+    public function read($file): array
     {
         try {
             $dom = XmlUtils::loadFile($file, __DIR__ . '/Schema/plugin.xsd');
@@ -22,7 +22,7 @@ class XmlPluginInfoReader
      *
      * @return array
      */
-    private function parseInfo(\DOMDocument $xml)
+    private function parseInfo(\DOMDocument $xml): array
     {
         $xpath = new \DOMXPath($xml);
 
@@ -102,7 +102,7 @@ class XmlPluginInfoReader
      *
      * @return null|\DOMElement
      */
-    private function getFirstChild(\DOMNode $node, $name)
+    private function getFirstChild(\DOMNode $node, $name): ?\DOMElement
     {
         if ($children = $this->getChildren($node, $name)) {
             return $children[0];
@@ -133,7 +133,7 @@ class XmlPluginInfoReader
      *
      * @return array
      */
-    private function parseRequiredPlugins(\DOMNode $requiredPlugins)
+    private function parseRequiredPlugins(\DOMNode $requiredPlugins): array
     {
         $resolvedPlugins = $this->getChildren($requiredPlugins, 'requiredPlugin');
         $plugins = [];

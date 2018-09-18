@@ -69,7 +69,7 @@ class MultiInsertQueryQueue
         ];
     }
 
-    public function execute()
+    public function execute(): void
     {
         $grouped = $this->prepare();
 

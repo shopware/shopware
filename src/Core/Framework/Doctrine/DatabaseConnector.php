@@ -6,7 +6,7 @@ use PDO;
 
 class DatabaseConnector
 {
-    public static function createPdoConnection()
+    public static function createPdoConnection(): ?PDO
     {
         $url = parse_url(getenv('DATABASE_URL'));
         $dsn = sprintf(

@@ -66,7 +66,7 @@ class PdfParserLoader implements MetadataLoaderInterface
         }
     }
 
-    private function isAllowedToHandle(string $filePath)
+    private function isAllowedToHandle(string $filePath): bool
     {
         $isPdf = mime_content_type($filePath) === 'application/pdf';
         $isTooLarge = filesize($filePath) > self::MAX_FILE_SIZE;

@@ -16,7 +16,7 @@ class StopWordFilterTest extends TestCase
      * @param string $sentence
      * @param array  $expected
      */
-    public function testStopWords(string $sentence, array $expected)
+    public function testStopWords(string $sentence, array $expected): void
     {
         $tokenizer = new Tokenizer();
         $tokens = $tokenizer->tokenize($sentence);
@@ -35,7 +35,7 @@ class StopWordFilterTest extends TestCase
         static::assertSame($expected, $filtered);
     }
 
-    public function cases()
+    public function cases(): array
     {
         return [
             [

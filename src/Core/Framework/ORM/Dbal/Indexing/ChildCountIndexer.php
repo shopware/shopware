@@ -95,7 +95,7 @@ class ChildCountIndexer implements IndexerInterface
         }
     }
 
-    private function update(EntityWrittenEvent $event, array $ids, Context $context)
+    private function update(EntityWrittenEvent $event, array $ids, Context $context): void
     {
         $entityParents = array_map(function (EntityExistence $existence) {
             if (!array_key_exists('parent_id', $existence->getState()) || !$existence->getState()['parent_id']) {
@@ -208,7 +208,7 @@ class ChildCountIndexer implements IndexerInterface
         return new OffsetQuery($query);
     }
 
-    private function validateTableName(string $tableName)
+    private function validateTableName(string $tableName): void
     {
         if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $tableName)) {
             throw new \Exception(sprintf('Invalid table name %s', $tableName));

@@ -15,7 +15,7 @@ class TranslationTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
 
-    public function testNoOverride()
+    public function testNoOverride(): void
     {
         $langId = Uuid::uuid4()->getHex();
         $this->createLanguage($langId);
@@ -30,7 +30,7 @@ class TranslationTest extends TestCase
         );
     }
 
-    public function testOverride()
+    public function testOverride(): void
     {
         $langId = Uuid::uuid4()->getHex();
         $this->createLanguage($langId);
@@ -45,7 +45,7 @@ class TranslationTest extends TestCase
         );
     }
 
-    public function testNoDefaultTranslation()
+    public function testNoDefaultTranslation(): void
     {
         $langId = Uuid::uuid4()->getHex();
         $this->createLanguage($langId);
@@ -59,7 +59,7 @@ class TranslationTest extends TestCase
         );
     }
 
-    public function testExplicitDefaultTranslation()
+    public function testExplicitDefaultTranslation(): void
     {
         $langId = Uuid::uuid4()->getHex();
         $this->createLanguage($langId);
@@ -74,7 +74,7 @@ class TranslationTest extends TestCase
         );
     }
 
-    public function testWithOverrideInPost()
+    public function testWithOverrideInPost(): void
     {
         $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
         $id = Uuid::uuid4()->getHex();
@@ -104,7 +104,7 @@ class TranslationTest extends TestCase
         $this->assertEquals($translatedName, $responseData->data->attributes->name);
     }
 
-    private function assertTranslation($expectedTranslations, $translations, $langIdOverride = null)
+    private function assertTranslation($expectedTranslations, $translations, $langIdOverride = null): void
     {
         $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
         $id = Uuid::uuid4()->getHex();
@@ -135,7 +135,7 @@ class TranslationTest extends TestCase
         $this->assertArraySubset($expectedTranslations, (array) $responseData->data->attributes);
     }
 
-    private function createLanguage($langId, $fallbackId = null)
+    private function createLanguage($langId, $fallbackId = null): void
     {
         $baseUrl = '/api/v' . PlatformRequest::API_VERSION;
 

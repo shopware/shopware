@@ -8,7 +8,7 @@ use Shopware\Core\Content\Media\Metadata\MetadataLoader\WordLoader;
 
 class WordLoaderTest extends TestCase
 {
-    public function testUnsupported()
+    public function testUnsupported(): void
     {
         $this->expectException(CanNotLoadMetadataException::class);
 
@@ -16,7 +16,7 @@ class WordLoaderTest extends TestCase
             ->extractMetadata(__DIR__ . '/../../fixtures/shopware-logo.png');
     }
 
-    public function testDocx()
+    public function testDocx(): void
     {
         $metadata = $this->getMetadataLoader()
             ->extractMetadata(__DIR__ . '/../../fixtures/reader.docx');
@@ -24,7 +24,7 @@ class WordLoaderTest extends TestCase
         $this->assertCount(8, $metadata);
     }
 
-    public function testDoc()
+    public function testDoc(): void
     {
         $metadata = $this->getMetadataLoader()
             ->extractMetadata(__DIR__ . '/../../fixtures/reader.doc');

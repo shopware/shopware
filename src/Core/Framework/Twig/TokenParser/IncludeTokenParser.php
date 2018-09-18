@@ -36,7 +36,7 @@ final class IncludeTokenParser extends \Twig_TokenParser
         return new Twig_Node_Include($expr, $variables, $only, $ignoreMissing, $token->getLine(), $this->getTag());
     }
 
-    public function sparse(Twig_Token $token)
+    public function sparse(Twig_Token $token): void
     {
         //get full token stream to inject extends token for inheritance
         $stream = $this->parser->getStream();
@@ -65,7 +65,7 @@ final class IncludeTokenParser extends \Twig_TokenParser
         return 'sw_include';
     }
 
-    protected function parseArguments()
+    protected function parseArguments(): array
     {
         $stream = $this->parser->getStream();
 

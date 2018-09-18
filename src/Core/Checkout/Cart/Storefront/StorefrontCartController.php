@@ -197,7 +197,7 @@ class StorefrontCartController extends Controller
      * @throws LineItemCoverNotFoundException
      * @throws LineItemNotStackableException
      */
-    private function updateLineItemByRequest(LineItem $lineItem, Request $request, Context $context)
+    private function updateLineItemByRequest(LineItem $lineItem, Request $request, Context $context): void
     {
         $quantity = $request->request->get('quantity', null);
         $payload = $request->request->get('payload', []);

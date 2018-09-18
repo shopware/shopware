@@ -16,7 +16,7 @@ class JsonRequestTransformerListener implements EventSubscriberInterface
         ];
     }
 
-    public function onRequest(GetResponseEvent $event)
+    public function onRequest(GetResponseEvent $event): void
     {
         if ($event->getRequest()->getContent() && stripos($event->getRequest()->headers->get('Content-Type', ''), 'application/json') === 0) {
             $data = json_decode($event->getRequest()->getContent(), true);

@@ -442,7 +442,7 @@ class SearchCriteriaBuilderTest extends TestCase
         static::assertEquals('/filter/2/queries/1/field', $content['errors'][5]['source']['pointer']);
     }
 
-    private function fakeHandleRequest($maxLimit = 0, $allowedLimits = [], $params = [])
+    private function fakeHandleRequest($maxLimit = 0, $allowedLimits = [], $params = []): Criteria
     {
         $searchBuilder = $this->getContainer()->get(SearchBuilder::class);
         $requestBuilder = new RequestCriteriaBuilder($searchBuilder, $maxLimit, $allowedLimits);

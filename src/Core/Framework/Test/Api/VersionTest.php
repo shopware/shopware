@@ -27,7 +27,7 @@ class VersionTest extends TestCase
         ]);
     }
 
-    public function unprotectedRoutesDataProvider()
+    public function unprotectedRoutesDataProvider(): array
     {
         return [
             ['GET', '/api/v1/info'],
@@ -35,7 +35,7 @@ class VersionTest extends TestCase
         ];
     }
 
-    public function protectedRoutesDataProvider()
+    public function protectedRoutesDataProvider(): array
     {
         return [
             ['GET', '/api/v1/product'],

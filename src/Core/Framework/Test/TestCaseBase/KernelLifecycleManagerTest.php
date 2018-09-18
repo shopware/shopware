@@ -10,7 +10,7 @@ class KernelLifecycleManagerTest extends TestCase
 {
     const BUILD_AGAINST_FILE_HASH = 'd0645f26944b1ba60f75d34b5a06f9e84ce1f852';
 
-    public function testIfTheManagerNeedsAnUpdate()
+    public function testIfTheManagerNeedsAnUpdate(): void
     {
         $reflection = new \ReflectionClass(KernelTestCase::class);
 
@@ -23,12 +23,12 @@ class KernelLifecycleManagerTest extends TestCase
         );
     }
 
-    public function testIfTheKernelClassIsShopware()
+    public function testIfTheKernelClassIsShopware(): void
     {
         $this->assertInstanceOf(Kernel::class, KernelLifecycleManager::getKernel());
     }
 
-    public function testARebootIsPossible()
+    public function testARebootIsPossible(): void
     {
         $oldKernel = KernelLifecycleManager::getKernel();
         $oldConnection = Kernel::getConnection();

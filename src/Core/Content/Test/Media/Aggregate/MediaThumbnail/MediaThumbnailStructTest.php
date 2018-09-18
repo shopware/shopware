@@ -6,7 +6,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailStruct;
 
 class MediaThumbnailStructTest extends \PHPUnit\Framework\TestCase
 {
-    public function testGetIdentifierWithoutHighDpi()
+    public function testGetIdentifierWithoutHighDpi(): void
     {
         $thumbnail = new MediaThumbnailStruct();
         $thumbnail->setWidth(120);
@@ -16,7 +16,7 @@ class MediaThumbnailStructTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals('120x100', $thumbnail->getIdentifier());
     }
 
-    public function testGetIdentifierWithHighDpi()
+    public function testGetIdentifierWithHighDpi(): void
     {
         $thumbnail = new MediaThumbnailStruct();
         $thumbnail->setWidth(120);

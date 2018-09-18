@@ -7,7 +7,7 @@ use Shopware\Core\Framework\ORM\Write\Command\WriteCommandQueue;
 
 class WriteQueryQueueTest extends TestCase
 {
-    public function test_set_and_update_order_integrate_the_new_values()
+    public function test_set_and_update_order_integrate_the_new_values(): void
     {
         $queue = new WriteCommandQueue();
         $queue->setOrder('Foo', 'A', 'B', 'C');

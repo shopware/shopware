@@ -22,7 +22,7 @@ class ConstraintBuilder
      *
      * @return $this
      */
-    public function isNotBlank()
+    public function isNotBlank(): self
     {
         $this->addConstraint(new NotBlank());
 
@@ -32,7 +32,7 @@ class ConstraintBuilder
     /**
      * @return $this
      */
-    public function isBool()
+    public function isBool(): self
     {
         $this->addConstraint(new Type('bool'));
 
@@ -42,7 +42,7 @@ class ConstraintBuilder
     /**
      * @return $this
      */
-    public function isString()
+    public function isString(): self
     {
         $this->addConstraint(new Type('string'));
 
@@ -52,7 +52,7 @@ class ConstraintBuilder
     /**
      * @return $this
      */
-    public function isNumeric()
+    public function isNumeric(): self
     {
         $this->addConstraint(new Type('numeric'));
 
@@ -62,7 +62,7 @@ class ConstraintBuilder
     /**
      * @return $this
      */
-    public function isFloat()
+    public function isFloat(): self
     {
         $this->addConstraint(new Type('float'));
 
@@ -74,7 +74,7 @@ class ConstraintBuilder
      *
      * @return $this
      */
-    public function isShorterThen(int $maxLength)
+    public function isShorterThen(int $maxLength): self
     {
         $this->addConstraint(new Length(['max' => $maxLength]));
 
@@ -84,7 +84,7 @@ class ConstraintBuilder
     /**
      * @return $this
      */
-    public function isDate()
+    public function isDate(): self
     {
         $this->addConstraint(new Type(\DateTimeInterface::class));
 
@@ -94,7 +94,7 @@ class ConstraintBuilder
     /**
      * @return $this
      */
-    public function isInt()
+    public function isInt(): self
     {
         $this->addConstraint(new Type('int'));
 
@@ -106,7 +106,7 @@ class ConstraintBuilder
      *
      * @return $this
      */
-    public function isEmail()
+    public function isEmail(): self
     {
         $this->addConstraint(new Email());
 
@@ -118,7 +118,7 @@ class ConstraintBuilder
      *
      * @return $this
      */
-    public function isBlank()
+    public function isBlank(): self
     {
         $this->addConstraint(new Blank());
 
@@ -132,7 +132,7 @@ class ConstraintBuilder
      *
      * @return $this
      */
-    public function isInArray(array $values)
+    public function isInArray(array $values): self
     {
         $this->addConstraint(new Choice($values));
 
@@ -144,7 +144,7 @@ class ConstraintBuilder
      *
      * @return $this
      */
-    public function isArray()
+    public function isArray(): self
     {
         $this->addConstraint(new Type('array'));
 

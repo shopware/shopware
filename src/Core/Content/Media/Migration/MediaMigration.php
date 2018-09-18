@@ -109,7 +109,7 @@ class MediaMigration implements MediaMigrationInterface
         ++$this->statistics['migrated'];
     }
 
-    private function migrateFiles(string $directory = '.')
+    private function migrateFiles(string $directory = '.'): void
     {
         /** @var array $contents */
         $contents = $this->filesystem->listContents($directory);

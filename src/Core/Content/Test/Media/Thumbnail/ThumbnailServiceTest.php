@@ -65,12 +65,12 @@ class ThumbnailServiceTest extends TestCase
         $this->media = $this->createTestEntity();
     }
 
-    public function testSubscribesToMediaFileUploadedEvent()
+    public function testSubscribesToMediaFileUploadedEvent(): void
     {
         static::assertArrayHasKey(MediaFileUploadedEvent::EVENT_NAME, $this->thumbnailService->getSubscribedEvents());
     }
 
-    public function testThumbnailGeneration()
+    public function testThumbnailGeneration(): void
     {
         $filePath = $this->urlGenerator->getRelativeMediaUrl($this->media->getId(), $this->media->getFileExtension());
         $this->getPublicFilesystem()->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r'));
@@ -122,7 +122,7 @@ class ThumbnailServiceTest extends TestCase
         }
     }
 
-    public function testGeneratorThrowsExceptionIfFileDoesNotExist()
+    public function testGeneratorThrowsExceptionIfFileDoesNotExist(): void
     {
         self::expectException(FileNotFoundException::class);
         $this->thumbnailService->generateThumbnails(
@@ -131,7 +131,7 @@ class ThumbnailServiceTest extends TestCase
         );
     }
 
-    public function testGeneratorThrowsExceptionIfFileIsNoImage()
+    public function testGeneratorThrowsExceptionIfFileIsNoImage(): void
     {
         $filePath = $this->urlGenerator->getRelativeMediaUrl($this->media->getId(), $this->media->getFileExtension());
         $this->getPublicFilesystem()->put($filePath, 'this is the content of the file, which is not a image');

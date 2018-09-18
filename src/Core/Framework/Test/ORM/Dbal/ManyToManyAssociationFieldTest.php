@@ -44,7 +44,7 @@ class ManyToManyAssociationFieldTest extends TestCase
         $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
     }
 
-    public function testWriteWithoutData()
+    public function testWriteWithoutData(): void
     {
         $categoryId = Uuid::uuid4();
         $data = [
@@ -78,7 +78,7 @@ class ManyToManyAssociationFieldTest extends TestCase
         static::assertNull($writtenEvent->getEventByDefinition(CategoryTranslationDefinition::class));
     }
 
-    public function testWriteWithData()
+    public function testWriteWithData(): void
     {
         $id = Uuid::uuid4();
         $data = [

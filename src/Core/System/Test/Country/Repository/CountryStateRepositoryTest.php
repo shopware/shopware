@@ -36,7 +36,7 @@ class CountryStateRepositoryTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
     }
 
-    public function testSearchRanking()
+    public function testSearchRanking(): void
     {
         $country = Uuid::uuid4()->getHex();
 

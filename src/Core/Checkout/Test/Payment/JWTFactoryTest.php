@@ -43,7 +43,7 @@ class JWTFactoryTest extends TestCase
      * @throws InvalidTokenException
      * @throws InvalidTokenAudienceException
      */
-    public function testGenerateAndGetToken()
+    public function testGenerateAndGetToken(): void
     {
         $transaction = $this->createTransaction();
         $token = $this->tokenFactory->generateToken($transaction, $this->context);
@@ -59,7 +59,7 @@ class JWTFactoryTest extends TestCase
      * @throws InvalidTokenException
      * @throws InvalidTokenAudienceException
      */
-    public function testGetInvalidFormattedToken()
+    public function testGetInvalidFormattedToken(): void
     {
         self::expectException(InvalidTokenException::class);
         $this->tokenFactory->parseToken(Uuid::uuid4()->getHex(), $this->context);
@@ -69,7 +69,7 @@ class JWTFactoryTest extends TestCase
      * @throws InvalidTokenException
      * @throws InvalidTokenAudienceException
      */
-    public function testGetTokenWithInvalidSignature()
+    public function testGetTokenWithInvalidSignature(): void
     {
         $transaction = $this->createTransaction();
         $token = $this->tokenFactory->generateToken($transaction, $this->context);
@@ -83,7 +83,7 @@ class JWTFactoryTest extends TestCase
      * @throws InvalidTokenException
      * @throws InvalidTokenAudienceException
      */
-    public function testGetTokenWithInvalidAudience()
+    public function testGetTokenWithInvalidAudience(): void
     {
         $transaction = $this->createTransaction();
         $token = $this->tokenFactory->generateToken($transaction, $this->context);
@@ -92,7 +92,7 @@ class JWTFactoryTest extends TestCase
         $this->tokenFactory->parseToken($token, Context::createDefaultContext(Uuid::uuid4()->getHex()));
     }
 
-    public function testInvalidateToken()
+    public function testInvalidateToken(): void
     {
         $success = $this->tokenFactory->invalidateToken(Uuid::uuid4()->getHex(), $this->context);
         self::assertFalse($success);

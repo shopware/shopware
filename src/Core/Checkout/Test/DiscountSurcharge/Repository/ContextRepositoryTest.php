@@ -41,7 +41,7 @@ class ContextRepositoryTest extends TestCase
         $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
     }
 
-    public function testWriteRuleWithObject()
+    public function testWriteRuleWithObject(): void
     {
         $id = Uuid::uuid4()->getHex();
 

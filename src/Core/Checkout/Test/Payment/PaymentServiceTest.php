@@ -78,7 +78,7 @@ class PaymentServiceTest extends TestCase
      * @throws InvalidOrderException
      * @throws UnknownPaymentMethodException
      */
-    public function testHandlePaymentByOrderWithInvalidOrderId()
+    public function testHandlePaymentByOrderWithInvalidOrderId(): void
     {
         $orderId = Uuid::uuid4()->getHex();
         $checkoutContext = Generator::createContext();
@@ -93,7 +93,7 @@ class PaymentServiceTest extends TestCase
      * @throws InvalidOrderException
      * @throws UnknownPaymentMethodException
      */
-    public function testHandlePaymentByOrder()
+    public function testHandlePaymentByOrder(): void
     {
         $paymentMethodId = $this->createPaymentMethod($this->context);
         $customerId = $this->createCustomer($this->context);
@@ -114,7 +114,7 @@ class PaymentServiceTest extends TestCase
      * @throws TokenExpiredException
      * @throws UnknownPaymentMethodException
      */
-    public function testFinalizeTransactionWithInvalidToken()
+    public function testFinalizeTransactionWithInvalidToken(): void
     {
         $token = Uuid::uuid4()->getHex();
         $request = new Request();
@@ -130,7 +130,7 @@ class PaymentServiceTest extends TestCase
      * @throws TokenExpiredException
      * @throws UnknownPaymentMethodException
      */
-    public function testFinalizeTransactionWithExpiredToken()
+    public function testFinalizeTransactionWithExpiredToken(): void
     {
         $request = new Request();
         $transaction = JWTFactoryTest::createTransaction();
@@ -184,7 +184,7 @@ class PaymentServiceTest extends TestCase
         string $customerId,
         string $paymentMethodId,
         Context $context
-    ) {
+    ): string {
         $orderId = Uuid::uuid4()->getHex();
 
         $order = [

@@ -44,7 +44,7 @@ class CalculatorTest extends TestCase
         $this->context = $this->factory->create(Defaults::TENANT_ID, Defaults::TENANT_ID, Defaults::SALES_CHANNEL);
     }
 
-    public function testCalculateSimplePrice()
+    public function testCalculateSimplePrice(): void
     {
         $cart = new Cart('test', 'test');
 
@@ -59,7 +59,7 @@ class CalculatorTest extends TestCase
         self::assertSame(100.0, $calculated->get('A')->getPrice()->getTotalPrice());
     }
 
-    public function testCalculateQuantityPrice()
+    public function testCalculateQuantityPrice(): void
     {
         $cart = new Cart('test', 'test');
 
@@ -95,7 +95,7 @@ class CalculatorTest extends TestCase
         self::assertSame(-20.0, $calculated->get('B')->getPrice()->getTotalPrice());
     }
 
-    public function testPercentagePriceWithWrongPriority()
+    public function testPercentagePriceWithWrongPriority(): void
     {
         $cart = new Cart('test', 'test');
 
@@ -139,7 +139,7 @@ class CalculatorTest extends TestCase
         self::assertSame(-15.0, $calculated->get('B')->getPrice()->getTotalPrice());
     }
 
-    public function testPercentagePriceWithFilter()
+    public function testPercentagePriceWithFilter(): void
     {
         $cart = new Cart('test', 'test');
 
@@ -172,7 +172,7 @@ class CalculatorTest extends TestCase
         self::assertSame(-20.0, $calculated->get('C')->getPrice()->getTotalPrice());
     }
 
-    public function testAbsolutePriceWithFilter()
+    public function testAbsolutePriceWithFilter(): void
     {
         $cart = new Cart('test', 'test');
 
@@ -205,7 +205,7 @@ class CalculatorTest extends TestCase
         self::assertSame(-10.0, $calculated->get('C')->getPrice()->getTotalPrice());
     }
 
-    public function testNestedLineItemPrice()
+    public function testNestedLineItemPrice(): void
     {
         $lineItem = new LineItem('A', 'test');
 

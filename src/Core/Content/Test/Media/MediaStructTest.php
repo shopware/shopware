@@ -36,7 +36,7 @@ class MediaStructTest extends TestCase
         $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
     }
 
-    public function testWriteReadMinimalFields()
+    public function testWriteReadMinimalFields(): void
     {
         $mediaId = Uuid::uuid4()->getHex();
 
@@ -56,7 +56,7 @@ class MediaStructTest extends TestCase
         static::assertEquals('test_media', $media->getName());
     }
 
-    public function testMimeTypeIsWriteProtected()
+    public function testMimeTypeIsWriteProtected(): void
     {
         $mediaId = Uuid::uuid4()->getHex();
 
@@ -70,7 +70,7 @@ class MediaStructTest extends TestCase
         $this->repository->create([$mediaData], $this->context);
     }
 
-    public function testThumbnailsIsWriteProtected()
+    public function testThumbnailsIsWriteProtected(): void
     {
         $mediaId = Uuid::uuid4()->getHex();
 
@@ -90,7 +90,7 @@ class MediaStructTest extends TestCase
         $this->repository->create([$mediaData], $this->context);
     }
 
-    public function testThumbnailsAreConvertedToStructWhenFetchedFromDb()
+    public function testThumbnailsAreConvertedToStructWhenFetchedFromDb(): void
     {
         $mediaId = Uuid::uuid4()->getHex();
 
@@ -123,7 +123,7 @@ class MediaStructTest extends TestCase
         static::assertFalse($persistedThumbnail->getHighDpi());
     }
 
-    private function getIdCriteria($mediaId)
+    private function getIdCriteria($mediaId): Criteria
     {
         $criteria = new Criteria();
         $criteria->setOffset(0);

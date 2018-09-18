@@ -18,12 +18,12 @@ class MediaLoadedSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public function testExtensionSubscribesToMediaLoaded()
+    public function testExtensionSubscribesToMediaLoaded(): void
     {
         static::assertCount(2, MediaLoadedSubscriber::getSubscribedEvents()['media.loaded']);
     }
 
-    public function testItAddsUrl()
+    public function testItAddsUrl(): void
     {
         $subscriber = $this->getContainer()->get(MediaLoadedSubscriber::class);
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
@@ -45,7 +45,7 @@ class MediaLoadedSubscriberTest extends TestCase
         static::assertEquals([], $mediaStruct->getThumbnails()->getElements());
     }
 
-    public function testItAddsThumbnailUrl()
+    public function testItAddsThumbnailUrl(): void
     {
         $subscriber = $this->getContainer()->get(MediaLoadedSubscriber::class);
         $context = Context::createDefaultContext(Defaults::TENANT_ID);

@@ -25,7 +25,7 @@ class ProductPriceRuleCollection extends PriceRuleCollection
         });
     }
 
-    public function sortByQuantity()
+    public function sortByQuantity(): void
     {
         $this->sort(function (ProductPriceRuleStruct $a, ProductPriceRuleStruct $b) {
             return $a->getQuantityStart() <=> $b->getQuantityStart();

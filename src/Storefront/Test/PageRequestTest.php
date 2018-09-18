@@ -27,7 +27,7 @@ class PageRequestTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
     }
 
-    public function testPageRequestExtension()
+    public function testPageRequestExtension(): void
     {
         $checkoutContext = Generator::createContext();
 

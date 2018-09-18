@@ -35,7 +35,7 @@ class SortingSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function transformRequest(ListingPageRequestEvent $event)
+    public function transformRequest(ListingPageRequestEvent $event): void
     {
         $request = $event->getRequest();
 
@@ -62,8 +62,9 @@ class SortingSubscriber implements EventSubscriberInterface
 
         /** @var ListingSortingStruct $sorting */
         $sorting = $sortings->first();
+        $criteria = $event->getCriteria();
         foreach ($sorting->getPayload() as $fieldSorting) {
-            $event->getCriteria()->addSorting($fieldSorting);
+            $criteria->addSorting($fieldSorting);
         }
     }
 

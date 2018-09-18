@@ -43,7 +43,7 @@ class CartController extends StorefrontController
     /**
      * @Route("/cart", name="cart_index", options={"seo"="false"})
      */
-    public function index()
+    public function index(): RedirectResponse
     {
         return $this->redirectToRoute('checkout_cart');
     }
@@ -222,7 +222,7 @@ class CartController extends StorefrontController
             return new JsonResponse(['success' => true]);
         }
 
-        if ($target == self::ROUTE_CHECKOUT_CONFIRM) {
+        if ($target === self::ROUTE_CHECKOUT_CONFIRM) {
             return $this->redirectToRoute(self::ROUTE_CHECKOUT_CONFIRM);
         }
 

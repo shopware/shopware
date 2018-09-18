@@ -16,7 +16,7 @@ class EmailSaveSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function transformRequest(EmailSaveRequestEvent $event)
+    public function transformRequest(EmailSaveRequestEvent $event): void
     {
         $request = $event->getRequest();
         $transformed = $event->getEmailSaveRequest();

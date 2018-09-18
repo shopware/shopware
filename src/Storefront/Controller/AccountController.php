@@ -24,6 +24,7 @@ use Shopware\Storefront\Page\Account\ProfileSaveRequest;
 use Shopware\Storefront\Page\Account\RegistrationRequest;
 use Shopware\Storefront\Page\Checkout\PaymentMethodLoader;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -115,7 +116,7 @@ class AccountController extends StorefrontController
     /**
      * @Route("/account/login", name="account_login_check", methods={"POST"})
      */
-    public function checkLogin(LoginRequest $loginRequest, Request $request, CheckoutContext $context)
+    public function checkLogin(LoginRequest $loginRequest, Request $request, CheckoutContext $context): RedirectResponse
     {
         try {
             $customer = $this->accountService->getCustomerByLogin(
@@ -208,7 +209,7 @@ class AccountController extends StorefrontController
 
         $data = $request->request->get('register');
 
-        if (!array_key_exists('payment', $data) or !Uuid::isValid($data['payment'])) {
+        if (!array_key_exists('payment', $data) || !Uuid::isValid($data['payment'])) {
             throw new PaymentMethodNotFoundException($data['payment']);
         }
 
@@ -320,7 +321,7 @@ class AccountController extends StorefrontController
     /**
      * @Route("/account/address", name="address_index", options={"seo"="false"}, methods={"GET"})
      */
-    public function addressOverview(CheckoutContext $context)
+    public function addressOverview(CheckoutContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 

@@ -16,7 +16,7 @@ class RegistrationSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function transformRequest(RegistrationRequestEvent $event)
+    public function transformRequest(RegistrationRequestEvent $event): void
     {
         $request = $event->getRequest();
         $transformed = $event->getRegistrationRequest();

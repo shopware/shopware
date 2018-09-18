@@ -7,17 +7,17 @@ class ControllerInfo
     /**
      * @var string|null
      */
-    private $action = null;
+    private $action;
 
     /**
      * @var string|null
      */
-    private $namespace = null;
+    private $namespace;
 
     /**
      * @var string|null
      */
-    private $name = null;
+    private $name;
 
     /**
      * @return null|string
@@ -30,7 +30,7 @@ class ControllerInfo
     /**
      * @param null|string $action
      */
-    public function setAction(?string $action)
+    public function setAction(?string $action): void
     {
         $this->action = $action;
     }
@@ -46,7 +46,7 @@ class ControllerInfo
     /**
      * @param null|string $namespace
      */
-    public function setNamespace(?string $namespace)
+    public function setNamespace(?string $namespace): void
     {
         $this->namespace = $namespace;
     }
@@ -62,7 +62,7 @@ class ControllerInfo
     /**
      * @param null|string $name
      */
-    public function setName(?string $name)
+    public function setName(?string $name): void
     {
         $this->name = $name;
     }

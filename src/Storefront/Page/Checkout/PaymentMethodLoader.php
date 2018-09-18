@@ -21,7 +21,7 @@ class PaymentMethodLoader
         $this->paymentMethodRepository = $paymentMethodRepository;
     }
 
-    public function load(Request $request, Context $context)
+    public function load(Request $request, Context $context): PaymentMethodCollection
     {
         // todo@dr remove request, provide storefront context, provide calculated cart, use context rule system to validate
         $criteria = $this->createCriteria($request);

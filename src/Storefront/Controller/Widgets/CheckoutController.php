@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Controller\Widgets;
 use Shopware\Core\Checkout\Cart\Storefront\CartService;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Storefront\Controller\StorefrontController;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class CheckoutController extends StorefrontController
@@ -22,7 +23,7 @@ class CheckoutController extends StorefrontController
     /**
      * @Route("/widgets/checkout/info", name="widgets/checkout/info", methods={"GET"})
      */
-    public function infoAction(CheckoutContext $context)
+    public function infoAction(CheckoutContext $context): Response
     {
         $cart = $this->cartService->getCart($context);
 

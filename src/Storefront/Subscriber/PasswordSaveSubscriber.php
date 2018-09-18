@@ -16,7 +16,7 @@ class PasswordSaveSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function transformRequest(PasswordSaveRequestEvent $event)
+    public function transformRequest(PasswordSaveRequestEvent $event): void
     {
         $request = $event->getRequest();
         $transformed = $event->getPasswordSaveRequest();

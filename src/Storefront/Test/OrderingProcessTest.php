@@ -108,7 +108,7 @@ class OrderingProcessTest extends TestCase
         return $id;
     }
 
-    private function addProductToCart(string $id, int $quantity)
+    private function addProductToCart(string $id, int $quantity): void
     {
         $data = [
             'identifier' => $id,
@@ -125,7 +125,7 @@ class OrderingProcessTest extends TestCase
         self::assertEquals(true, $content['success']);
     }
 
-    private function changeProductQuantity(string $id, int $quantity)
+    private function changeProductQuantity(string $id, int $quantity): void
     {
         $data = [
             'identifier' => $id,
@@ -139,7 +139,7 @@ class OrderingProcessTest extends TestCase
         self::assertEquals(true, $content['success']);
     }
 
-    private function removeProductFromCart(string $id)
+    private function removeProductFromCart(string $id): void
     {
         $data = [
             'identifier' => $id,
@@ -194,7 +194,7 @@ class OrderingProcessTest extends TestCase
         return $customerId;
     }
 
-    private function loginUser(string $email, string $password)
+    private function loginUser(string $email, string $password): void
     {
         $data = [
             'email' => $email,
@@ -209,7 +209,7 @@ class OrderingProcessTest extends TestCase
         static::assertStringEndsWith('/account', (string) $response->headers->get('Location'), $response->getContent());
     }
 
-    private function changePaymentMethod(string $paymentMethodId)
+    private function changePaymentMethod(string $paymentMethodId): void
     {
         $data = [
             'paymentMethodId' => $paymentMethodId,

@@ -11,7 +11,7 @@ class CsrfTokenController extends Controller
     /**
      * @Route("/csrftoken", name="csrftoken", methods={"GET"})
      */
-    public function index()
+    public function index(): Response
     {
         $token = md5(uniqid('csrf', true));
 

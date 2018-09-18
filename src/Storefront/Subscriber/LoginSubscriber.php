@@ -16,7 +16,7 @@ class LoginSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function transformRequest(LoginRequestEvent $event)
+    public function transformRequest(LoginRequestEvent $event): void
     {
         $request = $event->getRequest();
         $transformed = $event->getLoginRequest();

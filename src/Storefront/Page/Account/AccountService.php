@@ -61,7 +61,7 @@ class AccountService
      */
     public function getCustomerByLogin(string $email, string $password, CheckoutContext $context): CustomerStruct
     {
-        $customer = $this->getCustomerByEmail($email, $context, false);
+        $customer = $this->getCustomerByEmail($email, $context);
 
         if (!password_verify($password, $customer->getPassword())) {
             throw new BadCredentialsException();
@@ -110,7 +110,7 @@ class AccountService
         return $context->getCustomer();
     }
 
-    public function saveProfile(ProfileSaveRequest $profileSaveRequest, CheckoutContext $context)
+    public function saveProfile(ProfileSaveRequest $profileSaveRequest, CheckoutContext $context): void
     {
         $data = [
             'id' => $context->getCustomer()->getId(),
@@ -129,7 +129,7 @@ class AccountService
         $this->customerRepository->update([$data], $context->getContext());
     }
 
-    public function savePassword(PasswordSaveRequest $passwordSaveRequest, CheckoutContext $context)
+    public function savePassword(PasswordSaveRequest $passwordSaveRequest, CheckoutContext $context): void
     {
         $data = [
             'id' => $context->getCustomer()->getId(),
@@ -144,7 +144,7 @@ class AccountService
         $this->customerRepository->update([$data], $context->getContext());
     }
 
-    public function saveEmail(EmailSaveRequest $emailSaveRequest, CheckoutContext $context)
+    public function saveEmail(EmailSaveRequest $emailSaveRequest, CheckoutContext $context): void
     {
         $data = [
             'id' => $context->getCustomer()->getId(),
@@ -248,7 +248,7 @@ class AccountService
      * @throws InvalidUuidException
      * @throws AddressNotFoundException
      */
-    public function deleteAddress(string $addressId, CheckoutContext $context)
+    public function deleteAddress(string $addressId, CheckoutContext $context): void
     {
         $this->validateCustomer($context);
         $this->validateAddressId($addressId, $context);
@@ -260,7 +260,7 @@ class AccountService
      * @throws InvalidUuidException
      * @throws AddressNotFoundException
      */
-    public function setDefaultBillingAddress(string $addressId, CheckoutContext $context)
+    public function setDefaultBillingAddress(string $addressId, CheckoutContext $context): void
     {
         $this->validateCustomer($context);
         $this->validateAddressId($addressId, $context);
@@ -277,7 +277,7 @@ class AccountService
      * @throws InvalidUuidException
      * @throws AddressNotFoundException
      */
-    public function setDefaultShippingAddress(string $addressId, CheckoutContext $context)
+    public function setDefaultShippingAddress(string $addressId, CheckoutContext $context): void
     {
         $this->validateCustomer($context);
         $this->validateAddressId($addressId, $context);
@@ -360,7 +360,7 @@ class AccountService
         }
 
         $data = array_filter($data, function ($element) {
-            return !is_null($element);
+            return $element !== null;
         });
 
         $this->customerRepository->create([$data], $context->getContext());
@@ -427,7 +427,7 @@ class AccountService
     /**
      * @throws CustomerNotLoggedInException
      */
-    private function validateCustomer(CheckoutContext $context)
+    private function validateCustomer(CheckoutContext $context): void
     {
         if (!$context->getCustomer()) {
             throw new CustomerNotLoggedInException();

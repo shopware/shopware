@@ -8,6 +8,7 @@ use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Storefront\Controller\StorefrontController;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class IndexController extends StorefrontController
@@ -33,16 +34,18 @@ class IndexController extends StorefrontController
      *
      * @param CheckoutContext $context
      *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return Response
      */
-    public function shopMenuAction(CheckoutContext $context)
+    public function shopMenuAction(CheckoutContext $context): Response
     {
+        $salesChannel = $context->getSalesChannel();
+
         return $this->render('@Storefront/widgets/index/shop_menu.html.twig', [
-            'application' => $context->getSalesChannel(),
+            'application' => $salesChannel,
             'currencies' => $this->getCurrencies($context),
-            'currency' => $context->getSalesChannel()->getCurrency(),
+            'currency' => $salesChannel->getCurrency(),
             'languages' => $this->getLanguages($context),
-            'language' => $context->getSalesChannel()->getLanguage(),
+            'language' => $salesChannel->getLanguage(),
         ]);
     }
 

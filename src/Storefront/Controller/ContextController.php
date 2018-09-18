@@ -50,14 +50,12 @@ class ContextController extends StorefrontController
     /**
      * @Route("/context/update", name="context_update", methods={"POST"})
      */
-    public function setCurrency(Request $request, CheckoutContext $context)
+    public function setCurrency(Request $request, CheckoutContext $context): RedirectResponse
     {
-        $payload = [
+        $payload = array_filter([
             CheckoutContextService::CURRENCY_ID => $this->validateCurrency($request->get('__currency'), $context),
             CheckoutContextService::LANGUAGE_ID => $this->validateLanguage($request->get('__language'), $context),
-        ];
-
-        $payload = array_filter($payload);
+        ]);
 
         if (!empty($payload)) {
             $this->contextPersister->save($context->getToken(), $payload, $context->getTenantId());

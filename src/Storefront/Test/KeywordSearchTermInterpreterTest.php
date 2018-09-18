@@ -38,7 +38,7 @@ class KeywordSearchTermInterpreterTest extends TestCase
      * @param string $term
      * @param array  $expected
      */
-    public function testMatching(string $term, array $expected)
+    public function testMatching(string $term, array $expected): void
     {
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
 
@@ -53,7 +53,7 @@ class KeywordSearchTermInterpreterTest extends TestCase
         self::assertEquals($expected, $keywords);
     }
 
-    public function cases()
+    public function cases(): array
     {
         return [
             [
@@ -71,7 +71,7 @@ class KeywordSearchTermInterpreterTest extends TestCase
         ];
     }
 
-    private function setupKeywords()
+    private function setupKeywords(): void
     {
         $keywords = [
             'zeichnet',

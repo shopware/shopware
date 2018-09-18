@@ -57,7 +57,7 @@ class SeoUrlCollection extends EntityCollection
         return null;
     }
 
-    public function getForeignKeys()
+    public function getForeignKeys(): array
     {
         return $this->fmap(function (SeoUrlStruct $seoUrl) {
             return $seoUrl->getForeignKey();

@@ -63,9 +63,7 @@ class DetailPageLoader
         Request $request,
         CheckoutContext $context
     ): string {
-        $selection = $request->get('group', []);
-
-        $selection = array_filter($selection);
+        $selection = array_filter($request->get('group', []));
 
         if (empty($selection)) {
             return $productId;
@@ -106,7 +104,7 @@ class DetailPageLoader
         $variationIds = $product->getVariationIds() ?? [];
 
         foreach ($configurator as $config) {
-            $config->setSelected(in_array($config->getOptionId(), $variationIds, true));
+            $config->setSelected(\in_array($config->getOptionId(), $variationIds, true));
         }
 
         return $configurator;

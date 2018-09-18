@@ -41,11 +41,11 @@ class AccountServiceTest extends TestCase
         $request = $this->getRegistrationRequest();
 
         $customerId = $this->accountService->createNewCustomer($request, $this->checkoutContext);
-        $this->assertNotEmpty($customerId);
+        static::assertNotEmpty($customerId);
 
         $customer = $this->accountService->getCustomerByEmail($request->getEmail(), $this->checkoutContext);
-        $this->assertEquals($request->getLastName(), $customer->getLastName());
-        $this->assertNotEquals($request->getPassword(), $customer->getPassword());
+        static::assertEquals($request->getLastName(), $customer->getLastName());
+        static::assertNotEquals($request->getPassword(), $customer->getPassword());
     }
 
     public function testCreateWithExistingCustomer(): void
@@ -53,7 +53,7 @@ class AccountServiceTest extends TestCase
         $request = $this->getRegistrationRequest();
 
         $customerId = $this->accountService->createNewCustomer($request, $this->checkoutContext);
-        $this->assertNotEmpty($customerId);
+        static::assertNotEmpty($customerId);
 
         $this->expectException(CustomerAccountExistsException::class);
         $this->accountService->createNewCustomer($request, $this->checkoutContext);
@@ -64,38 +64,38 @@ class AccountServiceTest extends TestCase
         $request = $this->getRegistrationRequest();
 
         $customerId = $this->accountService->createNewCustomer($request, $this->checkoutContext);
-        $this->assertNotEmpty($customerId);
+        static::assertNotEmpty($customerId);
 
         $request->setGuest(true);
         $customerId = $this->accountService->createNewCustomer($request, $this->checkoutContext);
-        $this->assertNotEmpty($customerId);
+        static::assertNotEmpty($customerId);
 
-        $customers = $this->accountService->getCustomersByEmail($request->getEmail(), $this->checkoutContext, true);
-        $this->assertCount(2, $customers);
+        $customers = $this->accountService->getCustomersByEmail($request->getEmail(), $this->checkoutContext);
+        static::assertCount(2, $customers);
 
         $customers = $this->accountService->getCustomersByEmail($request->getEmail(), $this->checkoutContext, false);
-        $this->assertCount(1, $customers);
+        static::assertCount(1, $customers);
 
         $this->expectException(CustomerNotFoundException::class);
         $this->accountService->getCustomerByEmail($request->getEmail(), $this->checkoutContext, true);
     }
 
-    public function testLoginWithAdditionalGuestAccount()
+    public function testLoginWithAdditionalGuestAccount(): void
     {
         $request = $this->getRegistrationRequest();
         $request->setGuest(true);
         $customerId = $this->accountService->createNewCustomer($request, $this->checkoutContext);
-        $this->assertNotEmpty($customerId);
+        static::assertNotEmpty($customerId);
 
         $request->setGuest(false);
         $customerId = $this->accountService->createNewCustomer($request, $this->checkoutContext);
-        $this->assertNotEmpty($customerId);
+        static::assertNotEmpty($customerId);
 
         $customer = $this->accountService->getCustomerByEmail($request->getEmail(), $this->checkoutContext);
-        $this->assertEquals($request->getLastName(), $customer->getLastName());
+        static::assertEquals($request->getLastName(), $customer->getLastName());
     }
 
-    private function getRegistrationRequest()
+    private function getRegistrationRequest(): RegistrationRequest
     {
         $data = [
             'email' => 'max.mustermann@example.com',

@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class IndexController extends StorefrontController
@@ -9,9 +10,9 @@ class IndexController extends StorefrontController
     /**
      * @Route("/", name="homepage", options={"seo"="false"})
      *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return Response
      */
-    public function index()
+    public function index(): Response
     {
         return $this->renderStorefront('@Storefront/frontend/home/index.html.twig');
     }

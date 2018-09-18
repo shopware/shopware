@@ -11,6 +11,7 @@ use Shopware\Storefront\Page\Listing\ListingPageRequest;
 use Shopware\Storefront\Page\Search\SearchPageLoader;
 use Shopware\Storefront\Page\Search\SearchPageRequest;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ListingController extends StorefrontController
@@ -43,7 +44,7 @@ class ListingController extends StorefrontController
     /**
      * @Route("/widgets/listing/top_seller", name="widgets_top_seller", methods={"GET"})
      */
-    public function topSellerAction(CheckoutContext $context)
+    public function topSellerAction(CheckoutContext $context): Response
     {
         $criteria = new Criteria();
         $criteria->setLimit(10);
@@ -58,7 +59,7 @@ class ListingController extends StorefrontController
     /**
      * @Route("/widgets/listing/list/{categoryId}", name="widgets_listing_list", methods={"GET"})
      */
-    public function listAction(string $categoryId, ListingPageRequest $request, CheckoutContext $context)
+    public function listAction(string $categoryId, ListingPageRequest $request, CheckoutContext $context): JsonResponse
     {
         $request->setNavigationId($categoryId);
 
@@ -82,7 +83,7 @@ class ListingController extends StorefrontController
     /**
      * @Route("/widgets/listing/search", name="widgets_listing_search", methods={"GET"})
      */
-    public function searchAction(SearchPageRequest $request, CheckoutContext $context)
+    public function searchAction(SearchPageRequest $request, CheckoutContext $context): JsonResponse
     {
         $page = $this->searchPageLoader->load($request, $context);
 

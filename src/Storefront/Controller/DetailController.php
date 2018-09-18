@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Storefront\Page\Detail\DetailPageLoader;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class DetailController extends StorefrontController
@@ -22,7 +23,7 @@ class DetailController extends StorefrontController
     /**
      * @Route("/detail/{id}", name="detail_page", options={"seo"="true"})
      */
-    public function index(string $id, CheckoutContext $context, Request $request)
+    public function index(string $id, CheckoutContext $context, Request $request): Response
     {
         $page = $this->detailPageLoader->load($id, $request, $context);
 
@@ -33,6 +34,6 @@ class DetailController extends StorefrontController
             $template = '@Storefront/frontend/detail/content.html.twig';
         }
 
-        return $this->renderStorefront($template, ['page' => $page], null);
+        return $this->renderStorefront($template, ['page' => $page]);
     }
 }

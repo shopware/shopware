@@ -66,7 +66,7 @@ class AuditLogSearchTest extends TestCase
         ], $context);
     }
 
-    public function testProductRanking()
+    public function testProductRanking(): void
     {
         $productId1 = Uuid::uuid4()->getHex();
         $productId2 = Uuid::uuid4()->getHex();

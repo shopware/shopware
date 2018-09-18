@@ -138,7 +138,7 @@ Import our global variables to the newly created file in order to achieve a cons
 
 #### Naming scheme
 
-Because the Shopware\Core administration is a component based application with rescuable components, the CSS structure and naming scheme of classes should also be component-driven. Therefore we're using the well-known [BEM naming scheme](http://getbem.com/):
+Because the Shopware\Core administration is a component based application with reusable components, the CSS structure and naming scheme of classes should also be component-driven. Therefore we're using the well-known [BEM naming scheme](http://getbem.com/):
 
 * BEM stands for "Block Element Modifier".
 * In our case "Block" equals the "root" element of a Vue component.
@@ -648,7 +648,7 @@ The `$super` property works for both - extended and overridden components and pr
 Data is what drives our components. So we made sure, we can provide you with a way to separate the business logic from the component logic, as well as the data logic.
 
 ### State modules
-In part we're using a global state management with a single state tree. The state management is built on top of [`VueX`](https://vuex.vuejs.org/en/). The main benefit of VueX is that we are having only one point of truth - the state module. No other part of the application is allowed to alter states. A global state management comes in handy when we are dealing with multiple components that simultanously access the same data. For example, the product detail page is separated into multiple components and pages. Consequently every component and page can access the data without having to re-request it.
+In part we're using a global state management with a single state tree. The state management is built on top of [`VueX`](https://vuex.vuejs.org/en/). The main benefit of VueX is that we are having only one point of truth - the state module. No other part of the application is allowed to alter states. A global state management comes in handy when we are dealing with multiple components that simultaneously access the same data. For example, the product detail page is separated into multiple components and pages. Consequently every component and page can access the data without having to re-request it.
 
 State modules are registered using the third-party developer interface. These modules are separated in three main parts - an initial state for the module, actions and mutations.
 
@@ -688,7 +688,7 @@ State.register('locale', {
 
 *Example `locale` state module*
 
-State modules can be used for all kinds of purpose, the main problem we want to solve is handling change sets of the data. We're not updating the entire enities in the application, instead we're generating a change set and just sending a diff to the server to perform an update on the entitiy. To do so, we have to keep an `original` and `draft` state and generating the diff of these two state properties.
+State modules can be used for all kinds of purpose, the main problem we want to solve is handling change sets of the data. We're not updating the entire entities in the application, instead we're generating a change set and just sending a diff to the server to perform an update on the entity To do so, we have to keep an `original` and `draft` state and generating the diff of these two state properties.
 
 ```js
 import { State } from 'src/core/shopware';
@@ -874,7 +874,7 @@ Component.register('sw-hello-world', {
     
     mixins: [
         Mixin.getByName('notification')
-    ]
+    ],
     
     created() {
         this.createNotificationSuccess({
@@ -948,7 +948,7 @@ Mixin.register('taxList', {
 ```
 *Example of a mixin, in this case for the API endpoint `taxList`*
 
-State modules are an additional layer on top of the API services which are the place where you can find additional data logic. They're taking care of creating drafts for the change set generation, handling deletions of enitity deletions, requesting data using the API services and initializing empty entities.
+State modules are an additional layer on top of the API services which are the place where you can find additional data logic. They're taking care of creating drafts for the change set generation, handling deletions of entity deletions, requesting data using the API services and initializing empty entities.
 
 ```js
 import { State } from 'src/core/shopware';
@@ -1095,8 +1095,10 @@ The injected HTTP client is a configured [Axios instance](https://github.com/axi
 
 ```js
 // Register your service provider
-Shopware.Touchpoint.addServiceProvider('exampleService', (serviceContainer) =>() {
-    const initContainer = application.getContainer('init');
+import { Application } from 'src/core/shopware';
+
+Application.addServiceProvider('exampleService', (container) => {
+    const initContainer = Application.getContainer('init');
     return new ExampleService(initContainer.httpClient, container.loginService);
 });
 ```
@@ -1105,7 +1107,7 @@ Shopware.Touchpoint.addServiceProvider('exampleService', (serviceContainer) =>()
 
 ## Register a module in the administration
 
-Modules are the bread and butter for the application. They're using the components and composing them to a full page for the administration interface. Modules are having a route to access them and usually at least one main menu entry to access them using the main menu. The registration of modules are following our module manifast:
+Modules are the bread and butter for the application. They're using the components and composing them to a full page for the administration interface. Modules are having a route to access them and usually at least one main menu entry to access them using the main menu. The registration of modules are following our module manifest:
 
 ```js
 import { Module } from 'src/core/shopware';
@@ -1235,7 +1237,7 @@ navigation: [{
 }]
 ```
 
-*Nested navigation entriesexample*
+*Nested navigation entries example*
 
 ### Pages
 
@@ -1311,7 +1313,7 @@ The following features and methods are available to you:
 * `Module` - Represents the module factory
     * `register`
         * Registers a new module
-* `Component` - Represents the component facotry
+* `Component` - Represents the component factory
     * `register`
         * Registers a new component
     * `extend`
@@ -1382,7 +1384,7 @@ The following features and methods are available to you:
     * `getRawEntityObject`
         * Returns the unparsed entity scheme object
     * `getRequiredProperties`
-        * Returns the required properties for an entitiy. Used for validations.  
+        * Returns the required properties for an entity. Used for validations.  
 
 
 ## Webpack, tooling and packing your module
@@ -1394,7 +1396,7 @@ Please keep in mind that Webpack is only used as a tool for development. The app
 
 Webpack has 4 core concepts which enables you to customize it to your needs and process every tasks you want: **entry, output, loaders & plugins.** The core concepts of Webpack enable you as a third-party developer to use all the same tools we are using for developing. Webpack is able to identify the active plugins in the shop and processes the plugins JavaScript and LESS files and dumps out a compiled version into the plugin directory ready for deployment to the community store.
 
-To compile your extension, please use the command `./psh.phar administration:build`. We're hooking your extension into our webpack configuration as another entry point, therefore we're getting a separeted bundle and copying the necessary CSS & JS files to your plugin directory.
+To compile your extension, please use the command `./psh.phar administration:build`. We're hooking your extension into our webpack configuration as another entry point, therefore we're getting a separated bundle and copying the necessary CSS & JS files to your plugin directory.
 
 To use Webpack with your [PhpStorm](https://www.jetbrains.com/phpstorm/) installation, head over to "Settings" -> "Languages & Frameworks" -> "JavaScript" -> "Webpack" and point the "webpack configuration file" to `<your-project-root>/vendor/shopware/platform/src/Administration/Resources/administration/build/webpack.base.conf.js` to get alias resolving and more.
 

@@ -24,7 +24,7 @@ Currently the following processors are registered.
 | 200 | cart.delivery.calculator_processor | Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculatorProcessor | calculates all deliveries which were created |
 
 ## How a processor (should) work
-A processor should only handle simple tasks like the filtering of its dedicated line items or deliveries of a cart. Further logic and calculation (delivery seperation, line item calculation) should be encapsulated in seperate services.
+A processor should only handle simple tasks like the filtering of its dedicated line items or deliveries of a cart. Further logic and calculation (delivery separation, line item calculation) should be encapsulated in separate services.
 
 A simple processor could look like below:
 ```php
@@ -32,7 +32,7 @@ A simple processor could look like below:
 
 class ProductProcessor implements CartProcessorInterface
 {
-    const TYPE_PRODUCT = 'product';
+    public const TYPE_PRODUCT = 'product';
 
     /**
      * @var ProductCalculator

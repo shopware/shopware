@@ -610,7 +610,7 @@ $result = $client->post(
 # Defining an Entity
 An entity defines the data structure of a table in the system. But why do you need entities
 and can not just work with arrays? The benefit of entities in any system is that you can rely on a
-stricly defined structure. Every developer knows this structure and must stick to it. 
+strictly defined structure. Every developer knows this structure and must stick to it. 
 This is different for an array. If a repository defines that an array is returned
 and that field name `XYZ` is included by default, it is not necessary for a developer
 ()who may be exchanging this repository) to provide the property `XYZ` too.
@@ -663,7 +663,7 @@ class ProductDefinition extends EntityDefinition
         return 'product';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
         return new FieldCollection([]);
     }
@@ -671,13 +671,13 @@ class ProductDefinition extends EntityDefinition
 ```
 First, the `getEntityName` function defines which table this class refers to, 
 in this example `product`.
-Then in the `getFields` creates a `FieldCollection`, which facilitates working with entity fields.
+Then in the `defineFields` creates a `FieldCollection`, which facilitates working with entity fields.
 
 ### Add your first fields to an entity
 Now we can fill the entity with fields. Let's start with simple fields:
  
 ```php
-public static function getFields(): FieldCollection
+public static function defineFields(): FieldCollection
 {
     return new FieldCollection([
         new StringField('ean', 'ean'),
@@ -701,7 +701,7 @@ Thus, the entity now has the following properties to work with:
 Now let's add a primary key for the entity that allows us to identify records of that entity 
 to delete or update them:
 ```php
-public static function getFields(): FieldCollection
+public static function defineFields(): FieldCollection
 {
     return new FieldCollection([
        (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),  
@@ -729,7 +729,7 @@ is the entity` product`, the name of the translation table is `product_translati
 This table also has its own entity definition, but we will not go into that in this example. 
 To declare a field as translatable, the ORM provides an dedicated class, the `TranslatedField`:
 ```php
-public static function getFields(): FieldCollection
+public static function defineFields(): FieldCollection
 {
     return new FieldCollection([
        // ...
@@ -752,7 +752,7 @@ However, we also want to make sure that only existing manufacturer ids can be st
 as otherwise we would quickly produce inconsistent data in the system. 
 So the ORM should do a cross-check. For this we can use a field of class `FkField`.
 ```php
-public static function getFields(): FieldCollection
+public static function defineFields(): FieldCollection
 {
     return new FieldCollection([
        // ...
@@ -776,7 +776,7 @@ For this the ORM needs an `*AssociationField`. The following associations can be
 In case of the product-manufacturer relationship, we need a `ManyToOneAssociationFiel` here.
 An association has several parameters that are commented inline in the following example: 
 ```php
-public static function getFields(): FieldCollection
+public static function defineFields(): FieldCollection
 {
     return new FieldCollection([
        // ...
@@ -823,7 +823,7 @@ If we apply this to the example above, the following columns must be created in 
 Accordingly, these fields must also be included in the `ProductDefinition`. 
 For this the ORM brings its own field with itself:
  ```php
-public static function getFields(): FieldCollection
+public static function defineFields(): FieldCollection
 {
     return new FieldCollection([
        // ...

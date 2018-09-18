@@ -1,6 +1,6 @@
 # Cart layer concept
 
-With regards to performance and seperation of responsibilities we introduced a three-layer-architecture for the cart. Each layer serves a new purpose, while the level of abstraction decreases from inside to outside.
+With regards to performance and separation of responsibilities we introduced a three-layer-architecture for the cart. Each layer serves a new purpose, while the level of abstraction decreases from inside to outside.
 
 ## Cart container
 The first and innermost layer is the `\Shopware\Core\Checkout\Cart\Cart\Cart`. 

@@ -44,7 +44,7 @@ class JsonType extends JsonFactoryBase
             'data' => self::format($decoded),
         ];
 
-        return new JsonResponse($response);
+        return new JsonResponse($response, JsonResponse::HTTP_OK, $headers);
     }
 
     public function createListingResponse(EntitySearchResult $searchResult, string $definition, Request $request, Context $context): Response

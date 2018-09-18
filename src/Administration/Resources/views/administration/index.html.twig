@@ -7,6 +7,13 @@
         Shopware Administration (c) shopware AG
     </title>
 
+    {% block administration_favicons %}
+        <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('bundles/administration/static/img/favicon/apple-touch-icon.png') }}">
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('bundles/administration/static/img/favicon/favicon-32x32.png') }}">
+        <meta name="msapplication-TileColor" content="#189eff">
+        <meta name="theme-color" content="#189eff">
+    {% endblock %}
+
     <link rel="stylesheet" href="{{ asset('bundles/administration/static/css/app.css') }}?{{ 'now'|date('U') }}">
     {% block administration_stylesheets %}{% endblock %}
 </head>

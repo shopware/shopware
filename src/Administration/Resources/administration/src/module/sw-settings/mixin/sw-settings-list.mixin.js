@@ -64,7 +64,7 @@ Mixin.register('sw-settings-list', {
             );
 
             this.store.store[id].delete(true).then(() => {
-                this.showDeleteModal = false;
+                this.onCloseDeleteModal();
 
                 this.createNotificationSuccess({
                     title: titleSaveSuccess,

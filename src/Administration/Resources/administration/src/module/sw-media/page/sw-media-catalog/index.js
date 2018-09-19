@@ -26,8 +26,7 @@ Component.register('sw-media-catalog', {
             selectedItems: null,
             selectionToDelete: null,
             sortType: ['createdAt', 'dsc'],
-            catalogIconSize: 200,
-            mediaItemToReplace: null
+            catalogIconSize: 200
         };
     },
 
@@ -138,10 +137,6 @@ Component.register('sw-media-catalog', {
             this.getSelectedItems();
         },
 
-        handleMediaGridItemReplace({ item }) {
-            this.mediaItemToReplace = item;
-        },
-
         handleMediaGridItemShowDetails({ item, autoplay }) {
             this.selectedItems = [item];
             this.$refs.mediaSidebar.autoplay = autoplay;
@@ -178,34 +173,6 @@ Component.register('sw-media-catalog', {
                 this.getList();
             });
             this.selectedItems = null;
-        },
-
-        handleSidebarReplaceItem({ item }) {
-            this.mediaItemToReplace = item;
-        },
-
-        closeReplaceModal() {
-            this.mediaItemToReplace = null;
-        },
-
-        handleItemReplaced(replacementPromise, file) {
-            this.closeReplaceModal();
-
-            replacementPromise.then(() => {
-                this.getList().then(() => {
-                    const media = this.mediaItems.find((item) => {
-                        return item.id === file.id;
-                    });
-                    media.url = `${media.url}?${Date.now()}`;
-                    this.createNotificationSuccess({
-                        message: this.$tc('sw-media.replace.notificationSuccess')
-                    });
-                });
-            }).catch(() => {
-                this.createNotificationError({
-                    message: this.$tc('sw-media.replace.notificationFailure', 0, { mediaName: file.name })
-                });
-            });
         }
     }
 });

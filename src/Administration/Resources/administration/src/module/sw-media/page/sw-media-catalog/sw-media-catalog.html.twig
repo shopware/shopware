@@ -197,15 +197,6 @@
                    @sw-media-modal-delete-delete="deleteSelection">
                 </sw-media-modal-delete>
             {% endblock %}
-
-            {% block sw_media_catalog_modal_replace %}
-                <sw-media-modal-replace
-                    v-if="mediaItemToReplace"
-                    :itemToReplace="mediaItemToReplace"
-                    @sw-media-modal-replace-close="closeReplaceModal"
-                    @sw-media-modal-replace-confirmed="handleItemReplaced">
-                </sw-media-modal-replace>
-            {% endblock %}
         </template>
     </sw-page>
 {% endblock %}

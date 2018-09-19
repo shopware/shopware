@@ -30,7 +30,8 @@ Component.register('sw-media-sidebar', {
 
     data() {
         return {
-            autoplay: false
+            autoplay: false,
+            showModalReplace: false
         };
     },
 
@@ -65,6 +66,14 @@ Component.register('sw-media-sidebar', {
 
         showQuickInfo() {
             this.$refs.quickInfoButton.toggleContentPanel(true);
+        },
+
+        openModalReplace() {
+            this.showModalReplace = true;
+        },
+
+        closeModalReplace() {
+            this.showModalReplace = false;
         }
     }
 });

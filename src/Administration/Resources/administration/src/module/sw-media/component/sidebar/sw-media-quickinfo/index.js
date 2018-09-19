@@ -55,6 +55,10 @@ Component.register('sw-media-quickinfo', {
             if (this.item) {
                 domUtils.copyToClipboard(this.item.url);
             }
+        },
+
+        emitOpenModalReplace() {
+            this.$emit('sw-media-quickinfo-open-modal-replace');
         }
     }
 });

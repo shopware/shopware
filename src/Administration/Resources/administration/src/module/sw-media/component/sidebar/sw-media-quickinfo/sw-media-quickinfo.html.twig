@@ -11,7 +11,7 @@
                         <ul class="sw-media-quickinfo__collapse-content sw-media-quickinfo__two-columns">
                             {% block sw_media_quickinfo_quickactions_replace %}
                                 <li class="sw-media-quickinfo__quickaction"
-                                    @click="emitQuickAction($event, 'replace-item')">
+                                    @click="emitOpenModalReplace">
                                     <sw-icon small
                                              name="default-action-cloud-upload"
                                              class="sw-media-quickinfo__quickactions-icon">

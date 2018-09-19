@@ -50,7 +50,9 @@
       "modalTitle": "Medien ersetzen",
       "buttonUpload": "Upload",
       "cancelButton": "Abbrechen",
-      "replaceButton": "Ersetzen"
+      "replaceButton": "Ersetzen",
+      "notificationSuccess": "Datei erfolgreich ersetzt",
+      "notificationFailure": "Fehler beim Ersetzen von {mediaName}"
     },
     "sw-media-preview": {
       "fallbackVideoTagSupport": "Ihr Browser unterstützt diesen Video-Tag nicht",
@@ -596,10 +598,6 @@
       "notificationSuccess": "Datei erfolgreich gespeichert",
       "notificationFailure": "Fehler beim Hochladen von {mediaName}",
       "notificationInfo": "Lade eine Datei hoch | Lade {count} Dateien hoch"
-    },
-    "replace": {
-      "notificationSuccess": "Datei erfolgreich ersetzt",
-      "notificationFailure": "Fehler beim Ersetzen von {mediaName}"
     },
     "catalogItem": {
       "showCatalogContent": "Inhalt anzeigen",

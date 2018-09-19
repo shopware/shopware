@@ -8,8 +8,7 @@ const mediaMediaGridListener = {
                 'sw-media-grid-item-selection-add': this.handleMediaGridItemSelected,
                 'sw-media-grid-item-selection-remove': this.handleMediaGridItemUnselected,
                 'sw-media-grid-media-item-show-details': this.handleMediaGridItemShowDetails,
-                'sw-media-grid-media-item-delete': this.handleMediaGridItemDelete,
-                'sw-media-grid-media-item-replace': this.handleMediaGridItemReplace
+                'sw-media-grid-media-item-delete': this.handleMediaGridItemDelete
             };
         }
     },
@@ -33,10 +32,6 @@ const mediaMediaGridListener = {
 
         handleMediaGridItemDelete() {
             warn('handleMediaGridItemDelete', 'Handler must be overriden in component');
-        },
-
-        handleMediaGridItemReplace() {
-            warn('handleMediaGridItemReplace', 'Handler must be overriden in component');
         }
     }
 };

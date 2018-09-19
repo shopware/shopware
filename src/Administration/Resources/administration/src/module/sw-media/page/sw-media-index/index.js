@@ -22,7 +22,6 @@ Component.register('sw-media-index', {
             mediaItems: [],
             selectedItems: null,
             selectionToDelete: null,
-            mediaItemToReplace: null,
             searchId: this.$route.query.mediaId
         };
     },
@@ -88,10 +87,6 @@ Component.register('sw-media-index', {
             this.getSelectedItems();
         },
 
-        handleMediaGridItemReplace({ item }) {
-            this.mediaItemToReplace = item;
-        },
-
         handleMediaGridItemShowDetails({ item, autoplay }) {
             this.selectedItems = [item];
             this.$refs.mediaSidebar.autoplay = autoplay;
@@ -127,34 +122,6 @@ Component.register('sw-media-index', {
                 this.loadMedia();
             });
             this.selectedItems = null;
-        },
-
-        handleSidebarReplaceItem({ item }) {
-            this.mediaItemToReplace = item;
-        },
-
-        closeReplaceModal() {
-            this.mediaItemToReplace = null;
-        },
-
-        handleItemReplaced(replacementPromise, file) {
-            this.closeReplaceModal();
-
-            replacementPromise.then(() => {
-                this.loadMedia().then(() => {
-                    const media = this.mediaItems.find((item) => {
-                        return item.id === file.id;
-                    });
-                    media.url = `${media.url}?${Date.now()}`;
-                    this.createNotificationSuccess({
-                        message: this.$tc('sw-media.replace.notificationSuccess')
-                    });
-                });
-            }).catch(() => {
-                this.createNotificationError({
-                    message: this.$tc('sw-media.replace.notificationFailure', 0, { mediaName: file.name })
-                });
-            });
         },
 
         loadMedia() {

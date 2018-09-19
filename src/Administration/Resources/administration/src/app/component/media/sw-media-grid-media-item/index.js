@@ -38,6 +38,12 @@ Component.register('sw-media-grid-media-item', {
         }
     },
 
+    data() {
+        return {
+            showModalReplace: false
+        };
+    },
+
     computed: {
         mediaPreviewClasses() {
             return {
@@ -118,11 +124,12 @@ Component.register('sw-media-grid-media-item', {
             });
         },
 
-        replaceItem(originalDomEvent) {
-            this.$emit('sw-media-grid-media-item-replace', {
-                originalDomEvent,
-                item: this.item
-            });
+        openModalReplace() {
+            this.showModalReplace = true;
+        },
+
+        closeModalReplace() {
+            this.showModalReplace = false;
         }
     }
 });

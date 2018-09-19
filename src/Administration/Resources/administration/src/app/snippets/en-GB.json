@@ -50,7 +50,9 @@
       "modalTitle": "Replace media files",
       "buttonUpload": "Upload",
       "cancelButton": "Cancel",
-      "replaceButton": "Replace"
+      "replaceButton": "Replace",
+      "notificationSuccess": "File replaced",
+      "notificationFailure": "There was an error replacing {mediaName}"
     },
     "sw-media-preview": {
       "fallbackVideoTagSupport": "Your browser does not support the video tag",
@@ -596,10 +598,6 @@
       "notificationSuccess": "File saved",
       "notificationFailure": "There was an error uploading {mediaName}",
       "notificationInfo": "Upload from one file started | Upload from {count} files started"
-    },
-    "replace": {
-      "notificationSuccess": "File replaced",
-      "notificationFailure": "There was an error replacing {mediaName}"
     },
     "catalogItem": {
       "showCatalogContent": "Show contents",

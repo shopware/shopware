@@ -15,6 +15,7 @@
                                             :key="getKey"
                                             :item="items[0]"
                                             :autoplay="autoplay"
+                                            @sw-media-quickinfo-open-modal-replace="openModalReplace"
                                             v-on="$listeners">
                                     </sw-media-quickinfo>
                                     <sw-media-quickinfo-multiple v-else :items="items" v-on="$listeners"></sw-media-quickinfo-multiple>
@@ -36,5 +37,13 @@
                 </div>
             {% endblock %}
         </sw-sidebar>
+
+        {% block sw_media_sidebar_modal_replace %}
+            <sw-media-modal-replace
+                v-if="isSingleFile && showModalReplace"
+                :itemToReplace="items[0]"
+                @sw-media-modal-replace-close="closeModalReplace">
+            </sw-media-modal-replace>
+        {% endblock %}
     </div>
 {% endblock %}

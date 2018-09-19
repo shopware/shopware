@@ -1,4 +1,4 @@
-import { Component } from 'src/core/shopware';
+import { Component, Mixin } from 'src/core/shopware';
 import { debug, fileReader } from 'src/core/service/util.service';
 import template from './sw-media-modal-replace.html.twig';
 import './sw-media-modal-replace.less';
@@ -7,6 +7,8 @@ Component.register('sw-media-modal-replace', {
     template,
 
     inject: ['mediaService'],
+
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         itemToReplace: {
@@ -23,8 +25,8 @@ Component.register('sw-media-modal-replace', {
     },
 
     computed: {
-        showReplaceModal() {
-            return this.itemToReplace !== null;
+        isUploadDataSet() {
+            return this.uploadData !== null;
         }
     },
 
@@ -56,10 +58,6 @@ Component.register('sw-media-modal-replace', {
         },
 
         replaceMediaItem() {
-            if (this.uploadData === null) {
-                return;
-            }
-
             if (this.uploadData.type === 'URL') {
                 this.replaceMediaFromUrl();
             }
@@ -67,8 +65,6 @@ Component.register('sw-media-modal-replace', {
             if (this.uploadData.type === 'file') {
                 this.replaceMediaFromFile();
             }
-
-            this.uploadData = null;
         },
 
         replaceMediaFromUrl() {
@@ -76,24 +72,39 @@ Component.register('sw-media-modal-replace', {
         },
 
         replaceMediaFromFile() {
-            const mediaId = this.itemToReplace.id;
             const mimeType = this.uploadData.data.type;
             const fileExtension = this.uploadData.data.name.split('.').pop();
+            const notificationSuccess = this.$tc('global.sw-media-modal-replace.notificationSuccess');
+            const notificationError = this.$tc(
+                'global.sw-media-modal-replace.notificationFailure',
+                1,
+                { mediaName: this.itemToReplace.name }
+            );
 
-            const replaceFromFile = fileReader.readAsArrayBuffer(this.uploadData.data).then((fileAsArray) => {
-                return this.mediaService.uploadMediaById(
-                    mediaId,
+            fileReader.readAsArrayBuffer(this.uploadData.data).then((fileAsArray) => {
+                this.itemToReplace.isLoading = true;
+                this.mediaService.uploadMediaById(
+                    this.itemToReplace.id,
                     mimeType,
                     fileAsArray,
                     fileExtension
-                );
+                ).then(() => {
+                    this.itemToReplace.url = `${this.itemToReplace.url}?${Date.now()}`;
+                    this.itemToReplace.isLoading = false;
+                    this.createNotificationSuccess({
+                        message: notificationSuccess
+                    });
+                }).catch(() => {
+                    this.itemToReplace.isLoading = false;
+                    this.createNotificationError({
+                        message: notificationError
+                    });
+                });
+
+                this.emitCloseReplaceModal();
+            }).catch(() => {
+                this.emitCloseReplaceModal();
             });
-
-            this.emitReplaceStarted(replaceFromFile, this.itemToReplace);
-        },
-
-        emitReplaceStarted(itemUpload, file) {
-            this.$emit('sw-media-modal-replace-confirmed', itemUpload, file);
         },
 
         removeSelectedFile() {

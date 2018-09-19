@@ -6,7 +6,6 @@ const mediaSidebarListener = {
             return {
                 'sw-media-sidebar-move-batch': this.handleSidebarMoveBatchRequest,
                 'sw-media-sidebar-remove-batch': this.handleSidebarRemoveBatchRequest,
-                'sw-media-sidebar-quickaction-replace-item': this.handleSidebarReplaceItem,
                 'sw-media-sidebar-quickaction-move-item': this.handleSidebarMoveItem,
                 'sw-media-sidebar-quickaction-remove-item': this.handleSidebarRemoveItem
             };
@@ -20,10 +19,6 @@ const mediaSidebarListener = {
 
         handleSidebarRemoveBatchRequest() {
             warn('handleSidebarRemoveBatchRequest', 'Handler must be overriden in component');
-        },
-
-        handleSidebarReplaceItem() {
-            warn('handleSidebarReplaceItem', 'Handler must be overriden in component');
         },
 
         handleSidebarMoveItem() {

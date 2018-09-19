@@ -9,13 +9,11 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextFactory;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
-use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderStruct;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidTransactionException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentService;
-use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Api\Response\Type\Storefront\JsonType;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
@@ -128,16 +126,13 @@ class StorefrontCheckoutController extends Controller
      *
      * @throws OrderNotFoundException
      */
-    public function getDeepLinkOrder(string $id, Request $request, Context $context, ResponseFactoryInterface $responseFactory): Response
+    public function getDeepLinkOrder(string $id, Request $request, Context $context): Response
     {
         $deepLinkCode = (string) $request->query->get('accessCode');
         $order = $this->cartService->getOrderByDeepLinkCode($id, $deepLinkCode, $context);
 
-        return $responseFactory->createDetailResponse(
-            $order,
-            OrderDefinition::class,
-            $request,
-            $context
+        return new JsonResponse(
+            $this->serialize($order)
         );
     }
 

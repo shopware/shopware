@@ -624,7 +624,9 @@
         "copyLink": "Copy link",
         "more": "More",
         "preview": "Preview",
-        "metadata": "Meta data"
+        "metadata": "Meta data",
+        "missingFileTitle": "File not found",
+        "missingFileDescription": "We couldn't find your file. You can upload a new file or delete it."
       },
       "metadata": {
         "name": "Name",

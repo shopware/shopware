@@ -1,5 +1,12 @@
 {% block sw_media_quickinfo %}
     <div class="sw-media-quickinfo">
+        {% block sw_media_quickinfo_broken_file %}
+            <sw-alert v-if="!item.hasFile" variant="warning" :title="$tc('sw-media.sidebar.quickinfo.missingFileTitle')">
+                <template>
+                    {{ $tc('sw-media.sidebar.quickinfo.missingFileDescription') }}
+                </template>
+            </sw-alert>
+        {% endblock %}
         {% block sw_media_quickinfo_quickactions %}
             <sw-media-collapse
                 class="sw-media-quickinfo__collapse"
@@ -21,7 +28,7 @@
                             {% endblock %}
 
                             {% block sw_media_quickinfo_quickactions_download %}
-                                <li>
+                                <li v-if="item.hasFile">
                                     <a class="sw-media-quickinfo__quickaction"
                                        :href="url"
                                        target="_blank"
@@ -48,7 +55,8 @@
 
                             {% block sw_media_quickinfo_quickactions_copy_link %}
                                 <li class="sw-media-quickinfo__quickaction"
-                                     @click="copyLinkToClipboard">
+                                    v-if="item.hasFile"
+                                    @click="copyLinkToClipboard">
                                     <sw-icon small
                                              name="default-web-link"
                                              class="sw-media-quickinfo__quickactions-icon">
@@ -66,6 +74,7 @@
         {% block sw_media_quickinfo_preview %}
             <sw-media-collapse
                 class="sw-media-quickinfo__collapse"
+                v-if="item.hasFile"
                 :expandOnLoading="true"
                 :title="$tc('sw-media.sidebar.quickinfo.preview')">
 
@@ -86,6 +95,7 @@
         {% block sw_media_quickinfo_metadata %}
             <sw-media-collapse
                 class="sw-media-quickinfo__collapse"
+                v-if="item.hasFile"
                 :expandOnLoading="true"
                 :title="$tc('sw-media.sidebar.quickinfo.metadata')">
 

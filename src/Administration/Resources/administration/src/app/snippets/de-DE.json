@@ -624,7 +624,9 @@
         "copyLink": "Link kopieren",
         "more": "Mehr",
         "preview": "Vorschau",
-        "metadata": "Metadaten"
+        "metadata": "Metadaten",
+        "missingFileTitle": "Datei nicht gefunden",
+        "missingFileDescription": "Wir konnten diese Datei nicht finden. Du kannst eine neue Datei hochladen oder diese löschen."
       },
       "metadata": {
         "name": "Name",

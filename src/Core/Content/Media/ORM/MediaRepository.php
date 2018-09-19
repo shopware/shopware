@@ -59,17 +59,16 @@ class MediaRepository extends EntityRepository
 
     public function delete(array $ids, Context $context): EntityWrittenContainerEvent
     {
-        $criteria = new ReadCriteria($ids);
-        $affectedMedia = $this->search($criteria, $context);
+        $affectedMedia = $this->read(new ReadCriteria($this->getRawIds($ids)), $context);
 
-        if ($affectedMedia->getEntities()->count() === 0) {
+        if ($affectedMedia->count() === 0) {
             $event = EntityWrittenContainerEvent::createWithDeletedEvents([], $context, []);
             $this->eventDispatcher->dispatch(EntityWrittenContainerEvent::NAME, $event);
 
             return $event;
         }
 
-        foreach ($affectedMedia->getEntities() as $mediaStruct) {
+        foreach ($affectedMedia as $mediaStruct) {
             if (!$mediaStruct->hasFile()) {
                 continue;
             }
@@ -89,5 +88,15 @@ class MediaRepository extends EntityRepository
         }
 
         return parent::delete($ids, $context);
+    }
+
+    private function getRawIds(array $ids)
+    {
+        return array_map(
+            function ($idArray) {
+                return $idArray['id'];
+            },
+            $ids
+        );
     }
 }

@@ -34,8 +34,6 @@ class MediaRepositoryTest extends TestCase
 
     public function testDeleteMediaEntityWithoutThumbnails()
     {
-        $this->mediaRepository = $this->getContainer()->get('media.repository');
-
         $mediaId = Uuid::uuid4()->getHex();
 
         $this->context->getExtension('write_protection')->set('write_media', true);
@@ -98,5 +96,44 @@ class MediaRepositoryTest extends TestCase
 
         static::assertFalse($this->getPublicFilesystem()->has($mediaPath));
         static::assertFalse($this->getPublicFilesystem()->has($thumbnailPath));
+    }
+
+    public function testDeleteMediaDeletesOnlyFilesForGivenMediaId()
+    {
+        $this->mediaRepository = $this->getContainer()->get('media.repository');
+
+        $firstId = Uuid::uuid4()->getHex();
+        $secondId = Uuid::uuid4()->getHex();
+
+        $this->context->getExtension('write_protection')->set('write_media', true);
+        $this->mediaRepository->create([
+            [
+                'id' => $firstId,
+                'name' => 'test media',
+                'mimeType' => 'image/png',
+                'fileExtension' => 'png',
+            ],
+            [
+                'id' => $secondId,
+                'name' => 'test media',
+                'mimeType' => 'image/png',
+                'fileExtension' => 'png',
+            ],
+        ],
+            $this->context
+        );
+
+        $this->context->getExtension('write_protection')->set('write_media', false);
+        $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
+        $firstPath = $urlGenerator->getRelativeMediaUrl($firstId, 'png');
+        $secondPath = $urlGenerator->getRelativeMediaUrl($secondId, 'png');
+
+        $this->getPublicFilesystem()->putStream($firstPath, fopen(self::FIXTURE_FILE, 'r'));
+        $this->getPublicFilesystem()->putStream($secondPath, fopen(self::FIXTURE_FILE, 'r'));
+
+        $this->mediaRepository->delete([['id' => $firstId]], $this->context);
+
+        static::assertFalse($this->getPublicFilesystem()->has($firstPath));
+        static::assertTrue($this->getPublicFilesystem()->has($secondPath));
     }
 }

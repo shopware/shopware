@@ -46,6 +46,12 @@
       "contextMenuCopyLinkLabel": "Link kopieren",
       "contextMenuReplaceLabel": "Ersetzen"
     },
+    "sw-media-modal-replace": {
+      "modalTitle": "Medien ersetzen",
+      "buttonUpload": "Upload",
+      "cancelButton": "Abbrechen",
+      "replaceButton": "Ersetzen"
+    },
     "sw-media-preview": {
       "fallbackVideoTagSupport": "Ihr Browser unterstützt diesen Video-Tag nicht",
       "fallbackAudioTagSupport": "Ihr Browser unterstützt diesen Audio-Tag nicht"
@@ -657,11 +663,6 @@
       "deleteMessage":"Möchtest Du \"{mediaName}\" wirklich löschen? | Diese {count} Medien löschen",
       "modalButtonDelete": "Löschen",
       "modalButtonAbort": "Abbrechen"
-    },
-    "modalReplace": {
-      "modalTitle": "Medien ersetzen",
-      "cancelButton": "Abbrechen",
-      "replaceButton": "Ersetzen"
     }
   },
   "sw-settings": {

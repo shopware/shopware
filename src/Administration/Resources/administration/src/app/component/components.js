@@ -60,3 +60,4 @@ import './media/sw-media-grid-catalog-item';
 import './media/sw-media-preview';
 import './media/sw-media-upload-container';
 import './media/sw-media-upload-url-modal';
+import './media/sw-media-modal-replace';

@@ -46,6 +46,12 @@
       "contextMenuCopyLinkLabel": "Copy Link",
       "contextMenuReplaceLabel": "Replace"
     },
+    "sw-media-modal-replace": {
+      "modalTitle": "Replace media files",
+      "buttonUpload": "Upload",
+      "cancelButton": "Cancel",
+      "replaceButton": "Replace"
+    },
     "sw-media-preview": {
       "fallbackVideoTagSupport": "Your browser does not support the video tag",
       "fallbackAudioTagSupport": "Your browser does not support the audio tag"
@@ -657,11 +663,6 @@
       "deleteMessage": "Do you want to delete \"{mediaName}\" ? | Delete {count} Media items?",
       "modalButtonDelete": "Delete",
       "modalButtonAbort": "Cancel"
-    },
-    "modalReplace": {
-      "modalTitle": "Replace media files",
-      "cancelButton": "Cancel",
-      "replaceButton": "Replace"
     }
   },
   "sw-settings": {

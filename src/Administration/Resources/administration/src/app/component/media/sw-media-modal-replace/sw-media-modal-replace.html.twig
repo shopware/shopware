@@ -1,7 +1,7 @@
 {% block sw_media_modal_replace %}
     <sw-modal class="sw-media-modal-replace"
               v-if="showReplaceModal"
-              :title="$tc('sw-media.modalReplace.modalTitle')"
+              :title="$tc('global.sw-media-modal-replace.modalTitle')"
               @closeModal="emitCloseReplaceModal">
 
         {% block sw_media_modal_replace_file_input %}
@@ -10,7 +10,7 @@
 
         {% block sw_media_modal_replace_upload_button %}
             <div class="sw-media-modal-replace__upload-button">
-                <sw-button variant="primary" @click="onClickUpload">{{ $tc('sw-media.smart-bar.buttonUpload') }}</sw-button>
+                <sw-button variant="primary" @click="onClickUpload">{{ $tc('global.sw-media-modal-replace.buttonUpload') }}</sw-button>
             </div>
         {% endblock %}
 
@@ -35,13 +35,13 @@
 
                 {% block sw_media_modal_replace_cancel_button %}
                     <sw-button size="small" @click="emitCloseReplaceModal">
-                        {{ $tc('sw-media.modalReplace.cancelButton') }}
+                        {{ $tc('global.sw-media-modal-replace.cancelButton') }}
                     </sw-button>
                 {% endblock %}
 
                 {% block sw_media_modal_replace_replace_button %}
                     <sw-button size="small" variant="primary" @click="replaceMediaItem">
-                        {{ $tc('sw-media.modalReplace.replaceButton') }}
+                        {{ $tc('global.sw-media-modal-replace.replaceButton') }}
                     </sw-button>
                 {% endblock %}
 

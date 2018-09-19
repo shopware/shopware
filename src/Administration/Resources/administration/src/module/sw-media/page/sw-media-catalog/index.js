@@ -6,7 +6,6 @@ import '../../component/sw-media-upload';
 import template from './sw-media-catalog.html.twig';
 import './sw-media-catalog.less';
 import '../../component/sw-media-modal-delete';
-import '../../component/sw-media-modal-replace';
 
 Component.register('sw-media-catalog', {
     template,

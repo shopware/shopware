@@ -31,7 +31,8 @@ Component.register('sw-media-sidebar', {
     data() {
         return {
             autoplay: false,
-            showModalReplace: false
+            showModalReplace: false,
+            showModalDelete: false
         };
     },
 
@@ -56,14 +57,14 @@ Component.register('sw-media-sidebar', {
                 key = item.id;
             }
             return key + this.autoplay;
+        },
+
+        itemsToDelete() {
+            return this.items || [];
         }
     },
 
     methods: {
-        emitRequestRemoveSelection(originalDomEvent) {
-            this.$emit('sw-media-sidebar-remove-batch', { originalDomEvent });
-        },
-
         showQuickInfo() {
             this.$refs.quickInfoButton.toggleContentPanel(true);
         },
@@ -74,6 +75,21 @@ Component.register('sw-media-sidebar', {
 
         closeModalReplace() {
             this.showModalReplace = false;
+        },
+
+        openModalDelete() {
+            this.showModalDelete = true;
+        },
+
+        closeModalDelete() {
+            this.showModalDelete = false;
+        },
+
+        deleteSelectedItems(deletePromise) {
+            this.closeModalDelete();
+            deletePromise.then(() => {
+                this.$emit('sw-media-sidebar-items-delete');
+            });
         }
     }
 });

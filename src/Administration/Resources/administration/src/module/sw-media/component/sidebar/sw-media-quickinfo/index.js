@@ -44,17 +44,14 @@ Component.register('sw-media-quickinfo', {
     },
 
     methods: {
-        emitQuickAction(originalDomEvent, action) {
-            this.$emit(`sw-media-sidebar-quickaction-${action}`, {
-                originalDomEvent,
-                item: this.item
-            });
-        },
-
         copyLinkToClipboard() {
             if (this.item) {
                 domUtils.copyToClipboard(this.item.url);
             }
+        },
+
+        emitOpenModalDelete() {
+            this.$emit('sw-media-quickinfo-open-modal-delete');
         },
 
         emitOpenModalReplace() {

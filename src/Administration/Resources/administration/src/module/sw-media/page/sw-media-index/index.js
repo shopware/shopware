@@ -1,8 +1,6 @@
 import { Component, State, Mixin } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
-import '../../component/sw-media-modal-delete';
 import mediaMediaGridListener from '../../mixin/mediagrid.listener.mixin';
-import mediaSidebarListener from '../../mixin/sibebar.listener.mixin';
 import template from './sw-media-index.html.twig';
 import './sw-media-index.less';
 
@@ -11,7 +9,6 @@ Component.register('sw-media-index', {
 
     mixins: [
         mediaMediaGridListener,
-        mediaSidebarListener,
         Mixin.getByName('notification')
     ],
 
@@ -21,7 +18,6 @@ Component.register('sw-media-index', {
             catalogs: [],
             mediaItems: [],
             selectedItems: null,
-            selectionToDelete: null,
             searchId: this.$route.query.mediaId
         };
     },
@@ -93,38 +89,14 @@ Component.register('sw-media-index', {
             this.$refs.mediaSidebar.showQuickInfo();
         },
 
-        handleSidebarRemoveItem({ item }) {
-            this.selectionToDelete = [item];
-        },
-
-        handleSidebarRemoveBatchRequest() {
-            this.selectionToDelete = this.$refs.mediaGrid.selection;
-        },
-
-        handleMediaGridItemDelete({ item }) {
-            this.selectionToDelete = [item];
-        },
-
-        closeDeleteModal() {
-            this.selectionToDelete = null;
-        },
-
-        deleteSelection() {
-            const mediaItemsDeletion = [];
-            this.isLoading = true;
-
-            this.selectionToDelete.forEach((element) => {
-                mediaItemsDeletion.push(this.mediaItemStore.getById(element.id).delete(true));
-            });
-
-            Promise.all(mediaItemsDeletion).then(() => {
-                this.selectionToDelete = null;
-                this.loadMedia();
-            });
-            this.selectedItems = null;
+        handleMediaGridItemDelete() {
+            this.loadMedia();
         },
 
         loadMedia() {
+            this.isLoading = true;
+            this.itemsSelected = null;
+
             if (this.isSearch) {
                 return this.loadSearchedMedia().then(() => {
                     this.isLoading = false;

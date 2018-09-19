@@ -55,6 +55,16 @@
       "notificationFailure": "Fehler beim Ersetzen von {mediaName}",
       "notificationFileReaderError": "Fehler beim Lesen deiner Datei"
     },
+    "sw-media-modal-delete": {
+      "modalHeader": "Medien löschen",
+      "deleteMessage":"Möchtest Du \"{mediaName}\" wirklich löschen? | Diese {count} Medien löschen",
+      "modalButtonDelete": "Löschen",
+      "modalButtonAbort": "Abbrechen",
+      "notificationSuccessSingle": "File \"{mediaName}\" erfolgreich gelöscht",
+      "notificationErrorSingle": "Fehler beim Löschen von \"{mediaName}\"",
+      "notificationSuccessOverall": "Dateien erfolgreich gelöscht",
+      "notificationErrorOverall": "Fehler beim Löschen von Dateien"
+    },
     "sw-media-preview": {
       "fallbackVideoTagSupport": "Ihr Browser unterstützt diesen Video-Tag nicht",
       "fallbackAudioTagSupport": "Ihr Browser unterstützt diesen Audio-Tag nicht"
@@ -658,12 +668,6 @@
       "labelSortByCreatedDsc": "Erstelldatum absteigend",
       "labelSortByDataTypeAsc": "Dateityp aufsteigend",
       "labelSortByDataTypeDsc": "Dateityp absteigend"
-    },
-    "modalDelete": {
-      "modalHeader": "Medien löschen",
-      "deleteMessage":"Möchtest Du \"{mediaName}\" wirklich löschen? | Diese {count} Medien löschen",
-      "modalButtonDelete": "Löschen",
-      "modalButtonAbort": "Abbrechen"
     }
   },
   "sw-settings": {

@@ -59,7 +59,7 @@
                                 {% endblock %}
 
                                 {% block sw_media_griditem_context_item_delete %}
-                                    <sw-context-menu-item @click="deleteItem" variant="danger">
+                                    <sw-context-menu-item @click="openModalDelete" variant="danger">
                                         {{ $tc('global.sw-media-grid-media-item.contextMenuDeleteLabel') }}
                                     </sw-context-menu-item>
                                 {% endblock %}
@@ -76,6 +76,15 @@
                     @sw-media-modal-replace-close="closeModalReplace">
                 </sw-media-modal-replace>
             {% endblock %}
+        {% endblock %}
+
+        {% block sw_media_grid_media_item_delete_modal %}
+            <sw-media-modal-delete
+                v-if="showModalDelete"
+                :itemsToDelete="[item]"
+                @sw-media-modal-delete-items-deleted="emitItemDeleted"
+                @sw-media-modal-delete-close="closeModalDelete">
+            </sw-media-modal-delete>
         {% endblock %}
     </div>
 {% endblock %}

@@ -62,20 +62,12 @@
                         <div class="sw-media-index__sidebar">
                             <sw-media-sidebar
                                 :items="selectedItems"
-                                v-on="mediaSidebarListener"
+                                @sw-media-sidebar-items-delete="handleMediaGridItemDelete"
                                 ref="mediaSidebar">
                             </sw-media-sidebar>
                         </div>
                     {% endblock %}
                 </div>
-            {% endblock %}
-
-            {% block sw_media_index_modal_delete %}
-                <sw-media-modal-delete
-                   :itemsToDelete ="selectionToDelete"
-                   @sw-media-modal-delete-close="closeDeleteModal"
-                   @sw-media-modal-delete-delete="deleteSelection">
-                </sw-media-modal-delete>
             {% endblock %}
         </template>
     </sw-page>

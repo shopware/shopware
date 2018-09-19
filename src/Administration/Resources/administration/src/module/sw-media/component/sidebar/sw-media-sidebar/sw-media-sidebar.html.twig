@@ -16,9 +16,12 @@
                                             :item="items[0]"
                                             :autoplay="autoplay"
                                             @sw-media-quickinfo-open-modal-replace="openModalReplace"
-                                            v-on="$listeners">
+                                            @sw-media-quickinfo-open-modal-delete="openModalDelete">
                                     </sw-media-quickinfo>
-                                    <sw-media-quickinfo-multiple v-else :items="items" v-on="$listeners"></sw-media-quickinfo-multiple>
+                                    <sw-media-quickinfo-multiple
+                                            v-else :items="items"
+                                            @sw-media-quickinfo-open-modal-delete="openModalDelete">
+                                    </sw-media-quickinfo-multiple>
                                 </sw-sidebar-item>
                             {% endblock %}
                         </div>
@@ -28,7 +31,7 @@
                         <div class="sw-media-sidebar__items-bottom">
                             {% block sw_media_sidebar_actions_delete_file %}
                                 <sw-sidebar-item icon="default-action-trash"
-                                                 @click="emitRequestRemoveSelection"
+                                                 @click="openModalDelete"
                                                  :disabled="!hasItems">
                                 </sw-sidebar-item>
                             {% endblock %}
@@ -44,6 +47,15 @@
                 :itemToReplace="items[0]"
                 @sw-media-modal-replace-close="closeModalReplace">
             </sw-media-modal-replace>
+        {% endblock %}
+
+        {% block sw_media_sidebar_modal_delete %}
+            <sw-media-modal-delete
+                v-if="hasItems && showModalDelete"
+                :itemsToDelete="itemsToDelete"
+                @sw-media-modal-delete-close="closeModalDelete"
+                @sw-media-modal-delete-items-deleted="deleteSelectedItems">
+            </sw-media-modal-delete>
         {% endblock %}
     </div>
 {% endblock %}

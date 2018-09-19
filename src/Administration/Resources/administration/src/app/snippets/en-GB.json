@@ -55,6 +55,16 @@
       "notificationFailure": "There was an error replacing {mediaName}",
       "notificationFileReaderError": "Error reading your file"
     },
+    "sw-media-modal-delete": {
+      "modalHeader": "Delete media files",
+      "deleteMessage": "Do you want to delete \"{mediaName}\" ? | Delete {count} media items?",
+      "modalButtonDelete": "Delete",
+      "modalButtonAbort": "Cancel",
+      "notificationSuccessSingle": "File \"{mediaName}\" successfully Deleted",
+      "notificationErrorSingle": "Error deleting \"{mediaName}\"",
+      "notificationSuccessOverall": "Successful deleted media Items",
+      "notificationErrorOverall": "Error deleting media items"
+    },
     "sw-media-preview": {
       "fallbackVideoTagSupport": "Your browser does not support the video tag",
       "fallbackAudioTagSupport": "Your browser does not support the audio tag"
@@ -658,12 +668,6 @@
       "labelSortByCreatedDsc": "Creation date descending",
       "labelSortByDataTypeAsc": "Data-Type ascending",
       "labelSortByDataTypeDsc": "Data-Type descending"
-    },
-    "modalDelete": {
-      "modalHeader": "Delete media files",
-      "deleteMessage": "Do you want to delete \"{mediaName}\" ? | Delete {count} Media items?",
-      "modalButtonDelete": "Delete",
-      "modalButtonAbort": "Cancel"
     }
   },
   "sw-settings": {

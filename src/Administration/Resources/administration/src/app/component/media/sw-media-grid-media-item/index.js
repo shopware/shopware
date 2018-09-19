@@ -40,7 +40,8 @@ Component.register('sw-media-grid-media-item', {
 
     data() {
         return {
-            showModalReplace: false
+            showModalReplace: false,
+            showModalDelete: false
         };
     },
 
@@ -117,10 +118,18 @@ Component.register('sw-media-grid-media-item', {
             domUtils.copyToClipboard(this.item.url);
         },
 
-        deleteItem(originalDomEvent) {
-            this.$emit('sw-media-grid-media-item-delete', {
-                originalDomEvent,
-                item: this.item
+        openModalDelete() {
+            this.showModalDelete = true;
+        },
+
+        closeModalDelete() {
+            this.showModalDelete = false;
+        },
+
+        emitItemDeleted(deletePromise) {
+            this.closeModalDelete();
+            deletePromise.then(() => {
+                this.$emit('sw-media-grid-media-item-delete');
             });
         },
 

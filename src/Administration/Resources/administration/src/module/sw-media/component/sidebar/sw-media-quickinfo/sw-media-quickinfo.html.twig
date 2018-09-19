@@ -44,7 +44,7 @@
 
                             {% block sw_media_quickinfo_quickactions_delete %}
                                 <li class="sw-media-quickinfo__quickaction is--danger"
-                                     @click="emitQuickAction($event, 'remove-item')">
+                                     @click="emitOpenModalDelete">
                                     <sw-icon small
                                              name="default-action-trash"
                                              class="sw-media-quickinfo__quickactions-icon is--danger">

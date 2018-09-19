@@ -187,6 +187,78 @@ describe('core/data/EntityStore.js', () => {
         });
     });
 
+    itAsync('should get a list and load associations', (done) => {
+        const store = new EntityStore('media', 'mediaService', EntityProxy);
+
+        // Create a new entry
+        const entity = store.create();
+        entity.name = 'Media Name';
+        entity.catalogId = '20080911ffff4fffafffffff19830531';
+
+        entity.save().then(() => {
+            const mediaService = Application.getContainer('service').mediaService;
+            // use shopware website because the administration is not build on bamboo and therefore no local files work
+            const testUrl = 'https://de.shopware.com/press/company/Shopware_Jamaica.jpg';
+
+            mediaService.uploadMediaFromUrl(entity.id, testUrl, '.png').then(() => {
+                store.getList({
+                    page: 1,
+                    limit: 1
+                }, true).then((response) => {
+                    console.log(response.items);
+                    expect(response.items.length).to.be.equal(1);
+                    expect(response.items[0].thumbnails.length).to.be.equal(2);
+
+                    entity.delete(true).then(() => {
+                        done();
+                    });
+                }).catch((err) => {
+                    done(err);
+                });
+            }).catch((err) => {
+                done(err);
+            });
+        }).catch((err) => {
+            done(err);
+        });
+    });
+
+    itAsync('should get a list and don\'t load associations', (done) => {
+        const store = new EntityStore('media', 'mediaService', EntityProxy);
+
+        // Create a new entry
+        const entity = store.create();
+        entity.name = 'Media Name';
+        entity.catalogId = '20080911ffff4fffafffffff19830531';
+
+        entity.save().then(() => {
+            const mediaService = Application.getContainer('service').mediaService;
+            // use shopware website because the administration is not build on bamboo and therefore no local files work
+            const testUrl = 'https://de.shopware.com/press/company/Shopware_Jamaica.jpg';
+
+            mediaService.uploadMediaFromUrl(entity.id, testUrl, '.png').then(() => {
+                store.getList({
+                    page: 1,
+                    limit: 1
+                }).then((response) => {
+                    console.log(response.items);
+                    expect(response.items.length).to.be.equal(1);
+                    expect(response.items[0].thumbnails.length).to.be.equal(0);
+
+                    entity.delete(true).then(() => {
+                        done();
+                    });
+                }).catch((err) => {
+                    done(err);
+                });
+            }).catch((err) => {
+                done(err);
+            });
+        }).catch((err) => {
+            done(err);
+        });
+    });
+
     itAsync('should accept a sort by and sort direction parameter', (done) => {
         const store = new EntityStore('currency', 'currencyService', EntityProxy);
 

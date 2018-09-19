@@ -82,7 +82,7 @@ Component.register('sw-media-catalog', {
             params.sortBy = this.sortType[0];
             params.sortDirection = this.sortType[1];
 
-            return this.mediaItemStore.getList(params).then((response) => {
+            return this.mediaItemStore.getList(params, true).then((response) => {
                 this.total = response.total;
                 this.mediaItems = response.items;
                 this.isLoading = false;

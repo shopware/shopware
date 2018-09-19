@@ -98,6 +98,17 @@ Component.register('sw-media-preview', {
                 return this.item.dataUrl;
             }
 
+            if (this.item.thumbnails.length > 0) {
+                const thumbnails = this.item.thumbnails.filter((thumb) => {
+                    return thumb.height === 300;
+                });
+                if (thumbnails.length > 0) {
+                    return thumbnails[0].url;
+                }
+
+                return this.item.thumbnails[0].url;
+            }
+
             return this.item.url;
         }
     },

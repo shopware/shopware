@@ -52,7 +52,8 @@
       "cancelButton": "Abbrechen",
       "replaceButton": "Ersetzen",
       "notificationSuccess": "Datei erfolgreich ersetzt",
-      "notificationFailure": "Fehler beim Ersetzen von {mediaName}"
+      "notificationFailure": "Fehler beim Ersetzen von {mediaName}",
+      "notificationFileReaderError": "Fehler beim Lesen deiner Datei"
     },
     "sw-media-preview": {
       "fallbackVideoTagSupport": "Ihr Browser unterstützt diesen Video-Tag nicht",

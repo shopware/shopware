@@ -52,7 +52,8 @@
       "cancelButton": "Cancel",
       "replaceButton": "Replace",
       "notificationSuccess": "File replaced",
-      "notificationFailure": "There was an error replacing {mediaName}"
+      "notificationFailure": "There was an error replacing {mediaName}",
+      "notificationFileReaderError": "Error reading your file"
     },
     "sw-media-preview": {
       "fallbackVideoTagSupport": "Your browser does not support the video tag",

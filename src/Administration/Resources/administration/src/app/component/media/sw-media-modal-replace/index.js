@@ -103,7 +103,10 @@ Component.register('sw-media-modal-replace', {
 
                 this.emitCloseReplaceModal();
             }).catch(() => {
-                this.emitCloseReplaceModal();
+                this.createNotificationError({
+                    message: this.$tc('global.sw-media-modal-replace.notificationFileReaderError')
+                });
+                this.removeSelectedFile();
             });
         },
 

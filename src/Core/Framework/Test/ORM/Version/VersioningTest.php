@@ -22,10 +22,12 @@ use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Tax\TaxDefinition;
+use Shopware\Core\System\Tax\TaxStruct;
+use Shopware\Core\System\Test\TaxFixtures;
 
 class VersioningTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use IntegrationTestBehaviour, TaxFixtures;
 
     /**
      * @var RepositoryInterface
@@ -167,15 +169,9 @@ class VersioningTest extends TestCase
     {
         $uuid = Uuid::uuid4();
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
-        $taxData = [
-            'id' => $uuid->getHex(),
-            'name' => 'foo tax',
-            'taxRate' => 20,
-        ];
 
-        $this->taxRepository->create([$taxData], $context);
-
-        $versionId = $this->taxRepository->createVersion($uuid->getHex(), $context, 'testCreateVersionWithoutRelations version');
+        $taxId = $this->getTaxNineteenPercent()->getId();
+        $versionId = $this->taxRepository->createVersion($taxId, $context, 'testCreateVersionWithoutRelations version');
 
         static::assertNotEmpty($versionId);
 
@@ -184,17 +180,17 @@ class VersioningTest extends TestCase
         $tax = $this->connection->fetchAssoc(
             'SELECT * FROM tax WHERE id = :id AND version_id = :versionId',
             [
-                'id' => $uuid->getBytes(),
+                'id' => Uuid::fromString($taxId)->getBytes(),
                 'versionId' => $versionId->getBytes(),
             ]
         );
 
         static::assertNotFalse($tax, 'Tax clone was not created.');
 
-        static::assertEquals($uuid->getBytes(), $tax['id']);
+        static::assertEquals(Uuid::fromString($taxId)->getBytes(), $tax['id']);
         static::assertEquals($versionId->getBytes(), $tax['version_id']);
-        static::assertEquals('foo tax', $tax['name']);
-        static::assertEquals(20, $tax['tax_rate']);
+        static::assertEquals('NineteenPercentTax', $tax['name']);
+        static::assertEquals(19, $tax['tax_rate']);
     }
 
     public function testCreateNewVersionWithSubresources(): void

@@ -7,6 +7,7 @@ use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
+use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
@@ -15,7 +16,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class FileSaverTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use IntegrationTestBehaviour, MediaFixtures;
 
     public const TEST_IMAGE = __DIR__ . '/../fixtures/shopware-logo.png';
 
@@ -86,29 +87,19 @@ class FileSaverTest extends TestCase
         $fileSize = filesize($tempFile);
         $mediaFile = new MediaFile($tempFile, 'image/png', 'png', $fileSize);
 
-        $mediaId = Uuid::uuid4()->getHex();
-
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
         $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
 
-        $this->repository->create(
-            [
-                [
-                    'id' => $mediaId,
-                    'name' => 'test file',
-                    'mimeType' => 'plain/txt',
-                    'fileExtension' => 'txt',
-                ],
-            ],
-            $context
-        );
-        $oldMediaFilePath = $this->urlGenerator->getRelativeMediaUrl($mediaId, 'txt');
+        $this->setFixtureContext($context);
+        $media = $this->getTxt();
+
+        $oldMediaFilePath = $this->urlGenerator->getRelativeMediaUrl($media->getId(), 'txt');
         $this->getPublicFilesystem()->put($oldMediaFilePath, 'Some ');
 
         try {
             $this->fileSaver->persistFileToMedia(
                 $mediaFile,
-                $mediaId,
+                $media->getId(),
                 $context
             );
         } finally {
@@ -117,7 +108,7 @@ class FileSaverTest extends TestCase
             }
         }
 
-        $path = $this->urlGenerator->getRelativeMediaUrl($mediaId, 'png');
+        $path = $this->urlGenerator->getRelativeMediaUrl($media->getId(), 'png');
         static::assertTrue($this->getPublicFilesystem()->has($path));
         static::assertFalse($this->getPublicFilesystem()->has($oldMediaFilePath));
     }

@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class MediaStructTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use IntegrationTestBehaviour, MediaFixtures;
 
     /** @var Connection */
     private $connection;
@@ -39,85 +39,45 @@ class MediaStructTest extends TestCase
 
     public function testWriteReadMinimalFields(): void
     {
-        $mediaId = Uuid::uuid4()->getHex();
+        $media = $this->getEmptyMedia();
 
-        $mediaData = [
-            'id' => $mediaId,
-            'name' => 'test_media',
-        ];
-
-        $this->repository->create([$mediaData], $this->context);
-
-        $criteria = $this->getIdCriteria($mediaId);
+        $criteria = $this->getIdCriteria($media->getId());
         $result = $this->repository->search($criteria, $this->context);
         $media = $result->getEntities()->first();
 
         static::assertInstanceOf(MediaStruct::class, $media);
-        static::assertEquals($mediaId, $media->getId());
+        static::assertEquals($media->getId(), $media->getId());
         static::assertEquals('test_media', $media->getName());
     }
 
     public function testMimeTypeIsWriteProtected(): void
     {
-        $mediaId = Uuid::uuid4()->getHex();
-
-        $mediaData = [
-            'id' => $mediaId,
-            'name' => 'test_media',
-            'mimeType' => 'image/png',
-        ];
-
         $this->expectException(WriteStackException::class);
-        $this->repository->create([$mediaData], $this->context);
+        $this->getPngWithoutExtension();
     }
 
     public function testThumbnailsIsWriteProtected(): void
     {
-        $mediaId = Uuid::uuid4()->getHex();
-
-        $mediaData = [
-            'id' => $mediaId,
-            'name' => 'test_media',
-            'thumbnails' => [
-                [
-                    'width' => 200,
-                    'height' => 200,
-                    'highDpi' => false,
-                ],
-            ],
-        ];
-
         $this->expectException(WriteStackException::class);
-        $this->repository->create([$mediaData], $this->context);
+
+        $this->setFixtureContext($this->context);
+        $this->getMediaWithThumbnail();
     }
 
     public function testThumbnailsAreConvertedToStructWhenFetchedFromDb(): void
     {
-        $mediaId = Uuid::uuid4()->getHex();
-
-        $mediaData = [
-            'id' => $mediaId,
-            'name' => 'test_media',
-            'thumbnails' => [
-                [
-                    'width' => 200,
-                    'height' => 200,
-                    'highDpi' => false,
-                ],
-            ],
-        ];
-
         $this->context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_THUMBNAILS);
-        $this->repository->create([$mediaData], $this->context);
 
-        $criteria = $this->getIdCriteria($mediaId);
+        $this->setFixtureContext($this->context);
+        $media = $this->getMediaWithThumbnail();
 
+        $criteria = $this->getIdCriteria($media->getId());
         $searchResult = $this->repository->search($criteria, $this->context);
-        $media = $searchResult->getEntities()->get($mediaId);
+        $fetchedMedia = $searchResult->getEntities()->get($media->getId());
 
-        static::assertEquals(MediaThumbnailCollection::class, \get_class($media->getThumbnails()));
+        static::assertEquals(MediaThumbnailCollection::class, \get_class($fetchedMedia->getThumbnails()));
 
-        $persistedThumbnail = $media->getThumbnails()->first();
+        $persistedThumbnail = $fetchedMedia->getThumbnails()->first();
         static::assertEquals(MediaThumbnailStruct::class, \get_class($persistedThumbnail));
         static::assertEquals(200, $persistedThumbnail->getWidth());
         static::assertEquals(200, $persistedThumbnail->getHeight());

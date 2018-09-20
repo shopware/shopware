@@ -99,7 +99,7 @@
                                     <template slot="actions">
                                         <sw-container grid="3fr 1fr" gap="0 20px">
                                             <sw-field v-model="addCategoryName" @keyup.enter="onAddCategory" :placeholder="$tc('sw-catalog.detail.fieldPlaceholderAddCategory')"></sw-field>
-                                            <sw-button @click="onAddCategory" class="sw-catalog-detail__add-button">{{ $tc('sw-catalog.detail.buttonAddCategory') }}</sw-button>
+                                            <sw-button @click="onAddCategory" class="sw-catalog-detail__add-action">{{ $tc('sw-catalog.detail.buttonAddCategory') }}</sw-button>
                                         </sw-container>
                                     </template>
                                 {% endblock %}
@@ -146,7 +146,7 @@
 
                                                         {% block sw_catalog_detail_categories_tree_items_item_actions_default %}
                                                             <template v-else>
-                                                                <sw-context-button class="sw-catalog-detail__add-button">
+                                                                <sw-context-button class="sw-catalog-detail-category-tree__add-action">
                                                                     {% block sw_catalog_detail_categories_tree_items_item_actions_add_child %}
                                                                         <sw-context-menu-item icon="small-documentation-map-closed"
                                                                                               :disabled="currentEditCategory !== null"

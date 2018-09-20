@@ -9,7 +9,7 @@ module.exports = {
             .waitForElementPresent('input[name=sw-field--addCategoryName]')
             .getLocationInView('.sw-catalog-detail__categories')
             .setValue('input[name=sw-field--addCategoryName]', 'MainCategory')
-            .click('.sw-catalog-detail__add-button')
+            .click('.sw-catalog-detail__add-action')
             .waitForElementPresent('.sw-tree-item__label')
             .assert.containsText('.sw-tree-item__label', 'MainCategory')
             .click('.sw-button--primary')

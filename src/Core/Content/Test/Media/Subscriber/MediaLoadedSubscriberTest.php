@@ -34,12 +34,13 @@ class MediaLoadedSubscriberTest extends TestCase
         $mediaStruct->setId($mediaId);
         $mediaStruct->setMimeType($mimeType);
         $mediaStruct->setFileExtension('png');
+        $mediaStruct->setFileName($mediaId . '-134578345');
 
         $mediaLoadedEvent = new EntityLoadedEvent(MediaDefinition::class, new EntityCollection([$mediaStruct]), $context);
         $subscriber->addUrls($mediaLoadedEvent);
 
         static::assertStringEndsWith(
-            '/media/88/6c/ed/34556f108ab14969a0dcf9d9522fd7df.png',
+            'http://localhost/media/7d/ee/06/34556f108ab14969a0dcf9d9522fd7df-134578345.png',
             $mediaStruct->getUrl());
         static::assertEquals([], $mediaStruct->getThumbnails()->getElements());
     }
@@ -61,13 +62,14 @@ class MediaLoadedSubscriberTest extends TestCase
         $mediaStruct->setId($mediaId);
         $mediaStruct->setMimeType($mimeType);
         $mediaStruct->setFileExtension('png');
+        $mediaStruct->setFileName($mediaId . '-134578345');
         $mediaStruct->setThumbnails(new MediaThumbnailCollection([$thumbnailStruct]));
 
         $mediaLoadedEvent = new EntityLoadedEvent(MediaDefinition::class, new EntityCollection([$mediaStruct]), $context);
         $subscriber->addUrls($mediaLoadedEvent);
 
         static::assertStringEndsWith(
-            '/thumbnail/88/6c/ed/34556f108ab14969a0dcf9d9522fd7df_100x100.png',
+            'http://localhost/thumbnail/7d/ee/06/34556f108ab14969a0dcf9d9522fd7df-134578345_100x100.png',
             $mediaStruct->getThumbnails()->get($thumbnailStruct->getId())->getUrl());
     }
 }

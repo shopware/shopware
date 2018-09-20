@@ -71,6 +71,11 @@ class MediaStruct extends Entity
     protected $url = '';
 
     /**
+     * @var string|null
+     */
+    protected $fileName;
+
+    /**
      * @var UserStruct|null
      */
     protected $user;
@@ -306,5 +311,15 @@ class MediaStruct extends Entity
     public function hasFile(): bool
     {
         return $this->hasFile = ($this->mimeType !== null && $this->fileExtension !== null);
+    }
+
+    public function getFileName(): ?string
+    {
+        return $this->fileName;
+    }
+
+    public function setFileName(string $fileName)
+    {
+        $this->fileName = $fileName;
     }
 }

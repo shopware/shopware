@@ -18,6 +18,7 @@ return [
                 'catalogId' => null,
                 'url' => '',
                 'hasFile' => true,
+                'fileName' => null,
             ],
             'links' => [
                 'self' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870',
@@ -80,6 +81,7 @@ return [
                 'catalogId' => null,
                 'url' => '',
                 'hasFile' => true,
+                'fileName' => null,
             ],
             'relationships' => [
                 'user' => [

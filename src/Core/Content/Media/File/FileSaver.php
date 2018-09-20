@@ -64,11 +64,11 @@ class FileSaver
         // @todo remove with NEXT-817
         $currentMedia = $this->getCurrentMedia($mediaId, $context);
 
-        $this->removeOldMediaData($currentMedia, $mediaFile, $context);
+        $this->removeOldMediaData($currentMedia, $context);
         $rawMetadata = $this->metadataLoader->loadFromFile($mediaFile);
 
-        $this->saveFileToMediaDir($mediaFile, $mediaId);
         $media = $this->updateMediaEntity($mediaFile, $mediaId, $rawMetadata, $context);
+        $this->saveFileToMediaDir($mediaFile, $media);
 
         try {
             $this->thumbnailService->updateThumbnailsAfterUpload($media, $context);
@@ -89,26 +89,22 @@ class FileSaver
         return $currentMedia;
     }
 
-    private function removeOldMediaData(MediaStruct $media, MediaFile $mediaFile, Context $context): void
+    private function removeOldMediaData(MediaStruct $media, Context $context): void
     {
         if (!$media->hasFile()) {
             return;
         }
 
-        if ($mediaFile->getFileExtension() === $media->getFileExtension()) {
-            return;
-        }
-
-        $oldMediaFilePath = $this->urlGenerator->getRelativeMediaUrl($media->getId(), $media->getFileExtension());
+        $oldMediaFilePath = $this->urlGenerator->getRelativeMediaUrl($media);
         $this->filesystem->delete($oldMediaFilePath);
 
         $this->thumbnailService->deleteThumbnails($media, $context);
     }
 
-    private function saveFileToMediaDir(MediaFile $mediaFile, string $mediaId): void
+    private function saveFileToMediaDir(MediaFile $mediaFile, MediaStruct $media): void
     {
         $stream = fopen($mediaFile->getFileName(), 'r');
-        $path = $this->urlGenerator->getRelativeMediaUrl($mediaId, $mediaFile->getFileExtension());
+        $path = $this->urlGenerator->getRelativeMediaUrl($media);
         try {
             $this->filesystem->putStream($path, $stream);
         } finally {
@@ -127,15 +123,13 @@ class FileSaver
             'mimeType' => $mediaFile->getMimeType(),
             'fileExtension' => $mediaFile->getFileExtension(),
             'fileSize' => $mediaFile->getFileSize(),
+            'fileName' => $mediaId . '-' . (new \DateTime())->getTimestamp(),
             'metaData' => $metadata,
         ];
 
         $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
         $this->mediaRepository->update([$data], $context);
 
-        $media = new MediaStruct();
-        $media->assign($data);
-
-        return $media->assign($data);
+        return $this->mediaRepository->read(new ReadCriteria([$mediaId]), $context)->get($mediaId);
     }
 }

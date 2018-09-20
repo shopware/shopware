@@ -63,6 +63,7 @@ return [
                 'catalogId' => null,
                 'url' => '',
                 'hasFile' => true,
+                'fileName' => null,
             ],
             'relationships' => [
                 'user' => [

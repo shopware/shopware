@@ -40,37 +40,42 @@ trait MediaFixtures
                 'mimeType' => 'image/png',
             ],
             'NamedMimePngEtxPng' => [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => $namedMimePngEtxPngUuid = Uuid::uuid4()->getHex(),
                 'name' => 'test_media',
                 'mimeType' => 'image/png',
                 'fileExtension' => 'png',
+                'fileName' => $namedMimePngEtxPngUuid . '-1314343'
             ],
             'NamedMimePngEtxPngCatalog' => [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => $namedMimePngEtxPngCatalogUuid = Uuid::uuid4()->getHex(),
                 'name' => 'test_media',
                 'mimeType' => 'image/png',
                 'fileExtension' => 'png',
                 'catalogId' => $this->catalogId,
+                'fileName' => $namedMimePngEtxPngCatalogUuid . '-12312351',
             ],
             'NamedMimeTxtEtxTxt' => [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => $namedMimeTxtEtxTxtUuid = Uuid::uuid4()->getHex(),
                 'name' => 'test file',
                 'mimeType' => 'plain/txt',
                 'fileExtension' => 'txt',
+                'fileName' => $namedMimeTxtEtxTxtUuid . '-131513235',
             ],
             'NamedMimeJpgEtxJpgCatalog' => [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => $NamedMimeJpgEtxJpgCatalogUuid = Uuid::uuid4()->getHex(),
                 'name' => 'test_media',
                 'mimeType' => 'image/jpg',
                 'fileExtension' => 'jpg',
                 'catalogId' => $this->catalogId,
+                'fileName' => $NamedMimeJpgEtxJpgCatalogUuid . '-5434541313',
             ],
             'NamedMimePdfEtxPdfCatalog' => [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => $namedMimePdfEtxPdfCatalogUuid =  Uuid::uuid4()->getHex(),
                 'name' => 'test_media',
                 'mimeType' => 'application/pdf',
                 'fileExtension' => 'pdf',
                 'catalogId' => $this->catalogId,
+                'fileName' => $namedMimePdfEtxPdfCatalogUuid . '1323213213'
             ],
             'NamedWithThumbnail' => [
                 'id' => Uuid::uuid4()->getHex(),

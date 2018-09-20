@@ -329,7 +329,7 @@ class Kernel extends HttpKernel
         }
 
         if (isset($connectionVariables)) {
-            $connection->executeQuery(implode('; ', $connectionVariables));
+            $connection->executeQuery(implode(' ', $connectionVariables));
         }
     }
 

@@ -115,7 +115,7 @@ class ThumbnailService
      */
     private function getImageResource(MediaStruct $media)
     {
-        $filePath = $this->urlGenerator->getRelativeMediaUrl($media->getId(), $media->getFileExtension());
+        $filePath = $this->urlGenerator->getRelativeMediaUrl($media);
         $file = $this->fileSystem->read($filePath);
         $image = @imagecreatefromstring($file);
         if (!$image) {
@@ -196,8 +196,7 @@ class ThumbnailService
         $quality = $isHighDpi ?
             $this->configuration->getHighDpiQuality() : $this->configuration->getStandardQuality();
         $url = $this->urlGenerator->getRelativeThumbnailUrl(
-            $media->getId(),
-            $media->getFileExtension(),
+            $media,
             $size['width'],
             $size['height'],
             $isHighDpi

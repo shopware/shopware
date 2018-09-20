@@ -7,6 +7,7 @@ use Shopware\Core\Content\Media\DataAbstractionLayer\MediaRepository;
 use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
@@ -44,14 +45,17 @@ class MediaRepositoryTest extends TestCase
                     'name' => 'test media',
                     'mimeType' => 'image/png',
                     'fileExtension' => 'png',
+                    'fileName' => $mediaId . '-' . (new \DateTime())->getTimestamp(),
                 ],
             ],
             $this->context
         );
+        $media = $this->mediaRepository->read(new ReadCriteria([$mediaId]), $this->context)->get($mediaId);
+
         $this->context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_META_INFO);
 
         $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
-        $mediaPath = $urlGenerator->getRelativeMediaUrl($mediaId, 'png');
+        $mediaPath = $urlGenerator->getRelativeMediaUrl($media);
 
         $this->getPublicFilesystem()->putStream($mediaPath, fopen(self::FIXTURE_FILE, 'r'));
 
@@ -74,6 +78,7 @@ class MediaRepositoryTest extends TestCase
                 'name' => 'test media',
                 'mimeType' => 'image/png',
                 'fileExtension' => 'png',
+                'fileName' => $mediaId . '-' . (new \DateTime())->getTimestamp(),
                 'thumbnails' => [
                     [
                         'width' => 100,
@@ -85,12 +90,14 @@ class MediaRepositoryTest extends TestCase
         ],
             $this->context
         );
+        $media = $this->mediaRepository->read(new ReadCriteria([$mediaId]), $this->context)->get($mediaId);
+
         $this->context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_META_INFO);
         $this->context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_THUMBNAILS);
 
         $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
-        $mediaPath = $urlGenerator->getRelativeMediaUrl($mediaId, 'png');
-        $thumbnailPath = $urlGenerator->getRelativeThumbnailUrl($mediaId, 'png', 100, 200, true);
+        $mediaPath = $urlGenerator->getRelativeMediaUrl($media);
+        $thumbnailPath = $urlGenerator->getRelativeThumbnailUrl($media, 100, 200, true);
 
         $this->getPublicFilesystem()->putStream($mediaPath, fopen(self::FIXTURE_FILE, 'r'));
         $this->getPublicFilesystem()->putStream($thumbnailPath, fopen(self::FIXTURE_FILE, 'r'));
@@ -113,21 +120,35 @@ class MediaRepositoryTest extends TestCase
                 'name' => 'test media',
                 'mimeType' => 'image/png',
                 'fileExtension' => 'png',
+                'fileName' => $firstId . '-' . (new \DateTime())->getTimestamp(),
             ],
             [
                 'id' => $secondId,
                 'name' => 'test media',
                 'mimeType' => 'image/png',
                 'fileExtension' => 'png',
+                'fileName' => $secondId . '-' . (new \DateTime())->getTimestamp(),
             ],
         ],
             $this->context
         );
         $this->context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_META_INFO);
 
+        $read = $this->mediaRepository->read(
+            new ReadCriteria(
+                [
+                    $firstId,
+                    $secondId,
+                ]
+            ),
+            $this->context
+        );
+        $firstMedia = $read->get($firstId);
+        $secondMedia = $read->get($secondId);
+
         $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
-        $firstPath = $urlGenerator->getRelativeMediaUrl($firstId, 'png');
-        $secondPath = $urlGenerator->getRelativeMediaUrl($secondId, 'png');
+        $firstPath = $urlGenerator->getRelativeMediaUrl($firstMedia);
+        $secondPath = $urlGenerator->getRelativeMediaUrl($secondMedia);
 
         $this->getPublicFilesystem()->putStream($firstPath, fopen(self::FIXTURE_FILE, 'r'));
         $this->getPublicFilesystem()->putStream($secondPath, fopen(self::FIXTURE_FILE, 'r'));

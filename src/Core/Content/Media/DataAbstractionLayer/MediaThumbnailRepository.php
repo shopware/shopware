@@ -101,8 +101,7 @@ class MediaThumbnailRepository extends EntityRepository
             $relatedMedia = $thumbnail->getMedia();
 
             $thumbnailPath = $this->urlGenerator->getRelativeThumbnailUrl(
-                $relatedMedia->getId(),
-                $relatedMedia->getFileExtension(),
+                $relatedMedia,
                 $thumbnail->getWidth(),
                 $thumbnail->getHeight(),
                 $thumbnail->getHighDpi()

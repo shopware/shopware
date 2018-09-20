@@ -84,7 +84,7 @@ class GenerateThumbnailsCommandTest extends TestCase
             );
 
             foreach ($thumbnails as $thumbnail) {
-                $this->assertThumbnailExists($updatedMedia->getId(), $updatedMedia->getFileExtension(), $thumbnail);
+                $this->assertThumbnailExists($updatedMedia, $thumbnail);
             }
         }
     }
@@ -119,17 +119,16 @@ class GenerateThumbnailsCommandTest extends TestCase
                 );
 
                 foreach ($thumbnails as $thumbnail) {
-                    $this->assertThumbnailExists($updatedMedia->getId(), $updatedMedia->getFileExtension(), $thumbnail);
+                    $this->assertThumbnailExists($updatedMedia, $thumbnail);
                 }
             }
         }
     }
 
-    protected function assertThumbnailExists(string $mediaId, string $extension, MediaThumbnailStruct $thumbnail): void
+    protected function assertThumbnailExists(MediaStruct $media, MediaThumbnailStruct $thumbnail): void
     {
         $thumbnailPath = $this->urlGenerator->getRelativeThumbnailUrl(
-            $mediaId,
-            $extension,
+            $media,
             $thumbnail->getWidth(),
             $thumbnail->getHeight()
         );
@@ -137,8 +136,7 @@ class GenerateThumbnailsCommandTest extends TestCase
 
         if ($thumbnail->getHighDpi()) {
             $thumbnailPath = $this->urlGenerator->getRelativeThumbnailUrl(
-                $mediaId,
-                $extension,
+                $media,
                 $thumbnail->getWidth(),
                 $thumbnail->getHeight(),
                 true
@@ -153,13 +151,13 @@ class GenerateThumbnailsCommandTest extends TestCase
         $mediaPng = $this->getPngInCatalog();
         $mediaJpg = $this->getJpgInCatalog();
 
-        $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPng->getId(), 'png');
+        $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPng);
         $this->getPublicFilesystem()->putStream(
             $filePath,
             fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r')
         );
 
-        $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaJpg->getId(), 'jpg');
+        $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaJpg);
         $this->getPublicFilesystem()->putStream(
             $filePath,
             fopen(__DIR__ . '/../fixtures/shopware.jpg', 'r')
@@ -172,13 +170,13 @@ class GenerateThumbnailsCommandTest extends TestCase
         $mediaPdf = $this->getPdfInCatalog();
         $mediaJpg = $this->getJpgInCatalog();
 
-        $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPdf->getId(), 'pdf');
+        $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPdf);
         $this->getPublicFilesystem()->putStream(
             $filePath,
             fopen(__DIR__ . '/../fixtures/Shopware_5_3_Broschuere.pdf', 'r')
         );
 
-        $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaJpg->getId(), 'jpg');
+        $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaJpg);
         $this->getPublicFilesystem()->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware.jpg', 'r'));
     }
 }

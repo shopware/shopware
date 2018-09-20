@@ -5,6 +5,7 @@ namespace src\Core\Content\Test\Media\DataAbstractionLayer;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaThumbnailRepository;
 use Shopware\Core\Content\Media\MediaProtectionFlags;
+use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
@@ -45,8 +46,8 @@ class MediaThumbnailRepositoryTest extends TestCase
     public function testRemoveThumbnail()
     {
         $mediaId = Uuid::uuid4()->getHex();
-        $this->createThumbnailWithMedia($mediaId);
-        $thumbnailPath = $this->createThumbnailFile($mediaId);
+        $media = $this->createThumbnailWithMedia($mediaId);
+        $thumbnailPath = $this->createThumbnailFile($media);
 
         $thumbnailIds = $this->thumbnailRepository->searchIds(new Criteria(), $this->context);
         $this->thumbnailRepository->delete($thumbnailIds->getIds(), $this->context);
@@ -57,16 +58,15 @@ class MediaThumbnailRepositoryTest extends TestCase
     public function testRemoveThumbnailFromMedia()
     {
         $mediaId = Uuid::uuid4()->getHex();
-        $this->createThumbnailWithMedia($mediaId);
-        $thumbnailPath = $this->createThumbnailFile($mediaId);
+        $media = $this->createThumbnailWithMedia($mediaId);
+        $thumbnailPath = $this->createThumbnailFile($media);
 
-        $mediaEntities = $this->mediaRepository->search(new ReadCriteria([$mediaId]), $this->context)->getEntities();
-        $this->thumbnailRepository->deleteCascadingFromMedia($mediaEntities->get($mediaId), $this->context);
+        $this->thumbnailRepository->deleteCascadingFromMedia($media, $this->context);
 
         static::assertFalse($this->getPublicFilesystem()->has($thumbnailPath));
     }
 
-    private function createThumbnailWithMedia($mediaId)
+    private function createThumbnailWithMedia($mediaId): MediaStruct
     {
         $this->context->getWriteProtection()->allow(
             MediaProtectionFlags::WRITE_META_INFO,
@@ -79,6 +79,7 @@ class MediaThumbnailRepositoryTest extends TestCase
                 'name' => 'test media',
                 'fileExtension' => 'png',
                 'mimeType' => 'image/png',
+                'fileName' => $mediaId . '-' . (new \DateTime())->getTimestamp(),
                 'thumbnails' => [
                     [
                         'width' => 100,
@@ -91,14 +92,15 @@ class MediaThumbnailRepositoryTest extends TestCase
 
         $this->context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_META_INFO);
         $this->context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_THUMBNAILS);
+
+        return $this->mediaRepository->read(new ReadCriteria([$mediaId]), $this->context)->get($mediaId);
     }
 
-    private function createThumbnailFile($mediaId)
+    private function createThumbnailFile(MediaStruct $media)
     {
         $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
         $thumbnailPath = $urlGenerator->getRelativeThumbnailUrl(
-            $mediaId,
-            'png',
+            $media,
             100,
             200,
             false

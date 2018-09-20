@@ -2,13 +2,15 @@
 
 namespace Shopware\Core\Content\Media\Pathname;
 
+use Shopware\Core\Content\Media\MediaStruct;
+
 interface UrlGeneratorInterface
 {
-    public function getAbsoluteMediaUrl(string $filename, string $extension): string;
+    public function getAbsoluteMediaUrl(MediaStruct $media): string;
 
-    public function getRelativeMediaUrl(string $filename, string $extension): string;
+    public function getRelativeMediaUrl(MediaStruct $media): string;
 
-    public function getAbsoluteThumbnailUrl(string $filename, string $extension, int $width, int $height, bool $isHighDpi = false): string;
+    public function getAbsoluteThumbnailUrl(MediaStruct $media, int $width, int $height, bool $isHighDpi = false): string;
 
-    public function getRelativeThumbnailUrl(string $filename, string $extension, int $width, int $height, bool $isHighDpi = false): string;
+    public function getRelativeThumbnailUrl(MediaStruct $media, int $width, int $height, bool $isHighDpi = false): string;
 }

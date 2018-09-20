@@ -9,6 +9,7 @@ use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -74,7 +75,8 @@ class FileSaverTest extends TestCase
             }
         }
 
-        $path = $this->urlGenerator->getRelativeMediaUrl($mediaId, 'png');
+        $media = $this->repository->read(new ReadCriteria([$mediaId]), $context)->get($mediaId);
+        $path = $this->urlGenerator->getRelativeMediaUrl($media);
         static::assertTrue($this->getPublicFilesystem()->has($path));
     }
 
@@ -92,7 +94,7 @@ class FileSaverTest extends TestCase
         $this->setFixtureContext($context);
         $media = $this->getTxt();
 
-        $oldMediaFilePath = $this->urlGenerator->getRelativeMediaUrl($media->getId(), 'txt');
+        $oldMediaFilePath = $this->urlGenerator->getRelativeMediaUrl($media);
         $this->getPublicFilesystem()->put($oldMediaFilePath, 'Some ');
 
         try {
@@ -106,8 +108,10 @@ class FileSaverTest extends TestCase
                 unlink($tempFile);
             }
         }
+        $media = $this->repository->read(new ReadCriteria([$media->getId()]), $context)->get($media->getId());
 
-        $path = $this->urlGenerator->getRelativeMediaUrl($media->getId(), 'png');
+        $path = $this->urlGenerator->getRelativeMediaUrl($media);
+        static::assertNotEquals($oldMediaFilePath, $path);
         static::assertTrue($this->getPublicFilesystem()->has($path));
         static::assertFalse($this->getPublicFilesystem()->has($oldMediaFilePath));
     }

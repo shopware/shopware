@@ -68,7 +68,7 @@ export default class EntityStore {
      *
      * @param {Object} params
      */
-    getList(params) {
+    getList(params, keepAssociations = false) {
         this.isLoading = true;
 
         return this.apiService.getList(params).then((response) => {
@@ -79,7 +79,7 @@ export default class EntityStore {
 
             response.data.forEach((item) => {
                 const entity = this.create(item.id);
-                entity.setData(item);
+                entity.setData(item, !keepAssociations, keepAssociations);
                 items.push(entity);
             });
 

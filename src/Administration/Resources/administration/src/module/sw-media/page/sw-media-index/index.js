@@ -175,7 +175,7 @@ Component.register('sw-media-index', {
                 limit: 10,
                 sortBy: 'createdAt',
                 sortDirection: 'desc'
-            }).then((response) => {
+            }, true).then((response) => {
                 this.mediaItems = response.items;
             });
         },
@@ -189,7 +189,7 @@ Component.register('sw-media-index', {
                 sortDirection: 'desc'
             };
 
-            return this.mediaItemStore.getList(params).then((response) => {
+            return this.mediaItemStore.getList(params, true).then((response) => {
                 this.mediaItems = response.items;
                 this.selectedItems = this.mediaItems[0];
                 this.handleMediaGridItemShowDetails({ item: this.mediaItems[0] });

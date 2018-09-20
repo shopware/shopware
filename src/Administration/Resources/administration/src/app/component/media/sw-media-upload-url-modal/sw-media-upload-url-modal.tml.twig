@@ -6,16 +6,29 @@
         v-on="$listeners">
 
         {% block sw_media_upload_url_modal_dialog %}
-            <div class="sw-media-upload-url-content">
-                {% block sw_media_upload_url_modal_input %}
-                    <sw-field
-                        v-model="url"
-                        label="URL"
-                        :placeholder="$tc('global.sw-media-upload-url-modal.example')"
-                        ref="urlInput">
-                    </sw-field>
-                {% endblock %}
-            </div>
+            {% block sw_media_upload_url_modal_input %}
+                <sw-field label="URL"
+                          :class="fieldClass"
+                          v-model="url"
+                          @input="validateUrl"
+                          @change="checkFileExtension"
+                          :placeholder="$tc('global.sw-media-upload-url-modal.example')">
+                </sw-field>
+                <sw-field v-if="missingFileExtension"
+                          :label="$tc('global.sw-media-upload-url-modal.labelFileExtension')"
+                          :class="fieldClass"
+                          v-model="fileExtension"
+                          validation="required"
+                          placeholder="jpg">
+                </sw-field>
+            {% endblock %}
+            <sw-alert v-if="hasError" variant="info">
+                {{ $tc('global.sw-media-upload-url-modal.invalidUrl') }}
+            </sw-alert>
+            <sw-alert v-if="missingFileExtension && fileExtension === ''" variant="info">
+                <p v-html="$tc('global.sw-media-upload-url-modal.missingFileExtension')">
+                </p>
+            </sw-alert>
         {% endblock %}
 
         {% block sw_media_upload_url_modal_footer %}

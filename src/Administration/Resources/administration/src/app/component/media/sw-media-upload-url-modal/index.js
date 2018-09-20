@@ -6,17 +6,56 @@ Component.register('sw-media-upload-url-modal', {
 
     data() {
         return {
-            url: ''
+            url: '',
+            hasError: false,
+            missingFileExtension: false,
+            fileExtension: ''
         };
     },
 
+    computed: {
+        fieldClass() {
+            return {
+                'has--error': this.hasError
+            };
+        }
+    },
+
     methods: {
+        validateUrl() {
+            try {
+                const tmp = new URL(this.url);
+                tmp.searchParams.get('id');
+                this.hasError = false;
+            } catch (e) {
+                this.hasError = true;
+            }
+        },
+
+        checkFileExtension() {
+            if (this.hasError) {
+                return;
+            }
+
+            const url = new URL(this.url);
+            if (this.fileExtension === '' && url.pathname.split('.').length <= 1) {
+                this.missingFileExtension = true;
+                return;
+            }
+            this.missingFileExtension = false;
+
+            this.fileExtension = url.pathname.split('.').pop();
+        },
+
         emitUrl(originalDomEvent) {
-            this.$emit('sw-media-upload-url-modal-submit', {
-                originalDomEvent,
-                url: new URL(this.url)
-            });
-            this.closeModal();
+            if (this.hasError === false && this.fileExtension !== '') {
+                this.$emit('sw-media-upload-url-modal-submit', {
+                    originalDomEvent,
+                    url: new URL(this.url),
+                    fileExtension: this.fileExtension
+                });
+                this.closeModal();
+            }
         },
 
         closeModal() {

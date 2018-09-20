@@ -97,7 +97,10 @@
       "title": "Upload file from URL",
       "upload": "Upload",
       "cancel": "Cancel",
-      "example": "www.example.com"
+      "example": "https://www.example.com",
+      "labelFileExtension": "file extension",
+      "invalidUrl": "We need a valid URL to download your file.",
+      "missingFileExtension": "We couldn't find a file extension in your URL. <br>Please provide one."
     }
   },
   "sw-login": {

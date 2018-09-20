@@ -49,8 +49,8 @@ Component.register('sw-media-upload', {
             this.showUrlModal = false;
         },
 
-        onUrlUpload({ url }) {
-            this.createMediaEntityFromUrl(url);
+        onUrlUpload({ url, fileExtension }) {
+            this.createMediaEntityFromUrl(url, fileExtension);
         },
 
         onFileInputChange() {
@@ -95,7 +95,7 @@ Component.register('sw-media-upload', {
             });
         },
 
-        createMediaEntityFromUrl(url) {
+        createMediaEntityFromUrl(url, fileExtension) {
             const mediaEntity = this.createNewMedia(this.getNameFromURL(url));
 
             this.createNotificationInfo({
@@ -104,7 +104,6 @@ Component.register('sw-media-upload', {
 
             mediaEntity.save().then(() => {
                 const uploadTag = mediaEntity.id;
-                const fileExtension = this.getFileExtensionFromURL(url);
                 const mediaService = this.mediaService;
 
                 this.uploadStore.addUpload(uploadTag, () => {
@@ -113,7 +112,7 @@ Component.register('sw-media-upload', {
                             message: this.$tc('sw-media.upload.notificationSuccess')
                         });
                     }).catch(() => {
-                        return this.cleanUpFailure(mediaEntity);
+                        this.cleanUpFailure(mediaEntity);
                     });
                 });
 
@@ -121,6 +120,8 @@ Component.register('sw-media-upload', {
                     this.$emit('new-media-entity');
                 });
                 this.closeUrlModal();
+            }).catch(() => {
+                this.cleanUpFailure(mediaEntity);
             });
         },
 
@@ -128,10 +129,8 @@ Component.register('sw-media-upload', {
             this.createNotificationError({
                 message: this.$tc('sw-media.upload.notificationFailure', 0, { mediaName: mediaEntity.name })
             });
-            // delete media entity on failed upload
-            return this.mediaItemStore.getByIdAsync(mediaEntity.id).then((media) => {
-                media.delete(true);
-            });
+            mediaEntity.delete(true);
+            this.mediaItemStore.remove(mediaEntity);
         },
 
         createNewMedia(name) {
@@ -144,11 +143,11 @@ Component.register('sw-media-upload', {
         },
 
         getNameFromURL(url) {
-            return url.pathname.split('/').pop().split('.')[0];
-        },
-
-        getFileExtensionFromURL(url) {
-            return url.pathname.split('.').pop();
+            let name = url.pathname.split('/').pop().split('.')[0];
+            if (name === '') {
+                name = url.hostname;
+            }
+            return name;
         }
     }
 });

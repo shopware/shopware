@@ -97,7 +97,10 @@
       "title": "Datei über URL hochladen",
       "upload": "Hochladen",
       "cancel": "Abbrechen",
-      "example": "www.beispiel.de"
+      "example": "https://www.beispiel.de",
+      "labelFileExtension": "Dateiendung",
+      "invalidUrl": "Wir benötigen eine gültige URL um deine Datei herunterladen zu können.",
+      "missingFileExtension": "Wir konnten keine Dateiendung in deiner URL finden.<br>Bitte gib eine Dateiendung an."
     }
   },
   "sw-login": {

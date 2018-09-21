@@ -83,7 +83,7 @@
                                                             sortable
                                                             editable>
                                                 {% block sw_customer_list_grid_columns_name_label %}
-                                                    <router-link :to="{ name: 'sw.customer.detail', params: { id: item.id } }">
+                                                    <router-link :to="{ name: 'sw.customer.detail', params: { id: item.id } }" class="sw-customer-list__column-customer-name">
                                                         {{ item.firstName }} {{ item.lastName }}
                                                     </router-link>
                                                 {% endblock %}

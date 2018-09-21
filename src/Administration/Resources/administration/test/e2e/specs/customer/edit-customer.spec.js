@@ -5,7 +5,7 @@ module.exports = {
             .click('a.sw-admin-menu__navigation-link[href="#/sw/customer/index"]')
             .waitForElementVisible('.smart-bar__actions a')
             .waitForElementVisible('.sw-page__smart-bar-amount')
-            .assert.containsText('.sw-page__smart-bar-amount', '(1)');
+            .assert.containsText('.sw-page__smart-bar-amount', '(0)');
     },
     'create a customer, fill basic data': (browser) => {
         browser
@@ -65,7 +65,22 @@ module.exports = {
             .click('.sw-alert .sw-alert__close')
             .waitForElementNotPresent('.sw-alert__message')
             .waitForElementVisible('.sw-page__smart-bar-amount')
-            .assert.containsText('.sw-page__smart-bar-amount', '(2)')
+            .assert.containsText('.sw-page__smart-bar-amount', '(1)')
+    },
+    'delete customer and verify deletion': (browser) => {
+        browser
+            .waitForElementPresent('.sw-customer-list__column-customer-name')
+            .assert.containsText('.sw-customer-list__column-customer-name', 'Pep Eroni')
+            .click('.sw-grid-row:first-child .sw-context-button__button')
+            .waitForElementPresent('body > .sw-context-menu')
+            .click('body > .sw-context-menu .sw-context-menu-item--danger')
+            .waitForElementVisible('.sw-modal')
+            .assert.containsText('.sw-modal .sw-customer-list__confirm-delete-text', 'Do you really want to delete the customer "Pep Eroni"?')
+            .click('.sw-modal__footer button.sw-button--primary')
+            .waitForElementNotPresent('.sw-customer-list__column-customer-name')
+            .waitForElementNotPresent('.sw-modal')
+            .waitForElementPresent('.sw-empty-state__title')
+            .assert.containsText('.sw-page__smart-bar-amount', '(0)')
             .end();
     }
 };

@@ -59,6 +59,21 @@ module.exports = {
             .waitForElementNotPresent('.sw-alert__message')
             .waitForElementVisible('.sw-page__smart-bar-amount')
             .assert.containsText('.sw-page__smart-bar-amount', '(1)')
+    },
+    'delete customer and verify deletion': (browser) => {
+        browser
+            .waitForElementPresent('.sw-customer-list__column-customer-name')
+            .assert.containsText('.sw-customer-list__column-customer-name', 'Pep Eroni')
+            .click('.sw-grid-row:first-child .sw-context-button__button')
+            .waitForElementPresent('body > .sw-context-menu')
+            .click('body > .sw-context-menu .sw-context-menu-item--danger')
+            .waitForElementVisible('.sw-modal')
+            .assert.containsText('.sw-modal .sw-customer-list__confirm-delete-text', 'Do you really want to delete the customer "Pep Eroni"?')
+            .click('.sw-modal__footer button.sw-button--primary')
+            .waitForElementNotPresent('.sw-customer-list__column-customer-name')
+            .waitForElementNotPresent('.sw-modal')
+            .waitForElementPresent('.sw-empty-state__title')
+            .assert.containsText('.sw-page__smart-bar-amount', '(0)')
             .end();
     }
 };

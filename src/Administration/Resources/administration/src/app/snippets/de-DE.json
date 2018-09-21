@@ -674,7 +674,7 @@
   },
   "sw-settings-currency": {
     "general": {
-      "mainMenuItemGeneral": "Währungen",
+      "mainMenuItemGeneral": "Währungeoijuion",
       "placeholderSearchBar": "Durchsuchen aller Währungen"
     },
     "list": {
@@ -704,7 +704,7 @@
       "placeholderName": "Name eingeben...",
       "placeholderShortName": "Kurzname eingeben...",
       "placeholderSymbol": "Symbol eingeben...",
-      "placeholderFactor": "Factor eingeben...",
+      "placeholderFactor": "Faktor eingeben...",
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern"
     }

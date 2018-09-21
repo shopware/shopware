@@ -10,12 +10,17 @@
 @sw-media-grid-item-color-details:           @color-gutenberg;
 @sw-media-grid-color-white:                  @color-white;
 @sw-media-grid-color-loading-indicator:      @color-gutenberg;
+@media-grid-cell-color-highlight:            @color-cadet-blue;
 
 .sw-media-grid-item {
     color: @sw-media-grid-media-color-unselected;
 
     &.is--grid {
       padding: 10px;
+    }
+
+    &.is--grid:hover {
+        background-color: @media-grid-cell-color-highlight;
     }
 
     .sw-context-button {

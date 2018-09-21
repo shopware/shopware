@@ -1,26 +1,26 @@
 {% block sw_media_grid_media_item %}
     <div class="sw-media-grid-media-item">
-        {% block sw_media_grid_media_item_selected_idicator %}
-            <div class="sw-media-grid-media-item__selected-indicator"
-                 :class="selectedIndicatorClasses"
-                 v-if="!isList">
-
-                {% block sw_media_grid_item_selected_indicator %}
-                    <sw-field type="checkbox" :value="selected" @click.self="doSelectItem"></sw-field>
-                {% endblock %}
-            </div>
-        {% endblock %}
-
         {% block sw_media_grid_media_item_grid_item %}
             <sw-media-grid-item
                 :isList="isList"
-                :selected="multiSelectInProgress && selected"
+                :selected="showSelectionIndicator && selected"
                 :isLoading="item.isLoading"
                 :showContextMenuButton="showContextMenuButton"
                 @sw-media-grid-item-clicked="handleGridItemClick">
 
                 {% block sw_media_grid_media_item_slot_media_preview %}
                     <template slot="media-item-preview">
+                        {% block sw_media_grid_item_selected_indicator %}
+                            <sw-field
+                                v-if="!isList"
+                                class="sw-media-grid-media-item__selected-indicator"
+                                :class="selectedIndicatorClasses"
+                                type="checkbox"
+                                :value="selected"
+                                @click.self="doSelectItem">
+                            </sw-field>
+                        {% endblock %}
+
                         {% block sw_media_grid_media_item_preview %}
                             <sw-media-preview :item="item" :class="mediaPreviewClasses" @sw-media-preview-play="emitPlayEvent">
                             </sw-media-preview>

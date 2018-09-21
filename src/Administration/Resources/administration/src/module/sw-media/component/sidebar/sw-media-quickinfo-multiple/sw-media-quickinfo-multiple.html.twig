@@ -39,13 +39,15 @@
 
                 <template slot="content">
                     {% block sw_media_quickinfo_multiple_file_names_content %}
-                        <sw-media-grid
-                            previewType="media-grid-preview-as-list"
-                            :selectable="false"
-                            :editable="false"
-                            :items="items"
-                            :showContextMenuButton="false">
-                        </sw-media-grid>
+                        <sw-media-grid-media-item
+                            v-for="mediaItem in items"
+                            :key="mediaItem.id"
+                            :item="mediaItem"
+                            :selected="false"
+                            :isList="true"
+                            :showContextMenuButton="false"
+                            :showSelectionIndicator="false">
+                        </sw-media-grid-media-item>
                     {% endblock %}
                 </template>
             </sw-media-collapse>

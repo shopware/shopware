@@ -24,9 +24,12 @@
                                     {% endblock %}
 
                                     {% block sw_media_index_catalogs_grid %}
-                                        <sw-media-grid previewType="media-grid-preview-as-grid"
-                                                       :selectable="false"
-                                                       :items="catalogs">
+                                        <sw-media-grid>
+                                            <sw-media-grid-catalog-item
+                                                v-for="catalog in catalogs"
+                                                :key="catalog.id"
+                                                :catalog="catalog">
+                                            </sw-media-grid-catalog-item>
                                         </sw-media-grid>
                                     {% endblock %}
 
@@ -44,13 +47,22 @@
                                     {% endblock %}
 
                                     {% block sw_media_index_items_grid %}
-                                        <sw-media-grid previewType="media-grid-preview-as-grid"
-                                            :editable="false"
-                                            :selectable="true"
-                                            :items="mediaItems"
+                                        <sw-media-grid
                                             dragSelectorClass="sw-media-grid-media-item"
-                                            ref="mediaGrid"
-                                            v-on="mediaMediaGridListener">
+                                            @sw-media-grid-selection-clear="clearSelection">
+
+                                            <sw-media-grid-media-item
+                                                v-for="mediaItem in mediaItems"
+                                                :key="mediaItem.id"
+                                                :item="mediaItem"
+                                                :selected="showItemSelected(mediaItem)"
+                                                :showSelectionIndicator="isListSelect"
+                                                :isList="false"
+                                                :showContextMenu="true"
+                                                @sw-media-grid-media-item-delete="handleMediaGridItemDelete"
+                                                v-on="mediaItemSelectionHandler">
+                                            </sw-media-grid-media-item>
+
                                         </sw-media-grid>
                                     {% endblock %}
                                 {% endblock %}

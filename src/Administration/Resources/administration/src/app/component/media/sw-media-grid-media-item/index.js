@@ -15,7 +15,7 @@ Component.register('sw-media-grid-media-item', {
             }
         },
 
-        multiSelectInProgress: {
+        showSelectionIndicator: {
             required: true,
             type: Boolean
         },
@@ -48,28 +48,33 @@ Component.register('sw-media-grid-media-item', {
     computed: {
         mediaPreviewClasses() {
             return {
-                'is--highlighted': this.selected && this.multiSelectInProgress
+                'is--highlighted': this.selected && this.showSelectionIndicator
             };
         },
 
         selectedIndicatorClasses() {
             return {
-                'selected-indicator--visible': this.multiSelectInProgress
+                'selected-indicator--visible': this.showSelectionIndicator
             };
         }
     },
 
     methods: {
         handleGridItemClick({ originalDomEvent }) {
-            if (!this.selected) {
-                this.$emit('sw-media-grid-item-clicked', {
-                    originalDomEvent,
-                    item: this.item
-                });
+            if (this.isSelectedIndicatorClicked(originalDomEvent.composedPath())) {
                 return;
             }
 
-            this.removeFromSelection(originalDomEvent);
+            this.$emit('sw-media-grid-item-clicked', {
+                originalDomEvent,
+                item: this.item
+            });
+        },
+
+        isSelectedIndicatorClicked(path) {
+            return path.some((parent) => {
+                return parent.classList && parent.classList.contains('sw-media-grid-media-item__selected-indicator');
+            });
         },
 
         doSelectItem(originalDomEvent) {

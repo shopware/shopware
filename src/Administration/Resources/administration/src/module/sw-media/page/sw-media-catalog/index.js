@@ -1,6 +1,5 @@
 import { Component, State, Mixin } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
-import mediaMediaGridListener from '../../mixin/mediagrid.listener.mixin';
 import '../../component/sw-media-upload';
 import template from './sw-media-catalog.html.twig';
 import './sw-media-catalog.less';
@@ -11,7 +10,7 @@ Component.register('sw-media-catalog', {
     mixins: [
         Mixin.getByName('listing'),
         Mixin.getByName('notification'),
-        mediaMediaGridListener
+        Mixin.getByName('mediagrid-listener')
     ],
 
     data() {
@@ -20,7 +19,6 @@ Component.register('sw-media-catalog', {
             previewType: 'media-grid-preview-as-grid',
             catalogs: [],
             mediaItems: [],
-            selectedItems: null,
             sortType: ['createdAt', 'dsc'],
             catalogIconSize: 200
         };
@@ -43,6 +41,14 @@ Component.register('sw-media-catalog', {
             return this.catalogs.filter((catalog) => {
                 return catalog.id !== this.getCatalogId();
             });
+        },
+
+        mediaSidebar() {
+            return this.$refs.mediaSidebar;
+        },
+
+        selectableItems() {
+            return this.mediaItems;
         }
     },
 
@@ -70,7 +76,7 @@ Component.register('sw-media-catalog', {
 
         getList() {
             this.isLoading = true;
-            this.selectedItems = null;
+            this.clearSelection();
             const params = this.getListingParams();
 
             params.criteria = CriteriaFactory.term('catalogId', this.currentCatalog.id);
@@ -109,35 +115,6 @@ Component.register('sw-media-catalog', {
 
         getCatalogId() {
             return this.$route.params.id;
-        },
-
-        getSelectedItems() {
-            const selection = this.$refs.mediaGrid.selection;
-
-            if (!Array.isArray(selection) || selection.length === 0) {
-                this.selectedItems = null;
-                return;
-            }
-
-            this.selectedItems = selection;
-        },
-
-        handleMediaGridSelectionRemoved() {
-            this.getSelectedItems();
-        },
-
-        handleMediaGridItemSelected() {
-            this.getSelectedItems();
-        },
-
-        handleMediaGridItemUnselected() {
-            this.getSelectedItems();
-        },
-
-        handleMediaGridItemShowDetails({ item, autoplay }) {
-            this.selectedItems = [item];
-            this.$refs.mediaSidebar.autoplay = autoplay;
-            this.$refs.mediaSidebar.showQuickInfo();
         },
 
         handleMediaGridItemDelete() {

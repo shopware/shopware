@@ -9,8 +9,8 @@ Component.register('sw-media-sidebar', {
 
     props: {
         items: {
-            required: false,
-            type: [Array],
+            required: true,
+            type: Array,
             validator(value) {
                 const invalidElements = value.filter((element) => {
                     return element.type !== 'media';
@@ -22,7 +22,7 @@ Component.register('sw-media-sidebar', {
 
     watch: {
         items(value) {
-            if (value === undefined || value === null) {
+            if (value.length === 0) {
                 this.$refs.quickInfoButton.toggleContentPanel(false);
             }
         }
@@ -38,11 +38,15 @@ Component.register('sw-media-sidebar', {
 
     computed: {
         hasItems() {
-            return Array.isArray(this.items);
+            return this.items.length > 0;
         },
 
         isSingleFile() {
-            return this.hasItems && this.items.length === 1;
+            return this.items.length === 1;
+        },
+
+        isMultipleFile() {
+            return this.items.length > 1;
         },
 
         getKey() {
@@ -57,10 +61,6 @@ Component.register('sw-media-sidebar', {
                 key = item.id;
             }
             return key + this.autoplay;
-        },
-
-        itemsToDelete() {
-            return this.items || [];
         }
     },
 

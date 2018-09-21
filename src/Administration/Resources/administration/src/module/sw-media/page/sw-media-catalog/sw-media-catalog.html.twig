@@ -144,14 +144,22 @@
                                     {% block sw_media_catalog_media_grid %}
                                         <sw-media-grid
                                             class="sw-media-catalog__media-grid"
-                                            :previewType="previewType"
-                                            :selectable="true"
-                                            :editable="false"
-                                            :items="mediaItems"
                                             dragSelectorClass="sw-media-grid-media-item"
-                                            ref="mediaGrid"
-                                            v-on="mediaMediaGridListener"
-                                            :gridColumnWidth="catalogIconSize">
+                                            :gridColumnWidth="catalogIconSize"
+                                            @sw-media-grid-selection-clear="clearSelection">
+
+                                            <sw-media-grid-media-item
+                                                    v-for="mediaItem in mediaItems"
+                                                    :key="mediaItem.id"
+                                                    :item="mediaItem"
+                                                    :selected="showItemSelected(mediaItem)"
+                                                    :showSelectionIndicator="isListSelect"
+                                                    :isList="false"
+                                                    :showContextMenu="true"
+                                                    @sw-media-grid-media-item-delete="handleMediaGridItemDelete"
+                                                    v-on="mediaItemSelectionHandler">
+                                            </sw-media-grid-media-item>
+
                                         </sw-media-grid>
                                     {% endblock %}
 

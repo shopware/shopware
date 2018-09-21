@@ -10,40 +10,6 @@ Component.register('sw-media-grid', {
     ],
 
     props: {
-        previewType: {
-            required: true,
-            type: String,
-            validator(value) {
-                return [
-                    'media-grid-preview-as-grid',
-                    'media-grid-preview-as-list'
-                ].includes(value);
-            }
-        },
-
-        items: {
-            required: true,
-            type: Array
-        },
-
-        idField: {
-            required: false,
-            default: 'id',
-            type: String
-        },
-
-        editable: {
-            required: false,
-            type: Boolean,
-            default: false
-        },
-
-        selectable: {
-            required: false,
-            type: Boolean,
-            default: true
-        },
-
         gridColumnWidth: {
             required: false,
             type: Number,
@@ -51,48 +17,14 @@ Component.register('sw-media-grid', {
             validator(value) {
                 return value > 0;
             }
-        },
-
-        showContextMenuButton: {
-            required: false,
-            type: Boolean,
-            default: true
         }
     },
 
-    data() {
-        return {
-            selection: [],
-            listSelectionStartItem: null
-        };
-    },
-
     computed: {
-        showAsList() {
-            return this.previewType === 'media-grid-preview-as-list';
-        },
-
-        mediaGridClasses() {
-            return {
-                'is--grid': this.previewType === 'media-grid-preview-as-grid',
-                'is--list': this.previewType === 'media-grid-preview-as-list'
-            };
-        },
-
         mediaColumnDefinitions() {
-            let columnDefinition = `repeat(auto-fit, ${this.gridColumnWidth}px)`;
-
-            if (this.showAsList) {
-                columnDefinition = '1fr';
-            }
-
             return {
-                'grid-template-columns': columnDefinition
+                'grid-template-columns': `repeat(auto-fit, ${this.gridColumnWidth}px)`
             };
-        },
-
-        showSelectedIndicator() {
-            return this.selectable && this.selection.length > 0;
         }
     },
 
@@ -102,12 +34,6 @@ Component.register('sw-media-grid', {
 
     beforeDestroy() {
         this.beforeComponentDestroyed();
-    },
-
-    watch: {
-        items() {
-            this.clearSelection();
-        }
     },
 
     methods: {
@@ -130,7 +56,7 @@ Component.register('sw-media-grid', {
 
         isEmittedFromSidebar(path) {
             return path.some((parent) => {
-                return parent.classList && parent.classList.contains('sw-sidebar');
+                return parent.classList && parent.classList.contains('sw-media-sidebar');
             });
         },
 
@@ -146,132 +72,9 @@ Component.register('sw-media-grid', {
             });
         },
 
-        getSelection() {
-            return this.selection;
-        },
-
-        clearSelection() {
-            this.selection = [];
-            this.listSelectionStartItem = null;
-        },
-
         emitSelectionCleared(originalDomEvent) {
-            this.clearSelection();
             this.$emit('sw-media-grid-selection-clear', {
                 originalDomEvent
-            });
-        },
-
-        isItemSelected(item) {
-            if (this.selection.length === 0) {
-                return false;
-            }
-            return this.findIndexInSelection(item) > -1;
-        },
-
-        mediaItemClicked({ originalDomEvent, item }) {
-            this.handleClick({ originalDomEvent, item, autoplay: false });
-        },
-
-        mediaItemPlayed({ originalDomEvent, item }) {
-            this.handleClick({ originalDomEvent, item, autoplay: true });
-        },
-
-        handleClick({ originalDomEvent, item, autoplay }) {
-            if (this.selection.length > 0 || originalDomEvent.ctrlKey || originalDomEvent.shiftKey) {
-                this.handleSelection({ originalDomEvent, item });
-                return;
-            }
-
-            this.$emit('sw-media-grid-media-item-show-details', {
-                originalDomEvent,
-                item,
-                autoplay
-            });
-        },
-
-        handleSelection({ originalDomEvent, item }) {
-            if (originalDomEvent && originalDomEvent.shiftKey) {
-                this.listSelect({ originalDomEvent, item });
-                return;
-            }
-
-            this.listSelectionStartItem = item;
-            this.addToSelection({ originalDomEvent, item });
-        },
-
-        singleSelect({ originalDomEvent, item }) {
-            this.emitSelectionCleared();
-            this.addToSelection({ originalDomEvent, item });
-        },
-
-        addToSelection({ originalDomEvent, item }) {
-            if (this.selectable) {
-                if (!this.isItemSelected(item)) {
-                    this.selection.push(item);
-                }
-            }
-
-            this.$emit('sw-media-grid-item-selection-add', {
-                originalDomEvent,
-                item
-            });
-        },
-
-        listSelect({ originalDomEvent, item }) {
-            if (this.listSelectionStartItem === item) {
-                this.listSelectionStartItem = null;
-                return;
-            }
-
-            if (!this.listSelectionStartItem) {
-                this.listSelectionStartItem = item;
-                this.addToSelection({ originalDomEvent, item });
-                return;
-            }
-
-            const result = this.getSelectedIndexes(this.listSelectionStartItem, item);
-
-            for (let i = result.startIndex; i <= result.endIndex; i += 1) {
-                const listItem = this.items[i];
-                this.addToSelection({ originalDomEvent, item: listItem });
-            }
-            this.listSelectionStartItem = null;
-        },
-
-        getSelectedIndexes(startItem, endItem) {
-            let startIndex = this.findIndexInItems(startItem);
-            let endIndex = this.findIndexInItems(endItem);
-            if (endIndex < startIndex) {
-                const tmp = endIndex;
-                endIndex = startIndex;
-                startIndex = tmp;
-            }
-
-            return { endIndex, startIndex };
-        },
-
-        findIndexInSelection(item) {
-            return this.selection.findIndex((element) => {
-                return (element[this.idField] === item[this.idField]);
-            });
-        },
-
-        findIndexInItems(item) {
-            return this.items.findIndex((element) => {
-                return (element[this.idField] === item[this.idField]);
-            });
-        },
-
-        removeFromSelection({ originalDomEvent, item }) {
-            this.listSelectionStartItem = null;
-            this.selection = this.selection.filter((element) => {
-                return !(element[this.idField] === item[this.idField]);
-            });
-
-            this.$emit('sw-media-grid-item-selection-remove', {
-                originalDomEvent,
-                item
             });
         },
 

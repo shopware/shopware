@@ -19,9 +19,11 @@
                                             @sw-media-quickinfo-open-modal-delete="openModalDelete">
                                     </sw-media-quickinfo>
                                     <sw-media-quickinfo-multiple
-                                            v-else :items="items"
+                                            v-else-if="isMultipleFile"
+                                            :items="items"
                                             @sw-media-quickinfo-open-modal-delete="openModalDelete">
                                     </sw-media-quickinfo-multiple>
+                                    <div v-else>{# empty slot #}</div>
                                 </sw-sidebar-item>
                             {% endblock %}
                         </div>
@@ -52,7 +54,7 @@
         {% block sw_media_sidebar_modal_delete %}
             <sw-media-modal-delete
                 v-if="hasItems && showModalDelete"
-                :itemsToDelete="itemsToDelete"
+                :itemsToDelete="items"
                 @sw-media-modal-delete-close="closeModalDelete"
                 @sw-media-modal-delete-items-deleted="deleteSelectedItems">
             </sw-media-modal-delete>

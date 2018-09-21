@@ -674,7 +674,7 @@
   },
   "sw-settings-currency": {
     "general": {
-      "mainMenuItemGeneral": "Währungeoijuion",
+      "mainMenuItemGeneral": "Währungen",
       "placeholderSearchBar": "Durchsuchen aller Währungen"
     },
     "list": {

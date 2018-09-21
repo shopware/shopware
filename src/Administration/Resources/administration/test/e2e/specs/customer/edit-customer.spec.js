@@ -62,7 +62,7 @@ module.exports = {
             .click('a.smart-bar__back-btn')
             .waitForElementVisible('.sw-customer-list__content')
             .setValue('input.sw-search-bar__input', ['Pep Eroni', browser.Keys.ENTER])
-            .click('.sw-alert button.sw-alert__close')
+            .click('.sw-alert .sw-alert__close')
             .waitForElementNotPresent('.sw-alert__message')
             .waitForElementVisible('.sw-page__smart-bar-amount')
             .assert.containsText('.sw-page__smart-bar-amount', '(2)')

@@ -1,9 +1,9 @@
 module.exports = {
     'open customer listing': (browser) => {
         browser
-            .assert.containsText('.sw-admin-menu__navigation-list-item.sw-customer span.collapsible-text', 'Customers')
+            .assert.containsText('.sw-customer .collapsible-text', 'Customers')
             .click('a.sw-admin-menu__navigation-link[href="#/sw/customer/index"]')
-            .waitForElementVisible('.smart-bar__actions a')
+            .waitForElementVisible('.smart-bar__actions')
             .waitForElementVisible('.sw-page__smart-bar-amount')
             .assert.containsText('.sw-page__smart-bar-amount', '(0)');
     },
@@ -39,8 +39,8 @@ module.exports = {
         browser
             .waitForElementPresent('.smart-bar__actions button.sw-button--primary')
             .click('.smart-bar__actions button.sw-button--primary')
-            .waitForElementNotPresent('.sw-card__content .sw-customer-base-form .sw-loader', 5000)
-            .waitForElementNotPresent('.sw-card__content .sw-customer-address-form .sw-loader', 5000)
+            .waitForElementNotPresent('.sw-card__content .sw-customer-base-form .sw-loader')
+            .waitForElementNotPresent('.sw-card__content .sw-customer-address-form .sw-loader')
             .waitForElementVisible('.sw-user-card__metadata')
             .assert.containsText('.sw-user-card__metadata-user-name', 'Mr Pep Eroni')
             .assert.containsText('.sw-user-card__metadata-item', 'test@example.com')
@@ -55,7 +55,7 @@ module.exports = {
             .click('a.smart-bar__back-btn')
             .waitForElementVisible('.sw-customer-list__content')
             .setValue('input.sw-search-bar__input', ['Pep Eroni', browser.Keys.ENTER])
-            .click('.sw-alert button.sw-alert__close')
+            .click('.sw-alert .sw-alert__close')
             .waitForElementNotPresent('.sw-alert__message')
             .waitForElementVisible('.sw-page__smart-bar-amount')
             .assert.containsText('.sw-page__smart-bar-amount', '(1)')

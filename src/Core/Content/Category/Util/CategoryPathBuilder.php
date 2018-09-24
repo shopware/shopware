@@ -12,7 +12,6 @@ use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\Struct\Uuid;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class CategoryPathBuilder implements EventSubscriberInterface
@@ -27,16 +26,10 @@ class CategoryPathBuilder implements EventSubscriberInterface
      */
     private $connection;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    public function __construct(RepositoryInterface $repository, Connection $connection, EventDispatcherInterface $eventDispatcher)
+    public function __construct(RepositoryInterface $repository, Connection $connection)
     {
         $this->repository = $repository;
         $this->connection = $connection;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     public static function getSubscribedEvents()

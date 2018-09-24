@@ -19,7 +19,6 @@ use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\Search\Criteria;
-use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\ORM\Search\Parser\SqlQueryParser;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
@@ -52,11 +51,6 @@ class EntityReader implements EntityReaderInterface
     private $connection;
 
     /**
-     * @var EntitySearcherInterface
-     */
-    private $searcher;
-
-    /**
      * @var EntityHydrator
      */
     private $hydrator;
@@ -73,13 +67,11 @@ class EntityReader implements EntityReaderInterface
 
     public function __construct(
         Connection $connection,
-        EntitySearcherInterface $searcher,
         EntityHydrator $hydrator,
         EntityDefinitionQueryHelper $queryHelper,
         SqlQueryParser $parser
     ) {
         $this->connection = $connection;
-        $this->searcher = $searcher;
         $this->hydrator = $hydrator;
         $this->queryHelper = $queryHelper;
         $this->parser = $parser;

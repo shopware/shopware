@@ -16,15 +16,9 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\Serializer;
 
 class PriceActionController extends Controller
 {
-    /**
-     * @var Serializer
-     */
-    private $serializer;
-
     /**
      * @var RepositoryInterface
      */
@@ -41,12 +35,10 @@ class PriceActionController extends Controller
     private $grossCalculator;
 
     public function __construct(
-        Serializer $serializer,
         RepositoryInterface $taxRepository,
         NetPriceCalculator $netCalculator,
         GrossPriceCalculator $grossCalculator
     ) {
-        $this->serializer = $serializer;
         $this->taxRepository = $taxRepository;
         $this->netCalculator = $netCalculator;
         $this->grossCalculator = $grossCalculator;

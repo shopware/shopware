@@ -90,7 +90,6 @@
         </service>
 
         <service class="Shopware\Core\Content\Product\ORM\Indexing\ProductDatasheetIndexer" id="Shopware\Core\Content\Product\ORM\Indexing\ProductDatasheetIndexer">
-            <argument id="product.repository" type="service"/>
             <argument id="Doctrine\DBAL\Connection" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="Shopware\Core\Content\Product\Util\EventIdExtractor" type="service"/>
@@ -124,4 +123,3 @@
 
     </services>
 </container>                
-                

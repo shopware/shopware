@@ -115,7 +115,6 @@
 
 
         <service class="Shopware\Core\Checkout\Cart\PriceActionController" id="Shopware\Core\Checkout\Cart\PriceActionController" public="true">
-            <argument type="service" id="serializer"/>
             <argument type="service" id="tax.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\NetPriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator"/>

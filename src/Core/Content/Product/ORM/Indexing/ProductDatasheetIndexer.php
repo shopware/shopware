@@ -11,17 +11,11 @@ use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\ORM\Dbal\Common\LastIdQuery;
 use Shopware\Core\Framework\ORM\Dbal\Indexing\IndexerInterface;
 use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductDatasheetIndexer implements IndexerInterface
 {
-    /**
-     * @var RepositoryInterface
-     */
-    private $productRepository;
-
     /**
      * @var EventDispatcherInterface
      */
@@ -38,12 +32,10 @@ class ProductDatasheetIndexer implements IndexerInterface
     private $connection;
 
     public function __construct(
-        RepositoryInterface $productRepository,
         Connection $connection,
         EventDispatcherInterface $eventDispatcher,
         EventIdExtractor $eventIdExtractor
     ) {
-        $this->productRepository = $productRepository;
         $this->eventDispatcher = $eventDispatcher;
         $this->eventIdExtractor = $eventIdExtractor;
         $this->connection = $connection;

@@ -16,7 +16,6 @@
         <service class="Shopware\Core\Content\Category\Util\CategoryPathBuilder" id="Shopware\Core\Content\Category\Util\CategoryPathBuilder">
             <argument id="category.repository" type="service"/>
             <argument id="Doctrine\DBAL\Connection" type="service"/>
-            <argument type="service" id="event_dispatcher"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -27,4 +26,3 @@
         </service>
     </services>
 </container>                
-                

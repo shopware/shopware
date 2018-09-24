@@ -636,9 +636,4 @@ class StorefrontCheckoutControllerTest extends TestCase
             'password' => $password,
         ]);
     }
-
-    private function pay(Client $client, string $orderId): void
-    {
-        $client->request('GET', '/storefront-api/checkout/pay', ['transaction']);
-    }
 }

@@ -62,10 +62,6 @@ class DefinitionValidator
         'schema_version', 'search_dictionary',
     ];
 
-    private static $unversionedTables = [
-        'sales_channel',
-    ];
-
     /**
      * @var Connection
      */
@@ -667,13 +663,5 @@ class DefinitionValidator
     private function getShortClassName(string $defintion): string
     {
         return lcfirst(preg_replace('/.*\\\\([^\\\\]+)Definition/', '$1', $defintion));
-    }
-
-    private function getShortRefName(string $definition, string $refClass): string
-    {
-        $shortRef = $this->getShortClassName($refClass);
-        $def = $this->getShortClassName($definition);
-
-        return str_replace($def, '', $shortRef);
     }
 }

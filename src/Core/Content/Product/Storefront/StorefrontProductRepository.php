@@ -122,7 +122,7 @@ class StorefrontProductRepository
         $product->setCalculatedPriceRules($priceRules);
 
         //calculate simple price
-        $priceDefinition = $product->getPriceDefinition($context->getContext());
+        $priceDefinition = $product->getPriceDefinition();
         $price = $this->priceCalculator->calculate($priceDefinition, $context);
         $product->setCalculatedPrice($price);
     }

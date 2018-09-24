@@ -64,7 +64,7 @@ class Processor
         );
 
         $cart->setErrors(
-            $this->validator->validate($cart, $context)
+            $this->validator->validate()
         );
 
         $cart->setPrice(

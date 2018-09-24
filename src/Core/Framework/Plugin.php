@@ -34,11 +34,9 @@ class Plugin extends Bundle
     }
 
     /**
-     * @param string $environment (dev, prod, test)
-     *
      * @return BundleInterface[]
      */
-    public function registerBundles(string $environment): array
+    public function registerBundles(): array
     {
         return [];
     }

@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Framework\ORM\Search\Term;
 
-use Shopware\Core\Framework\Context;
-
 class SearchTermInterpreter
 {
     /**
@@ -16,7 +14,7 @@ class SearchTermInterpreter
         $this->tokenizer = $tokenizer;
     }
 
-    public function interpret(string $term, Context $context): SearchPattern
+    public function interpret(string $term): SearchPattern
     {
         $terms = $this->tokenizer->tokenize($term);
 

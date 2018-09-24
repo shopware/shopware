@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Cart\Delivery;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -51,7 +50,7 @@ class DeliveryCalculator
         $this->percentageTaxRuleBuilder = $percentageTaxRuleBuilder;
     }
 
-    public function calculate(DeliveryCollection $deliveries, Cart $cart, CheckoutContext $context): void
+    public function calculate(DeliveryCollection $deliveries, CheckoutContext $context): void
     {
         foreach ($deliveries as $delivery) {
             $this->calculateDelivery($delivery, $context);

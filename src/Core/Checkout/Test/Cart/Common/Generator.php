@@ -44,7 +44,6 @@ class Generator extends TestCase
         $fallbackCustomerGroup = null,
         $salesChannel = null,
         $currency = null,
-        $priceGroupDiscounts = null,
         $taxes = null,
         $area = null,
         $country = null,

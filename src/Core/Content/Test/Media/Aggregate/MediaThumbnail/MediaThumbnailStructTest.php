@@ -2,9 +2,10 @@
 
 namespace Shopware\Core\Content\Test\Media\Aggregate\MediaThumbnail;
 
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailStruct;
 
-class MediaThumbnailStructTest extends \PHPUnit\Framework\TestCase
+class MediaThumbnailStructTest extends TestCase
 {
     public function testGetIdentifierWithoutHighDpi(): void
     {

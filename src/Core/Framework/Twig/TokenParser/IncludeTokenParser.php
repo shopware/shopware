@@ -36,30 +36,6 @@ final class IncludeTokenParser extends \Twig_TokenParser
         return new Twig_Node_Include($expr, $variables, $only, $ignoreMissing, $token->getLine(), $this->getTag());
     }
 
-    public function sparse(Twig_Token $token): void
-    {
-        //get full token stream to inject extends token for inheritance
-        $stream = $this->parser->getStream();
-
-        //resolves parent template
-        $parent = $this->finder->find(
-            //set pointer to next value (contains the template file name)
-            $this->getTemplateName(
-                $stream->next()->getValue()
-            )
-        );
-
-        //set pointer to end of line - BLOCK_END_TYPE
-        $stream->next();
-
-        $stream->injectTokens([
-            new Twig_Token(Twig_Token::BLOCK_START_TYPE, '', 2),
-            new Twig_Token(Twig_Token::NAME_TYPE, 'include', 2),
-            new Twig_Token(Twig_Token::STRING_TYPE, $parent, 2),
-            new Twig_Token(Twig_Token::BLOCK_END_TYPE, '', 2),
-        ]);
-    }
-
     public function getTag(): string
     {
         return 'sw_include';

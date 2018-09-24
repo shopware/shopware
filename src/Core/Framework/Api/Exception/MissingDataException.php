@@ -9,11 +9,6 @@ use Throwable;
 class MissingDataException extends MappingException implements ShopwareException
 {
     /**
-     * @var iterable
-     */
-    private $fields;
-
-    /**
      * {@inheritdoc}
      */
     public function __construct(iterable $fieldNames, int $code = 0, Throwable $previous = null)

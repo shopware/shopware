@@ -84,17 +84,6 @@ class DateField extends Field implements StorageAware
     /**
      * @return array
      */
-    private function getInsertConstraints(): array
-    {
-        return $this->constraintBuilder
-            ->isNotBlank()
-            ->isDate()
-            ->getConstraints();
-    }
-
-    /**
-     * @return array
-     */
     private function getUpdateConstraints(): array
     {
         return $this->constraintBuilder

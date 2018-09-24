@@ -2,13 +2,11 @@
 
 namespace Shopware\Core\Checkout\Cart;
 
-use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
-use Shopware\Core\Checkout\CheckoutContext;
 
 class Validator
 {
-    public function validate(Cart $cart, CheckoutContext $context): ErrorCollection
+    public function validate(): ErrorCollection
     {
         return new ErrorCollection();
     }

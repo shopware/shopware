@@ -43,7 +43,7 @@ class SearchBuilder
     {
         /** @var string|EntityDefinition $definition */
         if (!$definition::useKeywordSearch()) {
-            $pattern = $this->interpreter->interpret($term, $context);
+            $pattern = $this->interpreter->interpret($term);
 
             $queries = $this->scoreBuilder->buildScoreQueries($pattern, $definition, $definition::getEntityName());
 

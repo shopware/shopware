@@ -103,15 +103,4 @@ class ManyToManyAssociationFieldTest extends TestCase
         static::assertInstanceOf(EntityWrittenEvent::class, $writtenEvent->getEventByDefinition(ProductDefinition::class));
         static::assertInstanceOf(EntityWrittenEvent::class, $writtenEvent->getEventByDefinition(ProductTranslationDefinition::class));
     }
-
-    private function containsInstance(string $needle, array $haystack): bool
-    {
-        foreach ($haystack as $element) {
-            if ($element instanceof $needle) {
-                return true;
-            }
-        }
-
-        return false;
-    }
 }

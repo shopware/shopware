@@ -116,7 +116,7 @@ class CustomerRepositoryTest extends TestCase
         $criteria = new Criteria();
 
         $builder = $this->getContainer()->get(EntityScoreQueryBuilder::class);
-        $pattern = $this->getContainer()->get(SearchTermInterpreter::class)->interpret($matchTerm, Context::createDefaultContext(Defaults::TENANT_ID));
+        $pattern = $this->getContainer()->get(SearchTermInterpreter::class)->interpret($matchTerm);
         $queries = $builder->buildScoreQueries($pattern, CustomerDefinition::class, CustomerDefinition::getEntityName());
         $criteria->addQueries($queries);
 

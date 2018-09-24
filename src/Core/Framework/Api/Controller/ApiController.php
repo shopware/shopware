@@ -120,7 +120,7 @@ class ApiController extends Controller
 
     public function search(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $path): Response
     {
-        $result = $this->fetchListing($request, $context, $responseFactory, $path);
+        $result = $this->fetchListing($request, $context, $path);
 
         $definition = $this->getDefinitionOfPath($path);
 
@@ -129,7 +129,7 @@ class ApiController extends Controller
 
     public function list(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $path): Response
     {
-        $result = $this->fetchListing($request, $context, $responseFactory, $path);
+        $result = $this->fetchListing($request, $context, $path);
 
         $definition = $this->getDefinitionOfPath($path);
 
@@ -233,7 +233,7 @@ class ApiController extends Controller
         throw new \RuntimeException(sprintf('Unsupported association for field %s', $association->getPropertyName()));
     }
 
-    private function fetchListing(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $path): EntitySearchResult
+    private function fetchListing(Request $request, Context $context, string $path): EntitySearchResult
     {
         $pathSegments = $this->buildEntityPath($path);
 

@@ -156,7 +156,6 @@ class PaymentServiceTest extends TestCase
             null,
             null,
             null,
-            null,
             (new PaymentMethodStruct())->assign(['id' => $paymentMethodId])
         );
     }

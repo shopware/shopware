@@ -51,7 +51,7 @@ class CountryAreaRepositoryTest extends TestCase
         $criteria = new Criteria();
 
         $builder = $this->getContainer()->get(EntityScoreQueryBuilder::class);
-        $pattern = $this->getContainer()->get(SearchTermInterpreter::class)->interpret('match', Context::createDefaultContext(Defaults::TENANT_ID));
+        $pattern = $this->getContainer()->get(SearchTermInterpreter::class)->interpret('match');
         $queries = $builder->buildScoreQueries($pattern, CountryAreaDefinition::class, CountryAreaDefinition::getEntityName());
         $criteria->addQueries($queries);
 

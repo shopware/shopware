@@ -16,7 +16,7 @@ class MediaUploadControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
 
-    const TEST_IMAGE = __DIR__ . '/../fixtures/shopware-logo.png';
+    public const TEST_IMAGE = __DIR__ . '/../fixtures/shopware-logo.png';
 
     /** @var RepositoryInterface */
     private $mediaRepository;

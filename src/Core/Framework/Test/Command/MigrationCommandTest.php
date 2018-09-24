@@ -29,7 +29,7 @@ class MigrationCommandTest extends TestCase
 
     public function getCommand(bool $exceptions = false): MigrationCommand
     {
-        $container = self::getKernel()->getContainer();
+        $container = $this->getKernel()->getContainer();
 
         $directories = $container->getParameter('migration.directories');
 
@@ -50,7 +50,7 @@ class MigrationCommandTest extends TestCase
 
     public function getDestructiveCommand(bool $exceptions = false): MigrationDestructiveCommand
     {
-        $container = self::getKernel()->getContainer();
+        $container = $this->getKernel()->getContainer();
 
         $directories = $container->getParameter('migration.directories');
 
@@ -75,7 +75,7 @@ class MigrationCommandTest extends TestCase
 
         $command = $this->getCommand();
 
-        self::expectException(\InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
         $command->run(new ArrayInput([]), new DummyOutput());
     }
 
@@ -122,7 +122,7 @@ class MigrationCommandTest extends TestCase
 
         $command = $this->getDestructiveCommand();
 
-        self::expectException(\InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
         $command->run(new ArrayInput([]), new DummyOutput());
     }
 
@@ -184,7 +184,7 @@ class MigrationCommandTest extends TestCase
 
     private function getConnection(): Connection
     {
-        return self::getKernel()->getContainer()->get(Connection::class);
+        return $this->getKernel()->getContainer()->get(Connection::class);
     }
 
     private function getMigrationCount(bool $executed = false, bool $destructive = false): int

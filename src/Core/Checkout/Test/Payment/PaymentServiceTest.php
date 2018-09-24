@@ -82,7 +82,7 @@ class PaymentServiceTest extends TestCase
     {
         $orderId = Uuid::uuid4()->getHex();
         $checkoutContext = Generator::createContext();
-        static::expectException(InvalidOrderException::class);
+        $this->expectException(InvalidOrderException::class);
         $this->paymentService->handlePaymentByOrder(
             $orderId,
             $checkoutContext
@@ -118,7 +118,7 @@ class PaymentServiceTest extends TestCase
     {
         $token = Uuid::uuid4()->getHex();
         $request = new Request();
-        self::expectException(InvalidTokenException::class);
+        $this->expectException(InvalidTokenException::class);
         $this->paymentService->finalizeTransaction(
             $token,
             $request,
@@ -137,7 +137,7 @@ class PaymentServiceTest extends TestCase
 
         $token = $this->tokenFactory->generateToken($transaction, $this->context, -1);
 
-        static::expectException(TokenExpiredException::class);
+        $this->expectException(TokenExpiredException::class);
         $this->paymentService->finalizeTransaction($token, $request, $this->context);
     }
 

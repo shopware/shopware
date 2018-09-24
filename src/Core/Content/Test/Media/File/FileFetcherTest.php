@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class FileFetcherTest extends TestCase
 {
-    const TEST_IMAGE = __DIR__ . '/../fixtures/shopware-logo.png';
+    public const TEST_IMAGE = __DIR__ . '/../fixtures/shopware-logo.png';
 
     /**
      * @var FileFetcher

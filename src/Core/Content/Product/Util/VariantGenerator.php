@@ -110,7 +110,7 @@ class VariantGenerator
     private function combine($data, $group = [], $val = null, $i = 0): array
     {
         $all = [];
-        if (isset($val)) {
+        if ($val !== null) {
             $group[] = $val;
         }
         if ($i >= \count($data)) {

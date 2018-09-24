@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\ORM\Search;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Exception\SearchRequestException;
@@ -447,7 +448,7 @@ class SearchCriteriaBuilderTest extends TestCase
         $searchBuilder = $this->getContainer()->get(SearchBuilder::class);
         $requestBuilder = new RequestCriteriaBuilder($searchBuilder, $maxLimit, $allowedLimits);
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
-        $definition = 'Shopware\Core\Content\Product\ProductDefinition';
+        $definition = ProductDefinition::class;
 
         $request = new Request($params);
 

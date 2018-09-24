@@ -67,7 +67,7 @@ class ThumbnailServiceTest extends TestCase
 
     public function testSubscribesToMediaFileUploadedEvent(): void
     {
-        static::assertArrayHasKey(MediaFileUploadedEvent::EVENT_NAME, $this->thumbnailService->getSubscribedEvents());
+        static::assertArrayHasKey(MediaFileUploadedEvent::EVENT_NAME, $this->thumbnailService::getSubscribedEvents());
     }
 
     public function testThumbnailGeneration(): void
@@ -124,7 +124,7 @@ class ThumbnailServiceTest extends TestCase
 
     public function testGeneratorThrowsExceptionIfFileDoesNotExist(): void
     {
-        self::expectException(FileNotFoundException::class);
+        $this->expectException(FileNotFoundException::class);
         $this->thumbnailService->generateThumbnails(
             $this->media,
             $this->context
@@ -136,7 +136,7 @@ class ThumbnailServiceTest extends TestCase
         $filePath = $this->urlGenerator->getRelativeMediaUrl($this->media->getId(), $this->media->getFileExtension());
         $this->getPublicFilesystem()->put($filePath, 'this is the content of the file, which is not a image');
 
-        self::expectException(FileTypeNotSupportedException::class);
+        $this->expectException(FileTypeNotSupportedException::class);
         $this->thumbnailService->generateThumbnails(
             $this->media,
             $this->context

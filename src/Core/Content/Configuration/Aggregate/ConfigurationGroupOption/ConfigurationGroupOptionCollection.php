@@ -70,7 +70,7 @@ class ConfigurationGroupOptionCollection extends EntityCollection
                 $group = ConfigurationGroupStruct::createFrom($element->getGroup());
                 $groups->add($group);
 
-                $group->setOptions(new ConfigurationGroupOptionCollection());
+                $group->setOptions(new self());
             }
 
             $group->getOptions()->add($element);

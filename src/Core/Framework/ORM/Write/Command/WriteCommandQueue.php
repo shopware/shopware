@@ -59,7 +59,7 @@ class WriteCommandQueue
 
         $notAlreadyOrderedIdentifiers = [];
         foreach ($identifierOrder as $identifier) {
-            if ($identifier === $definition || array_search($identifier, $this->order, true) === false) {
+            if ($identifier === $definition || !\in_array($identifier, $this->order, true)) {
                 $notAlreadyOrderedIdentifiers[] = $identifier;
             }
         }

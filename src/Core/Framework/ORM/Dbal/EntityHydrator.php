@@ -156,7 +156,6 @@ class EntityHydrator
                 /** @var ArrayStruct $extension */
                 $extension = $extension;
                 $extension->set($propertyName, $ids);
-                continue;
             }
         }
 

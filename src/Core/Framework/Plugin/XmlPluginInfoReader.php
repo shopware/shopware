@@ -37,12 +37,12 @@ class XmlPluginInfoReader
         $info = [];
 
         foreach ($this->getChildren($entry, 'label') as $label) {
-            $lang = $label->getAttribute('lang') ? $label->getAttribute('lang') : 'en';
+            $lang = $label->getAttribute('lang') ?: 'en';
             $info['label'][$lang] = $label->nodeValue;
         }
 
         foreach ($this->getChildren($entry, 'description') as $description) {
-            $lang = $description->getAttribute('lang') ? $description->getAttribute('lang') : 'en';
+            $lang = $description->getAttribute('lang') ?: 'en';
             $info['description'][$lang] = trim($description->nodeValue);
         }
 
@@ -57,7 +57,7 @@ class XmlPluginInfoReader
             $version = $changelog->getAttribute('version');
 
             foreach ($this->getChildren($changelog, 'changes') as $changes) {
-                $lang = $changes->getAttribute('lang') ? $changes->getAttribute('lang') : 'en';
+                $lang = $changes->getAttribute('lang') ?: 'en';
                 $info['changelog'][$version][$lang][] = $changes->nodeValue;
             }
         }

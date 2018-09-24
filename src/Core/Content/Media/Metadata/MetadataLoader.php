@@ -82,10 +82,8 @@ class MetadataLoader
                 $array[$key] = $this->convertBinaryToUtf($value);
             }
 
-            if (is_string($value)) {
-                if (!mb_detect_encoding($value, mb_detect_order(), true)) {
-                    $array[$key] = utf8_encode($value);
-                }
+            if (is_string($value) && !mb_detect_encoding($value, mb_detect_order(), true)) {
+                $array[$key] = utf8_encode($value);
             }
         }
 

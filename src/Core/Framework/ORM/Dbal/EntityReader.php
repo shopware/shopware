@@ -279,7 +279,6 @@ class EntityReader implements EntityReaderInterface
                     . ' as ' .
                     EntityDefinitionQueryHelper::escape($root . '.' . $field->getPropertyName())
                 );
-                continue;
             }
         }
 

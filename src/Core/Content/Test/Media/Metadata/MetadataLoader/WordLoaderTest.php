@@ -21,7 +21,7 @@ class WordLoaderTest extends TestCase
         $metadata = $this->getMetadataLoader()
             ->extractMetadata(__DIR__ . '/../../fixtures/reader.docx');
 
-        $this->assertCount(8, $metadata);
+        static::assertCount(8, $metadata);
     }
 
     public function testDoc(): void
@@ -29,7 +29,7 @@ class WordLoaderTest extends TestCase
         $metadata = $this->getMetadataLoader()
             ->extractMetadata(__DIR__ . '/../../fixtures/reader.doc');
 
-        $this->assertCount(8, $metadata);
+        static::assertCount(8, $metadata);
     }
 
     private function getMetadataLoader(): WordLoader

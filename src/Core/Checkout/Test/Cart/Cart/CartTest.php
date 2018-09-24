@@ -85,7 +85,7 @@ class CartTest extends TestCase
 
         $cart->add($lineItem);
 
-        static::expectException(LineItemNotRemoveableException::class);
+        $this->expectException(LineItemNotRemoveableException::class);
 
         $cart->remove($lineItem->getKey());
 

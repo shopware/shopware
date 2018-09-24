@@ -24,7 +24,7 @@ class MigrationCollectorTest extends TestCase
 
     protected function setUp()
     {
-        $container = self::getKernel()->getContainer();
+        $container = $this->getKernel()->getContainer();
         $this->connection = $container->get(Connection::class);
         $this->collector = new MigrationCollectionLoader($this->connection);
     }

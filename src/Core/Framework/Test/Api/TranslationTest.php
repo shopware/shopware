@@ -101,7 +101,7 @@ class TranslationTest extends TestCase
         $this->getClient()->request('GET', $baseResource . '/' . $id, [], [], [$headerName => $langId]);
         $response = $this->getClient()->getResponse();
         $responseData = json_decode($response->getContent());
-        $this->assertEquals($translatedName, $responseData->data->attributes->name);
+        static::assertEquals($translatedName, $responseData->data->attributes->name);
     }
 
     private function assertTranslation($expectedTranslations, $translations, $langIdOverride = null): void
@@ -117,7 +117,7 @@ class TranslationTest extends TestCase
         $this->getClient()->request('POST', $baseResource, $categoryData);
         $response = $this->getClient()->getResponse();
 
-        $this->assertEquals(204, $response->getStatusCode());
+        static::assertEquals(204, $response->getStatusCode());
 
         $this->assertEntityExists($this->getClient(), 'category', $id);
 

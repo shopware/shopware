@@ -20,7 +20,7 @@ class VideoMetadata extends ImageMetadata
 
     public static function create(): MetadataType
     {
-        return new VideoMetadata();
+        return new self();
     }
 
     public function getFrameRate(): ?float

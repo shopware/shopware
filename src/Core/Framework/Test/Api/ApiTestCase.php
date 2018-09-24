@@ -115,7 +115,7 @@ class ApiTestCase extends WebTestCase
 
         $this->apiClient->request('GET', $url);
 
-        $this->assertSame(
+        static::assertSame(
             Response::HTTP_OK,
             $this->apiClient->getResponse()->getStatusCode(),
             'Entity does not exists but should do.'
@@ -128,7 +128,7 @@ class ApiTestCase extends WebTestCase
 
         $this->apiClient->request('GET', $url);
 
-        $this->assertSame(
+        static::assertSame(
             Response::HTTP_NOT_FOUND,
             $this->apiClient->getResponse()->getStatusCode(),
             'Entity exists but should not.'
@@ -172,8 +172,8 @@ class ApiTestCase extends WebTestCase
 
         $data = json_decode($client->getResponse()->getContent(), true);
 
-        $this->assertArrayHasKey('access_token', $data, 'No token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error' . print_r($data, true)));
-        $this->assertArrayHasKey('refresh_token', $data, 'No refresh_token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error'));
+        static::assertArrayHasKey('access_token', $data, 'No token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error' . print_r($data, true)));
+        static::assertArrayHasKey('refresh_token', $data, 'No refresh_token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error'));
 
         $client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['access_token']));
     }

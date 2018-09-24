@@ -308,8 +308,6 @@ class DefinitionValidator
                     $violations,
                     $this->validateManyToMany($definition, $association)
                 );
-
-                continue;
             }
         }
 

@@ -29,7 +29,7 @@ class LineItemTest extends TestCase
      */
     public function testCreateLineItemWithInvalidQuantity(): void
     {
-        self::expectException(InvalidQuantityException::class);
+        $this->expectException(InvalidQuantityException::class);
         new LineItem('A', 'type', -1);
     }
 
@@ -39,7 +39,7 @@ class LineItemTest extends TestCase
      */
     public function testChangeLineItemToInvalidQuantity(): void
     {
-        self::expectException(InvalidQuantityException::class);
+        $this->expectException(InvalidQuantityException::class);
         $lineItem = new LineItem('A', 'type', 1);
         $lineItem->setQuantity(0);
     }
@@ -62,7 +62,7 @@ class LineItemTest extends TestCase
      */
     public function testChangeNonStackableLineItemQuantity(): void
     {
-        self::expectException(LineItemNotStackableException::class);
+        $this->expectException(LineItemNotStackableException::class);
         $lineItem = new LineItem('A', 'type', 1);
         $lineItem->setStackable(false);
         $lineItem->setQuantity(5);
@@ -139,7 +139,7 @@ class LineItemTest extends TestCase
 
         $lineItem->setChildren(new LineItemCollection([$child1, $child2, $child3]));
 
-        self::expectException(LineItemNotStackableException::class);
+        $this->expectException(LineItemNotStackableException::class);
 
         $lineItem->setQuantity(2);
 
@@ -182,7 +182,7 @@ class LineItemTest extends TestCase
         $child2 = new LineItem('A.2', 'child', 2);
         $child3 = new LineItem('A.3', 'child', 1);
 
-        self::expectException(InvalidChildQuantityException::class);
+        $this->expectException(InvalidChildQuantityException::class);
 
         $lineItem->addChild($child1);
         $lineItem->addChild($child2);
@@ -202,7 +202,7 @@ class LineItemTest extends TestCase
         $child2 = new LineItem('A.2', 'child', 2);
         $child3 = new LineItem('A.3', 'child', 1);
 
-        self::expectException(InvalidChildQuantityException::class);
+        $this->expectException(InvalidChildQuantityException::class);
 
         $lineItem->setChildren(new LineItemCollection([$child1, $child2, $child3]));
     }

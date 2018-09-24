@@ -42,11 +42,11 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
      */
     public function denormalize($data, $class = null, $format = null, array $context = [])
     {
-        if (is_string($data) && $date = $this->createDate($data)) {
+        if (\is_string($data) && $date = $this->createDate($data)) {
             return $date;
         }
 
-        if (!is_array($data)) {
+        if (!\is_array($data)) {
             return $data;
         }
 
@@ -71,7 +71,7 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
      */
     public function supportsDenormalization($data, $type, $format = null)
     {
-        return is_array($data) && array_key_exists('_class', $data);
+        return \is_array($data) && array_key_exists('_class', $data);
     }
 
     /**
@@ -104,7 +104,7 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
         }
 
         $constructorParams = $reflectionClass->getConstructor()->getParameters();
-        if (count($constructorParams) <= 0) {
+        if (\count($constructorParams) <= 0) {
             $struct->assign($arguments);
 
             return $struct;

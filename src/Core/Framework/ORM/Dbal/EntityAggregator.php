@@ -217,7 +217,7 @@ class EntityAggregator implements EntityAggregatorInterface
         }
 
         throw new \RuntimeException(
-            sprintf('Aggregation of type %s not supported', get_class($aggregation))
+            sprintf('Aggregation of type %s not supported', \get_class($aggregation))
         );
     }
 }

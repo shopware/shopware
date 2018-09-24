@@ -36,7 +36,7 @@ class ProductCollector implements CollectorInterface
             }
         );
 
-        if (count($lineItems) <= 0) {
+        if (\count($lineItems) <= 0) {
             return;
         }
 

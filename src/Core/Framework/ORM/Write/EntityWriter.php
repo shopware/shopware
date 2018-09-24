@@ -199,7 +199,7 @@ class EntityWriter implements EntityWriterInterface
                 $cascade = array_map(function ($key) {
                     $payload = $key;
 
-                    if (!is_array($key)) {
+                    if (!\is_array($key)) {
                         $payload = ['id' => $key];
                     }
 
@@ -249,7 +249,7 @@ class EntityWriter implements EntityWriterInterface
         $identifiers = [];
 
         foreach ($queue->getCommands() as $resource => $commands) {
-            if (count($commands) === 0) {
+            if (\count($commands) === 0) {
                 continue;
             }
 
@@ -294,7 +294,7 @@ class EntityWriter implements EntityWriterInterface
 
     private function validateWriteInput(array $data): void
     {
-        $valid = array_keys($data) === range(0, count($data) - 1);
+        $valid = array_keys($data) === range(0, \count($data) - 1);
 
         if (!$valid) {
             throw new \InvalidArgumentException('Expected input to be array.');

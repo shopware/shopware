@@ -26,7 +26,7 @@ class FrameworkExtension extends Extension
         foreach ($options as $key => $option) {
             $container->setParameter($alias . '.' . $key, $option);
 
-            if (is_array($option)) {
+            if (\is_array($option)) {
                 $this->addShopwareConfig($container, $alias . '.' . $key, $option);
             }
         }

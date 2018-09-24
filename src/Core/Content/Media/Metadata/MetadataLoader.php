@@ -32,7 +32,7 @@ class MetadataLoader
 
         foreach ($this->metadataLoader as $metadataLoader) {
             try {
-                $rawMetadata[get_class($metadataLoader)] = $metadataLoader
+                $rawMetadata[\get_class($metadataLoader)] = $metadataLoader
                         ->extractMetadata($mediaFile->getFileName());
             } catch (CanNotLoadMetadataException $e) {
                 // nth.
@@ -53,7 +53,7 @@ class MetadataLoader
         $rawData = $metadata->getRawMetadata();
 
         foreach ($this->metadataLoader as $metadataLoader) {
-            $loaderClass = get_class($metadataLoader);
+            $loaderClass = \get_class($metadataLoader);
 
             if (!isset($rawData[$loaderClass])) {
                 continue;
@@ -67,7 +67,7 @@ class MetadataLoader
     private function determineMetadataType(MediaFile $mediaFile): MetadataType
     {
         foreach ($this->metadataTypes as $typeLoaderClassName) {
-            if (in_array($mediaFile->getFileExtension(), $typeLoaderClassName::getValidFileExtensions(), true)) {
+            if (\in_array($mediaFile->getFileExtension(), $typeLoaderClassName::getValidFileExtensions(), true)) {
                 return $typeLoaderClassName::create();
             }
         }
@@ -78,11 +78,11 @@ class MetadataLoader
     private function convertBinaryToUtf(array $array): array
     {
         foreach ($array as $key => $value) {
-            if (is_array($value)) {
+            if (\is_array($value)) {
                 $array[$key] = $this->convertBinaryToUtf($value);
             }
 
-            if (is_string($value) && !mb_detect_encoding($value, mb_detect_order(), true)) {
+            if (\is_string($value) && !mb_detect_encoding($value, mb_detect_order(), true)) {
                 $array[$key] = utf8_encode($value);
             }
         }

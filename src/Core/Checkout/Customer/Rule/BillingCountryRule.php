@@ -36,7 +36,7 @@ class BillingCountryRule extends Rule
         $id = $customer->getActiveBillingAddress()->getCountry()->getId();
 
         return new Match(
-            in_array($id, $this->countryIds, true),
+            \in_array($id, $this->countryIds, true),
             ['Billing country not matched']
         );
     }

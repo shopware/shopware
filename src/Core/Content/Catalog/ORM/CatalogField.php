@@ -81,7 +81,7 @@ class CatalogField extends FkField
             );
         }
 
-        if (count($violationList)) {
+        if (\count($violationList)) {
             throw new InvalidFieldException($this->path . '/catalogId', $violationList);
         }
     }

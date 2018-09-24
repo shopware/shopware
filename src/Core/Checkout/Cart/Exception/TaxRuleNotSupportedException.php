@@ -18,7 +18,7 @@ class TaxRuleNotSupportedException extends ShopwareHttpException
 
     public function __construct(TaxRuleInterface $taxRule, $code = 0, Throwable $previous = null)
     {
-        $message = sprintf('Tax rule %s not supported', get_class($taxRule));
+        $message = sprintf('Tax rule %s not supported', \get_class($taxRule));
         parent::__construct($message, $code, $previous);
         $this->taxRule = $taxRule;
     }

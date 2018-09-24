@@ -114,10 +114,10 @@ class MediaStructTest extends TestCase
         $searchResult = $this->repository->search($criteria, $this->context);
         $media = $searchResult->getEntities()->get($mediaId);
 
-        static::assertEquals(MediaThumbnailCollection::class, get_class($media->getThumbnails()));
+        static::assertEquals(MediaThumbnailCollection::class, \get_class($media->getThumbnails()));
 
         $persistedThumbnail = $media->getThumbnails()->first();
-        static::assertEquals(MediaThumbnailStruct::class, get_class($persistedThumbnail));
+        static::assertEquals(MediaThumbnailStruct::class, \get_class($persistedThumbnail));
         static::assertEquals(200, $persistedThumbnail->getWidth());
         static::assertEquals(200, $persistedThumbnail->getHeight());
         static::assertFalse($persistedThumbnail->getHighDpi());

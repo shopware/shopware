@@ -7,7 +7,7 @@ trait JsonSerializableTrait
     public function jsonSerialize(): array
     {
         $data = [
-            '_class' => get_class($this),
+            '_class' => \get_class($this),
         ];
 
         $vars = get_object_vars($this);

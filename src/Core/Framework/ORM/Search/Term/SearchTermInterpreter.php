@@ -25,12 +25,12 @@ class SearchTermInterpreter
             ''
         );
 
-        if (count($terms) === 1) {
+        if (\count($terms) === 1) {
             return $pattern;
         }
 
         foreach ($terms as $part) {
-            $percent = strlen($part) / strlen($term);
+            $percent = \strlen($part) / \strlen($term);
             $pattern->addTerm(new SearchTerm($part, $percent));
         }
 

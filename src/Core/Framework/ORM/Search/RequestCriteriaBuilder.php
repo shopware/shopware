@@ -97,7 +97,7 @@ class RequestCriteriaBuilder
             $this->addPostFilter($definition, $payload, $criteria, $searchException);
         }
 
-        if (isset($payload['query']) && is_array($payload['query'])) {
+        if (isset($payload['query']) && \is_array($payload['query'])) {
             foreach ($payload['query'] as $query) {
                 $parsedQuery = QueryStringParser::fromArray($definition, $query['query'], $searchException);
                 $score = $query['score'] ?? 1;
@@ -194,7 +194,7 @@ class RequestCriteriaBuilder
 
     private function buildAggregations(string $definition, array $payload, Criteria $criteria, SearchRequestException $searchRequestException): void
     {
-        if (!is_array($payload['aggregations'])) {
+        if (!\is_array($payload['aggregations'])) {
             throw new InvalidAggregationQueryException('The aggregations parameter has to be a list of aggregations.');
         }
 
@@ -205,7 +205,7 @@ class RequestCriteriaBuilder
                 continue;
             }
 
-            if (!is_array($aggregations)) {
+            if (!\is_array($aggregations)) {
                 $searchRequestException->add(new InvalidAggregationQueryException('The field "%s" should be a list of aggregations.'), '/aggregations/' . $name);
                 continue;
             }
@@ -321,7 +321,7 @@ class RequestCriteriaBuilder
             return;
         }
 
-        if (!empty($this->allowedLimits) && !in_array($limit, $this->allowedLimits)) {
+        if (!empty($this->allowedLimits) && !\in_array($limit, $this->allowedLimits)) {
             $searchRequestException->add(new DisallowedLimitQueryException($this->allowedLimits, $limit), '/limit');
 
             return;
@@ -332,7 +332,7 @@ class RequestCriteriaBuilder
 
     private function addFilter(string $definition, array $payload, Criteria $criteria, SearchRequestException $searchException): void
     {
-        if (!is_array($payload['filter'])) {
+        if (!\is_array($payload['filter'])) {
             $searchException->add(new InvalidFilterQueryException('The filter parameter has to be a list of filters.'), '/filter');
 
             return;
@@ -356,7 +356,7 @@ class RequestCriteriaBuilder
 
     private function addPostFilter(string $definition, array $payload, Criteria $criteria, SearchRequestException $searchException): void
     {
-        if (!is_array($payload['post-filter'])) {
+        if (!\is_array($payload['post-filter'])) {
             $searchException->add(new InvalidFilterQueryException('The filter parameter has to be a list of filters.'), '/post-filter');
 
             return;
@@ -386,12 +386,12 @@ class RequestCriteriaBuilder
 
     private function hasNumericIndex(array $data): bool
     {
-        return array_keys($data) === range(0, count($data) - 1);
+        return array_keys($data) === range(0, \count($data) - 1);
     }
 
     private function addSorting(array $payload, Criteria $criteria, string $definition, SearchRequestException $searchException): void
     {
-        if (is_array($payload['sort'])) {
+        if (\is_array($payload['sort'])) {
             $criteria->addSortings($this->parseSorting($definition, $payload['sort']));
 
             return;

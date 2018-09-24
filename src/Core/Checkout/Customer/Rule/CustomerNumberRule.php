@@ -34,7 +34,7 @@ class CustomerNumberRule extends Rule
         }
 
         return new Match(
-            in_array(strtolower($customer->getCustomerNumber()), $this->numbers, true),
+            \in_array(strtolower($customer->getCustomerNumber()), $this->numbers, true),
             ['Customer number not match']
         );
     }

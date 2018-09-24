@@ -81,8 +81,8 @@ class TranslatedField extends Field
         $key = $data->getKey();
         $value = $data->getValue();
 
-        if (is_array($value)) {
-            $isNumeric = count(array_diff($value, range(0, count($value)))) === 0;
+        if (\is_array($value)) {
+            $isNumeric = \count(array_diff($value, range(0, \count($value)))) === 0;
 
             if ($isNumeric) {
                 foreach ($value as $translationKey => $translationValue) {

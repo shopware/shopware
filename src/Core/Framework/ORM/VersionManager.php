@@ -215,11 +215,12 @@ class VersionManager
             ];
         }, $allChanges);
 
+        $sourceContext = $writeContext->getContext()->getSourceContext();
         $commit = [
             'versionId' => Defaults::LIVE_VERSION,
             'data' => $newData,
-            'integrationId' => $writeContext->getContext()->getSourceContext()->getIntegrationId(),
-            'userId' => $writeContext->getContext()->getSourceContext()->getUserId(),
+            'integrationId' => $sourceContext->getIntegrationId(),
+            'userId' => $sourceContext->getUserId(),
             'isMerge' => true,
             'message' => 'merge commit ' . (new \DateTime())->format(\DateTime::ATOM),
         ];
@@ -260,7 +261,7 @@ class VersionManager
         $payload = [];
 
         foreach ($detailArray as $key => $value) {
-            if (!in_array($key, $fields->getKeys(), true) || !$value) {
+            if (!\in_array($key, $fields->getKeys(), true) || !$value) {
                 continue;
             }
 
@@ -425,7 +426,7 @@ class VersionManager
                 $payload = $item['payload'];
 
                 $primary = $item['primaryKey'];
-                if (!is_array($primary)) {
+                if (!\is_array($primary)) {
                     $primary = ['id' => $item['primaryKey']];
                 }
                 $primary['versionId'] = $versionId;
@@ -462,7 +463,7 @@ class VersionManager
             }
         }
 
-        if (count($commands) <= 1) {
+        if (\count($commands) <= 1) {
             return;
         }
 

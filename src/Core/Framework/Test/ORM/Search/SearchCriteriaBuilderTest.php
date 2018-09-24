@@ -229,7 +229,7 @@ class SearchCriteriaBuilderTest extends TestCase
         static::assertSame(200, $this->getClient()->getResponse()->getStatusCode());
         $content = json_decode($this->getClient()->getResponse()->getContent(), true);
 
-        $expectedIds = array_slice($ids, $limit * ($requestedPage - 1), $limit);
+        $expectedIds = \array_slice($ids, $limit * ($requestedPage - 1), $limit);
         $actualIds = array_column($content['data'], 'id');
 
         static::assertEquals($expectedIds, $actualIds);
@@ -265,7 +265,7 @@ class SearchCriteriaBuilderTest extends TestCase
         static::assertSame(200, $this->getClient()->getResponse()->getStatusCode());
         $content = json_decode($this->getClient()->getResponse()->getContent(), true);
 
-        $expectedIds = array_slice($ids, $limit * ($requestedPage - 1), $limit);
+        $expectedIds = \array_slice($ids, $limit * ($requestedPage - 1), $limit);
         $actualIds = array_column($content['data'], 'id');
 
         static::assertEquals($expectedIds, $actualIds);

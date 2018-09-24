@@ -37,7 +37,7 @@ class ShippingZipCodeRule extends Rule
         }
 
         return new Match(
-            in_array($location->getZipcode(), $this->zipCodes, true),
+            \in_array($location->getZipcode(), $this->zipCodes, true),
             ['Shipping zip code not matched']
         );
     }

@@ -36,7 +36,7 @@ class WriteCommandQueue
      */
     public function setOrder(string $definition, string ...$identifierOrder): void
     {
-        if (in_array($definition, $this->registeredResources, true)) {
+        if (\in_array($definition, $this->registeredResources, true)) {
             return;
         }
 
@@ -53,7 +53,7 @@ class WriteCommandQueue
 
     public function updateOrder(string $definition, string ...$identifierOrder): void
     {
-        if (in_array($definition, $this->registeredResources, true)) {
+        if (\in_array($definition, $this->registeredResources, true)) {
             return;
         }
 
@@ -94,7 +94,7 @@ class WriteCommandQueue
 
     public function add(string $senderIdentification, WriteCommandInterface $command): void
     {
-        if (!is_array($this->commands[$senderIdentification])) {
+        if (!\is_array($this->commands[$senderIdentification])) {
             throw new \InvalidArgumentException(sprintf('Unable to set write command for %s, it was not beforehand registered.', $senderIdentification));
         }
 

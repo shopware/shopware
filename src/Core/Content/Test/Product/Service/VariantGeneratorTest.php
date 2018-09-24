@@ -92,12 +92,12 @@ class VariantGeneratorTest extends TestCase
 
         /** @var ProductStruct $red */
         $red = $variants->filter(function (ProductStruct $detail) use ($redId) {
-            return in_array($redId, $detail->getVariations()->getIds(), true);
+            return \in_array($redId, $detail->getVariations()->getIds(), true);
         })->first();
 
         /** @var ProductStruct $blue */
         $blue = $variants->filter(function (ProductStruct $detail) use ($blueId) {
-            return in_array($blueId, $detail->getVariations()->getIds(), true);
+            return \in_array($blueId, $detail->getVariations()->getIds(), true);
         })->first();
 
         static::assertEquals('test blue', $blue->getName());

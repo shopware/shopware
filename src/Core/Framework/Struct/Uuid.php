@@ -25,8 +25,8 @@ class Uuid
      */
     public static function fromBytesToHex(string $bytes): string
     {
-        if (strlen($bytes) !== 16) {
-            throw new InvalidUuidLengthException(strlen($bytes), bin2hex($bytes));
+        if (\strlen($bytes) !== 16) {
+            throw new InvalidUuidLengthException(\strlen($bytes), bin2hex($bytes));
         }
         $uuid = bin2hex($bytes);
 

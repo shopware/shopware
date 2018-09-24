@@ -54,7 +54,7 @@ class MediaDeletedSubscriberTest extends TestCase
     public function testDeleteSubscriber(): void
     {
         $tempFile = tempnam(sys_get_temp_dir(), '');
-        file_put_contents($tempFile, file_get_contents(self::TEST_IMAGE));
+        copy(self::TEST_IMAGE, $tempFile);
 
         $fileSize = filesize($tempFile);
         $mediaFile = new MediaFile($tempFile, 'image/png', 'png', $fileSize);

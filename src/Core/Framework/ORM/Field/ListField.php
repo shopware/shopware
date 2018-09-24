@@ -110,7 +110,7 @@ class ListField extends JsonField
             }
         }
 
-        if (count($exceptions)) {
+        if (\count($exceptions)) {
             throw new InvalidJsonFieldException($this->path . '/' . $this->getPropertyName(), $exceptions);
         }
     }

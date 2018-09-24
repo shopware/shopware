@@ -62,7 +62,7 @@ class RuleCollection extends Collection
 
     private function addMeta(Rule $rule): void
     {
-        $this->classes[get_class($rule)] = true;
+        $this->classes[\get_class($rule)] = true;
 
         $this->flat[] = $rule;
 

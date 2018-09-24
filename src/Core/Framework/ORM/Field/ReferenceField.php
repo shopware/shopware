@@ -55,7 +55,7 @@ class ReferenceField extends Field implements StorageAware
         $key = $data->getKey();
         $value = $data->getValue();
 
-        if (!is_array($value)) {
+        if (!\is_array($value)) {
             throw new MalformatDataException($this->path, 'Expected array');
         }
 

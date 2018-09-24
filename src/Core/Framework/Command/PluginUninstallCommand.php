@@ -62,7 +62,7 @@ EOF
             return 1;
         }
 
-        $io->text(sprintf('Installing %d plugins:', count($plugins)));
+        $io->text(sprintf('Installing %d plugins:', \count($plugins)));
         $io->listing($this->formatPluginList($plugins));
 
         $tenantId = $input->getOption('tenant-id');
@@ -81,6 +81,6 @@ EOF
             $io->text(sprintf('Plugin "%s" has been uninstalled successfully.', $plugin->getLabel()));
         }
 
-        $io->success(sprintf('Uninstalled %d plugins.', count($plugins)));
+        $io->success(sprintf('Uninstalled %d plugins.', \count($plugins)));
     }
 }

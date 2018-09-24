@@ -35,7 +35,7 @@ class TemplateFinder
         $directories = [];
 
         foreach ($loader->getNamespaces() as $namespace) {
-            if ($namespace[0] === '!' || $namespace === '__main__' || in_array($namespace, $defaults, true)) {
+            if ($namespace[0] === '!' || $namespace === '__main__' || \in_array($namespace, $defaults, true)) {
                 continue;
             }
 

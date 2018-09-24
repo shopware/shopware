@@ -11,7 +11,7 @@ class EntityCollection extends Collection
         $class = $this->getExpectedClass();
         if (!$entity instanceof $class) {
             throw new \InvalidArgumentException(
-                sprintf('Expected collection element of type %s got %s', $class, get_class($entity))
+                sprintf('Expected collection element of type %s got %s', $class, \get_class($entity))
             );
         }
 

@@ -20,7 +20,7 @@ class CurrencyRule extends Rule
     public function match(RuleScope $scope): Match
     {
         return new Match(
-            in_array($scope->getContext()->getCurrencyId(), $this->currencyIds, true),
+            \in_array($scope->getContext()->getCurrencyId(), $this->currencyIds, true),
             ['Currency not matched']
         );
     }

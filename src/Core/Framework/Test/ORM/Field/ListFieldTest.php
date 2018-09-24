@@ -124,15 +124,15 @@ EOF;
         static::assertCount(3, $ex->getExceptions());
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(InvalidFieldException::class, get_class($fieldException));
+        static::assertEquals(InvalidFieldException::class, \get_class($fieldException));
         static::assertEquals('/data/0', $fieldException->getPath());
 
         $fieldException = $ex->getExceptions()[1];
-        static::assertEquals(InvalidFieldException::class, get_class($fieldException));
+        static::assertEquals(InvalidFieldException::class, \get_class($fieldException));
         static::assertEquals('/data/1', $fieldException->getPath());
 
         $fieldException = $ex->getExceptions()[2];
-        static::assertEquals(InvalidFieldException::class, get_class($fieldException));
+        static::assertEquals(InvalidFieldException::class, \get_class($fieldException));
         static::assertEquals('/data/3', $fieldException->getPath());
     }
 

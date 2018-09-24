@@ -22,7 +22,7 @@ class Random
     {
         $byte = static::getBytes(1);
 
-        return (bool) (ord($byte) % 2);
+        return (bool) (\ord($byte) % 2);
     }
 
     public static function getInteger(int $min, int $max): int
@@ -87,6 +87,6 @@ class Random
 
     public static function getRandomArrayElement(array $array)
     {
-        return $array[self::getInteger(0, count($array) - 1)];
+        return $array[self::getInteger(0, \count($array) - 1)];
     }
 }

@@ -102,11 +102,11 @@ class ManyToManyAssociationField extends SubresourceField implements Association
         $key = $data->getKey();
         $value = $data->getValue();
 
-        if (!is_array($value)) {
+        if (!\is_array($value)) {
             throw new MalformatDataException($this->path . '/' . $key, 'Value must be an array.');
         }
 
-        $isNumeric = array_keys($value) === range(0, count($value) - 1);
+        $isNumeric = array_keys($value) === range(0, \count($value) - 1);
 
         $mappingAssociation = $this->getMappingAssociation();
 
@@ -116,7 +116,7 @@ class ManyToManyAssociationField extends SubresourceField implements Association
                 $mapped = $this->map($mappingAssociation, $subresources);
             }
 
-            if (!is_array($mapped)) {
+            if (!\is_array($mapped)) {
                 throw new MalformatDataException($this->path . '/' . $key, 'Value must be an array.');
             }
 
@@ -156,7 +156,7 @@ class ManyToManyAssociationField extends SubresourceField implements Association
     private function map(ManyToOneAssociationField $association, $data): array
     {
         // not only foreign key provided? data is provided as insert or update command
-        if (count($data) > 1) {
+        if (\count($data) > 1) {
             return $mapped = [$association->getPropertyName() => $data];
         }
 

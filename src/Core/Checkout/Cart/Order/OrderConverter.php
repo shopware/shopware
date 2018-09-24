@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Order;
 
+use DateTime;
 use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
@@ -58,14 +59,17 @@ class OrderConverter
         }
         $deepLinkCode = Random::getBase64UrlString(32);
 
+        $cartPrice = $cart->getPrice();
+        $cartShippingCosts = $cart->getShippingCosts();
+        $cartShippingCostsTotalPrice = $cartShippingCosts->getTotalPrice();
         $data = [
             'id' => Uuid::uuid4()->getHex(),
-            'date' => (new \DateTime())->format(Defaults::DATE_FORMAT),
-            'amountTotal' => $cart->getPrice()->getTotalPrice(),
-            'amountNet' => $cart->getPrice()->getNetPrice(),
-            'positionPrice' => $cart->getPrice()->getPositionPrice(),
-            'shippingTotal' => $cart->getShippingCosts()->getTotalPrice(),
-            'shippingNet' => $cart->getShippingCosts()->getTotalPrice() - $cart->getShippingCosts()->getCalculatedTaxes()->getAmount(),
+            'date' => (new DateTime())->format(Defaults::DATE_FORMAT),
+            'amountTotal' => $cartPrice->getTotalPrice(),
+            'amountNet' => $cartPrice->getNetPrice(),
+            'positionPrice' => $cartPrice->getPositionPrice(),
+            'shippingTotal' => $cartShippingCostsTotalPrice,
+            'shippingNet' => $cartShippingCostsTotalPrice - $cartShippingCosts->getCalculatedTaxes()->getAmount(),
             'isNet' => !$this->taxDetector->useGross($context),
             'isTaxFree' => $this->taxDetector->isNetDelivery($context),
             'stateId' => Defaults::ORDER_STATE_OPEN,
@@ -171,11 +175,13 @@ class OrderConverter
 
     private function convertLineItem(LineItem $lineItem): array
     {
+        $lineItemPrice = $lineItem->getPrice();
+
         return [
             'identifier' => $lineItem->getKey(),
             'quantity' => $lineItem->getQuantity(),
-            'unitPrice' => $lineItem->getPrice()->getUnitPrice(),
-            'totalPrice' => $lineItem->getPrice()->getTotalPrice(),
+            'unitPrice' => $lineItemPrice->getUnitPrice(),
+            'totalPrice' => $lineItemPrice->getTotalPrice(),
             'type' => $lineItem->getType(),
             'label' => $lineItem->getLabel(),
             'description' => $lineItem->getDescription(),
@@ -201,9 +207,10 @@ class OrderConverter
 
         /** @var DeliveryPosition $position */
         foreach ($delivery->getPositions() as $position) {
+            $positionPrice = $position->getPrice();
             $deliveryData['positions'][] = [
-                'unitPrice' => $position->getPrice()->getUnitPrice(),
-                'totalPrice' => $position->getPrice()->getTotalPrice(),
+                'unitPrice' => $positionPrice->getUnitPrice(),
+                'totalPrice' => $positionPrice->getTotalPrice(),
                 'quantity' => $position->getQuantity(),
                 'orderLineItemId' => $lineItems[$position->getIdentifier()]['id'],
             ];

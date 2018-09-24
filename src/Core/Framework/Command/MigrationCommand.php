@@ -82,7 +82,7 @@ class MigrationCommand extends Command
             $until = null;
         }
 
-        $total = count($this->runner->getExecutableMigrations($until, $limit));
+        $total = \count($this->runner->getExecutableMigrations($until, $limit));
         $this->io->progressStart($total);
         $migratedCounter = 0;
 

@@ -33,7 +33,7 @@ abstract class Collection extends Struct implements \Countable, \ArrayAccess, \I
 
     public function count(): int
     {
-        return count($this->elements);
+        return \count($this->elements);
     }
 
     public function getKeys(): array
@@ -80,7 +80,7 @@ abstract class Collection extends Struct implements \Countable, \ArrayAccess, \I
 
     public function slice(int $offset, ?int $length = null)
     {
-        return new static(array_slice($this->elements, $offset, $length, true));
+        return new static(\array_slice($this->elements, $offset, $length, true));
     }
 
     public function getElements(): array
@@ -92,7 +92,7 @@ abstract class Collection extends Struct implements \Countable, \ArrayAccess, \I
     {
         $data = get_object_vars($this);
         $data['elements'] = array_values($this->elements);
-        $data['_class'] = get_class($this);
+        $data['_class'] = \get_class($this);
 
         return $data;
     }
@@ -104,7 +104,7 @@ abstract class Collection extends Struct implements \Countable, \ArrayAccess, \I
 
     public function last()
     {
-        return array_values($this->elements)[count($this->elements) - 1] ?? null;
+        return array_values($this->elements)[\count($this->elements) - 1] ?? null;
     }
 
     public function offsetExists($offset)

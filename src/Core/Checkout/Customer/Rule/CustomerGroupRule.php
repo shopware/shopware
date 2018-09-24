@@ -30,7 +30,7 @@ class CustomerGroupRule extends Rule
 
         /* @var CheckoutRuleScope $scope */
         return new Match(
-            in_array($scope->getCheckoutContext()->getCurrentCustomerGroup()->getId(), $this->customerGroupIds, true),
+            \in_array($scope->getCheckoutContext()->getCurrentCustomerGroup()->getId(), $this->customerGroupIds, true),
             ['Current customer group not matched']
         );
     }

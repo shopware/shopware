@@ -88,7 +88,7 @@ class DataStack
 
         $preExistingPair = $this->data[$key];
 
-        if (!is_array($value) || !is_array($preExistingPair->getValue())) {
+        if (!\is_array($value) || !\is_array($preExistingPair->getValue())) {
             $this->data[$key] = new KeyValuePair($key, $value, false);
 
             return;

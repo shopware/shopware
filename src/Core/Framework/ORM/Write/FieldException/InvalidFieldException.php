@@ -21,7 +21,7 @@ class InvalidFieldException extends WriteFieldException
     public function __construct(string $path, ConstraintViolationList $constraintViolationList, $code = 0, Throwable $previous = null)
     {
         parent::__construct(
-            sprintf('Caught %s validation errors.', count($constraintViolationList)),
+            sprintf('Caught %s validation errors.', \count($constraintViolationList)),
             $code,
             $previous
         );

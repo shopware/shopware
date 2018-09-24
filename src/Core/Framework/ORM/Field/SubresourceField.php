@@ -34,14 +34,14 @@ class SubresourceField extends Field
         $key = $data->getKey();
         $value = $data->getValue();
 
-        if (!is_array($value)) {
+        if (!\is_array($value)) {
             throw new MalformatDataException($this->path . '/' . $key, 'Value must be an array.');
         }
 
-        $isNumeric = array_keys($value) === range(0, count($value) - 1);
+        $isNumeric = array_keys($value) === range(0, \count($value) - 1);
 
         foreach ($value as $keyValue => $subresources) {
-            if (!is_array($subresources)) {
+            if (!\is_array($subresources)) {
                 throw new MalformatDataException($this->path . '/' . $key, 'Value must be an array.');
             }
 

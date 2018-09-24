@@ -75,7 +75,7 @@ class EntitySearcher implements EntitySearcherInterface
         $total = $this->getTotalCount($criteria, $data);
 
         if ($criteria->fetchCount() === Criteria::FETCH_COUNT_NEXT_PAGES) {
-            $data = array_slice($data, 0, $criteria->getLimit());
+            $data = \array_slice($data, 0, $criteria->getLimit());
         }
 
         $converted = [];

@@ -98,7 +98,7 @@ class StorefrontCheckoutContextController extends Controller
         $criteria->addFilter(new TermQuery('payment_method.id', $paymentMethodId));
 
         $valid = $this->paymentMethodRepository->searchIds($criteria, $context->getContext());
-        if (!in_array($paymentMethodId, $valid->getIds(), true)) {
+        if (!\in_array($paymentMethodId, $valid->getIds(), true)) {
             throw new PaymentMethodNotFoundException($paymentMethodId);
         }
 
@@ -111,7 +111,7 @@ class StorefrontCheckoutContextController extends Controller
         $criteria->addFilter(new TermQuery('shipping_method.id', $shippingMethodId));
 
         $valid = $this->shippingMethodRepository->searchIds($criteria, $context->getContext());
-        if (!in_array($shippingMethodId, $valid->getIds(), true)) {
+        if (!\in_array($shippingMethodId, $valid->getIds(), true)) {
             throw new ShippingMethodNotFoundException($shippingMethodId);
         }
 

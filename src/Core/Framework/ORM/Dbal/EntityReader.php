@@ -290,7 +290,7 @@ class EntityReader implements EntityReaderInterface
             return null;
         });
 
-        if (count($translatedFields) <= 0) {
+        if (\count($translatedFields) <= 0) {
             return;
         }
 

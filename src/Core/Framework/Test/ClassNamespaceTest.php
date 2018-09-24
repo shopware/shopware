@@ -45,7 +45,7 @@ class ClassNamespaceTest extends TestCase
     private function extractProductionNamespaceParts(SplFileInfo $file, array $basePathParts): array
     {
         $parts = explode('/', (string) $file);
-        $parts = array_slice($parts, count($basePathParts) - 1);
+        $parts = \array_slice($parts, \count($basePathParts) - 1);
         $parts = array_filter($parts);
 
         array_pop($parts);

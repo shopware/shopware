@@ -64,7 +64,7 @@ class ProductListingPriceIndexer implements IndexerInterface
 
             $this->eventDispatcher->dispatch(
                 ProgressAdvancedEvent::NAME,
-                new ProgressAdvancedEvent(count($ids))
+                new ProgressAdvancedEvent(\count($ids))
             );
         }
 

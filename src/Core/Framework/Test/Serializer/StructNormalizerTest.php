@@ -37,7 +37,7 @@ class StructNormalizerTest extends TestCase
         $struct->setFoo('bar');
 
         $expected = [
-            '_class' => get_class($struct),
+            '_class' => \get_class($struct),
             'extensions' => [],
             'foo' => 'bar',
         ];
@@ -56,9 +56,9 @@ class StructNormalizerTest extends TestCase
         $collection = new TestStructCollection([$struct]);
 
         $expected = [
-            '_class' => get_class($collection),
+            '_class' => \get_class($collection),
             'elements' => [
-                ['_class' => get_class($struct), 'extensions' => [], 'foo' => 'bar'],
+                ['_class' => \get_class($struct), 'extensions' => [], 'foo' => 'bar'],
             ],
             'extensions' => [],
             '_pointer' => 0,

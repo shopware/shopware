@@ -79,11 +79,11 @@ class QueryStringParser
                 }
 
                 $values = $query['value'];
-                if (is_string($values)) {
+                if (\is_string($values)) {
                     $values = array_filter(explode('|', $values));
                 }
 
-                if (!is_array($values)) {
+                if (!\is_array($values)) {
                     $values = [$values];
                 }
 
@@ -141,7 +141,7 @@ class QueryStringParser
                     'value' => implode('|', $query->getValue()),
                 ];
             default:
-                throw new \RuntimeException(sprintf('Unsupported query type %s', get_class($query)));
+                throw new \RuntimeException(sprintf('Unsupported query type %s', \get_class($query)));
         }
     }
 

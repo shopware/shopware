@@ -27,7 +27,7 @@ class OffsetQuery implements IterableQuery
     public function fetch(): array
     {
         $data = $this->query->execute()->fetchAll(\PDO::FETCH_KEY_PAIR);
-        $this->offset += count($data);
+        $this->offset += \count($data);
         $this->query->setFirstResult($this->offset);
 
         return $data;

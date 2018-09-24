@@ -15,7 +15,7 @@ class WriteStackException extends ShopwareHttpException
     public function __construct(WriteFieldException ...$exceptions)
     {
         $this->exceptions = $exceptions;
-        parent::__construct(sprintf('Mapping failed, got %s failure(s). %s', count($exceptions), print_r($this->toArray(), true)));
+        parent::__construct(sprintf('Mapping failed, got %s failure(s). %s', \count($exceptions), print_r($this->toArray(), true)));
     }
 
     /**

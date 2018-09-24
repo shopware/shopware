@@ -47,7 +47,7 @@ class Kernel extends HttpKernel
         $contents = require $this->getProjectDir() . '/config/bundles.php';
 
         foreach (self::$plugins->getActives() as $plugin) {
-            $contents[get_class($plugin)] = ['all' => true];
+            $contents[\get_class($plugin)] = ['all' => true];
         }
 
         foreach ($contents as $class => $envs) {
@@ -231,14 +231,14 @@ class Kernel extends HttpKernel
                 );
             }
 
-            $isActive = in_array($pluginName, $activePlugins, true);
+            $isActive = \in_array($pluginName, $activePlugins, true);
 
             /** @var \Shopware\Core\Framework\Plugin $plugin */
             $plugin = new $className($isActive);
 
             if (!$plugin instanceof Plugin) {
                 throw new \RuntimeException(
-                    sprintf('Class %s must extend %s in file %s', get_class($plugin), Plugin::class, $pluginFile)
+                    sprintf('Class %s must extend %s in file %s', \get_class($plugin), Plugin::class, $pluginFile)
                 );
             }
 

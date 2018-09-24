@@ -159,7 +159,7 @@ class CartService
 
     public function getOrderByDeepLinkCode(string $orderId, string $deepLinkCode, Context $context)
     {
-        if ($orderId === '' || strlen($deepLinkCode) !== 32) {
+        if ($orderId === '' || \strlen($deepLinkCode) !== 32) {
             throw new OrderNotFoundException($orderId);
         }
 

@@ -76,7 +76,7 @@ class IntField extends Field implements StorageAware
             }
         }
 
-        if (count($violationList)) {
+        if (\count($violationList)) {
             throw new InvalidFieldException($this->path . '/' . $fieldName, $violationList);
         }
     }

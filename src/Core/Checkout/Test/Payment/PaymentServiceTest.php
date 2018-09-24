@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Payment\Cart\Token\JWTFactory;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
@@ -141,7 +142,7 @@ class PaymentServiceTest extends TestCase
         $this->paymentService->finalizeTransaction($token, $request, $this->context);
     }
 
-    private function getCheckoutContext(string $paymentMethodId)
+    private function getCheckoutContext(string $paymentMethodId): CheckoutContext
     {
         return Generator::createContext(
             null,

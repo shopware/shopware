@@ -82,7 +82,7 @@ class MigrationDestructiveCommand extends Command
             $until = null;
         }
 
-        $total = count($this->runner->getExecutableDestructiveMigrations($until, $limit));
+        $total = \count($this->runner->getExecutableDestructiveMigrations($until, $limit));
         $this->io->progressStart($total);
         $migratedCounter = 0;
 

@@ -57,7 +57,7 @@ class PluginListCommand extends Command
         $pluginTable = [];
 
         $active = $installed = 0;
-        $available = count($plugins);
+        $available = \count($plugins);
 
         foreach ($plugins as $plugin) {
             $pluginTable[] = [

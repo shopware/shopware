@@ -51,7 +51,7 @@ class StorefrontAuthenticationListener implements EventSubscriberInterface
         $request = $event->getRequest();
 
         foreach (self::$unprotectedRoutes as $route) {
-            if (stripos($request->getPathInfo(), $route['path']) === 0 && (!isset($route['methods']) || in_array($request->getMethod(), $route['methods']))) {
+            if (stripos($request->getPathInfo(), $route['path']) === 0 && (!isset($route['methods']) || \in_array($request->getMethod(), $route['methods']))) {
                 return;
             }
         }

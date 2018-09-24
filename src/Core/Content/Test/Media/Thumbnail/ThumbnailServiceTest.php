@@ -88,7 +88,7 @@ class ThumbnailServiceTest extends TestCase
         /** @var MediaStruct $updatedMedia */
         $updatedMedia = $mediaResult->getEntities()->first();
 
-        $expectedNumberOfThumbnails = count($this->thumbnailConfiguration->getThumbnailSizes());
+        $expectedNumberOfThumbnails = \count($this->thumbnailConfiguration->getThumbnailSizes());
         if ($this->thumbnailConfiguration->isHighDpi()) {
             $expectedNumberOfThumbnails *= 2;
         }

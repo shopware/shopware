@@ -31,7 +31,7 @@ class DeleteCommand implements WriteCommandInterface
 
     public function isValid(): bool
     {
-        return (bool) count($this->primaryKey);
+        return (bool) \count($this->primaryKey);
     }
 
     public function getDefinition(): string

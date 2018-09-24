@@ -87,7 +87,7 @@ EOF;
         static::assertCount(1, $ex->getExceptions());
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(InvalidFieldException::class, get_class($fieldException));
+        static::assertEquals(InvalidFieldException::class, \get_class($fieldException));
         static::assertEquals('/data', $fieldException->getPath());
 
         $messages = $fieldException->toArray();

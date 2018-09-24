@@ -36,7 +36,7 @@ class BillingAreaRule extends Rule
         $id = $customer->getActiveBillingAddress()->getCountry()->getAreaId();
 
         return new Match(
-            in_array($id, $this->areaIds, true),
+            \in_array($id, $this->areaIds, true),
             ['Billing area does not match']
         );
     }

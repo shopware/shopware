@@ -36,7 +36,7 @@ class InsertCommand implements WriteCommandInterface
 
     public function isValid(): bool
     {
-        return (bool) count($this->payload);
+        return (bool) \count($this->payload);
     }
 
     public function getPayload(): array

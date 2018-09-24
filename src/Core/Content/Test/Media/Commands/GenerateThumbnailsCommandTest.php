@@ -78,7 +78,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         static::assertEquals(1, preg_match('/.*Generated\s*2.*/', $string));
         static::assertEquals(1, preg_match('/.*Skipped\s*0.*/', $string));
 
-        $expectedNumberOfThumbnails = count($this->thumbnailConfiguration->getThumbnailSizes());
+        $expectedNumberOfThumbnails = \count($this->thumbnailConfiguration->getThumbnailSizes());
         if ($this->thumbnailConfiguration->isHighDpi()) {
             $expectedNumberOfThumbnails *= 2;
         }
@@ -112,7 +112,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         static::assertEquals(1, preg_match('/.*Generated\s*1.*/', $string));
         static::assertEquals(1, preg_match('/.*Skipped\s*1.*/', $string));
 
-        $expectedNumberOfThumbnails = count($this->thumbnailConfiguration->getThumbnailSizes());
+        $expectedNumberOfThumbnails = \count($this->thumbnailConfiguration->getThumbnailSizes());
         if ($this->thumbnailConfiguration->isHighDpi()) {
             $expectedNumberOfThumbnails *= 2;
         }

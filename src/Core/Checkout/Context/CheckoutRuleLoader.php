@@ -144,14 +144,17 @@ class CheckoutRuleLoader
 
     private function cartChanged(Cart $previous, Cart $current): bool
     {
+        $previousLineItems = $previous->getLineItems();
+        $currentLineItems = $current->getLineItems();
+
         return
-            $previous->getLineItems()->count() !== $current->getLineItems()->count()
+            $previousLineItems->count() !== $currentLineItems->count()
             ||
             $previous->getPrice()->getTotalPrice() !== $current->getPrice()->getTotalPrice()
             ||
-            $previous->getLineItems()->getKeys() !== $current->getLineItems()->getKeys()
+            $previousLineItems->getKeys() !== $currentLineItems->getKeys()
             ||
-            $previous->getLineItems()->getTypes() !== $current->getLineItems()->getTypes()
+            $previousLineItems->getTypes() !== $currentLineItems->getTypes()
         ;
     }
 }

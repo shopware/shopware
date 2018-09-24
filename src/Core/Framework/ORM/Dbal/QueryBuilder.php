@@ -18,6 +18,6 @@ class QueryBuilder extends DBALQueryBuilder
 
     public function hasState(string $state): bool
     {
-        return in_array($state, $this->states, true);
+        return \in_array($state, $this->states, true);
     }
 }

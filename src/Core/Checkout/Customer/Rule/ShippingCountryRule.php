@@ -40,13 +40,13 @@ class ShippingCountryRule extends Rule
         switch ($this->operator) {
             case self::OPERATOR_EQ:
                 return new Match(
-                    in_array($context->getShippingLocation()->getCountry()->getId(), $this->countryIds, true),
+                    \in_array($context->getShippingLocation()->getCountry()->getId(), $this->countryIds, true),
                     ['Shipping country id not matched']
                 );
 
             case self::OPERATOR_NEQ:
                 return new Match(
-                    !in_array($context->getShippingLocation()->getCountry()->getId(), $this->countryIds, true),
+                    !\in_array($context->getShippingLocation()->getCountry()->getId(), $this->countryIds, true),
                     ['Shipping country id matched']
                 );
 

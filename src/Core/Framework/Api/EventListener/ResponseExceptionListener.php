@@ -83,12 +83,12 @@ class ResponseExceptionListener extends ExceptionListener
     private function convert(array $array): array
     {
         foreach ($array as $key => $value) {
-            if (is_array($value)) {
+            if (\is_array($value)) {
                 $array[$key] = $this->convert($value);
             }
 
-            if (is_string($value)) {
-                if (!ctype_print($value) && strlen($value) === 16) {
+            if (\is_string($value)) {
+                if (!ctype_print($value) && \strlen($value) === 16) {
                     $array[$key] = sprintf('ATTENTION: Converted binary string by the "%s": %s', self::class, bin2hex($value));
                 } elseif (!mb_detect_encoding($value)) {
                     $array[$key] = utf8_encode($value);

@@ -39,7 +39,7 @@ abstract class EntityDefinition
 
     public static function addExtension(EntityExtensionInterface $extension): void
     {
-        static::$extensions[static::class][get_class($extension)] = $extension;
+        static::$extensions[static::class][\get_class($extension)] = $extension;
         static::$fields[static::class] = null;
     }
 

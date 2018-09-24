@@ -45,7 +45,7 @@ class NotRule extends Container
      */
     protected function checkRules(): void
     {
-        if (count($this->rules) > 1) {
+        if (\count($this->rules) > 1) {
             throw new \RuntimeException('NOT rule can only hold one rule');
         }
     }

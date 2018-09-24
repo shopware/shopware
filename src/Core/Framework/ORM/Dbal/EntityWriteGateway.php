@@ -111,7 +111,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                     'Parent property %s in definition %s expected to be an ManyToOneAssociationField got %s',
                     'parent',
                     $definition,
-                    get_class($parent)
+                    \get_class($parent)
                 )
             );
         }
@@ -134,7 +134,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                     $fk->getPropertyName(),
                     'parent',
                     $definition,
-                    get_class($fk)
+                    \get_class($fk)
                 )
             );
         }

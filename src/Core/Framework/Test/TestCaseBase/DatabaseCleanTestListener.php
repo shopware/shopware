@@ -26,8 +26,8 @@ class DatabaseCleanTestListener implements TestListener
         if ($this->lastDataPoint) {
             $diff = $this->createDiff($stateResult);
 
-            if (count($diff)) {
-                echo PHP_EOL . get_class($test) . PHP_EOL;
+            if (\count($diff)) {
+                echo PHP_EOL . \get_class($test) . PHP_EOL;
                 print_r($diff);
             }
         }

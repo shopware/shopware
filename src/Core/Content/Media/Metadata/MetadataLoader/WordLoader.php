@@ -58,7 +58,7 @@ class WordLoader implements MetadataLoaderInterface
     {
         $fileExtension = pathinfo($filePath, PATHINFO_EXTENSION);
 
-        if (!in_array($fileExtension, self::SUPPORTED_FILE_EXTENSIONS, true)) {
+        if (!\in_array($fileExtension, self::SUPPORTED_FILE_EXTENSIONS, true)) {
             throw new CanNotLoadMetadataException('File extension not supported');
         }
 

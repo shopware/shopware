@@ -95,7 +95,7 @@ class WriteCommandExtractor
             return $field instanceof ChildrenAssociationField;
         });
 
-        if (count($children) > 0) {
+        if (\count($children) > 0) {
             $this->map($children, $rawData, $existence, $exceptionStack, $extender);
         }
 
@@ -185,7 +185,7 @@ class WriteCommandExtractor
 
     private function convertValue(Field $field, KeyValuePair $kvPair): KeyValuePair
     {
-        if ($field instanceof DateField && is_string($kvPair->getValue())) {
+        if ($field instanceof DateField && \is_string($kvPair->getValue())) {
             $kvPair = new KeyValuePair($kvPair->getKey(), new \DateTime($kvPair->getValue()), $kvPair->isRaw());
         }
 

@@ -60,7 +60,7 @@ EOF
             return 1;
         }
 
-        $io->text(sprintf('Activating %d plugins:', count($plugins)));
+        $io->text(sprintf('Activating %d plugins:', \count($plugins)));
         $io->listing($this->formatPluginList($plugins));
 
         $tenantId = $input->getOption('tenant-id');
@@ -84,6 +84,6 @@ EOF
             $io->text(sprintf('Plugin "%s" has been activated successfully.', $plugin->getLabel()));
         }
 
-        $io->success(sprintf('Activated %d plugins.', count($plugins)));
+        $io->success(sprintf('Activated %d plugins.', \count($plugins)));
     }
 }

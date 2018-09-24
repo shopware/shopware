@@ -17,7 +17,7 @@ class SearchRequestException extends ShopwareHttpException
     {
         $this->exceptions = $exceptions;
 
-        parent::__construct(sprintf('Mapping failed, got %s failure(s).', count($exceptions)), $code, $previous);
+        parent::__construct(sprintf('Mapping failed, got %s failure(s).', \count($exceptions)), $code, $previous);
     }
 
     public function add(\Exception $exception, string $pointer): void

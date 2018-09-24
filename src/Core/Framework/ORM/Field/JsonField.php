@@ -105,7 +105,7 @@ class JsonField extends Field implements StorageAware
             }
         }
 
-        if (count($violationList)) {
+        if (\count($violationList)) {
             throw new InvalidFieldException($this->path . '/' . $fieldName, $violationList);
         }
     }
@@ -150,7 +150,7 @@ class JsonField extends Field implements StorageAware
         // If a mapping is defined, you should not send properties that are undefined.
         // Sending undefined fields will throw an UnexpectedFieldException
         $keyDiff = array_diff(array_keys($data), $propertyKeys);
-        if (count($keyDiff)) {
+        if (\count($keyDiff)) {
             foreach ($keyDiff as $fieldName) {
                 $exceptions[] = new UnexpectedFieldException($fieldPath . '/' . $fieldName, $fieldName);
             }
@@ -185,7 +185,7 @@ class JsonField extends Field implements StorageAware
             }
         }
 
-        if (count($exceptions)) {
+        if (\count($exceptions)) {
             throw new InvalidJsonFieldException($this->path . '/' . $this->getPropertyName(), $exceptions);
         }
 

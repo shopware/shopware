@@ -1,19 +1,15 @@
-/* eslint-disable */
-
 import EntityProxy from 'src/core/data/EntityProxy';
-import utils from 'src/core/service/util.service';
 import { itAsync } from '../../../async-helper';
 
 const State = Shopware.State;
 const Application = Shopware.Application;
 
-const initContainer = Application.getContainer('init');
 const serviceContainer = Application.getContainer('service');
 
 describe('core/data/EntityProxy.js', () => {
     it('should create an entity without initial data (empty entity should be created)', () => {
         const productEntity = new EntityProxy('product', serviceContainer.productService);
-        
+
         expect(productEntity).to.have.property('catalogId');
         expect(productEntity).to.have.property('createdAt');
         expect(productEntity).to.have.property('updatedAt');
@@ -124,7 +120,7 @@ describe('core/data/EntityProxy.js', () => {
         const catalogEntity = new EntityProxy('catalog', serviceContainer.catalogService);
         catalogEntity.name = 'Test catalog';
 
-        const manufacturerEntity = new EntityProxy('product_manufacturer',  serviceContainer.productManufacturerService);
+        const manufacturerEntity = new EntityProxy('product_manufacturer', serviceContainer.productManufacturerService);
         manufacturerEntity.setLocalData({
             catalogId: catalogEntity.id,
             name: 'Test manufacturer'
@@ -153,17 +149,22 @@ describe('core/data/EntityProxy.js', () => {
                     net: 11
                 });
 
-                productEntity.delete(true).then(() => {
-                    return manufacturerEntity.delete(true);
-                }).then(() => {
-                    return taxEntity.delete(true);
-                }).then(() => {
-                    return catalogEntity.delete(true);
-                }).then(() => {
-                    done();
-                }).catch((error) => {
-                    done(error);
-                });
+                productEntity.delete(true)
+                    .then(() => {
+                        return manufacturerEntity.delete(true);
+                    })
+                    .then(() => {
+                        return taxEntity.delete(true);
+                    })
+                    .then(() => {
+                        return catalogEntity.delete(true);
+                    })
+                    .then(() => {
+                        done();
+                    })
+                    .catch((error) => {
+                        done(error);
+                    });
             }).catch((error) => {
                 done(error);
             });

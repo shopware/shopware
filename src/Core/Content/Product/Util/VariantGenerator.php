@@ -107,7 +107,7 @@ class VariantGenerator
         return $this->combine($groupedOptions);
     }
 
-    private function combine($data, $group = [], $val = null, $i = 0): array
+    private function combine($data, array $group = [], $val = null, $i = 0): array
     {
         $all = [];
         if ($val !== null) {

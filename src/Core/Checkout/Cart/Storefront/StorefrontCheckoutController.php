@@ -146,7 +146,7 @@ class StorefrontCheckoutController extends Controller
      */
     public function payOrder(string $orderId, Request $request, CheckoutContext $context): Response
     {
-        $finishUrl = $request->request->get('finishUrl', null);
+        $finishUrl = $request->request->get('finishUrl');
         $response = $this->paymentService->handlePaymentByOrder($orderId, $context, $finishUrl);
 
         if ($response) {

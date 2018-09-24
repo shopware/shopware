@@ -119,7 +119,7 @@ class DatabaseCleanTestListener implements TestListener
 
         foreach ($rawTables as $nested) {
             $tableName = end($nested);
-            $count = $connection->query("SELECT COUNT(*) FROM `{$tableName}`")->fetchColumn(0);
+            $count = $connection->query("SELECT COUNT(*) FROM `{$tableName}`")->fetchColumn();
 
             $stateResult[$tableName] = $count;
         }

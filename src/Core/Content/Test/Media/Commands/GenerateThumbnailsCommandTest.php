@@ -141,8 +141,7 @@ class GenerateThumbnailsCommandTest extends TestCase
             $mediaId,
             $extension,
             $thumbnail->getWidth(),
-            $thumbnail->getHeight(),
-            false
+            $thumbnail->getHeight()
         );
         static::assertTrue($this->getPublicFilesystem()->has($thumbnailPath));
 

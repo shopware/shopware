@@ -17,7 +17,7 @@ class OrmValidateCommand extends ContainerAwareCommand
 
     public function __construct(DefinitionValidator $validator)
     {
-        parent::__construct(null);
+        parent::__construct();
         $this->validator = $validator;
     }
 

@@ -104,8 +104,7 @@ class ThumbnailServiceTest extends TestCase
                 $this->media->getId(),
                 $this->media->getFileExtension(),
                 $thumbnail->getWidth(),
-                $thumbnail->getHeight(),
-                false
+                $thumbnail->getHeight()
             );
             static::assertTrue($this->getPublicFilesystem()->has($thumbnailPath));
 

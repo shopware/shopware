@@ -7,11 +7,6 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 class Migration1 extends MigrationStep
 {
-    public function getCreationTimestamp(): int
-    {
-        return 1;
-    }
-
     public function update(Connection $connection): void
     {
         //nth

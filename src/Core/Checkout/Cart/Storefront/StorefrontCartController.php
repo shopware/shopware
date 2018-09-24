@@ -199,15 +199,15 @@ class StorefrontCartController extends Controller
      */
     private function updateLineItemByRequest(LineItem $lineItem, Request $request, Context $context): void
     {
-        $quantity = $request->request->get('quantity', null);
+        $quantity = $request->request->get('quantity');
         $payload = $request->request->get('payload', []);
         $payload = array_replace_recursive(['id' => $lineItem->getKey()], $payload);
-        $stackable = $request->request->get('stackable', null);
-        $removeable = $request->request->get('removeable', null);
-        $priority = $request->request->get('priority', null);
-        $label = $request->request->get('label', null);
-        $description = $request->request->get('description', null);
-        $coverId = $request->request->get('coverId', null);
+        $stackable = $request->request->get('stackable');
+        $removeable = $request->request->get('removeable');
+        $priority = $request->request->get('priority');
+        $label = $request->request->get('label');
+        $description = $request->request->get('description');
+        $coverId = $request->request->get('coverId');
 
         $lineItem->setPayload($payload);
 

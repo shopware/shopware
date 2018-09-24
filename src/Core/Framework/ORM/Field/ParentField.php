@@ -6,7 +6,7 @@ class ParentField extends FkField
 {
     public function __construct(string $referenceClass)
     {
-        parent::__construct('parent_id', 'parentId', $referenceClass, 'id');
+        parent::__construct('parent_id', 'parentId', $referenceClass);
         $this->referenceClass = $referenceClass;
     }
 }

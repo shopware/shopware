@@ -200,7 +200,7 @@ class Generator extends TestCase
     {
         /** @var MockObject|ProductGateway $mock */
         $mock = $this->createMock(ProductGateway::class);
-        $mock->expects(static::any())
+        $mock
             ->method('get')
             ->will(static::returnValue($priceDefinitions));
 
@@ -231,11 +231,11 @@ class Generator extends TestCase
     {
         /** @var MockObject|TaxDetector $mock */
         $mock = $this->createMock(TaxDetector::class);
-        $mock->expects(static::any())
+        $mock
             ->method('useGross')
             ->will(static::returnValue($useGross));
 
-        $mock->expects(static::any())
+        $mock
             ->method('isNetDelivery')
             ->will(static::returnValue($isNetDelivery));
 

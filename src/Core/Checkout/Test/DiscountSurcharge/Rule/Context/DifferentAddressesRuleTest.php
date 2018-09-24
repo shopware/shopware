@@ -30,7 +30,7 @@ class DifferentAddressesRuleTest extends TestCase
         $customer->setDefaultBillingAddress($billing);
         $customer->setDefaultShippingAddress($shipping);
 
-        $context->expects(static::any())
+        $context
             ->method('getCustomer')
             ->will(static::returnValue($customer));
 
@@ -57,7 +57,7 @@ class DifferentAddressesRuleTest extends TestCase
         $customer->setDefaultBillingAddress($billing);
         $customer->setDefaultShippingAddress($shipping);
 
-        $context->expects(static::any())
+        $context
             ->method('getCustomer')
             ->will(static::returnValue($customer));
 
@@ -74,7 +74,7 @@ class DifferentAddressesRuleTest extends TestCase
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $context->expects(static::any())
+        $context
             ->method('getCustomer')
             ->will(static::returnValue(null));
 

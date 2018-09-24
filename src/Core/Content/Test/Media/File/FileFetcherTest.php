@@ -40,7 +40,7 @@ class FileFetcherTest extends TestCase
             $mimeType = mime_content_type($tempFile);
 
             static::assertEquals('image/png', $mimeType);
-            static::assertTrue(file_exists($tempFile));
+            static::assertFileExists($tempFile);
         } finally {
             unlink($tempFile);
         }
@@ -78,7 +78,7 @@ class FileFetcherTest extends TestCase
 
             static::assertEquals('image/jpeg', $mimeType);
             static::assertGreaterThan(0, $mediaFile->getFileSize());
-            static::assertTrue(file_exists($tempFile));
+            static::assertFileExists($tempFile);
         } finally {
             unlink($tempFile);
         }

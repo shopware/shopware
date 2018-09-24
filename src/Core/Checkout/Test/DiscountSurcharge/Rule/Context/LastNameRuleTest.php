@@ -22,7 +22,7 @@ class LastNameRuleTest extends TestCase
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $context->expects(static::any())
+        $context
             ->method('getCustomer')
             ->will(static::returnValue($customer));
 
@@ -42,7 +42,7 @@ class LastNameRuleTest extends TestCase
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $context->expects(static::any())
+        $context
             ->method('getCustomer')
             ->will(static::returnValue($customer));
 
@@ -62,7 +62,7 @@ class LastNameRuleTest extends TestCase
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $context->expects(static::any())
+        $context
             ->method('getCustomer')
             ->will(static::returnValue($customer));
 
@@ -79,7 +79,7 @@ class LastNameRuleTest extends TestCase
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $context->expects(static::any())
+        $context
             ->method('getCustomer')
             ->will(static::returnValue(null));
 

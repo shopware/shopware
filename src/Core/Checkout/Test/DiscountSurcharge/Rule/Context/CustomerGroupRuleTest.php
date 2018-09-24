@@ -22,7 +22,7 @@ class CustomerGroupRuleTest extends TestCase
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $context->expects(static::any())
+        $context
             ->method('getCurrentCustomerGroup')
             ->will(static::returnValue($group));
 
@@ -42,7 +42,7 @@ class CustomerGroupRuleTest extends TestCase
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $context->expects(static::any())
+        $context
             ->method('getCurrentCustomerGroup')
             ->will(static::returnValue($group));
 
@@ -62,7 +62,7 @@ class CustomerGroupRuleTest extends TestCase
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $context->expects(static::any())
+        $context
             ->method('getCurrentCustomerGroup')
             ->will(static::returnValue($group));
 

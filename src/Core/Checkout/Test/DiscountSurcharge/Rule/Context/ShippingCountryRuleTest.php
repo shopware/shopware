@@ -24,7 +24,7 @@ class ShippingCountryRuleTest extends TestCase
         $country = new CountryStruct();
         $country->setId('SWAG-AREA-COUNTRY-ID-1');
 
-        $context->expects(static::any())
+        $context
             ->method('getShippingLocation')
             ->will(static::returnValue(ShippingLocation::createFromCountry($country)));
 
@@ -44,7 +44,7 @@ class ShippingCountryRuleTest extends TestCase
         $country = new CountryStruct();
         $country->setId('SWAG-AREA-COUNTRY-ID-1');
 
-        $context->expects(static::any())
+        $context
             ->method('getShippingLocation')
             ->will(static::returnValue(ShippingLocation::createFromCountry($country)));
 
@@ -64,7 +64,7 @@ class ShippingCountryRuleTest extends TestCase
         $country = new CountryStruct();
         $country->setId('SWAG-AREA-COUNTRY-ID-2');
 
-        $context->expects(static::any())
+        $context
             ->method('getShippingLocation')
             ->will(static::returnValue(ShippingLocation::createFromCountry($country)));
 
@@ -84,7 +84,7 @@ class ShippingCountryRuleTest extends TestCase
         $country = new CountryStruct();
         $country->setId('SWAG-AREA-COUNTRY-ID-2');
 
-        $context->expects(static::any())
+        $context
             ->method('getShippingLocation')
             ->will(static::returnValue(ShippingLocation::createFromCountry($country)));
 
@@ -111,7 +111,7 @@ class ShippingCountryRuleTest extends TestCase
         $country = new CountryStruct();
         $country->setId('SWAG-AREA-COUNTRY-ID-2');
 
-        $context->expects(static::any())
+        $context
             ->method('getShippingLocation')
             ->will(static::returnValue(ShippingLocation::createFromCountry($country)));
 
@@ -129,7 +129,7 @@ class ShippingCountryRuleTest extends TestCase
         $country = new CountryStruct();
         $country->setId('SWAG-AREA-COUNTRY-ID-2');
 
-        $context->expects(static::any())
+        $context
             ->method('getShippingLocation')
             ->will(static::returnValue(ShippingLocation::createFromCountry($country)));
 

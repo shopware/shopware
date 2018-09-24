@@ -20,11 +20,11 @@ class CurrencyRuleTest extends TestCase
         $checkoutContext = $this->createMock(CheckoutContext::class);
 
         $context = $this->createMock(Context::class);
-        $context->expects(static::any())
+        $context
             ->method('getCurrencyId')
             ->will(static::returnValue('SWAG-CURRENCY-ID-1'));
 
-        $checkoutContext->expects(static::any())
+        $checkoutContext
             ->method('getContext')
             ->will(static::returnValue($context));
 
@@ -42,11 +42,11 @@ class CurrencyRuleTest extends TestCase
         $checkoutContext = $this->createMock(CheckoutContext::class);
 
         $context = $this->createMock(Context::class);
-        $context->expects(static::any())
+        $context
             ->method('getCurrencyId')
             ->will(static::returnValue('SWAG-CURRENCY-ID-5'));
 
-        $checkoutContext->expects(static::any())
+        $checkoutContext
             ->method('getContext')
             ->will(static::returnValue($context));
 
@@ -64,11 +64,11 @@ class CurrencyRuleTest extends TestCase
         $checkoutContext = $this->createMock(CheckoutContext::class);
 
         $context = $this->createMock(Context::class);
-        $context->expects(static::any())
+        $context
             ->method('getCurrencyId')
             ->will(static::returnValue('SWAG-CURRENCY-ID-3'));
 
-        $checkoutContext->expects(static::any())
+        $checkoutContext
             ->method('getContext')
             ->will(static::returnValue($context));
 

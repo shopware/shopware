@@ -48,7 +48,7 @@ class OrderPersisterTest extends TestCase
         $persister = new OrderPersister($repository, $converter);
 
         $checkoutContext = $this->createMock(CheckoutContext::class);
-        $checkoutContext->expects(static::any())->method('getCustomer')->willReturn($customer);
+        $checkoutContext->method('getCustomer')->willReturn($customer);
 
         $cart = new Cart('A', 'a-b-c');
         $cart->add(

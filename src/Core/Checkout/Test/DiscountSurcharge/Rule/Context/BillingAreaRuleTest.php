@@ -31,7 +31,7 @@ class BillingAreaRuleTest extends TestCase
         $customer = new CustomerStruct();
         $customer->setDefaultBillingAddress($billing);
 
-        $context->expects(static::any())
+        $context
             ->method('getCustomer')
             ->will(static::returnValue($customer));
 
@@ -58,7 +58,7 @@ class BillingAreaRuleTest extends TestCase
         $customer = new CustomerStruct();
         $customer->setDefaultBillingAddress($billing);
 
-        $context->expects(static::any())
+        $context
             ->method('getCustomer')
             ->will(static::returnValue($customer));
 
@@ -85,7 +85,7 @@ class BillingAreaRuleTest extends TestCase
         $customer = new CustomerStruct();
         $customer->setDefaultBillingAddress($billing);
 
-        $context->expects(static::any())
+        $context
             ->method('getCustomer')
             ->will(static::returnValue($customer));
 
@@ -102,7 +102,7 @@ class BillingAreaRuleTest extends TestCase
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $context->expects(static::any())
+        $context
             ->method('getCustomer')
             ->will(static::returnValue(null));
 

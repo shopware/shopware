@@ -22,7 +22,7 @@ class ShippingStreetRuleTest extends TestCase
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $context->expects(static::any())
+        $context
             ->method('getShippingLocation')
             ->will(
                 static::returnValue(
@@ -44,7 +44,7 @@ class ShippingStreetRuleTest extends TestCase
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $context->expects(static::any())
+        $context
             ->method('getShippingLocation')
             ->will(
                 static::returnValue(
@@ -66,7 +66,7 @@ class ShippingStreetRuleTest extends TestCase
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $context->expects(static::any())
+        $context
             ->method('getShippingLocation')
             ->will(
                 static::returnValue(
@@ -88,7 +88,7 @@ class ShippingStreetRuleTest extends TestCase
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $context->expects(static::any())
+        $context
             ->method('getShippingLocation')
             ->will(
                 static::returnValue(

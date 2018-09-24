@@ -24,7 +24,7 @@ class ShippingZipCodeRuleTest extends TestCase
 
         $location = ShippingLocation::createFromAddress($address);
 
-        $context->expects(static::any())
+        $context
             ->method('getShippingLocation')
             ->will(static::returnValue($location));
 
@@ -44,7 +44,7 @@ class ShippingZipCodeRuleTest extends TestCase
 
         $location = ShippingLocation::createFromAddress($address);
 
-        $context->expects(static::any())
+        $context
             ->method('getShippingLocation')
             ->will(static::returnValue($location));
 
@@ -64,7 +64,7 @@ class ShippingZipCodeRuleTest extends TestCase
 
         $location = ShippingLocation::createFromAddress($address);
 
-        $context->expects(static::any())
+        $context
             ->method('getShippingLocation')
             ->will(static::returnValue($location));
 
@@ -83,7 +83,7 @@ class ShippingZipCodeRuleTest extends TestCase
 
         $location = ShippingLocation::createFromCountry(new CountryStruct());
 
-        $context->expects(static::any())
+        $context
             ->method('getShippingLocation')
             ->will(static::returnValue($location));
 

@@ -405,7 +405,7 @@ class ApiController extends Controller
             $events = $this->executeWriteOperation($repository, $payload, $context, $type);
             $event = $events->getEventByDefinition($definition);
             $eventIds = $event->getIds();
-            $entityId = array_shift($eventIds);
+            $entityId = array_pop($eventIds);
 
             if ($noContent) {
                 return $responseFactory->createRedirectResponse($definition, $entityId, $request, $context);

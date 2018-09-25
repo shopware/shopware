@@ -741,4 +741,27 @@ EOF;
         static::assertEquals(50, $productStats['min']);
         static::assertEquals(100, $productStats['max']);
     }
+
+    public function testParentChildLocation(): void
+    {
+        $childId = Uuid::uuid4()->getHex();
+        $parentId = Uuid::uuid4()->getHex();
+
+        $data = [
+            'id' => $childId,
+            'name' => 'Child Language',
+            'localeId' => Defaults::LOCALE,
+            'parent' => [
+                'id' => $parentId,
+                'name' => 'Parent Language',
+                'localeId' => Defaults::LOCALE,
+            ],
+        ];
+
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/language', [], [], [], json_encode($data));
+        $response = $this->getClient()->getResponse();
+        static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
+        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertEquals('http://localhost/api/v' . PlatformRequest::API_VERSION . '/language/' . $childId, $response->headers->get('Location'));
+    }
 }

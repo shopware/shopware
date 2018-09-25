@@ -60,6 +60,7 @@
 
                                         {% block sw_product_list_grid_columns_name %}
                                             <sw-grid-column flex="minmax(200px, 1fr)"
+                                                            class="sw-product-list__column-product-name"
                                                             :label="$tc('sw-product.list.columnName')"
                                                             dataIndex="name"
                                                             sortable
@@ -81,6 +82,7 @@
 
                                         {% block sw_product_list_grid_columns_manufacturer %}
                                             <sw-grid-column flex="minmax(200px, 1fr)"
+                                                            class="sw-product-list__column-manufacturer-name"
                                                             :label="$tc('sw-product.list.columnManufacturer')"
                                                             dataIndex="manufacturer.name"
                                                             sortable
@@ -138,7 +140,7 @@
                                             <sw-grid-column flex="minmax(100px, 100px)" align="center">
                                                 <sw-context-button>
                                                     {% block sw_product_list_grid_columns_actions_edit %}
-                                                        <sw-context-menu-item :routerLink="{ name: 'sw.product.detail', params: { id: item.id } }">
+                                                        <sw-context-menu-item class="sw_product_list__edit-action" :routerLink="{ name: 'sw.product.detail', params: { id: item.id } }">
                                                             {{ $tc('sw-product.list.contextMenuEdit') }}
                                                         </sw-context-menu-item>
                                                     {% endblock %}

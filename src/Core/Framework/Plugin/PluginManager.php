@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Framework;
+use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationRuntime;
 use Shopware\Core\Framework\Plugin;
@@ -59,6 +60,11 @@ class PluginManager
      */
     private $migrationRunner;
 
+    /**
+     * @var MigrationCollection
+     */
+    private $migrationCollection;
+
     public function __construct(
         string $pluginPath,
         Kernel $kernel,
@@ -66,6 +72,7 @@ class PluginManager
         ContainerInterface $container,
         RequirementValidator $requirementValidator,
         MigrationCollectionLoader $migrationLoader,
+        MigrationCollection $migrationCollection,
         MigrationRuntime $migrationRunner
     ) {
         $this->pluginPath = $pluginPath;
@@ -74,6 +81,7 @@ class PluginManager
         $this->container = $container;
         $this->requirementValidator = $requirementValidator;
         $this->migrationLoader = $migrationLoader;
+        $this->migrationCollection = $migrationCollection;
         $this->migrationRunner = $migrationRunner;
     }
 
@@ -413,7 +421,7 @@ class PluginManager
             return;
         }
 
-        $this->migrationLoader->addDirectory($migrationPath, $pluginBootstrap->getMigrationNamespace());
+        $this->migrationCollection->addDirectory($migrationPath, $pluginBootstrap->getMigrationNamespace());
         $this->migrationLoader->syncMigrationCollection();
         iterator_to_array($this->migrationRunner->migrate());
     }

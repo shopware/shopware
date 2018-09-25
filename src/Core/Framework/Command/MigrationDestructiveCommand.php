@@ -15,11 +15,6 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class MigrationDestructiveCommand extends Command
 {
     /**
-     * @var string[]
-     */
-    private $directories;
-
-    /**
      * @var MigrationCollectionLoader
      */
     private $collector;
@@ -34,19 +29,14 @@ class MigrationDestructiveCommand extends Command
      */
     private $io;
 
-    /**
-     * @param string[] $directories
-     */
     public function __construct(
         MigrationCollectionLoader $collector,
-        MigrationRuntime $runner,
-        array $directories
+        MigrationRuntime $runner
     ) {
         parent::__construct();
 
         $this->collector = $collector;
         $this->runner = $runner;
-        $this->directories = $directories;
     }
 
     protected function configure()
@@ -66,10 +56,6 @@ class MigrationDestructiveCommand extends Command
         $this->io = new SymfonyStyle($input, $output);
 
         $this->io->writeln('Get collection from directories');
-
-        foreach ($this->directories as $namespace => $directory) {
-            $this->collector->addDirectory($directory, $namespace);
-        }
 
         $this->collector->syncMigrationCollection();
 

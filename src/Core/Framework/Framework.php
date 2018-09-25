@@ -5,9 +5,11 @@ namespace Shopware\Core\Framework;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DefinitionRegistryCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ExtensionCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\FrameworkExtension;
+use Shopware\Core\Framework\Migration\MigrationCompilerPass;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\ExtensionRegistry;
 use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
@@ -45,6 +47,7 @@ class Framework extends Bundle
 
         $container->addCompilerPass(new ExtensionCompilerPass());
         $container->addCompilerPass(new DefinitionRegistryCompilerPass());
+        $container->addCompilerPass(new MigrationCompilerPass(), PassConfig::TYPE_AFTER_REMOVING);
     }
 
     public function boot()

@@ -15,14 +15,9 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class MigrationCommand extends Command
 {
     /**
-     * @var string[]
-     */
-    private $directories;
-
-    /**
      * @var MigrationCollectionLoader
      */
-    private $collector;
+    private $loader;
 
     /**
      * @var MigrationRuntime
@@ -34,19 +29,14 @@ class MigrationCommand extends Command
      */
     private $io;
 
-    /**
-     * @param string[] $directories
-     */
     public function __construct(
-        MigrationCollectionLoader $collector,
-        MigrationRuntime $runner,
-        array $directories
+        MigrationCollectionLoader $loader,
+        MigrationRuntime $runner
     ) {
         parent::__construct();
 
-        $this->collector = $collector;
+        $this->loader = $loader;
         $this->runner = $runner;
-        $this->directories = $directories;
     }
 
     protected function configure()
@@ -67,11 +57,7 @@ class MigrationCommand extends Command
 
         $this->io->writeln('Get collection from directories');
 
-        foreach ($this->directories as $namespace => $directory) {
-            $this->collector->addDirectory($directory, $namespace);
-        }
-
-        $this->collector->syncMigrationCollection();
+        $this->loader->syncMigrationCollection();
 
         $this->io->writeln('migrate Migrations');
 

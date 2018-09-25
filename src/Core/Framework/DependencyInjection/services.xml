@@ -12,7 +12,9 @@
 
         <!-- Migration config -->
         <parameter key="migration.directories" type="collection">
-            <parameter key="Shopware\Core\Migration" type="constant">Shopware\Core\Framework\Migration\MigrationCollectionLoader::CORE_MIGRATIONS</parameter>
+            <parameter key="Shopware\Core\Version" type="constant">Shopware\Core\Framework\Migration\MigrationCollection::CORE_MIGRATIONS</parameter>
+        </parameter>
+        <parameter key="migration.active" type="collection">
         </parameter>
 
     </parameters>
@@ -50,6 +52,7 @@
             <argument type="service" id="service_container"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\RequirementValidator"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollectionLoader"/>
+            <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollection"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationRuntime"/>
         </service>
 
@@ -131,8 +134,13 @@
             <argument type="service" id="logger"/>
         </service>
 
+        <service class="Shopware\Core\Framework\Migration\MigrationCollection" id="Shopware\Core\Framework\Migration\MigrationCollection" public="true">
+            <argument>%migration.directories%</argument>
+        </service>
+
         <service class="Shopware\Core\Framework\Migration\MigrationCollectionLoader" id="Shopware\Core\Framework\Migration\MigrationCollectionLoader" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollection"/>
         </service>
 
         <service class="Shopware\Core\Framework\Command\CreateMigrationCommand" id="Shopware\Core\Framework\Command\CreateMigrationCommand">
@@ -145,14 +153,12 @@
             <tag name="console.command"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollectionLoader"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationRuntime"/>
-            <argument>%migration.directories%</argument>
         </service>
 
         <service class="Shopware\Core\Framework\Command\MigrationDestructiveCommand" id="shopware.core.framework.command.migration_destructive_command">
             <tag name="console.command"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollectionLoader"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationRuntime"/>
-            <argument>%migration.directories%</argument>
         </service>
 
         <service class="Shopware\Core\Framework\Command\DumpSchemaCommand" id="Shopware\Core\Framework\Command\DumpSchemaCommand">
@@ -163,7 +169,6 @@
         <service class="Shopware\Core\Framework\Api\Controller\MigrationController" id="Shopware\Core\Framework\Api\Controller\MigrationController" public="true">
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollectionLoader"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationRuntime"/>
-            <argument>%migration.directories%</argument>
         </service>
 
         <!-- Serializer -->

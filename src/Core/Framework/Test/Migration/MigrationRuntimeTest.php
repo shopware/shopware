@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\Migration\Integration;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationRuntime;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -22,6 +23,16 @@ class MigrationRuntimeTest extends TestCase
      */
     private $runner;
 
+    /**
+     * @var MigrationCollection
+     */
+    private $collector;
+
+    /**
+     * @var MigrationCollectionLoader
+     */
+    private $loader;
+
     protected function setUp()
     {
         $container = $this->getKernel()->getContainer();
@@ -29,12 +40,12 @@ class MigrationRuntimeTest extends TestCase
         $this->connection = $container->get(Connection::class);
         $this->runner = $container->get(MigrationRuntime::class);
 
-        $collector = $this->getCollector();
-        $collector->addDirectory(
-            __DIR__ . '/_test_migrations_valid_run_time',
-            'Shopware\Core\Framework\Test\Migration\_test_migrations_valid_run_time'
-        );
-        $collector->syncMigrationCollection();
+        $this->collector = new MigrationCollection([
+                'Shopware\Core\Framework\Test\Migration\_test_migrations_valid_run_time' => __DIR__ . '/_test_migrations_valid_run_time',
+        ]);
+        $this->loader = new MigrationCollectionLoader($this->connection, $this->collector);
+
+        $this->loader->syncMigrationCollection();
     }
 
     protected function tearDown()
@@ -224,12 +235,11 @@ class MigrationRuntimeTest extends TestCase
 
     public function test_exception_handling(): void
     {
-        $collector = $this->getCollector();
-        $collector->addDirectory(
+        $this->collector->addDirectory(
             __DIR__ . '/_test_migrations_valid_run_time_exceptions',
             'Shopware\Core\Framework\Test\Migration\_test_migrations_valid_run_time_exceptions'
         );
-        $collector->syncMigrationCollection();
+        $this->loader->syncMigrationCollection();
 
         try {
             $runner = $this->runner->migrate();
@@ -249,12 +259,11 @@ class MigrationRuntimeTest extends TestCase
 
     public function test_exception_handling_destructive(): void
     {
-        $collector = $this->getCollector();
-        $collector->addDirectory(
+        $this->collector->addDirectory(
             __DIR__ . '/_test_migrations_valid_run_time_exceptions',
             'Shopware\Core\Framework\Test\Migration\_test_migrations_valid_run_time_exceptions'
         );
-        $collector->syncMigrationCollection();
+        $this->loader->syncMigrationCollection();
 
         try {
             $runner = $this->runner->migrate();
@@ -283,9 +292,35 @@ class MigrationRuntimeTest extends TestCase
         self::assertSame('update', $migrations[3]['message']);
     }
 
-    private function getCollector(): MigrationCollectionLoader
+    public function test_it_creates_and_drops_triggers()
     {
-        return new MigrationCollectionLoader($this->connection);
+        $this->collector->addDirectory(
+            __DIR__ . '/_test_migrations_valid_trigger',
+            'Shopware\Core\Framework\Test\Migration\_test_migrations_valid_trigger'
+        );
+        $this->loader->syncMigrationCollection();
+
+        $runner = $this->runner->migrate();
+        while ($runner->valid()) {
+            $runner->next();
+        }
+
+        $triggers = $this->connection->executeQuery('SHOW TRIGGERS')->fetchAll();
+        self::assertEquals(2, count($triggers));
+        self::assertEquals('testTriggerInsert', $triggers[0]['Trigger']);
+        self::assertEquals('testTriggerUpdate', $triggers[1]['Trigger']);
+
+        $runner = $this->runner->migrateDestructive();
+        while ($runner->valid()) {
+            $runner->next();
+        }
+
+        $triggers = $this->connection->executeQuery('SHOW TRIGGERS')->fetchAll();
+        self::assertEquals(0, count($triggers));
+
+        $this->connection->executeQuery('
+            DELETE FROM `migration` WHERE `class` LIKE "%_test_migrations_valid_trigger%"
+        ');
     }
 
     private function getMigrations(): array

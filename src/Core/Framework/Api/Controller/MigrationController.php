@@ -15,29 +15,19 @@ class MigrationController extends Controller
     /**
      * @var MigrationCollectionLoader
      */
-    private $collector;
+    private $loader;
 
     /**
      * @var MigrationRuntime
      */
     private $runner;
 
-    /**
-     * @var string[]
-     */
-    private $directories;
-
-    /**
-     * @param string[] $directories
-     */
     public function __construct(
-        MigrationCollectionLoader $collector,
-        MigrationRuntime $runner,
-        array $directories
+        MigrationCollectionLoader $loader,
+        MigrationRuntime $runner
     ) {
-        $this->collector = $collector;
+        $this->loader = $loader;
         $this->runner = $runner;
-        $this->directories = $directories;
     }
 
     /**
@@ -45,11 +35,7 @@ class MigrationController extends Controller
      */
     public function addMigrations(): JsonResponse
     {
-        foreach ($this->directories as $namespace => $directory) {
-            $this->collector->addDirectory($directory, $namespace);
-        }
-
-        $this->collector->syncMigrationCollection();
+        $this->loader->syncMigrationCollection();
 
         return new JsonResponse(['message' => 'migrations added to the database']);
     }

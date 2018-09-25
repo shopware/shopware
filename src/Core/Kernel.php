@@ -8,6 +8,7 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Framework\Api\Controller\ApiController;
 use Shopware\Core\Framework\Framework;
+use Shopware\Core\Framework\Migration\Trigger;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\BundleCollection;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
@@ -94,6 +95,8 @@ class Kernel extends HttpKernel
             $bundle->setContainer($this->container);
             $bundle->boot();
         }
+
+        $this->initializeDatabaseConnectionVariables();
 
         $this->booted = true;
     }
@@ -297,6 +300,28 @@ class Kernel extends HttpKernel
     {
         foreach (static::$plugins->getActives() as $plugin) {
             $plugin->configureRoutes($routes, (string) $this->environment);
+        }
+    }
+
+    private function initializeDatabaseConnectionVariables()
+    {
+        /** @var Connection $connection */
+        $connection = $this->container->get('Doctrine\DBAL\Connection');
+
+        $nonDestructiveMigrations = $connection->executeQuery('
+            SELECT `creation_timestamp`
+            FROM `migration`
+            WHERE `update_destructive` IS NULL
+        ')->fetchAll(\PDO::FETCH_COLUMN);
+        $activeMigrations = $this->container->getParameter('migration.active');
+
+        $activeNonDestructiveMigrations = array_intersect($activeMigrations, $nonDestructiveMigrations);
+
+        foreach ($activeNonDestructiveMigrations as $migration) {
+            $variableName = sprintf(Trigger::TRIGGER_VARIABLE_FORMAT, $migration);
+            $connection->executeQuery(sprintf('
+                SET %s = TRUE;
+            ', $variableName));
         }
     }
 }

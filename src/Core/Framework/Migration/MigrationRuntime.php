@@ -37,6 +37,7 @@ class MigrationRuntime
 
             try {
                 $migration->update($this->connection);
+                $migration->addTrigger($this->connection);
             } catch (\Exception $e) {
                 $this->logError($migration, $e->getMessage());
 
@@ -58,6 +59,7 @@ class MigrationRuntime
 
             try {
                 $migration->updateDestructive($this->connection);
+                $migration->removeTrigger($this->connection);
             } catch (\Exception $e) {
                 $this->logError($migration, $e->getMessage());
 

@@ -334,6 +334,21 @@ class ApplicationBootstrapper {
             );
 
             return this;
+        }).catch((error) => {
+            const router = container.router.getRouterInstance();
+            const view = container.view;
+
+            this.applicationRoot = view.createInstance(
+                '#app',
+                router,
+                this.getContainer('service'),
+            );
+
+            this.applicationRoot.initError = error;
+
+            router.push({
+                name: 'error'
+            });
         });
     }
 

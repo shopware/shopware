@@ -44,7 +44,10 @@
       "contextMenuDetailLabel": "Details",
       "contextMenuDeleteLabel": "Delete",
       "contextMenuCopyLinkLabel": "Copy Link",
-      "contextMenuReplaceLabel": "Replace"
+      "contextMenuReplaceLabel": "Replace",
+      "notificationErrorBlankItemName": "The media could not be saved: Please enter a name",
+      "notificationRenamingSuccess": "Successfully renamed media",
+      "notificationRenamingError": "Error renaming media"
     },
     "sw-media-modal-replace": {
       "modalTitle": "Replace media files",

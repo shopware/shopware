@@ -1,10 +1,12 @@
-import { Component } from 'src/core/shopware';
+import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-media-grid-media-item.html.twig';
 import './sw-media-grid-media-item.less';
 import domUtils from '../../../../core/service/utils/dom.utils';
 
 Component.register('sw-media-grid-media-item', {
     template,
+
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         item: {
@@ -41,7 +43,8 @@ Component.register('sw-media-grid-media-item', {
     data() {
         return {
             showModalReplace: false,
-            showModalDelete: false
+            showModalDelete: false,
+            isInlineEdit: false
         };
     },
 
@@ -144,6 +147,41 @@ Component.register('sw-media-grid-media-item', {
 
         closeModalReplace() {
             this.showModalReplace = false;
+        },
+
+        startInlineEdit() {
+            this.isInlineEdit = true;
+        },
+
+        endInlineEdit() {
+            this.isInlineEdit = false;
+        },
+
+        updateName() {
+            const inputField = this.$refs.inputItemName;
+
+            if (inputField.currentValue === null || inputField.currentValue === '') {
+                this.createNotificationError({
+                    message: this.$tc('global.sw-media-grid-media-item.notificationErrorBlankItemName')
+                });
+                return;
+            }
+
+            this.item.isLoading = true;
+            this.item.name = inputField.currentValue;
+
+            this.item.save().then(() => {
+                this.item.isLoading = false;
+                this.createNotificationSuccess({
+                    message: this.$tc('global.sw-media-grid-media-item.notificationRenamingSuccess')
+                });
+                this.endInlineEdit();
+            }).catch(() => {
+                this.item.isLoading = false;
+                this.createNotificationError({
+                    message: this.$tc('global.sw-media-grid-media-item.notificationRenamingError')
+                });
+            });
         }
     }
 });

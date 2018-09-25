@@ -30,7 +30,21 @@
 
                 {% block sw_media_grid_media_item_slot_name %}
                     <template slot="media-item-name">
-                        <div class="sw-media-grid-media-item__name" :title="item.name">
+                        <sw-field v-if="isInlineEdit"
+                                  ref="inputItemName"
+                                  class="sw-media-grid-media-item__name-field"
+                                  type="text"
+                                  :value="item.name"
+                                  v-autofocus
+                                  @click.stop
+                                  @blur="endInlineEdit"
+                                  @keyup.enter="updateName"
+                                  @keyup.esc="endInlineEdit">
+                        </sw-field>
+                        <div v-else
+                             class="sw-media-grid-media-item__name"
+                             :title="item.name"
+                             @dblclick="startInlineEdit">
                             {{ item.name }}
                         </div>
                     </template>

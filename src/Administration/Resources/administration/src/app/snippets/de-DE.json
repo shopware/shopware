@@ -44,7 +44,10 @@
       "contextMenuDetailLabel": "Informationen",
       "contextMenuDeleteLabel": "Löschen",
       "contextMenuCopyLinkLabel": "Link kopieren",
-      "contextMenuReplaceLabel": "Ersetzen"
+      "contextMenuReplaceLabel": "Ersetzen",
+      "notificationErrorBlankItemName": "Das Medium konnte nicht umbenannt werden. Bitte füge einen Dateinamen hinzu",
+      "notificationRenamingSuccess": "Medium erfolgreich umbenannt",
+      "notificationRenamingError": "Fehler beim Umbenennen"
     },
     "sw-media-modal-replace": {
       "modalTitle": "Medien ersetzen",

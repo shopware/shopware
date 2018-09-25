@@ -429,9 +429,6 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         $humanReadableName = $this->convertToHumanReadable($definition::getEntityName());
 
         $schemaName = $definition::getEntityName();
-        if ($definition::getStructClass() === $definition::getStructClass()) {
-            $schemaName = $definition::getEntityName();
-        }
         $path = $this->getResourceUri($definition);
 
         $responseDataParameter = [

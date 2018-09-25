@@ -23,10 +23,13 @@ const webpackConfig = merge(baseConfig, {
         }),
         new MiniCssExtractPlugin({
             filename: utils.assetsPath('css/[name].css')
-        }),
-        new KillProcessOnFailedBuildPlugin()
+        })
     ]
 });
+
+if (process.env.NODE_ENV === 'testing' && process.env.TESTING_ENV !== 'watch') {
+    webpackConfig.plugins.push(new KillProcessOnFailedBuildPlugin());
+}
 
 // no need for app entry during tests
 delete webpackConfig.entry;

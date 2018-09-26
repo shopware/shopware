@@ -47,8 +47,8 @@
       "contextMenuReplaceLabel": "Ersetzen"
     },
     "sw-media-preview": {
-      "fallbackVideoTagSupport": "Ihr Browser unterstützt diesen Video Tag nicht",
-      "fallbackAudioTagSupport": "Ihr Browser unterstützt diesen Audio Tag nicht"
+      "fallbackVideoTagSupport": "Ihr Browser unterstützt diesen Video-Tag nicht",
+      "fallbackAudioTagSupport": "Ihr Browser unterstützt diesen Audio-Tag nicht"
     },
     "sw-multi-select": {
       "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden.",
@@ -57,7 +57,7 @@
     "sw-search-bar": {
       "textNoSearchResults": "Es wurden keine Ergebnisse gefunden",
       "placeholderSearchField": "Finde Produkte, Kunden, Bestellungen",
-      "placeholderTypeSearchField": "Durchsuchen aller {entity}"
+      "placeholderTypeSearchField": "Durchsuche alle {entity}"
     },
     "sw-search-bar-item": {
       "typeLabelCustomer": "Kunde",
@@ -93,11 +93,11 @@
       "messageInvalidRequest": "Der Request war invalide.",
       "messageInvalidClient": "Die Client Authentifizierung schlug fehl.",
       "messageInvalidScope": "Der angegebene Scope ist invalide.",
-      "messageInvalidCredentials": "Die Benutzer-Informationen sind invalide.",
+      "messageInvalidCredentials": "Die Benutzerinformationen sind invalide.",
       "messageServerError": "Ein allgemeiner Fehler beim Authenfizierungsserver ist aufgetreten.",
-      "messageInvalidRefreshToken": "Der angegebene Refresh Token ist invalide.",
+      "messageInvalidRefreshToken": "Der angegebene Refresh-Token ist invalide.",
       "messageAccessDenied": "Der Zugriff wurde verweigert.",
-      "messageInvalidGrant": "Der Grant Type oder der Refresh Token ist invalide.",
+      "messageInvalidGrant": "Der Grant Type oder der Refresh-Token ist invalide.",
       "messageGeneralRequestError": "Der Request an \"{url}\" ist fehlgeschlagen."
     }
   },
@@ -118,7 +118,7 @@
       "mainMenuItemGeneral": "Kunden",
       "mainMenuItemList": "Übersicht",
       "mainMenuItemAdd": "Kunden anlegen",
-      "descriptionTextModule": "Modul zur Verwaltung von Kunden.",
+      "descriptionTextModule": "Verwaltung von Kunden.",
       "placeholderSearchBar": "Durchsuchen aller Kunden"
     },
     "list": {
@@ -158,9 +158,9 @@
       "labelPaymentMethod": "Zahlungsart",
       "labelCustomerNumber": "Kundennummer",
       "labelBirthday": "Geburtsdatum",
-      "placeholderCustomerGroup": "Bitte wähle eine Kundengruppe aus...",
-      "placeholderSalesChannel": "Bitte wähle einen Verkaufskanal aus...",
-      "placeholderPaymentMethod": "Bitte wähle eine Zahlungsart aus..."
+      "placeholderCustomerGroup": "Bitte wähle eine Kundengruppe...",
+      "placeholderSalesChannel": "Bitte wähle einen Verkaufskanal...",
+      "placeholderPaymentMethod": "Bitte wähle eine Zahlungsart..."
     },
     "baseInfo": {
       "contactEmail": "E-Mail",
@@ -278,12 +278,12 @@
       "headlineIntegrations": "Integrationen",
       "buttonCreateIntegration": "Integration anlegen",
       "heroHeadlineIntegrations": "Willkommen in der Integrationsverwaltung",
-      "heroDescriptionIntegrations": "Shopware bietet eine leistungsstarke API um andere Systeme und Anwendungen nahtlos in Deine eigenen Prozesse zu integrieren. Damit ein anderes System mit Shopware kommunizieren kann, benötigt man entsprechende Sicherheitsschlüssel, damit die Anwendung sich authentifizieren kann. Hier kannst Du einzelne Zugänge für jede spezifische Anwendung erstellen. So kannst Du später außerdem sehen, welche Änderungen von welcher Anwendung durchgeführt wurden."
+      "heroDescriptionIntegrations": "Shopware bietet eine leistungsstarke API um andere Systeme und Anwendungen nahtlos in Deine eigenen Prozesse zu integrieren. Damit ein anderes System mit Shopware kommunizieren kann, werden zur Authentifizierung entsprechende Sicherheitsschlüssel benötigt. Du kannst Zugänge für jede einzelne Anwendung erstellen und so im Auge behalten, welche Änderungen von welcher Anwendung durchgeführt wurden."
     },
     "list": {
       "contextMenuEdit": "Bearbeiten",
       "contextMenuDelete": "Löschen",
-      "messageEmpty": "Noch keine Integrationen"
+      "messageEmpty": "Noch keine Integrationen vorhanden"
     },
     "detail": {
       "deleteModalTitle": "Löschen",
@@ -292,19 +292,19 @@
       "buttonApply": "Speichern",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen",
-      "buttonCreateNewApiKeys": "API Zugangsdaten neu generieren",
+      "buttonCreateNewApiKeys": "API-Zugangsdaten neu generieren",
       "labelFieldLabel": "Name",
       "idFieldLabel": "Zugangs-ID",
       "secretFieldLabel": "Sicherheitsschlüssel",
-      "secretHelpText": "Der angezeigte Sicherheitsschlüssel wird nach dem Speichern nicht mehr einsehbar sein. Bitte kopiere Dir den Schlüssel zur Verwendung an einen sicheren Ort. Solltest Du den Schlüssel einmal verloren haben, kannst Du natürlich jeder Zeit einen neuen für die Anwendung generieren.",
+      "secretHelpText": "Der aktuell angezeigte Sicherheitsschlüssel wird nach dem Speichern nicht mehr einsehbar sein. Bitte speichere den Schlüssel zur Verwendung an einem sicheren Ort. Solltest Du den Schlüssel dennoch verlieren, kannst Du hier jederzeit einen Neuen für die Anwendung generieren.",
       "secretHelpTextTitle": "Wichtig!",
       "writeAccessFieldLabel": "Schreibrechte",
       "titleSaveSuccess": "Integration",
       "messageSaveSuccess": "Integration erfolgreich gespeichert",
       "titleSaveError": "Integration",
-      "messageSaveError": "Die Integration konnte leider nicht gespeichert werden.",
+      "messageSaveError": "Die Integration konnte nicht gespeichert werden.",
       "titleCreateNewError": "Integration",
-      "messageCreateNewError": "Die Integration konnte leider nicht gespeichert werden."
+      "messageCreateNewError": "Die Integration konnte nicht erstellt werden."
     }
   },
   "sw-product": {
@@ -312,25 +312,25 @@
       "mainMenuItemGeneral": "Produkte",
       "mainMenuItemList": "Übersicht",
       "mainMenuItemAdd": "Produkt anlegen",
-      "descriptionTextModule": "Modul zur Verwaltung von Produkten.",
-      "placeholderSearchBar": "Durchsuchen aller Produkte"
+      "descriptionTextModule": "Verwaltung von Produkten.",
+      "placeholderSearchBar": "Durchsuche alle Produkte"
     },
     "basicForm": {
       "labelTitle": "Titel",
       "labelDescription": "Beschreibung",
       "labelProductNumber": "Produktnummer",
       "labelManufacturer": "Hersteller",
-      "placeholderTitle": "Gib einen Produkt-Namen ein...",
-      "placeholderDescription": "Gib Deine Produkt-Beschreibung ein...",
-      "placeholderProductNumber": "Gib Deine Produkt-Nummer ein...",
-      "placeholderManufacturer": "Gib einen Produkt-Hersteller ein..."
+      "placeholderTitle": "Gib einen Produktnamen ein...",
+      "placeholderDescription": "Gib eine Produktbeschreibung ein...",
+      "placeholderProductNumber": "Gib eine Produktnummer ein...",
+      "placeholderManufacturer": "Gib einen Produkthersteller ein..."
     },
     "categoryForm": {
       "labelCatalog": "Katalog",
       "labelCategory": "Kategorie",
-      "placeholderCatalog": "Wähle einen Produkt-Katalog aus...",
+      "placeholderCatalog": "Wähle einen Produktkatalog aus...",
       "placeholderCategory": "Tippe, um Kategorien zu suchen...",
-      "optionDefaultCatalog": "Standard Katalog"
+      "optionDefaultCatalog": "Standardkatalog"
     },
     "priceForm": {
       "labelTaxRate": "Steuersatz",
@@ -359,7 +359,7 @@
       "labelMinPurchase": "Mindestabnahme",
       "labelMaxPurchase": "Maximalabnahme",
       "labelEan": "EAN",
-      "labelPseudoSales": "Pseudo-Verkäufe",
+      "labelPseudoSales": "Pseudoverkäufe",
       "labelStock": "Lagerbestand",
       "labelActive": "Aktiv",
       "labelShippingFree": "Versandkostenfrei",
@@ -374,7 +374,7 @@
       "placeholderMinPurchase": "Mindestabnahme...",
       "placeholderMaxPurchase": "Maximalabnahme...",
       "placeholderEan": "Gib die EAN Nummer ein...",
-      "placeholderPseudoSales": "Gib die Pseudo-Verkäufe ein..."
+      "placeholderPseudoSales": "Gib die Anzahl der Pseudoverkäufe ein..."
     },
     "detailBase": {
       "cardTitleProductInfo": "Informationen",
@@ -440,7 +440,7 @@
     "general": {
       "mainMenuItemList": "Hersteller",
       "mainMenuItemGeneral": "Hersteller",
-      "placeholderSearchBar": "Durchsuchen aller Hersteller"
+      "placeholderSearchBar": "Durchsuche alle Hersteller"
     },
     "list": {
       "textManufacturerOverview": "Hersteller",
@@ -460,14 +460,14 @@
     },
     "detail": {
       "textHeadline": "Neuer Hersteller",
-      "textMediaSelection": "Medien Auswahl",
+      "textMediaSelection": "Medienauswahl",
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern",
       "cardTitleManufacturerInfo": "Herstellerinformationen",
       "labelName": "Name",
       "labelDescription": "Beschreibung",
       "labelLink": "Webseite",
-      "placeholderName": "Gib ein Herstellernamen ein...",
+      "placeholderName": "Gib einen Herstellernamen ein...",
       "placeholderDescription": "Gib eine Herstellerbeschreibung ein...",
       "placeholderLink": "Gib die Herstellerwebseite ein...",
       "titleSaveSuccess": "Hersteller",
@@ -478,8 +478,8 @@
     "general": {
       "mainMenuItemGeneral": "Bestellungen",
       "mainMenuItemList": "Übersicht",
-      "descriptionTextModule": "Modul zur Verwaltung von Bestellungen.",
-      "placeholderSearchBar": "Durchsuchen aller Bestellungen"
+      "descriptionTextModule": "Verwaltung von Bestellungen.",
+      "placeholderSearchBar": "Durchsuche alle Bestellungen"
     },
     "list": {
       "columnCustomerName": "Kundenname",
@@ -566,7 +566,7 @@
       "labelInputLanguages": "Sprachen",
       "labelInputCatalogs": "Kataloge",
       "titleOptionsCard": "Optionen",
-      "textDeleteInfo": "Achtung: Hier kannst Du diesen Verkaufskanal vollständig löschen. Dieser wird danach nicht mehr in der Shopware Administration verfügbar sein. Alle Bestellungen bleiben jedoch erhalten. Auch ausgespielte Kataloge werden nicht verändert.",
+      "textDeleteInfo": "Achtung: Hiermit löschst Du diesen Verkaufskanal vollständig! Der Verkaufskanal wird danach nicht mehr in der Shopware Administration verfügbar sein und kann auch nicht wiederhergestellt werden. Alle vorhandenen Bestellungen bleiben jedoch erhalten. Auch ausgespielte Kataloge werden durch diese Aktion nicht verändert.",
       "buttonDelete": "Verkaufskanal löschen",
       "deleteModalTitle": "Verkaufskanal löschen",
       "textConfirmDelete": "Möchtest Du diesen Verkaufskanal wirklich löschen?",
@@ -577,8 +577,8 @@
   "sw-media": {
     "general": {
       "mainMenuItemGeneral": "Medien",
-      "descriptionTextModule": "Modul zum Verwalten von Mediendateien",
-      "placeholderSearchBar": "Durchsuchen aller Medien"
+      "descriptionTextModule": "Verwaltung von Mediendateien",
+      "placeholderSearchBar": "Durchsuche alle Medien"
     },
     "smart-bar": {
       "smartBarHeader": "Medien",
@@ -588,12 +588,12 @@
     },
     "upload": {
       "notificationSuccess": "Datei erfolgreich gespeichert",
-      "notificationFailure": "Fehler beim hochladen von {mediaName}",
-      "notificationInfo": "Hochladen von einer Datei gestartet | Upload von {count} Dateien gestartet"
+      "notificationFailure": "Fehler beim Hochladen von {mediaName}",
+      "notificationInfo": "Lade eine Datei hoch | Lade {count} Dateien hoch"
     },
     "replace": {
       "notificationSuccess": "Datei erfolgreich ersetzt",
-      "notificationFailure": "Fehler beim ersetzen von {mediaName}"
+      "notificationFailure": "Fehler beim Ersetzen von {mediaName}"
     },
     "catalogItem": {
       "showCatalogContent": "Inhalt anzeigen",
@@ -640,7 +640,7 @@
     "catalog": {
       "messageEmpty": "Noch keine Medien in diesem Katalog",
       "labelSort": "Sortiere nach:",
-      "labelIconSize": "Vorschau-Größe:",
+      "labelIconSize": "Vorschaugröße:",
       "labelCatalog": "Ausgewählter Katalog:",
       "labelSize": "Größe:",
       "labelSortByNameAsc": "Name aufsteigend",
@@ -675,7 +675,7 @@
   "sw-settings-currency": {
     "general": {
       "mainMenuItemGeneral": "Währungen",
-      "placeholderSearchBar": "Durchsuchen aller Währungen"
+      "placeholderSearchBar": "Durchsuche alle Währungen"
     },
     "list": {
       "textHeadline": "Währungen",
@@ -701,7 +701,7 @@
       "labelShortName": "Kurzname",
       "labelSymbol": "Symbol",
       "labelFactor": "Faktor",
-      "placeholderName": "Name eingeben...",
+      "placeholderName": "Namen eingeben...",
       "placeholderShortName": "Kurzname eingeben...",
       "placeholderSymbol": "Symbol eingeben...",
       "placeholderFactor": "Faktor eingeben...",
@@ -713,7 +713,7 @@
     "general": {
       "mainMenuItemGeneral": "Steuern",
       "taxRateSymbol": "&#037;",
-      "placeholderSearchBar": "Durchsuchen aller Steuern"
+      "placeholderSearchBar": "Durchsuche alle Steuern"
     },
     "list": {
       "textHeadline": "Steuern",
@@ -735,7 +735,7 @@
       "messageSaveSuccess": "Die Steuer {name} wurde erfolgreich gespeichert.",
       "labelName": "Name",
       "labelTaxRate": "Steuersatz",
-      "placeholderName": "Name eingeben...",
+      "placeholderName": "Namen eingeben...",
       "placeholderTaxRate": "Steuersatz eingeben...",
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern"
@@ -744,7 +744,7 @@
   "sw-settings-language": {
     "general": {
       "mainMenuItemGeneral": "Sprachen",
-      "placeholderSearchBar": "Durchsuchen aller Sprachen"
+      "placeholderSearchBar": "Durchsuche alle Sprachen"
     },
     "list": {
       "textHeadline": "Sprachen",
@@ -767,7 +767,7 @@
       "labelName": "Name",
       "labelLocale": "Region",
       "labelParent": "Erben von",
-      "placeholderName": "Name eingeben...",
+      "placeholderName": "Namen eingeben...",
       "placeholderPleaseSelect": "Bitte wählen...",
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern"
@@ -776,7 +776,7 @@
   "sw-settings-payment": {
     "general": {
       "mainMenuItemGeneral": "Zahlungsarten",
-      "placeholderSearchBar": "Durchsuchen aller Zahlungsarten"
+      "placeholderSearchBar": "Durchsuche alle Zahlungsarten"
     },
     "list": {
       "textHeadline": "Zahlungsarten",
@@ -803,8 +803,8 @@
       "labelMobileInactive": "Inaktiv für Smartphones",
       "labelAdditionalDescription": "Beschreibung",
       "labelHandler": "Handler",
-      "placeholderName": "Name eingeben...",
-      "placeholderTechnicalName": "Technischer Name eingeben...",
+      "placeholderName": "Namen eingeben...",
+      "placeholderTechnicalName": "Technischen Namen eingeben...",
       "placeholderAdditionalDescription": "Beschreibung eingeben...",
       "placeholderHandler": "Handler eingeben...",
       "buttonCancel": "Abbrechen",
@@ -846,11 +846,11 @@
   "sw-settings-country": {
     "general": {
       "mainMenuItemGeneral": "Länder",
-      "placeholderSearchBar": "Durchsuchen aller Länder"
+      "placeholderSearchBar": "Durchsuche alle Länder"
     },
     "list": {
       "textHeadline": "Länder",
-      "textDeleteConfirm": "Bist Du sicher, dass Du das Land {name} löschen möchtest?",
+      "textDeleteConfirm": "Bist Du sicher, dass Du dieses Land {name} löschen möchtest?",
       "columnName": "Name",
       "columnActive": "Aktiv",
       "buttonAddCountry": "Land anlegen",
@@ -868,7 +868,7 @@
       "messageSaveSuccess": "Das Land {name} wurde erfolgreich gespeichert.",
       "labelName": "Name",
       "labelActive": "Aktiv",
-      "placeholderName": "Name eingeben...",
+      "placeholderName": "Namen eingeben...",
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern"
     }
@@ -884,7 +884,7 @@
     },
     "index": {
       "buttonSaveLabel": "Speichern",
-      "titleInfoCard": "Profil Information",
+      "titleInfoCard": "Profilinformation",
       "titleImageCard": "Profilbild",
       "titlePasswordCard": "Passwort",
       "labelNameField": "Name",

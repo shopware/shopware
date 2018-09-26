@@ -53,7 +53,7 @@ function refreshTokenInterceptor(client) {
 
         if (status === 401) {
             if (!tokenHandler.isRefreshing) {
-                tokenHandler.fireRefreshTokenRequest().then((newToken) => {
+                return tokenHandler.fireRefreshTokenRequest().then((newToken) => {
                     tokenHandler.onRefreshToken(newToken);
                 }).catch(() => {
                     return Promise.reject(error);

@@ -898,5 +898,12 @@
       "notificationSaveSuccessTitle": "Your profile",
       "notificationSaveSuccessMessage": "Your profile information are saved successfully."
     }
+  },
+  "sw-error": {
+    "general": {
+      "statusCodePlaceholder": "Error",
+      "messagePlaceholder": "An error occurred.",
+      "textLink": "Back"
+    }
   }
 }

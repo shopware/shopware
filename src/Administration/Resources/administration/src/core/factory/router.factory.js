@@ -72,6 +72,10 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
             const loggedIn = LoginService.validateExpiry(bearerAuthExpiry);
             const tokenHandler = new RefreshTokenHelper();
 
+            if (to.meta && to.meta.forceRoute === true) {
+                return next();
+            }
+
             // The login route will be called and the user is not logged in, let him see the login
             if ((to.name === 'login' || to.path === '/login') && !loggedIn) {
                 return next();

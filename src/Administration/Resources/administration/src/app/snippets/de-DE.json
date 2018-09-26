@@ -898,5 +898,12 @@
       "notificationSaveSuccessTitle": "Dein Profil",
       "notificationSaveSuccessMessage": "Deine Profilinformationen wurden erfolgreich gespeichert."
     }
+  },
+  "sw-error": {
+    "general": {
+      "statusCodePlaceholder": "Fehler",
+      "messagePlaceholder": "Es ist ein Fehler aufgetreten und die Seite konnte nicht geladen werden",
+      "textLink": "Zurück"
+    }
   }
 }

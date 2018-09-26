@@ -66,6 +66,11 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
             router,
             i18n,
             components,
+            data() {
+                return {
+                    initError: {}
+                };
+            },
             provide() {
                 return providers;
             }

@@ -97,4 +97,18 @@ class FileFetcherTest extends TestCase
             $url
         );
     }
+
+    public function testFetchFileFromUrlWithUnavailableUrl()
+    {
+        $this->expectException(UploadException::class);
+        $this->expectExceptionMessage('url not reachable');
+
+        $url = 'http://localhost';
+        $tempFile = tempnam(sys_get_temp_dir(), '');
+
+        $this->fileFetcher->fetchFileFromURL(
+            new MediaFile($tempFile, 'image/jpeg', 'jpg', 10),
+            $url
+        );
+    }
 }

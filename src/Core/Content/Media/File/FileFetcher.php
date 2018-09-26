@@ -26,6 +26,10 @@ class FileFetcher
             throw new UploadException('malformed url: ' . $url);
         }
 
+        if (!$this->isUrlReachable($url)) {
+            throw new UploadException('url not reachable: ' . $url);
+        }
+
         $inputStream = $this->openStream($url, 'r');
         $destStream = $this->openStream($mediaFile->getFileName(), 'w');
 
@@ -76,5 +80,25 @@ class FileFetcher
     private function isUrlValid(string $url): bool
     {
         return (bool) filter_var($url, FILTER_VALIDATE_URL) && preg_match('/^https?:/', $url);
+    }
+
+    private function isUrlReachable(string $url): bool
+    {
+        $httpContext = stream_context_create(['http' => ['method' => 'HEAD']]);
+        $headers = get_headers($url, 1, $httpContext);
+
+        if ($headers === false) {
+            return false;
+        }
+
+        $preg_status = preg_match('/^HTTP\/1.[01] ([0-9]{3}) /', $headers[0], $matches);
+
+        if (!$preg_status || count($matches) < 2) {
+            return false;
+        }
+
+        $responseCode = (int) $matches[1];
+
+        return $responseCode < 400;
     }
 }

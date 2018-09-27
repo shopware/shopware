@@ -667,7 +667,7 @@
       }
     },
     "catalog": {
-      "messageEmpty": "No media yet",
+      "messageEmpty": "No media in this catalogue yet",
       "labelSort": "Sort by:",
       "labelIconSize": "Preview size:",
       "labelCatalog": "Selected catalog:",
@@ -873,7 +873,7 @@
       "columnActive": "Active",
       "buttonAddCountry": "Add country",
       "contextMenuEdit": "Edit",
-      "modalTitleDelete": "Delete country",
+      "modalTitleDelete": "Delete Country",
       "titleDeleteSuccess": "Country",
       "messageDeleteSuccess": "Country \"{name}\" has been deleted successfully.",
       "buttonCancel": "Cancel",

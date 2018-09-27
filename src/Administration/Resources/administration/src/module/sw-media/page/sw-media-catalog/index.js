@@ -75,7 +75,6 @@ Component.register('sw-media-catalog', {
         },
 
         onNewUpload(mediaEntity) {
-            mediaEntity.isLoading = true;
             this.mediaItems.unshift(mediaEntity);
         },
 

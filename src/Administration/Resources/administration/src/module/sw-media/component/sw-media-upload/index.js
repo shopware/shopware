@@ -79,6 +79,7 @@ Component.register('sw-media-upload', {
                 const errorMessage = this.$tc('sw-media.upload.notificationFailure', 0, { mediaName: mediaEntity.name });
 
                 return mediaEntity.save().then(() => {
+                    mediaEntity.isLoading = true;
                     this.$emit('new-upload-started', mediaEntity);
                     return fileReader.readAsArrayBuffer(file).then((buffer) => {
                         return this.mediaService.uploadMediaById(
@@ -102,7 +103,11 @@ Component.register('sw-media-upload', {
         createMediaEntityFromUrl(url, fileExtension) {
             const mediaEntity = this.createNewMedia(this.getNameFromURL(url));
             const notificationSuccessMessage = this.$tc('sw-media.upload.notificationSuccess');
-            const notificationErrorMessage = this.$tc('sw-media.upload.notificationFailure', 0, { mediaName: mediaEntity.name });
+            const notificationErrorMessage = this.$tc(
+                'sw-media.upload.notificationFailure',
+                0,
+                { mediaName: mediaEntity.name }
+            );
 
             this.createNotificationInfo({
                 message: this.$tc('sw-media.upload.notificationInfo', 1, { count: 1 })
@@ -117,7 +122,7 @@ Component.register('sw-media-upload', {
                     this.$emit('new-upload-started', mediaEntity);
 
                     return mediaService.uploadMediaFromUrl(mediaEntity.id, url.href, fileExtension).then(() => {
-                        mediaEntity.isLoding = false;
+                        mediaEntity.isLoading = false;
                         this.createNotificationSuccess({
                             message: notificationSuccessMessage
                         });

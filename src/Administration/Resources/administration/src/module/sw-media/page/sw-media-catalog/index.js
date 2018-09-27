@@ -74,6 +74,15 @@ Component.register('sw-media-catalog', {
             this.getList();
         },
 
+        onUploadSuccess(mediaEntity) {
+            mediaEntity.isLoading = false;
+        },
+
+        onNewUpload(mediaEntity) {
+            mediaEntity.isLoading = true;
+            this.mediaItems.unshift(mediaEntity);
+        },
+
         getList() {
             this.isLoading = true;
             this.clearSelection();

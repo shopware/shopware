@@ -48,7 +48,7 @@ Component.register('sw-media-grid-item', {
     methods: {
         emitClickedEvent(originalDomEvent) {
             const target = originalDomEvent.target;
-            if (this.showContextMenuButton) {
+            if (this.showContextMenuButton && !this.isLoading) {
                 const el = this.$refs.swContextButton.$el;
                 if ((el === target) || el.contains(target)) {
                     return;

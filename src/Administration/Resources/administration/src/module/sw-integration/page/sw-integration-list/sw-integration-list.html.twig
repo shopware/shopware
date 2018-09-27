@@ -8,7 +8,7 @@
 
         <template slot="smart-bar-actions">
             {% block sw_integration_list_smart_bar_actions %}
-                <sw-button @click="onShowDetailModal()" variant="primary">
+                <sw-button @click="onShowDetailModal()" variant="primary" class="sw-integration-list__add-integration-action">
                     {{ $tc('sw-integration.general.buttonCreateIntegration') }}
                 </sw-button>
             {% endblock %}
@@ -20,7 +20,7 @@
                     {% block sw_integration_list_content %}
                         {% block sw_integration_list_introduction %}
                             <sw-card :hero="true">
-                                <h3>{{ $tc('sw-integration.general.heroHeadlineIntegrations') }}</h3>
+                                <h3 class="sw-integration-list__welcome-headline">{{ $tc('sw-integration.general.heroHeadlineIntegrations') }}</h3>
                                 <p>{{ $tc('sw-integration.general.heroDescriptionIntegrations') }}</p>
                             </sw-card>
                         {% endblock %}
@@ -67,7 +67,6 @@
                                                               v-model="currentIntegration.secretAccessKey"
                                                               :passwordToggleAble="false"
                                                               :copyAble="showSecretAccessKey">
-
                                                     </sw-field>
 
                                                     <sw-button v-if="!showSecretAccessKey" @click="onGenerateKeys"
@@ -94,6 +93,7 @@
 
                                                         {% block sw_integration_list_detail_modal_inner_footer_apply %}
                                                             <sw-button size="small"
+                                                                       class="sw-integration-detail-modal__save-action"
                                                                        variant="primary"
                                                                        @click="onSaveIntegration">
                                                                 {{ $tc('sw-integration.detail.buttonApply') }}
@@ -124,7 +124,7 @@
                                                         {% endblock %}
 
                                                         {% block sw_integration_list_grid_inner_slot_columns_label %}
-                                                            <sw-grid-column flex="minmax(150px, 1fr)" dataIndex="label">
+                                                            <sw-grid-column flex="minmax(150px, 1fr)" class="sw-integration-list__column-integration-name" dataIndex="label">
                                                                 {{ item.label }}
                                                             </sw-grid-column>
                                                         {% endblock %}
@@ -134,6 +134,7 @@
                                                                 <sw-context-button>
                                                                     {% block sw_integration_list_grid_inner_slot_columns_actions_edit %}
                                                                         <sw-context-menu-item
+                                                                                class="sw_integration_list__edit-action"
                                                                                 @click="onShowDetailModal(item.id)">
                                                                             {{ $tc('sw-integration.list.contextMenuEdit') }}
                                                                         </sw-context-menu-item>

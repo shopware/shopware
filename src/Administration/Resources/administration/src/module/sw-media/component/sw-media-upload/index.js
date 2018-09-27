@@ -75,6 +75,8 @@ Component.register('sw-media-upload', {
         addMediaEntityFromFile(file, tag) {
             this.uploadStore.addUpload(tag, () => {
                 const mediaEntity = this.createNewMedia(file.name);
+                const successMessage = this.$tc('sw-media.upload.notificationSuccess');
+                const errorMessage = this.$tc('sw-media.upload.notificationFailure', 0, { mediaName: mediaEntity.name });
 
                 return mediaEntity.save().then(() => {
                     this.$emit('new-upload-started', mediaEntity);
@@ -87,18 +89,20 @@ Component.register('sw-media-upload', {
                         );
                     });
                 }).then(() => {
+                    mediaEntity.isLoading = false;
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-media.upload.notificationSuccess')
+                        message: successMessage
                     });
-                    this.$emit('upload-success', mediaEntity);
                 }).catch(() => {
-                    this.cleanUpFailure(mediaEntity);
+                    this.cleanUpFailure(mediaEntity, errorMessage);
                 });
             });
         },
 
         createMediaEntityFromUrl(url, fileExtension) {
             const mediaEntity = this.createNewMedia(this.getNameFromURL(url));
+            const notificationSuccessMessage = this.$tc('sw-media.upload.notificationSuccess');
+            const notificationErrorMessage = this.$tc('sw-media.upload.notificationFailure', 0, { mediaName: mediaEntity.name });
 
             this.createNotificationInfo({
                 message: this.$tc('sw-media.upload.notificationInfo', 1, { count: 1 })
@@ -109,14 +113,16 @@ Component.register('sw-media-upload', {
                 const mediaService = this.mediaService;
 
                 this.uploadStore.addUpload(uploadTag, () => {
+                    mediaEntity.isLoading = true;
                     this.$emit('new-upload-started', mediaEntity);
+
                     return mediaService.uploadMediaFromUrl(mediaEntity.id, url.href, fileExtension).then(() => {
+                        mediaEntity.isLoding = false;
                         this.createNotificationSuccess({
-                            message: this.$tc('sw-media.upload.notificationSuccess')
+                            message: notificationSuccessMessage
                         });
-                        this.$emit('upload-success', mediaEntity);
                     }).catch(() => {
-                        this.cleanUpFailure(mediaEntity);
+                        this.cleanUpFailure(mediaEntity, notificationErrorMessage);
                     });
                 });
 
@@ -125,13 +131,13 @@ Component.register('sw-media-upload', {
                 });
                 this.closeUrlModal();
             }).catch(() => {
-                this.cleanUpFailure(mediaEntity);
+                this.cleanUpFailure(mediaEntity, notificationErrorMessage);
             });
         },
 
-        cleanUpFailure(mediaEntity) {
+        cleanUpFailure(mediaEntity, errorMessage) {
             this.createNotificationError({
-                message: this.$tc('sw-media.upload.notificationFailure', 0, { mediaName: mediaEntity.name })
+                message: errorMessage
             });
             mediaEntity.delete(true);
             this.mediaItemStore.remove(mediaEntity);

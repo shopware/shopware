@@ -86,7 +86,7 @@ Mixin.register('mediagrid-listener', {
         },
 
         handleMediaGridItemPlay({ item }) {
-            if (this.isList) {
+            if (this.isListSelect) {
                 this._handleSelection(item);
                 return;
             }
@@ -129,7 +129,9 @@ Mixin.register('mediagrid-listener', {
                 return;
             }
 
-            this.selectedItems.push(item);
+            if (!this.isItemSelected(item)) {
+                this.selectedItems.push(item);
+            }
         },
 
         _handleShiftSelect(item) {

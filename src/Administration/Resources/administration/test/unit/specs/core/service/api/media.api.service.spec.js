@@ -1,11 +1,12 @@
 import { Application, State } from 'src/core/shopware';
+import { itAsync, afterEachAsync, beforeEachAsync } from '../../../../async-helper';
 
 describe('core/service/api/mediaService', () => {
     let mediaService;
     let mediaStore;
     let testCatalog;
 
-    beforeEach(() => {
+    beforeEachAsync((done) => {
         mediaService = Application.getContainer('service').mediaService;
         mediaStore = State.getStore('media');
 
@@ -13,31 +14,52 @@ describe('core/service/api/mediaService', () => {
         testCatalog = catalogStore.create();
         testCatalog.name = 'testCatalog';
 
-        return testCatalog.save();
-    });
+        testCatalog.save().then(() => {
+            done();
+        }).catch((err) => {
+            done(err);
+        });
+    }, 10000);
 
-    afterEach(() => {
+    afterEachAsync((done) => {
         testCatalog.isLocal = false;
-        return testCatalog.delete(true);
-    });
+        testCatalog.delete(true).then(() => {
+            done();
+        }).catch((err) => {
+            done(err);
+        });
+    }, 10000);
 
-    it('should save image from url', () => {
+    itAsync('should save image from url', (done) => {
         const mediaItem = mediaStore.create();
         mediaItem.name = 'testItem';
         mediaItem.catalogId = testCatalog.id;
 
-        const testUrl = 'http://localhost:8000/api/v1/entity-schema.json';
-
-        return mediaItem.save().then(() => {
-            return mediaService.uploadMediaFromUrl(mediaItem.id, testUrl, '.json');
+        const testUrl = `${process.env.BASE_PATH}/api/v1/entity-schema.json`;
+        mediaItem.save().then(() => {
+             mediaService.uploadMediaFromUrl(mediaItem.id, testUrl, '.json').then(() => {
+                done();
+            }).catch((err) => {
+                done(err);
+            });
         }).then(() => {
-            return mediaStore.getByIdAsync(mediaItem.id, true).then((objUnderTest) => {
+            mediaStore.getByIdAsync(mediaItem.id, true).then((objUnderTest) => {
                 expect(objUnderTest.mimeType).to.equal('text/plain');
                 expect(objUnderTest.url).to.match(/.json$/);
+
+                done();
+            }).catch((err) => {
+                done(err);
             });
         }).finally(() => {
-            return mediaStore.getByIdAsync(mediaItem.id, true).then((media) => {
-                return media.delete(true);
+            mediaStore.getByIdAsync(mediaItem.id, true).then((media) => {
+                media.delete(true).then(() => {
+                    done();
+                }).catch((err) => {
+                    done(err);
+                });
+            }).catch((err) => {
+                done(err);
             });
         });
     });

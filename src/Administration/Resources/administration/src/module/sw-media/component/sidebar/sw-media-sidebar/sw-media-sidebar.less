@@ -3,24 +3,6 @@
 @sw-media-sidebar-z-index:  @z-index-sidebar;
 
 .sw-media-sidebar {
+    position: relative;
     height: 100%;
-
-    .sw-media-sidebar__item-container {
-        display: grid;
-        height: 100%;
-        grid-template-columns: 64px;
-        grid-template-rows: 50% 50%;
-
-        .sw-media-sidebar__items-top {
-            align-self: start;
-        }
-
-        .sw-media-sidebar__items-bottom {
-            align-self: end;
-        }
-    }
-
-    .sw-sidebar-item__headline {
-        z-index: calc(@sw-media-sidebar-z-index + 1);
-    }
 }

@@ -23,7 +23,7 @@ Component.register('sw-media-sidebar', {
     watch: {
         items(value) {
             if (value.length === 0) {
-                this.$refs.quickInfoButton.toggleContentPanel(false);
+                this.$refs.quickInfoButton.closeContent();
             }
         }
     },
@@ -66,7 +66,7 @@ Component.register('sw-media-sidebar', {
 
     methods: {
         showQuickInfo() {
-            this.$refs.quickInfoButton.toggleContentPanel(true);
+            this.$refs.quickInfoButton.openContent();
         },
 
         openModalReplace() {

@@ -169,7 +169,8 @@
       "modalTitleDelete": "Delete customer",
       "textDeleteConfirm": "Do you really want to delete the customer \"{name}\"?",
       "buttonCancel": "Cancel",
-      "buttonDelete": "Delete"
+      "buttonDelete": "Delete",
+      "titleSidebarItemRefresh": "Refresh"
     },
     "baseForm": {
       "labelSalutation": "Salutation",
@@ -444,7 +445,7 @@
       "messageEmpty": "No products yet",
       "modalTitleDelete": "Product",
       "textDeleteConfirm": "Do you really want to delete the product \"{name}\"?",
-      "titleRefresh": "Refresh"
+      "titleSidebarItemRefresh": "Refresh"
     },
     "detail": {
       "textHeadline": "New product",
@@ -482,7 +483,8 @@
       "modalTitleDelete": "Delete manufacturer",
       "textDeleteConfirm": "Are you sure, you want to delete the manufacter {name}?",
       "buttonCancel": "Cancel",
-      "buttonDelete": "Delete"
+      "buttonDelete": "Delete",
+      "titleSidebarItemRefresh": "Refresh"
     },
     "detail": {
       "textHeadline": "New manufacturer",
@@ -519,7 +521,8 @@
       "contextMenuView": "View",
       "contextMenuDelete": "Delete",
       "contextMenuConfirmPayment": "Confirm payment",
-      "messageEmpty": "No orders yet"
+      "messageEmpty": "No orders yet",
+      "titleSidebarItemRefresh": "Refresh"
     },
     "detail": {
       "buttonCancel": "Cancel",
@@ -629,8 +632,7 @@
     "sidebar": {
       "actions": {
         "quickInfo": "Quickinfo",
-        "filter": "Filter",
-        "settings": "Settings"
+        "delete": "Delete"
       },
       "quickinfo": {
         "actions": "Actions",

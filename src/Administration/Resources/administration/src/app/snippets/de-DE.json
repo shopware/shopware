@@ -169,7 +169,8 @@
       "modalTitleDelete": "Kunden löschen",
       "textDeleteConfirm": "Möchtest Du den Kunden \"{name}\" wirklich löschen?",
       "buttonCancel": "Abbrechen",
-      "buttonDelete": "Löschen"
+      "buttonDelete": "Löschen",
+      "titleSidebarItemRefresh": "Aktualisieren"
     },
     "baseForm": {
       "labelSalutation": "Anrede",
@@ -444,7 +445,7 @@
       "messageEmpty": "Noch keine Produkte",
       "modalTitleDelete": "Produkte",
       "textDeleteConfirm": "Möchtest Du das Produkt \"{name}\" wirklich löschen?",
-      "titleRefresh": "Aktualisieren"
+      "titleSidebarItemRefresh": "Aktualisieren"
     },
     "detail": {
       "textHeadline": "Neues Produkt",
@@ -482,7 +483,8 @@
       "modalTitleDelete": "Hersteller löschen",
       "textDeleteConfirm": "Bist Du sicher, dass Du den Hersteller {name} löschen möchtest?",
       "buttonCancel": "Abbrechen",
-      "buttonDelete": "Löschen"
+      "buttonDelete": "Löschen",
+      "titleSidebarItemRefresh": "Aktualisieren"
     },
     "detail": {
       "textHeadline": "Neuer Hersteller",
@@ -519,7 +521,8 @@
       "contextMenuView": "Anzeigen",
       "contextMenuDelete": "Löschen",
       "contextMenuConfirmPayment": "Zahlung bestätigen",
-      "messageEmpty": "Noch keine Bestellungen"
+      "messageEmpty": "Noch keine Bestellungen",
+      "titleSidebarItemRefresh": "Aktualisieren"
     },
     "detail": {
       "buttonCancel": "Abbrechen",
@@ -629,8 +632,7 @@
     "sidebar": {
       "actions": {
         "quickInfo": "Information",
-        "filter": "Filter",
-        "settings": "Einstellungen"
+        "delete": "Löschen"
       },
       "quickinfo": {
         "actions": "Aktionen",

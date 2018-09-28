@@ -1,0 +1,30 @@
+@import "~less/variables";
+
+@sw-sidebar-button-icon-color:              @color-gutenberg;
+@sw-sidebar-button-icon-color-active:       @color-shopware-blue;
+@sw-sidebar-button-hover-color-background:  @color-cadet-blue;
+@sw-sidebar-button-active-color-background: @color-cadet-blue;
+
+.sw-sidebar-button {
+    width: 64px;
+    height: 64px;
+    border: none;
+    color: @sw-sidebar-button-icon-color;
+    background: none;
+    cursor: pointer;
+    outline: none;
+
+    &:hover {
+        background: @sw-sidebar-button-hover-color-background;
+    }
+
+    &.is--active {
+        background: @sw-sidebar-button-active-color-background;
+        color: @sw-sidebar-button-icon-color-active;
+    }
+
+    &.is--disabled {
+        cursor: not-allowed;
+        opacity: .3;
+    }
+}

@@ -1,0 +1,51 @@
+@import "~less/variables";
+
+@sw-sidebar-item-headline-color: @color-kashmir;
+@sw-sidebar-item-color-border:   @color-steam-cloud;
+
+.sw-sidebar-item {
+    width: 400px;
+    height: 100%;
+    display: grid;
+    grid-template-rows: 64px 1fr;
+    border-left: 1px solid @sw-sidebar-item-color-border;
+
+    .sw-sidebar-item__headline {
+        display: grid;
+        grid-template-columns: 1fr 32px;
+        margin: 25px 25px 0;
+    }
+
+    .sw-sidebar-item__title {
+        margin: 0;
+        font-size: 18px;
+        color: @sw-sidebar-item-headline-color;
+    }
+
+    .sw-sidebar-item__close-button {
+        height: 24px;
+        width: 24px;
+        justify-self: end;
+        background: none;
+        border: none;
+        outline: none;
+        cursor: pointer;
+    }
+
+    .sw-sidebar-item__close-button-icon{
+        color: @sw-sidebar-item-headline-color;
+    }
+
+    .sw-sidebar-item__content {
+        position: relative;
+        width: 100%;
+        height: 100%
+    }
+
+    .sw-sidebar-item__scrollable-container {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        overflow-y: auto;
+    }
+}

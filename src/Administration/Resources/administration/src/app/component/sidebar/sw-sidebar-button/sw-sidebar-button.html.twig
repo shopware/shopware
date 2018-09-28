@@ -1,0 +1,12 @@
+{% block sw_sidebar_button %}
+    <button
+        class="sw-sidebar-button"
+        :class="sidebarItem.sidebarItemClasses"
+        :title="sidebarItem.title"
+        :disabled="sidebarItem.disabled"
+        @click="emitButtonClicked">
+        {% block sw_sidebar_button_content %}
+            <sw-icon :name="sidebarItem.icon" size="20px"></sw-icon>
+        {% endblock %}
+    </button>
+{% endblock %}

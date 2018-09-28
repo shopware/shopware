@@ -9,7 +9,7 @@ Component.register('sw-sidebar-item', {
     props: {
         title: {
             type: String,
-            required: false
+            required: true
         },
 
         icon: {
@@ -21,26 +21,39 @@ Component.register('sw-sidebar-item', {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        position: {
+            type: String,
+            required: false,
+            default: 'top',
+            validator(value) {
+                return ['top', 'bottom'].includes(value);
+            }
         }
     },
 
     data() {
         return {
-            panelId: utils.createId(),
-            isExpanded: false
+            id: `sw-sidebar-item-${utils.createId()}`,
+            isActive: false
         };
     },
 
     computed: {
         sidebarItemClasses() {
             return {
-                'is--active': this.isExpanded,
+                'is--active': this.showContent,
                 'is--disabled': this.disabled
             };
         },
 
         hasDefaultSlot() {
             return !!this.$slots.default;
+        },
+
+        showContent() {
+            return this.hasDefaultSlot && this.isActive;
         }
     },
 
@@ -50,30 +63,31 @@ Component.register('sw-sidebar-item', {
 
     methods: {
         componentCreated() {
-            this.$parent.items[this.panelId] = this;
+            this.$parent.registerSidebarItem(this);
         },
 
-        sidebarButtonClick(event) {
-            if (this.disabled) {
-                return;
-            }
-            this.$emit('click', event);
-
-            this.toggleContentPanel();
-        },
-
-        toggleContentPanel(expand = !this.isExpanded) {
-            // The panel is just a button which can be clicked by the user
-            if (!this.hasDefaultSlot) {
+        openContent() {
+            if (this.showContent) {
                 return;
             }
 
-            this.isExpanded = expand;
-            this.$parent.$emit('closeNonExpandedContentPanels', this.panelId);
+            this.$emit('sw-sidebar-item-toggle-active', this);
         },
 
-        closeSideBarPanel() {
-            this.toggleContentPanel();
+        closeContent() {
+            this.isActive = false;
+        },
+
+        sidebarButtonClick(sidebarItem) {
+            if (this === sidebarItem) {
+                this.isActive = !this.isActive;
+                this.$emit('click');
+                return;
+            }
+
+            if (sidebarItem.hasDefaultSlot) {
+                this.isActive = false;
+            }
         }
     }
 });

@@ -1,0 +1,30 @@
+{% block sw_sidebar %}
+    <aside class="sw-sidebar">
+        {% block sw_sidebar_navigation %}
+            <nav class="sw-sidebar__navigation">
+                {% block sw_sidebar_navigation_list %}
+                    <ul v-for="(section, index) in sections"
+                        :key="`sidebar-section-${index}`"
+                        class="sw_sidebar__navigation-list"
+                        :class="`is--${index}`">
+
+                        <li v-for="item in section" :key="item.id">
+                            {% block sw_sidebar_navigation_item %}
+                                <sw-sidebar-button
+                                    :sidebarItem="item"
+                                    @sw-sidebar-button-clicked="setItemActive(item)">
+                                </sw-sidebar-button>
+                            {% endblock %}
+                        </li>
+                    </ul>
+                {% endblock %}
+            </nav>
+        {% endblock %}
+
+        {% block sw_sidebar_content %}
+            <div class="sw-sidebar__content">
+                    <slot>{% block sw_sidebar_default_slot %}{% endblock %}</slot>
+            </div>
+        {% endblock %}
+    </aside>
+{% endblock %}

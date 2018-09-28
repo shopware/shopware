@@ -12,7 +12,7 @@
 
         <!-- Migration config -->
         <parameter key="migration.directories" type="collection">
-            <parameter key="Shopware\Core\Version" type="constant">Shopware\Core\Framework\Migration\MigrationCollectionLoader::CORE_MIGRATIONS</parameter>
+            <parameter key="Shopware\Core\Migration" type="constant">Shopware\Core\Framework\Migration\MigrationCollectionLoader::CORE_MIGRATIONS</parameter>
         </parameter>
 
     </parameters>
@@ -137,6 +137,8 @@
 
         <service class="Shopware\Core\Framework\Command\CreateMigrationCommand" id="Shopware\Core\Framework\Command\CreateMigrationCommand">
             <tag name="console.command"/>
+            <argument>%kernel.project_dir%</argument>
+            <argument>%kernel.plugin_dir%</argument>
         </service>
 
         <service class="Shopware\Core\Framework\Command\MigrationCommand" id="Shopware\Core\Framework\Command\MigrationCommand">

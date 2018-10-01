@@ -9,7 +9,6 @@
                 {% block sw_sidebar_item_close_button %}
                     <button class="sw-sidebar-item__close-button" @click="closeContent" aria-label="closeContent">
                         <sw-icon
-                            class="sw-sidebar-item__close-button-icon"
                             name="small-default-x-line-small"
                             size="20px">
                         </sw-icon>
@@ -21,7 +20,7 @@
         {% block sw_sidebar_item_content %}
             <div class="sw-sidebar-item__content">
                 <div class="sw-sidebar-item__scrollable-container">
-                        <slot>{% block sw_sidebar_item_default_slot%}{% endblock %}</slot>
+                    <slot>{% block sw_sidebar_item_default_slot%}{% endblock %}</slot>
                 </div>
             </div>
         {% endblock %}

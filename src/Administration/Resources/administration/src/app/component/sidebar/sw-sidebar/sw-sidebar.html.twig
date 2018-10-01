@@ -10,10 +10,10 @@
 
                         <li v-for="item in section" :key="item.id">
                             {% block sw_sidebar_navigation_item %}
-                                <sw-sidebar-button
+                                <sw-sidebar-navigation-item
                                     :sidebarItem="item"
                                     @sw-sidebar-button-clicked="setItemActive(item)">
-                                </sw-sidebar-button>
+                                </sw-sidebar-navigation-item>
                             {% endblock %}
                         </li>
                     </ul>
@@ -23,7 +23,7 @@
 
         {% block sw_sidebar_content %}
             <div class="sw-sidebar__content">
-                    <slot>{% block sw_sidebar_default_slot %}{% endblock %}</slot>
+                <slot>{% block sw_sidebar_default_slot %}{% endblock %}</slot>
             </div>
         {% endblock %}
     </aside>

@@ -9,7 +9,7 @@ import './base/sw-avatar';
 import './base/sw-container';
 import './sidebar/sw-sidebar';
 import './sidebar/sw-sidebar-item';
-import './sidebar/sw-sidebar-button';
+import './sidebar/sw-sidebar-navigation-item';
 import './base/sw-tabs';
 import './base/sw-tabs-item';
 import './base/sw-table';

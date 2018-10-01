@@ -16,8 +16,6 @@ class ResponseExceptionListener extends ExceptionListener
     {
         $exception = $event->getException();
 
-        $this->addExceptionLogEntry($exception);
-
         if ($exception instanceof ShopwareHttpException) {
             $errors = iterator_to_array($exception->getErrors($this->debug));
 
@@ -48,6 +46,19 @@ class ResponseExceptionListener extends ExceptionListener
         return $event;
     }
 
+    public function logException(\Exception $exception, $message): void
+    {
+        if (null === $this->logger) {
+            return;
+        }
+
+        if (!$exception instanceof ShopwareHttpException || $exception->getStatusCode() >= 500) {
+            parent::logException($exception, $message);
+        } else {
+            $this->logger->error($message, ['exception' => $exception]);
+        }
+    }
+
     private function convertExceptionToError(\Throwable $exception): array
     {
         $statusCode = 500;
@@ -67,22 +78,6 @@ class ResponseExceptionListener extends ExceptionListener
         }
 
         return [$error];
-    }
-
-    private function addExceptionLogEntry(\Exception $exception): void
-    {
-        $logMessage = sprintf(
-            'Uncaught PHP Exception %s: "%s" at %s line %s',
-            \get_class($exception),
-            $exception->getMessage(),
-            $exception->getFile(),
-            $exception->getLine()
-        );
-
-        $this->logException(
-            $exception,
-            $logMessage
-        );
     }
 
     private function convert(array $array): array

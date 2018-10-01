@@ -24,9 +24,11 @@ module.exports = {
         //  open media catalog
             .assert.containsText('.sw-admin-menu__navigation-list-item.sw-media span.collapsible-text', 'Media')
             .click('a.sw-admin-menu__navigation-link[href="#/sw/media/index"]')
-            .waitForElementVisible('.sw-media-index__catalog-grid')
+            .waitForElementVisible('div.sw-media-grid.sw-media-index__catalog-grid')
+            .moveToElement('.sw-media-index__catalog-grid .sw-media-grid__content-cell', 5, 5)
+            .pause(100)
             .click('.sw-media-index__catalog-grid .sw-media-grid__content-cell')
-            .waitForElementVisible('.sw-media-catalog')
+            .waitForElementVisible('div.sw-page.sw-media-catalog')
         // change catalog
             .waitForElementVisible('.sw-media-catalog__change')
             .assert.containsText('.sw-media-catalog__button', 'Default catalogue')
@@ -100,8 +102,8 @@ module.exports = {
             .assert.containsText('.sw-media-quickinfo-metadata-height', 'Height:')
             .assert.containsText('.sw-media-quickinfo-metadata-height', '16px')
         // check delete item
-            .click('.icon--default-action-trash')
-            .waitForElementVisible('.sw-media-modal-delete')
+            .click('li.quickaction--delete')
+            .waitForElementVisible('div.sw-modal.sw-modal--small.sw-media-modal-delete')
             .assert.containsText('.sw-modal__body', 'Do you want to delete "sw-media-background" ?')
             .waitForElementVisible('.sw-modal__footer .sw-media-modal-delete__confirm')
             .click('.sw-media-modal-delete__confirm')

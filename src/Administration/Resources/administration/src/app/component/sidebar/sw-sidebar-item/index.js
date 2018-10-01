@@ -33,6 +33,14 @@ Component.register('sw-sidebar-item', {
         }
     },
 
+    watch: {
+        disabled(newDisabledState) {
+            if (newDisabledState) {
+                this.closeContent();
+            }
+        }
+    },
+
     data() {
         return {
             id: `sw-sidebar-item-${utils.createId()}`,

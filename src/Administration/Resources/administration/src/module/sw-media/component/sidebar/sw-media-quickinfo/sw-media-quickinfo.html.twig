@@ -17,10 +17,10 @@
                     {% block sw_media_quickinfo_quickactions_content %}
                         <ul class="sw-media-quickinfo__collapse-content sw-media-quickinfo__two-columns">
                             {% block sw_media_quickinfo_quickactions_replace %}
-                                <li class="sw-media-quickinfo__quickaction"
+                                <li class="sw-media-quickinfo__quickaction quickaction--replace"
                                     @click="emitOpenModalReplace">
                                     <sw-icon small
-                                             name="default-action-cloud-upload"
+                                             name="small-copy"
                                              class="sw-media-quickinfo__quickactions-icon">
                                     </sw-icon>
                                     {{ $tc('sw-media.sidebar.quickinfo.replace') }}
@@ -28,7 +28,7 @@
                             {% endblock %}
 
                             {% block sw_media_quickinfo_quickactions_download %}
-                                <li v-if="item.hasFile">
+                                <li v-if="item.hasFile" class="quickaction--download">
                                     <a class="sw-media-quickinfo__quickaction"
                                        :href="url"
                                        target="_blank"
@@ -43,7 +43,7 @@
                             {% endblock %}
 
                             {% block sw_media_quickinfo_quickactions_delete %}
-                                <li class="sw-media-quickinfo__quickaction is--danger"
+                                <li class="sw-media-quickinfo__quickaction is--danger quickaction--delete"
                                      @click="emitOpenModalDelete">
                                     <sw-icon small
                                              name="default-action-trash"
@@ -54,7 +54,7 @@
                             {% endblock %}
 
                             {% block sw_media_quickinfo_quickactions_copy_link %}
-                                <li class="sw-media-quickinfo__quickaction"
+                                <li class="sw-media-quickinfo__quickaction quickaction--copy-link"
                                     v-if="item.hasFile"
                                     @click="copyLinkToClipboard">
                                     <sw-icon small

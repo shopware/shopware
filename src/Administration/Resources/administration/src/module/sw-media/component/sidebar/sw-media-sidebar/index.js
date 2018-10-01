@@ -20,14 +20,6 @@ Component.register('sw-media-sidebar', {
         }
     },
 
-    watch: {
-        items(value) {
-            if (value.length === 0) {
-                this.$refs.quickInfoButton.closeContent();
-            }
-        }
-    },
-
     data() {
         return {
             autoplay: false,

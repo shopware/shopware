@@ -45,6 +45,7 @@
       "contextMenuDeleteLabel": "Delete",
       "contextMenuCopyLinkLabel": "Copy Link",
       "contextMenuReplaceLabel": "Replace",
+      "contextMenuRenameLabel": "Rename",
       "notificationErrorBlankItemName": "The media could not be saved: Please enter a name",
       "notificationRenamingSuccess": "Successfully renamed media",
       "notificationRenamingError": "Error renaming media"

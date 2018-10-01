@@ -60,6 +60,12 @@
 
                         {% block sw_media_grid_media_item_context_group_quick_actions %}
                             <div class="sw-context-menu__group">
+                                {% block sw_media_griditem_context_item_rename_item %}
+                                    <sw-context-menu-item v-if="item.hasFile" @click="startInlineEdit">
+                                        {{ $tc('global.sw-media-grid-media-item.contextMenuRenameLabel') }}
+                                    </sw-context-menu-item>
+                                {% endblock %}
+
                                 {% block sw_media_griditem_context_item_copy_item_link %}
                                     <sw-context-menu-item v-if="item.hasFile" @click="copyItemLink">
                                         {{ $tc('global.sw-media-grid-media-item.contextMenuCopyLinkLabel') }}

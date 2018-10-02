@@ -32,7 +32,6 @@
     "symfony/debug-bundle": "4.1.3",
     "symfony/dependency-injection": "4.1.3",
     "symfony/dotenv": "4.1.3",
-    "symfony/flex": "1.0.89",
     "symfony/framework-bundle": "4.1.3",
     "symfony/http-foundation": "4.1.3",
     "symfony/http-kernel": "4.1.3",
@@ -82,11 +81,5 @@
     "exclude-from-classmap": [
       "src/**/Test/"
     ]
-  },
-  "extra": {
-    "symfony": {
-      "id": "01C8DASE0Z4QQC3MT9KQYSTVX5",
-      "allow-contrib": false
-    }
   }
 }

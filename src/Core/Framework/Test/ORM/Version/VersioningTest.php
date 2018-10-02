@@ -5,6 +5,11 @@ namespace Shopware\Core\Framework\Test\ORM\Version;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceDefinition;
+use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
+use Shopware\Core\Checkout\Shipping\ShippingMethodStruct;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
@@ -16,10 +21,7 @@ use Shopware\Core\Framework\ORM\Search\Query\RangeQuery;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition;
-use Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\TaxAreaRuleTranslationDefinition;
 use Shopware\Core\System\Tax\TaxDefinition;
-use Shopware\Core\System\Tax\TaxStruct;
 
 class VersioningTest extends TestCase
 {
@@ -45,11 +47,17 @@ class VersioningTest extends TestCase
      */
     private $categoryRepository;
 
+    /**
+     * @var RepositoryInterface
+     */
+    private $shippingMethodRepository;
+
     public function setUp()
     {
         $this->taxRepository = $this->getContainer()->get('tax.repository');
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->categoryRepository = $this->getContainer()->get('category.repository');
+        $this->shippingMethodRepository = $this->getContainer()->get('shipping_method.repository');
         $this->connection = $this->getContainer()->get(Connection::class);
     }
 
@@ -80,72 +88,79 @@ class VersioningTest extends TestCase
 
     public function testVersionChangeOnInsertWithSubresources(): void
     {
-        $uuid = Uuid::uuid4()->getHex();
-        $ruleId = Uuid::uuid4()->getHex();
-
+        $productId = Uuid::uuid4()->getHex();
+        $manufacturerId = Uuid::uuid4()->getHex();
+        $taxId = Uuid::uuid4()->getHex();
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
-        $taxData = [
-            'id' => $uuid,
-            'name' => 'foo tax',
-            'taxRate' => 20,
-            'areaRules' => [
-                [
-                    'id' => $ruleId,
-                    'taxRate' => 99,
-                    'active' => true,
-                    'name' => 'required',
-                    'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-                ],
-            ],
+
+        $product = [
+            'id' => $productId,
+            'name' => 'parent',
+            'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+            'manufacturer' => ['id' => $manufacturerId, 'name' => 'manufacturer test'],
+            'tax' => ['id' => $taxId, 'taxRate' => 18, 'name' => 'test'],
         ];
 
-        $this->taxRepository->create([$taxData], $context);
+        $this->productRepository->create([$product], $context);
+        $changes = $this->getVersionData(ProductDefinition::getEntityName(), $productId, Defaults::LIVE_VERSION);
 
-        $changes = $this->getVersionData(TaxDefinition::getEntityName(), $uuid, Defaults::LIVE_VERSION);
         static::assertCount(1, $changes);
-        $taxChange = [
-            'id' => $uuid,
+
+        $productChanges = [
+            'id' => $productId,
             'versionId' => Defaults::LIVE_VERSION,
-            'name' => 'foo tax',
-            'taxRate' => 20,
             'tenantId' => Defaults::TENANT_ID,
+            'catalogId' => Defaults::CATALOG,
+            'parentVersionId' => Defaults::LIVE_VERSION,
+            'manufacturerId' => $manufacturerId,
+            'productManufacturerVersionId' => Defaults::LIVE_VERSION,
+            'unitVersionId' => Defaults::LIVE_VERSION,
+            'taxId' => $taxId,
+            'taxVersionId' => Defaults::LIVE_VERSION,
+            'price' => [
+                'gross' => 10, 'net' => 9, 'linked' => 0,
+            ],
+            'isCloseout' => 0,
+            'purchaseSteps' => 1,
+            'minPurchase' => 1,
+            'shippingFree' => 0,
+            'sales' => 0,
+            'minDeliveryTime' => 1,
+            'maxDeliveryTime' => 2,
+            'restockTime' => 1,
         ];
         $payload = json_decode($changes[0]['payload'], true);
         unset($payload['createdAt']);
-        static::assertEquals($taxChange, $payload);
+        static::assertEquals($productChanges, $payload);
 
-        $changes = $this->getVersionData(TaxAreaRuleDefinition::getEntityName(), $ruleId, Defaults::LIVE_VERSION);
+        $changes = $this->getVersionData(ProductManufacturerDefinition::getEntityName(), $manufacturerId, Defaults::LIVE_VERSION);
         static::assertCount(1, $changes);
-        $taxAreaChange = [
-            'id' => $ruleId,
+
+        $manufacturerChanges = [
+            'id' => $manufacturerId,
+            'tenantId' => Defaults::TENANT_ID,
             'versionId' => Defaults::LIVE_VERSION,
-            'taxId' => $uuid,
-            'taxRate' => 99,
-            'active' => 1,
-            'customerGroupId' => '20080911ffff4fffafffffff19830531',
-            'taxVersionId' => '20080911ffff4fffafffffff19830531',
-            'customerGroupVersionId' => '20080911ffff4fffafffffff19830531',
-            'countryVersionId' => '20080911ffff4fffafffffff19830531',
-            'countryAreaVersionId' => '20080911ffff4fffafffffff19830531',
-            'countryStateVersionId' => '20080911ffff4fffafffffff19830531',
-            'tenantId' => '20080911ffff4fffafffffff19830531',
+            'catalogId' => Defaults::CATALOG,
+            'mediaVersionId' => Defaults::LIVE_VERSION,
         ];
         $payload = json_decode($changes[0]['payload'], true);
         unset($payload['createdAt']);
-        static::assertEquals($taxAreaChange, $payload);
+        static::assertEquals($manufacturerChanges, $payload);
 
-        $changes = $this->getTranslationVersionData(TaxAreaRuleTranslationDefinition::getEntityName(), Defaults::LANGUAGE, 'taxAreaRuleId', $ruleId, Defaults::LIVE_VERSION);
+        $changes = $this->getTranslationVersionData(ProductManufacturerTranslationDefinition::getEntityName(), Defaults::LANGUAGE, 'productManufacturerId', $manufacturerId, Defaults::LIVE_VERSION);
         static::assertCount(1, $changes);
-        $taxAreaTranslationChange = [
-            'taxAreaRuleId' => $ruleId,
-            'name' => 'required',
+
+        $manufacturerTranslationChange = [
+            'productManufacturerId' => $manufacturerId,
+            'productManufacturerVersionId' => Defaults::LIVE_VERSION,
+            'name' => 'manufacturer test',
             'languageId' => Defaults::LANGUAGE,
-            'taxAreaRuleVersionId' => Defaults::LIVE_VERSION,
+            'catalogId' => Defaults::CATALOG,
         ];
         $payload = json_decode($changes[0]['payload'], true);
         unset($payload['createdAt']);
 
-        static::assertEquals($taxAreaTranslationChange, $payload);
+        static::assertEquals($manufacturerTranslationChange, $payload);
     }
 
     public function testCreateNewVersion(): void
@@ -184,59 +199,59 @@ class VersioningTest extends TestCase
 
     public function testCreateNewVersionWithSubresources(): void
     {
-        $uuid = Uuid::uuid4();
-        $ruleId = Uuid::uuid4();
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
 
-        $taxData = [
-            'id' => $uuid->getHex(),
-            'name' => 'foo tax',
-            'taxRate' => 20,
-            'areaRules' => [
+        $shippingMethodId = Uuid::uuid4();
+        $priceId = Uuid::uuid4();
+
+        $methodData = [
+            'id' => $shippingMethodId->getHex(),
+            'bindShippingfree' => false,
+            'name' => 'foo',
+            'type' => 1,
+            'prices' => [
                 [
-                    'id' => $ruleId->getHex(),
-                    'taxRate' => 99,
-                    'active' => true,
-                    'name' => 'required',
-                    'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                    'id' => $priceId->getHex(),
+                    'quantityFrom' => 10,
+                    'price' => 10.0,
+                    'factor' => 1.0,
                 ],
             ],
         ];
 
-        $this->taxRepository->create([$taxData], $context);
+        $this->shippingMethodRepository->create([$methodData], $context);
 
-        $versionId = $this->taxRepository->createVersion($uuid->getHex(), $context, 'testCreateVersionWithSubresources version');
+        $versionId = $this->shippingMethodRepository->createVersion($shippingMethodId->getHex(), $context, 'testCreateVersionWithSubresources version');
 
         static::assertNotEmpty($versionId);
 
         $versionId = Uuid::fromString($versionId);
 
-        $tax = $this->connection->fetchAssoc(
-            'SELECT * FROM tax WHERE id = :id AND version_id = :versionId',
+        $method = $this->connection->fetchAssoc(
+            'SELECT * FROM shipping_method WHERE id = :id AND version_id = :versionId',
             [
-                'id' => $uuid->getBytes(),
+                'id' => $shippingMethodId->getBytes(),
                 'versionId' => $versionId->getBytes(),
             ]
         );
 
-        $taxRules = $this->connection->fetchAll(
-            'SELECT * FROM tax_area_rule WHERE tax_id = :id AND version_id = :versionId',
+        $prices = $this->connection->fetchAll(
+            'SELECT * FROM shipping_method_price WHERE shipping_method_id = :id AND version_id = :versionId',
             [
-                'id' => $uuid->getBytes(),
+                'id' => $shippingMethodId->getBytes(),
                 'versionId' => $versionId->getBytes(),
             ]
         );
 
-        static::assertNotFalse($tax, 'Tax clone was not created.');
-        static::assertCount(1, $taxRules, 'Tax area rule clones were not created.');
+        static::assertNotFalse($method, 'Tax clone was not created.');
+        static::assertCount(1, $prices, 'Product clones were not created.');
 
-        static::assertEquals($uuid->getBytes(), $tax['id']);
-        static::assertEquals($versionId->getBytes(), $tax['version_id']);
-        static::assertEquals('foo tax', $tax['name']);
-        static::assertEquals(20, $tax['tax_rate']);
+        static::assertEquals($shippingMethodId->getBytes(), $method['id']);
+        static::assertEquals($versionId->getBytes(), $method['version_id']);
+        static::assertEquals($methodData['type'], $method['type']);
 
-        static::assertEquals($uuid->getBytes(), $taxRules[0]['tax_id']);
-        static::assertEquals($versionId->getBytes(), $taxRules[0]['version_id']);
+        static::assertEquals($shippingMethodId->getBytes(), $prices[0]['shipping_method_id']);
+        static::assertEquals($versionId->getBytes(), $prices[0]['version_id']);
     }
 
     public function testMergeVersions(): void
@@ -405,100 +420,103 @@ class VersioningTest extends TestCase
     public function testOneToManyVersioning(): void
     {
         $uuid = Uuid::uuid4();
-        $liveVersionContext = Context::createDefaultContext(Defaults::TENANT_ID);
-        $taxData = [
+
+        $methodData = [
             'id' => $uuid->getHex(),
-            'name' => 'foo tax',
-            'taxRate' => 5,
-            'areaRules' => [
+            'bindShippingfree' => false,
+            'name' => 'foo',
+            'type' => 1,
+            'prices' => [
                 [
                     'id' => $uuid->getHex(),
-                    'taxRate' => 6,
-                    'name' => 'test',
-                    'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                    'quantityFrom' => 10,
+                    'price' => 10.0,
+                    'factor' => 1.0,
                 ],
             ],
         ];
-        $this->taxRepository->create([$taxData], $liveVersionContext);
 
-        $changes = $this->getVersionData(TaxDefinition::getEntityName(), $uuid->getHex(), Defaults::LIVE_VERSION);
+        $liveVersionContext = Context::createDefaultContext(Defaults::TENANT_ID);
+        $this->shippingMethodRepository->create([$methodData], $liveVersionContext);
+
+        $changes = $this->getVersionData(ShippingMethodDefinition::getEntityName(), $uuid->getHex(), Defaults::LIVE_VERSION);
         static::assertCount(1, $changes);
 
-        $changes = $this->getVersionData(TaxAreaRuleDefinition::getEntityName(), $uuid->getHex(), Defaults::LIVE_VERSION);
+        $changes = $this->getVersionData(ShippingMethodPriceDefinition::getEntityName(), $uuid->getHex(), Defaults::LIVE_VERSION);
         static::assertCount(1, $changes);
 
-        $versionId = $this->taxRepository->createVersion($uuid->getHex(), $liveVersionContext);
+        $versionId = $this->shippingMethodRepository->createVersion($uuid->getHex(), $liveVersionContext);
 
-        $changes = $this->getVersionData(TaxDefinition::getEntityName(), $uuid->getHex(), $versionId);
+        $changes = $this->getVersionData(ShippingMethodDefinition::getEntityName(), $uuid->getHex(), $versionId);
         static::assertCount(1, $changes);
 
-        $changes = $this->getVersionData(TaxAreaRuleDefinition::getEntityName(), $uuid->getHex(), $versionId);
+        $changes = $this->getVersionData(ShippingMethodPriceDefinition::getEntityName(), $uuid->getHex(), $versionId);
         static::assertCount(1, $changes);
 
         $versionContext = $liveVersionContext->createWithVersionId($versionId);
 
-        $this->taxRepository->upsert([
+        $this->shippingMethodRepository->upsert([
             [
                 'id' => $uuid->getHex(),
-                'taxRate' => 15,
-                'areaRules' => [
-                    ['id' => $uuid->getHex(), 'taxRate' => 16],
+                'type' => 2,
+                'prices' => [
+                    ['id' => $uuid->getHex(), 'price' => 15.0],
                 ],
             ],
         ], $versionContext);
 
-        $changes = $this->getVersionData(TaxDefinition::getEntityName(), $uuid->getHex(), $versionId);
+        $changes = $this->getVersionData(ShippingMethodDefinition::getEntityName(), $uuid->getHex(), $versionId);
         static::assertCount(2, $changes);
 
-        $changes = $this->getVersionData(TaxAreaRuleDefinition::getEntityName(), $uuid->getHex(), $versionId);
+        $changes = $this->getVersionData(ShippingMethodPriceDefinition::getEntityName(), $uuid->getHex(), $versionId);
         static::assertCount(2, $changes);
 
         $criteria = new ReadCriteria([$uuid->getHex()]);
-        $criteria->addAssociation('tax.areaRules');
+        $criteria->addAssociation('prices');
 
-        $liveTax = $this->taxRepository->read($criteria, $liveVersionContext);
-        static::assertCount(1, $liveTax);
-        static::assertTrue($liveTax->has($uuid->getHex()));
-        $tax = $liveTax->get($uuid->getHex());
+        $liveShippingMethod = $this->shippingMethodRepository->read($criteria, $liveVersionContext);
+        static::assertCount(1, $liveShippingMethod);
+        static::assertTrue($liveShippingMethod->has($uuid->getHex()));
+        $shippingMethod = $liveShippingMethod->get($uuid->getHex());
 
-        /* @var TaxStruct $tax */
-        static::assertEquals(5, $tax->getTaxRate());
-        static::assertCount(1, $tax->getAreaRules());
-        static::assertEquals(6, $tax->getAreaRules()->get($uuid->getHex())->getTaxRate());
+        /* @var ShippingMethodStruct $shippingMethod */
+        static::assertEquals(1, $shippingMethod->getType());
+        static::assertCount(1, $shippingMethod->getPrices());
+        static::assertEquals(10.0, $shippingMethod->getPrices()->get($uuid->getHex())->getPrice());
 
         $criteria = new ReadCriteria([$uuid->getHex()]);
-        $criteria->addAssociation('tax.areaRules');
-        $versionTax = $this->taxRepository->read($criteria, $versionContext);
-        static::assertCount(1, $versionTax);
-        static::assertTrue($versionTax->has($uuid->getHex()));
-        $tax = $versionTax->get($uuid->getHex());
+        $criteria->addAssociation('prices');
+        $versionShippingMethod = $this->shippingMethodRepository->read($criteria, $versionContext);
+        static::assertCount(1, $versionShippingMethod);
+        static::assertTrue($versionShippingMethod->has($uuid->getHex()));
+        $shippingMethod = $versionShippingMethod->get($uuid->getHex());
 
-        /* @var TaxStruct $tax */
-        static::assertEquals(15, $tax->getTaxRate());
-        static::assertCount(1, $tax->getAreaRules());
-        static::assertEquals(16, $tax->getAreaRules()->get($uuid->getHex())->getTaxRate());
+        /* @var ShippingMethodStruct $shippingMethod */
+        static::assertEquals(2, $shippingMethod->getType());
+        static::assertCount(1, $shippingMethod->getPrices());
+        static::assertEquals(15.0, $shippingMethod->getPrices()->get($uuid->getHex())->getPrice());
 
-        $this->taxRepository->merge($versionId, $liveVersionContext);
+        $this->shippingMethodRepository->merge($versionId, $liveVersionContext);
 
-        $liveTax = $this->taxRepository->read($criteria, $liveVersionContext);
-        static::assertCount(1, $liveTax);
-        static::assertTrue($liveTax->has($uuid->getHex()));
-        $tax = $liveTax->get($uuid->getHex());
+        $liveShippingMethod = $this->shippingMethodRepository->read($criteria, $liveVersionContext);
+        static::assertCount(1, $liveShippingMethod);
+        static::assertTrue($liveShippingMethod->has($uuid->getHex()));
+        $shippingMethod = $liveShippingMethod->get($uuid->getHex());
 
-        /* @var TaxStruct $tax */
-        static::assertEquals(15, $tax->getTaxRate());
-        static::assertCount(1, $tax->getAreaRules());
-        static::assertEquals(16, $tax->getAreaRules()->get($uuid->getHex())->getTaxRate());
+        /* @var ShippingMethodStruct $shippingMethod */
+        static::assertEquals(2, $shippingMethod->getType());
+        static::assertCount(1, $shippingMethod->getPrices());
+        static::assertEquals(15.0, $shippingMethod->getPrices()->get($uuid->getHex())->getPrice());
 
-        $liveTax = $this->taxRepository->read($criteria, $versionContext);
-        static::assertCount(1, $liveTax);
-        static::assertTrue($liveTax->has($uuid->getHex()));
-        $tax = $liveTax->get($uuid->getHex());
+        $liveShippingMethod = $this->shippingMethodRepository->read($criteria, $versionContext);
+        static::assertCount(1, $liveShippingMethod);
+        static::assertTrue($liveShippingMethod->has($uuid->getHex()));
+        $shippingMethod = $liveShippingMethod->get($uuid->getHex());
 
-        /* @var TaxStruct $tax */
-        static::assertEquals(15, $tax->getTaxRate());
-        static::assertCount(1, $tax->getAreaRules());
-        static::assertEquals(16, $tax->getAreaRules()->get($uuid->getHex())->getTaxRate());
+        /* @var ShippingMethodStruct $shippingMethod */
+        static::assertEquals(2, $shippingMethod->getType());
+        static::assertCount(1, $shippingMethod->getPrices());
+        static::assertEquals(15.0, $shippingMethod->getPrices()->get($uuid->getHex())->getPrice());
     }
 
     public function testVersioningWithProductInheritance(): void

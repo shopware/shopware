@@ -395,24 +395,6 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service id="country_area.repository" class="Shopware\Core\Framework\ORM\EntityRepository" public="true">
-            <argument>Shopware\Core\System\Country\Aggregate\CountryArea\CountryAreaDefinition</argument>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\VersionManager"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntitySearcherInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface"/>
-            <argument type="service" id="event_dispatcher"/>
-        </service>
-
-        <service id="country_area_translation.repository" class="Shopware\Core\Framework\ORM\EntityRepository" public="true">
-            <argument>Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\CountryAreaTranslationDefinition</argument>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\VersionManager"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntitySearcherInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface"/>
-            <argument type="service" id="event_dispatcher"/>
-        </service>
-
         <service id="country_state.repository" class="Shopware\Core\Framework\ORM\EntityRepository" public="true">
             <argument>Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition</argument>
             <argument type="service" id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface"/>
@@ -523,24 +505,6 @@
 
         <service id="tax.repository" class="Shopware\Core\Framework\ORM\EntityRepository" public="true">
             <argument>Shopware\Core\System\Tax\TaxDefinition</argument>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\VersionManager"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntitySearcherInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface"/>
-            <argument type="service" id="event_dispatcher"/>
-        </service>
-
-        <service id="tax_area_rule.repository" class="Shopware\Core\Framework\ORM\EntityRepository" public="true">
-            <argument>Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition</argument>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\VersionManager"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntitySearcherInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface"/>
-            <argument type="service" id="event_dispatcher"/>
-        </service>
-
-        <service id="tax_area_rule_translation.repository" class="Shopware\Core\Framework\ORM\EntityRepository" public="true">
-            <argument>Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\TaxAreaRuleTranslationDefinition</argument>
             <argument type="service" id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\VersionManager"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntitySearcherInterface"/>

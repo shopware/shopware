@@ -20,7 +20,6 @@ use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\ReverseInherited;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition;
 
 class TaxDefinition extends EntityDefinition
 {
@@ -40,7 +39,6 @@ class TaxDefinition extends EntityDefinition
             new CreatedAtField(),
             new UpdatedAtField(),
             (new OneToManyAssociationField('products', ProductDefinition::class, 'tax_id', false, 'id'))->setFlags(new RestrictDelete(), new ReverseInherited('tax')),
-            (new OneToManyAssociationField('areaRules', TaxAreaRuleDefinition::class, 'tax_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new OneToManyAssociationField('productServices', ProductServiceDefinition::class, 'tax_id', false, 'id'))->setFlags(new CascadeDelete()),
         ]);
     }

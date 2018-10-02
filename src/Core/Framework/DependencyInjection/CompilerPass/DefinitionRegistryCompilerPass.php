@@ -30,7 +30,6 @@ class DefinitionRegistryCompilerPass implements CompilerPassInterface
     private function collectDefinitions(ContainerBuilder $container): void
     {
         $services = $container->findTaggedServiceIds('shopware.entity.definition');
-
         $classes = [];
         foreach ($services as $serviceId => $attributes) {
             $service = $container->getDefinition($serviceId);

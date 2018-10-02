@@ -5,7 +5,6 @@ namespace Shopware\Core\System\Tax;
 use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceCollection;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleCollection;
 
 class TaxStruct extends Entity
 {
@@ -28,11 +27,6 @@ class TaxStruct extends Entity
      * @var \DateTime|null
      */
     protected $updatedAt;
-
-    /**
-     * @var TaxAreaRuleCollection|null
-     */
-    protected $areaRules;
 
     /**
      * @var ProductCollection|null
@@ -82,16 +76,6 @@ class TaxStruct extends Entity
     public function setUpdatedAt(\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
-    }
-
-    public function getAreaRules(): ?TaxAreaRuleCollection
-    {
-        return $this->areaRules;
-    }
-
-    public function setAreaRules(TaxAreaRuleCollection $areaRules): void
-    {
-        $this->areaRules = $areaRules;
     }
 
     public function getProducts(): ?ProductCollection

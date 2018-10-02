@@ -34,7 +34,6 @@ use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\Search\SearchDocumentDefinition;
-use Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\CountryAreaTranslationDefinition;
 use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationDefinition;
 use Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationDefinition;
 use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition;
@@ -47,7 +46,6 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesCha
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTypeTranslation\SalesChannelTypeTranslationDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Snippet\SnippetDefinition;
-use Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\TaxAreaRuleTranslationDefinition;
 use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationDefinition;
 
 class LanguageDefinition extends EntityDefinition
@@ -76,7 +74,6 @@ class LanguageDefinition extends EntityDefinition
             new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelLanguageDefinition::class, false, 'language_id', 'sales_channel_id'),
             (new TranslationsAssociationField('catalogTranslations', CatalogTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('categoryTranslations', CategoryTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField('countryAreaTranslations', CountryAreaTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('countryStateTranslations', CountryStateTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('countryTranslations', CountryTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('currencyTranslations', CurrencyTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new CascadeDelete()),
@@ -91,7 +88,6 @@ class LanguageDefinition extends EntityDefinition
             (new TranslationsAssociationField('productManufacturerTranslations', ProductManufacturerTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('productTranslations', ProductTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('shippingMethodTranslations', ShippingMethodTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField('taxAreaRuleTranslations', TaxAreaRuleTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('unitTranslations', UnitTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('configurationGroupTranslations', ConfigurationGroupTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('configurationGroupOptionTranslations', ConfigurationGroupOptionTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new CascadeDelete()),

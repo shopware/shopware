@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationCollection;
 use Shopware\Core\System\Country\CountryStruct;
-use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleCollection;
 
 class CountryStateStruct extends Entity
 {
@@ -65,11 +64,6 @@ class CountryStateStruct extends Entity
      * @var OrderAddressCollection|null
      */
     protected $orderAddresses;
-
-    /**
-     * @var TaxAreaRuleCollection|null
-     */
-    protected $taxAreaRules;
 
     public function getCountryId(): string
     {
@@ -179,15 +173,5 @@ class CountryStateStruct extends Entity
     public function setOrderAddresses(OrderAddressCollection $orderAddresses): void
     {
         $this->orderAddresses = $orderAddresses;
-    }
-
-    public function getTaxAreaRules(): ?TaxAreaRuleCollection
-    {
-        return $this->taxAreaRules;
-    }
-
-    public function setTaxAreaRules(TaxAreaRuleCollection $taxAreaRules): void
-    {
-        $this->taxAreaRules = $taxAreaRules;
     }
 }

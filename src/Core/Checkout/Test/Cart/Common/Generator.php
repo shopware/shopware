@@ -27,7 +27,6 @@ use Shopware\Core\Content\Catalog\CatalogStruct;
 use Shopware\Core\Content\Product\Cart\ProductGateway;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Core\System\Country\Aggregate\CountryArea\CountryAreaStruct;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateStruct;
 use Shopware\Core\System\Country\CountryStruct;
 use Shopware\Core\System\Currency\CurrencyStruct;
@@ -45,7 +44,6 @@ class Generator extends TestCase
         $salesChannel = null,
         $currency = null,
         $taxes = null,
-        $area = null,
         $country = null,
         $state = null,
         $shipping = null,
@@ -94,15 +92,9 @@ class Generator extends TestCase
             $taxes = new TaxCollection([$tax]);
         }
 
-        if (!$area) {
-            $area = new CountryAreaStruct();
-            $area->setId('5cff02b1-0297-41a4-891c-430bcd9e3603');
-        }
-
         if (!$country) {
             $country = new CountryStruct();
             $country->setId('5cff02b1-0297-41a4-891c-430bcd9e3603');
-            $country->setAreaId($area->getId());
             $country->setTaxFree(false);
             $country->setName('Germany');
         }

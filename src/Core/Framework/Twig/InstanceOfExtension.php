@@ -13,7 +13,7 @@ class InstanceOfExtension extends \Twig_Extension
         ];
     }
 
-    public function isInstanceOf($var, $class)
+    public function isInstanceOf($var, $class): bool
     {
         $reflectionClass = new \ReflectionClass($class);
 

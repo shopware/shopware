@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Payment\Cart\Token\JWTFactory;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
@@ -78,11 +79,11 @@ class PaymentServiceTest extends TestCase
      * @throws InvalidOrderException
      * @throws UnknownPaymentMethodException
      */
-    public function testHandlePaymentByOrderWithInvalidOrderId()
+    public function testHandlePaymentByOrderWithInvalidOrderId(): void
     {
         $orderId = Uuid::uuid4()->getHex();
         $checkoutContext = Generator::createContext();
-        static::expectException(InvalidOrderException::class);
+        $this->expectException(InvalidOrderException::class);
         $this->paymentService->handlePaymentByOrder(
             $orderId,
             $checkoutContext
@@ -93,7 +94,7 @@ class PaymentServiceTest extends TestCase
      * @throws InvalidOrderException
      * @throws UnknownPaymentMethodException
      */
-    public function testHandlePaymentByOrder()
+    public function testHandlePaymentByOrder(): void
     {
         $paymentMethodId = $this->createPaymentMethod($this->context);
         $customerId = $this->createCustomer($this->context);
@@ -114,11 +115,11 @@ class PaymentServiceTest extends TestCase
      * @throws TokenExpiredException
      * @throws UnknownPaymentMethodException
      */
-    public function testFinalizeTransactionWithInvalidToken()
+    public function testFinalizeTransactionWithInvalidToken(): void
     {
         $token = Uuid::uuid4()->getHex();
         $request = new Request();
-        self::expectException(InvalidTokenException::class);
+        $this->expectException(InvalidTokenException::class);
         $this->paymentService->finalizeTransaction(
             $token,
             $request,
@@ -130,21 +131,20 @@ class PaymentServiceTest extends TestCase
      * @throws TokenExpiredException
      * @throws UnknownPaymentMethodException
      */
-    public function testFinalizeTransactionWithExpiredToken()
+    public function testFinalizeTransactionWithExpiredToken(): void
     {
         $request = new Request();
         $transaction = JWTFactoryTest::createTransaction();
 
         $token = $this->tokenFactory->generateToken($transaction, $this->context, -1);
 
-        static::expectException(TokenExpiredException::class);
+        $this->expectException(TokenExpiredException::class);
         $this->paymentService->finalizeTransaction($token, $request, $this->context);
     }
 
-    private function getCheckoutContext(string $paymentMethodId)
+    private function getCheckoutContext(string $paymentMethodId): CheckoutContext
     {
         return Generator::createContext(
-            null,
             null,
             null,
             null,
@@ -184,7 +184,7 @@ class PaymentServiceTest extends TestCase
         string $customerId,
         string $paymentMethodId,
         Context $context
-    ) {
+    ): string {
         $orderId = Uuid::uuid4()->getHex();
 
         $order = [

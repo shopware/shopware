@@ -43,7 +43,7 @@ class MigrationRuntime
             }
 
             $this->setExecuted($migration);
-            yield get_class($migration);
+            yield \get_class($migration);
         }
     }
 
@@ -64,7 +64,7 @@ class MigrationRuntime
             }
 
             $this->setExecutedDestructive($migration);
-            yield get_class($migration);
+            yield \get_class($migration);
         }
     }
 
@@ -112,11 +112,11 @@ class MigrationRuntime
                 '`message`' => $message,
             ],
             [
-                '`class`' => get_class($migration),
+                '`class`' => \get_class($migration),
             ]
         );
 
-        $this->logger->error('Migration: "' . get_class($migration) . '" failed: "' . $message . '"');
+        $this->logger->error('Migration: "' . \get_class($migration) . '" failed: "' . $message . '"');
     }
 
     private function getSetExecutedBaseQuery(string $class): QueryBuilder
@@ -130,14 +130,14 @@ class MigrationRuntime
 
     private function setExecutedDestructive(MigrationStep $migrationStep): void
     {
-        $this->getSetExecutedBaseQuery(get_class($migrationStep))
+        $this->getSetExecutedBaseQuery(\get_class($migrationStep))
             ->set('`update_destructive`', 'NOW(6)')
             ->execute();
     }
 
     private function setExecuted(MigrationStep $migrationStep): void
     {
-        $this->getSetExecutedBaseQuery(get_class($migrationStep))
+        $this->getSetExecutedBaseQuery(\get_class($migrationStep))
             ->set('`update`', 'NOW(6)')
             ->execute();
     }

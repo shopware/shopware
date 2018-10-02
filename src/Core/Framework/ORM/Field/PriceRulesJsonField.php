@@ -7,7 +7,7 @@ use Shopware\Core\Framework\ORM\Write\EntityExistence;
 
 class PriceRulesJsonField extends JsonField
 {
-    public static function format(string $ruleId, string $currencyId, float $gross, float $net)
+    public static function format(string $ruleId, string $currencyId, float $gross, float $net): array
     {
         return [
             'r' . $ruleId => [
@@ -50,7 +50,7 @@ class PriceRulesJsonField extends JsonField
             $this->validate($this->getInsertConstraints(), $data->getKey(), $value);
         }
 
-        if (!is_string($value) && $value !== null) {
+        if (!\is_string($value) && $value !== null) {
             $value = json_encode($value);
         }
 

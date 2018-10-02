@@ -19,7 +19,7 @@ class Kernel extends HttpKernel
 {
     use MicroKernelTrait;
 
-    const CONFIG_EXTS = '.{php,xml,yaml,yml}';
+    public const CONFIG_EXTS = '.{php,xml,yaml,yml}';
 
     /**
      * @var \PDO|null
@@ -47,7 +47,7 @@ class Kernel extends HttpKernel
         $contents = require $this->getProjectDir() . '/config/bundles.php';
 
         foreach (self::$plugins->getActives() as $plugin) {
-            $contents[get_class($plugin)] = ['all' => true];
+            $contents[\get_class($plugin)] = ['all' => true];
         }
 
         foreach ($contents as $class => $envs) {
@@ -127,7 +127,7 @@ class Kernel extends HttpKernel
         return $this->getProjectDir() . '/var/logs';
     }
 
-    public function getPluginDir()
+    public function getPluginDir(): string
     {
         return $this->getProjectDir() . '/custom/plugins';
     }
@@ -144,7 +144,7 @@ class Kernel extends HttpKernel
         return parent::shutdown();
     }
 
-    protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader)
+    protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader): void
     {
         $container->setParameter('container.dumper.inline_class_loader', true);
 
@@ -156,7 +156,7 @@ class Kernel extends HttpKernel
         $loader->load($confDir . '/{services}_' . $this->environment . self::CONFIG_EXTS, 'glob');
     }
 
-    protected function configureRoutes(RouteCollectionBuilder $routes)
+    protected function configureRoutes(RouteCollectionBuilder $routes): void
     {
         $confDir = $this->getProjectDir() . '/config';
 
@@ -231,14 +231,14 @@ class Kernel extends HttpKernel
                 );
             }
 
-            $isActive = in_array($pluginName, $activePlugins, true);
+            $isActive = \in_array($pluginName, $activePlugins, true);
 
             /** @var \Shopware\Core\Framework\Plugin $plugin */
             $plugin = new $className($isActive);
 
             if (!$plugin instanceof Plugin) {
                 throw new \RuntimeException(
-                    sprintf('Class %s must extend %s in file %s', get_class($plugin), Plugin::class, $pluginFile)
+                    sprintf('Class %s must extend %s in file %s', \get_class($plugin), Plugin::class, $pluginFile)
                 );
             }
 

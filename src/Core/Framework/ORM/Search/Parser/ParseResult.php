@@ -41,7 +41,7 @@ class ParseResult
         return $this->types[$key] ?: null;
     }
 
-    public function merge(self $toMerge)
+    public function merge(self $toMerge): ParseResult
     {
         $merged = new self();
         foreach ($this->parameters as $key => $parameter) {

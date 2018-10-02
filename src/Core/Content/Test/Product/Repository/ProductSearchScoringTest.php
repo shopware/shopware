@@ -37,7 +37,7 @@ class ProductSearchScoringTest extends TestCase
         $this->repository = $this->getContainer()->get('product.repository');
     }
 
-    public function testScoringExtensionExists()
+    public function testScoringExtensionExists(): void
     {
         $pattern = new SearchPattern(new SearchTerm('test'), 'product');
         $builder = new EntityScoreQueryBuilder();

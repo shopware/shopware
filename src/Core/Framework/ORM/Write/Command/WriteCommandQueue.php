@@ -1,26 +1,4 @@
 <?php declare(strict_types=1);
-/**
- * Shopware 5
- * Copyright (c) shopware AG
- *
- * According to our dual licensing model, this program can be used either
- * under the terms of the GNU Affero General Public License, version 3,
- * or under a proprietary license.
- *
- * The texts of the GNU Affero General Public License with an additional
- * permission and of our proprietary license can be found at and
- * in the LICENSE file you have received along with this program.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * "Shopware" is a registered trademark of shopware AG.
- * The licensing of the program under the AGPLv3 does not imply a
- * trademark license. Therefore any rights, title and interest in
- * our trademarks remain entirely with us.
- */
 
 namespace Shopware\Core\Framework\ORM\Write\Command;
 
@@ -58,7 +36,7 @@ class WriteCommandQueue
      */
     public function setOrder(string $definition, string ...$identifierOrder): void
     {
-        if (in_array($definition, $this->registeredResources, true)) {
+        if (\in_array($definition, $this->registeredResources, true)) {
             return;
         }
 
@@ -75,13 +53,13 @@ class WriteCommandQueue
 
     public function updateOrder(string $definition, string ...$identifierOrder): void
     {
-        if (in_array($definition, $this->registeredResources, true)) {
+        if (\in_array($definition, $this->registeredResources, true)) {
             return;
         }
 
         $notAlreadyOrderedIdentifiers = [];
         foreach ($identifierOrder as $identifier) {
-            if ($identifier === $definition || array_search($identifier, $this->order, true) === false) {
+            if ($identifier === $definition || !\in_array($identifier, $this->order, true)) {
                 $notAlreadyOrderedIdentifiers[] = $identifier;
             }
         }
@@ -114,9 +92,9 @@ class WriteCommandQueue
         return $this->order;
     }
 
-    public function add(string $senderIdentification, WriteCommandInterface $command)
+    public function add(string $senderIdentification, WriteCommandInterface $command): void
     {
-        if (!is_array($this->commands[$senderIdentification])) {
+        if (!\is_array($this->commands[$senderIdentification])) {
             throw new \InvalidArgumentException(sprintf('Unable to set write command for %s, it was not beforehand registered.', $senderIdentification));
         }
 

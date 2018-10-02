@@ -984,13 +984,7 @@ class DemodataCommand extends ContainerAwareCommand
         $this->io->section("Generating {$limit} media items...");
         $this->io->progressStart($limit);
 
-        $payload = [];
-
         for ($i = 0; $i < $limit; ++$i) {
-            $payload[] = [
-                'name' => 'File #' . $i,
-            ];
-
             $file = $this->getRandomFile();
 
             $mediaId = \Ramsey\Uuid\Uuid::uuid4()->getHex();

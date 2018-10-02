@@ -1141,8 +1141,8 @@ curl -X POST \
 
 The created order is returned as response. Please see above for an example response.
 
-You can also define a sperate shipping address by using shippingCountry, shippingCity... 
-If you dont provide shipping details, the billing details will be used.
+You can also define a separate shipping address by using shippingCountry, shippingCity... 
+If you don't provide shipping details, the billing details will be used.
 
 ## Examples
 
@@ -1154,19 +1154,19 @@ If you dont provide shipping details, the billing details will be used.
 
 $curl = curl_init();
 
-curl_setopt_array($curl, array(
-  CURLOPT_URL => "http://shopware.development/storefront-api/checkout/cart",
-  CURLOPT_RETURNTRANSFER => true,
-  CURLOPT_ENCODING => "",
-  CURLOPT_MAXREDIRS => 10,
-  CURLOPT_TIMEOUT => 30,
-  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-  CURLOPT_CUSTOMREQUEST => "POST",
-  CURLOPT_HTTPHEADER => array(
-    "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjVlMWUzOGIyNjI0MjAzM2U1NmEzNGExMjJmMjA4NWM5MWVkMjFkMzI3MGI5MTk4NzJkZjRmMTgwYzM0OTgxODM4ZmMwNjE4ZjMzM2RkN2ZmIn0.eyJhdWQiOiJmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZiIsImp0aSI6IjVlMWUzOGIyNjI0MjAzM2U1NmEzNGExMjJmMjA4NWM5MWVkMjFkMzI3MGI5MTk4NzJkZjRmMTgwYzM0OTgxODM4ZmMwNjE4ZjMzM2RkN2ZmIiwiaWF0IjoxNTMwODY3NTEzLCJuYmYiOjE1MzA4Njc1MTMsImV4cCI6MTUzMDg3MTExMywic3ViIjoiIiwic2NvcGVzIjpbXX0.Rk0r2FFUPe14h830DCIgB-QcnDvf9KSAuxNGNpLFfW6KD_cRAdSX3JQm0sju4L0YgUugyXPZZLsLHkSmMP-yWD4t87EI_f2ODJl99ak7RWXzA_MF7e0LsE9knvApR3BIJavxVPjNWjSyvt6QvPNALAcGK5yamjdVRTUooHEmgSOKLHKOoYtUIOEUqRzU_q9UdHELN3UUDa3vZfqmPxBflsG0G5EhnSSpHMJrVZ3rwPu0vRCJ3anS1nfl3xeohSoxlooRv2iOsl2B_xkbLGYu2JpY9-eiWKkHIFaLHMtAvIIsHhOrfzM2hQyKhQh7niwkJYpcyEh1l7nZ6q7MhaSKqw",
-    "x-sw-context-token: c439592b53ab4e769987bfe5ceb021ed"
-  ),
-));
+curl_setopt_array($curl, [
+    CURLOPT_URL => 'http://shopware.development/storefront-api/checkout/cart',
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_ENCODING => '',
+    CURLOPT_MAXREDIRS => 10,
+    CURLOPT_TIMEOUT => 30,
+    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+    CURLOPT_CUSTOMREQUEST => 'POST',
+    CURLOPT_HTTPHEADER => [
+        'Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjVlMWUzOGIyNjI0MjAzM2U1NmEzNGExMjJmMjA4NWM5MWVkMjFkMzI3MGI5MTk4NzJkZjRmMTgwYzM0OTgxODM4ZmMwNjE4ZjMzM2RkN2ZmIn0.eyJhdWQiOiJmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZiIsImp0aSI6IjVlMWUzOGIyNjI0MjAzM2U1NmEzNGExMjJmMjA4NWM5MWVkMjFkMzI3MGI5MTk4NzJkZjRmMTgwYzM0OTgxODM4ZmMwNjE4ZjMzM2RkN2ZmIiwiaWF0IjoxNTMwODY3NTEzLCJuYmYiOjE1MzA4Njc1MTMsImV4cCI6MTUzMDg3MTExMywic3ViIjoiIiwic2NvcGVzIjpbXX0.Rk0r2FFUPe14h830DCIgB-QcnDvf9KSAuxNGNpLFfW6KD_cRAdSX3JQm0sju4L0YgUugyXPZZLsLHkSmMP-yWD4t87EI_f2ODJl99ak7RWXzA_MF7e0LsE9knvApR3BIJavxVPjNWjSyvt6QvPNALAcGK5yamjdVRTUooHEmgSOKLHKOoYtUIOEUqRzU_q9UdHELN3UUDa3vZfqmPxBflsG0G5EhnSSpHMJrVZ3rwPu0vRCJ3anS1nfl3xeohSoxlooRv2iOsl2B_xkbLGYu2JpY9-eiWKkHIFaLHMtAvIIsHhOrfzM2hQyKhQh7niwkJYpcyEh1l7nZ6q7MhaSKqw',
+        'x-sw-context-token: c439592b53ab4e769987bfe5ceb021ed'
+    ],
+]);
 
 $response = curl_exec($curl);
 $err = curl_error($curl);
@@ -1174,9 +1174,9 @@ $err = curl_error($curl);
 curl_close($curl);
 
 if ($err) {
-  echo "cURL Error #:" . $err;
+    echo 'cURL Error #:' . $err;
 } else {
-  echo $response;
+    echo $response;
 }
 ```
 
@@ -1186,19 +1186,19 @@ if ($err) {
 
 $curl = curl_init();
 
-curl_setopt_array($curl, array(
-  CURLOPT_URL => "http://shopware.development/storefront-api/checkout/cart",
-  CURLOPT_RETURNTRANSFER => true,
-  CURLOPT_ENCODING => "",
-  CURLOPT_MAXREDIRS => 10,
-  CURLOPT_TIMEOUT => 30,
-  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-  CURLOPT_CUSTOMREQUEST => "GET",
-  CURLOPT_HTTPHEADER => array(
-    "x-sw-access-key: SWSCSFB2VUQ4QTRKUHBVMEZNTQ",
-    "x-sw-context-token: c439592b53ab4e769987bfe5ceb021ed"
-  ),
-));
+curl_setopt_array($curl, [
+    CURLOPT_URL => 'http://shopware.development/storefront-api/checkout/cart',
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_ENCODING => '',
+    CURLOPT_MAXREDIRS => 10,
+    CURLOPT_TIMEOUT => 30,
+    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+    CURLOPT_CUSTOMREQUEST => 'GET',
+    CURLOPT_HTTPHEADER => [
+        'x-sw-access-key: SWSCSFB2VUQ4QTRKUHBVMEZNTQ',
+        'x-sw-context-token: c439592b53ab4e769987bfe5ceb021ed'
+    ],
+]);
 
 $response = curl_exec($curl);
 $err = curl_error($curl);
@@ -1206,9 +1206,9 @@ $err = curl_error($curl);
 curl_close($curl);
 
 if ($err) {
-  echo "cURL Error #:" . $err;
+    echo 'cURL Error #:' . $err;
 } else {
-  echo $response;
+    echo $response;
 }
 ```
 
@@ -1218,21 +1218,21 @@ if ($err) {
 
 $curl = curl_init();
 
-curl_setopt_array($curl, array(
-  CURLOPT_URL => "http://shopware.development/storefront-api/checkout/cart/line-item/b5719dba30e84f4187248ce0b75ca68b",
-  CURLOPT_RETURNTRANSFER => true,
-  CURLOPT_ENCODING => "",
-  CURLOPT_MAXREDIRS => 10,
-  CURLOPT_TIMEOUT => 30,
-  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-  CURLOPT_CUSTOMREQUEST => "POST",
-  CURLOPT_POSTFIELDS => "{\n\t\"type\": \"product\",\n\t\"quantity\": 1,\n\t\"payload\": {\n\t\t\"id\": \"b5719dba30e84f4187248ce0b75ca68b\"\n\t}\n}",
-  CURLOPT_HTTPHEADER => array(
-    "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjVlMWUzOGIyNjI0MjAzM2U1NmEzNGExMjJmMjA4NWM5MWVkMjFkMzI3MGI5MTk4NzJkZjRmMTgwYzM0OTgxODM4ZmMwNjE4ZjMzM2RkN2ZmIn0.eyJhdWQiOiJmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZiIsImp0aSI6IjVlMWUzOGIyNjI0MjAzM2U1NmEzNGExMjJmMjA4NWM5MWVkMjFkMzI3MGI5MTk4NzJkZjRmMTgwYzM0OTgxODM4ZmMwNjE4ZjMzM2RkN2ZmIiwiaWF0IjoxNTMwODY3NTEzLCJuYmYiOjE1MzA4Njc1MTMsImV4cCI6MTUzMDg3MTExMywic3ViIjoiIiwic2NvcGVzIjpbXX0.Rk0r2FFUPe14h830DCIgB-QcnDvf9KSAuxNGNpLFfW6KD_cRAdSX3JQm0sju4L0YgUugyXPZZLsLHkSmMP-yWD4t87EI_f2ODJl99ak7RWXzA_MF7e0LsE9knvApR3BIJavxVPjNWjSyvt6QvPNALAcGK5yamjdVRTUooHEmgSOKLHKOoYtUIOEUqRzU_q9UdHELN3UUDa3vZfqmPxBflsG0G5EhnSSpHMJrVZ3rwPu0vRCJ3anS1nfl3xeohSoxlooRv2iOsl2B_xkbLGYu2JpY9-eiWKkHIFaLHMtAvIIsHhOrfzM2hQyKhQh7niwkJYpcyEh1l7nZ6q7MhaSKqw",
-    "Content-Type: application/json",
-    "x-sw-context-token: c439592b53ab4e769987bfe5ceb021ed"
-  ),
-));
+curl_setopt_array($curl, [
+    CURLOPT_URL => 'http://shopware.development/storefront-api/checkout/cart/line-item/b5719dba30e84f4187248ce0b75ca68b',
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_ENCODING => '',
+    CURLOPT_MAXREDIRS => 10,
+    CURLOPT_TIMEOUT => 30,
+    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+    CURLOPT_CUSTOMREQUEST => 'POST',
+    CURLOPT_POSTFIELDS => "{\n\t\"type\": \"product\",\n\t\"quantity\": 1,\n\t\"payload\": {\n\t\t\"id\": \"b5719dba30e84f4187248ce0b75ca68b\"\n\t}\n}",
+    CURLOPT_HTTPHEADER => [
+        'Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjVlMWUzOGIyNjI0MjAzM2U1NmEzNGExMjJmMjA4NWM5MWVkMjFkMzI3MGI5MTk4NzJkZjRmMTgwYzM0OTgxODM4ZmMwNjE4ZjMzM2RkN2ZmIn0.eyJhdWQiOiJmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZiIsImp0aSI6IjVlMWUzOGIyNjI0MjAzM2U1NmEzNGExMjJmMjA4NWM5MWVkMjFkMzI3MGI5MTk4NzJkZjRmMTgwYzM0OTgxODM4ZmMwNjE4ZjMzM2RkN2ZmIiwiaWF0IjoxNTMwODY3NTEzLCJuYmYiOjE1MzA4Njc1MTMsImV4cCI6MTUzMDg3MTExMywic3ViIjoiIiwic2NvcGVzIjpbXX0.Rk0r2FFUPe14h830DCIgB-QcnDvf9KSAuxNGNpLFfW6KD_cRAdSX3JQm0sju4L0YgUugyXPZZLsLHkSmMP-yWD4t87EI_f2ODJl99ak7RWXzA_MF7e0LsE9knvApR3BIJavxVPjNWjSyvt6QvPNALAcGK5yamjdVRTUooHEmgSOKLHKOoYtUIOEUqRzU_q9UdHELN3UUDa3vZfqmPxBflsG0G5EhnSSpHMJrVZ3rwPu0vRCJ3anS1nfl3xeohSoxlooRv2iOsl2B_xkbLGYu2JpY9-eiWKkHIFaLHMtAvIIsHhOrfzM2hQyKhQh7niwkJYpcyEh1l7nZ6q7MhaSKqw',
+        'Content-Type: application/json',
+        'x-sw-context-token: c439592b53ab4e769987bfe5ceb021ed'
+    ],
+]);
 
 $response = curl_exec($curl);
 $err = curl_error($curl);
@@ -1240,9 +1240,9 @@ $err = curl_error($curl);
 curl_close($curl);
 
 if ($err) {
-  echo "cURL Error #:" . $err;
+    echo 'cURL Error #:' . $err;
 } else {
-  echo $response;
+    echo $response;
 }
 ```
 
@@ -1252,19 +1252,19 @@ if ($err) {
 
 $curl = curl_init();
 
-curl_setopt_array($curl, array(
-  CURLOPT_URL => "http://shopware.development/storefront-api/checkout/cart/product/b5719dba30e84f4187248ce0b75ca68b",
-  CURLOPT_RETURNTRANSFER => true,
-  CURLOPT_ENCODING => "",
-  CURLOPT_MAXREDIRS => 10,
-  CURLOPT_TIMEOUT => 30,
-  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-  CURLOPT_CUSTOMREQUEST => "POST",
-  CURLOPT_HTTPHEADER => array(
-    "x-sw-access-key: SWSCSFB2VUQ4QTRKUHBVMEZNTQ",
-    "x-sw-context-token: c439592b53ab4e769987bfe5ceb021ed"
-  ),
-));
+curl_setopt_array($curl, [
+    CURLOPT_URL => 'http://shopware.development/storefront-api/checkout/cart/product/b5719dba30e84f4187248ce0b75ca68b',
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_ENCODING => '',
+    CURLOPT_MAXREDIRS => 10,
+    CURLOPT_TIMEOUT => 30,
+    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+    CURLOPT_CUSTOMREQUEST => 'POST',
+    CURLOPT_HTTPHEADER => [
+        'x-sw-access-key: SWSCSFB2VUQ4QTRKUHBVMEZNTQ',
+        'x-sw-context-token: c439592b53ab4e769987bfe5ceb021ed'
+    ],
+]);
 
 $response = curl_exec($curl);
 $err = curl_error($curl);
@@ -1272,9 +1272,9 @@ $err = curl_error($curl);
 curl_close($curl);
 
 if ($err) {
-  echo "cURL Error #:" . $err;
+    echo 'cURL Error #:' . $err;
 } else {
-  echo $response;
+    echo $response;
 }
 ```
 
@@ -1284,20 +1284,20 @@ if ($err) {
 
 $curl = curl_init();
 
-curl_setopt_array($curl, array(
-  CURLOPT_URL => "http://shopware.development/storefront-api/checkout/cart/line-item/b5719dba30e84f4187248ce0b75ca68b/quantity/10",
-  CURLOPT_RETURNTRANSFER => true,
-  CURLOPT_ENCODING => "",
-  CURLOPT_MAXREDIRS => 10,
-  CURLOPT_TIMEOUT => 30,
-  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-  CURLOPT_CUSTOMREQUEST => "PATCH",
-  CURLOPT_HTTPHEADER => array(
-    "x-sw-access-key: SWSCSFB2VUQ4QTRKUHBVMEZNTQ",
-    "Content-Type: application/json",
-    "x-sw-context-token: c439592b53ab4e769987bfe5ceb021ed"
-  ),
-));
+curl_setopt_array($curl, [
+    CURLOPT_URL => 'http://shopware.development/storefront-api/checkout/cart/line-item/b5719dba30e84f4187248ce0b75ca68b/quantity/10',
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_ENCODING => '',
+    CURLOPT_MAXREDIRS => 10,
+    CURLOPT_TIMEOUT => 30,
+    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+    CURLOPT_CUSTOMREQUEST => 'PATCH',
+    CURLOPT_HTTPHEADER => [
+        'x-sw-access-key: SWSCSFB2VUQ4QTRKUHBVMEZNTQ',
+        'Content-Type: application/json',
+        'x-sw-context-token: c439592b53ab4e769987bfe5ceb021ed'
+    ],
+]);
 
 $response = curl_exec($curl);
 $err = curl_error($curl);
@@ -1305,9 +1305,9 @@ $err = curl_error($curl);
 curl_close($curl);
 
 if ($err) {
-  echo "cURL Error #:" . $err;
+    echo 'cURL Error #:' . $err;
 } else {
-  echo $response;
+    echo $response;
 }
 ```
 
@@ -1317,20 +1317,20 @@ if ($err) {
 
 $curl = curl_init();
 
-curl_setopt_array($curl, array(
-  CURLOPT_URL => "http://shopware.development/storefront-api/checkout/cart/line-item/b5719dba30e84f4187248ce0b75ca68b",
-  CURLOPT_RETURNTRANSFER => true,
-  CURLOPT_ENCODING => "",
-  CURLOPT_MAXREDIRS => 10,
-  CURLOPT_TIMEOUT => 30,
-  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-  CURLOPT_CUSTOMREQUEST => "DELETE",
-  CURLOPT_HTTPHEADER => array(
-    "x-sw-access-key: SWSCSFB2VUQ4QTRKUHBVMEZNTQ",
-    "Content-Type: application/json",
-    "x-sw-context-token: c439592b53ab4e769987bfe5ceb021ed"
-  ),
-));
+curl_setopt_array($curl, [
+    CURLOPT_URL => 'http://shopware.development/storefront-api/checkout/cart/line-item/b5719dba30e84f4187248ce0b75ca68b',
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_ENCODING => '',
+    CURLOPT_MAXREDIRS => 10,
+    CURLOPT_TIMEOUT => 30,
+    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+    CURLOPT_CUSTOMREQUEST => 'DELETE',
+    CURLOPT_HTTPHEADER => [
+        'x-sw-access-key: SWSCSFB2VUQ4QTRKUHBVMEZNTQ',
+        'Content-Type: application/json',
+        'x-sw-context-token: c439592b53ab4e769987bfe5ceb021ed'
+    ],
+]);
 
 $response = curl_exec($curl);
 $err = curl_error($curl);
@@ -1338,9 +1338,9 @@ $err = curl_error($curl);
 curl_close($curl);
 
 if ($err) {
-  echo "cURL Error #:" . $err;
+    echo 'cURL Error #:' . $err;
 } else {
-  echo $response;
+    echo $response;
 }
 ```
 
@@ -1350,21 +1350,21 @@ if ($err) {
 
 $curl = curl_init();
 
-curl_setopt_array($curl, array(
-  CURLOPT_URL => "http://shopware.development/storefront-api/customer/login",
-  CURLOPT_RETURNTRANSFER => true,
-  CURLOPT_ENCODING => "",
-  CURLOPT_MAXREDIRS => 10,
-  CURLOPT_TIMEOUT => 30,
-  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-  CURLOPT_CUSTOMREQUEST => "POST",
-  CURLOPT_POSTFIELDS => "{\n\t\"username\": \"test@example.com\",\n\t\"password\": \"shopware\"\n}",
-  CURLOPT_HTTPHEADER => array(
-    "x-sw-access-key: SWSCSFB2VUQ4QTRKUHBVMEZNTQ",
-    "Content-Type: application/json",
-    "x-sw-context-token: c439592b53ab4e769987bfe5ceb021ed"
-  ),
-));
+curl_setopt_array($curl, [
+    CURLOPT_URL => 'http://shopware.development/storefront-api/customer/login',
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_ENCODING => '',
+    CURLOPT_MAXREDIRS => 10,
+    CURLOPT_TIMEOUT => 30,
+    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+    CURLOPT_CUSTOMREQUEST => 'POST',
+    CURLOPT_POSTFIELDS => "{\n\t\"username\": \"test@example.com\",\n\t\"password\": \"shopware\"\n}",
+    CURLOPT_HTTPHEADER => [
+        'x-sw-access-key: SWSCSFB2VUQ4QTRKUHBVMEZNTQ',
+        'Content-Type: application/json',
+        'x-sw-context-token: c439592b53ab4e769987bfe5ceb021ed'
+    ],
+]);
 
 $response = curl_exec($curl);
 $err = curl_error($curl);
@@ -1372,9 +1372,9 @@ $err = curl_error($curl);
 curl_close($curl);
 
 if ($err) {
-  echo "cURL Error #:" . $err;
+    echo 'cURL Error #:' . $err;
 } else {
-  echo $response;
+    echo $response;
 }
 ```
 
@@ -1384,20 +1384,20 @@ if ($err) {
 
 $curl = curl_init();
 
-curl_setopt_array($curl, array(
-  CURLOPT_URL => "http://shopware.development/storefront-api/checkout/order",
-  CURLOPT_RETURNTRANSFER => true,
-  CURLOPT_ENCODING => "",
-  CURLOPT_MAXREDIRS => 10,
-  CURLOPT_TIMEOUT => 30,
-  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-  CURLOPT_CUSTOMREQUEST => "POST",
-  CURLOPT_HTTPHEADER => array(
-    "x-sw-access-key: SWSCSFB2VUQ4QTRKUHBVMEZNTQ",
-    "Content-Type: application/json",
-    "x-sw-context-token: c439592b53ab4e769987bfe5ceb021ed"
-  ),
-));
+curl_setopt_array($curl, [
+    CURLOPT_URL => 'http://shopware.development/storefront-api/checkout/order',
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_ENCODING => '',
+    CURLOPT_MAXREDIRS => 10,
+    CURLOPT_TIMEOUT => 30,
+    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+    CURLOPT_CUSTOMREQUEST => 'POST',
+    CURLOPT_HTTPHEADER => [
+        'x-sw-access-key: SWSCSFB2VUQ4QTRKUHBVMEZNTQ',
+        'Content-Type: application/json',
+        'x-sw-context-token: c439592b53ab4e769987bfe5ceb021ed'
+    ],
+]);
 
 $response = curl_exec($curl);
 $err = curl_error($curl);
@@ -1405,8 +1405,8 @@ $err = curl_error($curl);
 curl_close($curl);
 
 if ($err) {
-  echo "cURL Error #:" . $err;
+    echo 'cURL Error #:' . $err;
 } else {
-  echo $response;
+    echo $response;
 }
 ```

@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -98,7 +99,7 @@ class ApiTestCase extends WebTestCase
         return $clientKernel->getContainer()->get('test.client');
     }
 
-    public function getContainer()
+    public function getContainer(): ContainerInterface
     {
         return self::$container;
     }
@@ -114,7 +115,7 @@ class ApiTestCase extends WebTestCase
 
         $this->apiClient->request('GET', $url);
 
-        $this->assertSame(
+        static::assertSame(
             Response::HTTP_OK,
             $this->apiClient->getResponse()->getStatusCode(),
             'Entity does not exists but should do.'
@@ -127,7 +128,7 @@ class ApiTestCase extends WebTestCase
 
         $this->apiClient->request('GET', $url);
 
-        $this->assertSame(
+        static::assertSame(
             Response::HTTP_NOT_FOUND,
             $this->apiClient->getResponse()->getStatusCode(),
             'Entity exists but should not.'
@@ -171,8 +172,8 @@ class ApiTestCase extends WebTestCase
 
         $data = json_decode($client->getResponse()->getContent(), true);
 
-        $this->assertArrayHasKey('access_token', $data, 'No token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error' . print_r($data, true)));
-        $this->assertArrayHasKey('refresh_token', $data, 'No refresh_token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error'));
+        static::assertArrayHasKey('access_token', $data, 'No token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error' . print_r($data, true)));
+        static::assertArrayHasKey('refresh_token', $data, 'No refresh_token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error'));
 
         $client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['access_token']));
     }

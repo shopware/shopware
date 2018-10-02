@@ -193,8 +193,9 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 $relationships
             );
 
-            $schemaDefinitions[$definition::getEntityName()] = [
-                'name' => $definition::getEntityName(),
+            $entityName = $definition::getEntityName();
+            $schemaDefinitions[$entityName] = [
+                'name' => $entityName,
                 'required' => $schema['attributes']['required'],
                 'properties' => $properties,
             ];
@@ -243,14 +244,14 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 $required[] = $field->getPropertyName();
             }
 
-            $definition['properties'][$field->getPropertyName()] = $this->getPropertyByField(get_class($field));
+            $definition['properties'][$field->getPropertyName()] = $this->getPropertyByField(\get_class($field));
         }
 
-        if (count($properties)) {
+        if (\count($properties)) {
             $definition['properties'] = $properties;
         }
 
-        if (count($required)) {
+        if (\count($required)) {
             $definition['required'] = $required;
         }
 
@@ -339,8 +340,8 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 continue;
             }
 
-            $attr = $this->getPropertyByField(get_class($field));
-            if ($field->is(ReadOnly::class) || in_array($field->getPropertyName(), ['createdAt', 'updatedAt'])) {
+            $attr = $this->getPropertyByField(\get_class($field));
+            if ($field->is(ReadOnly::class) || \in_array($field->getPropertyName(), ['createdAt', 'updatedAt'])) {
                 $attr['readOnly'] = true;
             }
 

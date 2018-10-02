@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class FileFetcherTest extends TestCase
 {
-    const TEST_IMAGE = __DIR__ . '/../fixtures/shopware-logo.png';
+    public const TEST_IMAGE = __DIR__ . '/../fixtures/shopware-logo.png';
 
     /**
      * @var FileFetcher
@@ -22,7 +22,7 @@ class FileFetcherTest extends TestCase
         $this->fileFetcher = new FileFetcher();
     }
 
-    public function testFetchRequestData()
+    public function testFetchRequestData(): void
     {
         $tempFile = tempnam(sys_get_temp_dir(), '');
         $request = $this->createMock(Request::class);
@@ -40,13 +40,13 @@ class FileFetcherTest extends TestCase
             $mimeType = mime_content_type($tempFile);
 
             static::assertEquals('image/png', $mimeType);
-            static::assertTrue(file_exists($tempFile));
+            static::assertFileExists($tempFile);
         } finally {
             unlink($tempFile);
         }
     }
 
-    public function testFetchRequestDataWithWrongFileSize()
+    public function testFetchRequestDataWithWrongFileSize(): void
     {
         $this->expectException(UploadException::class);
         $this->expectExceptionMessage('expected content-length did not match actual size');
@@ -63,7 +63,7 @@ class FileFetcherTest extends TestCase
         );
     }
 
-    public function testFetchFileFromUrl()
+    public function testFetchFileFromUrl(): void
     {
         $url = 'https://de.shopware.com/press/company/Shopware_Jamaica.jpg';
 
@@ -78,13 +78,13 @@ class FileFetcherTest extends TestCase
 
             static::assertEquals('image/jpeg', $mimeType);
             static::assertGreaterThan(0, $mediaFile->getFileSize());
-            static::assertTrue(file_exists($tempFile));
+            static::assertFileExists($tempFile);
         } finally {
             unlink($tempFile);
         }
     }
 
-    public function testFetchFileFromUrlWithMalformedUrl()
+    public function testFetchFileFromUrlWithMalformedUrl(): void
     {
         $this->expectException(UploadException::class);
         $this->expectExceptionMessage('malformed url');

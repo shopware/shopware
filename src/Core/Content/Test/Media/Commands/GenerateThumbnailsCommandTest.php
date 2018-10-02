@@ -65,7 +65,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         $this->context->getExtension('write_protection')->set('write_media', true);
     }
 
-    public function testExecuteHappyPath()
+    public function testExecuteHappyPath(): void
     {
         $this->createValidMediaFiles();
 
@@ -75,10 +75,10 @@ class GenerateThumbnailsCommandTest extends TestCase
         $this->runCommand($this->thumbnailCommand, $input, $output);
 
         $string = $output->fetch();
-        $this->assertEquals(1, preg_match('/.*Generated\s*2.*/', $string));
-        $this->assertEquals(1, preg_match('/.*Skipped\s*0.*/', $string));
+        static::assertEquals(1, preg_match('/.*Generated\s*2.*/', $string));
+        static::assertEquals(1, preg_match('/.*Skipped\s*0.*/', $string));
 
-        $expectedNumberOfThumbnails = count($this->thumbnailConfiguration->getThumbnailSizes());
+        $expectedNumberOfThumbnails = \count($this->thumbnailConfiguration->getThumbnailSizes());
         if ($this->thumbnailConfiguration->isHighDpi()) {
             $expectedNumberOfThumbnails *= 2;
         }
@@ -99,7 +99,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         }
     }
 
-    public function testItSkipsNotSupportedMediaTypes()
+    public function testItSkipsNotSupportedMediaTypes(): void
     {
         $this->createNotSupportedMediaFiles();
 
@@ -109,10 +109,10 @@ class GenerateThumbnailsCommandTest extends TestCase
         $this->runCommand($this->thumbnailCommand, $input, $output);
 
         $string = $output->fetch();
-        $this->assertEquals(1, preg_match('/.*Generated\s*1.*/', $string));
-        $this->assertEquals(1, preg_match('/.*Skipped\s*1.*/', $string));
+        static::assertEquals(1, preg_match('/.*Generated\s*1.*/', $string));
+        static::assertEquals(1, preg_match('/.*Skipped\s*1.*/', $string));
 
-        $expectedNumberOfThumbnails = count($this->thumbnailConfiguration->getThumbnailSizes());
+        $expectedNumberOfThumbnails = \count($this->thumbnailConfiguration->getThumbnailSizes());
         if ($this->thumbnailConfiguration->isHighDpi()) {
             $expectedNumberOfThumbnails *= 2;
         }
@@ -121,7 +121,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         $mediaResult = $this->repository->search($searchCriteria, $this->context);
         /** @var MediaStruct $updatedMedia */
         foreach ($mediaResult->getEntities() as $updatedMedia) {
-            if (substr($updatedMedia->getMimeType(), 0, 6) === 'image') {
+            if (strpos($updatedMedia->getMimeType(), 'image') === 0) {
                 $thumbnails = $updatedMedia->getThumbnails();
                 static::assertEquals(
                     $expectedNumberOfThumbnails,
@@ -141,8 +141,7 @@ class GenerateThumbnailsCommandTest extends TestCase
             $mediaId,
             $extension,
             $thumbnail->getWidth(),
-            $thumbnail->getHeight(),
-            false
+            $thumbnail->getHeight()
         );
         static::assertTrue($this->getPublicFilesystem()->has($thumbnailPath));
 

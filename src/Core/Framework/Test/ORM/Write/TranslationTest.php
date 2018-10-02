@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Framework\Test\ORM\Write;
 
@@ -18,6 +17,7 @@ use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslat
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Exception\InvalidLocaleCodeException;
 use Shopware\Core\System\Language\LanguageDefinition;
+use Shopware\Core\System\Locale\LocaleLanguageResolver;
 use Shopware\Core\System\Locale\LocaleLanguageResolverInterface;
 
 class TranslationTest extends TestCase
@@ -58,7 +58,7 @@ class TranslationTest extends TestCase
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->currencyRepository = $this->getContainer()->get('currency.repository');
         $this->languageRepository = $this->getContainer()->get('language.repository');
-        $this->localeLanguageResolver = $this->getContainer()->get('Shopware\Core\System\Locale\LocaleLanguageResolver');
+        $this->localeLanguageResolver = $this->getContainer()->get(LocaleLanguageResolver::class);
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
     }
@@ -305,7 +305,7 @@ class TranslationTest extends TestCase
             ],
         ];
 
-        static::expectException(InvalidLocaleCodeException::class);
+        $this->expectException(InvalidLocaleCodeException::class);
         $this->currencyRepository->create([$data], $this->context);
     }
 
@@ -392,7 +392,7 @@ class TranslationTest extends TestCase
             ],
         ];
 
-        static::expectException(InvalidLocaleCodeException::class);
+        $this->expectException(InvalidLocaleCodeException::class);
         $this->currencyRepository->create([$data], $this->context);
     }
 

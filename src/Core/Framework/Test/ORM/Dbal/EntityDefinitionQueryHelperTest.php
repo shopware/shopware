@@ -17,7 +17,7 @@ use Shopware\Core\Framework\ORM\FieldCollection;
 
 class EntityDefinitionQueryHelperTest extends TestCase
 {
-    public function testJsonObjectAccessWithoutAccessorBuilder()
+    public function testJsonObjectAccessWithoutAccessorBuilder(): void
     {
         $this->expectException(FieldAccessorBuilderNotFoundException::class);
 
@@ -33,7 +33,7 @@ class EntityDefinitionQueryHelperTest extends TestCase
         );
     }
 
-    public function testJsonObjectAccess()
+    public function testJsonObjectAccess(): void
     {
         $helper = new EntityDefinitionQueryHelper(
             new FieldResolverRegistry([]),
@@ -51,7 +51,7 @@ class EntityDefinitionQueryHelperTest extends TestCase
         self::assertEquals('JSON_UNQUOTE(JSON_EXTRACT(`json_object_test`.`amount`, "$.gross"))', $accessor);
     }
 
-    public function testNestedJsonObjectAccessor()
+    public function testNestedJsonObjectAccessor(): void
     {
         $helper = new EntityDefinitionQueryHelper(
             new FieldResolverRegistry([]),
@@ -69,7 +69,7 @@ class EntityDefinitionQueryHelperTest extends TestCase
         self::assertEquals('JSON_UNQUOTE(JSON_EXTRACT(`json_object_test`.`amount`, "$.gross.value"))', $accessor);
     }
 
-    public function testGetFieldWithJsonAccessor()
+    public function testGetFieldWithJsonAccessor(): void
     {
         $helper = new EntityDefinitionQueryHelper(
             new FieldResolverRegistry([]),

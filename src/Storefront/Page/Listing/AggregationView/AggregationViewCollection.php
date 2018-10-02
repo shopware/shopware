@@ -11,7 +11,7 @@ class AggregationViewCollection extends Collection
      */
     protected $elements = [];
 
-    public function add(AggregationViewInterface $view)
+    public function add(AggregationViewInterface $view): void
     {
         $this->elements[] = $view;
     }

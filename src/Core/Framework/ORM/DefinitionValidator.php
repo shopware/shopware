@@ -62,10 +62,6 @@ class DefinitionValidator
         'schema_version', 'search_dictionary',
     ];
 
-    private static $unversionedTables = [
-        'sales_channel',
-    ];
-
     /**
      * @var Connection
      */
@@ -186,7 +182,7 @@ class DefinitionValidator
         $notices = [];
         foreach ($reflection->getProperties() as $property) {
             $key = $definition::getEntityName() . '.' . $property->getName();
-            if (in_array($key, self::IGNORE_FIELDS, true)) {
+            if (\in_array($key, self::IGNORE_FIELDS, true)) {
                 continue;
             }
 
@@ -194,7 +190,7 @@ class DefinitionValidator
                 continue;
             }
 
-            if (in_array($property->getName(), ['id', 'tenantId', 'extensions'])) {
+            if (\in_array($property->getName(), ['id', 'tenantId', 'extensions'])) {
                 continue;
             }
 
@@ -226,7 +222,7 @@ class DefinitionValidator
             }
 
             $key = $definition::getEntityName() . '.' . $field->getPropertyName();
-            if (in_array($key, self::IGNORE_FIELDS, true)) {
+            if (\in_array($key, self::IGNORE_FIELDS, true)) {
                 continue;
             }
 
@@ -272,7 +268,7 @@ class DefinitionValidator
                 continue;
             }
 
-            if (in_array($key, self::IGNORE_FIELDS, true)) {
+            if (\in_array($key, self::IGNORE_FIELDS, true)) {
                 continue;
             }
 
@@ -308,8 +304,6 @@ class DefinitionValidator
                     $violations,
                     $this->validateManyToMany($definition, $association)
                 );
-
-                continue;
             }
         }
 
@@ -386,7 +380,7 @@ class DefinitionValidator
         return $associationViolations;
     }
 
-    private function validateManyToMany(string $definition, ManyToManyAssociationField $association)
+    private function validateManyToMany(string $definition, ManyToManyAssociationField $association): array
     {
         $reference = $association->getReferenceDefinition();
 
@@ -527,7 +521,7 @@ class DefinitionValidator
         }
 
         $propName = $association->getPropertyName();
-        if (substr($propName, -1) === 's' || in_array($propName, self::$pluralExceptions)) {
+        if (substr($propName, -1) === 's' || \in_array($propName, self::$pluralExceptions)) {
             return [];
         }
 
@@ -537,7 +531,7 @@ class DefinitionValidator
         $ref = str_replace($def, '', $ref);
         $refPlural = Inflector::pluralize($ref);
 
-        if (stripos($propName, $refPlural) === strlen($propName) - strlen($refPlural)) {
+        if (stripos($propName, $refPlural) === \strlen($propName) - \strlen($refPlural)) {
             return [];
         }
 
@@ -568,7 +562,7 @@ class DefinitionValidator
         }
         $prop = $association->getPropertyName();
 
-        if (in_array(strtolower($prop), self::$ignoredInPrefixCheck)) {
+        if (\in_array(strtolower($prop), self::$ignoredInPrefixCheck)) {
             return [];
         }
 
@@ -624,7 +618,7 @@ class DefinitionValidator
                 continue;
             }
 
-            if (in_array($field->getPropertyName(), self::$customPrefixedNames)) {
+            if (\in_array($field->getPropertyName(), self::$customPrefixedNames)) {
                 continue;
             }
 
@@ -648,7 +642,7 @@ class DefinitionValidator
                     'Storage name `%s` is prefixed by entity name `%s`. Use storage name `%s` instead.',
                     $field->getStorageName(),
                     substr($entityNamePrefix, 0, -1),
-                    substr($field->getStorageName(), strlen($entityNamePrefix))
+                    substr($field->getStorageName(), \strlen($entityNamePrefix))
                 );
             }
 
@@ -658,7 +652,7 @@ class DefinitionValidator
                     'Property name `%s` is prefixed by struct name `%s`. Use property name `%s` instead',
                     $field->getPropertyName(),
                     $defPrefix,
-                    lcfirst(substr($field->getPropertyName(), strlen($defPrefix)))
+                    lcfirst(substr($field->getPropertyName(), \strlen($defPrefix)))
                 );
             }
         }
@@ -669,13 +663,5 @@ class DefinitionValidator
     private function getShortClassName(string $defintion): string
     {
         return lcfirst(preg_replace('/.*\\\\([^\\\\]+)Definition/', '$1', $defintion));
-    }
-
-    private function getShortRefName(string $definition, string $refClass): string
-    {
-        $shortRef = $this->getShortClassName($refClass);
-        $def = $this->getShortClassName($definition);
-
-        return str_replace($def, '', $shortRef);
     }
 }

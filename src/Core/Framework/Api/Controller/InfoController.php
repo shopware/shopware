@@ -70,7 +70,7 @@ class InfoController extends Controller
     /**
      * @Route("/api/v1/info", name="api_info_html")
      */
-    public function infoHtml()
+    public function infoHtml(): Response
     {
         return $this->render('@Shopware/swagger.html.twig');
     }

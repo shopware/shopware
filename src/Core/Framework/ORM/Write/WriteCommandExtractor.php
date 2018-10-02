@@ -1,26 +1,4 @@
 <?php declare(strict_types=1);
-/**
- * Shopware 5
- * Copyright (c) shopware AG
- *
- * According to our dual licensing model, this program can be used either
- * under the terms of the GNU Affero General Public License, version 3,
- * or under a proprietary license.
- *
- * The texts of the GNU Affero General Public License with an additional
- * permission and of our proprietary license can be found at and
- * in the LICENSE file you have received along with this program.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * "Shopware" is a registered trademark of shopware AG.
- * The licensing of the program under the AGPLv3 does not imply a
- * trademark license. Therefore any rights, title and interest in
- * our trademarks remain entirely with us.
- */
 
 namespace Shopware\Core\Framework\ORM\Write;
 
@@ -117,7 +95,7 @@ class WriteCommandExtractor
             return $field instanceof ChildrenAssociationField;
         });
 
-        if (count($children) > 0) {
+        if (\count($children) > 0) {
             $this->map($children, $rawData, $existence, $exceptionStack, $extender);
         }
 
@@ -207,7 +185,7 @@ class WriteCommandExtractor
 
     private function convertValue(Field $field, KeyValuePair $kvPair): KeyValuePair
     {
-        if ($field instanceof DateField && is_string($kvPair->getValue())) {
+        if ($field instanceof DateField && \is_string($kvPair->getValue())) {
             $kvPair = new KeyValuePair($kvPair->getKey(), new \DateTime($kvPair->getValue()), $kvPair->isRaw());
         }
 

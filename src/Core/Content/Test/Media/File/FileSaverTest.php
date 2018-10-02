@@ -16,7 +16,7 @@ class FileSaverTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    const TEST_IMAGE = __DIR__ . '/../fixtures/shopware-logo.png';
+    public const TEST_IMAGE = __DIR__ . '/../fixtures/shopware-logo.png';
 
     /**
      * @var RepositoryInterface
@@ -38,7 +38,7 @@ class FileSaverTest extends TestCase
         $this->fileSaver = $this->getContainer()->get(FileSaver::class);
     }
 
-    public function testPersistFileToMedia()
+    public function testPersistFileToMedia(): void
     {
         $tempFile = tempnam(sys_get_temp_dir(), '');
         copy(self::TEST_IMAGE, $tempFile);

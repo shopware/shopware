@@ -16,7 +16,7 @@ class AddressSaveSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function transformRequest(AddressSaveRequestEvent $event)
+    public function transformRequest(AddressSaveRequestEvent $event): void
     {
         $request = $event->getRequest();
         $transformed = $event->getAddressSaveRequest();

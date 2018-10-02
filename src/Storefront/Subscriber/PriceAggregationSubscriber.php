@@ -34,7 +34,7 @@ class PriceAggregationSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function transformRequest(ListingPageRequestEvent $event)
+    public function transformRequest(ListingPageRequestEvent $event): void
     {
         $request = $event->getRequest();
         if (!$request->query->get(self::MIN_PRICE_PARAMETER) && !$request->query->has(self::MAX_PRICE_PARAMETER)) {

@@ -84,7 +84,7 @@ class DiscountSurchargeTest extends TestCase
         self::$enrichment = $this->getContainer()->get(Enrichment::class);
     }
 
-    public function testAbsoulteSurcharge()
+    public function testAbsoulteSurcharge(): void
     {
         $productA = $this->createProduct('Product A', 20, 20, 19);
         $productB = $this->createProduct('Product B', 31, 31, 19);
@@ -125,7 +125,7 @@ class DiscountSurchargeTest extends TestCase
         );
     }
 
-    public function testAbsoluteDiscount()
+    public function testAbsoluteDiscount(): void
     {
         $productA = $this->createProduct('Product A', 20, 20, 19);
         $productB = $this->createProduct('Product B', 31, 31, 19);
@@ -166,7 +166,7 @@ class DiscountSurchargeTest extends TestCase
         );
     }
 
-    public function testPercentageSurcharge()
+    public function testPercentageSurcharge(): void
     {
         $productA = $this->createProduct('Product A', 20, 20, 19);
         $productB = $this->createProduct('Product B', 30, 30, 19);
@@ -207,7 +207,7 @@ class DiscountSurchargeTest extends TestCase
         );
     }
 
-    public function testPercentageDiscount()
+    public function testPercentageDiscount(): void
     {
         $productA = $this->createProduct('Product A', 20, 20, 19);
         $productB = $this->createProduct('Product B', 30, 30, 19);
@@ -248,7 +248,7 @@ class DiscountSurchargeTest extends TestCase
         );
     }
 
-    public function testAbsoluteConsidersFilter()
+    public function testAbsoluteConsidersFilter(): void
     {
         $productA = $this->createProduct('Product A', 20, 20, 19);
         $productB = $this->createProduct('Product B', 31, 31, 7);
@@ -294,7 +294,7 @@ class DiscountSurchargeTest extends TestCase
         );
     }
 
-    public function testPercentageConsidersFilter()
+    public function testPercentageConsidersFilter(): void
     {
         $productA = $this->createProduct('Product A', 20, 20, 19);
         $productB = $this->createProduct('Product B', 30, 30, 19);
@@ -340,7 +340,7 @@ class DiscountSurchargeTest extends TestCase
         );
     }
 
-    public function testMultipleDiscounts()
+    public function testMultipleDiscounts(): void
     {
         $productA = $this->createProduct('Product A', 20, 20, 19);
         $productB = $this->createProduct('Product B', 30, 30, 19);

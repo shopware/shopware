@@ -167,7 +167,7 @@ class ProductServiceStruct extends Entity
         return new QuantityPriceDefinition($this->getPrice()->getGross(), $taxRules, $quantity, true);
     }
 
-    public function getTaxRuleCollection()
+    public function getTaxRuleCollection(): TaxRuleCollection
     {
         return new TaxRuleCollection([
             new PercentageTaxRule($this->getTax()->getTaxRate(), 100),

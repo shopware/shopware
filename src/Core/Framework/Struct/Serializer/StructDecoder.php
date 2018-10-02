@@ -18,7 +18,7 @@ class StructDecoder implements DecoderInterface
 
     private function format($decoded)
     {
-        if (!is_array($decoded) || empty($decoded)) {
+        if (!\is_array($decoded) || empty($decoded)) {
             return $decoded;
         }
 

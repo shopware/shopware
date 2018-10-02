@@ -126,7 +126,7 @@ EOF;
         static::assertCount(1, $ex->getExceptions());
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(InvalidFieldException::class, get_class($fieldException));
+        static::assertEquals(InvalidFieldException::class, \get_class($fieldException));
         static::assertEquals('/price/net', $fieldException->getPath());
     }
 
@@ -156,15 +156,15 @@ EOF;
         static::assertCount(3, $ex->getExceptions());
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(UnexpectedFieldException::class, get_class($fieldException));
+        static::assertEquals(UnexpectedFieldException::class, \get_class($fieldException));
         static::assertEquals('/price/foo', $fieldException->getPath());
 
         $fieldException = $ex->getExceptions()[1];
-        static::assertEquals(InvalidFieldException::class, get_class($fieldException));
+        static::assertEquals(InvalidFieldException::class, \get_class($fieldException));
         static::assertEquals('/price/gross', $fieldException->getPath());
 
         $fieldException = $ex->getExceptions()[2];
-        static::assertEquals(InvalidFieldException::class, get_class($fieldException));
+        static::assertEquals(InvalidFieldException::class, \get_class($fieldException));
         static::assertEquals('/price/net', $fieldException->getPath());
     }
 
@@ -194,7 +194,7 @@ EOF;
         static::assertCount(1, $ex->getExceptions());
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(InvalidFieldException::class, get_class($fieldException));
+        static::assertEquals(InvalidFieldException::class, \get_class($fieldException));
         static::assertEquals('/price/net', $fieldException->getPath());
     }
 
@@ -224,7 +224,7 @@ EOF;
         static::assertCount(1, $ex->getExceptions());
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(UnexpectedFieldException::class, get_class($fieldException));
+        static::assertEquals(UnexpectedFieldException::class, \get_class($fieldException));
         static::assertEquals('/price/fail', $fieldException->getPath());
     }
 
@@ -285,15 +285,15 @@ EOF;
         static::assertCount(3, $ex->getExceptions());
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(InvalidFieldException::class, get_class($fieldException));
+        static::assertEquals(InvalidFieldException::class, \get_class($fieldException));
         static::assertEquals('/data/gross', $fieldException->getPath());
 
         $fieldException = $ex->getExceptions()[1];
-        static::assertEquals(InvalidFieldException::class, get_class($fieldException));
+        static::assertEquals(InvalidFieldException::class, \get_class($fieldException));
         static::assertEquals('/data/foo/bar', $fieldException->getPath());
 
         $fieldException = $ex->getExceptions()[2];
-        static::assertEquals(InvalidFieldException::class, get_class($fieldException));
+        static::assertEquals(InvalidFieldException::class, \get_class($fieldException));
         static::assertEquals('/data/foo/baz/deep', $fieldException->getPath());
     }
 

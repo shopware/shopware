@@ -55,7 +55,7 @@ class ThumbnailService implements EventSubscriberInterface
         ];
     }
 
-    public function updateMediaThumbnails(MediaFileUploadedEvent $event)
+    public function updateMediaThumbnails(MediaFileUploadedEvent $event): void
     {
         if (!$this->configuration->isAutoGenerateAfterUpload()) {
             return;

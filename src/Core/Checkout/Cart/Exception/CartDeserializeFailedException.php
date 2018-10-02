@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Cart\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
-use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
 class CartDeserializeFailedException extends ShopwareHttpException
@@ -13,10 +12,5 @@ class CartDeserializeFailedException extends ShopwareHttpException
     public function __construct($code = 0, Throwable $previous = null)
     {
         parent::__construct('Failed to deserialize cart', $code, $previous);
-    }
-
-    public function getStatusCode(): int
-    {
-        return Response::HTTP_INTERNAL_SERVER_ERROR;
     }
 }

@@ -1,6 +1,6 @@
 # Cart collector pattern
 
-Sometimes it is neccessary to do multiple iterations before a valid and full calculated cart can be created.
+Sometimes it is necessary to do multiple iterations before a valid and full calculated cart can be created.
 
 This occurs if some elements have validation rules which can only be validated after the whole calculated cart is created.
 For example, some shops have products which are called "premium products". This products can be added for free if the customer has reached a specified total amount in a cart. The validation of these products rely on a fully calculated cart.

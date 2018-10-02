@@ -96,7 +96,7 @@ class StorefrontCustomerController extends Controller
      * @throws CustomerNotLoggedInException
      * @throws InvalidUuidException
      */
-    public function setDefaultBillingAddress(string $id, CheckoutContext $context)
+    public function setDefaultBillingAddress(string $id, CheckoutContext $context): JsonResponse
     {
         $this->accountService->setDefaultBillingAddress($id, $context);
 
@@ -275,7 +275,7 @@ class StorefrontCustomerController extends Controller
      * @throws InvalidUuidException
      * @throws AddressNotFoundException
      */
-    public function setDefaultShippingAddress(string $id, CheckoutContext $context)
+    public function setDefaultShippingAddress(string $id, CheckoutContext $context): JsonResponse
     {
         if (!Uuid::isValid($id)) {
             throw new InvalidUuidException($id);

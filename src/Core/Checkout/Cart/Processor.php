@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Cart;
 
@@ -65,7 +64,7 @@ class Processor
         );
 
         $cart->setErrors(
-            $this->validator->validate($cart, $context)
+            $this->validator->validate()
         );
 
         $cart->setPrice(

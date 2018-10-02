@@ -1,26 +1,4 @@
 <?php declare(strict_types=1);
-/**
- * Shopware 5
- * Copyright (c) shopware AG
- *
- * According to our dual licensing model, this program can be used either
- * under the terms of the GNU Affero General Public License, version 3,
- * or under a proprietary license.
- *
- * The texts of the GNU Affero General Public License with an additional
- * permission and of our proprietary license can be found at and
- * in the LICENSE file you have received along with this program.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * "Shopware" is a registered trademark of shopware AG.
- * The licensing of the program under the AGPLv3 does not imply a
- * trademark license. Therefore any rights, title and interest in
- * our trademarks remain entirely with us.
- */
 
 namespace Shopware\Core\Checkout\Test\Cart\Delivery;
 
@@ -92,7 +70,7 @@ class StockDeliverySeparatorTest extends TestCase
     {
         $location = self::createShippingLocation();
 
-        $context = Generator::createContext(null, null, null, null, null, null, $location->getAreaId(), $location->getCountry(), $location->getState());
+        $context = Generator::createContext(null, null, null, null, null, $location->getAreaId(), $location->getCountry(), $location->getState());
 
         $item = (new LineItem('A', 'product'))
             ->setPrice(new Price(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()))
@@ -166,7 +144,7 @@ class StockDeliverySeparatorTest extends TestCase
         $this->separator->build(
             $deliveries,
             new LineItemCollection([$itemA, $itemB]),
-            Generator::createContext(null, null, null, null, null, null, $location->getAreaId(), $location->getCountry(), $location->getState())
+            Generator::createContext(null, null, null, null, null, $location->getAreaId(), $location->getCountry(), $location->getState())
         );
 
         static::assertCount(1, $deliveries);
@@ -183,7 +161,7 @@ class StockDeliverySeparatorTest extends TestCase
     {
         $location = self::createShippingLocation();
 
-        $context = Generator::createContext(null, null, null, null, null, null, $location->getAreaId(), $location->getCountry(), $location->getState());
+        $context = Generator::createContext(null, null, null, null, null, $location->getAreaId(), $location->getCountry(), $location->getState());
 
         $itemA = (new LineItem('A', 'product', 5))
             ->setPrice(new Price(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()))
@@ -234,7 +212,7 @@ class StockDeliverySeparatorTest extends TestCase
     public function testNoneDeliverableItemBeIgnored(): void
     {
         $location = self::createShippingLocation();
-        $context = Generator::createContext(null, null, null, null, null, null, $location->getAreaId(), $location->getCountry(), $location->getState());
+        $context = Generator::createContext(null, null, null, null, null, $location->getAreaId(), $location->getCountry(), $location->getState());
 
         $product = (new LineItem('A', 'product', 5))
             ->setPrice(new Price(1, 5, new CalculatedTaxCollection(), new TaxRuleCollection(), 5))
@@ -277,7 +255,7 @@ class StockDeliverySeparatorTest extends TestCase
     {
         $location = self::createShippingLocation();
 
-        $context = Generator::createContext(null, null, null, null, null, null, $location->getAreaId(), $location->getCountry(), $location->getState());
+        $context = Generator::createContext(null, null, null, null, null, $location->getAreaId(), $location->getCountry(), $location->getState());
 
         $product = (new LineItem('A', 'product', 12))
             ->setPrice(new Price(1.19, 14.28, new CalculatedTaxCollection([new CalculatedTax(1.9, 19, 11.90)]), new TaxRuleCollection([new TaxRule(19)]), 12))

@@ -67,7 +67,7 @@ class EntityDefinitionQueryHelper
         $prefix = $root . '.';
 
         if (strpos($fieldName, $prefix) === 0) {
-            $fieldName = substr($fieldName, strlen($prefix));
+            $fieldName = substr($fieldName, \strlen($prefix));
         }
 
         /** @var EntityDefinition $definition */
@@ -209,7 +209,7 @@ class EntityDefinitionQueryHelper
         $prefix = $root . '.';
 
         if (strpos($fieldName, $prefix) === 0) {
-            $fieldName = substr($fieldName, strlen($prefix));
+            $fieldName = substr($fieldName, \strlen($prefix));
         }
 
         /** @var EntityDefinition $definition */
@@ -340,7 +340,7 @@ class EntityDefinitionQueryHelper
     private function getTranslationFieldAccessor(string $root, TranslatedField $field, array $chain): string
     {
         $alias = $root . '.translation';
-        if (count($chain) === 1) {
+        if (\count($chain) === 1) {
             return self::escape($alias) . '.' . self::escape($field->getStorageName());
         }
 

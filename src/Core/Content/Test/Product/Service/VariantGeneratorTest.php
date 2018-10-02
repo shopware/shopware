@@ -43,7 +43,7 @@ class VariantGeneratorTest extends TestCase
         $this->repository = $this->getContainer()->get('product.repository');
     }
 
-    public function testGenerateOneDimension()
+    public function testGenerateOneDimension(): void
     {
         $id = Uuid::uuid4()->getHex();
         $redId = Uuid::uuid4()->getHex();
@@ -92,12 +92,12 @@ class VariantGeneratorTest extends TestCase
 
         /** @var ProductStruct $red */
         $red = $variants->filter(function (ProductStruct $detail) use ($redId) {
-            return in_array($redId, $detail->getVariations()->getIds(), true);
+            return \in_array($redId, $detail->getVariations()->getIds(), true);
         })->first();
 
         /** @var ProductStruct $blue */
         $blue = $variants->filter(function (ProductStruct $detail) use ($blueId) {
-            return in_array($blueId, $detail->getVariations()->getIds(), true);
+            return \in_array($blueId, $detail->getVariations()->getIds(), true);
         })->first();
 
         static::assertEquals('test blue', $blue->getName());
@@ -110,7 +110,7 @@ class VariantGeneratorTest extends TestCase
         static::assertEquals(new PriceStruct(100, 110, false), $blue->getPrice());
     }
 
-    public function testMultiDimension()
+    public function testMultiDimension(): void
     {
         $id = Uuid::uuid4()->getHex();
         $colorId = Uuid::uuid4()->getHex();
@@ -195,7 +195,7 @@ class VariantGeneratorTest extends TestCase
         }
     }
 
-    public function testPagination()
+    public function testPagination(): void
     {
         $id = Uuid::uuid4()->getHex();
         $colorId = Uuid::uuid4()->getHex();

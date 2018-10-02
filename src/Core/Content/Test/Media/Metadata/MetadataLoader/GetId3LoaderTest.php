@@ -11,7 +11,7 @@ class GetId3LoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public function testJpg()
+    public function testJpg(): void
     {
         $result = $this
             ->getMetadataLoader()
@@ -21,7 +21,7 @@ class GetId3LoaderTest extends TestCase
         self::assertArrayNotHasKey('error', $result);
     }
 
-    public function testGif()
+    public function testGif(): void
     {
         $result = $this
             ->getMetadataLoader()
@@ -31,7 +31,7 @@ class GetId3LoaderTest extends TestCase
         self::assertArrayNotHasKey('error', $result);
     }
 
-    public function testPng()
+    public function testPng(): void
     {
         $result = $this
             ->getMetadataLoader()
@@ -41,7 +41,7 @@ class GetId3LoaderTest extends TestCase
         self::assertArrayNotHasKey('error', $result);
     }
 
-    public function testSvg()
+    public function testSvg(): void
     {
         $result = $this
             ->getMetadataLoader()
@@ -51,7 +51,7 @@ class GetId3LoaderTest extends TestCase
         self::assertArrayNotHasKey('error', $result);
     }
 
-    public function testPdf()
+    public function testPdf(): void
     {
         $this->expectException(CanNotLoadMetadataException::class);
 
@@ -60,7 +60,7 @@ class GetId3LoaderTest extends TestCase
             ->extractMetadata(__DIR__ . '/../../fixtures/Shopware_5_3_Broschuere.pdf');
     }
 
-    public function testMp4()
+    public function testMp4(): void
     {
         $result = $this
             ->getMetadataLoader()
@@ -70,7 +70,7 @@ class GetId3LoaderTest extends TestCase
         self::assertArrayNotHasKey('error', $result);
     }
 
-    public function testWebm()
+    public function testWebm(): void
     {
         $result = $this
             ->getMetadataLoader()
@@ -80,7 +80,7 @@ class GetId3LoaderTest extends TestCase
         self::assertArrayNotHasKey('error', $result);
     }
 
-    public function testAvi()
+    public function testAvi(): void
     {
         $result = $this
             ->getMetadataLoader()
@@ -90,7 +90,7 @@ class GetId3LoaderTest extends TestCase
         self::assertArrayNotHasKey('error', $result);
     }
 
-    public function testDoc()
+    public function testDoc(): void
     {
         $this->expectException(CanNotLoadMetadataException::class);
 
@@ -99,7 +99,7 @@ class GetId3LoaderTest extends TestCase
             ->extractMetadata(__DIR__ . '/../../fixtures/reader.doc');
     }
 
-    public function testDocx()
+    public function testDocx(): void
     {
         $result = $this
             ->getMetadataLoader()

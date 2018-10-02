@@ -65,7 +65,7 @@ class StorefrontCustomerControllerTest extends TestCase
         $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
     }
 
-    public function testLogin()
+    public function testLogin(): void
     {
         $email = Uuid::uuid4()->getHex() . '@example.com';
         $password = 'shopware';
@@ -94,7 +94,7 @@ class StorefrontCustomerControllerTest extends TestCase
         static::assertEquals($customer, $content);
     }
 
-    public function testLoginWithBadCredentials()
+    public function testLoginWithBadCredentials(): void
     {
         $email = Uuid::uuid4()->getHex() . '@example.com';
         $password = 'shopware';
@@ -121,7 +121,7 @@ class StorefrontCustomerControllerTest extends TestCase
         static::assertNotEmpty($content['errors']);
     }
 
-    public function testLogout()
+    public function testLogout(): void
     {
         $this->createCustomerAndLogin();
         $this->getStorefrontClient()->request('POST', '/storefront-api/customer/logout');
@@ -140,7 +140,7 @@ class StorefrontCustomerControllerTest extends TestCase
         static::assertArrayHasKey('errors', $content);
     }
 
-    public function testGetCustomerDetail()
+    public function testGetCustomerDetail(): void
     {
         $customerId = $this->createCustomerAndLogin();
 
@@ -155,7 +155,7 @@ class StorefrontCustomerControllerTest extends TestCase
         static::assertEquals($customer, $content);
     }
 
-    public function testGetAddress()
+    public function testGetAddress(): void
     {
         $customerId = $this->createCustomerAndLogin();
         $addressId = $this->createCustomerAddress($customerId);
@@ -175,7 +175,7 @@ class StorefrontCustomerControllerTest extends TestCase
         static::assertEquals($addressId, $address['id']);
     }
 
-    public function testGetAddresses()
+    public function testGetAddresses(): void
     {
         $customerId = $this->createCustomerAndLogin();
         $this->createCustomerAddress($customerId);
@@ -190,7 +190,7 @@ class StorefrontCustomerControllerTest extends TestCase
         static::assertCount(2, $content['data']);
     }
 
-    public function testCreateAddress()
+    public function testCreateAddress(): void
     {
         $customerId = $this->createCustomerAndLogin();
 
@@ -227,7 +227,7 @@ class StorefrontCustomerControllerTest extends TestCase
         static::assertEquals($address['city'], $customerAddress->getCity());
     }
 
-    public function testDeleteAddress()
+    public function testDeleteAddress(): void
     {
         $customerId = $this->createCustomerAndLogin();
         $addressId = $this->createCustomerAddress($customerId);
@@ -242,7 +242,7 @@ class StorefrontCustomerControllerTest extends TestCase
         static::assertNull($customerAddress);
     }
 
-    public function testSetDefaultShippingAddress()
+    public function testSetDefaultShippingAddress(): void
     {
         $customerId = $this->createCustomerAndLogin();
         $addressId = $this->createCustomerAddress($customerId);
@@ -259,7 +259,7 @@ class StorefrontCustomerControllerTest extends TestCase
         static::assertEquals($addressId, $customer->getDefaultShippingAddressId());
     }
 
-    public function testSetDefaultBillingAddress()
+    public function testSetDefaultBillingAddress(): void
     {
         $customerId = $this->createCustomerAndLogin();
         $addressId = $this->createCustomerAddress($customerId);
@@ -276,7 +276,7 @@ class StorefrontCustomerControllerTest extends TestCase
         static::assertEquals($addressId, $customer->getDefaultBillingAddressId());
     }
 
-    public function testRegister()
+    public function testRegister(): void
     {
         $personal = [
             'salutation' => 'Mr.',
@@ -376,7 +376,7 @@ class StorefrontCustomerControllerTest extends TestCase
         static::assertEquals($shipping['shippingAdditionalAddressLine2'], $shippingAddress->getAdditionalAddressLine2());
     }
 
-    public function testChangeEmail()
+    public function testChangeEmail(): void
     {
         $customerId = $this->createCustomerAndLogin();
 
@@ -392,7 +392,7 @@ class StorefrontCustomerControllerTest extends TestCase
         static::assertEquals($mail, $actualMail);
     }
 
-    public function testChangePassword()
+    public function testChangePassword(): void
     {
         $customerId = $this->createCustomerAndLogin();
         $password = '1234';
@@ -408,7 +408,7 @@ class StorefrontCustomerControllerTest extends TestCase
         static::assertTrue(password_verify($password, $hash));
     }
 
-    public function testChangeProfile()
+    public function testChangeProfile(): void
     {
         $customerId = $this->createCustomerAndLogin();
 

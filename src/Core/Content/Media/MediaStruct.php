@@ -283,7 +283,7 @@ class MediaStruct extends Entity
         return $this->url;
     }
 
-    public function setUrl(string $url)
+    public function setUrl(string $url): void
     {
         $this->url = $url;
     }

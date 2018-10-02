@@ -16,7 +16,7 @@ class ProfileSaveSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function transformRequest(ProfileSaveRequestEvent $event)
+    public function transformRequest(ProfileSaveRequestEvent $event): void
     {
         $request = $event->getRequest();
         $transformed = $event->getProfileSaveRequest();

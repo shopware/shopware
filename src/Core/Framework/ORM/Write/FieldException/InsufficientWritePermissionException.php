@@ -21,7 +21,7 @@ class InsufficientWritePermissionException extends WriteFieldException
     public function __construct(string $path, ConstraintViolationList $constraintViolationList, $code = 0, Throwable $previous = null)
     {
         parent::__construct(
-            sprintf('Caught %s permission errors.', count($constraintViolationList)),
+            sprintf('Caught %s permission errors.', \count($constraintViolationList)),
             $code,
             $previous
         );

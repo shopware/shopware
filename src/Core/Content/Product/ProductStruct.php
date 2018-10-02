@@ -857,7 +857,7 @@ class ProductStruct extends Entity
         return new PriceDefinitionCollection($definitions);
     }
 
-    public function getPriceDefinition(Context $context): QuantityPriceDefinition
+    public function getPriceDefinition(): QuantityPriceDefinition
     {
         return new QuantityPriceDefinition($this->getPrice()->getGross(), $this->getTaxRuleCollection(), 1, true);
     }

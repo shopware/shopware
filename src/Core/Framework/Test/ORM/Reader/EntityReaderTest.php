@@ -43,7 +43,7 @@ class EntityReaderTest extends TestCase
         $this->repository = $this->getContainer()->get('product.repository');
     }
 
-    public function testInheritanceExtension()
+    public function testInheritanceExtension(): void
     {
         $redId = Uuid::uuid4()->getHex();
         $greenId = Uuid::uuid4()->getHex();
@@ -97,7 +97,7 @@ class EntityReaderTest extends TestCase
         static::assertFalse($inheritance->get('taxId'));
     }
 
-    public function testInheritanceExtensionWithAssociation()
+    public function testInheritanceExtensionWithAssociation(): void
     {
         $ruleA = Uuid::uuid4()->getHex();
 
@@ -173,7 +173,7 @@ class EntityReaderTest extends TestCase
         static::assertFalse($inheritance->get('priceRules'));
     }
 
-    public function testTranslationExtension()
+    public function testTranslationExtension(): void
     {
         $redId = Uuid::uuid4()->getHex();
         $greenId = Uuid::uuid4()->getHex();
@@ -239,7 +239,7 @@ class EntityReaderTest extends TestCase
         static::assertTrue($inheritance->get('description'));
     }
 
-    public function testLoadOneToManyNotLoadedAutomatically()
+    public function testLoadOneToManyNotLoadedAutomatically(): void
     {
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
 
@@ -288,7 +288,7 @@ class EntityReaderTest extends TestCase
         static::assertNull($customer->getAddresses());
     }
 
-    public function testLoadOneToMany()
+    public function testLoadOneToMany(): void
     {
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
 
@@ -342,7 +342,7 @@ class EntityReaderTest extends TestCase
         static::assertCount(5, $customer->getAddresses());
     }
 
-    public function testLoadOneToManySupportsFilter()
+    public function testLoadOneToManySupportsFilter(): void
     {
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
 
@@ -434,7 +434,7 @@ class EntityReaderTest extends TestCase
         static::assertCount(1, $customer2->getAddresses());
     }
 
-    public function testLoadOneToManySupportsSorting()
+    public function testLoadOneToManySupportsSorting(): void
     {
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
 
@@ -558,7 +558,7 @@ class EntityReaderTest extends TestCase
         );
     }
 
-    public function testLoadOneToManySupportsPagination()
+    public function testLoadOneToManySupportsPagination(): void
     {
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
 
@@ -615,7 +615,7 @@ class EntityReaderTest extends TestCase
         static::assertCount(3, $customer->getAddresses());
     }
 
-    public function testLoadManyToManyNotLoadedAutomatically()
+    public function testLoadManyToManyNotLoadedAutomatically(): void
     {
         $id1 = Uuid::uuid4()->getHex();
         $id2 = Uuid::uuid4()->getHex();
@@ -678,7 +678,7 @@ class EntityReaderTest extends TestCase
         static::assertNull($category2->getProducts());
     }
 
-    public function testLoadManyToMany()
+    public function testLoadManyToMany(): void
     {
         $id1 = Uuid::uuid4()->getHex();
         $id2 = Uuid::uuid4()->getHex();
@@ -752,7 +752,7 @@ class EntityReaderTest extends TestCase
         static::assertContains($id3, $category2->getProducts()->getIds());
     }
 
-    public function testLoadManyToManySupportsFilter()
+    public function testLoadManyToManySupportsFilter(): void
     {
         $id1 = Uuid::uuid4()->getHex();
         $id2 = Uuid::uuid4()->getHex();
@@ -822,7 +822,7 @@ class EntityReaderTest extends TestCase
         static::assertCount(0, $category2->getProducts());
     }
 
-    public function testLoadManyToManySupportsSorting()
+    public function testLoadManyToManySupportsSorting(): void
     {
         $id1 = Uuid::uuid4()->getHex();
         $id2 = Uuid::uuid4()->getHex();
@@ -925,7 +925,7 @@ class EntityReaderTest extends TestCase
         );
     }
 
-    public function testLoadManyToManySupportsPagination()
+    public function testLoadManyToManySupportsPagination(): void
     {
         $id1 = Uuid::uuid4()->getHex();
         $id2 = Uuid::uuid4()->getHex();

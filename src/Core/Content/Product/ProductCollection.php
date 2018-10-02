@@ -145,7 +145,7 @@ class ProductCollection extends EntityCollection
             $ids = $product->getVariationIds();
             $same = array_intersect($ids, $optionIds);
 
-            return count($same) === count($optionIds);
+            return \count($same) === \count($optionIds);
         });
     }
 

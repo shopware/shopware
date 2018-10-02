@@ -33,7 +33,7 @@ class ObjectField extends JsonField
     private function getStructConstraint(): Constraint
     {
         return new Callback([
-           'callback' => function ($object, ExecutionContextInterface $context, $payload) {
+           'callback' => function ($object, ExecutionContextInterface $context) {
                if ($object === null || $object instanceof Struct) {
                    return;
                }

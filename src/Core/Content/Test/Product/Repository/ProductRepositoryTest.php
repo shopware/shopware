@@ -59,7 +59,7 @@ class ProductRepositoryTest extends TestCase
         $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
     }
 
-    public function testWriteCategories()
+    public function testWriteCategories(): void
     {
         $id = Uuid::uuid4();
 
@@ -85,7 +85,7 @@ class ProductRepositoryTest extends TestCase
         static::assertNotEmpty($record);
     }
 
-    public function testWriteProductWithDifferentTaxFormat()
+    public function testWriteProductWithDifferentTaxFormat(): void
     {
         $tax = Uuid::uuid4()->getHex();
 
@@ -157,7 +157,7 @@ class ProductRepositoryTest extends TestCase
         static::assertEquals(18, $product->getTax()->getTaxRate());
     }
 
-    public function testWriteProductWithDifferentManufacturerStructures()
+    public function testWriteProductWithDifferentManufacturerStructures(): void
     {
         $manufacturerId = Uuid::uuid4()->getHex();
 
@@ -226,7 +226,7 @@ class ProductRepositoryTest extends TestCase
         static::assertEquals('test', $product->getManufacturer()->getLink());
     }
 
-    public function testReadAndWriteOfProductManufacturerAssociation()
+    public function testReadAndWriteOfProductManufacturerAssociation(): void
     {
         $id = Uuid::uuid4();
 
@@ -273,7 +273,7 @@ class ProductRepositoryTest extends TestCase
         static::assertEquals('test', $manufacturer->getName());
     }
 
-    public function testReadAndWriteProductPriceRules()
+    public function testReadAndWriteProductPriceRules(): void
     {
         $ruleA = Uuid::uuid4()->getHex();
         $ruleB = Uuid::uuid4()->getHex();
@@ -333,7 +333,7 @@ class ProductRepositoryTest extends TestCase
         static::assertEquals(8, $price->getPrice()->getNet());
     }
 
-    public function testPriceRulesSorting()
+    public function testPriceRulesSorting(): void
     {
         $id = Uuid::uuid4();
         $id2 = Uuid::uuid4();
@@ -436,7 +436,7 @@ class ProductRepositoryTest extends TestCase
         );
     }
 
-    public function testVariantInheritancePriceAndName()
+    public function testVariantInheritancePriceAndName(): void
     {
         $redId = Uuid::uuid4()->getHex();
         $greenId = Uuid::uuid4()->getHex();
@@ -508,7 +508,7 @@ class ProductRepositoryTest extends TestCase
         static::assertEmpty($row);
     }
 
-    public function testInsertAndUpdateInOneStep()
+    public function testInsertAndUpdateInOneStep(): void
     {
         $id = Uuid::uuid4()->getHex();
         $filterId = Uuid::uuid4()->getHex();
@@ -686,7 +686,7 @@ class ProductRepositoryTest extends TestCase
         static::assertEquals(15, $product->getTax()->getTaxRate());
     }
 
-    public function testVariantInheritanceWithTax()
+    public function testVariantInheritanceWithTax(): void
     {
         $redId = Uuid::uuid4()->getHex();
         $greenId = Uuid::uuid4()->getHex();
@@ -751,7 +751,7 @@ class ProductRepositoryTest extends TestCase
         static::assertEquals($greenTax, Uuid::fromBytesToHex($row['tax_id']));
     }
 
-    public function testWriteProductWithSameTaxes()
+    public function testWriteProductWithSameTaxes(): void
     {
         $tax = ['id' => Uuid::uuid4()->getHex(), 'taxRate' => 19, 'name' => 'test'];
 
@@ -771,7 +771,7 @@ class ProductRepositoryTest extends TestCase
         static::assertCount(1, array_unique($taxes->getIds()));
     }
 
-    public function testVariantInheritanceWithMedia()
+    public function testVariantInheritanceWithMedia(): void
     {
         $redId = Uuid::uuid4()->getHex();
         $greenId = Uuid::uuid4()->getHex();
@@ -856,7 +856,7 @@ class ProductRepositoryTest extends TestCase
         static::assertEquals($greenMedia, Uuid::fromBytesToHex($row['media_id']));
     }
 
-    public function testVariantInheritanceWithCategories()
+    public function testVariantInheritanceWithCategories(): void
     {
         $redId = Uuid::uuid4()->getHex();
         $greenId = Uuid::uuid4()->getHex();
@@ -928,7 +928,7 @@ class ProductRepositoryTest extends TestCase
         static::assertEquals($greenId, Uuid::fromBytesToHex($row['categories']));
     }
 
-    public function testSearchByInheritedName()
+    public function testSearchByInheritedName(): void
     {
         $redId = Uuid::uuid4()->getHex();
         $greenId = Uuid::uuid4()->getHex();
@@ -973,7 +973,7 @@ class ProductRepositoryTest extends TestCase
         static::assertTrue($products->has($redId));
     }
 
-    public function testSearchByInheritedPrice()
+    public function testSearchByInheritedPrice(): void
     {
         $redId = Uuid::uuid4()->getHex();
         $greenId = Uuid::uuid4()->getHex();
@@ -1018,7 +1018,7 @@ class ProductRepositoryTest extends TestCase
         static::assertTrue($products->has($greenId));
     }
 
-    public function testSearchCategoriesWithProductsUseInheritance()
+    public function testSearchCategoriesWithProductsUseInheritance(): void
     {
         $redId = Uuid::uuid4()->getHex();
         $greenId = Uuid::uuid4()->getHex();
@@ -1072,7 +1072,7 @@ class ProductRepositoryTest extends TestCase
         static::assertContains($categoryId, $categories->getIds());
     }
 
-    public function testSearchProductsOverInheritedCategories()
+    public function testSearchProductsOverInheritedCategories(): void
     {
         $redId = Uuid::uuid4()->getHex();
         $greenId = Uuid::uuid4()->getHex();
@@ -1124,7 +1124,7 @@ class ProductRepositoryTest extends TestCase
         static::assertTrue($result->has($redId));
     }
 
-    public function testSearchManufacturersWithProductsUseInheritance()
+    public function testSearchManufacturersWithProductsUseInheritance(): void
     {
         $redId = Uuid::uuid4()->getHex();
         $greenId = Uuid::uuid4()->getHex();
@@ -1176,7 +1176,7 @@ class ProductRepositoryTest extends TestCase
         static::assertContains($manufacturerId, $result->getIds());
     }
 
-    public function testWriteProductOverCategories()
+    public function testWriteProductOverCategories(): void
     {
         $productId = Uuid::uuid4()->getHex();
         $categoryId = Uuid::uuid4()->getHex();
@@ -1213,7 +1213,7 @@ class ProductRepositoryTest extends TestCase
         static::assertContains($categoryId, $product->getCategoryTree());
     }
 
-    public function testWriteProductOverManufacturer()
+    public function testWriteProductOverManufacturer(): void
     {
         $productId = Uuid::uuid4()->getHex();
         $manufacturerId = Uuid::uuid4()->getHex();
@@ -1250,7 +1250,7 @@ class ProductRepositoryTest extends TestCase
         static::assertEquals($manufacturerId, $product->getManufacturerId());
     }
 
-    public function testCreateAndAssignProductDatasheet()
+    public function testCreateAndAssignProductDatasheet(): void
     {
         $id = Uuid::uuid4()->getHex();
         $redId = Uuid::uuid4()->getHex();
@@ -1301,7 +1301,7 @@ class ProductRepositoryTest extends TestCase
         static::assertEquals($colorId, $blue->getGroupId());
     }
 
-    public function testCreateAndAssignProductVariation()
+    public function testCreateAndAssignProductVariation(): void
     {
         $id = Uuid::uuid4()->getHex();
         $redId = Uuid::uuid4()->getHex();
@@ -1352,7 +1352,7 @@ class ProductRepositoryTest extends TestCase
         static::assertEquals($colorId, $blue->getGroupId());
     }
 
-    public function testCreateAndAssignProductConfigurator()
+    public function testCreateAndAssignProductConfigurator(): void
     {
         $id = Uuid::uuid4()->getHex();
         $redId = Uuid::uuid4()->getHex();
@@ -1414,7 +1414,7 @@ class ProductRepositoryTest extends TestCase
         static::assertEquals($colorId, $blue->getOption()->getGroupId());
     }
 
-    public function testCreateAndAssignProductService()
+    public function testCreateAndAssignProductService(): void
     {
         $id = Uuid::uuid4()->getHex();
         $redId = Uuid::uuid4()->getHex();
@@ -1481,7 +1481,7 @@ class ProductRepositoryTest extends TestCase
         static::assertEquals($colorId, $blue->getOption()->getGroupId());
     }
 
-    public function testListingPriceWithoutVariants()
+    public function testListingPriceWithoutVariants(): void
     {
         $ruleA = Uuid::uuid4()->getHex();
         $ruleB = Uuid::uuid4()->getHex();
@@ -1546,7 +1546,7 @@ class ProductRepositoryTest extends TestCase
         static::assertEquals(50, $price->getPrice()->getGross());
     }
 
-    public function testModifyProductPriceMatrix()
+    public function testModifyProductPriceMatrix(): void
     {
         $ruleA = Uuid::uuid4()->getHex();
         $ruleB = Uuid::uuid4()->getHex();

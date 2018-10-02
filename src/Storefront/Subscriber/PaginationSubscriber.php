@@ -25,15 +25,16 @@ class PaginationSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function transformRequest(ListingPageRequestEvent $event)
+    public function transformRequest(ListingPageRequestEvent $event): void
     {
         $page = $event->getRequest()->query->getInt(self::PAGE_PARAMETER);
         if ($page <= 0) {
             $page = 1;
         }
-        $event->getListingPageRequest()->setPage($page);
 
-        $event->getListingPageRequest()->setLimit(
+        $listingPageRequest = $event->getListingPageRequest();
+        $listingPageRequest->setPage($page);
+        $listingPageRequest->setLimit(
             $event->getRequest()->query->getInt(self::LIMIT_PARAMETER, 20)
         );
     }
@@ -46,9 +47,10 @@ class PaginationSubscriber implements EventSubscriberInterface
         $page = $request->getPage();
 
         //pagination
-        $event->getCriteria()->setOffset(($page - 1) * $limit);
-        $event->getCriteria()->setLimit($limit);
-        $event->getCriteria()->setFetchCount(Criteria::FETCH_COUNT_NEXT_PAGES);
+        $criteria = $event->getCriteria();
+        $criteria->setOffset(($page - 1) * $limit);
+        $criteria->setLimit($limit);
+        $criteria->setFetchCount(Criteria::FETCH_COUNT_NEXT_PAGES);
     }
 
     public function buildPage(ListingPageLoadedEvent $event): void
@@ -56,7 +58,7 @@ class PaginationSubscriber implements EventSubscriberInterface
         $page = $event->getPage();
         $criteria = $page->getCriteria();
 
-        $currentPage = (int) ($criteria->getOffset() + $criteria->getLimit()) / $criteria->getLimit();
+        $currentPage = (int) (($criteria->getOffset() + $criteria->getLimit()) / $criteria->getLimit());
         $pageCount = $this->getPageCount($page->getProducts(), $criteria, $currentPage);
 
         $page->setCurrentPage($currentPage);

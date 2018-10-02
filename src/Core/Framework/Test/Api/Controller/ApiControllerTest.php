@@ -390,7 +390,7 @@ class ApiControllerTest extends TestCase
         static::assertEquals(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode());
     }
 
-    public function testNestedSearchOnOneToMany()
+    public function testNestedSearchOnOneToMany(): void
     {
         $id = Uuid::uuid4()->getHex();
 
@@ -460,7 +460,7 @@ class ApiControllerTest extends TestCase
         static::assertArrayHasKey('data', $responseData);
     }
 
-    public function testNestedSearchOnOneToManyWithAggregation()
+    public function testNestedSearchOnOneToManyWithAggregation(): void
     {
         $id = Uuid::uuid4()->getHex();
 
@@ -578,7 +578,7 @@ class ApiControllerTest extends TestCase
         static::assertArrayHasKey('data', $responseData);
     }
 
-    public function testSimpleFilter()
+    public function testSimpleFilter(): void
     {
         $id = Uuid::uuid4()->getHex();
 
@@ -611,7 +611,7 @@ class ApiControllerTest extends TestCase
         static::assertEquals($id, $content['data'][0]['id']);
     }
 
-    public function testAggregation()
+    public function testAggregation(): void
     {
         $manufacturerName = Uuid::uuid4()->getHex();
 

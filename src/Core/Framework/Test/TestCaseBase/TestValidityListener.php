@@ -52,21 +52,21 @@ class TestValidityListener implements TestListener
     {
         $refl = new \ReflectionObject($test);
         $contents = file_get_contents($refl->getFileName());
-        $class = get_class($test);
+        $class = \get_class($test);
 
-        if ($test instanceof KernelTestCase && !in_array($class, $this->whitelist['KernelTestCase'], true)) {
+        if ($test instanceof KernelTestCase && !\in_array($class, $this->whitelist['KernelTestCase'], true)) {
             $this->wrongTestClasses['KernelTestCase'][$refl->getFileName()] = $class;
         }
 
-        if (strpos($contents, 'beginTransaction()') && !in_array($class, $this->whitelist['beginTransaction'], true)) {
+        if (strpos($contents, 'beginTransaction()') && !\in_array($class, $this->whitelist['beginTransaction'], true)) {
             $this->wrongTestClasses['beginTransaction'][$refl->getFileName()] = $class;
         }
 
-        if (count($refl->getTraitNames()) > 2 && !in_array($class, $this->whitelist['traits'], true)) {
+        if (\count($refl->getTraitNames()) > 2 && !\in_array($class, $this->whitelist['traits'], true)) {
             $this->wrongTestClasses['traits'][$refl->getFileName()] = $class;
         }
 
-        if (strpos($contents, 'DELETE FROM') && !in_array($class, $this->whitelist['deletes'], true)) {
+        if (strpos($contents, 'DELETE FROM') && !\in_array($class, $this->whitelist['deletes'], true)) {
             $this->wrongTestClasses['deletes'][$refl->getFileName()] = $class;
         }
     }
@@ -76,10 +76,10 @@ class TestValidityListener implements TestListener
      */
     public function endTestSuite(TestSuite $suite): void
     {
-        $totalCount = count($this->wrongTestClasses['beginTransaction'])
-            + count($this->wrongTestClasses['KernelTestCase'])
-            + count($this->wrongTestClasses['traits'])
-            + count($this->wrongTestClasses['deletes']);
+        $totalCount = \count($this->wrongTestClasses['beginTransaction'])
+            + \count($this->wrongTestClasses['KernelTestCase'])
+            + \count($this->wrongTestClasses['traits'])
+            + \count($this->wrongTestClasses['deletes']);
 
         if (!$totalCount) {
             return;

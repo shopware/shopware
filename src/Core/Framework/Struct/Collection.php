@@ -1,26 +1,4 @@
 <?php declare(strict_types=1);
-/**
- * Shopware 5
- * Copyright (c) shopware AG
- *
- * According to our dual licensing model, this program can be used either
- * under the terms of the GNU Affero General Public License, version 3,
- * or under a proprietary license.
- *
- * The texts of the GNU Affero General Public License with an additional
- * permission and of our proprietary license can be found at and
- * in the LICENSE file you have received along with this program.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * "Shopware" is a registered trademark of shopware AG.
- * The licensing of the program under the AGPLv3 does not imply a
- * trademark license. Therefore any rights, title and interest in
- * our trademarks remain entirely with us.
- */
 
 namespace Shopware\Core\Framework\Struct;
 
@@ -55,7 +33,7 @@ abstract class Collection extends Struct implements \Countable, \ArrayAccess, \I
 
     public function count(): int
     {
-        return count($this->elements);
+        return \count($this->elements);
     }
 
     public function getKeys(): array
@@ -102,7 +80,7 @@ abstract class Collection extends Struct implements \Countable, \ArrayAccess, \I
 
     public function slice(int $offset, ?int $length = null)
     {
-        return new static(array_slice($this->elements, $offset, $length, true));
+        return new static(\array_slice($this->elements, $offset, $length, true));
     }
 
     public function getElements(): array
@@ -114,7 +92,7 @@ abstract class Collection extends Struct implements \Countable, \ArrayAccess, \I
     {
         $data = get_object_vars($this);
         $data['elements'] = array_values($this->elements);
-        $data['_class'] = get_class($this);
+        $data['_class'] = \get_class($this);
 
         return $data;
     }
@@ -126,7 +104,7 @@ abstract class Collection extends Struct implements \Countable, \ArrayAccess, \I
 
     public function last()
     {
-        return array_values($this->elements)[count($this->elements) - 1] ?? null;
+        return array_values($this->elements)[\count($this->elements) - 1] ?? null;
     }
 
     public function offsetExists($offset)

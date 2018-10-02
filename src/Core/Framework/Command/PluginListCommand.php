@@ -32,7 +32,7 @@ class PluginListCommand extends Command
         $this
             ->setName('plugin:list')
             ->setDescription('Show a list of available plugins.')
-            ->addOption('filter', null, InputOption::VALUE_REQUIRED, 'Filter to a given text', null)
+            ->addOption('filter', null, InputOption::VALUE_REQUIRED, 'Filter to a given text')
         ;
     }
 
@@ -57,7 +57,7 @@ class PluginListCommand extends Command
         $pluginTable = [];
 
         $active = $installed = 0;
-        $available = count($plugins);
+        $available = \count($plugins);
 
         foreach ($plugins as $plugin) {
             $pluginTable[] = [

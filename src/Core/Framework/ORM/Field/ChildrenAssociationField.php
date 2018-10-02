@@ -6,6 +6,6 @@ class ChildrenAssociationField extends OneToManyAssociationField
 {
     public function __construct(string $referenceClass)
     {
-        parent::__construct('children', $referenceClass, 'parent_id', false, 'id');
+        parent::__construct('children', $referenceClass, 'parent_id', false);
     }
 }

@@ -82,7 +82,7 @@ class MigrationCommand extends Command
             $until = null;
         }
 
-        $total = count($this->runner->getExecutableMigrations($until, $limit));
+        $total = \count($this->runner->getExecutableMigrations($until, $limit));
         $this->io->progressStart($total);
         $migratedCounter = 0;
 
@@ -101,7 +101,7 @@ class MigrationCommand extends Command
         $this->io->writeln('all migrations executed');
     }
 
-    private function finishProgress(int $migrated, int $total)
+    private function finishProgress(int $migrated, int $total): void
     {
         if ($migrated === $total) {
             $this->io->progressFinish();

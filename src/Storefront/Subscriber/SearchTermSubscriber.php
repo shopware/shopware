@@ -32,7 +32,7 @@ class SearchTermSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function transformRequest(ListingPageRequestEvent $event)
+    public function transformRequest(ListingPageRequestEvent $event): void
     {
         $request = $event->getRequest();
 

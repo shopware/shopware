@@ -77,8 +77,9 @@ class DatasheetAggregationSubscriber implements EventSubscriberInterface
         $query = new TermsQuery(self::DATASHEET_FILTER_FIELD, $ids);
 
         //add query as extension to transport active aggregation view elements
-        $event->getCriteria()->addExtension(self::AGGREGATION_NAME, new ArrayStruct(['ids' => $ids]));
-        $event->getCriteria()->addPostFilter($query);
+        $criteria = $event->getCriteria();
+        $criteria->addExtension(self::AGGREGATION_NAME, new ArrayStruct(['ids' => $ids]));
+        $criteria->addPostFilter($query);
     }
 
     public function buildPage(ListingPageLoadedEvent $event): void

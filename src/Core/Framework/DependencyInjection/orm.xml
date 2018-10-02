@@ -88,7 +88,6 @@
 
         <service class="Shopware\Core\Framework\ORM\Dbal\EntityReader" id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntitySearcherInterface"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\Dbal\EntityHydrator"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\Dbal\EntityDefinitionQueryHelper"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\Search\Parser\SqlQueryParser"/>

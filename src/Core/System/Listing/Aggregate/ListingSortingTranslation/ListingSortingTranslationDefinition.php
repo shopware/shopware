@@ -45,9 +45,4 @@ class ListingSortingTranslationDefinition extends EntityDefinition
     {
         return ListingSortingTranslationStruct::class;
     }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return null;
-    }
 }

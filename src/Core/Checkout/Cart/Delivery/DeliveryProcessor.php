@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Cart\Delivery;
 
@@ -17,12 +16,12 @@ class DeliveryProcessor
     /**
      * @var DeliveryCalculator
      */
-    private $calculator;
+    private $deliveryCalculator;
 
-    public function __construct(DeliveryBuilder $builder, DeliveryCalculator $calculator)
+    public function __construct(DeliveryBuilder $builder, DeliveryCalculator $deliveryCalculator)
     {
         $this->builder = $builder;
-        $this->calculator = $calculator;
+        $this->deliveryCalculator = $deliveryCalculator;
     }
 
     public function process(Cart $cart, CheckoutContext $context): DeliveryCollection
@@ -31,7 +30,7 @@ class DeliveryProcessor
 
         $deliveries = $this->builder->build($deliveries, $cart->getLineItems(), $context);
 
-        $this->calculator->calculate($cart->getDeliveries(), $cart, $context);
+        $this->deliveryCalculator->calculate($cart->getDeliveries(), $context);
 
         return $deliveries;
     }

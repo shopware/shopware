@@ -65,12 +65,12 @@ class ThumbnailServiceTest extends TestCase
         $this->media = $this->createTestEntity();
     }
 
-    public function testSubscribesToMediaFileUploadedEvent()
+    public function testSubscribesToMediaFileUploadedEvent(): void
     {
-        static::assertArrayHasKey(MediaFileUploadedEvent::EVENT_NAME, $this->thumbnailService->getSubscribedEvents());
+        static::assertArrayHasKey(MediaFileUploadedEvent::EVENT_NAME, $this->thumbnailService::getSubscribedEvents());
     }
 
-    public function testThumbnailGeneration()
+    public function testThumbnailGeneration(): void
     {
         $filePath = $this->urlGenerator->getRelativeMediaUrl($this->media->getId(), $this->media->getFileExtension());
         $this->getPublicFilesystem()->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r'));
@@ -88,7 +88,7 @@ class ThumbnailServiceTest extends TestCase
         /** @var MediaStruct $updatedMedia */
         $updatedMedia = $mediaResult->getEntities()->first();
 
-        $expectedNumberOfThumbnails = count($this->thumbnailConfiguration->getThumbnailSizes());
+        $expectedNumberOfThumbnails = \count($this->thumbnailConfiguration->getThumbnailSizes());
         if ($this->thumbnailConfiguration->isHighDpi()) {
             $expectedNumberOfThumbnails *= 2;
         }
@@ -104,8 +104,7 @@ class ThumbnailServiceTest extends TestCase
                 $this->media->getId(),
                 $this->media->getFileExtension(),
                 $thumbnail->getWidth(),
-                $thumbnail->getHeight(),
-                false
+                $thumbnail->getHeight()
             );
             static::assertTrue($this->getPublicFilesystem()->has($thumbnailPath));
 
@@ -122,21 +121,21 @@ class ThumbnailServiceTest extends TestCase
         }
     }
 
-    public function testGeneratorThrowsExceptionIfFileDoesNotExist()
+    public function testGeneratorThrowsExceptionIfFileDoesNotExist(): void
     {
-        self::expectException(FileNotFoundException::class);
+        $this->expectException(FileNotFoundException::class);
         $this->thumbnailService->generateThumbnails(
             $this->media,
             $this->context
         );
     }
 
-    public function testGeneratorThrowsExceptionIfFileIsNoImage()
+    public function testGeneratorThrowsExceptionIfFileIsNoImage(): void
     {
         $filePath = $this->urlGenerator->getRelativeMediaUrl($this->media->getId(), $this->media->getFileExtension());
         $this->getPublicFilesystem()->put($filePath, 'this is the content of the file, which is not a image');
 
-        self::expectException(FileTypeNotSupportedException::class);
+        $this->expectException(FileTypeNotSupportedException::class);
         $this->thumbnailService->generateThumbnails(
             $this->media,
             $this->context

@@ -100,7 +100,7 @@ class EntityWrittenEvent extends NestedEvent
 
     public function hasErrors(): bool
     {
-        return count($this->errors) > 0;
+        return \count($this->errors) > 0;
     }
 
     public function addEvent(NestedEvent $event): void

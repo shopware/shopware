@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Content\Test\Product\Api;
 
@@ -150,7 +149,7 @@ class ProductApiTest extends TestCase
         static::assertNull($price->getQuantityEnd());
     }
 
-    public function testSpecialCharacterInDescriptionTest()
+    public function testSpecialCharacterInDescriptionTest(): void
     {
         $id = Uuid::uuid4()->getHex();
 

@@ -44,7 +44,7 @@ class ManyToManyAssociationFieldTest extends TestCase
         $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
     }
 
-    public function testWriteWithoutData()
+    public function testWriteWithoutData(): void
     {
         $categoryId = Uuid::uuid4();
         $data = [
@@ -78,7 +78,7 @@ class ManyToManyAssociationFieldTest extends TestCase
         static::assertNull($writtenEvent->getEventByDefinition(CategoryTranslationDefinition::class));
     }
 
-    public function testWriteWithData()
+    public function testWriteWithData(): void
     {
         $id = Uuid::uuid4();
         $data = [
@@ -102,16 +102,5 @@ class ManyToManyAssociationFieldTest extends TestCase
         static::assertInstanceOf(EntityWrittenEvent::class, $writtenEvent->getEventByDefinition(ProductCategoryDefinition::class));
         static::assertInstanceOf(EntityWrittenEvent::class, $writtenEvent->getEventByDefinition(ProductDefinition::class));
         static::assertInstanceOf(EntityWrittenEvent::class, $writtenEvent->getEventByDefinition(ProductTranslationDefinition::class));
-    }
-
-    private function containsInstance(string $needle, array $haystack): bool
-    {
-        foreach ($haystack as $element) {
-            if ($element instanceof $needle) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

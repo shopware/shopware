@@ -69,7 +69,7 @@ class MultiInsertQueryQueue
         ];
     }
 
-    public function execute()
+    public function execute(): void
     {
         $grouped = $this->prepare();
 
@@ -128,7 +128,7 @@ class MultiInsertQueryQueue
         $stackedValues = [];
         $defaults = array_combine(
             $columns,
-            array_fill(0, count($columns), 'DEFAULT')
+            array_fill(0, \count($columns), 'DEFAULT')
         );
         foreach ($rows as $row) {
             $data = $row['data'];

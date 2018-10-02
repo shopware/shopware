@@ -22,12 +22,12 @@ class KernelTestBehaviourTest extends TestCase
         }
     }
 
-    public function testTheKernelIsEqual()
+    public function testTheKernelIsEqual(): void
     {
         self::assertEquals($this->kernelId, spl_object_hash($this->getKernel()));
     }
 
-    public function testClientIsUsingTheSameKernel()
+    public function testClientIsUsingTheSameKernel(): void
     {
         self::assertSame(
             spl_object_hash(KernelLifecycleManager::getKernel()),

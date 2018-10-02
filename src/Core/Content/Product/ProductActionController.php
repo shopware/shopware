@@ -35,8 +35,8 @@ class ProductActionController extends Controller
      */
     public function generateVariants(Request $request, string $productId, Context $context): JsonResponse
     {
-        $offset = $request->query->get('offset', null);
-        $limit = $request->query->get('limit', null);
+        $offset = $request->query->get('offset');
+        $limit = $request->query->get('limit');
 
         $events = $this->generator->generate($productId, $context, $offset, $limit);
 

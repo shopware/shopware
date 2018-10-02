@@ -115,11 +115,11 @@ class QueryStringParserTest extends TestCase
         static::assertInstanceOf(TermsQuery::class, $result);
 
         $expectedValue = $filter['value'];
-        if (is_string($expectedValue)) {
+        if (\is_string($expectedValue)) {
             $expectedValue = array_filter(explode('|', $expectedValue));
         }
 
-        if (!is_array($expectedValue)) {
+        if (!\is_array($expectedValue)) {
             $expectedValue = [$expectedValue];
         }
 

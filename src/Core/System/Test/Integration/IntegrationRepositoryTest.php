@@ -32,7 +32,7 @@ class IntegrationRepositoryTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
     }
 
-    public function testCreationWithAccessKeys()
+    public function testCreationWithAccessKeys(): void
     {
         $id = Uuid::uuid4()->getHex();
 

@@ -2,8 +2,8 @@ There are two filesystems for private and public purposes. They are meant for sh
 
 In addition, every installed and activated plugin gets its own space within your public or private filesystem. So, plugin developer don’t have to worry about existing files by other plugins.
 
--   The private namespace should be used for files, which **are not** accessable by the webroot like invoices or temporary files.
--   The public namespace should be used for files, which **are** accessable by the webroot like media files, assets, …
+-   The private namespace should be used for files, which **are not** accessible by the webroot like invoices or temporary files.
+-   The public namespace should be used for files, which **are** accessible by the webroot like media files, assets, …
 
 Usage
 -----

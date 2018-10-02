@@ -36,7 +36,7 @@ The child count indexer is helpful when your entity has parent/child relations.
 To make use of the child count indexer, your entity has to have a `ChildrenAssociationField` 
 and an `ChildCountField`. If these two requirements are met, the 
 `Shopware\Core\Framework\ORM\Dbal\Indexing\ChildCountIndexer` will automatically update
-the child_count for your enties if you create a new entity one or change an existing one.
+the child_count for your entities if you create a new entity one or change an existing one.
 
 Note: Please be aware, that the child count will only consider direct children 
 and does not work recursively.

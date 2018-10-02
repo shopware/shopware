@@ -286,7 +286,7 @@ All CSS sub-classes rely on the root element of the component &ndash; even when 
 
 - The global variables are used inside the components but will be assigned/re-mapped to component specific variable names. For example, the variable `@color-shopware-blue` could be used for a border color or a background color inside a component.
 - As a result, the colors and other styling can be adjusted for each component individually.
-- The component specitif variables are declared at the top of the components LESS file.
+- The component specific variables are declared at the top of the components LESS file.
 - They should begin with the component name like `@sw-button-color-background`.
 
 **Button component example:**

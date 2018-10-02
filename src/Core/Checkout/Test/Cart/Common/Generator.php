@@ -1,26 +1,4 @@
 <?php declare(strict_types=1);
-/**
- * Shopware 5
- * Copyright (c) shopware AG
- *
- * According to our dual licensing model, this program can be used either
- * under the terms of the GNU Affero General Public License, version 3,
- * or under a proprietary license.
- *
- * The texts of the GNU Affero General Public License with an additional
- * permission and of our proprietary license can be found at and
- * in the LICENSE file you have received along with this program.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * "Shopware" is a registered trademark of shopware AG.
- * The licensing of the program under the AGPLv3 does not imply a
- * trademark license. Therefore any rights, title and interest in
- * our trademarks remain entirely with us.
- */
 
 namespace Shopware\Core\Checkout\Test\Cart\Common;
 
@@ -66,7 +44,6 @@ class Generator extends TestCase
         $fallbackCustomerGroup = null,
         $salesChannel = null,
         $currency = null,
-        $priceGroupDiscounts = null,
         $taxes = null,
         $area = null,
         $country = null,
@@ -75,7 +52,7 @@ class Generator extends TestCase
         $language = null,
         $fallbackLanguage = null,
         $paymentMethod = null
-    ) {
+    ): CheckoutContext {
         if ($salesChannel === null) {
             $salesChannel = new SalesChannelStruct();
             $salesChannel->setId('ffa32a50e2d04cf38389a53f8d6cd594');
@@ -192,21 +169,21 @@ class Generator extends TestCase
         );
     }
 
-    public static function createGrossPriceDetector()
+    public static function createGrossPriceDetector(): TaxDetector
     {
         $self = new self();
 
         return $self->createTaxDetector(true, false);
     }
 
-    public static function createNetPriceDetector()
+    public static function createNetPriceDetector(): TaxDetector
     {
         $self = new self();
 
         return $self->createTaxDetector(false, false);
     }
 
-    public static function createNetDeliveryDetector()
+    public static function createNetDeliveryDetector(): TaxDetector
     {
         $self = new self();
 
@@ -218,11 +195,11 @@ class Generator extends TestCase
      *
      * @return ProductGateway
      */
-    public function createProductPriceGateway($priceDefinitions)
+    public function createProductPriceGateway($priceDefinitions): ProductGateway
     {
         /** @var MockObject|ProductGateway $mock */
         $mock = $this->createMock(ProductGateway::class);
-        $mock->expects(static::any())
+        $mock
             ->method('get')
             ->will(static::returnValue($priceDefinitions));
 
@@ -249,14 +226,15 @@ class Generator extends TestCase
         return $cart;
     }
 
-    private function createTaxDetector($useGross, $isNetDelivery)
+    private function createTaxDetector($useGross, $isNetDelivery): TaxDetector
     {
+        /** @var MockObject|TaxDetector $mock */
         $mock = $this->createMock(TaxDetector::class);
-        $mock->expects(static::any())
+        $mock
             ->method('useGross')
             ->will(static::returnValue($useGross));
 
-        $mock->expects(static::any())
+        $mock
             ->method('isNetDelivery')
             ->will(static::returnValue($isNetDelivery));
 

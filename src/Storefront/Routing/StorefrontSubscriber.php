@@ -76,14 +76,14 @@ class StorefrontSubscriber implements EventSubscriberInterface
         );
     }
 
-    public function showHtmlExceptionResponse(GetResponseForExceptionEvent $event)
+    public function showHtmlExceptionResponse(GetResponseForExceptionEvent $event): void
     {
         if ($event->getRequest()->attributes->has(StorefrontRequest::ATTRIBUTE_IS_STOREFRONT_REQUEST)) {
             $event->stopPropagation();
         }
     }
 
-    public function customerNotLoggedInHandler(GetResponseForExceptionEvent $event)
+    public function customerNotLoggedInHandler(GetResponseForExceptionEvent $event): void
     {
         if (!$event->getRequest()->attributes->has(StorefrontRequest::ATTRIBUTE_IS_STOREFRONT_REQUEST)) {
             return;

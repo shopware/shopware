@@ -37,7 +37,7 @@ class StorefrontSalesChannelControllerTest extends TestCase
         $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
     }
 
-    public function testGetSalesChannelCurrencies()
+    public function testGetSalesChannelCurrencies(): void
     {
         $originalCurrency = $this->addCurrency();
 
@@ -60,7 +60,7 @@ class StorefrontSalesChannelControllerTest extends TestCase
         static::fail('Unable to find currency');
     }
 
-    public function testGetSalesChannelLanguages()
+    public function testGetSalesChannelLanguages(): void
     {
         $originalLanguage = $this->addLanguage();
 
@@ -83,7 +83,7 @@ class StorefrontSalesChannelControllerTest extends TestCase
         static::fail('Unable to find language');
     }
 
-    public function testGetSalesChannelCountries()
+    public function testGetSalesChannelCountries(): void
     {
         $originalCountry = $this->addCountry();
 
@@ -106,7 +106,7 @@ class StorefrontSalesChannelControllerTest extends TestCase
         static::fail('Unable to find country');
     }
 
-    public function testGetSalesChannelCountryStates()
+    public function testGetSalesChannelCountryStates(): void
     {
         $originalCountryWithStates = $this->addCountryWithStates();
         $countryId = $originalCountryWithStates['id'];
@@ -126,7 +126,7 @@ class StorefrontSalesChannelControllerTest extends TestCase
         static::assertArraySubset($originalStates, $states);
     }
 
-    public function testGetSalesChannelPaymentMethods()
+    public function testGetSalesChannelPaymentMethods(): void
     {
         $originalPaymentMethod = $this->addPaymentMethod();
 
@@ -149,7 +149,7 @@ class StorefrontSalesChannelControllerTest extends TestCase
         static::fail('Unable to find payment method');
     }
 
-    public function testGetSalesChannelShippingMethods()
+    public function testGetSalesChannelShippingMethods(): void
     {
         $originalShippingMethod = $this->addShippingMethod();
 

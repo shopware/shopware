@@ -105,7 +105,7 @@ EOF;
         static::assertEquals('This field is write-protected.', $this->getValidationExceptionMessage($ex));
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(InsufficientWritePermissionException::class, get_class($fieldException));
+        static::assertEquals(InsufficientWritePermissionException::class, \get_class($fieldException));
         static::assertEquals('/protected', $fieldException->getPath());
     }
 
@@ -170,7 +170,7 @@ EOF;
         static::assertEquals('This field is write-protected.', $this->getValidationExceptionMessage($ex, 'relation'));
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(InsufficientWritePermissionException::class, get_class($fieldException));
+        static::assertEquals(InsufficientWritePermissionException::class, \get_class($fieldException));
         static::assertEquals('/relation', $fieldException->getPath());
     }
 
@@ -221,7 +221,7 @@ EOF;
         static::assertEquals('This field is write-protected.', $this->getValidationExceptionMessage($ex, 'wp'));
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(InsufficientWritePermissionException::class, get_class($fieldException));
+        static::assertEquals(InsufficientWritePermissionException::class, \get_class($fieldException));
         static::assertEquals('/wp', $fieldException->getPath());
     }
 
@@ -275,7 +275,7 @@ EOF;
         static::assertEquals('This field is write-protected.', $this->getValidationExceptionMessage($ex, 'relations'));
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(InsufficientWritePermissionException::class, get_class($fieldException));
+        static::assertEquals(InsufficientWritePermissionException::class, \get_class($fieldException));
         static::assertEquals('/relations', $fieldException->getPath());
     }
 
@@ -325,7 +325,7 @@ EOF;
         static::assertEquals('This field is write-protected.', $this->getValidationExceptionMessage($ex));
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(InsufficientWritePermissionException::class, get_class($fieldException));
+        static::assertEquals(InsufficientWritePermissionException::class, \get_class($fieldException));
         static::assertEquals('/protected', $fieldException->getPath());
     }
 

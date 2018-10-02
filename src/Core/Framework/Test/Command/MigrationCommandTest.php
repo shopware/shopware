@@ -29,7 +29,7 @@ class MigrationCommandTest extends TestCase
 
     public function getCommand(bool $exceptions = false): MigrationCommand
     {
-        $container = self::getKernel()->getContainer();
+        $container = $this->getKernel()->getContainer();
 
         $directories = $container->getParameter('migration.directories');
 
@@ -50,7 +50,7 @@ class MigrationCommandTest extends TestCase
 
     public function getDestructiveCommand(bool $exceptions = false): MigrationDestructiveCommand
     {
-        $container = self::getKernel()->getContainer();
+        $container = $this->getKernel()->getContainer();
 
         $directories = $container->getParameter('migration.directories');
 
@@ -69,17 +69,17 @@ class MigrationCommandTest extends TestCase
         );
     }
 
-    public function test_command_migrate_no_until_no_all_option()
+    public function test_command_migrate_no_until_no_all_option(): void
     {
         self::assertSame(0, $this->getMigrationCount(true));
 
         $command = $this->getCommand();
 
-        self::expectException(\InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
         $command->run(new ArrayInput([]), new DummyOutput());
     }
 
-    public function test_command_migrate_all_option()
+    public function test_command_migrate_all_option(): void
     {
         self::assertSame(0, $this->getMigrationCount());
 
@@ -90,7 +90,7 @@ class MigrationCommandTest extends TestCase
         self::assertSame(2, $this->getMigrationCount());
     }
 
-    public function test_command_add_Migrations()
+    public function test_command_add_Migrations(): void
     {
         self::assertSame(0, $this->getMigrationCount());
 
@@ -101,7 +101,7 @@ class MigrationCommandTest extends TestCase
         self::assertSame(2, $this->getMigrationCount());
     }
 
-    public function test_command_migrate_migration_exception()
+    public function test_command_migrate_migration_exception(): void
     {
         self::assertSame(0, $this->getMigrationCount(true));
 
@@ -116,17 +116,17 @@ class MigrationCommandTest extends TestCase
         self::assertSame(3, $this->getMigrationCount(true));
     }
 
-    public function test_destructive_command_migrate_no_until_no_all_option()
+    public function test_destructive_command_migrate_no_until_no_all_option(): void
     {
         self::assertSame(0, $this->getMigrationCount(true));
 
         $command = $this->getDestructiveCommand();
 
-        self::expectException(\InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
         $command->run(new ArrayInput([]), new DummyOutput());
     }
 
-    public function test_destructive_command_migrate_all_option()
+    public function test_destructive_command_migrate_all_option(): void
     {
         self::assertSame(0, $this->getMigrationCount());
 
@@ -137,7 +137,7 @@ class MigrationCommandTest extends TestCase
         self::assertSame(2, $this->getMigrationCount());
     }
 
-    public function test_destructive_command_add_Migrations()
+    public function test_destructive_command_add_Migrations(): void
     {
         self::assertSame(0, $this->getMigrationCount());
 
@@ -148,7 +148,7 @@ class MigrationCommandTest extends TestCase
         self::assertSame(2, $this->getMigrationCount());
     }
 
-    public function test_command_migrate_migration_destructive()
+    public function test_command_migrate_migration_destructive(): void
     {
         self::assertSame(0, $this->getMigrationCount(true, true));
 
@@ -171,7 +171,7 @@ class MigrationCommandTest extends TestCase
         self::assertSame(2, $this->getMigrationCount(true, true));
     }
 
-    public function test_command_migrate()
+    public function test_command_migrate(): void
     {
         self::assertSame(0, $this->getMigrationCount(true));
 
@@ -184,7 +184,7 @@ class MigrationCommandTest extends TestCase
 
     private function getConnection(): Connection
     {
-        return self::getKernel()->getContainer()->get(Connection::class);
+        return $this->getKernel()->getContainer()->get(Connection::class);
     }
 
     private function getMigrationCount(bool $executed = false, bool $destructive = false): int

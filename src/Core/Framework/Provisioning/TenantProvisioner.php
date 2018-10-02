@@ -90,7 +90,7 @@ class TenantProvisioner
         }
     }
 
-    private function createCatalog()
+    private function createCatalog(): void
     {
         $this->importTable(
             'catalog',
@@ -111,7 +111,7 @@ class TenantProvisioner
         );
     }
 
-    private function createLanguage()
+    private function createLanguage(): void
     {
         $this->importTable(
             'language',
@@ -123,7 +123,7 @@ class TenantProvisioner
         );
     }
 
-    private function createCountry()
+    private function createCountry(): void
     {
         $this->importTable(
             'country',
@@ -208,7 +208,7 @@ class TenantProvisioner
         );
     }
 
-    private function createOrderState()
+    private function createOrderState(): void
     {
         $states = [
             [hex2bin('1194A493806742C9B85E61F1F2CF9BE8'), $this->defaultId, 1, 0, $this->now(), null],
@@ -249,7 +249,7 @@ class TenantProvisioner
         );
     }
 
-    private function createOrderTransactionState()
+    private function createOrderTransactionState(): void
     {
         $states = [
             [hex2bin('60025B03849340BA8D1ABF7E58AA2B9F'), $this->defaultId, 1, 0, $this->now(), null],
@@ -312,7 +312,7 @@ class TenantProvisioner
         );
     }
 
-    private function createCurrency()
+    private function createCurrency(): void
     {
         $currencies = [
             [$this->defaultId, $this->defaultId, 1, 1, '€', 0, 0, $this->now(), null],
@@ -339,7 +339,7 @@ class TenantProvisioner
         );
     }
 
-    private function createCustomerGroup()
+    private function createCustomerGroup(): void
     {
         $this->importTable(
             'customer_group',
@@ -360,7 +360,7 @@ class TenantProvisioner
         );
     }
 
-    private function createLocale()
+    private function createLocale(): void
     {
         $locales = [
             [$this->defaultId, $this->defaultId, 'en_GB', $this->now(), null],
@@ -385,7 +385,7 @@ class TenantProvisioner
         );
     }
 
-    private function createPaymentMethod()
+    private function createPaymentMethod(): void
     {
         $paymentMethods = [
             [hex2bin('e84976ace9ab4928a3dcc387b66dbaa6'), $this->defaultId, 'debit', 'debit.tpl', 'Shopware\\Core\\Checkout\\Payment\\Cart\\PaymentHandler\\DebitPayment', '', 0, -10, null, '', 4, 0, 0, '', 0, '', null, null, 0, null, $this->now(), null],
@@ -412,7 +412,7 @@ class TenantProvisioner
         );
     }
 
-    private function createShippingMethod()
+    private function createShippingMethod(): void
     {
         $shippingMethods = [
             [$this->defaultId, $this->defaultId, 0, 1, 1, 1, 0, 0, null, 0, null, null, null, 0, null, null, null, 1.000, null, null, null, '', null, $this->now(), null],
@@ -437,7 +437,7 @@ class TenantProvisioner
         );
     }
 
-    private function createTax()
+    private function createTax(): void
     {
         $this->importTable(
             'tax',

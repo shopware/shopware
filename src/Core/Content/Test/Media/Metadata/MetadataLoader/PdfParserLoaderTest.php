@@ -2,14 +2,13 @@
 
 namespace Shopware\Core\Content\Test\Media\Metadata\MetadataLoader;
 
-use phpDocumentor\Reflection\Types\Self_;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Exception\CanNotLoadMetadataException;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader\PdfParserLoader;
 
 class PdfParserLoaderTest extends TestCase
 {
-    public function testJpg()
+    public function testJpg(): void
     {
         $this->expectException(CanNotLoadMetadataException::class);
 
@@ -18,7 +17,7 @@ class PdfParserLoaderTest extends TestCase
             ->extractMetadata(__DIR__ . '/../../fixtures/shopware-logo.png');
     }
 
-    public function testIso()
+    public function testIso(): void
     {
         $this->expectException(CanNotLoadMetadataException::class);
 
@@ -27,7 +26,7 @@ class PdfParserLoaderTest extends TestCase
             ->extractMetadata(__DIR__ . '/../../fixtures/test.iso');
     }
 
-    public function testPdf()
+    public function testPdf(): void
     {
         $result = $this
             ->getMetadataLoader()
@@ -36,7 +35,7 @@ class PdfParserLoaderTest extends TestCase
         self::assertCount(6, $result);
     }
 
-    public function testLargePdf()
+    public function testLargePdf(): void
     {
         $this->expectException(CanNotLoadMetadataException::class);
 

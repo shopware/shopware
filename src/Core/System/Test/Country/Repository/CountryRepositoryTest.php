@@ -36,7 +36,7 @@ class CountryRepositoryTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
     }
 
-    public function testSearchRanking()
+    public function testSearchRanking(): void
     {
         $recordA = Uuid::uuid4()->getHex();
         $recordB = Uuid::uuid4()->getHex();
@@ -51,7 +51,7 @@ class CountryRepositoryTest extends TestCase
         $criteria = new Criteria();
 
         $builder = $this->getContainer()->get(EntityScoreQueryBuilder::class);
-        $pattern = $this->getContainer()->get(SearchTermInterpreter::class)->interpret('match', Context::createDefaultContext(Defaults::TENANT_ID));
+        $pattern = $this->getContainer()->get(SearchTermInterpreter::class)->interpret('match');
         $queries = $builder->buildScoreQueries($pattern, CountryDefinition::class, CountryDefinition::getEntityName());
         $criteria->addQueries($queries);
 

@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Content\Product\Cart;
 
@@ -37,7 +36,7 @@ class ProductCollector implements CollectorInterface
             }
         );
 
-        if (count($lineItems) <= 0) {
+        if (\count($lineItems) <= 0) {
             return;
         }
 

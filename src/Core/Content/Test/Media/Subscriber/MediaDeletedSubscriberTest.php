@@ -19,7 +19,7 @@ class MediaDeletedSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    const TEST_IMAGE = __DIR__ . '/../fixtures/shopware-logo.png';
+    public const TEST_IMAGE = __DIR__ . '/../fixtures/shopware-logo.png';
 
     /**
      * @var Connection
@@ -51,10 +51,10 @@ class MediaDeletedSubscriberTest extends TestCase
         $this->filesystem = $this->getContainer()->get('shopware.filesystem.public');
     }
 
-    public function testDeleteSubscriber()
+    public function testDeleteSubscriber(): void
     {
         $tempFile = tempnam(sys_get_temp_dir(), '');
-        file_put_contents($tempFile, file_get_contents(self::TEST_IMAGE));
+        copy(self::TEST_IMAGE, $tempFile);
 
         $fileSize = filesize($tempFile);
         $mediaFile = new MediaFile($tempFile, 'image/png', 'png', $fileSize);

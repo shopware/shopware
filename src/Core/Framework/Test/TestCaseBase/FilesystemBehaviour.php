@@ -16,7 +16,7 @@ trait FilesystemBehaviour
      */
     private $filesystems;
 
-    public function getFilesystem(string $serviceId)
+    public function getFilesystem(string $serviceId): Filesystem
     {
         if (isset($this->filesystems[$serviceId])) {
             return $this->filesystems[$serviceId];
@@ -34,7 +34,7 @@ trait FilesystemBehaviour
         return $this->filesystems[$serviceId];
     }
 
-    public function getPublicFilesystem()
+    public function getPublicFilesystem(): Filesystem
     {
         return $this->getFilesystem('shopware.filesystem.public');
     }
@@ -42,7 +42,7 @@ trait FilesystemBehaviour
     /**
      * @before
      */
-    public function assertEmptyInMemoryFilesystem()
+    public function assertEmptyInMemoryFilesystem(): void
     {
         if (!$this->getPublicFilesystem()->getAdapter() instanceof MemoryAdapter) {
             throw new \RuntimeException('The service \'shopware.filesystem.public\' must be configured to use a MemoryAdapter in test environments.');

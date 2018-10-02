@@ -374,44 +374,44 @@ A typical result of this route looks as follow:
 
 $curl = curl_init();
 
-curl_setopt_array($curl, array(
-  CURLOPT_URL => "http://shopware.development/storefront-api/product",
-  CURLOPT_RETURNTRANSFER => true,
-  CURLOPT_ENCODING => "",
-  CURLOPT_MAXREDIRS => 10,
-  CURLOPT_TIMEOUT => 30,
-  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-  CURLOPT_CUSTOMREQUEST => "POST",
-  CURLOPT_POSTFIELDS => json_encode(array(
-    'page'=> 1,
-    'limit'=> 10,
-    'filter'=> [
-        [
-            'type'=> 'nested',
-            'operator'=> 'OR',
-            'queries'=> [
-                ['type'=> 'term', 'field'=> 'product.active', 'value'=> true]
+curl_setopt_array($curl, [
+    CURLOPT_URL => 'http://shopware.development/storefront-api/product',
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_ENCODING => '',
+    CURLOPT_MAXREDIRS => 10,
+    CURLOPT_TIMEOUT => 30,
+    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+    CURLOPT_CUSTOMREQUEST => 'POST',
+    CURLOPT_POSTFIELDS => json_encode([
+        'page'=> 1,
+        'limit'=> 10,
+        'filter'=> [
+            [
+                'type'=> 'nested',
+                'operator'=> 'OR',
+                'queries'=> [
+                    ['type'=> 'term', 'field'=> 'product.active', 'value'=> true]
+                ]
+            ]
+        ],
+        'term'=> 'A',
+        'sort'=> [
+            [ 'field'=> 'product.name', 'direction'=> 'descending' ]
+        ],
+        'post-filter'=> [
+            ['type'=> 'term', 'field'=> 'product.active', 'value'=> true]
+        ],
+        'aggregations'=> [
+            'active_products'=> [
+                'count'=> ['field'=> 'product.active']
             ]
         ]
+    ]),
+    CURLOPT_HTTPHEADER => [
+        'x-sw-access-key: SWSCSFB2VUQ4QTRKUHBVMEZNTQ',
+        'Content-Type: application/json'
     ],
-    'term'=> 'A',
-    'sort'=> [
-        [ 'field'=> 'product.name', 'direction'=> 'descending' ]
-    ],
-    'post-filter'=> [
-        ['type'=> 'term', 'field'=> 'product.active', 'value'=> true]
-    ],
-    'aggregations'=> [
-        'active_products'=> [
-            'count'=> ['field'=> 'product.active']
-        ]
-    ]
-  )),
-  CURLOPT_HTTPHEADER => array(
-    "x-sw-access-key: SWSCSFB2VUQ4QTRKUHBVMEZNTQ",
-    "Content-Type: application/json"
-  ),
-));
+]);
 
 $response = curl_exec($curl);
 $err = curl_error($curl);
@@ -419,9 +419,9 @@ $err = curl_error($curl);
 curl_close($curl);
 
 if ($err) {
-  echo "cURL Error #:" . $err;
+    echo 'cURL Error #:' . $err;
 } else {
-  echo $response;
+    echo $response;
 }
 ```
 

@@ -58,7 +58,7 @@ class PriceStruct extends Struct
         $this->linked = $linked;
     }
 
-    public function add(self $price)
+    public function add(self $price): void
     {
         $this->gross += $price->getGross();
         $this->net += $price->getNet();

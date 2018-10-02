@@ -51,7 +51,7 @@ class ChildCountIndexerTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
     }
 
-    public function testCreateChildCategory()
+    public function testCreateChildCategory(): void
     {
         /*
         Category A
@@ -93,7 +93,7 @@ class ChildCountIndexerTest extends TestCase
         static::assertEquals(0, $categories->get($categoryD)->getChildCount());
     }
 
-    public function testChildCountCategoryMovingMultipleCategories()
+    public function testChildCountCategoryMovingMultipleCategories(): void
     {
         /*
         Category A
@@ -154,7 +154,7 @@ class ChildCountIndexerTest extends TestCase
         static::assertEquals(0, $categories->get($categoryE)->getChildCount());
     }
 
-    public function testChildCountIndexer()
+    public function testChildCountIndexer(): void
     {
         /*
         Category A
@@ -197,7 +197,7 @@ class ChildCountIndexerTest extends TestCase
         static::assertEquals(0, $categories->get($categoryD)->getChildCount());
     }
 
-    private function createCategory(string $parentId = null)
+    private function createCategory(string $parentId = null): string
     {
         $id = Uuid::uuid4()->getHex();
         $data = [

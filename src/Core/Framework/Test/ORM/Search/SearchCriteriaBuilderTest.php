@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\ORM\Search;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Exception\SearchRequestException;
@@ -228,7 +229,7 @@ class SearchCriteriaBuilderTest extends TestCase
         static::assertSame(200, $this->getClient()->getResponse()->getStatusCode());
         $content = json_decode($this->getClient()->getResponse()->getContent(), true);
 
-        $expectedIds = array_slice($ids, $limit * ($requestedPage - 1), $limit);
+        $expectedIds = \array_slice($ids, $limit * ($requestedPage - 1), $limit);
         $actualIds = array_column($content['data'], 'id');
 
         static::assertEquals($expectedIds, $actualIds);
@@ -264,7 +265,7 @@ class SearchCriteriaBuilderTest extends TestCase
         static::assertSame(200, $this->getClient()->getResponse()->getStatusCode());
         $content = json_decode($this->getClient()->getResponse()->getContent(), true);
 
-        $expectedIds = array_slice($ids, $limit * ($requestedPage - 1), $limit);
+        $expectedIds = \array_slice($ids, $limit * ($requestedPage - 1), $limit);
         $actualIds = array_column($content['data'], 'id');
 
         static::assertEquals($expectedIds, $actualIds);
@@ -442,12 +443,12 @@ class SearchCriteriaBuilderTest extends TestCase
         static::assertEquals('/filter/2/queries/1/field', $content['errors'][5]['source']['pointer']);
     }
 
-    private function fakeHandleRequest($maxLimit = 0, $allowedLimits = [], $params = [])
+    private function fakeHandleRequest($maxLimit = 0, array $allowedLimits = [], $params = []): Criteria
     {
         $searchBuilder = $this->getContainer()->get(SearchBuilder::class);
         $requestBuilder = new RequestCriteriaBuilder($searchBuilder, $maxLimit, $allowedLimits);
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
-        $definition = 'Shopware\Core\Content\Product\ProductDefinition';
+        $definition = ProductDefinition::class;
 
         $request = new Request($params);
 

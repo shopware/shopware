@@ -6,7 +6,7 @@ use Symfony\Component\Config\Util\XmlUtils;
 
 class XmlPluginInfoReader
 {
-    public function read($file)
+    public function read($file): array
     {
         try {
             $dom = XmlUtils::loadFile($file, __DIR__ . '/Schema/plugin.xsd');
@@ -22,7 +22,7 @@ class XmlPluginInfoReader
      *
      * @return array
      */
-    private function parseInfo(\DOMDocument $xml)
+    private function parseInfo(\DOMDocument $xml): array
     {
         $xpath = new \DOMXPath($xml);
 
@@ -37,12 +37,12 @@ class XmlPluginInfoReader
         $info = [];
 
         foreach ($this->getChildren($entry, 'label') as $label) {
-            $lang = $label->getAttribute('lang') ? $label->getAttribute('lang') : 'en';
+            $lang = $label->getAttribute('lang') ?: 'en';
             $info['label'][$lang] = $label->nodeValue;
         }
 
         foreach ($this->getChildren($entry, 'description') as $description) {
-            $lang = $description->getAttribute('lang') ? $description->getAttribute('lang') : 'en';
+            $lang = $description->getAttribute('lang') ?: 'en';
             $info['description'][$lang] = trim($description->nodeValue);
         }
 
@@ -57,7 +57,7 @@ class XmlPluginInfoReader
             $version = $changelog->getAttribute('version');
 
             foreach ($this->getChildren($changelog, 'changes') as $changes) {
-                $lang = $changes->getAttribute('lang') ? $changes->getAttribute('lang') : 'en';
+                $lang = $changes->getAttribute('lang') ?: 'en';
                 $info['changelog'][$version][$lang][] = $changes->nodeValue;
             }
         }
@@ -102,7 +102,7 @@ class XmlPluginInfoReader
      *
      * @return null|\DOMElement
      */
-    private function getFirstChild(\DOMNode $node, $name)
+    private function getFirstChild(\DOMNode $node, $name): ?\DOMElement
     {
         if ($children = $this->getChildren($node, $name)) {
             return $children[0];
@@ -133,7 +133,7 @@ class XmlPluginInfoReader
      *
      * @return array
      */
-    private function parseRequiredPlugins(\DOMNode $requiredPlugins)
+    private function parseRequiredPlugins(\DOMNode $requiredPlugins): array
     {
         $resolvedPlugins = $this->getChildren($requiredPlugins, 'requiredPlugin');
         $plugins = [];

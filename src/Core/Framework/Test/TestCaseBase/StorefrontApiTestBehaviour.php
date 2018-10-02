@@ -27,7 +27,7 @@ trait StorefrontApiTestBehaviour
     /**
      * @after
      */
-    public function resetStorefrontApiTestCaseTrait()
+    public function resetStorefrontApiTestCaseTrait(): void
     {
         if (!$this->storeFrontClient) {
             return;
@@ -50,6 +50,15 @@ trait StorefrontApiTestBehaviour
 
         $this->salesChannelIds = [];
         $this->storeFrontClient = null;
+    }
+
+    public function getStorefrontApiSalesChannelId(): string
+    {
+        if (!$this->salesChannelIds) {
+            throw new \LogicException('The sales channel id con only be requested after calling `createStorefrontClient`.');
+        }
+
+        return end($this->salesChannelIds);
     }
 
     protected function getStorefrontClient(): Client
@@ -110,15 +119,5 @@ trait StorefrontApiTestBehaviour
 
         $header = 'HTTP_' . str_replace('-', '_', strtoupper(PlatformRequest::HEADER_ACCESS_KEY));
         $storefrontApiClient->setServerParameter($header, $accessKey);
-    }
-
-    public function getStorefrontApiSalesChannelId(): string
-    {
-        if(!$this->salesChannelIds) {
-            throw new \LogicException('The sales channel id con only be requested after calling `createStorefrontClient`.');
-        }
-
-        return end($this->salesChannelIds);
-
     }
 }

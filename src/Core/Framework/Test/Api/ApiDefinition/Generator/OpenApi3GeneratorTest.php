@@ -29,13 +29,13 @@ class OpenApi3GeneratorTest extends TestCase
         $this->entityName = SimpleDefinition::getEntityName();
     }
 
-    public function testEntityNameConversion()
+    public function testEntityNameConversion(): void
     {
         static::assertArrayHasKey(SimpleDefinition::getEntityName(), $this->schema);
         static::assertEquals($this->entityName, $this->schema[$this->entityName]['name']);
     }
 
-    public function testTypeConversion()
+    public function testTypeConversion(): void
     {
         $properties = $this->schema[$this->entityName]['properties'];
 
@@ -48,7 +48,7 @@ class OpenApi3GeneratorTest extends TestCase
         static::assertArraySubset(['type' => 'integer', 'format' => 'int64'], $properties['childCount']);
     }
 
-    public function testFlagConversion()
+    public function testFlagConversion(): void
     {
         $properties = $this->schema[$this->entityName]['properties'];
         $requiredFields = $this->schema[$this->entityName]['required'];

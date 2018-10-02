@@ -88,7 +88,7 @@ class SqlQueryParser
             case $query instanceof RangeQuery:
                 return $this->parseRangeQuery($query, $definition, $root, $context);
             default:
-                throw new \RuntimeException(sprintf('Unsupported query %s', get_class($query)));
+                throw new \RuntimeException(sprintf('Unsupported query %s', \get_class($query)));
         }
     }
 

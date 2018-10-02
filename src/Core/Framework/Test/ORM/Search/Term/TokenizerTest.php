@@ -13,14 +13,14 @@ class TokenizerTest extends TestCase
      * @param string $term
      * @param array  $expected
      */
-    public function testInterpreter(string $term, array $expected)
+    public function testInterpreter(string $term, array $expected): void
     {
         $interpreter = new Tokenizer();
         $tokens = $interpreter->tokenize($term);
         static::assertSame($expected, $tokens);
     }
 
-    public function cases()
+    public function cases(): array
     {
         return [
             [

@@ -254,7 +254,7 @@ class Criteria extends Struct
 
     public function addAssociation(string $field, ?Criteria $criteria = null): void
     {
-        $this->associations[$field] = $criteria ?? new Criteria();
+        $this->associations[$field] = $criteria ?? new self();
     }
 
     public function getAssociations(): array
@@ -264,7 +264,7 @@ class Criteria extends Struct
 
     public function getAssociation(string $field): Criteria
     {
-        return $this->associations[$field] ?? new Criteria();
+        return $this->associations[$field] ?? new self();
     }
 
     public function setSortings(array $sortings): void

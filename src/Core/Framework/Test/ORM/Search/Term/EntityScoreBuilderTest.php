@@ -19,7 +19,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 
 class EntityScoreBuilderTest extends TestCase
 {
-    public function testSimplePattern()
+    public function testSimplePattern(): void
     {
         $builder = new EntityScoreQueryBuilder();
 
@@ -43,7 +43,7 @@ class EntityScoreBuilderTest extends TestCase
         );
     }
 
-    public function testMultipleTerms()
+    public function testMultipleTerms(): void
     {
         $builder = new EntityScoreQueryBuilder();
 
@@ -78,7 +78,7 @@ class EntityScoreBuilderTest extends TestCase
         );
     }
 
-    public function testTranslatedFieldFallback()
+    public function testTranslatedFieldFallback(): void
     {
         $builder = new EntityScoreQueryBuilder();
 

@@ -72,7 +72,7 @@ class CustomerDefinition extends EntityDefinition
             (new StringField('first_name', 'firstName'))->setFlags(new Required(), new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
             (new StringField('last_name', 'lastName'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
 
-            (new PasswordField('password', 'password')),
+            new PasswordField('password', 'password'),
             (new StringField('email', 'email'))->setFlags(new Required(), new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
             new StringField('title', 'title'),
             new StringField('encoder', 'encoder'),

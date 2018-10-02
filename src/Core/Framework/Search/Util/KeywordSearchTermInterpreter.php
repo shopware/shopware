@@ -195,7 +195,6 @@ class KeywordSearchTermInterpreter implements KeywordSearchTermInterpreterInterf
 
                 if ($levenshtein <= 3) {
                     $score += 2;
-                    continue;
                 }
             }
 

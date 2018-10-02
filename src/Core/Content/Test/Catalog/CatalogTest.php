@@ -368,7 +368,7 @@ class CatalogTest extends TestCase
         static::assertEquals(0, $products->count(), 'Products should not be fetched');
     }
 
-    public function testSearch()
+    public function testSearch(): void
     {
         $productId1 = Uuid::uuid4();
         $productId2 = Uuid::uuid4();

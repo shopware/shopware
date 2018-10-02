@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Framework\Test\Api\Controller;
 
@@ -12,7 +11,7 @@ class AccessKeyControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
 
-    public function testIntegrationAccessKey()
+    public function testIntegrationAccessKey(): void
     {
         $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/integration/actions/generate-key');
 
@@ -34,7 +33,7 @@ class AccessKeyControllerTest extends TestCase
         static::assertNull($e);
     }
 
-    public function testUserAccessKey()
+    public function testUserAccessKey(): void
     {
         $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/user/actions/generate-key');
 
@@ -56,7 +55,7 @@ class AccessKeyControllerTest extends TestCase
         static::assertNull($e);
     }
 
-    public function testSalesChannelAccessKey()
+    public function testSalesChannelAccessKey(): void
     {
         $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/sales-channel/actions/generate-key');
 

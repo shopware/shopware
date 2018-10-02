@@ -9,7 +9,7 @@ use Smalot\PdfParser\Parser;
 
 class PdfParserLoader implements MetadataLoaderInterface
 {
-    const MAX_FILE_SIZE = 128000000; // 128mb
+    public const MAX_FILE_SIZE = 128000000; // 128mb
 
     /**
      * @var Parser|null
@@ -66,7 +66,7 @@ class PdfParserLoader implements MetadataLoaderInterface
         }
     }
 
-    private function isAllowedToHandle(string $filePath)
+    private function isAllowedToHandle(string $filePath): bool
     {
         $isPdf = mime_content_type($filePath) === 'application/pdf';
         $isTooLarge = filesize($filePath) > self::MAX_FILE_SIZE;

@@ -102,6 +102,10 @@
       "labelFileExtension": "Dateiendung",
       "invalidUrl": "Wir benötigen eine gültige URL um deine Datei herunterladen zu können.",
       "missingFileExtension": "Wir konnten keine Dateiendung in deiner URL finden.<br>Bitte gib eine Dateiendung an."
+    },
+    "sw-sidebar-media-item": {
+      "title": "Medien",
+      "placeholderSearch": "Suche"
     }
   },
   "sw-login": {

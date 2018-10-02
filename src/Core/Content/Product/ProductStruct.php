@@ -448,9 +448,9 @@ class ProductStruct extends Entity
         $this->stock = $stock;
     }
 
-    public function getIsCloseout(): ?bool
+    public function getIsCloseout(): bool
     {
-        return $this->isCloseout;
+        return (bool) $this->isCloseout;
     }
 
     public function setIsCloseout(?bool $isCloseout): void

@@ -76,8 +76,8 @@ class PaymentTransactionChainProcessor
         $transactions = $order->getTransactions()->filterByOrderStateId(Defaults::ORDER_TRANSACTION_OPEN);
 
         foreach ($transactions as $transaction) {
-            $token = $this->tokenFactory->generateToken($transaction, $context);
-            $returnUrl = $this->assembleReturnUrl($token, $finishUrl);
+            $token = $this->tokenFactory->generateToken($transaction, $context, $finishUrl);
+            $returnUrl = $this->assembleReturnUrl($token);
 
             $paymentTransaction = new PaymentTransactionStruct(
                 $transaction->getId(),
@@ -112,17 +112,11 @@ class PaymentTransactionChainProcessor
         return $this->paymentHandlerRegistry->get($paymentMethod->getClass());
     }
 
-    private function assembleReturnUrl(string $token, ?string $finishUrl = null): string
+    private function assembleReturnUrl(string $token): string
     {
         $parameter = [
             '_sw_payment_token' => $token,
         ];
-
-        // todo@ju when implementing transactions, finishUrl per transaction and per order is needed.
-
-        if ($finishUrl) {
-            $parameter['_sw_finish_url'] = $finishUrl;
-        }
 
         return $this->router->generate('payment.finalize.transaction', $parameter, UrlGeneratorInterface::ABSOLUTE_URL);
     }

@@ -136,7 +136,7 @@ class PaymentServiceTest extends TestCase
         $request = new Request();
         $transaction = JWTFactoryTest::createTransaction();
 
-        $token = $this->tokenFactory->generateToken($transaction, $this->context, -1);
+        $token = $this->tokenFactory->generateToken($transaction, $this->context, null, -1);
 
         $this->expectException(TokenExpiredException::class);
         $this->paymentService->finalizeTransaction($token, $request, $this->context);

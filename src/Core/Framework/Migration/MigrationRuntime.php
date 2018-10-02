@@ -93,12 +93,12 @@ class MigrationRuntime
             ->from('migration')
             ->orderBy('`creation_timestamp`', 'ASC');
 
-        if ($until) {
+        if ($until !== null) {
             $query->where('`creation_timestamp` <= :timestamp');
             $query->setParameter('timestamp', $until);
         }
 
-        if ($limit) {
+        if ($limit > 0) {
             $query->setMaxResults($limit);
         }
 

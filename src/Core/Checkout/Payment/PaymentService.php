@@ -75,14 +75,14 @@ class PaymentService
      * @throws UnknownPaymentMethodException
      * @throws TokenExpiredException
      */
-    public function finalizeTransaction(string $paymentToken, Request $request, Context $context): string
+    public function finalizeTransaction(string $paymentToken, Request $request, Context $context): TokenStruct
     {
         $paymentToken = $this->parseToken($paymentToken, $context);
 
         $paymentHandler = $this->getPaymentHandlerById($paymentToken->getPaymentMethodId(), $context);
         $paymentHandler->finalize($paymentToken->getTransactionId(), $request, $context);
 
-        return $paymentToken->getTransactionId();
+        return $paymentToken;
     }
 
     /**

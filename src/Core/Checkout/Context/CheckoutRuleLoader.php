@@ -122,6 +122,7 @@ class CheckoutRuleLoader
                 return $this->rules = unserialize($cacheItem->get());
             }
         } catch (\Throwable $e) {
+            // nth
         }
 
         $rules = $this->repository->search(new Criteria(), $context);

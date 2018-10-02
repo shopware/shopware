@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Struct\Uuid;
 class JWTFactory implements TokenFactoryInterface
 {
     /**
-     * @var Key|CryptKey|string
+     * @var CryptKey
      */
     protected $privateKey;
 
@@ -24,15 +24,19 @@ class JWTFactory implements TokenFactoryInterface
      */
     public function __construct($privateKey)
     {
-        if ($privateKey instanceof CryptKey === false) {
+        if (!$privateKey instanceof CryptKey) {
             $privateKey = new CryptKey($privateKey);
         }
 
         $this->privateKey = $privateKey;
     }
 
-    public function generateToken(OrderTransactionStruct $transaction, Context $context, int $expiresInSeconds = 1800): string
-    {
+    public function generateToken(
+        OrderTransactionStruct $transaction,
+        Context $context,
+        ?string $finishUrl = null,
+        int $expiresInSeconds = 1800
+    ): string {
         $jwtToken = (new Builder())
             ->setId(Uuid::uuid4()->getHex(), true)
             ->setIssuedAt(time())
@@ -40,6 +44,7 @@ class JWTFactory implements TokenFactoryInterface
             ->setExpiration(time() + $expiresInSeconds)
             ->setSubject($transaction->getId())
             ->set('pmi', $transaction->getPaymentMethodId())
+            ->set('ful', $finishUrl)
             ->sign(new Sha256(), new Key($this->privateKey->getKeyPath(), $this->privateKey->getPassPhrase()))
             ->getToken();
 
@@ -57,7 +62,7 @@ class JWTFactory implements TokenFactoryInterface
             throw new InvalidTokenException($token, 0, $e);
         }
 
-        if ($jwtToken->verify(new Sha256(), $this->privateKey->getKeyPath()) === false) {
+        if (!$jwtToken->verify(new Sha256(), $this->privateKey->getKeyPath())) {
             throw new InvalidTokenException($token);
         }
 
@@ -66,6 +71,7 @@ class JWTFactory implements TokenFactoryInterface
             $token,
             $jwtToken->getClaim('pmi'),
             $jwtToken->getClaim('sub'),
+            $jwtToken->getClaim('ful'),
             $jwtToken->getClaim('exp')
         );
 

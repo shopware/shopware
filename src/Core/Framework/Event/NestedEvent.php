@@ -24,7 +24,7 @@ abstract class NestedEvent extends Event implements \JsonSerializable
 
     public function getFlatEventList(): NestedEventCollection
     {
-        $events[] = $this;
+        $events = [$this];
 
         if (!$nestedEvents = $this->getEvents()) {
             return new NestedEventCollection($events);

@@ -173,7 +173,7 @@ class EntityHydrator
         $entity->assign($data);
 
         //write object cache key to prevent multiple hydration for the same entity
-        if ($objectCacheKey) {
+        if ($objectCacheKey !== null) {
             $this->objects[$objectCacheKey] = $entity;
         }
 

@@ -9,72 +9,72 @@ class TokenStruct extends Struct
     /**
      * @var string
      */
-    private $id;
+    protected $id;
 
     /**
      * @var string
      */
-    private $token;
+    protected $token;
 
     /**
      * @var string
      */
-    private $paymentMethodId;
+    protected $paymentMethodId;
 
     /**
      * @var string
      */
-    private $transactionId;
+    protected $transactionId;
+
+    /**
+     * @var string|null
+     */
+    protected $finishUrl;
 
     /**
      * @var int Unix Timestamp
      */
-    private $expires;
+    protected $expires;
 
     public function __construct(
         string $id,
         string $token,
         string $paymentMethodId,
         string $transactionId,
+        ?string $finishUrl,
         int $expires
     ) {
         $this->id = $id;
         $this->token = $token;
         $this->paymentMethodId = $paymentMethodId;
         $this->transactionId = $transactionId;
+        $this->finishUrl = $finishUrl;
         $this->expires = $expires;
     }
 
-    /**
-     * @return string
-     */
     public function getId(): string
     {
         return $this->id;
     }
 
-    /**
-     * @return string
-     */
     public function getToken(): string
     {
         return $this->token;
     }
 
-    /**
-     * @return string
-     */
     public function getPaymentMethodId(): string
     {
         return $this->paymentMethodId;
     }
 
-    /**
-     * @return string
-     */
     public function getTransactionId(): string
     {
         return $this->transactionId;
+    }
+
+    public function getFinishUrl(): ?string
+    {
+        return $this->finishUrl;
     }
 
     public function getExpires(): int

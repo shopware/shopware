@@ -17,24 +17,18 @@ class IndexTableOperator
         $this->connection = $connection;
     }
 
-    public function getIndexName(string $table, ?\DateTime $timestamp): string
+    public function getIndexName(string $table, int $timestamp): string
     {
-        if ($timestamp === null) {
-            return $table;
-        }
-
-        return $table . '_' . $timestamp->getTimestamp();
+        return sprintf('%s_%s', $table, $timestamp);
     }
 
-    public function createTable(string $table, \DateTime $timestamp): void
+    public function createTable(string $table, string $indexName): void
     {
-        $name = $this->getIndexName($table, $timestamp);
-
         $sql = str_replace(
-            ['#name#', '#table#'],
-            [EntityDefinitionQueryHelper::escape($name), EntityDefinitionQueryHelper::escape($table)],
-            'DROP TABLE IF EXISTS #name#;
-            CREATE TABLE #name# SELECT * FROM #table# LIMIT 0'
+            ['#indexName#', '#table#'],
+            [EntityDefinitionQueryHelper::escape($indexName), EntityDefinitionQueryHelper::escape($table)],
+            'DROP TABLE IF EXISTS #indexName#;
+            CREATE TABLE #indexName# SELECT * FROM #table# LIMIT 0'
         );
 
         $this->connection->executeUpdate($sql);

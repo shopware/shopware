@@ -34,6 +34,7 @@ class CachedKeywordSearchTermInterpreter implements KeywordSearchTermInterpreter
             try {
                 return unserialize($item->get());
             } catch (\Throwable $e) {
+                // nth
             }
         }
 

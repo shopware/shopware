@@ -19,6 +19,8 @@ class JsonApiEncoder
 {
     /**
      * @param EntityCollection|Entity|null $data
+     *
+     * @throws UnsupportedEncoderInputException
      */
     public function encode(string $definition, $data, string $baseUrl, array $metaData = []): string
     {
@@ -77,6 +79,7 @@ class JsonApiEncoder
         $self = $baseUrl . '/' . $this->camelCaseToSnailCase($definition::getEntityName()) . '/' . $entity->getId();
         $serialized->addLink('self', $self);
 
+        /** @var string|int $propertyName */
         foreach ($fields as $propertyName => $field) {
             if ($propertyName === 'id') {
                 continue;

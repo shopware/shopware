@@ -174,7 +174,7 @@ class EntityForeignKeyResolver
                 );
             }
 
-            //avoid infinite recursive call
+            // avoid infinite recursive call
             if ($cascade->getReferenceClass() === $definition) {
                 continue;
             }
@@ -229,6 +229,7 @@ class EntityForeignKeyResolver
 
                 $value = array_map('strtolower', $value);
 
+                /** @var AssociationInterface|null $field */
                 $field = $this->queryHelper->getField($key, $definition, $root);
 
                 if (!$field) {
@@ -259,8 +260,6 @@ class EntityForeignKeyResolver
                     continue;
                 }
 
-                /** @var AssociationInterface $field */
-                $field = $field;
                 $class = $field->getReferenceClass();
 
                 if (!array_key_exists($class, $restrictions)) {

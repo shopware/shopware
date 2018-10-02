@@ -5,8 +5,8 @@ function IntegrationPageObject(browser) {
     this.elements.integrationName = 'input[name=sw-field--currentIntegration-label]';
     this.elements.apiAccessKeyIdField = 'input[name=sw-field--currentIntegration-accessKey]';
 
-    this.accessKeyId = "";
-    this.newAccessKeyId = "";
+    this.accessKeyId = '';
+    this.newAccessKeyId = '';
 }
 
 IntegrationPageObject.prototype.checkClipboard = function () {

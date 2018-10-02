@@ -12,7 +12,7 @@ use Shopware\Core\Content\Media\Metadata\Type\VideoMetadata;
 class GetId3Loader implements MetadataLoaderInterface
 {
     /**
-     * @var getID3
+     * @var getID3|null
      */
     private $getId3;
 

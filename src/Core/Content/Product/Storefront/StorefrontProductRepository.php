@@ -18,7 +18,7 @@ class StorefrontProductRepository
     /**
      * @var RepositoryInterface
      */
-    private $repository;
+    private $productRepository;
 
     /**
      * @var QuantityPriceCalculator
@@ -27,13 +27,14 @@ class StorefrontProductRepository
 
     public function __construct(RepositoryInterface $repository, QuantityPriceCalculator $priceCalculator)
     {
-        $this->repository = $repository;
+        $this->productRepository = $repository;
         $this->priceCalculator = $priceCalculator;
     }
 
     public function read(array $ids, CheckoutContext $context): ProductCollection
     {
-        $basics = $this->repository->read(new ReadCriteria($ids), $context->getContext());
+        /** @var ProductCollection $basics */
+        $basics = $this->productRepository->read(new ReadCriteria($ids), $context->getContext());
 
         return $this->loadListProducts($basics, $context);
     }
@@ -44,16 +45,19 @@ class StorefrontProductRepository
         $criteria->addAssociation('product.datasheet');
         $criteria->addAssociation('product.services');
 
-        $basics = $this->repository->read($criteria, $context->getContext());
+        /** @var ProductCollection $basics */
+        $basics = $this->productRepository->read($criteria, $context->getContext());
 
         return $this->loadDetailProducts($context, $basics);
     }
 
     public function search(Criteria $criteria, CheckoutContext $context): EntitySearchResult
     {
-        $basics = $this->repository->search($criteria, $context->getContext());
+        $basics = $this->productRepository->search($criteria, $context->getContext());
 
-        $listProducts = $this->loadListProducts($basics->getEntities(), $context);
+        /** @var ProductCollection $products */
+        $products = $basics->getEntities();
+        $listProducts = $this->loadListProducts($products, $context);
 
         $basics->clear();
         $basics->fill($listProducts->getElements());
@@ -63,7 +67,7 @@ class StorefrontProductRepository
 
     public function searchIds(Criteria $criteria, CheckoutContext $context): IdSearchResult
     {
-        return $this->repository->searchIds($criteria, $context->getContext());
+        return $this->productRepository->searchIds($criteria, $context->getContext());
     }
 
     private function loadListProducts(ProductCollection $products, CheckoutContext $context): ProductCollection

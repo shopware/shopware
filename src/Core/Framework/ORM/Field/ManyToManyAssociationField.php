@@ -139,7 +139,7 @@ class ManyToManyAssociationField extends SubresourceField implements Association
         yield __CLASS__ => __METHOD__;
     }
 
-    private function getMappingAssociation(): ?AssociationInterface
+    private function getMappingAssociation(): ?ManyToOneAssociationField
     {
         $associations = $this->getReferenceClass()::getFields()->filterInstance(AssociationInterface::class);
 
@@ -157,12 +157,12 @@ class ManyToManyAssociationField extends SubresourceField implements Association
     {
         // not only foreign key provided? data is provided as insert or update command
         if (\count($data) > 1) {
-            return $mapped = [$association->getPropertyName() => $data];
+            return [$association->getPropertyName() => $data];
         }
 
         // no id provided? data is provided as insert command (like create category in same request with the product)
         if (!isset($data[$association->getReferenceField()])) {
-            return $mapped = [$association->getPropertyName() => $data];
+            return [$association->getPropertyName() => $data];
         }
 
         //only foreign key provided? entity should only be linked
@@ -182,7 +182,7 @@ class ManyToManyAssociationField extends SubresourceField implements Association
         if (!$fk) {
             trigger_error(sprintf('Foreign key for association %s not found', $association->getPropertyName()));
 
-            return $mapped = [$association->getPropertyName() => $data];
+            return [$association->getPropertyName() => $data];
         }
 
         /* @var FkField $fk */

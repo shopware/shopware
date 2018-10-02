@@ -66,7 +66,7 @@ class PaymentTransactionChainProcessor
         $criteria = new ReadCriteria([$orderId]);
         $criteria->addAssociation('order.transactions');
 
-        /** @var OrderStruct $order */
+        /** @var OrderStruct|null $order */
         $order = $this->orderRepository->read($criteria, $context)->first();
 
         if (!$order) {

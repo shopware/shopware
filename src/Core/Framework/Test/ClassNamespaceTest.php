@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Test;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\Aggregate\ProductCategoryTree\ProductCategoryTreeDefinition;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 
@@ -35,15 +34,6 @@ class ClassNamespaceTest extends TestCase
         $errorMessage = 'Expected the following files to have a correct namespace:' . PHP_EOL . PHP_EOL . print_r($errors, true);
 
         self::assertCount(0, $errors, $errorMessage);
-    }
-
-    public function testReflectionClassConstantComparison(): void
-    {
-        $reflection = new \ReflectionClass(\Shopware\Core\Content\Category\CategoryDefinition::class);
-        $this->assertNotEquals(\Shopware\Core\Framework\ORM\MappingEntityDefinition::class, $reflection->getParentClass());
-
-        $reflection = new \ReflectionClass(ProductCategoryTreeDefinition::class);
-        $this->assertEquals(\Shopware\Core\Framework\ORM\MappingEntityDefinition::class, $reflection->getParentClass()->getName());
     }
 
     /**

@@ -19,16 +19,10 @@ class ValidationException extends \InvalidArgumentException implements ShopwareE
      */
     private $sortedViolations = [];
 
-    /**
-     * @param ConstraintViolationListInterface $violations
-     * @param string                           $message
-     * @param null                             $code
-     * @param Exception|null                   $previous
-     */
     public function __construct(
         ConstraintViolationListInterface $violations,
-        $message,
-        $code = null,
+        string $message,
+        int $code = null,
         Exception $previous = null
     ) {
         $readableViolationList = [];
@@ -45,7 +39,9 @@ class ValidationException extends \InvalidArgumentException implements ShopwareE
             $readableViolationList[] = $violation->getPropertyPath() . ': ' . $violation->getMessage();
         }
 
-        parent::__construct($message . "\n\t" . implode("\n\t<br>", $readableViolationList), $code, $previous);
+        $message .= "\n\t" . implode("\n\t<br>", $readableViolationList);
+
+        parent::__construct($message, $code, $previous);
 
         $this->violations = $violations;
     }

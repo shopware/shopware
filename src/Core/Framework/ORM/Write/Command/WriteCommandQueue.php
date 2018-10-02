@@ -124,7 +124,7 @@ class WriteCommandQueue
     }
 
     /**
-     * @return WriteCommandInterface[]
+     * @return WriteCommandInterface[][]
      */
     public function getCommands(): array
     {
@@ -138,9 +138,10 @@ class WriteCommandQueue
         foreach ($commands as $command) {
             if (!$command instanceof $class) {
                 throw new WriteTypeIntendException(sprintf(
-                    'Expected command for "%s" to be "%s".',
+                    'Expected command for "%s" to be "%s". (Got: %s)',
                     $definition,
-                    $class
+                    $class,
+                    get_class($command)
                 ));
             }
         }

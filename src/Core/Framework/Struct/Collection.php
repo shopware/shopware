@@ -11,9 +11,6 @@ abstract class Collection extends Struct implements \Countable, \ArrayAccess, \I
 
     protected $_pointer;
 
-    /**
-     * @param array $elements
-     */
     public function __construct(array $elements = [])
     {
         $this->fill($elements);

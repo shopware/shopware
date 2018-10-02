@@ -120,11 +120,8 @@ class CheckoutRuleLoader
         $cacheItem = $this->cache->getItem($key);
 
         try {
-            $rules = $rules = $cacheItem->isHit();
-            if ($rules) {
-                $this->rules = unserialize($rules);
-
-                return $this->rules;
+            if ($cacheItem->isHit()) {
+                return $this->rules = unserialize($cacheItem->get());
             }
         } catch (\Throwable $e) {
         }

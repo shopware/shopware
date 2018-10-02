@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -147,11 +148,13 @@ class Translator implements TranslatorInterface, TranslatorBagInterface
 
     private function fetchSnippetsFromDatabase(Context $context): array
     {
-        $snippets = $this->getSnippetQuery($context->getLanguageId(), $context->getTenantId())->execute()->fetchAll(\PDO::FETCH_KEY_PAIR);
+        $snippets = $this->getSnippetQuery($context->getLanguageId(), $context->getTenantId())->execute()->fetchAll();
+        $snippets = FetchModeHelper::keyPair($snippets);
 
         $fallbackSnippets = [];
         if ($context->hasFallback()) {
-            $fallbackSnippets = $this->getSnippetQuery($context->getFallbackLanguageId(), $context->getTenantId())->execute()->fetchAll(\PDO::FETCH_KEY_PAIR);
+            $fallbackSnippets = $this->getSnippetQuery($context->getFallbackLanguageId(), $context->getTenantId())->execute()->fetchAll();
+            $fallbackSnippets = FetchModeHelper::keyPair($fallbackSnippets);
         }
 
         return array_merge($fallbackSnippets, $snippets);

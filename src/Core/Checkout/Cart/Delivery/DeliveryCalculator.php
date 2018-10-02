@@ -136,6 +136,6 @@ class DeliveryCalculator
         $query->addOrderBy('price', 'DESC');
         $query->setMaxResults(1);
 
-        return (float) $query->execute()->fetch(\PDO::FETCH_COLUMN);
+        return (float) $query->execute()->fetchColumn();
     }
 }

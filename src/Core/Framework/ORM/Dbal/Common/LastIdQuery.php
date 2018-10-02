@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ORM\Dbal\Common;
 
 use Doctrine\DBAL\Query\QueryBuilder;
+use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 
 /**
  * Class LastIdQuery
@@ -21,7 +22,9 @@ class LastIdQuery implements IterableQuery
 
     public function fetch(): array
     {
-        $data = $this->query->execute()->fetchAll(\PDO::FETCH_KEY_PAIR);
+        $data = $this->query->execute()->fetchAll();
+        $data = FetchModeHelper::keyPair($data);
+
         $keys = array_keys($data);
         $this->query->setParameter('lastId', array_pop($keys));
 
@@ -39,6 +42,6 @@ class LastIdQuery implements IterableQuery
         $query->resetQueryPart('orderBy');
         $query->select('COUNT(DISTINCT ' . array_shift($select) . ')');
 
-        return (int) $query->execute()->fetch(\PDO::FETCH_COLUMN);
+        return (int) $query->execute()->fetchColumn();
     }
 }

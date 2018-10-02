@@ -7,6 +7,7 @@ use Shopware\Core\Content\Category\Util\CategoryPathBuilder;
 use Shopware\Core\Content\Product\Util\EventIdExtractor;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
@@ -221,7 +222,9 @@ class ProductCategoryTreeIndexer implements IndexerInterface
 
         $query->setParameter('ids', $bytes, Connection::PARAM_STR_ARRAY);
 
-        return $query->execute()->fetchAll(\PDO::FETCH_GROUP | \PDO::FETCH_UNIQUE);
+        $rows = $query->execute()->fetchAll();
+
+        return FetchModeHelper::groupUnique($rows);
     }
 
     private function mapCategories(array $mapping): array

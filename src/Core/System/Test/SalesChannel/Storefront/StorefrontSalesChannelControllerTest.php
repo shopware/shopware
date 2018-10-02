@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\System\Test\SalesChannel\Storefront;
 
-use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;

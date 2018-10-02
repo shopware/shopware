@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\ORM\Dbal;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Field\AssociationInterface;
 use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
@@ -131,7 +132,8 @@ class EntityForeignKeyResolver
         $query->setParameter('liveVersion', Uuid::fromStringToBytes(Defaults::LIVE_VERSION));
         $query->setParameter('tenant', Uuid::fromStringToBytes($context->getTenantId()));
 
-        $result = $query->execute()->fetchAll(\PDO::FETCH_GROUP | \PDO::FETCH_UNIQUE);
+        $result = $query->execute()->fetchAll();
+        $result = FetchModeHelper::groupUnique($result);
 
         return $this->extractValues($definition, $result, $root);
     }

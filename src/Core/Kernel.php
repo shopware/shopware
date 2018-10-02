@@ -2,8 +2,11 @@
 
 namespace Shopware\Core;
 
+use Doctrine\DBAL\Configuration;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Framework\Api\Controller\ApiController;
-use Shopware\Core\Framework\Doctrine\DatabaseConnector;
 use Shopware\Core\Framework\Framework;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\BundleCollection;
@@ -22,7 +25,7 @@ class Kernel extends HttpKernel
     public const CONFIG_EXTS = '.{php,xml,yaml,yml}';
 
     /**
-     * @var \PDO|null
+     * @var Connection|null
      */
     protected static $connection;
 
@@ -78,7 +81,7 @@ class Kernel extends HttpKernel
         }
 
         if ($withPlugins) {
-            $this->initializePluginSystem();
+            $this->initializePlugins();
         }
 
         // init bundles
@@ -95,18 +98,20 @@ class Kernel extends HttpKernel
         $this->booted = true;
     }
 
-    /**
-     * @return BundleCollection
-     */
     public static function getPlugins(): BundleCollection
     {
         return self::$plugins;
     }
 
-    public static function getConnection(): \PDO
+    public static function getConnection(): Connection
     {
         if (!self::$connection) {
-            self::$connection = DatabaseConnector::createPdoConnection();
+            $parameters = [
+                'url' => getenv('DATABASE_URL'),
+                'charset' => 'utf8mb4',
+            ];
+
+            self::$connection = DriverManager::getConnection($parameters, new Configuration());
         }
 
         return self::$connection;
@@ -207,10 +212,8 @@ class Kernel extends HttpKernel
 
     protected function initializePlugins(): void
     {
-        $stmt = self::$connection->query(
-            'SELECT `name` FROM `plugin` WHERE `active` = 1 AND `installation_date` IS NOT NULL'
-        );
-        $activePlugins = $stmt->fetchAll(\PDO::FETCH_COLUMN);
+        $stmt = self::getConnection()->executeQuery('SELECT `name` FROM `plugin` WHERE `active` = 1 AND `installation_date` IS NOT NULL');
+        $activePlugins = $stmt->fetchAll(FetchMode::COLUMN);
 
         $finder = new Finder();
         $iterator = $finder->directories()->depth(0)->in($this->getPluginDir())->getIterator();
@@ -295,14 +298,5 @@ class Kernel extends HttpKernel
         foreach (static::$plugins->getActives() as $plugin) {
             $plugin->configureRoutes($routes, (string) $this->environment);
         }
-    }
-
-    private function initializePluginSystem(): void
-    {
-        if (!self::$connection) {
-            self::$connection = DatabaseConnector::createPdoConnection();
-        }
-
-        $this->initializePlugins();
     }
 }

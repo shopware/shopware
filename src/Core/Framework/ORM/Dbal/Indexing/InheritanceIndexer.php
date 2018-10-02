@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ORM\Dbal\Indexing;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
@@ -174,7 +175,7 @@ class InheritanceIndexer implements IndexerInterface
                      AND #root#.id IN (:ids)'
                 ),
                 ['version' => $versionId, 'tenant' => $tenantId, 'ids' => $bytes],
-                ['version' => \PDO::PARAM_STR, 'tenant' => \PDO::PARAM_STR, 'ids' => Connection::PARAM_STR_ARRAY]
+                ['version' => ParameterType::STRING, 'tenant' => ParameterType::STRING, 'ids' => Connection::PARAM_STR_ARRAY]
             );
         }
     }
@@ -216,7 +217,7 @@ class InheritanceIndexer implements IndexerInterface
                      AND #root#.id IN (:ids)'
                 ),
                 ['version' => $versionId, 'tenant' => $tenantId, 'ids' => $bytes],
-                ['version' => \PDO::PARAM_STR, 'tenant' => \PDO::PARAM_STR, 'ids' => Connection::PARAM_STR_ARRAY]
+                ['version' => ParameterType::STRING, 'tenant' => ParameterType::STRING, 'ids' => Connection::PARAM_STR_ARRAY]
             );
 
             $this->connection->executeUpdate(
@@ -231,7 +232,7 @@ class InheritanceIndexer implements IndexerInterface
                      AND #root#.id IN (:ids)'
                 ),
                 ['version' => $versionId, 'tenant' => $tenantId, 'ids' => $bytes],
-                ['version' => \PDO::PARAM_STR, 'tenant' => \PDO::PARAM_STR, 'ids' => Connection::PARAM_STR_ARRAY]
+                ['version' => ParameterType::STRING, 'tenant' => ParameterType::STRING, 'ids' => Connection::PARAM_STR_ARRAY]
             );
         }
     }

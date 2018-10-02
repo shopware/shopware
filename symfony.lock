@@ -44,6 +44,9 @@
     "doctrine/doctrine-cache-bundle": {
         "version": "1.3.3"
     },
+    "doctrine/event-manager": {
+        "version": "v1.0.0"
+    },
     "doctrine/inflector": {
         "version": "v1.3.0"
     },
@@ -52,6 +55,12 @@
     },
     "doctrine/lexer": {
         "version": "v1.0.1"
+    },
+    "doctrine/persistence": {
+        "version": "v1.0.1"
+    },
+    "doctrine/reflection": {
+        "version": "v1.0.0"
     },
     "easycorp/easy-log-handler": {
         "version": "1.0",
@@ -77,6 +86,12 @@
     "google/cloud": {
         "version": "v0.35.0"
     },
+    "google/cloud-core": {
+        "version": "v1.23.6"
+    },
+    "google/cloud-storage": {
+        "version": "v1.3.4"
+    },
     "guzzlehttp/guzzle": {
         "version": "6.3.3"
     },
@@ -85,6 +100,9 @@
     },
     "guzzlehttp/psr7": {
         "version": "1.4.2"
+    },
+    "james-heinrich/getid3": {
+        "version": "v1.9.15"
     },
     "jdorn/sql-formatter": {
         "version": "v1.2.17"
@@ -125,6 +143,9 @@
     "paragonie/random_compat": {
         "version": "v2.0.15"
     },
+    "pclzip/pclzip": {
+        "version": "2.8.2"
+    },
     "phar-io/manifest": {
         "version": "1.0.1"
     },
@@ -139,6 +160,12 @@
     },
     "phpdocumentor/type-resolver": {
         "version": "0.4.0"
+    },
+    "phpoffice/common": {
+        "version": "0.2.9"
+    },
+    "phpoffice/phpword": {
+        "version": "0.15.0"
     },
     "phpspec/prophecy": {
         "version": "1.7.6"
@@ -232,6 +259,9 @@
             "version": "4.0",
             "ref": "aaddfdf43cdecd4cf91f992052d76c2cadc04543"
         }
+    },
+    "smalot/pdfparser": {
+        "version": "v0.13.2"
     },
     "superbalist/flysystem-google-storage": {
         "version": "5.0.3"
@@ -452,6 +482,9 @@
     "symfony/yaml": {
         "version": "v4.0.8"
     },
+    "tecnickcom/tcpdf": {
+        "version": "6.2.25"
+    },
     "theseer/tokenizer": {
         "version": "1.1.0"
     },
@@ -475,5 +508,8 @@
     },
     "zendframework/zend-diactoros": {
         "version": "1.7.2"
+    },
+    "zendframework/zend-escaper": {
+        "version": "2.6.0"
     }
 }

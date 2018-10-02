@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\ORM\Dbal;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
@@ -70,7 +71,8 @@ class EntitySearcher implements EntitySearcherInterface
         $this->addFetchCount($criteria, $query);
 
         //execute and fetch ids
-        $data = $query->execute()->fetchAll(\PDO::FETCH_GROUP | \PDO::FETCH_UNIQUE);
+        $data = $query->execute()->fetchAll();
+        $data = FetchModeHelper::groupUnique($data);
 
         $total = $this->getTotalCount($criteria, $data);
 

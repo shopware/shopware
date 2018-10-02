@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Search\Util;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\FetchMode;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Search\Term\SearchPattern;
@@ -166,7 +167,7 @@ class KeywordSearchTermInterpreter implements KeywordSearchTermInterpreterInterf
         $query->setParameter('tenant', Uuid::fromStringToBytes($context->getTenantId()));
         $query->setParameter('scope', $scope);
 
-        return $query->execute()->fetchAll(\PDO::FETCH_COLUMN);
+        return $query->execute()->fetchAll(FetchMode::COLUMN);
     }
 
     private function score(array $tokens, array $matches): array

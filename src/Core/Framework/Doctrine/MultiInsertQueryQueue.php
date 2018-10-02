@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Doctrine;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 
 class MultiInsertQueryQueue
 {
@@ -53,7 +54,7 @@ class MultiInsertQueryQueue
                 continue;
             }
 
-            $type = \PDO::PARAM_STR;
+            $type = ParameterType::STRING;
 
             if ($types !== null && isset($types[$key])) {
                 $type = $types[$key];

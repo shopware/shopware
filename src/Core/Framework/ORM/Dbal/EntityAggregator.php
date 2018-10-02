@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ORM\Dbal;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
@@ -132,7 +133,7 @@ class EntityAggregator implements EntityAggregatorInterface
             $query->select([$accessor]);
             $query->groupBy($accessor);
 
-            $ids = $query->execute()->fetchAll(\PDO::FETCH_COLUMN);
+            $ids = $query->execute()->fetchAll(FetchMode::COLUMN);
             $ids = array_filter($ids);
 
             $ids = array_map(function ($bytes) {
@@ -149,7 +150,7 @@ class EntityAggregator implements EntityAggregatorInterface
             ]);
             $query->groupBy($accessor);
 
-            return $query->execute()->fetchAll(\PDO::FETCH_ASSOC);
+            return $query->execute()->fetchAll(FetchMode::ASSOCIATIVE);
         }
 
         if ($aggregation instanceof StatsAggregation) {
@@ -176,44 +177,44 @@ class EntityAggregator implements EntityAggregatorInterface
 
             $query->select($select);
 
-            return $query->execute()->fetch(\PDO::FETCH_ASSOC);
+            return $query->execute()->fetch(FetchMode::ASSOCIATIVE);
         }
 
         if ($aggregation instanceof CardinalityAggregation) {
             $query->select([$accessor]);
             $query->groupBy($accessor);
 
-            return $query->execute()->fetchAll(\PDO::FETCH_COLUMN);
+            return $query->execute()->fetchAll(FetchMode::COLUMN);
         }
 
         if ($aggregation instanceof AvgAggregation) {
             $query->select('AVG(' . $accessor . ') as `avg`');
 
-            return $query->execute()->fetch(\PDO::FETCH_ASSOC);
+            return $query->execute()->fetch(FetchMode::ASSOCIATIVE);
         }
 
         if ($aggregation instanceof MaxAggregation) {
             $query->select('MAX(' . $accessor . ') as `max`');
 
-            return $query->execute()->fetch(\PDO::FETCH_ASSOC);
+            return $query->execute()->fetch(FetchMode::ASSOCIATIVE);
         }
 
         if ($aggregation instanceof CountAggregation) {
             $query->select('COUNT(' . $accessor . ') as `count`');
 
-            return $query->execute()->fetch(\PDO::FETCH_ASSOC);
+            return $query->execute()->fetch(FetchMode::ASSOCIATIVE);
         }
 
         if ($aggregation instanceof MinAggregation) {
             $query->select('MIN(' . $accessor . ') as `min`');
 
-            return $query->execute()->fetch(\PDO::FETCH_ASSOC);
+            return $query->execute()->fetch(FetchMode::ASSOCIATIVE);
         }
 
         if ($aggregation instanceof SumAggregation) {
             $query->select('SUM(' . $accessor . ') as `sum`');
 
-            return $query->execute()->fetch(\PDO::FETCH_ASSOC);
+            return $query->execute()->fetch(FetchMode::ASSOCIATIVE);
         }
 
         throw new \RuntimeException(

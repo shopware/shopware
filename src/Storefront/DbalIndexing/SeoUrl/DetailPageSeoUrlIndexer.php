@@ -7,6 +7,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Util\EventIdExtractor;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
@@ -152,7 +153,9 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
         $query->setParameter('salesChannel', Uuid::fromStringToBytes($salesChannelId));
         $query->setParameter('tenant', Uuid::fromStringToBytes($tenantId));
 
-        return $query->execute()->fetchAll(\PDO::FETCH_GROUP | \PDO::FETCH_UNIQUE);
+        $rows = $query->execute()->fetchAll();
+
+        return FetchModeHelper::groupUnique($rows);
     }
 
     private function updateProducts(array $ids, Context $context): void

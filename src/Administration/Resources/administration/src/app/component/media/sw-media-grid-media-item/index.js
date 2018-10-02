@@ -59,6 +59,12 @@ Component.register('sw-media-grid-media-item', {
             return {
                 'selected-indicator--visible': this.showSelectionIndicator
             };
+        },
+
+        defaultContextMenuClass() {
+            return {
+                'sw-context-menu__group': this.$slots['additional-context-menu-items']
+            };
         }
     },
 
@@ -113,13 +119,6 @@ Component.register('sw-media-grid-media-item', {
             }
 
             this.removeFromSelection(originalDomEvent);
-        },
-
-        showItemDetails(originalDomEvent) {
-            this.$emit('sw-media-grid-media-item-show-details', {
-                originalDomEvent,
-                item: this.item
-            });
         },
 
         copyItemLink() {

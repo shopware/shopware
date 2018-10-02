@@ -153,15 +153,21 @@
                                             @sw-media-grid-selection-clear="clearSelection">
 
                                             <sw-media-grid-media-item
-                                                    v-for="mediaItem in mediaItems"
-                                                    :key="mediaItem.id"
-                                                    :item="mediaItem"
-                                                    :selected="showItemSelected(mediaItem)"
-                                                    :showSelectionIndicator="isListSelect"
-                                                    :isList="false"
-                                                    :showContextMenu="true"
-                                                    @sw-media-grid-media-item-delete="handleMediaGridItemDelete"
-                                                    v-on="mediaItemSelectionHandler">
+                                                v-for="mediaItem in mediaItems"
+                                                :key="mediaItem.id"
+                                                :item="mediaItem"
+                                                :selected="showItemSelected(mediaItem)"
+                                                :showSelectionIndicator="isListSelect"
+                                                :isList="false"
+                                                @sw-media-grid-media-item-delete="handleMediaGridItemDelete"
+                                                v-on="mediaItemSelectionHandler">
+
+                                                {% block sw_media_catalog_context_item_detail %}
+                                                    <sw-context-menu-item @click="showDetails(mediaItem)"
+                                                                          slot="additional-context-menu-items">
+                                                        {{ $tc('global.sw-media-grid-media-item.contextMenuDetailLabel') }}
+                                                    </sw-context-menu-item>
+                                                {% endblock %}
                                             </sw-media-grid-media-item>
 
                                         </sw-media-grid>

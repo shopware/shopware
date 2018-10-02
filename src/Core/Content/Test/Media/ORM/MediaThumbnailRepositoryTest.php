@@ -48,7 +48,7 @@ class MediaThumbnailRepositoryTest extends TestCase
         $thumbnailPath = $this->createThumbnailFile($mediaId);
 
         $thumbnailIds = $this->thumbnailRepository->searchIds(new Criteria(), $this->context);
-        $this->thumbnailRepository->delete($thumbnailIds->getData(), $this->context);
+        $this->thumbnailRepository->delete($thumbnailIds->getIds(), $this->context);
 
         static::assertFalse($this->getPublicFilesystem()->has($thumbnailPath));
     }

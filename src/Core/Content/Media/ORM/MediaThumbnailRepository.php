@@ -11,9 +11,10 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\EntityRepository;
 use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Core\Framework\ORM\Read\ReadCriteria;
+use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
 use Shopware\Core\Framework\ORM\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -54,13 +55,9 @@ class MediaThumbnailRepository extends EntityRepository
 
     public function delete(array $ids, Context $context): EntityWrittenContainerEvent
     {
-        $read = new ReadCriteria($ids);
-        $read->addAssociation('media_thumbnail.media');
+        $thumbnails = $this->getThumbnailsByIds($ids, $context);
 
-        /** @var MediaThumbnailCollection $thumbnailsSearch */
-        $thumbnailsSearch = $this->search($read, $context)->getEntities();
-
-        return $this->deleteFromCollection($thumbnailsSearch, $context);
+        return $this->deleteFromCollection($thumbnails, $context);
     }
 
     public function deleteCascadingFromMedia(MediaStruct $mediaStruct, Context $context)
@@ -70,6 +67,19 @@ class MediaThumbnailRepository extends EntityRepository
         }
 
         return $this->deleteFromCollection($mediaStruct->getThumbnails(), $context);
+    }
+
+    private function getThumbnailsByIds(array $ids, Context $context): MediaThumbnailCollection
+    {
+        $criteria = new Criteria();
+        $criteria->addAssociation('media_thumbnail.media');
+        $criteria->addFilter(new TermsQuery('media_thumbnail.id', $ids));
+
+        $thumbnailsSearch = $this->search($criteria, $context);
+
+        /** @var MediaThumbnailCollection $thumbnails */
+        $thumbnails = $thumbnailsSearch->getEntities();
+        return $thumbnails;
     }
 
     private function deleteFromCollection(MediaThumbnailCollection $thumbnails, Context $context): EntityWrittenContainerEvent

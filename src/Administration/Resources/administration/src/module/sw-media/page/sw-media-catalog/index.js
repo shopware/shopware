@@ -70,6 +70,10 @@ Component.register('sw-media-catalog', {
             this.$root.$off('search', this.onSearch);
         },
 
+        showDetails(mediaItem) {
+            this._showDetails(mediaItem, false);
+        },
+
         onNewMedia() {
             this.getList();
         },

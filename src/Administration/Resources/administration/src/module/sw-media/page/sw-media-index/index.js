@@ -70,6 +70,10 @@ Component.register('sw-media-index', {
             this.loadMedia();
         },
 
+        showDetails(mediaItem) {
+            this._showDetails(mediaItem, false);
+        },
+
         loadMedia() {
             this.isLoading = true;
             this.clearSelection();

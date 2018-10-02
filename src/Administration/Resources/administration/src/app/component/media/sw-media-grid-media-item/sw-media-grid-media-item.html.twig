@@ -52,33 +52,32 @@
 
                 {% block sw_media_grid_media_item_context_menu %}
                     <template slot="media-item-context-menu">
-                        {% block sw_media_griditem_context_item_detail %}
-                            <sw-context-menu-item @click="showItemDetails">
-                                {{ $tc('global.sw-media-grid-media-item.contextMenuDetailLabel') }}
-                            </sw-context-menu-item>
-                        {% endblock %}
+                        <slot name="additional-context-menu-items">
+                            {% block sw_media_grid_media_item_additional_context_menu_slot %}
+                            {% endblock %}
+                        </slot>
 
                         {% block sw_media_grid_media_item_context_group_quick_actions %}
-                            <div class="sw-context-menu__group">
-                                {% block sw_media_griditem_context_item_rename_item %}
+                            <div :class="defaultContextMenuClass">
+                                {% block sw_media_grid_media_item_context_item_rename_item %}
                                     <sw-context-menu-item v-if="item.hasFile" @click="startInlineEdit">
                                         {{ $tc('global.sw-media-grid-media-item.contextMenuRenameLabel') }}
                                     </sw-context-menu-item>
                                 {% endblock %}
 
-                                {% block sw_media_griditem_context_item_copy_item_link %}
+                                {% block sw_media_grid_media_item_context_item_copy_item_link %}
                                     <sw-context-menu-item v-if="item.hasFile" @click="copyItemLink">
                                         {{ $tc('global.sw-media-grid-media-item.contextMenuCopyLinkLabel') }}
                                     </sw-context-menu-item>
                                 {% endblock %}
 
-                                {% block sw_media_griditem_context_item_replace %}
+                                {% block sw_media_grid_media_item_context_item_replace %}
                                     <sw-context-menu-item @click="openModalReplace">
                                         {{ $tc('global.sw-media-grid-media-item.contextMenuReplaceLabel') }}
                                     </sw-context-menu-item>
                                 {% endblock %}
 
-                                {% block sw_media_griditem_context_item_delete %}
+                                {% block sw_media_grid_media_item_context_item_delete %}
                                     <sw-context-menu-item @click="openModalDelete" variant="danger">
                                         {{ $tc('global.sw-media-grid-media-item.contextMenuDeleteLabel') }}
                                     </sw-context-menu-item>

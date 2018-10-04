@@ -153,6 +153,11 @@
             <argument>%migration.directories%</argument>
         </service>
 
+        <service class="Shopware\Core\Framework\Command\DumpSchemaCommand" id="Shopware\Core\Framework\Command\DumpSchemaCommand">
+            <tag name="console.command"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\DefinitionService"/>
+        </service>
+
         <service class="Shopware\Core\Framework\Api\Controller\MigrationController" id="Shopware\Core\Framework\Api\Controller\MigrationController" public="true">
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollectionLoader"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationRuntime"/>

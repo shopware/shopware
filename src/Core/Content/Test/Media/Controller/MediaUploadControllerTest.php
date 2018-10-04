@@ -66,8 +66,8 @@ class MediaUploadControllerTest extends TestCase
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
 
         static::assertNotEmpty($response->headers->get('Location'));
-        static::assertEquals(
-            'http://localhost/api/v' . PlatformRequest::API_VERSION . '/media/' . $this->mediaId,
+        static::assertStringEndsWith(
+            '/api/v' . PlatformRequest::API_VERSION . '/media/' . $this->mediaId,
             $response->headers->get('Location')
         );
 
@@ -77,12 +77,13 @@ class MediaUploadControllerTest extends TestCase
     public function testUploadFromURL(): void
     {
         $path = $this->urlGenerator->getAbsoluteMediaUrl($this->mediaId, 'png');
+
         static::assertFalse($this->getPublicFilesystem()->has($path));
 
         $target = $this->getContainer()->getParameter('kernel.project_dir') . '/public/shopware-logo.png';
         copy(__DIR__ . '/../fixtures/shopware-logo.png', $target);
 
-        $url = getenv('APP_URL');
+        $baseUrl = getenv('APP_URL');
 
         try {
             $this->getClient()->request(
@@ -93,7 +94,7 @@ class MediaUploadControllerTest extends TestCase
                  [
                      'HTTP_CONTENT-TYPE' => 'application/json',
                  ],
-                 json_encode(['url' => $url . '/shopware-logo.png'])
+                 json_encode(['url' => $baseUrl . '/shopware-logo.png'])
              );
             $response = $this->getClient()->getResponse();
         } finally {
@@ -102,8 +103,8 @@ class MediaUploadControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
-        static::assertEquals(
-            'http://localhost/api/v' . PlatformRequest::API_VERSION . '/media/' . $this->mediaId,
+        static::assertStringEndsWith(
+            '/api/v' . PlatformRequest::API_VERSION . '/media/' . $this->mediaId,
             $response->headers->get('Location')
         );
         static::assertTrue($this->getPublicFilesystem()->has($path));

@@ -12,7 +12,7 @@ class KernelLifecycleManager
     protected static $class;
 
     /**
-     * @var KernelInterface
+     * @var KernelInterface|null
      */
     protected static $kernel;
 

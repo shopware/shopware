@@ -129,7 +129,7 @@ class StorefrontCheckoutContextController extends Controller
         }
 
         $addresses = $this->customerAddressRepository->read(new ReadCriteria([$addressId]), $context->getContext());
-        /** @var CustomerAddressStruct $address */
+        /** @var CustomerAddressStruct|null $address */
         $address = $addresses->get($addressId);
 
         if (!$address) {

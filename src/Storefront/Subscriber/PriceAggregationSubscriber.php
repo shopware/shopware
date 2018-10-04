@@ -84,7 +84,7 @@ class PriceAggregationSubscriber implements EventSubscriberInterface
 
         $result = $searchResult->getAggregations();
 
-        if ($result === null) {
+        if ($result->count() <= 0) {
             return;
         }
 

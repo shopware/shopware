@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Plugin;
 
 use Doctrine\DBAL\Connection;
-use Psr\Container\ContainerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Framework;
@@ -20,6 +19,7 @@ use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
 use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Kernel;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Finder\Finder;
 
 class PluginManager

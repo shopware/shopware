@@ -28,10 +28,10 @@ class CountryCollection extends EntityCollection
         });
     }
 
-    public function filterByTaxfreeForVatId(string $id): self
+    public function filterByTaxfreeForVatId(bool $vatFree): self
     {
-        return $this->filter(function (CountryStruct $country) use ($id) {
-            return $country->getTaxfreeForVatId() === $id;
+        return $this->filter(function (CountryStruct $country) use ($vatFree) {
+            return $country->getTaxfreeForVatId() === $vatFree;
         });
     }
 

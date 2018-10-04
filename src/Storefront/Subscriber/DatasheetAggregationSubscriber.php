@@ -88,7 +88,7 @@ class DatasheetAggregationSubscriber implements EventSubscriberInterface
 
         $result = $page->getProducts()->getAggregations();
 
-        if ($result === null) {
+        if ($result->count() <= 0) {
             return;
         }
 
@@ -99,14 +99,14 @@ class DatasheetAggregationSubscriber implements EventSubscriberInterface
         /** @var AggregationResult $aggregation */
         $aggregation = $result->get(self::AGGREGATION_NAME);
 
-        /** @var ArrayStruct $filter */
+        /** @var ArrayStruct|null $filter */
         $filter = $page->getCriteria()->getExtension(self::AGGREGATION_NAME);
 
         $active = $filter !== null;
 
         $actives = $filter ? $filter->get('ids') : [];
 
-        /** @var ConfigurationGroupOptionCollection $values */
+        /** @var ConfigurationGroupOptionCollection|null $values */
         $values = $aggregation->getResult();
 
         if (!$values || $values->count() <= 0) {

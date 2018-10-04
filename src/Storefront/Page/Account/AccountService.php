@@ -444,7 +444,7 @@ class AccountService
             throw new InvalidUuidException($addressId);
         }
 
-        /** @var CustomerAddressStruct $address */
+        /** @var CustomerAddressStruct|null $address */
         $address = $this->customerAddressRepository->read(new ReadCriteria([$addressId]), $context->getContext())->get($addressId);
 
         if (!$address || $address->getCustomerId() !== $context->getCustomer()->getId()) {

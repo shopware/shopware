@@ -16,7 +16,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class RefreshIndexCommand extends ContainerAwareCommand implements EventSubscriberInterface
 {
     /**
-     * @var SymfonyStyle
+     * @var SymfonyStyle|null
      */
     private $io;
 

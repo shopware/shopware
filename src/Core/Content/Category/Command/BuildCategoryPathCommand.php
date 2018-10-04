@@ -25,7 +25,7 @@ class BuildCategoryPathCommand extends ContainerAwareCommand implements EventSub
     private $pathBuilder;
 
     /**
-     * @var SymfonyStyle
+     * @var SymfonyStyle|null
      */
     private $io;
 

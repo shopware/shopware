@@ -47,10 +47,6 @@ class OrderConverter
             throw new EmptyCartException();
         }
 
-        if (!$context->getCustomer()->getActiveBillingAddress()) {
-            throw new CustomerHasNoActiveBillingAddressException($context->getCustomer()->getId());
-        }
-
         /** @var Delivery $delivery */
         foreach ($cart->getDeliveries() as $delivery) {
             if (!$delivery->getLocation()->getAddress()) {
@@ -105,7 +101,7 @@ class OrderConverter
 
         foreach ($lineItems as $parent) {
             $lineItem = $cart->getLineItems()->get($parent['identifier']);
-            if (!$lineItem->getChildren()) {
+            if ($lineItem->getChildren()->count() === 0) {
                 continue;
             }
 

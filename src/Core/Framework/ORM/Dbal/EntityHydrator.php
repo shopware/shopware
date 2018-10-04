@@ -153,9 +153,10 @@ class EntityHydrator
                     $extension = new ArrayStruct([]);
                     $entity->addExtension(EntityReader::MANY_TO_MANY_EXTENSION_STORAGE, $extension);
                 }
-                /** @var ArrayStruct $extension */
-                $extension = $extension;
-                $extension->set($propertyName, $ids);
+
+                if ($extension instanceof ArrayStruct) {
+                    $extension->set($propertyName, $ids);
+                }
             }
         }
 

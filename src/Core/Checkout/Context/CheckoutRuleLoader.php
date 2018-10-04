@@ -77,13 +77,12 @@ class CheckoutRuleLoader
 
         $rules->sortByPriority();
 
-        $valid = false;
-
         $context->setRuleIds($rules->getIds());
 
         $iteration = 1;
 
-        while (!$valid) {
+        $valid = true;
+        do {
             if ($iteration > self::MAX_ITERATION) {
                 break;
             }
@@ -104,7 +103,7 @@ class CheckoutRuleLoader
             $cart = $new;
 
             ++$iteration;
-        }
+        } while ($valid);
 
         $this->storeFrontCartService->setCart($cart);
 
@@ -121,11 +120,8 @@ class CheckoutRuleLoader
         $cacheItem = $this->cache->getItem($key);
 
         try {
-            $rules = $rules = $cacheItem->isHit();
-            if ($rules) {
-                $this->rules = unserialize($rules);
-
-                return $this->rules;
+            if ($cacheItem->isHit()) {
+                return $this->rules = unserialize($cacheItem->get());
             }
         } catch (\Throwable $e) {
         }

@@ -5,14 +5,18 @@ namespace Shopware\Core\Framework\Test\ORM\Write;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Exception\IncompletePrimaryKeyException;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\EntityRepository;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\Write\EntityWriter;
 use Shopware\Core\Framework\ORM\Write\EntityWriterInterface;
 use Shopware\Core\Framework\ORM\Write\FieldException\WriteStackException;
+use Shopware\Core\Framework\ORM\Write\Flag\Deferred;
 use Shopware\Core\Framework\ORM\Write\WriteContext;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -447,6 +451,67 @@ class WriterTest extends TestCase
         self::assertNotEquals('2011-01-01 15:03:01', $newProduct['created_at']);
     }
 
+    public function testInsertIgnoresDeferredFields(): void
+    {
+        self::assertNotNull(MediaDefinition::defineFields()->get('url')->getFlag(Deferred::class));
+        $id = '2b9a945bb62b4122a32a3bbfbe1e6fd3';
+        $writeContext = $this->createWriteContext();
+        $writeContext->getContext()->getExtension('write_protection')->set('write_media', true);
+        $this->getWriter()->insert(
+            MediaDefinition::class,
+            [
+                [
+                    'id' => $id,
+                    'name' => 'Test media',
+                    'mimeType' => 'image/jpeg',
+                    'fileExtension' => 'jpg',
+                    'url' => 'www.example.com',
+                ],
+            ],
+            $writeContext
+        );
+
+        $media = $this->getMediaRepository()->read(
+            new ReadCriteria([$id]),
+            Context::createDefaultContext(Defaults::TENANT_ID)
+        )->get($id);
+        self::assertEquals('http://localhost/media/be/90/42/2b9a945bb62b4122a32a3bbfbe1e6fd3.jpg', $media->getUrl());
+    }
+
+    public function testUpdateIgnoresDeferredFields(): void
+    {
+        self::assertNotNull(MediaDefinition::defineFields()->get('url')->getFlag(Deferred::class));
+        $id = '2b9a945bb62b4122a32a3bbfbe1e6fd3';
+        $writeContext = $this->createWriteContext();
+        $writeContext->getContext()->getExtension('write_protection')->set('write_media', true);
+        $this->getWriter()->insert(
+            MediaDefinition::class,
+            [
+                [
+                    'id' => $id,
+                    'name' => 'Test media',
+                    'mimeType' => 'image/jpeg',
+                    'fileExtension' => 'jpg',
+                ],
+            ],
+            $writeContext
+        );
+
+        $this->getWriter()->update(
+            MediaDefinition::class,
+            [
+                ['id' => $id, 'url' => 'www.example.com'],
+            ],
+            $this->createWriteContext()
+        );
+
+        $media = $this->getMediaRepository()->read(
+            new ReadCriteria([$id]),
+            Context::createDefaultContext(Defaults::TENANT_ID)
+        )->get($id);
+        self::assertEquals('http://localhost/media/be/90/42/2b9a945bb62b4122a32a3bbfbe1e6fd3.jpg', $media->getUrl());
+    }
+
     public function testUpdateWritesMultipleTranslations(): void
     {
         $this->insertEmptyProduct();
@@ -601,5 +666,10 @@ class WriterTest extends TestCase
     private function getWriter(): EntityWriterInterface
     {
         return $this->getContainer()->get(EntityWriter::class);
+    }
+
+    private function getMediaRepository(): EntityRepository
+    {
+        return $this->getContainer()->get('media.repository');
     }
 }

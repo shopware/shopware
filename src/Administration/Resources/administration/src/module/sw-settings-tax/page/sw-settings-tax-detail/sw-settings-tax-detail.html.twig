@@ -17,7 +17,7 @@
                 {% endblock %}
 
                 {% block sw_settings_tax_detail_actions_save %}
-                    <sw-button variant="primary" :disabled="tax.isLoading" @click.prevent="onSave">
+                    <sw-button class="sw_settings_tax_detail__save-action" variant="primary" :disabled="tax.isLoading" @click.prevent="onSave">
                         {{ $tc('sw-settings-tax.detail.buttonSave') }}
                     </sw-button>
                 {% endblock %}

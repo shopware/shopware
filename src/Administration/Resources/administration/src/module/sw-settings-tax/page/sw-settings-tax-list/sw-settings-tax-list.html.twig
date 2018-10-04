@@ -60,7 +60,7 @@
                                                                 :label="$tc('sw-settings-tax.list.columnName')">
 
                                                     {% block sw_settings_tax_list_columns_name_link %}
-                                                        <router-link :title="$tc('sw-settings-tax.list.contextMenuEdit')"
+                                                        <router-link class="sw-tax-list__column-tax-name" :title="$tc('sw-settings-tax.list.contextMenuEdit')"
                                                                      :to="{ name: 'sw.settings.tax.detail', params: { id: item.id } }">
                                                             {% block sw_settings_tax_list_columns_name_link %}
                                                                 {{ item.name }}
@@ -102,7 +102,7 @@
                                                     <sw-context-button>
 
                                                         {% block sw_settings_tax_list_columns_actions_edit %}
-                                                            <sw-context-menu-item :routerLink="{ name: 'sw.settings.tax.detail', params: { id: item.id } }">
+                                                            <sw-context-menu-item class="sw-tax-list__tax-edit-action" :routerLink="{ name: 'sw.settings.tax.detail', params: { id: item.id } }">
                                                                 {{ $tc('sw-settings-tax.list.contextMenuEdit') }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}

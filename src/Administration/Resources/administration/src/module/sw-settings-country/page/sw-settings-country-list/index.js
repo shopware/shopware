@@ -11,7 +11,8 @@ Component.register('sw-settings-country-list', {
 
     data() {
         return {
-            entityName: 'country'
+            entityName: 'country',
+            sortBy: 'country.name'
         };
     }
 });

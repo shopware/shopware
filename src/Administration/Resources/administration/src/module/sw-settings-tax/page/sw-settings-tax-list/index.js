@@ -10,7 +10,8 @@ Component.register('sw-settings-tax-list', {
 
     data() {
         return {
-            entityName: 'tax'
+            entityName: 'tax',
+            sortBy: 'tax.name'
         };
     }
 });

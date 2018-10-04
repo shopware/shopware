@@ -10,7 +10,8 @@ Component.register('sw-settings-currency-list', {
 
     data() {
         return {
-            entityName: 'currency'
+            entityName: 'currency',
+            sortBy: 'currency.name'
         };
     }
 });

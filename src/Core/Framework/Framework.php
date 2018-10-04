@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DefinitionRegistryCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ExtensionCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\FrameworkExtension;
-use Shopware\Core\Framework\Doctrine\BridgeDatabaseCompilerPass;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\ExtensionRegistry;
 use Symfony\Component\Config\FileLocator;
@@ -44,7 +43,6 @@ class Framework extends Bundle
         $loader->load('api.xml');
         $loader->load('plugin.xml');
 
-        $container->addCompilerPass(new BridgeDatabaseCompilerPass());
         $container->addCompilerPass(new ExtensionCompilerPass());
         $container->addCompilerPass(new DefinitionRegistryCompilerPass());
     }

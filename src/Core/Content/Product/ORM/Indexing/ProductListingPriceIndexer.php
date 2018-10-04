@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Product\ORM\Indexing;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Util\EventIdExtractor;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
@@ -132,13 +133,15 @@ class ProductListingPriceIndexer implements IndexerInterface
         $query->andWhere('price.tenant_id = :tenant');
 
         $ids = array_map(function ($id) {
-            return Uuid::fromStringToBytes($id);
+            return Uuid::fromHexToBytes($id);
         }, $ids);
 
         $query->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY);
         $query->setParameter('tenant', Uuid::fromHexToBytes($context->getTenantId()));
 
-        return $query->execute()->fetchAll(\PDO::FETCH_GROUP);
+        $data = $query->execute()->fetchAll();
+
+        return FetchModeHelper::group($data);
     }
 
     private function convertPrices(array $productPrices): array

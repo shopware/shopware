@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ORM\Dbal\Indexing;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
@@ -175,7 +176,7 @@ class ChildCountIndexer implements IndexerInterface
         $query->setParameter('tenant', Uuid::fromStringToBytes($context->getTenantId()));
         $query->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY);
 
-        $parents = $query->execute()->fetchAll(\PDO::FETCH_COLUMN);
+        $parents = $query->execute()->fetchAll(FetchMode::COLUMN);
         $parents = array_filter($parents);
 
         return array_map(function (string $id) {

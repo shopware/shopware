@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ORM\Dbal\Common;
 
 use Doctrine\DBAL\Query\QueryBuilder;
+use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 
 class OffsetQuery implements IterableQuery
 {
@@ -26,7 +27,9 @@ class OffsetQuery implements IterableQuery
 
     public function fetch(): array
     {
-        $data = $this->query->execute()->fetchAll(\PDO::FETCH_KEY_PAIR);
+        $data = $this->query->execute()->fetchAll();
+        $data = FetchModeHelper::keyPair($data);
+
         $this->offset += \count($data);
         $this->query->setFirstResult($this->offset);
 
@@ -44,6 +47,6 @@ class OffsetQuery implements IterableQuery
         $query->resetQueryPart('orderBy');
         $query->select('COUNT(DISTINCT ' . array_shift($select) . ')');
 
-        return (int) $query->execute()->fetch(\PDO::FETCH_COLUMN);
+        return (int) $query->execute()->fetchColumn();
     }
 }

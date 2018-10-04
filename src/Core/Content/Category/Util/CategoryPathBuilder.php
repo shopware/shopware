@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Category\Util;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryStruct;
 use Shopware\Core\Framework\Context;
@@ -153,7 +154,7 @@ class CategoryPathBuilder implements EventSubscriberInterface
         $query->setParameter('tenant', Uuid::fromStringToBytes($context->getTenantId()));
         $query->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY);
 
-        $parents = $query->execute()->fetchAll(\PDO::FETCH_COLUMN);
+        $parents = $query->execute()->fetchAll(FetchMode::COLUMN);
 
         $parents = array_filter($parents);
 

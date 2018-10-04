@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Migration;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Psr\Log\LoggerInterface;
 
@@ -73,7 +74,7 @@ class MigrationRuntime
         return $this->getExecutableMigrationsBaseQuery($until, $limit)
             ->andWhere('`update` IS NULL')
             ->execute()
-            ->fetchAll(\PDO::FETCH_COLUMN);
+            ->fetchAll(FetchMode::COLUMN);
     }
 
     public function getExecutableDestructiveMigrations(int $until = null, int $limit = null): array
@@ -82,7 +83,7 @@ class MigrationRuntime
             ->andWhere('`update` IS NOT NULL')
             ->andWhere('`update_destructive` IS NULL')
             ->execute()
-            ->fetchAll(\PDO::FETCH_COLUMN);
+            ->fetchAll(FetchMode::COLUMN);
     }
 
     private function getExecutableMigrationsBaseQuery(int $until = null, int $limit = null): QueryBuilder

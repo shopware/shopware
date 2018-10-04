@@ -4,6 +4,7 @@ namespace Shopware\Core\System\Locale;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\System\Exception\InvalidLocaleCodeException;
 
@@ -47,19 +48,17 @@ class LocaleLanguageResolver implements LocaleLanguageResolverInterface
 
     private function getLanguagesFromDatabase(Context $context): array
     {
-        $query = $this->connection->prepare('
-              SELECT locale.code, LOWER(HEX(language.id)) FROM language 
-                  LEFT JOIN locale ON language.locale_id = locale.id 
-                    AND language.tenant_id = locale.tenant_id 
-                  WHERE  language.tenant_id = :tenant_id
-                    AND locale.version_id = :version_id
-            '
-        );
-        $query->execute([
-            'tenant_id' => Uuid::fromHexToBytes($context->getTenantId()),
-            'version_id' => Uuid::fromHexToBytes($context->getVersionId()),
-        ]);
+        $data = $this->connection->createQueryBuilder()
+            ->select(['locale.code', 'LOWER(HEX(language.id)) as language_id'])
+            ->from('language')
+            ->leftJoin('language', 'locale', 'locale', 'language.locale_id = locale.id AND language.tenant_id = locale.tenant_id')
+            ->where('language.tenant_id = :tenantId')
+            ->andWhere('locale.version_id = :versionId')
+            ->setParameter('tenantId', Uuid::fromHexToBytes($context->getTenantId()))
+            ->setParameter('versionId', Uuid::fromHexToBytes($context->getVersionId()))
+            ->execute()
+            ->fetchAll();
 
-        return $this->mapping = $query->fetchAll(\PDO::FETCH_KEY_PAIR);
+        return $this->mapping = FetchModeHelper::keyPair($data);
     }
 }

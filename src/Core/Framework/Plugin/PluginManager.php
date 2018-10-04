@@ -92,7 +92,7 @@ class PluginManager
             ->where('name = :pluginName')
             ->setParameter('pluginName', $pluginName)
             ->execute()
-            ->fetch(\PDO::FETCH_ASSOC);
+            ->fetch();
 
         if ($plugin === false) {
             throw new PluginNotFoundException($pluginName);
@@ -317,7 +317,7 @@ class PluginManager
     public function getPlugins(): array
     {
         $builder = $this->connection->createQueryBuilder();
-        $databasePlugins = $builder->select('*')->from('plugin')->execute()->fetchAll(\PDO::FETCH_ASSOC);
+        $databasePlugins = $builder->select('*')->from('plugin')->execute()->fetchAll();
 
         $plugins = [];
         foreach ($databasePlugins as $databasePlugin) {

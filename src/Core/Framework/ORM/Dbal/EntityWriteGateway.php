@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ORM\Dbal;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Field\Field;
 use Shopware\Core\Framework\ORM\Field\FkField;
@@ -241,7 +242,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             );
         }
 
-        $exists = $query->execute()->fetch(\PDO::FETCH_ASSOC);
+        $exists = $query->execute()->fetch(FetchMode::ASSOCIATIVE);
         if ($exists) {
             return $exists;
         }

@@ -5,8 +5,6 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <parameters>
-        <parameter key="doctrine.dbal.connection_factory.class">Shopware\Core\Framework\Doctrine\ConnectionFactory</parameter>
-
         <parameter key="shopware.slug.config" type="collection">
             <parameter key="regexp">/([^A-Za-z0-9\.]|-)+/</parameter>
             <parameter key="lowercase">false</parameter>
@@ -23,10 +21,8 @@
         <service id="templating.loader.wrapped" alias="templating.loader"/>
 
         <!-- Database / Doctrine -->
-        <service id="Doctrine\DBAL\Connection" alias="doctrine.dbal.default_connection" public="true"/>
-
-        <service id="PDO" class="PDO" public="true">
-            <factory class="Shopware\Core\Kernel" method="getConnection"/>
+        <service id="Doctrine\DBAL\Connection" public="true">
+            <factory class="Shopware\Core\Kernel" method="getConnection" />
         </service>
 
         <!-- Plugins -->

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\ORM\Dbal;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\ORM\EntityCollection;
 use Shopware\Core\Framework\ORM\EntityDefinition;
@@ -713,8 +714,8 @@ class EntityReader implements EntityReaderInterface
         }
 
         $query->select([
-            'LOWER(HEX(' . $root . '.' . $localColumn . '))',
-            'GROUP_CONCAT(LOWER(HEX(' . $root . '.' . $referenceColumn . ')) ' . $orderBy . ')',
+            'LOWER(HEX(' . $root . '.' . $localColumn . ')) as `key`',
+            'GROUP_CONCAT(LOWER(HEX(' . $root . '.' . $referenceColumn . ')) ' . $orderBy . ') as `value`',
         ]);
 
         $query->addGroupBy($root . '.' . $localColumn);
@@ -744,7 +745,8 @@ class EntityReader implements EntityReaderInterface
             $this->connection->executeQuery('SET @n = 0; SET @c = null;');
         }
 
-        $mapping = $query->execute()->fetchAll(\PDO::FETCH_KEY_PAIR);
+        $mapping = $query->execute()->fetchAll();
+        $mapping = FetchModeHelper::keyPair($mapping);
 
         $ids = [];
         foreach ($mapping as &$row) {
@@ -844,7 +846,9 @@ class EntityReader implements EntityReaderInterface
         //initials the cursor and loop counter, pdo do not allow to execute SET and SELECT in one statement
         $this->connection->executeQuery('SET @n = 0; SET @c = null;');
 
-        return $wrapper->execute()->fetchAll(\PDO::FETCH_KEY_PAIR);
+        $rows = $wrapper->execute()->fetchAll();
+
+        return FetchModeHelper::keyPair($rows);
     }
 
     private function getDomainName(string $name)

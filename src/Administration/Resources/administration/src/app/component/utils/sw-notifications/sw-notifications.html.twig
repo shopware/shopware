@@ -6,7 +6,7 @@
                       :key="notification.uuid"
                       :title="notification.title"
                       :variant="notification.variant"
-                      :system="notification.system"
+                      :appearance="notification.system ? 'system' : 'notification'"
                       :notificationIndex="notification.uuid"
                       :closable="true"
                       @swAlertClose="onClose">

@@ -13,6 +13,13 @@ Component.register('sw-alert', {
                 return ['info', 'warning', 'error', 'success'].includes(value);
             }
         },
+        appearance: {
+            type: String,
+            default: 'default',
+            validator(value) {
+                return ['default', 'notification', 'system'].includes(value);
+            }
+        },
         title: {
             type: String,
             required: false
@@ -21,11 +28,6 @@ Component.register('sw-alert', {
             type: Boolean,
             required: false,
             default: true
-        },
-        system: {
-            type: Boolean,
-            required: false,
-            default: false
         },
         closable: {
             type: Boolean,
@@ -41,8 +43,8 @@ Component.register('sw-alert', {
         alertClasses() {
             return [
                 `sw-alert--${this.variant}`,
+                `sw-alert--${this.appearance}`,
                 {
-                    'sw-alert--system': this.system,
                     'sw-alert--no-icon': !this.showIcon,
                     'sw-alert--closable': this.closable
                 }

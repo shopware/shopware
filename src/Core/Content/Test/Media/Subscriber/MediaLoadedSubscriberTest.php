@@ -39,8 +39,8 @@ class MediaLoadedSubscriberTest extends TestCase
         $mediaLoadedEvent = new EntityLoadedEvent(MediaDefinition::class, new EntityCollection([$mediaStruct]), $context);
         $subscriber->addUrls($mediaLoadedEvent);
 
-        static::assertEquals(
-            'http://localhost/media/88/6c/ed/34556f108ab14969a0dcf9d9522fd7df.png',
+        static::assertStringEndsWith(
+            '/media/88/6c/ed/34556f108ab14969a0dcf9d9522fd7df.png',
             $mediaStruct->getUrl());
         static::assertEquals([], $mediaStruct->getThumbnails()->getElements());
     }
@@ -67,8 +67,8 @@ class MediaLoadedSubscriberTest extends TestCase
         $mediaLoadedEvent = new EntityLoadedEvent(MediaDefinition::class, new EntityCollection([$mediaStruct]), $context);
         $subscriber->addUrls($mediaLoadedEvent);
 
-        static::assertEquals(
-            'http://localhost/thumbnail/88/6c/ed/34556f108ab14969a0dcf9d9522fd7df_100x100.png',
+        static::assertStringEndsWith(
+            '/thumbnail/88/6c/ed/34556f108ab14969a0dcf9d9522fd7df_100x100.png',
             $mediaStruct->getThumbnails()->get($thumbnailStruct->getId())->getUrl());
     }
 }

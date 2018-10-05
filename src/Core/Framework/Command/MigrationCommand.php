@@ -17,17 +17,17 @@ class MigrationCommand extends Command
     /**
      * @var MigrationCollectionLoader
      */
-    private $loader;
+    protected $loader;
 
     /**
      * @var MigrationRuntime
      */
-    private $runner;
+    protected $runner;
 
     /**
      * @var SymfonyStyle
      */
-    private $io;
+    protected $io;
 
     public function __construct(
         MigrationCollectionLoader $loader,
@@ -39,9 +39,26 @@ class MigrationCommand extends Command
         $this->runner = $runner;
     }
 
+    protected function getMigrationCommandName()
+    {
+        return 'database:migrate';
+    }
+
+    protected function getMigrationGenerator(?int $until, ?int $limit): \Generator
+    {
+        foreach ($this->runner->migrate($until, $limit) as $migration) {
+            yield $migration;
+        }
+    }
+
+    protected function getMigrationsCount(?int $until, ?int $limit)
+    {
+        return \count($this->runner->getExecutableMigrations($until, $limit));
+    }
+
     protected function configure()
     {
-        $this->setName('database:migrate')
+        $this->setName($this->getMigrationCommandName())
             ->addArgument('until', InputArgument::OPTIONAL, 'timestamp cap for migrations')
             ->addOption('all', 'all', InputOption::VALUE_NONE, 'no migration timestamp cap')
             ->addOption('limit', 'l', InputOption::VALUE_OPTIONAL, '', 0);
@@ -68,13 +85,12 @@ class MigrationCommand extends Command
             $until = null;
         }
 
-        $total = \count($this->runner->getExecutableMigrations($until, $limit));
+        $total = $this->getMigrationsCount($until, $limit);
         $this->io->progressStart($total);
         $migratedCounter = 0;
 
         try {
-            $generator = $this->runner->migrate($until, $limit);
-            foreach ($generator as $key => $return) {
+            foreach ($this->getMigrationGenerator($until, $limit) as $key => $return) {
                 $this->io->progressAdvance();
                 ++$migratedCounter;
             }

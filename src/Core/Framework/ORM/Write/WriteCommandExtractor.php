@@ -22,6 +22,7 @@ use Shopware\Core\Framework\ORM\Write\FieldAware\StorageAware;
 use Shopware\Core\Framework\ORM\Write\FieldException\FieldExceptionStack;
 use Shopware\Core\Framework\ORM\Write\FieldException\InvalidJsonFieldException;
 use Shopware\Core\Framework\ORM\Write\FieldException\WriteFieldException;
+use Shopware\Core\Framework\ORM\Write\Flag\Deferred;
 use Shopware\Core\Framework\ORM\Write\Flag\Inherited;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\ReadOnly;
@@ -341,6 +342,10 @@ class WriteCommandExtractor
         $main = [];
         foreach ($fields as $field) {
             if ($field instanceof ChildrenAssociationField) {
+                continue;
+            }
+
+            if ($field->is(Deferred::class)) {
                 continue;
             }
 

@@ -23,7 +23,7 @@ This will install all necessary dependencies for your local development environm
 
 ## 3. Start Local development Server
 
-For local developing you can start a development server from your CLI. This will also enable a file watcher which will trigger updating the page directly when you make any changes to your files. The nice thing about this is, that the application will keep it's state also after refreshing. So you automatically stay at the same place where you're working at. The watcher also offers automatic linting using ESLint and will show an overlay with helpful error messages.
+For local development you can start a development server from your CLI. This will also enable a file watcher which will update the page in your browser when you make any changes to your files. So you automatically stay at the same place where you're working at. The watcher also offers automatic linting using ESLint and will show an overlay with helpful error messages.
 
 Start the development server:
 
@@ -31,7 +31,7 @@ Start the development server:
 ./psh.phar administration:watch
 ```
 
-This will start the development server which is accessable via:
+This will start the development server which is available with this URL:
 
 ```
 http://localhost:8080
@@ -62,19 +62,19 @@ The Vue.js framework offers an extension for the developer console of your brows
 
 # Create your first plugin
 
-Let's create an example plugin called "SwagHelloWorld".
+Let's create an example plugin called "SwagAdministrationExample".
 
 ## 1. Create the plugin bootstrap file
 
 All plugins are located inside the `{YOUR_SW_ROOT}/custom/plugins` directory.
 
-In order to make your plugin functional you need at least the plugin bootstrap class inside the root directory of your plugin. _Please beware that the file name has to be equal to the name of the plugin._
+In order to make your plugin functional you need at least a plugin bootstrap file inside the root directory of your plugin. _Please beware that the file name has to be equal to the name of the plugin._
 
 ```
 .
 └── plugins
-    └── SwagHelloWorld
-        └── SwagHelloWorld.php
+    └── SwagAdministrationExample
+        └── SwagAdministrationExample.php
 ```
 
 The bare minimum of a plugin bootstrap looks like this:
@@ -82,13 +82,11 @@ The bare minimum of a plugin bootstrap looks like this:
 ```
 <?php declare(strict_types=1);
 
-/* custom/plugins/SwagHelloWorld/SwagHelloWorld.php */
-
-namespace SwagHelloWorld;
+namespace SwagAdministrationExample;
 
 use Shopware\Core\Framework\Plugin;
 
-class SwagHelloWorld extends Plugin {
+class SwagAdministrationExample extends Plugin {
 
 }
 ```
@@ -99,16 +97,20 @@ This is already a valid shopware plugin. You can however add additional function
 
 The administration files of your plugin are located in the `Resources/views/administration` directory.
 
-The first file you should create is the `main.js` file. This is your entry point where you can import all your components and modules later on.
+The entry point for your administration changes is the `main.js` file. In this file you can import all your components and modules later on.
 
 ```
-SwagHelloWorld
+SwagAdministrationExample
 ├── Resources
 │   └── views
 │       └── administration
 │           └── main.js
-└── SwagHelloWorld.php
+└── SwagAdministrationExample.php
 ```
+
+To make actual changes you have two main possibilities. Writing entirely new components or using the multi inheritance system from shopware. The inheritance system allows you to extend or override existing functionality with your own implementation. You don't need to copy large chunks of the source code in order to make your desired change.
+
+Shopware is using a custom build of Twig.js to make this possible for the administration templates. 
 
 ## 3. Install the plugin
 

@@ -76,6 +76,7 @@ class OrderDefinition extends EntityDefinition
             (new FloatField('amount_total', 'amountTotal'))->setFlags(new Required()),
             (new FloatField('position_price', 'positionPrice'))->setFlags(new Required()),
             (new FloatField('shipping_total', 'shippingTotal'))->setFlags(new Required()),
+            (new FloatField('currency_factor', 'currencyFactor'))->setFlags(new Required()),
             (new BoolField('is_net', 'isNet'))->setFlags(new Required()),
             (new BoolField('is_tax_free', 'isTaxFree'))->setFlags(new Required()),
             new StringField('deep_link_code', 'deepLinkCode'),

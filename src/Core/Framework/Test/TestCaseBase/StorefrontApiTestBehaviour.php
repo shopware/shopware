@@ -61,6 +61,21 @@ trait StorefrontApiTestBehaviour
         return end($this->salesChannelIds);
     }
 
+    public function createCustomStorefrontClient(array $salesChannelOverride = []): Client
+    {
+        $kernel = KernelLifecycleManager::getKernel();
+        $storefrontApiClient = KernelLifecycleManager::createClient($kernel, false);
+        $storefrontApiClient->setServerParameters([
+            'HTTP_X-Requested-With' => 'XMLHttpRequest',
+            'HTTP_Accept' => 'application/json',
+            'HTTP_X_SW_CONTEXT_TOKEN' => Uuid::uuid4()->getHex(),
+            'HTTP_X_SW_TENANT_ID' => Defaults::TENANT_ID,
+        ]);
+        $this->authorizeStorefrontClient($storefrontApiClient, $salesChannelOverride);
+
+        return $storefrontApiClient;
+    }
+
     protected function getStorefrontClient(): Client
     {
         if ($this->storeFrontClient) {
@@ -90,9 +105,8 @@ trait StorefrontApiTestBehaviour
         return $storefrontApiClient;
     }
 
-    private function authorizeStorefrontClient(Client $storefrontApiClient): void
+    private function authorizeStorefrontClient(Client $storefrontApiClient, array $salesChannelOverride = []): void
     {
-        $salesChannelId = Uuid::uuid4();
         $accessKey = AccessKeyHelper::generateAccessKey('sales-channel');
 
         /** @var RepositoryInterface $salesChannelRepository */
@@ -100,8 +114,8 @@ trait StorefrontApiTestBehaviour
             ->getContainer()
             ->get('sales_channel.repository');
 
-        $salesChannelRepository->upsert([[
-            'id' => $salesChannelId->getHex(),
+        $salesChannel = array_merge([
+            'id' => Uuid::uuid4()->getHex(),
             'typeId' => Defaults::SALES_CHANNEL_STOREFRONT_API,
             'name' => 'API Test case sales channel',
             'accessKey' => $accessKey,
@@ -113,9 +127,11 @@ trait StorefrontApiTestBehaviour
             'catalogs' => [['id' => Defaults::CATALOG]],
             'currencies' => [['id' => Defaults::CURRENCY]],
             'languages' => [['id' => Defaults::LANGUAGE]],
-        ]], Context::createDefaultContext(Defaults::TENANT_ID));
+        ], $salesChannelOverride);
 
-        $this->salesChannelIds[] = $salesChannelId->getHex();
+        $salesChannelRepository->upsert([$salesChannel], Context::createDefaultContext(Defaults::TENANT_ID));
+
+        $this->salesChannelIds[] = $salesChannel['id'];
 
         $header = 'HTTP_' . str_replace('-', '_', strtoupper(PlatformRequest::HEADER_ACCESS_KEY));
         $storefrontApiClient->setServerParameter($header, $accessKey);

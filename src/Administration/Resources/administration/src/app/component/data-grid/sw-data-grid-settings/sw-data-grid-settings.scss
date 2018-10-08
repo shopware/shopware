@@ -1,0 +1,41 @@
+.sw-button.sw-button--square.sw-data-grid-settings__trigger {
+    width: 32px;
+}
+
+.sw-data-grid-settings {
+    .sw-data-grid__settings-container {
+        padding: 10px;
+    }
+
+    .sw_context_menu_divider {
+        margin-bottom: 8px;
+    }
+
+    .sw-data-grid__settings-column-item {
+        display: flex;
+        align-items: center;
+
+        &:not(:last-child) {
+            margin-bottom: 10px;
+        }
+
+        .sw-data-grid__settings-column-item-controls {
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+    }
+
+    .sw-field--checkbox,
+    .sw-field--switch {
+        grid-template-columns: 16px 1fr auto;
+        margin-bottom: 0;
+
+        label {
+            margin-bottom: 0;
+        }
+    }
+
+    .columns-list-move {
+       transition: transform .2s ease-in-out;
+    }
+}

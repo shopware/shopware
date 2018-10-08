@@ -18,13 +18,13 @@ module.exports = {
                 mainMenuId: 'sw-order'
             })
             .expect.element(page.elements.smartBarAmount).to.have.text.that.equals('(1)');
-        browser.expect.element(`${page.elements.gridRow}--0`).to.have.text.that.contains(`${global.OrderFixtureService.customerStorefrontFixture.firstName} ${global.OrderFixtureService.customerStorefrontFixture.lastName}`);
+        browser.expect.element(`${page.elements.dataGridRow}--0`).to.have.text.that.contains(`${global.OrderFixtureService.customerStorefrontFixture.firstName} ${global.OrderFixtureService.customerStorefrontFixture.lastName}`);
     },
     'open existing order': (browser) => {
         const page = orderPage(browser);
 
         browser
-            .clickContextMenuItem('.sw-order-list__order-view-action', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
+            .clickContextMenuItem('.sw-order-list__order-view-action', page.elements.contextMenuButton, `${page.elements.dataGridRow}--0`)
             .waitForElementVisible('.sw-order-detail')
             .assert.urlContains('#/sw/order/detail');
     },

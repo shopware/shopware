@@ -22,6 +22,10 @@ Component.register('sw-product-list', {
             return State.getStore('product');
         },
 
+        productColumns() {
+            return this.getProductColumns();
+        },
+
         filters() {
             return [{
                 active: false,
@@ -61,13 +65,7 @@ Component.register('sw-product-list', {
         },
 
         onInlineEditSave(product) {
-            this.isLoading = true;
-
-            product.save().then(() => {
-                this.isLoading = false;
-            }).catch(() => {
-                this.isLoading = false;
-            });
+            product.save();
         },
 
         onInlineEditCancel(product) {
@@ -107,6 +105,43 @@ Component.register('sw-product-list', {
             return this.productStore.getById(id).delete(true).then(() => {
                 this.getList();
             });
+        },
+
+        getProductColumns() {
+            return [{
+                property: 'name',
+                dataIndex: 'name',
+                label: this.$tc('sw-product.list.columnName'),
+                routerLink: 'sw.product.detail',
+                inlineEdit: 'string',
+                allowResize: true,
+                primary: true
+            }, {
+                property: 'manufacturer.name',
+                dataIndex: 'manufacturer.name',
+                label: this.$tc('sw-product.list.columnManufacturer'),
+                allowResize: true
+            }, {
+                property: 'active',
+                dataIndex: 'active',
+                label: this.$tc('sw-product.list.columnActive'),
+                inlineEdit: 'boolean',
+                allowResize: true,
+                align: 'center'
+            }, {
+                property: 'price.gross',
+                dataIndex: 'price.gross',
+                label: this.$tc('sw-product.list.columnPrice'),
+                allowResize: true,
+                align: 'right'
+            }, {
+                property: 'stock',
+                dataIndex: 'stock',
+                label: this.$tc('sw-product.list.columnInStock'),
+                inlineEdit: 'number',
+                allowResize: true,
+                align: 'right'
+            }];
         }
     }
 });

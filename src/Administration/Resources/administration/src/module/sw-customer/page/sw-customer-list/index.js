@@ -21,13 +21,15 @@ Component.register('sw-customer-list', {
     computed: {
         customerStore() {
             return Shopware.State.getStore('customer');
+        },
+
+        customerColumns() {
+            return this.getCustomerColumns();
         }
     },
 
     methods: {
         onInlineEditSave(customer) {
-            this.isLoading = true;
-
             return customer.save().then(() => {
                 this.createNotificationSuccess({
                     title: this.$tc('sw-customer.detail.titleSaveSuccess'),
@@ -40,8 +42,6 @@ Component.register('sw-customer-list', {
                     title: this.$tc('sw-customer.detail.titleSaveError'),
                     message: this.$tc('sw-customer.detail.messageSaveError')
                 });
-            }).finally(() => {
-                this.isLoading = false;
             });
         },
 
@@ -106,6 +106,47 @@ Component.register('sw-customer-list', {
             return this.customerStore.getById(id).delete(true).then(() => {
                 this.getList();
             });
+        },
+
+        getCustomerColumns() {
+            return [{
+                property: 'customerNumber',
+                dataIndex: 'customerNumber',
+                label: this.$tc('sw-customer.list.columnCustomerNumber'),
+                allowResize: true,
+                inlineEdit: 'string',
+                align: 'right'
+            }, {
+                property: 'firstName',
+                dataIndex: 'firstName,lastName',
+                inlineEdit: 'string',
+                label: this.$tc('sw-customer.list.columnName'),
+                routerLink: 'sw.customer.detail',
+                width: '250px',
+                allowResize: true,
+                primary: true
+            }, {
+                property: 'defaultBillingAddress.street',
+                label: this.$tc('sw-customer.list.columnStreet'),
+                dataIndex: 'defaultBillingAddress.street',
+                allowResize: true
+            }, {
+                property: 'defaultBillingAddress.zipcode',
+                dataIndex: 'defaultBillingAddress.zipcode',
+                label: this.$tc('sw-customer.list.columnZip'),
+                align: 'right',
+                allowResize: true
+            }, {
+                property: 'defaultBillingAddress.city',
+                dataIndex: 'defaultBillingAddress.city',
+                label: this.$tc('sw-customer.list.columnCity'),
+                allowResize: true
+            }, {
+                property: 'email',
+                dataIndex: 'email',
+                label: this.$tc('sw-customer.list.columnEmail'),
+                allowResize: true
+            }];
         }
     }
 });

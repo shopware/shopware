@@ -20,7 +20,7 @@ module.exports = {
             .expect.element(page.elements.smartBarAmount).to.have.text.that.equals('(1)');
 
         browser
-            .clickContextMenuItem('.sw-customer-list__view-action', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
+            .clickContextMenuItem('.sw-customer-list__view-action', page.elements.contextMenuButton, `${page.elements.dataGridRow}--0`)
             .expect.element(`${page.elements.customerMetaData}-customer-name`).to.have.text.that.equals('Mr Pep Eroni');
     },
     'open edit mode': (browser) => {

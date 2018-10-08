@@ -43,6 +43,14 @@
       "buttonInlineEditCancel": "Cancel",
       "buttonInlineEditSave": "Save"
     },
+    "sw-data-grid": {
+      "tooltipListSettings": "List settings",
+      "labelSettingsCompactMode": "Use compact view",
+      "labelSettingsPreviewImages": "Show preview images",
+      "labelColumnHide": "Hide column",
+      "titleButtonInlineEditSave": "Save",
+      "titleButtonInlineEditCancel": "Cancel"
+    },
     "sw-pagination": {
       "labelItemsPerPage": "Items per page:"
     },

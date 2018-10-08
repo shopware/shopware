@@ -13,6 +13,11 @@ export default class GeneralPageObject {
 
             gridRow: '.sw-grid__row',
             gridRowInlineEdit: '.sw-grid-row__inline-edit-action',
+
+            dataGridRow: '.sw-data-grid__row',
+            dataGridColumn: '.sw-data-grid__cell',
+            dataGridInlineEditSave: '.sw-data-grid__inline-edit-save',
+
             emptyState: '.sw-empty-state',
             contextMenu: '.sw-context-menu',
             contextMenuButton: '.sw-context-button__button',

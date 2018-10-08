@@ -45,129 +45,69 @@
         <template slot="content">
             {% block sw_product_list_content %}
                 <div class="sw-product-list__content">
+
                     {% block sw_product_list_grid %}
-                        <sw-grid v-if="total"
-                                 :items="products"
-                                 :sortBy="sortBy"
-                                 :sortDirection="sortDirection"
-                                 :isFullpage="true"
-                                 :selectable="false"
-                                 @edit="onEdit"
-                                 @sort-column="onSortColumn"
-                                 @inline-edit-cancel="onInlineEditCancel"
-                                 @inline-edit-finish="onInlineEditSave">
+                        <sw-data-grid :dataSource="products"
+                                      :columns="productColumns"
+                                      :showSelection="false"
+                                      :showSettings="true"
+                                      :fullPage="true"
+                                      :allowInlineEdit="true"
+                                      :sortBy="sortBy"
+                                      :sortDirection="sortDirection"
+                                      :isLoading="isLoading"
+                                      :allowColumnEdit="true"
+                                      identifier="sw-product-list"
+                                      @column-sort="onSortColumn"
+                                      @inline-edit-save="onInlineEditSave"
+                                      @inline-edit-cancel="onInlineEditCancel">
 
-                            {% block sw_product_list_grid_slots %}
-                                <template slot="columns" slot-scope="{ item }">
-                                    {% block sw_product_list_grid_columns %}
+                            {% block sw_product_list_grid_columns %}
+                                {% block sw_product_list_grid_columns_name %}
+                                    <template slot="column-active" slot-scope="{ item }">
+                                        <sw-icon v-if="item.active" name="small-default-checkmark-line-medium" small class="is--active"></sw-icon>
+                                        <sw-icon v-else name="small-default-x-line-medium" small class="is--inactive"></sw-icon>
+                                    </template>
+                                {% endblock %}
 
-                                        {% block sw_product_list_grid_columns_name %}
-                                            <sw-grid-column flex="minmax(200px, 1fr)"
-                                                            class="sw-product-list__column-product-name"
-                                                            :label="$tc('sw-product.list.columnName')"
-                                                            dataIndex="name"
-                                                            sortable
-                                                            truncate
-                                                            editable>
-                                                {% block sw_product_list_grid_columns_name_link %}
-                                                    <router-link :to="{ name: 'sw.product.detail', params: { id: item.id } }">
-                                                        {% block sw_product_list_grid_columns_name_label %}
-                                                            {{ item.meta.viewData.name }}
-                                                        {% endblock %}
-                                                    </router-link>
-                                                {% endblock %}
+                                {% block sw_product_list_grid_columns_price %}
+                                    <template slot="column-price.gross" slot-scope="{ item }">
+                                        {{ item.price.gross | currency }}
+                                    </template>
+                                {% endblock %}
 
-                                                {% block sw_product_list_grid_columns_name_editor %}
-                                                    <sw-field type="text" v-model="item.name" slot="inline-edit"></sw-field>
-                                                {% endblock %}
-                                            </sw-grid-column>
-                                        {% endblock %}
+                                {% block sw_product_list_grid_columns_stock %}
+                                    <template slot="column-stock" slot-scope="{ item }">
+                                        {{ item.stock }}
+                                        <sw-color-badge :variant="item.stock | stockColorVariant"></sw-color-badge>
+                                    </template>
+                                {% endblock %}
+                            {% endblock %}
 
-                                        {% block sw_product_list_grid_columns_manufacturer %}
-                                            <sw-grid-column flex="minmax(200px, 1fr)"
-                                                            class="sw-product-list__column-manufacturer-name"
-                                                            :label="$tc('sw-product.list.columnManufacturer')"
-                                                            dataIndex="manufacturer.name"
-                                                            sortable
-                                                            truncate
-                                                            editable>
-                                                {{ item.manufacturer.meta.viewData.name }}
-
-                                                {% block sw_product_list_grid_columns_manufacturer_editor %}
-                                                    <sw-field type="text" v-model="item.manufacturer.name" slot="inline-edit"></sw-field>
-                                                {% endblock %}
-                                            </sw-grid-column>
-                                        {% endblock %}
-
-                                        {% block sw_product_list_grid_columns_active %}
-                                            <sw-grid-column flex="minmax(80px, 95px)"
-                                                            :label="$tc('sw-product.list.columnActive')"
-                                                            dataIndex="active"
-                                                            align="center"
-                                                            sortable
-                                                            truncate
-                                                            editable>
-                                                <sw-icon name="small-default-checkmark-line-medium"
-                                                         small
-                                                         v-if="item.active"
-                                                         class="is--active">
-                                                </sw-icon>
-                                                <sw-icon name="small-default-x-line-medium" small v-else class="is--inactive"></sw-icon>
-
-                                                {% block sw_product_list_grid_columns_active_editor %}
-                                                    <sw-field type="checkbox" v-model="item.active" slot="inline-edit"></sw-field>
-                                                {% endblock %}
-                                            </sw-grid-column>
-                                        {% endblock %}
-
-                                        {% block sw_product_list_grid_columns_price %}
-                                            <sw-grid-column flex="minmax(95px, 105px)"
-                                                            :label="$tc('sw-product.list.columnPrice')"
-                                                            sortable
-                                                            truncate
-                                                            dataIndex="price"
-                                                            align="right">
-                                                {{ item.price.gross | currency }}
-                                            </sw-grid-column>
-                                        {% endblock %}
-
-                                        {% block sw_product_list_grid_columns_stock %}
-                                            <sw-grid-column flex="minmax(95px, 150px)"
-                                                            :label="$tc('sw-product.list.columnInStock')"
-                                                            sortable
-                                                            truncate
-                                                            dataIndex="stock"
-                                                            align="right">
-                                                {{ item.stock }}
-                                                <sw-color-badge :variant="item.stock | stockColorVariant"></sw-color-badge>
-                                            </sw-grid-column>
-                                        {% endblock %}
-
-                                        {% block sw_product_list_grid_columns_actions %}
-                                            <sw-grid-column flex="minmax(100px, 100px)" align="center">
-                                                <sw-context-button>
-                                                    {% block sw_product_list_grid_columns_actions_edit %}
-                                                        <sw-context-menu-item class="sw-product-list__edit-action" :routerLink="{ name: 'sw.product.detail', params: { id: item.id } }">
-                                                            {{ $tc('sw-product.list.contextMenuEdit') }}
-                                                        </sw-context-menu-item>
-                                                    {% endblock %}
-
-                                                    {% block sw_product_list_grid_columns_actions_duplicate %}
-                                                        <sw-context-menu-item :disabled="true">
-                                                            {{ $tc('sw-product.list.contextMenuDuplicate') }}
-                                                        </sw-context-menu-item>
-                                                    {% endblock %}
-
-                                                    {% block sw_product_list_grid_columns_actions_delete %}
-                                                        <sw-context-menu-item @click="onDeleteProduct(item.id)" variant="danger">
-                                                            {{ $tc('sw-product.list.contextMenuDelete') }}
-                                                        </sw-context-menu-item>
-                                                    {% endblock %}
-                                                </sw-context-button>
-                                            </sw-grid-column>
-                                        {% endblock %}
-
+                            {% block sw_product_list_grid_columns_actions %}
+                                <template slot="actions" slot-scope="{ item }">
+                                    {% block sw_product_list_grid_columns_actions_edit %}
+                                        <sw-context-menu-item class="sw-product-list__edit-action" :routerLink="{ name: 'sw.product.detail', params: { id: item.id } }">
+                                            {{ $tc('sw-product.list.contextMenuEdit') }}
+                                        </sw-context-menu-item>
                                     {% endblock %}
+
+                                    {% block sw_product_list_grid_columns_actions_duplicate %}
+                                        <sw-context-menu-item :disabled="true">
+                                            {{ $tc('sw-product.list.contextMenuDuplicate') }}
+                                        </sw-context-menu-item>
+                                    {% endblock %}
+
+                                    {% block sw_product_list_grid_columns_actions_delete %}
+                                        <sw-context-menu-item @click="onDeleteProduct(item.id)" variant="danger">
+                                            {{ $tc('sw-product.list.contextMenuDelete') }}
+                                        </sw-context-menu-item>
+                                    {% endblock %}
+                                </template>
+                            {% endblock %}
+
+                            {% block sw_product_list_grid_action_modals %}
+                                <template slot="action-modals" slot-scope="{ item }">
 
                                     {% block sw_product_list_delete_modal %}
                                         <sw-modal v-if="showDeleteModal === item.id"
@@ -183,16 +123,13 @@
                                             {% block sw_product_list_delete_modal_footer %}
                                                 <template slot="modal-footer">
                                                     {% block sw_product_list_delete_modal_cancel %}
-                                                        <sw-button @click="onCloseDeleteModal"
-                                                                   size="small">
+                                                        <sw-button @click="onCloseDeleteModal" size="small">
                                                             {{ $tc('sw-product.list.buttonCancel') }}
                                                         </sw-button>
                                                     {% endblock %}
 
                                                     {% block sw_product_list_delete_modal_confirm %}
-                                                        <sw-button @click="onConfirmDelete(item.id)"
-                                                                   variant="primary"
-                                                                   size="small">
+                                                        <sw-button @click="onConfirmDelete(item.id)" variant="primary" size="small">
                                                             {{ $tc('sw-product.list.buttonDelete') }}
                                                         </sw-button>
                                                     {% endblock %}
@@ -201,27 +138,23 @@
                                         </sw-modal>
                                     {% endblock %}
                                 </template>
-
-                                <template slot="pagination">
-                                    {% block sw_product_list_grid_pagination %}
-                                        <sw-pagination :page="page"
-                                                       :limit="limit"
-                                                       :total="total"
-                                                       :total-visible="7"
-                                                       @page-change="onPageChange">
-                                        </sw-pagination>
-                                    {% endblock %}
-                                </template>
                             {% endblock %}
-                        </sw-grid>
+
+                            <template slot="pagination">
+                                {% block sw_product_list_grid_pagination %}
+                                    <sw-pagination :page="page"
+                                                   :limit="limit"
+                                                   :total="total"
+                                                   :total-visible="7"
+                                                   @page-change="onPageChange">
+                                    </sw-pagination>
+                                {% endblock %}
+                            </template>
+                        </sw-data-grid>
                     {% endblock %}
 
                     {% block sw_product_list_empty_state %}
-                        <sw-empty-state v-else-if="!isLoading && !total" :title="$tc('sw-product.list.messageEmpty')"></sw-empty-state>
-                    {% endblock %}
-
-                    {% block sw_product_list_grid_loader %}
-                        <sw-loader v-if="isLoading"></sw-loader>
+                        <sw-empty-state v-if="!isLoading && !total" :title="$tc('sw-product.list.messageEmpty')"></sw-empty-state>
                     {% endblock %}
                 </div>
             {% endblock %}

@@ -48,7 +48,10 @@
                 {% endblock %}
 
                 <template slot="card-view-sidebar">
-                    <sw-sidebar-media-item :catalogId="product.catalogId"></sw-sidebar-media-item>
+                    <sw-sidebar-media-item
+                            :catalogId="product.catalogId"
+                            @sw-sidebar-media-item-add-item-to-product="handleAddItemToProduct">
+                    </sw-sidebar-media-item>
                 </template>
             </sw-card-view>
         {% endblock %}

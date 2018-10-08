@@ -33,9 +33,15 @@
                             :key="mediaItem.id"
                             :item="mediaItem"
                             :showSelectionIndicator="false"
-                            :showContextMenuButton="false"
+                            :showContextMenuButton="true"
                             :selected="false"
-                            :isList="true">
+                            :isList="true"
+                            @sw-media-grid-media-item-delete="handleMediaGridItemDelete">
+                                {% block sw_sidebar_media_item_context_item_add_to_product %}
+                                    <sw-context-menu-item slot="additional-context-menu-items" @click="addItemToProduct(mediaItem)">
+                                        {{ $tc('global.sw-media-grid-media-item.contextMenuAddToProductLabel') }}
+                                    </sw-context-menu-item>
+                                {% endblock %}
                         </sw-media-grid-media-item>
                     </template>
                     <sw-loader v-else></sw-loader>

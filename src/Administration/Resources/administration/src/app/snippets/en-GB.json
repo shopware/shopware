@@ -46,6 +46,7 @@
       "contextMenuCopyLinkLabel": "Copy Link",
       "contextMenuReplaceLabel": "Replace",
       "contextMenuRenameLabel": "Rename",
+      "contextMenuAddToProductLabel": "Add to product",
       "notificationErrorBlankItemName": "The media could not be saved: Please enter a name",
       "notificationRenamingSuccess": "Successfully renamed media",
       "notificationRenamingError": "Error renaming media"
@@ -464,7 +465,8 @@
     "mediaForm": {
       "title": "Product images",
       "buttonUpload": "Upload files",
-      "noImageError": "\"{file}\" is not an image"
+      "noImageError": "\"{file}\" is not an image",
+      "mediaItemDuplicatedError": "The media item is assigned"
     }
   },
   "sw-manufacturer": {

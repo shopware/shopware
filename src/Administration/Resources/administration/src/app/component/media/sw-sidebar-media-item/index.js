@@ -64,6 +64,14 @@ Component.register('sw-sidebar-media-item', {
             this.getList();
         },
 
+        handleMediaGridItemDelete() {
+            this.getList();
+        },
+
+        addItemToProduct(item) {
+            this.$emit('sw-sidebar-media-item-add-item-to-product', item);
+        },
+
         getList() {
             this.isLoading = true;
 

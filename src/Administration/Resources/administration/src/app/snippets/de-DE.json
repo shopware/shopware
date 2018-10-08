@@ -46,6 +46,7 @@
       "contextMenuCopyLinkLabel": "Link kopieren",
       "contextMenuReplaceLabel": "Ersetzen",
       "contextMenuRenameLabel": "Umbenennen",
+      "contextMenuAddToProductLabel": "Zu Produkt hinzufügen",
       "notificationErrorBlankItemName": "Das Medium konnte nicht umbenannt werden. Bitte füge einen Dateinamen hinzu",
       "notificationRenamingSuccess": "Medium erfolgreich umbenannt",
       "notificationRenamingError": "Fehler beim Umbenennen"
@@ -464,7 +465,8 @@
     "mediaForm": {
       "title": "Produktfotos",
       "buttonUpload": "Datei hochladen",
-      "noImageError": "\"{file}\" ist kein Bild"
+      "noImageError": "\"{file}\" ist kein Bild",
+      "mediaItemDuplicatedError": "Item bereits verwendet"
     }
   },
   "sw-manufacturer": {

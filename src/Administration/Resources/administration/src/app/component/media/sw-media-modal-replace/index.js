@@ -1,4 +1,4 @@
-import { Component, Mixin } from 'src/core/shopware';
+import { Component, Mixin, State } from 'src/core/shopware';
 import { debug, fileReader } from 'src/core/service/util.service';
 import template from './sw-media-modal-replace.html.twig';
 import './sw-media-modal-replace.less';
@@ -27,6 +27,10 @@ Component.register('sw-media-modal-replace', {
     computed: {
         isUploadDataSet() {
             return this.uploadData !== null;
+        },
+
+        mediaItemStore() {
+            return State.getStore('media');
         }
     },
 
@@ -89,8 +93,11 @@ Component.register('sw-media-modal-replace', {
                     fileAsArray,
                     fileExtension
                 ).then(() => {
-                    this.itemToReplace.url = `${this.itemToReplace.url}?${Date.now()}`;
-                    this.itemToReplace.isLoading = false;
+                    this.mediaItemStore.getByIdAsync(this.itemToReplace.id).then((proxy) => {
+                        this.itemToReplace.setData(proxy);
+                        this.itemToReplace.url = `${this.itemToReplace.url}?${Date.now()}`;
+                        this.itemToReplace.isLoading = false;
+                    });
                     this.createNotificationSuccess({
                         message: notificationSuccess
                     });

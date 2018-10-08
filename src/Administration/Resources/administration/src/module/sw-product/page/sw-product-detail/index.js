@@ -33,6 +33,10 @@ Component.register('sw-product-detail', {
             return State.getStore('currency');
         },
 
+        productMediaStore() {
+            return this.product.getAssociation('media');
+        },
+
         taxStore() {
             return State.getStore('tax');
         },
@@ -120,6 +124,43 @@ Component.register('sw-product-detail', {
                 });
                 warn(this._name, exception.message, exception.response);
             });
+        },
+
+        handleAddItemToProduct(mediaItem) {
+            const messageMediaItemDuplicated = this.$tc('sw-product.mediaForm.mediaItemDuplicatedError');
+
+            if (this.product.media.findIndex((mediaEntry) => {
+                return (mediaEntry.mediaId === mediaItem.id);
+            }) > -1) {
+                this.createNotificationInfo({
+                    message: messageMediaItemDuplicated
+                });
+                return;
+            }
+
+            const productMedia = this.productMediaStore.create();
+            productMedia.isLoading = true;
+            productMedia.catalogId = this.product.catalogId;
+            productMedia.type = 'product_media';
+
+            if (this.product.media.length === 0) {
+                productMedia.position = 0;
+                this.product.coverId = productMedia.id;
+            } else {
+                productMedia.position = this.product.media.length + 1;
+            }
+
+            const mediaEntity = mediaItem;
+
+            delete mediaEntity.catalog;
+            delete mediaEntity.user;
+
+            productMedia.media = mediaItem;
+            productMedia.mediaId = mediaItem.id;
+            productMedia.productId = this.product.id;
+
+            productMedia.isLoading = false;
+            this.product.media.push(productMedia);
         }
     }
 });

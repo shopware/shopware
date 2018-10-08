@@ -3,16 +3,16 @@
 namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\Cart;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Rule\CartAmountRule;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
-use Shopware\Core\Checkout\Cart\Rule\OrderAmountRule;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 
-class OrderAmountRuleTest extends TestCase
+class CartAmountRuleTest extends TestCase
 {
     public function testRuleWithExactAmountMatch(): void
     {
-        $rule = new OrderAmountRule(275, OrderAmountRule::OPERATOR_EQ);
+        $rule = new CartAmountRule(275, CartAmountRule::OPERATOR_EQ);
 
         $cart = Generator::createCart();
         $context = $this->createMock(CheckoutContext::class);
@@ -24,7 +24,7 @@ class OrderAmountRuleTest extends TestCase
 
     public function testRuleWithExactAmountNotMatch(): void
     {
-        $rule = new OrderAmountRule(0, OrderAmountRule::OPERATOR_EQ);
+        $rule = new CartAmountRule(0, CartAmountRule::OPERATOR_EQ);
 
         $cart = Generator::createCart();
         $context = $this->createMock(CheckoutContext::class);
@@ -36,7 +36,7 @@ class OrderAmountRuleTest extends TestCase
 
     public function testRuleWithLowerThanEqualExactAmountMatch(): void
     {
-        $rule = new OrderAmountRule(275, OrderAmountRule::OPERATOR_LTE);
+        $rule = new CartAmountRule(275, CartAmountRule::OPERATOR_LTE);
 
         $cart = Generator::createCart();
         $context = $this->createMock(CheckoutContext::class);
@@ -48,7 +48,7 @@ class OrderAmountRuleTest extends TestCase
 
     public function testRuleWithLowerThanEqualAmountMatch(): void
     {
-        $rule = new OrderAmountRule(300, OrderAmountRule::OPERATOR_LTE);
+        $rule = new CartAmountRule(300, CartAmountRule::OPERATOR_LTE);
 
         $cart = Generator::createCart();
         $context = $this->createMock(CheckoutContext::class);
@@ -60,7 +60,7 @@ class OrderAmountRuleTest extends TestCase
 
     public function testRuleWithLowerThanEqualAmountNotMatch(): void
     {
-        $rule = new OrderAmountRule(274, OrderAmountRule::OPERATOR_LTE);
+        $rule = new CartAmountRule(274, CartAmountRule::OPERATOR_LTE);
 
         $cart = Generator::createCart();
         $context = $this->createMock(CheckoutContext::class);
@@ -72,7 +72,7 @@ class OrderAmountRuleTest extends TestCase
 
     public function testRuleWithGreaterThanEqualExactAmountMatch(): void
     {
-        $rule = new OrderAmountRule(275, OrderAmountRule::OPERATOR_GTE);
+        $rule = new CartAmountRule(275, CartAmountRule::OPERATOR_GTE);
 
         $cart = Generator::createCart();
         $context = $this->createMock(CheckoutContext::class);
@@ -84,7 +84,7 @@ class OrderAmountRuleTest extends TestCase
 
     public function testRuleWithGreaterThanEqualAmountMatch(): void
     {
-        $rule = new OrderAmountRule(100, OrderAmountRule::OPERATOR_GTE);
+        $rule = new CartAmountRule(100, CartAmountRule::OPERATOR_GTE);
 
         $cart = Generator::createCart();
         $context = $this->createMock(CheckoutContext::class);
@@ -96,7 +96,7 @@ class OrderAmountRuleTest extends TestCase
 
     public function testRuleWithGreaterThanEqualAmountNotMatch(): void
     {
-        $rule = new OrderAmountRule(276, OrderAmountRule::OPERATOR_GTE);
+        $rule = new CartAmountRule(276, CartAmountRule::OPERATOR_GTE);
 
         $cart = Generator::createCart();
         $context = $this->createMock(CheckoutContext::class);
@@ -108,7 +108,7 @@ class OrderAmountRuleTest extends TestCase
 
     public function testRuleNotEqualAmountMatch(): void
     {
-        $rule = new OrderAmountRule(0, OrderAmountRule::OPERATOR_NEQ);
+        $rule = new CartAmountRule(0, CartAmountRule::OPERATOR_NEQ);
 
         $cart = Generator::createCart();
         $context = $this->createMock(CheckoutContext::class);
@@ -120,7 +120,7 @@ class OrderAmountRuleTest extends TestCase
 
     public function testRuleNotEqualAmountNotMatch(): void
     {
-        $rule = new OrderAmountRule(275, OrderAmountRule::OPERATOR_NEQ);
+        $rule = new CartAmountRule(275, CartAmountRule::OPERATOR_NEQ);
 
         $cart = Generator::createCart();
         $context = $this->createMock(CheckoutContext::class);
@@ -139,7 +139,7 @@ class OrderAmountRuleTest extends TestCase
      */
     public function testUnsupportedOperators(string $operator): void
     {
-        $rule = new OrderAmountRule(100, $operator);
+        $rule = new CartAmountRule(100, $operator);
 
         $cart = Generator::createCart();
         $context = $this->createMock(CheckoutContext::class);

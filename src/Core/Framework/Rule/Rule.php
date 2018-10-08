@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Struct\Struct;
 
 abstract class Rule extends Struct
 {
-    public const OPERATOR_GTE = '=>';
+    public const OPERATOR_GTE = '>=';
 
     public const OPERATOR_LTE = '<=';
 

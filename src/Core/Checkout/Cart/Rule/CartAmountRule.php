@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-class OrderAmountRule extends Rule
+class CartAmountRule extends Rule
 {
     /**
      * @var float

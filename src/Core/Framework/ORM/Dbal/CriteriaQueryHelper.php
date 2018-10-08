@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Parser\SqlQueryParser;
+use Shopware\Core\Framework\ORM\Search\Query\NestedQuery;
 use Shopware\Core\Framework\ORM\Search\Query\ScoreQuery;
 
 trait CriteriaQueryHelper
@@ -23,12 +24,7 @@ trait CriteriaQueryHelper
             $queryHelper->resolveField($parent, $definition, $definition::getEntityName(), $query, $context);
         }
 
-        $fields = array_merge(
-            $criteria->getSortingFields(),
-            $criteria->getFilterFields(),
-            $criteria->getPostFilterFields(),
-            $criteria->getQueryFields()
-        );
+        $fields = $this->getFieldsByCriteria($criteria);
 
         //join association and translated fields
         foreach ($fields as $fieldName) {
@@ -49,7 +45,12 @@ trait CriteriaQueryHelper
 
     protected function addFilters(SqlQueryParser $parser, string $definition, Criteria $criteria, QueryBuilder $query, Context $context): void
     {
-        $parsed = $parser->parse($criteria->getAllFilters(), $definition, $context);
+        $filters = new NestedQuery(array_merge(
+            $criteria->getFilters(),
+            $criteria->getPostFilters()
+        ));
+
+        $parsed = $parser->parse($filters, $definition, $context);
 
         if (empty($parsed->getWheres())) {
             return;
@@ -79,7 +80,7 @@ trait CriteriaQueryHelper
         $select = 'SUM(' . implode(' + ', $queries->getWheres()) . ')';
         $query->addSelect($select . ' as _score');
 
-        if (empty($criteria->getSortings())) {
+        if (empty($criteria->getSorting())) {
             $query->addOrderBy('_score', 'DESC');
         }
 
@@ -100,7 +101,7 @@ trait CriteriaQueryHelper
     protected function addSortings(EntityDefinitionQueryHelper $queryHelper, string $definition, Criteria $criteria, QueryBuilder $query, Context $context): void
     {
         /* @var string|EntityDefinition $definition */
-        foreach ($criteria->getSortings() as $sorting) {
+        foreach ($criteria->getSorting() as $sorting) {
             if ($sorting->getField() === '_score') {
                 $query->addOrderBy('_score', $sorting->getDirection());
                 continue;
@@ -132,7 +133,7 @@ trait CriteriaQueryHelper
         ];
 
         // each order by column has to be inside the group by statement (sql_mode=only_full_group_by)
-        foreach ($criteria->getSortings() as $sorting) {
+        foreach ($criteria->getSorting() as $sorting) {
             if ($sorting->getField() === '_score') {
                 continue;
             }
@@ -150,5 +151,35 @@ trait CriteriaQueryHelper
         foreach ($fields as $field) {
             $query->addGroupBy($field);
         }
+    }
+
+    /**
+     * @return string[]
+     */
+    protected function getFieldsByCriteria(Criteria $criteria): array
+    {
+        $fields = [];
+
+        foreach ($criteria->getSorting() as $field) {
+            $fields[] = $field->getFields();
+        }
+
+        foreach ($criteria->getFilters() as $field) {
+            $fields[] = $field->getFields();
+        }
+
+        foreach ($criteria->getPostFilters() as $field) {
+            $fields[] = $field->getFields();
+        }
+
+        foreach ($criteria->getQueries() as $field) {
+            $fields[] = $field->getFields();
+        }
+
+        if (count($fields) === 0) {
+            return [];
+        }
+
+        return array_merge(...$fields);
     }
 }

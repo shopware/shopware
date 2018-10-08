@@ -5,7 +5,6 @@ namespace Shopware\Storefront\Subscriber;
 use Shopware\Core\Framework\ORM\Search\Aggregation\AggregationResult;
 use Shopware\Core\Framework\ORM\Search\Aggregation\StatsAggregation;
 use Shopware\Core\Framework\ORM\Search\Query\NestedQuery;
-use Shopware\Core\Framework\ORM\Search\Query\NotQuery;
 use Shopware\Core\Framework\ORM\Search\Query\Query;
 use Shopware\Core\Framework\ORM\Search\Query\RangeQuery;
 use Shopware\Storefront\Event\ListingEvents;
@@ -97,7 +96,7 @@ class PriceAggregationSubscriber implements EventSubscriberInterface
 
         $criteria = $searchResult->getCriteria();
 
-        $filter = $this->getFilter($criteria->getPostFilters());
+        $filter = $this->getFilter(...$criteria->getPostFilters());
 
         $active = $filter !== null;
 
@@ -129,20 +128,18 @@ class PriceAggregationSubscriber implements EventSubscriberInterface
         );
     }
 
-    private function getFilter(NestedQuery $nested): ?RangeQuery
+    private function getFilter(Query ...$nested): ?RangeQuery
     {
-        /** @var Query $query */
-        foreach ($nested->getQueries() as $query) {
+        foreach ($nested as $query) {
             if ($query instanceof RangeQuery && $query->getField() === self::PRICE_FIELD) {
                 return $query;
             }
 
-            if (!$query instanceof NestedQuery || !$query instanceof NotQuery) {
+            if (!$query instanceof NestedQuery) {
                 continue;
             }
 
-            $found = $this->getFilter($query);
-
+            $found = $this->getFilter(...$query->getQueries());
             if ($found) {
                 return $found;
             }

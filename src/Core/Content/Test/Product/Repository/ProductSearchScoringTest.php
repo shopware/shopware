@@ -44,7 +44,7 @@ class ProductSearchScoringTest extends TestCase
         $queries = $builder->buildScoreQueries($pattern, ProductDefinition::class, ProductDefinition::getEntityName());
 
         $criteria = new Criteria();
-        $criteria->addQueries($queries);
+        $criteria->addQuery(...$queries);
 
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
         $this->repository->create([

@@ -43,7 +43,7 @@ class ListingPageLoader
         );
 
         if (!$request->loadAggregations()) {
-            $criteria->setAggregations([]);
+            $criteria->resetAggregations();
         }
 
         $products = $this->productRepository->search($criteria, $context);

@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\ORM\Search\Query;
 
 class NestedQuery extends Query
 {
+    public const OPERATOR_AND = 'AND';
+    public const OPERATOR_OR = 'OR';
+
     /**
      * @var Query[]
      */
@@ -14,7 +17,7 @@ class NestedQuery extends Query
      */
     protected $operator;
 
-    public function __construct(array $queries = [], string $operator = 'AND')
+    public function __construct(array $queries = [], string $operator = self::OPERATOR_AND)
     {
         $this->queries = $queries;
         $this->operator = $operator;

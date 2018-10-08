@@ -34,10 +34,10 @@ class QueryStringParser
                 return new TermQuery(self::buildFieldName($definition, $query['field']), $query['value']);
             case 'nested':
                 $queries = [];
-                $operator = 'AND';
+                $operator = NestedQuery::OPERATOR_AND;
 
-                if (isset($query['operator']) && $query['operator'] === 'OR') {
-                    $operator = 'OR';
+                if (isset($query['operator']) && $query['operator'] === NestedQuery::OPERATOR_OR) {
+                    $operator = NestedQuery::OPERATOR_OR;
                 }
 
                 foreach ($query['queries'] as $index => $subQuery) {

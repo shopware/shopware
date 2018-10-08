@@ -392,14 +392,15 @@ class RequestCriteriaBuilder
     private function addSorting(array $payload, Criteria $criteria, string $definition, SearchRequestException $searchException): void
     {
         if (\is_array($payload['sort'])) {
-            $criteria->addSortings($this->parseSorting($definition, $payload['sort']));
+            $sorting = $this->parseSorting($definition, $payload['sort']);
+            $criteria->addSorting(...$sorting);
 
             return;
         }
 
         try {
             $sorting = $this->parseSimpleSorting($definition, $payload['sort']);
-            $criteria->addSortings($sorting);
+            $criteria->addSorting(...$sorting);
         } catch (InvalidSortQueryException $ex) {
             $searchException->add($ex, '/sort');
         }

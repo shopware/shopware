@@ -53,7 +53,7 @@ class CountryRepositoryTest extends TestCase
         $builder = $this->getContainer()->get(EntityScoreQueryBuilder::class);
         $pattern = $this->getContainer()->get(SearchTermInterpreter::class)->interpret('match');
         $queries = $builder->buildScoreQueries($pattern, CountryDefinition::class, CountryDefinition::getEntityName());
-        $criteria->addQueries($queries);
+        $criteria->addQuery(...$queries);
 
         $result = $this->repository->searchIds($criteria, Context::createDefaultContext(Defaults::TENANT_ID));
 

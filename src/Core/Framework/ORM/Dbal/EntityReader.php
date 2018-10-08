@@ -80,8 +80,8 @@ class EntityReader implements EntityReaderInterface
 
     public function read(string $definition, ReadCriteria $criteria, Context $context): EntityCollection
     {
-        $criteria->setSortings([]);
-        $criteria->setQueries([]);
+        $criteria->resetSorting();
+        $criteria->resetQueries();
 
         /** @var string|EntityDefinition $definition */
         $collectionClass = $definition::getCollectionClass();
@@ -113,7 +113,10 @@ class EntityReader implements EntityReaderInterface
 
     private function _read(ReadCriteria $criteria, string $definition, Context $context, string $entity, EntityCollection $collection, FieldCollection $fields, bool $raw = false): EntityCollection
     {
-        if (empty($criteria->getAllFilters()->getQueries()) && empty($criteria->getIds())) {
+        $hasFilters = !empty($criteria->getFilters()) || !empty($criteria->getPostFilters());
+        $hasIds = !empty($criteria->getIds());
+
+        if (!$hasFilters && !$hasIds) {
             return $collection;
         }
 
@@ -154,14 +157,14 @@ class EntityReader implements EntityReaderInterface
             $struct->removeExtension(self::MANY_TO_MANY_EXTENSION_STORAGE);
         }
 
-        if (empty($criteria->getSortings()) && !empty($criteria->getIds())) {
+        if ($hasIds && empty($criteria->getSorting())) {
             $collection->sortByIdArray($criteria->getIds());
         }
 
         return $collection;
     }
 
-    private function joinBasic(?Criteria $criteria, string $definition, Context $context, string $root, QueryBuilder $query, FieldCollection $fields, bool $raw = false): void
+    private function joinBasic(string $definition, Context $context, string $root, QueryBuilder $query, FieldCollection $fields, bool $raw = false, Criteria $criteria = null): void
     {
         /** @var EntityDefinition $definition */
         $filtered = $fields->fmap(function (Field $field) {
@@ -201,6 +204,8 @@ class EntityReader implements EntityReaderInterface
                 );
             }
 
+            $accessor = $definition::getEntityName() . '.' . $field->getPropertyName();
+
             //many to one associations can be directly fetched in same query
             if ($field instanceof ManyToOneAssociationField) {
                 /** @var EntityDefinition|string $reference */
@@ -216,18 +221,23 @@ class EntityReader implements EntityReaderInterface
 
                 $alias = $root . '.' . $field->getPropertyName();
 
-                $accessor = $definition::getEntityName() . '.' . $field->getPropertyName();
+                $joinCriteria = null;
+                if ($criteria && $criteria->hasAssociation($accessor)) {
+                    $joinCriteria = $criteria->getAssociation($accessor);
+                }
 
-                $this->joinBasic($criteria->getAssociation($accessor), $field->getReferenceClass(), $context, $alias, $query, $basics, $raw);
+                $this->joinBasic($field->getReferenceClass(), $context, $alias, $query, $basics, $raw, $joinCriteria);
 
                 continue;
             }
 
             //add sub select for many to many field
             if ($field instanceof ManyToManyAssociationField) {
-                $fieldCriteria = $criteria->getAssociation(
-                    $definition::getEntityName() . '.' . $field->getPropertyName()
-                );
+                if ($criteria !== null && $criteria->hasAssociation($accessor)) {
+                    $fieldCriteria = $criteria->getAssociation($accessor);
+                } else {
+                    $fieldCriteria = new Criteria();
+                }
 
                 //requested a paginated, filtered or sorted list
                 if ($this->hasCriteriaElements($fieldCriteria)) {
@@ -297,7 +307,7 @@ class EntityReader implements EntityReaderInterface
 
         $query = $this->buildQueryByCriteria(new QueryBuilder($this->connection), $this->queryHelper, $this->parser, $definition, $criteria, $context);
 
-        $this->joinBasic($criteria, $definition, $context, $table, $query, $fields, $raw);
+        $this->joinBasic($definition, $context, $table, $query, $fields, $raw, $criteria);
 
         if (!empty($criteria->getIds())) {
             $bytes = array_map(function (string $id) {
@@ -359,7 +369,11 @@ class EntityReader implements EntityReaderInterface
         /** @var string|EntityDefinition $definition */
         $accessor = $definition::getEntityName() . '.' . $association->getPropertyName();
 
-        $fieldCriteria = $criteria->getAssociation($accessor);
+        if ($criteria->hasAssociation($accessor)) {
+            $fieldCriteria = $criteria->getAssociation($accessor);
+        } else {
+            $fieldCriteria = new Criteria();
+        }
 
         if ($this->hasCriteriaElements($fieldCriteria)) {
             $this->loadManyToManyWithCriteria($fieldCriteria, $association, $context, $collection);
@@ -505,9 +519,12 @@ class EntityReader implements EntityReaderInterface
     private function loadOneToMany(ReadCriteria $criteria, string $definition, OneToManyAssociationField $association, Context $context, EntityCollection $collection): void
     {
         /** @var string|EntityDefinition $definition */
-        $fieldCriteria = $criteria->getAssociation(
-            $definition::getEntityName() . '.' . $association->getPropertyName()
-        );
+        $accessor = $definition::getEntityName() . '.' . $association->getPropertyName();
+        if (!$criteria->hasAssociation($accessor)) {
+            $fieldCriteria = new Criteria();
+        } else {
+            $fieldCriteria = $criteria->getAssociation($accessor);
+        }
 
         if ($association instanceof SearchKeywordAssociationField) {
             $fieldCriteria->addFilter(new TermQuery('search_document.entity', $definition::getEntityName()));
@@ -555,10 +572,14 @@ class EntityReader implements EntityReaderInterface
 
         //create new read criteria for the association without pre fetched ids
         $readCriteria = new ReadCriteria([]);
-        $readCriteria->setFilters($fieldCriteria->getAllFilters()->getQueries());
-        $readCriteria->setSortings($fieldCriteria->getSortings());
-        $readCriteria->setAssociations($fieldCriteria->getAssociations());
+        $readCriteria->addFilter(...$fieldCriteria->getFilters());
+        $readCriteria->addPostFilter(...$fieldCriteria->getPostFilters());
+        $readCriteria->addSorting(...$fieldCriteria->getSorting());
         $readCriteria->addFilter(new TermsQuery($propertyAccessor, $ids));
+
+        foreach ($fieldCriteria->getAssociations() as $key => $associationCriteria) {
+            $readCriteria->addAssociation($key, $associationCriteria);
+        }
 
         $referenceClass = $association->getReferenceClass();
         $collectionClass = $referenceClass::getCollectionClass();
@@ -595,12 +616,13 @@ class EntityReader implements EntityReaderInterface
         $propertyAccessor = $association->getReferenceClass()::getEntityName() . '.' . $propertyName;
 
         //inject sorting for foreign key, otherwise the internal counter wouldn't work `order by customer_address.customer_id, other_sortings`
-        $fieldCriteria->setSortings(
-            array_merge(
-                [new FieldSorting($propertyAccessor, FieldSorting::ASCENDING)],
-                $fieldCriteria->getSortings()
-            )
+        $sorting = array_merge(
+            [new FieldSorting($propertyAccessor, FieldSorting::ASCENDING)],
+            $fieldCriteria->getSorting()
         );
+
+        $fieldCriteria->resetSorting();
+        $fieldCriteria->addSorting(...$sorting);
 
         //add terms query to filter reference table to loaded root entities: `customer_address.customerId IN (:loadedIds)`
         $fieldCriteria->addFilter(new TermsQuery($propertyAccessor, array_values($collection->getIds())));
@@ -617,7 +639,9 @@ class EntityReader implements EntityReaderInterface
 
         //create new read criteria for the association
         $readCriteria = new ReadCriteria($ids);
-        $readCriteria->setAssociations($fieldCriteria->getAssociations());
+        foreach ($fieldCriteria->getAssociations() as $key => $associationCriteria) {
+            $readCriteria->addAssociation($key, $associationCriteria);
+        }
 
         $referenceClass = $association->getReferenceClass();
         $collectionClass = $referenceClass::getCollectionClass();
@@ -694,8 +718,9 @@ class EntityReader implements EntityReaderInterface
         $accessor = $association->getReferenceDefinition()::getEntityName() . '.' . $reference->getPropertyName() . '.id';
 
         $criteria = new ReadCriteria([]);
-        $criteria->setSortings($fieldCriteria->getSortings());
-        $criteria->setFilters($fieldCriteria->getFilters()->getQueries());
+        $criteria->addSorting(...$fieldCriteria->getSorting());
+        $criteria->addFilter(...$fieldCriteria->getFilters());
+        $criteria->addPostFilter(...$fieldCriteria->getPostFilters());
         $criteria->setLimit($fieldCriteria->getLimit());
         $criteria->setOffset($fieldCriteria->getOffset());
         $criteria->addFilter(new TermsQuery($accessor, $collection->getIds()));
@@ -861,10 +886,16 @@ class EntityReader implements EntityReaderInterface
         if ($criteria->getLimit() !== null) {
             return true;
         }
-        if (!empty($criteria->getSortings())) {
+
+        if (!empty($criteria->getSorting())) {
             return true;
         }
-        if (!empty($criteria->getAllFilters()->getQueries())) {
+
+        if (!empty($criteria->getFilters())) {
+            return true;
+        }
+
+        if (!empty($criteria->getPostFilters())) {
             return true;
         }
 

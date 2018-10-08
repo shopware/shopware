@@ -76,7 +76,7 @@ class EntitySearcher implements EntitySearcherInterface
 
         $total = $this->getTotalCount($criteria, $data);
 
-        if ($criteria->fetchCount() === Criteria::FETCH_COUNT_NEXT_PAGES) {
+        if ($criteria->getFetchCount() === Criteria::FETCH_COUNT_NEXT_PAGES) {
             $data = \array_slice($data, 0, $criteria->getLimit());
         }
 
@@ -93,10 +93,10 @@ class EntitySearcher implements EntitySearcherInterface
     private function addFetchCount(Criteria $criteria, QueryBuilder $query): void
     {
         //requires total count for query? add save SQL_CALC_FOUND_ROWS
-        if ($criteria->fetchCount() === Criteria::FETCH_COUNT_NONE) {
+        if ($criteria->getFetchCount() === Criteria::FETCH_COUNT_NONE) {
             return;
         }
-        if ($criteria->fetchCount() === Criteria::FETCH_COUNT_NEXT_PAGES) {
+        if ($criteria->getFetchCount() === Criteria::FETCH_COUNT_NEXT_PAGES) {
             $query->setMaxResults($criteria->getLimit() * 6 + 1);
 
             return;
@@ -109,7 +109,7 @@ class EntitySearcher implements EntitySearcherInterface
 
     private function getTotalCount(Criteria $criteria, array $data): int
     {
-        if ($criteria->fetchCount() === Criteria::FETCH_COUNT_TOTAL) {
+        if ($criteria->getFetchCount() === Criteria::FETCH_COUNT_TOTAL) {
             return (int) $this->connection->fetchColumn('SELECT FOUND_ROWS()');
         }
 

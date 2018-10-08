@@ -65,7 +65,7 @@ class OrderPageLoader
     {
         $pageCount = (int) floor($orders->getTotal() / $criteria->getLimit());
 
-        if ($criteria->fetchCount() !== Criteria::FETCH_COUNT_NEXT_PAGES) {
+        if ($criteria->getFetchCount() !== Criteria::FETCH_COUNT_NEXT_PAGES) {
             return max(1, $pageCount);
         }
 

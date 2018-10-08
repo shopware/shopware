@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\ORM\Search;
 
 use Shopware\Core\Framework\ORM\Search\Aggregation\Aggregation;
-use Shopware\Core\Framework\ORM\Search\Query\NestedQuery;
 use Shopware\Core\Framework\ORM\Search\Query\Query;
 use Shopware\Core\Framework\ORM\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\ORM\Search\Sorting\FieldSorting;
@@ -27,7 +26,7 @@ class Criteria extends Struct
     /**
      * @var FieldSorting[]
      */
-    protected $sortings = [];
+    protected $sorting = [];
 
     /**
      * @var Query[]
@@ -69,141 +68,6 @@ class Criteria extends Struct
      */
     protected $associations = [];
 
-    /**
-     * @return FieldSorting[]
-     */
-    public function getSortings(): array
-    {
-        return $this->sortings;
-    }
-
-    /**
-     * @return Aggregation[]
-     */
-    public function getAggregations(): array
-    {
-        return $this->aggregations;
-    }
-
-    public function getFilters(): NestedQuery
-    {
-        return new NestedQuery($this->filters);
-    }
-
-    public function getPostFilters(): NestedQuery
-    {
-        return new NestedQuery($this->postFilters);
-    }
-
-    public function getAllFilters(): NestedQuery
-    {
-        return new NestedQuery(array_merge($this->filters, $this->postFilters));
-    }
-
-    public function addFilter(Query $query): self
-    {
-        $this->filters[] = $query;
-
-        return $this;
-    }
-
-    public function addSorting(FieldSorting $sorting): self
-    {
-        $this->sortings[] = $sorting;
-
-        return $this;
-    }
-
-    public function addAggregation(Aggregation $aggregation)
-    {
-        $this->aggregations[] = $aggregation;
-
-        return $this;
-    }
-
-    public function addPostFilter(Query $query): self
-    {
-        $this->postFilters[] = $query;
-
-        return $this;
-    }
-
-    public function addQuery(ScoreQuery $query): self
-    {
-        $this->queries[] = $query;
-
-        return $this;
-    }
-
-    public function addQueries(array $queries): self
-    {
-        foreach ($queries as $query) {
-            $this->addQuery($query);
-        }
-
-        return $this;
-    }
-
-    public function getSortingFields(): array
-    {
-        $fields = [];
-        foreach ($this->sortings as $sorting) {
-            foreach ($sorting->getFields() as $field) {
-                $fields[] = $field;
-            }
-        }
-
-        return $fields;
-    }
-
-    public function getAggregationFields(): array
-    {
-        $fields = [];
-        foreach ($this->aggregations as $aggregation) {
-            foreach ($aggregation->getFields() as $field) {
-                $fields[] = $field;
-            }
-        }
-
-        return $fields;
-    }
-
-    public function getPostFilterFields(): array
-    {
-        $fields = [];
-        foreach ($this->postFilters as $filter) {
-            foreach ($filter->getFields() as $field) {
-                $fields[] = $field;
-            }
-        }
-
-        return $fields;
-    }
-
-    public function getQueryFields(): array
-    {
-        $fields = [];
-        foreach ($this->queries as $query) {
-            foreach ($query->getFields() as $field) {
-                $fields[] = $field;
-            }
-        }
-
-        return $fields;
-    }
-
-    public function getFilterFields(): array
-    {
-        $fields = [];
-        foreach ($this->filters as $filter) {
-            foreach ($filter->getFields() as $field) {
-                $fields[] = $field;
-            }
-        }
-
-        return $fields;
-    }
-
     public function getOffset(): ?int
     {
         return $this->offset;
@@ -214,24 +78,41 @@ class Criteria extends Struct
         return $this->limit;
     }
 
-    public function setOffset(?int $offset): void
-    {
-        $this->offset = $offset;
-    }
-
-    public function setLimit(?int $limit): void
-    {
-        $this->limit = $limit;
-    }
-
-    public function fetchCount(): int
+    public function getFetchCount(): int
     {
         return $this->fetchCount;
     }
 
-    public function setFetchCount(int $fetchCount): void
+    /**
+     * @return FieldSorting[]
+     */
+    public function getSorting(): array
     {
-        $this->fetchCount = $fetchCount;
+        return $this->sorting;
+    }
+
+    /**
+     * @return Aggregation[]
+     */
+    public function getAggregations(): array
+    {
+        return $this->aggregations;
+    }
+
+    /**
+     * @return Query[]
+     */
+    public function getFilters(): array
+    {
+        return $this->filters;
+    }
+
+    /**
+     * @return Query[]
+     */
+    public function getPostFilters(): array
+    {
+        return $this->postFilters;
     }
 
     /**
@@ -242,53 +123,140 @@ class Criteria extends Struct
         return $this->queries;
     }
 
-    public function addSortings(array $sortings): void
-    {
-        array_map([$this, 'addSorting'], $sortings);
-    }
-
-    public function setAggregations(array $aggregations): void
-    {
-        $this->aggregations = $aggregations;
-    }
-
-    public function addAssociation(string $field, ?Criteria $criteria = null): void
-    {
-        $this->associations[$field] = $criteria ?? new self();
-    }
-
     public function getAssociations(): array
     {
         return $this->associations;
     }
 
+    /**
+     * @throws \InvalidArgumentException
+     */
     public function getAssociation(string $field): Criteria
     {
-        return $this->associations[$field] ?? new self();
+        if (!$this->hasAssociation($field)) {
+            throw new \InvalidArgumentException('Association does not exist in criteria.');
+        }
+
+        return $this->associations[$field];
     }
 
-    public function setSortings(array $sortings): void
+    public function addFilter(Query ...$queries): self
     {
-        $this->sortings = $sortings;
+        foreach ($queries as $query) {
+            $this->filters[] = $query;
+        }
+
+        return $this;
     }
 
-    public function setAssociations(array $associations): void
+    public function addSorting(FieldSorting ...$sorting): self
+    {
+        foreach ($sorting as $sort) {
+            $this->sorting[] = $sort;
+        }
+
+        return $this;
+    }
+
+    public function addAggregation(Aggregation ...$aggregations): self
+    {
+        foreach ($aggregations as $aggregation) {
+            $this->aggregations[] = $aggregation;
+        }
+
+        return $this;
+    }
+
+    public function addPostFilter(Query ...$queries): self
+    {
+        foreach ($queries as $query) {
+            $this->postFilters[] = $query;
+        }
+
+        return $this;
+    }
+
+    public function addQuery(ScoreQuery ...$queries): self
+    {
+        foreach ($queries as $query) {
+            $this->queries[] = $query;
+        }
+
+        return $this;
+    }
+
+    public function addAssociation(string $field, Criteria $criteria = null): self
+    {
+        $this->associations[$field] = $criteria ?? new self();
+
+        return $this;
+    }
+
+    public function hasAssociation(string $field): bool
+    {
+        return isset($this->associations[$field]);
+    }
+
+    public function resetSorting(): self
+    {
+        $this->sorting = [];
+
+        return $this;
+    }
+
+    public function resetAssociations(): self
     {
         $this->associations = [];
-        foreach ($associations as $key => $value) {
-            $this->addAssociation($key, $value);
-        }
+
+        return $this;
     }
 
-    public function setQueries(array $queries): void
+    public function resetQueries(): self
     {
         $this->queries = [];
-        array_map([$this, 'addQuery'], $queries);
+
+        return $this;
     }
 
-    public function setFilters(array $filters): void
+    public function resetFilters(): self
     {
         $this->filters = [];
-        array_map([$this, 'addFilter'], $filters);
+
+        return $this;
+    }
+
+    public function resetPostFilters(): self
+    {
+        $this->postFilters = [];
+
+        return $this;
+    }
+
+    public function resetAggregations(): self
+    {
+        $this->aggregations = [];
+
+        return $this;
+    }
+
+    public function setFetchCount(int $fetchCount): self
+    {
+        $this->fetchCount = $fetchCount;
+
+        return $this;
+    }
+
+    public function setLimit(?int $limit): self
+    {
+        $this->limit = $limit;
+
+        return $this;
+    }
+
+    public function setOffset(?int $offset): self
+    {
+        $this->offset = $offset;
+
+        return $this;
     }
 }

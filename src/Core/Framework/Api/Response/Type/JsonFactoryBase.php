@@ -48,7 +48,7 @@ abstract class JsonFactoryBase implements ResponseFactoryInterface
             $pagination['prev'] = $this->buildPaginationUrl($uri, $parameters, $limit, $currentPage - 1);
         }
 
-        $fetchCount = $searchResult->getCriteria()->fetchCount();
+        $fetchCount = $searchResult->getCriteria()->getFetchCount();
         switch ($fetchCount) {
             case Criteria::FETCH_COUNT_NONE:
                 if ($searchResult->getTotal() >= $limit) {

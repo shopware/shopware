@@ -27,7 +27,6 @@ use Shopware\Core\Framework\ORM\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\ORM\Write\FieldAware\StorageAware;
 use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\Deferred;
-use Shopware\Core\Framework\ORM\Write\Flag\DelayedLoad;
 use Shopware\Core\Framework\ORM\Write\Flag\Extension;
 use Shopware\Core\Framework\ORM\Write\Flag\Inherited;
 use Shopware\Core\Framework\Struct\ArrayStruct;
@@ -445,10 +444,6 @@ class EntityReader implements EntityReaderInterface
 
     private function shouldBeLoadedDelayed(Field $association, string $definition, array $fields): bool
     {
-        if ($association->is(DelayedLoad::class)) {
-            return true;
-        }
-
         /** @var Field $field */
         foreach ($fields as $field) {
             if (!$field instanceof AssociationInterface) {
@@ -468,10 +463,6 @@ class EntityReader implements EntityReaderInterface
 
             if ($field->is(Deferred::class)) {
                 continue;
-            }
-
-            if ($field->is(DelayedLoad::class)) {
-                return true;
             }
 
             $nested = $reference::getFields()->filterBasic()->getElements();

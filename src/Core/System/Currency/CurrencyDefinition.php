@@ -51,7 +51,7 @@ class CurrencyDefinition extends EntityDefinition
             new CreatedAtField(),
             new UpdatedAtField(),
             (new OneToManyAssociationField('salesChannelDefaultAssignments', SalesChannelDefinition::class, 'currency_id', false, 'id'))->setFlags(new RestrictDelete()),
-            (new TranslationsAssociationField('translations', CurrencyTranslationDefinition::class, 'currency_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
+            (new TranslationsAssociationField(CurrencyTranslationDefinition::class))->setFlags(new Required(), new CascadeDelete()),
             (new OneToManyAssociationField('orders', OrderDefinition::class, 'currency_id', false, 'id'))->setFlags(new RestrictDelete()),
             new OneToManyAssociationField('productPriceRules', ProductPriceRuleDefinition::class, 'currency_id', false, 'id'),
             new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelCurrencyDefinition::class, false, 'currency_id', 'sales_channel_id'),

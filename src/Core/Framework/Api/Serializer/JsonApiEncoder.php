@@ -180,7 +180,7 @@ class JsonApiEncoder
             return;
         }
 
-        if ($field instanceof  ManyToManyAssociationField) {
+        if ($field instanceof ManyToManyAssociationField) {
             $foreignKey = [];
 
             if ($value instanceof EntityCollection) {

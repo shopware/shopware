@@ -232,8 +232,8 @@ class TranslationTest extends TestCase
         $translations = $result->getEventByDefinition(CurrencyTranslationDefinition::class);
         static::assertCount(2, $translations->getIds());
         $languageIds = array_column($translations->getPayload(), 'languageId');
-        static::assertContains(Defaults::LANGUAGE, $languageIds);
         static::assertContains($germanLanguageId, $languageIds);
+        static::assertContains(Defaults::LANGUAGE, $languageIds);
 
         $payload1 = $translations->getPayload()[0];
         $payload2 = $translations->getPayload()[1];

@@ -2,7 +2,11 @@
 
 namespace Shopware\Core\Framework\ORM\Field;
 
-class OneToManyAssociationField extends SubresourceField implements AssociationInterface
+use Shopware\Core\Framework\ORM\Write\DataStack\KeyValuePair;
+use Shopware\Core\Framework\ORM\Write\EntityExistence;
+use Shopware\Core\Framework\ORM\Write\FieldException\MalformatDataException;
+
+class OneToManyAssociationField extends Field implements AssociationInterface
 {
     use AssociationTrait;
 
@@ -23,10 +27,11 @@ class OneToManyAssociationField extends SubresourceField implements AssociationI
         bool $loadInBasic,
         string $localField = 'id'
     ) {
-        parent::__construct($propertyName, $referenceClass);
+        parent::__construct($propertyName);
         $this->loadInBasic = $loadInBasic;
         $this->localField = $localField;
         $this->referenceField = $referenceField;
+        $this->referenceClass = $referenceClass;
     }
 
     public function getReferenceField(): string
@@ -37,5 +42,37 @@ class OneToManyAssociationField extends SubresourceField implements AssociationI
     public function getLocalField(): string
     {
         return $this->localField;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function invoke(EntityExistence $existence, KeyValuePair $data): \Generator
+    {
+        $key = $data->getKey();
+        $value = $data->getValue();
+
+        if (!\is_array($value)) {
+            throw new MalformatDataException($this->path . '/' . $key, 'Value must be an array.');
+        }
+
+        foreach ($value as $keyValue => $subresources) {
+            if (!\is_array($subresources)) {
+                throw new MalformatDataException($this->path . '/' . $key, 'Value must be an array.');
+            }
+
+            $this->writeResource->extract(
+                $subresources,
+                $this->referenceClass,
+                $this->exceptionStack,
+                $this->commandQueue,
+                $this->writeContext,
+                $this->fieldExtenderCollection,
+                $this->path . '/' . $key . '/' . $keyValue
+            );
+        }
+
+        return;
+        yield __CLASS__ => __METHOD__;
     }
 }

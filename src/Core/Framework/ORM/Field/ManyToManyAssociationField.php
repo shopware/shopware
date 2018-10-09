@@ -7,7 +7,7 @@ use Shopware\Core\Framework\ORM\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\ORM\Write\EntityExistence;
 use Shopware\Core\Framework\ORM\Write\FieldException\MalformatDataException;
 
-class ManyToManyAssociationField extends SubresourceField implements AssociationInterface
+class ManyToManyAssociationField extends Field implements AssociationInterface
 {
     use AssociationTrait;
 
@@ -51,8 +51,9 @@ class ManyToManyAssociationField extends SubresourceField implements Association
         string $sourceColumn = 'id',
         string $referenceColumn = 'id'
     ) {
-        parent::__construct($propertyName, $mappingDefinition);
+        parent::__construct($propertyName);
         $this->referenceDefinition = $referenceClass;
+        $this->referenceClass = $mappingDefinition;
         $this->loadInBasic = $loadInBasic;
         $this->mappingDefinition = $mappingDefinition;
         $this->mappingLocalColumn = $mappingLocalColumn;
@@ -106,8 +107,6 @@ class ManyToManyAssociationField extends SubresourceField implements Association
             throw new MalformatDataException($this->path . '/' . $key, 'Value must be an array.');
         }
 
-        $isNumeric = array_keys($value) === range(0, \count($value) - 1);
-
         $mappingAssociation = $this->getMappingAssociation();
 
         foreach ($value as $keyValue => $subresources) {
@@ -118,10 +117,6 @@ class ManyToManyAssociationField extends SubresourceField implements Association
 
             if (!\is_array($mapped)) {
                 throw new MalformatDataException($this->path . '/' . $key, 'Value must be an array.');
-            }
-
-            if ($this->possibleKey && !$isNumeric) {
-                $mapped[$this->possibleKey] = $keyValue;
             }
 
             $this->writeResource->extract(
@@ -141,7 +136,7 @@ class ManyToManyAssociationField extends SubresourceField implements Association
 
     private function getMappingAssociation(): ?ManyToOneAssociationField
     {
-        $associations = $this->getReferenceClass()::getFields()->filterInstance(AssociationInterface::class);
+        $associations = $this->getReferenceClass()::getFields()->filterInstance(ManyToOneAssociationField::class);
 
         /** @var ManyToOneAssociationField $association */
         foreach ($associations as $association) {

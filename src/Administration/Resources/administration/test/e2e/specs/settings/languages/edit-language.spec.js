@@ -16,8 +16,8 @@ module.exports = {
             .setValue('input[name=sw-field--language-name]', 'Pseudo-American english')
             .setValue('select[name=sw-field--language-localeId]', 'English, United Kingdom (en_GB)')
             .setValue('select[name=sw-field--language-parentId]', 'English')
-            .waitForElementPresent('.sw_settings_language_detail__save-action')
-            .click('.sw_settings_language_detail__save-action')
+            .waitForElementPresent('.sw-settings-language-detail__save-action')
+            .click('.sw-settings-language-detail__save-action')
             .waitForElementVisible('.sw-notifications .sw-alert')
             .assert.containsText('.sw-alert__message', 'The language Pseudo-American english has been saved successfully.')
             .assert.urlContains('#/sw/settings/language/detail');
@@ -28,20 +28,20 @@ module.exports = {
             .waitForElementVisible('.sw-settings-language-list-grid')
             .click('.sw-alert button.sw-alert__close')
             .waitForElementNotPresent('.sw-alert__message')
-            .waitForElementVisible('.sw-grid-row:last-child .sw-language-list__column-language-name')
-            .assert.containsText('.sw-grid-row:last-child .sw-language-list__column-language-name', 'Pseudo-American english');
+            .waitForElementVisible('.sw-grid-row:last-child .sw-language-list__column-name')
+            .assert.containsText('.sw-grid-row:last-child .sw-language-list__column-name', 'Pseudo-American english');
     },
     'edit language': (browser) => {
         browser
-            .assert.containsText('.sw-grid-row:last-child .sw-language-list__column-language-name', 'Pseudo-American english')
+            .assert.containsText('.sw-grid-row:last-child .sw-language-list__column-name', 'Pseudo-American english')
             .click('.sw-grid-row:last-child .sw-context-button__button')
             .waitForElementPresent('body > .sw-context-menu')
-            .click('body > .sw-context-menu .sw-language-list__language-edit-action')
+            .click('body > .sw-context-menu .sw-language-list__edit-action')
             .waitForElementVisible('.sw-settings-language-detail .sw-card__content')
             .clearValue('input[name=sw-field--language-name]')
             .setValue('input[name=sw-field--language-name]', 'Very Pseudo-American english')
-            .waitForElementPresent('.sw_settings_language_detail__save-action')
-            .click('.sw_settings_language_detail__save-action')
+            .waitForElementPresent('.sw-settings-language-detail__save-action')
+            .click('.sw-settings-language-detail__save-action')
             .waitForElementVisible('.sw-notifications .sw-alert')
             .assert.containsText('.sw-alert__message', 'The language Very Pseudo-American english has been saved successfully.')
             .assert.urlContains('#/sw/settings/language/detail');
@@ -52,12 +52,12 @@ module.exports = {
             .waitForElementVisible('.sw-settings-language-list-grid')
             .click('.sw-alert button.sw-alert__close')
             .waitForElementNotPresent('.sw-alert__message')
-            .waitForElementVisible('.sw-grid-row:last-child .sw-language-list__column-language-name')
-            .assert.containsText('.sw-grid-row:last-child .sw-language-list__column-language-name', 'Very Pseudo-American english');
+            .waitForElementVisible('.sw-grid-row:last-child .sw-language-list__column-name')
+            .assert.containsText('.sw-grid-row:last-child .sw-language-list__column-name', 'Very Pseudo-American english');
     },
     'delete language': (browser) => {
         browser
-            .assert.containsText('.sw-grid-row:last-child .sw-language-list__column-language-name', 'Very Pseudo-American english')
+            .assert.containsText('.sw-grid-row:last-child .sw-language-list__column-name', 'Very Pseudo-American english')
             .click('.sw-grid-row:last-child .sw-context-button__button')
             .waitForElementPresent('body > .sw-context-menu')
             .click('body > .sw-context-menu .sw-context-menu-item--danger')

@@ -55,7 +55,7 @@
                                         {% block sw_product_list_grid_columns %}
 
                                             {% block sw_settings_language_list_columns_name %}
-                                                <sw-grid-column class="sw-language-list__column-language-name" flex="minmax(180px, 1fr)"
+                                                <sw-grid-column class="sw-language-list__column-name" flex="minmax(180px, 1fr)"
                                                                 editable
                                                                 :label="$tc('sw-settings-language.list.columnName')">
 
@@ -93,7 +93,7 @@
                                                     <sw-context-button>
 
                                                         {% block sw_settings_language_list_columns_actions_edit %}
-                                                            <sw-context-menu-item class="sw-language-list__language-edit-action" :routerLink="{ name: 'sw.settings.language.detail', params: { id: item.id } }">
+                                                            <sw-context-menu-item class="sw-language-list__edit-action" :routerLink="{ name: 'sw.settings.language.detail', params: { id: item.id } }">
                                                                 {{ $tc('sw-settings-language.list.contextMenuEdit') }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}

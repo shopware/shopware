@@ -17,8 +17,8 @@ module.exports = {
             .setValue('input[name=sw-field--currency-shortName]', 'Yen')
             .setValue('input[name=sw-field--currency-symbol]', '¥')
             .setValue('input[name=sw-field--currency-factor]', '0.0076')
-            .waitForElementPresent('.sw_settings_currency_detail__save-action')
-            .click('.sw_settings_currency_detail__save-action')
+            .waitForElementPresent('.sw-settings-currency-detail__save-action')
+            .click('.sw-settings-currency-detail__save-action')
             .waitForElementVisible('.sw-notifications .sw-alert')
             .assert.containsText('.sw-alert__message', 'The currency Yen has been saved successfully.')
             .assert.urlContains('#/sw/settings/currency/detail');
@@ -29,12 +29,12 @@ module.exports = {
             .waitForElementVisible('.sw-settings-currency-list-grid')
             .click('.sw-alert button.sw-alert__close')
             .waitForElementNotPresent('.sw-alert__message')
-            .waitForElementVisible('.sw-grid-row:last-child .sw-currency-list__column-currency-name')
-            .assert.containsText('.sw-grid-row:last-child .sw-currency-list__column-currency-name', 'Yen');
+            .waitForElementVisible('.sw-grid-row:last-child .sw-currency-list__column-name')
+            .assert.containsText('.sw-grid-row:last-child .sw-currency-list__column-name', 'Yen');
     },
     'delete currency': (browser) => {
         browser
-            .assert.containsText('.sw-grid-row:last-child .sw-currency-list__column-currency-name', 'Yen')
+            .assert.containsText('.sw-grid-row:last-child .sw-currency-list__column-name', 'Yen')
             .click('.sw-grid-row:last-child .sw-context-button__button')
             .waitForElementPresent('body > .sw-context-menu')
             .click('body > .sw-context-menu .sw-context-menu-item--danger')

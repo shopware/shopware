@@ -15,7 +15,7 @@ module.exports = {
             .assert.containsText('.sw-card__title', 'Settings')
             .setValue('input[name=sw-field--tax-name]', 'High tax')
             .setValue('input[name=sw-field--tax-taxRate]', '99')
-            .click('.smart-bar__actions button.sw-button--primary')
+            .click('.sw-settings-tax-detail__save-action')
             .waitForElementVisible('.sw-notifications .sw-alert')
             .assert.containsText('.sw-alert__message', 'The tax High tax has been saved successfully.')
             .assert.urlContains('#/sw/settings/tax/detail');
@@ -29,15 +29,15 @@ module.exports = {
     },
     'edit tax': (browser) => {
         browser
-            .assert.containsText('.sw-grid-row:last-child .sw-tax-list__column-tax-name', 'High tax')
+            .assert.containsText('.sw-grid-row:last-child .sw-tax-list__column-name', 'High tax')
             .click('.sw-grid-row:last-child .sw-context-button__button')
             .waitForElementPresent('body > .sw-context-menu')
-            .click('body > .sw-context-menu .sw-tax-list__tax-edit-action')
+            .click('body > .sw-context-menu .sw-tax-list__edit-action')
             .waitForElementVisible('.sw-settings-tax-detail .sw-card__content')
             .clearValue('input[name=sw-field--tax-name]')
             .setValue('input[name=sw-field--tax-name]', 'Even higher tax rate')
-            .waitForElementPresent('.sw_settings_tax_detail__save-action')
-            .click('.sw_settings_tax_detail__save-action')
+            .waitForElementPresent('.sw-settings-tax-detail__save-action')
+            .click('.sw-settings-tax-detail__save-action')
             .waitForElementVisible('.sw-notifications .sw-alert')
             .assert.containsText('.sw-alert__message', 'The tax Even higher tax rate has been saved successfully.')
             .assert.urlContains('#/sw/settings/tax/detail');
@@ -48,12 +48,12 @@ module.exports = {
             .waitForElementVisible('.sw-settings-tax-list-grid')
             .click('.sw-alert button.sw-alert__close')
             .waitForElementNotPresent('.sw-alert__message')
-            .waitForElementVisible('.sw-grid-row:last-child .sw-tax-list__column-tax-name')
-            .assert.containsText('.sw-grid-row:last-child .sw-tax-list__column-tax-name', 'Even higher tax rate');
+            .waitForElementVisible('.sw-grid-row:last-child .sw-tax-list__column-name')
+            .assert.containsText('.sw-grid-row:last-child .sw-tax-list__column-name', 'Even higher tax rate');
     },
     'delete tax': (browser) => {
         browser
-            .assert.containsText('.sw-grid-row:last-child .sw-tax-list__column-tax-name', 'Even higher tax rate')
+            .assert.containsText('.sw-grid-row:last-child .sw-tax-list__column-name', 'Even higher tax rate')
             .click('.sw-grid-row:last-child .sw-context-button__button')
             .waitForElementPresent('body > .sw-context-menu')
             .click('body > .sw-context-menu .sw-context-menu-item--danger')

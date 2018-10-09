@@ -16,7 +16,7 @@ module.exports = {
             .setValue('input[name=sw-field--country-name]', '1.Niemandsland')
             .waitForElementPresent('input[name=sw-field--country-active]')
             .click('input[name=sw-field--country-active]')
-            .click('.sw_settings_country_detail__save-action')
+            .click('.sw-settings-country-detail__save-action')
             .waitForElementVisible('.sw-notifications .sw-alert')
             .assert.containsText('.sw-alert__message', 'The country 1.Niemandsland has been saved successfully.')
             .assert.urlContains('#/sw/settings/country/detail');
@@ -27,12 +27,12 @@ module.exports = {
             .waitForElementVisible('.sw-settings-country-list-grid')
             .click('.sw-alert button.sw-alert__close')
             .waitForElementNotPresent('.sw-alert__message')
-            .waitForElementVisible('.sw-country-list__column-country-name:first-child')
-            .assert.containsText('.sw-country-list__column-country-name:first-child', '1.Niemandsland');
+            .waitForElementVisible('.sw-country-list__column-name:first-child')
+            .assert.containsText('.sw-country-list__column-name:first-child', '1.Niemandsland');
     },
     'delete country': (browser) => {
         browser
-            .assert.containsText('.sw-country-list__column-country-name:first-child', '1.Niemandsland')
+            .assert.containsText('.sw-country-list__column-name:first-child', '1.Niemandsland')
             .click('.sw-grid-row:first-child .sw-context-button__button')
             .waitForElementPresent('body > .sw-context-menu')
             .click('body > .sw-context-menu .sw-context-menu-item--danger')

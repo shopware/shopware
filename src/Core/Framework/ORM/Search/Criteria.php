@@ -128,16 +128,9 @@ class Criteria extends Struct
         return $this->associations;
     }
 
-    /**
-     * @throws \InvalidArgumentException
-     */
-    public function getAssociation(string $field): Criteria
+    public function getAssociation(string $field): ?Criteria
     {
-        if (!$this->hasAssociation($field)) {
-            throw new \InvalidArgumentException('Association does not exist in criteria.');
-        }
-
-        return $this->associations[$field];
+        return $this->associations[$field] ?? null;
     }
 
     public function addFilter(Query ...$queries): self

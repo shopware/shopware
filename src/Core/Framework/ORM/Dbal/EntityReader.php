@@ -235,14 +235,12 @@ class EntityReader implements EntityReaderInterface
             if ($field instanceof ManyToManyAssociationField) {
                 if ($criteria !== null && $criteria->hasAssociation($accessor)) {
                     $fieldCriteria = $criteria->getAssociation($accessor);
-                } else {
-                    $fieldCriteria = new Criteria();
+                    if ($this->hasCriteriaElements($fieldCriteria)) {
+                        continue;
+                    }
                 }
 
                 //requested a paginated, filtered or sorted list
-                if ($this->hasCriteriaElements($fieldCriteria)) {
-                    continue;
-                }
 
                 $this->addManyToManySelect($definition, $root, $field, $query);
                 continue;
@@ -371,14 +369,11 @@ class EntityReader implements EntityReaderInterface
 
         if ($criteria->hasAssociation($accessor)) {
             $fieldCriteria = $criteria->getAssociation($accessor);
-        } else {
-            $fieldCriteria = new Criteria();
-        }
+            if ($this->hasCriteriaElements($fieldCriteria)) {
+                $this->loadManyToManyWithCriteria($fieldCriteria, $association, $context, $collection);
 
-        if ($this->hasCriteriaElements($fieldCriteria)) {
-            $this->loadManyToManyWithCriteria($fieldCriteria, $association, $context, $collection);
-
-            return;
+                return;
+            }
         }
 
         $this->loadManyToManyOverExtension($association, $context, $collection);

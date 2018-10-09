@@ -50,7 +50,7 @@ class PaginationSubscriber implements EventSubscriberInterface
         $criteria = $event->getCriteria();
         $criteria->setOffset(($page - 1) * $limit);
         $criteria->setLimit($limit);
-        $criteria->setFetchCount(Criteria::FETCH_COUNT_NEXT_PAGES);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NEXT_PAGES);
     }
 
     public function buildPage(ListingPageLoadedEvent $event): void
@@ -69,7 +69,7 @@ class PaginationSubscriber implements EventSubscriberInterface
     {
         $pageCount = (int) floor($products->getTotal() / $criteria->getLimit());
 
-        if ($criteria->getFetchCount() !== Criteria::FETCH_COUNT_NEXT_PAGES) {
+        if ($criteria->getTotalCountMode() !== Criteria::TOTAL_COUNT_MODE_NEXT_PAGES) {
             return max(1, $pageCount);
         }
 

@@ -48,15 +48,15 @@ abstract class JsonFactoryBase implements ResponseFactoryInterface
             $pagination['prev'] = $this->buildPaginationUrl($uri, $parameters, $limit, $currentPage - 1);
         }
 
-        $fetchCount = $searchResult->getCriteria()->getFetchCount();
-        switch ($fetchCount) {
-            case Criteria::FETCH_COUNT_NONE:
+        $totalCountMode = $searchResult->getCriteria()->getTotalCountMode();
+        switch ($totalCountMode) {
+            case Criteria::TOTAL_COUNT_MODE_NONE:
                 if ($searchResult->getTotal() >= $limit) {
                     $pagination['next'] = $this->buildPaginationUrl($uri, $parameters, $limit, $currentPage + 1);
                 }
                 break;
 
-            case Criteria::FETCH_COUNT_TOTAL:
+            case Criteria::TOTAL_COUNT_MODE_EXACT:
                 $lastPage = (int) ceil($searchResult->getTotal() / $limit);
                 $lastPage = $lastPage >= 1 ? $lastPage : 1;
                 $pagination['last'] = $this->buildPaginationUrl($uri, $parameters, $limit, $lastPage);
@@ -66,7 +66,7 @@ abstract class JsonFactoryBase implements ResponseFactoryInterface
                 }
                 break;
 
-            case Criteria::FETCH_COUNT_NEXT_PAGES:
+            case Criteria::TOTAL_COUNT_MODE_NEXT_PAGES:
                 $remaining = $searchResult->getTotal();
                 $maxFetchCount = $limit * 5 + 1;
                 if ($remaining && $remaining > $limit) {

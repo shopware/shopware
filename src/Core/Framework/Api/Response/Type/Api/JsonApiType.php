@@ -63,7 +63,7 @@ class JsonApiType extends JsonFactoryBase
         $rootNode['links']['self'] = $request->getUri();
 
         $rootNode['meta'] = [
-            'fetchCount' => $searchResult->getCriteria()->getFetchCount(),
+            'totalCountMode' => $searchResult->getCriteria()->getTotalCountMode(),
             'total' => $searchResult->getTotal(),
         ];
 

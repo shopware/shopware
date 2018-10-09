@@ -129,7 +129,7 @@ class GenerateThumbnailsCommand extends Command
     private function getMediaCount(Context $context): int
     {
         $criteria = new Criteria();
-        $criteria->setFetchCount(Criteria::FETCH_COUNT_TOTAL);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
         $criteria->setLimit(0);
         $result = $this->mediaRepository->search($criteria, $context);
 
@@ -165,7 +165,7 @@ class GenerateThumbnailsCommand extends Command
     private function createCriteria(): Criteria
     {
         $criteria = new Criteria();
-        $criteria->setFetchCount(Criteria::FETCH_COUNT_NEXT_PAGES);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NEXT_PAGES);
         $criteria->setLimit($this->batchSize);
 
         return $criteria;

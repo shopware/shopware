@@ -180,7 +180,7 @@ class StorefrontSalesChannelController extends Controller
         $criteria->addFilter(new TermQuery($definition::getEntityName() . '.salesChannels.id', $context->getSalesChannel()->getId()));
         $criteria->setLimit($limit);
         $criteria->setOffset($page * $limit);
-        $criteria->setFetchCount(Criteria::FETCH_COUNT_NEXT_PAGES);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NEXT_PAGES);
 
         return $criteria;
     }
@@ -205,7 +205,7 @@ class StorefrontSalesChannelController extends Controller
         $criteria->addFilter(new TermQuery('country_state.country.id', $countryId));
         $criteria->setLimit($limit);
         $criteria->setOffset($page * $limit);
-        $criteria->setFetchCount(Criteria::FETCH_COUNT_NEXT_PAGES);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NEXT_PAGES);
 
         return $criteria;
     }

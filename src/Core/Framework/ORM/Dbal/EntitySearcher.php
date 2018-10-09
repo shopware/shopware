@@ -68,7 +68,7 @@ class EntitySearcher implements EntitySearcherInterface
             $query->setMaxResults($criteria->getLimit());
         }
 
-        $this->addFetchCount($criteria, $query);
+        $this->addTotalCountMode($criteria, $query);
 
         //execute and fetch ids
         $data = $query->execute()->fetchAll();
@@ -76,7 +76,7 @@ class EntitySearcher implements EntitySearcherInterface
 
         $total = $this->getTotalCount($criteria, $data);
 
-        if ($criteria->getFetchCount() === Criteria::FETCH_COUNT_NEXT_PAGES) {
+        if ($criteria->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_NEXT_PAGES) {
             $data = \array_slice($data, 0, $criteria->getLimit());
         }
 
@@ -90,13 +90,13 @@ class EntitySearcher implements EntitySearcherInterface
         return new IdSearchResult($total, $converted, $criteria, $context);
     }
 
-    private function addFetchCount(Criteria $criteria, QueryBuilder $query): void
+    private function addTotalCountMode(Criteria $criteria, QueryBuilder $query): void
     {
         //requires total count for query? add save SQL_CALC_FOUND_ROWS
-        if ($criteria->getFetchCount() === Criteria::FETCH_COUNT_NONE) {
+        if ($criteria->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_NONE) {
             return;
         }
-        if ($criteria->getFetchCount() === Criteria::FETCH_COUNT_NEXT_PAGES) {
+        if ($criteria->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_NEXT_PAGES) {
             $query->setMaxResults($criteria->getLimit() * 6 + 1);
 
             return;
@@ -109,7 +109,7 @@ class EntitySearcher implements EntitySearcherInterface
 
     private function getTotalCount(Criteria $criteria, array $data): int
     {
-        if ($criteria->getFetchCount() === Criteria::FETCH_COUNT_TOTAL) {
+        if ($criteria->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_EXACT) {
             return (int) $this->connection->fetchColumn('SELECT FOUND_ROWS()');
         }
 

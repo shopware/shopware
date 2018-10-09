@@ -13,15 +13,15 @@ class Criteria extends Struct
     /**
      * no total count will be selected. Should be used if no pagination required (fastest)
      */
-    public const FETCH_COUNT_NONE = 0;
+    public const TOTAL_COUNT_MODE_NONE = 0;
     /**
      * exact total count will be selected. Should be used if an exact pagination is required (slow)
      */
-    public const FETCH_COUNT_TOTAL = 1;
+    public const TOTAL_COUNT_MODE_EXACT = 1;
     /**
      * fetches limit * 5 + 1. Should be used if pagination can work with "next page exists" (fast)
      */
-    public const FETCH_COUNT_NEXT_PAGES = 2;
+    public const TOTAL_COUNT_MODE_NEXT_PAGES = 2;
 
     /**
      * @var FieldSorting[]
@@ -61,7 +61,7 @@ class Criteria extends Struct
     /**
      * @var int
      */
-    protected $fetchCount = self::FETCH_COUNT_NONE;
+    protected $totalCountMode = self::TOTAL_COUNT_MODE_NONE;
 
     /**
      * @var Criteria[]
@@ -78,9 +78,9 @@ class Criteria extends Struct
         return $this->limit;
     }
 
-    public function getFetchCount(): int
+    public function getTotalCountMode(): int
     {
-        return $this->fetchCount;
+        return $this->totalCountMode;
     }
 
     /**
@@ -239,9 +239,9 @@ class Criteria extends Struct
         return $this;
     }
 
-    public function setFetchCount(int $fetchCount): self
+    public function setTotalCountMode(int $totalCountMode): self
     {
-        $this->fetchCount = $fetchCount;
+        $this->totalCountMode = $totalCountMode;
 
         return $this;
     }

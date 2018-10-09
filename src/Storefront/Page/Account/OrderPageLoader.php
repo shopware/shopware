@@ -56,7 +56,7 @@ class OrderPageLoader
         $criteria->addSorting(new FieldSorting('order.date', FieldSorting::DESCENDING));
         $criteria->setLimit($limit);
         $criteria->setOffset($page * $limit);
-        $criteria->setFetchCount(Criteria::FETCH_COUNT_NEXT_PAGES);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NEXT_PAGES);
 
         return $criteria;
     }
@@ -65,7 +65,7 @@ class OrderPageLoader
     {
         $pageCount = (int) floor($orders->getTotal() / $criteria->getLimit());
 
-        if ($criteria->getFetchCount() !== Criteria::FETCH_COUNT_NEXT_PAGES) {
+        if ($criteria->getTotalCountMode() !== Criteria::TOTAL_COUNT_MODE_NEXT_PAGES) {
             return max(1, $pageCount);
         }
 

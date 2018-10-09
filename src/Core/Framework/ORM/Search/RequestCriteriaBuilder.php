@@ -74,11 +74,11 @@ class RequestCriteriaBuilder
     {
         $searchException = new SearchRequestException();
 
-        $criteria->setFetchCount(Criteria::FETCH_COUNT_TOTAL);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
         $criteria->setLimit(10);
 
-        if (isset($payload['fetch-count'])) {
-            $criteria->setFetchCount((int) $payload['fetch-count']);
+        if (isset($payload['total-count-mode'])) {
+            $criteria->setTotalCountMode((int) $payload['total-count-mode']);
         }
 
         if (isset($payload['limit'])) {

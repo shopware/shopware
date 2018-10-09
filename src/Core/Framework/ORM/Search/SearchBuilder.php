@@ -47,7 +47,7 @@ class SearchBuilder
 
             $queries = $this->scoreBuilder->buildScoreQueries($pattern, $definition, $definition::getEntityName());
 
-            $criteria->addQueries($queries);
+            $criteria->addQuery(...$queries);
 
             return;
         }

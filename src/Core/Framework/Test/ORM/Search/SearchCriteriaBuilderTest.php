@@ -44,30 +44,30 @@ class SearchCriteriaBuilderTest extends TestCase
     }
 
     /**
-     * FETCH-COUNT
+     * TOTAL-COUNT-MODE
      */
-    public function testListFetchCount(): void
+    public function testListTotalCountMode(): void
     {
         for ($i = 0; $i < 35; ++$i) {
             $this->createManufacturer(['link' => 'test']);
         }
 
         // no count, equals to fetched entities
-        $this->getClient()->request('GET', $this->url . '/product-manufacturer', ['fetch-count' => Criteria::FETCH_COUNT_NONE, 'filter' => ['product_manufacturer.link' => 'test'], 'limit' => 5]);
+        $this->getClient()->request('GET', $this->url . '/product-manufacturer', ['total-count-mode' => Criteria::TOTAL_COUNT_MODE_NONE, 'filter' => ['product_manufacturer.link' => 'test'], 'limit' => 5]);
         static::assertSame(200, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
         $content = \json_decode($this->getClient()->getResponse()->getContent(), true);
 
         static::assertEquals(5, $content['meta']['total'], print_r($content, true));
 
         // calculates all matching rows
-        $this->getClient()->request('GET', $this->url . '/product-manufacturer', ['fetch-count' => Criteria::FETCH_COUNT_TOTAL, 'filter' => ['product_manufacturer.link' => 'test'], 'limit' => 5]);
+        $this->getClient()->request('GET', $this->url . '/product-manufacturer', ['total-count-mode' => Criteria::TOTAL_COUNT_MODE_EXACT, 'filter' => ['product_manufacturer.link' => 'test'], 'limit' => 5]);
         static::assertSame(200, $this->getClient()->getResponse()->getStatusCode());
         $content = json_decode($this->getClient()->getResponse()->getContent(), true);
 
         static::assertEquals(35, $content['meta']['total']);
 
         // returns the count of 5 next pages plus 1 if there are more
-        $this->getClient()->request('GET', $this->url . '/product-manufacturer', ['fetch-count' => Criteria::FETCH_COUNT_NEXT_PAGES, 'filter' => ['product_manufacturer.link' => 'test'], 'limit' => 5]);
+        $this->getClient()->request('GET', $this->url . '/product-manufacturer', ['total-count-mode' => Criteria::TOTAL_COUNT_MODE_NEXT_PAGES, 'filter' => ['product_manufacturer.link' => 'test'], 'limit' => 5]);
         static::assertSame(200, $this->getClient()->getResponse()->getStatusCode());
         $content = json_decode($this->getClient()->getResponse()->getContent(), true);
 

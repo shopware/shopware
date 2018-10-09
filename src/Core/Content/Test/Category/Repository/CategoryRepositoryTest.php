@@ -202,7 +202,7 @@ class CategoryRepositoryTest extends TestCase
 
         $pattern = $this->getContainer()->get(SearchTermInterpreter::class)->interpret('match');
         $queries = $builder->buildScoreQueries($pattern, CategoryDefinition::class, 'category');
-        $criteria->addQueries($queries);
+        $criteria->addQuery(...$queries);
 
         $result = $this->repository->searchIds($criteria, Context::createDefaultContext(Defaults::TENANT_ID));
 

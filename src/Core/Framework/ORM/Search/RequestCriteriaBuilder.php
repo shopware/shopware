@@ -74,11 +74,11 @@ class RequestCriteriaBuilder
     {
         $searchException = new SearchRequestException();
 
-        $criteria->setFetchCount(Criteria::FETCH_COUNT_TOTAL);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
         $criteria->setLimit(10);
 
-        if (isset($payload['fetch-count'])) {
-            $criteria->setFetchCount((int) $payload['fetch-count']);
+        if (isset($payload['total-count-mode'])) {
+            $criteria->setTotalCountMode((int) $payload['total-count-mode']);
         }
 
         if (isset($payload['limit'])) {
@@ -392,14 +392,15 @@ class RequestCriteriaBuilder
     private function addSorting(array $payload, Criteria $criteria, string $definition, SearchRequestException $searchException): void
     {
         if (\is_array($payload['sort'])) {
-            $criteria->addSortings($this->parseSorting($definition, $payload['sort']));
+            $sorting = $this->parseSorting($definition, $payload['sort']);
+            $criteria->addSorting(...$sorting);
 
             return;
         }
 
         try {
             $sorting = $this->parseSimpleSorting($definition, $payload['sort']);
-            $criteria->addSortings($sorting);
+            $criteria->addSorting(...$sorting);
         } catch (InvalidSortQueryException $ex) {
             $searchException->add($ex, '/sort');
         }

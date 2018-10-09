@@ -298,7 +298,7 @@ class StorefrontCustomerController extends Controller
         $criteria->addSorting(new FieldSorting('order.date', FieldSorting::DESCENDING));
         $criteria->setLimit($limit);
         $criteria->setOffset($page * $limit);
-        $criteria->setFetchCount(Criteria::FETCH_COUNT_NEXT_PAGES);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NEXT_PAGES);
 
         return $this->orderRepository->search($criteria, $context->getContext())->getElements();
     }

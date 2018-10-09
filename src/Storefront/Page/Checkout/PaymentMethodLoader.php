@@ -39,7 +39,7 @@ class PaymentMethodLoader
         $criteria->setOffset(($page - 1) * $limit);
         $criteria->setLimit($limit);
         $criteria->addFilter(new TermQuery('payment_method.active', 1));
-        $criteria->setFetchCount(Criteria::FETCH_COUNT_TOTAL);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
 
         return $criteria;
     }

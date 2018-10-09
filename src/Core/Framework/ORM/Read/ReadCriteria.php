@@ -26,12 +26,12 @@ class ReadCriteria extends Criteria
         return $this->ids;
     }
 
-    public function addAggregation(Aggregation $aggregation)
+    public function addAggregation(Aggregation ...$aggregations): Criteria
     {
         throw new \RuntimeException('Aggregations are not supported in a read request');
     }
 
-    public function setAggregations(array $aggregations): void
+    public function resetAggregations(Aggregation ...$aggregations): Criteria
     {
         throw new \RuntimeException('Aggregations are not supported in a read request');
     }

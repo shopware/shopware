@@ -110,7 +110,7 @@ describe('core/service/jsonapi-parser.service.js', () => {
                 expect(data.links.self).to.be.a('string');
 
                 expect(data.meta).to.be.an('object');
-                expect(data.meta.fetchCount).to.be.a('number');
+                expect(data.meta.totalCountMode).to.be.a('number');
                 expect(data.meta.total).to.be.a('number');
                 done();
             })
@@ -168,10 +168,10 @@ describe('core/service/jsonapi-parser.service.js', () => {
                     expect(data.links.last).to.be.a('string');
                     expect(data.links.self).to.be.a('string');
 
-                    expect(data.meta.fetchCount).to.be.a('number');
+                    expect(data.meta.totalCountMode).to.be.a('number');
                     expect(data.meta.total).to.be.a('number');
 
-                    expect(data.meta.fetchCount).to.be.equal(1);
+                    expect(data.meta.totalCountMode).to.be.equal(1);
                     expect(data.meta.total).to.be.equal(1);
 
                     catalogEntity.delete(true).then(() => {

@@ -24,6 +24,7 @@ use Shopware\Core\Framework\ORM\Search\AggregatorResult;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\ORM\Search\Parser\SqlQueryParser;
+use Shopware\Core\Framework\ORM\Search\Query\NestedQuery;
 use Shopware\Core\Framework\Struct\Uuid;
 
 /**
@@ -93,7 +94,7 @@ class EntityAggregator implements EntityAggregatorInterface
         }
 
         $fields = array_merge(
-            $criteria->getFilterFields(),
+            $this->getFilterFields($criteria),
             $aggregation->getFields()
         );
 
@@ -108,7 +109,8 @@ class EntityAggregator implements EntityAggregatorInterface
             $this->queryHelper->resolveField($parent, $definition, $table, $query, $context);
         }
 
-        $parsed = $this->queryParser->parse($criteria->getFilters(), $definition, $context);
+        $filterQuery = new NestedQuery($criteria->getFilters());
+        $parsed = $this->queryParser->parse($filterQuery, $definition, $context);
         if (!empty($parsed->getWheres())) {
             $query->andWhere(implode(' AND ', $parsed->getWheres()));
             foreach ($parsed->getParameters() as $key => $value) {
@@ -220,5 +222,22 @@ class EntityAggregator implements EntityAggregatorInterface
         throw new \RuntimeException(
             sprintf('Aggregation of type %s not supported', \get_class($aggregation))
         );
+    }
+
+    /**
+     * @param Criteria $criteria
+     *
+     * @return string[]
+     */
+    private function getFilterFields(Criteria $criteria): array
+    {
+        $fields = [];
+        foreach ($criteria->getFilters() as $filter) {
+            foreach ($filter->getFields() as $field) {
+                $fields[] = $field;
+            }
+        }
+
+        return $fields;
     }
 }

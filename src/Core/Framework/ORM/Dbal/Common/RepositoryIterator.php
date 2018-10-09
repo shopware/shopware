@@ -42,7 +42,7 @@ class RepositoryIterator
         $criteria = clone $this->criteria;
         $criteria->setOffset(0);
         $criteria->setLimit(1);
-        $criteria->setFetchCount(Criteria::FETCH_COUNT_TOTAL);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
 
         $result = $this->repository->searchIds($criteria, $this->context);
 
@@ -51,7 +51,7 @@ class RepositoryIterator
 
     public function fetchIds(): ?array
     {
-        $this->criteria->setFetchCount(Criteria::FETCH_COUNT_NONE);
+        $this->criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
         $ids = $this->repository->searchIds($this->criteria, $this->context);
         $this->criteria->setOffset($this->criteria->getOffset() + $this->criteria->getLimit());
 
@@ -64,7 +64,7 @@ class RepositoryIterator
 
     public function fetch(): ?EntitySearchResult
     {
-        $this->criteria->setFetchCount(Criteria::FETCH_COUNT_NONE);
+        $this->criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
 
         /** @var EntitySearchResult $result */
         $result = $this->repository->search($this->criteria, $this->context);

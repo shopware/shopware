@@ -9,7 +9,6 @@ use Shopware\Core\Framework\ORM\Search\Aggregation\AggregationResult;
 use Shopware\Core\Framework\ORM\Search\Aggregation\EntityAggregation;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\NestedQuery;
-use Shopware\Core\Framework\ORM\Search\Query\NotQuery;
 use Shopware\Core\Framework\ORM\Search\Query\Query;
 use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
 use Shopware\Storefront\Event\ListingEvents;
@@ -113,7 +112,7 @@ class ManufacturerAggregationSubscriber implements EventSubscriberInterface
 
         $criteria = $event->getPage()->getCriteria();
 
-        $filter = $this->getFilter($criteria->getPostFilters());
+        $filter = $this->getFilter(...$criteria->getPostFilters());
 
         $active = $filter !== null;
 
@@ -139,20 +138,18 @@ class ManufacturerAggregationSubscriber implements EventSubscriberInterface
         );
     }
 
-    private function getFilter(NestedQuery $nested): ?TermsQuery
+    private function getFilter(Query ...$nested): ?TermsQuery
     {
-        /** @var Query $query */
-        foreach ($nested->getQueries() as $query) {
+        foreach ($nested as $query) {
             if ($query instanceof TermsQuery && $query->getField() === self::PRODUCT_MANUFACTURER_ID) {
                 return $query;
             }
 
-            if (!$query instanceof NestedQuery || !$query instanceof NotQuery) {
+            if (!$query instanceof NestedQuery) {
                 continue;
             }
 
-            $found = $this->getFilter($query);
-
+            $found = $this->getFilter(...$query->getQueries());
             if ($found) {
                 return $found;
             }

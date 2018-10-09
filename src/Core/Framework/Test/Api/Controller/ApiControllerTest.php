@@ -390,7 +390,7 @@ EOF;
         $data = [
             'page' => 1,
             'limit' => 5,
-            'fetch-count' => Criteria::FETCH_COUNT_TOTAL,
+            'total-count-mode' => Criteria::TOTAL_COUNT_MODE_EXACT,
             'sort' => [
                 [
                     'field' => 'product.stock',

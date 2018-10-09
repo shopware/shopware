@@ -292,37 +292,6 @@ class MigrationRuntimeTest extends TestCase
         self::assertSame('update', $migrations[3]['message']);
     }
 
-    public function test_it_creates_and_drops_triggers()
-    {
-        $this->collector->addDirectory(
-            __DIR__ . '/_test_migrations_valid_trigger',
-            'Shopware\Core\Framework\Test\Migration\_test_migrations_valid_trigger'
-        );
-        $this->loader->syncMigrationCollection();
-
-        $runner = $this->runner->migrate();
-        while ($runner->valid()) {
-            $runner->next();
-        }
-
-        $triggers = $this->connection->executeQuery('SHOW TRIGGERS')->fetchAll();
-        self::assertEquals(2, count($triggers));
-        self::assertEquals('testTriggerInsert', $triggers[0]['Trigger']);
-        self::assertEquals('testTriggerUpdate', $triggers[1]['Trigger']);
-
-        $runner = $this->runner->migrateDestructive();
-        while ($runner->valid()) {
-            $runner->next();
-        }
-
-        $triggers = $this->connection->executeQuery('SHOW TRIGGERS')->fetchAll();
-        self::assertEquals(0, count($triggers));
-
-        $this->connection->executeQuery('
-            DELETE FROM `migration` WHERE `class` LIKE "%_test_migrations_valid_trigger%"
-        ');
-    }
-
     private function getMigrations(): array
     {
         return $this->connection->createQueryBuilder()

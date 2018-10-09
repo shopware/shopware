@@ -20,6 +20,7 @@ class Framework extends Bundle
     public const VERSION = '___VERSION___';
     public const VERSION_TEXT = '___VERSION_TEXT___';
     public const REVISION = '___REVISION___';
+    public const BUNDLE_DIR = __DIR__;
 
     protected $name = 'Shopware';
 
@@ -38,7 +39,7 @@ class Framework extends Bundle
     {
         parent::build($container);
 
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
+        $loader = new XmlFileLoader($container, new FileLocator(self::BUNDLE_DIR . '/DependencyInjection/'));
         $loader->load('services.xml');
         $loader->load('orm.xml');
         $loader->load('filesystem.xml');

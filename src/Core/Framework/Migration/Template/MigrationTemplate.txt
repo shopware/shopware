@@ -21,12 +21,4 @@ class Migration%%timestamp%% extends MigrationStep
     {
         // implement update destructive
     }
-
-    /**
-     * @return Trigger[]
-     */
-    protected function getTrigger(): array
-    {
-        // implement necessary triggers
-    }
 }

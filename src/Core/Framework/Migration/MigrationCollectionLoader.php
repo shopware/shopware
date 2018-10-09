@@ -39,14 +39,7 @@ class MigrationCollectionLoader
      */
     public function getActiveMigrationTimestamps(): array
     {
-        $activeMigrations = [];
-
-        /** @var MigrationStep $migration */
-        foreach ($this->collection->getMigrationCollection() as $migration) {
-            $activeMigrations[] = $migration->getCreationTimestamp();
-        }
-
-        return $activeMigrations;
+        return $this->collection->getActiveMigrationTimestamps();
     }
 
     /**

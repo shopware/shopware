@@ -3,10 +3,7 @@
 namespace Shopware\Core\Version;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use Shopware\Core\Framework\Migration\TriggerCollection\UnidirectionalTriggerCollection;
-use Shopware\Core\Framework\Migration\TriggerDirection;
 
 class Migration1537420769AddFileName extends MigrationStep
 {
@@ -26,21 +23,43 @@ class Migration1537420769AddFileName extends MigrationStep
             UPDATE `media`
             SET `file_name` = `id`;
         ');
+
+        foreach ($this->getTrigger() as $trigger) {
+            $this->addForwardTrigger(
+                $connection,
+                $trigger['name'],
+                $trigger['table'],
+                $trigger['time'],
+                $trigger['event'],
+                $trigger['statement']
+            );
+        }
     }
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
+        foreach ($this->getTrigger() as $trigger) {
+            $this->removeTrigger($connection, $trigger['name']);
+        }
     }
 
-    public function getTrigger(): array
+    private function getTrigger(): array
     {
-        return (new UnidirectionalTriggerCollection(
-            'updateMediaFileName',
-            TriggerDirection::FORWARD,
-            MediaDefinition::getEntityName(),
-            'file_name',
-            'id'
-        ))->getTrigger();
+        return [
+            [
+                'name' => 'trigger_1537420769_copy_id_to_filename_insert',
+                'table' => 'media',
+                'time' => 'BEFORE',
+                'event' => 'INSERT',
+                'statement' => 'SET NEW.file_name = NEW.id',
+            ],
+            [
+                'name' => 'trigger_1537420769_copy_id_to_filename_update',
+                'table' => 'media',
+                'time' => 'BEFORE',
+                'event' => 'UPDATE',
+                'statement' => 'SET NEW.file_name = NEW.id',
+            ],
+        ];
     }
 }

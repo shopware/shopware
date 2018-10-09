@@ -6,49 +6,68 @@ use Doctrine\DBAL\Connection;
 
 abstract class MigrationStep
 {
+    const MIGRATION_VARIABLE_FORMAT = '@MIGRATION_%s_IS_ACTIVE';
+
     /**
      * get creation timestamp
      */
-    public function getCreationTimestamp(): int
-    {
-        return 1;
-    }
+    abstract public function getCreationTimestamp(): int;
 
     /**
      * update non-destructive changes
      */
-    public function update(Connection $connection): void
-    {
-    }
+    abstract public function update(Connection $connection): void;
 
     /**
      * update destructive changes
      */
-    public function updateDestructive(Connection $connection): void
-    {
-    }
+    abstract public function updateDestructive(Connection $connection): void;
 
-    public function addTrigger(Connection $connection): void
+    public function removeTrigger(Connection $connection, string $name): void
     {
-        /** @var Trigger $trigger */
-        foreach ($this->getTrigger() as $trigger) {
-            $trigger->add($connection, $this->getCreationTimestamp());
-        }
-    }
-
-    public function removeTrigger(Connection $connection): void
-    {
-        /** @var Trigger $trigger */
-        foreach ($this->getTrigger() as $trigger) {
-            $trigger->drop($connection);
-        }
+        $connection->executeQuery(sprintf('DROP TRIGGER %s', $name));
     }
 
     /**
-     * @return Trigger[]
+     * FORWARD triggers are executed when an old application has to work with a newer Database
+     * and has to keep it update-safe
      */
-    protected function getTrigger(): array
+    protected function addForwardTrigger(Connection $connection, string $name, string $table, string $time, string $event, string $statements)
     {
-        return [];
+        $this->addTrigger($connection, $name, $table, $time, $event, $statements, '');
+    }
+
+    /**
+     * BACKWARD triggers are executed when the new application works with the new Database
+     * and has to keep it rollback-safe
+     */
+    protected function addBackwardTrigger(Connection $connection, string $name, string $table, string $time, string $event, string $statements)
+    {
+        $this->addTrigger($connection, $name, $table, $time, $event, $statements, 'IS NULL');
+    }
+
+    protected function addTrigger(Connection $connection, string $name, string $table, string $time, string $event, string $statements, string $condition): void
+    {
+        $query = sprintf(
+            'CREATE TRIGGER %s
+            %s %s ON `%s` FOR EACH ROW
+            thisTrigger: BEGIN
+                IF (%s %s)
+                THEN 
+                    LEAVE thisTrigger;
+                END IF;
+                
+                %s;
+            END;
+            ',
+            $name,
+            $time,
+            $event,
+            $table,
+            sprintf(self::MIGRATION_VARIABLE_FORMAT, $this->getCreationTimestamp()),
+            $condition,
+            $statements
+        );
+        $connection->exec($query);
     }
 }

@@ -46,9 +46,7 @@ class MigrationCommand extends Command
 
     protected function getMigrationGenerator(?int $until, ?int $limit): \Generator
     {
-        foreach ($this->runner->migrate($until, $limit) as $migration) {
-            yield $migration;
-        }
+        yield from $this->runner->migrate($until, $limit);
     }
 
     protected function getMigrationsCount(?int $until, ?int $limit)

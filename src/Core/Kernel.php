@@ -8,7 +8,7 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Framework\Api\Controller\ApiController;
 use Shopware\Core\Framework\Framework;
-use Shopware\Core\Framework\Migration\Trigger;
+use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\BundleCollection;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
@@ -318,10 +318,14 @@ class Kernel extends HttpKernel
         $activeNonDestructiveMigrations = array_intersect($activeMigrations, $nonDestructiveMigrations);
 
         foreach ($activeNonDestructiveMigrations as $migration) {
-            $variableName = sprintf(Trigger::TRIGGER_VARIABLE_FORMAT, $migration);
-            $connection->executeQuery(sprintf('
-                SET %s = TRUE;
-            ', $variableName));
+            $connectionVariables[] = sprintf(
+                'SET %s = TRUE;',
+                sprintf(MigrationStep::MIGRATION_VARIABLE_FORMAT, $migration)
+            );
+        }
+
+        if (isset($connectionVariables)) {
+            $connection->executeQuery(implode('; ', $connectionVariables));
         }
     }
 }

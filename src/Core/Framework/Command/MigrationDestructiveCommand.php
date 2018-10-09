@@ -11,9 +11,7 @@ class MigrationDestructiveCommand extends MigrationCommand
 
     protected function getMigrationGenerator(?int $until, ?int $limit): \Generator
     {
-        foreach ($this->runner->migrateDestructive($until, $limit) as $migration) {
-            yield $migration;
-        }
+        yield from $this->runner->migrateDestructive($until, $limit);
     }
 
     protected function getMigrationsCount(?int $until, ?int $limit)

@@ -2,71 +2,102 @@
 
 namespace Shopware\Core\Framework\Migration;
 
-use Doctrine\DBAL\Connection;
-
 class Trigger
 {
-    const TRIGGER_VARIABLE_FORMAT = '@MIGRATION_%s_IS_ACTIVE';
+    const TIME_BEFORE = 'BEFORE';
+    const TIME_AFTER = 'AFTER';
 
-    /** @var string */
+    const EVENT_INSERT = 'INSERT';
+    const EVENT_UPDATE = 'UPDATE';
+    const EVENT_DELETE = 'DELETE';
+
+    /**
+     * @var string
+     */
     protected $name;
 
-    /** @var string */
-    protected $time;
-
-    /** @var string */
-    protected $event;
-
-    /** @var string */
-    protected $direction;
-
-    /** @var string */
+    /**
+     * @var string
+     */
     protected $table;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     protected $onTrigger;
 
-    public function __construct(string $name, string $time, string $event, string $direction, string $table, string $onTrigger)
+    /**
+     * @var string
+     */
+    protected $time;
+
+    /**
+     * @var string
+     */
+    protected $event;
+
+    public function __construct(string $name, string $table, string $time, string $event, string $onTrigger)
     {
         $this->name = $name;
-        $this->time = $time;
-        $this->event = $event;
-        $this->direction = $direction;
+        $this->time = $this->validateArgumentTime($time);
+        $this->event = $this->validateArgumentEvent($event);
         $this->table = $table;
         $this->onTrigger = $onTrigger;
     }
 
-    public function add(Connection $connection, int $migrationTimeStamp): void
+    public function getName(): string
     {
-        $connection->executeQuery(sprintf('
-        DROP TRIGGER IF EXISTS %s;
-        CREATE TRIGGER %s
-        %s %s ON `%s` FOR EACH ROW
-        thisTrigger: BEGIN
-            IF (%s %s)
-            THEN 
-                LEAVE thisTrigger;
-            END IF;
-            
-            %s;
-        END;      
-        ',
-            $this->name,
-            $this->name,
-            $this->time,
-            $this->event,
-            $this->table,
-            sprintf(self::TRIGGER_VARIABLE_FORMAT, $migrationTimeStamp),
-            $this->direction === TriggerDirection::BACKWARD ? 'IS NULL' : '',
-            $this->onTrigger
-        ));
+        return $this->name;
     }
 
-    public function drop(Connection $connection): void
+    public function getTable(): string
     {
-        $connection->executeQuery(sprintf('
-        DROP TRIGGER IF EXISTS %s
-        ', $this->name
-        ));
+        return $this->table;
+    }
+
+    public function getOnTrigger(): string
+    {
+        return $this->onTrigger;
+    }
+
+    public function getTime(): string
+    {
+        return $this->time;
+    }
+
+    public function getEvent(): string
+    {
+        return $this->event;
+    }
+
+    private function validateArgumentTime(string $time): string
+    {
+        if (!in_array(
+            $time,
+            [
+                self::TIME_AFTER,
+                self::TIME_BEFORE,
+            ]
+        )) {
+            throw new \InvalidArgumentException('TriggerDefinition: argument time must be either \'BEFORE\' or \'AFTER\'');
+        }
+
+        return $time;
+    }
+
+    private function validateArgumentEvent(string $event): string
+    {
+        if (!in_array(
+            $event,
+            [
+                self::EVENT_INSERT,
+                self::EVENT_UPDATE,
+                self::EVENT_DELETE,
+            ]
+        )) {
+            throw new \InvalidArgumentException('TriggerDefinition: argument time must be either \'INSERT\', \'UPDATE\' or \'DELETE\'');
+        }
+
+        return $event;
     }
 }

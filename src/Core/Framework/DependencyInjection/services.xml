@@ -5,6 +5,7 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <parameters>
+        <parameter key="shopware.bundle.dir" type="constant">Shopware\Core\Framework\Framework::BUNDLE_DIR</parameter>
         <parameter key="shopware.slug.config" type="collection">
             <parameter key="regexp">/([^A-Za-z0-9\.]|-)+/</parameter>
             <parameter key="lowercase">false</parameter>
@@ -12,11 +13,9 @@
 
         <!-- Migration config -->
         <parameter key="migration.directories" type="collection">
-            <parameter key="Shopware\Core\Version" type="constant">Shopware\Core\Framework\Migration\MigrationCollection::CORE_MIGRATIONS</parameter>
+            <parameter key="Shopware\Core\Migration" type="string">%shopware.bundle.dir%/../Migration</parameter>
         </parameter>
-        <parameter key="migration.active" type="collection">
-        </parameter>
-
+        <parameter key="migration.active" type="collection"/>
     </parameters>
 
     <services>

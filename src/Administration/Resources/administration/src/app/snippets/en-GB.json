@@ -505,7 +505,8 @@
       "placeholderDescription": "Enter manufacturer description...",
       "placeholderLink": "Enter manufacturer website...",
       "titleSaveSuccess": "Manufacturer",
-      "messageSaveSuccess": "The manufacturer {name} was saved successfully."
+      "messageSaveSuccess": "The manufacturer {name} was saved successfully.",
+      "addLogoCaption": "Add Logo"
     }
   },
   "sw-order": {

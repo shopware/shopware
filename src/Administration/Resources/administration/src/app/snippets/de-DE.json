@@ -505,7 +505,8 @@
       "placeholderDescription": "Gib eine Herstellerbeschreibung ein...",
       "placeholderLink": "Gib die Herstellerwebseite ein...",
       "titleSaveSuccess": "Hersteller",
-      "messageSaveSuccess": "Der Hersteller {name} wurde erfolgreich gespeichert."
+      "messageSaveSuccess": "Der Hersteller {name} wurde erfolgreich gespeichert.",
+      "addLogoCaption": "Logo hinzufügen"
     }
   },
   "sw-order": {

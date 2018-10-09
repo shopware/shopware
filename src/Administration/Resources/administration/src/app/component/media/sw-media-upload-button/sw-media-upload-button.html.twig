@@ -1,0 +1,59 @@
+{% block sw_media_upload_button %}
+    <div class="sw-media-upload-button">
+        <sw-context-button v-if="compact" :disabled="!catalogId">
+            <template slot="button">
+                {% block sw_media_upload_button %}
+                    <sw-button variant="primary" class="sw-media-upload__context-button">
+                        {{ $tc('sw-media.smart-bar.buttonUpload') }}
+                        <sw-icon name="small-arrow-small-down" decorative></sw-icon>
+                    </sw-button>
+                {% endblock %}
+            </template>
+
+            {% block sw_media_upload_context_item_file_upload %}
+                <sw-context-menu-item @click="onClickUpload">
+                    {{ $tc('sw-media.smart-bar.buttonFileUpload') }}
+                </sw-context-menu-item>
+            {% endblock %}
+
+            {% block sw_media_upload_context_item_url_upload %}
+                <sw-context-menu-item @click="openUrlModal">
+                    {{ $tc('sw-media.smart-bar.buttonUrlUpload') }}
+                </sw-context-menu-item>
+            {% endblock %}
+        </sw-context-button>
+
+        <template v-else>
+            {% block sw_media_upload_url_upload_button %}
+                <sw-button size="small" @click="openUrlModal" :disabled="!catalogId">
+                    {{ $tc('sw-media.smart-bar.buttonUrlUpload') }}
+                </sw-button>
+            {% endblock %}
+            {% block sw_media_upload_file_upload_button %}
+                <sw-button variant="primary" size="small" @click="onClickUpload" :disabled="!catalogId">
+                    {{ $tc('sw-media.smart-bar.buttonFileUpload') }}
+                </sw-button>
+            {% endblock %}
+        </template>
+
+        <form class="sw-media-upload-button__form" ref="fileForm">
+            {% block sw_media_upload_file_input %}
+                <input class="sw-media-upload-button__file-input"
+                       type="file"
+                       id="files"
+                       ref="fileInput"
+                       accept="image/*"
+                       :multiple="allowMultiSelect"
+                       @change="onFileInputChange"/>
+            {% endblock %}
+        </form>
+
+        {% block sw_media_catalog_modal_upload %}
+            <sw-media-upload-url-modal
+                v-if="showUrlModal"
+                @closeModal="closeUrlModal"
+                @sw-media-upload-url-modal-submit="onUrlUpload">
+            </sw-media-upload-url-modal>
+        {% endblock %}
+    </div>
+{% endblock %}

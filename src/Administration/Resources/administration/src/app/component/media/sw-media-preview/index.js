@@ -22,13 +22,21 @@ Component.register('sw-media-preview', {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        transparency: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
 
     computed: {
         mediaPreviewClasses() {
             return {
-                'shows--transparency': (this.checkForFileTypeImage || this.checkForInMemoryFile),
+                'shows--transparency':
+                    (this.checkForFileTypeImage || this.checkForInMemoryFile)
+                    && this.transparency,
                 'is--icon': this.checkForFileTypeSvg
             };
         },

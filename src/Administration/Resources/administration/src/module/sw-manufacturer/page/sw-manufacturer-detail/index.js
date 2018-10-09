@@ -13,13 +13,25 @@ Component.register('sw-manufacturer-detail', {
     data() {
         return {
             manufacturerId: null,
-            manufacturer: {}
+            manufacturer: { isLoading: true },
+            mediaItem: null
         };
     },
 
     computed: {
         manufacturerStore() {
             return State.getStore('product_manufacturer');
+        },
+
+        mediaStore() {
+            return State.getStore('media');
+        },
+
+        logoFieldClasses() {
+            const isLogo = this.manufacturer.mediaId || this.manufacturer.isLoading;
+            return {
+                'sw-manufacturer-image-pane--logo': isLogo
+            };
         }
     },
 
@@ -37,8 +49,26 @@ Component.register('sw-manufacturer-detail', {
         createdComponent() {
             if (this.$route.params.id) {
                 this.manufacturerId = this.$route.params.id;
-                this.manufacturer = this.manufacturerStore.getById(this.manufacturerId);
+                if (this.manufacturer.isLocal) {
+                    return;
+                }
+                this.manufacturerStore.getByIdAsync(this.manufacturerId).then((manufacturer) => {
+                    this.manufacturer = manufacturer;
+                    if (manufacturer.mediaId) {
+                        this.mediaItem = this.mediaStore.getById(this.manufacturer.mediaId);
+                    }
+                });
             }
+        },
+
+        onSuccessfulImageUpload(mediaEntity) {
+            this.mediaItem = mediaEntity;
+            this.manufacturer.mediaId = mediaEntity.id;
+        },
+
+        onUnlinkLogo() {
+            this.mediaItem = null;
+            this.manufacturer.mediaId = null;
         },
 
         onSave() {

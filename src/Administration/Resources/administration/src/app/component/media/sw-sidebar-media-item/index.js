@@ -1,5 +1,6 @@
 import { Component, State, Mixin } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
+import utils from 'src/core/service/util.service';
 import template from './sw-sidebar-media-item.html.twig';
 import './sw-sidebar-media-item.less';
 
@@ -18,7 +19,6 @@ Component.register('sw-sidebar-media-item', {
     data() {
         return {
             isLoading: true,
-            searchTopic: '',
             catalog: null,
             mediaItems: []
         };
@@ -64,6 +64,17 @@ Component.register('sw-sidebar-media-item', {
             this.getList();
         },
 
+        onSearchInput(searchTopic) {
+            this.doListSearch(searchTopic);
+        },
+
+        doListSearch: utils.debounce(function debouncedSearch(searchTopic) {
+            const searchTerm = searchTopic || '';
+            this.term = searchTerm.trim();
+            this.page = 1;
+            this.getList();
+        }, 400),
+
         handleMediaGridItemDelete() {
             this.getList();
         },
@@ -91,6 +102,7 @@ Component.register('sw-sidebar-media-item', {
                 this.mediaItems = response.items;
                 this.total = response.total;
                 this.isLoading = false;
+
                 return this.mediaItems;
             });
         }

@@ -13,7 +13,7 @@
                         <sw-field
                             class="sw-sidebar-media-item__search-input"
                             :placeholder="$tc('global.sw-sidebar-media-item.placeholderSearch')"
-                            v-model="searchTopic">
+                            @input="onSearchInput">
                         </sw-field>
                         <sw-icon class="sw-sidebar-media-item__search-icon" name="small-search" small></sw-icon>
                     </div>

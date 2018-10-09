@@ -37,6 +37,11 @@ class OrderStruct extends Entity
     protected $currencyId;
 
     /**
+     * @var float
+     */
+    protected $currencyFactor;
+
+    /**
      * @var string
      */
     protected $salesChannelId;
@@ -184,6 +189,16 @@ class OrderStruct extends Entity
     public function setCurrencyId(string $currencyId): void
     {
         $this->currencyId = $currencyId;
+    }
+
+    public function getCurrencyFactor(): float
+    {
+        return $this->currencyFactor;
+    }
+
+    public function setCurrencyFactor(float $currencyFactor): void
+    {
+        $this->currencyFactor = $currencyFactor;
     }
 
     public function getSalesChannelId(): string

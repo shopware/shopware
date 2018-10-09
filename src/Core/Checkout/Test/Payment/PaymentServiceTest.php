@@ -206,6 +206,7 @@ class PaymentServiceTest extends TestCase
             'stateId' => Defaults::ORDER_STATE_OPEN,
             'paymentMethodId' => $paymentMethodId,
             'currencyId' => Defaults::CURRENCY,
+            'currencyFactor' => 1.0,
             'salesChannelId' => Defaults::SALES_CHANNEL,
             'billingAddress' => [
                 'salutation' => 'mr',

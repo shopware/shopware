@@ -58,6 +58,8 @@ class OrderConverter
         $cartPrice = $cart->getPrice();
         $cartShippingCosts = $cart->getShippingCosts();
         $cartShippingCostsTotalPrice = $cartShippingCosts->getTotalPrice();
+        $currency = $context->getCurrency();
+
         $data = [
             'id' => Uuid::uuid4()->getHex(),
             'date' => (new DateTime())->format(Defaults::DATE_FORMAT),
@@ -70,7 +72,8 @@ class OrderConverter
             'isTaxFree' => $this->taxDetector->isNetDelivery($context),
             'stateId' => Defaults::ORDER_STATE_OPEN,
             'paymentMethodId' => $context->getPaymentMethod()->getId(),
-            'currencyId' => $context->getCurrency()->getId(),
+            'currencyId' => $currency->getId(),
+            'currencyFactor' => $currency->getFactor(),
             'salesChannelId' => $context->getSalesChannel()->getId(),
             'billingAddressId' => $addressId,
             'lineItems' => [],

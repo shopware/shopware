@@ -36,6 +36,11 @@ class StorefrontCheckoutControllerTest extends TestCase
     private $mediaRepository;
 
     /**
+     * @var RepositoryInterface
+     */
+    private $currencyRepository;
+
+    /**
      * @var string
      */
     private $taxId;
@@ -63,6 +68,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->mediaRepository = $this->getContainer()->get('media.repository');
+        $this->currencyRepository = $this->getContainer()->get('currency.repository');
         $this->taxId = Uuid::uuid4()->getHex();
         $this->manufacturerId = Uuid::uuid4()->getHex();
         $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
@@ -109,6 +115,63 @@ class StorefrontCheckoutControllerTest extends TestCase
         static::assertNotEmpty($order);
 
         static::assertEquals($mail, $order['orderCustomer']['email']);
+    }
+
+    public function testOrderProcessWithDifferentCurrency(): void
+    {
+        $productId = Uuid::uuid4()->getHex();
+        $yen = [
+            'id' => Uuid::uuid4()->getHex(),
+            'symbol' => '¥',
+            'factor' => 131.06,
+            'shortName' => 'Yen',
+            'name' => 'japanese Yen',
+        ];
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $this->currencyRepository->create([$yen], $context);
+        $yenStorefrontClient = $this->createCustomStorefrontClient([
+            'currencyId' => $yen['id'],
+        ]);
+
+        $this->productRepository->create([
+            [
+                'id' => $productId,
+                'name' => 'Test',
+                'catalogId' => Defaults::CATALOG,
+                'price' => ['gross' => 10, 'net' => 9],
+                'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
+                'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
+            ],
+        ], $context);
+
+        $addressId = Uuid::uuid4()->getHex();
+
+        $mail = Uuid::uuid4()->getHex();
+        $password = 'shopware';
+
+        $this->createCutomer($addressId, $mail, $password, $context);
+
+        $client = $this->createCart($yenStorefrontClient);
+
+        $this->addProduct($client, $productId);
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+
+        $this->login($client, $mail, $password);
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+
+        $this->order($client);
+
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+
+        $order = json_decode($client->getResponse()->getContent(), true);
+        static::assertArrayHasKey('data', $order);
+
+        $order = $order['data'];
+        static::assertNotEmpty($order);
+
+        static::assertEquals($mail, $order['orderCustomer']['email']);
+
+        static::assertEquals($yen['factor'], $order['currencyFactor']);
     }
 
     public function testGuestOrderProcess(): void
@@ -593,16 +656,22 @@ class StorefrontCheckoutControllerTest extends TestCase
         ], $context);
     }
 
-    private function createCart(): Client
+    private function createCart(Client $client = null): Client
     {
-        $this->getStorefrontClient()->request('POST', '/storefront-api/checkout/cart');
-        $response = $this->getStorefrontClient()->getResponse();
+        $storefrontClient = $client;
+        if ($client === null) {
+            $storefrontClient = $this->getStorefrontClient();
+        }
+        $storefrontClient->request('POST', '/storefront-api/checkout/cart');
+        $response = $storefrontClient->getResponse();
 
         static::assertEquals(200, $response->getStatusCode(), $response->getContent());
 
         $content = json_decode($response->getContent(), true);
 
-        $client = clone $this->getStorefrontClient();
+        if ($client === null) {
+            $client = clone $storefrontClient;
+        }
         $client->setServerParameter('HTTP_X_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);
 
         return $client;

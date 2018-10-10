@@ -59,7 +59,7 @@
                                                                 editable
                                                                 :label="$tc('sw-settings-country.list.columnName')">
                                                     {% block sw_settings_country_list_columns_name_link %}
-                                                        <router-link :title="$tc('sw-settings-country.list.contextMenuEdit')"
+                                                        <router-link :title="$tc('sw-settings-country.list.contextMenuEdit')" class="sw-country-list__column-name"
                                                                      :to="{ name: 'sw.settings.country.detail', params: { id: item.id } }">
                                                             {% block sw_settings_country_list_columns_name_link %}
                                                                 {{ item.name }}
@@ -99,7 +99,7 @@
                                                     <sw-context-button>
 
                                                         {% block sw_settings_country_list_columns_actions_edit %}
-                                                            <sw-context-menu-item :routerLink="{ name: 'sw.settings.country.detail', params: { id: item.id } }">
+                                                            <sw-context-menu-item class="sw-country-list__edit-action" :routerLink="{ name: 'sw.settings.country.detail', params: { id: item.id } }">
                                                                 {{ $tc('sw-settings-country.list.contextMenuEdit') }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}

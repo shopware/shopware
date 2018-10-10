@@ -17,7 +17,7 @@
                 {% endblock %}
 
                 {% block sw_settings_currency_detail_actions_save %}
-                    <sw-button variant="primary" :disabled="currency.isLoading" @click.prevent="onSave">
+                    <sw-button variant="primary" class="sw-settings-currency-detail__save-action" :disabled="currency.isLoading" @click.prevent="onSave">
                         {{ $tc('sw-settings-currency.detail.buttonSave') }}
                     </sw-button>
                 {% endblock %}

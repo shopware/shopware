@@ -10,7 +10,8 @@ Component.register('sw-settings-language-list', {
 
     data() {
         return {
-            entityName: 'language'
+            entityName: 'language',
+            sortBy: 'language.name'
         };
     },
 

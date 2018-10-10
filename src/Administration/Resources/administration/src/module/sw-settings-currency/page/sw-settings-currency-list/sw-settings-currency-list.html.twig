@@ -48,6 +48,8 @@
                                          class="sw-settings-currency-list-grid"
                                          :selectable="false"
                                          :items="items"
+                                         :sortBy="sortBy"
+                                         :sortDirection="sortDirection"
                                          @inline-edit-cancel="onInlineEditCancel"
                                          @inline-edit-finish="onInlineEditSave"
                                          table>
@@ -60,7 +62,7 @@
                                                                 :label="$tc('sw-settings-currency.list.columnName')">
 
                                                     {% block sw_settings_currency_list_columns_name_link %}
-                                                        <router-link :title="$tc('sw-settings-currency.list.contextMenuEdit')"
+                                                        <router-link class="sw-currency-list__column-name" :title="$tc('sw-settings-currency.list.contextMenuEdit')"
                                                                      :to="{ name: 'sw.settings.currency.detail', params: { id: item.id } }">
                                                             {% block sw_settings_currency_list_columns_name_link %}
                                                                 {{ item.name }}
@@ -123,7 +125,7 @@
                                                     <sw-context-button>
 
                                                         {% block sw_settings_currency_list_columns_actions_edit %}
-                                                            <sw-context-menu-item :routerLink="{ name: 'sw.settings.currency.detail', params: { id: item.id } }">
+                                                            <sw-context-menu-item class="sw-currency-list__edit-action" :routerLink="{ name: 'sw.settings.currency.detail', params: { id: item.id } }">
                                                                 {{ $tc('sw-settings-currency.list.contextMenuEdit') }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}

@@ -1,6 +1,5 @@
 import { Component, State, Mixin } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
-import '../../component/sw-media-upload';
 import template from './sw-media-catalog.html.twig';
 import './sw-media-catalog.less';
 

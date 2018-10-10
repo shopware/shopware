@@ -3,12 +3,13 @@
 namespace src\Core\Content\Test\Media\ORM;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\ORM\MediaRepository;
+use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\ORM\MediaThumbnailRepository;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -16,10 +17,11 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 class MediaThumbnailRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
+
     private const FIXTURE_FILE = __DIR__ . '/../fixtures/shopware-logo.png';
 
     /**
-     * @var MediaRepository
+     * @var RepositoryInterface
      */
     private $mediaRepository;
 
@@ -67,8 +69,10 @@ class MediaThumbnailRepositoryTest extends TestCase
 
     private function createThumbnailWithMedia($mediaId)
     {
-        $this->context->getExtension('write_protection')->set('write_media', true);
-        $this->context->getExtension('write_protection')->set('write_thumbnails', true);
+        $this->context->getWriteProtection()->allow(
+            MediaProtectionFlags::WRITE_META_INFO,
+            MediaProtectionFlags::WRITE_THUMBNAILS
+        );
 
         $this->mediaRepository->create([
             [
@@ -86,8 +90,8 @@ class MediaThumbnailRepositoryTest extends TestCase
             ],
         ], $this->context);
 
-        $this->context->getExtension('write_protection')->set('write_media', false);
-        $this->context->getExtension('write_protection')->set('write_thumbnails', false);
+        $this->context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_META_INFO);
+        $this->context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_THUMBNAILS);
     }
 
     private function createThumbnailFile($mediaId)

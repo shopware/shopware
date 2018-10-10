@@ -89,7 +89,7 @@ class FileSaverTest extends TestCase
         $mediaId = Uuid::uuid4()->getHex();
 
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
-        $context->getExtension('write_protection')->set('write_media', true);
+        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
 
         $this->repository->create(
             [

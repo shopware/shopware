@@ -100,11 +100,11 @@ class FileFetcherTest extends TestCase
 
     public function testFetchFileFromUrlWithUnavailableUrl()
     {
-        $this->expectException(UploadException::class);
-        $this->expectExceptionMessage('url not reachable');
-
-        $url = 'http://localhost';
+        $url = 'http://invalid/host';
         $tempFile = tempnam(sys_get_temp_dir(), '');
+
+        $this->expectException(UploadException::class);
+        $this->expectExceptionMessage("Could open source stream from {$url}");
 
         $this->fileFetcher->fetchFileFromURL(
             new MediaFile($tempFile, 'image/jpeg', 'jpg', 10),

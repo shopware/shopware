@@ -8,15 +8,15 @@ use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
 use Shopware\Core\Content\Media\Exception\ThumbnailCouldNotBeSavedException;
 use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\MediaStruct;
-use Shopware\Core\Content\Media\ORM\MediaRepository;
 use Shopware\Core\Content\Media\ORM\MediaThumbnailRepository;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 
 class ThumbnailService
 {
     /**
-     * @var MediaRepository
+     * @var RepositoryInterface
      */
     private $mediaRepository;
 
@@ -41,7 +41,7 @@ class ThumbnailService
     private $configuration;
 
     public function __construct(
-        MediaRepository $mediaRepository,
+        RepositoryInterface $mediaRepository,
         MediaThumbnailRepository $thumbnailRepository,
         FilesystemInterface $fileSystem,
         UrlGeneratorInterface $urlGenerator,

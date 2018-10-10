@@ -4,9 +4,7 @@ namespace Shopware\Core\Content\Media\File;
 
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
-use Shopware\Core\Content\Media\Exception\IllegalMimeTypeException;
 use Shopware\Core\Content\Media\Exception\MediaNotFoundException;
-use Shopware\Core\Content\Media\Exception\UploadException;
 use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Content\Media\Metadata\Metadata;
@@ -14,16 +12,15 @@ use Shopware\Core\Content\Media\Metadata\MetadataLoader;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
-use Shopware\Core\Framework\ORM\Search\Criteria;
-use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 
 class FileSaver
 {
     /**
      * @var RepositoryInterface
      */
-    protected $repository;
+    protected $mediaRepository;
 
     /**
      * @var FilesystemInterface
@@ -46,13 +43,13 @@ class FileSaver
     private $metadataLoader;
 
     public function __construct(
-        RepositoryInterface $repository,
+        RepositoryInterface $mediaRepository,
         FilesystemInterface $filesystem,
         UrlGeneratorInterface $urlGenerator,
         ThumbnailService $thumbnailService,
         MetadataLoader $metadataLoader
     ) {
-        $this->repository = $repository;
+        $this->mediaRepository = $mediaRepository;
         $this->filesystem = $filesystem;
         $this->urlGenerator = $urlGenerator;
         $this->thumbnailService = $thumbnailService;
@@ -60,19 +57,12 @@ class FileSaver
     }
 
     /**
-     * @throws IllegalMimeTypeException
-     * @throws UploadException
+     * @throws MediaNotFoundException
      */
     public function persistFileToMedia(MediaFile $mediaFile, string $mediaId, Context $context): void
     {
         // @todo remove with NEXT-817
-        $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('id', $mediaId));
-
-        $searchResult = $this->repository->search($criteria, $context);
-        if (($currentMedia = $searchResult->getEntities()->get($mediaId)) === null) {
-            throw new MediaNotFoundException($mediaId);
-        }
+        $currentMedia = $this->getCurrentMedia($mediaId, $context);
 
         $this->removeOldMediaData($currentMedia, $mediaFile, $context);
         $rawMetadata = $this->metadataLoader->loadFromFile($mediaFile);
@@ -87,7 +77,19 @@ class FileSaver
         }
     }
 
-    private function removeOldMediaData(MediaStruct $media, MediaFile $mediaFile, Context $context)
+    private function getCurrentMedia(string $mediaId, Context $context): MediaStruct
+    {
+        $mediaCollection = $this->mediaRepository->read(new ReadCriteria([$mediaId]), $context);
+        $currentMedia = $mediaCollection->get($mediaId);
+
+        if ($currentMedia === null) {
+            throw new MediaNotFoundException($mediaId);
+        }
+
+        return $currentMedia;
+    }
+
+    private function removeOldMediaData(MediaStruct $media, MediaFile $mediaFile, Context $context): void
     {
         if (!$media->hasFile()) {
             return;
@@ -129,7 +131,7 @@ class FileSaver
         ];
 
         $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
-        $this->repository->update([$data], $context);
+        $this->mediaRepository->update([$data], $context);
 
         $media = new MediaStruct();
         $media->assign($data);

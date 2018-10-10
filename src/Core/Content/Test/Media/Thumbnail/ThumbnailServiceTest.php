@@ -13,7 +13,7 @@ use Shopware\Core\Content\Media\Thumbnail\ThumbnailConfiguration;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\ORM\EntityRepository;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -48,7 +48,7 @@ class ThumbnailServiceTest extends TestCase
     private $thumbnailService;
 
     /**
-     * @var EntityRepository
+     * @var RepositoryInterface
      */
     private $mediaRepository;
 

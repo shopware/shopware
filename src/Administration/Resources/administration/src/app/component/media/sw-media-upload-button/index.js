@@ -115,6 +115,7 @@ Component.register('sw-media-upload-button', {
 
             return () => {
                 mediaEntity.save().then(() => {
+                    this.$emit('new-upload-started', mediaEntity);
                     return uploadFn(mediaEntity);
                 }).then(() => {
                     this.notifyMediaUpload(mediaEntity, successMessage);

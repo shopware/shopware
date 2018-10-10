@@ -3,6 +3,7 @@
 namespace src\Core\Content\Test\Media\ORM;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\ORM\MediaRepository;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Defaults;
@@ -36,7 +37,8 @@ class MediaRepositoryTest extends TestCase
     {
         $mediaId = Uuid::uuid4()->getHex();
 
-        $this->context->getExtension('write_protection')->set('write_media', true);
+        $this->context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
+
         $this->mediaRepository->create([
                 [
                     'id' => $mediaId,
@@ -47,7 +49,7 @@ class MediaRepositoryTest extends TestCase
             ],
             $this->context
         );
-        $this->context->getExtension('write_protection')->set('write_media', false);
+        $this->context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_META_INFO);
 
         $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
         $mediaPath = $urlGenerator->getRelativeMediaUrl($mediaId, 'png');
@@ -62,9 +64,11 @@ class MediaRepositoryTest extends TestCase
     public function testDeleteMediaEntityWithThumbnails()
     {
         $mediaId = Uuid::uuid4()->getHex();
+        $this->context->getWriteProtection()->allow(
+            MediaProtectionFlags::WRITE_META_INFO,
+            MediaProtectionFlags::WRITE_THUMBNAILS
+        );
 
-        $this->context->getExtension('write_protection')->set('write_media', true);
-        $this->context->getExtension('write_protection')->set('write_thumbnails', true);
         $this->mediaRepository->create([
             [
                 'id' => $mediaId,
@@ -82,8 +86,8 @@ class MediaRepositoryTest extends TestCase
         ],
             $this->context
         );
-        $this->context->getExtension('write_protection')->set('write_media', false);
-        $this->context->getExtension('write_protection')->set('write_thumbnails', false);
+        $this->context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_META_INFO);
+        $this->context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_THUMBNAILS);
 
         $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
         $mediaPath = $urlGenerator->getRelativeMediaUrl($mediaId, 'png');
@@ -100,12 +104,10 @@ class MediaRepositoryTest extends TestCase
 
     public function testDeleteMediaDeletesOnlyFilesForGivenMediaId()
     {
-        $this->mediaRepository = $this->getContainer()->get('media.repository');
-
         $firstId = Uuid::uuid4()->getHex();
         $secondId = Uuid::uuid4()->getHex();
 
-        $this->context->getExtension('write_protection')->set('write_media', true);
+        $this->context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
         $this->mediaRepository->create([
             [
                 'id' => $firstId,
@@ -122,8 +124,8 @@ class MediaRepositoryTest extends TestCase
         ],
             $this->context
         );
+        $this->context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_META_INFO);
 
-        $this->context->getExtension('write_protection')->set('write_media', false);
         $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
         $firstPath = $urlGenerator->getRelativeMediaUrl($firstId, 'png');
         $secondPath = $urlGenerator->getRelativeMediaUrl($secondId, 'png');

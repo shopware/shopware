@@ -593,7 +593,7 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service class="Shopware\Core\Content\Media\ORM\MediaThumbnailRepository" id="media_thumbnail.repository" public="false">
+        <service class="Shopware\Core\Content\Media\ORM\MediaThumbnailRepository" id="media_thumbnail.repository" public="true">
             <argument>Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailDefinition</argument>
             <argument type="service" id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\VersionManager"/>

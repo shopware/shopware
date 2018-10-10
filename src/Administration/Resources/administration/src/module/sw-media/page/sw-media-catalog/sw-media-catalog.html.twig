@@ -54,11 +54,12 @@
                 {% endblock %}
 
                 {% block sw_media_catalog_smart_bar_media_upload %}
-                    <sw-media-upload
+                    <sw-media-upload-button
                         :catalogId="getCatalogId()"
+                        :compact="true"
                         @new-media-entity="onNewMedia"
                         @new-upload-started="onNewUpload">
-                    </sw-media-upload>
+                    </sw-media-upload-button>
                 {% endblock %}
 
             </template>

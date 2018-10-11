@@ -16,7 +16,7 @@ class Migration1538997464CurrencyFactor extends MigrationStep
     {
         $connection->executeQuery('
             ALTER TABLE `order`
-            ADD COLUMN `currency_factor` DOUBLE NULL
+            ADD COLUMN `currency_factor` DOUBLE NULL AFTER `currency_version_id`
         ');
     }
 

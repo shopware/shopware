@@ -2,10 +2,7 @@ module.exports = {
     '@tags': ['tax-edit', 'tax', 'edit'],
     'open tax module': (browser) => {
         browser
-            .assert.containsText('.sw-settings .collapsible-text', 'Settings')
-            .click('.sw-admin-menu__navigation-link[href="#/sw/settings/index"]')
-            .waitForElementVisible('.sw-settings-item[href="#/sw/settings/tax/index"]')
-            .click('.sw-settings-item[href="#/sw/settings/tax/index"]');
+            .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/tax/index', 'Tax');
     },
     'goto create tax page': (browser) => {
         browser
@@ -13,8 +10,8 @@ module.exports = {
             .waitForElementVisible('.sw-settings-tax-detail .sw-page__content')
             .assert.urlContains('#/sw/settings/tax/create')
             .assert.containsText('.sw-card__title', 'Settings')
-            .setValue('input[name=sw-field--tax-name]', 'High tax')
-            .setValue('input[name=sw-field--tax-taxRate]', '99')
+            .fillField('input[name=sw-field--tax-name]', 'High tax')
+            .fillField('input[name=sw-field--tax-taxRate]', '99')
             .click('.sw-settings-tax-detail__save-action')
             .waitForElementVisible('.sw-notifications .sw-alert')
             .assert.containsText('.sw-alert__message', 'Tax "High tax" has been saved successfully.')
@@ -34,8 +31,7 @@ module.exports = {
             .waitForElementPresent('body > .sw-context-menu')
             .click('body > .sw-context-menu .sw-tax-list__edit-action')
             .waitForElementVisible('.sw-settings-tax-detail .sw-card__content')
-            .clearValue('input[name=sw-field--tax-name]')
-            .setValue('input[name=sw-field--tax-name]', 'Even higher tax rate')
+            .fillField('input[name=sw-field--tax-name]', 'Even higher tax rate')
             .waitForElementPresent('.sw-settings-tax-detail__save-action')
             .click('.sw-settings-tax-detail__save-action')
             .waitForElementVisible('.sw-notifications .sw-alert')

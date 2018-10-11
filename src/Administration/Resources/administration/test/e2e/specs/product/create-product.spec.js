@@ -1,14 +1,15 @@
 module.exports = {
-    '@tags': ['product-create'],
+    '@tags': ['product-create', 'product', 'create'],
     'create simple category to assign the product to it later ': (browser) => {
         browser
-            .click('a.sw-admin-menu__navigation-link[href="#/sw/catalog/index"]')
+            .openMainMenuEntry('#/sw/catalog/index', 'Catalogues')
             .waitForElementPresent('.sw-catalog-list__intro')
             .waitForElementPresent('.sw-catalog-list__edit-action')
             .click('.sw-catalog-list__edit-action')
             .waitForElementPresent('input[name=sw-field--addCategoryName]')
             .getLocationInView('.sw-catalog-detail__categories')
-            .setValue('input[name=sw-field--addCategoryName]', ['MainCategory', browser.Keys.ENTER])
+            .fillField('input[name=sw-field--addCategoryName]', 'MainCategory')
+            .click('.sw-catalog-detail__add-action')
             .waitForElementPresent('.sw-tree-item__label')
             .assert.containsText('.sw-tree-item__label', 'MainCategory')
             .click('.sw-button--primary')
@@ -30,17 +31,16 @@ module.exports = {
             .waitForElementVisible('.sw-product-detail-base')
             .assert.urlContains('#/sw/product/create')
             .assert.containsText('.sw-card__title', 'Information')
-            .setValue('input[name=sw-field--product-name]', 'Marci Darci')
+            .fillField('input[name=sw-field--product-name]', 'Marci Darci')
             .setValue('.ql-editor', 'My very first description')
             .waitForElementNotPresent('.sw-field--product-manufacturerId .sw-field__select-load-placeholder')
-            .setValue('select[name=sw-field--product-manufacturerId]', 'shopware AG')
+            .fillSelectField('select[name=sw-field--product-manufacturerId]', 'shopware AG')
             .waitForElementNotPresent('.sw-field--product-catalogId .sw-field__select-load-placeholder')
-            .setValue('select[name=sw-field--product-catalogId]', 'Default catalogue')
-            .setValue('.sw-multi-select__input', ['MainCategory', browser.Keys.ENTER])
-            .setValue('.sw-multi-select__input', [browser.Keys.ESCAPE])
+            .fillSelectField('select[name=sw-field--product-catalogId]', 'Default catalogue')
+            .fillMultiSelect('.sw-multi-select__input', 'MainCategory')
             .waitForElementNotPresent('.sw-field--product-taxId .sw-field__select-load-placeholder')
-            .setValue('select[name=sw-field--product-taxId]', '19%')
-            .setValue('input[name=sw-field--price-gross]', '99')
+            .fillSelectField('select[name=sw-field--product-taxId]', '19%')
+            .fillField('input[name=sw-field--price-gross]', '99')
             .click('.sw-product-detail__save-action')
             .waitForElementVisible('.sw-notifications .sw-alert')
             .assert.containsText('.sw-alert .sw-alert__message', 'Product "Marci Darci" has been saved successfully.')
@@ -50,9 +50,7 @@ module.exports = {
         browser
             .click('a.smart-bar__back-btn')
             .waitForElementVisible('.sw-product-list__content')
-            .setValue('input.sw-search-bar__input', ['Marci Darci', browser.Keys.ENTER])
-            .click('.sw-alert button.sw-alert__close')
-            .waitForElementNotPresent('.sw-alert__message')
+            .fillGlobalSearchField('Marci Darci')
             .waitForElementVisible('.sw-page__smart-bar-amount')
             .assert.containsText('.sw-page__smart-bar-amount', '(1)');
     },
@@ -101,7 +99,9 @@ module.exports = {
             .click('.sw-context-menu-item--danger')
             .waitForElementNotPresent('.sw-tree-item__label')
             .click('.sw-button--primary')
-            .waitForElementNotPresent('.sw-catalog-detail__properties .sw-card__content .sw-loader')
-            .end();
+            .waitForElementNotPresent('.sw-catalog-detail__properties .sw-card__content .sw-loader');
     },
+    after: (browser) => {
+        browser.end();
+    }
 };

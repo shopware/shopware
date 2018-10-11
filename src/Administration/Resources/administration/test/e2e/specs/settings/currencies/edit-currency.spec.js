@@ -2,10 +2,7 @@ module.exports = {
     '@tags': ['currency-edit', 'currency', 'edit'],
     'open currency module': (browser) => {
         browser
-            .assert.containsText('.sw-settings .collapsible-text', 'Settings')
-            .click('.sw-admin-menu__navigation-link[href="#/sw/settings/index"]')
-            .waitForElementVisible('.sw-settings-item[href="#/sw/settings/currency/index"]')
-            .click('.sw-settings-item[href="#/sw/settings/currency/index"]');
+            .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/currency/index', 'Currencies');
     },
     'create new currency (Yen)': (browser) => {
         browser
@@ -13,10 +10,10 @@ module.exports = {
             .waitForElementVisible('.sw-settings-currency-detail .sw-card__content')
             .assert.urlContains('#/sw/settings/currency/create')
             .assert.containsText('.sw-card__title', 'Settings')
-            .setValue('input[name=sw-field--currency-name]', 'Yen')
-            .setValue('input[name=sw-field--currency-shortName]', 'Yen')
-            .setValue('input[name=sw-field--currency-symbol]', '¥')
-            .setValue('input[name=sw-field--currency-factor]', '0.0076')
+            .fillField('input[name=sw-field--currency-name]', 'Yen')
+            .fillField('input[name=sw-field--currency-shortName]', 'JPY')
+            .fillField('input[name=sw-field--currency-symbol]', '¥')
+            .fillField('input[name=sw-field--currency-factor]', '1.0076')
             .waitForElementPresent('.sw-settings-currency-detail__save-action')
             .click('.sw-settings-currency-detail__save-action')
             .waitForElementVisible('.sw-notifications .sw-alert')

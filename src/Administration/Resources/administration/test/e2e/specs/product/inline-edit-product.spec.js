@@ -2,8 +2,7 @@ module.exports = {
     '@tags': ['product-inline-edit'],
     'open product listing': (browser) => {
         browser
-            .assert.containsText('.sw-admin-menu__navigation-list-item.sw-product span.collapsible-text', 'Products')
-            .click('a.sw-admin-menu__navigation-link[href="#/sw/product/index"]')
+            .openMainMenuEntry('#/sw/product/index', 'Products')
             .waitForElementVisible('.smart-bar__actions a')
             .waitForElementVisible('.sw-page__smart-bar-amount')
             .assert.containsText('.sw-page__smart-bar-amount', '(0)');
@@ -14,14 +13,14 @@ module.exports = {
             .waitForElementVisible('.sw-product-detail-base')
             .assert.urlContains('#/sw/product/create')
             .assert.containsText('.sw-card__title', 'Information')
-            .setValue('input[name=sw-field--product-name]', 'First one')
+            .fillField('input[name=sw-field--product-name]', 'First one')
             .waitForElementNotPresent('.sw-field--product-manufacturerId .sw-field__select-load-placeholder')
-            .setValue('select[name=sw-field--product-manufacturerId]', 'shopware AG')
+            .fillSelectField('select[name=sw-field--product-manufacturerId]', 'shopware AG')
             .waitForElementNotPresent('.sw-field--product-catalogId] .sw-field__select-load-placeholder')
-            .setValue('select[name=sw-field--product-catalogId]', 'Default catalogue')
+            .fillSelectField('select[name=sw-field--product-catalogId]', 'Default catalogue')
             .waitForElementNotPresent('.sw-field--product-taxId .sw-field__select-load-placeholder')
-            .setValue('select[name=sw-field--product-taxId]', '19%')
-            .setValue('input[name=sw-field--price-gross]', '99')
+            .fillSelectField('select[name=sw-field--product-taxId]', '19%')
+            .fillField('input[name=sw-field--price-gross]', '99')
             .click('.smart-bar__actions button.sw-button--primary')
             .waitForElementVisible('.sw-notifications .sw-alert')
             .assert.containsText('.sw-alert__message', 'successfully.')
@@ -38,8 +37,7 @@ module.exports = {
     'edit product name via inline editing and verify change': (browser) => {
         browser
             .moveToElement('.sw-grid-row:first-child', 0, 0).doubleClick()
-            .clearValue('input[name=sw-field--item-name]')
-            .setValue('input[name=sw-field--item-name]', 'Second one')
+            .fillField('input[name=sw-field--item-name]', 'Second one')
             .waitForElementVisible('.is--inline-editing .sw-button--primary')
             .click('.is--inline-editing .sw-button--primary')
             .waitForElementVisible('.sw-product-list__column-product-name')

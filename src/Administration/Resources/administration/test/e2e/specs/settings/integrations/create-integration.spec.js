@@ -1,13 +1,10 @@
 const integrationPage = require('../../../page-objects/sw-integration.page-object.js');
 
 module.exports = {
-    '@tags': ['integration-create', 'integration', 'create'],
+    '@tags': ['integration-create','integration', 'create'],
     'open integration module': (browser) => {
         browser
-            .assert.containsText('.sw-settings .collapsible-text', 'Settings')
-            .click('.sw-admin-menu__navigation-link[href="#/sw/settings/index"]')
-            .waitForElementVisible('.sw-settings-item[href="#/sw/integration/index"]')
-            .click('.sw-settings-item[href="#/sw/integration/index"]');
+            .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/integration/index', 'Integrations');
     },
     'go to create integration page': (browser) => {
         browser
@@ -21,8 +18,8 @@ module.exports = {
         browser
             .waitForElementVisible('.sw-modal__title')
             .assert.containsText('.sw-modal__title', 'Integration')
-            .setValue('input[name=sw-field--currentIntegration-label]', 'My very own integration')
-            .click('input[name=sw-field--currentIntegration-writeAccess]')
+            .fillField('input[name=sw-field--currentIntegration-label]', 'My very own integration')
+            .tickCheckbox('input[name=sw-field--currentIntegration-writeAccess]','on')
             .waitForElementVisible('.sw-field__copy-button')
             .click('.sw-field__copy-button')
             .waitForElementVisible('.sw-notifications .sw-alert')

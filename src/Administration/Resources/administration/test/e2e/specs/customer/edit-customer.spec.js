@@ -1,9 +1,8 @@
 module.exports = {
-    '@tags': ['customer-edit'],
+    '@tags': ['customer-edit', 'customer', 'edit'],
     'open customer listing': (browser) => {
         browser
-            .assert.containsText('.sw-admin-menu__navigation-list-item.sw-customer span.collapsible-text', 'Customers')
-            .click('a.sw-admin-menu__navigation-link[href="#/sw/customer/index"]')
+            .openMainMenuEntry('#/sw/customer/index', 'Customers')
             .waitForElementVisible('.smart-bar__actions a')
             .waitForElementVisible('.sw-page__smart-bar-amount')
             .assert.containsText('.sw-page__smart-bar-amount', '(0)');
@@ -14,26 +13,26 @@ module.exports = {
             .waitForElementVisible('.sw-customer-base-form')
             .assert.urlContains('#/sw/customer/create')
             .assert.containsText('.sw-card__title', 'Account')
-            .setValue('input[name=sw-field--customer-salutation]', 'Mr')
-            .setValue('input[name=sw-field--customer-firstName]', 'Pep')
-            .setValue('input[name=sw-field--customer-lastName]', 'Eroni')
-            .setValue('input[name=sw-field--customer-email]', 'test-again@example.com')
-            .setValue('select[name=sw-field--customer-groupId]', 'Standard customer group')
-            .setValue('select[name=sw-field--customer-salesChannelId]', 'Storefront API')
-            .setValue('select[name=sw-field--customer-defaultPaymentMethodId]', 'Invoice')
-            .setValue('input[name=sw-field--customer-customerNumber]', '1234321-edit');
+            .fillField('input[name=sw-field--customer-salutation]', 'Mr')
+            .fillField('input[name=sw-field--customer-firstName]', 'Pep')
+            .fillField('input[name=sw-field--customer-lastName]', 'Eroni')
+            .fillField('input[name=sw-field--customer-email]', 'test-again@example.com')
+            .fillSelectField('select[name=sw-field--customer-groupId]', 'Standard customer group')
+            .fillSelectField('select[name=sw-field--customer-salesChannelId]', 'Storefront API')
+            .fillSelectField('select[name=sw-field--customer-defaultPaymentMethodId]', 'Invoice')
+            .fillField('input[name=sw-field--customer-customerNumber]', '1234321-edit');
     },
     'add customer address': (browser) => {
         browser
             .assert.urlContains('#/sw/customer/create')
             .assert.containsText('.sw-card__title', 'Account')
-            .setValue('input[name=sw-field--address-salutation]', 'Mr')
-            .setValue('input[name=sw-field--address-firstName]', 'Pep')
-            .setValue('input[name=sw-field--address-lastName]', 'Eroni')
-            .setValue('input[name=sw-field--address-street]', 'Ebbinghoff 10')
-            .setValue('input[name=sw-field--address-zipcode]', '48624')
-            .setValue('input[name=sw-field--address-city]', 'Schöppingen')
-            .setValue('select[name="sw-field--address-countryId"]', 'Germany');
+            .fillField('input[name=sw-field--address-salutation]', 'Mr')
+            .fillField('input[name=sw-field--address-firstName]', 'Pep')
+            .fillField('input[name=sw-field--address-lastName]', 'Eroni')
+            .fillField('input[name=sw-field--address-street]', 'Ebbinghoff 10')
+            .fillField('input[name=sw-field--address-zipcode]', '48624')
+            .fillField('input[name=sw-field--address-city]', 'Schöppingen')
+            .fillSelectField('select[name="sw-field--address-countryId"]', 'Deutschland');
     },
     'save and verify new customer': (browser) => {
         browser
@@ -61,9 +60,7 @@ module.exports = {
         browser
             .click('a.smart-bar__back-btn')
             .waitForElementVisible('.sw-customer-list__content')
-            .setValue('input.sw-search-bar__input', ['Pep Eroni', browser.Keys.ENTER])
-            .click('.sw-alert .sw-alert__close')
-            .waitForElementNotPresent('.sw-alert__message')
+            .fillGlobalSearchField('Pep Eroni')
             .waitForElementVisible('.sw-page__smart-bar-amount')
             .assert.containsText('.sw-page__smart-bar-amount', '(1)');
     },

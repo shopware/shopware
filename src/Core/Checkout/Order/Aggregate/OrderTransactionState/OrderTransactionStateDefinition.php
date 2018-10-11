@@ -39,7 +39,7 @@ class OrderTransactionStateDefinition extends EntityDefinition
             new TranslatedField(new StringField('description', 'description')),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new TranslationsAssociationField('translations', OrderTransactionStateTranslationDefinition::class, 'order_transaction_state_id', false, 'id'))->setFlags(new Required(), new RestrictDelete()),
+            (new TranslationsAssociationField(OrderTransactionStateTranslationDefinition::class))->setFlags(new Required(), new RestrictDelete()),
             new OneToManyAssociationField('orderTransactions', OrderTransactionDefinition::class, 'order_transaction_state_id', false, 'id'),
         ]);
     }

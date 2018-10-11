@@ -4,10 +4,11 @@ namespace Shopware\Core\Framework\ORM\Field;
 
 use Shopware\Core\Framework\ORM\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\ORM\Write\EntityExistence;
+use Shopware\Core\Framework\ORM\Write\FieldException\MalformatDataException;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\System\Exception\InvalidLocaleCodeException;
 
-class TranslationsAssociationField extends SubresourceField implements AssociationInterface
+class TranslationsAssociationField extends Field implements AssociationInterface
 {
     use AssociationTrait;
 
@@ -22,16 +23,16 @@ class TranslationsAssociationField extends SubresourceField implements Associati
     protected $referenceField;
 
     public function __construct(
-        string $propertyName,
         string $referenceClass,
-        string $referenceField,
-        bool $loadInBasic,
-        string $localField
+        string $propertyName = 'translations',
+        bool $loadInBasic = false,
+        string $localField = 'id'
     ) {
-        parent::__construct($propertyName, $referenceClass, 'languageId');
+        parent::__construct($propertyName);
         $this->loadInBasic = $loadInBasic;
         $this->localField = $localField;
-        $this->referenceField = $referenceField;
+        $this->referenceField = 'languageId';
+        $this->referenceClass = $referenceClass;
     }
 
     public function getReferenceField(): string
@@ -61,7 +62,7 @@ class TranslationsAssociationField extends SubresourceField implements Associati
             ];
             $data = new KeyValuePair($data->getKey(), $value, $data->isRaw());
 
-            return parent::invoke($existence, $data);
+            return $this->map($data);
         }
 
         foreach ($value as $identifier => $fields) {
@@ -86,6 +87,41 @@ class TranslationsAssociationField extends SubresourceField implements Associati
         }
         $data = new KeyValuePair($data->getKey(), $value, $data->isRaw());
 
-        return parent::invoke($existence, $data);
+        return $this->map($data);
+    }
+
+    protected function map(KeyValuePair $data): \Generator
+    {
+        $key = $data->getKey();
+        $value = $data->getValue();
+
+        if (!\is_array($value)) {
+            throw new MalformatDataException($this->path . '/' . $key, 'Value must be an array.');
+        }
+
+        $isNumeric = array_keys($value) === range(0, \count($value) - 1);
+
+        foreach ($value as $keyValue => $subresources) {
+            if (!\is_array($subresources)) {
+                throw new MalformatDataException($this->path . '/' . $key, 'Value must be an array.');
+            }
+
+            if ($this->referenceField && !$isNumeric) {
+                $subresources[$this->referenceField] = $keyValue;
+            }
+
+            $this->writeResource->extract(
+                $subresources,
+                $this->referenceClass,
+                $this->exceptionStack,
+                $this->commandQueue,
+                $this->writeContext,
+                $this->fieldExtenderCollection,
+                $this->path . '/' . $key . '/' . $keyValue
+            );
+        }
+
+        return;
+        yield __CLASS__ => __METHOD__;
     }
 }

@@ -32,7 +32,7 @@ use Shopware\Core\System\Locale\LocaleLanguageResolverInterface;
 /**
  * Builds the command queue for write operations.
  *
- * Contains recursive calls from extract->map->SubResourceField->extract->map->....
+ * Contains recursive calls from extract->map->AssociationInterface->extract->map->....
  */
 class WriteCommandExtractor
 {

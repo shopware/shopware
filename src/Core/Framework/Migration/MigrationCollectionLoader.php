@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Migration\Exception\InvalidMigrationClassException;
 
 class MigrationCollectionLoader
 {
-    public const CORE_MIGRATIONS = __DIR__ . '/../../Version';
+    public const CORE_MIGRATIONS = __DIR__ . '/../../Migration';
 
     /**
      * @var string[]

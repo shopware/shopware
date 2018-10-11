@@ -12,6 +12,7 @@
                     <div class="sw-sidebar-media-item__search-field">
                         <sw-field
                             class="sw-sidebar-media-item__search-input"
+                            v-model="term"
                             :placeholder="$tc('global.sw-sidebar-media-item.placeholderSearch')"
                             @input="onSearchInput">
                         </sw-field>
@@ -27,24 +28,36 @@
                 {% endblock %}
 
                 {% block sw_sidebar_media_item_media_item_list %}
-                    <template v-if="!isLoading">
-                        <sw-media-grid-media-item
-                            v-for="mediaItem in mediaItems"
-                            :key="mediaItem.id"
-                            :item="mediaItem"
-                            :showSelectionIndicator="false"
-                            :showContextMenuButton="true"
-                            :selected="false"
-                            :isList="true"
-                            @sw-media-grid-media-item-delete="handleMediaGridItemDelete">
-                                {% block sw_sidebar_media_item_context_item_add_to_product %}
-                                    <sw-context-menu-item slot="additional-context-menu-items" @click="addItemToProduct(mediaItem)">
-                                        {{ $tc('global.sw-media-grid-media-item.labelContextMenuAddToProduct') }}
-                                    </sw-context-menu-item>
-                                {% endblock %}
-                        </sw-media-grid-media-item>
-                    </template>
-                    <sw-loader v-else></sw-loader>
+                    <sw-media-grid-media-item
+                        v-for="mediaItem in mediaItems"
+                        :key="mediaItem.id"
+                        :item="mediaItem"
+                        :showSelectionIndicator="false"
+                        :showContextMenuButton="true"
+                        :selected="false"
+                        :isList="true"
+                        @sw-media-grid-media-item-delete="handleMediaGridItemDelete">
+
+                        {% block sw_sidebar_media_item_context_item_add_to_product %}
+                            <sw-context-menu-item slot="additional-context-menu-items" @click="addItemToProduct(mediaItem)">
+                                {{ $tc('global.sw-media-grid-media-item.contextMenuAddToProductLabel') }}
+                            </sw-context-menu-item>
+                        {% endblock %}
+                    </sw-media-grid-media-item>
+
+                    {% block sw_sidebar_media_item_load_more_button %}
+                        <sw-button
+                            v-if="showMore"
+                            @click="onLoadMore"
+                            class="sw-sidebar-media-item__load-more-button">
+
+                            {{ $tc('global.sw-sidebar-media-item.labelLoadMore') }}
+                        </sw-button>
+                    {% endblock %}
+                {% endblock %}
+
+                {% block sw_sidebar_media_item_loader %}
+                    <sw-loader v-if="isLoading"></sw-loader>
                 {% endblock %}
             </div>
         {% endblock %}

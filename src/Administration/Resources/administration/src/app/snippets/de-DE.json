@@ -94,7 +94,8 @@
     },
     "sw-sidebar-media-item": {
       "title": "Medien",
-      "placeholderSearch": "Suche"
+      "placeholderSearch": "Suche",
+      "labelLoadMore": "Mehr laden"
     },
     "sw-multi-select": {
       "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden.",

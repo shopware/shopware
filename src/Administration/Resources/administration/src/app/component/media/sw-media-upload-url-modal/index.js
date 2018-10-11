@@ -14,7 +14,7 @@ Component.register('sw-media-upload-url-modal', {
     },
 
     computed: {
-        fieldClass() {
+        swFieldErrorClass() {
             return {
                 'has--error': this.hasError
             };

@@ -8,7 +8,9 @@ Component.register('sw-media-modal-replace', {
 
     inject: ['mediaService'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [
+        Mixin.getByName('notification')
+    ],
 
     props: {
         itemToReplace: {

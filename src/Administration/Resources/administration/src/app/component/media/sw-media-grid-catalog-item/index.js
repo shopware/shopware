@@ -1,5 +1,4 @@
 import { Component } from 'src/core/shopware';
-import 'src/app/component/media/sw-media-grid-item';
 import template from './sw-media-grid-catalog-item.html.twig';
 import './sw-media-grid-catalog-item.less';
 

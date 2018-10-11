@@ -40,39 +40,61 @@
     "sw-modal": {
       "labelClose": "Close"
     },
+    "sw-media-grid-catalog-item": {
+      "labelShowCatalogContent": "Show contents",
+      "labelShowCatalogDetails": "Show Catalogue details"
+    },
     "sw-media-grid-media-item": {
-      "contextMenuDetailLabel": "Details",
-      "contextMenuDeleteLabel": "Delete",
-      "contextMenuCopyLinkLabel": "Copy Link",
-      "contextMenuReplaceLabel": "Replace",
-      "contextMenuRenameLabel": "Rename",
-      "contextMenuAddToProductLabel": "Add to product",
+      "labelContextMenuDelete": "Delete",
+      "labelContextMenuCopyLink": "Copy Link",
+      "labelContextMenuReplace": "Replace",
+      "labelContextMenuRename": "Rename",
+      "labelContextMenuAddToProduct": "Add to product",
+      "labelContextMenuDetail": "Details",
       "notificationErrorBlankItemName": "The media could not be saved: Please enter a name",
       "notificationRenamingSuccess": "Successfully renamed media",
       "notificationRenamingError": "Error renaming media"
     },
-    "sw-media-modal-replace": {
-      "modalTitle": "Replace media files",
-      "buttonUpload": "Upload",
-      "cancelButton": "Cancel",
-      "replaceButton": "Replace",
-      "notificationSuccess": "File replaced",
-      "notificationFailure": "There was an error replacing {mediaName}",
-      "notificationFileReaderError": "Error reading your file"
-    },
     "sw-media-modal-delete": {
-      "modalHeader": "Delete media files",
+      "titleModal": "Delete media files",
       "deleteMessage": "Do you want to delete \"{mediaName}\" ? | Delete {count} media items?",
-      "modalButtonDelete": "Delete",
-      "modalButtonAbort": "Cancel",
+      "buttonDelete": "Delete",
+      "buttonAbort": "Cancel",
       "notificationSuccessSingle": "File \"{mediaName}\" successfully Deleted",
       "notificationErrorSingle": "Error deleting \"{mediaName}\"",
       "notificationSuccessOverall": "Successful deleted media Items",
-      "notificationErrorOverall": "Error deleting media items"
+      "notificationErrorOverall": "The files could not be deleted"
+    },
+    "sw-media-modal-replace": {
+      "titleModal": "Replace media files",
+      "buttonUpload": "Upload",
+      "buttonCancel": "Cancel",
+      "buttonReplace": "Replace",
+      "notificationSuccess": "File replaced",
+      "notificationFailure": "There was an error replacing {mediaName}",
+      "notificationFileReaderError": "We could not read the file"
     },
     "sw-media-preview": {
       "fallbackVideoTagSupport": "Your browser does not support the video tag",
       "fallbackAudioTagSupport": "Your browser does not support the audio tag"
+    },
+    "sw-media-upload-button": {
+      "buttonUpload": "Upload",
+      "buttonFileUpload": "Upload a file",
+      "buttonUrlUpload": "Upload from URL"
+    },
+    "sw-media-upload-url-modal": {
+      "title": "Upload file from URL",
+      "upload": "Upload",
+      "cancel": "Cancel",
+      "example": "https://www.example.com",
+      "labelFileExtension": "file extension",
+      "invalidUrl": "Please enter a valid URL to download a file.",
+      "missingFileExtension": "The URL does not contain a file extension. Please add a file extension above."
+    },
+    "sw-sidebar-media-item": {
+      "title": "Media",
+      "placeholderSearch": "Search"
     },
     "sw-multi-select": {
       "messageNoResults": "No Results found for \"{term}\".",
@@ -88,25 +110,6 @@
       "typeLabelProduct": "Product",
       "typeLabelOrder": "Order",
       "typeLabelMedia": "Media"
-    },
-    "sw-media-upload-container": {
-      "dropZoneText": "Drop Files to upload",
-      "upload": "Upload File",
-      "openMedia": "Open Media",
-      "createFromURLText": "Add File from URL"
-    },
-    "sw-media-upload-url-modal": {
-      "title": "Upload file from URL",
-      "upload": "Upload",
-      "cancel": "Cancel",
-      "example": "https://www.example.com",
-      "labelFileExtension": "file extension",
-      "invalidUrl": "We need a valid URL to download your file.",
-      "missingFileExtension": "We couldn't find a file extension in your URL. <br>Please provide one."
-    },
-    "sw-sidebar-media-item": {
-      "title": "Media",
-      "placeholderSearch": "Search"
     }
   },
   "sw-login": {
@@ -463,10 +466,9 @@
       "messageUploadSuccess": "{count} of {total} files saved."
     },
     "mediaForm": {
-      "title": "Product images",
       "buttonUpload": "Upload files",
-      "noImageError": "\"{file}\" is not an image",
-      "mediaItemDuplicatedError": "The media item is assigned"
+      "errorNoImage": "\"{file}\" is not an image",
+      "errorMediaItemDuplicated": "The media item is already assigned"
     }
   },
   "sw-manufacturer": {
@@ -506,7 +508,7 @@
       "placeholderLink": "Enter manufacturer website...",
       "titleSaveSuccess": "Manufacturer",
       "messageSaveSuccess": "The manufacturer {name} was saved successfully.",
-      "addLogoCaption": "Add Logo"
+      "addLogoCaption": "Add logo"
     }
   },
   "sw-order": {
@@ -617,24 +619,17 @@
       "placeholderSearchBar": "Search all media"
     },
     "smart-bar": {
-      "smartBarHeader": "Media",
-      "buttonUpload": "Upload",
-      "buttonFileUpload": "File upload",
-      "buttonUrlUpload": "Upload from URL"
+      "smartBarHeader": "Media"
     },
     "upload": {
       "notificationSuccess": "File saved",
       "notificationFailure": "There was an error uploading {mediaName}",
       "notificationInfo": "Upload from one file started | Upload from {count} files started"
     },
-    "catalogItem": {
-      "showCatalogContent": "Show contents",
-      "showCatalogDetails": "Show Catalogue details"
-    },
     "index": {
-      "catalogs": "Catalogues",
-      "lastAdded": "Last added",
-      "searchResult": "Search result"
+      "headingCatalogs": "Catalogues",
+      "headingLastAdded": "Last added",
+      "headingSearchResult": "Search result"
     },
     "sidebar": {
       "actions": {
@@ -651,8 +646,8 @@
         "more": "More",
         "preview": "Preview",
         "metadata": "Meta data",
-        "missingFileTitle": "File not found",
-        "missingFileDescription": "We couldn't find your file. You can upload a new file or delete it."
+        "titleMissingFile": "File not found",
+        "descriptionMissingFile": "We couldn't find your file. You can upload a new file or delete it."
       },
       "metadata": {
         "name": "Name",

@@ -5,7 +5,9 @@ import './sw-media-modal-delete.less';
 Component.register('sw-media-modal-delete', {
     template,
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [
+        Mixin.getByName('notification')
+    ],
 
     props: {
         itemsToDelete: {

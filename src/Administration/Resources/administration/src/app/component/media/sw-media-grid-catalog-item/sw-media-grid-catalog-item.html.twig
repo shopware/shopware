@@ -1,8 +1,8 @@
 {% block sw_media_grid_catalog_item %}
-    <sw-media-grid-item
+    <sw-media-grid-base-item
         class="sw-media-grid-catalog-item"
         :isLoading="catalog.isLoading"
-        @sw-media-grid-item-clicked="viewCatalogContent">
+        @sw-media-grid-base-item-clicked="viewCatalogContent">
 
         {% block sw_media_grid_catalog_item_slot_preview %}
             <template slot="media-item-preview">
@@ -33,17 +33,17 @@
                 {% block sw_media_grid_catalog_item_context_menu %}
                     {% block sw_media_grid_catalog_item_show_content_button %}
                         <sw-context-menu-item :routerLink="{ name: 'sw.media.catalog-content', params: { id: catalog.id }, query: {limit: 25, page: 1} }">
-                            {{ $tc('sw-media.catalogItem.showCatalogContent') }}
+                            {{ $tc('global.sw-media-grid-catalog-item.labelShowCatalogContent') }}
                         </sw-context-menu-item>
                     {% endblock %}
 
                     {% block sw_media_grid_catalog_item_show_catalog_button %}
                         <sw-context-menu-item :routerLink="{ name: 'sw.catalog.detail', params: { id: catalog.id } }">
-                            {{ $tc('sw-media.catalogItem.showCatalogDetails') }}
+                            {{ $tc('global.sw-media-grid-catalog-item.labelShowCatalogDetails') }}
                         </sw-context-menu-item>
                     {% endblock %}
                 {% endblock %}
             </template>
         {% endblock %}
-    </sw-media-grid-item>
+    </sw-media-grid-base-item>
 {% endblock %}

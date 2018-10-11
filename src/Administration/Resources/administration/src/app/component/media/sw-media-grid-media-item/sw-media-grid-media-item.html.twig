@@ -1,12 +1,11 @@
 {% block sw_media_grid_media_item %}
-    <div class="sw-media-grid-media-item">
+    <div class="sw-media-grid-media-item" :class="{'is--selected': selected}">
         {% block sw_media_grid_media_item_grid_item %}
-            <sw-media-grid-item
+            <sw-media-grid-base-item
                 :isList="isList"
-                :selected="showSelectionIndicator && selected"
                 :isLoading="item.isLoading"
                 :showContextMenuButton="showContextMenuButton"
-                @sw-media-grid-item-clicked="handleGridItemClick">
+                @sw-media-grid-base-item-clicked="handleGridItemClick">
 
                 {% block sw_media_grid_media_item_slot_media_preview %}
                     <template slot="media-item-preview">
@@ -14,7 +13,7 @@
                             <sw-field
                                 v-if="!isList"
                                 class="sw-media-grid-media-item__selected-indicator"
-                                :class="selectedIndicatorClasses"
+                                :class="selectionIndicatorClasses"
                                 type="checkbox"
                                 :value="selected"
                                 @click.self="doSelectItem">
@@ -53,40 +52,39 @@
                 {% block sw_media_grid_media_item_context_menu %}
                     <template slot="media-item-context-menu">
                         <slot name="additional-context-menu-items">
-                            {% block sw_media_grid_media_item_additional_context_menu_slot %}
-                            {% endblock %}
+                            {% block sw_media_grid_media_item_additional_context_menu_slot %}{% endblock %}
                         </slot>
 
                         {% block sw_media_grid_media_item_context_group_quick_actions %}
                             <div :class="defaultContextMenuClass">
                                 {% block sw_media_grid_media_item_context_item_rename_item %}
                                     <sw-context-menu-item v-if="item.hasFile" @click="startInlineEdit">
-                                        {{ $tc('global.sw-media-grid-media-item.contextMenuRenameLabel') }}
+                                        {{ $tc('global.sw-media-grid-media-item.labelContextMenuRename') }}
                                     </sw-context-menu-item>
                                 {% endblock %}
 
                                 {% block sw_media_grid_media_item_context_item_copy_item_link %}
                                     <sw-context-menu-item v-if="item.hasFile" @click="copyItemLink">
-                                        {{ $tc('global.sw-media-grid-media-item.contextMenuCopyLinkLabel') }}
+                                        {{ $tc('global.sw-media-grid-media-item.labelContextMenuCopyLink') }}
                                     </sw-context-menu-item>
                                 {% endblock %}
 
                                 {% block sw_media_grid_media_item_context_item_replace %}
                                     <sw-context-menu-item @click="openModalReplace">
-                                        {{ $tc('global.sw-media-grid-media-item.contextMenuReplaceLabel') }}
+                                        {{ $tc('global.sw-media-grid-media-item.labelContextMenuReplace') }}
                                     </sw-context-menu-item>
                                 {% endblock %}
 
                                 {% block sw_media_grid_media_item_context_item_delete %}
                                     <sw-context-menu-item @click="openModalDelete" variant="danger">
-                                        {{ $tc('global.sw-media-grid-media-item.contextMenuDeleteLabel') }}
+                                        {{ $tc('global.sw-media-grid-media-item.labelContextMenuDelete') }}
                                     </sw-context-menu-item>
                                 {% endblock %}
                             </div>
                         {% endblock %}
                     </template>
                 {% endblock %}
-            </sw-media-grid-item>
+            </sw-media-grid-base-item>
 
             {% block sw_media_grid_media_item_modal_replace %}
                 <sw-media-modal-replace

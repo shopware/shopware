@@ -67,7 +67,7 @@
 
         <template slot="content">
             {% block sw_media_catalog_page_content %}
-                <div v-if="total" class="sw-media-catalog__page-content">
+                <div v-if="mediaItems.length > 0" class="sw-media-catalog__page-content">
                     {% block sw_media_catalog_content_container %}
                         <div class="sw-media-catalog__content-container">
                             {% block sw_media_catalog_content %}
@@ -166,7 +166,7 @@
                                                 {% block sw_media_catalog_context_item_detail %}
                                                     <sw-context-menu-item @click="showDetails(mediaItem)"
                                                                           slot="additional-context-menu-items">
-                                                        {{ $tc('global.sw-media-grid-media-item.contextMenuDetailLabel') }}
+                                                        {{ $tc('global.sw-media-grid-media-item.labelContextMenuDetail') }}
                                                     </sw-context-menu-item>
                                                 {% endblock %}
                                             </sw-media-grid-media-item>

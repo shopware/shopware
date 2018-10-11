@@ -126,14 +126,10 @@ Component.register('sw-product-detail', {
             });
         },
 
-        handleAddItemToProduct(mediaItem) {
-            const messageMediaItemDuplicated = this.$tc('sw-product.mediaForm.mediaItemDuplicatedError');
-
-            if (this.product.media.findIndex((mediaEntry) => {
-                return (mediaEntry.mediaId === mediaItem.id);
-            }) > -1) {
+        onAddItemToProduct(mediaItem) {
+            if (this._checkIfMediaIsAlreadyUsed(mediaItem.id)) {
                 this.createNotificationInfo({
-                    message: messageMediaItemDuplicated
+                    message: this.$tc('sw-product.mediaForm.errorMediaItemDuplicated')
                 });
                 return;
             }
@@ -150,10 +146,8 @@ Component.register('sw-product-detail', {
                 productMedia.position = this.product.media.length + 1;
             }
 
-            const mediaEntity = mediaItem;
-
-            delete mediaEntity.catalog;
-            delete mediaEntity.user;
+            delete mediaItem.catalog;
+            delete mediaItem.user;
 
             productMedia.media = mediaItem;
             productMedia.mediaId = mediaItem.id;
@@ -161,6 +155,14 @@ Component.register('sw-product-detail', {
 
             productMedia.isLoading = false;
             this.product.media.push(productMedia);
+        },
+
+        _checkIfMediaIsAlreadyUsed(mediaId) {
+            const index = this.product.media.findIndex((media) => {
+                return media.mediaId === mediaId;
+            });
+
+            return index > -1;
         }
     }
 });

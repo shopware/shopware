@@ -40,39 +40,61 @@
     "sw-modal": {
       "labelClose": "Schließen"
     },
+    "sw-media-grid-catalog-item": {
+      "labelShowCatalogContent": "Inhalt anzeigen",
+      "labelShowCatalogDetails": "Katalogdetails anzeigen"
+    },
     "sw-media-grid-media-item": {
-      "contextMenuDetailLabel": "Informationen",
-      "contextMenuDeleteLabel": "Löschen",
-      "contextMenuCopyLinkLabel": "Link kopieren",
-      "contextMenuReplaceLabel": "Ersetzen",
-      "contextMenuRenameLabel": "Umbenennen",
-      "contextMenuAddToProductLabel": "Zu Produkt hinzufügen",
-      "notificationErrorBlankItemName": "Das Medium konnte nicht umbenannt werden. Bitte füge einen Dateinamen hinzu",
+      "labelContextMenuDelete": "Löschen",
+      "labelContextMenuCopyLink": "Link kopieren",
+      "labelContextMenuReplace": "Ersetzen",
+      "labelContextMenuRename": "Umbenennen",
+      "labelContextMenuAddToProduct": "Zu Produkt hinzufügen",
+      "labelContextMenuDetail": "Informationen",
+      "notificationErrorBlankItemName": "Das Medium konnte nicht umbenannt werden. Bitte füge einen Dateinamen hinzu.",
       "notificationRenamingSuccess": "Medium erfolgreich umbenannt",
       "notificationRenamingError": "Fehler beim Umbenennen"
     },
-    "sw-media-modal-replace": {
-      "modalTitle": "Medien ersetzen",
-      "buttonUpload": "Upload",
-      "cancelButton": "Abbrechen",
-      "replaceButton": "Ersetzen",
-      "notificationSuccess": "Datei erfolgreich ersetzt",
-      "notificationFailure": "Fehler beim Ersetzen von {mediaName}",
-      "notificationFileReaderError": "Fehler beim Lesen deiner Datei"
-    },
     "sw-media-modal-delete": {
-      "modalHeader": "Medien löschen",
+      "titleModal": "Medien löschen",
       "deleteMessage":"Möchtest Du \"{mediaName}\" wirklich löschen? | Diese {count} Medien löschen",
-      "modalButtonDelete": "Löschen",
-      "modalButtonAbort": "Abbrechen",
+      "buttonDelete": "Löschen",
+      "buttonAbort": "Abbrechen",
       "notificationSuccessSingle": "File \"{mediaName}\" erfolgreich gelöscht",
       "notificationErrorSingle": "Fehler beim Löschen von \"{mediaName}\"",
       "notificationSuccessOverall": "Dateien erfolgreich gelöscht",
-      "notificationErrorOverall": "Fehler beim Löschen von Dateien"
+      "notificationErrorOverall": "Die Dateien konnten nicht gelöscht werden"
+    },
+    "sw-media-modal-replace": {
+      "titleModal": "Medien ersetzen",
+      "buttonUpload": "Upload",
+      "buttonCancel": "Abbrechen",
+      "buttonReplace": "Ersetzen",
+      "notificationSuccess": "Datei erfolgreich ersetzt",
+      "notificationFailure": "Fehler beim Ersetzen von {mediaName}",
+      "notificationFileReaderError": "Wir konnten die Datei nicht lesen"
     },
     "sw-media-preview": {
       "fallbackVideoTagSupport": "Ihr Browser unterstützt diesen Video-Tag nicht",
       "fallbackAudioTagSupport": "Ihr Browser unterstützt diesen Audio-Tag nicht"
+    },
+    "sw-media-upload-button": {
+      "buttonUpload": "Hochladen",
+      "buttonFileUpload": "Dateien hochladen",
+      "buttonUrlUpload": "Über URL hochladen"
+    },
+    "sw-media-upload-url-modal": {
+      "title": "Datei über URL hochladen",
+      "upload": "Hochladen",
+      "cancel": "Abbrechen",
+      "example": "https://www.beispiel.de",
+      "labelFileExtension": "Dateiendung",
+      "invalidUrl": "Bite gib eine valide URL ein, um eine Datei herunterzuladen.",
+      "missingFileExtension": "Eine Url enthält keine Dateiendung. Bitte gib eine Dateiendung an."
+    },
+    "sw-sidebar-media-item": {
+      "title": "Medien",
+      "placeholderSearch": "Suche"
     },
     "sw-multi-select": {
       "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden.",
@@ -88,25 +110,6 @@
       "typeLabelProduct": "Produkt",
       "typeLabelOrder": "Bestellung",
       "typeLabelMedia": "Medium"
-    },
-    "sw-media-upload-container": {
-      "dropZoneText": "Dateien zum Hochladen hierhin ziehen",
-      "upload": "Datei hochladen",
-      "openMedia": "Medien öffnen",
-      "createFromURLText": "Datei über URL hinzufügen"
-    },
-    "sw-media-upload-url-modal": {
-      "title": "Datei über URL hochladen",
-      "upload": "Hochladen",
-      "cancel": "Abbrechen",
-      "example": "https://www.beispiel.de",
-      "labelFileExtension": "Dateiendung",
-      "invalidUrl": "Wir benötigen eine gültige URL um deine Datei herunterladen zu können.",
-      "missingFileExtension": "Wir konnten keine Dateiendung in deiner URL finden.<br>Bitte gib eine Dateiendung an."
-    },
-    "sw-sidebar-media-item": {
-      "title": "Medien",
-      "placeholderSearch": "Suche"
     }
   },
   "sw-login": {
@@ -463,10 +466,9 @@
       "messageUploadSuccess": "{count} von {total} Dateien erfolgreich gespeichert."
     },
     "mediaForm": {
-      "title": "Produktfotos",
       "buttonUpload": "Datei hochladen",
-      "noImageError": "\"{file}\" ist kein Bild",
-      "mediaItemDuplicatedError": "Item bereits verwendet"
+      "errorNoImage": "\"{file}\" ist kein Bild",
+      "errorMediaItemDuplicated": "Medium bereits verwendet"
     }
   },
   "sw-manufacturer": {
@@ -617,24 +619,17 @@
       "placeholderSearchBar": "Durchsuche alle Medien"
     },
     "smart-bar": {
-      "smartBarHeader": "Medien",
-      "buttonUpload": "Hochladen",
-      "buttonFileUpload": "Dateien hochladen",
-      "buttonUrlUpload": "Über URL hochladen"
+      "smartBarHeader": "Medien"
     },
     "upload": {
       "notificationSuccess": "Datei erfolgreich gespeichert",
       "notificationFailure": "Fehler beim Hochladen von {mediaName}",
       "notificationInfo": "Lade eine Datei hoch | Lade {count} Dateien hoch"
     },
-    "catalogItem": {
-      "showCatalogContent": "Inhalt anzeigen",
-      "showCatalogDetails": "Katalogdetails anzeigen"
-    },
     "index": {
-      "catalogs": "Kataloge",
-      "lastAdded": "Zuletzt hinzugefügt",
-      "searchResult": "Suchergebnis"
+      "headingCatalogs": "Kataloge",
+      "headingLastAdded": "Zuletzt hinzugefügt",
+      "headingSearchResult": "Suchergebnis"
     },
     "sidebar": {
       "actions": {
@@ -651,8 +646,8 @@
         "more": "Mehr",
         "preview": "Vorschau",
         "metadata": "Metadaten",
-        "missingFileTitle": "Datei nicht gefunden",
-        "missingFileDescription": "Wir konnten diese Datei nicht finden. Du kannst eine neue Datei hochladen oder diese löschen."
+        "titleMissingFile": "Datei nicht gefunden",
+        "descriptionMissingFile": "Wir konnten diese Datei nicht finden. Du kannst eine neue Datei hochladen oder diese löschen."
       },
       "metadata": {
         "name": "Name",

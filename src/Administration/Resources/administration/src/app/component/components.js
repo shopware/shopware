@@ -55,7 +55,7 @@ import './structure/sw-search-bar-item';
 import './structure/sw-error';
 
 import './media/sw-media-grid';
-import './media/sw-media-grid-item';
+import './media/sw-media-grid-base-item';
 import './media/sw-media-grid-media-item';
 import './media/sw-media-grid-catalog-item';
 import './media/sw-media-preview';

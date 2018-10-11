@@ -135,7 +135,6 @@ Component.register('sw-media-upload-button', {
         cleanUpFailure(mediaEntity, message) {
             this.createNotificationError({ message });
             mediaEntity.delete(true);
-            this.mediaItemStore.remove(mediaEntity);
         },
 
         createNewMedia(name) {

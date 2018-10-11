@@ -4,7 +4,7 @@
             {% block sw_media_grid_slot_content %}
                 <div class="sw-media-grid__content"
                      :style="mediaColumnDefinitions">
-                    <slot></slot>
+                    <slot>{% block sw_media_grid_default_slot %}{% endblock %}</slot>
                 </div>
             {% endblock %}
         </slot>

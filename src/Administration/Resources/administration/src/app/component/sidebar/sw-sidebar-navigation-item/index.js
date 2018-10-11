@@ -14,7 +14,7 @@ Component.register('sw-sidebar-navigation-item', {
 
     methods: {
         emitButtonClicked() {
-            this.$emit('sw-sidebar-button-clicked', this.sidebarItem);
+            this.$emit('sw-sidebar-navigation-item-clicked', this.sidebarItem);
         }
     }
 });

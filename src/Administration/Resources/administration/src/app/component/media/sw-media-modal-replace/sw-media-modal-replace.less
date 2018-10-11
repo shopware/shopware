@@ -1,8 +1,8 @@
-@import "../../../assets/less/variables";
-@import "../../../assets/less/mixins";
+@import "~less/variables";
+@import "~less/mixins";
 
-@color-sw-media-modal-replace-preview-border:  @color-steam-cloud;
-@border-radius-sw-media-modal-replace-preview: @border-radius-default;
+@sw-media-modal-replace-border-color:  @color-steam-cloud;
+@sw-media-modal-replace-border-radius: @border-radius-default;
 
 .sw-media-modal-replace {
     .sw-media-modal-replace__upload-button {
@@ -23,16 +23,16 @@
         width: 50%;
         margin: 0 auto;
         padding: 5px;
-        border: 1px solid @color-sw-media-modal-replace-preview-border;
-        border-radius: @border-radius-sw-media-modal-replace-preview;
+        border: 1px solid @sw-media-modal-replace-border-color;
+        border-radius: @sw-media-modal-replace-border-radius;
     }
 
     .sw-media-modal-replace__preview {
         width: 50px;
         height: 50px;
         position: relative;
-        border: 1px solid @color-sw-media-modal-replace-preview-border;
-        border-radius: @border-radius-sw-media-modal-replace-preview;
+        border: 1px solid @sw-media-modal-replace-border-color;
+        border-radius: @sw-media-modal-replace-border-radius;
     }
 
     .sw-media-modal-replace__filename {

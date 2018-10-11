@@ -6,7 +6,9 @@ import domUtils from '../../../../core/service/utils/dom.utils';
 Component.register('sw-media-grid-media-item', {
     template,
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [
+        Mixin.getByName('notification')
+    ],
 
     props: {
         item: {
@@ -51,11 +53,11 @@ Component.register('sw-media-grid-media-item', {
     computed: {
         mediaPreviewClasses() {
             return {
-                'is--highlighted': this.selected && this.showSelectionIndicator
+                'is--highlighted': this.selected
             };
         },
 
-        selectedIndicatorClasses() {
+        selectionIndicatorClasses() {
             return {
                 'selected-indicator--visible': this.showSelectionIndicator
             };
@@ -70,17 +72,17 @@ Component.register('sw-media-grid-media-item', {
 
     methods: {
         handleGridItemClick({ originalDomEvent }) {
-            if (this.isSelectedIndicatorClicked(originalDomEvent.composedPath())) {
+            if (this.isSelectionIndicatorClicked(originalDomEvent.composedPath())) {
                 return;
             }
 
-            this.$emit('sw-media-grid-item-clicked', {
+            this.$emit('sw-media-grid-media-item-clicked', {
                 originalDomEvent,
                 item: this.item
             });
         },
 
-        isSelectedIndicatorClicked(path) {
+        isSelectionIndicatorClicked(path) {
             return path.some((parent) => {
                 return parent.classList && parent.classList.contains('sw-media-grid-media-item__selected-indicator');
             });
@@ -96,14 +98,14 @@ Component.register('sw-media-grid-media-item', {
         },
 
         selectItem(originalDomEvent) {
-            this.$emit('sw-media-grid-item-selection-add', {
+            this.$emit('sw-media-grid-media-item-selection-add', {
                 originalDomEvent,
                 item: this.item
             });
         },
 
         removeFromSelection(originalDomEvent) {
-            this.$emit('sw-media-grid-item-selection-remove', {
+            this.$emit('sw-media-grid-media-item-selection-remove', {
                 originalDomEvent,
                 item: this.item
             });
@@ -111,7 +113,7 @@ Component.register('sw-media-grid-media-item', {
 
         emitPlayEvent(originalDomEvent) {
             if (!this.selected) {
-                this.$emit('sw-media-grid-item-play', {
+                this.$emit('sw-media-grid-media-item-play', {
                     originalDomEvent,
                     item: this.item
                 });

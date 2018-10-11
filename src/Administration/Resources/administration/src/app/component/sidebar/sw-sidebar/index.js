@@ -40,12 +40,12 @@ Component.register('sw-sidebar', {
 
             this.items.push(item);
 
-            this.$on('sw-sidebar-button-clicked', item.sidebarButtonClick);
+            this.$on('sw-sidebar-navigation-item-clicked', item.sidebarButtonClick);
             item.$on('sw-sidebar-item-toggle-active', this.setItemActive);
         },
 
         setItemActive(clickedItem) {
-            this.$emit('sw-sidebar-button-clicked', clickedItem);
+            this.$emit('sw-sidebar-navigation-item-clicked', clickedItem);
         }
     }
 });

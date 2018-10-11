@@ -49,25 +49,32 @@
                             {% endblock %}
 
                             <div v-if="manufacturer.catalogId" class="sw-manufacturer-image-pane" :class="logoFieldClasses">
-                                <div v-if="!manufacturer.mediaId && !manufacturer.isLoading"
-                                     class="sw-manufacturer-detail__logo-upload">
-                                    {% block sw_manufacturer_detail_logo_upload %}
-                                        <span class="sw-manufacturer-detail__upload-caption">
-                                            {{ $tc('sw-manufacturer.detail.addLogoCaption') }}
-                                        </span>
-                                        <sw-media-upload-button :catalogId="manufacturer.catalogId"
-                                                                :allowMultiSelect="false"
-                                                                :compact="false"
-                                                                ref="uploadComponent"
-                                                                @media-upload-success="onSuccessfulImageUpload">
-                                        </sw-media-upload-button>
-                                    {% endblock %}
-                                </div>
+                                {% block sw_manufacturer_detail_logo_upload %}
+                                    <div v-if="!manufacturer.mediaId && !manufacturer.isLoading"
+                                         class="sw-manufacturer-detail__logo-upload">
+                                        {% block sw_manufacturer_detail_upload_caption %}
+                                            <span class="sw-manufacturer-detail__upload-caption">
+                                                {{ $tc('sw-manufacturer.detail.addLogoCaption') }}
+                                            </span>
+                                        {% endblock %}
+
+                                        {% block sw_manufacturer_detail_upload_buttons %}
+                                            <sw-media-upload-button
+                                                :catalogId="manufacturer.catalogId"
+                                                :allowMultiSelect="false"
+                                                :compact="false"
+                                                ref="uploadComponent"
+                                                @media-upload-success="onSuccessfulImageUpload">
+                                            </sw-media-upload-button>
+                                        {% endblock %}
+                                    </div>
+                                {% endblock %}
 
                                 <template v-else-if="mediaItem">
                                     {% block sw_manufacturer_detail_logo %}
                                         <sw-media-preview class="sw-manufacturer-detail__logo"
-                                                          :item="mediaItem" :transparency="false">
+                                                          :item="mediaItem"
+                                                          :transparency="false">
                                         </sw-media-preview>
                                     {% endblock %}
 

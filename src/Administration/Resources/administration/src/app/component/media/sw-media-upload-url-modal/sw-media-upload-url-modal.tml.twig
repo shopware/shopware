@@ -8,7 +8,7 @@
         {% block sw_media_upload_url_modal_dialog %}
             {% block sw_media_upload_url_modal_input %}
                 <sw-field label="URL"
-                          :class="fieldClass"
+                          :class="swFieldErrorClass"
                           v-model="url"
                           @input="validateUrl"
                           @change="checkFileExtension"
@@ -16,7 +16,7 @@
                 </sw-field>
                 <sw-field v-if="missingFileExtension"
                           :label="$tc('global.sw-media-upload-url-modal.labelFileExtension')"
-                          :class="fieldClass"
+                          :class="swFieldErrorClass"
                           v-model="fileExtension"
                           validation="required"
                           placeholder="jpg">

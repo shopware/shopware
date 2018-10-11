@@ -1,26 +1,26 @@
 @import "~less/variables";
 
-@sw-sidebar-button-icon-color:              @color-gutenberg;
-@sw-sidebar-button-icon-color-active:       @color-shopware-blue;
-@sw-sidebar-button-hover-color-background:  @color-cadet-blue;
-@sw-sidebar-button-active-color-background: @color-cadet-blue;
+@sw-sidebar-navigation-item-icon-color:              @color-gutenberg;
+@sw-sidebar-navigation-item-icon-color-active:       @color-shopware-blue;
+@sw-sidebar-navigation-item-hover-color-background:  @color-cadet-blue;
+@sw-sidebar-navigation-item-active-color-background: @color-cadet-blue;
 
 .sw-sidebar-navigation-item {
     width: 64px;
     height: 64px;
     border: none;
-    color: @sw-sidebar-button-icon-color;
+    color: @sw-sidebar-navigation-item-icon-color;
     background: none;
     cursor: pointer;
     outline: none;
 
     &:hover {
-        background: @sw-sidebar-button-hover-color-background;
+        background: @sw-sidebar-navigation-item-hover-color-background;
     }
 
     &.is--active {
-        background: @sw-sidebar-button-active-color-background;
-        color: @sw-sidebar-button-icon-color-active;
+        background: @sw-sidebar-navigation-item-active-color-background;
+        color: @sw-sidebar-navigation-item-icon-color-active;
     }
 
     &.is--disabled {

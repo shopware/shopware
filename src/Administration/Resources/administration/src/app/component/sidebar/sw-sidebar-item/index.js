@@ -1,5 +1,4 @@
 import { Component } from 'src/core/shopware';
-import utils from 'src/core/service/util.service';
 import template from './sw-sidebar-item.html.twig';
 import './sw-sidebar-item.less';
 
@@ -43,7 +42,6 @@ Component.register('sw-sidebar-item', {
 
     data() {
         return {
-            id: `sw-sidebar-item-${utils.createId()}`,
             isActive: false
         };
     },
@@ -71,7 +69,18 @@ Component.register('sw-sidebar-item', {
 
     methods: {
         componentCreated() {
-            this.$parent.registerSidebarItem(this);
+            let parent = this.$parent;
+
+            while (parent) {
+                if (parent.$options.name === 'sw-sidebar') {
+                    parent.registerSidebarItem(this);
+                    return;
+                }
+
+                parent = parent.$parent;
+            }
+
+            throw new Error('Component sw-sidebar-item must be registered as a (indirect) child of sw-sidebar');
         },
 
         openContent() {

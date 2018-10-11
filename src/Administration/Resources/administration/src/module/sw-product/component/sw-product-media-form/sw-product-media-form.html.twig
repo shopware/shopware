@@ -1,9 +1,5 @@
 {% block sw_product_media_form %}
     <div class="sw-product-media-form">
-        {% block sw_product_media_form_title %}
-            <h4>{{ $tc('sw-product.mediaForm.title') }}</h4>
-        {%  endblock %}
-
         {% block sw_product_media_form_file_input %}
             <input class="sw-product-media-form__file-input" type="file" id="files" ref="fileInput" accept="image/*" multiple @change="handleFileUploads"/>
         {% endblock %}

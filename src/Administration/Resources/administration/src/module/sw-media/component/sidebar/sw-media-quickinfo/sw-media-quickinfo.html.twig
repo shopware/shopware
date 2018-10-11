@@ -1,10 +1,8 @@
 {% block sw_media_quickinfo %}
     <div class="sw-media-quickinfo">
         {% block sw_media_quickinfo_broken_file %}
-            <sw-alert v-if="!item.hasFile" variant="warning" :title="$tc('sw-media.sidebar.quickinfo.missingFileTitle')">
-                <template>
-                    {{ $tc('sw-media.sidebar.quickinfo.missingFileDescription') }}
-                </template>
+            <sw-alert v-if="!item.hasFile" variant="warning" :title="$tc('sw-media.sidebar.quickinfo.titleMissingFile')">
+                {{ $tc('sw-media.sidebar.quickinfo.descriptionMissingFile') }}
             </sw-alert>
         {% endblock %}
         {% block sw_media_quickinfo_quickactions %}

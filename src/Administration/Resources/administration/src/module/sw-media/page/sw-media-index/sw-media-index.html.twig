@@ -20,7 +20,7 @@
                             <div class="sw-media-index__content">
                                 {% block sw_media_index_catalogs %}
                                     {% block sw_media_index_catalogs_title %}
-                                        <h4 class="sw-media-index__headline">{{ $tc('sw-media.index.catalogs') }}</h4>
+                                        <h4 class="sw-media-index__headline">{{ $tc('sw-media.index.headingCatalogs') }}</h4>
                                     {% endblock %}
 
                                     {% block sw_media_index_catalogs_grid %}
@@ -41,10 +41,10 @@
 
                                 {% block sw_media_index_items %}
                                     {% block sw_media_index_items_title %}
-                                        <h4 class="sw-media-index__headline" v-if="!isSearch">{{ $tc('sw-media.index.lastAdded') }}</h4>
+                                        <h4 class="sw-media-index__headline" v-if="!isSearch">{{ $tc('sw-media.index.headingLastAdded') }}</h4>
                                     {% endblock %}
                                     {% block sw_media_index_searched_item_title %}
-                                        <h4 class="sw-media-index__headline" v-if="isSearch">{{ $tc('sw-media.index.searchResult') }}</h4>
+                                        <h4 class="sw-media-index__headline" v-if="isSearch">{{ $tc('sw-media.index.headingSearchResult') }}</h4>
                                     {% endblock %}
 
                                     {% block sw_media_index_items_grid %}
@@ -67,7 +67,7 @@
                                                 {% block sw_media_index_context_item_detail %}
                                                     <sw-context-menu-item @click="showDetails(mediaItem)"
                                                                           slot="additional-context-menu-items">
-                                                        {{ $tc('global.sw-media-grid-media-item.contextMenuDetailLabel') }}
+                                                        {{ $tc('global.sw-media-grid-media-item.labelContextMenuDetail') }}
                                                     </sw-context-menu-item>
                                                 {% endblock %}
                                             </sw-media-grid-media-item>

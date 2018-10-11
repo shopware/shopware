@@ -1,0 +1,38 @@
+{%  block sw_media_grid_base_item %}
+    <div class="sw-media-grid-base-item" :class="mediaItemClasses" @click="emitClickedEvent">
+        {% block sw_media_grid_base_item_preview %}
+            <slot name="media-item-preview">
+                {% block sw_media_grid_base_item_slot_media_preview %}{% endblock %}
+            </slot>
+        {% endblock %}
+
+        {% block sw_media_grid_base_item_name_container %}
+            <div class="sw-media-grid-base-item__name-container">
+                {% block sw_media_grid_base_item_name %}
+                    <slot name="media-item-name">
+                        {% block sw_media_grid_base_item_slot_media_item_name %}{% endblock %}
+                    </slot>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block sw_media_grid_base_item_context_menu %}
+            <sw-context-button v-if="showContextMenuButton && !isLoading" ref="swContextButton">
+                {% block sw_media_grid_base_item_context_items%}
+                    <slot name="media-item-context-menu">
+                        {% block sw_media_grid_base_item_slot_media_item_context_menu %}{% endblock %}
+                    </slot>
+                {% endblock %}
+            </sw-context-button>
+        {% endblock %}
+
+        {% block sw_media_grid_base_item_loading_indicator %}
+            <sw-icon
+                v-if="isLoading"
+                class="sw-media-grid-base-item__loader"
+                name="default-web-loading-star"
+                size="16px">
+            </sw-icon>
+        {% endblock %}
+    </div>
+{% endblock %}

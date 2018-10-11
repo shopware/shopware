@@ -117,7 +117,7 @@ Component.register('sw-product-media-form', {
             this.uploads = uploadedFiles.filter((file) => {
                 if (!file.type.startsWith('image/')) {
                     this.createNotificationError({
-                        message: this.$tc('sw-product.mediaForm.noImageError', 0, { file: file.name })
+                        message: this.$tc('sw-product.mediaForm.errorNoImage', 0, { file: file.name })
                     });
                     return false;
                 }

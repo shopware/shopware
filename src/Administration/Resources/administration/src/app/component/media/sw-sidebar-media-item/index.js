@@ -7,7 +7,9 @@ import './sw-sidebar-media-item.less';
 Component.register('sw-sidebar-media-item', {
     template,
 
-    mixins: [Mixin.getByName('listing')],
+    mixins: [
+        Mixin.getByName('listing')
+    ],
 
     props: {
         catalogId: {
@@ -46,10 +48,6 @@ Component.register('sw-sidebar-media-item', {
     },
 
     methods: {
-        registerSidebarItem(item) {
-            this.$parent.registerSidebarItem(item);
-        },
-
         componentCreated() {
             this.initializeContent();
         },

@@ -1,18 +1,12 @@
 import { Component } from 'src/core/shopware';
-import template from './sw-media-grid-item.html.twig';
-import './sw-media-grid-item.less';
+import template from './sw-media-grid-base-item.html.twig';
+import './sw-media-grid-base-item.less';
 
-Component.register('sw-media-grid-item', {
+Component.register('sw-media-grid-base-item', {
     template,
 
     props: {
         isList: {
-            type: Boolean,
-            required: false,
-            default: false
-        },
-
-        selected: {
             type: Boolean,
             required: false,
             default: false
@@ -33,14 +27,7 @@ Component.register('sw-media-grid-item', {
     computed: {
         mediaItemClasses() {
             return {
-                'is--grid': !this.isList,
                 'is--list': this.isList
-            };
-        },
-
-        isSelectedClass() {
-            return {
-                'is--selected': this.selected
             };
         }
     },
@@ -55,7 +42,7 @@ Component.register('sw-media-grid-item', {
                 }
             }
 
-            this.$emit('sw-media-grid-item-clicked', {
+            this.$emit('sw-media-grid-base-item-clicked', {
                 originalDomEvent
             });
         }

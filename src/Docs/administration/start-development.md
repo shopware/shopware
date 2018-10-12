@@ -21,9 +21,9 @@ To get going you first need to install development dependencies with the `init` 
 
 This will install all necessary dependencies for your local development environment using <a href="https://www.npmjs.com/">NPM</a>.
 
-## 3. Start Local development Server
+## 3. Local development Server
 
-For local development you can start a development server from your CLI. This will also enable a file watcher which will update the page in your browser when you make any changes to your files. So you automatically stay at the same place where you're working at. The watcher also offers automatic linting using ESLint and will show an overlay with helpful error messages.
+For local development you can start a development server from your terminal. This will also enable a file watcher which will update the page in your browser when you make any changes to your files. Event when the the browser is refreshing the page the current state of the application remains the same. You can stay at the same place where you're working at. The watcher also offers automatic linting using ESLint and will show an overlay with helpful error messages.
 
 Start the development server:
 
@@ -31,17 +31,22 @@ Start the development server:
 ./psh.phar administration:watch
 ```
 
-This will start the development server which is available with this URL:
+This will start the development server with `localhost` and the default port `8080`:
 
 ```
 http://localhost:8080
+```
+If you need port 8080 for something else e.g. elastic search, you can also change the port with the additional DEVPORT parameter:
+
+```
+./psh.phar administration:watch --DEVPORT=1337
 ```
 
 Usually the `./psh.phar administration:watch` command opens a new window of your default browser with the correct URL of the development server.
 
 ### Vue developer console
 
-The Vue.js framework offers an extension for the developer console of your browser. Here you have a reference to the original component structure and can inspect each component to get live information about its state, events and several other information. This can be a really helpful tool during development.
+The Vue.js framework offers an extension for the developer console of your browser. With this extension you have a reference to the original component structure and can inspect each component to get live information about it's state, events and several other information. This can be a really helpful tool during development.
 
 [SCREENSHOT_DEVTOOLS]
 
@@ -93,26 +98,9 @@ class SwagAdministrationExample extends Plugin {
 
 This is already a valid shopware plugin. You can however add additional functionality like for example custom install or update methods. <a href="#">Learn about Plugins</a>. Only the bootstrap class is required to start making changes in the administration.
 
-## 2. Create administration files
+## 2. Install the plugin
 
-The administration files of your plugin are located in the `Resources/views/administration` directory.
-
-The entry point for your administration changes is the `main.js` file. In this file you can import all your components and modules later on.
-
-```
-SwagAdministrationExample
-├── Resources
-│   └── views
-│       └── administration
-│           └── main.js
-└── SwagAdministrationExample.php
-```
-
-To make actual changes you have two main possibilities. Writing entirely new components or using the multi inheritance system from shopware. The inheritance system allows you to extend or override existing functionality with your own implementation. You don't need to copy large chunks of the source code in order to make your desired change.
-
-Shopware is using a custom build of Twig.js to make this possible for the administration templates. 
-
-## 3. Install the plugin
+Before you make further changes to the administration itself you should install the plugin first in order to see all upcoming changes.
 
 You can manage plugins with the `plugin` command of the <a href="#">Shopware CLI</a>.
 
@@ -145,6 +133,29 @@ Finally you can install your plugin. The `--activate` argument also enables the 
 ```
 bin/console plugin:install SwagHelloWorld --activate
 ```
+
+When the plugin was successfully activated, please restart the development server. Webpack will then keep track of the new plugin and add the administration files to the file watcher process.
+
+## 3. Create administration files
+
+The administration files of your plugin are located in the `Resources/views/administration` directory.
+
+The entry point for your administration changes is the `main.js` file. In this file you can import all your components and modules later on.
+
+```
+SwagAdministrationExample
+├── Resources
+│   └── views
+│       └── administration
+│           └── main.js
+└── SwagAdministrationExample.php
+```
+
+To make actual changes you have two main possibilities. Writing entirely new components or using the multi inheritance system from shopware. The inheritance system allows you to extend or override existing functionality with your own implementation. You don't need to copy large chunks of the source code in order to make your desired change.
+
+Shopware is using a custom build of Twig.js to make this possible for the administration templates. 
+
+
 
 ## 4. Prepare plugin CSS and JavaScript for production
 

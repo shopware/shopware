@@ -5,8 +5,8 @@ namespace Shopware\Storefront\Subscriber;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
-use Shopware\Core\Framework\ORM\Search\Aggregation\AggregationResult;
 use Shopware\Core\Framework\ORM\Search\Aggregation\EntityAggregation;
+use Shopware\Core\Framework\ORM\Search\Aggregation\EntityAggregationResult;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\NestedQuery;
 use Shopware\Core\Framework\ORM\Search\Query\Query;
@@ -107,7 +107,7 @@ class ManufacturerAggregationSubscriber implements EventSubscriberInterface
             return;
         }
 
-        /** @var AggregationResult $aggregation */
+        /** @var EntityAggregationResult $aggregation */
         $aggregation = $result->get(self::AGGREGATION_NAME);
 
         $criteria = $event->getPage()->getCriteria();
@@ -119,7 +119,7 @@ class ManufacturerAggregationSubscriber implements EventSubscriberInterface
         $actives = $filter ? $filter->getValue() : [];
 
         /** @var ProductManufacturerCollection $values */
-        $values = $aggregation->getResult();
+        $values = $aggregation->getEntities();
 
         $items = [];
         foreach ($values as $manufacturer) {

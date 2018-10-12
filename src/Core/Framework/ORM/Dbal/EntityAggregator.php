@@ -12,14 +12,23 @@ use Shopware\Core\Framework\ORM\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\ORM\Search\Aggregation\AggregationResult;
 use Shopware\Core\Framework\ORM\Search\Aggregation\AggregationResultCollection;
 use Shopware\Core\Framework\ORM\Search\Aggregation\AvgAggregation;
+use Shopware\Core\Framework\ORM\Search\Aggregation\AvgAggregationResult;
 use Shopware\Core\Framework\ORM\Search\Aggregation\CardinalityAggregation;
+use Shopware\Core\Framework\ORM\Search\Aggregation\CardinalityAggregationResult;
 use Shopware\Core\Framework\ORM\Search\Aggregation\CountAggregation;
+use Shopware\Core\Framework\ORM\Search\Aggregation\CountAggregationResult;
 use Shopware\Core\Framework\ORM\Search\Aggregation\EntityAggregation;
+use Shopware\Core\Framework\ORM\Search\Aggregation\EntityAggregationResult;
 use Shopware\Core\Framework\ORM\Search\Aggregation\MaxAggregation;
+use Shopware\Core\Framework\ORM\Search\Aggregation\MaxAggregationResult;
 use Shopware\Core\Framework\ORM\Search\Aggregation\MinAggregation;
+use Shopware\Core\Framework\ORM\Search\Aggregation\MinAggregationResult;
 use Shopware\Core\Framework\ORM\Search\Aggregation\StatsAggregation;
+use Shopware\Core\Framework\ORM\Search\Aggregation\StatsAggregationResult;
 use Shopware\Core\Framework\ORM\Search\Aggregation\SumAggregation;
+use Shopware\Core\Framework\ORM\Search\Aggregation\SumAggregationResult;
 use Shopware\Core\Framework\ORM\Search\Aggregation\ValueCountAggregation;
+use Shopware\Core\Framework\ORM\Search\Aggregation\ValueCountAggregationResult;
 use Shopware\Core\Framework\ORM\Search\AggregatorResult;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
@@ -70,11 +79,8 @@ class EntityAggregator implements EntityAggregatorInterface
         foreach ($criteria->getAggregations() as $aggregation) {
             $query = $this->createAggregationQuery($aggregation, $definition, $criteria, $context);
 
-            $value = $this->fetchAggregation($definition, $query, $aggregation, $context);
-
-            $aggregations->add(
-                new AggregationResult($aggregation, $value)
-            );
+            $aggregationResult = $this->fetchAggregation($definition, $query, $aggregation, $context);
+            $aggregations->add($aggregationResult);
         }
 
         return new AggregatorResult($aggregations, $context, $criteria);
@@ -121,7 +127,7 @@ class EntityAggregator implements EntityAggregatorInterface
         return $query;
     }
 
-    private function fetchAggregation(string $definition, QueryBuilder $query, Aggregation $aggregation, Context $context)
+    private function fetchAggregation(string $definition, QueryBuilder $query, Aggregation $aggregation, Context $context): AggregationResult
     {
         /** @var EntityDefinition|string $definition */
         $accessor = $this->queryHelper->getFieldAccessor(
@@ -142,7 +148,9 @@ class EntityAggregator implements EntityAggregatorInterface
                 return Uuid::fromBytesToHex($bytes);
             }, $ids);
 
-            return $this->reader->read($aggregation->getDefinition(), new ReadCriteria($ids), $context);
+            $data = $this->reader->read($aggregation->getDefinition(), new ReadCriteria($ids), $context);
+
+            return new EntityAggregationResult($aggregation, $definition, $data);
         }
 
         if ($aggregation instanceof ValueCountAggregation) {
@@ -152,7 +160,9 @@ class EntityAggregator implements EntityAggregatorInterface
             ]);
             $query->groupBy($accessor);
 
-            return $query->execute()->fetchAll(FetchMode::ASSOCIATIVE);
+            $data = $query->execute()->fetchAll(FetchMode::ASSOCIATIVE);
+
+            return new ValueCountAggregationResult($aggregation, $data);
         }
 
         if ($aggregation instanceof StatsAggregation) {
@@ -179,44 +189,65 @@ class EntityAggregator implements EntityAggregatorInterface
 
             $query->select($select);
 
-            return $query->execute()->fetch(FetchMode::ASSOCIATIVE);
+            $data = $query->execute()->fetch(FetchMode::ASSOCIATIVE);
+
+            return new StatsAggregationResult(
+                $aggregation,
+                $aggregation->fetchCount() ? (int) $data['count'] : null,
+                $aggregation->fetchAvg() ? (float) $data['avg'] : null,
+                $aggregation->fetchSum() ? (float) $data['sum'] : null,
+                $aggregation->fetchMin() ? (float) $data['min'] : null,
+                $aggregation->fetchMax() ? (float) $data['max'] : null
+            );
         }
 
         if ($aggregation instanceof CardinalityAggregation) {
             $query->select([$accessor]);
             $query->groupBy($accessor);
 
-            return $query->execute()->fetchAll(FetchMode::COLUMN);
+            $data = $query->execute()->fetchAll(FetchMode::COLUMN);
+
+            return new CardinalityAggregationResult($aggregation, array_column($data, $accessor));
         }
 
         if ($aggregation instanceof AvgAggregation) {
             $query->select('AVG(' . $accessor . ') as `avg`');
 
-            return $query->execute()->fetch(FetchMode::ASSOCIATIVE);
+            $data = $query->execute()->fetch(FetchMode::ASSOCIATIVE);
+
+            return new AvgAggregationResult($aggregation, (float) $data['avg']);
         }
 
         if ($aggregation instanceof MaxAggregation) {
             $query->select('MAX(' . $accessor . ') as `max`');
 
-            return $query->execute()->fetch(FetchMode::ASSOCIATIVE);
+            $data = $query->execute()->fetch(FetchMode::ASSOCIATIVE);
+
+            new MaxAggregationResult($aggregation, (float) $data['max']);
         }
 
         if ($aggregation instanceof CountAggregation) {
             $query->select('COUNT(' . $accessor . ') as `count`');
 
-            return $query->execute()->fetch(FetchMode::ASSOCIATIVE);
+            $data = $query->execute()->fetch(FetchMode::ASSOCIATIVE);
+
+            return new CountAggregationResult($aggregation, (int) $data['count']);
         }
 
         if ($aggregation instanceof MinAggregation) {
             $query->select('MIN(' . $accessor . ') as `min`');
 
-            return $query->execute()->fetch(FetchMode::ASSOCIATIVE);
+            $data = $query->execute()->fetch(FetchMode::ASSOCIATIVE);
+
+            return new MinAggregationResult($aggregation, (float) $data['min']);
         }
 
         if ($aggregation instanceof SumAggregation) {
             $query->select('SUM(' . $accessor . ') as `sum`');
 
-            return $query->execute()->fetch(FetchMode::ASSOCIATIVE);
+            $data = $query->execute()->fetch(FetchMode::ASSOCIATIVE);
+
+            return new SumAggregationResult($aggregation, (float) $data['sum']);
         }
 
         throw new \RuntimeException(

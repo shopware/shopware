@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Cart\Order;
 
 use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\Cart\Exception\InvalidCartException;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Order\Exception\CustomerHasNoActiveBillingAddressException;
 use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
@@ -34,9 +35,14 @@ class OrderPersister implements OrderPersisterInterface
      * @throws CustomerHasNoActiveBillingAddressException
      * @throws DeliveryWithoutAddressException
      * @throws EmptyCartException
+     * @throws InvalidCartException
      */
     public function persist(Cart $cart, CheckoutContext $context): EntityWrittenContainerEvent
     {
+        if ($cart->getErrors()->blockOrder()) {
+            throw new InvalidCartException($cart->getErrors());
+        }
+
         $order = $this->converter->convert($cart, $context);
 
         return $this->repository->create([$order], $context->getContext());

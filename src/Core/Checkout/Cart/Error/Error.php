@@ -23,7 +23,7 @@ abstract class Error extends \Exception implements \JsonSerializable
 
     public const LEVEL_ERROR = 20;
 
-    abstract public function getIdentifier(): string;
+    abstract public function getKey(): string;
 
     abstract public function getMessageKey(): string;
 
@@ -34,7 +34,7 @@ abstract class Error extends \Exception implements \JsonSerializable
     public function jsonSerialize(): array
     {
         $data = get_object_vars($this);
-        $data['identifier'] = $this->getIdentifier();
+        $data['key'] = $this->getKey();
         $data['level'] = $this->getLevel();
         $data['message'] = $this->getMessage();
         $data['messageKey'] = $this->getMessageKey();

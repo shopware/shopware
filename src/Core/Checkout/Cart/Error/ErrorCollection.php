@@ -13,16 +13,18 @@ class ErrorCollection extends Collection
 
     public function add(Error $error): void
     {
-        $this->elements[$error->getIdentifier()] = $error;
+        $this->elements[$error->getKey()] = $error;
     }
 
     public function blockOrder(): bool
     {
-        $states = $this->map(function (Error $error) {
-            return $error->blockOrder();
-        });
+        foreach ($this->elements as $error) {
+            if ($error->blockOrder()) {
+                return true;
+            }
+        }
 
-        return max($states);
+        return false;
     }
 
     public function hasLevel(int $errorLevel): bool

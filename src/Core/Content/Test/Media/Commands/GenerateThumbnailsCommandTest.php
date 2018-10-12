@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Test\Media\Commands;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailStruct;
 use Shopware\Core\Content\Media\Commands\GenerateThumbnailsCommand;
+use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailConfiguration;
@@ -62,7 +63,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         $this->thumbnailCommand = $this->getContainer()->get(GenerateThumbnailsCommand::class);
 
         $this->createNewCatalog();
-        $this->context->getWriteProtection()->allow('write_media');
+        $this->context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
     }
 
     public function testExecuteHappyPath(): void

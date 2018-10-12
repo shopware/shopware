@@ -7,6 +7,7 @@ use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\Media\Event\MediaFileUploadedEvent;
 use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
 use Shopware\Core\Content\Media\Exception\ThumbnailCouldNotBeSavedException;
+use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
@@ -239,13 +240,13 @@ class ThumbnailService implements EventSubscriberInterface
             'thumbnails' => $savedThumbnails,
         ];
 
-        $wereThumbnailsWritable = $context->getWriteProtection()->isAllowed('write_thumbnails');
-        $context->getWriteProtection()->allow('write_thumbnails');
+        $wereThumbnailsWritable = $context->getWriteProtection()->isAllowed(MediaProtectionFlags::WRITE_THUMBNAILS);
+        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_THUMBNAILS);
 
         $this->mediaRepository->update([$mediaData], $context);
 
         if (!$wereThumbnailsWritable) {
-            $context->getWriteProtection()->disallow('write_thumbnails');
+            $context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_THUMBNAILS);
         }
     }
 }

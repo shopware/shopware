@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextFactory;
+use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ORM\EntityRepository;
@@ -62,7 +63,7 @@ class EnrichmentTest extends TestCase
         $id = Uuid::uuid4()->getHex();
 
         $context = $this->context->getContext();
-        $context->getWriteProtection()->allow('write_media');
+        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
 
         $this->productRepository->create([
             [
@@ -118,7 +119,7 @@ class EnrichmentTest extends TestCase
         $id = Uuid::uuid4()->getHex();
 
         $context = $this->context->getContext();
-        $context->getWriteProtection()->allow('write_media');
+        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
 
         $this->productRepository->create([
             [

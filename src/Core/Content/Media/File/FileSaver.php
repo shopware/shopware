@@ -8,6 +8,7 @@ use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
 use Shopware\Core\Content\Media\Exception\IllegalMimeTypeException;
 use Shopware\Core\Content\Media\Exception\MediaNotFoundException;
 use Shopware\Core\Content\Media\Exception\UploadException;
+use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Content\Media\Metadata\Metadata;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader;
@@ -112,7 +113,7 @@ class FileSaver
             'thumbnailsCreated' => false,
         ];
 
-        $context->getWriteProtection()->allow('write_media');
+        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
         $this->repository->update([$data], $context);
 
         $media = new MediaStruct();

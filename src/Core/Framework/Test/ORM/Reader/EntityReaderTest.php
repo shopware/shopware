@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCol
 use Shopware\Core\Checkout\Customer\CustomerStruct;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryStruct;
+use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductStruct;
 use Shopware\Core\Defaults;
@@ -1087,7 +1088,7 @@ class EntityReaderTest extends TestCase
     public function testReadRelationWithNestedToManyRelations(): void
     {
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
-        $context->getWriteProtection()->allow('write_media', 'write_thumbnails');
+        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO, MediaProtectionFlags::WRITE_THUMBNAILS);
 
         $data = [
             'id' => Uuid::uuid4()->getHex(),

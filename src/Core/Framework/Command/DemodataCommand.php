@@ -28,6 +28,7 @@ use Shopware\Core\Content\Configuration\ConfigurationGroupDefinition;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Cart\ProductCollector;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -435,7 +436,7 @@ class DemodataCommand extends ContainerAwareCommand
 
         $context = Context::createDefaultContext($this->tenantId);
 
-        $context->getWriteProtection()->allow('write_media');
+        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
 
         $importImages = function () use (&$productImages, $context) {
             foreach ($productImages as $id => $file) {
@@ -976,7 +977,7 @@ class DemodataCommand extends ContainerAwareCommand
     private function createMedia(int $limit): void
     {
         $context = Context::createDefaultContext($this->tenantId);
-        $context->getWriteProtection()->allow('write_media');
+        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
 
         $this->io->section("Generating {$limit} media items...");
         $this->io->progressStart($limit);

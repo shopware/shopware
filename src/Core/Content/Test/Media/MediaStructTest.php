@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailStruct;
+use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -106,7 +107,7 @@ class MediaStructTest extends TestCase
             ],
         ];
 
-        $this->context->getWriteProtection()->allow('write_thumbnails');
+        $this->context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_THUMBNAILS);
         $this->repository->create([$mediaData], $this->context);
 
         $criteria = $this->getIdCriteria($mediaId);

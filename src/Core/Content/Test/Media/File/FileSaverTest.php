@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Test\Media\File;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
+use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -49,7 +50,7 @@ class FileSaverTest extends TestCase
         $mediaId = Uuid::uuid4();
 
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
-        $context->getWriteProtection()->allow('write_media');
+        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
 
         $this->repository->create(
             [

@@ -6,9 +6,11 @@ class FieldExceptionStack
 {
     private $exceptions = [];
 
-    public function add(WriteFieldException $exception): void
+    public function add(WriteFieldException ...$exceptions): void
     {
-        $this->exceptions[] = $exception;
+        foreach ($exceptions as $exception) {
+            $this->exceptions[] = $exception;
+        }
     }
 
     public function tryToThrow(): void

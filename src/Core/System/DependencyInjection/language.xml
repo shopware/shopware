@@ -8,6 +8,11 @@
         <service class="Shopware\Core\System\Language\LanguageDefinition" id="Shopware\Core\System\Language\LanguageDefinition">
             <tag name="shopware.entity.definition" entity="language"/>
         </service>
+
+        <service class="Shopware\Core\System\Language\LanguageValidator" id="Shopware\Core\System\Language\LanguageValidator">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="shopware.validator"/>
+        </service>
     </services>
 </container>                
                 

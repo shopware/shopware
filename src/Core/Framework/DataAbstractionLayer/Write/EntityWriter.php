@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
 use Shopware\Core\Framework\Api\Exception\IncompletePrimaryKeyException;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityForeignKeyResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -70,12 +71,10 @@ class EntityWriter implements EntityWriterInterface
     public function upsert(string $definition, array $rawData, WriteContext $writeContext): array
     {
         $this->validateWriteInput($rawData);
-
         $commandQueue = $this->buildCommandQueue($definition, $rawData, $writeContext);
 
         $writeIdentifiers = $this->getWriteIdentifiers($commandQueue);
-
-        $this->gateway->execute($commandQueue->getCommandsInOrder());
+        $this->gateway->execute($commandQueue->getCommandsInOrder(), $writeContext);
 
         return $writeIdentifiers;
     }
@@ -85,10 +84,10 @@ class EntityWriter implements EntityWriterInterface
         $this->validateWriteInput($rawData);
 
         $commandQueue = $this->buildCommandQueue($definition, $rawData, $writeContext);
-        $writeIdentifiers = $this->getWriteIdentifiers($commandQueue);
 
+        $writeIdentifiers = $this->getWriteIdentifiers($commandQueue);
         $commandQueue->ensureIs($definition, InsertCommand::class);
-        $this->gateway->execute($commandQueue->getCommandsInOrder());
+        $this->gateway->execute($commandQueue->getCommandsInOrder(), $writeContext);
 
         return $writeIdentifiers;
     }
@@ -100,10 +99,8 @@ class EntityWriter implements EntityWriterInterface
         $commandQueue = $this->buildCommandQueue($definition, $rawData, $writeContext);
 
         $writeIdentifiers = $this->getWriteIdentifiers($commandQueue);
-
         $commandQueue->ensureIs($definition, UpdateCommand::class);
-
-        $this->gateway->execute($commandQueue->getCommandsInOrder());
+        $this->gateway->execute($commandQueue->getCommandsInOrder(), $writeContext);
 
         return $writeIdentifiers;
     }
@@ -237,7 +234,7 @@ class EntityWriter implements EntityWriterInterface
         }
 
         $identifiers = $this->getWriteIdentifiers($commandQueue);
-        $this->gateway->execute($commandQueue->getCommandsInOrder());
+        $this->gateway->execute($commandQueue->getCommandsInOrder(), $writeContext);
 
         return new DeleteResult(
             array_merge_recursive($identifiers, $cascades),
@@ -379,10 +376,9 @@ class EntityWriter implements EntityWriterInterface
     }
 
     /**
-     * @param string|EntityDefinition          $definition
-     * @param \Shopware\Core\Framework\Context $context
+     * @param string|EntityDefinition $definition
      */
-    private function validateDeleteProtection($definition, \Shopware\Core\Framework\Context $context): void
+    private function validateDeleteProtection($definition, Context $context): void
     {
         $protectionName = $definition::getDeleteProtectionKey();
         if ($protectionName === null) {

@@ -86,7 +86,7 @@ class StringField extends Field implements StorageAware
         }
 
         if (\count($violationList)) {
-            throw new InvalidFieldException($this->path . '/' . $fieldName, $violationList);
+            throw new InvalidFieldException($violationList, $this->path . '/' . $fieldName);
         }
     }
 
@@ -98,7 +98,7 @@ class StringField extends Field implements StorageAware
         return $this->constraintBuilder
             ->isNotBlank()
             ->isString()
-            ->isShorterThen(255)
+            ->isLengthLessThanOrEqual(255)
             ->getConstraints();
     }
 
@@ -109,7 +109,7 @@ class StringField extends Field implements StorageAware
     {
         return $this->constraintBuilder
             ->isString()
-            ->isShorterThen(255)
+            ->isLengthLessThanOrEqual(255)
             ->getConstraints();
     }
 

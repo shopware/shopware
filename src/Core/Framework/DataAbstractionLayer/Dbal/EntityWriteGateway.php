@@ -15,6 +15,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\Validation\WriteCommandValidatorInterface;
 
 class EntityWriteGateway implements EntityWriteGatewayInterface
 {
@@ -23,9 +25,15 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
      */
     private $connection;
 
-    public function __construct(Connection $connection)
+    /**
+     * @var WriteCommandValidatorInterface
+     */
+    private $commandQueueValidator;
+
+    public function __construct(Connection $connection, WriteCommandValidatorInterface $commandQueueValidator)
     {
         $this->connection = $connection;
+        $this->commandQueueValidator = $commandQueueValidator;
     }
 
     /**
@@ -47,9 +55,12 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
     /**
      * {@inheritdoc}
      */
-    public function execute(array $commands): void
+    public function execute(array $commands, WriteContext $context): void
     {
-        $this->connection->transactional(function () use ($commands) {
+        $this->connection->transactional(function () use ($commands, $context) {
+            // throws exception on violation and then aborts/rollbacks this transaction
+            $this->commandQueueValidator->preValidate($commands, $context);
+
             foreach ($commands as $command) {
                 $definition = $command->getDefinition();
                 /** @var string|EntityDefinition $definition */
@@ -79,6 +90,8 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
                 throw new \RuntimeException(sprintf('Command of class %s not supported', \get_class($command)));
             }
+            // throws exception on violation and then aborts/rollbacks this transaction
+            $this->commandQueueValidator->postValidate($commands, $context);
         });
     }
 

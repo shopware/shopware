@@ -40,4 +40,9 @@ class EntitySearchResultLoadedEvent extends NestedEvent
     {
         return $this->result->getContext();
     }
+
+    public function getResult(): EntitySearchResult
+    {
+        return $this->result;
+    }
 }

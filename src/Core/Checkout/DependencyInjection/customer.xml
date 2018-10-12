@@ -26,14 +26,14 @@
         </service>
 
         <service class="Shopware\Core\Checkout\Customer\Storefront\StorefrontCustomerController" id="Shopware\Core\Checkout\Customer\Storefront\StorefrontCustomerController" public="true">
-            <argument id="serializer" type="service"/>
+            <argument type="service" id="serializer"/>
             <argument type="service" id="Shopware\Storefront\Page\Account\AccountService"/>
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextService"/>
             <argument type="service" id="order.repository"/>
         </service>
 
         <service class="Shopware\Core\Checkout\Context\CheckoutContextPersister" id="Shopware\Core\Checkout\Context\CheckoutContextPersister">
-            <argument id="Doctrine\DBAL\Connection" type="service"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service class="Shopware\Core\Checkout\Context\CheckoutContextFactory" id="Shopware\Core\Checkout\Context\CheckoutContextFactory">
@@ -53,11 +53,11 @@
         </service>
 
         <service class="Shopware\Core\Checkout\Context\CheckoutRuleLoader" id="Shopware\Core\Checkout\Context\CheckoutRuleLoader">
-            <argument id="Shopware\Core\Checkout\Cart\Cart\CartPersister" type="service"/>
-            <argument id="Shopware\Core\Checkout\Cart\Processor" type="service"/>
-            <argument id="shopware.cache" type="service"/>
-            <argument id="rule.repository" type="service"/>
-            <argument id="Shopware\Core\Checkout\Cart\Storefront\CartService" type="service"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Cart\CartPersister"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Processor"/>
+            <argument type="service" id="shopware.cache"/>
+            <argument type="service" id="rule.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService"/>
         </service>
 
         <service class="Shopware\Core\Checkout\Context\CheckoutContextService" id="Shopware\Core\Checkout\Context\CheckoutContextService">
@@ -69,10 +69,10 @@
         </service>
 
         <service class="Shopware\Core\Checkout\Context\Storefront\StorefrontCheckoutContextController" id="Shopware\Core\Checkout\Context\Storefront\StorefrontCheckoutContextController" public="true">
-            <argument id="payment_method.repository" type="service"/>
-            <argument id="shipping_method.repository" type="service"/>
-            <argument id="customer_address.repository" type="service"/>
-            <argument id="Shopware\Core\Checkout\Context\CheckoutContextPersister" type="service"/>
+            <argument type="service" id="payment_method.repository"/>
+            <argument type="service" id="shipping_method.repository"/>
+            <argument type="service" id="customer_address.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>
             <argument type="service" id="serializer"/>
         </service>
     </services>

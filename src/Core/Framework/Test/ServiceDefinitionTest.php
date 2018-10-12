@@ -1,0 +1,109 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Framework\Test;
+
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Finder\Finder;
+
+class ServiceDefinitionTest extends TestCase
+{
+    use KernelTestBehaviour;
+
+    /**
+     * @var ContainerInterface
+     */
+    private $container;
+
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    public function testServiceDefinitionNaming()
+    {
+        $basePath = __DIR__ . '/../../../';
+
+        $xmlFiles = (new Finder())->in($basePath)->files()->path('~DependencyInjection/[^/]+\.xml$~')->getIterator();
+
+        $errors = [];
+        foreach ($xmlFiles as $file) {
+            $content = $file->getContents();
+
+            $parameterErrors = $this->checkServiceParameterOrder($content);
+            $argumentErrors = $this->checkArgumentOrder($content);
+
+            $errors[$file->getRelativePathname()] = array_merge($parameterErrors, $argumentErrors);
+        }
+
+        $errors = array_filter($errors);
+        $errorMessage = 'Found some issues in the following files:' . PHP_EOL . PHP_EOL . print_r($errors, true);
+
+        static::assertCount(0, $errors, $errorMessage);
+    }
+
+    private function checkArgumentOrder(string $content): array
+    {
+        $matches = [];
+        $result = preg_match_all(
+            '/<argument (?!type="[^"]+").*id="(?<id>[^"]+)".*>/',
+            $content,
+            $matches,
+            PREG_OFFSET_CAPTURE | PREG_SET_ORDER
+        );
+
+        if (!$result) {
+            return [];
+        }
+
+        $errors = [];
+        foreach ($matches as $match) {
+            $fullMatch = $match[0];
+
+            $errors[] = sprintf(
+                '%s:%s - invalid order (type should be first)',
+                $match['id'][0] ?? $fullMatch[0],
+                $this->getLineNumber($content, $fullMatch[1])
+            );
+        }
+
+        return $errors;
+    }
+
+    private function checkServiceParameterOrder(string $content): array
+    {
+        $matches = [];
+        $result = preg_match_all(
+            '<service\s(?!class="[^"]+"\s+id="[^"]+")(.*id="(?<id>Shopware\\\\[^"]++)").*>',
+            $content,
+            $matches,
+            PREG_OFFSET_CAPTURE | PREG_SET_ORDER
+        );
+
+        // only continue if a Shopware service definition doesn't start with class followed by id
+        if (!$result) {
+            return [];
+        }
+
+        $errors = [];
+        foreach ($matches as $match) {
+            $fullMatch = $match[0];
+
+            $errors[] = sprintf(
+                '%s:%s - invalid parameter order or class parameter missing',
+                $match['id'][0] ?? $fullMatch[0],
+                $this->getLineNumber($content, $fullMatch[1])
+            );
+        }
+
+        return $errors;
+    }
+
+    private function getLineNumber(string $content, int $position): int
+    {
+        list($before) = str_split($content, $position);
+
+        return strlen($before) - strlen(str_replace(PHP_EOL, '', $before)) + 1;
+    }
+}

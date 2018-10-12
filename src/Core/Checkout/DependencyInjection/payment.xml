@@ -13,7 +13,7 @@
             <tag name="shopware.entity.definition" entity="payment_method_translation"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Payment\PaymentService">
+        <service class="Shopware\Core\Checkout\Payment\PaymentService" id="Shopware\Core\Checkout\Payment\PaymentService">
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\JWTFactory"/>
             <argument type="service" id="payment_method.repository"/>

@@ -10,12 +10,12 @@
         </service>
 
         <service class="Shopware\Core\System\Command\UserCreateCommand" id="Shopware\Core\System\Command\UserCreateCommand">
-            <argument id="Shopware\Core\Framework\Provisioning\UserProvisioner" type="service"/>
+            <argument type="service" id="Shopware\Core\Framework\Provisioning\UserProvisioner"/>
             <tag name="console.command"/>
         </service>
 
         <service class="Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyDefinition" id="Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyDefinition" >
-            <tag name="shopware.entity.definition" entity="user_access_key" />
+            <tag name="shopware.entity.definition" entity="user_access_key"/>
         </service>
     </services>
 </container>                

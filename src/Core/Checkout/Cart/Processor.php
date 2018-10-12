@@ -63,8 +63,8 @@ class Processor
             $this->deliveryProcessor->process($cart, $context)
         );
 
-        $cart->setErrors(
-            $this->validator->validate()
+        $cart->addErrors(
+            $this->validator->validate($cart)
         );
 
         $cart->setPrice(

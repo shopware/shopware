@@ -61,6 +61,7 @@ class Calculator
             try {
                 $price = $this->calculatePrice($cart, $lineItem, $context, $calculated);
             } catch (\Exception $e) {
+                // todo line item silently removed if an error occurs
                 $cart->getLineItems()->remove($lineItem->getKey());
                 continue;
             }

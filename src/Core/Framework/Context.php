@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework;
 
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Struct\ArrayStruct;
+use Shopware\Core\Framework\Struct\ProtectionStruct;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\SalesChannelStruct;
 
@@ -54,6 +54,16 @@ class Context extends Struct
      */
     protected $rules;
 
+    /**
+     * @var ProtectionStruct
+     */
+    protected $writeProtection;
+
+    /**
+     * @var ProtectionStruct
+     */
+    protected $deleteProtection;
+
     public function __construct(
         string $tenantId,
         SourceContext $sourceContext,
@@ -75,7 +85,8 @@ class Context extends Struct
         $this->versionId = $versionId;
         $this->currencyFactor = $currencyFactor;
 
-        $this->addExtension('write_protection', new ArrayStruct());
+        $this->writeProtection = new ProtectionStruct();
+        $this->deleteProtection = new ProtectionStruct();
     }
 
     public static function createDefaultContext(string $tenantId): self
@@ -183,5 +194,15 @@ class Context extends Struct
             $this->versionId,
             $this->currencyFactor
         );
+    }
+
+    public function getWriteProtection(): ProtectionStruct
+    {
+        return $this->writeProtection;
+    }
+
+    public function getDeleteProtection(): ProtectionStruct
+    {
+        return $this->deleteProtection;
     }
 }

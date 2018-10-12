@@ -456,7 +456,7 @@ class WriterTest extends TestCase
         self::assertNotNull(MediaDefinition::defineFields()->get('url')->getFlag(Deferred::class));
         $id = '2b9a945bb62b4122a32a3bbfbe1e6fd3';
         $writeContext = $this->createWriteContext();
-        $writeContext->getContext()->getExtension('write_protection')->set('write_media', true);
+        $writeContext->getContext()->getWriteProtection()->allow('write_media');
         $this->getWriter()->insert(
             MediaDefinition::class,
             [
@@ -483,7 +483,7 @@ class WriterTest extends TestCase
         self::assertNotNull(MediaDefinition::defineFields()->get('url')->getFlag(Deferred::class));
         $id = '2b9a945bb62b4122a32a3bbfbe1e6fd3';
         $writeContext = $this->createWriteContext();
-        $writeContext->getContext()->getExtension('write_protection')->set('write_media', true);
+        $writeContext->getContext()->getWriteProtection()->allow('write_media');
         $this->getWriter()->insert(
             MediaDefinition::class,
             [

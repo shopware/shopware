@@ -11,7 +11,6 @@ use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\EntityRepository;
-use Shopware\Core\Framework\Struct\ArrayStruct;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class ThumbnailService implements EventSubscriberInterface
@@ -240,13 +239,13 @@ class ThumbnailService implements EventSubscriberInterface
             'thumbnails' => $savedThumbnails,
         ];
 
-        $writeProtection = $context->getExtension('write_protection');
-        if ($writeProtection instanceof ArrayStruct) {
-            $wereThumbnailsWritable = $writeProtection->getExtension('write_thumbnails');
-            $writeProtection->set('write_thumbnails', true);
+        $wereThumbnailsWritable = $context->getWriteProtection()->isAllowed('write_thumbnails');
+        $context->getWriteProtection()->allow('write_thumbnails');
 
-            $this->mediaRepository->update([$mediaData], $context);
-            $writeProtection->set('write_thumbnails', $wereThumbnailsWritable);
+        $this->mediaRepository->update([$mediaData], $context);
+
+        if (!$wereThumbnailsWritable) {
+            $context->getWriteProtection()->disallow('write_thumbnails');
         }
     }
 }

@@ -62,7 +62,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         $this->thumbnailCommand = $this->getContainer()->get(GenerateThumbnailsCommand::class);
 
         $this->createNewCatalog();
-        $this->context->getExtension('write_protection')->set('write_media', true);
+        $this->context->getWriteProtection()->allow('write_media');
     }
 
     public function testExecuteHappyPath(): void

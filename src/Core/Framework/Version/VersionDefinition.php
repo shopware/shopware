@@ -29,6 +29,11 @@ class VersionDefinition extends EntityDefinition
         return false;
     }
 
+    public static function getDeleteProtectionKey(): ?string
+    {
+        return 'entity.version';
+    }
+
     public static function defineFields(): FieldCollection
     {
         return new FieldCollection([

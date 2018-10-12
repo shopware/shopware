@@ -58,7 +58,7 @@ class ThumbnailServiceTest extends TestCase
         $this->repository = $this->getContainer()->get('media.repository');
         $this->thumbnailConfiguration = $this->getContainer()->get(ThumbnailConfiguration::class);
         $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
-        $this->context->getExtension('write_protection')->set('write_media', true);
+        $this->context->getWriteProtection()->allow('write_media');
 
         $this->thumbnailService = $this->getContainer()->get(ThumbnailService::class);
 

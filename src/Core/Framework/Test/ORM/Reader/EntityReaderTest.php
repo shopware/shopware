@@ -1087,8 +1087,7 @@ class EntityReaderTest extends TestCase
     public function testReadRelationWithNestedToManyRelations(): void
     {
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
-        $context->getExtension('write_protection')->set('write_media', true);
-        $context->getExtension('write_protection')->set('write_thumbnails', true);
+        $context->getWriteProtection()->allow('write_media', 'write_thumbnails');
 
         $data = [
             'id' => Uuid::uuid4()->getHex(),

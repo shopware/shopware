@@ -120,6 +120,7 @@ class EntityWriter implements EntityWriterInterface
      */
     public function delete(string $definition, array $ids, WriteContext $writeContext): DeleteResult
     {
+        $this->validateDeleteProtection($definition, $writeContext->getContext());
         $this->validateWriteInput($ids);
 
         $commandQueue = new WriteCommandQueue();
@@ -375,5 +376,23 @@ class EntityWriter implements EntityWriterInterface
         }
 
         return $convertedPayload;
+    }
+
+    /**
+     * @param string|EntityDefinition          $definition
+     * @param \Shopware\Core\Framework\Context $context
+     */
+    private function validateDeleteProtection($definition, \Shopware\Core\Framework\Context $context): void
+    {
+        $protectionName = $definition::getDeleteProtectionKey();
+        if ($protectionName === null) {
+            return;
+        }
+
+        if ($context->getDeleteProtection()->isAllowed($protectionName)) {
+            return;
+        }
+
+        throw new InsufficientDeletePermissionException($protectionName);
     }
 }

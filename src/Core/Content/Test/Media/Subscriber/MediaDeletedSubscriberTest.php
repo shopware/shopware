@@ -62,7 +62,7 @@ class MediaDeletedSubscriberTest extends TestCase
         $mediaId = Uuid::uuid4();
 
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
-        $context->getExtension('write_protection')->set('write_media', true);
+        $context->getWriteProtection()->allow('write_media');
         $this->repository->create(
             [
                 [

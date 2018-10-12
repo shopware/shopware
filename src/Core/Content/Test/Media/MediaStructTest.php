@@ -106,7 +106,7 @@ class MediaStructTest extends TestCase
             ],
         ];
 
-        $this->context->getExtension('write_protection')->set('write_thumbnails', true);
+        $this->context->getWriteProtection()->allow('write_thumbnails');
         $this->repository->create([$mediaData], $this->context);
 
         $criteria = $this->getIdCriteria($mediaId);

@@ -185,6 +185,11 @@ abstract class EntityDefinition
         return static::getFields()->has('tenantId');
     }
 
+    public static function getDeleteProtectionKey(): ?string
+    {
+        return null;
+    }
+
     abstract protected static function defineFields(): FieldCollection;
 
     protected static function filterAssociationReferences(string $type, FieldCollection $fields): array

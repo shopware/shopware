@@ -17,7 +17,6 @@ use Shopware\Core\Framework\ORM\Write\Validation\ConstraintBuilder;
 use Shopware\Core\Framework\ORM\Write\ValueTransformer\ValueTransformerRegistry;
 use Shopware\Core\Framework\ORM\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\ORM\Write\WriteContext;
-use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Locale\LocaleLanguageResolverInterface;
 use Symfony\Component\Validator\ConstraintViolation;
@@ -255,7 +254,7 @@ abstract class Field extends Struct
         /** @var WriteProtected $flag */
         $flag = $this->getFlag(WriteProtected::class);
 
-        if ($this->contextHasPermission($flag->getPermissionKey())) {
+        if ($this->writeContext->getContext()->getWriteProtection()->isAllowed($flag->getPermissionKey())) {
             return;
         }
 
@@ -272,17 +271,5 @@ abstract class Field extends Struct
         );
 
         throw new InsufficientWritePermissionException($this->path . '/' . $key, $violationList);
-    }
-
-    private function contextHasPermission(string $flag): bool
-    {
-        /** @var ArrayStruct $extension */
-        $extension = $this->writeContext->getContext()->getExtension('write_protection');
-
-        if ($extension !== null && $extension->get($flag) !== null) {
-            return true;
-        }
-
-        return false;
     }
 }

@@ -62,7 +62,7 @@ class EnrichmentTest extends TestCase
         $id = Uuid::uuid4()->getHex();
 
         $context = $this->context->getContext();
-        $context->getExtension('write_protection')->set('write_media', true);
+        $context->getWriteProtection()->allow('write_media');
 
         $this->productRepository->create([
             [
@@ -118,7 +118,7 @@ class EnrichmentTest extends TestCase
         $id = Uuid::uuid4()->getHex();
 
         $context = $this->context->getContext();
-        $context->getExtension('write_protection')->set('write_media', true);
+        $context->getWriteProtection()->allow('write_media');
 
         $this->productRepository->create([
             [

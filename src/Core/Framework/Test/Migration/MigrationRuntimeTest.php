@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\Migration\Integration;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationRuntime;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -22,6 +23,16 @@ class MigrationRuntimeTest extends TestCase
      */
     private $runner;
 
+    /**
+     * @var MigrationCollection
+     */
+    private $collector;
+
+    /**
+     * @var MigrationCollectionLoader
+     */
+    private $loader;
+
     protected function setUp()
     {
         $container = $this->getKernel()->getContainer();
@@ -29,12 +40,12 @@ class MigrationRuntimeTest extends TestCase
         $this->connection = $container->get(Connection::class);
         $this->runner = $container->get(MigrationRuntime::class);
 
-        $collector = $this->getCollector();
-        $collector->addDirectory(
-            __DIR__ . '/_test_migrations_valid_run_time',
-            'Shopware\Core\Framework\Test\Migration\_test_migrations_valid_run_time'
-        );
-        $collector->syncMigrationCollection();
+        $this->collector = new MigrationCollection([
+                'Shopware\Core\Framework\Test\Migration\_test_migrations_valid_run_time' => __DIR__ . '/_test_migrations_valid_run_time',
+        ]);
+        $this->loader = new MigrationCollectionLoader($this->connection, $this->collector);
+
+        $this->loader->syncMigrationCollection();
     }
 
     protected function tearDown()
@@ -224,12 +235,11 @@ class MigrationRuntimeTest extends TestCase
 
     public function test_exception_handling(): void
     {
-        $collector = $this->getCollector();
-        $collector->addDirectory(
+        $this->collector->addDirectory(
             __DIR__ . '/_test_migrations_valid_run_time_exceptions',
             'Shopware\Core\Framework\Test\Migration\_test_migrations_valid_run_time_exceptions'
         );
-        $collector->syncMigrationCollection();
+        $this->loader->syncMigrationCollection();
 
         try {
             $runner = $this->runner->migrate();
@@ -249,12 +259,11 @@ class MigrationRuntimeTest extends TestCase
 
     public function test_exception_handling_destructive(): void
     {
-        $collector = $this->getCollector();
-        $collector->addDirectory(
+        $this->collector->addDirectory(
             __DIR__ . '/_test_migrations_valid_run_time_exceptions',
             'Shopware\Core\Framework\Test\Migration\_test_migrations_valid_run_time_exceptions'
         );
-        $collector->syncMigrationCollection();
+        $this->loader->syncMigrationCollection();
 
         try {
             $runner = $this->runner->migrate();
@@ -281,11 +290,6 @@ class MigrationRuntimeTest extends TestCase
         self::assertNull($migrations[2]['update_destructive']);
         self::assertNull($migrations[3]['update_destructive']);
         self::assertSame('update', $migrations[3]['message']);
-    }
-
-    private function getCollector(): MigrationCollectionLoader
-    {
-        return new MigrationCollectionLoader($this->connection);
     }
 
     private function getMigrations(): array

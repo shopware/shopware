@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Command\MigrationCommand;
 use Shopware\Core\Framework\Command\MigrationDestructiveCommand;
 use Shopware\Core\Framework\Migration\Exception\MigrateException;
+use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationRuntime;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -42,9 +43,8 @@ class MigrationCommandTest extends TestCase
         }
 
         return new MigrationCommand(
-            new MigrationCollectionLoader($this->getConnection()),
-            $container->get(MigrationRuntime::class),
-            $directories
+            new MigrationCollectionLoader($this->getConnection(), new MigrationCollection($directories)),
+            $container->get(MigrationRuntime::class)
         );
     }
 
@@ -63,9 +63,8 @@ class MigrationCommandTest extends TestCase
         }
 
         return new MigrationDestructiveCommand(
-            new MigrationCollectionLoader($this->getConnection()),
-            $container->get(MigrationRuntime::class),
-            $directories
+            new MigrationCollectionLoader($this->getConnection(), new MigrationCollection($directories)),
+            $container->get(MigrationRuntime::class)
         );
     }
 

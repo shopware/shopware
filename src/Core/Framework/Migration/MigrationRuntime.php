@@ -120,26 +120,25 @@ class MigrationRuntime
         $this->logger->error('Migration: "' . \get_class($migration) . '" failed: "' . $message . '"');
     }
 
-    private function getSetExecutedBaseQuery(string $class): QueryBuilder
-    {
-        return $this->connection->createQueryBuilder()
-            ->update('migration')
-            ->set('`message`', 'NULL')
-            ->where('`class` = :class')
-            ->setParameter('class', $class);
-    }
-
     private function setExecutedDestructive(MigrationStep $migrationStep): void
     {
-        $this->getSetExecutedBaseQuery(\get_class($migrationStep))
-            ->set('`update_destructive`', 'NOW(6)')
-            ->execute();
+        $this->connection->executeUpdate('
+            UPDATE `migration`
+               SET `message` = NULL,
+                   `update_destructive` = NOW(6)
+             WHERE `class` = :class',
+            ['class' => \get_class($migrationStep)]
+        );
     }
 
     private function setExecuted(MigrationStep $migrationStep): void
     {
-        $this->getSetExecutedBaseQuery(\get_class($migrationStep))
-            ->set('`update`', 'NOW(6)')
-            ->execute();
+        $this->connection->executeUpdate('
+            UPDATE `migration`
+               SET `message` = NULL,
+                   `update` = NOW(6)
+             WHERE `class` = :class',
+            ['class' => \get_class($migrationStep)]
+        );
     }
 }

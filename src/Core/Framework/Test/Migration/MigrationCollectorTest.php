@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\Migration;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Migration\Exception\InvalidMigrationClassException;
+use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
@@ -18,15 +19,21 @@ class MigrationCollectorTest extends TestCase
     private $connection;
 
     /**
-     * @var MigrationCollectionLoader
+     * @var MigrationCollection
      */
     private $collector;
+
+    /**
+     * @var MigrationCollectionLoader
+     */
+    private $loader;
 
     protected function setUp()
     {
         $container = $this->getKernel()->getContainer();
         $this->connection = $container->get(Connection::class);
-        $this->collector = new MigrationCollectionLoader($this->connection);
+        $this->collector = new MigrationCollection([]);
+        $this->loader = new MigrationCollectionLoader($this->connection, $this->collector);
     }
 
     protected function tearDown()
@@ -40,9 +47,8 @@ class MigrationCollectorTest extends TestCase
 
     public function test_it_loads_the_valid_migrations(): void
     {
-        $this->collector
-            ->addDirectory(__DIR__ . '/_test_migrations_valid', 'Shopware\Core\Framework\Test\Migration\_test_migrations_valid')
-            ->syncMigrationCollection();
+        $this->collector->addDirectory(__DIR__ . '/_test_migrations_valid', 'Shopware\Core\Framework\Test\Migration\_test_migrations_valid');
+        $this->loader->syncMigrationCollection();
 
         $migrations = $this->getMigrations();
 
@@ -61,12 +67,22 @@ class MigrationCollectorTest extends TestCase
         self::assertEquals(2, $migrationsObjects[1]->getCreationTimestamp());
     }
 
+    public function test_it_gets_correct_migration_timestamps(): void
+    {
+        $this->collector->addDirectory(__DIR__ . '/_test_migrations_valid', 'Shopware\Core\Framework\Test\Migration\_test_migrations_valid');
+        $migrations = $this->collector->getActiveMigrationTimestamps();
+
+        self::assertCount(2, $migrations);
+        self::assertEquals(1, $migrations[0]);
+        self::assertEquals(2, $migrations[1]);
+    }
+
     public function test_it_throws_invalid_php_file(): void
     {
         $this->collector->addDirectory(__DIR__ . '/_test_migrations_invalid_namespace', 'Shopware\Core\Framework\Test\Migration\_test_migrations_invalid_namespace');
 
         $this->expectException(InvalidMigrationClassException::class);
-        $this->collector->syncMigrationCollection();
+        $this->loader->syncMigrationCollection();
     }
 
     private function getMigrations(): array

@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Controller\MigrationController;
 use Shopware\Core\Framework\Migration\Exception\MigrateException;
+use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationRuntime;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
@@ -41,9 +42,8 @@ class MigrationControllerTest extends TestCase
         }
 
         return new MigrationController(
-            new MigrationCollectionLoader($this->getConnection()),
-            $container->get(MigrationRuntime::class),
-            $directories
+            new MigrationCollectionLoader($this->getConnection(), new MigrationCollection($directories)),
+            $container->get(MigrationRuntime::class)
         );
     }
 

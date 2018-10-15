@@ -11,7 +11,7 @@ All commands which are necessary for administration development can be accessed 
 <a href="#">Find out more about about PSH</a>.
 
 
-## 2. Install dependencies
+## 1. Install dependencies
 
 To get going you first need to install development dependencies with the `init` command:
 
@@ -21,7 +21,7 @@ To get going you first need to install development dependencies with the `init` 
 
 This will install all necessary dependencies for your local development environment using <a href="https://www.npmjs.com/">NPM</a>.
 
-## 3. Local development Server
+## 2. Local development Server
 
 For local development you can start a development server from your terminal. This will also enable a file watcher which will update the page in your browser when you make any changes to your files. Event when the the browser is refreshing the page the current state of the application remains the same. You can stay at the same place where you're working at. The watcher also offers automatic linting using ESLint and will show an overlay with helpful error messages.
 
@@ -58,12 +58,6 @@ The Vue.js framework offers an extension for the developer console of your brows
 		<a href="https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/">Vue.js Devtools for Firefox</a>
 	</li>
 </ul>
-
-## 4. Build administration files
-
-```
-./psh.phar administration:build
-```
 
 # Create your first plugin
 
@@ -151,11 +145,78 @@ SwagAdministrationExample
 └── SwagAdministrationExample.php
 ```
 
-To make actual changes you have two main possibilities. Writing entirely new components or using the multi inheritance system from shopware. The inheritance system allows you to extend or override existing functionality with your own implementation. You don't need to copy large chunks of the source code in order to make your desired change.
+To make actual changes you have two main possibilities. Writing entirely new components or using the multi inheritance system from shopware. The inheritance system allows you to extend or override existing functionality with your own code. You don't need to copy large chunks of the source code in order to make your desired change.
 
 Shopware is using a custom build of Twig.js to make this possible for the administration templates. 
 
+You can use all Vue components of the shopware core as an entry point in order to make changes. Let's take a look at the component template of `sw-dashboard`:
 
+```
+{% block sw_dashboard_index %}
+    <sw-page class="sw-dashboard-index" :showSmartBar="false">
+        {% block sw_dashboard_index_content %}
+            <sw-card-view slot="content" class="sw-dashboard-index__content">
+                {% block sw_dashboard_index_content_view %}{% endblock %}
+            </sw-card-view>
+        {% endblock %}
+    </sw-page>
+{% endblock %}
+```
+As you can see the most important parts of a core template are wrapped inside Twig blocks. This gives you the possibility to override or append any of those blocks in your own plugin. Just like you are maybe already familiar with from frameworks like Symfony.
+
+Please beware that the custom build of Twig.js only contains the block feature to give you the power of making template driven changes without overriding the whole component template. It does however not include features like `{% for %}` or `{% set %}`. Stuff like variables, for loops or modifiers are completely handled by Vue.js. Just think about it this way: You are looking at Vue.js Code with additional Twig blocks.
+
+### Overriding a component
+
+Now you can add a new component to your plugin. The component needs at least an `index.js` file and a template:
+
+```
+SwagAdministrationExample
+├── Resources
+│   └── views
+│       └── administration
+│           ├── main.js
+│           └── src
+│               └── extension
+│                   └── sw-dashboard-index
+│                       ├── index.js
+│                       └── sw-dashboard-index.html.twig
+└── SwagAdministrationExample.php
+```
+All components are registered globally by the component factory and have to use unique names. So it does not really matter where exactly your components are located inside the `administration/src` directory your plugin. The `extension` directory is just a nice convention to keep things organized and separate your new components from components you are extending or overriding.
+
+The new component can override an existing component by using the `Component.override()` feature. <a href="#">Learn more about components</a>.
+
+```
+import { Component } from 'src/core/shopware';
+import template from './sw-dashboard-index.html.twig';
+
+Component.override('sw-dashboard-index', {
+    template,
+
+    created() {
+        console.log('Dashboard override loaded.');
+    }
+});
+```
+Inside the template you can call the `sw_dashboard_index_content_view` block from the `sw-dashboard-index` component and implement your own content:
+
+```
+{% block sw_dashboard_index_content_view %}
+    <!-- Your content goes here -->
+    <div class="swag-administration-example-dashboard">
+        <h1>Administration Example</h1>
+    </div>
+{% endblock %}
+```
+
+### Using the component
+
+Now you can import the component inside the `main.js` file:
+
+```
+import 'src/extension/sw-dashboard-index';
+```
 
 ## 4. Prepare plugin CSS and JavaScript for production
 
@@ -166,27 +227,17 @@ Index template for production build:
 
 {% block administration_stylesheets %}
     {{ parent() }}
-    <link rel="stylesheet" href="{{ asset('bundles/swaghelloworld/static/css/SwagHelloWorld.css') }}">
+    <link rel="stylesheet" href="{{ asset('bundles/swagadministrationexample/static/css/SwagHelloWorld.css') }}">
 {% endblock %}
 
 {% block administration_scripts %}
     {{ parent() }}
-    <script type="text/javascript" src="{{ asset('bundles/swaghelloworld/static/js/SwagHelloWorld.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('bundles/swagadministrationexample/static/js/SwagHelloWorld.js') }}"></script>
 {% endblock %}
 ```
 
----
-
-The administration is using Twig.js to provide the block system.
-
-All core administration components have several twig blocks in order to make it easy to extend the templates.
+### Build administration files
 
 ```
-{% block sw_alert %}
-    <div class="sw-alert"></div>
-{% endblock %}
+./psh.phar administration:build
 ```
-
-You have the ability to extend or override blocks when you override a component.
-
---> Find out more in components: Override component <--

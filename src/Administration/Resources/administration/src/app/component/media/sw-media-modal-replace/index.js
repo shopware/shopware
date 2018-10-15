@@ -100,7 +100,6 @@ Component.register('sw-media-modal-replace', {
                 ).then(() => {
                     this.mediaItemStore.getByIdAsync(this.itemToReplace.id).then((proxy) => {
                         this.itemToReplace.setData(proxy);
-                        this.itemToReplace.url = `${this.itemToReplace.url}?${Date.now()}`;
                         this.itemToReplace.isLoading = false;
                     });
                     this.createNotificationSuccess({

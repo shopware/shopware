@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\Subscriber;
 
-use Shopware\Core\Framework\ORM\Search\Aggregation\AggregationResult;
 use Shopware\Core\Framework\ORM\Search\Aggregation\StatsAggregation;
+use Shopware\Core\Framework\ORM\Search\Aggregation\StatsAggregationResult;
 use Shopware\Core\Framework\ORM\Search\Query\NestedQuery;
 use Shopware\Core\Framework\ORM\Search\Query\Query;
 use Shopware\Core\Framework\ORM\Search\Query\RangeQuery;
@@ -91,7 +91,7 @@ class PriceAggregationSubscriber implements EventSubscriberInterface
             return;
         }
 
-        /** @var AggregationResult $aggregation */
+        /** @var StatsAggregationResult $aggregation */
         $aggregation = $result->get(self::AGGREGATION_NAME);
 
         $criteria = $searchResult->getCriteria();
@@ -107,9 +107,7 @@ class PriceAggregationSubscriber implements EventSubscriberInterface
             $max = (float) $filter->getParameter(RangeQuery::LTE);
         }
 
-        $values = $aggregation->getResult();
-
-        if ($values['min'] === (float) $values['max']) {
+        if ($aggregation->getMin() === $aggregation->getMax()) {
             return;
         }
 
@@ -118,8 +116,8 @@ class PriceAggregationSubscriber implements EventSubscriberInterface
                 self::AGGREGATION_NAME,
                 $active,
                 'Price',
-                (float) $values['min'],
-                (float) $values['max'],
+                $aggregation->getMin(),
+                $aggregation->getMax(),
                 $min,
                 $max,
                 self::MIN_PRICE_PARAMETER,

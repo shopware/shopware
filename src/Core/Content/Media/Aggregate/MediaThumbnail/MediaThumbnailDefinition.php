@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Media\Aggregate\MediaThumbnail;
 
 use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Field\BoolField;
 use Shopware\Core\Framework\ORM\Field\CreatedAtField;
@@ -39,9 +40,9 @@ class MediaThumbnailDefinition extends EntityDefinition
 
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new IntField('width', 'width'))->setFlags(new Required(), new WriteProtected('write_thumbnails')),
-            (new IntField('height', 'height'))->setFlags(new Required(), new WriteProtected('write_thumbnails')),
-            (new BoolField('highDpi', 'highDpi'))->setFlags(new Required(), new WriteProtected('write_thumbnails')),
+            (new IntField('width', 'width'))->setFlags(new Required(), new WriteProtected(MediaProtectionFlags::WRITE_THUMBNAILS)),
+            (new IntField('height', 'height'))->setFlags(new Required(), new WriteProtected(MediaProtectionFlags::WRITE_THUMBNAILS)),
+            (new BoolField('highDpi', 'highDpi'))->setFlags(new Required(), new WriteProtected(MediaProtectionFlags::WRITE_THUMBNAILS)),
             (new StringField('url', 'url'))->setFlags(new Deferred()),
 
             (new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, false))->setFlags(new CascadeDelete()),

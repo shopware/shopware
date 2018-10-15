@@ -5,8 +5,8 @@ namespace Shopware\Storefront\Subscriber;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionCollection;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
 use Shopware\Core\Content\Configuration\ConfigurationGroupStruct;
-use Shopware\Core\Framework\ORM\Search\Aggregation\AggregationResult;
 use Shopware\Core\Framework\ORM\Search\Aggregation\EntityAggregation;
+use Shopware\Core\Framework\ORM\Search\Aggregation\EntityAggregationResult;
 use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Storefront\Event\ListingEvents;
@@ -96,7 +96,7 @@ class DatasheetAggregationSubscriber implements EventSubscriberInterface
             return;
         }
 
-        /** @var AggregationResult $aggregation */
+        /** @var EntityAggregationResult $aggregation */
         $aggregation = $result->get(self::AGGREGATION_NAME);
 
         /** @var ArrayStruct|null $filter */
@@ -106,10 +106,10 @@ class DatasheetAggregationSubscriber implements EventSubscriberInterface
 
         $actives = $filter ? $filter->get('ids') : [];
 
-        /** @var ConfigurationGroupOptionCollection|null $values */
-        $values = $aggregation->getResult();
+        /** @var ConfigurationGroupOptionCollection $values */
+        $values = $aggregation->getEntities();
 
-        if (!$values || $values->count() <= 0) {
+        if ($values->count() === 0) {
             return;
         }
 

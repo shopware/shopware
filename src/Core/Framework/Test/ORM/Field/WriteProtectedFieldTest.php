@@ -131,7 +131,7 @@ EOF;
     {
         $id = Uuid::uuid4();
         $context = $this->createWriteContext();
-        $context->getContext()->getExtension('write_protection')->set('WriteProtected', true);
+        $context->getContext()->getWriteProtection()->allow('WriteProtected');
 
         $data = [
             'id' => $id->getHex(),
@@ -178,7 +178,7 @@ EOF;
     {
         $id = Uuid::uuid4();
         $context = $this->createWriteContext();
-        $context->getContext()->getExtension('write_protection')->set('WriteProtected', true);
+        $context->getContext()->getWriteProtection()->allow('WriteProtected');
 
         $data = [
             'id' => $id->getHex(),
@@ -229,7 +229,7 @@ EOF;
     {
         $id = Uuid::uuid4();
         $context = $this->createWriteContext();
-        $context->getContext()->getExtension('write_protection')->set('WriteProtected', true);
+        $context->getContext()->getWriteProtection()->allow('WriteProtected');
 
         $data = [
             'id' => $id->getHex(),
@@ -284,7 +284,7 @@ EOF;
         $id = Uuid::uuid4();
         $id2 = Uuid::uuid4();
         $context = $this->createWriteContext();
-        $context->getContext()->getExtension('write_protection')->set('WriteProtected', true);
+        $context->getContext()->getWriteProtection()->allow('WriteProtected');
 
         $data = [
             'id' => $id->getHex(),
@@ -333,7 +333,7 @@ EOF;
     {
         $id = Uuid::uuid4();
         $context = $this->createWriteContext();
-        $context->getContext()->getExtension('write_protection')->set('WriteProtected', true);
+        $context->getContext()->getWriteProtection()->allow('WriteProtected');
 
         $data = [
             'id' => $id->getHex(),

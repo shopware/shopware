@@ -28,6 +28,7 @@ use Shopware\Core\Content\Configuration\ConfigurationGroupDefinition;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Cart\ProductCollector;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -44,7 +45,6 @@ use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\NotRule;
 use Shopware\Core\Framework\Rule\CurrencyRule;
 use Shopware\Core\Framework\Rule\DateRangeRule;
-use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Util\Random;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
@@ -436,9 +436,7 @@ class DemodataCommand extends ContainerAwareCommand
 
         $context = Context::createDefaultContext($this->tenantId);
 
-        /** @var ArrayStruct $writeProtectionField */
-        $writeProtectionField = $context->getExtension('write_protection');
-        $writeProtectionField->set('write_media', true);
+        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
 
         $importImages = function () use (&$productImages, $context) {
             foreach ($productImages as $id => $file) {
@@ -979,7 +977,7 @@ class DemodataCommand extends ContainerAwareCommand
     private function createMedia(int $limit): void
     {
         $context = Context::createDefaultContext($this->tenantId);
-        $context->getExtension('write_protection')->set('write_media', true);
+        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
 
         $this->io->section("Generating {$limit} media items...");
         $this->io->progressStart($limit);

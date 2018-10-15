@@ -8,6 +8,7 @@ use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
 use Shopware\Core\Content\Media\Exception\IllegalMimeTypeException;
 use Shopware\Core\Content\Media\Exception\MediaNotFoundException;
 use Shopware\Core\Content\Media\Exception\UploadException;
+use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Content\Media\Metadata\Metadata;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader;
@@ -16,7 +17,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Core\Framework\Struct\ArrayStruct;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class FileSaver
@@ -113,11 +113,8 @@ class FileSaver
             'thumbnailsCreated' => false,
         ];
 
-        $writeProtection = $context->getExtension('write_protection');
-        if ($writeProtection instanceof ArrayStruct) {
-            $writeProtection->set('write_media', true);
-            $this->repository->update([$data], $context);
-        }
+        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
+        $this->repository->update([$data], $context);
 
         $media = new MediaStruct();
         $media->assign($data);

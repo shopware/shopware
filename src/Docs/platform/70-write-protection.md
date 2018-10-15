@@ -11,7 +11,7 @@ If you set this Flag you have to define a permission key, that has to be set in 
 In your own controller with your custom logic you can easily add the required permission key to the context.
 
 ```
-$context->getExtension('write_protection')->set('permission_key_example', true);
+$context->getWriteProtection()->allow('permission_key_example');
 ```
 
-If the defined permissionKey is not set in the context write_protection Extension the ORM will throw a `InsufficientWritePermissionException`.
+If the defined permissionKey is not set in the context write protection, the ORM will throw a `InsufficientWritePermissionException`.

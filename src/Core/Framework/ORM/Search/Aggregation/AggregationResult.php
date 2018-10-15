@@ -2,23 +2,19 @@
 
 namespace Shopware\Core\Framework\ORM\Search\Aggregation;
 
-class AggregationResult
+abstract class AggregationResult implements \JsonSerializable
 {
     /**
      * @var Aggregation
      */
-    protected $aggregation;
+    private $aggregation;
 
-    /**
-     * @var mixed
-     */
-    protected $result;
-
-    public function __construct(Aggregation $aggregation, $result)
+    public function __construct(Aggregation $aggregation)
     {
         $this->aggregation = $aggregation;
-        $this->result = $result;
     }
+
+    abstract public function getResult(): array;
 
     public function getName(): string
     {
@@ -35,8 +31,8 @@ class AggregationResult
         return $this->aggregation;
     }
 
-    public function getResult()
+    public function jsonSerialize(): array
     {
-        return $this->result;
+        return $this->getResult();
     }
 }

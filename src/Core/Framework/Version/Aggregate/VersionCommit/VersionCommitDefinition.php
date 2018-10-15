@@ -34,6 +34,11 @@ class VersionCommitDefinition extends EntityDefinition
         return false;
     }
 
+    public static function getDeleteProtectionKey(): ?string
+    {
+        return 'entity.version_commit';
+    }
+
     public static function defineFields(): FieldCollection
     {
         return new FieldCollection([

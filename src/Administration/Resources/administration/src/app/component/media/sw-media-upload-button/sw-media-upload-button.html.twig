@@ -3,7 +3,7 @@
         <sw-context-button v-if="compact" :disabled="!catalogId">
             <template slot="button">
                 {% block sw_media_upload_button %}
-                    <sw-button variant="primary" class="sw-media-upload__context-button">
+                    <sw-button variant="primary" class="sw-media-upload-button__context-button">
                         {{ $tc('global.sw-media-upload-button.buttonUpload') }}
                         <sw-icon name="small-arrow-small-down" decorative></sw-icon>
                     </sw-button>
@@ -11,13 +11,13 @@
             </template>
 
             {% block sw_media_upload_context_item_file_upload %}
-                <sw-context-menu-item @click="onClickUpload">
+                <sw-context-menu-item class="sw-media-upload-button__button-file" @click="onClickUpload">
                     {{ $tc('global.sw-media-upload-button.buttonFileUpload') }}
                 </sw-context-menu-item>
             {% endblock %}
 
             {% block sw_media_upload_context_item_url_upload %}
-                <sw-context-menu-item @click="openUrlModal">
+                <sw-context-menu-item class="sw-media-upload-button__button-url" @click="openUrlModal">
                     {{ $tc('global.sw-media-upload-button.buttonUrlUpload') }}
                 </sw-context-menu-item>
             {% endblock %}
@@ -25,12 +25,19 @@
 
         <template v-else>
             {% block sw_media_upload_url_upload_button %}
-                <sw-button size="small" @click="openUrlModal" :disabled="!catalogId">
+                <sw-button class="sw-media-upload-button__button-url"
+                           size="small"
+                           :disabled="!catalogId"
+                           @click="openUrlModal">
                     {{ $tc('global.sw-media-upload-button.buttonUrlUpload') }}
                 </sw-button>
             {% endblock %}
             {% block sw_media_upload_file_upload_button %}
-                <sw-button variant="primary" size="small" @click="onClickUpload" :disabled="!catalogId">
+                <sw-button class="sw-media-upload-button__button-file"
+                           variant="primary"
+                           size="small"
+                           :disabled="!catalogId"
+                           @click="onClickUpload">
                     {{ $tc('global.sw-media-upload-button.buttonFileUpload') }}
                 </sw-button>
             {% endblock %}

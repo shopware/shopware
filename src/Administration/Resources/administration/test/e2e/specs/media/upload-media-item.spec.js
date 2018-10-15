@@ -44,15 +44,15 @@ module.exports = {
             .waitForElementVisible('.sw-context-menu-item')
             .click('.sw-context-menu-item')
             .waitForElementVisible('.sw-media-catalog')
-            .waitForElementVisible('.sw-media-upload');
+            .waitForElementVisible('.sw-media-upload-button');
     },
     'create items and check position': (browser) => {
         browser
         //  create first item
-            .click('.sw-media-upload__context-button')
+            .click('.sw-media-upload-button__context-button')
             .waitForElementVisible('.sw-context-menu')
-            .waitForElementVisible('.sw-media-upload__url')
-            .click('.sw-media-upload__url')
+            .waitForElementVisible('.sw-media-upload-button__button-url')
+            .click('.sw-media-upload-button__button-url')
             .waitForElementVisible('.sw-media-upload-url-modal')
             .setValue('input[name=sw-field--url]', `${process.env.APP_URL}/bundles/administration/static/img/sw-media-background.png`)
             .click('.sw-modal__footer .sw-button--primary')
@@ -61,9 +61,9 @@ module.exports = {
         // pause to wait until notification is vanished
             .pause(1000)
         // create second item
-            .click('.sw-media-upload__context-button')
+            .click('.sw-media-upload-button__context-button')
             .waitForElementVisible('.sw-context-menu')
-            .click('.sw-media-upload__url')
+            .click('.sw-media-upload-button__button-url')
             .waitForElementVisible('.sw-media-upload-url-modal')
             .setValue('input[name=sw-field--url]', `${process.env.APP_URL}/bundles/administration/static/img/sw-media-background.png`)
             .click('.sw-modal__footer .sw-button--primary')
@@ -86,7 +86,7 @@ module.exports = {
     'check item metadata and delete item': (browser) => {
         browser
         // open sidebar
-            .click('.sw-media-grid-item')
+            .click('.sw-media-grid-media-item')
             .waitForElementVisible('.sw-sidebar-item__content')
         // check metadata
             .assert.containsText('.sw-media-quickinfo-metadata-name', 'Name:')

@@ -21,9 +21,11 @@ class ProtectionStruct implements \IteratorAggregate
         }
     }
 
-    public function disallow(string $key): void
+    public function disallow(string ...$keys): void
     {
-        unset($this->keys[$key]);
+        foreach ($keys as $key) {
+            unset($this->keys[$key]);
+        }
     }
 
     public function isAllowed(string $key): bool

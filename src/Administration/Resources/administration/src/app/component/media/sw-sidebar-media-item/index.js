@@ -1,4 +1,4 @@
-import { Component, State, Mixin } from 'src/core/shopware';
+import { Component, State } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import utils from 'src/core/service/util.service';
 import template from './sw-sidebar-media-item.html.twig';
@@ -6,10 +6,6 @@ import './sw-sidebar-media-item.less';
 
 Component.register('sw-sidebar-media-item', {
     template,
-
-    mixins: [
-        Mixin.getByName('listing')
-    ],
 
     props: {
         catalogId: {
@@ -22,7 +18,11 @@ Component.register('sw-sidebar-media-item', {
         return {
             isLoading: true,
             catalog: null,
-            mediaItems: []
+            mediaItems: [],
+            page: 1,
+            limit: 25,
+            total: 0,
+            term: ''
         };
     },
 
@@ -33,6 +33,14 @@ Component.register('sw-sidebar-media-item', {
 
         mediaStore() {
             return State.getStore('media');
+        },
+
+        showMore() {
+            return this.itemsLoaded < this.total;
+        },
+
+        itemsLoaded() {
+            return this.mediaItems.length;
         }
     },
 
@@ -53,6 +61,10 @@ Component.register('sw-sidebar-media-item', {
         },
 
         initializeContent() {
+            this.page = 1;
+            this.term = '';
+            this.mediaItems = [];
+
             if (this.catalogId) {
                 this.catalog = this.catalogStore.getById(this.catalogId);
             } else {
@@ -74,11 +86,33 @@ Component.register('sw-sidebar-media-item', {
         }, 400),
 
         handleMediaGridItemDelete() {
-            this.getList();
+            const pages = this.page;
+            this.page = 1;
+            this.getList().then(() => {
+                while (this.page < pages) {
+                    this.page += 1;
+                    this.extendList();
+                }
+            });
         },
 
         addItemToProduct(item) {
             this.$emit('sw-sidebar-media-item-add-item-to-product', item);
+        },
+
+        onLoadMore() {
+            this.page += 1;
+            this.extendList();
+        },
+
+        extendList() {
+            const params = this.getListingParams();
+            params.criteria = CriteriaFactory.term('catalogId', this.catalog.id);
+
+            return this.mediaStore.getList(params).then((response) => {
+                this.mediaItems = this.mediaItems.concat(response.items);
+                return this.mediaItems;
+            });
         },
 
         getList() {
@@ -103,6 +137,19 @@ Component.register('sw-sidebar-media-item', {
 
                 return this.mediaItems;
             });
+        },
+
+        getListingParams() {
+            const params = {
+                limit: this.limit,
+                page: this.page
+            };
+
+            if (this.term && this.term.length) {
+                params.term = this.term;
+            }
+
+            return params;
         }
     }
 });

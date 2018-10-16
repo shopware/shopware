@@ -48,6 +48,7 @@ class MinAggregationTest extends TestCase
         $rateAgg = $result->getAggregations()->get('rate_agg');
         static::assertNotNull($rateAgg);
         static::assertEquals(10, $rateAgg->getMin());
+        static::assertEquals(['min' => 10], $rateAgg->getResult());
     }
 
     private function setupFixtures(Context $context): void

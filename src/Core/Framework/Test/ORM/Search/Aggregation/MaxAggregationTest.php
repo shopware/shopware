@@ -48,6 +48,7 @@ class MaxAggregationTest extends TestCase
         $rateAgg = $result->getAggregations()->get('rate_agg');
         static::assertNotNull($rateAgg);
         static::assertEquals(90, $rateAgg->getMax());
+        static::assertEquals(['max' => 90], $rateAgg->getResult());
     }
 
     private function setupFixtures(Context $context): void

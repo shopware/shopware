@@ -48,6 +48,7 @@ class AvgAggregationTest extends TestCase
         $rateAgg = $result->getAggregations()->get('rate_agg');
         static::assertNotNull($rateAgg);
         static::assertEquals(42.142857, $rateAgg->getAverage());
+        static::assertEquals(['avg' => 42.142857], $rateAgg->getResult());
     }
 
     private function setupFixtures(Context $context): void

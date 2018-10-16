@@ -55,6 +55,7 @@ class ValueCountAggregationTest extends TestCase
         $rateAgg = $result->getAggregations()->get('rate_agg');
         static::assertNotNull($rateAgg);
         static::assertEquals($expectedValues, $rateAgg->getValues());
+        static::assertEquals($expectedValues, $rateAgg->getResult());
     }
 
     private function setupFixtures(Context $context): void

@@ -48,6 +48,7 @@ class SumAggregationTest extends TestCase
         $rateAgg = $result->getAggregations()->get('rate_agg');
         static::assertNotNull($rateAgg);
         static::assertEquals(295, $rateAgg->getSum());
+        static::assertEquals(['sum' => 295], $rateAgg->getResult());
     }
 
     private function setupFixtures(Context $context): void

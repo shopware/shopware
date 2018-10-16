@@ -67,6 +67,8 @@ class EntityAggregationTest extends TestCase
         static::assertArrayHasKey('ceac25750cdb4415b6a324fd6b857731', $taxes); // tax #2
         static::assertArrayHasKey('8e96eabfd9a0446099a651eb2fd1d231', $taxes); // tax #5
         static::assertArrayHasKey('d281b2a352234db0b851d962c6b3ba88', $taxes); // tax #6
+
+        static::assertEquals($entityAgg->getEntities()->getElements(), $entityAgg->getResult());
     }
 
     private function setupFixtures(Context $context): void

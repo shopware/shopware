@@ -1,4 +1,4 @@
-# Start development
+# Start administration development
 
 This guide will teach you how to start developing with the shopware administration.
 
@@ -8,7 +8,7 @@ All commands which are necessary for administration development can be accessed 
 ./psh.phar administration:{COMMAND}
 ```
 
-<a href="#">Find out more about about PSH</a>.
+<a href="https://github.com/shopwareLabs/psh">Find out more about about PSH</a>.
 
 
 ## 1. Install dependencies
@@ -23,7 +23,7 @@ This will install all necessary dependencies for your local development environm
 
 ## 2. Local development Server
 
-For local development you can start a development server from your terminal. This will also enable a file watcher which will update the page in your browser when you make any changes to your files. Event when the the browser is refreshing the page the current state of the application remains the same. You can stay at the same place where you're working at. The watcher also offers automatic linting using ESLint and will show an overlay with helpful error messages.
+For local development you can start a development server from your terminal. This will also enable a file watcher which will update the page in your browser when you make any changes to your files. Even when the the browser is refreshing the page the current state of the application remains the same. You can stay at the same place where you're working at. The watcher also offers automatic linting using ESLint and will show an overlay with helpful error messages.
 
 Start the development server:
 
@@ -39,25 +39,21 @@ http://localhost:8080
 If you need port 8080 for something else e.g. elastic search, you can also change the port with the additional DEVPORT parameter:
 
 ```
-./psh.phar administration:watch --DEVPORT=1337
+./psh.phar administration:watch --DEVPORT=9000
 ```
 
 Usually the `./psh.phar administration:watch` command opens a new window of your default browser with the correct URL of the development server.
 
-### Vue developer console
+## 3. Using the Vue.js Developer Tools
 
 The Vue.js framework offers an extension for the developer console of your browser. With this extension you have a reference to the original component structure and can inspect each component to get live information about it's state, events and several other information. This can be a really helpful tool during development.
 
 [SCREENSHOT_DEVTOOLS]
 
-<ul>
-	<li>
-		<a href="https://chrome.google.com/webstore/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd">Vue.js Devtools for Google Chrome</a>
-	</li>
-	<li>
-		<a href="https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/">Vue.js Devtools for Firefox</a>
-	</li>
-</ul>
+- <a href="https://chrome.google.com/webstore/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd">Vue.js Devtools for Google Chrome</a>
+- <a href="https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/">Vue.js Devtools for Firefox</a>
+
+The Google Chrome Version should also work in other webkit based browsers like Chromium, Opera or Vivaldi.
 
 # Create your first plugin
 
@@ -116,7 +112,7 @@ This will promt an overview table with the available plugins in you terminal:
 1 plugins, 0 installed, 0 active
 ```
 
-In case your plugin doesn't show up you can refresh the plugin list with the `update` command:
+In case your plugin does not show up you can refresh the plugin list with the `update` command:
 
 ```
 bin/console plugin:update
@@ -218,9 +214,13 @@ Now you can import the component inside the `main.js` file:
 import 'src/extension/sw-dashboard-index';
 ```
 
+After the import you should be able to the your changes in the dashboard:
+
+[SCREENSHOT_DASHBOARD]
+
 ## 4. Prepare plugin CSS and JavaScript for production
 
-Index template for production build:
+In order to build the CSS and JavaScript for production environments you need to append your files in the index template for the production build:
 
 ```
 {% sw_extends 'administration/index.html.twig' %}
@@ -237,6 +237,8 @@ Index template for production build:
 ```
 
 ### Build administration files
+
+You can create the production files by using the `build` command:
 
 ```
 ./psh.phar administration:build

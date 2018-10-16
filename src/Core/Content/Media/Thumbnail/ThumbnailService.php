@@ -4,22 +4,26 @@ namespace Shopware\Core\Content\Media\Thumbnail;
 
 use League\Flysystem\FileNotFoundException;
 use League\Flysystem\FilesystemInterface;
-use Shopware\Core\Content\Media\Event\MediaFileUploadedEvent;
 use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
 use Shopware\Core\Content\Media\Exception\ThumbnailCouldNotBeSavedException;
 use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\MediaStruct;
+use Shopware\Core\Content\Media\ORM\MediaThumbnailRepository;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\ORM\EntityRepository;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 
-class ThumbnailService implements EventSubscriberInterface
+class ThumbnailService
 {
     /**
-     * @var EntityRepository
+     * @var RepositoryInterface
      */
     private $mediaRepository;
+
+    /**
+     * @var MediaThumbnailRepository
+     */
+    private $thumbnailRepository;
 
     /**
      * @var FilesystemInterface
@@ -37,30 +41,26 @@ class ThumbnailService implements EventSubscriberInterface
     private $configuration;
 
     public function __construct(
-        EntityRepository $mediaRepository,
+        RepositoryInterface $mediaRepository,
+        MediaThumbnailRepository $thumbnailRepository,
         FilesystemInterface $fileSystem,
         UrlGeneratorInterface $urlGenerator,
         ThumbnailConfiguration $configuration
     ) {
         $this->mediaRepository = $mediaRepository;
+        $this->thumbnailRepository = $thumbnailRepository;
         $this->fileSystem = $fileSystem;
         $this->urlGenerator = $urlGenerator;
         $this->configuration = $configuration;
     }
 
-    public static function getSubscribedEvents()
-    {
-        return [
-            MediaFileUploadedEvent::EVENT_NAME => 'updateMediaThumbnails',
-        ];
-    }
-
-    public function updateMediaThumbnails(MediaFileUploadedEvent $event): void
+    public function updateThumbnailsAfterUpload(MediaStruct $media, Context $context): void
     {
         if (!$this->configuration->isAutoGenerateAfterUpload()) {
             return;
         }
-        $this->generateThumbnails($event->getMedia(), $event->getContext());
+
+        $this->generateThumbnails($media, $context);
     }
 
     /**
@@ -70,6 +70,10 @@ class ThumbnailService implements EventSubscriberInterface
      */
     public function generateThumbnails(MediaStruct $media, Context $context): void
     {
+        if (!$media->hasFile()) {
+            return;
+        }
+
         $mediaImage = $this->getImageResource($media);
         $originalImageSize = $this->getOriginalImageSize($mediaImage);
 
@@ -96,6 +100,11 @@ class ThumbnailService implements EventSubscriberInterface
         } finally {
             $this->persistThumbnailData($media, $savedThumbnails, $context);
         }
+    }
+
+    public function deleteThumbnails(MediaStruct $media, Context $context)
+    {
+        $this->thumbnailRepository->deleteCascadingFromMedia($media, $context);
     }
 
     /**

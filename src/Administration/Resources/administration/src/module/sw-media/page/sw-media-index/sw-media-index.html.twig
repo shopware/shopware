@@ -20,13 +20,17 @@
                             <div class="sw-media-index__content">
                                 {% block sw_media_index_catalogs %}
                                     {% block sw_media_index_catalogs_title %}
-                                        <h4 class="sw-media-index__headline">{{ $tc('sw-media.index.catalogs') }}</h4>
+                                        <h4 class="sw-media-index__headline">{{ $tc('sw-media.index.headingCatalogs') }}</h4>
                                     {% endblock %}
 
                                     {% block sw_media_index_catalogs_grid %}
-                                        <sw-media-grid previewType="media-grid-preview-as-grid"
-                                                       :selectable="false"
-                                                       :items="catalogs">
+                                        <sw-media-grid class="sw-media-index__catalog-grid">
+                                            <sw-media-grid-catalog-item
+                                                class="sw-media-grid__content-cell"
+                                                v-for="catalog in catalogs"
+                                                :key="catalog.id"
+                                                :catalog="catalog">
+                                            </sw-media-grid-catalog-item>
                                         </sw-media-grid>
                                     {% endblock %}
 
@@ -37,19 +41,37 @@
 
                                 {% block sw_media_index_items %}
                                     {% block sw_media_index_items_title %}
-                                        <h4 class="sw-media-index__headline" v-if="!isSearch">{{ $tc('sw-media.index.lastAdded') }}</h4>
+                                        <h4 class="sw-media-index__headline" v-if="!isSearch">{{ $tc('sw-media.index.headingLastAdded') }}</h4>
                                     {% endblock %}
                                     {% block sw_media_index_searched_item_title %}
-                                        <h4 class="sw-media-index__headline" v-if="isSearch">{{ $tc('sw-media.index.searchResult') }}</h4>
+                                        <h4 class="sw-media-index__headline" v-if="isSearch">{{ $tc('sw-media.index.headingSearchResult') }}</h4>
                                     {% endblock %}
 
                                     {% block sw_media_index_items_grid %}
-                                        <sw-media-grid previewType="media-grid-preview-as-grid"
-                                            :editable="false"
-                                            :selectable="true"
-                                            :items="mediaItems"
-                                            ref="mediaGrid"
-                                            v-on="mediaMediaGridListener">
+                                        <sw-media-grid
+                                            class="sw-media-index__media-grid"
+                                            dragSelectorClass="sw-media-grid-media-item"
+                                            @sw-media-grid-selection-clear="clearSelection">
+
+                                            <sw-media-grid-media-item
+                                                class="sw-media-grid__content-cell"
+                                                v-for="mediaItem in mediaItems"
+                                                :key="mediaItem.id"
+                                                :item="mediaItem"
+                                                :selected="showItemSelected(mediaItem)"
+                                                :showSelectionIndicator="isListSelect"
+                                                :isList="false"
+                                                @sw-media-grid-media-item-delete="handleMediaGridItemDelete"
+                                                v-on="mediaItemSelectionHandler">
+
+                                                {% block sw_media_index_context_item_detail %}
+                                                    <sw-context-menu-item @click="showDetails(mediaItem)"
+                                                                          slot="additional-context-menu-items">
+                                                        {{ $tc('global.sw-media-grid-media-item.labelContextMenuDetail') }}
+                                                    </sw-context-menu-item>
+                                                {% endblock %}
+                                            </sw-media-grid-media-item>
+
                                         </sw-media-grid>
                                     {% endblock %}
                                 {% endblock %}
@@ -61,29 +83,12 @@
                         <div class="sw-media-index__sidebar">
                             <sw-media-sidebar
                                 :items="selectedItems"
-                                v-on="mediaSidebarListener"
+                                @sw-media-sidebar-items-delete="handleMediaGridItemDelete"
                                 ref="mediaSidebar">
                             </sw-media-sidebar>
                         </div>
                     {% endblock %}
                 </div>
-            {% endblock %}
-
-            {% block sw_media_index_modal_delete %}
-                <sw-media-modal-delete
-                   :itemsToDelete ="selectionToDelete"
-                   @sw-media-modal-delete-close="closeDeleteModal"
-                   @sw-media-modal-delete-delete="deleteSelection">
-                </sw-media-modal-delete>
-            {% endblock %}
-
-            {% block sw_media_catalog_modal_replace %}
-                <sw-media-modal-replace
-                    v-if="mediaItemToReplace"
-                    :itemToReplace="mediaItemToReplace"
-                    @sw-media-modal-replace-close="closeReplaceModal"
-                    @sw-media-modal-replace-confirmed="handleItemReplaced">
-                </sw-media-modal-replace>
             {% endblock %}
         </template>
     </sw-page>

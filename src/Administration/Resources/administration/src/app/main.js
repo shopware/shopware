@@ -10,6 +10,7 @@ import LoginService from 'src/core/service/login.service';
 import apiServices from 'src/core/service/api';
 import JsonApiParser from 'src/core/service/jsonapi-parser.service';
 import ValidationService from 'src/core/service/validation.service';
+import MediaUploadService from 'src/core/service/media-upload.service';
 
 /** Import global styles */
 import 'src/app/assets/less/all.less';
@@ -35,6 +36,10 @@ Application
     })
     .addServiceProvider('validationService', () => {
         return ValidationService;
+    })
+    .addServiceProvider('mediaUploadService', () => {
+        const init = Application.getContainer('service');
+        return MediaUploadService(init.mediaService);
     });
 
 // Add api service providers

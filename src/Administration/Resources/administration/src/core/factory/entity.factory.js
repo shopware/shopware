@@ -132,6 +132,7 @@ function getPropertyBlacklist() {
         'links',
         'extensions',
         'mimeType',
+        'fileExtension',
         'metaData',
         'fileSize'
     ];

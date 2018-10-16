@@ -9,8 +9,8 @@ Component.register('sw-media-sidebar', {
 
     props: {
         items: {
-            required: false,
-            type: [Array],
+            required: true,
+            type: Array,
             validator(value) {
                 const invalidElements = value.filter((element) => {
                     return element.type !== 'media';
@@ -20,27 +20,25 @@ Component.register('sw-media-sidebar', {
         }
     },
 
-    watch: {
-        items(value) {
-            if (value === undefined || value === null) {
-                this.$refs.quickInfoButton.toggleContentPanel(false);
-            }
-        }
-    },
-
     data() {
         return {
-            autoplay: false
+            autoplay: false,
+            showModalReplace: false,
+            showModalDelete: false
         };
     },
 
     computed: {
         hasItems() {
-            return Array.isArray(this.items);
+            return this.items.length > 0;
         },
 
         isSingleFile() {
-            return this.hasItems && this.items.length === 1;
+            return this.items.length === 1;
+        },
+
+        isMultipleFile() {
+            return this.items.length > 1;
         },
 
         getKey() {
@@ -59,12 +57,31 @@ Component.register('sw-media-sidebar', {
     },
 
     methods: {
-        emitRequestRemoveSelection(originalDomEvent) {
-            this.$emit('sw-media-sidebar-remove-batch', { originalDomEvent });
+        showQuickInfo() {
+            this.$refs.quickInfoButton.openContent();
         },
 
-        showQuickInfo() {
-            this.$refs.quickInfoButton.toggleContentPanel(true);
+        openModalReplace() {
+            this.showModalReplace = true;
+        },
+
+        closeModalReplace() {
+            this.showModalReplace = false;
+        },
+
+        openModalDelete() {
+            this.showModalDelete = true;
+        },
+
+        closeModalDelete() {
+            this.showModalDelete = false;
+        },
+
+        deleteSelectedItems(deletePromise) {
+            this.closeModalDelete();
+            deletePromise.then(() => {
+                this.$emit('sw-media-sidebar-items-delete');
+            });
         }
     }
 });

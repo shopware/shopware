@@ -152,17 +152,21 @@ Component.register('sw-field', {
     },
 
     created() {
-        this.currentValue = this.convertValueType(this.value);
-
-        if (this.$vnode.data && this.$vnode.data.model) {
-            this.boundExpression = this.$vnode.data.model.expression;
-            this.boundExpressionPath = this.boundExpression.split('.');
-
-            this.formError = this.errorStore.registerFormField(this.boundExpression);
-        }
+        this.componentCreated();
     },
 
     methods: {
+        componentCreated() {
+            this.currentValue = this.convertValueType(this.value);
+
+            if (this.$vnode.data && this.$vnode.data.model) {
+                this.boundExpression = this.$vnode.data.model.expression;
+                this.boundExpressionPath = this.boundExpression.split('.');
+
+                this.formError = this.errorStore.registerFormField(this.boundExpression);
+            }
+        },
+
         onInput(event) {
             this.currentValue = this.getValueFromEvent(event);
 

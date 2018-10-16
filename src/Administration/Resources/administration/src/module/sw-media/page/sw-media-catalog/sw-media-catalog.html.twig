@@ -54,7 +54,12 @@
                 {% endblock %}
 
                 {% block sw_media_catalog_smart_bar_media_upload %}
-                    <sw-media-upload :catalogId="getCatalogId()" @new-media-entity="onNewMedia"></sw-media-upload>
+                    <sw-media-upload-button
+                        :catalogId="getCatalogId()"
+                        :compact="true"
+                        @new-media-entity="onNewMedia"
+                        @new-upload-started="onNewUpload">
+                    </sw-media-upload-button>
                 {% endblock %}
 
             </template>
@@ -62,7 +67,7 @@
 
         <template slot="content">
             {% block sw_media_catalog_page_content %}
-                <div v-if="total" class="sw-media-catalog__page-content">
+                <div v-if="mediaItems.length > 0" class="sw-media-catalog__page-content">
                     {% block sw_media_catalog_content_container %}
                         <div class="sw-media-catalog__content-container">
                             {% block sw_media_catalog_content %}
@@ -144,13 +149,28 @@
                                     {% block sw_media_catalog_media_grid %}
                                         <sw-media-grid
                                             class="sw-media-catalog__media-grid"
-                                            :previewType="previewType"
-                                            :selectable="true"
-                                            :editable="false"
-                                            :items="mediaItems"
-                                            ref="mediaGrid"
-                                            v-on="mediaMediaGridListener"
-                                            :gridColumnWidth="catalogIconSize">
+                                            dragSelectorClass="sw-media-grid-media-item"
+                                            :gridColumnWidth="catalogIconSize"
+                                            @sw-media-grid-selection-clear="clearSelection">
+
+                                            <sw-media-grid-media-item
+                                                v-for="mediaItem in mediaItems"
+                                                :key="mediaItem.id"
+                                                :item="mediaItem"
+                                                :selected="showItemSelected(mediaItem)"
+                                                :showSelectionIndicator="isListSelect"
+                                                :isList="false"
+                                                @sw-media-grid-media-item-delete="handleMediaGridItemDelete"
+                                                v-on="mediaItemSelectionHandler">
+
+                                                {% block sw_media_catalog_context_item_detail %}
+                                                    <sw-context-menu-item @click="showDetails(mediaItem)"
+                                                                          slot="additional-context-menu-items">
+                                                        {{ $tc('global.sw-media-grid-media-item.labelContextMenuDetail') }}
+                                                    </sw-context-menu-item>
+                                                {% endblock %}
+                                            </sw-media-grid-media-item>
+
                                         </sw-media-grid>
                                     {% endblock %}
 
@@ -173,7 +193,7 @@
                         <div class="sw-media-catalog__sidebar">
                             <sw-media-sidebar
                                 :items="selectedItems"
-                                v-on="mediaSidebarListener"
+                                @sw-media-sidebar-items-delete="handleMediaGridItemDelete"
                                 ref="mediaSidebar">
                             </sw-media-sidebar>
                         </div>
@@ -187,23 +207,6 @@
 
             {% block sw_media_catalog_empty_state %}
                 <sw-empty-state v-else-if="!isLoading && !total" :title="$tc('sw-media.catalog.messageEmpty')"></sw-empty-state>
-            {% endblock %}
-
-            {% block sw_media_catalog_modal_delete %}
-                <sw-media-modal-delete
-                   :itemsToDelete="selectionToDelete"
-                   @sw-media-modal-delete-close="closeDeleteModal"
-                   @sw-media-modal-delete-delete="deleteSelection">
-                </sw-media-modal-delete>
-            {% endblock %}
-
-            {% block sw_media_catalog_modal_replace %}
-                <sw-media-modal-replace
-                    v-if="mediaItemToReplace"
-                    :itemToReplace="mediaItemToReplace"
-                    @sw-media-modal-replace-close="closeReplaceModal"
-                    @sw-media-modal-replace-confirmed="handleItemReplaced">
-                </sw-media-modal-replace>
             {% endblock %}
         </template>
     </sw-page>

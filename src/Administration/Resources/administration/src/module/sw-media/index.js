@@ -1,4 +1,5 @@
 import { Module } from 'src/core/shopware';
+import './mixin/mediagrid-listener.mixin';
 import './page/sw-media-index';
 import './page/sw-media-catalog';
 import './component/sidebar/sw-media-sidebar';

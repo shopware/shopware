@@ -1,10 +1,11 @@
 {% block sw_collapse_panel_header_slot %}
     <div class="sw-media-collapse__header">
         {% block sw_media_collapse_title %}
-            <div class="sw-media-collapse__title">
+            <h4 class="sw-media-collapse__title">
                 {{ title }}
-            </div>
+            </h4>
         {% endblock %}
+
         {% block sw_media_collapse_buttons %}
             <div class="sw-media-collapse__indicator">
                 <sw-icon name="small-arrow-small-right" class="sw-media-collapse__button" :class="expandButtonClass"></sw-icon>

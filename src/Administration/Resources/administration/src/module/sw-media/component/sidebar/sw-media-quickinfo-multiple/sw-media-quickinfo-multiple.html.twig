@@ -11,7 +11,7 @@
                         <ul class="sw-media-quickinfo-multiple__collapse-content sw-media-quickinfo-multiple__two-columns">
                             {% block sw_media_quickinfo_multiple_quickactions_delete %}
                                 <li class="sw-media-quickinfo-multiple__quickaction is--danger"
-                                     @click="emitQuickAction($event, 'remove-batch')">
+                                     @click="emitOpenModalDelete">
                                     {% block sw_media_quickinfo_multiple_quickactions_delete_icon %}
                                         <sw-icon small
                                                  name="default-action-trash"
@@ -39,13 +39,17 @@
 
                 <template slot="content">
                     {% block sw_media_quickinfo_multiple_file_names_content %}
-                        <sw-media-grid
-                            previewType="media-grid-preview-as-list"
-                            :selectable="false"
-                            :editable="false"
-                            :items="items"
-                            :showContextMenuButton="false">
-                        </sw-media-grid>
+                        <div class="sw-media-quickinfo-multiple__collapse-content">
+                            <sw-media-grid-media-item
+                                v-for="mediaItem in items"
+                                :key="mediaItem.id"
+                                :item="mediaItem"
+                                :selected="false"
+                                :isList="true"
+                                :showContextMenuButton="false"
+                                :showSelectionIndicator="false">
+                            </sw-media-grid-media-item>
+                        </div>
                     {% endblock %}
                 </template>
             </sw-media-collapse>

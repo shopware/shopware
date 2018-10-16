@@ -1,20 +1,27 @@
 @import "~less/variables";
 
-@color-quickinfo-collapse-divider:   @color-steam-cloud;
-@color-quickinfo-header:             @color-gutenberg;
-
+@sw-media-collapse-color-divider:   @color-steam-cloud;
+@sw-media-collapse-color-title:     @color-gutenberg;
+@sw-media-collapse-font-size-title: @font-size-default;
 
 .sw-collapse {
     .sw-media-collapse__header {
         display: grid;
-        grid-template-columns: auto 24px;
+        grid-template-columns: 1fr auto;
         cursor: pointer;
         padding-bottom: 16px;
-        color: @color-quickinfo-header;
-        border-bottom: 1px solid @color-quickinfo-collapse-divider;
+        color: @sw-media-collapse-color-title;
+        border-bottom: 1px solid @sw-media-collapse-color-divider;
+    }
+
+    .sw-media-collapse__title {
+        font-size: @sw-media-collapse-font-size-title;
+        font-weight: normal;
+        margin: 0 25px 0;
     }
 
     .sw-media-collapse__button {
+        margin-right: 25px;
         &.is--hidden {
             display: none;
         }

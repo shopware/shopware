@@ -22,43 +22,41 @@ Component.register('sw-media-preview', {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        transparency: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
 
     computed: {
         mediaPreviewClasses() {
             return {
-                'shows--transparency': (this.checkForFileTypeImage || this.checkForInMemoryFile),
+                'shows--transparency':
+                    (this.checkForFileTypeImage || this.checkForInMemoryFile)
+                    && this.transparency,
                 'is--icon': this.checkForFileTypeSvg
             };
         },
 
         checkForFileTypeImage() {
-            const filePath = this.item.mimeType;
-            const regEx = /^image\/+/;
-
-            return (regEx.test(filePath));
+            return this.isFileType('image');
         },
 
         checkForFileTypeVideo() {
-            const filePath = this.item.mimeType;
-            const regEx = /^video\/+/;
-
-            return (regEx.test(filePath) && this.isVideoPlayable());
+            return this.isFileType('video') && this.isVideoPlayable();
         },
 
         checkForFileTypeAudio() {
-            const filePath = this.item.mimeType;
-            const regEx = /^audio\/+/;
-
-            return (regEx.test(filePath) && this.isAudioPlayable());
+            return this.isFileType('audio') && this.isAudioPlayable();
         },
 
         checkForFileTypeSvg() {
-            const filePath = this.item.mimeType;
             const regEx = /.*svg.*/;
 
-            return regEx.test(filePath);
+            return regEx.test(this.item.mimeType);
         },
 
         checkForInMemoryFile() {
@@ -66,15 +64,16 @@ Component.register('sw-media-preview', {
         },
 
         placeholderIcon() {
-            let regEx = /^video\/+/;
-            if (regEx.test(this.item.mimeType)) {
-                // show movie placeholder image if video format is not playable
+            if (!this.item.hasFile) {
+                // ToDo change this if design has finished an broken file icon
+                return 'file-thumbnail-normal';
+            }
+
+            if (this.isFileType('video')) {
                 return 'file-thumbnail-mov';
             }
 
-            regEx = /^audio\/+/;
-            if (regEx.test(this.item.mimeType)) {
-                // show movie placeholder image if video format is not playable
+            if (this.isFileType('audio')) {
                 return 'file-thumbnail-mp3';
             }
 
@@ -96,6 +95,17 @@ Component.register('sw-media-preview', {
         urlFromItem() {
             if (this.item.dataUrl) {
                 return this.item.dataUrl;
+            }
+
+            if (this.item.thumbnails.length > 0) {
+                const thumbnails = this.item.thumbnails.filter((thumb) => {
+                    return thumb.height === 300;
+                });
+                if (thumbnails.length > 0) {
+                    return thumbnails[0].url;
+                }
+
+                return this.item.thumbnails[0].url;
             }
 
             return this.item.url;
@@ -128,6 +138,12 @@ Component.register('sw-media-preview', {
                 'audio/ogg',
                 'audio/wav'
             ].includes(this.item.mimeType);
+        },
+
+        isFileType(filetype) {
+            const regEx = new RegExp(`^${filetype}\\/+`);
+
+            return regEx.test(this.item.mimeType);
         }
     }
 });

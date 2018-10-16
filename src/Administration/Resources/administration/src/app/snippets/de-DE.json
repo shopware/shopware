@@ -40,15 +40,62 @@
     "sw-modal": {
       "labelClose": "Schließen"
     },
+    "sw-media-grid-catalog-item": {
+      "labelShowCatalogContent": "Inhalt anzeigen",
+      "labelShowCatalogDetails": "Katalogdetails anzeigen"
+    },
     "sw-media-grid-media-item": {
-      "contextMenuDetailLabel": "Informationen",
-      "contextMenuDeleteLabel": "Löschen",
-      "contextMenuCopyLinkLabel": "Link kopieren",
-      "contextMenuReplaceLabel": "Ersetzen"
+      "labelContextMenuDelete": "Löschen",
+      "labelContextMenuCopyLink": "Link kopieren",
+      "labelContextMenuReplace": "Ersetzen",
+      "labelContextMenuRename": "Umbenennen",
+      "labelContextMenuAddToProduct": "Zu Produkt hinzufügen",
+      "labelContextMenuDetail": "Informationen",
+      "notificationErrorBlankItemName": "Das Medium konnte nicht umbenannt werden. Bitte füge einen Dateinamen hinzu.",
+      "notificationRenamingSuccess": "Medium erfolgreich umbenannt",
+      "notificationRenamingError": "Fehler beim Umbenennen"
+    },
+    "sw-media-modal-delete": {
+      "titleModal": "Medien löschen",
+      "deleteMessage":"Möchtest Du \"{mediaName}\" wirklich löschen? | Diese {count} Medien löschen",
+      "buttonDelete": "Löschen",
+      "buttonAbort": "Abbrechen",
+      "notificationSuccessSingle": "File \"{mediaName}\" erfolgreich gelöscht",
+      "notificationErrorSingle": "Fehler beim Löschen von \"{mediaName}\"",
+      "notificationSuccessOverall": "Dateien erfolgreich gelöscht",
+      "notificationErrorOverall": "Die Dateien konnten nicht gelöscht werden"
+    },
+    "sw-media-modal-replace": {
+      "titleModal": "Medien ersetzen",
+      "buttonUpload": "Upload",
+      "buttonCancel": "Abbrechen",
+      "buttonReplace": "Ersetzen",
+      "notificationSuccess": "Datei erfolgreich ersetzt",
+      "notificationFailure": "Fehler beim Ersetzen von {mediaName}",
+      "notificationFileReaderError": "Wir konnten die Datei nicht lesen"
     },
     "sw-media-preview": {
       "fallbackVideoTagSupport": "Ihr Browser unterstützt diesen Video-Tag nicht",
       "fallbackAudioTagSupport": "Ihr Browser unterstützt diesen Audio-Tag nicht"
+    },
+    "sw-media-upload-button": {
+      "buttonUpload": "Hochladen",
+      "buttonFileUpload": "Dateien hochladen",
+      "buttonUrlUpload": "Über URL hochladen"
+    },
+    "sw-media-upload-url-modal": {
+      "title": "Datei über URL hochladen",
+      "upload": "Hochladen",
+      "cancel": "Abbrechen",
+      "example": "https://www.beispiel.de",
+      "labelFileExtension": "Dateiendung",
+      "invalidUrl": "Bite gib eine valide URL ein, um eine Datei herunterzuladen.",
+      "missingFileExtension": "Eine Url enthält keine Dateiendung. Bitte gib eine Dateiendung an."
+    },
+    "sw-sidebar-media-item": {
+      "title": "Medien",
+      "placeholderSearch": "Suche",
+      "labelLoadMore": "Mehr laden"
     },
     "sw-multi-select": {
       "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden.",
@@ -64,18 +111,6 @@
       "typeLabelProduct": "Produkt",
       "typeLabelOrder": "Bestellung",
       "typeLabelMedia": "Medium"
-    },
-    "sw-media-upload-container": {
-      "dropZoneText": "Dateien zum Hochladen hierhin ziehen",
-      "upload": "Datei hochladen",
-      "openMedia": "Medien öffnen",
-      "createFromURLText": "Datei über URL hinzufügen"
-    },
-    "sw-media-upload-url-modal": {
-      "title": "Datei über URL hochladen",
-      "upload": "Hochladen",
-      "cancel": "Abbrechen",
-      "example": "www.beispiel.de"
     }
   },
   "sw-login": {
@@ -143,7 +178,8 @@
       "modalTitleDelete": "Kunden löschen",
       "textDeleteConfirm": "Möchtest Du den Kunden \"{name}\" wirklich löschen?",
       "buttonCancel": "Abbrechen",
-      "buttonDelete": "Löschen"
+      "buttonDelete": "Löschen",
+      "titleSidebarItemRefresh": "Aktualisieren"
     },
     "baseForm": {
       "labelSalutation": "Anrede",
@@ -418,7 +454,7 @@
       "messageEmpty": "Noch keine Produkte",
       "modalTitleDelete": "Produkte",
       "textDeleteConfirm": "Möchtest Du das Produkt \"{name}\" wirklich löschen?",
-      "titleRefresh": "Aktualisieren"
+      "titleSidebarItemRefresh": "Aktualisieren"
     },
     "detail": {
       "textHeadline": "Neues Produkt",
@@ -431,9 +467,9 @@
       "messageUploadSuccess": "{count} von {total} Dateien erfolgreich gespeichert."
     },
     "mediaForm": {
-      "title": "Produktfotos",
       "buttonUpload": "Datei hochladen",
-      "noImageError": "\"{file}\" ist kein Bild"
+      "errorNoImage": "\"{file}\" ist kein Bild",
+      "errorMediaItemDuplicated": "Medium bereits verwendet"
     }
   },
   "sw-manufacturer": {
@@ -456,7 +492,8 @@
       "modalTitleDelete": "Hersteller löschen",
       "textDeleteConfirm": "Bist Du sicher, dass Du den Hersteller {name} löschen möchtest?",
       "buttonCancel": "Abbrechen",
-      "buttonDelete": "Löschen"
+      "buttonDelete": "Löschen",
+      "titleSidebarItemRefresh": "Aktualisieren"
     },
     "detail": {
       "textHeadline": "Neuer Hersteller",
@@ -471,7 +508,8 @@
       "placeholderDescription": "Gib eine Herstellerbeschreibung ein...",
       "placeholderLink": "Gib die Herstellerwebseite ein...",
       "titleSaveSuccess": "Hersteller",
-      "messageSaveSuccess": "Der Hersteller {name} wurde erfolgreich gespeichert."
+      "messageSaveSuccess": "Der Hersteller {name} wurde erfolgreich gespeichert.",
+      "addLogoCaption": "Logo hinzufügen"
     }
   },
   "sw-order": {
@@ -493,7 +531,8 @@
       "contextMenuView": "Anzeigen",
       "contextMenuDelete": "Löschen",
       "contextMenuConfirmPayment": "Zahlung bestätigen",
-      "messageEmpty": "Noch keine Bestellungen"
+      "messageEmpty": "Noch keine Bestellungen",
+      "titleSidebarItemRefresh": "Aktualisieren"
     },
     "detail": {
       "buttonCancel": "Abbrechen",
@@ -581,34 +620,22 @@
       "placeholderSearchBar": "Durchsuche alle Medien"
     },
     "smart-bar": {
-      "smartBarHeader": "Medien",
-      "buttonUpload": "Hochladen",
-      "buttonFileUpload": "Dateien hochladen",
-      "buttonUrlUpload": "Über URL hochladen"
+      "smartBarHeader": "Medien"
     },
     "upload": {
       "notificationSuccess": "Datei erfolgreich gespeichert",
       "notificationFailure": "Fehler beim Hochladen von {mediaName}",
       "notificationInfo": "Lade eine Datei hoch | Lade {count} Dateien hoch"
     },
-    "replace": {
-      "notificationSuccess": "Datei erfolgreich ersetzt",
-      "notificationFailure": "Fehler beim Ersetzen von {mediaName}"
-    },
-    "catalogItem": {
-      "showCatalogContent": "Inhalt anzeigen",
-      "showCatalogDetails": "Katalogdetails anzeigen"
-    },
     "index": {
-      "catalogs": "Kataloge",
-      "lastAdded": "Zuletzt hinzugefügt",
-      "searchResult": "Suchergebnis"
+      "headingCatalogs": "Kataloge",
+      "headingLastAdded": "Zuletzt hinzugefügt",
+      "headingSearchResult": "Suchergebnis"
     },
     "sidebar": {
       "actions": {
         "quickInfo": "Information",
-        "filter": "Filter",
-        "settings": "Einstellungen"
+        "delete": "Löschen"
       },
       "quickinfo": {
         "actions": "Aktionen",
@@ -619,7 +646,9 @@
         "copyLink": "Link kopieren",
         "more": "Mehr",
         "preview": "Vorschau",
-        "metadata": "Metadaten"
+        "metadata": "Metadaten",
+        "titleMissingFile": "Datei nicht gefunden",
+        "descriptionMissingFile": "Wir konnten diese Datei nicht finden. Du kannst eine neue Datei hochladen oder diese löschen."
       },
       "metadata": {
         "name": "Name",
@@ -651,17 +680,6 @@
       "labelSortByCreatedDsc": "Erstelldatum absteigend",
       "labelSortByDataTypeAsc": "Dateityp aufsteigend",
       "labelSortByDataTypeDsc": "Dateityp absteigend"
-    },
-    "modalDelete": {
-      "modalHeader": "Medien löschen",
-      "deleteMessage":"Möchtest Du \"{mediaName}\" wirklich löschen? | Diese {count} Medien löschen",
-      "modalButtonDelete": "Löschen",
-      "modalButtonAbort": "Abbrechen"
-    },
-    "modalReplace": {
-      "modalTitle": "Medien ersetzen",
-      "cancelButton": "Abbrechen",
-      "replaceButton": "Ersetzen"
     }
   },
   "sw-settings": {

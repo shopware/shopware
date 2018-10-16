@@ -2,6 +2,14 @@ import { Mixin } from 'src/core/shopware';
 import { debug } from 'src/core/service/util.service';
 
 Mixin.register('drag-selector', {
+    props: {
+        dragSelectorClass: {
+            type: String,
+            required: false,
+            default: null
+        }
+    },
+
     data() {
         return {
             mouseDown: false,
@@ -13,14 +21,6 @@ Mixin.register('drag-selector', {
     },
 
     computed: {
-        dragSelectorClass() {
-            debug.warn('Drag-Selector Mixin',
-                'You have to specify the CSS-Selector class of the selectable Items ' +
-                'by defining the computed property "dragSelectorClass".');
-
-            return null;
-        },
-
         _dragIsActive() {
             return !this.mouseDown || !this.startPoint || !this.endPoint;
         },

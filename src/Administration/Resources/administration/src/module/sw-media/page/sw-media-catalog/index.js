@@ -1,12 +1,7 @@
 import { Component, State, Mixin } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
-import mediaMediaGridListener from '../../mixin/mediagrid.listener.mixin';
-import mediaSidebarListener from '../../mixin/sibebar.listener.mixin';
-import '../../component/sw-media-upload';
 import template from './sw-media-catalog.html.twig';
 import './sw-media-catalog.less';
-import '../../component/sw-media-modal-delete';
-import '../../component/sw-media-modal-replace';
 
 Component.register('sw-media-catalog', {
     template,
@@ -14,8 +9,7 @@ Component.register('sw-media-catalog', {
     mixins: [
         Mixin.getByName('listing'),
         Mixin.getByName('notification'),
-        mediaMediaGridListener,
-        mediaSidebarListener
+        Mixin.getByName('mediagrid-listener')
     ],
 
     data() {
@@ -24,11 +18,8 @@ Component.register('sw-media-catalog', {
             previewType: 'media-grid-preview-as-grid',
             catalogs: [],
             mediaItems: [],
-            selectedItems: null,
-            selectionToDelete: null,
             sortType: ['createdAt', 'dsc'],
-            catalogIconSize: 200,
-            mediaItemToReplace: null
+            catalogIconSize: 200
         };
     },
 
@@ -49,6 +40,14 @@ Component.register('sw-media-catalog', {
             return this.catalogs.filter((catalog) => {
                 return catalog.id !== this.getCatalogId();
             });
+        },
+
+        mediaSidebar() {
+            return this.$refs.mediaSidebar;
+        },
+
+        selectableItems() {
+            return this.mediaItems;
         }
     },
 
@@ -70,12 +69,21 @@ Component.register('sw-media-catalog', {
             this.$root.$off('search', this.onSearch);
         },
 
+        showDetails(mediaItem) {
+            this._showDetails(mediaItem, false);
+        },
+
         onNewMedia() {
             this.getList();
         },
 
+        onNewUpload(mediaEntity) {
+            this.mediaItems.unshift(mediaEntity);
+        },
+
         getList() {
             this.isLoading = true;
+            this.clearSelection();
             const params = this.getListingParams();
 
             params.criteria = CriteriaFactory.term('catalogId', this.currentCatalog.id);
@@ -116,97 +124,8 @@ Component.register('sw-media-catalog', {
             return this.$route.params.id;
         },
 
-        getSelectedItems() {
-            const selection = this.$refs.mediaGrid.selection;
-
-            if (!Array.isArray(selection) || selection.length === 0) {
-                this.selectedItems = null;
-                return;
-            }
-
-            this.selectedItems = selection;
-        },
-
-        handleMediaGridSelectionRemoved() {
-            this.getSelectedItems();
-        },
-
-        handleMediaGridItemSelected() {
-            this.getSelectedItems();
-        },
-
-        handleMediaGridItemUnselected() {
-            this.getSelectedItems();
-        },
-
-        handleMediaGridItemReplace({ item }) {
-            this.mediaItemToReplace = item;
-        },
-
-        handleMediaGridItemShowDetails({ item, autoplay }) {
-            this.selectedItems = [item];
-            this.$refs.mediaSidebar.autoplay = autoplay;
-            this.$refs.mediaSidebar.showQuickInfo();
-        },
-
-        handleSidebarRemoveItem({ item }) {
-            this.selectionToDelete = [item];
-        },
-
-        handleSidebarRemoveBatchRequest() {
-            this.selectionToDelete = this.selectedItems;
-        },
-
-        handleMediaGridItemDelete({ item }) {
-            this.selectionToDelete = [item];
-        },
-
-        closeDeleteModal() {
-            this.selectionToDelete = null;
-        },
-
-        deleteSelection() {
-            const mediaItemsDeletion = [];
-
-            this.isLoading = true;
-
-            this.selectionToDelete.forEach((element) => {
-                mediaItemsDeletion.push(this.mediaItemStore.getById(element.id).delete(true));
-            });
-
-            Promise.all(mediaItemsDeletion).then(() => {
-                this.selectionToDelete = null;
-                this.getList();
-            });
-            this.selectedItems = null;
-        },
-
-        handleSidebarReplaceItem({ item }) {
-            this.mediaItemToReplace = item;
-        },
-
-        closeReplaceModal() {
-            this.mediaItemToReplace = null;
-        },
-
-        handleItemReplaced(replacementPromise, file) {
-            this.closeReplaceModal();
-
-            replacementPromise.then(() => {
-                this.getList().then(() => {
-                    const media = this.mediaItems.find((item) => {
-                        return item.id === file.id;
-                    });
-                    media.url = `${media.url}?${Date.now()}`;
-                    this.createNotificationSuccess({
-                        message: this.$tc('sw-media.replace.notificationSuccess')
-                    });
-                });
-            }).catch(() => {
-                this.createNotificationError({
-                    message: this.$tc('sw-media.replace.notificationFailure', 0, { mediaName: file.name })
-                });
-            });
+        handleMediaGridItemDelete() {
+            this.getList();
         }
     }
 });

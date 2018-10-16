@@ -1,40 +1,62 @@
 {% block sw_media_sidebar %}
     <div class="sw-media-sidebar">
-        <sw-sidebar slot="sidebar">
-            {% block sw_media_sidebar_container %}
-                <div class="sw-media-sidebar__item-container">
-                    {% block sw_media_sidebar_items_top %}
-                        <div class="sw-media-sidebar__items-top">
-                            {% block sw_media_sidebar_actions_quickinfo %}
-                                <sw-sidebar-item icon="default-action-document-view"
-                                                 :title="$tc('sw-media.sidebar.actions.quickInfo')"
-                                                 ref="quickInfoButton"
-                                                 :disabled="!hasItems">
-                                    <sw-media-quickinfo
-                                            v-if="isSingleFile"
-                                            :key="getKey"
-                                            :item="items[0]"
-                                            :autoplay="autoplay"
-                                            v-on="$listeners">
-                                    </sw-media-quickinfo>
-                                    <sw-media-quickinfo-multiple v-else :items="items" v-on="$listeners"></sw-media-quickinfo-multiple>
-                                </sw-sidebar-item>
-                            {% endblock %}
-                        </div>
-                    {% endblock %}
+        {% block sw_media_sidebar_sidebar %}
+            <sw-sidebar>
+                {% block sw_media_sidebar_item_quickinfo %}
+                    <sw-sidebar-item
+                        icon="default-action-document-view"
+                        :title="$tc('sw-media.sidebar.actions.quickInfo')"
+                        ref="quickInfoButton"
+                        :disabled="!hasItems">
 
-                    {% block sw_media_sidebar_items_bottom %}
-                        <div class="sw-media-sidebar__items-bottom">
-                            {% block sw_media_sidebar_actions_delete_file %}
-                                <sw-sidebar-item icon="default-action-trash"
-                                                 @click="emitRequestRemoveSelection"
-                                                 :disabled="!hasItems">
-                                </sw-sidebar-item>
-                            {% endblock %}
-                        </div>
-                    {% endblock %}
-                </div>
-            {% endblock %}
-        </sw-sidebar>
+                        {% block sw_media_sidebar_item_quickinfo_content %}
+                            <div class="sw-media-sidebar__quickinfo-wrapper">
+                                <sw-media-quickinfo
+                                    v-if="isSingleFile"
+                                    :key="getKey"
+                                    :item="items[0]"
+                                    :autoplay="autoplay"
+                                    @sw-media-quickinfo-open-modal-replace="openModalReplace"
+                                    @sw-media-quickinfo-open-modal-delete="openModalDelete">
+                                </sw-media-quickinfo>
+
+                                <sw-media-quickinfo-multiple
+                                    v-else-if="isMultipleFile"
+                                    :items="items"
+                                    @sw-media-quickinfo-open-modal-delete="openModalDelete">
+                                </sw-media-quickinfo-multiple>
+                            </div>
+                        {% endblock %}
+                    </sw-sidebar-item>
+                {% endblock %}
+
+                {% block sw_media_sidebar_item_delete %}
+                    <sw-sidebar-item
+                        icon="default-action-trash"
+                        :title="$tc('sw-media.sidebar.actions.delete')"
+                        :disabled="!hasItems"
+                        position="bottom"
+                        @click="openModalDelete">
+                    </sw-sidebar-item>
+                {% endblock %}
+            </sw-sidebar>
+        {% endblock %}
+
+        {% block sw_media_sidebar_modal_replace %}
+            <sw-media-modal-replace
+                v-if="isSingleFile && showModalReplace"
+                :itemToReplace="items[0]"
+                @sw-media-modal-replace-close="closeModalReplace">
+            </sw-media-modal-replace>
+        {% endblock %}
+
+        {% block sw_media_sidebar_modal_delete %}
+            <sw-media-modal-delete
+                v-if="hasItems && showModalDelete"
+                :itemsToDelete="items"
+                @sw-media-modal-delete-close="closeModalDelete"
+                @sw-media-modal-delete-items-deleted="deleteSelectedItems">
+            </sw-media-modal-delete>
+        {% endblock %}
     </div>
 {% endblock %}

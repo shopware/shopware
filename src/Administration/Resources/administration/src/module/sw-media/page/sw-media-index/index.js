@@ -1,8 +1,5 @@
 import { Component, State, Mixin } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
-import '../../component/sw-media-modal-delete';
-import mediaMediaGridListener from '../../mixin/mediagrid.listener.mixin';
-import mediaSidebarListener from '../../mixin/sibebar.listener.mixin';
 import template from './sw-media-index.html.twig';
 import './sw-media-index.less';
 
@@ -10,8 +7,7 @@ Component.register('sw-media-index', {
     template,
 
     mixins: [
-        mediaMediaGridListener,
-        mediaSidebarListener,
+        Mixin.getByName('mediagrid-listener'),
         Mixin.getByName('notification')
     ],
 
@@ -20,9 +16,6 @@ Component.register('sw-media-index', {
             isLoading: false,
             catalogs: [],
             mediaItems: [],
-            selectedItems: null,
-            selectionToDelete: null,
-            mediaItemToReplace: null,
             searchId: this.$route.query.mediaId
         };
     },
@@ -38,6 +31,14 @@ Component.register('sw-media-index', {
 
         isSearch() {
             return this.searchId !== null && this.searchId !== undefined;
+        },
+
+        mediaSidebar() {
+            return this.$refs.mediaSidebar;
+        },
+
+        selectableItems() {
+            return this.mediaItems;
         }
     },
 
@@ -65,99 +66,19 @@ Component.register('sw-media-index', {
             this.loadMedia();
         },
 
-        getSelectedItems() {
-            const selection = this.$refs.mediaGrid.selection;
-
-            if (!Array.isArray(selection) || selection.length === 0) {
-                this.selectedItems = null;
-                return;
-            }
-
-            this.selectedItems = selection;
+        handleMediaGridItemDelete() {
+            this.loadMedia();
         },
 
-        handleMediaGridSelectionRemoved() {
-            this.getSelectedItems();
-        },
-
-        handleMediaGridItemSelected() {
-            this.getSelectedItems();
-        },
-
-        handleMediaGridItemUnselected() {
-            this.getSelectedItems();
-        },
-
-        handleMediaGridItemReplace({ item }) {
-            this.mediaItemToReplace = item;
-        },
-
-        handleMediaGridItemShowDetails({ item, autoplay }) {
-            this.selectedItems = [item];
-            this.$refs.mediaSidebar.autoplay = autoplay;
-            this.$refs.mediaSidebar.showQuickInfo();
-        },
-
-        handleSidebarRemoveItem({ item }) {
-            this.selectionToDelete = [item];
-        },
-
-        handleSidebarRemoveBatchRequest() {
-            this.selectionToDelete = this.$refs.mediaGrid.selection;
-        },
-
-        handleMediaGridItemDelete({ item }) {
-            this.selectionToDelete = [item];
-        },
-
-        closeDeleteModal() {
-            this.selectionToDelete = null;
-        },
-
-        deleteSelection() {
-            const mediaItemsDeletion = [];
-            this.isLoading = true;
-
-            this.selectionToDelete.forEach((element) => {
-                mediaItemsDeletion.push(this.mediaItemStore.getById(element.id).delete(true));
-            });
-
-            Promise.all(mediaItemsDeletion).then(() => {
-                this.selectionToDelete = null;
-                this.loadMedia();
-            });
-            this.selectedItems = null;
-        },
-
-        handleSidebarReplaceItem({ item }) {
-            this.mediaItemToReplace = item;
-        },
-
-        closeReplaceModal() {
-            this.mediaItemToReplace = null;
-        },
-
-        handleItemReplaced(replacementPromise, file) {
-            this.closeReplaceModal();
-
-            replacementPromise.then(() => {
-                this.loadMedia().then(() => {
-                    const media = this.mediaItems.find((item) => {
-                        return item.id === file.id;
-                    });
-                    media.url = `${media.url}?${Date.now()}`;
-                    this.createNotificationSuccess({
-                        message: this.$tc('sw-media.replace.notificationSuccess')
-                    });
-                });
-            }).catch(() => {
-                this.createNotificationError({
-                    message: this.$tc('sw-media.replace.notificationFailure', 0, { mediaName: file.name })
-                });
-            });
+        showDetails(mediaItem) {
+            this._showDetails(mediaItem, false);
         },
 
         loadMedia() {
+            this.isLoading = true;
+            this.clearSelection();
+            this.mediaItems = [];
+
             if (this.isSearch) {
                 return this.loadSearchedMedia().then(() => {
                     this.isLoading = false;
@@ -190,9 +111,13 @@ Component.register('sw-media-index', {
             };
 
             return this.mediaItemStore.getList(params, true).then((response) => {
-                this.mediaItems = response.items;
-                this.selectedItems = this.mediaItems[0];
-                this.handleMediaGridItemShowDetails({ item: this.mediaItems[0] });
+                if (response.total > 0) {
+                    this.mediaItems = response.items;
+                    this.handleMediaGridItemShowDetails({ item: this.mediaItems[0] });
+                    return;
+                }
+
+                this.mediaItems = [];
             });
         }
     }

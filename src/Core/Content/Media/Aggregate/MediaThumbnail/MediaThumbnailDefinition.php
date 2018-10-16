@@ -15,8 +15,8 @@ use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
 use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\Field\TenantIdField;
 use Shopware\Core\Framework\ORM\Field\UpdatedAtField;
+use Shopware\Core\Framework\ORM\Field\VersionField;
 use Shopware\Core\Framework\ORM\FieldCollection;
-use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\Deferred;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
@@ -33,6 +33,7 @@ class MediaThumbnailDefinition extends EntityDefinition
     {
         return new FieldCollection([
             new TenantIdField(),
+            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
 
             (new FkField('media_id', 'mediaId', MediaDefinition::class))->setFlags(new Required()),
@@ -45,7 +46,7 @@ class MediaThumbnailDefinition extends EntityDefinition
             (new BoolField('highDpi', 'highDpi'))->setFlags(new Required(), new WriteProtected(MediaProtectionFlags::WRITE_THUMBNAILS)),
             (new StringField('url', 'url'))->setFlags(new Deferred()),
 
-            (new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, false))->setFlags(new CascadeDelete()),
+            new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, false),
         ]);
     }
 

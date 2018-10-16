@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Test\Media\Thumbnail;
 use League\Flysystem\FileNotFoundException;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
-use Shopware\Core\Content\Media\Event\MediaFileUploadedEvent;
 use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
 use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\MediaStruct;
@@ -14,7 +13,7 @@ use Shopware\Core\Content\Media\Thumbnail\ThumbnailConfiguration;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\ORM\EntityRepository;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -49,43 +48,37 @@ class ThumbnailServiceTest extends TestCase
     private $thumbnailService;
 
     /**
-     * @var EntityRepository
+     * @var RepositoryInterface
      */
-    private $repository;
+    private $mediaRepository;
 
     public function setUp()
     {
         $this->urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
-        $this->repository = $this->getContainer()->get('media.repository');
+        $this->mediaRepository = $this->getContainer()->get('media.repository');
         $this->thumbnailConfiguration = $this->getContainer()->get(ThumbnailConfiguration::class);
         $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
         $this->context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
 
         $this->thumbnailService = $this->getContainer()->get(ThumbnailService::class);
-
-        $this->media = $this->createTestEntity();
-    }
-
-    public function testSubscribesToMediaFileUploadedEvent(): void
-    {
-        static::assertArrayHasKey(MediaFileUploadedEvent::EVENT_NAME, $this->thumbnailService::getSubscribedEvents());
     }
 
     public function testThumbnailGeneration(): void
     {
-        $filePath = $this->urlGenerator->getRelativeMediaUrl($this->media->getId(), $this->media->getFileExtension());
+        $testMedia = $this->createTestEntity();
+        $filePath = $this->urlGenerator->getRelativeMediaUrl($testMedia->getId(), $testMedia->getFileExtension());
         $this->getPublicFilesystem()->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r'));
 
         $this->thumbnailService->generateThumbnails(
-            $this->media,
+            $testMedia,
             $this->context
         );
 
         $searchCriteria = new Criteria();
         $searchCriteria->setLimit(1);
-        $searchCriteria->addFilter(new TermQuery('media.id', $this->media->getId()));
+        $searchCriteria->addFilter(new TermQuery('media.id', $testMedia->getId()));
 
-        $mediaResult = $this->repository->search($searchCriteria, $this->context);
+        $mediaResult = $this->mediaRepository->search($searchCriteria, $this->context);
         /** @var MediaStruct $updatedMedia */
         $updatedMedia = $mediaResult->getEntities()->first();
 
@@ -102,8 +95,8 @@ class ThumbnailServiceTest extends TestCase
 
         foreach ($thumbnails as $thumbnail) {
             $thumbnailPath = $this->urlGenerator->getRelativeThumbnailUrl(
-                $this->media->getId(),
-                $this->media->getFileExtension(),
+                $testMedia->getId(),
+                $testMedia->getFileExtension(),
                 $thumbnail->getWidth(),
                 $thumbnail->getHeight()
             );
@@ -111,8 +104,8 @@ class ThumbnailServiceTest extends TestCase
 
             if ($thumbnail->getHighDpi()) {
                 $thumbnailPath = $this->urlGenerator->getRelativeThumbnailUrl(
-                    $this->media->getId(),
-                    $this->media->getFileExtension(),
+                    $testMedia->getId(),
+                    $testMedia->getFileExtension(),
                     $thumbnail->getWidth(),
                     $thumbnail->getHeight(),
                     true
@@ -124,23 +117,94 @@ class ThumbnailServiceTest extends TestCase
 
     public function testGeneratorThrowsExceptionIfFileDoesNotExist(): void
     {
+        $testMedia = $this->createTestEntity();
         $this->expectException(FileNotFoundException::class);
         $this->thumbnailService->generateThumbnails(
-            $this->media,
+            $testMedia,
             $this->context
         );
     }
 
     public function testGeneratorThrowsExceptionIfFileIsNoImage(): void
     {
-        $filePath = $this->urlGenerator->getRelativeMediaUrl($this->media->getId(), $this->media->getFileExtension());
+        $testMedia = $this->createTestEntity();
+        $filePath = $this->urlGenerator->getRelativeMediaUrl($testMedia->getId(), $testMedia->getFileExtension());
         $this->getPublicFilesystem()->put($filePath, 'this is the content of the file, which is not a image');
 
         $this->expectException(FileTypeNotSupportedException::class);
         $this->thumbnailService->generateThumbnails(
-            $this->media,
+            $testMedia,
             $this->context
         );
+    }
+
+    public function testDeleteThumbnails_withSavedThumbnails()
+    {
+        $mediaId = Uuid::uuid4()->getHex();
+        $mediaExtension = 'png';
+        $mediaCriteria = new Criteria();
+        $mediaCriteria->addFilter(new TermQuery('id', $mediaId));
+
+        $this->context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_THUMBNAILS);
+
+        $this->mediaRepository->create([
+            [
+                'id' => $mediaId,
+                'name' => 'media without thumbnails',
+                'fileExtension' => $mediaExtension,
+                'mimeType' => 'image/png',
+                'thumbnails' => [
+                    [
+                        'width' => 100,
+                        'height' => 100,
+                        'highDpi' => false,
+                    ],
+                    [
+                        'width' => 300,
+                        'height' => 300,
+                        'highDpi' => true,
+                    ],
+                ],
+            ],
+        ],
+            $this->context
+        );
+
+        $this->context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_THUMBNAILS);
+
+        $searchResult = $this->mediaRepository->search($mediaCriteria, $this->context);
+        /** @var MediaStruct $media */
+        $media = $searchResult->getEntities()->get($mediaId);
+        $mediaUrl = $this->urlGenerator->getRelativeMediaUrl($media->getId(), $media->getFileExtension());
+
+        self::assertSame(2, $media->getThumbnails()->count());
+
+        $this->getPublicFilesystem()->put($mediaUrl, 'test content');
+
+        $thumbnailUrls = [];
+        foreach ($media->getThumbnails() as $thumbnail) {
+            $thumbnailUrl = $this->urlGenerator->getRelativeThumbnailUrl(
+                $mediaId,
+                $mediaExtension,
+                $thumbnail->getWidth(),
+                $thumbnail->getHeight(),
+                $thumbnail->getHighDpi()
+            );
+            $this->getPublicFilesystem()->put($thumbnailUrl, 'test content');
+            $thumbnailUrls[] = $thumbnailUrl;
+        }
+
+        $this->thumbnailService->deleteThumbnails($media, $this->context);
+
+        // refresh entity
+        $searchResult = $this->mediaRepository->search($mediaCriteria, $this->context);
+        $media = $searchResult->getEntities()->get($mediaId);
+
+        self::assertSame(0, $media->getThumbnails()->count());
+        self::assertTrue($this->getPublicFilesystem()->has($mediaUrl));
+        foreach ($thumbnailUrls as $thumbnailUrl) {
+            self::assertFalse($this->getPublicFilesystem()->has($thumbnailUrl));
+        }
     }
 
     private function createTestEntity(): MediaStruct
@@ -152,7 +216,7 @@ class ThumbnailServiceTest extends TestCase
             'fileExtension' => 'png',
         ];
 
-        $this->repository->create([$media], $this->context);
+        $this->mediaRepository->create([$media], $this->context);
 
         return (new MediaStruct())->assign($media);
     }

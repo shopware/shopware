@@ -97,4 +97,18 @@ class FileFetcherTest extends TestCase
             $url
         );
     }
+
+    public function testFetchFileFromUrlWithUnavailableUrl()
+    {
+        $url = 'http://invalid/host';
+        $tempFile = tempnam(sys_get_temp_dir(), '');
+
+        $this->expectException(UploadException::class);
+        $this->expectExceptionMessage("Could open source stream from {$url}");
+
+        $this->fileFetcher->fetchFileFromURL(
+            new MediaFile($tempFile, 'image/jpeg', 'jpg', 10),
+            $url
+        );
+    }
 }

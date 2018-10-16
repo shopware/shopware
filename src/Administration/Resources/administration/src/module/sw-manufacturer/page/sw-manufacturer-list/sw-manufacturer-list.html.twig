@@ -173,7 +173,11 @@
                             {% block sw_manufacturer_list_grid_sidebar %}
                                 <sw-sidebar slot="sidebar">
                                     {% block sw_manufacturer_list_grid_sidebar_refresh %}
-                                        <sw-sidebar-item icon="default-arrow-360-left" @click="onRefresh"></sw-sidebar-item>
+                                        <sw-sidebar-item
+                                            icon="default-arrow-360-left"
+                                            :title="$tc('sw-manufacturer.list.titleSidebarItemRefresh')"
+                                            @click="onRefresh">
+                                        </sw-sidebar-item>
                                     {% endblock %}
                                 </sw-sidebar>
                             {% endblock %}

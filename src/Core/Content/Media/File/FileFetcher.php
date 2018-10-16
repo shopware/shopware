@@ -10,13 +10,17 @@ class FileFetcher
     public function fetchRequestData(Request $request, MediaFile $mediaFile): void
     {
         $inputStream = $request->getContent(true);
-        $destStream = $this->openStream($mediaFile->getFileName(), 'w');
+        $destStream = $this->openDestinationStream($mediaFile->getFileName());
 
         try {
-            $this->copyStreams($mediaFile->getFileSize(), $inputStream, $destStream);
+            $bytesWritten = $this->copyStreams($inputStream, $destStream);
         } finally {
             fclose($inputStream);
             fclose($destStream);
+        }
+
+        if ($mediaFile->getFileSize() !== $bytesWritten) {
+            throw new UploadException('expected content-length did not match actual size');
         }
     }
 
@@ -26,15 +30,11 @@ class FileFetcher
             throw new UploadException('malformed url: ' . $url);
         }
 
-        $inputStream = $this->openStream($url, 'r');
-        $destStream = $this->openStream($mediaFile->getFileName(), 'w');
+        $inputStream = $this->openSourceFromUrl($url);
+        $destStream = $this->openDestinationStream($mediaFile->getFileName());
 
         try {
-            $writtenBytes = stream_copy_to_stream($inputStream, $destStream);
-
-            if ($writtenBytes === false) {
-                throw new UploadException('Could not read file from origin: ' . $url);
-            }
+            $writtenBytes = $this->copyStreams($inputStream, $destStream);
         } finally {
             fclose($inputStream);
             fclose($destStream);
@@ -53,24 +53,42 @@ class FileFetcher
      *
      * @return resource
      */
-    private function openStream(string $source, string $mode)
+    private function openSourceFromUrl(string $url)
     {
-        $inputStream = fopen($source, $mode);
+        $inputStream = @fopen($url, 'r');
 
-        if (!$inputStream) {
-            throw new UploadException("could not open stream from {$source}");
+        if ($inputStream === false) {
+            throw new UploadException("Could open source stream from {$url}");
         }
 
         return $inputStream;
     }
 
-    private function copyStreams(int $length, $inputStream, $tempStream): void
+    /**
+     * @throws UploadException
+     *
+     * @return resource
+     */
+    private function openDestinationStream(string $filename)
     {
-        $bytesWritten = stream_copy_to_stream($inputStream, $tempStream);
+        $inputStream = @fopen($filename, 'w');
 
-        if ($bytesWritten !== $length) {
-            throw new UploadException('expected content-length did not match actual size');
+        if ($inputStream === false) {
+            throw new UploadException('Could not open Stream to write uploaddata: {filename}');
         }
+
+        return $inputStream;
+    }
+
+    private function copyStreams($sourceStream, $destStream): int
+    {
+        $writtenBytes = stream_copy_to_stream($sourceStream, $destStream);
+
+        if ($writtenBytes === false) {
+            throw new UploadException('Error while copying media from source');
+        }
+
+        return $writtenBytes;
     }
 
     private function isUrlValid(string $url): bool

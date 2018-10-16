@@ -11,5 +11,14 @@ Component.register('sw-loader', {
             required: false,
             default: '50px'
         }
+    },
+
+    computed: {
+        loaderSize() {
+            return {
+                width: this.size,
+                height: this.size
+            };
+        }
     }
 });

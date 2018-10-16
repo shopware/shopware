@@ -81,6 +81,7 @@ class JsonStorefrontApiEncoderTest extends TestCase
                     'tenantId' => null,
                     'userId' => null,
                     'url' => '',
+                    'hasFile' => true,
                 ],
                 'links' => [
                     'self' => '/api/media/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe',

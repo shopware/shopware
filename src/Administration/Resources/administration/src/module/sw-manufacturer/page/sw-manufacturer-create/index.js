@@ -14,7 +14,7 @@ Component.extend('sw-manufacturer-create', 'sw-manufacturer-detail', {
     methods: {
         createdComponent() {
             if (this.$route.params.id) {
-                this.manufacturerStore.create(this.$route.params.id);
+                this.manufacturer = this.manufacturerStore.create(this.$route.params.id);
             }
 
             this.$super.createdComponent();

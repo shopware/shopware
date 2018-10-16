@@ -35,11 +35,8 @@ Component.register('sw-media-quickinfo-multiple', {
     },
 
     methods: {
-        emitQuickAction(originalDomEvent, action) {
-            this.$emit(`sw-media-sidebar-${action}`, {
-                originalDomEvent,
-                item: this.items
-            });
+        emitOpenModalDelete() {
+            this.$emit('sw-media-quickinfo-open-modal-delete');
         }
     }
 });

@@ -47,6 +47,8 @@
 
                     {% block sw_sidebar_media_item_load_more_button %}
                         <sw-button
+                            size="small"
+                            block
                             v-if="showMore"
                             @click="onLoadMore"
                             class="sw-sidebar-media-item__load-more-button">

@@ -16,17 +16,19 @@ class EntityAggregationResult extends AggregationResult
      */
     protected $entities;
 
-    public function __construct(Aggregation $aggregation, string $definition, EntityCollection $entities)
+    public function __construct(EntityAggregation $aggregation, EntityCollection $entities)
     {
         parent::__construct($aggregation);
 
-        $this->definition = $definition;
         $this->entities = $entities;
     }
 
     public function getDefinition(): string
     {
-        return $this->definition;
+        /** @var EntityAggregation $entityAggregation */
+        $entityAggregation = $this->getAggregation();
+
+        return $entityAggregation->getDefinition();
     }
 
     public function getEntities(): EntityCollection

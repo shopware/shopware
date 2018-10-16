@@ -5,24 +5,24 @@ namespace Shopware\Core\Framework\ORM\Search\Aggregation;
 class CardinalityAggregationResult extends AggregationResult
 {
     /**
-     * @var iterable
+     * @var int
      */
     protected $cardinality;
 
-    public function __construct(Aggregation $aggregation, iterable $cardinality)
+    public function __construct(Aggregation $aggregation, int $cardinality)
     {
         parent::__construct($aggregation);
 
         $this->cardinality = $cardinality;
     }
 
-    public function getCardinality(): iterable
+    public function getCardinality(): int
     {
         return $this->cardinality;
     }
 
     public function getResult(): array
     {
-        return $this->cardinality;
+        return ['cardinality' => $this->cardinality];
     }
 }

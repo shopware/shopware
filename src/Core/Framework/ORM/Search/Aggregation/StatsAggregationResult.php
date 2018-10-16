@@ -46,27 +46,27 @@ class StatsAggregationResult extends AggregationResult
         $this->sum = $sum;
     }
 
-    public function getCount(): int
+    public function getCount(): ?int
     {
         return $this->count;
     }
 
-    public function getAvg(): float
+    public function getAvg(): ?float
     {
         return $this->avg;
     }
 
-    public function getMin(): float
+    public function getMin(): ?float
     {
         return $this->min;
     }
 
-    public function getMax(): float
+    public function getMax(): ?float
     {
         return $this->max;
     }
 
-    public function getSum(): float
+    public function getSum(): ?float
     {
         return $this->sum;
     }

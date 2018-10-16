@@ -36,13 +36,13 @@ This will start the development server with `localhost` and the default port `80
 ```
 http://localhost:8080
 ```
-If you need port 8080 for something else e.g. elastic search, you can also change the port with the additional DEVPORT parameter:
-
+If you need port `8080` for something else like e.g. elastic search, you can also change the port with the additional `DEVPORT parameter:
+``
 ```
 ./psh.phar administration:watch --DEVPORT=9000
 ```
 
-Usually the `./psh.phar administration:watch` command opens a new window of your default browser with the correct URL of the development server.
+The `./psh.phar administration:watch` command opens a new window of your default browser with the correct URL of the development server.
 
 ## 3. Using the Vue.js Developer Tools
 
@@ -126,7 +126,7 @@ bin/console plugin:install SwagHelloWorld --activate
 
 When the plugin was successfully activated, please restart the development server. Webpack will then keep track of the new plugin and add the administration files to the file watcher process.
 
-## 3. Create administration files
+## 3. Making changes
 
 The administration files of your plugin are located in the `Resources/views/administration` directory.
 

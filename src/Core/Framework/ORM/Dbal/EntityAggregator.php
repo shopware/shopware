@@ -150,7 +150,7 @@ class EntityAggregator implements EntityAggregatorInterface
 
             $data = $this->reader->read($aggregation->getDefinition(), new ReadCriteria($ids), $context);
 
-            return new EntityAggregationResult($aggregation, $definition, $data);
+            return new EntityAggregationResult($aggregation, $data);
         }
 
         if ($aggregation instanceof ValueCountAggregation) {
@@ -207,7 +207,7 @@ class EntityAggregator implements EntityAggregatorInterface
 
             $data = $query->execute()->fetchAll(FetchMode::COLUMN);
 
-            return new CardinalityAggregationResult($aggregation, array_column($data, $accessor));
+            return new CardinalityAggregationResult($aggregation, \count($data));
         }
 
         if ($aggregation instanceof AvgAggregation) {
@@ -223,7 +223,7 @@ class EntityAggregator implements EntityAggregatorInterface
 
             $data = $query->execute()->fetch(FetchMode::ASSOCIATIVE);
 
-            new MaxAggregationResult($aggregation, (float) $data['max']);
+            return new MaxAggregationResult($aggregation, (float) $data['max']);
         }
 
         if ($aggregation instanceof CountAggregation) {

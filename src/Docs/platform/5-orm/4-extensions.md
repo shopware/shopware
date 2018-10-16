@@ -2,7 +2,7 @@
 
 You can extend existing entities by creating an `EntityExtension`. The extension must implement the
 `Shopware\Core\Framework\ORM\EntityExtensionInterface` interface and has access to the fields within an entity. You can even manipulate the core fields
-by adding flags and so on. When changing core fields, keep in mind that it can make you system behave inconsistent!
+by adding flags and so on. When changing core fields, keep in mind that it can make your system behave inconsistently!
 
 ## Creating an extension
 
@@ -28,7 +28,7 @@ $fields->add(
 );
 ```
 
-Given this example extends the `ProductDefinition`, the hydrator would run into a problem because the
+Given this example extends the `ProductDefinition`, the hydrator would run into a problem because of the
 `promotions` property does not exist in the `ProductStruct`.
 
 ### Register extension in service container

@@ -6,9 +6,9 @@ Most use-cases are cover by the standard FieldResolver which handle every kind o
 In fact, the fields `OneToMany`, `ManyToOne` and `ManyToMany` are handled by their corresponding FieldResolver to
 handle the JOINs in relational database systems.
 
-Imagine you have a list of seo urls and one of them is marked as canonical. If you create a field `canonicalUrl` to
-return the seo url marked as canonical, your JOIN needs the additional condition to filter on `is_canonical = 1` to
-only find the canonical url. With a custom FieldResolver, you are free to design the JOIN yourself.
+Imagine you have a list of SEO urls and one of them is marked as canonical. If you create a field `canonicalUrl` to
+return the SEO url marked as canonical, your JOIN needs the additional condition to filter on `is_canonical = 1` to
+only find the canonical URL. With a custom `FieldResolver`, you are free to design the JOIN yourself.
 
 ## Example
 

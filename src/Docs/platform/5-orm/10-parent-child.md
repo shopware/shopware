@@ -1,7 +1,7 @@
 # Parent/Child
 
 The parent/child concept is useful for entities with inheritance. The parent 
-record has all required fields filled in and is a valid entity in it self. A
+record has all required fields filled in and is a valid entity in itself. A
 child can now optionally overwrite fields which are different to the parent.
 
 ## Inherit a field

@@ -1,6 +1,6 @@
 # Definition
 
-A definition is the representation of storage data in an object, so called: an entity or model.
+A definition is the representation of storage data in an object, so-called: an entity or model.
 In terms of relational databases, it's a representation of a table.
 
 The benefit of these definitions is that you can rely on a defined structure.
@@ -49,7 +49,7 @@ protected static function defineFields(): FieldCollection
 }
 ```
 
-The method should return a new `FieldCollection` containing all fields and relation fields for the definition. The fields should match the columns in your storage and your primary key should be flagged using the `PrimaryKey` flag.
+The method should return a new `FieldCollection` containing all fields and association fields for the definition. The fields should match the columns in your storage and your primary key should be flagged using the `PrimaryKey` flag.
 
 A full list of available fields can be found in the [Types guide]().
 

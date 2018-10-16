@@ -3,12 +3,12 @@
 A FieldAccessor is a selector for the data in your storage.
 
 In general, there is no need for a custom FieldAccessor unless you are dealing with uncommon data structures
-like JSON fields. For those kind of data structures, you need to decide which value should be used for searching
+like JSON fields. For that kind of data structures, you need to decide which value should be used for searching
 entities in your storage.
 
 ## Example
 
-Lets look at our `PriceField`. It has a defined data structure with `gross`, `net` and `linked` properties. If you
+Let's look at our `PriceField`. It has a defined data structure with `gross`, `net` and `linked` properties. If you
 want to search on the `PriceField` you cannot simply evaluate a JSON field as you cannot compare it to anything.
 Therefore you need to classify your data and select your value to be compared. In this case, it will be the `gross`
 property in the `PriceField`.
@@ -30,7 +30,7 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
 }
 ```
 
-The interfaces provides one method which, in case it can handle the given field, should return a selector to the
+The interface provides one method which, in case it can handle the given field, should return a selector to the
 field. Using JSON in SQL can be quite complex, so you have to extract, unquote and cast the value to a correct format.
 
 The returned selector will be used in the SQL statement for comparing or selecting the data.

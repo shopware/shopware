@@ -11,7 +11,7 @@ The field types below are available to build a definition.
 | `IdField` | For saving the identifier as UUID |
 | `StringField` | For saving a string |
 | `BoolField` | For saving booleans. Can only be true or false |
-| `IntField` | For saving a integer value |
+| `IntField` | For saving an integer value |
 | `FloatField` | For saving a float value |
 | `LongTextField` | For saving large content without HTML |
 | `LongTextWithHtmlField` | For saving large content with HTML |
@@ -42,10 +42,9 @@ The field types below are available to build a definition.
 | Type | Description |
 |---|---|
 | `PriceField` | Structured JSON field to enforce the price structure (`gross`, `net`, `linked`) |
-| `PriceRulesJsonField` |  |
 | `ParentField` | Short-hand for foreign key field `parentId` used in the parent/child concept |
 | `ChildCountField` | (Read-only) For saving the current count of children used in the parent/child concept |
-| `PasswordField` | For saving an encrypted password |
+| `PasswordField` | For saving a hashed password |
 
 ## Standard types
 
@@ -64,7 +63,7 @@ new IdField('id', 'id')
 
 3. `$generatorClass` references a `Shopware\Core\Framework\ORM\Write\IdGenerator\Generator` class
 which will be used to convert a value back and forth to the storage layer. It defaults to
-`Shopware\Core\Framework\ORM\Write\IdGenerator\RamseyGenerator` which generates an UUID.
+`Shopware\Core\Framework\ORM\Write\IdGenerator\RamseyGenerator` which generates a UUID.
 
 ### StringField
 
@@ -139,8 +138,8 @@ new CreatedAtField()
 
 This field does not have any parameters and will default to:
 
-- `created_at` as storage name
-- `createdAt` as property name
+- `created_at` as the storage name
+- `createdAt` as the property name
 
 It also implies the following flags:
 
@@ -154,8 +153,8 @@ new UpdatedAtField()
 
 This field does not have any parameters and will default to:
 
-- `updated_at` as storage name
-- `updatedAt` as property name
+- `updated_at` as the storage name
+- `updatedAt` as the property name
 
 It also implies the following flags:
 
@@ -167,7 +166,7 @@ It also implies the following flags:
 new TranslatedField(new StringField('name', 'name'))
 ```
 
-1. `$field` is the typed field to be translated
+1. `$field` is the original field to be translated
 
 The `TranslatedField` is a wrapper field to indicate that this field (in this case `name`) is translatable and
 can be found in the corresponding translation definition for the entity - just like a symlink.
@@ -233,9 +232,9 @@ new VersionField()
 
 This field does not have any parameters and is an extension to the `FkField`. It defaults to:
 
-- `version_id` as storage name
-- `versionId` as property name
-- `Shopware\Core\Framework\Version\VersionDefinition` as reference class
+- `version_id` as the storage name
+- `versionId` as the property name
+- `Shopware\Core\Framework\Version\VersionDefinition` as the reference class
 
 It also implies the following flags:
 
@@ -260,7 +259,7 @@ related definition name + `_version_id`, e.g.: `product_version_id`.
 
 ## Association types
 
-This section will over the usage of the association types to build relations between definitions.
+This section will cover the usage of the association types to build relations between definitions.
 
 ### FkField
 
@@ -276,7 +275,7 @@ This field is used for a foreign key for relation.
 
 **Optional**
 
-4. `$referenceField` is the local field for joining the data and defaults to: `id`
+4. `$referenceField` is the local field for joining the data and defaults to `id`
 
 ### OneToManyAssociationField
 
@@ -289,8 +288,8 @@ writing and working with the relation.
 
 1. `$propertyName` is the name used in your struct and used to search, write and work.
 2. `$referenceClass` is the related definition class reference
-3. `$referenceField` is the foreign key field the the related definition
-4. `$loadInBasic` indicates if the relation should be loaded when the entity is read.
+3. `$referenceField` is the foreign key field the related definition
+4. `$loadInBasic` indicates if the relationship should be loaded when the entity is read.
 
 **Heads up!** It is strongly recommended to set `$loadInBasic` to `false` as a further query would be required to fetch
 the data.
@@ -307,11 +306,11 @@ new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::cla
 
 This field is used for building `n:1` relations.
 
-1. `$storageName` is the name in your storage.
-2. `$propertyName` is the name used in your struct and used to search, write and work.
+1. `$propertyName` is the name used in your struct and used to search, write and work.
+2. `$storageName` is the name in your storage used for as foreign key.
 3. `$referenceClass` is the related definition class reference
-4. `$loadInBasic` indicates if the relation should be loaded when the entity is read. In most cases, it is safe to
-se this parameter to `true` as it can simply be joined without a further query.
+4. `$loadInBasic` indicates if the relationship should be loaded when the entity is read. In most cases, it is safe to
+set this parameter to `true` as it can simply be joined without a further query.
 
 **Optional**
 
@@ -329,7 +328,7 @@ mapping table and its corresponding mapping definition.
 1. `$propertyName` is the name used in your struct and used to search, write and work.
 2. `$referenceClass` is the related definition class reference
 3. `$mappingDefinition` is the mapping definition to relate both definitions to each other
-4. `$loadInBasic` indicates if the relation should be loaded when the entity is read.
+4. `$loadInBasic` indicates if the relationship should be loaded when the entity is read.
 5. `$mappingLocalColumn` is the foreign key field for the local definition in the mapping definition
 6. `$mappingReferenceColumn` is the foreign key field for the related definition in the mapping definition
 
@@ -348,30 +347,30 @@ the mapping definition
 new ChildrenAssociationField(ProductDefinition:class)
 ```
 
-This field is a short-hand for creating an `1:n` relation for the children in the parent/child concept. It is
+This field is a short-hand for creating a `1:n` relation for the children in the parent/child concept. It is
 an extension to the `OneToManyAssociationField` and takes one parameter `$referenceClass` which should
 point to `self::class`.
 
 The remaining parameters of the `OneToManyAssociationField` are defined as follows:
 
-- `children` as property name
-- `parent_id` as local reference field for the join condition
+- `children` as the property name
+- `parent_id` as the local reference field for the join condition
 - `false` as load in basic to load the data only if required
 
 ### SearchKeywordAssociationField
 
 ```php
-new ChildrenAssociationField(ProductDefinition:class)
+new SearchKeywordAssociationField()
 ```
 
-This field is a short-hand for creating an `1:n` relation for search keywords for this definition. It is
+This field is a short-hand for creating a `1:n` relation for search keywords for this definition. It is
 an extension to the `OneToManyAssociationField` and takes no parameters.
 
-The parameters of the `OneToManyAssociationField` are default to:
+The parameters of the `OneToManyAssociationField` default to:
 
-- `searchKeywords` as property name
+- `searchKeywords` as the property name
 - `SearchDocumentDefinition::class` as reference class
-- `entity_id` as reference field for the join condition
+- `entity_id` as the reference field for the join condition
 - `false` as load in basic to load the data only if required
 
 ### TranslationsAssociationField
@@ -389,10 +388,56 @@ It is possible that a custom type has its own [FieldResolver]() and [FieldAccess
 
 ### PriceField
 
-### PriceRulesJsonField
+```php
+new PriceField('price', 'price')
+```
+
+This field is a structured JSON field to enforce the price structure (`gross`, `net`, `linked`).
+
+1. `$storageName` is the name in your storage.
+2. `$propertyName` is the name used in your struct and used to search, write and work.
 
 ### ParentField
 
+```php
+new ParentField(self::class)
+```
+
+The ParentField is an extension to the `FkField` with pre-defined parameters.
+
+The first and only parameter is a class reference to the parent definition. In most cases, this will be the
+same definition and can be set to `self::class`.
+
 ### ChildCountField
 
+```php
+new ChildCountField()
+```
+
+The ChildCountField is an extension to the `IntField` with pre-defined parameters and flags and does not take
+any parameters.
+
+The parameters to the underlying `IntField` default to:
+
+1. `child_count` as the storage name.
+2. `childCount` as the property name.
+
+It also implies the following flags:
+
+- `ReadOnly`
+
 ### PasswordField
+
+```php
+new PasswordField('password', 'password')
+```
+
+The PasswordField is using the native `password_hash()` PHP method to hash it's content.
+
+1. `$storageName` is the name in your storage.
+2. `$propertyName` is the name used in your struct and used to search, write and work.
+
+**Optional**
+
+3. `$algorithm` is the algorithm used in the `password_hash()` method. Default: `PASSWORD_BCRYPT`
+4. `$hashOptions` is an array with options passed to the `password_hash()` method as second parameter.

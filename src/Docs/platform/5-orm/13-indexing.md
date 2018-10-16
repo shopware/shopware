@@ -1,6 +1,6 @@
 # Indexing
 
-The ORM provides several indexer to optimize the performance.
+The ORM provides several indexers to optimize the performance.
 
 ## Adding your own indexer
 
@@ -11,8 +11,8 @@ class MyCustomerIndexer implements IndexerInterface
 {
     public function index(\DateTime $timestamp, string $tenantId): void
     {
-        // will only be executed if called directly or 
-        // via Shopware\Core\Framework\ORM\Dbal\Indexing\IndexerRegistry->index() 
+        // will only be executed if called directly or
+        // via Shopware\Core\Framework\ORM\Dbal\Indexing\IndexerRegistry->index()
     }
 
     public function refresh(EntityWrittenContainerEvent $event): void
@@ -28,14 +28,14 @@ class MyCustomerIndexer implements IndexerInterface
 }
 ```
 
-Your service definition needs to be tagged as 
+Your service definition needs to be tagged as
 `shopware.dbal_indexing.indexer`.
 
 ## Child Count indexer
 
-The child count indexer is helpful when your entity has parent/child relations. 
-To make use of the child count indexer, your entity has to have a `ChildrenAssociationField` 
-and an `ChildCountField`. If these two requirements are met, the 
+The child count indexer is helpful when your entity has parent/child relations.
+To make use of the child count indexer, your entity has to have a `ChildrenAssociationField`
+and a `ChildCountField`. If these two requirements are met, the
 `Shopware\Core\Framework\ORM\Dbal\Indexing\ChildCountIndexer` will automatically update
 the child_count for your entities if you create a new entity one or change an existing one.
 

@@ -1,21 +1,21 @@
 # Translations
 
-Beside the ability to save primitive data to the database, it is possible 
+Besides the ability to save primitive data to the database, it is possible
 to translate them in different languages.
 
 The translation system is based on a two-level language system. This means,
-that there is a first-level language, which is your base language like 
+that there is a first-level language, which is your base language like
 English (en_GB) or German (de_DE). The second level is a derivation of this
-language like Switzergerman (`de_CH`).
+language like Swiss German (`de_CH`).
 
-So your data is saved in `de_DE` and may have a second-level translation 
+So your data is saved in `de_DE` and may have a second-level translation
 `de_CH` for overriding a specific value.
 
 **Example**
 
-A product's name is "Schneebesen" but in a sales channel for Switzerland, 
+A product's name is "Schneebesen" but in a sales channel for Switzerland,
 you'll get "Schwingbesen" as that would be the correct translation. All other,
-not especially translated field, will stick to the german language `de_DE`.
+not especially translated field, will stick to the German language `de_DE`.
 
 ### Why a translation definition?
 
@@ -46,7 +46,7 @@ public static function getTranslationDefinitionClass(): ?string
 ### Make fields translatable
 
 If you already have fields in your entity, you have to copy them into the
-translation definition and wrap them in the base definition a custom 
+translation definition and wrap them in the base definition a custom
 field called `TranslatedField`.
 
 **Before**
@@ -62,7 +62,7 @@ new TranslatedField(new LongTextField('description', 'description'))
 ```
 
 The `description` field will now be written to the translation definition
-instead of the base definition. You don't have to handle this yourself 
+instead of the base definition. You don't have to handle this yourself
 as the ORM knows about translatable fields.
 
 ## Writing multiple languages at once
@@ -105,10 +105,10 @@ $repository->create(
 
 ### Non-context dependant
 
-The `translations` field requires the language's UUID or locale code an index.
+The `translations` field requires the language's UUID or locale code as index.
 Its values will then be mapped into the translation definition as seen above.
 
-If you want to write multiple language once, you can add more records to the
+If you want to write multiple languages once, you can add more records to the
 `translations` field.
 
 ```php

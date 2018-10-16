@@ -1,15 +1,15 @@
 # Search
 
-The search is one of the most powerful yet fastest module in Shopware.
+The search is one of the most powerful yet fastest modules in Shopware.
 
 ## Fields
 
-Every field in an `EntityDefinition` is searchable unless they are marked with the `WriteOnly` flag. This empowers you to use the search for literally everything what's in the storage.
+Every field in an `EntityDefinition` is searchable unless they are marked with the `WriteOnly` flag. This empowers you to use the search for literally everything that's in the storage.
 To get an overview of all available fields, you can open the definitions of the defined entities or open the entity schema provided via API.
 
 ### Deep Fields
 
-In addition to that, you can get very specific about the fields you are filter or sort on. That means, that you can get products but filter on any related entity. Here are some examples for show you the idea of deep fields:
+In addition to that, you can get very specific about the fields you are filter or sort on. That means, that you can get products but filter on any related entity. Here are some examples to show you the idea of deep fields:
 
 **Example 1: Get products which manufacturer's name is "shopware AG"**
 
@@ -52,7 +52,7 @@ Filters reduce your results to your needs and will be considered when aggregatin
 
 | Class name | API name | Description |
 |---|---|---|
-| NestedQuery | nested | Group multiple filter into one filter and concat them using the `AND` or `OR` operator |
+| NestedQuery | nested | Group multiple filters into one filter and concat them using the `AND` or `OR` operator |
 | NotQuery | not | A negated NestedQuery |
 
 ### Adding Filters
@@ -118,7 +118,7 @@ $criteria->addFilter(
     - **lt** - The value must be **l**ower **t**han the given value
     - **lte** - The value must be **l**ower **t**han or **e**quals the given value
 
-You can even combine multiple comparisons to define range between a given value. The example below matches products with a stock between 10 and 20:
+You can even combine multiple comparisons to define a range between a given value. The example below matches products with a stock between 10 and 20:
 
 ```php
 $criteria->addFilter(
@@ -137,7 +137,7 @@ $criteria->addFilter(
 
 - The first parameter `$query` defines the expression for the score query.
 - The second parameter `$score` defines the score which should be used if the expression matches. In case that "Blue" is found in `product.description`, it gets an additional score of 100.
-- The third parameter `$scoreField` allows to define a multiplier for the score. For example: In case that "Red" is found in `product.description`, the score of 100 is multiplied with the value of `product.stock`.
+- The third parameter `$scoreField` allows defining a multiplier for the score. For example: In case that "Red" is found in `product.description`, the score of 100 is multiplied with the value of `product.stock`.
 
 ### NestedQuery
 
@@ -151,7 +151,7 @@ $criteria->addFilter(new NestedQuery(
 ));
 ```
 
-The NestedQuery groups multiple queries into one and concat them using the `AND` or `OR` operator.
+The nested query groups multiple queries into one and concat them using the `AND` or `OR` operator.
 
 - The first parameter `$queries` is a list of additional queries to be grouped.
 - The second parameter `$operator` defines the operator for the queries. You can choose between `AND` and `OR`.
@@ -192,7 +192,7 @@ echo $results->getEntities()->count(); // 5
 
 ## Sort
 
-The Criteria object supports to sort entities. You can add multiple sorting to the criteria object to define the sorting order.
+The Criteria object supports to sort entities. You can add multiple sorting rules to the criteria object to define the sorting order.
 
 ```php
 $criteria->addSorting(
@@ -207,7 +207,7 @@ $criteria->addSorting(
 
 ## Aggregate
 
-Aggregations are a powerful tool which allows you to gather statistic data about your executed query.
+Aggregations are a powerful tool which allows you to gather statistical data about your executed query.
 
 | Class name | API name | Type | Return values | Description |
 |-----|---|---|---|---|
@@ -216,7 +216,7 @@ Aggregations are a powerful tool which allows you to gather statistic data about
 | CountAggregation | count | single-value | count | Number of records for the specified field |
 | MaxAggregation | max | single-value | max | Maximum value for the specified field |
 | MinAggregation | min | single-value | min | Minimal value for the specified field |
-| StatsAggregation | stats | multi-value | count, avg, sum, min, max | Stats over all numeric values for the specified field | 
+| StatsAggregation | stats | multi-value | count, avg, sum, min, max | Stats overall numeric values for the specified field |
 | SumAggregation | sum | single-value | sum | Sum of all numeric values for the specified field |
 | ValueCountAggregation | value_count | single-value | count | Number of unique values for the specified field |
 
@@ -235,9 +235,9 @@ $result = $this->categoryRepository->search($criteria, $context);
 $aggregations = $result->getAggregations();
 ```
 
-This examples above aggregates the count of products in a category.
+The examples above aggregates the count of products in a category.
 
-- The first parameter `$field` of an aggregation specifies which field the aggregation will be applied. 
+- The first parameter `$field` of an aggregation specifies which field the aggregation will be applied.
 - The second parameter `$name` is the name in the search result. The name should be unique as it might get overwritten from another aggregation.
 
 The aggregations in the search result are indexed by the name you gave them. To query the data, get the object using the name. The result contains an array with the keys matching the aggregation's return types listed above.
@@ -284,5 +284,5 @@ The total count mode allows you to configure the value of the `total` property o
 The total count mode is set on the Criteria object directly.
 
 ```php
-$criteria->setFetchCount(Criteria::TOTAL_COUNT_MODE_NEXT_PAGES);
+$criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NEXT_PAGES);
 ```

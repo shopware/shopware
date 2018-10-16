@@ -1,6 +1,6 @@
 # Flags
 
-Flags are attributes to a field in a definition. They provide additional information, which are not field type specific.
+Flags are attributes to a field in a definition. They provide additional information, which is not field type specific.
 
 ### Flags for fields
 
@@ -11,9 +11,9 @@ Flags are attributes to a field in a definition. They provide additional informa
 | WriteOnly | The field will not be loaded and is not part of the struct. It can only be written. |
 | WriteProtected | Writing to this field is only allowed if the context carries the flag's name |
 | Deferred | The value of the field won't be hydrated by the ORM and must be filled in manually via [extensions](). |
-| Extension | The value of the field will be handled as extension and gets a data struct in the main struct. |
+| Extension | The value of the field will be handled as an extension and gets a data struct in the main struct. |
 | Required | The field is required when creating the entity. |
-| Inherited | The field is part of the parent/child concept and may receives the value of its parent. |
+| Inherited | The field is part of the parent/child concept and may receive the value of its parent. |
 | ReverseInherited | Reverse side flag for relations that point to a definition with inheritance enabled. |
 | SearchRanking | The field will be weighted differently for score queries. |
 
@@ -48,7 +48,7 @@ This flag does not have any parameters.
 (new IdField('id', 'id'))->setFlags(new ReadOnly())
 ```
 
-Fields with this flag can not be written.
+Fields with this flag cannot be written.
 
 This flag does not have any parameters.
 
@@ -58,7 +58,7 @@ This flag does not have any parameters.
 (new IdField('id', 'id'))->setFlags(new WriteOnly())
 ```
 
-Fields with this flag can not be read and are not part of any struct of the entity.
+Fields with this flag cannot be read and are not part of any struct of the entity.
 
 This flag does not have any parameters.
 
@@ -68,8 +68,8 @@ This flag does not have any parameters.
 (new StringField('file_extension', 'fileExtension'))->setFlags(new WriteProtected('permission_key_example'))
 ```
 
-In some cases you want to restrict the write access to individual fields, so that they can't be manipulated. For example if you have to
-run some custom logic before you can update a fields value.
+In some cases, you want to restrict the write access to individual fields, so that they can't be manipulated. For example, if you have to
+run some custom logic before you can update a field's value.
 
 This can be accomplished with the `WriteProtected` flag. If you set this flag, you have to define a permission key, that has to be set
 in the write-protection extension of the write operations context.
@@ -118,7 +118,7 @@ This flag does not have any parameters.
 (new LongTextField('description', 'description'))->setFlags(new Inherited())
 ```
 
-The field is part of the parent/child concept and may receives the value of its parent.
+The field is part of the parent/child concept and may receive the value of its parent.
 
 This flag does not have any parameters.
 

@@ -1,6 +1,6 @@
 # Events
 
-Events are the easiest way of acting with or extending the ORM. Every entity comes with a set of events which will
+Events are the easiest way to extend the ORM. Every entity comes with a set of events which will
 be fired in various situations.
 
 All events are nested into one container event so that your subscriber should only get fired once for e.g. a search
@@ -14,7 +14,7 @@ entity name. The examples are based on the `product` entity.
 | Event | Description |
 |---|---|
 | `product.written` | After the data has been written to storage |
-| `product.deleted` | After the data as been deleted in storage |
+| `product.deleted` | After the data has been deleted in storage |
 | `product.loaded` | After the data has been hydrated into objects |
 | `product.search.result.loaded` | After the search returned data |
 | `product.aggregation.result.loaded` | After the aggregations have been loaded |
@@ -75,7 +75,7 @@ information:
 
 - The reference class of the loaded definition
 - The context the data was loaded with
-- The search result object including count, criteria and list of ids
+- The search result object including count, criteria, and list of ids
 
 ## Event classes
 
@@ -87,6 +87,7 @@ The example below shows you how to use the constants in your event subscriber:
 
 ```php
 use Shopware\Core\Content\Product\ProductEvents;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class ProductSubscriber implements EventSubscriberInterface
 {
@@ -99,4 +100,13 @@ class ProductSubscriber implements EventSubscriberInterface
     }
 ```
 
-It is recommended to apply this pattern in your code to make other developers comfortable.
+**Heads up!** It is recommended to apply this pattern in your code to make other developers comfortable.
+
+After creating the event subscriber, you have to register it in the service container and
+tag it as `kernel.event_subscriber`.
+
+```xml
+<service class="Shopware\Core\Content\Product\ProductSubscriber" id="Shopware\Core\Content\Product\ProductSubscriber">
+    <tag name="kernel.event_subscriber"/>
+</service>
+```

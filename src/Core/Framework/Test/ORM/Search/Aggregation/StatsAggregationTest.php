@@ -66,6 +66,16 @@ class StatsAggregationTest extends TestCase
         static::assertEquals(10, $rateAgg->getMin());
         static::assertEquals(42.142857, $rateAgg->getAvg());
         static::assertEquals(295, $rateAgg->getSum());
+        static::assertEquals(
+            [
+                'count' => 7,
+                'max' => 90,
+                'min' => 10,
+                'avg' => 42.142857,
+                'sum' => 295,
+            ],
+            $rateAgg->getResult()
+        );
     }
 
     public function testStatsAggregationShouldNullNotRequestedValues(): void

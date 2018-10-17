@@ -48,6 +48,7 @@ class CountAggregationTest extends TestCase
         $rateAgg = $result->getAggregations()->get('rate_agg');
         static::assertNotNull($rateAgg);
         static::assertEquals(7, $rateAgg->getCount());
+        static::assertEquals(['count' => 7], $rateAgg->getResult());
     }
 
     private function setupFixtures(Context $context): void

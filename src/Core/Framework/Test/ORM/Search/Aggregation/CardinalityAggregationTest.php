@@ -48,6 +48,7 @@ class CardinalityAggregationTest extends TestCase
         $rateAgg = $result->getAggregations()->get('rate_agg');
         static::assertNotNull($rateAgg);
         static::assertEquals(4, $rateAgg->getCardinality());
+        static::assertEquals(['cardinality' => 4], $rateAgg->getResult());
     }
 
     private function setupFixtures(Context $context): void

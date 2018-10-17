@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import { Component, State } from 'src/core/shopware';
 import template from './sw-notifications.html.twig';
 import './sw-notifications.less';
@@ -60,8 +62,8 @@ Component.register('sw-notifications', {
     },
 
     methods: {
-        onClose(event) {
-            State.getStore('notification').removeNotification(event);
+        onClose(notification) {
+            State.getStore('notification').removeNotification(notification);
         }
     }
 });

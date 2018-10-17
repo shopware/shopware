@@ -32,4 +32,11 @@ class BillingCountryRule extends Rule
             ['Billing country not matched']
         );
     }
+
+    public static function getFieldDefinition(): array
+    {
+        return [
+            'countryIds' => 'int',
+        ];
+    }
 }

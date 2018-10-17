@@ -25,4 +25,9 @@ class DifferentAddressesRule extends Rule
             ['Addresses are equal']
         );
     }
+
+    public static function getFieldDefinition(): array
+    {
+        return [];
+    }
 }

@@ -8,6 +8,10 @@ module.exports = {
         browser.url(browser.launch_url);
 
         browser.execute(() => {
+            // Disable the auto closing of notifications globally.
+            Shopware.State.getStore('notification')._defaults.autoClose = false;
+
+            // Return bearer token
             return localStorage.getItem('bearerAuth');
         }, [], (data) => {
             if (!data.value) {

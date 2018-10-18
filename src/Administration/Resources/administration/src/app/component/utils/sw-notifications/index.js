@@ -1,5 +1,3 @@
-/* eslint-disable */
-
 import { Component, State } from 'src/core/shopware';
 import template from './sw-notifications.html.twig';
 import './sw-notifications.less';

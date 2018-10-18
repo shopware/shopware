@@ -19,8 +19,7 @@
 
     &.has--suffix {
         .sw-field__input {
-            display: grid;
-            grid-template-columns: 1fr minmax(60px, min-content);
+            display: flex;
         }
 
         input,
@@ -489,6 +488,7 @@
     }
 
     .sw-field__suffix {
+        min-width: 50px;
         background: @sw-field-suffix-background;
         border-radius: 0 @sw-field-border-radius @sw-field-border-radius 0;
         border: 1px solid @sw-field-color-border;
@@ -499,6 +499,11 @@
         font-size: @sw-field-font-size;
         color: @sw-field-color-text;
         transition: @sw-field-transition;
+
+        .sw-icon {
+            width: 20px;
+            height: 20px;
+        }
     }
 
     .sw-field__help {

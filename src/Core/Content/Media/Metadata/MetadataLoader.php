@@ -59,8 +59,7 @@ class MetadataLoader
                 continue;
             }
 
-            $metadataLoader
-                ->enhanceTypeObject($metadata->getType(), $rawData[$loaderClass]);
+            $metadataLoader->enhanceTypeObject($metadata->getType(), $rawData[$loaderClass]);
         }
     }
 

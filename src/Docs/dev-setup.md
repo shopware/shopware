@@ -4,7 +4,7 @@ This guide shows you how to setup a minimal development system.
 
 The following development environment setups are shown:
 
-- docker
+- docker >= 17.06.0
 - Ubuntu 18.04 LTS
 - Ubuntu 18.04 LTS on Windows 10 with Windows Subsystem for Linux
 
@@ -131,8 +131,25 @@ Run the setup script
 ```bash
 bin/setup
 ```
+This will start the shopware setup process which asks for some basic information. You can skip all inputs by pressing 
+enter on each question. In this case the default value, specified in brackets [] behind the question, is chosen.
 
-Append `CHROME_BIN: "chromium-browser"` to `.psh.yml.override` const section and init/build the administration app.
+1. `Application environment`: whether a development or production instance should be prepared. 
+Choose ```dev```.
+2. `URL to your /public folder`: the URL from which the shop should be reached. Use `shopware.dev`.
+3. `Tenant id`: the tenant ID for this shop. Use the default.    
+4. `Database host`: where the database is hosted. Use the default.
+5. `Database port`: the port under which the database may be reached. Use the default.
+6. `Database name`: the name of the database which Shopware will use. Use the default.
+7. `Database user`: the user shopware will use to access the database. Use the default.
+7. `Database password`: password of the given database user. Use `app`.
+
+Shopware and all of the its dependecies will now be installed. This may take a while.
+
+Append `CHROME_BIN: "chromium-browser"` to `.psh.yml.override` const section.
+In this file any of the information entered during the setup process can also be reviewed or changed.
+
+Finally init/build the administration app.
 ```bash
 ./psh.phar administration:init
 ./psh.phar administration:build

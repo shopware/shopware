@@ -9,7 +9,7 @@
                       :appearance="notification.system ? 'system' : 'notification'"
                       :notificationIndex="notification.uuid"
                       :closable="true"
-                      @swAlertClose="onClose">
+                      @swAlertClose="onClose(notification)">
 
                 <div slot="default" v-html="notification.message"></div>
             </sw-alert>

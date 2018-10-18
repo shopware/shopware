@@ -29,7 +29,7 @@
 
                 <!-- Select -->
                 {% block sw_field_input_select %}
-                    <div v-else-if="type === 'select' || type === 'combo'" class="sw-field__select" >
+                    <div v-else-if="type === 'select' || type === 'combo'" class="sw-field__select" :class="displayName">
                         {% block sw_field_input_select_field %}
                             <select :id="id"
                                     :name="displayName"

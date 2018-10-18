@@ -1,15 +1,12 @@
-/**
- * @module core/data/NotificationStore
- */
 import utils from 'src/core/service/util.service';
-import types from 'src/core/service/utils/types.utils';
 import { warn } from 'src/core/service/utils/debug.utils';
 
 class NotificationStore {
     constructor() {
-        this.notifications = [];
+        this._threshold = 5;
+        this._notifications = [];
 
-        this.defaults = {
+        this._defaults = {
             system: false,
             variant: 'info', // success, info, warning, error
             autoClose: true,
@@ -18,10 +15,10 @@ class NotificationStore {
     }
 
     /**
-     * Create a new notification.
+     * Creates a new notification and adds itself to the notification collection.
      *
-     * @param {Object} config
-     * @returns {Promise<T>}
+     * @param {Object} config - Notification declaration
+     * @returns {Promise<void>}
      */
     createNotification(config) {
         if (!config.message) {
@@ -29,47 +26,101 @@ class NotificationStore {
             return Promise.reject(config);
         }
 
-        const notification = Object.assign({ uuid: utils.createId() }, this.defaults, config);
-
-        this.addNotification(notification);
-
-        if (!notification.autoClose) {
-            return Promise.resolve(notification);
-        }
+        config = Object.assign(this.defaults, config, {
+            uuid: utils.createId()
+        });
 
         return new Promise((resolve) => {
-            setTimeout(() => {
-                this.removeNotification(notification.uuid);
-                resolve(notification);
-            }, notification.duration);
+            config.timeoutId = null;
+
+            if (config.autoClose) {
+                config.timeoutId = setTimeout(() => {
+                    this.removeNotification(config);
+                    resolve(config);
+                }, config.duration);
+            }
+
+            this.addNotification(config);
+
+            if (!config.autoClose) {
+                resolve(config);
+            }
         });
     }
 
     /**
-     * Add a notification object to the store.
+     * Adds a notification to the notification collection
      *
-     * @param {Object} notification
+     * @param {Object} config - Notification declaration
+     * @returns {boolean}
      */
-    addNotification(notification) {
-        this.notifications.push(notification);
-
-        if (this.notifications.length > 5) {
-            this.removeNotification();
+    addNotification(config) {
+        if (this.findIndexOfNotification(config)) {
+            return false;
         }
+
+        this._notifications.push(config);
+
+        if (this._notifications.length > this.threshold) {
+            const lastNotification = this.getFirstNotificationFromCollection();
+            this.removeNotification(lastNotification);
+        }
+        return true;
     }
 
     /**
-     * Remove a notification from the store.
+     * Removes a notification from the collection and clears the timeout when the notification should autoClose.
      *
-     * @param uuid
+     * @param {Object} config - Notification declaration
+     * @returns {boolean}
      */
-    removeNotification(uuid = 0) {
-        if (!types.isString(uuid)) {
-            this.notifications.splice(uuid, 1);
-            return;
+    removeNotification(config) {
+        if (!this.findIndexOfNotification(config)) {
+            return false;
         }
 
-        this.notifications.splice(this.notifications.findIndex(item => item.uuid === uuid), 1);
+        if (config.timeoutId) {
+            clearTimeout(config.timeoutId);
+        }
+        this._notifications.splice(this.findIndexOfNotification(config), 1);
+
+        return true;
+    }
+
+    /**
+     * Returns the first element from the notification collection
+     *
+     * @returns {Object} Notification declaration
+     */
+    getFirstNotificationFromCollection() {
+        return this._notifications[0];
+    }
+
+    /**
+     * Find a notification in the notification collection using the uuid of the notifcations.
+     *
+     * @param {Object} config - Notification declaration
+     * @returns {void|Object}
+     */
+    findIndexOfNotification(config) {
+        return this._notifications.find(item => config.uuid === item.uuid);
+    }
+
+    get notifications() {
+        return this._notifications;
+    }
+
+    get defaults() {
+        return this._defaults;
+    }
+
+    set defaults(defaults) {
+        this._defaults = defaults;
+        return true;
+    }
+
+    get threshold() {
+        return this._threshold;
     }
 }
 

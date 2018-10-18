@@ -60,8 +60,8 @@ Component.register('sw-notifications', {
     },
 
     methods: {
-        onClose(event) {
-            State.getStore('notification').removeNotification(event);
+        onClose(notification) {
+            State.getStore('notification').removeNotification(notification);
         }
     }
 });

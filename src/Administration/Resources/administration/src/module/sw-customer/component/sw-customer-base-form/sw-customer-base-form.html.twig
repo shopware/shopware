@@ -1,7 +1,9 @@
 {% block sw_customer_base_form %}
     <div class="sw-customer-base-form">
-        <sw-container grid="1fr 1fr" gap="0px 30px">
-            <sw-container grid="1fr 1fr" gap="10px">
+        <sw-container columns="1fr 1fr"
+                      gap="0px 30px"
+                      :breakpoints="{ 650: { columns: '1fr' } }">
+            <sw-container columns="1fr 1fr" gap="10px">
                 {% block sw_customer_base_form_first_salutation_field %}
                     <sw-field type="text"
                               :label="$tc('sw-customer.baseForm.labelSalutation')"

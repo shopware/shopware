@@ -6,23 +6,20 @@ Component.register('sw-container', {
     template,
 
     props: {
-        type: {
+        columns: {
             type: String,
-            required: false,
-            default: 'column',
-            validator(value) {
-                return ['column', 'row'].includes(value);
-            }
+            default: '',
+            required: false
         },
-        grid: {
+        rows: {
             type: String,
-            required: false,
-            default: '50% 50%'
+            default: '',
+            required: false
         },
         gap: {
             type: String,
-            required: false,
-            default: '0px'
+            default: '',
+            required: false
         },
         justify: {
             type: String,
@@ -39,20 +36,94 @@ Component.register('sw-container', {
             validator(value) {
                 return ['start', 'end', 'center', 'stretch'].includes(value);
             }
+        },
+        breakpoints: {
+            type: Object,
+            default() {
+                return {};
+            },
+            required: false
         }
     },
 
-    computed: {
-        gridStyles() {
-            const styles = {};
+    data() {
+        return {
+            currentCssGrid: this.buildCssGrid()
+        };
+    },
 
-            styles[(this.type === 'row') ? 'grid-template-rows' : 'grid-template-columns'] = this.grid;
-            styles['grid-gap'] = this.gap;
-            styles['justify-items'] = this.justify;
-            styles['justify-content'] = this.justify;
-            styles['align-items'] = this.align;
+    created() {
+        this.createdComponent();
+    },
 
-            return styles;
+    methods: {
+        createdComponent() {
+            this.registerBreakpointListener();
+        },
+
+        registerBreakpointListener() {
+            const that = this;
+            this.$device.onResize({
+                listener() {
+                    that.updateCssGrid();
+                },
+                component: this
+            });
+        },
+
+        updateCssGrid() {
+            this.currentCssGrid = this.buildCssGrid();
+        },
+
+        buildCssGrid() {
+            let cssGrid = this.buildCssGridProps();
+
+            if (Object.keys(this.breakpoints).length === 0) {
+                return cssGrid;
+            }
+
+            Object.keys(this.breakpoints).find(breakpoint => {
+                if (Number.isNaN(Number.parseInt(breakpoint, 0))) {
+                    console.error(
+                        `[${this.$options.name}] Unable to register breakpoint "${breakpoint}". 
+                        The breakpoint key has to be a number.`
+                    );
+                    return cssGrid;
+                }
+
+                if (Number.parseInt(breakpoint, 0) > this.$device.getViewportWidth()) {
+                    cssGrid = this.buildCssGridProps(
+                        this.breakpoints[breakpoint]
+                    );
+                    return cssGrid;
+                }
+
+                return cssGrid;
+            });
+
+            return cssGrid;
+        },
+
+        cssGridDefaults() {
+            return {
+                columns: this.columns,
+                rows: this.rows,
+                gap: this.gap,
+                justify: this.justify,
+                align: this.align
+            };
+        },
+
+        buildCssGridProps(currentBreakpoint = {}) {
+            const grid = Object.assign(this.cssGridDefaults(), currentBreakpoint);
+
+            return {
+                'grid-template-columns': grid.columns,
+                'grid-template-rows': grid.rows,
+                'grid-gap': grid.gap,
+                'justify-items': grid.justify,
+                'align-items': grid.align
+            };
         }
     }
 });

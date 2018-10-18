@@ -1,5 +1,5 @@
 {% block sw_container %}
-    <div class="sw-container" :style="gridStyles">
+    <div class="sw-container" :style="currentCssGrid">
         <slot>
             {% block sw_container_slot_default %}{% endblock %}
         </slot>

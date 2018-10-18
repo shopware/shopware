@@ -408,8 +408,8 @@ class PluginManager
             new SourceContext(),
             null, [],
             Defaults::CURRENCY,
-            Defaults::LANGUAGE,
-            Defaults::LANGUAGE
+            Defaults::LANGUAGE_EN,
+            Defaults::LANGUAGE_EN
         );
     }
 

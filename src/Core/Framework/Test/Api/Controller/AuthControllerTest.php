@@ -153,7 +153,6 @@ class AuthControllerTest extends TestCase
             'username' => $username,
             'password' => password_hash($password, PASSWORD_BCRYPT),
             'locale_id' => Uuid::fromHexToBytes('20080911ffff4fffafffffff19830531'),
-            'locale_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
             'locale_tenant_id' => Uuid::fromHexToBytes(Defaults::TENANT_ID),
             'active' => 1,
             'created_at' => (new \DateTime())->format(Defaults::DATE_FORMAT),

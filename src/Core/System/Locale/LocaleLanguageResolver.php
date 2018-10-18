@@ -53,9 +53,7 @@ class LocaleLanguageResolver implements LocaleLanguageResolverInterface
             ->from('language')
             ->leftJoin('language', 'locale', 'locale', 'language.locale_id = locale.id AND language.tenant_id = locale.tenant_id')
             ->where('language.tenant_id = :tenantId')
-            ->andWhere('locale.version_id = :versionId')
             ->setParameter('tenantId', Uuid::fromHexToBytes($context->getTenantId()))
-            ->setParameter('versionId', Uuid::fromHexToBytes($context->getVersionId()))
             ->execute()
             ->fetchAll();
 

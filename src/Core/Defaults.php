@@ -8,7 +8,9 @@ final class Defaults
 
     public const SALES_CHANNEL = '20080911ffff4fffafffffff19830531';
 
-    public const LANGUAGE = '20080911ffff4fffafffffff19830531';
+    public const LANGUAGE_EN = '20080911ffff4fffafffffff19830531';
+
+    public const LANGUAGE_DE = '00e84bd18c574a6ca748ac0db17654dc';
 
     public const FALLBACK_CUSTOMER_GROUP = '20080911ffff4fffafffffff19830531';
 
@@ -22,7 +24,9 @@ final class Defaults
 
     public const SHIPPING_METHOD = '20080911ffff4fffafffffff19830531';
 
-    public const LOCALE = '20080911ffff4fffafffffff19830531';
+    public const LOCALE_EN_GB = '20080911ffff4fffafffffff19830531';
+
+    public const LOCALE_DE_DE = '2f3663edb7614308a60188c21c7963d5';
 
     public const ORDER_STATE_OPEN = '1194a493806742c9b85e61f1f2cf9be8';
 

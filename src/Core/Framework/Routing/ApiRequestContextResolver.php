@@ -59,7 +59,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
     {
         $params = [
             'currencyId' => Defaults::CURRENCY,
-            'languageId' => Defaults::LANGUAGE,
+            'languageId' => Defaults::LANGUAGE_EN,
             'currencyFactory' => 1.0,
             'tenantId' => $master->headers->get(PlatformRequest::HEADER_TENANT_ID),
         ];

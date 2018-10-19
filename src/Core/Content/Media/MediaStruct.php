@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media;
 
+use DateTime;
 use Shopware\Core\Content\Catalog\CatalogStruct;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
@@ -50,12 +51,12 @@ class MediaStruct extends Entity
     protected $metaData;
 
     /**
-     * @var \DateTime|null
+     * @var DateTime|null
      */
     protected $createdAt;
 
     /**
-     * @var \DateTime|null
+     * @var DateTime|null
      */
     protected $updatedAt;
 
@@ -109,7 +110,7 @@ class MediaStruct extends Entity
      */
     protected $hasFile = false;
 
-    public function get($property)
+    public function get(string $property)
     {
         if ($property === 'hasFile') {
             return $this->hasFile();
@@ -178,22 +179,22 @@ class MediaStruct extends Entity
         $this->metaData = $metaData;
     }
 
-    public function getCreatedAt(): ?\DateTime
+    public function getCreatedAt(): ?DateTime
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTime $createdAt): void
+    public function setCreatedAt(DateTime $createdAt): void
     {
         $this->createdAt = $createdAt;
     }
 
-    public function getUpdatedAt(): ?\DateTime
+    public function getUpdatedAt(): ?DateTime
     {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(\DateTime $updatedAt): void
+    public function setUpdatedAt(DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
     }
@@ -304,6 +305,6 @@ class MediaStruct extends Entity
 
     public function hasFile(): bool
     {
-        return $this->hasFile = $this->mimeType !== null && $this->fileExtension !== null;
+        return $this->hasFile = ($this->mimeType !== null && $this->fileExtension !== null);
     }
 }

@@ -60,7 +60,7 @@ class MediaThumbnailRepository extends EntityRepository
         return $this->deleteFromCollection($thumbnails, $context);
     }
 
-    public function deleteCascadingFromMedia(MediaStruct $mediaStruct, Context $context)
+    public function deleteCascadingFromMedia(MediaStruct $mediaStruct, Context $context): EntityWrittenContainerEvent
     {
         foreach ($mediaStruct->getThumbnails() as $thumbnail) {
             $thumbnail->setMedia($mediaStruct);
@@ -79,6 +79,7 @@ class MediaThumbnailRepository extends EntityRepository
 
         /** @var MediaThumbnailCollection $thumbnails */
         $thumbnails = $thumbnailsSearch->getEntities();
+
         return $thumbnails;
     }
 

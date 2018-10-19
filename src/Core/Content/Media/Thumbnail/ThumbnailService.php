@@ -102,7 +102,7 @@ class ThumbnailService
         }
     }
 
-    public function deleteThumbnails(MediaStruct $media, Context $context)
+    public function deleteThumbnails(MediaStruct $media, Context $context): void
     {
         $this->thumbnailRepository->deleteCascadingFromMedia($media, $context);
     }

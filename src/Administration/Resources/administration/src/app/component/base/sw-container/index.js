@@ -125,5 +125,13 @@ Component.register('sw-container', {
                 'align-items': grid.align
             };
         }
+    },
+
+    computed: {
+        defaultLayouts() {
+            return {
+                form2Column: 'repeat(auto-fit, minmax(250px, 1fr)'
+            };
+        }
     }
 });

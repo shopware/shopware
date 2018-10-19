@@ -1,28 +1,30 @@
 {% block sw_sidebar_item %}
-    <div class="sw-sidebar-item" v-if="showContent">
-        {% block sw_sidebar_item_headline %}
-            <div class="sw-sidebar-item__headline">
-                {% block sw_sidebar_item_title %}
-                    <h3 class="sw-sidebar-item__title">{{ title }}</h3>
-                {% endblock %}
+    <transition name="sw-sidebar-item-fade">
+        <div class="sw-sidebar-item" v-if="showContent">
+            {% block sw_sidebar_item_headline %}
+                <div class="sw-sidebar-item__headline">
+                    {% block sw_sidebar_item_title %}
+                        <h3 class="sw-sidebar-item__title">{{ title }}</h3>
+                    {% endblock %}
 
-                {% block sw_sidebar_item_close_button %}
-                    <button class="sw-sidebar-item__close-button" @click="closeContent" aria-label="closeContent">
-                        <sw-icon
-                            name="small-default-x-line-small"
-                            size="20px">
-                        </sw-icon>
-                    </button>
-                {% endblock %}
-            </div>
-        {% endblock %}
-
-        {% block sw_sidebar_item_content %}
-            <div class="sw-sidebar-item__content">
-                <div class="sw-sidebar-item__scrollable-container">
-                    <slot>{% block sw_sidebar_item_default_slot%}{% endblock %}</slot>
+                    {% block sw_sidebar_item_close_button %}
+                        <button class="sw-sidebar-item__close-button" @click="closeContent" aria-label="closeContent">
+                            <sw-icon
+                                name="small-default-x-line-small"
+                                size="20px">
+                            </sw-icon>
+                        </button>
+                    {% endblock %}
                 </div>
-            </div>
-        {% endblock %}
-    </div>
+            {% endblock %}
+
+            {% block sw_sidebar_item_content %}
+                <div class="sw-sidebar-item__content">
+                    <div class="sw-sidebar-item__scrollable-container">
+                        <slot>{% block sw_sidebar_item_default_slot%}{% endblock %}</slot>
+                    </div>
+                </div>
+            {% endblock %}
+        </div>
+    </transition>
 {% endblock %}

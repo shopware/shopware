@@ -243,3 +243,42 @@ You can create the production files by using the `build` command:
 ```
 ./psh.phar administration:build
 ```
+
+## 5. Working with assets
+
+You have the ability to use assets (e.g. images) inside your plugin.
+
+### Asset location
+
+All assets are located inside the `public/static` directory:
+
+```
+SwagAdministrationExample
+└── Resources
+    └── public
+        └── static // Assets are located here
+            └── img
+                └── shopware.jpg
+```
+
+### Using assets
+
+You can use relative paths based on your plugin directory inside LESS and CSS files:
+
+```
+.selector {
+    background-image: url('../img/shopware.jpg');
+}
+```
+
+Inside the templates files you have to use absolute paths.
+The path contains your plugin name (all lowercase and without separators), followed by `static`
+and all further direcories inside of `static`:
+
+The asset path for an image inside the "SwagAdministrationExample" plugin looks like this:
+
+```
+<img :src="'/swagadministrationexample/static/img/shopware.jpg' | asset" alt="Shopware logo" />
+```
+
+Don't forget to use the `asset` filter to make sure the URL gets resolved correctly.

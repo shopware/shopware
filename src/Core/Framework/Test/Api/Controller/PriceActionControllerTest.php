@@ -8,17 +8,16 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\PercentageTaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\Test\TaxFixtures;
 use Symfony\Component\Serializer\Serializer;
 
 class PriceActionControllerTest extends TestCase
 {
-    use AdminFunctionalTestBehaviour;
+    use AdminFunctionalTestBehaviour,TaxFixtures;
 
     /**
      * @var RepositoryInterface
@@ -75,14 +74,9 @@ class PriceActionControllerTest extends TestCase
 
     public function testNetToGross(): void
     {
-        $taxId = Uuid::uuid4()->getHex();
-        $this->taxRepository->create([
-            ['id' => $taxId, 'taxRate' => 19, 'name' => 'test'],
-        ], Context::createDefaultContext(Defaults::TENANT_ID));
-
         $price = $this->sendRequest([
             'price' => 10,
-            'taxId' => $taxId,
+            'taxId' => $this->getTaxNineteenPercent()->getId(),
             'calculated' => false,
         ]);
 
@@ -103,15 +97,10 @@ class PriceActionControllerTest extends TestCase
 
     public function testNetToNet(): void
     {
-        $taxId = Uuid::uuid4()->getHex();
-        $this->taxRepository->create([
-            ['id' => $taxId, 'taxRate' => 19, 'name' => 'test'],
-        ], Context::createDefaultContext(Defaults::TENANT_ID));
-
         $price = $this->sendRequest([
             'price' => 10.002,
             'output' => 'net',
-            'taxId' => $taxId,
+            'taxId' => $this->getTaxNineteenPercent()->getId(),
             'calculated' => false,
         ]);
 
@@ -132,14 +121,9 @@ class PriceActionControllerTest extends TestCase
 
     public function testGrossToGross(): void
     {
-        $taxId = Uuid::uuid4()->getHex();
-        $this->taxRepository->create([
-            ['id' => $taxId, 'taxRate' => 19, 'name' => 'test'],
-        ], Context::createDefaultContext(Defaults::TENANT_ID));
-
         $price = $this->sendRequest([
             'price' => 11.9,
-            'taxId' => $taxId,
+            'taxId' => $this->getTaxNineteenPercent()->getId(),
             'calculated' => true,
         ]);
 
@@ -160,15 +144,10 @@ class PriceActionControllerTest extends TestCase
 
     public function testNetToGrossWithQuantity(): void
     {
-        $taxId = Uuid::uuid4()->getHex();
-        $this->taxRepository->create([
-            ['id' => $taxId, 'taxRate' => 19, 'name' => 'test'],
-        ], Context::createDefaultContext(Defaults::TENANT_ID));
-
         $price = $this->sendRequest([
             'price' => 10,
             'quantity' => 2,
-            'taxId' => $taxId,
+            'taxId' => $this->getTaxNineteenPercent()->getId(),
             'calculated' => false,
         ]);
 
@@ -190,15 +169,10 @@ class PriceActionControllerTest extends TestCase
 
     public function testGrossToGrossWithQuantity(): void
     {
-        $taxId = Uuid::uuid4()->getHex();
-        $this->taxRepository->create([
-            ['id' => $taxId, 'taxRate' => 19, 'name' => 'test'],
-        ], Context::createDefaultContext(Defaults::TENANT_ID));
-
         $price = $this->sendRequest([
             'price' => 10,
             'quantity' => 2,
-            'taxId' => $taxId,
+            'taxId' => $this->getTaxNineteenPercent()->getId(),
             'calculated' => true,
         ]);
 
@@ -220,15 +194,10 @@ class PriceActionControllerTest extends TestCase
 
     public function testGrossToNet(): void
     {
-        $taxId = Uuid::uuid4()->getHex();
-        $this->taxRepository->create([
-            ['id' => $taxId, 'taxRate' => 19, 'name' => 'test'],
-        ], Context::createDefaultContext(Defaults::TENANT_ID));
-
         $price = $this->sendRequest([
             'price' => 11.9,
             'output' => 'net',
-            'taxId' => $taxId,
+            'taxId' => $this->getTaxNineteenPercent()->getId(),
             'calculated' => true,
         ]);
 

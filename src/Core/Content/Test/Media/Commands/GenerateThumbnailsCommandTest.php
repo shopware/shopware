@@ -5,15 +5,14 @@ namespace Shopware\Core\Content\Test\Media\Commands;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailStruct;
 use Shopware\Core\Content\Media\Commands\GenerateThumbnailsCommand;
-use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailConfiguration;
+use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\CommandTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Console\Input\StringInput;
@@ -21,7 +20,7 @@ use Symfony\Component\Console\Output\BufferedOutput;
 
 class GenerateThumbnailsCommandTest extends TestCase
 {
-    use IntegrationTestBehaviour, CommandTestBehaviour;
+    use IntegrationTestBehaviour, CommandTestBehaviour, MediaFixtures;
 
     /**
      * @var RepositoryInterface
@@ -58,12 +57,11 @@ class GenerateThumbnailsCommandTest extends TestCase
         $this->mediaRepository = $this->getContainer()->get('media.repository');
         $this->urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
         $this->thumbnailConfiguration = $this->getContainer()->get(ThumbnailConfiguration::class);
-        $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
 
         $this->thumbnailCommand = $this->getContainer()->get(GenerateThumbnailsCommand::class);
 
-        $this->createNewCatalog();
-        $this->context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
+        $this->context = $this->getContextWithCatalogAndWriteAccess();
+        $this->catalogId = $this->context->getCatalogIds()[0];
     }
 
     public function testExecuteHappyPath(): void
@@ -160,69 +158,36 @@ class GenerateThumbnailsCommandTest extends TestCase
 
     protected function createValidMediaFiles(): void
     {
-        $media = [
-            'id' => Uuid::uuid4()->getHex(),
-            'name' => 'test_media',
-            'mimeType' => 'image/png',
-            'fileExtension' => 'png',
-            'catalogId' => $this->catalogId,
-        ];
+        $this->setFixtureContext($this->context);
+        $mediaPng = $this->getPngInCatalog();
+        $mediaJpg = $this->getJpgInCatalog();
 
-        $this->mediaRepository->create([$media], $this->context);
-        $filePath = $this->urlGenerator->getRelativeMediaUrl($media['id'], 'png');
+        $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPng->getId(), 'png');
         $this->getPublicFilesystem()->putStream(
             $filePath,
             fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r')
         );
 
-        $media = [
-            'id' => Uuid::uuid4()->getHex(),
-            'name' => 'test_media2',
-            'mimeType' => 'image/jpg',
-            'fileExtension' => 'jpg',
-            'catalogId' => $this->catalogId,
-        ];
-
-        $this->mediaRepository->create([$media], $this->context);
-        $filePath = $this->urlGenerator->getRelativeMediaUrl($media['id'], 'jpg');
-        $this->getPublicFilesystem()->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware.jpg', 'r'));
+        $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaJpg->getId(), 'jpg');
+        $this->getPublicFilesystem()->putStream(
+            $filePath,
+            fopen(__DIR__ . '/../fixtures/shopware.jpg', 'r')
+        );
     }
 
     protected function createNotSupportedMediaFiles(): void
     {
-        $media = [
-            'id' => Uuid::uuid4()->getHex(),
-            'name' => 'test_media',
-            'mimeType' => 'application/pdf',
-            'fileExtension' => 'pdf',
-            'catalogId' => $this->catalogId,
-        ];
+        $this->setFixtureContext($this->context);
+        $mediaPdf = $this->getPdfInCatalog();
+        $mediaJpg = $this->getJpgInCatalog();
 
-        $this->mediaRepository->create([$media], $this->context);
-        $filePath = $this->urlGenerator->getRelativeMediaUrl($media['id'], 'pdf');
+        $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPdf->getId(), 'pdf');
         $this->getPublicFilesystem()->putStream(
             $filePath,
             fopen(__DIR__ . '/../fixtures/Shopware_5_3_Broschuere.pdf', 'r')
         );
 
-        $media = [
-            'id' => Uuid::uuid4()->getHex(),
-            'name' => 'test_media2',
-            'mimeType' => 'image/jpg',
-            'fileExtension' => 'jpg',
-            'catalogId' => $this->catalogId,
-        ];
-
-        $this->mediaRepository->create([$media], $this->context);
-        $filePath = $this->urlGenerator->getRelativeMediaUrl($media['id'], 'jpg');
+        $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaJpg->getId(), 'jpg');
         $this->getPublicFilesystem()->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware.jpg', 'r'));
-    }
-
-    private function createNewCatalog(): void
-    {
-        $catalogRepository = $this->getContainer()->get('catalog.repository');
-        $this->catalogId = Uuid::uuid4()->getHex();
-        $catalogRepository->create([['id' => $this->catalogId, 'name' => 'test catalog']], $this->context);
-        $this->context = $this->context->createWithCatalogIds([$this->catalogId]);
     }
 }

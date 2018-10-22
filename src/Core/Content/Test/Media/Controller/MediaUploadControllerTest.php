@@ -3,10 +3,8 @@
 namespace Shopware\Core\Content\Test\Media\Controller;
 
 use PHPUnit\Framework\TestCase;
-use Ramsey\Uuid\Uuid;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
-use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\PlatformRequest;
@@ -14,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class MediaUploadControllerTest extends TestCase
 {
-    use AdminFunctionalTestBehaviour;
+    use AdminFunctionalTestBehaviour, MediaFixtures;
 
     public const TEST_IMAGE = __DIR__ . '/../fixtures/shopware-logo.png';
 
@@ -32,17 +30,7 @@ class MediaUploadControllerTest extends TestCase
         $this->mediaRepository = $this->getContainer()->get('media.repository');
         $this->urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
 
-        $this->mediaId = Uuid::uuid4()->getHex();
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
-        $this->mediaRepository->create(
-            [
-                [
-                    'id' => $this->mediaId,
-                    'name' => 'test file',
-                ],
-            ],
-            $context
-        );
+        $this->mediaId = $this->getEmptyMedia()->getId();
     }
 
     public function testUploadFromBinary(): void

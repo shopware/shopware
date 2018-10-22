@@ -8,6 +8,8 @@ use Ramsey\Uuid\Uuid;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodStruct;
+use Shopware\Core\Content\Media\MediaProtectionFlags;
+use Shopware\Core\Content\Media\Metadata\Metadata;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
@@ -22,7 +24,6 @@ use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Tax\TaxDefinition;
-use Shopware\Core\System\Tax\TaxStruct;
 use Shopware\Core\System\Test\TaxFixtures;
 
 class VersioningTest extends TestCase
@@ -52,7 +53,17 @@ class VersioningTest extends TestCase
     /**
      * @var RepositoryInterface
      */
+    private $customerRepository;
+
+    /**
+     * @var RepositoryInterface
+     */
     private $shippingMethodRepository;
+
+    /**
+     * @var RepositoryInterface
+     */
+    private $mediaRepository;
 
     public function setUp()
     {
@@ -60,6 +71,9 @@ class VersioningTest extends TestCase
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->categoryRepository = $this->getContainer()->get('category.repository');
         $this->shippingMethodRepository = $this->getContainer()->get('shipping_method.repository');
+        $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->mediaRepository = $this->getContainer()->get('media.repository');
+
         $this->connection = $this->getContainer()->get(Connection::class);
     }
 
@@ -637,9 +651,7 @@ class VersioningTest extends TestCase
     public function testMergeBoolField(): void
     {
         static::markTestSkipped('The versioning cant handle updates with BoolField - issue NEXT-670 needs to be fixed first');
-
         $liveContext = Context::createDefaultContext(Defaults::TENANT_ID);
-
         $parentCategoryId = $this->createCategory($liveContext);
 
         $categoryId = Uuid::uuid4()->getHex();
@@ -662,7 +674,205 @@ class VersioningTest extends TestCase
         $update = ['id' => $categoryId, 'active' => false];
         $this->categoryRepository->update([$update], $versionContext);
 
+        // This call fails, because the "merge"-call tries to convert the serialized number 0/1 to boolean (also see NEXT-670)
         $this->categoryRepository->merge($versionId, $liveContext);
+
+        $category = $this->connection->fetchAssoc('SELECT * FROM category WHERE id = :id AND version_id = :version', [
+            'id' => Uuid::fromString($categoryId)->getBytes(),
+            'version' => Uuid::fromString(Defaults::LIVE_VERSION)->getBytes(),
+        ]);
+
+        static::assertEquals(0, $category['active']);
+
+        $fetchedCategory = $this->categoryRepository->read(new ReadCriteria([$categoryId]), $liveContext)->get($categoryId);
+        static::assertEquals(false, $fetchedCategory->get('active'));
+    }
+
+    public function testMergeDateTimeField(): void
+    {
+        static::markTestSkipped('The versioning cannot handle DateTimes - issue NEXT-670 needs to be fixed first');
+
+        $liveContext = Context::createDefaultContext(Defaults::TENANT_ID);
+
+        $customerId = Uuid::uuid4()->getHex();
+        $versionId = Uuid::uuid4()->getHex();
+
+        $address = [
+            'firstName' => 'not',
+            'lastName' => 'nope',
+            'city' => 'not',
+            'street' => 'not',
+            'zipcode' => 'not',
+            'salutation' => 'not',
+            'country' => ['name' => 'not'],
+        ];
+
+        $customer = [
+                'id' => $customerId,
+                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'defaultShippingAddress' => $address,
+                'defaultPaymentMethodId' => Defaults::PAYMENT_METHOD_INVOICE,
+                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                'email' => Uuid::uuid4()->getHex() . '@example.com',
+                'password' => 'not',
+                'lastName' => 'not',
+                'firstName' => 'nope',
+                'salutation' => 'not',
+                'customerNumber' => 'not',
+                'lastLogin' => new \DateTime(),
+            ];
+
+        $this->customerRepository->create([$customer], $liveContext);
+        $this->customerRepository->createVersion($customerId, $liveContext, 'dateVersionUpdate', $versionId);
+
+        $versionContext = $liveContext->createWithVersionId($versionId);
+        $updateTime = (new \DateTime())->add(new \DateInterval('P2Y4DT6H8M'));
+        $update = ['id' => $customerId, 'lastLogin' => $updateTime];
+        $this->customerRepository->update([$update], $versionContext);
+
+        $this->customerRepository->merge($versionId, $liveContext);
+
+        $fetchedCategory = $this->customerRepository->read(new ReadCriteria([$customerId]), $liveContext)->get($customerId);
+        static::assertEquals($updateTime, $fetchedCategory->getLastLogin());
+    }
+
+    public function testMergeCalculatedField(): void
+    {
+        static::markTestSkipped('The versioning does recalculate calculated fields after a merge - issue NEXT-670 needs to be fixed first');
+
+        $liveContext = Context::createDefaultContext(Defaults::TENANT_ID);
+
+        $categories = [
+            [
+                'id' => Uuid::uuid4()->getHex(),
+                'name' => 'catOld1',
+            ],
+            [
+                'id' => Uuid::uuid4()->getHex(),
+                'name' => 'catOld2',
+            ],
+            [
+                'id' => Uuid::uuid4()->getHex(),
+                'name' => 'catNew1',
+            ],
+            [
+                'id' => Uuid::uuid4()->getHex(),
+                'name' => 'catNew2',
+            ],
+        ];
+
+        $this->categoryRepository->create($categories, $liveContext);
+
+        $versionId = Uuid::uuid4()->getHex();
+        $productId = Uuid::uuid4()->getHex();
+        $product = [
+            'id' => $productId,
+            'name' => 'Test',
+            'price' => ['gross' => 10, 'net' => 9],
+            'manufacturer' => ['id' => Uuid::uuid4()->getHex(), 'name' => 'test'],
+            'tax' => ['id' => Uuid::uuid4()->getHex(), 'taxRate' => 17, 'name' => 'with id'],
+            'categoryTree' => [$categories[0]['id'], $categories[1]['id']],
+        ];
+
+        // Assign the first two categories to the product
+        $this->productRepository->create([$product], $liveContext);
+
+        $fetchedProduct = $this->productRepository->read(new ReadCriteria([$productId]), $liveContext)->get($productId);
+        $oldCategories = $fetchedProduct->getCategoryTree();
+        static::assertEquals(2, \count($oldCategories));
+        static::assertContains($categories[0]['id'], $oldCategories);
+        static::assertContains($categories[1]['id'], $oldCategories);
+
+        $fetchedCat = $this->categoryRepository->read(new ReadCriteria([$categories[0]['id']]), $liveContext)->get($categories[0]['id']);
+        static::assertEquals($categories[0]['name'], $fetchedCat->getName());
+
+        $this->productRepository->createVersion($productId, $liveContext, 'calcFieldVersionUpdate', $versionId);
+        $versionContext = $liveContext->createWithVersionId($versionId);
+
+        $update = [
+            'id' => $productId,
+            'categories' => [['id' => $categories[2]['id']], ['id' => $categories[3]['id']]],
+        ];
+        // In the new version of the product, switch the the "old" cateogories with the "new" ones
+        $this->productRepository->update([$update], $versionContext);
+        $this->productRepository->merge($versionId, $liveContext);
+
+        $fetchedProductUpdated = $this->productRepository->read(new ReadCriteria([$productId]), $liveContext)->get($productId);
+        $updatedCategories = $fetchedProductUpdated->getCategoryTree();
+
+        // This fails because of NEXT-670.
+        static::assertEquals(2, \count($updatedCategories));
+
+        static::assertContains($categories[2]['id'], $updatedCategories);
+        static::assertContains($categories[3]['id'], $updatedCategories);
+    }
+
+    public function testMergeMediaItems(): void
+    {
+        static::markTestSkipped('The versioning does handle permissions correctly - issue NEXT-670 needs to be fixed first');
+
+        $liveContext = Context::createDefaultContext(Defaults::TENANT_ID);
+        $liveContext->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
+        $mediaId = Uuid::uuid4()->getHex();
+        $mediaData = [
+            'id' => $mediaId,
+            'name' => 'test_media',
+            'extension' => '.jpg',
+        ];
+
+        $this->mediaRepository->create([$mediaData], $liveContext);
+        $versionId = Uuid::uuid4()->getHex();
+        $this->mediaRepository->createVersion($mediaId, $liveContext, 'mediaVersionUpdate', $versionId);
+        $versionContext = $liveContext->createWithVersionId($versionId);
+
+        $metadata = new Metadata();
+        $metadata->setRawMetadata(['generic test data']);
+        $update = [
+            'id' => $mediaId,
+            'mimeType' => 'image/jpg',
+        ];
+        // This fails because of NEXT-670.
+        $this->mediaRepository->update([$update], $versionContext);
+        $this->mediaRepository->merge($versionId, $liveContext);
+
+        $fetchedUpdatedMedia = $this->mediaRepository->read(new ReadCriteria([$mediaId]), $liveContext)->get($mediaId);
+        static::assertEquals('image/jpg', $fetchedUpdatedMedia->getMimeType());
+    }
+
+    public function testMergeNestedObjects(): void
+    {
+        static::markTestSkipped('The versioning cannot merge ListFields corretly - issue NEXT-670 needs to be fixed first');
+
+        $liveContext = Context::createDefaultContext(Defaults::TENANT_ID);
+        $liveContext->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
+        $mediaId = Uuid::uuid4()->getHex();
+        $mediaData = [
+            'id' => $mediaId,
+            'name' => 'test_media',
+            'metaData' => null,
+        ];
+
+        $this->mediaRepository->create([$mediaData], $liveContext);
+
+        $fetchedMedia = $this->mediaRepository->read(new ReadCriteria([$mediaId]), $liveContext)->get($mediaId);
+        static::assertEquals(null, $fetchedMedia->getMetaData());
+
+        $versionId = Uuid::uuid4()->getHex();
+        $this->mediaRepository->createVersion($mediaId, $liveContext, 'listFieldVersionUpdate', $versionId);
+        $versionContext = $liveContext->createWithVersionId($versionId);
+
+        $metadata = new Metadata();
+        $metadata->setRawMetadata(['generic test data']);
+        $update = [
+            'id' => $mediaId,
+            'metaData' => $metadata,
+        ];
+        $this->mediaRepository->update([$update], $versionContext);
+        $this->mediaRepository->merge($versionId, $liveContext);
+
+        $fetchedUpdatedMedia = $this->mediaRepository->read(new ReadCriteria([$mediaId]), $liveContext)->get($mediaId);
+        // This fails because of NEXT-670.
+        static::assertEquals($metadata, $fetchedUpdatedMedia->getMetaData()->getRawMetadata());
     }
 
     public function testCampaign(): void

@@ -273,7 +273,7 @@ You can use relative paths based on your plugin directory inside LESS and CSS fi
 
 Inside the templates files you have to use absolute paths.
 The path contains your plugin name (all lowercase and without separators), followed by `static`
-and all further direcories inside of `static`:
+and all further directories inside of `static`:
 
 The asset path for an image inside the "SwagAdministrationExample" plugin looks like this:
 

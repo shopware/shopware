@@ -40,7 +40,7 @@ class MediaLoadedSubscriberTest extends TestCase
         $subscriber->addUrls($mediaLoadedEvent);
 
         static::assertStringEndsWith(
-            'http://localhost/media/7d/ee/06/34556f108ab14969a0dcf9d9522fd7df-134578345.png',
+            '7d/ee/06/34556f108ab14969a0dcf9d9522fd7df-134578345.png',
             $mediaStruct->getUrl());
         static::assertEquals([], $mediaStruct->getThumbnails()->getElements());
     }
@@ -69,7 +69,7 @@ class MediaLoadedSubscriberTest extends TestCase
         $subscriber->addUrls($mediaLoadedEvent);
 
         static::assertStringEndsWith(
-            'http://localhost/thumbnail/7d/ee/06/34556f108ab14969a0dcf9d9522fd7df-134578345_100x100.png',
+            '7d/ee/06/34556f108ab14969a0dcf9d9522fd7df-134578345_100x100.png',
             $mediaStruct->getThumbnails()->get($thumbnailStruct->getId())->getUrl());
     }
 }

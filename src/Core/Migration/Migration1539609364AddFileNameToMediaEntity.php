@@ -23,7 +23,7 @@ class Migration1539609364AddFileNameToMediaEntity extends MigrationStep
 
         $connection->executeQuery('
             UPDATE `media`
-            SET `file_name` = `id`;
+            SET `file_name` = HEX(`id`);
         ');
 
         $this->addForwardTrigger(
@@ -32,7 +32,7 @@ class Migration1539609364AddFileNameToMediaEntity extends MigrationStep
             'media',
             'BEFORE',
             'INSERT',
-            'SET new.`file_name` = new.`id`'
+            'SET NEW.`file_name` = HEX(NEW.`id`)'
         );
     }
 

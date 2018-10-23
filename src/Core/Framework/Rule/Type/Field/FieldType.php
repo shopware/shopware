@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Rule\Type;
+namespace Shopware\Core\Framework\Rule\Type\Field;
 
 use Shopware\Core\Framework\Struct\Struct;
 

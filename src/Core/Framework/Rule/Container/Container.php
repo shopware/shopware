@@ -17,7 +17,7 @@ abstract class Container extends Rule
     public static function getFieldDefinition(): array
     {
         return [
-            'rules' => [Rule::class]
+            'rules' => Rule::class,
         ];
     }
 

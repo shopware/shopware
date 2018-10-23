@@ -29,10 +29,4 @@ class IsNewCustomerRule extends Rule
             ['Customer is not new']
         );
     }
-
-    public static function getFieldDefinition(): array
-    {
-        return [
-        ];
-    }
 }

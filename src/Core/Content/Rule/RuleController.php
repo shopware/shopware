@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Rule;
 
+use Shopware\Core\Framework\Rule\Definition\RuleDefinition;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,11 +16,11 @@ class RuleController extends Controller
     private $ruleBuilder;
 
     /**
-     * @var string[]
+     * @var iterable
      */
     private $ruleTypes;
 
-    public function __construct(RuleBuilder $ruleBuilder, array $ruleTypes)
+    public function __construct(RuleBuilder $ruleBuilder, iterable $ruleTypes)
     {
         $this->ruleBuilder = $ruleBuilder;
         $this->ruleTypes = $ruleTypes;
@@ -42,8 +43,11 @@ class RuleController extends Controller
     public function getRuleTypes()
     {
         $types = [];
+        /** @var RuleDefinition $ruleType */
         foreach ($this->ruleTypes as $ruleType) {
-            $types[] = $ruleType::getRuleTypeDefinition();
+            $type = $ruleType->getTypeStruct();
+
+            $types[] = $type;
         }
 
         return new JsonResponse($types);

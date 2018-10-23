@@ -1,0 +1,87 @@
+<?xml version="1.0" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="Shopware\Core\Checkout\Customer\Rule\Definition\BillingCountryRuleDefinition">
+            <tag name="rule_type.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Rule\Definition\BillingStreetRuleDefinition">
+            <tag name="rule_type.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Rule\Definition\BillingZipCodeRuleDefinition">
+            <tag name="rule_type.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Rule\Definition\CustomerGroupRuleDefinition">
+            <tag name="rule_type.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Rule\Definition\CustomerNumberRuleDefinition">
+            <tag name="rule_type.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Rule\Definition\DifferentAddressRuleDefinition">
+            <tag name="rule_type.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Rule\Definition\IsNewCustomerRuleDefinition">
+            <tag name="rule_type.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Rule\Definition\LastNameRuleDefinition">
+            <tag name="rule_type.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Rule\Definition\ShippingCountryRuleDefinition">
+            <tag name="rule_type.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Rule\Definition\ShippingStreetRuleDefinition">
+            <tag name="rule_type.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Rule\Definition\ShippingZipCodeRuleDefinition">
+            <tag name="rule_type.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Rule\Definition\CartAmountRuleDefinition">
+            <tag name="rule_type.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Rule\Definition\GoodsCountRuleDefinition">
+            <tag name="rule_type.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Rule\Definition\GoodsPriceRuleDefinition">
+            <tag name="rule_type.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Rule\Definition\LineItemOfTypeRuleDefinition">
+            <tag name="rule_type.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Rule\Definition\LineItemRuleDefinition">
+            <tag name="rule_type.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Rule\Definition\LineItemsInCartRuleDefinition">
+            <tag name="rule_type.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Rule\Definition\LineItemTotalPriceRuleDefinition">
+            <tag name="rule_type.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Rule\Definition\LineItemUnitPriceRuleDefinition">
+            <tag name="rule_type.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Rule\Definition\LineItemWithQuantityRuleDefinition">
+            <tag name="rule_type.definition"/>
+        </service>
+    </services>
+</container>

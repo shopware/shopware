@@ -163,14 +163,14 @@ class VersioningTest extends TestCase
         unset($payload['createdAt']);
         static::assertEquals($manufacturerChanges, $payload);
 
-        $changes = $this->getTranslationVersionData(ProductManufacturerTranslationDefinition::getEntityName(), Defaults::LANGUAGE, 'productManufacturerId', $manufacturerId, Defaults::LIVE_VERSION);
+        $changes = $this->getTranslationVersionData(ProductManufacturerTranslationDefinition::getEntityName(), Defaults::LANGUAGE_EN, 'productManufacturerId', $manufacturerId, Defaults::LIVE_VERSION);
         static::assertCount(1, $changes);
 
         $manufacturerTranslationChange = [
             'productManufacturerId' => $manufacturerId,
             'productManufacturerVersionId' => Defaults::LIVE_VERSION,
             'name' => 'manufacturer test',
-            'languageId' => Defaults::LANGUAGE,
+            'languageId' => Defaults::LANGUAGE_EN,
             'catalogId' => Defaults::CATALOG,
         ];
         $payload = json_decode($changes[0]['payload'], true);
@@ -582,7 +582,7 @@ class VersioningTest extends TestCase
         $changes = $this->getVersionData(ProductDefinition::getEntityName(), $productId->getHex(), $variantVersionId);
         static::assertCount(2, $changes);
 
-        $changes = $this->getTranslationVersionData(ProductTranslationDefinition::getEntityName(), Defaults::LANGUAGE, 'productId', $productId->getHex(), $variantVersionId);
+        $changes = $this->getTranslationVersionData(ProductTranslationDefinition::getEntityName(), Defaults::LANGUAGE_EN, 'productId', $productId->getHex(), $variantVersionId);
         static::assertCount(2, $changes);
 
         $product = $this->connection->fetchAssoc(

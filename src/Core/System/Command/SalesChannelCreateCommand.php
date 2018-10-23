@@ -35,7 +35,7 @@ class SalesChannelCreateCommand extends ContainerAwareCommand
         $this->setName('sales-channel:create')
             ->addOption('id', null, InputOption::VALUE_REQUIRED, 'Id for the sales channel', Uuid::uuid4()->getHex())
             ->addOption('name', null, InputOption::VALUE_REQUIRED, 'Name for the application', 'Storefront API endpoint')
-            ->addOption('languageId', null, InputOption::VALUE_REQUIRED, 'Default language', Defaults::LANGUAGE)
+            ->addOption('languageId', null, InputOption::VALUE_REQUIRED, 'Default language', Defaults::LANGUAGE_EN)
             ->addOption('currencyId', null, InputOption::VALUE_REQUIRED, 'Default currency', Defaults::CURRENCY)
             ->addOption('paymentMethodId', null, InputOption::VALUE_REQUIRED, 'Default payment method', Defaults::PAYMENT_METHOD_DEBIT)
             ->addOption('shippingMethodId', null, InputOption::VALUE_REQUIRED, 'Default shipping method', Defaults::SHIPPING_METHOD)
@@ -80,7 +80,7 @@ class SalesChannelCreateCommand extends ContainerAwareCommand
             'countryVersionId' => Defaults::LIVE_VERSION,
             'catalogs' => [['id' => Defaults::CATALOG]],
             'currencies' => [['id' => $input->getOption('currencyId')]],
-            'languages' => [['id' => Defaults::LANGUAGE]],
+            'languages' => [['id' => Defaults::LANGUAGE_EN]],
             'shippingMethods' => [['id' => $input->getOption('shippingMethodId')]],
             'paymentMethods' => [['id' => $input->getOption('paymentMethodId')]],
             'countries' => [['id' => $input->getOption('countryId')]],

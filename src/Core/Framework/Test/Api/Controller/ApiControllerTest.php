@@ -750,11 +750,9 @@ EOF;
         $data = [
             'id' => $childId,
             'name' => 'Child Language',
-            'localeId' => Defaults::LOCALE,
             'parent' => [
                 'id' => $parentId,
                 'name' => 'Parent Language',
-                'localeId' => Defaults::LOCALE,
             ],
         ];
 

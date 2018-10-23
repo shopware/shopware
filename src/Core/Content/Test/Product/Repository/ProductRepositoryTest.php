@@ -413,7 +413,7 @@ class ProductRepositoryTest extends TestCase
             [Defaults::CATALOG],
             [$ruleA],
             Defaults::CURRENCY,
-            Defaults::LANGUAGE
+            Defaults::LANGUAGE_EN
         );
 
         $products = $this->repository->searchIds($criteria, $context);

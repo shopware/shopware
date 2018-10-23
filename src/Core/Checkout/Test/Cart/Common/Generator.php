@@ -115,7 +115,7 @@ class Generator extends TestCase
             $locale->setCode('en_GB');
 
             $language = new LanguageStruct();
-            $language->setId(Defaults::LANGUAGE);
+            $language->setId(Defaults::LANGUAGE_EN);
             $language->setLocale($locale);
             $language->setName('Language 1');
         }

@@ -87,7 +87,7 @@ class TranslationTest extends TestCase
         $translations = $result->getEventByDefinition(CurrencyTranslationDefinition::class);
         static::assertCount(1, $translations->getIds());
         $languageIds = array_column($translations->getPayload(), 'languageId');
-        static::assertContains(Defaults::LANGUAGE, $languageIds);
+        static::assertContains(Defaults::LANGUAGE_EN, $languageIds);
 
         $payload = $translations->getPayload()[0];
         static::assertArraySubset(['name' => $name], $payload);
@@ -104,7 +104,7 @@ class TranslationTest extends TestCase
             'symbol' => '$',
             'translations' => [
                 [
-                    'languageId' => Defaults::LANGUAGE,
+                    'languageId' => Defaults::LANGUAGE_EN,
                     'name' => 'US Dollar',
                     'shortName' => 'USD',
                 ],
@@ -119,7 +119,7 @@ class TranslationTest extends TestCase
         $translations = $result->getEventByDefinition(CurrencyTranslationDefinition::class);
         static::assertCount(1, $translations->getIds());
         $languageIds = array_column($translations->getPayload(), 'languageId');
-        static::assertContains(Defaults::LANGUAGE, $languageIds);
+        static::assertContains(Defaults::LANGUAGE_EN, $languageIds);
 
         $payload = $translations->getPayload()[0];
         static::assertArraySubset(['name' => $name], $payload);
@@ -139,7 +139,7 @@ class TranslationTest extends TestCase
                     'name' => $name,
                 ],
 
-                Defaults::LANGUAGE => [
+                Defaults::LANGUAGE_EN => [
                     'shortName' => $shortName,
                 ],
             ],
@@ -153,7 +153,7 @@ class TranslationTest extends TestCase
         $translations = $result->getEventByDefinition(CurrencyTranslationDefinition::class);
         static::assertCount(1, $translations->getIds());
         $languageIds = array_column($translations->getPayload(), 'languageId');
-        static::assertContains(Defaults::LANGUAGE, $languageIds);
+        static::assertContains(Defaults::LANGUAGE_EN, $languageIds);
 
         $payload = $translations->getPayload()[0];
         static::assertArraySubset(['name' => $name], $payload);
@@ -174,7 +174,7 @@ class TranslationTest extends TestCase
                     'shortName' => 'should be overwritten',
                 ],
 
-                Defaults::LANGUAGE => [
+                Defaults::LANGUAGE_EN => [
                     'shortName' => $shortName,
                 ],
             ],
@@ -188,7 +188,7 @@ class TranslationTest extends TestCase
         $translations = $result->getEventByDefinition(CurrencyTranslationDefinition::class);
         static::assertCount(1, $translations->getIds());
         $languageIds = array_column($translations->getPayload(), 'languageId');
-        static::assertContains(Defaults::LANGUAGE, $languageIds);
+        static::assertContains(Defaults::LANGUAGE_EN, $languageIds);
 
         $payload = $translations->getPayload()[0];
         static::assertArraySubset(['name' => $name], $payload);
@@ -217,7 +217,6 @@ class TranslationTest extends TestCase
                     'shortName' => $germanShortName,
                     'language' => [
                         'id' => $germanLanguageId,
-                        'localeId' => Defaults::LOCALE,
                         'name' => 'de_DE',
                     ],
                 ],
@@ -233,7 +232,7 @@ class TranslationTest extends TestCase
         static::assertCount(2, $translations->getIds());
         $languageIds = array_column($translations->getPayload(), 'languageId');
         static::assertContains($germanLanguageId, $languageIds);
-        static::assertContains(Defaults::LANGUAGE, $languageIds);
+        static::assertContains(Defaults::LANGUAGE_EN, $languageIds);
 
         $payload1 = $translations->getPayload()[0];
         $payload2 = $translations->getPayload()[1];
@@ -279,7 +278,7 @@ class TranslationTest extends TestCase
         $translations = $result->getEventByDefinition(CurrencyTranslationDefinition::class);
         static::assertCount(1, $translations->getIds());
         $languageIds = array_column($translations->getPayload(), 'languageId');
-        static::assertContains(Defaults::LANGUAGE, $languageIds);
+        static::assertContains(Defaults::LANGUAGE_EN, $languageIds);
 
         $payload = $translations->getPayload()[0];
         static::assertArraySubset(['name' => $englishName], $payload);
@@ -288,8 +287,7 @@ class TranslationTest extends TestCase
         $germanLanguageId = Uuid::uuid4()->getHex();
         $data = [
             'id' => $germanLanguageId,
-            'localeId' => '2f3663edb7614308a60188c21c7963d5',
-            'name' => 'de_DE',
+            'name' => 'de_DE2',
         ];
 
         $this->languageRepository->create([$data], $this->context);
@@ -298,7 +296,7 @@ class TranslationTest extends TestCase
             'factor' => 1,
             'symbol' => '$',
             'translations' => [
-                'de_DE' => [
+                'de_DE2' => [
                     'name' => 'Amerikanische Dollar',
                     'shortName' => 'US Dollar German',
                 ],
@@ -333,7 +331,7 @@ class TranslationTest extends TestCase
         $translations = $result->getEventByDefinition(CurrencyTranslationDefinition::class);
         static::assertCount(1, $translations->getIds());
         $languageIds = array_column($translations->getPayload(), 'languageId');
-        static::assertContains(Defaults::LANGUAGE, $languageIds);
+        static::assertContains(Defaults::LANGUAGE_EN, $languageIds);
 
         $payload = $translations->getPayload()[0];
         static::assertArraySubset(['name' => $englishName], $payload);
@@ -342,22 +340,26 @@ class TranslationTest extends TestCase
         $germanLanguageId = Uuid::uuid4()->getHex();
         $data = [
             'id' => $germanLanguageId,
-            'localeId' => '2f3663edb7614308a60188c21c7963d5',
-            'name' => 'de_DE',
+            'locale' => [
+                'name' => 'Niederländisch',
+                'code' => 'x-nl_NL',
+                'territory' => 'Niederlande',
+            ],
+            'name' => 'nl_NL',
         ];
 
         $this->languageRepository->create([$data], $this->context);
 
         $this->localeLanguageResolver->invalidate();
 
-        $germanName = 'Amerikanische Dollar';
+        $germanName = 'Amerikaans Dollar';
         $germanShortName = 'US Dollar German';
 
         $data = [
             'factor' => 1,
             'symbol' => '$',
             'translations' => [
-                'de_DE' => [
+                'x-nl_NL' => [
                     'name' => $germanName,
                     'shortName' => $germanShortName,
                 ],
@@ -425,11 +427,10 @@ class TranslationTest extends TestCase
                         'description' => 'inflo decertatio. His Manus dilabor do, eia lumen, sed Desisto qua evello sono hinc, ars his misericordite.',
                         'language' => [
                                 'id' => $germanLanguageId,
-                                'localeId' => '20080911ffff4fffafffffff19830531',
                                 'name' => 'de_DE',
                             ],
                     ],
-                    Defaults::LANGUAGE => [
+                    Defaults::LANGUAGE_EN => [
                         'name' => 'Test En',
                     ],
                 ],
@@ -491,7 +492,7 @@ class TranslationTest extends TestCase
         $translations = $result->getEventByDefinition(ProductTranslationDefinition::class);
         static::assertCount(2, $translations->getIds());
         $languageIds = array_column($translations->getPayload(), 'languageId');
-        static::assertContains(Defaults::LANGUAGE, $languageIds);
+        static::assertContains(Defaults::LANGUAGE_EN, $languageIds);
         static::assertContains($germanLanguageId, $languageIds);
     }
 }

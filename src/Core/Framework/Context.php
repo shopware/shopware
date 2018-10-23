@@ -94,7 +94,7 @@ class Context extends Struct
         $sourceContext = new SourceContext('cli');
         $sourceContext->setSalesChannelId(Defaults::SALES_CHANNEL);
 
-        return new self($tenantId, $sourceContext, [Defaults::CATALOG], [], Defaults::CURRENCY, Defaults::LANGUAGE);
+        return new self($tenantId, $sourceContext, [Defaults::CATALOG], [], Defaults::CURRENCY, Defaults::LANGUAGE_EN);
     }
 
     public static function createFromSalesChannel(SalesChannelStruct $salesChannel, string $origin): self

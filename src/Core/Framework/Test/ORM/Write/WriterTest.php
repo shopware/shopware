@@ -476,7 +476,7 @@ class WriterTest extends TestCase
             new ReadCriteria([$id]),
             Context::createDefaultContext(Defaults::TENANT_ID)
         )->get($id);
-        self::assertEquals('http://localhost/media/be/90/42/2b9a945bb62b4122a32a3bbfbe1e6fd3.jpg', $media->getUrl());
+        self::assertStringEndsWith('/media/be/90/42/2b9a945bb62b4122a32a3bbfbe1e6fd3.jpg', $media->getUrl());
     }
 
     public function testUpdateIgnoresDeferredFields(): void
@@ -510,7 +510,7 @@ class WriterTest extends TestCase
             new ReadCriteria([$id]),
             Context::createDefaultContext(Defaults::TENANT_ID)
         )->get($id);
-        self::assertEquals('http://localhost/media/be/90/42/2b9a945bb62b4122a32a3bbfbe1e6fd3.jpg', $media->getUrl());
+        self::assertStringEndsWith('/media/be/90/42/2b9a945bb62b4122a32a3bbfbe1e6fd3.jpg', $media->getUrl());
     }
 
     public function testUpdateWritesMultipleTranslations(): void
@@ -532,7 +532,7 @@ class WriterTest extends TestCase
                 [
                     'id' => $this->id,
                     'name' => [
-                        Defaults::LANGUAGE => '1ABC',
+                        Defaults::LANGUAGE_EN => '1ABC',
                         '2d905256-e751-4967-8dd5-a32a81b94f1f' => '2ABC',
                     ],
                     'description' => 'foo', // implicit FFA32A50-E2D0-4CF3-8389-A53F8D6CD594
@@ -596,7 +596,7 @@ class WriterTest extends TestCase
         }, $productTranslations);
 
         foreach ($productTranslations as $translation) {
-            if ($translation['language_id'] === Defaults::LANGUAGE) {
+            if ($translation['language_id'] === Defaults::LANGUAGE_EN) {
                 self::assertSame('1ABC', $translation['name']);
                 self::assertSame('foo', $translation['description']);
                 self::assertNull($translation['description_long']);

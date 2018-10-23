@@ -115,10 +115,11 @@ class TenantProvisioner
     {
         $this->importTable(
             'language',
-            ['id', 'name', 'parent_id', 'locale_id', 'locale_version_id', 'created_at'],
+            ['id', 'name', 'parent_id', 'locale_id', 'created_at'],
             ['tenant_id', 'parent_tenant_id', 'locale_tenant_id'],
             [
-                [$this->defaultId, 'English', null, $this->defaultId, $this->defaultId, $this->now()],
+                [hex2bin(Defaults::LANGUAGE_EN), 'English', null, hex2bin(Defaults::LOCALE_EN_GB), $this->now()],
+                [hex2bin(Defaults::LANGUAGE_DE), 'Deutsch', null, hex2bin(Defaults::LOCALE_DE_DE), $this->now()],
             ]
         );
     }
@@ -362,26 +363,55 @@ class TenantProvisioner
 
     private function createLocale(): void
     {
+        $localeData = include __DIR__ . '/locales.php';
+
         $locales = [
-            [$this->defaultId, $this->defaultId, 'en_GB', $this->now(), null],
-            [hex2bin('2f3663edb7614308a60188c21c7963d5'), $this->defaultId, 'de_DE', $this->now(), null],
+            [hex2bin(Defaults::LOCALE_EN_GB), 'en_GB', $this->now(), null],
+            [hex2bin(Defaults::LOCALE_DE_DE), 'de_DE', $this->now(), null],
         ];
+        $localeTranslations = [
+            [hex2bin(Defaults::LOCALE_EN_GB), hex2bin(Defaults::LANGUAGE_EN), 'English', 'United Kingdom', $this->now()],
+            [hex2bin(Defaults::LOCALE_EN_GB), hex2bin(Defaults::LANGUAGE_DE), 'Englisch', 'Vereinigtes Königreich', $this->now()],
+
+            [hex2bin(Defaults::LOCALE_DE_DE), hex2bin(Defaults::LANGUAGE_EN), 'German', 'Germany', $this->now()],
+            [hex2bin(Defaults::LOCALE_DE_DE), hex2bin(Defaults::LANGUAGE_DE), 'Deutsch', 'Deutschland', $this->now()],
+        ];
+
+        foreach ($localeData as $locale) {
+            if (\in_array($locale['locale'], ['en_GB', 'de_DE'])) {
+                continue;
+            }
+            $newLocale = [Uuid::uuid4()->getBytes(), $locale['locale'], $this->now(), null];
+            $locales[] = $newLocale;
+
+            $localeTranslations[] = [
+                $newLocale[0],
+                hex2bin(Defaults::LANGUAGE_EN),
+                $locale['name']['en_GB'],
+                $locale['territory']['en_GB'],
+                $this->now(),
+            ];
+            $localeTranslations[] = [
+                $newLocale[0],
+                hex2bin(Defaults::LANGUAGE_DE),
+                $locale['name']['de_DE'],
+                $locale['territory']['de_DE'],
+                $this->now(),
+            ];
+        }
 
         $this->importTable(
             'locale',
-            ['id', 'version_id', 'code', 'created_at', 'updated_at'],
+            ['id', 'code', 'created_at', 'updated_at'],
             ['tenant_id'],
             $locales
         );
 
         $this->importTable(
             'locale_translation',
-            ['locale_id', 'locale_version_id', 'language_id', 'name', 'territory', 'created_at'],
+            ['locale_id', 'language_id', 'name', 'territory', 'created_at'],
             ['locale_tenant_id', 'language_tenant_id'],
-            [
-                [$locales[0][0], $this->defaultId, $this->defaultId, 'English', 'United Kingdom', $this->now()],
-                [$locales[1][0], $this->defaultId, $this->defaultId, 'German', 'Germany', $this->now()],
-            ]
+            $localeTranslations
         );
     }
 

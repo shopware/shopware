@@ -152,8 +152,7 @@ class ApiTestCase extends WebTestCase
             'email' => 'admin@example.com',
             'username' => $username,
             'password' => password_hash($password, PASSWORD_BCRYPT),
-            'locale_id' => Uuid::fromStringToBytes(Defaults::LOCALE),
-            'locale_version_id' => Uuid::fromStringToBytes(Defaults::LIVE_VERSION),
+            'locale_id' => Uuid::fromStringToBytes(Defaults::LOCALE_EN_GB),
             'locale_tenant_id' => Uuid::fromHexToBytes(Defaults::TENANT_ID),
             'active' => 1,
             'created_at' => (new \DateTime())->format(Defaults::DATE_FORMAT),
@@ -190,14 +189,14 @@ class ApiTestCase extends WebTestCase
             'typeId' => Defaults::SALES_CHANNEL_STOREFRONT_API,
             'name' => 'API Test case sales channel',
             'accessKey' => $accessKey,
-            'languageId' => Defaults::LANGUAGE,
+            'languageId' => Defaults::LANGUAGE_EN,
             'currencyId' => Defaults::CURRENCY,
             'paymentMethodId' => Defaults::PAYMENT_METHOD_DEBIT,
             'shippingMethodId' => Defaults::SHIPPING_METHOD,
             'countryId' => Defaults::COUNTRY,
             'catalogs' => [['id' => Defaults::CATALOG]],
             'currencies' => [['id' => Defaults::CURRENCY]],
-            'languages' => [['id' => Defaults::LANGUAGE]],
+            'languages' => [['id' => Defaults::LANGUAGE_EN]],
         ]], Context::createDefaultContext(Defaults::TENANT_ID));
 
         $this->storefrontApiSalesChannelId = $salesChannelId->getHex();

@@ -23,7 +23,7 @@ class TranslationTest extends TestCase
         $this->assertTranslation(
             ['name' => 'not translated'],
             [
-                Defaults::LANGUAGE => ['name' => 'not translated'],
+                Defaults::LANGUAGE_EN => ['name' => 'not translated'],
                 $langId => ['name' => 'translated'],
             ]
         );
@@ -37,7 +37,7 @@ class TranslationTest extends TestCase
         $this->assertTranslation(
             ['name' => 'translated'],
             [
-                Defaults::LANGUAGE => ['name' => 'not translated'],
+                Defaults::LANGUAGE_EN => ['name' => 'not translated'],
                 $langId => ['name' => 'translated'],
             ],
             $langId
@@ -66,10 +66,10 @@ class TranslationTest extends TestCase
         $this->assertTranslation(
             ['name' => 'not translated'],
             [
-                Defaults::LANGUAGE => ['name' => 'not translated'],
+                Defaults::LANGUAGE_EN => ['name' => 'not translated'],
                 $langId => ['name' => 'translated'],
             ],
-            Defaults::LANGUAGE
+            Defaults::LANGUAGE_EN
         );
     }
 
@@ -142,7 +142,6 @@ class TranslationTest extends TestCase
             $parentLanguageData = [
                 'id' => $fallbackId,
                 'name' => 'test language ' . $fallbackId,
-                'localeId' => Defaults::LOCALE,
             ];
             $this->getClient()->request('POST', $baseUrl . '/language', $parentLanguageData);
             static::assertEquals(204, $this->getClient()->getResponse()->getStatusCode());
@@ -151,10 +150,9 @@ class TranslationTest extends TestCase
         $languageData = [
             'id' => $langId,
             'name' => 'test language ' . $langId,
-            'localeId' => Defaults::LOCALE,
             'parentId' => $fallbackId,
         ];
         $this->getClient()->request('POST', $baseUrl . '/language', $languageData);
-        static::assertEquals(204, $this->getClient()->getResponse()->getStatusCode());
+        static::assertEquals(204, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
     }
 }

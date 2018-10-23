@@ -111,7 +111,7 @@ class KeywordSearchTermInterpreterTest extends TestCase
             'netzwerkprotokolle',
         ];
 
-        $languageId = Uuid::fromString(Defaults::LANGUAGE)->getBytes();
+        $languageId = Uuid::fromString(Defaults::LANGUAGE_EN)->getBytes();
         $versionId = Uuid::fromString(Defaults::LIVE_VERSION)->getBytes();
         $tenantId = Uuid::fromString(Defaults::TENANT_ID)->getBytes();
 

@@ -62,7 +62,7 @@ class TranslatorTest extends TestCase
         $snippet = [
             'translationKey' => 'frontend.index.footer.IndexCopyright',
             'value' => 'Realisiert mit Unit test',
-            'languageId' => Defaults::LANGUAGE,
+            'languageId' => Defaults::LANGUAGE_EN,
         ];
 
         $this->snippetRepository->create([$snippet], $context);
@@ -90,9 +90,8 @@ class TranslatorTest extends TestCase
 
         $language = [
             'id' => $id->getHex(),
-            'parentId' => Defaults::LANGUAGE,
+            'parentId' => Defaults::LANGUAGE_EN,
             'name' => 'Unit language',
-            'localeId' => Defaults::LOCALE,
         ];
 
         $this->languageRepository->create([$language], $context);
@@ -106,7 +105,7 @@ class TranslatorTest extends TestCase
             [
                 'translationKey' => 'frontend.index.footer.IndexCopyright',
                 'value' => 'Realisiert with default language',
-                'languageId' => Defaults::LANGUAGE,
+                'languageId' => Defaults::LANGUAGE_EN,
             ],
         ];
 
@@ -143,7 +142,7 @@ class TranslatorTest extends TestCase
             [],
             $context->getCurrencyId(),
             $id->getHex(),
-            Defaults::LANGUAGE
+            Defaults::LANGUAGE_EN
         );
 
         // fake new request

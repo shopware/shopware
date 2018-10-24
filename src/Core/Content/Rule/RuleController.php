@@ -32,6 +32,9 @@ class RuleController extends Controller
      */
     public function validateRule(Request $request)
     {
+        /**
+         * TODO:
+         */
         $isRule = $this->ruleBuilder->isRule($request->request->all());
         echo "<pre>";
         var_dump($isRule);
@@ -41,16 +44,31 @@ class RuleController extends Controller
     /**
      * @Route("/api/v{version}/rule_type", name="api.rule.type", methods={"GET"})
      */
-    public function getRuleTypes()
+    public function getRuleTypes(): JsonResponse
     {
         return $this->getRuleTypesResponse(null);
     }
     /**
      * @Route("/api/v{version}/rule_type/{scope}", name="api.rule.scope_type", methods={"GET"})
      */
-    public function getRuleTypesByScope(string $scope)
+    public function getRuleTypesByScope(string $scope): JsonResponse
     {
         return $this->getRuleTypesResponse($scope);
+    }
+
+    /**
+     * @Route("/api/v{version}/rule_scope", name="api.rule.scope", methods={"GET"})
+     */
+    public function getRuleScopes(): JsonResponse
+    {
+        $identifiers = Scope::getScopeIdentifier();
+        $identifiers = array_map(
+            function (string $identifier) {
+                return ['identifier' => $identifier];
+            }, $identifiers
+        );
+
+        return new JsonResponse($identifiers);
     }
 
     private function getRuleTypesResponse(?string $scope): JsonResponse

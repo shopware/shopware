@@ -11,6 +11,16 @@ class Scope extends Struct
     const IDENTIFIER_CART = 'CartRuleScope';
     const IDENTIFIER_LINEITEM = 'LineItemRuleScope';
 
+    public static function getScopeIdentifier(): array
+    {
+        return [
+            self::IDENTIFIER_CART,
+            self::IDENTIFIER_LINEITEM,
+            self::IDENTIFIER_CHECKOUT,
+            self::IDENTIFIER_GLOBAL,
+        ];
+    }
+
     /** @var string */
     protected $identifier;
 

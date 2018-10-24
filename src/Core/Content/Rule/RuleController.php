@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Rule;
 
 use Shopware\Core\Framework\Rule\Definition\RuleDefinition;
+use Shopware\Core\Framework\Rule\Type\Scope;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -42,10 +43,34 @@ class RuleController extends Controller
      */
     public function getRuleTypes()
     {
+        return $this->getRuleTypesResponse(null);
+    }
+    /**
+     * @Route("/api/v{version}/rule_type/{scope}", name="api.rule.scope_type", methods={"GET"})
+     */
+    public function getRuleTypesByScope(string $scope)
+    {
+        return $this->getRuleTypesResponse($scope);
+    }
+
+    private function getRuleTypesResponse(?string $scope): JsonResponse
+    {
         $types = [];
         /** @var RuleDefinition $ruleType */
         foreach ($this->ruleTypes as $ruleType) {
             $type = $ruleType->getTypeStruct();
+
+            if ($scope !== null && !in_array(
+                    $scope,
+                    array_map(
+                        function (Scope $scope) {
+                            return $scope->getIdentifier();
+                        }, $type->getScopes()
+                    ),
+                    true
+                )) {
+                continue;
+            }
 
             $types[] = $type;
         }

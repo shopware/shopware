@@ -30,4 +30,12 @@ class RuleTypeStruct extends Struct
         $this->scopes = $scopes;
         $this->fields = $fields;
     }
+
+    /**
+     * @return Scope[]
+     */
+    public function getScopes(): array
+    {
+        return $this->scopes;
+    }
 }

@@ -18,4 +18,9 @@ class Scope extends Struct
     {
         $this->identifier = $identifier;
     }
+
+    public function getIdentifier(): string
+    {
+        return $this->identifier;
+    }
 }

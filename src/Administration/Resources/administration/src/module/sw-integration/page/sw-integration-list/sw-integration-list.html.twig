@@ -34,7 +34,7 @@
                                           @closeModal="onCloseDetailModal">
                                     {% block sw_integration_list_detail_modal_inner %}
 
-                                        <sw-container grid="1fr 1fr" gap="30px 30px">
+                                        <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0 30px">
                                             {% block sw_integration_list_detail_modal_inner_field_label %}
                                                 <sw-field :label="$tc('sw-integration.detail.labelFieldLabel')"
                                                           validation="required"

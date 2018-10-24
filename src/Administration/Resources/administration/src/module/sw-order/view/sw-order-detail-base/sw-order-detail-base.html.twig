@@ -32,7 +32,7 @@
                 {% endblock %}
 
                 {% block sw_order_detail_base_info_card_order_overview %}
-                    <sw-container grid="1fr 1fr" gap="30px 30px">
+                    <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="30px 30px">
                         {% block sw_order_detail_base_info_card_order_metadata %}
                             <sw-description-list>
                                 <dt>{{ $tc('sw-order.detailBase.labelOrderStatus') }}</dt>
@@ -69,7 +69,7 @@
 
                         {% block sw_order_detail_base_line_items_row_summary %}
                             <sw-card-section divider="top" secondary slim>
-                                <sw-container grid="1fr 440px"
+                                <sw-container columns="1fr 440px"
                                               class="sw-order-detail-base__summary">
                                     {% block sw_order_detail_base_line_items_summary %}
                                         <sw-description-list columns="265px 1fr"

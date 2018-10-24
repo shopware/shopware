@@ -1,4 +1,5 @@
 import { Component } from 'src/core/shopware';
+import { warn } from 'src/core/service/utils/debug.utils';
 import template from './sw-container.html.twig';
 import './sw-container.less';
 
@@ -58,11 +59,12 @@ Component.register('sw-container', {
 
     methods: {
         createdComponent() {
-            this.registerBreakpointListener();
+            this.registerResizeListener();
         },
 
-        registerBreakpointListener() {
+        registerResizeListener() {
             const that = this;
+
             this.$device.onResize({
                 listener() {
                     that.updateCssGrid();
@@ -83,22 +85,23 @@ Component.register('sw-container', {
             }
 
             Object.keys(this.breakpoints).find(breakpoint => {
-                if (Number.isNaN(Number.parseInt(breakpoint, 0))) {
-                    console.error(
-                        `[${this.$options.name}] Unable to register breakpoint "${breakpoint}". 
-                        The breakpoint key has to be a number.`
+                const currentBreakpointWidth = Number.parseInt(breakpoint, 10);
+                const currentBreakpoint = this.breakpoints[breakpoint];
+
+                if (Number.isNaN(currentBreakpointWidth)) {
+                    warn(
+                        this.$options.name,
+                        `Unable to register breakpoint "${breakpoint}".
+                        The breakpoint key has to be a number equal to your desired pixel value.`,
+                        currentBreakpoint
                     );
-                    return cssGrid;
                 }
 
-                if (Number.parseInt(breakpoint, 0) > this.$device.getViewportWidth()) {
-                    cssGrid = this.buildCssGridProps(
-                        this.breakpoints[breakpoint]
-                    );
+                if (currentBreakpointWidth > this.$device.getViewportWidth()) {
+                    cssGrid = this.buildCssGridProps(currentBreakpoint);
                     return cssGrid;
                 }
-
-                return cssGrid;
+                return null;
             });
 
             return cssGrid;
@@ -123,14 +126,6 @@ Component.register('sw-container', {
                 'grid-gap': grid.gap,
                 'justify-items': grid.justify,
                 'align-items': grid.align
-            };
-        }
-    },
-
-    computed: {
-        defaultLayouts() {
-            return {
-                form2Column: 'repeat(auto-fit, minmax(250px, 1fr)'
             };
         }
     }

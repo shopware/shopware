@@ -4,7 +4,7 @@
             <sw-card :title="$tc('sw-sales-channel.detail.titleGeneralSettings')"
                      :isLoading="salesChannel.isLoading"
                      key="edit">
-                <sw-container grid="1fr 1fr" gap="0px 30px">
+                <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
                     {% block sw_sales_channel_detail_base_general_input_name %}
                         <sw-field type="text"
                                   validation="required"
@@ -101,23 +101,23 @@
         {% block sw_sales_channel_detail_base_options %}
             <sw-card :title="$tc('sw-sales-channel.detail.titleOptionsCard')">
                 {% block sw_sales_channel_detail_base_options_api %}
-                    <sw-container grid="1fr auto" gap="30px">
+                    <sw-container columns="1fr auto" gap="30px">
                         {% block sw_sales_channel_detail_base_options_input_access_key %}
-                        <sw-field :label="$tc('sw-sales-channel.detail.labelAccessKeyField')"
-                                  :disabled="true"
-                                  v-model="salesChannel.accessKey"
-                                  :copyAble="true">
-                        </sw-field>
+                            <sw-field :label="$tc('sw-sales-channel.detail.labelAccessKeyField')"
+                                      :disabled="true"
+                                      v-model="salesChannel.accessKey"
+                                      :copyAble="true">
+                            </sw-field>
                         {% endblock %}
 
                         {% block sw_sales_channel_detail_base_options_input_generate_key %}
-                        <div class="sw-sales-channel-detail__action-button">
-                            <sw-button @click="onGenerateKeys"
-                                       class="sw-sales-channel-detail-base__button-generate-keys">
-                                <sw-icon name="small-arrow-360-right" size="18"></sw-icon>
-                                {{ $tc('sw-sales-channel.detail.buttonCreateNewApiKeys') }}
-                            </sw-button>
-                        </div>
+                            <div class="sw-sales-channel-detail__action-button">
+                                <sw-button @click="onGenerateKeys"
+                                           class="sw-sales-channel-detail-base__button-generate-keys">
+                                    <sw-icon name="small-arrow-360-right" size="18"></sw-icon>
+                                    {{ $tc('sw-sales-channel.detail.buttonCreateNewApiKeys') }}
+                                </sw-button>
+                            </div>
                         {% endblock %}
                     </sw-container>
                 {% endblock %}

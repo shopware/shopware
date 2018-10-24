@@ -26,19 +26,15 @@
                 {% block sw_catalog_detail_info %}
                     <div class="sw-catalog-detail__info">
 
-                        {% block sw_catalog_detail_info_header %}
-                            <sw-container grid="1fr 1fr">
-                                {% block sw_catalog_detail_info_intro %}
-                                    <div class="sw-catalog-detail__intro">
-                                        <h3>{{ $tc('sw-catalog.detail.introHeadlineDetail') }}</h3>
-                                        <p v-html="$tc('sw-catalog.detail.introDescriptionDetail', 0, { name: catalog.name })"></p>
-                                    </div>
-                                {% endblock %}
-                            </sw-container>
+                        {% block sw_catalog_detail_info_intro %}
+                            <div class="sw-catalog-detail__intro">
+                                <h3>{{ $tc('sw-catalog.detail.introHeadlineDetail') }}</h3>
+                                <p v-html="$tc('sw-catalog.detail.introDescriptionDetail', 0, { name: catalog.name })"></p>
+                            </div>
                         {% endblock %}
 
                         {% block sw_catalog_detail_info_statistic %}
-                            <sw-container grid="1fr 1fr" gap="30px" class="sw-catalog-detail__stats">
+                            <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="30px" class="sw-catalog-detail__stats">
 
                                 {% block sw_catalog_detail_info_statistic_products %}
                                     <div class="info-card">
@@ -97,7 +93,7 @@
 
                                 {% block sw_catalog_detail_categories_tree_actions %}
                                     <template slot="actions">
-                                        <sw-container grid="3fr 1fr" gap="0 20px">
+                                        <sw-container columns="3fr 1fr" gap="0 20px">
                                             <sw-field v-model="addCategoryName" @keyup.enter="onAddCategory" :placeholder="$tc('sw-catalog.detail.fieldPlaceholderAddCategory')"></sw-field>
                                             <sw-button @click="onAddCategory" class="sw-catalog-detail__add-action">{{ $tc('sw-catalog.detail.buttonAddCategory') }}</sw-button>
                                         </sw-container>

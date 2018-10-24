@@ -22,6 +22,11 @@ class Migration1539868743LanguageLocaleConstraints extends MigrationStep
         ');
 
         $connection->executeQuery('
+            ALTER TABLE `locale`
+            DROP INDEX `locale`
+        ');
+
+        $connection->executeQuery('
             ALTER TABLE `user`
             DROP FOREIGN KEY `fk_user.locale_id`,
             DROP INDEX `fk_user.locale_id`
@@ -40,6 +45,8 @@ class Migration1539868743LanguageLocaleConstraints extends MigrationStep
             ALTER TABLE `locale`
             DROP PRIMARY KEY,
             ADD PRIMARY KEY (id, tenant_id),
+            
+            ADD CONSTRAINT `locale` UNIQUE (`code`, `tenant_id`),
             
             MODIFY `version_id` binary(16) NULL'
         );

@@ -37,7 +37,7 @@ describe('core/service/api/mediaService', () => {
 
         const testUrl = `${process.env.BASE_PATH}/api/v1/entity-schema.json`;
         mediaItem.save().then(() => {
-             mediaService.uploadMediaFromUrl(mediaItem.id, testUrl, '.json').then(() => {
+            mediaService.uploadMediaFromUrl(mediaItem.id, testUrl, 'json').then(() => {
                 done();
             }).catch((err) => {
                 done(err);

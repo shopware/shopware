@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 class Migration1539609364AddFileNameToMediaEntity extends MigrationStep
 {
-    private const FORWARD_TRIGGER_NAME = 'trigger_1539609364_add_filename_to_media';
+    public const FORWARD_TRIGGER_NAME = 'trigger_1539609364_add_filename_to_media';
 
     public function getCreationTimestamp(): int
     {
@@ -18,7 +18,7 @@ class Migration1539609364AddFileNameToMediaEntity extends MigrationStep
     {
         $connection->executeQuery('
             ALTER TABLE `media`
-            ADD COLUMN `file_name` VARCHAR(255) COLLATE utf8mb4_unicode_ci NULL;
+            ADD COLUMN `file_name` VARCHAR(255) COLLATE utf8mb4_unicode_ci NULL AFTER `meta_data`;
         ');
 
         $connection->executeQuery('

@@ -16,7 +16,7 @@ class Migration1539609364AddFileNameToMediaEntityTest extends TestCase
 
     const CATALOG_ID = '5F1C0C3F3C574574BE8AE70933BF4BC6';
 
-    const TRIGGER_NAME = 'trigger_1539609364_add_filename_to_media';
+    const TRIGGER_NAME = Migration1539609364AddFileNameToMediaEntity::FORWARD_TRIGGER_NAME;
 
     /** @var Connection */
     private $connection;
@@ -30,6 +30,21 @@ class Migration1539609364AddFileNameToMediaEntityTest extends TestCase
             [self::CATALOG_ID]
         );
 
+    }
+
+    public function test_column_order_is_preserved() {
+        $tableLayout = $this->connection->fetchAll('DESCRIBE media');
+
+        $lastTwoCols = array_slice($tableLayout,-2);
+
+        $lastTwoCols = array_map(
+            function (array $column): string {
+                return $column['Field'];
+            },
+            $lastTwoCols
+        );
+
+        self::assertEquals(['created_at', 'updated_at'], $lastTwoCols);
     }
 
     public function test_db_trigger_works_correctly()

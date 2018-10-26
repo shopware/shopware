@@ -14,8 +14,9 @@
             {% endblock %}
         </template>
 
-        <sw-card-view slot="content" class="sw-integration-list__content">
-            {% block sw_integration_list_content %}
+        {% block sw_integration_list_content %}
+            <sw-card-view slot="content" class="sw-integration-list__content">
+
                 {% block sw_integration_list_introduction %}
                     <sw-card :hero="true">
                         <h3 class="sw-integration-list__welcome-headline">{{ $tc('sw-integration.general.heroHeadlineIntegrations') }}</h3>
@@ -196,7 +197,7 @@
                         {% endblock %}
                     </sw-card>
                 {% endblock %}
-            {% endblock %}
-        </sw-card-view>
+            </sw-card-view>
+        {% endblock %}
     </sw-page>
 {% endblock %}

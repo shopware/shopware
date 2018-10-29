@@ -52,8 +52,8 @@
       "labelContextMenuAddToProduct": "Add to product",
       "labelContextMenuDetail": "Details",
       "notificationErrorBlankItemName": "The media could not be saved: Please enter a name",
-      "notificationRenamingSuccess": "Successfully renamed media",
-      "notificationRenamingError": "Error renaming media"
+      "notificationRenamingSuccess": "Media item successfully renamed.",
+      "notificationRenamingError": "Error renaming file"
     },
     "sw-media-modal-delete": {
       "titleModal": "Delete media files",
@@ -62,8 +62,8 @@
       "buttonAbort": "Cancel",
       "notificationSuccessSingle": "File \"{mediaName}\" successfully Deleted",
       "notificationErrorSingle": "Error deleting \"{mediaName}\"",
-      "notificationSuccessOverall": "Successful deleted media Items",
-      "notificationErrorOverall": "The files could not be deleted"
+      "notificationSuccessOverall": "Media item successfully deleted.",
+      "notificationErrorOverall": "Error deleting file"
     },
     "sw-media-modal-replace": {
       "titleModal": "Replace media files",
@@ -72,7 +72,7 @@
       "buttonReplace": "Replace",
       "notificationSuccess": "File replaced",
       "notificationFailure": "An error occurred while replacing {mediaName}",
-      "notificationFileReaderError": "We could not read the file"
+      "notificationFileReaderError": "Error reading file"
     },
     "sw-media-preview": {
       "fallbackVideoTagSupport": "Your browser does not support the video tag",
@@ -80,8 +80,8 @@
     },
     "sw-media-upload-button": {
       "buttonUpload": "Upload",
-      "buttonFileUpload": "Upload a file",
-      "buttonUrlUpload": "Upload from URL"
+      "buttonFileUpload": "Upload file",
+      "buttonUrlUpload": "Upload file from URL"
     },
     "sw-media-upload-url-modal": {
       "title": "Upload file from URL",
@@ -103,7 +103,7 @@
     },
     "sw-search-bar": {
       "textNoSearchResults": "Unable to find any search results",
-      "placeholderSearchField": "Find products, customers, orders…",
+      "placeholderSearchField": "Find products, customers, orders...",
       "placeholderTypeSearchField": "Search {entity}"
     },
     "sw-search-bar-item": {
@@ -153,7 +153,7 @@
       "mainMenuItemGeneral": "Customers",
       "mainMenuItemList": "Overview",
       "mainMenuItemAdd": "Add customer",
-      "descriptionTextModule": "Manage customers here.",
+      "descriptionTextModule": "Manage customers here",
       "placeholderSearchBar": "Search customers"
     },
     "list": {
@@ -268,7 +268,7 @@
       "tabGeneral": "General",
       "tabAddresses": "Addresses",
       "titleSaveSuccess": "Customer",
-      "messageSaveSuccess": "Customer {name} has been saved successfully."
+      "messageSaveSuccess": "Customer \"{name}\" has been saved successfully."
     }
   },
   "sw-catalog": {
@@ -277,7 +277,7 @@
       "mainMenuItemList": "Overview",
       "mainMenuItemCreate": "Create catalogue",
       "headlineCatalogs": "Catalogues",
-      "introHeadlineCatalogs": "Welcome to the catalogue management!",
+      "introHeadlineCatalogs": "Welcome to the catalogue management",
       "introDescriptionCatalogs": "All information is stored in catalogues, e.g. products, pages or media. A catalogue's contents are structured in categories. You can use a catalogue to publish distinct content in various sales channels. By this you can work with a multitude of catalogues and manage a variety of assortments.",
       "buttonCreateCatalog": "Create catalogue"
     },
@@ -314,7 +314,7 @@
       "headlineIntegrations": "Integrations",
       "buttonCreateIntegration": "Add integration",
       "heroHeadlineIntegrations": "Welcome to the integration management",
-      "heroDescriptionIntegrations": "Shopware offers a powerful API for perfectly integrating third-party systems into your processes. In order to establish proper communication, Shopware requires external applications to authenticate through individual security keys. You can create those individual keys right here, enabling you to separately track changes, introduced by external applications, separately."
+      "heroDescriptionIntegrations": "Shopware offers a powerful API for perfectly integrating third-party systems into your processes. In order to establish proper communication, Shopware requires external applications to authenticate through individual security keys first. You can create those individual keys right here, enabling you to track changes, introduced by external applications, separately."
     },
     "list": {
       "contextMenuEdit": "Edit",
@@ -332,7 +332,7 @@
       "labelFieldLabel": "Name",
       "idFieldLabel": "Access key ID",
       "secretFieldLabel": "Secret access key",
-      "secretHelpText": "The access key will no longer be visible after saving. Be sure to copy and save the key in a secure place. In case you lost the key anyway, simply generate a new one here.",
+      "secretHelpText": "The access key will no longer be visible after saving. Be sure to copy and store the key in a secure place. In case you lost the key anyway, simply generate a new one here.",
       "secretHelpTextTitle": "Important!",
       "writeAccessFieldLabel": "Write access",
       "titleSaveSuccess": "Integration",
@@ -348,7 +348,7 @@
       "mainMenuItemGeneral": "Products",
       "mainMenuItemList": "Overview",
       "mainMenuItemAdd": "Add product",
-      "descriptionTextModule": "Manage your products here",
+      "descriptionTextModule": "Manage products here",
       "placeholderSearchBar": "Search products"
     },
     "basicForm": {
@@ -382,7 +382,7 @@
       "placeholderReferenceUnit": "Reference unit",
       "placeholderPackUnit": "Box, bottle, crate, etc.",
       "optionLitre": "Litre",
-      "optionKilogram": "KG",
+      "optionKilogram": "Kilogram",
       "optionMetre": "Metre"
     },
     "settingsForm": {
@@ -453,7 +453,7 @@
       "contextMenuDuplicate": "Duplicate",
       "messageEmpty": "No products yet",
       "modalTitleDelete": "Product",
-      "textDeleteConfirm": "Are you sure you really want to delete the product: \"{name}\"?",
+      "textDeleteConfirm": "Are you sure you really want to delete the product \"{name}\"?",
       "titleSidebarItemRefresh": "Refresh"
     },
     "detail": {
@@ -469,7 +469,7 @@
     "mediaForm": {
       "buttonUpload": "Upload files",
       "errorNoImage": "\"{file}\" is not an image",
-      "errorMediaItemDuplicated": "The media item is already assigned"
+      "errorMediaItemDuplicated": "Media item already assigned"
     }
   },
   "sw-manufacturer": {
@@ -490,7 +490,7 @@
       "contextMenuDelete": "Delete",
       "contextMenuDuplicate": "Duplicate",
       "modalTitleDelete": "Delete manufacturer",
-      "textDeleteConfirm": "Are you sure you want to delete the manufacturer {name}?",
+      "textDeleteConfirm": "Are you sure you want to delete the manufacturer \"{name}\"?",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete",
       "titleSidebarItemRefresh": "Refresh"
@@ -508,7 +508,7 @@
       "placeholderDescription": "Enter manufacturer description.",
       "placeholderLink": "Enter manufacturer website.",
       "titleSaveSuccess": "Manufacturer",
-      "messageSaveSuccess": "Manufacturer {name} has been saved successfully.",
+      "messageSaveSuccess": "Manufacturer \"{name}\" has been saved successfully.",
       "addLogoCaption": "Add logo"
     }
   },
@@ -516,7 +516,7 @@
     "general": {
       "mainMenuItemGeneral": "Orders",
       "mainMenuItemList": "Overview",
-      "descriptionTextModule": "Manage received orders from here.",
+      "descriptionTextModule": "Manage received orders here",
       "placeholderSearchBar": "Search orders"
     },
     "list": {
@@ -585,7 +585,7 @@
     },
     "detail": {
       "titleSaveSuccess": "Sales channel",
-      "messageSaveSuccess": "Sales channel {name} has been saved successfully.",
+      "messageSaveSuccess": "Sales channel \"{name}\" has been saved successfully.",
       "buttonSave": "Save",
       "buttonCreateNewApiKeys": "Create new API key",
       "tabBase": "General",
@@ -616,7 +616,7 @@
   "sw-media": {
     "general": {
       "mainMenuItemGeneral": "Media",
-      "descriptionTextModule": "Manage all media data",
+      "descriptionTextModule": "Manage media here",
       "placeholderSearchBar": "Search media"
     },
     "smart-bar": {
@@ -624,8 +624,8 @@
     },
     "upload": {
       "notificationSuccess": "File saved",
-      "notificationFailure": "There has been an error uploading {mediaName}",
-      "notificationInfo": "Upload from one file started | Upload from {count} files started"
+      "notificationFailure": "Error uploading {mediaName}",
+      "notificationInfo": "Uploading single file | Uploading {count} files"
     },
     "index": {
       "headingCatalogs": "Catalogues",
@@ -648,7 +648,7 @@
         "preview": "Preview",
         "metadata": "Meta data",
         "titleMissingFile": "File not found",
-        "descriptionMissingFile": "We couldn't find your file. You can upload a new file or delete it."
+        "descriptionMissingFile": "Unable to find requested file. Upload new file(s) or delete placeholder."
       },
       "metadata": {
         "name": "Name",
@@ -697,7 +697,7 @@
     },
     "list": {
       "textHeadline": "Currencies",
-      "textDeleteConfirm": "Are you sure you want to delete the currency {name}?",
+      "textDeleteConfirm": "Are you sure you want to delete the currency \"{name}\"?",
       "columnName": "Name",
       "columnShortName": "Short name",
       "columnSymbol": "Symbol",
@@ -706,7 +706,7 @@
       "contextMenuEdit": "Edit",
       "modalTitleDelete": "Delete currency",
       "titleDeleteSuccess": "Currency",
-      "messageDeleteSuccess": "Currency {name} has been deleted successfully.",
+      "messageDeleteSuccess": "Currency \"{name}\" has been deleted successfully.",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete"
     },
@@ -714,7 +714,7 @@
       "textHeadline": "New currency",
       "titleCard": "Settings",
       "titleSaveSuccess": "Currency",
-      "messageSaveSuccess": "Currency {name} has been saved successfully.",
+      "messageSaveSuccess": "Currency \"{name}\" has been saved successfully.",
       "labelName": "Name",
       "labelShortName": "Short name",
       "labelSymbol": "Symbol",
@@ -735,14 +735,14 @@
     },
     "list": {
       "textHeadline": "Tax",
-      "textDeleteConfirm": "Are you sure you want to delete the tax {name}?",
+      "textDeleteConfirm": "Are you sure you want to delete the tax \"{name}\"?",
       "columnName": "Name",
       "columnTaxRate": "Tax rate",
       "buttonAddTax": "Add tax",
       "contextMenuEdit": "Edit",
       "modalTitleDelete": "Delete tax",
       "titleDeleteSuccess": "Tax",
-      "messageDeleteSuccess": "Tax {name} has been deleted successfully.",
+      "messageDeleteSuccess": "Tax \"{name}\" has been deleted successfully.",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete"
     },
@@ -750,7 +750,7 @@
       "textHeadline": "New tax",
       "titleCard": "Settings",
       "titleSaveSuccess": "Tax",
-      "messageSaveSuccess": "Tax {name} has been saved successfully.",
+      "messageSaveSuccess": "Tax \"{name}\" has been saved successfully.",
       "labelName": "Name",
       "labelTaxRate": "Tax rate",
       "placeholderName": "Enter name",
@@ -766,14 +766,14 @@
     },
     "list": {
       "textHeadline": "Languages",
-      "textDeleteConfirm": "Are you sure you want to delete the language {name}?",
+      "textDeleteConfirm": "Are you sure you want to delete the language \"{name}\"?",
       "columnName": "Name",
       "columnLocaleName": "Region",
       "buttonAddLanguage": "Add language",
       "contextMenuEdit": "Edit",
       "modalTitleDelete": "Delete language",
       "titleDeleteSuccess": "Languages",
-      "messageDeleteSuccess": "Language {name} has been deleted successfully.",
+      "messageDeleteSuccess": "Language \"{name}\" has been deleted successfully.",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete"
     },
@@ -781,7 +781,7 @@
       "textHeadline": "New language",
       "titleCard": "Settings",
       "titleSaveSuccess": "Languages",
-      "messageSaveSuccess": "Language {name} has been saved successfully.",
+      "messageSaveSuccess": "Language \"{name}\" has been saved successfully.",
       "labelName": "Name",
       "labelLocale": "Region",
       "labelParent": "Inherit from",
@@ -798,7 +798,7 @@
     },
     "list": {
       "textHeadline": "Payment methods",
-      "textDeleteConfirm": "Are you sure you want to delete the payment method {name}?",
+      "textDeleteConfirm": "Are you sure you want to delete the payment method \"{name}\"?",
       "columnName": "Name",
       "columnDescription": "Description",
       "columnActive": "Active",
@@ -806,7 +806,7 @@
       "contextMenuEdit": "Edit",
       "modalTitleDelete": "Delete payment method",
       "titleDeleteSuccess": "Payment method",
-      "messageDeleteSuccess": "Payment method {name} has been deleted successfully.",
+      "messageDeleteSuccess": "Payment method \"{name}\" has been deleted successfully.",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete"
     },
@@ -814,7 +814,7 @@
       "textHeadline": "New Payment method",
       "titleCard": "Settings",
       "titleSaveSuccess": "Payment methods",
-      "messageSaveSuccess": "Payment method {name} has been saved successfully.",
+      "messageSaveSuccess": "Payment method \"{name}\" has been saved successfully.",
       "labelName": "Name",
       "labelTechnicalName": "Technical name",
       "labelActive": "Active",
@@ -836,15 +836,15 @@
     },
     "list": {
       "textHeadline": "Shipping costs",
-      "textDeleteConfirm": "Are you sure you want to delete the shipping rate {name}?",
+      "textDeleteConfirm": "Are you sure you want to delete the shipping rate \"{name}\"?",
       "columnName": "Name",
       "columnActive": "Active",
-      "columnShippingfree": "Free shipping and handling",
+      "columnShippingfree": "Free shipping",
       "buttonAddShippingMethod": "Add shipping rate",
       "contextMenuEdit": "Edit",
       "modalTitleDelete": "Delete shipping rate",
       "titleDeleteSuccess": "Shipping rate",
-      "messageDeleteSuccess": "Shipping rate {name} has been deleted successfully.",
+      "messageDeleteSuccess": "Shipping rate \"{name}\" has been deleted successfully.",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete"
     },
@@ -852,10 +852,10 @@
       "textHeadline": "New shipping rate",
       "titleCard": "Settings",
       "titleSaveSuccess": "Shipping rate",
-      "messageSaveSuccess": "Shipping rate {name} has been saved successfully.",
+      "messageSaveSuccess": "Shipping rate \"{name}\" has been saved successfully.",
       "labelName": "Name",
       "labelActive": "Active",
-      "labelBindShippingfree": "Free shipping and handling",
+      "labelBindShippingfree": "Free shipping",
       "placeholderName": "Enter name",
       "buttonCancel": "Cancel",
       "buttonSave": "Save"
@@ -868,14 +868,14 @@
     },
     "list": {
       "textHeadline": "Countries",
-      "textDeleteConfirm": "Are you sure you want to delete the country {name}?",
+      "textDeleteConfirm": "Are you sure you want to delete the country \"{name}\"?",
       "columnName": "Name",
       "columnActive": "Active",
       "buttonAddCountry": "Add country",
       "contextMenuEdit": "Edit",
       "modalTitleDelete": "Delete country",
       "titleDeleteSuccess": "Country",
-      "messageDeleteSuccess": "Country {name} has been deleted successfully.",
+      "messageDeleteSuccess": "Country \"{name}\" has been deleted successfully.",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete"
     },
@@ -883,7 +883,7 @@
       "textHeadline": "New country",
       "titleCard": "Settings",
       "titleSaveSuccess": "Country",
-      "messageSaveSuccess": "Country {name} has been saved successfully.",
+      "messageSaveSuccess": "Country \"{name}\" has been saved successfully.",
       "labelName": "Name",
       "labelActive": "Active",
       "placeholderName": "Enter name",

@@ -20,7 +20,7 @@ module.exports = {
             .waitForElementPresent('.sw-settings-currency-detail__save-action')
             .click('.sw-settings-currency-detail__save-action')
             .waitForElementVisible('.sw-notifications .sw-alert')
-            .assert.containsText('.sw-alert__message', 'The currency Yen has been saved successfully.')
+            .assert.containsText('.sw-alert__message', 'Currency "Yen" has been saved successfully.')
             .assert.urlContains('#/sw/settings/currency/detail');
     },
     'go back to listing and verify creation': (browser) => {
@@ -44,7 +44,7 @@ module.exports = {
             .waitForElementPresent('.sw-settings-currency-detail__save-action')
             .click('.sw-settings-currency-detail__save-action')
             .waitForElementVisible('.sw-notifications .sw-alert')
-            .assert.containsText('.sw-alert__message', 'The currency Yen but true has been saved successfully.')
+            .assert.containsText('.sw-alert__message', 'Currency "Yen but true" has been saved successfully.')
             .assert.urlContains('#/sw/settings/currency/detail');
     },
     'verify edited currency': (browser) => {
@@ -63,10 +63,10 @@ module.exports = {
             .waitForElementPresent('body > .sw-context-menu')
             .click('body > .sw-context-menu .sw-context-menu-item--danger')
             .waitForElementVisible('.sw-modal')
-            .assert.containsText('.sw-modal .sw-modal__body', 'Are you sure, you want to delete the currency Yen but true?')
+            .assert.containsText('.sw-modal .sw-modal__body', 'Are you sure you want to delete the currency "Yen but true?"')
             .click('.sw-modal__footer button.sw-button--primary')
             .waitForElementVisible('.sw-notifications .sw-alert')
-            .assert.containsText('.sw-notifications .sw-alert', 'The currency Yen but true has been deleted successfully.');
+            .assert.containsText('.sw-notifications .sw-alert', 'Currency Yen but true has been deleted successfully.');
     },
     after: (browser) => {
         browser.end();

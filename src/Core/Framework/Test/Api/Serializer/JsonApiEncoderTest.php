@@ -77,7 +77,7 @@ class JsonApiEncoderTest extends TestCase
                     'catalogId' => null,
                     'userId' => null,
                     'url' => '',
-                    'hasFile' => true,
+                    'hasFile' => false,
                     'fileName' => null,
                 ],
                 'links' => [

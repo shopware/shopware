@@ -310,7 +310,7 @@ class MediaStruct extends Entity
 
     public function hasFile(): bool
     {
-        return $this->hasFile = ($this->mimeType !== null && $this->fileExtension !== null);
+        return $this->hasFile = ($this->mimeType !== null && $this->fileExtension !== null && $this->fileName !== null);
     }
 
     public function getFileName(): ?string

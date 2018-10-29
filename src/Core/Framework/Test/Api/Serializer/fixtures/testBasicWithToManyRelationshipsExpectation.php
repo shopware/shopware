@@ -62,7 +62,7 @@ return [
                 'description' => null,
                 'catalogId' => null,
                 'url' => '',
-                'hasFile' => true,
+                'hasFile' => false,
                 'fileName' => null,
             ],
             'links' => [

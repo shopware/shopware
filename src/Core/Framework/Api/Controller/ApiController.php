@@ -230,6 +230,41 @@ class ApiController extends AbstractController
             return $responseFactory->createRedirectResponse($definition, $id, $request, $context);
         }
 
+        if ($association instanceof TranslationsAssociationField) {
+            $pks = $definition::getPrimaryKeys();
+            $parentIdField = null;
+
+            foreach ($pks as $pk) {
+                if (!$pk instanceof FkField) {
+                    continue;
+                }
+                if ($pk->getReferenceField() === 'id' && $pk->getReferenceClass() === $parent['definition']) {
+                    $parentIdField = $pk;
+                }
+            }
+
+            if ($parentIdField === null) {
+                throw new \RuntimeException(sprintf('Unsupported association for field %s', $association->getPropertyName()));
+            }
+
+            $mapping = [
+              $parentIdField->getPropertyName() => $parent['value'],
+              'languageId' => $id,
+            ];
+
+            $deleteResult = $this->entityWriter->delete(
+                $definition,
+                [$mapping],
+                WriteContext::createFromContext($context)
+            );
+
+            if (empty($deleteResult->getDeleted())) {
+                throw new ResourceNotFoundException($definition::getEntityName(), $mapping);
+            }
+
+            return $responseFactory->createRedirectResponse($definition, $id, $request, $context);
+        }
+
         throw new \RuntimeException(sprintf('Unsupported association for field %s', $association->getPropertyName()));
     }
 

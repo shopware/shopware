@@ -36,7 +36,7 @@ class ListingFacetDefinition extends EntityDefinition
             new VersionField(),
             (new StringField('unique_key', 'uniqueKey'))->setFlags(new Required()),
             (new LongTextField('payload', 'payload'))->setFlags(new Required()),
-            (new TranslatedField(new StringField('name', 'name')))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
+            (new TranslatedField('name'))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
             new BoolField('active', 'active'),
             new BoolField('display_in_categories', 'displayInCategories'),
             new BoolField('deletable', 'deletable'),
@@ -55,10 +55,5 @@ class ListingFacetDefinition extends EntityDefinition
     public static function getStructClass(): string
     {
         return ListingFacetStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return ListingFacetTranslationDefinition::class;
     }
 }

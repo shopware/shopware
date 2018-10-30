@@ -9,7 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TenantIdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
@@ -33,7 +32,7 @@ class ConfigurationGroupDefinition extends EntityDefinition
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
-            new TranslatedField(new StringField('name', 'name')),
+            new TranslatedField('name'),
             new IntField('position', 'position'),
             new BoolField('filterable', 'filterable'),
             new BoolField('comparable', 'comparable'),
@@ -52,10 +51,5 @@ class ConfigurationGroupDefinition extends EntityDefinition
     public static function getStructClass(): string
     {
         return ConfigurationGroupStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return ConfigurationGroupTranslationDefinition::class;
     }
 }

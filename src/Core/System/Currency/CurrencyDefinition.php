@@ -43,8 +43,8 @@ class CurrencyDefinition extends EntityDefinition
             new VersionField(),
             (new FloatField('factor', 'factor'))->setFlags(new Required()),
             (new StringField('symbol', 'symbol'))->setFlags(new Required()),
-            (new TranslatedField(new StringField('short_name', 'shortName')))->setFlags(new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
-            (new TranslatedField(new StringField('name', 'name')))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
+            (new TranslatedField('shortName'))->setFlags(new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
+            (new TranslatedField('name'))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
             new BoolField('is_default', 'isDefault'),
             new BoolField('placed_in_front', 'placedInFront'),
             new IntField('position', 'position'),
@@ -66,10 +66,5 @@ class CurrencyDefinition extends EntityDefinition
     public static function getStructClass(): string
     {
         return CurrencyStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return CurrencyTranslationDefinition::class;
     }
 }

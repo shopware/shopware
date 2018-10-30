@@ -45,7 +45,7 @@ class ConfigurationGroupOptionDefinition extends EntityDefinition
             new VersionField(),
             (new FkField('configuration_group_id', 'groupId', ConfigurationGroupDefinition::class))->setFlags(new Required()),
             new ReferenceVersionField(ConfigurationGroupDefinition::class),
-            new TranslatedField(new StringField('name', 'name')),
+            new TranslatedField('name'),
             new StringField('color_hex_code', 'colorHexCode'),
             new FkField('media_id', 'mediaId', MediaDefinition::class),
             new ReferenceVersionField(MediaDefinition::class),

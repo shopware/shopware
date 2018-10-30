@@ -26,8 +26,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextWithHtmlField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -134,13 +132,13 @@ class ProductDefinition extends EntityDefinition
             (new IntField('max_delivery_time', 'maxDeliveryTime'))->setFlags(new Inherited()),
             (new IntField('restock_time', 'restockTime'))->setFlags(new Inherited()),
 
-            (new TranslatedField(new StringField('additional_text', 'additionalText')))->setFlags(new Inherited()),
-            (new TranslatedField(new StringField('name', 'name')))->setFlags(new Inherited(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
-            (new TranslatedField(new LongTextField('keywords', 'keywords')))->setFlags(new Inherited(), new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
-            (new TranslatedField(new LongTextField('description', 'description')))->setFlags(new Inherited()),
-            (new TranslatedField(new LongTextWithHtmlField('description_long', 'descriptionLong')))->setFlags(new Inherited()),
-            (new TranslatedField(new StringField('meta_title', 'metaTitle')))->setFlags(new Inherited()),
-            (new TranslatedField(new StringField('pack_unit', 'packUnit')))->setFlags(new Inherited()),
+            (new TranslatedField('additionalText'))->setFlags(new Inherited()),
+            (new TranslatedField('name'))->setFlags(new Inherited(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
+            (new TranslatedField('keywords'))->setFlags(new Inherited(), new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
+            (new TranslatedField('description'))->setFlags(new Inherited()),
+            (new TranslatedField('descriptionLong'))->setFlags(new Inherited()),
+            (new TranslatedField('metaTitle'))->setFlags(new Inherited()),
+            (new TranslatedField('packUnit'))->setFlags(new Inherited()),
 
             //parent - child inheritance
             new ManyToOneAssociationField('parent', 'parent_id', self::class, false),
@@ -176,11 +174,6 @@ class ProductDefinition extends EntityDefinition
     public static function getStructClass(): string
     {
         return ProductStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return ProductTranslationDefinition::class;
     }
 
     public static function getDefaults(EntityExistence $existence): array

@@ -48,8 +48,8 @@ class PaymentMethodDefinition extends EntityDefinition
             new VersionField(),
             new FkField('plugin_id', 'pluginId', PluginDefinition::class),
             (new StringField('technical_name', 'technicalName'))->setFlags(new Required(), new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
-            (new TranslatedField(new StringField('name', 'name')))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
-            new TranslatedField(new LongTextField('additional_description', 'additionalDescription')),
+            (new TranslatedField('name'))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
+            new TranslatedField('additionalDescription'),
             new StringField('template', 'template'),
             new StringField('class', 'class'),
             new StringField('table', 'table'),
@@ -87,10 +87,5 @@ class PaymentMethodDefinition extends EntityDefinition
     public static function getStructClass(): string
     {
         return PaymentMethodStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return PaymentMethodTranslationDefinition::class;
     }
 }

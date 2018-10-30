@@ -1,7 +1,7 @@
 {% block sw_product_price_form %}
     <div class="sw-product-price-form">
 
-        <sw-container grid="1fr 1fr" gap="0px 30px">
+        <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0px 30px">
             {% block sw_product_price_form_tax_field %}
                 <sw-field type="select"
                           :label="$tc('sw-product.priceForm.labelTaxRate')"
@@ -36,7 +36,7 @@
             </sw-price-field>
         {% endblock %}
 
-        <sw-container grid="1fr 1fr 1fr" gap="0px 30px">
+        <sw-container columns="repeat(auto-fit, minmax(150px, 1fr))" gap="0px 30px">
             {% block sw_product_price_form_purchase_unit_field %}
                 <sw-field type="number"
                           :label="$tc('sw-product.priceForm.labelPurchaseUnit')"

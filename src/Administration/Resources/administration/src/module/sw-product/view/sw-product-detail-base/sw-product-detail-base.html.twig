@@ -32,7 +32,7 @@
                 {% endblock %}
 
                 {% block sw_product_detail_base_advanced_prices_link %}
-                    <sw-container grid="1fr" justify="end">
+                    <sw-container columns="1fr" justify="end">
                         <router-link :to="{ name: 'sw.product.detail.prices', params: { id: $route.params.id } }" class="sw-card__quick-link">
                             {{ $tc('sw-product.detailBase.linkAdvancedPrices') }} <sw-icon name="default-arrow-simple-right" small></sw-icon>
                         </router-link>

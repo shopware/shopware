@@ -2,13 +2,13 @@
     <sw-card class="sw-user-card" :title="title" :isLoading="isLoading">
 
         {% block sw_user_card_rows %}
-            <sw-container slot="grid" type="row" grid="auto auto">
+            <sw-container slot="grid" rows="auto auto">
 
                 {% block sw_user_card_row_primary %}
                     <sw-card-section divider="bottom">
 
                         {% block sw_user_card_metadata_container %}
-                            <sw-container grid="80px 1fr" gap="0px 30px">
+                            <sw-container columns="80px 1fr" gap="0px 30px">
 
                                 {% block sw_user_card_avatar %}
                                     <sw-avatar :color="moduleColor"

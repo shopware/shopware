@@ -19,7 +19,7 @@
             {% block sw_profile_index_content %}
                 {% block sw_profile_index_info_card %}
                     <sw-card class="sw-profile__card" :title="$tc('sw-profile.index.titleInfoCard')" :isLoading="user.isLoading">
-                        <sw-container grid="1fr 1fr" gap="0 30px">
+                        <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0 30px">
                             {% block sw_profile_index_info_card_name_field %}
                                 <sw-field type="text" :label="$tc('sw-profile.index.labelNameField')" v-model="user.name"></sw-field>
                             {% endblock %}

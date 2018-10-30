@@ -28,7 +28,7 @@
             <sw-card-view slot="content">
                 {% block sw_manufacturer_detail_base_basic_info_card %}
                     <sw-card :title="$tc('sw-manufacturer.detail.cardTitleManufacturerInfo')" :isLoading="manufacturer.isLoading">
-                        <sw-container grid="1fr 1fr" gap="0 30px">
+                        <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0 30px">
                             {% block sw_manufacturer_detail_base_info_field_name %}
                                 <sw-field type="text"
                                           :label="$tc('sw-manufacturer.detail.labelName')"
@@ -40,12 +40,12 @@
                             {% endblock %}
 
                             {% block sw_manufacturer_detail_base_info_field_link %}
-                            <sw-field type="url"
-                                      :label="$tc('sw-manufacturer.detail.labelLink')"
-                                      :placeholder="$tc('sw-manufacturer.detail.placeholderLink')"
-                                      name="link"
-                                      v-model="manufacturer.link">
-                            </sw-field>
+                                <sw-field type="url"
+                                          :label="$tc('sw-manufacturer.detail.labelLink')"
+                                          :placeholder="$tc('sw-manufacturer.detail.placeholderLink')"
+                                          name="link"
+                                          v-model="manufacturer.link">
+                                </sw-field>
                             {% endblock %}
 
                             <div v-if="manufacturer.catalogId" class="sw-manufacturer-image-pane" :class="logoFieldClasses">

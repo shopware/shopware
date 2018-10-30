@@ -107,6 +107,10 @@ export function getArrayChanges(a, b) {
         return b;
     }
 
+    if (a.length <= 0 && b.length <= 0) {
+        return [];
+    }
+
     if (a.length !== b.length) {
         return b;
     }

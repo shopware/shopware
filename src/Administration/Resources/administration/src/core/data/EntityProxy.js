@@ -1,6 +1,6 @@
 import { Application, Entity, State } from 'src/core/shopware';
 import utils from 'src/core/service/util.service';
-import { deepCopyObject, hasOwnProperty, getArrayChanges } from 'src/core/service/utils/object.utils';
+import { deepCopyObject, hasOwnProperty, getArrayChanges, getObjectDiff } from 'src/core/service/utils/object.utils';
 import { required } from 'src/core/service/validation.service';
 import type from 'src/core/service/utils/types.utils';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
@@ -613,6 +613,17 @@ export default class EntityProxy {
                 }
 
                 return { ...acc, [key]: b[key] };
+            }
+
+            // The property is a normal object
+            if (type.isObject(b[key])) {
+                const changes = getObjectDiff(a[key], b[key]);
+
+                if (Object.keys(changes).length <= 0) {
+                    return acc;
+                }
+
+                return { ...acc, [key]: changes };
             }
 
             // Any other property

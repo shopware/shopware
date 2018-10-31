@@ -17,7 +17,7 @@ In addition to that, you can get very specific about the fields you are filter o
 
 ```php
 $criteria->addFilter(
-    new TermQuery('product.manufacturer.name', 'shopware AG')
+    new EqualsFilter('product.manufacturer.name', 'shopware AG')
 );
 ```
 
@@ -25,7 +25,7 @@ $criteria->addFilter(
 
 ```php
 $criteria->addFilter(
-    new TermQuery('category.products.media.fileExtension', 'jpg')
+    new EqualsFilter('category.products.media.fileExtension', 'jpg')
 );
 ```
 
@@ -33,8 +33,8 @@ $criteria->addFilter(
 
 ```php
 $criteria->addFilter(
-    new TermQuery('customer.orders.deliveries.shippingOrderAddress.country.name', 'Denmark'),
-    new TermQuery('customer.orders.paymentMethod.name', 'PayPal')
+    new EqualsFilter('customer.orders.deliveries.shippingOrderAddress.country.name', 'Denmark'),
+    new EqualsFilter('customer.orders.paymentMethod.name', 'PayPal')
 );
 ```
 
@@ -44,7 +44,7 @@ Filters reduce your results to your needs and will be considered when aggregatin
 
 | Class name | API name | Description |
 |------------|----------|------------------------------------------------------------------|
-| TermQuery  | term     | Exact match for the given value |
+| EqualsFilter  | term     | Exact match for the given value |
 | EqualsAnyFilter | terms    | At least one exact match for a value of the given list |
 | ContainsFilter | match    | Before and after wildcard search for the given value |
 | RangeFilter | range    | For range compatible fields like numbers or dates |
@@ -69,11 +69,11 @@ $criteria = new Criteria();
 $results = $this->repository->search($criteria, $context);
 ```
 
-### TermQuery
+### EqualsFilter
 
 ```php
 $criteria->addFilter(
-    new TermQuery('product.name', 'Dagger')
+    new EqualsFilter('product.name', 'Dagger')
 );
 ```
 
@@ -132,8 +132,8 @@ $criteria->addFilter(
 
 ```php
 $criteria->addFilter(
-    new ScoreQuery(new TermQuery('product.description', 'Blue'), 10),
-    new ScoreQuery(new TermQuery('product.description', 'Red'), 100, 'product.stock'),
+    new ScoreQuery(new EqualsFilter('product.description', 'Blue'), 10),
+    new ScoreQuery(new EqualsFilter('product.description', 'Red'), 100, 'product.stock'),
 );
 ```
 
@@ -146,7 +146,7 @@ $criteria->addFilter(
 ```php
 $criteria->addFilter(new NestedQuery(
     [
-        new TermQuery('product.name', 'Dagger'),
+        new EqualsFilter('product.name', 'Dagger'),
         new RangeFilter('product.stock', ['gt' => 10, 'lt' => 20]),
     ],
     NestedQuery::OPERATOR_OR
@@ -179,12 +179,12 @@ Post-Filters work the same way as filters, but they won't be considered when agg
 
 A common use-case for post filters is to get only active products, but the total of products should be without any filter active:
 
-Given 20 products with 5 of them are active, your filter would be empty and your post-filter contains a `TermQuery` on `product.active`.
+Given 20 products with 5 of them are active, your filter would be empty and your post-filter contains a `EqualsFilter` on `product.active`.
 You will get the 5 active products but the calculated total count of products will still be 20.
 
 ```php
 $criteria = new Criteria();
-$criteria->addPostFilter(new TermQuery('product.active', true));
+$criteria->addPostFilter(new EqualsFilter('product.active', true));
 
 $results = $this->repository->search($criteria, $context);
 

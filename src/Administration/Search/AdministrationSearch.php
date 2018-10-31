@@ -14,7 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\SearchBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Struct\ArrayStruct;
@@ -82,7 +82,7 @@ class AdministrationSearch
             ])
         );
         $criteria->addFilter(
-            new TermQuery('version_commit_data.userId', $userId)
+            new EqualsFilter('version_commit_data.userId', $userId)
         );
 
         $criteria->addSorting(new FieldSorting('version_commit_data.autoIncrement', 'DESC'));

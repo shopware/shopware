@@ -14,7 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\Pricing\PriceRuleStruct;
@@ -402,7 +402,7 @@ class ProductRepositoryTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addSorting(new FieldSorting('product.priceRules.price', FieldSorting::ASCENDING));
-        $criteria->addFilter(new TermQuery('product.template', $filterId));
+        $criteria->addFilter(new EqualsFilter('product.template', $filterId));
 
         $sourceContext = new SourceContext();
         $sourceContext->setSalesChannelId(Defaults::SALES_CHANNEL);
@@ -425,7 +425,7 @@ class ProductRepositoryTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addSorting(new FieldSorting('product.priceRules.price', FieldSorting::DESCENDING));
-        $criteria->addFilter(new TermQuery('product.template', $filterId));
+        $criteria->addFilter(new EqualsFilter('product.template', $filterId));
 
         /** @var IdSearchResult $products */
         $products = $this->repository->searchIds($criteria, $context);
@@ -958,7 +958,7 @@ class ProductRepositoryTest extends TestCase
         $this->repository->create($products, Context::createDefaultContext(Defaults::TENANT_ID));
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('product.name', $parentName));
+        $criteria->addFilter(new EqualsFilter('product.name', $parentName));
 
         $products = $this->repository->search($criteria, Context::createDefaultContext(Defaults::TENANT_ID));
         static::assertCount(2, $products);
@@ -966,7 +966,7 @@ class ProductRepositoryTest extends TestCase
         static::assertTrue($products->has($greenId));
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('product.name', $redName));
+        $criteria->addFilter(new EqualsFilter('product.name', $redName));
 
         $products = $this->repository->search($criteria, Context::createDefaultContext(Defaults::TENANT_ID));
         static::assertCount(1, $products);
@@ -1003,7 +1003,7 @@ class ProductRepositoryTest extends TestCase
         $this->repository->create($products, Context::createDefaultContext(Defaults::TENANT_ID));
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('product.price', $parentPrice['gross']));
+        $criteria->addFilter(new EqualsFilter('product.price', $parentPrice['gross']));
 
         $products = $this->repository->search($criteria, Context::createDefaultContext(Defaults::TENANT_ID));
         static::assertCount(2, $products);
@@ -1011,7 +1011,7 @@ class ProductRepositoryTest extends TestCase
         static::assertTrue($products->has($redId));
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('product.price', $greenPrice['gross']));
+        $criteria->addFilter(new EqualsFilter('product.price', $greenPrice['gross']));
 
         $products = $this->repository->search($criteria, Context::createDefaultContext(Defaults::TENANT_ID));
         static::assertCount(1, $products);
@@ -1053,7 +1053,7 @@ class ProductRepositoryTest extends TestCase
         $this->repository->create($products, Context::createDefaultContext(Defaults::TENANT_ID));
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('category.products.price', $greenPrice['gross']));
+        $criteria->addFilter(new EqualsFilter('category.products.price', $greenPrice['gross']));
 
         $repository = $this->getContainer()->get('category.repository');
         $categories = $repository->searchIds($criteria, Context::createDefaultContext(Defaults::TENANT_ID));
@@ -1062,8 +1062,8 @@ class ProductRepositoryTest extends TestCase
         static::assertContains($categoryId, $categories->getIds());
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('category.products.price', $parentPrice['gross']));
-        $criteria->addFilter(new TermQuery('category.products.parentId', null));
+        $criteria->addFilter(new EqualsFilter('category.products.price', $parentPrice['gross']));
+        $criteria->addFilter(new EqualsFilter('category.products.parentId', null));
 
         $repository = $this->getContainer()->get('category.repository');
         $categories = $repository->searchIds($criteria, Context::createDefaultContext(Defaults::TENANT_ID));
@@ -1110,7 +1110,7 @@ class ProductRepositoryTest extends TestCase
         $this->repository->upsert($products, $this->context);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('category.products.name', 'Parent'));
+        $criteria->addFilter(new EqualsFilter('category.products.name', 'Parent'));
 
         $repo = $this->getContainer()->get('category.repository');
         $result = $repo->search($criteria, $this->context);
@@ -1118,7 +1118,7 @@ class ProductRepositoryTest extends TestCase
         static::assertTrue($result->has($parentId));
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('category.products.name', 'Red'));
+        $criteria->addFilter(new EqualsFilter('category.products.name', 'Red'));
         $result = $repo->search($criteria, $this->context);
         static::assertCount(1, $result);
         static::assertTrue($result->has($redId));
@@ -1167,7 +1167,7 @@ class ProductRepositoryTest extends TestCase
         $this->repository->create($products, Context::createDefaultContext(Defaults::TENANT_ID));
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('product_manufacturer.products.price', $greenPrice['gross']));
+        $criteria->addFilter(new EqualsFilter('product_manufacturer.products.price', $greenPrice['gross']));
 
         $repository = $this->getContainer()->get('product_manufacturer.repository');
         $result = $repository->searchIds($criteria, Context::createDefaultContext(Defaults::TENANT_ID));

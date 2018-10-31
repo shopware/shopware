@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestExceptio
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsFilter;
 
 class QueryStringParserTest extends TestCase
 {
@@ -26,27 +26,27 @@ class QueryStringParserTest extends TestCase
     }
 
     /**
-     * @dataProvider termQueryDataProvider
+     * @dataProvider equalsFilterDataProvider
      *
      * @param array $filter
      * @param bool  $expectException
      */
-    public function testTermQuery(array $filter, bool $expectException): void
+    public function testEqualsFilter(array $filter, bool $expectException): void
     {
         if ($expectException) {
             $this->expectException(InvalidFilterQueryException::class);
         }
 
-        /** @var TermQuery $result */
+        /** @var EqualsFilter $result */
         $result = QueryStringParser::fromArray(ProductDefinition::class, $filter, new SearchRequestException());
 
-        static::assertInstanceOf(TermQuery::class, $result);
+        static::assertInstanceOf(EqualsFilter::class, $result);
 
         static::assertEquals($result->getField(), 'product.' . $filter['field']);
         static::assertEquals($result->getValue(), $filter['value']);
     }
 
-    public function termQueryDataProvider(): array
+    public function equalsFilterDataProvider(): array
     {
         return [
             [['type' => 'term', 'field' => 'foo', 'value' => 'bar'], false],
@@ -73,7 +73,7 @@ class QueryStringParserTest extends TestCase
             $this->expectException(InvalidFilterQueryException::class);
         }
 
-        /** @var TermQuery $result */
+        /** @var EqualsFilter $result */
         $result = QueryStringParser::fromArray(ProductDefinition::class, $filter, new SearchRequestException());
 
         static::assertInstanceOf(ContainsFilter::class, $result);

@@ -10,8 +10,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ContainsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\SearchRanking;
 
 class EntityScoreQueryBuilder
@@ -62,7 +62,7 @@ class EntityScoreQueryBuilder
             }
 
             $queries[] = new ScoreQuery(
-                new TermQuery($select, $term->getOriginal()->getTerm()),
+                new EqualsFilter($select, $term->getOriginal()->getTerm()),
                 $ranking * $term->getOriginal()->getScore()
             );
 
@@ -73,7 +73,7 @@ class EntityScoreQueryBuilder
 
             foreach ($term->getTerms() as $part) {
                 $queries[] = new ScoreQuery(
-                    new TermQuery($select, $part->getTerm()),
+                    new EqualsFilter($select, $part->getTerm()),
                     $ranking * $part->getScore()
                 );
 

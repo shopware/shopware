@@ -9,8 +9,8 @@ use Shopware\Core\Content\Product\Storefront\StorefrontProductStruct;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NestedQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
 use Symfony\Component\HttpFoundation\Request;
 
 class DetailPageLoader
@@ -70,11 +70,11 @@ class DetailPageLoader
         }
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('product.parentId', $parentId));
+        $criteria->addFilter(new EqualsFilter('product.parentId', $parentId));
 
         $queries = [];
         foreach ($selection as $groupId => $optionId) {
-            $queries[] = new TermQuery('product.variationIds', $optionId);
+            $queries[] = new EqualsFilter('product.variationIds', $optionId);
         }
 
         $criteria->addFilter(new NestedQuery($queries));
@@ -97,7 +97,7 @@ class DetailPageLoader
         $containerId = $product->getParentId() ?? $product->getId();
 
         $criteria = new ReadCriteria([]);
-        $criteria->addFilter(new TermQuery('product_configurator.productId', $containerId));
+        $criteria->addFilter(new EqualsFilter('product_configurator.productId', $containerId));
 
         /** @var ProductConfiguratorCollection $configurator */
         $configurator = $this->configuratorRepository->read($criteria, $context->getContext());
@@ -113,7 +113,7 @@ class DetailPageLoader
     private function fetchParentId(string $productId, CheckoutContext $context): string
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('product.children.id', $productId));
+        $criteria->addFilter(new EqualsFilter('product.children.id', $productId));
 
         $ids = $this->productRepository->searchIds($criteria, $context)->getIds();
 

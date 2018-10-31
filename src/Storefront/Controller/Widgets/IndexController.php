@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsFilter;
 use Shopware\Storefront\Controller\StorefrontController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -52,7 +52,7 @@ class IndexController extends StorefrontController
     private function getLanguages(CheckoutContext $context): EntitySearchResult
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('language.salesChannels.id', $context->getSalesChannel()->getId()));
+        $criteria->addFilter(new EqualsFilter('language.salesChannels.id', $context->getSalesChannel()->getId()));
 
         return $this->languageRepository->search($criteria, $context->getContext());
     }
@@ -60,7 +60,7 @@ class IndexController extends StorefrontController
     private function getCurrencies(CheckoutContext $context): EntitySearchResult
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('currency.salesChannels.id', $context->getSalesChannel()->getId()));
+        $criteria->addFilter(new EqualsFilter('currency.salesChannels.id', $context->getSalesChannel()->getId()));
 
         return $this->currencyRepository->search($criteria, $context->getContext());
     }

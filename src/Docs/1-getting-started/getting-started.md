@@ -222,7 +222,7 @@ The range of filter options includes the following classes:
     * Allows performing a string comparison (SQL: `LIKE`)
 * `\Shopware\Core\Framework\DataAbstractionLayer\Search\Query\RangeFilter`
     * Query of a range of values (SQL: `<=`, `>=`, `>`, `<` )
-* `\Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsFilter`
     * Query to filter for an exact value
 * `\Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsAnyFilter`
     * Query to filter a set of exact values (SQL: `IN`)
@@ -244,7 +244,7 @@ Let's start with a simple filtered list of products and filter products which ar
 <?php
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 
 /** @var RepositoryInterface $repository */
@@ -253,7 +253,7 @@ $repository = $this->container->get('product.repository');
 $criteria = new Criteria();
 $criteria->setOffset(0);
 $criteria->setLimit(10);
-$criteria->addFilter(new TermQuery('product.active', true));
+$criteria->addFilter(new EqualsFilter('product.active', true));
 
 $result = $repository->search($criteria, $context);
 ```
@@ -281,13 +281,13 @@ Next, only products are displayed where the manufacturer property `link` is defi
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NotFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsFilter;
 
 $criteria = new Criteria();
 
 $criteria->addFilter(
     new NotFilter(
-        new TermQuery('product.manufacturer.link', null)
+        new EqualsFilter('product.manufacturer.link', null)
     )
 );
 ```
@@ -324,13 +324,13 @@ $criteria->addFilter(
 **API example request:**
 
 The same filter possibilities are also offered by the API. With a small difference: 
-If you call the entity endpoint, only the `TermQuery` with the equal operator is supported. 
+If you call the entity endpoint, only the `EqualsFilter` with the equal operator is supported.
 Range queries or others are not possible. Example:
 * `GET /api/v1/product?filter[product.active]=1&filter[product.manufacturer.name]=Shopware` 
 
 For more complex filtering, use the `/search` endpoint as mentioned above. 
 In the first example of filtering, filters were made for products that have the active flag. 
-So a TermQuery must also be sent via the API:
+So a EqualsFilter must also be sent via the API:
 ```php
 <?php
 
@@ -934,7 +934,7 @@ By defining this association, it's possible to work with the product and
 the manufacturer at the same time.
 
 You can always address this association via the property name:
-* To filter in the search - `new TermQuery('product.manufacturer.name', 'shopware')`
+* To filter in the search - `new EqualsFilter('product.manufacturer.name', 'shopware')`
 * To create a manufacturer directly when writing the product - `'manufacturer' => ['name' => 'shopware']`
 * To determine the number of manufacturers of a product list - `new CountAggregation('product.manufacturer.id', 'manufacturer_count')` 
 * To read the manufacturer of a product via API - `GET /api/v1/product/{id}/manufacturer`

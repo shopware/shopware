@@ -7,11 +7,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryExc
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NestedQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\Query;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\RangeFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
 
 class QueryStringParser
 {
@@ -31,7 +31,7 @@ class QueryStringParser
                     throw new InvalidFilterQueryException('Parameter "value" for term filter is missing.', $path . '/value');
                 }
 
-                return new TermQuery(self::buildFieldName($definition, $query['field']), $query['value']);
+                return new EqualsFilter(self::buildFieldName($definition, $query['field']), $query['value']);
             case 'nested':
                 $queries = [];
                 $operator = NestedQuery::OPERATOR_AND;
@@ -100,7 +100,7 @@ class QueryStringParser
     private static function toArray(Query $query): array
     {
         switch (true) {
-            case $query instanceof TermQuery:
+            case $query instanceof EqualsFilter:
                 return [
                     'type' => 'term',
                     'field' => $query->getField(),

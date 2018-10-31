@@ -6,7 +6,7 @@ use Shopware\Core\Content\Category\Util\CategoryPathBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
@@ -99,7 +99,7 @@ class BuildCategoryPathCommand extends ContainerAwareCommand implements EventSub
         $categoryRepository = $this->getContainer()->get('category.repository');
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('category.parentId', null));
+        $criteria->addFilter(new EqualsFilter('category.parentId', null));
 
         $categoryResult = $categoryRepository->searchIds($criteria, $context);
 

@@ -14,7 +14,7 @@ use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Exception\InvalidParameterException;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Storefront\Page\Checkout\PaymentMethodLoader;
@@ -222,8 +222,8 @@ class CheckoutController extends StorefrontController
         }
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('order.orderCustomer.customerId', $customer->getId()));
-        $criteria->addFilter(new TermQuery('order.id', $orderId));
+        $criteria->addFilter(new EqualsFilter('order.orderCustomer.customerId', $customer->getId()));
+        $criteria->addFilter(new EqualsFilter('order.id', $orderId));
 
         $searchResult = $this->orderRepository->search($criteria, $context->getContext());
 

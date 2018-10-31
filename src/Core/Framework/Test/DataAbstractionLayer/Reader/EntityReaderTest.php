@@ -17,7 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\PaginationCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Struct\ArrayStruct;
@@ -420,7 +420,7 @@ class EntityReaderTest extends TestCase
         /** @var CustomerStruct $customer2 */
         $criteria = new ReadCriteria([$id1, $id2]);
         $addressCriteria = new Criteria();
-        $addressCriteria->addFilter(new TermQuery('customer_address.zipcode', 'B'));
+        $addressCriteria->addFilter(new EqualsFilter('customer_address.zipcode', 'B'));
         $criteria->addAssociation('customer.addresses', $addressCriteria);
 
         $customers = $repository->read($criteria, $context);
@@ -804,7 +804,7 @@ class EntityReaderTest extends TestCase
         $criteria = new ReadCriteria([$id1, $id2]);
 
         $productCriteria = new Criteria();
-        $productCriteria->addFilter(new TermQuery('product.active', true));
+        $productCriteria->addFilter(new EqualsFilter('product.active', true));
 
         $criteria->addAssociation('category.products', $productCriteria);
         $categories = $repository->read($criteria, $context);
@@ -1028,7 +1028,7 @@ class EntityReaderTest extends TestCase
         $products = $this->repository->read($criteria, $context);
         static::assertCount(2, $products);
 
-        $criteria->addFilter(new TermQuery('product.active', true));
+        $criteria->addFilter(new EqualsFilter('product.active', true));
         $products = $this->repository->read($criteria, $context);
         static::assertCount(1, $products);
     }

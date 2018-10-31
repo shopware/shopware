@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -196,7 +196,7 @@ class CategoryRepositoryTest extends TestCase
         $this->repository->create($categories, Context::createDefaultContext(Defaults::TENANT_ID));
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('category.parentId', $parent));
+        $criteria->addFilter(new EqualsFilter('category.parentId', $parent));
 
         $builder = $this->getContainer()->get(EntityScoreQueryBuilder::class);
 

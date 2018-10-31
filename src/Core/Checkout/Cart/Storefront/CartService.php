@@ -20,7 +20,7 @@ use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsFilter;
 
 class CartService
 {
@@ -164,8 +164,8 @@ class CartService
         }
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('id', $orderId));
-        $criteria->addFilter(new TermQuery('deepLinkCode', $deepLinkCode));
+        $criteria->addFilter(new EqualsFilter('id', $orderId));
+        $criteria->addFilter(new EqualsFilter('deepLinkCode', $deepLinkCode));
 
         $orders = $this->orderRepository->search($criteria, $context);
         if ($orders->getTotal() === 0) {

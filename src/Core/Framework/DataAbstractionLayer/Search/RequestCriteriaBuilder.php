@@ -21,9 +21,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\StatsAggrega
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\SumAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueCountAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NestedQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -186,7 +186,7 @@ class RequestCriteriaBuilder
                 continue;
             }
 
-            $queries[] = new TermQuery($this->buildFieldName($definition, $field), $value);
+            $queries[] = new EqualsFilter($this->buildFieldName($definition, $field), $value);
         }
 
         return new NestedQuery($queries);

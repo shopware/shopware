@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
@@ -90,9 +90,9 @@ class AccountService
     public function getCustomersByEmail(string $email, CheckoutContext $context, bool $includeGuests = true): EntitySearchResult
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('customer.email', $email));
+        $criteria->addFilter(new EqualsFilter('customer.email', $email));
         if (!$includeGuests) {
-            $criteria->addFilter(new TermQuery('customer.guest', 0));
+            $criteria->addFilter(new EqualsFilter('customer.guest', 0));
         }
         // TODO NEXT-389 we have to check an option like "bind customer to salesChannel"
         // todo in this case we have to filter "customer.salesChannelId is null or salesChannelId = :current"
@@ -171,7 +171,7 @@ class AccountService
     public function getCountryList(CheckoutContext $context): array
     {
         $criteria = new ReadCriteria([]);
-        $criteria->addFilter(new TermQuery('country.active', true));
+        $criteria->addFilter(new EqualsFilter('country.active', true));
 
         /** @var CountryCollection $countries */
         $countries = $this->countryRepository->read($criteria, $context->getContext());
@@ -189,7 +189,7 @@ class AccountService
         $this->validateCustomer($context);
         $customer = $context->getCustomer();
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('customer_address.customerId', $context->getCustomer()->getId()));
+        $criteria->addFilter(new EqualsFilter('customer_address.customerId', $context->getCustomer()->getId()));
 
         /** @var CustomerAddressCollection $addresses */
         $addresses = $this->customerAddressRepository->search($criteria, $context->getContext())->getEntities();

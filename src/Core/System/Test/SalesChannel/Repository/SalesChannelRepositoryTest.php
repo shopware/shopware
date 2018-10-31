@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsFilter;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelStruct;
@@ -132,32 +132,32 @@ class SalesChannelRepositoryTest extends TestCase
         self::assertEquals($descriptionLong, $salesChannel->getType()->getDescriptionLong());
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('catalog.salesChannels.id', $salesChannelId));
+        $criteria->addFilter(new EqualsFilter('catalog.salesChannels.id', $salesChannelId));
         $catalog = $this->catalogRepository->search($criteria, $context);
         self::assertEquals(1, $catalog->count());
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('currency.salesChannels.id', $salesChannelId));
+        $criteria->addFilter(new EqualsFilter('currency.salesChannels.id', $salesChannelId));
         $currency = $this->currencyRepository->search($criteria, $context);
         self::assertEquals(1, $currency->count());
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('language.salesChannels.id', $salesChannelId));
+        $criteria->addFilter(new EqualsFilter('language.salesChannels.id', $salesChannelId));
         $language = $this->languageRepository->search($criteria, $context);
         self::assertEquals(1, $language->count());
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('payment_method.salesChannels.id', $salesChannelId));
+        $criteria->addFilter(new EqualsFilter('payment_method.salesChannels.id', $salesChannelId));
         $paymentMethod = $this->paymentMethodRepository->search($criteria, $context);
         self::assertEquals(1, $paymentMethod->count());
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('country.salesChannels.id', $salesChannelId));
+        $criteria->addFilter(new EqualsFilter('country.salesChannels.id', $salesChannelId));
         $country = $this->countryRepository->search($criteria, $context);
         self::assertEquals(1, $country->count());
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('shipping_method.salesChannels.id', $salesChannelId));
+        $criteria->addFilter(new EqualsFilter('shipping_method.salesChannels.id', $salesChannelId));
         $shippingMethod = $this->shippingMethodRepository->search($criteria, $context);
         self::assertEquals(1, $shippingMethod->count());
     }

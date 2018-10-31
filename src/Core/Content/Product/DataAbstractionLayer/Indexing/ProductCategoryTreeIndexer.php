@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
@@ -67,7 +67,7 @@ class ProductCategoryTreeIndexer implements IndexerInterface
         $context = Context::createDefaultContext($tenantId);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('category.parentId', null));
+        $criteria->addFilter(new EqualsFilter('category.parentId', null));
 
         $categoryResult = $this->categoryRepository->searchIds($criteria, $context);
 

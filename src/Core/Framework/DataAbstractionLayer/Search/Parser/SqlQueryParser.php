@@ -11,12 +11,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NestedQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\Query;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
 use Shopware\Core\Framework\Struct\Uuid;
 
 class SqlQueryParser
@@ -79,8 +79,8 @@ class SqlQueryParser
                 return $this->parseNotFilter($query, $definition, $root, $context);
             case $query instanceof NestedQuery:
                 return $this->parseNestedQuery($query, $definition, $root, $context);
-            case $query instanceof TermQuery:
-                return $this->parseTermQuery($query, $definition, $root, $context);
+            case $query instanceof EqualsFilter:
+                return $this->parseEqualsFilter($query, $definition, $root, $context);
             case $query instanceof EqualsAnyFilter:
                 return $this->parseEqualsAnyFilter($query, $definition, $root, $context);
             case $query instanceof ContainsFilter:
@@ -173,7 +173,7 @@ class SqlQueryParser
         return $result;
     }
 
-    private function parseTermQuery(TermQuery $query, string $definition, string $root, Context $context): ParseResult
+    private function parseEqualsFilter(EqualsFilter $query, string $definition, string $root, Context $context): ParseResult
     {
         $key = $this->getKey();
         $select = $this->queryHelper->getFieldAccessor($query->getField(), $definition, $root, $context);

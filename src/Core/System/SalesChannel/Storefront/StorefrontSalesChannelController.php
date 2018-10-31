@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Exception\InvalidParameterException;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
@@ -177,7 +177,7 @@ class StorefrontSalesChannelController extends Controller
         $criteria = new Criteria();
 
         /* @var EntityDefinition $definition */
-        $criteria->addFilter(new TermQuery($definition::getEntityName() . '.salesChannels.id', $context->getSalesChannel()->getId()));
+        $criteria->addFilter(new EqualsFilter($definition::getEntityName() . '.salesChannels.id', $context->getSalesChannel()->getId()));
         $criteria->setLimit($limit);
         $criteria->setOffset($page * $limit);
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NEXT_PAGES);
@@ -201,8 +201,8 @@ class StorefrontSalesChannelController extends Controller
         --$page;
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('country_state.country.salesChannels.id', $context->getSalesChannel()->getId()));
-        $criteria->addFilter(new TermQuery('country_state.country.id', $countryId));
+        $criteria->addFilter(new EqualsFilter('country_state.country.salesChannels.id', $context->getSalesChannel()->getId()));
+        $criteria->addFilter(new EqualsFilter('country_state.country.id', $countryId));
         $criteria->setLimit($limit);
         $criteria->setOffset($page * $limit);
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NEXT_PAGES);

@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DeleteResult;
@@ -136,7 +136,7 @@ class VersionManager
     public function merge(string $versionId, WriteContext $writeContext): void
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('version_commit.versionId', $versionId));
+        $criteria->addFilter(new EqualsFilter('version_commit.versionId', $versionId));
         $criteria->addSorting(new FieldSorting('version_commit.autoIncrement'));
 
         $commitIds = $this->entitySearcher->search(VersionCommitDefinition::class, $criteria, $writeContext->getContext());

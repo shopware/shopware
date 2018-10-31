@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Page\Listing;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Product\Storefront\StorefrontProductRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsFilter;
 use Shopware\Storefront\Event\ListingEvents;
 use Shopware\Storefront\Event\ListingPageLoadedEvent;
 use Shopware\Storefront\Event\PageCriteriaCreatedEvent;
@@ -34,8 +34,8 @@ class ListingPageLoader
     public function load(ListingPageRequest $request, CheckoutContext $context): ListingPageStruct
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('product.active', true));
-        $criteria->addFilter(new TermQuery('product.categoriesRo.id', $request->getNavigationId()));
+        $criteria->addFilter(new EqualsFilter('product.active', true));
+        $criteria->addFilter(new EqualsFilter('product.categoriesRo.id', $request->getNavigationId()));
 
         $this->eventDispatcher->dispatch(
             ListingEvents::CRITERIA_CREATED,

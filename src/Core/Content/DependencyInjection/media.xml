@@ -62,14 +62,6 @@
             <tag name="console.command"/>
         </service>
 
-        <service class="Shopware\Core\Content\Media\Commands\MediaMigrateCommand" id="Shopware\Core\Content\Media\Commands\MediaMigrateCommand">
-            <argument type="service" id="Shopware\Core\Framework\Filesystem\PrefixFilesystem"/>
-            <argument type="service" id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\StrategyFactory"/>
-            <argument type="service" id="event_dispatcher"/>
-            <tag name="console.command"/>
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
         <!-- Pathname strategies -->
         <service class="Shopware\Core\Content\Media\Pathname\PathnameStrategy\Md5PathnameStrategy" id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface.md5">
             <tag name="Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface"/>

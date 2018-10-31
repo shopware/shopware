@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Query;
 
-class NestedQuery extends Query
+class MultiFilter extends Query
 {
-    public const OPERATOR_AND = 'AND';
-    public const OPERATOR_OR = 'OR';
+    public const CONNECTION_AND = 'AND';
+    public const CONNECTION_OR = 'OR';
 
     /**
      * @var Query[]
@@ -17,10 +17,10 @@ class NestedQuery extends Query
      */
     protected $operator;
 
-    public function __construct(array $queries = [], string $operator = self::OPERATOR_AND)
+    public function __construct(string $operator = self::CONNECTION_AND, array $queries = [])
     {
-        $this->queries = $queries;
         $this->operator = $operator;
+        $this->queries = $queries;
     }
 
     public function getQueries(): array

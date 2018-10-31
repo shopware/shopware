@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestExceptio
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NestedQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\Query;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\RangeFilter;
@@ -34,10 +34,10 @@ class QueryStringParser
                 return new EqualsFilter(self::buildFieldName($definition, $query['field']), $query['value']);
             case 'nested':
                 $queries = [];
-                $operator = NestedQuery::OPERATOR_AND;
+                $operator = MultiFilter::CONNECTION_AND;
 
-                if (isset($query['operator']) && $query['operator'] === NestedQuery::OPERATOR_OR) {
-                    $operator = NestedQuery::OPERATOR_OR;
+                if (isset($query['operator']) && $query['operator'] === MultiFilter::CONNECTION_OR) {
+                    $operator = MultiFilter::CONNECTION_OR;
                 }
 
                 foreach ($query['queries'] as $index => $subQuery) {
@@ -49,7 +49,7 @@ class QueryStringParser
                     }
                 }
 
-                return new NestedQuery($queries, $operator);
+                return new MultiFilter($operator, $queries);
             case 'match':
                 if (empty($query['field'])) {
                     throw new InvalidFilterQueryException('Parameter "field" for match filter is missing.', $path . '/field');
@@ -62,10 +62,10 @@ class QueryStringParser
                 return new ContainsFilter(self::buildFieldName($definition, $query['field']), $query['value']);
             case 'not':
                 return new NotFilter(
+                    $query['operator'] ?? 'AND',
                     array_map(function (array $query) use ($path, $exception, $definition) {
                         return self::fromArray($definition, $query, $exception, $path);
-                    }, $query['queries']),
-                    array_key_exists('operator', $query) ? $query['operator'] : 'AND'
+                    }, $query['queries'])
                 );
             case 'range':
                 return new RangeFilter(self::buildFieldName($definition, $query['field']), $query['parameters']);
@@ -106,7 +106,7 @@ class QueryStringParser
                     'field' => $query->getField(),
                     'value' => $query->getValue(),
                 ];
-            case $query instanceof NestedQuery:
+            case $query instanceof MultiFilter:
                 return [
                     'type' => 'nested',
                     'queries' => array_map(function (Query $nested) {

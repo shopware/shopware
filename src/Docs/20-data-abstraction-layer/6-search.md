@@ -54,8 +54,8 @@ Filters reduce your results to your needs and will be considered when aggregatin
 
 | Class name | API name | Description |
 |---|---|---|
-| NestedQuery | nested | Group multiple filters into one filter and concat them using the `AND` or `OR` operator |
-| NotFilter | not | A negated NestedQuery |
+| MultiFilter | nested | Group multiple filters into one filter and concat them using the `AND` or `OR` operator |
+| NotFilter | not | A negated MultiFilter |
 
 ### Adding Filters
 
@@ -141,35 +141,36 @@ $criteria->addFilter(
 - The second parameter `$score` defines the score which should be used if the expression matches. In case that "Blue" is found in `product.description`, it gets an additional score of 100.
 - The third parameter `$scoreField` allows defining a multiplier for the score. For example: In case that "Red" is found in `product.description`, the score of 100 is multiplied with the value of `product.stock`.
 
-### NestedQuery
+### MultiFilter
 
 ```php
-$criteria->addFilter(new NestedQuery(
+$criteria->addFilter(new MultiFilter(
+    MultiFilter::OPERATOR_OR,
     [
         new EqualsFilter('product.name', 'Dagger'),
         new RangeFilter('product.stock', ['gt' => 10, 'lt' => 20]),
-    ],
-    NestedQuery::OPERATOR_OR
+    ]
 ));
 ```
 
 The nested query groups multiple queries into one and concat them using the `AND` or `OR` operator.
 
-- The first parameter `$queries` is a list of additional queries to be grouped.
-- The second parameter `$operator` defines the operator for the queries. You can choose between `AND` and `OR`.
+- The first parameter `$operator` defines the operator for the queries. You can choose between `AND` and `OR`.
+- The second parameter `$queries` is a list of additional queries to be grouped.
 
 ### NotFilter
 
 ```php
 $criteria->addFilter(new NotFilter(
+    NotFilter::CONNECTION_AND,
     new EqualsAnyFilter('product.name', ['Sword', 'Axe']),
 ));
 ```
 
-The NotFilter is an equivalent to the NestedQuery with the only difference, that the result of the inner queries is negated.
+The NotFilter is an equivalent to the MultiFilter with the only difference, that the result of the inner queries is negated.
 
-- The first parameter `$queries` is a list of additional queries to be grouped and negated.
-- The second parameter `$operator` defines the operator for the queries. You can choose between `AND` and `OR`.
+- The first parameter `$operator` defines the operator for the queries. You can choose between `AND` and `OR`.
+- The second parameter `$queries` is a list of additional queries to be grouped and negated.
 
 ## Post-Filter
 

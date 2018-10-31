@@ -22,7 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\SumAggregati
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueCountAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NestedQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Symfony\Component\HttpFoundation\Request;
@@ -168,7 +168,7 @@ class RequestCriteriaBuilder
         return $sorting;
     }
 
-    private function parseSimpleFilter(string $definition, array $filters, SearchRequestException $searchRequestException): NestedQuery
+    private function parseSimpleFilter(string $definition, array $filters, SearchRequestException $searchRequestException): MultiFilter
     {
         $queries = [];
 
@@ -189,7 +189,7 @@ class RequestCriteriaBuilder
             $queries[] = new EqualsFilter($this->buildFieldName($definition, $field), $value);
         }
 
-        return new NestedQuery($queries);
+        return new MultiFilter(MultiFilter::CONNECTION_AND, $queries);
     }
 
     private function buildAggregations(string $definition, array $payload, Criteria $criteria, SearchRequestException $searchRequestException): void

@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\EntityAggreg
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\EntityAggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NestedQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\Query;
 use Shopware\Storefront\Event\ListingEvents;
 use Shopware\Storefront\Event\ListingPageLoadedEvent;
@@ -145,7 +145,7 @@ class ManufacturerAggregationSubscriber implements EventSubscriberInterface
                 return $query;
             }
 
-            if (!$query instanceof NestedQuery) {
+            if (!$query instanceof MultiFilter) {
                 continue;
             }
 

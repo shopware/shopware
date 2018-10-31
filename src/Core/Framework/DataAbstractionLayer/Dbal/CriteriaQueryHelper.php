@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NestedQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 
 trait CriteriaQueryHelper
@@ -45,7 +45,7 @@ trait CriteriaQueryHelper
 
     protected function addFilters(SqlQueryParser $parser, string $definition, Criteria $criteria, QueryBuilder $query, Context $context): void
     {
-        $filters = new NestedQuery(array_merge(
+        $filters = new MultiFilter(MultiFilter::CONNECTION_AND, array_merge(
             $criteria->getFilters(),
             $criteria->getPostFilters()
         ));

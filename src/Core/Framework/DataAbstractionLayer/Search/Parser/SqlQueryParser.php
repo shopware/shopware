@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NestedQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\Query;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\RangeFilter;
@@ -77,8 +77,8 @@ class SqlQueryParser
         switch (true) {
             case $query instanceof NotFilter:
                 return $this->parseNotFilter($query, $definition, $root, $context);
-            case $query instanceof NestedQuery:
-                return $this->parseNestedQuery($query, $definition, $root, $context);
+            case $query instanceof MultiFilter:
+                return $this->parseMultiFilter($query, $definition, $root, $context);
             case $query instanceof EqualsFilter:
                 return $this->parseEqualsFilter($query, $definition, $root, $context);
             case $query instanceof EqualsAnyFilter:
@@ -205,7 +205,7 @@ class SqlQueryParser
         return $result;
     }
 
-    private function parseNestedQuery(NestedQuery $query, string $definition, string $root, Context $context): ParseResult
+    private function parseMultiFilter(MultiFilter $query, string $definition, string $root, Context $context): ParseResult
     {
         $result = $this->iterateNested($query, $definition, $root, $context);
 
@@ -237,12 +237,12 @@ class SqlQueryParser
         return $result;
     }
 
-    private function iterateNested(NestedQuery $query, string $definition, string $root, Context $context): ParseResult
+    private function iterateNested(MultiFilter $query, string $definition, string $root, Context $context): ParseResult
     {
         $result = new ParseResult();
-        foreach ($query->getQueries() as $nestedQuery) {
+        foreach ($query->getQueries() as $multiFilter) {
             $result = $result->merge(
-                $this->parse($nestedQuery, $definition, $context, $root)
+                $this->parse($multiFilter, $definition, $context, $root)
             );
         }
 

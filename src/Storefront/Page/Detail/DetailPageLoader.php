@@ -10,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NestedQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\MultiFilter;
 use Symfony\Component\HttpFoundation\Request;
 
 class DetailPageLoader
@@ -77,7 +77,7 @@ class DetailPageLoader
             $queries[] = new EqualsFilter('product.variationIds', $optionId);
         }
 
-        $criteria->addFilter(new NestedQuery($queries));
+        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, $queries));
         $criteria->setLimit(1);
 
         $ids = $this->productRepository->searchIds($criteria, $context);

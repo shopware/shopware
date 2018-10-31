@@ -232,7 +232,7 @@ At first sight, this might work but it has a negative impact on performance and 
 unexpected behavior.
 
 Using query containers you are able to combine or negate filter options:
-* `\Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NestedQuery`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Search\Query\MultiFilter`
     * Allows you to group multiple queries and associate them with an operator `AND` or `OR`
 * `\Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NotFilter`
     * Allows negating queries
@@ -287,6 +287,7 @@ $criteria = new Criteria();
 
 $criteria->addFilter(
     new NotFilter(
+        NotFilter::CONNECTION_AND,
         new EqualsFilter('product.manufacturer.link', null)
     )
 );

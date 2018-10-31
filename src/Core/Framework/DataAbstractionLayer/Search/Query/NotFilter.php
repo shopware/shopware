@@ -2,6 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Query;
 
-class NotFilter extends NestedQuery
+class NotFilter extends MultiFilter
 {
 }

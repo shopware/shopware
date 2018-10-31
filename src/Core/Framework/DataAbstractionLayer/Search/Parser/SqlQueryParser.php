@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\MatchQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NestedQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\Query;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\RangeQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermsQuery;
@@ -85,14 +85,14 @@ class SqlQueryParser
                 return $this->parseTermsQuery($query, $definition, $root, $context);
             case $query instanceof MatchQuery:
                 return $this->parseMatchQuery($query, $definition, $root, $context);
-            case $query instanceof RangeQuery:
-                return $this->parseRangeQuery($query, $definition, $root, $context);
+            case $query instanceof RangeFilter:
+                return $this->parseRangeFilter($query, $definition, $root, $context);
             default:
                 throw new \RuntimeException(sprintf('Unsupported query %s', \get_class($query)));
         }
     }
 
-    private function parseRangeQuery(RangeQuery $query, string $definition, string $root, Context $context): ParseResult
+    private function parseRangeFilter(RangeFilter $query, string $definition, string $root, Context $context): ParseResult
     {
         $result = new ParseResult();
 
@@ -102,22 +102,22 @@ class SqlQueryParser
 
         $where = [];
 
-        if ($query->hasParameter(RangeQuery::GT)) {
+        if ($query->hasParameter(RangeFilter::GT)) {
             $where[] = $field . ' > :' . $key;
-            $result->addParameter($key, $query->getParameter(RangeQuery::GT));
-        } elseif ($query->hasParameter(RangeQuery::GTE)) {
+            $result->addParameter($key, $query->getParameter(RangeFilter::GT));
+        } elseif ($query->hasParameter(RangeFilter::GTE)) {
             $where[] = $field . ' >= :' . $key;
-            $result->addParameter($key, $query->getParameter(RangeQuery::GTE));
+            $result->addParameter($key, $query->getParameter(RangeFilter::GTE));
         }
 
         $key = $this->getKey();
 
-        if ($query->hasParameter(RangeQuery::LT)) {
+        if ($query->hasParameter(RangeFilter::LT)) {
             $where[] = $field . ' < :' . $key;
-            $result->addParameter($key, $query->getParameter(RangeQuery::LT));
-        } elseif ($query->hasParameter(RangeQuery::LTE)) {
+            $result->addParameter($key, $query->getParameter(RangeFilter::LT));
+        } elseif ($query->hasParameter(RangeFilter::LTE)) {
             $where[] = $field . ' <= :' . $key;
-            $result->addParameter($key, $query->getParameter(RangeQuery::LTE));
+            $result->addParameter($key, $query->getParameter(RangeFilter::LTE));
         }
 
         $where = '(' . implode(' AND ', $where) . ')';

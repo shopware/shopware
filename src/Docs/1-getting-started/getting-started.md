@@ -220,7 +220,7 @@ they can also be filtered.
 The range of filter options includes the following classes:
 * `\Shopware\Core\Framework\DataAbstractionLayer\Search\Query\MatchQuery`
     * Allows performing a string comparison (SQL: `LIKE`)
-* `\Shopware\Core\Framework\DataAbstractionLayer\Search\Query\RangeQuery`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Search\Query\RangeFilter`
     * Query of a range of values (SQL: `<=`, `>=`, `>`, `<` )
 * `\Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery`
     * Query to filter for an exact value
@@ -263,14 +263,14 @@ Filter only products which cost between € 100 and € 200:
 <?php
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\RangeQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\RangeFilter;
 
 $criteria = new Criteria();
 
 $criteria->addFilter(
-    new RangeQuery('product.price', [
-        RangeQuery::GTE => 100,
-        RangeQuery::LTE => 200
+    new RangeFilter('product.price', [
+        RangeFilter::GTE => 100,
+        RangeFilter::LTE => 200
     ])
 );
 ``` 

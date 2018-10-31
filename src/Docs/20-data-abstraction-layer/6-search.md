@@ -47,7 +47,7 @@ Filters reduce your results to your needs and will be considered when aggregatin
 | TermQuery  | term     | Exact match for the given value |
 | TermsQuery | terms    | At least one exact match for a value of the given list |
 | MatchQuery | match    | Before and after wildcard search for the given value |
-| RangeQuery | range    | For range compatible fields like numbers or dates |
+| RangeFilter | range    | For range compatible fields like numbers or dates |
 | ScoreQuery | score    | Only usable for fields with a scoring. Filter on a minimum score |
 
 ### Combining filters
@@ -102,14 +102,14 @@ $criteria->addFilter(
 - The first parameter `$field` is the field selector to filter on.
 - The second parameter `$value` is the value for the wildcard query. In this case, the filter matches all entries where "iPhone" is anywhere in the description.
 
-### RangeQuery
+### RangeFilter
 
 ```php
 $criteria->addFilter(
-    new RangeQuery('product.stock', ['gt' => 10]),
-    new RangeQuery('product.stock', ['gte' => 20]),
-    new RangeQuery('product.stock', ['lt' => 30]),
-    new RangeQuery('product.stock', ['lte' => 40])
+    new RangeFilter('product.stock', ['gt' => 10]),
+    new RangeFilter('product.stock', ['gte' => 20]),
+    new RangeFilter('product.stock', ['lt' => 30]),
+    new RangeFilter('product.stock', ['lte' => 40])
 );
 ```
 
@@ -124,7 +124,7 @@ You can even combine multiple comparisons to define a range between a given valu
 
 ```php
 $criteria->addFilter(
-    new RangeQuery('product.stock', ['gt' => 10, 'lt' => 20]),
+    new RangeFilter('product.stock', ['gt' => 10, 'lt' => 20]),
 );
 ```
 
@@ -147,7 +147,7 @@ $criteria->addFilter(
 $criteria->addFilter(new NestedQuery(
     [
         new TermQuery('product.name', 'Dagger'),
-        new RangeQuery('product.stock', ['gt' => 10, 'lt' => 20]),
+        new RangeFilter('product.stock', ['gt' => 10, 'lt' => 20]),
     ],
     NestedQuery::OPERATOR_OR
 ));

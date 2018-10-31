@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Query;
 
-class RangeQuery extends Query
+class RangeFilter extends Query
 {
     public const LTE = 'lte';
 
@@ -25,12 +25,12 @@ class RangeQuery extends Query
     /**
      * @example
      *
-     * new RangeQuery('price', [
+     * new RangeFilter('price', [
      *      'gte' => 5.99,
      *      'lte' => 21.99
      * ])
      *
-     * new RangeQuery('price', [
+     * new RangeFilter('price', [
      *      'gt' => 5.99
      * ])
      *

@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\RangeQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
 use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -934,7 +934,7 @@ class VersioningTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('product.categories.id', $category));
-        $criteria->addFilter(new RangeQuery('product.tax.taxRate', [RangeQuery::GTE => 19]));
+        $criteria->addFilter(new RangeFilter('product.tax.taxRate', [RangeFilter::GTE => 19]));
 
         $search = $this->productRepository->searchIds($criteria, $versionContext);
         static::assertCount(2, $search->getIds());
@@ -1000,7 +1000,7 @@ class VersioningTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('product.categories.id', $category));
-        $criteria->addFilter(new RangeQuery('product.tax.taxRate', [RangeQuery::GTE => 19]));
+        $criteria->addFilter(new RangeFilter('product.tax.taxRate', [RangeFilter::GTE => 19]));
 
         $search = $this->productRepository->searchIds($criteria, $liveContext);
         static::assertCount(2, $search->getIds());

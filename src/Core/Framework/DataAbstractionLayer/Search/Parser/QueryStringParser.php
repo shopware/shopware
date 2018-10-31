@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\MatchQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NestedQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\Query;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\RangeQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermsQuery;
 
@@ -68,7 +68,7 @@ class QueryStringParser
                     array_key_exists('operator', $query) ? $query['operator'] : 'AND'
                 );
             case 'range':
-                return new RangeQuery(self::buildFieldName($definition, $query['field']), $query['parameters']);
+                return new RangeFilter(self::buildFieldName($definition, $query['field']), $query['parameters']);
             case 'terms':
                 if (empty($query['field'])) {
                     throw new InvalidFilterQueryException('Parameter "field" for terms filter is missing.', $path . '/field');
@@ -128,7 +128,7 @@ class QueryStringParser
                     }, $query->getQueries()),
                     'operator' => $query->getOperator(),
                 ];
-            case $query instanceof RangeQuery:
+            case $query instanceof RangeFilter:
                 return [
                     'type' => 'range',
                     'field' => $query->getField(),

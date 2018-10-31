@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Query;
+namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Filter;
 
-class RangeFilter extends Query
+class RangeFilter extends Filter
 {
     public const LTE = 'lte';
 

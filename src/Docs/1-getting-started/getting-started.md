@@ -218,13 +218,13 @@ properties of an entity and its associations. As long as a link exists between t
 they can also be filtered.
 
 The range of filter options includes the following classes:
-* `\Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ContainsFilter`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter`
     * Allows performing a string comparison (SQL: `LIKE`)
-* `\Shopware\Core\Framework\DataAbstractionLayer\Search\Query\RangeFilter`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter`
     * Query of a range of values (SQL: `<=`, `>=`, `>`, `<` )
-* `\Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsFilter`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter`
     * Query to filter for an exact value
-* `\Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsAnyFilter`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter`
     * Query to filter a set of exact values (SQL: `IN`)
     
 Note: Please do not use ContainsFilter for filtering on exact values on UUIDs.
@@ -232,9 +232,9 @@ At first sight, this might work but it has a negative impact on performance and 
 unexpected behavior.
 
 Using query containers you are able to combine or negate filter options:
-* `\Shopware\Core\Framework\DataAbstractionLayer\Search\Query\MultiFilter`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter`
     * Allows you to group multiple queries and associate them with an operator `AND` or `OR`
-* `\Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NotFilter`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter`
     * Allows negating queries
 
 **Example:**
@@ -244,7 +244,7 @@ Let's start with a simple filtered list of products and filter products which ar
 <?php
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 
 /** @var RepositoryInterface $repository */
@@ -263,7 +263,7 @@ Filter only products which cost between € 100 and € 200:
 <?php
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\RangeFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 
 $criteria = new Criteria();
 
@@ -280,8 +280,8 @@ Next, only products are displayed where the manufacturer property `link` is defi
 <?php
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NotFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
 $criteria = new Criteria();
 
@@ -299,7 +299,7 @@ Furthermore, only products with a minimum purchase amount of 1, 5 or 10 should b
 <?php
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 
 $criteria = new Criteria();
 
@@ -313,7 +313,7 @@ And last but not least, only products that have the letter `A` in their name sho
 <?php
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ContainsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 
 $criteria = new Criteria();
 

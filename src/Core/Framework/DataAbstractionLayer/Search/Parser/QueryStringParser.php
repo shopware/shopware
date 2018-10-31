@@ -5,17 +5,17 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Parser;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ContainsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\MultiFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NotFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\Query;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\RangeFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 
 class QueryStringParser
 {
-    public static function fromArray(string $definition, array $query, SearchRequestException $exception, string $path = ''): Query
+    public static function fromArray(string $definition, array $query, SearchRequestException $exception, string $path = ''): Filter
     {
         if (empty($query['type'])) {
             throw new InvalidFilterQueryException('Value for filter type is required.');
@@ -97,7 +97,7 @@ class QueryStringParser
         throw new InvalidFilterQueryException(sprintf('Unsupported query type: %s', $query['type']), $path . '/type');
     }
 
-    private static function toArray(Query $query): array
+    private static function toArray(Filter $query): array
     {
         switch (true) {
             case $query instanceof EqualsFilter:
@@ -109,7 +109,7 @@ class QueryStringParser
             case $query instanceof MultiFilter:
                 return [
                     'type' => 'nested',
-                    'queries' => array_map(function (Query $nested) {
+                    'queries' => array_map(function (Filter $nested) {
                         return self::toArray($nested);
                     }, $query->getQueries()),
                     'operator' => $query->getOperator(),
@@ -123,7 +123,7 @@ class QueryStringParser
             case $query instanceof NotFilter:
                 return [
                     'type' => 'not',
-                    'queries' => array_map(function (Query $nested) {
+                    'queries' => array_map(function (Filter $nested) {
                         return self::toArray($nested);
                     }, $query->getQueries()),
                     'operator' => $query->getOperator(),

@@ -4,9 +4,9 @@ namespace Shopware\Storefront\Subscriber;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\StatsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\StatsAggregationResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\MultiFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\Query;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\RangeFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Storefront\Event\ListingEvents;
 use Shopware\Storefront\Event\ListingPageLoadedEvent;
 use Shopware\Storefront\Event\ListingPageRequestEvent;
@@ -126,7 +126,7 @@ class PriceAggregationSubscriber implements EventSubscriberInterface
         );
     }
 
-    private function getFilter(Query ...$nested): ?RangeFilter
+    private function getFilter(Filter ...$nested): ?RangeFilter
     {
         foreach ($nested as $query) {
             if ($query instanceof RangeFilter && $query->getField() === self::PRICE_FIELD) {

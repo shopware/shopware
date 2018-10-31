@@ -8,9 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\EntityAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\EntityAggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\MultiFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\Query;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Storefront\Event\ListingEvents;
 use Shopware\Storefront\Event\ListingPageLoadedEvent;
 use Shopware\Storefront\Event\ListingPageRequestEvent;
@@ -138,7 +138,7 @@ class ManufacturerAggregationSubscriber implements EventSubscriberInterface
         );
     }
 
-    private function getFilter(Query ...$nested): ?EqualsAnyFilter
+    private function getFilter(Filter ...$nested): ?EqualsAnyFilter
     {
         foreach ($nested as $query) {
             if ($query instanceof EqualsAnyFilter && $query->getField() === self::PRODUCT_MANUFACTURER_ID) {

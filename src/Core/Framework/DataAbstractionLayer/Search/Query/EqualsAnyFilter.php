@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Query;
 
-class TermsQuery extends Query
+class EqualsAnyFilter extends Query
 {
     /**
      * @var string

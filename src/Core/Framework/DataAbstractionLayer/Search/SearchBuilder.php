@@ -4,10 +4,10 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\MatchQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermsQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
 use Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreterInterface;
@@ -76,7 +76,7 @@ class SearchBuilder
             )
         );
 
-        $criteria->addFilter(new TermsQuery($keywordField, array_values($pattern->getAllTerms())));
+        $criteria->addFilter(new EqualsAnyFilter($keywordField, array_values($pattern->getAllTerms())));
         $criteria->addFilter(new TermQuery($languageField, $context->getLanguageId()));
     }
 }

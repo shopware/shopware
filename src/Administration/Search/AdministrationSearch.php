@@ -13,8 +13,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermsQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\SearchBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Struct\ArrayStruct;
@@ -75,7 +75,7 @@ class AdministrationSearch
     {
         $criteria = new Criteria();
         $criteria->addFilter(
-            new TermsQuery('version_commit_data.entityName', [
+            new EqualsAnyFilter('version_commit_data.entityName', [
                 ProductDefinition::getEntityName(),
                 OrderDefinition::getEntityName(),
                 CustomerDefinition::getEntityName(),

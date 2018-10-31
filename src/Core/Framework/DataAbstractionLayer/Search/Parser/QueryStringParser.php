@@ -5,13 +5,13 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Parser;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\MatchQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NestedQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\Query;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermsQuery;
 
 class QueryStringParser
 {
@@ -91,7 +91,7 @@ class QueryStringParser
                     throw new InvalidFilterQueryException('Parameter "value" for terms filter does not contain any value.', $path . '/value');
                 }
 
-                return new TermsQuery(self::buildFieldName($definition, $query['field']), $values);
+                return new EqualsAnyFilter(self::buildFieldName($definition, $query['field']), $values);
         }
 
         throw new InvalidFilterQueryException(sprintf('Unsupported query type: %s', $query['type']), $path . '/type');
@@ -134,7 +134,7 @@ class QueryStringParser
                     'field' => $query->getField(),
                     'parameters' => $query->getParameters(),
                 ];
-            case $query instanceof TermsQuery:
+            case $query instanceof EqualsAnyFilter:
                 return [
                     'type' => 'term',
                     'field' => $query->getField(),

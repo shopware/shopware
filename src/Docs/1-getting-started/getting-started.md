@@ -224,7 +224,7 @@ The range of filter options includes the following classes:
     * Query of a range of values (SQL: `<=`, `>=`, `>`, `<` )
 * `\Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery`
     * Query to filter for an exact value
-* `\Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermsQuery`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsAnyFilter`
     * Query to filter a set of exact values (SQL: `IN`)
     
 Note: Please do not use MatchQuery for filtering on exact values on UUIDs. 
@@ -298,12 +298,12 @@ Furthermore, only products with a minimum purchase amount of 1, 5 or 10 should b
 <?php
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermsQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsAnyFilter;
 
 $criteria = new Criteria();
 
 $criteria->addFilter(
-    new TermsQuery('product.minPurchase', ['1', '5', '10'])
+    new EqualsAnyFilter('product.minPurchase', ['1', '5', '10'])
 );
 ```
 

@@ -8,9 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\EntityAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\EntityAggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NestedQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\Query;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermsQuery;
 use Shopware\Storefront\Event\ListingEvents;
 use Shopware\Storefront\Event\ListingPageLoadedEvent;
 use Shopware\Storefront\Event\ListingPageRequestEvent;
@@ -83,14 +83,14 @@ class ManufacturerAggregationSubscriber implements EventSubscriberInterface
         $names = $request->getManufacturerNames();
 
         $search = new Criteria();
-        $search->addFilter(new TermsQuery('product_manufacturer.name', $names));
+        $search->addFilter(new EqualsAnyFilter('product_manufacturer.name', $names));
         $ids = $this->manufacturerRepository->searchIds($search, $event->getContext());
 
         if (empty($ids->getIds())) {
             return;
         }
 
-        $query = new TermsQuery(self::PRODUCT_MANUFACTURER_ID, $ids->getIds());
+        $query = new EqualsAnyFilter(self::PRODUCT_MANUFACTURER_ID, $ids->getIds());
 
         $event->getCriteria()->addPostFilter($query);
     }
@@ -138,10 +138,10 @@ class ManufacturerAggregationSubscriber implements EventSubscriberInterface
         );
     }
 
-    private function getFilter(Query ...$nested): ?TermsQuery
+    private function getFilter(Query ...$nested): ?EqualsAnyFilter
     {
         foreach ($nested as $query) {
-            if ($query instanceof TermsQuery && $query->getField() === self::PRODUCT_MANUFACTURER_ID) {
+            if ($query instanceof EqualsAnyFilter && $query->getField() === self::PRODUCT_MANUFACTURER_ID) {
                 return $query;
             }
 

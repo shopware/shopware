@@ -10,8 +10,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermsQuery;
 
 class NavigationService
 {
@@ -56,7 +56,7 @@ class NavigationService
         }
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermsQuery('category.parentId', $rootIds));
+        $criteria->addFilter(new EqualsAnyFilter('category.parentId', $rootIds));
         $criteria->addFilter(new TermQuery('category.active', 1));
 
         $leafCategories = $this->repository->search($criteria, $context);

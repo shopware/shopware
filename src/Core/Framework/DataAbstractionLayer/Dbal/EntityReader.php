@@ -20,8 +20,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermsQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
@@ -561,7 +561,7 @@ class EntityReader implements EntityReaderInterface
         $readCriteria->addFilter(...$fieldCriteria->getFilters());
         $readCriteria->addPostFilter(...$fieldCriteria->getPostFilters());
         $readCriteria->addSorting(...$fieldCriteria->getSorting());
-        $readCriteria->addFilter(new TermsQuery($propertyAccessor, $ids));
+        $readCriteria->addFilter(new EqualsAnyFilter($propertyAccessor, $ids));
 
         foreach ($fieldCriteria->getAssociations() as $key => $associationCriteria) {
             $readCriteria->addAssociation($key, $associationCriteria);
@@ -611,7 +611,7 @@ class EntityReader implements EntityReaderInterface
         $fieldCriteria->addSorting(...$sorting);
 
         //add terms query to filter reference table to loaded root entities: `customer_address.customerId IN (:loadedIds)`
-        $fieldCriteria->addFilter(new TermsQuery($propertyAccessor, array_values($collection->getIds())));
+        $fieldCriteria->addFilter(new EqualsAnyFilter($propertyAccessor, array_values($collection->getIds())));
 
         $mapping = $this->fetchPaginatedOneToManyMapping($definition, $association, $context, $collection, $fieldCriteria);
 
@@ -709,7 +709,7 @@ class EntityReader implements EntityReaderInterface
         $criteria->addPostFilter(...$fieldCriteria->getPostFilters());
         $criteria->setLimit($fieldCriteria->getLimit());
         $criteria->setOffset($fieldCriteria->getOffset());
-        $criteria->addFilter(new TermsQuery($accessor, $collection->getIds()));
+        $criteria->addFilter(new EqualsAnyFilter($accessor, $collection->getIds()));
 
         $root = EntityDefinitionQueryHelper::escape($association->getReferenceDefinition()::getEntityName() . '.' . $reference->getPropertyName() . '.mapping');
         $query = $this->buildQueryByCriteria(new QueryBuilder($this->connection), $this->queryHelper, $this->parser, $association->getReferenceDefinition(), $criteria, $context);

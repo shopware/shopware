@@ -45,7 +45,7 @@ Filters reduce your results to your needs and will be considered when aggregatin
 | Class name | API name | Description |
 |------------|----------|------------------------------------------------------------------|
 | TermQuery  | term     | Exact match for the given value |
-| TermsQuery | terms    | At least one exact match for a value of the given list |
+| EqualsAnyFilter | terms    | At least one exact match for a value of the given list |
 | MatchQuery | match    | Before and after wildcard search for the given value |
 | RangeFilter | range    | For range compatible fields like numbers or dates |
 | ScoreQuery | score    | Only usable for fields with a scoring. Filter on a minimum score |
@@ -80,11 +80,11 @@ $criteria->addFilter(
 - The first parameter `$field` is the field selector to filter on.
 - The second parameter `$value` is the value for the exact match on the given field.
 
-### TermsQuery
+### EqualsAnyFilter
 
 ```php
 $criteria->addFilter(
-    new TermsQuery('product.name', ['Dagger', 'Sword', 'Axe'])
+    new EqualsAnyFilter('product.name', ['Dagger', 'Sword', 'Axe'])
 );
 ```
 
@@ -162,7 +162,7 @@ The nested query groups multiple queries into one and concat them using the `AND
 
 ```php
 $criteria->addFilter(new NotFilter(
-    new TermsQuery('product.name', ['Sword', 'Axe']),
+    new EqualsAnyFilter('product.name', ['Sword', 'Axe']),
 ));
 ```
 

@@ -4,8 +4,8 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\MatchQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
@@ -70,7 +70,7 @@ class SearchBuilder
 
         $criteria->addQuery(
             new ScoreQuery(
-                new MatchQuery($keywordField, $pattern->getOriginal()->getTerm()),
+                new ContainsFilter($keywordField, $pattern->getOriginal()->getTerm()),
                 $pattern->getOriginal()->getScore(),
                 $rankingField
             )

@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Query;
 
-class MatchQuery extends Query
+class ContainsFilter extends Query
 {
     /**
      * @var string

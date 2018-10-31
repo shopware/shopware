@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TenantIdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\MatchQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
@@ -33,11 +33,11 @@ class EntityScoreBuilderTest extends TestCase
         static::assertEquals(
             [
                 new ScoreQuery(new TermQuery('test.name', 'term'), 100),
-                new ScoreQuery(new MatchQuery('test.name', 'term'), 50),
+                new ScoreQuery(new ContainsFilter('test.name', 'term'), 50),
                 new ScoreQuery(new TermQuery('test.description', 'term'), 200),
-                new ScoreQuery(new MatchQuery('test.description', 'term'), 100),
+                new ScoreQuery(new ContainsFilter('test.description', 'term'), 100),
                 new ScoreQuery(new TermQuery('test.nested.name', 'term'), 50),
-                new ScoreQuery(new MatchQuery('test.nested.name', 'term'), 25),
+                new ScoreQuery(new ContainsFilter('test.nested.name', 'term'), 25),
             ],
             $queries
         );
@@ -60,19 +60,19 @@ class EntityScoreBuilderTest extends TestCase
         static::assertEquals(
             [
                 new ScoreQuery(new TermQuery('test.name', 'term'), 100),
-                new ScoreQuery(new MatchQuery('test.name', 'term'), 50),
+                new ScoreQuery(new ContainsFilter('test.name', 'term'), 50),
                 new ScoreQuery(new TermQuery('test.name', 'test'), 10),
-                new ScoreQuery(new MatchQuery('test.name', 'test'), 5),
+                new ScoreQuery(new ContainsFilter('test.name', 'test'), 5),
 
                 new ScoreQuery(new TermQuery('test.description', 'term'), 200),
-                new ScoreQuery(new MatchQuery('test.description', 'term'), 100),
+                new ScoreQuery(new ContainsFilter('test.description', 'term'), 100),
                 new ScoreQuery(new TermQuery('test.description', 'test'), 20),
-                new ScoreQuery(new MatchQuery('test.description', 'test'), 10),
+                new ScoreQuery(new ContainsFilter('test.description', 'test'), 10),
 
                 new ScoreQuery(new TermQuery('test.nested.name', 'term'), 50),
-                new ScoreQuery(new MatchQuery('test.nested.name', 'term'), 25),
+                new ScoreQuery(new ContainsFilter('test.nested.name', 'term'), 25),
                 new ScoreQuery(new TermQuery('test.nested.name', 'test'), 5),
-                new ScoreQuery(new MatchQuery('test.nested.name', 'test'), 2.5),
+                new ScoreQuery(new ContainsFilter('test.nested.name', 'test'), 2.5),
             ],
             $queries
         );
@@ -92,7 +92,7 @@ class EntityScoreBuilderTest extends TestCase
         static::assertEquals(
             [
                 new ScoreQuery(new TermQuery('test.name', 'term'), 1),
-                new ScoreQuery(new MatchQuery('test.name', 'term'), 0.5),
+                new ScoreQuery(new ContainsFilter('test.name', 'term'), 0.5),
             ],
             $queries
         );

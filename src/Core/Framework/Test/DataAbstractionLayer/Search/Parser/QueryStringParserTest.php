@@ -7,8 +7,8 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\MatchQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
 
 class QueryStringParserTest extends TestCase
@@ -62,12 +62,12 @@ class QueryStringParserTest extends TestCase
     }
 
     /**
-     * @dataProvider matchQueryDataProvider
+     * @dataProvider containsFilterDataProvider
      *
      * @param array $filter
      * @param bool  $expectException
      */
-    public function testMatchQuery(array $filter, bool $expectException): void
+    public function testContainsFilter(array $filter, bool $expectException): void
     {
         if ($expectException) {
             $this->expectException(InvalidFilterQueryException::class);
@@ -76,13 +76,13 @@ class QueryStringParserTest extends TestCase
         /** @var TermQuery $result */
         $result = QueryStringParser::fromArray(ProductDefinition::class, $filter, new SearchRequestException());
 
-        static::assertInstanceOf(MatchQuery::class, $result);
+        static::assertInstanceOf(ContainsFilter::class, $result);
 
         static::assertEquals($result->getField(), 'product.' . $filter['field']);
         static::assertEquals($result->getValue(), $filter['value']);
     }
 
-    public function matchQueryDataProvider(): array
+    public function containsFilterDataProvider(): array
     {
         return [
             [['type' => 'match', 'field' => 'foo', 'value' => 'bar'], false],

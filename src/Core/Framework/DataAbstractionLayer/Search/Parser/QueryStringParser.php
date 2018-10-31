@@ -5,8 +5,8 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Parser;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\MatchQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NestedQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\Query;
@@ -59,7 +59,7 @@ class QueryStringParser
                     throw new InvalidFilterQueryException('Parameter "value" for match filter is missing.', $path . '/value');
                 }
 
-                return new MatchQuery(self::buildFieldName($definition, $query['field']), $query['value']);
+                return new ContainsFilter(self::buildFieldName($definition, $query['field']), $query['value']);
             case 'not':
                 return new NotFilter(
                     array_map(function (array $query) use ($path, $exception, $definition) {
@@ -114,7 +114,7 @@ class QueryStringParser
                     }, $query->getQueries()),
                     'operator' => $query->getOperator(),
                 ];
-            case $query instanceof MatchQuery:
+            case $query instanceof ContainsFilter:
                 return [
                     'type' => 'match',
                     'field' => $query->getField(),

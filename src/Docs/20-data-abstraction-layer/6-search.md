@@ -46,7 +46,7 @@ Filters reduce your results to your needs and will be considered when aggregatin
 |------------|----------|------------------------------------------------------------------|
 | TermQuery  | term     | Exact match for the given value |
 | EqualsAnyFilter | terms    | At least one exact match for a value of the given list |
-| MatchQuery | match    | Before and after wildcard search for the given value |
+| ContainsFilter | match    | Before and after wildcard search for the given value |
 | RangeFilter | range    | For range compatible fields like numbers or dates |
 | ScoreQuery | score    | Only usable for fields with a scoring. Filter on a minimum score |
 
@@ -91,11 +91,11 @@ $criteria->addFilter(
 - The first parameter `$field` is the field selector to filter on.
 - The second parameter `$values` is a list of values for a possible exact match on the given field.
 
-### MatchQuery
+### ContainsFilter
 
 ```php
 $criteria->addFilter(
-    new MatchQuery('product.description', 'iPhone')
+    new ContainsFilter('product.description', 'iPhone')
 );
 ```
 

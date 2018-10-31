@@ -218,7 +218,7 @@ properties of an entity and its associations. As long as a link exists between t
 they can also be filtered.
 
 The range of filter options includes the following classes:
-* `\Shopware\Core\Framework\DataAbstractionLayer\Search\Query\MatchQuery`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ContainsFilter`
     * Allows performing a string comparison (SQL: `LIKE`)
 * `\Shopware\Core\Framework\DataAbstractionLayer\Search\Query\RangeFilter`
     * Query of a range of values (SQL: `<=`, `>=`, `>`, `<` )
@@ -227,7 +227,7 @@ The range of filter options includes the following classes:
 * `\Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsAnyFilter`
     * Query to filter a set of exact values (SQL: `IN`)
     
-Note: Please do not use MatchQuery for filtering on exact values on UUIDs. 
+Note: Please do not use ContainsFilter for filtering on exact values on UUIDs.
 At first sight, this might work but it has a negative impact on performance and can cause
 unexpected behavior.
 
@@ -312,12 +312,12 @@ And last but not least, only products that have the letter `A` in their name sho
 <?php
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\MatchQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ContainsFilter;
 
 $criteria = new Criteria();
 
 $criteria->addFilter(
-    new MatchQuery('product.name', 'A')
+    new ContainsFilter('product.name', 'A')
 );
 ```
 

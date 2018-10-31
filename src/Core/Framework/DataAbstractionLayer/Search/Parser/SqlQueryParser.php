@@ -9,8 +9,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\MatchQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NestedQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\Query;
@@ -83,8 +83,8 @@ class SqlQueryParser
                 return $this->parseTermQuery($query, $definition, $root, $context);
             case $query instanceof EqualsAnyFilter:
                 return $this->parseEqualsAnyFilter($query, $definition, $root, $context);
-            case $query instanceof MatchQuery:
-                return $this->parseMatchQuery($query, $definition, $root, $context);
+            case $query instanceof ContainsFilter:
+                return $this->parseContainsFilter($query, $definition, $root, $context);
             case $query instanceof RangeFilter:
                 return $this->parseRangeFilter($query, $definition, $root, $context);
             default:
@@ -126,7 +126,7 @@ class SqlQueryParser
         return $result;
     }
 
-    private function parseMatchQuery(MatchQuery $query, string $definition, string $root, Context $context): ParseResult
+    private function parseContainsFilter(ContainsFilter $query, string $definition, string $root, Context $context): ParseResult
     {
         $key = $this->getKey();
 

@@ -189,7 +189,7 @@ Complex queries need to be sent via the `/search` endpoint:
 * `POST /api/v1/search/product`
 
 The `/search` endpoint supports complex searches. All operations of the
-`\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria` class are supported. 
+`\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria` class are supported.
 The endpoint must be accessed via POST. The initial query would be expressed like this:
 ```php
 <?php
@@ -234,7 +234,7 @@ unexpected behavior.
 Using query containers you are able to combine or negate filter options:
 * `\Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NestedQuery`
     * Allows you to group multiple queries and associate them with an operator `AND` or `OR`
-* `\Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NotQuery`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NotFilter`
     * Allows negating queries
 
 **Example:**
@@ -280,13 +280,13 @@ Next, only products are displayed where the manufacturer property `link` is defi
 <?php
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NotQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
 
 $criteria = new Criteria();
 
 $criteria->addFilter(
-    new NotQuery(
+    new NotFilter(
         new TermQuery('product.manufacturer.link', null)
     )
 );

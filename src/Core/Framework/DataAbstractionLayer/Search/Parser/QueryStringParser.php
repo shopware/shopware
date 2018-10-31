@@ -7,7 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryExc
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\MatchQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NestedQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NotQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\Query;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\RangeQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
@@ -61,7 +61,7 @@ class QueryStringParser
 
                 return new MatchQuery(self::buildFieldName($definition, $query['field']), $query['value']);
             case 'not':
-                return new NotQuery(
+                return new NotFilter(
                     array_map(function (array $query) use ($path, $exception, $definition) {
                         return self::fromArray($definition, $query, $exception, $path);
                     }, $query['queries']),
@@ -120,7 +120,7 @@ class QueryStringParser
                     'field' => $query->getField(),
                     'value' => $query->getValue(),
                 ];
-            case $query instanceof NotQuery:
+            case $query instanceof NotFilter:
                 return [
                     'type' => 'not',
                     'queries' => array_map(function (Query $nested) {

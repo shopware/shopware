@@ -55,7 +55,7 @@ Filters reduce your results to your needs and will be considered when aggregatin
 | Class name | API name | Description |
 |---|---|---|
 | NestedQuery | nested | Group multiple filters into one filter and concat them using the `AND` or `OR` operator |
-| NotQuery | not | A negated NestedQuery |
+| NotFilter | not | A negated NestedQuery |
 
 ### Adding Filters
 
@@ -158,15 +158,15 @@ The nested query groups multiple queries into one and concat them using the `AND
 - The first parameter `$queries` is a list of additional queries to be grouped.
 - The second parameter `$operator` defines the operator for the queries. You can choose between `AND` and `OR`.
 
-### NotQuery
+### NotFilter
 
 ```php
-$criteria->addFilter(new NotQuery([
+$criteria->addFilter(new NotFilter(
     new TermsQuery('product.name', ['Sword', 'Axe']),
-]));
+));
 ```
 
-The NotQuery is an equivalent to the NestedQuery with the only difference, that the result of the inner queries is negated.
+The NotFilter is an equivalent to the NestedQuery with the only difference, that the result of the inner queries is negated.
 
 - The first parameter `$queries` is a list of additional queries to be grouped and negated.
 - The second parameter `$operator` defines the operator for the queries. You can choose between `AND` and `OR`.

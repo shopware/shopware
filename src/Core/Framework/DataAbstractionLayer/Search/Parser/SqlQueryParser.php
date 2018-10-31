@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\MatchQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NestedQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NotQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\Query;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\RangeQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
@@ -75,8 +75,8 @@ class SqlQueryParser
         }
 
         switch (true) {
-            case $query instanceof NotQuery:
-                return $this->parseNotQuery($query, $definition, $root, $context);
+            case $query instanceof NotFilter:
+                return $this->parseNotFilter($query, $definition, $root, $context);
             case $query instanceof NestedQuery:
                 return $this->parseNestedQuery($query, $definition, $root, $context);
             case $query instanceof TermQuery:
@@ -221,7 +221,7 @@ class SqlQueryParser
         return $result;
     }
 
-    private function parseNotQuery(NotQuery $query, string $definition, string $root, Context $context): ParseResult
+    private function parseNotFilter(NotFilter $query, string $definition, string $root, Context $context): ParseResult
     {
         $result = $this->iterateNested($query, $definition, $root, $context);
 

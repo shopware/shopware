@@ -3,14 +3,14 @@
 namespace Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCatalog;
 
 use Shopware\Core\Content\Catalog\CatalogDefinition;
-use Shopware\Core\Framework\ORM\Field\CreatedAtField;
-use Shopware\Core\Framework\ORM\Field\FkField;
-use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Core\Framework\ORM\Field\UpdatedAtField;
-use Shopware\Core\Framework\ORM\FieldCollection;
-use Shopware\Core\Framework\ORM\MappingEntityDefinition;
-use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class SalesChannelCatalogDefinition extends MappingEntityDefinition

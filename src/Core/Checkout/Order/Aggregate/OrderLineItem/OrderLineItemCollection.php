@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderLineItem;
 
-use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class OrderLineItemCollection extends EntityCollection
 {

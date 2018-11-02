@@ -3,18 +3,18 @@
 namespace Shopware\Core\Framework\Version;
 
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\Field\CreatedAtField;
-use Shopware\Core\Framework\ORM\Field\IdField;
-use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
-use Shopware\Core\Framework\ORM\Field\StringField;
-use Shopware\Core\Framework\ORM\Field\TenantIdField;
-use Shopware\Core\Framework\ORM\Field\UpdatedAtField;
-use Shopware\Core\Framework\ORM\FieldCollection;
-use Shopware\Core\Framework\ORM\Write\EntityExistence;
-use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Core\Framework\ORM\Write\Flag\Required;
-use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TenantIdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\SearchRanking;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitDefinition;
 
 class VersionDefinition extends EntityDefinition

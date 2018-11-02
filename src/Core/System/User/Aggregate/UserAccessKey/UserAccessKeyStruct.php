@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\System\User\Aggregate\UserAccessKey;
 
-use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\System\User\UserStruct;
 
 class UserAccessKeyStruct extends Entity

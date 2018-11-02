@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType;
 
-use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 class SalesChannelTypeCollection extends EntityCollection

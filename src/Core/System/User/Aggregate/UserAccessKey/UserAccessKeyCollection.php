@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\System\User\Aggregate\UserAccessKey;
 
-use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class UserAccessKeyCollection extends EntityCollection
 {

@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductService;
 
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionCollection;
-use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\System\Tax\TaxCollection;
 
 class ProductServiceCollection extends EntityCollection

@@ -180,7 +180,7 @@
 
         <service class="Shopware\Storefront\Subscriber\SearchTermSubscriber" id="Shopware\Storefront\Subscriber\SearchTermSubscriber">
             <tag name="kernel.event_subscriber"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Search\SearchBuilder"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\SearchBuilder"/>
         </service>
 
         <!--Entity field resolver -->

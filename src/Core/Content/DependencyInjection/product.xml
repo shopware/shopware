@@ -13,12 +13,12 @@
 
         <service class="Shopware\Core\Content\Product\Storefront\StorefrontProductController" id="Shopware\Core\Content\Product\Storefront\StorefrontProductController" public="true">
             <argument type="service" id="Shopware\Core\Content\Product\Storefront\StorefrontProductRepository"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Search\RequestCriteriaBuilder"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
         </service>
 
         <service class="Shopware\Core\Content\Category\Storefront\StorefrontCategoryController" id="Shopware\Core\Content\Category\Storefront\StorefrontCategoryController" public="true">
             <argument type="service" id="category.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Search\RequestCriteriaBuilder"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
         </service>
 
         <service class="Shopware\Core\Content\Product\ProductDefinition" id="Shopware\Core\Content\Product\ProductDefinition">
@@ -82,21 +82,21 @@
             <argument type="service" id="product.repository"/>
         </service>
 
-        <service class="Shopware\Core\Content\Product\ORM\Indexing\ProductVariationIndexer" id="Shopware\Core\Content\Product\ORM\Indexing\ProductVariationIndexer">
+        <service class="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductVariationIndexer" id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductVariationIndexer">
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Product\Util\EventIdExtractor"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="shopware.dbal_indexing.indexer" priority="900"/>
         </service>
 
-        <service class="Shopware\Core\Content\Product\ORM\Indexing\ProductDatasheetIndexer" id="Shopware\Core\Content\Product\ORM\Indexing\ProductDatasheetIndexer">
+        <service class="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductDatasheetIndexer" id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductDatasheetIndexer">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Product\Util\EventIdExtractor"/>
             <tag name="shopware.dbal_indexing.indexer" priority="400"/>
         </service>
 
-        <service class="Shopware\Core\Content\Product\ORM\Indexing\ProductListingPriceIndexer" id="Shopware\Core\Content\Product\ORM\Indexing\ProductListingPriceIndexer">
+        <service class="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductListingPriceIndexer" id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductListingPriceIndexer">
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Product\Util\EventIdExtractor"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
@@ -112,7 +112,7 @@
 
         <service class="Shopware\Core\Content\Product\Util\EventIdExtractor" id="Shopware\Core\Content\Product\Util\EventIdExtractor"/>
 
-        <service class="Shopware\Core\Content\Product\ORM\Indexing\ProductCategoryTreeIndexer" id="Shopware\Core\Content\Product\ORM\Indexing\ProductCategoryTreeIndexer">
+        <service class="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductCategoryTreeIndexer" id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductCategoryTreeIndexer">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Category\Util\CategoryPathBuilder"/>

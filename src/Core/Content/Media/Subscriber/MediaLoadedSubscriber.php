@@ -6,7 +6,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailStruct;
 use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
-use Shopware\Core\Framework\ORM\Event\EntityLoadedEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class MediaLoadedSubscriber implements EventSubscriberInterface

@@ -15,7 +15,7 @@ commands, controller, the administration search and tests.
           A look in this domain reveals which data can be served to different applications.
     * Framework: Contains the technical implementations of various components
           that are reused in the other domains like API, commands, events, exceptions, filesystem,
-          migration system, ORM, plugin system, price handling, routing, the rule system, search
+          migration system, DataAbstractionLayer, plugin system, price handling, routing, the rule system, search
           implementation, translation, template handling, and the versioning system.
     * Migration: Collection of all migrations. The database table `migration` is used 
           to keep track which migration have already been executed.
@@ -155,7 +155,7 @@ class IndexController extends Controller
 In the PHP stack, you can get access to the repository of an entity via the DI container.
 Each repository uses its class name as DI container Id.
 
-To search for entities you must supply a `Shopware\Core\Framework\ORM\Search\Criteria` object,
+To search for entities you must supply a `Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria` object,
 which defines a search query. Is this case we pass an empty Criteria,
 thus no search is performed and all products in the database will be returned.
 
@@ -166,8 +166,8 @@ To limit the number of results returned, you can use the `setOffset` and `setLim
 ```php
 <?php
 
-use Shopware\Core\Framework\ORM\Search\Criteria;
-use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 
 /** @var RepositoryInterface $repository */
 $repository = $this->container->get('product.repository');
@@ -189,7 +189,7 @@ Complex queries need to be sent via the `/search` endpoint:
 * `POST /api/v1/search/product`
 
 The `/search` endpoint supports complex searches. All operations of the
-`\Shopware\Core\Framework\ORM\Search\Criteria` class are supported. 
+`\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria` class are supported. 
 The endpoint must be accessed via POST. The initial query would be expressed like this:
 ```php
 <?php
@@ -218,13 +218,13 @@ properties of an entity and its associations. As long as a link exists between t
 they can also be filtered.
 
 The range of filter options includes the following classes:
-* `\Shopware\Core\Framework\ORM\Search\Query\MatchQuery`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Search\Query\MatchQuery`
     * Allows performing a string comparison (SQL: `LIKE`)
-* `\Shopware\Core\Framework\ORM\Search\Query\RangeQuery`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Search\Query\RangeQuery`
     * Query of a range of values (SQL: `<=`, `>=`, `>`, `<` )
-* `\Shopware\Core\Framework\ORM\Search\Query\TermQuery`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery`
     * Query to filter for an exact value
-* `\Shopware\Core\Framework\ORM\Search\Query\TermsQuery`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermsQuery`
     * Query to filter a set of exact values (SQL: `IN`)
     
 Note: Please do not use MatchQuery for filtering on exact values on UUIDs. 
@@ -232,9 +232,9 @@ At first sight, this might work but it has a negative impact on performance and 
 unexpected behavior.
 
 Using query containers you are able to combine or negate filter options:
-* `\Shopware\Core\Framework\ORM\Search\Query\NestedQuery`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NestedQuery`
     * Allows you to group multiple queries and associate them with an operator `AND` or `OR`
-* `\Shopware\Core\Framework\ORM\Search\Query\NotQuery`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NotQuery`
     * Allows negating queries
 
 **Example:**
@@ -243,9 +243,9 @@ Let's start with a simple filtered list of products and filter products which ar
 ```php
 <?php
 
-use Shopware\Core\Framework\ORM\Search\Criteria;
-use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 
 /** @var RepositoryInterface $repository */
 $repository = $this->container->get('product.repository');
@@ -262,8 +262,8 @@ Filter only products which cost between € 100 and € 200:
 ```php
 <?php
 
-use Shopware\Core\Framework\ORM\Search\Criteria;
-use Shopware\Core\Framework\ORM\Search\Query\RangeQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\RangeQuery;
 
 $criteria = new Criteria();
 
@@ -279,9 +279,9 @@ Next, only products are displayed where the manufacturer property `link` is defi
 ```php
 <?php
 
-use Shopware\Core\Framework\ORM\Search\Criteria;
-use Shopware\Core\Framework\ORM\Search\Query\NotQuery;
-use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NotQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
 
 $criteria = new Criteria();
 
@@ -297,8 +297,8 @@ Furthermore, only products with a minimum purchase amount of 1, 5 or 10 should b
 ```php
 <?php
 
-use Shopware\Core\Framework\ORM\Search\Criteria;
-use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermsQuery;
 
 $criteria = new Criteria();
 
@@ -311,8 +311,8 @@ And last but not least, only products that have the letter `A` in their name sho
 ```php
 <?php
 
-use Shopware\Core\Framework\ORM\Search\Criteria;
-use Shopware\Core\Framework\ORM\Search\Query\MatchQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\MatchQuery;
 
 $criteria = new Criteria();
 
@@ -500,9 +500,9 @@ The following script shows two ways:
 ```php
 <?php
 
-use Shopware\Core\Framework\ORM\RepositoryInterface;
-use Shopware\Core\Framework\ORM\Search\Criteria;
-use Shopware\Core\Framework\ORM\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 
 /** @var RepositoryInterface $repository */
 $repository = $this->container->get('product.repository');
@@ -569,7 +569,7 @@ $result = $client->post(
 ``` 
 
 ## Writing data
-All write operations are accepted by the ORM as a batch operation
+All write operations are accepted by the DataAbstractionLayer as a batch operation
 and all associated data can be processed in the same operation. The following three functions 
 allow you to write data: 
 * `update(array $data, Context $context): EntityWrittenContainerEvent;`
@@ -588,7 +588,7 @@ that no read operation must take place before the data is written:
 <?php
 
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 
 /** @var RepositoryInterface $repository */
 $repository = $this->container->get('product.repository');
@@ -615,7 +615,7 @@ To link an existing manufacturer or tax rate, you can simply supply the correspo
 ```php
 <?php
 
-use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 
 /** @var RepositoryInterface $repository */
 $repository = $this->container->get('product.repository');
@@ -640,7 +640,7 @@ the corresponding foreign key must be sent along with the associated data array:
 <?php
 
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 
 /** @var RepositoryInterface $repository */
 $repository = $this->container->get('product.repository');
@@ -738,8 +738,8 @@ Let's begin with an empty entity definition:
 
 namespace Shopware\Core\Content\Product;
 
-use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class ProductDefinition extends EntityDefinition
 {
@@ -764,12 +764,12 @@ Now you can fill the entity with fields. Let's start with simple fields:
 ```php
 <?php
 
-use Shopware\Core\Framework\ORM\FieldCollection;
-use Shopware\Core\Framework\ORM\Field\StringField;
-use Shopware\Core\Framework\ORM\Field\BoolField;
-use Shopware\Core\Framework\ORM\Field\IntField;
-use Shopware\Core\Framework\ORM\Field\FloatField;
-use Shopware\Core\Framework\ORM\Field\CreatedAtField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 
 public static function defineFields(): FieldCollection
 {
@@ -800,10 +800,10 @@ to delete or update them:
 ```php
 <?php
 
-use Shopware\Core\Framework\ORM\FieldCollection;
-use Shopware\Core\Framework\ORM\Field\IdField;
-use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 
 public static function defineFields(): FieldCollection
 {
@@ -834,9 +834,9 @@ If a field should be translatable, use the `TranslatedField`:
 ```php
 <?php
 
-use Shopware\Core\Framework\ORM\FieldCollection;
-use Shopware\Core\Framework\ORM\Field\TranslatedField;
-use Shopware\Core\Framework\ORM\Field\StringField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 
 public static function defineFields(): FieldCollection
 {
@@ -864,8 +864,8 @@ should do a cross-check. To enable this, you have to use the `FkField`.
 ```php
 <?php
 
-use Shopware\Core\Framework\ORM\FieldCollection;
-use Shopware\Core\Framework\ORM\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 
 public static function defineFields(): FieldCollection
@@ -900,8 +900,8 @@ The parameters of an association are described in the following example:
 ```php
 <?php
 
-use Shopware\Core\Framework\ORM\FieldCollection;
-use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 
 
@@ -956,8 +956,8 @@ The field is also needed in the `FieldCollection` of an entity:
  ```php
 <?php
 
-use Shopware\Core\Framework\ORM\FieldCollection;
-use Shopware\Core\Framework\ORM\Field\TenantIdField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TenantIdField;
  
 public static function defineFields(): FieldCollection
 {
@@ -990,7 +990,7 @@ A simple struct class can look like this:
 
 namespace Shopware\Core\System\Locale\Struct;
 
-use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 
 class LocaleStruct extends Entity
 {
@@ -1078,8 +1078,8 @@ be iterated to easily handle all records:
 ```php
 <?php
 
-use Shopware\Core\Framework\ORM\Read\ReadCriteria;
-use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 
 $ids = [
     '3aa78661e1ab4a2b94bb5e6ea85fdba7',
@@ -1100,8 +1100,8 @@ the collection's aggregated data:
 ```php
 <?php
 
-use Shopware\Core\Framework\ORM\RepositoryInterface;
-use Shopware\Core\Framework\ORM\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Content\Product\ProductCollection;
 
 $ids = [
@@ -1137,7 +1137,7 @@ Additionally, entity-related events are thrown, including:
 | `product.aggregation.result.loaded` | After the aggregations have been loaded |
 | `product.id.search.result.loaded` | After the search for ids only has been finished |
 
-More information about events can be found in the [events guide](../20-orm/8-events.md).
+More information about events can be found in the [events guide](../20-data-abstraction-layer/8-events.md).
 
 # Write your first plugin
 To be able to introduce extensions into the system, the core comes with an integrated plugin system.
@@ -1273,7 +1273,7 @@ public class GettingStarted extends Plugin
 ## Entity Extension
 Own entities can be integrated into the core via the corresponding `services.xml` 
 and behave as described above. To extend existing entities, 
-the `\Shopware\Core\Framework\ORM\EntityExtensionInterface` is used.
+the `\Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface` is used.
 The EntityExtension must define which entity should be extended. 
 Once this entity is accessed in the system, the extension can add more fields to the entity:
 ```php
@@ -1283,10 +1283,10 @@ namespace GettingStarted\Content\Product;
 
 use GettingStarted\Content\Promotion\PromotionDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Framework\ORM\EntityExtensionInterface;
-use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
-use Shopware\Core\Framework\ORM\FieldCollection;
-use Shopware\Core\Framework\ORM\Write\Flag\Extension;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Extension;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class PromotionExtension implements EntityExtensionInterface, EventSubscriberInterface

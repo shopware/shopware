@@ -7,12 +7,12 @@ use PHPUnit\Framework\Test;
 use PHPUnit\Framework\TestListener;
 use PHPUnit\Framework\TestSuite;
 use PHPUnit\Framework\Warning;
-use Shopware\Core\Framework\Test\ORM\Field\CreateAtAndUpdatedAtFieldTest;
-use Shopware\Core\Framework\Test\ORM\Field\JsonFieldTest;
-use Shopware\Core\Framework\Test\ORM\Field\ListFieldTest;
-use Shopware\Core\Framework\Test\ORM\Field\ObjectFieldTest;
-use Shopware\Core\Framework\Test\ORM\Field\WriteProtectedFieldTest;
-use Shopware\Core\Framework\Test\ORM\Search\SearchCriteriaBuilderTest;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\CreateAtAndUpdatedAtFieldTest;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\JsonFieldTest;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\ListFieldTest;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\ObjectFieldTest;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\WriteProtectedFieldTest;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\SearchCriteriaBuilderTest;
 use Shopware\Storefront\Test\OrderingProcessTest;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 

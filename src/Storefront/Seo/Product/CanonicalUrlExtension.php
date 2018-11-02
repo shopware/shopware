@@ -3,8 +3,8 @@
 namespace Shopware\Storefront\Seo\Product;
 
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Framework\ORM\EntityExtensionInterface;
-use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Storefront\Api\Entity\Field\CanonicalUrlAssociationField;
 use Shopware\Storefront\DbalIndexing\SeoUrl\DetailPageSeoUrlIndexer;
 

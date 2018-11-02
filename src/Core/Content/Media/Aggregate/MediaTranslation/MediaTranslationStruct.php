@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Media\Aggregate\MediaTranslation;
 
 use Shopware\Core\Content\Catalog\CatalogStruct;
 use Shopware\Core\Content\Media\MediaStruct;
-use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\System\Language\LanguageStruct;
 
 class MediaTranslationStruct extends Entity

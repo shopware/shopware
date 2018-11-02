@@ -4,9 +4,9 @@ namespace Shopware\Core\Framework\Api\Response\Type\Api;
 
 use Shopware\Core\Framework\Api\Response\Type\JsonFactoryBase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\SourceContext;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;

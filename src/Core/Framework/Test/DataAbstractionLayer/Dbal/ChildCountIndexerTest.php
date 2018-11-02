@@ -1,0 +1,216 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Dbal;
+
+use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\ChildCountIndexer;
+use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+
+class ChildCountIndexerTest extends TestCase
+{
+    use IntegrationTestBehaviour;
+
+    /**
+     * @var RepositoryInterface
+     */
+    private $categoryRepository;
+
+    /**
+     * @var Context
+     */
+    private $context;
+
+    /**
+     * @var ChildCountIndexer
+     */
+    private $childCountIndexer;
+
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    /**
+     * @var Connection
+     */
+    private $connection;
+
+    public function setUp()
+    {
+        $this->categoryRepository = $this->getContainer()->get('category.repository');
+        $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $this->childCountIndexer = $this->getContainer()->get(ChildCountIndexer::class);
+        $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
+        $this->connection = $this->getContainer()->get(Connection::class);
+    }
+
+    public function testCreateChildCategory(): void
+    {
+        /*
+        Category A
+        ├── Category B
+        ├── Category C
+        │  └── Category D
+        */
+        $categoryA = $this->createCategory();
+
+        $categoryB = $this->createCategory($categoryA);
+        $categoryC = $this->createCategory($categoryA);
+
+        $categoryD = $this->createCategory($categoryC);
+
+        $categories = $this->categoryRepository->read(new ReadCriteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
+
+        static::assertEquals(2, $categories->get($categoryA)->getChildCount());
+        static::assertEquals(0, $categories->get($categoryB)->getChildCount());
+        static::assertEquals(1, $categories->get($categoryC)->getChildCount());
+        static::assertEquals(0, $categories->get($categoryD)->getChildCount());
+
+        $this->categoryRepository->update([[
+            'id' => $categoryD,
+            'parentId' => $categoryA,
+        ]], $this->context);
+
+        /*
+        Category A
+        ├── Category B
+        ├── Category C
+        ├── Category D
+        */
+
+        $categories = $this->categoryRepository->read(new ReadCriteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
+
+        static::assertEquals(3, $categories->get($categoryA)->getChildCount());
+        static::assertEquals(0, $categories->get($categoryB)->getChildCount());
+        static::assertEquals(0, $categories->get($categoryC)->getChildCount());
+        static::assertEquals(0, $categories->get($categoryD)->getChildCount());
+    }
+
+    public function testChildCountCategoryMovingMultipleCategories(): void
+    {
+        /*
+        Category A
+        ├── Category B
+        │  └── Category C
+        ├── Category D
+        │  └── Category E
+        */
+        $categoryA = $this->createCategory();
+        $categoryB = $this->createCategory($categoryA);
+        $categoryC = $this->createCategory($categoryB);
+
+        $categoryD = $this->createCategory($categoryA);
+        $categoryE = $this->createCategory($categoryD);
+
+        $categories = $this->categoryRepository->read(
+            new ReadCriteria([$categoryA, $categoryB, $categoryC, $categoryD, $categoryE]),
+            $this->context
+        );
+
+        static::assertEquals(2, $categories->get($categoryA)->getChildCount());
+        static::assertEquals(1, $categories->get($categoryB)->getChildCount());
+        static::assertEquals(0, $categories->get($categoryC)->getChildCount());
+        static::assertEquals(1, $categories->get($categoryD)->getChildCount());
+        static::assertEquals(0, $categories->get($categoryE)->getChildCount());
+
+        $this->categoryRepository->update([
+            [
+                'id' => $categoryC,
+                'parentId' => $categoryA,
+            ],
+            [
+                'id' => $categoryD,
+                'parentId' => $categoryC,
+            ],
+            [
+                'id' => $categoryE,
+                'parentId' => $categoryC,
+            ],
+        ], $this->context);
+
+        /**
+        Category A
+        ├── Category B
+        ├── Category C
+        │  └── Category D
+        │  └── Category E
+         */
+        $categories = $this->categoryRepository->read(
+            new ReadCriteria([$categoryA, $categoryB, $categoryC, $categoryD, $categoryE]),
+            $this->context
+        );
+
+        static::assertEquals(2, $categories->get($categoryA)->getChildCount());
+        static::assertEquals(0, $categories->get($categoryB)->getChildCount());
+        static::assertEquals(2, $categories->get($categoryC)->getChildCount());
+        static::assertEquals(0, $categories->get($categoryD)->getChildCount());
+        static::assertEquals(0, $categories->get($categoryE)->getChildCount());
+    }
+
+    public function testChildCountIndexer(): void
+    {
+        /*
+        Category A
+        ├── Category B
+        ├── Category C
+        │  └── Category D
+        */
+        $categoryA = $this->createCategory();
+
+        $categoryB = $this->createCategory($categoryA);
+        $categoryC = $this->createCategory($categoryA);
+
+        $categoryD = $this->createCategory($categoryC);
+
+        $this->connection->executeQuery(
+            'UPDATE category SET child_count = 0 WHERE HEX(id) IN (:ids)',
+            [
+                'ids' => [
+                    $categoryA,
+                    $categoryB,
+                    $categoryC,
+                    $categoryD,
+                ],
+            ],
+            ['ids' => Connection::PARAM_STR_ARRAY]
+        );
+
+        $categories = $this->categoryRepository->read(new ReadCriteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
+        foreach ($categories as $category) {
+            static::assertEquals(0, $category->getChildCount());
+        }
+
+        $this->childCountIndexer->index(new \DateTime(), $this->context->getTenantId());
+
+        $categories = $this->categoryRepository->read(new ReadCriteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
+
+        static::assertEquals(2, $categories->get($categoryA)->getChildCount());
+        static::assertEquals(0, $categories->get($categoryB)->getChildCount());
+        static::assertEquals(1, $categories->get($categoryC)->getChildCount());
+        static::assertEquals(0, $categories->get($categoryD)->getChildCount());
+    }
+
+    private function createCategory(string $parentId = null): string
+    {
+        $id = Uuid::uuid4()->getHex();
+        $data = [
+            'id' => $id,
+            'catalogId' => Defaults::CATALOG,
+            'name' => 'Category ',
+        ];
+
+        if ($parentId) {
+            $data['parentId'] = $parentId;
+        }
+        $this->categoryRepository->upsert([$data], $this->context);
+
+        return $id;
+    }
+}

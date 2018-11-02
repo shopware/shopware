@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Controller\Widgets;
 
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Product\Storefront\StorefrontProductRepository;
-use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Storefront\Controller\StorefrontController;
 use Shopware\Storefront\Page\Listing\ListingPageLoader;
 use Shopware\Storefront\Page\Listing\ListingPageRequest;

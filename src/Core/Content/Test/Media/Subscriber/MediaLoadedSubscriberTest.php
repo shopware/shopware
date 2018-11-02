@@ -10,8 +10,8 @@ use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Content\Media\Subscriber\MediaLoadedSubscriber;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\ORM\EntityCollection;
-use Shopware\Core\Framework\ORM\Event\EntityLoadedEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class MediaLoadedSubscriberTest extends TestCase

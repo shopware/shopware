@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace src\Core\Content\Test\Media\ORM;
+namespace src\Core\Content\Test\Media\DataAbstractionLayer;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\DataAbstractionLayer\MediaRepository;
 use Shopware\Core\Content\Media\MediaProtectionFlags;
-use Shopware\Core\Content\Media\ORM\MediaRepository;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;

@@ -5,32 +5,32 @@ namespace Shopware\Core\Framework\Plugin;
 class PluginEvents
 {
     /**
-     * @Event("Shopware\Core\Framework\ORM\Event\EntityWrittenEvent")
+     * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent")
      */
     public const PLUGIN_WRITTEN_EVENT = 'plugin.written';
 
     /**
-     * @Event("Shopware\Core\Framework\ORM\Event\EntityDeletedEvent")
+     * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent")
      */
     public const PLUGIN_DELETED_EVENT = 'plugin.deleted';
 
     /**
-     * @Event("Shopware\Core\Framework\ORM\Event\EntityLoadedEvent")
+     * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent")
      */
     public const PLUGIN_LOADED_EVENT = 'plugin.loaded';
 
     /**
-     * @Event("Shopware\Core\Framework\ORM\Event\EntitySearchResultLoadedEvent")
+     * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntitySearchResultLoadedEvent")
      */
     public const PLUGIN_SEARCH_RESULT_LOADED_EVENT = 'plugin.search.result.loaded';
 
     /**
-     * @Event("Shopware\Core\Framework\ORM\Event\EntityAggregationResultLoadedEvent")
+     * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityAggregationResultLoadedEvent")
      */
     public const PLUGIN_AGGREGATION_LOADED_EVENT = 'plugin.aggregation.result.loaded';
 
     /**
-     * @Event("Shopware\Core\Framework\ORM\Event\EntityIdSearchResultLoadedEvent")
+     * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityIdSearchResultLoadedEvent")
      */
     public const PLUGIN_ID_SEARCH_RESULT_LOADED_EVENT = 'plugin.id.search.result.loaded';
 }

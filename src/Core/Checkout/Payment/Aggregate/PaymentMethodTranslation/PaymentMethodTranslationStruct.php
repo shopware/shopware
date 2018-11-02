@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation;
 
 use Shopware\Core\Checkout\Payment\PaymentMethodStruct;
-use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\System\Language\LanguageStruct;
 
 class PaymentMethodTranslationStruct extends Entity

@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\System\Integration;
 
-use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class IntegrationCollection extends EntityCollection
 {

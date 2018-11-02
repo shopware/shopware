@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Version;
 
-use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitCollection;
 
 class VersionStruct extends Entity

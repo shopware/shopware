@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Search;
 
-use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class SearchDocumentCollection extends EntityCollection
 {

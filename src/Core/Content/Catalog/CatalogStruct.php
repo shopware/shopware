@@ -12,7 +12,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\Produ
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Content\Product\ProductCollection;
-use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 class CatalogStruct extends Entity

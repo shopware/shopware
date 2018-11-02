@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductMedia;
 use Shopware\Core\Content\Catalog\CatalogStruct;
 use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Content\Product\ProductStruct;
-use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 
 class ProductMediaStruct extends Entity
 {

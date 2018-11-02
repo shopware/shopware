@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Catalog\Aggregate\CatalogTranslation;
 
 use Shopware\Core\Content\Catalog\CatalogStruct;
-use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\System\Language\LanguageStruct;
 
 class CatalogTranslationStruct extends Entity

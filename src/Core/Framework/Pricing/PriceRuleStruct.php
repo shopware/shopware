@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Pricing;
 
-use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 
 class PriceRuleStruct extends Entity
 {

@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Test\Api\ApiDefinition\Generator;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
-use Shopware\Core\Framework\ORM\DefinitionRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
 use Shopware\Core\Framework\Test\Api\ApiDefinition\EntityDefinition\SimpleDefinition;
 
 class OpenApi3GeneratorTest extends TestCase

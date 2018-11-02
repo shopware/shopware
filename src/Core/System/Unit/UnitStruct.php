@@ -3,7 +3,7 @@
 namespace Shopware\Core\System\Unit;
 
 use Shopware\Core\Content\Product\ProductCollection;
-use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationCollection;
 
 class UnitStruct extends Entity

@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation;
 
-use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\System\Language\LanguageStruct;
 use Shopware\Core\System\Listing\ListingSortingStruct;
 

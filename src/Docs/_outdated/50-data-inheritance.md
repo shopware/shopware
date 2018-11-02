@@ -1,9 +1,9 @@
 # Data inheritance
 
 ## InheritanceAware
-The Shopware\Core ORM allows to define a data inheritance inside a single entity.
+The Shopware\Core DataAbstractionLayer allows to define a data inheritance inside a single entity.
 It requires the following configurations:
-* `Shopware\Core\Framework\ORM\EntityDefinition::getParentPropertyName` returns the property name of the parent association
+* `Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition::getParentPropertyName` returns the property name of the parent association
 ```
 public static function getParentPropertyName(): string
 {
@@ -18,8 +18,8 @@ new ManyToOneAssociationField('parent', 'parent_id', self::class, false))->setFl
 new OneToManyAssociationField('children', self::class, 'parent_id', false, 'id'))->setFlags(new CascadeDelete(),
 ```
 
-If all requirements are fulfilled, each field (even associations) can be flagged with `Shopware\Core\Framework\ORM\Write\Flag\Inherited`.
-In case that a field with this flag is not filled (IS NULL or Association are empty), the ORM uses the parent row to solve the field value.
+If all requirements are fulfilled, each field (even associations) can be flagged with `Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Inherited`.
+In case that a field with this flag is not filled (IS NULL or Association are empty), the DataAbstractionLayer uses the parent row to solve the field value.
 
 The following examples shows a simple usage of such an inheritance:
 ```
@@ -95,7 +95,7 @@ object(Human)#2 (2) {
 }
 ``` 
 
-The ORM also allows to query this information in search requests:
+The DataAbstractionLayer also allows to query this information in search requests:
 ```
 /** @var RepositoryInterface $repo */
 $repo = $this->get(HumanRepository::class);
@@ -109,7 +109,7 @@ var_dump($result->getTotal());  //dumps "2"
 ```
 
 ## Association Inheritance
-The ORM also allows to configure inherited associations.
+The DataAbstractionLayer also allows to configure inherited associations.
 
 ```
 <?php
@@ -130,8 +130,8 @@ class HumanDefinition extends EntityDefinition
 }
 ```
 
-The above `pets` associations defines that each human can have many pets. The inherited flag defines, if a `child` human do not have own defined pets, the ORM will read the `pets` of the `parent`.
-To support such associations the sql database table requires a field named `pets`. This field is used for the ORM and can't be written by API or other tools. 
+The above `pets` associations defines that each human can have many pets. The inherited flag defines, if a `child` human do not have own defined pets, the DataAbstractionLayer will read the `pets` of the `parent`.
+To support such associations the sql database table requires a field named `pets`. This field is used for the DataAbstractionLayer and can't be written by API or other tools. 
 
 ```
 CREATE TABLE `human` (

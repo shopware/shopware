@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Pricing;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class PriceRuleCollection extends EntityCollection
 {

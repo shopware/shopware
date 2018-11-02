@@ -9,8 +9,8 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Order\Exception\CustomerHasNoActiveBillingAddressException;
 use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
-use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 
 class OrderPersister implements OrderPersisterInterface
 {

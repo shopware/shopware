@@ -6,7 +6,7 @@ use Shopware\Core\Content\Catalog\CatalogStruct;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationCollection;
 use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Content\Product\ProductCollection;
-use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 
 class CategoryStruct extends Entity
 {

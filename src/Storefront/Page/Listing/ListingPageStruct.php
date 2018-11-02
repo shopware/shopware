@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\Page\Listing;
 
-use Shopware\Core\Framework\ORM\Search\Criteria;
-use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Listing\ListingSortingCollection;
 use Shopware\Storefront\Page\Listing\AggregationView\AggregationViewCollection;

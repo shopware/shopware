@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState;
 
-use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class OrderTransactionStateCollection extends EntityCollection
 {

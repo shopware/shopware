@@ -40,7 +40,7 @@ use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Plugin\Payment\PaymentStatus;
 use Plugin\Payment\Resource\PaymentResource;
 use Plugin\Payment\Struct\Payment\RelatedResources\RelatedResource;

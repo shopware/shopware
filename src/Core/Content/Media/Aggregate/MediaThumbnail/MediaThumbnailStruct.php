@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Media\Aggregate\MediaThumbnail;
 
 use Shopware\Core\Content\Media\MediaStruct;
-use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 
 class MediaThumbnailStruct extends Entity
 {

@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TenantIdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
@@ -345,6 +346,14 @@ class DefinitionValidator
                 $association->getReferenceClass(),
                 $association->getPropertyName(),
                 $reverseSide->getPropertyName()
+            );
+        }
+
+        if ($association->getFlag(CascadeDelete::class)) {
+            $associationViolations[$definition][] = sprintf(
+                'Remove cascade delete in definition %s association: %s. Many to one association should not have a cascade delete',
+                $definition,
+                $association->getPropertyName()
             );
         }
 

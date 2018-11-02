@@ -25,7 +25,7 @@ class OrderRepositoryTest extends TestCase
     /**
      * @var RepositoryInterface
      */
-    private $repository;
+    private $orderRepository;
 
     /**
      * @var OrderPersister
@@ -49,7 +49,7 @@ class OrderRepositoryTest extends TestCase
 
     public function setUp()
     {
-        $this->repository = $this->getContainer()->get('order.repository');
+        $this->orderRepository = $this->getContainer()->get('order.repository');
         $this->orderPersister = $this->getContainer()->get(OrderPersister::class);
         $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->processor = $this->getContainer()->get(Processor::class);
@@ -89,7 +89,7 @@ class OrderRepositoryTest extends TestCase
         $count = $this->getContainer()->get(Connection::class)->fetchAll('SELECT * FROM `order` WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
         static::assertCount(1, $count);
 
-        $this->repository->delete([
+        $this->orderRepository->delete([
             ['id' => $id],
         ], Context::createDefaultContext(Defaults::TENANT_ID));
 

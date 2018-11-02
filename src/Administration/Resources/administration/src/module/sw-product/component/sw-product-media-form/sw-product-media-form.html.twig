@@ -1,14 +1,20 @@
 {% block sw_product_media_form %}
     <div class="sw-product-media-form">
-        {% block sw_product_media_form_file_input %}
-            <input class="sw-product-media-form__file-input" type="file" id="files" ref="fileInput" accept="image/*" multiple @change="handleFileUploads"/>
-        {% endblock %}
 
         {% block sw_product_media_form_upload_button %}
             <div class="sw-product-media-form__dropzone">
-                <sw-button class="sw-product-media-form__upload-button" @click="addFiles" variant="primary">
-                    {{ $tc('sw-product.mediaForm.buttonUpload') }}
-                </sw-button>
+                <span class="sw-product-media-form__upload-caption">
+                    <sw-icon color="#9AA8B5" name="default-action-cloud-upload" medium></sw-icon>
+                    {{ $tc('sw-product.mediaForm.uploadCaption') }}
+                </span>
+                <sw-media-upload-button
+                        class="sw-product-media-form__logo-upload"
+                        :catalogId="this.product.catalogId"
+                        :uploadTag="product.id"
+                        :autoUpload="false"
+                        @media-upload-success="refreshProductMedia"
+                        @new-upload="handleNewUpload">
+                </sw-media-upload-button>
             </div>
         {% endblock %}
 
@@ -27,7 +33,6 @@
                                 :url="getPreviewForMedia(mediaItem.media)"
                                 :downloadable="true"></sw-image>
                     </template>
-
                 {% endblock %}
             </div>
         {% endblock %}

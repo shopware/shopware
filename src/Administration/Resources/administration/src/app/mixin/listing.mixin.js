@@ -119,7 +119,7 @@ Mixin.register('listing', {
                 return null;
             }
 
-            return CriteriaFactory.nested(operator, ...terms);
+            return CriteriaFactory.multi(operator, ...terms);
         },
 
         onPageChange(opts) {

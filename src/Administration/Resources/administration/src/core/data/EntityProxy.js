@@ -299,7 +299,7 @@ export default class EntityProxy {
 
             const limit = 50;
             const pages = Math.ceil(associationIds.length / limit);
-            const criteria = CriteriaFactory.terms('id', associationIds);
+            const criteria = CriteriaFactory.equalsAny('id', associationIds);
 
             for (let i = 1; i <= pages; i += 1) {
                 association.getList({ page: i, limit, criteria }, false);

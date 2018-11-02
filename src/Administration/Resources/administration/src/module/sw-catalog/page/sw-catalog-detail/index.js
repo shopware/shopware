@@ -63,13 +63,13 @@ Component.register('sw-catalog-detail', {
                 limit: 500
             };
 
-            criteria.push(CriteriaFactory.term('catalogId', this.catalogId));
+            criteria.push(CriteriaFactory.equals('catalogId', this.catalogId));
 
             if (parentId !== false) {
-                criteria.push(CriteriaFactory.term('parentId', parentId));
+                criteria.push(CriteriaFactory.equals('parentId', parentId));
             }
 
-            params.criteria = CriteriaFactory.nested('AND', ...criteria);
+            params.criteria = CriteriaFactory.multi('AND', ...criteria);
 
             if (searchTerm !== null) {
                 params.term = searchTerm;
@@ -106,7 +106,7 @@ Component.register('sw-catalog-detail', {
                         count: { field: 'catalog.media.id' }
                     }
                 },
-                criteria: CriteriaFactory.term('id', this.catalogId)
+                criteria: CriteriaFactory.equals('id', this.catalogId)
             };
 
             return this.catalogService.getList(aggregateParams).then((response) => {

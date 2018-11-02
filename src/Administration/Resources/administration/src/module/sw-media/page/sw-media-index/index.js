@@ -110,7 +110,7 @@ Component.register('sw-media-index', {
             const params = {
                 limit: 1,
                 page: 1,
-                criteria: CriteriaFactory.term('id', this.searchId),
+                criteria: CriteriaFactory.equals('id', this.searchId),
                 sortBy: 'createdAt',
                 sortDirection: 'desc'
             };

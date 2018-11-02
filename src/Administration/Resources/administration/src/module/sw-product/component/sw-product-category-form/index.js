@@ -39,7 +39,7 @@ Component.register('sw-product-category-form', {
                 return null;
             }
 
-            return CriteriaFactory.term('catalogId', this.product.catalogId);
+            return CriteriaFactory.equals('catalogId', this.product.catalogId);
         },
 
         hasCriteria() {

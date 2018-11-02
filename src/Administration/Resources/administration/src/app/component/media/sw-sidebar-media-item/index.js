@@ -107,7 +107,7 @@ Component.register('sw-sidebar-media-item', {
 
         extendList() {
             const params = this.getListingParams();
-            params.criteria = CriteriaFactory.term('catalogId', this.catalog.id);
+            params.criteria = CriteriaFactory.equals('catalogId', this.catalog.id);
 
             return this.mediaStore.getList(params).then((response) => {
                 this.mediaItems = this.mediaItems.concat(response.items);
@@ -128,7 +128,7 @@ Component.register('sw-sidebar-media-item', {
             }
 
             const params = this.getListingParams();
-            params.criteria = CriteriaFactory.term('catalogId', this.catalog.id);
+            params.criteria = CriteriaFactory.equals('catalogId', this.catalog.id);
 
             return this.mediaStore.getList(params).then((response) => {
                 this.mediaItems = response.items;

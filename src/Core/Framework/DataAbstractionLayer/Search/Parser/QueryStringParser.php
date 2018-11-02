@@ -23,16 +23,18 @@ class QueryStringParser
 
         switch ($query['type']) {
             case 'term':
+            case 'equals':
                 if (empty($query['field'])) {
-                    throw new InvalidFilterQueryException('Parameter "field" for term filter is missing.', $path . '/field');
+                    throw new InvalidFilterQueryException('Parameter "field" for equals filter is missing.', $path . '/field');
                 }
 
                 if (!array_key_exists('value', $query) || $query['value'] === '') {
-                    throw new InvalidFilterQueryException('Parameter "value" for term filter is missing.', $path . '/value');
+                    throw new InvalidFilterQueryException('Parameter "value" for equals filter is missing.', $path . '/value');
                 }
 
                 return new EqualsFilter(self::buildFieldName($definition, $query['field']), $query['value']);
             case 'nested':
+            case 'multi':
                 $queries = [];
                 $operator = MultiFilter::CONNECTION_AND;
 
@@ -51,12 +53,13 @@ class QueryStringParser
 
                 return new MultiFilter($operator, $queries);
             case 'match':
+            case 'contains':
                 if (empty($query['field'])) {
-                    throw new InvalidFilterQueryException('Parameter "field" for match filter is missing.', $path . '/field');
+                    throw new InvalidFilterQueryException('Parameter "field" for contains filter is missing.', $path . '/field');
                 }
 
                 if (!isset($query['value']) || $query['value'] === '') {
-                    throw new InvalidFilterQueryException('Parameter "value" for match filter is missing.', $path . '/value');
+                    throw new InvalidFilterQueryException('Parameter "value" for contains filter is missing.', $path . '/value');
                 }
 
                 return new ContainsFilter(self::buildFieldName($definition, $query['field']), $query['value']);
@@ -70,12 +73,13 @@ class QueryStringParser
             case 'range':
                 return new RangeFilter(self::buildFieldName($definition, $query['field']), $query['parameters']);
             case 'terms':
+            case 'equalsAny':
                 if (empty($query['field'])) {
-                    throw new InvalidFilterQueryException('Parameter "field" for terms filter is missing.', $path . '/field');
+                    throw new InvalidFilterQueryException('Parameter "field" for equalsAny filter is missing.', $path . '/field');
                 }
 
                 if (empty($query['value'])) {
-                    throw new InvalidFilterQueryException('Parameter "value" for terms filter is missing.', $path . '/value');
+                    throw new InvalidFilterQueryException('Parameter "value" for equalsAny filter is missing.', $path . '/value');
                 }
 
                 $values = $query['value'];
@@ -88,13 +92,13 @@ class QueryStringParser
                 }
 
                 if (empty($values)) {
-                    throw new InvalidFilterQueryException('Parameter "value" for terms filter does not contain any value.', $path . '/value');
+                    throw new InvalidFilterQueryException('Parameter "value" for equalsAny filter does not contain any value.', $path . '/value');
                 }
 
                 return new EqualsAnyFilter(self::buildFieldName($definition, $query['field']), $values);
         }
 
-        throw new InvalidFilterQueryException(sprintf('Unsupported query type: %s', $query['type']), $path . '/type');
+        throw new InvalidFilterQueryException(sprintf('Unsupported filter type: %s', $query['type']), $path . '/type');
     }
 
     private static function toArray(Filter $query): array
@@ -102,13 +106,13 @@ class QueryStringParser
         switch (true) {
             case $query instanceof EqualsFilter:
                 return [
-                    'type' => 'term',
+                    'type' => 'equals',
                     'field' => $query->getField(),
                     'value' => $query->getValue(),
                 ];
             case $query instanceof MultiFilter:
                 return [
-                    'type' => 'nested',
+                    'type' => 'multi',
                     'queries' => array_map(function (Filter $nested) {
                         return self::toArray($nested);
                     }, $query->getQueries()),
@@ -116,7 +120,7 @@ class QueryStringParser
                 ];
             case $query instanceof ContainsFilter:
                 return [
-                    'type' => 'match',
+                    'type' => 'contains',
                     'field' => $query->getField(),
                     'value' => $query->getValue(),
                 ];
@@ -136,12 +140,12 @@ class QueryStringParser
                 ];
             case $query instanceof EqualsAnyFilter:
                 return [
-                    'type' => 'term',
+                    'type' => 'equalsAny',
                     'field' => $query->getField(),
                     'value' => implode('|', $query->getValue()),
                 ];
             default:
-                throw new \RuntimeException(sprintf('Unsupported query type %s', \get_class($query)));
+                throw new \RuntimeException(sprintf('Unsupported filter type %s', \get_class($query)));
         }
     }
 

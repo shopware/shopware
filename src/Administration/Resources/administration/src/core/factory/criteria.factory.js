@@ -4,10 +4,10 @@
  *
  * @module core/factory/criteria
  * @example
- * CriteriaFactory.nested(
+ * CriteriaFactory.multi(
  *     'AND',
- *     CriteriaFactory.term('product.name', 'example'),
- *     CriteriaFactory.terms('product.name', ['shopware', 'shopware AG']),
+ *     CriteriaFactory.equals('product.name', 'example'),
+ *     CriteriaFactory.equalsAny('product.name', ['shopware', 'shopware AG']),
  *     CriteriaFactory.range('product.age', {
  *         '>': 10,
  *         '>=': 9,
@@ -16,24 +16,24 @@
  *     ),
  *     CriteriaFactory.not(
  *         'OR'
- *         CriteriaFactory.term('product.name', 'another example'),
- *         CriteriaFactory.terms('product.name', ['example manufacturer', 'another manufacturer'])
+ *         CriteriaFactory.equals('product.name', 'another example'),
+ *         CriteriaFactory.equalsAny('product.name', ['example manufacturer', 'another manufacturer'])
  *     ),
- *     CriteriaFactory.nested(
+ *     CriteriaFactory.multi(
  *         'AND',
- *         CriteriaFactory.nested(
+ *         CriteriaFactory.multi(
  *             'AND',
  *             CriteriaFactory.range('product.age', {
  *                 '>': 10
  *             }),
- *             CriteriaFactory.term('product.manufacturer', 'yet another manufacturer')
+ *             CriteriaFactory.equals('product.manufacturer', 'yet another manufacturer')
  *         ),
- *         CriteriaFactory.nested(
+ *         CriteriaFactory.multi(
  *             'AND',
  *             CriteriaFactory.range('product.age', {
  *                 '<': 50
  *             }),
- *             CriteriaFactory.term('product.manufacturer', 'example manufacturer')
+ *             CriteriaFactory.equals('product.manufacturer', 'example manufacturer')
  *         )
  *     )
  * )
@@ -42,16 +42,16 @@
 import types from 'src/core/service/utils/types.utils';
 
 export default {
-    term: createTerm,
-    nested: createNested,
-    match: createMatch,
+    equals: createEquals,
+    multi: createMultiFilter,
+    contains: createContains,
     range: createRange,
     not: createNot,
-    terms: createTerms
+    equalsAny: createEqualsAny
 };
 
 /**
- * Aliases for nested and not operator.
+ * Aliases for multi and not operator.
  * @type {Object<Array>}
  */
 const operatorAliases = {
@@ -75,19 +75,19 @@ const rangeOperatorAliases = {
  * terms query instead of a term query.
  *
  * @example
- * CriteriaFactory.term('product.name', 'example');
+ * CriteriaFactory.equals('product.name', 'example');
  *
  * @param {String} field
  * @param {String|Array} value
  * @returns {{getQueryString, getQuery}}
  */
-function createTerm(field, value) {
+function createEquals(field, value) {
     if (types.isArray(value)) {
-        return createTerms(field, value);
+        return createEqualsAny(field, value);
     }
 
     const query = {
-        type: 'term',
+        type: 'equals',
         field,
         value
     };
@@ -95,22 +95,22 @@ function createTerm(field, value) {
 }
 
 /**
- * Creates a nested query. A nested query can either be used with an `AND` operator or `OR` operator.
+ * Creates a multi query. A multi query can either be used with an `AND` operator or `OR` operator.
  *
  * @example
- * CriteriaFactory.nested(
+ * CriteriaFactory.multi(
  *    'AND',
- *    CriteriaFactory.term('product.name', 'Example'),
- *    CriteriaFactory.term('product.manufacturer', 'shopware')
+ *    CriteriaFactory.equals('product.name', 'Example'),
+ *    CriteriaFactory.equals('product.manufacturer', 'shopware')
  * );
  *
  * @param {String} operator
  * @param {...Object} queries
  * @returns {{getQueryString, getQuery}}
  */
-function createNested(operator, ...queries) {
+function createMultiFilter(operator, ...queries) {
     const query = {
-        type: 'nested',
+        type: 'multi',
         operator: getOperator(operator),
         queries: mapQueries(queries)
     };
@@ -121,15 +121,15 @@ function createNested(operator, ...queries) {
  * Creates a match query.
  *
  * @example
- * CriteriaFactory.match('product.name', 'example');
+ * CriteriaFactory.contains('product.name', 'example');
  *
  * @param {String} field
  * @param {String} value
  * @returns {{getQueryString, getQuery}}
  */
-function createMatch(field, value) {
+function createContains(field, value) {
     const query = {
-        type: 'match',
+        type: 'contains',
         field,
         value
     };
@@ -142,8 +142,8 @@ function createMatch(field, value) {
  * @example
  * CriteriaFactory.not(
  *    'AND',
- *    CriteriaFactory.term('product.name', 'Example'),
- *    CriteriaFactory.term('product.manufacturer', 'shopware')
+ *    CriteriaFactory.equals('product.name', 'Example'),
+ *    CriteriaFactory.equals('product.manufacturer', 'shopware')
  * );
  *
  * @param {String} operator
@@ -188,15 +188,15 @@ function createRange(field, parameters) {
  * one field.
  *
  * @example
- * CriteriaFactory.terms('product.name', ['example', 'product']);
+ * CriteriaFactory.equalsAny('product.name', ['example', 'product']);
  *
  * @param {String} field
  * @param {Array} values
  * @returns {{getQueryString, getQuery}}
  */
-function createTerms(field, values) {
+function createEqualsAny(field, values) {
     const query = {
-        type: 'terms',
+        type: 'equalsAny',
         field,
         value: values.join('|')
     };

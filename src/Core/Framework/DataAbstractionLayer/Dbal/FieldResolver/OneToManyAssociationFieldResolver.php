@@ -43,7 +43,13 @@ class OneToManyAssociationFieldResolver implements FieldResolverInterface
         $versionJoin = '';
         /** @var string|EntityDefinition $definition */
         if ($definition::isVersionAware() && $field->is(CascadeDelete::class)) {
-            $versionJoin = ' AND #root#.version_id = #alias#.version_id';
+            $fkVersionId = $definition::getEntityName() . '_version_id';
+
+            if ($reference::getFields()->getByStorageName($fkVersionId) === null) {
+                $fkVersionId = 'version_id';
+            }
+
+            $versionJoin = ' AND #root#.version_id = #alias#.' . $fkVersionId;
         }
 
         $catalogJoinCondition = '';

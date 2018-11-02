@@ -25,7 +25,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
@@ -287,7 +287,7 @@ class ApiController extends Controller
 
             /* @var ManyToManyAssociationField $reverse */
             $criteria->addFilter(
-                new TermQuery(
+                new EqualsFilter(
                     sprintf('%s.%s.id', $definition::getEntityName(), $reverse->getPropertyName()),
                     $parent['value']
                 )
@@ -305,7 +305,7 @@ class ApiController extends Controller
             );
 
             $criteria->addFilter(
-                new TermQuery(
+                new EqualsFilter(
                 //add filter to parent value: prices.productId = SW1
                     $definition::getEntityName() . '.' . $foreignKey->getPropertyName(),
                     $parent['value']
@@ -328,7 +328,7 @@ class ApiController extends Controller
 
             /* @var OneToManyAssociationField $reverse */
             $criteria->addFilter(
-                new TermQuery(
+                new EqualsFilter(
                 //filter inverse association to parent value:  manufacturer.products.id = SW1
                     sprintf('%s.%s.id', $definition::getEntityName(), $reverse->getPropertyName()),
                     $parent['value']

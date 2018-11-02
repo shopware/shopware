@@ -12,7 +12,7 @@ use Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeCollection;
 use Shopware\Core\Checkout\DiscountSurcharge\Exception\UnsupportedModifierTypeException;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermsQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Struct\StructCollection;
 
 class DiscountSurchargeCollector implements CollectorInterface
@@ -76,7 +76,7 @@ class DiscountSurchargeCollector implements CollectorInterface
         }
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermsQuery('discount_surcharge.ruleId', $ids));
+        $criteria->addFilter(new EqualsAnyFilter('discount_surcharge.ruleId', $ids));
         $discountSurcharges = $this->repository->search($criteria, $context->getContext());
 
         $data->add($discountSurcharges, self::DATA_KEY);

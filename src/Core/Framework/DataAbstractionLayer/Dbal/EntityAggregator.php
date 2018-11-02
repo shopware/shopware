@@ -32,8 +32,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueCountAg
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregatorResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NestedQuery;
 use Shopware\Core\Framework\Struct\Uuid;
 
 /**
@@ -115,7 +115,7 @@ class EntityAggregator implements EntityAggregatorInterface
             $this->queryHelper->resolveField($parent, $definition, $table, $query, $context);
         }
 
-        $filterQuery = new NestedQuery($criteria->getFilters());
+        $filterQuery = new MultiFilter(MultiFilter::CONNECTION_AND, $criteria->getFilters());
         $parsed = $this->queryParser->parse($filterQuery, $definition, $context);
         if (!empty($parsed->getWheres())) {
             $query->andWhere(implode(' AND ', $parsed->getWheres()));

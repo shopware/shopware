@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Query;
+namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Filter;
 
-class TermsQuery extends Query
+class ContainsFilter extends Filter
 {
     /**
      * @var string
@@ -10,11 +10,11 @@ class TermsQuery extends Query
     protected $field;
 
     /**
-     * @var string[]|float[]|int[]
+     * @var string|float|int|null
      */
-    protected $value = [];
+    protected $value;
 
-    public function __construct(string $field, array $value = [])
+    public function __construct(string $field, $value)
     {
         $this->field = $field;
         $this->value = $value;

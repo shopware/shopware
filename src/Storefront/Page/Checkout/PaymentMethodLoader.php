@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Symfony\Component\HttpFoundation\Request;
 
 class PaymentMethodLoader
@@ -38,7 +38,7 @@ class PaymentMethodLoader
         $criteria = new Criteria();
         $criteria->setOffset(($page - 1) * $limit);
         $criteria->setLimit($limit);
-        $criteria->addFilter(new TermQuery('payment_method.active', 1));
+        $criteria->addFilter(new EqualsFilter('payment_method.active', 1));
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
 
         return $criteria;

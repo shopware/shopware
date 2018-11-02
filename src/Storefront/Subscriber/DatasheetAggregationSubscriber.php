@@ -7,7 +7,7 @@ use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Confi
 use Shopware\Core\Content\Configuration\ConfigurationGroupStruct;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\EntityAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\EntityAggregationResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermsQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Storefront\Event\ListingEvents;
 use Shopware\Storefront\Event\ListingPageLoadedEvent;
@@ -74,7 +74,7 @@ class DatasheetAggregationSubscriber implements EventSubscriberInterface
 
         $ids = $request->getDatasheetIds();
 
-        $query = new TermsQuery(self::DATASHEET_FILTER_FIELD, $ids);
+        $query = new EqualsAnyFilter(self::DATASHEET_FILTER_FIELD, $ids);
 
         //add query as extension to transport active aggregation view elements
         $criteria = $event->getCriteria();

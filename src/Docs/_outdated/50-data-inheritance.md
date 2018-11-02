@@ -101,7 +101,7 @@ The DataAbstractionLayer also allows to query this information in search request
 $repo = $this->get(HumanRepository::class);
 
 $criteria = new Criteria();
-$criteria->addFilter(new TermQuery('human.lastName', 'Family name'))8878;
+$criteria->addFilter(new EqualsFilter('human.lastName', 'Family name'))8878;
 
 $result = $repo->search($criteria, ShopContext::createDefaultContext());
 

@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Subscriber;
 
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\Listing\ListingSortingStruct;
 use Shopware\Storefront\Event\ListingEvents;
 use Shopware\Storefront\Event\ListingPageLoadedEvent;
@@ -53,7 +53,7 @@ class SortingSubscriber implements EventSubscriberInterface
         $request = $event->getRequest();
 
         $search = new Criteria();
-        $search->addFilter(new TermQuery('listing_sorting.uniqueKey', $request->getSortingKey()));
+        $search->addFilter(new EqualsFilter('listing_sorting.uniqueKey', $request->getSortingKey()));
         $sortings = $this->repository->search($search, $event->getContext());
 
         if ($sortings->count() <= 0) {

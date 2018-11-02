@@ -4,9 +4,9 @@ namespace Shopware\Storefront\Subscriber;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\StatsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\StatsAggregationResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NestedQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\Query;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\RangeQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Storefront\Event\ListingEvents;
 use Shopware\Storefront\Event\ListingPageLoadedEvent;
 use Shopware\Storefront\Event\ListingPageRequestEvent;
@@ -63,16 +63,16 @@ class PriceAggregationSubscriber implements EventSubscriberInterface
 
         $range = [];
         if ($request->getMinPrice() !== null) {
-            $range[RangeQuery::GTE] = $request->getMinPrice();
+            $range[RangeFilter::GTE] = $request->getMinPrice();
         }
         if ($request->getMaxPrice() !== null) {
-            $range[RangeQuery::LTE] = $request->getMaxPrice();
+            $range[RangeFilter::LTE] = $request->getMaxPrice();
         }
 
         if (empty($range)) {
             return;
         }
-        $query = new RangeQuery(self::PRICE_FIELD, $range);
+        $query = new RangeFilter(self::PRICE_FIELD, $range);
 
         $event->getCriteria()->addPostFilter($query);
     }
@@ -103,8 +103,8 @@ class PriceAggregationSubscriber implements EventSubscriberInterface
         $min = 0;
         $max = 0;
         if ($filter) {
-            $min = (float) $filter->getParameter(RangeQuery::GTE);
-            $max = (float) $filter->getParameter(RangeQuery::LTE);
+            $min = (float) $filter->getParameter(RangeFilter::GTE);
+            $max = (float) $filter->getParameter(RangeFilter::LTE);
         }
 
         if ($aggregation->getMin() === $aggregation->getMax()) {
@@ -126,14 +126,14 @@ class PriceAggregationSubscriber implements EventSubscriberInterface
         );
     }
 
-    private function getFilter(Query ...$nested): ?RangeQuery
+    private function getFilter(Filter ...$nested): ?RangeFilter
     {
         foreach ($nested as $query) {
-            if ($query instanceof RangeQuery && $query->getField() === self::PRICE_FIELD) {
+            if ($query instanceof RangeFilter && $query->getField() === self::PRICE_FIELD) {
                 return $query;
             }
 
-            if (!$query instanceof NestedQuery) {
+            if (!$query instanceof MultiFilter) {
                 continue;
             }
 

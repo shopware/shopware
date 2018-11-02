@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Api\Response\Type\Storefront\JsonType;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -294,7 +294,7 @@ class StorefrontCustomerController extends Controller
         --$page;
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('order.orderCustomer.customerId', $context->getCustomer()->getId()));
+        $criteria->addFilter(new EqualsFilter('order.orderCustomer.customerId', $context->getCustomer()->getId()));
         $criteria->addSorting(new FieldSorting('order.date', FieldSorting::DESCENDING));
         $criteria->setLimit($limit);
         $criteria->setOffset($page * $limit);

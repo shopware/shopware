@@ -6,10 +6,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\MatchQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermsQuery;
 
 class QueryStringParserTest extends TestCase
 {
@@ -26,27 +26,27 @@ class QueryStringParserTest extends TestCase
     }
 
     /**
-     * @dataProvider termQueryDataProvider
+     * @dataProvider equalsFilterDataProvider
      *
      * @param array $filter
      * @param bool  $expectException
      */
-    public function testTermQuery(array $filter, bool $expectException): void
+    public function testEqualsFilter(array $filter, bool $expectException): void
     {
         if ($expectException) {
             $this->expectException(InvalidFilterQueryException::class);
         }
 
-        /** @var TermQuery $result */
+        /** @var EqualsFilter $result */
         $result = QueryStringParser::fromArray(ProductDefinition::class, $filter, new SearchRequestException());
 
-        static::assertInstanceOf(TermQuery::class, $result);
+        static::assertInstanceOf(EqualsFilter::class, $result);
 
         static::assertEquals($result->getField(), 'product.' . $filter['field']);
         static::assertEquals($result->getValue(), $filter['value']);
     }
 
-    public function termQueryDataProvider(): array
+    public function equalsFilterDataProvider(): array
     {
         return [
             [['type' => 'term', 'field' => 'foo', 'value' => 'bar'], false],
@@ -62,27 +62,27 @@ class QueryStringParserTest extends TestCase
     }
 
     /**
-     * @dataProvider matchQueryDataProvider
+     * @dataProvider containsFilterDataProvider
      *
      * @param array $filter
      * @param bool  $expectException
      */
-    public function testMatchQuery(array $filter, bool $expectException): void
+    public function testContainsFilter(array $filter, bool $expectException): void
     {
         if ($expectException) {
             $this->expectException(InvalidFilterQueryException::class);
         }
 
-        /** @var TermQuery $result */
+        /** @var EqualsFilter $result */
         $result = QueryStringParser::fromArray(ProductDefinition::class, $filter, new SearchRequestException());
 
-        static::assertInstanceOf(MatchQuery::class, $result);
+        static::assertInstanceOf(ContainsFilter::class, $result);
 
         static::assertEquals($result->getField(), 'product.' . $filter['field']);
         static::assertEquals($result->getValue(), $filter['value']);
     }
 
-    public function matchQueryDataProvider(): array
+    public function containsFilterDataProvider(): array
     {
         return [
             [['type' => 'match', 'field' => 'foo', 'value' => 'bar'], false],
@@ -98,21 +98,21 @@ class QueryStringParserTest extends TestCase
     }
 
     /**
-     * @dataProvider termsQueryDataProvider
+     * @dataProvider equalsAnyFilterDataProvider
      *
      * @param array $filter
      * @param bool  $expectException
      */
-    public function testTermsQuery(array $filter, bool $expectException): void
+    public function testEqualsAnyFilter(array $filter, bool $expectException): void
     {
         if ($expectException) {
             $this->expectException(InvalidFilterQueryException::class);
         }
 
-        /** @var TermsQuery $result */
+        /** @var EqualsAnyFilter $result */
         $result = QueryStringParser::fromArray(ProductDefinition::class, $filter, new SearchRequestException());
 
-        static::assertInstanceOf(TermsQuery::class, $result);
+        static::assertInstanceOf(EqualsAnyFilter::class, $result);
 
         $expectedValue = $filter['value'];
         if (\is_string($expectedValue)) {
@@ -127,7 +127,7 @@ class QueryStringParserTest extends TestCase
         static::assertEquals($result->getValue(), $expectedValue);
     }
 
-    public function termsQueryDataProvider(): array
+    public function equalsAnyFilterDataProvider(): array
     {
         return [
             [['type' => 'terms', 'field' => 'foo', 'value' => 'bar'], false],

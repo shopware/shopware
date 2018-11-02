@@ -9,14 +9,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\MatchQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NestedQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NotQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\Query;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\RangeQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermsQuery;
 use Shopware\Core\Framework\Struct\Uuid;
 
 class SqlQueryParser
@@ -67,7 +67,7 @@ class SqlQueryParser
         return $result;
     }
 
-    public function parse(Query $query, string $definition, Context $context, string $root = null): ParseResult
+    public function parse(Filter $query, string $definition, Context $context, string $root = null): ParseResult
     {
         if ($root === null) {
             /** @var EntityDefinition $definition */
@@ -75,24 +75,24 @@ class SqlQueryParser
         }
 
         switch (true) {
-            case $query instanceof NotQuery:
-                return $this->parseNotQuery($query, $definition, $root, $context);
-            case $query instanceof NestedQuery:
-                return $this->parseNestedQuery($query, $definition, $root, $context);
-            case $query instanceof TermQuery:
-                return $this->parseTermQuery($query, $definition, $root, $context);
-            case $query instanceof TermsQuery:
-                return $this->parseTermsQuery($query, $definition, $root, $context);
-            case $query instanceof MatchQuery:
-                return $this->parseMatchQuery($query, $definition, $root, $context);
-            case $query instanceof RangeQuery:
-                return $this->parseRangeQuery($query, $definition, $root, $context);
+            case $query instanceof NotFilter:
+                return $this->parseNotFilter($query, $definition, $root, $context);
+            case $query instanceof MultiFilter:
+                return $this->parseMultiFilter($query, $definition, $root, $context);
+            case $query instanceof EqualsFilter:
+                return $this->parseEqualsFilter($query, $definition, $root, $context);
+            case $query instanceof EqualsAnyFilter:
+                return $this->parseEqualsAnyFilter($query, $definition, $root, $context);
+            case $query instanceof ContainsFilter:
+                return $this->parseContainsFilter($query, $definition, $root, $context);
+            case $query instanceof RangeFilter:
+                return $this->parseRangeFilter($query, $definition, $root, $context);
             default:
                 throw new \RuntimeException(sprintf('Unsupported query %s', \get_class($query)));
         }
     }
 
-    private function parseRangeQuery(RangeQuery $query, string $definition, string $root, Context $context): ParseResult
+    private function parseRangeFilter(RangeFilter $query, string $definition, string $root, Context $context): ParseResult
     {
         $result = new ParseResult();
 
@@ -102,22 +102,22 @@ class SqlQueryParser
 
         $where = [];
 
-        if ($query->hasParameter(RangeQuery::GT)) {
+        if ($query->hasParameter(RangeFilter::GT)) {
             $where[] = $field . ' > :' . $key;
-            $result->addParameter($key, $query->getParameter(RangeQuery::GT));
-        } elseif ($query->hasParameter(RangeQuery::GTE)) {
+            $result->addParameter($key, $query->getParameter(RangeFilter::GT));
+        } elseif ($query->hasParameter(RangeFilter::GTE)) {
             $where[] = $field . ' >= :' . $key;
-            $result->addParameter($key, $query->getParameter(RangeQuery::GTE));
+            $result->addParameter($key, $query->getParameter(RangeFilter::GTE));
         }
 
         $key = $this->getKey();
 
-        if ($query->hasParameter(RangeQuery::LT)) {
+        if ($query->hasParameter(RangeFilter::LT)) {
             $where[] = $field . ' < :' . $key;
-            $result->addParameter($key, $query->getParameter(RangeQuery::LT));
-        } elseif ($query->hasParameter(RangeQuery::LTE)) {
+            $result->addParameter($key, $query->getParameter(RangeFilter::LT));
+        } elseif ($query->hasParameter(RangeFilter::LTE)) {
             $where[] = $field . ' <= :' . $key;
-            $result->addParameter($key, $query->getParameter(RangeQuery::LTE));
+            $result->addParameter($key, $query->getParameter(RangeFilter::LTE));
         }
 
         $where = '(' . implode(' AND ', $where) . ')';
@@ -126,7 +126,7 @@ class SqlQueryParser
         return $result;
     }
 
-    private function parseMatchQuery(MatchQuery $query, string $definition, string $root, Context $context): ParseResult
+    private function parseContainsFilter(ContainsFilter $query, string $definition, string $root, Context $context): ParseResult
     {
         $key = $this->getKey();
 
@@ -139,7 +139,7 @@ class SqlQueryParser
         return $result;
     }
 
-    private function parseTermsQuery(TermsQuery $query, string $definition, string $root, Context $context): ParseResult
+    private function parseEqualsAnyFilter(EqualsAnyFilter $query, string $definition, string $root, Context $context): ParseResult
     {
         $key = $this->getKey();
         $select = $this->queryHelper->getFieldAccessor($query->getField(), $definition, $root, $context);
@@ -173,7 +173,7 @@ class SqlQueryParser
         return $result;
     }
 
-    private function parseTermQuery(TermQuery $query, string $definition, string $root, Context $context): ParseResult
+    private function parseEqualsFilter(EqualsFilter $query, string $definition, string $root, Context $context): ParseResult
     {
         $key = $this->getKey();
         $select = $this->queryHelper->getFieldAccessor($query->getField(), $definition, $root, $context);
@@ -205,7 +205,7 @@ class SqlQueryParser
         return $result;
     }
 
-    private function parseNestedQuery(NestedQuery $query, string $definition, string $root, Context $context): ParseResult
+    private function parseMultiFilter(MultiFilter $query, string $definition, string $root, Context $context): ParseResult
     {
         $result = $this->iterateNested($query, $definition, $root, $context);
 
@@ -221,7 +221,7 @@ class SqlQueryParser
         return $result;
     }
 
-    private function parseNotQuery(NotQuery $query, string $definition, string $root, Context $context): ParseResult
+    private function parseNotFilter(NotFilter $query, string $definition, string $root, Context $context): ParseResult
     {
         $result = $this->iterateNested($query, $definition, $root, $context);
 
@@ -237,12 +237,12 @@ class SqlQueryParser
         return $result;
     }
 
-    private function iterateNested(NestedQuery $query, string $definition, string $root, Context $context): ParseResult
+    private function iterateNested(MultiFilter $query, string $definition, string $root, Context $context): ParseResult
     {
         $result = new ParseResult();
-        foreach ($query->getQueries() as $nestedQuery) {
+        foreach ($query->getQueries() as $multiFilter) {
             $result = $result->merge(
-                $this->parse($nestedQuery, $definition, $context, $root)
+                $this->parse($multiFilter, $definition, $context, $root)
             );
         }
 

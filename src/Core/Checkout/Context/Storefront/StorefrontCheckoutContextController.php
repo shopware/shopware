@@ -11,7 +11,7 @@ use Shopware\Core\Checkout\Shipping\Exception\ShippingMethodNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Exception\AddressNotFoundException;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -95,7 +95,7 @@ class StorefrontCheckoutContextController extends Controller
     private function validatePaymentMethodId(string $paymentMethodId, CheckoutContext $context): string
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('payment_method.id', $paymentMethodId));
+        $criteria->addFilter(new EqualsFilter('payment_method.id', $paymentMethodId));
 
         $valid = $this->paymentMethodRepository->searchIds($criteria, $context->getContext());
         if (!\in_array($paymentMethodId, $valid->getIds(), true)) {
@@ -108,7 +108,7 @@ class StorefrontCheckoutContextController extends Controller
     private function validateShippingMethodId(string $shippingMethodId, CheckoutContext $context): string
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('shipping_method.id', $shippingMethodId));
+        $criteria->addFilter(new EqualsFilter('shipping_method.id', $shippingMethodId));
 
         $valid = $this->shippingMethodRepository->searchIds($criteria, $context->getContext());
         if (!\in_array($shippingMethodId, $valid->getIds(), true)) {

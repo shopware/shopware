@@ -189,7 +189,7 @@ Complex queries need to be sent via the `/search` endpoint:
 * `POST /api/v1/search/product`
 
 The `/search` endpoint supports complex searches. All operations of the
-`\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria` class are supported. 
+`\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria` class are supported.
 The endpoint must be accessed via POST. The initial query would be expressed like this:
 ```php
 <?php
@@ -218,23 +218,23 @@ properties of an entity and its associations. As long as a link exists between t
 they can also be filtered.
 
 The range of filter options includes the following classes:
-* `\Shopware\Core\Framework\DataAbstractionLayer\Search\Query\MatchQuery`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter`
     * Allows performing a string comparison (SQL: `LIKE`)
-* `\Shopware\Core\Framework\DataAbstractionLayer\Search\Query\RangeQuery`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter`
     * Query of a range of values (SQL: `<=`, `>=`, `>`, `<` )
-* `\Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter`
     * Query to filter for an exact value
-* `\Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermsQuery`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter`
     * Query to filter a set of exact values (SQL: `IN`)
     
-Note: Please do not use MatchQuery for filtering on exact values on UUIDs. 
+Note: Please do not use ContainsFilter for filtering on exact values on UUIDs.
 At first sight, this might work but it has a negative impact on performance and can cause
 unexpected behavior.
 
 Using query containers you are able to combine or negate filter options:
-* `\Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NestedQuery`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter`
     * Allows you to group multiple queries and associate them with an operator `AND` or `OR`
-* `\Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NotQuery`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter`
     * Allows negating queries
 
 **Example:**
@@ -244,7 +244,7 @@ Let's start with a simple filtered list of products and filter products which ar
 <?php
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 
 /** @var RepositoryInterface $repository */
@@ -253,7 +253,7 @@ $repository = $this->container->get('product.repository');
 $criteria = new Criteria();
 $criteria->setOffset(0);
 $criteria->setLimit(10);
-$criteria->addFilter(new TermQuery('product.active', true));
+$criteria->addFilter(new EqualsFilter('product.active', true));
 
 $result = $repository->search($criteria, $context);
 ```
@@ -263,14 +263,14 @@ Filter only products which cost between € 100 and € 200:
 <?php
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\RangeQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 
 $criteria = new Criteria();
 
 $criteria->addFilter(
-    new RangeQuery('product.price', [
-        RangeQuery::GTE => 100,
-        RangeQuery::LTE => 200
+    new RangeFilter('product.price', [
+        RangeFilter::GTE => 100,
+        RangeFilter::LTE => 200
     ])
 );
 ``` 
@@ -280,14 +280,15 @@ Next, only products are displayed where the manufacturer property `link` is defi
 <?php
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NotQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
 $criteria = new Criteria();
 
 $criteria->addFilter(
-    new NotQuery(
-        new TermQuery('product.manufacturer.link', null)
+    new NotFilter(
+        NotFilter::CONNECTION_AND,
+        new EqualsFilter('product.manufacturer.link', null)
     )
 );
 ```
@@ -298,12 +299,12 @@ Furthermore, only products with a minimum purchase amount of 1, 5 or 10 should b
 <?php
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermsQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 
 $criteria = new Criteria();
 
 $criteria->addFilter(
-    new TermsQuery('product.minPurchase', ['1', '5', '10'])
+    new EqualsAnyFilter('product.minPurchase', ['1', '5', '10'])
 );
 ```
 
@@ -312,25 +313,25 @@ And last but not least, only products that have the letter `A` in their name sho
 <?php
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\MatchQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 
 $criteria = new Criteria();
 
 $criteria->addFilter(
-    new MatchQuery('product.name', 'A')
+    new ContainsFilter('product.name', 'A')
 );
 ```
 
 **API example request:**
 
 The same filter possibilities are also offered by the API. With a small difference: 
-If you call the entity endpoint, only the `TermQuery` with the equal operator is supported. 
+If you call the entity endpoint, only the `EqualsFilter` with the equal operator is supported.
 Range queries or others are not possible. Example:
 * `GET /api/v1/product?filter[product.active]=1&filter[product.manufacturer.name]=Shopware` 
 
 For more complex filtering, use the `/search` endpoint as mentioned above. 
 In the first example of filtering, filters were made for products that have the active flag. 
-So a TermQuery must also be sent via the API:
+So a EqualsFilter must also be sent via the API:
 ```php
 <?php
 
@@ -934,7 +935,7 @@ By defining this association, it's possible to work with the product and
 the manufacturer at the same time.
 
 You can always address this association via the property name:
-* To filter in the search - `new TermQuery('product.manufacturer.name', 'shopware')`
+* To filter in the search - `new EqualsFilter('product.manufacturer.name', 'shopware')`
 * To create a manufacturer directly when writing the product - `'manufacturer' => ['name' => 'shopware']`
 * To determine the number of manufacturers of a product list - `new CountAggregation('product.manufacturer.id', 'manufacturer_count')` 
 * To read the manufacturer of a product via API - `GET /api/v1/product/{id}/manufacturer`

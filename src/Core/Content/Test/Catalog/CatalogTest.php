@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -426,7 +426,7 @@ class CatalogTest extends TestCase
 
         // should work with context used to create the entities
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('product.categories.id', $categoryId->getHex()));
+        $criteria->addFilter(new EqualsFilter('product.categories.id', $categoryId->getHex()));
 
         $products = $this->productRepository->search($criteria, $context);
         static::assertEquals(2, $products->count(), 'Products were not fetched correctly');

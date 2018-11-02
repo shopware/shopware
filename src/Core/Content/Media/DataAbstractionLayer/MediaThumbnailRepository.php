@@ -14,7 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermsQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -73,7 +73,7 @@ class MediaThumbnailRepository extends EntityRepository
     {
         $criteria = new Criteria();
         $criteria->addAssociation('media_thumbnail.media');
-        $criteria->addFilter(new TermsQuery('media_thumbnail.id', $ids));
+        $criteria->addFilter(new EqualsAnyFilter('media_thumbnail.id', $ids));
 
         $thumbnailsSearch = $this->search($criteria, $context);
 

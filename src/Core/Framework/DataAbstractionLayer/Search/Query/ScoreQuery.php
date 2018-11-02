@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Query;
 
-class ScoreQuery extends Query
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
+
+class ScoreQuery extends Filter
 {
     /**
      * @var float
@@ -10,7 +12,7 @@ class ScoreQuery extends Query
     protected $score;
 
     /**
-     * @var Query
+     * @var Filter
      */
     protected $query;
 
@@ -19,7 +21,7 @@ class ScoreQuery extends Query
      */
     protected $scoreField;
 
-    public function __construct(Query $query, float $score, ?string $scoreField = null)
+    public function __construct(Filter $query, float $score, ?string $scoreField = null)
     {
         $this->score = $score;
         $this->query = $query;
@@ -36,7 +38,7 @@ class ScoreQuery extends Query
         return $this->score;
     }
 
-    public function getQuery(): Query
+    public function getQuery(): Filter
     {
         return $this->query;
     }

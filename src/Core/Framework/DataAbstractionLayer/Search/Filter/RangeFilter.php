@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Query;
+namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Filter;
 
-class RangeQuery extends Query
+class RangeFilter extends Filter
 {
     public const LTE = 'lte';
 
@@ -25,12 +25,12 @@ class RangeQuery extends Query
     /**
      * @example
      *
-     * new RangeQuery('price', [
+     * new RangeFilter('price', [
      *      'gte' => 5.99,
      *      'lte' => 21.99
      * ])
      *
-     * new RangeQuery('price', [
+     * new RangeFilter('price', [
      *      'gt' => 5.99
      * ])
      *

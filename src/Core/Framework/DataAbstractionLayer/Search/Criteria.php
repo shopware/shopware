@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\Query;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Struct\Struct;
@@ -29,12 +29,12 @@ class Criteria extends Struct
     protected $sorting = [];
 
     /**
-     * @var Query[]
+     * @var Filter[]
      */
     protected $filters = [];
 
     /**
-     * @var Query[]
+     * @var Filter[]
      */
     protected $postFilters = [];
 
@@ -100,7 +100,7 @@ class Criteria extends Struct
     }
 
     /**
-     * @return Query[]
+     * @return Filter[]
      */
     public function getFilters(): array
     {
@@ -108,7 +108,7 @@ class Criteria extends Struct
     }
 
     /**
-     * @return Query[]
+     * @return Filter[]
      */
     public function getPostFilters(): array
     {
@@ -133,7 +133,7 @@ class Criteria extends Struct
         return $this->associations[$field] ?? null;
     }
 
-    public function addFilter(Query ...$queries): self
+    public function addFilter(Filter ...$queries): self
     {
         foreach ($queries as $query) {
             $this->filters[] = $query;
@@ -160,7 +160,7 @@ class Criteria extends Struct
         return $this;
     }
 
-    public function addPostFilter(Query ...$queries): self
+    public function addPostFilter(Filter ...$queries): self
     {
         foreach ($queries as $query) {
             $this->postFilters[] = $query;

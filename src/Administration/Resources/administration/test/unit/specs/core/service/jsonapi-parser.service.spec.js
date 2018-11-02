@@ -144,7 +144,7 @@ describe('core/service/jsonapi-parser.service.js', () => {
                 }
             },
             filter: [
-                CriteriaFactory.term('id', catalogId).getQuery()
+                CriteriaFactory.equals('id', catalogId).getQuery()
             ]
         };
 

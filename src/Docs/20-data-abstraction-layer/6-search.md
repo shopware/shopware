@@ -17,7 +17,7 @@ In addition to that, you can get very specific about the fields you are filter o
 
 ```php
 $criteria->addFilter(
-    new TermQuery('product.manufacturer.name', 'shopware AG')
+    new EqualsFilter('product.manufacturer.name', 'shopware AG')
 );
 ```
 
@@ -25,7 +25,7 @@ $criteria->addFilter(
 
 ```php
 $criteria->addFilter(
-    new TermQuery('category.products.media.fileExtension', 'jpg')
+    new EqualsFilter('category.products.media.fileExtension', 'jpg')
 );
 ```
 
@@ -33,8 +33,8 @@ $criteria->addFilter(
 
 ```php
 $criteria->addFilter(
-    new TermQuery('customer.orders.deliveries.shippingOrderAddress.country.name', 'Denmark'),
-    new TermQuery('customer.orders.paymentMethod.name', 'PayPal')
+    new EqualsFilter('customer.orders.deliveries.shippingOrderAddress.country.name', 'Denmark'),
+    new EqualsFilter('customer.orders.paymentMethod.name', 'PayPal')
 );
 ```
 
@@ -44,18 +44,18 @@ Filters reduce your results to your needs and will be considered when aggregatin
 
 | Class name | API name | Description |
 |------------|----------|------------------------------------------------------------------|
-| TermQuery  | term     | Exact match for the given value |
-| TermsQuery | terms    | At least one exact match for a value of the given list |
-| MatchQuery | match    | Before and after wildcard search for the given value |
-| RangeQuery | range    | For range compatible fields like numbers or dates |
+| EqualsFilter  | term     | Exact match for the given value |
+| EqualsAnyFilter | terms    | At least one exact match for a value of the given list |
+| ContainsFilter | match    | Before and after wildcard search for the given value |
+| RangeFilter | range    | For range compatible fields like numbers or dates |
 | ScoreQuery | score    | Only usable for fields with a scoring. Filter on a minimum score |
 
 ### Combining filters
 
 | Class name | API name | Description |
 |---|---|---|
-| NestedQuery | nested | Group multiple filters into one filter and concat them using the `AND` or `OR` operator |
-| NotQuery | not | A negated NestedQuery |
+| MultiFilter | nested | Group multiple filters into one filter and concat them using the `AND` or `OR` operator |
+| NotFilter | not | A negated MultiFilter |
 
 ### Adding Filters
 
@@ -69,47 +69,47 @@ $criteria = new Criteria();
 $results = $this->repository->search($criteria, $context);
 ```
 
-### TermQuery
+### EqualsFilter
 
 ```php
 $criteria->addFilter(
-    new TermQuery('product.name', 'Dagger')
+    new EqualsFilter('product.name', 'Dagger')
 );
 ```
 
 - The first parameter `$field` is the field selector to filter on.
 - The second parameter `$value` is the value for the exact match on the given field.
 
-### TermsQuery
+### EqualsAnyFilter
 
 ```php
 $criteria->addFilter(
-    new TermsQuery('product.name', ['Dagger', 'Sword', 'Axe'])
+    new EqualsAnyFilter('product.name', ['Dagger', 'Sword', 'Axe'])
 );
 ```
 
 - The first parameter `$field` is the field selector to filter on.
 - The second parameter `$values` is a list of values for a possible exact match on the given field.
 
-### MatchQuery
+### ContainsFilter
 
 ```php
 $criteria->addFilter(
-    new MatchQuery('product.description', 'iPhone')
+    new ContainsFilter('product.description', 'iPhone')
 );
 ```
 
 - The first parameter `$field` is the field selector to filter on.
 - The second parameter `$value` is the value for the wildcard query. In this case, the filter matches all entries where "iPhone" is anywhere in the description.
 
-### RangeQuery
+### RangeFilter
 
 ```php
 $criteria->addFilter(
-    new RangeQuery('product.stock', ['gt' => 10]),
-    new RangeQuery('product.stock', ['gte' => 20]),
-    new RangeQuery('product.stock', ['lt' => 30]),
-    new RangeQuery('product.stock', ['lte' => 40])
+    new RangeFilter('product.stock', ['gt' => 10]),
+    new RangeFilter('product.stock', ['gte' => 20]),
+    new RangeFilter('product.stock', ['lt' => 30]),
+    new RangeFilter('product.stock', ['lte' => 40])
 );
 ```
 
@@ -124,7 +124,7 @@ You can even combine multiple comparisons to define a range between a given valu
 
 ```php
 $criteria->addFilter(
-    new RangeQuery('product.stock', ['gt' => 10, 'lt' => 20]),
+    new RangeFilter('product.stock', ['gt' => 10, 'lt' => 20]),
 );
 ```
 
@@ -132,8 +132,8 @@ $criteria->addFilter(
 
 ```php
 $criteria->addFilter(
-    new ScoreQuery(new TermQuery('product.description', 'Blue'), 10),
-    new ScoreQuery(new TermQuery('product.description', 'Red'), 100, 'product.stock'),
+    new ScoreQuery(new EqualsFilter('product.description', 'Blue'), 10),
+    new ScoreQuery(new EqualsFilter('product.description', 'Red'), 100, 'product.stock'),
 );
 ```
 
@@ -141,35 +141,36 @@ $criteria->addFilter(
 - The second parameter `$score` defines the score which should be used if the expression matches. In case that "Blue" is found in `product.description`, it gets an additional score of 100.
 - The third parameter `$scoreField` allows defining a multiplier for the score. For example: In case that "Red" is found in `product.description`, the score of 100 is multiplied with the value of `product.stock`.
 
-### NestedQuery
+### MultiFilter
 
 ```php
-$criteria->addFilter(new NestedQuery(
+$criteria->addFilter(new MultiFilter(
+    MultiFilter::OPERATOR_OR,
     [
-        new TermQuery('product.name', 'Dagger'),
-        new RangeQuery('product.stock', ['gt' => 10, 'lt' => 20]),
-    ],
-    NestedQuery::OPERATOR_OR
+        new EqualsFilter('product.name', 'Dagger'),
+        new RangeFilter('product.stock', ['gt' => 10, 'lt' => 20]),
+    ]
 ));
 ```
 
 The nested query groups multiple queries into one and concat them using the `AND` or `OR` operator.
 
-- The first parameter `$queries` is a list of additional queries to be grouped.
-- The second parameter `$operator` defines the operator for the queries. You can choose between `AND` and `OR`.
+- The first parameter `$operator` defines the operator for the queries. You can choose between `AND` and `OR`.
+- The second parameter `$queries` is a list of additional queries to be grouped.
 
-### NotQuery
+### NotFilter
 
 ```php
-$criteria->addFilter(new NotQuery([
-    new TermsQuery('product.name', ['Sword', 'Axe']),
-]));
+$criteria->addFilter(new NotFilter(
+    NotFilter::CONNECTION_AND,
+    new EqualsAnyFilter('product.name', ['Sword', 'Axe']),
+));
 ```
 
-The NotQuery is an equivalent to the NestedQuery with the only difference, that the result of the inner queries is negated.
+The NotFilter is an equivalent to the MultiFilter with the only difference, that the result of the inner queries is negated.
 
-- The first parameter `$queries` is a list of additional queries to be grouped and negated.
-- The second parameter `$operator` defines the operator for the queries. You can choose between `AND` and `OR`.
+- The first parameter `$operator` defines the operator for the queries. You can choose between `AND` and `OR`.
+- The second parameter `$queries` is a list of additional queries to be grouped and negated.
 
 ## Post-Filter
 
@@ -179,12 +180,12 @@ Post-Filters work the same way as filters, but they won't be considered when agg
 
 A common use-case for post filters is to get only active products, but the total of products should be without any filter active:
 
-Given 20 products with 5 of them are active, your filter would be empty and your post-filter contains a `TermQuery` on `product.active`.
+Given 20 products with 5 of them are active, your filter would be empty and your post-filter contains a `EqualsFilter` on `product.active`.
 You will get the 5 active products but the calculated total count of products will still be 20.
 
 ```php
 $criteria = new Criteria();
-$criteria->addPostFilter(new TermQuery('product.active', true));
+$criteria->addPostFilter(new EqualsFilter('product.active', true));
 
 $results = $this->repository->search($criteria, $context);
 

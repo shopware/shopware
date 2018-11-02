@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
 class VariantGenerator
 {
@@ -88,7 +88,7 @@ class VariantGenerator
     private function loadConfigurator(string $productId, Context $context): ProductConfiguratorCollection
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('product_configurator.productId', $productId));
+        $criteria->addFilter(new EqualsFilter('product_configurator.productId', $productId));
 
         /** @var ProductConfiguratorCollection $result */
         $result = $this->configuratorRepository->search($criteria, $context)->getEntities();

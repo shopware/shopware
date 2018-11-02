@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -250,7 +250,7 @@ class VariantGeneratorTest extends TestCase
         static::assertCount(1, $productWritten->getIds());
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('product.parentId', $id));
+        $criteria->addFilter(new EqualsFilter('product.parentId', $id));
         $variants = $this->repository->search($criteria, Context::createDefaultContext(Defaults::TENANT_ID));
 
         $parent = $this->repository->read(new ReadCriteria([$id]), Context::createDefaultContext(Defaults::TENANT_ID))

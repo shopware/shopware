@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -72,7 +72,7 @@ class CategoryPathBuilder implements EventSubscriberInterface
     private function updateByParent(CategoryStruct $parent, CategoryCollection $parents, Context $context): CategoryCollection
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('category.parentId', $parent->getId()));
+        $criteria->addFilter(new EqualsFilter('category.parentId', $parent->getId()));
         $categories = $this->repository->search($criteria, $context);
 
         $pathUpdate = $this->connection->prepare('UPDATE category SET path = :path, level = :level WHERE id = :id AND version_id = :version AND tenant_id = :tenant');

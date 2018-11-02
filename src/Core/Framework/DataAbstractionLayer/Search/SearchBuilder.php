@@ -4,10 +4,10 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\MatchQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermsQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
 use Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreterInterface;
@@ -61,7 +61,7 @@ class SearchBuilder
         foreach ($pattern->getTerms() as $searchTerm) {
             $criteria->addQuery(
                 new ScoreQuery(
-                    new TermQuery($keywordField, $searchTerm->getTerm()),
+                    new EqualsFilter($keywordField, $searchTerm->getTerm()),
                     $searchTerm->getScore(),
                     $rankingField
                 )
@@ -70,13 +70,13 @@ class SearchBuilder
 
         $criteria->addQuery(
             new ScoreQuery(
-                new MatchQuery($keywordField, $pattern->getOriginal()->getTerm()),
+                new ContainsFilter($keywordField, $pattern->getOriginal()->getTerm()),
                 $pattern->getOriginal()->getScore(),
                 $rankingField
             )
         );
 
-        $criteria->addFilter(new TermsQuery($keywordField, array_values($pattern->getAllTerms())));
-        $criteria->addFilter(new TermQuery($languageField, $context->getLanguageId()));
+        $criteria->addFilter(new EqualsAnyFilter($keywordField, array_values($pattern->getAllTerms())));
+        $criteria->addFilter(new EqualsFilter($languageField, $context->getLanguageId()));
     }
 }

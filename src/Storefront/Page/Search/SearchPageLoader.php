@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Page\Search;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Product\Storefront\StorefrontProductRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Storefront\Event\ListingPageLoadedEvent;
 use Shopware\Storefront\Event\PageCriteriaCreatedEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -35,7 +35,7 @@ class SearchPageLoader
         $config = [];
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('product.active', 1));
+        $criteria->addFilter(new EqualsFilter('product.active', 1));
 
         $this->eventDispatcher->dispatch(
             PageCriteriaCreatedEvent::NAME,

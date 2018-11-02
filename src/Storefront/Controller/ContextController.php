@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -77,7 +77,7 @@ class ContextController extends StorefrontController
         }
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('currency.id', $currencyId));
+        $criteria->addFilter(new EqualsFilter('currency.id', $currencyId));
 
         $currencies = $this->currencyRepository->searchIds($criteria, $context->getContext());
 
@@ -98,7 +98,7 @@ class ContextController extends StorefrontController
         }
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('language.id', $languageId));
+        $criteria->addFilter(new EqualsFilter('language.id', $languageId));
 
         $currencies = $this->languageRepository->searchIds($criteria, $context->getContext());
 

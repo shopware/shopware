@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -52,7 +52,7 @@ class OrderPageLoader
     {
         --$page;
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('order.orderCustomer.customerId', $customerId));
+        $criteria->addFilter(new EqualsFilter('order.orderCustomer.customerId', $customerId));
         $criteria->addSorting(new FieldSorting('order.date', FieldSorting::DESCENDING));
         $criteria->setLimit($limit);
         $criteria->setOffset($page * $limit);

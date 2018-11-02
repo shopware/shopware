@@ -12,9 +12,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermsQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\SearchBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Struct\ArrayStruct;
@@ -75,14 +75,14 @@ class AdministrationSearch
     {
         $criteria = new Criteria();
         $criteria->addFilter(
-            new TermsQuery('version_commit_data.entityName', [
+            new EqualsAnyFilter('version_commit_data.entityName', [
                 ProductDefinition::getEntityName(),
                 OrderDefinition::getEntityName(),
                 CustomerDefinition::getEntityName(),
             ])
         );
         $criteria->addFilter(
-            new TermQuery('version_commit_data.userId', $userId)
+            new EqualsFilter('version_commit_data.userId', $userId)
         );
 
         $criteria->addSorting(new FieldSorting('version_commit_data.autoIncrement', 'DESC'));

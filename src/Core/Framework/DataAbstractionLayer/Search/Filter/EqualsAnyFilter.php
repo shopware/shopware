@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Query;
+namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Filter;
 
-class MatchQuery extends Query
+class EqualsAnyFilter extends Filter
 {
     /**
      * @var string
@@ -10,11 +10,11 @@ class MatchQuery extends Query
     protected $field;
 
     /**
-     * @var string|float|int|null
+     * @var string[]|float[]|int[]
      */
-    protected $value;
+    protected $value = [];
 
-    public function __construct(string $field, $value)
+    public function __construct(string $field, array $value = [])
     {
         $this->field = $field;
         $this->value = $value;

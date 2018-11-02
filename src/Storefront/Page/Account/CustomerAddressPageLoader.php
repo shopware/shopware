@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
 class CustomerAddressPageLoader
 {
@@ -33,7 +33,7 @@ class CustomerAddressPageLoader
     private function createCriteria(string $customerId): Criteria
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('customer_address.customerId', $customerId));
+        $criteria->addFilter(new EqualsFilter('customer_address.customerId', $customerId));
 
         return $criteria;
     }

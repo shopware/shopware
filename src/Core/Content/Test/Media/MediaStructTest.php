@@ -12,7 +12,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
@@ -88,7 +88,7 @@ class MediaStructTest extends TestCase
         $criteria = new Criteria();
         $criteria->setOffset(0);
         $criteria->setLimit(1);
-        $criteria->addFilter(new TermQuery('media.id', $mediaId));
+        $criteria->addFilter(new EqualsFilter('media.id', $mediaId));
 
         return $criteria;
     }

@@ -16,7 +16,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class ThumbnailServiceTest extends TestCase
@@ -74,7 +74,7 @@ class ThumbnailServiceTest extends TestCase
 
         $searchCriteria = new Criteria();
         $searchCriteria->setLimit(1);
-        $searchCriteria->addFilter(new TermQuery('media.id', $media->getId()));
+        $searchCriteria->addFilter(new EqualsFilter('media.id', $media->getId()));
 
         $mediaResult = $this->mediaRepository->search($searchCriteria, $this->context);
         /** @var MediaStruct $updatedMedia */
@@ -145,7 +145,7 @@ class ThumbnailServiceTest extends TestCase
         $mediaId = Uuid::uuid4()->getHex();
         $mediaExtension = 'png';
         $mediaCriteria = new Criteria();
-        $mediaCriteria->addFilter(new TermQuery('id', $mediaId));
+        $mediaCriteria->addFilter(new EqualsFilter('id', $mediaId));
 
         $this->context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_THUMBNAILS);
 

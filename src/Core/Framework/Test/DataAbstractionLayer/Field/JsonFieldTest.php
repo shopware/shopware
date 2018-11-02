@@ -9,7 +9,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\InvalidFieldException;
@@ -66,17 +66,17 @@ EOF;
         $this->getWriter()->insert(JsonDefinition::class, $data, $context);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('_test_nullable.data', null));
+        $criteria->addFilter(new EqualsFilter('_test_nullable.data', null));
         $result = $this->getRepository()->search(JsonDefinition::class, $criteria, $context->getContext());
         static::assertEquals(1, $result->getTotal());
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('_test_nullable.data', '[]'));
+        $criteria->addFilter(new EqualsFilter('_test_nullable.data', '[]'));
         $result = $this->getRepository()->search(JsonDefinition::class, $criteria, $context->getContext());
         static::assertEquals(1, $result->getTotal());
 
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('_test_nullable.data.url', 'foo'));
+        $criteria->addFilter(new EqualsFilter('_test_nullable.data.url', 'foo'));
         $result = $this->getRepository()->search(JsonDefinition::class, $criteria, $context->getContext());
         static::assertEquals(1, $result->getTotal());
     }

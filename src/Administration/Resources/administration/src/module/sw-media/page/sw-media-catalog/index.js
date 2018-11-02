@@ -86,7 +86,7 @@ Component.register('sw-media-catalog', {
             this.clearSelection();
             const params = this.getListingParams();
 
-            params.criteria = CriteriaFactory.term('catalogId', this.currentCatalog.id);
+            params.criteria = CriteriaFactory.equals('catalogId', this.currentCatalog.id);
             params.sortBy = this.sortType[0];
             params.sortDirection = this.sortType[1];
 

@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Payment\Exception\PaymentMethodNotFoundException;
 use Shopware\Core\Framework\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Storefront\Exception\AddressNotFoundException;
+use Shopware\Storefront\Exception\BadCredentialsException;
 use Shopware\Storefront\Exception\CustomerNotFoundException;
 use Shopware\Storefront\Page\Account\AccountService;
 use Shopware\Storefront\Page\Account\AddressSaveRequest;
@@ -28,13 +29,9 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Exception\BadCredentialsException;
-use Symfony\Component\Security\Http\Util\TargetPathTrait;
 
 class AccountController extends StorefrontController
 {
-    use TargetPathTrait;
-
     /**
      * @var CheckoutContextPersister
      */
@@ -179,10 +176,6 @@ class AccountController extends StorefrontController
             $this->checkoutContextService->refresh($context->getTenantId(), $context->getSalesChannel()->getId(), $context->getToken());
         } catch (BadCredentialsException $exception) {
             return $this->redirectToRoute('account_login');
-        }
-
-        if ($targetPath = $this->getTargetPath($request->getSession(), 'storefront')) {
-            return $this->redirect($targetPath);
         }
 
         return $this->redirectToRoute('account_home');

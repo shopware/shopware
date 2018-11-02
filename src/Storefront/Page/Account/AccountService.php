@@ -18,9 +18,9 @@ use Shopware\Core\Framework\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Storefront\Exception\AddressNotFoundException;
+use Shopware\Storefront\Exception\BadCredentialsException;
 use Shopware\Storefront\Exception\CustomerNotFoundException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
-use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 
 class AccountService
 {

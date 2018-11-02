@@ -20,14 +20,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Storefront\Page\Account\AccountService;
 use Shopware\Storefront\Page\Account\RegistrationRequest;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Serializer;
 
-class StorefrontCheckoutController extends Controller
+class StorefrontCheckoutController extends AbstractController
 {
     /**
      * @var PaymentService

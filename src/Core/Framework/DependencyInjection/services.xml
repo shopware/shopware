@@ -79,6 +79,7 @@
         <service class="Shopware\Core\Framework\Command\OrmValidateCommand" id="Shopware\Core\Framework\Command\OrmValidateCommand">
             <tag name="console.command"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator"/>
+            <argument type="service" id="service_container"/>
         </service>
 
         <service class="Shopware\Core\Framework\Command\PluginDeactivateCommand" id="Shopware\Core\Framework\Command\PluginDeactivateCommand">
@@ -102,16 +103,18 @@
         </service>
 
         <service class="Shopware\Core\Framework\Command\DemodataCommand" id="Shopware\Core\Framework\Command\DemodataCommand">
-            <tag name="console.command" command="framework:demodata"/>
-            <argument>framework:demodata</argument>
+            <tag name="console.command"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter"/>
             <argument type="service" id="Shopware\Core\Content\Product\Util\VariantGenerator"/>
-            <argument type="service" id="service_container"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextFactory"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Processor"/>
             <argument type="service" id="Shopware\Core\Content\Media\File\FileSaver"/>
+            <argument type="service" id="product.repository"/>
+            <argument type="service" id="rule.repository"/>
+            <argument type="service" id="category.repository"/>
+            <argument type="service" id="tax.repository"/>
         </service>
 
         <service class="Shopware\Core\Framework\Provisioning\TenantProvisioner" id="Shopware\Core\Framework\Provisioning\TenantProvisioner">
@@ -168,6 +171,9 @@
         <service class="Shopware\Core\Framework\Api\Controller\MigrationController" id="Shopware\Core\Framework\Api\Controller\MigrationController" public="true">
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollectionLoader"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationRuntime"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container" />
+            </call>
         </service>
 
         <!-- Serializer -->

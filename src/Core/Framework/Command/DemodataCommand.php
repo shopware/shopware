@@ -47,15 +47,14 @@ use Shopware\Core\Framework\Rule\CurrencyRule;
 use Shopware\Core\Framework\Rule\DateRangeRule;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Util\Random;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Finder\Finder;
 
-class DemodataCommand extends ContainerAwareCommand
+class DemodataCommand extends Command
 {
     /**
      * @var Generator
@@ -140,24 +139,26 @@ class DemodataCommand extends ContainerAwareCommand
     private $mediaUpdater;
 
     public function __construct(
-        ?string $name = null,
         EntityWriterInterface $writer,
         VariantGenerator $variantGenerator,
-        ContainerInterface $container,
         OrderConverter $orderConverter,
         Connection $connection,
         CheckoutContextFactory $contextFactory,
         Processor $calculator,
-        FileSaver $mediaUpdater
+        FileSaver $mediaUpdater,
+        RepositoryInterface $productRepository,
+        RepositoryInterface $ruleRepository,
+        RepositoryInterface $categoryRepository,
+        RepositoryInterface $taxRepository
     ) {
-        parent::__construct($name);
+        parent::__construct();
         $this->writer = $writer;
 
         $this->variantGenerator = $variantGenerator;
-        $this->productRepository = $container->get('product.repository');
-        $this->ruleRepository = $container->get('rule.repository');
-        $this->categoryRepository = $container->get('category.repository');
-        $this->taxRepository = $container->get('tax.repository');
+        $this->productRepository = $productRepository;
+        $this->ruleRepository = $ruleRepository;
+        $this->categoryRepository = $categoryRepository;
+        $this->taxRepository = $taxRepository;
         $this->orderConverter = $orderConverter;
         $this->connection = $connection;
         $this->contextFactory = $contextFactory;
@@ -167,6 +168,7 @@ class DemodataCommand extends ContainerAwareCommand
 
     protected function configure(): void
     {
+        $this->setName('framework:demodata');
         $this->addOption('products', 'p', InputOption::VALUE_REQUIRED, 'Product count', 500);
         $this->addOption('categories', 'c', InputOption::VALUE_REQUIRED, 'Category count', 10);
         $this->addOption('orders', 'o', InputOption::VALUE_REQUIRED, 'Order count', 50);
@@ -184,7 +186,7 @@ class DemodataCommand extends ContainerAwareCommand
         $env = $this->getContainer()->getParameter('kernel.environment');
 
         if ($env !== 'prod') {
-            $output->writeln('Demo data command should only be used in production environment. You can provide the environment as follow `framework:demodata -eprod`');
+            $output->writeln('Demo data command should only be used in production environment. You can provide the environment as follow `APP_ENV=prod framework:demodata`');
 
             return;
         }

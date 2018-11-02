@@ -33,7 +33,6 @@ class MigrationCollection
                 if (pathinfo($path, PATHINFO_EXTENSION) !== 'php') {
                     continue;
                 }
-
                 if (!class_exists($className)) {
                     throw new InvalidMigrationClassException('Unable to load "' . $className . '" at "' . $path . '"');
                 }

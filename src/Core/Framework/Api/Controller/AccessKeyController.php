@@ -3,11 +3,11 @@
 namespace Shopware\Core\Framework\Api\Controller;
 
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
-class AccessKeyController extends Controller
+class AccessKeyController extends AbstractController
 {
     /**
      * @Route("/api/v{version}/integration/actions/generate-key", name="api.integration.actions.generate.key", methods={"GET"})

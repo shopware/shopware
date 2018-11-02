@@ -136,9 +136,9 @@ inject the right Context automatically.
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Shopware\Core\Framework\Context;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-class IndexController extends Controller
+class IndexController extends AbstractController
 {
     /**
      * @Route("/", name="example")

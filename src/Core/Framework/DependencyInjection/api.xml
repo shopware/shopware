@@ -21,17 +21,29 @@
             <tag name="controller.argument_value_resolver" priority="1000"/>
         </service>
 
+        <service class="Shopware\Core\Framework\Api\Controller\AccessKeyController" id="Shopware\Core\Framework\Api\Controller\AccessKeyController" public="true">
+            <call method="setContainer">
+                <argument type="service" id="service_container" />
+            </call>
+        </service>
+
         <service class="Shopware\Core\Framework\Api\Controller\ApiController" id="Shopware\Core\Framework\Api\Controller\ApiController" public="true">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
             <argument type="service" id="serializer"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container" />
+            </call>
         </service>
 
         <service class="Shopware\Core\Framework\Api\Controller\SyncController" id="Shopware\Core\Framework\Api\Controller\SyncController" public="true">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
             <argument type="service" id="service_container"/>
             <argument type="service" id="serializer"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container" />
+            </call>
         </service>
 
         <!-- Serializer -->
@@ -82,10 +94,16 @@
 
         <service class="Shopware\Core\Framework\Api\Controller\InfoController" id="Shopware\Core\Framework\Api\Controller\InfoController" public="true">
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\DefinitionService"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container" />
+            </call>
         </service>
 
         <service class="Shopware\Core\Framework\Api\Controller\AuthController" id="Shopware\Core\Framework\Api\Controller\AuthController" public="true">
             <argument type="service" id="shopware.api.authorization_server"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container" />
+            </call>
         </service>
 
         <!-- API OAuth Repositories -->
@@ -158,6 +176,9 @@
 
         <service class="Shopware\Core\Framework\Api\Controller\UserController" id="Shopware\Core\Framework\Api\Controller\UserController" public="true">
             <argument type="service" id="user.repository"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container" />
+            </call>
         </service>
 
         <service class="Shopware\Core\Framework\Api\Response\ResponseFactoryInterfaceValueResolver" id="Shopware\Core\Framework\Api\Response\ResponseFactoryInterfaceValueResolver" public="true">

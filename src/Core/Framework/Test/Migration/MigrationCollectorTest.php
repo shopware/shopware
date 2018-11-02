@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Test\Migration;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Migration\Exception\InvalidMigrationClassException;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -75,14 +74,6 @@ class MigrationCollectorTest extends TestCase
         self::assertCount(2, $migrations);
         self::assertEquals(1, $migrations[0]);
         self::assertEquals(2, $migrations[1]);
-    }
-
-    public function test_it_throws_invalid_php_file(): void
-    {
-        $this->collector->addDirectory(__DIR__ . '/_test_migrations_invalid_namespace', 'Shopware\Core\Framework\Test\Migration\_test_migrations_invalid_namespace');
-
-        $this->expectException(InvalidMigrationClassException::class);
-        $this->loader->syncMigrationCollection();
     }
 
     private function getMigrations(): array

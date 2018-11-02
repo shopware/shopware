@@ -114,7 +114,7 @@ class GenerateThumbnailsCommand extends Command
 
     private function validateBatchSize(InputInterface $input): int
     {
-        $batchSize = $input->getOption('batch-size');
+        $batchSize = (int) $input->getOption('batch-size');
         if (!$batchSize) {
             return 100;
         }

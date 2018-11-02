@@ -21,6 +21,7 @@
 
         <service class="Shopware\Core\Content\Category\Command\BuildCategoryPathCommand" id="Shopware\Core\Content\Category\Command\BuildCategoryPathCommand">
             <argument type="service" id="Shopware\Core\Content\Category\Util\CategoryPathBuilder"/>
+            <argument type="service" id="category.repository"/>
             <tag name="console.command"/>
             <tag name="kernel.event_subscriber"/>
         </service>

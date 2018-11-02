@@ -101,6 +101,9 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService"/>
             <argument type="service" id="media.repository"/>
             <argument type="service" id="serializer"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container" />
+            </call>
         </service>
 
         <service class="Shopware\Core\Checkout\Cart\Storefront\StorefrontCheckoutController" id="Shopware\Core\Checkout\Cart\Storefront\StorefrontCheckoutController" public="true">
@@ -111,6 +114,9 @@
             <argument type="service" id="Shopware\Storefront\Page\Account\AccountService"/>
             <argument type="service" id="serializer"/>
             <argument type="service" id="order.repository"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container" />
+            </call>
         </service>
 
 
@@ -118,6 +124,9 @@
             <argument type="service" id="tax.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\NetPriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container" />
+            </call>
         </service>
 
         <service class="Shopware\Core\Checkout\Cart\Calculator" id="Shopware\Core\Checkout\Cart\Calculator" public="true">

@@ -11,13 +11,13 @@ use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\Struct\Uuid;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class BuildCategoryPathCommand extends ContainerAwareCommand implements EventSubscriberInterface
+class BuildCategoryPathCommand extends Command implements EventSubscriberInterface
 {
     /**
      * @var CategoryPathBuilder
@@ -29,10 +29,16 @@ class BuildCategoryPathCommand extends ContainerAwareCommand implements EventSub
      */
     private $io;
 
-    public function __construct(CategoryPathBuilder $pathBuilder)
+    /**
+     * @var RepositoryInterface
+     */
+    private $categoryRepository;
+
+    public function __construct(CategoryPathBuilder $pathBuilder, RepositoryInterface $categoryRepository)
     {
         parent::__construct('category:build:path');
         $this->pathBuilder = $pathBuilder;
+        $this->categoryRepository = $categoryRepository;
     }
 
     public static function getSubscribedEvents()
@@ -95,13 +101,10 @@ class BuildCategoryPathCommand extends ContainerAwareCommand implements EventSub
 
         $context = Context::createDefaultContext($tenantId);
 
-        /** @var RepositoryInterface $categoryRepository */
-        $categoryRepository = $this->getContainer()->get('category.repository');
-
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('category.parentId', null));
 
-        $categoryResult = $categoryRepository->searchIds($criteria, $context);
+        $categoryResult = $this->categoryRepository->searchIds($criteria, $context);
 
         foreach ($categoryResult->getIds() as $categoryId) {
             $this->pathBuilder->update($categoryId, $context);

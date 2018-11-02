@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\System\Unit;
 
-use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class UnitCollection extends EntityCollection
 {

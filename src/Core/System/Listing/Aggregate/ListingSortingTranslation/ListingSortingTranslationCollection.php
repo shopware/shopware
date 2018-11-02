@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation;
 
-use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class ListingSortingTranslationCollection extends EntityCollection
 {

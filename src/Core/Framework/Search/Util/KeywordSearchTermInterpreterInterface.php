@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Search\Util;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\ORM\Search\Term\SearchPattern;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchPattern;
 
 interface KeywordSearchTermInterpreterInterface
 {

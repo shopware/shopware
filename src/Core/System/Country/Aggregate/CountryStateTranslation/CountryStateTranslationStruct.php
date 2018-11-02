@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\System\Country\Aggregate\CountryStateTranslation;
 
-use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateStruct;
 use Shopware\Core\System\Language\LanguageStruct;
 

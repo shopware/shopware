@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodStruct;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodStruct;
 use Shopware\Core\Content\Catalog\CatalogCollection;
-use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryStruct;
 use Shopware\Core\System\Currency\CurrencyCollection;

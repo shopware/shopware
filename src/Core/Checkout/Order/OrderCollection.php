@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderState\OrderStateCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
-use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 

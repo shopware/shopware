@@ -3,7 +3,7 @@
 namespace Shopware\Core\System\User;
 
 use Shopware\Core\Content\Media\MediaCollection;
-use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\System\Locale\LocaleStruct;
 use Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyCollection;
 

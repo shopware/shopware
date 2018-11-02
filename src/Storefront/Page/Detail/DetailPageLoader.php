@@ -6,11 +6,11 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorCollection;
 use Shopware\Core\Content\Product\Storefront\StorefrontProductRepository;
 use Shopware\Core\Content\Product\Storefront\StorefrontProductStruct;
-use Shopware\Core\Framework\ORM\Read\ReadCriteria;
-use Shopware\Core\Framework\ORM\RepositoryInterface;
-use Shopware\Core\Framework\ORM\Search\Criteria;
-use Shopware\Core\Framework\ORM\Search\Query\NestedQuery;
-use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\NestedQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
 use Symfony\Component\HttpFoundation\Request;
 
 class DetailPageLoader

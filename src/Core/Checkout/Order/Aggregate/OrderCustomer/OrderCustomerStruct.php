@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderCustomer;
 
 use Shopware\Core\Checkout\Customer\CustomerStruct;
 use Shopware\Core\Checkout\Order\OrderCollection;
-use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 
 class OrderCustomerStruct extends Entity
 {

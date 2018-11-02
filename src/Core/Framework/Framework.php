@@ -2,12 +2,12 @@
 
 namespace Shopware\Core\Framework;
 
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\ExtensionRegistry;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DefinitionRegistryCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ExtensionCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\FrameworkExtension;
 use Shopware\Core\Framework\Migration\MigrationCompilerPass;
-use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\ExtensionRegistry;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -41,7 +41,7 @@ class Framework extends Bundle
 
         $loader = new XmlFileLoader($container, new FileLocator(self::BUNDLE_DIR . '/DependencyInjection/'));
         $loader->load('services.xml');
-        $loader->load('orm.xml');
+        $loader->load('data-abstraction-layer.xml');
         $loader->load('filesystem.xml');
         $loader->load('api.xml');
         $loader->load('plugin.xml');

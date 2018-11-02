@@ -5,32 +5,32 @@ namespace Shopware\Core\Content\Catalog;
 class CatalogEvents
 {
     /**
-     * @Event("Shopware\Core\Framework\ORM\Event\EntityWrittenEvent")
+     * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent")
      */
     public const CATALOG_WRITTEN_EVENT = 'catalog.written';
 
     /**
-     * @Event("Shopware\Core\Framework\ORM\Event\EntityDeletedEvent")
+     * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent")
      */
     public const CATALOG_DELETED_EVENT = 'catalog.deleted';
 
     /**
-     * @Event("Shopware\Core\Framework\ORM\Event\EntityLoadedEvent")
+     * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent")
      */
     public const CATALOG_LOADED_EVENT = 'catalog.loaded';
 
     /**
-     * @Event("Shopware\Core\Framework\ORM\Event\EntitySearchResultLoadedEvent")
+     * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntitySearchResultLoadedEvent")
      */
     public const CATALOG_SEARCH_RESULT_LOADED_EVENT = 'catalog.search.result.loaded';
 
     /**
-     * @Event("Shopware\Core\Framework\ORM\Event\EntityAggregationResultLoadedEvent")
+     * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityAggregationResultLoadedEvent")
      */
     public const CATALOG_AGGREGATION_LOADED_EVENT = 'catalog.aggregation.result.loaded';
 
     /**
-     * @Event("Shopware\Core\Framework\ORM\Event\EntityIdSearchResultLoadedEvent")
+     * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityIdSearchResultLoadedEvent")
      */
     public const CATALOG_ID_SEARCH_RESULT_LOADED_EVENT = 'catalog.id.search.result.loaded';
 }

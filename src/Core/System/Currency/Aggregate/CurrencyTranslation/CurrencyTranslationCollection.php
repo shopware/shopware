@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\System\Currency\Aggregate\CurrencyTranslation;
 
-use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class CurrencyTranslationCollection extends EntityCollection
 {

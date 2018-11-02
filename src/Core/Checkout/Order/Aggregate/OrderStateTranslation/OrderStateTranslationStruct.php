@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderStateTranslation;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderState\OrderStateStruct;
-use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\System\Language\LanguageStruct;
 
 class OrderStateTranslationStruct extends Entity

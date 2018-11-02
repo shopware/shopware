@@ -4,9 +4,9 @@ namespace Shopware\Storefront\Page\Checkout;
 
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\ORM\RepositoryInterface;
-use Shopware\Core\Framework\ORM\Search\Criteria;
-use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
 use Symfony\Component\HttpFoundation\Request;
 
 class PaymentMethodLoader

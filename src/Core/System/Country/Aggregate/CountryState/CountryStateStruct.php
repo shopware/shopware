@@ -4,7 +4,7 @@ namespace Shopware\Core\System\Country\Aggregate\CountryState;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
-use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationCollection;
 use Shopware\Core\System\Country\CountryStruct;
 

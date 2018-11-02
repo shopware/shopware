@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Command;
 
-use Shopware\Core\Framework\ORM\DefinitionValidator;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;

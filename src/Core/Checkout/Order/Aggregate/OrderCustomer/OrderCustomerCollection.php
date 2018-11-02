@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderCustomer;
 
 use Shopware\Core\Checkout\Customer\CustomerCollection;
-use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class OrderCustomerCollection extends EntityCollection
 {

@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Aggregate\MediaTranslation;
 
-use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class MediaTranslationCollection extends EntityCollection
 {

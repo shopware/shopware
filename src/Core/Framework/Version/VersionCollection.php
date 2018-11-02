@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Version;
 
-use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class VersionCollection extends EntityCollection
 {

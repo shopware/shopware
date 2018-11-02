@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState\OrderTransactionStateStruct;
 use Shopware\Core\Checkout\Order\OrderStruct;
 use Shopware\Core\Checkout\Payment\PaymentMethodStruct;
-use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 
 class OrderTransactionStruct extends Entity
 {

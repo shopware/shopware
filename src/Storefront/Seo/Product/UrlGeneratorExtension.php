@@ -2,12 +2,12 @@
 
 namespace Shopware\Storefront\Seo\Product;
 
-use Shopware\Core\Framework\ORM\EntityExtensionInterface;
-use Shopware\Core\Framework\ORM\Event\EntityLoadedEvent;
-use Shopware\Core\Framework\ORM\Field\StringField;
-use Shopware\Core\Framework\ORM\FieldCollection;
-use Shopware\Core\Framework\ORM\Write\Flag\Deferred;
-use Shopware\Core\Framework\ORM\Write\Flag\ReadOnly;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Deferred;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\ReadOnly;
 use Shopware\Storefront\Api\Seo\SeoUrlDefinition;
 use Shopware\Storefront\Api\Seo\SeoUrlStruct;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;

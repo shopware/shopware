@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\System\Integration;
 
-use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 
 class IntegrationStruct extends Entity
 {

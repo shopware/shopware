@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderLineItem;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionCollection;
 use Shopware\Core\Checkout\Order\OrderStruct;
-use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 
 class OrderLineItemStruct extends Entity
 {

@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Version\Aggregate\VersionCommit;
 
-use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class VersionCommitCollection extends EntityCollection
 {

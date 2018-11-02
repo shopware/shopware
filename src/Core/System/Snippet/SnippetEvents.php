@@ -5,32 +5,32 @@ namespace Shopware\Core\System\Snippet;
 class SnippetEvents
 {
     /**
-     * @Event("Shopware\Core\Framework\ORM\Event\EntityWrittenEvent")
+     * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent")
      */
     public const SNIPPET_WRITTEN_EVENT = 'snippet.written';
 
     /**
-     * @Event("Shopware\Core\Framework\ORM\Event\EntityDeletedEvent")
+     * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent")
      */
     public const SNIPPET_DELETED_EVENT = 'snippet.deleted';
 
     /**
-     * @Event("Shopware\Core\Framework\ORM\Event\EntityLoadedEvent")
+     * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent")
      */
     public const SNIPPET_LOADED_EVENT = 'snippet.loaded';
 
     /**
-     * @Event("Shopware\Core\Framework\ORM\Event\EntitySearchResultLoadedEvent")
+     * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntitySearchResultLoadedEvent")
      */
     public const SNIPPET_SEARCH_RESULT_LOADED_EVENT = 'snippet.search.result.loaded';
 
     /**
-     * @Event("Shopware\Core\Framework\ORM\Event\EntityAggregationResultLoadedEvent")
+     * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityAggregationResultLoadedEvent")
      */
     public const SNIPPET_AGGREGATION_LOADED_EVENT = 'snippet.aggregation.result.loaded';
 
     /**
-     * @Event("Shopware\Core\Framework\ORM\Event\EntityIdSearchResultLoadedEvent")
+     * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityIdSearchResultLoadedEvent")
      */
     public const SNIPPET_ID_SEARCH_RESULT_LOADED_EVENT = 'snippet.id.search.result.loaded';
 }

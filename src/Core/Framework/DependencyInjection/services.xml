@@ -78,7 +78,7 @@
 
         <service class="Shopware\Core\Framework\Command\OrmValidateCommand" id="Shopware\Core\Framework\Command\OrmValidateCommand">
             <tag name="console.command"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\DefinitionValidator"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator"/>
         </service>
 
         <service class="Shopware\Core\Framework\Command\PluginDeactivateCommand" id="Shopware\Core\Framework\Command\PluginDeactivateCommand">
@@ -104,7 +104,7 @@
         <service class="Shopware\Core\Framework\Command\DemodataCommand" id="Shopware\Core\Framework\Command\DemodataCommand">
             <tag name="console.command" command="framework:demodata"/>
             <argument>framework:demodata</argument>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Write\EntityWriter"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter"/>
             <argument type="service" id="Shopware\Core\Content\Product\Util\VariantGenerator"/>
             <argument type="service" id="service_container"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>

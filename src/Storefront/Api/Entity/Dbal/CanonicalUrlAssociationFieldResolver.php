@@ -4,10 +4,10 @@ namespace Shopware\Storefront\Api\Entity\Dbal;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
-use Shopware\Core\Framework\ORM\Dbal\FieldResolver\FieldResolverInterface;
-use Shopware\Core\Framework\ORM\Dbal\QueryBuilder;
-use Shopware\Core\Framework\ORM\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\FieldResolverInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Storefront\Api\Entity\Field\CanonicalUrlAssociationField;

@@ -19,7 +19,7 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
 use Shopware\Core\Checkout\Customer\CustomerStruct;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
-use Shopware\Core\Framework\ORM\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 class OrderPersisterTest extends TestCase

@@ -19,7 +19,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleStr
 use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\Pricing\PriceRuleCollection;
 use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\Framework\Search\SearchDocumentCollection;

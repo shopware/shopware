@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption
 
 use Shopware\Core\Content\Configuration\ConfigurationGroupCollection;
 use Shopware\Core\Content\Configuration\ConfigurationGroupStruct;
-use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class ConfigurationGroupOptionCollection extends EntityCollection
 {

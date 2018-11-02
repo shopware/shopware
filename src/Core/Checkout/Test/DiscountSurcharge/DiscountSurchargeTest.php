@@ -16,7 +16,7 @@ use Shopware\Core\Checkout\Context\CheckoutContextFactory;
 use Shopware\Core\Checkout\DiscountSurcharge\Cart\DiscountSurchargeCollector;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Uuid;

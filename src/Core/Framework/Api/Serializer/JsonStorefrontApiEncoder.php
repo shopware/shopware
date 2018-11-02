@@ -2,12 +2,12 @@
 
 namespace Shopware\Core\Framework\Api\Serializer;
 
-use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\Framework\ORM\EntityCollection;
-use Shopware\Core\Framework\ORM\Field\Field;
-use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
-use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 
 class JsonStorefrontApiEncoder extends JsonApiEncoder
 {

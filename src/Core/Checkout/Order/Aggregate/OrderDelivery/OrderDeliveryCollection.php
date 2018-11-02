@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderDelivery;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderState\OrderStateCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
-use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class OrderDeliveryCollection extends EntityCollection
 {

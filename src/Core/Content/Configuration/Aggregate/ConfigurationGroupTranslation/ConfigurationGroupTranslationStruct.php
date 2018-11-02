@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation;
 
 use Shopware\Core\Content\Configuration\ConfigurationGroupStruct;
-use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\System\Language\LanguageStruct;
 
 class ConfigurationGroupTranslationStruct extends Entity

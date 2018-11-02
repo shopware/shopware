@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation
 
 use Shopware\Core\Content\Catalog\CatalogStruct;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerStruct;
-use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\System\Language\LanguageStruct;
 
 class ProductManufacturerTranslationStruct extends Entity

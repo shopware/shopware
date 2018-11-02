@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\DiscountSurcharge\Aggregate\DiscountSurchargeTranslation;
 
 use Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeStruct;
-use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\System\Language\LanguageStruct;
 
 class DiscountSurchargeTranslationStruct extends Entity

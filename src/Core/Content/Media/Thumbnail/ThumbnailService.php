@@ -4,14 +4,14 @@ namespace Shopware\Core\Content\Media\Thumbnail;
 
 use League\Flysystem\FileNotFoundException;
 use League\Flysystem\FilesystemInterface;
+use Shopware\Core\Content\Media\DataAbstractionLayer\MediaThumbnailRepository;
 use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
 use Shopware\Core\Content\Media\Exception\ThumbnailCouldNotBeSavedException;
 use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\MediaStruct;
-use Shopware\Core\Content\Media\ORM\MediaThumbnailRepository;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 
 class ThumbnailService
 {

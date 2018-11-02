@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
-use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class PluginCollection extends EntityCollection
 {

@@ -3,8 +3,8 @@
 namespace Shopware\Core\Checkout\DiscountSurcharge;
 
 use Shopware\Core\Content\Rule\RuleStruct;
-use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Rule\Rule;
 
 class DiscountSurchargeStruct extends Entity

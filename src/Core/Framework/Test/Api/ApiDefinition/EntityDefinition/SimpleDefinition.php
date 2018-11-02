@@ -2,16 +2,16 @@
 
 namespace Shopware\Core\Framework\Test\Api\ApiDefinition\EntityDefinition;
 
-use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\Field\BoolField;
-use Shopware\Core\Framework\ORM\Field\ChildCountField;
-use Shopware\Core\Framework\ORM\Field\FloatField;
-use Shopware\Core\Framework\ORM\Field\IdField;
-use Shopware\Core\Framework\ORM\Field\IntField;
-use Shopware\Core\Framework\ORM\Field\StringField;
-use Shopware\Core\Framework\ORM\FieldCollection;
-use Shopware\Core\Framework\ORM\Write\Flag\ReadOnly;
-use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildCountField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\ReadOnly;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 
 class SimpleDefinition extends EntityDefinition
 {

@@ -6,7 +6,7 @@ use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\ORM\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\System\Test\EntityFixturesBase;
 

@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Search\Util;
 
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\ORM\Search\Term\SearchPattern;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchPattern;
 
 class CachedKeywordSearchTermInterpreter implements KeywordSearchTermInterpreterInterface
 {

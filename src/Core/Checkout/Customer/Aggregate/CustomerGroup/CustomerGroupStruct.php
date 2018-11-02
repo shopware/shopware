@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGroupDiscountCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
-use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 
 class CustomerGroupStruct extends Entity
 {

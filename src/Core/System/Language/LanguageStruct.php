@@ -15,7 +15,7 @@ use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
-use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\Search\SearchDocumentCollection;
 use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationCollection;
 use Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationCollection;

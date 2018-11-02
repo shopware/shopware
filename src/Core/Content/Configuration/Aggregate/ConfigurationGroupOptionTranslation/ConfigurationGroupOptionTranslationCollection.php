@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOptionTranslation;
 
-use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class ConfigurationGroupOptionTranslationCollection extends EntityCollection
 {

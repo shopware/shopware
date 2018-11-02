@@ -10,9 +10,9 @@ use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeCollection;
 use Shopware\Core\Checkout\DiscountSurcharge\Exception\UnsupportedModifierTypeException;
-use Shopware\Core\Framework\ORM\RepositoryInterface;
-use Shopware\Core\Framework\ORM\Search\Criteria;
-use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermsQuery;
 use Shopware\Core\Framework\Struct\StructCollection;
 
 class DiscountSurchargeCollector implements CollectorInterface

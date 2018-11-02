@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Category\Aggregate\CategoryTranslation;
 
 use Shopware\Core\Content\Catalog\CatalogStruct;
 use Shopware\Core\Content\Category\CategoryStruct;
-use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\System\Language\LanguageStruct;
 
 class CategoryTranslationStruct extends Entity

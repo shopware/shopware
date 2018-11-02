@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice;
 
 use Shopware\Core\Checkout\Shipping\ShippingMethodStruct;
-use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 
 class ShippingMethodPriceStruct extends Entity
 {

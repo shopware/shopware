@@ -2,9 +2,9 @@
 
 namespace Shopware\Storefront\Subscriber;
 
-use Shopware\Core\Framework\ORM\RepositoryInterface;
-use Shopware\Core\Framework\ORM\Search\Criteria;
-use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\TermQuery;
 use Shopware\Core\System\Listing\ListingSortingStruct;
 use Shopware\Storefront\Event\ListingEvents;
 use Shopware\Storefront\Event\ListingPageLoadedEvent;

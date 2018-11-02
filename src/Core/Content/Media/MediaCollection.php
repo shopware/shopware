@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Media;
 
-use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class MediaCollection extends EntityCollection
 {

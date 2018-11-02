@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Payment;
 
-use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class PaymentMethodCollection extends EntityCollection
 {

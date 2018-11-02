@@ -7,8 +7,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\ORM\Read\ReadCriteria;
-use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 

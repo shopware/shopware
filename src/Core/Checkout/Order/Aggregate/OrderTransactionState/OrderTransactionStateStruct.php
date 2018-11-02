@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionStateTranslation\OrderTransactionStateTranslationCollection;
-use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 
 class OrderTransactionStateStruct extends Entity
 {

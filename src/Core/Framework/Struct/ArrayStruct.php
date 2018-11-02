@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Struct;
 
-use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 
 class ArrayStruct extends Entity implements \ArrayAccess
 {

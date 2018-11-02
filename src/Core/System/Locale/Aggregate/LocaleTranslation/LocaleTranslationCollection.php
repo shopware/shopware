@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\System\Locale\Aggregate\LocaleTranslation;
 
-use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class LocaleTranslationCollection extends EntityCollection
 {

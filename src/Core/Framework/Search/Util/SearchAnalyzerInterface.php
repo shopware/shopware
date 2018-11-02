@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Search\Util;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 
 interface SearchAnalyzerInterface
 {

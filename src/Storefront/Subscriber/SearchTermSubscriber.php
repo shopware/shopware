@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Subscriber;
 
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Framework\ORM\Search\SearchBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\SearchBuilder;
 use Shopware\Storefront\Event\ListingEvents;
 use Shopware\Storefront\Event\ListingPageRequestEvent;
 use Shopware\Storefront\Event\PageCriteriaCreatedEvent;

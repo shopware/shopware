@@ -5,22 +5,22 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransaction;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState\OrderTransactionStateDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
-use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\Field\CreatedAtField;
-use Shopware\Core\Framework\ORM\Field\FkField;
-use Shopware\Core\Framework\ORM\Field\IdField;
-use Shopware\Core\Framework\ORM\Field\JsonField;
-use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Core\Framework\ORM\Field\ObjectField;
-use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
-use Shopware\Core\Framework\ORM\Field\TenantIdField;
-use Shopware\Core\Framework\ORM\Field\UpdatedAtField;
-use Shopware\Core\Framework\ORM\Field\VersionField;
-use Shopware\Core\Framework\ORM\FieldCollection;
-use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
-use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Core\Framework\ORM\Write\Flag\Required;
-use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ObjectField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TenantIdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\RestrictDelete;
 
 class OrderTransactionDefinition extends EntityDefinition
 {

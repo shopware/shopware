@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\System\Listing;
 
-use Shopware\Core\Framework\ORM\Entity;
-use Shopware\Core\Framework\ORM\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\ListingSortingTranslationCollection;
 
 class ListingSortingStruct extends Entity

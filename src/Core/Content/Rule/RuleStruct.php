@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Rule;
 
 use Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleCollection;
-use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\Rule\Rule;
 
 class RuleStruct extends Entity

@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\Page\Account;
 
-use Shopware\Core\Framework\ORM\Search\Criteria;
-use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Struct\Struct;
 
 class OrderPageStruct extends Struct

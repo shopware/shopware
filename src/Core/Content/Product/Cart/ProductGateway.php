@@ -4,8 +4,8 @@ namespace Shopware\Core\Content\Product\Cart;
 
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Product\ProductCollection;
-use Shopware\Core\Framework\ORM\Read\ReadCriteria;
-use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 
 class ProductGateway implements ProductGatewayInterface
 {

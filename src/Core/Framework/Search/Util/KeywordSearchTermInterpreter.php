@@ -6,9 +6,9 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\ORM\Search\Term\SearchPattern;
-use Shopware\Core\Framework\ORM\Search\Term\SearchTerm;
-use Shopware\Core\Framework\ORM\Search\Term\TokenizerInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchPattern;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTerm;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\TokenizerInterface;
 use Shopware\Core\Framework\Struct\Uuid;
 
 class KeywordSearchTermInterpreter implements KeywordSearchTermInterpreterInterface

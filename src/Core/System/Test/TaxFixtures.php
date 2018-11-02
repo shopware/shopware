@@ -3,7 +3,7 @@
 namespace Shopware\Core\System\Test;
 
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\ORM\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\System\Tax\TaxStruct;
 

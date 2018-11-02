@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation;
 
-use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class ProductManufacturerTranslationCollection extends EntityCollection
 {

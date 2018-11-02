@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation;
 
-use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class SalesChannelTranslationCollection extends EntityCollection
 {

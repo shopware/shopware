@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTypeTranslation;
 
-use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\System\Language\LanguageStruct;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeStruct;
 

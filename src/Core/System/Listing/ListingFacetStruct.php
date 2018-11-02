@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\System\Listing;
 
-use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\ListingFacetTranslationCollection;
 
 class ListingFacetStruct extends Entity

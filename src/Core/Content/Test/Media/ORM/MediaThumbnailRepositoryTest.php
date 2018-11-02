@@ -1,16 +1,16 @@
 <?php declare(strict_types=1);
 
-namespace src\Core\Content\Test\Media\ORM;
+namespace src\Core\Content\Test\Media\DataAbstractionLayer;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\DataAbstractionLayer\MediaThumbnailRepository;
 use Shopware\Core\Content\Media\MediaProtectionFlags;
-use Shopware\Core\Content\Media\ORM\MediaThumbnailRepository;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\ORM\Read\ReadCriteria;
-use Shopware\Core\Framework\ORM\RepositoryInterface;
-use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 

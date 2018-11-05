@@ -63,10 +63,10 @@ module.exports = {
             .waitForElementPresent('body > .sw-context-menu')
             .click('body > .sw-context-menu .sw-context-menu-item--danger')
             .waitForElementVisible('.sw-modal')
-            .assert.containsText('.sw-modal .sw-modal__body', 'Are you sure you want to delete the currency "Yen but true?"')
+            .assert.containsText('.sw-modal .sw-modal__body', 'Are you sure you want to delete the currency "Yen but true"?')
             .click('.sw-modal__footer button.sw-button--primary')
             .waitForElementVisible('.sw-notifications .sw-alert')
-            .assert.containsText('.sw-notifications .sw-alert', 'Currency Yen but true has been deleted successfully.');
+            .assert.containsText('.sw-notifications .sw-alert', 'Currency "Yen but true" has been deleted successfully.');
     },
     after: (browser) => {
         browser.end();

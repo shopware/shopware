@@ -79,7 +79,7 @@ module.exports = {
             .waitForElementPresent('body > .sw-context-menu')
             .click('body > .sw-context-menu .sw-context-menu-item--danger')
             .waitForElementVisible('.sw-modal')
-            .assert.containsText('.sw-modal .sw-product-list__confirm-delete-text', 'Are you sure you really want to delete the product: "Marci Darci"?')
+            .assert.containsText('.sw-modal .sw-product-list__confirm-delete-text', 'Are you sure you really want to delete the product "Marci Darci"?')
             .click('.sw-modal__footer button.sw-button--primary')
             .waitForElementNotPresent('.sw-product-list__column-product-name')
             .waitForElementNotPresent('.sw-modal')

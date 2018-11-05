@@ -21,7 +21,7 @@ module.exports = {
             .waitForElementPresent('.sw-settings-language-detail__save-action')
             .click('.sw-settings-language-detail__save-action')
             .waitForElementVisible('.sw-notifications .sw-alert')
-            .assert.containsText('.sw-alert__message', 'Language Philippine English english has been saved successfully.')
+            .assert.containsText('.sw-alert__message', 'Language "Philippine English english" has been saved successfully.')
             .assert.urlContains('#/sw/settings/language/detail');
     },
     'go back to listing and verify creation': (browser) => {
@@ -64,7 +64,7 @@ module.exports = {
             .waitForElementPresent('body > .sw-context-menu')
             .click('body > .sw-context-menu .sw-context-menu-item--danger')
             .waitForElementVisible('.sw-modal')
-            .assert.containsText('.sw-modal .sw-modal__body', 'Are you sure you want to delete the language "Very Philippine English english?"')
+            .assert.containsText('.sw-modal .sw-modal__body', 'Are you sure you want to delete the language "Very Philippine English english"?')
             .click('.sw-modal__footer button.sw-button--primary')
             .waitForElementVisible('.sw-notifications .sw-alert')
             .assert.containsText('.sw-notifications .sw-alert', 'Language "Very Philippine English english" has been deleted successfully.');

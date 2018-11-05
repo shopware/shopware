@@ -558,8 +558,8 @@ export default class EntityProxy {
                     return { ...acc, [key]: addition };
                 }
 
-                // The property is a JSON field
-                if (type.isObject(b[key]) && properties[key].properties) {
+                // The property is a structured JSON field with schema
+                if (type.isObject(b[key]) && properties[key].type === 'object' && properties[key].properties) {
                     const addition = EntityProxy.validateSchema(b[key], properties[key]);
 
                     if (Object.keys(addition).length <= 0) {
@@ -567,6 +567,11 @@ export default class EntityProxy {
                     }
 
                     return { ...acc, [key]: addition };
+                }
+
+                // The property is an unstructured JSON field
+                if (type.isObject(b[key]) && properties[key].type === 'object') {
+                    return { ...acc, [key]: b[key] };
                 }
 
                 // The property is a OneToMany associated entity
@@ -588,15 +593,26 @@ export default class EntityProxy {
                 return { ...acc, [key]: changes };
             }
 
-            // The property is a JSON field
-            if (type.isObject(b[key]) && properties[key].properties) {
+            // The property is a structured JSON field with schema
+            if (type.isObject(b[key]) && properties[key].type === 'object' && properties[key].properties) {
                 const changes = this.getChanges(a[key], b[key], properties[key]);
 
                 if (Object.keys(changes).length <= 0) {
                     return acc;
                 }
 
-                return { ...acc, [key]: EntityProxy.validateSchema(b[key], properties[key]) };
+                return { ...acc, [key]: EntityProxy.validateSchema(Object.assign({}, a[key], b[key]), properties[key]) };
+            }
+
+            // The property is an unstructured JSON field
+            if (type.isObject(b[key]) && properties[key].type === 'object') {
+                const changes = getObjectDiff(a[key], b[key]);
+
+                if (Object.keys(changes).length <= 0) {
+                    return acc;
+                }
+
+                return { ...acc, [key]: Object.assign({}, a[key], b[key]) };
             }
 
             // The property is a OneToMany associated entity

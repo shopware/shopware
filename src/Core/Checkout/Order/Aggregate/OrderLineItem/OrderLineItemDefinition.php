@@ -15,6 +15,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ObjectField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TenantIdField;
@@ -58,12 +60,13 @@ class OrderLineItemDefinition extends EntityDefinition
             (new FloatField('unit_price', 'unitPrice'))->setFlags(new Required()),
             (new FloatField('total_price', 'totalPrice'))->setFlags(new Required()),
             new StringField('description', 'description'),
-            new IdField('parent_id', 'parentId'),
+            new ParentField(self::class),
             new StringField('type', 'type'),
             new CreatedAtField(),
             new UpdatedAtField(),
             new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, false),
             (new OneToManyAssociationField('orderDeliveryPositions', OrderDeliveryPositionDefinition::class, 'order_line_item_id', false, 'id'))->setFlags(new CascadeDelete(), new ReadOnly()),
+            new ParentAssociationField(self::class, false),
         ]);
     }
 

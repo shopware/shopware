@@ -1173,5 +1173,10 @@
         <service class="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\VersionFieldSerializer" id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\VersionFieldSerializer">
             <tag name="shopware.field_serializer" />
         </service>
+
+        <service class="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ParentAssociationFieldSerializer" id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ParentAssociationFieldSerializer">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor"/>
+            <tag name="shopware.field_serializer" />
+        </service>
     </services>
 </container>

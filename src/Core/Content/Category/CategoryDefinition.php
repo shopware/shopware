@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
@@ -51,7 +52,6 @@ class CategoryDefinition extends EntityDefinition
             new VersionField(),
             new CatalogField(),
 
-            new FkField('parent_id', 'parentId', self::class),
             new ParentField(self::class),
             new ReferenceVersionField(self::class, 'parent_version_id'),
 
@@ -82,7 +82,7 @@ class CategoryDefinition extends EntityDefinition
             new TranslatedField('metaDescription'),
             new TranslatedField('cmsHeadline'),
             new TranslatedField('cmsDescription'),
-            new ManyToOneAssociationField('parent', 'parent_id', self::class, false),
+            new ParentAssociationField(self::class, false),
             new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, false),
             (new ChildrenAssociationField(self::class))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField(CategoryTranslationDefinition::class))->setFlags(new Required(), new CascadeDelete()),

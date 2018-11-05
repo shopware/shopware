@@ -14,7 +14,7 @@ public static function getParentPropertyName(): string
 * A parent child association is configured:
 ```
 new FkField('parent_id', 'parentId', self::class),
-new ManyToOneAssociationField('parent', 'parent_id', self::class, false))->setFlags(new WriteOnly(),
+new ParentAssociationField(self::class, false))->setFlags(new WriteOnly(),
 new OneToManyAssociationField('children', self::class, 'parent_id', false, 'id'))->setFlags(new CascadeDelete(),
 ```
 
@@ -36,7 +36,7 @@ class HumanDefinition extends EntityDefinition
             new FkField('parent_id', 'parentId', self::class),
             new StringField('name', 'name'),
             (new StringField('last_name', 'lastName'))->setFlags(new Inherited()),
-            new ManyToOneAssociationField('parent', 'parent_id', self::class, false),
+            new ParentAssociationField(self::class, false),
             new OneToManyAssociationField('children', self::class, 'parent_id', false, 'id'),
         ]);
     }

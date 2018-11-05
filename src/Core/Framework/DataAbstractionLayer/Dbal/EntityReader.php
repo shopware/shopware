@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\SearchKeywordAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -190,7 +191,7 @@ class EntityReader implements EntityReaderInterface
             }
 
             //self references can not be resolved, otherwise we get an endless loop
-            if ($field instanceof AssociationInterface && $field->getReferenceClass() === $definition) {
+            if ($field instanceof AssociationInterface && $field->getReferenceClass() === $definition && !$field instanceof ParentAssociationField) {
                 continue;
             }
 
@@ -769,6 +770,10 @@ class EntityReader implements EntityReaderInterface
 
         $read = new ReadCriteria($ids);
 
+        foreach ($fieldCriteria->getAssociations() as $fieldName => $associationCriteria) {
+            $read->addAssociation($fieldName, $associationCriteria);
+        }
+
         $referenceClass = $association->getReferenceDefinition();
         $collectionClass = $referenceClass::getCollectionClass();
         $data = $this->_read($read, $referenceClass, $context, $referenceClass::getStructClass(), new $collectionClass(), $referenceClass::getFields()->filterBasic());
@@ -882,6 +887,10 @@ class EntityReader implements EntityReaderInterface
         }
 
         if (!empty($criteria->getPostFilters())) {
+            return true;
+        }
+
+        if (!empty($criteria->getAssociations())) {
             return true;
         }
 

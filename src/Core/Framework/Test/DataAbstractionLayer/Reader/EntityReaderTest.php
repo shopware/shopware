@@ -679,6 +679,49 @@ class EntityReaderTest extends TestCase
         static::assertNull($category2->getProducts());
     }
 
+    public function testLoadNestedAssociation(): void
+    {
+        static::markTestIncomplete('this test should be green if NEXT-1069 is resolved');
+        $id1 = Uuid::uuid4()->getHex();
+        $id2 = Uuid::uuid4()->getHex();
+
+        $product1 = [
+            'id' => $id1,
+            'price' => ['gross' => 10, 'net' => 9],
+            'active' => true,
+            'manufacturer' => ['name' => 'test'],
+            'name' => 'test',
+            'tax' => ['taxRate' => 13, 'name' => 'green'],
+        ];
+
+        $categoryRepo = $this->getContainer()->get('category.repository');
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+
+        $categoryRepo->upsert(
+            [
+                ['id' => $id1, 'name' => 'test', 'products' => []],
+                ['id' => $id2, 'name' => 'test', 'products' => [$product1], 'parentId' => $id1],
+            ],
+            $context
+        );
+
+        $categoryCriteria = new Criteria();
+        $categoryCriteria->addAssociation('category.parent');
+
+        $criteria = new ReadCriteria([$id1]);
+        $criteria->addAssociation('product.categories', $categoryCriteria);
+
+        $productRepo = $this->getContainer()->get('product.repository');
+        /** @var ProductStruct $product */
+        $product = $productRepo->read($criteria, $context)->get($id1);
+
+        static::assertInstanceOf(CategoryCollection::class, $product->getCategories());
+        $categories = $product->getCategories();
+        static::assertEquals(1, $categories->count());
+
+        static::assertInstanceOf(CategoryStruct::class, $categories->first()->getParent());
+    }
+
     public function testLoadManyToMany(): void
     {
         $id1 = Uuid::uuid4()->getHex();

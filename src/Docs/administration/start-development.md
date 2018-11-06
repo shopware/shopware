@@ -8,7 +8,7 @@ All commands which are necessary for administration development can be accessed 
 ./psh.phar administration:{COMMAND}
 ```
 
-<a href="https://github.com/shopwareLabs/psh">Find out more about about PSH</a>.
+[Find out more about about PSH](https://github.com/shopwareLabs/psh).
 
 
 ## 1. Install dependencies
@@ -36,8 +36,8 @@ This will start the development server with `localhost` and the default port `80
 ```
 http://localhost:8080
 ```
-If you need port `8080` for something else like e.g. elastic search, you can also change the port with the additional `DEVPORT parameter:
-``
+If you need port `8080` for something else like e.g. elastic search, you can also change the port with the additional `DEVPORT` parameter:
+
 ```
 ./psh.phar administration:watch --DEVPORT=9000
 ```
@@ -50,8 +50,8 @@ The Vue.js framework offers an extension for the developer console of your brows
 
 [SCREENSHOT_DEVTOOLS]
 
-- <a href="https://chrome.google.com/webstore/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd">Vue.js Devtools for Google Chrome</a>
-- <a href="https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/">Vue.js Devtools for Firefox</a>
+- [Vue.js Devtools for Google Chrome](https://chrome.google.com/webstore/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
+- [Vue.js Devtools for Firefox](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
 
 The Google Chrome Version should also work in other webkit based browsers like Chromium, Opera or Vivaldi.
 
@@ -66,15 +66,17 @@ All plugins are located inside the `{YOUR_SW_ROOT}/custom/plugins` directory.
 In order to make your plugin functional you need at least a plugin bootstrap file inside the root directory of your plugin. _Please beware that the file name has to be equal to the name of the plugin._
 
 ```
-.
 └── plugins
     └── SwagAdministrationExample
         └── SwagAdministrationExample.php
 ```
+*plugin structure*
 
 The bare minimum of a plugin bootstrap looks like this:
 
 ```
+// SwagAdministrationExample/SwagAdministrationExample.php
+
 <?php declare(strict_types=1);
 
 namespace SwagAdministrationExample;
@@ -85,8 +87,9 @@ class SwagAdministrationExample extends Plugin {
 
 }
 ```
+*minimum bootstrap file*
 
-This is already a valid shopware plugin. You can however add additional functionality like for example custom install or update methods. <a href="#">Learn about Plugins</a>. Only the bootstrap class is required to start making changes in the administration.
+This is already a valid shopware plugin. You can however add additional functionality like for example custom install or update methods. Only the bootstrap class is required to start making changes in the administration.
 
 ## 2. Install the plugin
 
@@ -130,7 +133,7 @@ When the plugin was successfully activated, please restart the development serve
 
 The administration files of your plugin are located in the `Resources/views/administration` directory.
 
-The entry point for your administration changes is the `main.js` file. In this file you can import all your components and modules later on.
+The entry point for your administration is the `main.js` file. In this file you can import all your components and modules later on.
 
 ```
 SwagAdministrationExample
@@ -140,6 +143,7 @@ SwagAdministrationExample
 │           └── main.js
 └── SwagAdministrationExample.php
 ```
+*file structure*
 
 To make actual changes you have two main possibilities. Writing entirely new components or using the multi inheritance system from shopware. The inheritance system allows you to extend or override existing functionality with your own code. You don't need to copy large chunks of the source code in order to make your desired change.
 
@@ -160,7 +164,7 @@ You can use all Vue components of the shopware core as an entry point in order t
 ```
 As you can see the most important parts of a core template are wrapped inside Twig blocks. This gives you the possibility to override or append any of those blocks in your own plugin. Just like you are maybe already familiar with from frameworks like Symfony.
 
-Please beware that the custom build of Twig.js only contains the block feature to give you the power of making template driven changes without overriding the whole component template. It does however not include features like `{% for %}` or `{% set %}`. Stuff like variables, for loops or modifiers are completely handled by Vue.js. Just think about it this way: You are looking at Vue.js Code with additional Twig blocks.
+Please note that the custom build of Twig.js only contains the block feature to give you the power of making template driven changes without overriding the whole component template. It does however not include features like `{% for %}` or `{% set %}`. Stuff like variables, for loops or modifiers are completely handled by Vue.js. Just think about it this way: You are looking at Vue.js Code with additional Twig blocks.
 
 ### Overriding a component
 
@@ -179,11 +183,15 @@ SwagAdministrationExample
 │                       └── sw-dashboard-index.html.twig
 └── SwagAdministrationExample.php
 ```
+*file structure*
+
 All components are registered globally by the component factory and have to use unique names. So it does not really matter where exactly your components are located inside the `administration/src` directory your plugin. The `extension` directory is just a nice convention to keep things organized and separate your new components from components you are extending or overriding.
 
-The new component can override an existing component by using the `Component.override()` feature. <a href="#">Learn more about components</a>.
+The new component can override an existing component by using the `Component.override()` feature. [Learn more about components](./20-create-a-component.md).
 
 ```
+// sw-dashboard-index/index.js
+
 import { Component } from 'src/core/shopware';
 import template from './sw-dashboard-index.html.twig';
 
@@ -195,9 +203,13 @@ Component.override('sw-dashboard-index', {
     }
 });
 ```
+*overriding a component*
+
 Inside the template you can call the `sw_dashboard_index_content_view` block from the `sw-dashboard-index` component and implement your own content:
 
 ```
+// sw-dashboard-index/sw-dashboard-index.html.twig
+
 {% block sw_dashboard_index_content_view %}
     <!-- Your content goes here -->
     <div class="swag-administration-example-dashboard">
@@ -205,14 +217,18 @@ Inside the template you can call the `sw_dashboard_index_content_view` block fro
     </div>
 {% endblock %}
 ```
+*adding a template*
 
 ### Using the component
 
 Now you can import the component inside the `main.js` file:
 
 ```
+// administration/main.js
+
 import 'src/extension/sw-dashboard-index';
 ```
+*importing the new component*
 
 After the import you should be able to the your changes in the dashboard:
 
@@ -223,6 +239,8 @@ After the import you should be able to the your changes in the dashboard:
 In order to build the CSS and JavaScript for production environments you need to append your files in the index template for the production build:
 
 ```
+// administration/index.html.twig
+
 {% sw_extends 'administration/index.html.twig' %}
 
 {% block administration_stylesheets %}
@@ -235,6 +253,7 @@ In order to build the CSS and JavaScript for production environments you need to
     <script type="text/javascript" src="{{ asset('bundles/swagadministrationexample/static/js/SwagHelloWorld.js') }}"></script>
 {% endblock %}
 ```
+*include JavaScript and CSS files fpr production build*
 
 ### Build administration files
 
@@ -260,6 +279,7 @@ SwagAdministrationExample
             └── img
                 └── shopware.jpg
 ```
+*file structure for assets*
 
 ### Using assets
 

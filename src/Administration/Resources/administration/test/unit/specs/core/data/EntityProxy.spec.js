@@ -211,4 +211,46 @@ describe('core/data/EntityProxy.js', () => {
 
         expect(validate).to.be.equal(false);
     });
+
+    it('should handle changes in JSON fields correctly', () => {
+        const product = new EntityProxy('product', serviceContainer.productService);
+
+        product.setData({
+            price: {
+                gross: null,
+                net: 0,
+                linked: false
+            },
+            listingPrices: {
+                price: 50,
+                linked: true
+            }
+        });
+
+        product.setLocalData({
+            price: {
+                gross: 90
+            },
+            listingPrices: {
+                purchase: 30
+            },
+            testProp: {
+                test: true
+            }
+        });
+
+        const changes = product.getChanges();
+
+        expect(changes.price).to.be.an('object');
+        expect(changes.price.net).to.be.equal(0);
+        expect(changes.price.linked).to.be.equal(false);
+        expect(changes.price.gross).to.be.equal(90);
+
+        expect(changes.listingPrices).to.be.an('object');
+        expect(changes.listingPrices.price).to.be.equal(50);
+        expect(changes.listingPrices.purchase).to.be.equal(30);
+        expect(changes.listingPrices.linked).to.be.equal(true);
+
+        expect(changes.testProp).to.be.an('undefined');
+    });
 });

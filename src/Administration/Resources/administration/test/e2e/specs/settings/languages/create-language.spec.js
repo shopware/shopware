@@ -2,10 +2,7 @@ module.exports = {
     '@tags': ['language-create', 'language', 'create'],
     'open language module': (browser) => {
         browser
-            .assert.containsText('.sw-settings .collapsible-text', 'Settings')
-            .click('.sw-admin-menu__navigation-link[href="#/sw/settings/index"]')
-            .waitForElementVisible('.sw-settings-item[href="#/sw/settings/language/index"]')
-            .click('.sw-settings-item[href="#/sw/settings/language/index"]');
+            .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/language/index', 'Languages');
     },
     'create new language': (browser) => {
         browser
@@ -13,11 +10,11 @@ module.exports = {
             .waitForElementVisible('.sw-settings-language-detail .sw-card__content')
             .assert.urlContains('#/sw/settings/language/create')
             .assert.containsText('.sw-card__title', 'Settings')
-            .setValue('input[name=sw-field--language-name]', 'Philippine English')
+            .fillField('input[name=sw-field--language-name]', 'Philippine English')
             .waitForElementNotPresent('.sw-field--language-localeId .sw-field__select-load-placeholder')
-            .setValue('select[name=sw-field--language-localeId]', 'English, Philippines (en_PH)')
+            .fillSelectField('select[name=sw-field--language-localeId]', 'English, Philippines (en_PH)')
             .waitForElementNotPresent('.sw-field--language-parentId .sw-field__select-load-placeholder')
-            .setValue('select[name=sw-field--language-parentId]', 'English')
+            .fillSelectField('select[name=sw-field--language-parentId]', 'English')
             .waitForElementPresent('.sw-settings-language-detail__save-action')
             .click('.sw-settings-language-detail__save-action')
             .waitForElementVisible('.sw-notifications .sw-alert')

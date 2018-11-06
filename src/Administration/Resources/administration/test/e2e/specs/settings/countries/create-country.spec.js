@@ -2,10 +2,7 @@ module.exports = {
     '@tags': ['country-create', 'country', 'create'],
     'open country module': (browser) => {
         browser
-            .assert.containsText('.sw-settings .collapsible-text', 'Settings')
-            .click('.sw-admin-menu__navigation-link[href="#/sw/settings/index"]')
-            .waitForElementVisible('.sw-settings-item[href="#/sw/settings/country/index"]')
-            .click('.sw-settings-item[href="#/sw/settings/country/index"]');
+            .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/country/index', 'Countries');
     },
     'create new country': (browser) => {
         browser
@@ -13,9 +10,9 @@ module.exports = {
             .waitForElementVisible('.sw-settings-country-detail .sw-card__content')
             .assert.urlContains('#/sw/settings/country/create')
             .assert.containsText('.sw-card__title', 'Settings')
-            .setValue('input[name=sw-field--country-name]', '1.Niemandsland')
+            .fillField('input[name=sw-field--country-name]', '1.Niemandsland')
             .waitForElementPresent('input[name=sw-field--country-active]')
-            .click('input[name=sw-field--country-active]')
+            .tickCheckbox('input[name=sw-field--country-active]', 'on')
             .click('.sw-settings-country-detail__save-action')
             .waitForElementVisible('.sw-notifications .sw-alert')
             .assert.containsText('.sw-alert__message', 'Country "1.Niemandsland" has been saved successfully.')

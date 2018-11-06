@@ -25,6 +25,7 @@ if (process.env.NIGHTWATCH_HEADLESS === 'true') {
 module.exports = {
     src_folders: [resolve('specs')],
     output_folder: 'build/artifacts/e2e',
+    custom_commands_path: resolve('./custom-commands'),
 
     selenium: {
         start_process: true,

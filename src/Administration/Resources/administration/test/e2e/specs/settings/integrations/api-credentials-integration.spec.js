@@ -1,13 +1,10 @@
 const integrationPage = require('../../../page-objects/sw-integration.page-object.js');
 
 module.exports = {
-    '@tags': ['integration', 'api-credentials'],
+    '@tags': ['integration-api-credentials', 'integration', 'api-credentials'],
     'open integration module': (browser) => {
         browser
-            .assert.containsText('.sw-settings .collapsible-text', 'Settings')
-            .click('.sw-admin-menu__navigation-link[href="#/sw/settings/index"]')
-            .waitForElementVisible('.sw-settings-item[href="#/sw/integration/index"]')
-            .click('.sw-settings-item[href="#/sw/integration/index"]');
+            .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/integration/index', 'Integrations');
     },
     'go to create integration page': (browser) => {
         browser
@@ -20,8 +17,8 @@ module.exports = {
         browser
             .waitForElementVisible('.sw-modal__title')
             .assert.containsText('.sw-modal__title', 'Integration')
-            .setValue('input[name=sw-field--currentIntegration-label]', 'Wonderful API integration example')
-            .click('input[name=sw-field--currentIntegration-writeAccess]')
+            .fillField('input[name=sw-field--currentIntegration-label]', 'Wonderful API integration example')
+            .tickCheckbox('input[name=sw-field--currentIntegration-writeAccess]','on')
             .waitForElementPresent('.sw-integration-detail-modal__save-action')
             .click('.sw-integration-detail-modal__save-action')
             .waitForElementVisible('.sw-notifications .sw-alert')

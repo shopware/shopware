@@ -48,7 +48,7 @@ IntegrationPageObject.prototype.changeApiCredentials = function () {
             .getValue(me.elements.apiAccessKeyIdField, function (result) {
                 this.assert.notEqual(result, me.accessKeyId);
             })
-            .waitForElementPresent('.sw-integration-detail-modal__save-action')
+            .waitForElementVisible('.sw-integration-detail-modal__save-action')
             .click('.sw-integration-detail-modal__save-action')
             .waitForElementVisible('.sw-notification__alert')
             .assert.containsText('.sw-alert .sw-alert__message', 'Integration has been saved successfully');

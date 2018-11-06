@@ -2,11 +2,11 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-class CsrfTokenController extends Controller
+class CsrfTokenController extends AbstractController
 {
     /**
      * @Route("/csrftoken", name="csrftoken", methods={"GET"})

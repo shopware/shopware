@@ -23,14 +23,14 @@ use Shopware\Storefront\Page\Account\LoginRequest;
 use Shopware\Storefront\Page\Account\PasswordSaveRequest;
 use Shopware\Storefront\Page\Account\ProfileSaveRequest;
 use Shopware\Storefront\Page\Account\RegistrationRequest;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Serializer;
 
-class StorefrontCustomerController extends Controller
+class StorefrontCustomerController extends AbstractController
 {
     /**
      * @var Serializer

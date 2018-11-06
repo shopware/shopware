@@ -3,22 +3,29 @@
 namespace Shopware\Core\Framework\Command;
 
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class OrmValidateCommand extends ContainerAwareCommand
+class OrmValidateCommand extends Command
 {
     /**
      * @var DefinitionValidator
      */
     private $validator;
 
-    public function __construct(DefinitionValidator $validator)
+    /**
+     * @var ContainerInterface
+     */
+    private $container;
+
+    public function __construct(DefinitionValidator $validator, ContainerInterface $container)
     {
         parent::__construct();
         $this->validator = $validator;
+        $this->container = $container;
     }
 
     protected function configure()
@@ -45,7 +52,7 @@ class OrmValidateCommand extends ContainerAwareCommand
 
     protected function runNotices(SymfonyStyle $io): int
     {
-        $notices = $this->validator->getNotices($this->getContainer());
+        $notices = $this->validator->getNotices($this->container);
 
         $count = 0;
         foreach ($notices as $definition => $matches) {

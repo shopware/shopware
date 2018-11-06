@@ -4,13 +4,13 @@ namespace Shopware\Core\Framework\Command;
 
 use InvalidArgumentException;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class DumpSchemaCommand extends ContainerAwareCommand
+class DumpSchemaCommand extends Command
 {
     /**
      * @var DefinitionService

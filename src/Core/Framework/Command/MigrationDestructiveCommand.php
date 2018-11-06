@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Command;
 
 class MigrationDestructiveCommand extends MigrationCommand
 {
-    protected function getMigrationCommandName()
+    protected function getMigrationCommandName(): string
     {
         return 'database:migrate-destructive';
     }

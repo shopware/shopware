@@ -39,7 +39,7 @@ class MigrationCommand extends Command
         $this->runner = $runner;
     }
 
-    protected function getMigrationCommandName()
+    protected function getMigrationCommandName(): string
     {
         return 'database:migrate';
     }
@@ -59,7 +59,7 @@ class MigrationCommand extends Command
         $this->setName($this->getMigrationCommandName())
             ->addArgument('until', InputArgument::OPTIONAL, 'timestamp cap for migrations')
             ->addOption('all', 'all', InputOption::VALUE_NONE, 'no migration timestamp cap')
-            ->addOption('limit', 'l', InputOption::VALUE_OPTIONAL, '', 0);
+            ->addOption('limit', 'l', InputOption::VALUE_OPTIONAL, '', '0');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

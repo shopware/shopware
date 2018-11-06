@@ -81,29 +81,47 @@
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextService"/>
             <argument type="service" id="Shopware\Storefront\Page\Checkout\PaymentMethodLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Account\OrderPageLoader"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container" />
+            </call>
         </service>
 
         <service class="Shopware\Storefront\Controller\Widgets\IndexController" id="Shopware\Storefront\Controller\Widgets\IndexController" public="true">
             <argument type="service" id="currency.repository"/>
             <argument type="service" id="language.repository"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container" />
+            </call>
         </service>
 
         <service class="Shopware\Storefront\Controller\Widgets\CheckoutController" id="Shopware\Storefront\Controller\Widgets\CheckoutController" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService" />
+            <call method="setContainer">
+                <argument type="service" id="service_container" />
+            </call>
         </service>
 
         <service class="Shopware\Storefront\Controller\ListingController" id="Shopware\Storefront\Controller\ListingController" public="true">
             <argument type="service" id="Shopware\Storefront\Page\Listing\ListingPageLoader" />
+            <call method="setContainer">
+                <argument type="service" id="service_container" />
+            </call>
         </service>
 
         <service class="Shopware\Storefront\Controller\DetailController" id="Shopware\Storefront\Controller\DetailController" public="true">
             <argument type="service" id="Shopware\Storefront\Page\Detail\DetailPageLoader" />
+            <call method="setContainer">
+                <argument type="service" id="service_container" />
+            </call>
         </service>
 
         <service class="Shopware\Storefront\Page\Account\CustomerPageLoader" id="Shopware\Storefront\Page\Account\CustomerPageLoader"/>
 
         <service class="Shopware\Storefront\Controller\CartController" id="Shopware\Storefront\Controller\CartController" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container" />
+            </call>
         </service>
 
         <service class="Shopware\Storefront\Routing\StorefrontSubscriber" id="shopware.storefront.routing.storefront_subscriber">
@@ -119,10 +137,16 @@
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\PaymentService"/>
             <argument type="service" id="router"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container" />
+            </call>
         </service>
 
         <service class="Shopware\Storefront\Controller\SearchController" id="Shopware\Storefront\Controller\SearchController" public="true">
             <argument type="service" id="Shopware\Storefront\Page\Search\SearchPageLoader"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container" />
+            </call>
         </service>
 
         <!-- Event subscriber -->
@@ -154,6 +178,9 @@
             <argument type="service" id="Shopware\Core\Content\Product\Storefront\StorefrontProductRepository"/>
             <argument type="service" id="Shopware\Storefront\Page\Listing\ListingPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Search\SearchPageLoader"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container" />
+            </call>
         </service>
 
         <service class="Shopware\Storefront\Subscriber\SortingSubscriber" id="Shopware\Storefront\Subscriber\SortingSubscriber">

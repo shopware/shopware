@@ -25,6 +25,9 @@
                  public="true">
             <argument type="service" id="Shopware\Administration\Search\AdministrationSearch"/>
             <argument type="service" id="Shopware\Core\Framework\Twig\TemplateFinder"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container" />
+            </call>
         </service>
     </services>
 </container>

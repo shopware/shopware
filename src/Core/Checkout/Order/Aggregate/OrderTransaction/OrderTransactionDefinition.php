@@ -17,7 +17,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TenantIdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\RestrictDelete;
@@ -45,7 +44,7 @@ class OrderTransactionDefinition extends EntityDefinition
             new JsonField('details', 'details'),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, false))->setFlags(new CascadeDelete()),
+            new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, false),
             new ManyToOneAssociationField('paymentMethod', 'payment_method_id', PaymentMethodDefinition::class, false),
             (new ManyToOneAssociationField('orderTransactionState', 'order_transaction_state_id', OrderTransactionStateDefinition::class, false))->setFlags(new RestrictDelete()),
         ]);

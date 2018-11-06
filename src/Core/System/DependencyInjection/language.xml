@@ -24,5 +24,9 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\System\Language\TranslationValidator">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="shopware.validator"/>
+        </service>
     </services>
 </container>

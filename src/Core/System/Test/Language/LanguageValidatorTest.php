@@ -9,17 +9,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Validation\ValidatorRegistryInterface;
 use Shopware\Core\System\Language\LanguageValidator;
 
 class LanguageValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;
-
-    /**
-     * @var BatchValidatorInterface
-     */
-    protected $validator;
 
     /**
      * @var Context
@@ -30,11 +24,6 @@ class LanguageValidatorTest extends TestCase
      * @var RepositoryInterface
      */
     private $languageRepository;
-
-    /**
-     * @var ValidatorRegistryInterface
-     */
-    private $validatorRegistry;
 
     public function setUp()
     {

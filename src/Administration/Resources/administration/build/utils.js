@@ -3,6 +3,7 @@ const path = require('path');
 const appModulePath = require('app-module-path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const merge = require('webpack-merge');
+const dotenv = require('dotenv');
 
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
@@ -208,12 +209,16 @@ exports.getChunks = function(config) {
  * Add the HTML Webpack plugin which injects the registered chunks to the devmode server.
  *
  * @param {Object} config
+ * @param {Object} featureFlags
  * @returns {HtmlWebpackPlugin}
  */
-exports.injectHtmlPlugin = function(config) {
+exports.injectHtmlPlugin = function(config, featureFlags) {
     return new HtmlWebpackPlugin({
         filename: 'index.html',
-        template: 'index.html',
+        template: 'index.html.tpl',
+        templateParameters: {
+            'featureFlags': JSON.stringify(featureFlags)
+        },
         inject: 'head'
     });
 };
@@ -316,5 +321,32 @@ exports.styleLoaders = function (options) {
     }
 
     return output
+};
+
+exports.loadFeatureFlags = function(envFile) {
+    const result = dotenv.config({ path: envFile});
+
+    if(result.hasOwnProperty('error')) {
+        console.error('Unable to load .env file, no features registered.');
+        console.error(result.error);
+        return {};
+    }
+
+    return Object.keys(result.parsed)
+        .filter((key) => {
+            return key.indexOf('FEATURE_') === 0;
+        }).reduce((obj, key) => {
+            const clearedKey = key
+                .substring(8)
+                .split('_')
+                .map((part) => {
+                    return part[0].toUpperCase() + part.substr(1).toLowerCase();
+                })
+                .join('')
+                .replace(/^./, (part) => {return part.toLowerCase(); });
+
+            obj[clearedKey] = result.parsed[key] === '1';
+            return obj;
+        }, {});
 };
 

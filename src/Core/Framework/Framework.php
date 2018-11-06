@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\ExtensionRegistry;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DefinitionRegistryCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ExtensionCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\FeatureFlagCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\FrameworkExtension;
 use Shopware\Core\Framework\Migration\MigrationCompilerPass;
 use Symfony\Component\Config\FileLocator;
@@ -46,6 +47,7 @@ class Framework extends Bundle
         $loader->load('api.xml');
         $loader->load('plugin.xml');
 
+        $container->addCompilerPass(new FeatureFlagCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION);
         $container->addCompilerPass(new ExtensionCompilerPass());
         $container->addCompilerPass(new DefinitionRegistryCompilerPass());
         $container->addCompilerPass(new MigrationCompilerPass(), PassConfig::TYPE_AFTER_REMOVING);

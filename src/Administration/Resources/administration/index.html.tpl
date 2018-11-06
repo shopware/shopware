@@ -7,6 +7,8 @@
 </head>
 <body>
     <div id="app"></div>
-    <script type="text/javascript">Shopware.Application.start();</script>
+    <script type="text/javascript">
+        Shopware.Application.start({ features: <%= featureFlags %> });
+    </script>
 </body>
 </html>

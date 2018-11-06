@@ -14,6 +14,7 @@ const MixinFactory = require('src/core/factory/mixin.factory').default;
 const FilterFactory = require('src/core/factory/filter.factory').default;
 const DirectiveFactory = require('src/core/factory/directive.factory').default;
 const LocaleFactory = require('src/core/factory/locale.factory').default;
+const FeatureConfig = require('src/core/feature-config').default;
 
 const utils = require('src/core/service/util.service').default;
 const ApplicationBootstrapper = require('src/core/application').default;
@@ -21,6 +22,7 @@ const ApplicationBootstrapper = require('src/core/application').default;
 const container = new Bottle({
     strict: true
 });
+
 
 const application = new ApplicationBootstrapper(container);
 
@@ -59,7 +61,9 @@ module.exports = {
      * @type {Object}
      */
     Module: {
-        register: ModuleFactory.registerModule
+        register: ModuleFactory.registerModule,
+        getModuleRegistry: ModuleFactory.getModuleRegistry,
+        getModuleRoutes: ModuleFactory.getModuleRoutes
     },
 
     /**
@@ -159,5 +163,11 @@ module.exports = {
      * @memberOf module:Shopware
      * @type {module:core/application}
      */
-    Application: application
+    Application: application,
+
+    /**
+     * @memberOf module:Shopware
+     * @type {module:core/feature-config}
+     */
+    FeatureConfig: FeatureConfig
 };

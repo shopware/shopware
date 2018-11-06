@@ -60,6 +60,9 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
         // Enable performance measurements in development mode
         Vue.config.performance = process.env.NODE_ENV !== 'production';
 
+        // make all features globally available to templates
+        Vue.mixin({ data: () => { return Shopware.FeatureConfig.getAll(); } });
+
         return new Vue({
             el: renderElement,
             template: '<sw-admin />',

@@ -1,4 +1,5 @@
 module.exports = {
+    '@tags': ['customer-create'],
     'open customer listing': (browser) => {
         browser
             .assert.containsText('.sw-customer .collapsible-text', 'Customers')
@@ -72,7 +73,7 @@ module.exports = {
             .waitForElementPresent('body > .sw-context-menu')
             .click('body > .sw-context-menu .sw-context-menu-item--danger')
             .waitForElementVisible('.sw-modal')
-            .assert.containsText('.sw-modal .sw-customer-list__confirm-delete-text', 'Do you really want to delete the customer "Pep Eroni"?')
+            .assert.containsText('.sw-modal .sw-customer-list__confirm-delete-text', 'Are you sure you want to delete the customer "Pep Eroni"?')
             .click('.sw-modal__footer button.sw-button--primary')
             .waitForElementNotPresent('.sw-customer-list__column-customer-name')
             .waitForElementNotPresent('.sw-modal')

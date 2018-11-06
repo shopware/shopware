@@ -18,7 +18,7 @@ module.exports = {
             .click('input[name=sw-field--country-active]')
             .click('.sw-settings-country-detail__save-action')
             .waitForElementVisible('.sw-notifications .sw-alert')
-            .assert.containsText('.sw-alert__message', 'The country 1.Niemandsland has been saved successfully.')
+            .assert.containsText('.sw-alert__message', 'Country "1.Niemandsland" has been saved successfully.')
             .assert.urlContains('#/sw/settings/country/detail');
     },
     'go back to listing and verify creation': (browser) => {
@@ -43,7 +43,7 @@ module.exports = {
             .setValue('input[name=sw-field--country-name]', '1.Niemandsland x2')
             .click('.sw-settings-country-detail__save-action')
             .waitForElementVisible('.sw-notifications .sw-alert')
-            .assert.containsText('.sw-alert__message', 'The country 1.Niemandsland x2 has been saved successfully.')
+            .assert.containsText('.sw-alert__message', 'Country "1.Niemandsland x2" has been saved successfully.')
             .assert.urlContains('#/sw/settings/country/detail');
     },
     'verify edited country': (browser) => {
@@ -62,7 +62,7 @@ module.exports = {
             .waitForElementPresent('body > .sw-context-menu')
             .click('body > .sw-context-menu .sw-context-menu-item--danger')
             .waitForElementVisible('.sw-modal')
-            .assert.containsText('.sw-modal .sw-modal__body', 'Are you sure, you want to delete the country 1.Niemandsland x2?')
+            .assert.containsText('.sw-modal .sw-modal__body', 'Are you sure you want to delete the country "1.Niemandsland x2"?')
             .click('.sw-modal__footer button.sw-button--primary')
             .waitForElementNotPresent('.sw-modal');
     },

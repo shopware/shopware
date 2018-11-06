@@ -25,7 +25,7 @@ module.exports = {
             .waitForElementPresent('.sw-integration-detail-modal__save-action')
             .click('.sw-integration-detail-modal__save-action')
             .waitForElementVisible('.sw-notifications .sw-alert')
-            .assert.containsText('.sw-alert .sw-alert__message', 'Integration saved successful')
+            .assert.containsText('.sw-alert .sw-alert__message', 'Integration has been saved successfully')
             .assert.urlContains('#/sw/integration/index');
     },
     'verify newly created integration': (browser) => {

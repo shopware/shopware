@@ -17,7 +17,7 @@ module.exports = {
             .setValue('input[name=sw-field--tax-taxRate]', '99')
             .click('.sw-settings-tax-detail__save-action')
             .waitForElementVisible('.sw-notifications .sw-alert')
-            .assert.containsText('.sw-alert__message', 'The tax High tax has been saved successfully.')
+            .assert.containsText('.sw-alert__message', 'Tax "High tax" has been saved successfully.')
             .assert.urlContains('#/sw/settings/tax/detail');
     },
     'go back to listing': (browser) => {
@@ -34,10 +34,10 @@ module.exports = {
             .waitForElementPresent('body > .sw-context-menu')
             .click('body > .sw-context-menu .sw-context-menu-item--danger')
             .waitForElementVisible('.sw-modal')
-            .assert.containsText('.sw-modal .sw-modal__body', 'Are you sure, you want to delete the tax High tax?')
+            .assert.containsText('.sw-modal .sw-modal__body', 'Are you sure you want to delete the tax "High tax"?')
             .click('.sw-modal__footer button.sw-button--primary')
             .waitForElementVisible('.sw-notifications .sw-alert')
-            .assert.containsText('.sw-notifications .sw-alert', 'The tax High tax has been deleted successfully.');
+            .assert.containsText('.sw-notifications .sw-alert', 'Tax "High tax" has been deleted successfully.');
     },
     after: (browser) => {
         browser.end();

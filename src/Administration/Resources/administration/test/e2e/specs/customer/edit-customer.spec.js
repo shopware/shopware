@@ -1,4 +1,5 @@
 module.exports = {
+    '@tags': ['customer-edit'],
     'open customer listing': (browser) => {
         browser
             .assert.containsText('.sw-admin-menu__navigation-list-item.sw-customer span.collapsible-text', 'Customers')
@@ -20,8 +21,7 @@ module.exports = {
             .setValue('select[name=sw-field--customer-groupId]', 'Standard customer group')
             .setValue('select[name=sw-field--customer-salesChannelId]', 'Storefront API')
             .setValue('select[name=sw-field--customer-defaultPaymentMethodId]', 'Invoice')
-            .setValue('input[name=sw-field--customer-customerNumber]', '1234321-edit')
-
+            .setValue('input[name=sw-field--customer-customerNumber]', '1234321-edit');
     },
     'add customer address': (browser) => {
         browser
@@ -65,7 +65,7 @@ module.exports = {
             .click('.sw-alert .sw-alert__close')
             .waitForElementNotPresent('.sw-alert__message')
             .waitForElementVisible('.sw-page__smart-bar-amount')
-            .assert.containsText('.sw-page__smart-bar-amount', '(1)')
+            .assert.containsText('.sw-page__smart-bar-amount', '(1)');
     },
     'delete customer and verify deletion': (browser) => {
         browser
@@ -75,7 +75,7 @@ module.exports = {
             .waitForElementPresent('body > .sw-context-menu')
             .click('body > .sw-context-menu .sw-context-menu-item--danger')
             .waitForElementVisible('.sw-modal')
-            .assert.containsText('.sw-modal .sw-customer-list__confirm-delete-text', 'Do you really want to delete the customer "Pep Eroni"?')
+            .assert.containsText('.sw-modal .sw-customer-list__confirm-delete-text', 'Are you sure you want to delete the customer "Pep Eroni"?')
             .click('.sw-modal__footer button.sw-button--primary')
             .waitForElementNotPresent('.sw-customer-list__column-customer-name')
             .waitForElementNotPresent('.sw-modal')

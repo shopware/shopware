@@ -1,4 +1,5 @@
 module.exports = {
+    '@tags': ['media-upload'],
     'open catalog overview': (browser) => {
         browser
         // open catalog overview

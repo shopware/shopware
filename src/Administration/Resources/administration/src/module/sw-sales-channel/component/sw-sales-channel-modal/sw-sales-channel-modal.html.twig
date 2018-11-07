@@ -64,10 +64,10 @@
                                             align="center"
                                             dataIndex="actions"
                                             class="sw-sales-channel-modal__grid-actions">
-                                <sw-button size="small" @click="onOpenDetail(item.id)">
+                                <sw-button class="sw-sales-channel-modal__show-detail-action" size="small" @click="onOpenDetail(item.id)">
                                     {{ $tc('sw-sales-channel.modal.buttonShowDetails') }}
                                 </sw-button>
-                                <sw-button variant="primary" size="small" @click="onAddChannel(item.id)">
+                                <sw-button class="sw-sales-channel-modal__add-channel-action" variant="primary" size="small" @click="onAddChannel(item.id)">
                                     {{ $tc('sw-sales-channel.modal.buttonAddChannel') }}
                                 </sw-button>
                             </sw-grid-column>
@@ -132,7 +132,7 @@
                         {% endblock %}
 
                         {% block sw_sales_channel_modal_footer_add_channel %}
-                            <sw-button variant="primary" size="small" @click="onAddChannel(detailType.id)">
+                            <sw-button class="sw-sales-channel-modal__add-sales-channel-action" variant="primary" size="small" @click="onAddChannel(detailType.id)">
                                 {{ $tc('sw-sales-channel.modal.buttonAddChannel') }}
                             </sw-button>
                         {% endblock %}

@@ -23,6 +23,7 @@
 
                 {% block sw_sales_channel_detail_base_general_input_payments_methods %}
                     <sw-multi-select id="paymentMethodIds"
+                                     class="sw-sales-channel-detail__input-payment-method"
                                      :label="$tc('sw-sales-channel.detail.labelInputPaymentMethods')"
                                      validation="required"
                                      :serviceProvider="paymentMethodService"
@@ -36,6 +37,7 @@
 
                 {% block sw_sales_channel_detail_base_general_input_shipping_methods %}
                     <sw-multi-select id="shippingMethodIds"
+                                     class="sw-sales-channel-detail__input-shipping-method"
                                      :label="$tc('sw-sales-channel.detail.labelInputShippingMethods')"
                                      validation="required"
                                      :serviceProvider="shippingMethodService"
@@ -49,6 +51,7 @@
 
                 {% block sw_sales_channel_detail_base_general_input_countries %}
                     <sw-multi-select id="countryIds"
+                                     class="sw-sales-channel-detail__input-countries"
                                      :label="$tc('sw-sales-channel.detail.labelInputCountries')"
                                      validation="required"
                                      :serviceProvider="countryService"
@@ -62,6 +65,7 @@
 
                 {% block sw_sales_channel_detail_base_general_input_currencies %}
                     <sw-multi-select id="currencyIds"
+                                     class="sw-sales-channel-detail__input-currencies"
                                      :label="$tc('sw-sales-channel.detail.labelInputCurrencies')"
                                      validation="required"
                                      :serviceProvider="currencyService"
@@ -75,6 +79,7 @@
 
                 {% block sw_sales_channel_detail_base_general_input_languages %}
                     <sw-multi-select id="languageIds"
+                                     class="sw-sales-channel-detail__input-languages"
                                      :label="$tc('sw-sales-channel.detail.labelInputLanguages')"
                                      validation="required"
                                      :serviceProvider="languageService"
@@ -88,6 +93,7 @@
 
                 {% block sw_sales_channel_detail_base_general_input_catalogs %}
                     <sw-multi-select id="catalogIds"
+                                     class="sw-sales-channel-detail__input-catalogues"
                                      :label="$tc('sw-sales-channel.detail.labelInputCatalogs')"
                                      :serviceProvider="catalogService"
                                      :store="catalogStore"

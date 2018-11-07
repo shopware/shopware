@@ -11,7 +11,7 @@
         {% block sw_sales_channel_detail_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_sales_channel_detail_actions_save %}
-                    <sw-button variant="primary" :disabled="isLoading" @click.prevent="onSave">
+                    <sw-button class="sw-sales-channel-detail__save-action" variant="primary" :disabled="isLoading" @click.prevent="onSave">
                         {{ $tc('sw-sales-channel.detail.buttonSave') }}
                     </sw-button>
                 {% endblock %}

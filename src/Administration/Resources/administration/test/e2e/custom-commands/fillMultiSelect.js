@@ -13,14 +13,18 @@ const removeItemCssSelector = '.sw-multi-select__selection-dismiss';
  * @returns {exports}
  */
 exports.command = function fillMultiSelect(selector, value, clearField = false) {
-    this.waitForElementVisible(selector);
+    const multiSelectInput = `${selector} ${multiSelectInputCssSelector}`;
+
+    this.waitForElementVisible(multiSelectInput);
 
     if (clearField) {
         this.click(removeItemCssSelector).waitForElementNotPresent(multiSelectItemCssSelector);
     }
 
-    this.setValue(multiSelectInputCssSelector, [value, this.Keys.ENTER]).setValue(multiSelectInputCssSelector, [this.Keys.ESCAPE]);
-    this.expect.element(selectedItemCssSelector).to.have.text.that.contains(value);
+    this.setValue(multiSelectInput, value)
+        .waitForElementNotPresent('.sw-loader')
+        .setValue(multiSelectInput, [this.Keys.ENTER]).setValue(multiSelectInput, [this.Keys.ESCAPE])
+        .expect.element(`${selector} ${selectedItemCssSelector}`).to.have.text.that.contains(value);
 
     return this;
 };

@@ -9,6 +9,7 @@
     display: grid;
     grid-template-rows: 64px 1fr;
     border-left: 1px solid @sw-sidebar-item-color-border;
+    overflow: hidden;
 
     .sw-sidebar-item__headline {
         display: grid;
@@ -41,8 +42,21 @@
 
     .sw-sidebar-item__scrollable-container {
         position: absolute;
-        width: 100%;
+        width: 400px;
         height: 100%;
         overflow-y: auto;
     }
+}
+
+.sw-sidebar-item-fade-enter-active,
+.sw-sidebar-item-fade-leave-active {
+    transition: opacity ease-in-out .3s,
+                width cubic-bezier(.50, .32, .01, 1) .3s;
+    width: 400px;
+}
+
+.sw-sidebar-item-fade-enter,
+.sw-sidebar-item-fade-leave-to {
+    opacity: 0;
+    width: 0;
 }

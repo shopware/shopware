@@ -1,17 +1,16 @@
 @import "~less/variables";
 
-@sw-card-view-z-index-sidebar: @z-index-sidebar;
-
 .sw-card-view {
-    position: relative;
+    position: absolute;
     width: 100%;
     height: 100%;
+    display: grid;
+    grid-template-columns: 1fr auto;
 
     .sw-card-view__content {
         width: 100%;
-        height: 100%;
+        height: 1fr;
         padding: 40px;
-        position: absolute;
         overflow-x: hidden;
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
@@ -32,10 +31,5 @@
                 max-width: 100%;
             }
         }
-    }
-
-    .sw-card-view__sidebar {
-        position: absolute;
-        z-index: @sw-card-view-z-index-sidebar;
     }
 }

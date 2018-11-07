@@ -138,6 +138,16 @@ class DemodataCommand extends Command
      */
     private $mediaUpdater;
 
+    /**
+     * @var string
+     */
+    private $kernelEnv;
+
+    /**
+     * @var string
+     */
+    private $projectDir;
+
     public function __construct(
         EntityWriterInterface $writer,
         VariantGenerator $variantGenerator,
@@ -149,7 +159,9 @@ class DemodataCommand extends Command
         RepositoryInterface $productRepository,
         RepositoryInterface $ruleRepository,
         RepositoryInterface $categoryRepository,
-        RepositoryInterface $taxRepository
+        RepositoryInterface $taxRepository,
+        string $kernelEnv,
+        string $projectDir
     ) {
         parent::__construct();
         $this->writer = $writer;
@@ -164,6 +176,8 @@ class DemodataCommand extends Command
         $this->contextFactory = $contextFactory;
         $this->processor = $calculator;
         $this->mediaUpdater = $mediaUpdater;
+        $this->kernelEnv = $kernelEnv;
+        $this->projectDir = $projectDir;
     }
 
     protected function configure(): void
@@ -183,9 +197,7 @@ class DemodataCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $env = $this->getContainer()->getParameter('kernel.environment');
-
-        if ($env !== 'prod') {
+        if ($this->kernelEnv !== 'prod') {
             $output->writeln('Demo data command should only be used in production environment. You can provide the environment as follow `APP_ENV=prod framework:demodata`');
 
             return;
@@ -859,7 +871,7 @@ class DemodataCommand extends Command
     {
         $images = (new Finder())
             ->files()
-            ->in($this->getContainer()->getParameter('kernel.project_dir') . '/build/media')
+            ->in($this->projectDir . '/build/media')
             ->name('/\.(jpg|png)$/')
             ->getIterator();
 

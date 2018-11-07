@@ -115,6 +115,8 @@
             <argument type="service" id="rule.repository"/>
             <argument type="service" id="category.repository"/>
             <argument type="service" id="tax.repository"/>
+            <argument>%kernel.environment%</argument>
+            <argument>%kernel.project_dir%</argument>
         </service>
 
         <service class="Shopware\Core\Framework\Provisioning\TenantProvisioner" id="Shopware\Core\Framework\Provisioning\TenantProvisioner">

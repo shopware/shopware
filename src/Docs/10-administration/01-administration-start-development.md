@@ -19,11 +19,11 @@ To get going you first need to install development dependencies with the `init` 
 ./psh.phar administration:init
 ```
 
-This will install all necessary dependencies for your local development environment using <a href="https://www.npmjs.com/">NPM</a>.
+This will install all necessary dependencies for your local environment using [NPM](https://www.npmjs.com/).
 
 ## 2. Local development Server
 
-For local development you can start a development server from your terminal. This will also enable a file watcher which will update the page in your browser when you make any changes to your files. Even when the the browser is refreshing the page the current state of the application remains the same. You can stay at the same place where you're working at. The watcher also offers automatic linting using ESLint and will show an overlay with helpful error messages.
+For local development you can start a server from your terminal. This will also enable a file watcher which will update the page in your browser when you make any changes to your files. Even when the the browser is refreshing the page the current state of the application remains the same. You can stay at the same place where you're working at. The watcher also offers automatic linting using ESLint and will show an overlay with helpful error messages.
 
 Start the development server:
 
@@ -42,13 +42,13 @@ If you need port `8080` for something else like e.g. elastic search, you can als
 ./psh.phar administration:watch --DEVPORT=9000
 ```
 
-The `./psh.phar administration:watch` command opens a new window of your default browser with the correct URL of the development server.
+The `./psh.phar administration:watch` command opens a new window of your default browser with the URL of the development server.
 
-## 3. Using the Vue.js Developer Tools
+## 3. Using the Vue.js developer tools
 
-The Vue.js framework offers an extension for the developer console of your browser. With this extension you have a reference to the original component structure and can inspect each component to get live information about it's state, events and several other information. This can be a really helpful tool during development.
+The [Vue.js](https://vuejs.org/) framework offers an extension for the developer console of your browser. With this extension you have a reference to the original component structure and can inspect each component to get live information about it's state, events and several other information. This can be a really helpful tool during development.
 
-[SCREENSHOT_DEVTOOLS]
+![Vue.js developer tools](https://image.tld)
 
 - [Vue.js Devtools for Google Chrome](https://chrome.google.com/webstore/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
 - [Vue.js Devtools for Firefox](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
@@ -91,11 +91,13 @@ class SwagAdministrationExample extends Plugin {
 
 This is already a valid shopware plugin. You can however add additional functionality like for example custom install or update methods. Only the bootstrap class is required to start making changes in the administration.
 
+[Learn about Plugins](../1-getting-started/getting-started.md) 
+
 ## 2. Install the plugin
 
 Before you make further changes to the administration itself you should install the plugin first in order to see all upcoming changes.
 
-You can manage plugins with the `plugin` command of the <a href="#">Shopware CLI</a>.
+You can manage plugins with the `plugin` command.
 
 First of all you can list all plugins which are currently available:
 
@@ -103,7 +105,7 @@ First of all you can list all plugins which are currently available:
 bin/console plugin:list
 ```
 
-This will promt an overview table with the available plugins in you terminal:
+This will display an overview table with the available plugins in you terminal:
 
 ```
 ------------------- ------------------- --------- -------- -------- -----------
@@ -145,9 +147,9 @@ SwagAdministrationExample
 ```
 *file structure*
 
-To make actual changes you have two main possibilities. Writing entirely new components or using the multi inheritance system from shopware. The inheritance system allows you to extend or override existing functionality with your own code. You don't need to copy large chunks of the source code in order to make your desired change.
+To make actual changes you have two main possibilities. Writing entirely new components or using the multi inheritance system from shopware. The inheritance system allows you to extend or override existing functionality with your own code. You don't need to copy large chunks of code in order to make your desired change.
 
-Shopware is using a custom build of Twig.js to make this possible for the administration templates. 
+Shopware is using a custom build of [Twig.js](https://github.com/twigjs/twig.js) to make this possible for the administration templates. 
 
 You can use all Vue components of the shopware core as an entry point in order to make changes. Let's take a look at the component template of `sw-dashboard`:
 
@@ -232,7 +234,7 @@ import 'src/extension/sw-dashboard-index';
 
 After the import you should be able to the your changes in the dashboard:
 
-[SCREENSHOT_DASHBOARD]
+![Screenshot dashboard](https://image.tld)
 
 ## 4. Prepare plugin CSS and JavaScript for production
 

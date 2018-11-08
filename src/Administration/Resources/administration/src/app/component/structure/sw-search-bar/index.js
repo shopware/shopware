@@ -1,11 +1,14 @@
-import { Component } from 'src/core/shopware';
+import { Component, Mixin } from 'src/core/shopware';
 import utils from 'src/core/service/util.service';
-import dom from 'src/core/service/utils/dom.utils';
 import template from './sw-search-bar.html.twig';
 import './sw-search-bar.less';
 
 Component.register('sw-search-bar', {
     template,
+
+    mixins: [
+        Mixin.getByName('header-offsets')
+    ],
 
     inject: ['searchService'],
 
@@ -29,7 +32,6 @@ Component.register('sw-search-bar', {
             searchTerm: '',
             results: [],
             isActive: false,
-            scrollbarOffset: 0,
             isOffCanvasShown: false,
             isSearchBarShown: false
         };
@@ -54,12 +56,6 @@ Component.register('sw-search-bar', {
             return this.showResultsContainer && !this.useTypeSearch;
         },
 
-        searchBarStyles() {
-            return {
-                paddingRight: `${this.scrollbarOffset}px`
-            };
-        },
-
         searchBarFieldClasses() {
             return {
                 'is--active': this.isActive
@@ -79,19 +75,7 @@ Component.register('sw-search-bar', {
         this.createdComponent();
     },
 
-    mounted() {
-        this.mountedComponent();
-    },
-
-    updated() {
-        this.setScrollbarOffset();
-    },
-
     methods: {
-        mountedComponent() {
-            this.setScrollbarOffset();
-        },
-
         createdComponent() {
             const that = this;
 
@@ -186,11 +170,6 @@ Component.register('sw-search-bar', {
                 this.isLoading = false;
             });
             this.showResultsContainer = true;
-        },
-
-        setScrollbarOffset() {
-            const swPageContent = document.querySelector('.sw-page__content').firstChild;
-            this.scrollbarOffset = dom.getScrollbarWidth(swPageContent);
         }
     }
 });

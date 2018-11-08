@@ -11,6 +11,19 @@ Component.register('sw-sidebar', {
         };
     },
 
+    mounted() {
+        // @TODO: Improve excluding
+        if (this.$parent.$options.name === 'sw-grid' ||
+            this.$parent.$options.name === 'sw-media-sidebar') {
+            return;
+        }
+        this.$root.$emit('swSidebarMounted');
+    },
+
+    destroyed() {
+        this.$root.$emit('swSidebarDestroyed');
+    },
+
     computed: {
         sections() {
             const sections = {};

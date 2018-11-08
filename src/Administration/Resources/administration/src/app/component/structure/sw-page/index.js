@@ -1,10 +1,13 @@
-import { Component } from 'src/core/shopware';
-import dom from 'src/core/service/utils/dom.utils';
+import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-page.html.twig';
 import './sw-page.less';
 
 Component.register('sw-page', {
     template,
+
+    mixins: [
+        Mixin.getByName('header-offsets')
+    ],
 
     props: {
         showSmartBar: {
@@ -16,8 +19,7 @@ Component.register('sw-page', {
     data() {
         return {
             module: null,
-            parentRoute: null,
-            scrollbarOffset: 0
+            parentRoute: null
         };
     },
 
@@ -34,18 +36,13 @@ Component.register('sw-page', {
 
         smartBarStyles() {
             return {
-                'border-bottom-color': this.pageColor,
-                'padding-right': `${this.scrollbarOffset}px`
+                'border-bottom-color': this.pageColor
             };
         }
     },
 
     mounted() {
         this.initPage();
-    },
-
-    updated() {
-        this.setScrollbarOffset();
     },
 
     methods: {
@@ -57,10 +54,6 @@ Component.register('sw-page', {
             if (this.$route.meta.parentPath) {
                 this.parentRoute = this.$route.meta.parentPath;
             }
-        },
-
-        setScrollbarOffset() {
-            this.scrollbarOffset = dom.getScrollbarWidth(this.$refs.swPageContent.firstChild);
         }
     }
 });

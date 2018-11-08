@@ -35,8 +35,15 @@ xmlwriter, zip
 
 ## Docker setup
 
-The easiest way to getting started is to use docker. You only need to have a working docker, docker-compose and bash
-installation.
+The easiest way to get started is to use docker. You only need 
+- php (packages `php` and `php-cli` )
+- `docker` and `docker-compose`
+- bash
+
+to be installed.
+
+Your current user should also be a member of the "docker" group, otherwise you have to execute all
+docker commands with root-permissions.
 
 ```bash
 git clone http://github.com/shopware/development.git shopware-dev
@@ -45,18 +52,20 @@ cd shopware-dev
 # start the docker containers
 ./psh.phar docker:start
 
-# fix permissions on $HOME/.composer
-sudo chown $USER:$USER $HOME/.composer
+# fix permissions on $HOME/.composer and $HOME/.npm
+sudo chown $USER:$USER $HOME/.composer $HOME/.npm
+
+#append "shopware.test" to your etc/hosts file
+echo "127.0.0.1 shopware.test" | sudo tee --append /etc/hosts
 
 # ssh into the app container
 ./psh.phar docker:ssh
-
-# inside the container
-./psh.phar init
 ```
 
-The system should now be fully functional. You should be able to access the example storefront <http://shopware.dev>
-and the admin <http://shopware.dev/admin>.
+Follow the steps described in [common setup steps](#Common-setup-steps) and return here once you are done.
+
+Afterwards the system should  be fully functional. You should be able to access the example storefront <http://shopware.test:8000>
+and the admin <http://shopware.test:8000/admin>.
 
 To shutdown the container, logout from the container and run stop:
 
@@ -122,41 +131,13 @@ Install the php modules:
 sudo apt install php-gd php-intl php-iconv php-mbstring php-mysql php-xml php-zip php-json
 ```
 
-### Shopware setup
-
 Clone the development repository from github
 ```bash
 git clone https://github.com/shopware/development.git $HOME/shopware-dev
 cd $HOME/shopware-dev
 ```
 
-Run the setup script
-```bash
-bin/setup
-```
-This will start the shopware setup process which asks for some basic information. You can skip all inputs by pressing 
-enter on each question. In this case the default value, specified in brackets [] behind the question, is chosen.
-
-1. `Application environment`: whether a development or production instance should be prepared. 
-Choose ```dev```.
-2. `URL to your /public folder`: the URL from which the shop should be reached. Use `shopware.dev`.
-3. `Tenant id`: the tenant ID for this shop. Use the default.    
-4. `Database host`: where the database is hosted. Use the default.
-5. `Database port`: the port under which the database may be reached. Use the default.
-6. `Database name`: the name of the database which Shopware will use. Use the default.
-7. `Database user`: the user shopware will use to access the database. Use the default.
-7. `Database password`: password of the given database user. Use `app`.
-
-Shopware and all of the its dependecies will now be installed. This may take a while.
-
-Append `CHROME_BIN: "chromium-browser"` to `.psh.yml.override` const section.
-In this file any of the information entered during the setup process can also be reviewed or changed.
-
-Finally init/build the administration app.
-```bash
-./psh.phar administration:init
-./psh.phar administration:build
-```
+Follow the steps described in [common setup steps](#Common-setup-steps) and return here once you are done.
 
 ### Web root
 
@@ -175,20 +156,22 @@ sudo chmod g+w -R $HOME/shopware-dev/{var,public/{media,thumbnail}}
 ```
 Add host:
 ```bash
-echo "127.0.0.1 shopware.dev" | sudo tee --append /etc/hosts
+echo "127.0.0.1 shopware.test" | sudo tee --append /etc/hosts
 ```
 Link www root to project dir:
 ```bash
-sudo ln -s $HOME/shopware-dev /var/www/shopware.dev
+sudo ln -s $HOME/shopware-dev /var/www/shopware.test
 ```
-Add virtual host `/etc/apache2/sites-available/shopware.dev.conf`:
+Add virtual host `/etc/apache2/sites-available/shopware.test.conf`:
 
 ```apacheconfig
-<VirtualHost *:80>
-    DocumentRoot "/var/www/shopware.dev/public"
-    ServerName shopware.dev
+LISTEN 8000
+
+<VirtualHost *:8000>
+    DocumentRoot "/var/www/shopware.test/public"
+    ServerName shopware.test
     SetEnv TENANT_ID 20080911ffff4fffafffffff19830531
-    <Directory "/var/www/shopware.dev/public">
+    <Directory "/var/www/shopware.test/public">
         AllowOverride All
     </Directory>
 </VirtualHost>
@@ -197,7 +180,7 @@ Add virtual host `/etc/apache2/sites-available/shopware.dev.conf`:
 Run the following commands to enable the vhost:
 ```bash
 # enable shopware vhost
-sudo a2ensite shopware.dev.conf
+sudo a2ensite shopware.test.conf
 
 # disable default vhost
 sudo a2dissite 000-default.conf
@@ -209,85 +192,8 @@ sudo a2enmod rewrite
 sudo systemctl restart apache2
 ```
 
-The system should now be fully functional. You should be able to access the example storefront <http://shopware.dev> and
-the admin <http://shopware.dev/admin>.
-
-
-## Testing your setup
-
-You can run the following commands to test your environment. All tests should complete without errors.
-```bash
-# reset database
-./psh.phar init
-
-# run unit tests
-./psh.phar unit
-
-# run e2e tests
-./psh.phar administration:init
-./psh.phar administration:build
-./psh.phar administration:e2e
-
-# run karma unit tests
-./psh.phar administration:unit
-```
-
-## Executing common tasks with psh
-
-*psh* is a task runner with many handy features. For detailed information see <https://github.com/shopwareLabs/psh>
-
-### psh config
-
-There are two configuration files `.psh.yml.dist` and `.psh.yml.override`. `.psh.yml.dist` is distributed with the code
-and contains defaults. The `.psh.yml.override` config is generated by the setup routine and contains local configuration
-like the database connection settings.
-
-
-### psh action overview
-
-Run `./psh.phar` to get an overview of all tasks. You can run `./psh.phar administration:` to get a list of all 
-administration tasks.
-
-*Useful tasks:*
-
-| Action | Description | Notes |
-| ------ | ----------- | ----- |
-| init                 | initialize the system and database | resets the database if it already exists |
-| demo-data            | create demo data |
-| cache | clear the cache | |
-| administration:init  | install all dependencies of the administration | |
-| administration:build | build the administration | |
-| administration:watch | start a local server for the administration, including hot reloading and live linting | |
-| administration:e2e   | run the nightwatch e2e tests | see [E2E Tests](#e2e-tests) |
-
-### E2E tests
-
-To run the nightwatch end to end tests you need to reset your database, initialize and build the administration before
-running the tests.
-```bash
-./psh.phar init
-./psh.phar administration:init
-./psh.phar administration:build
-./psh.phar administration:e2e
-```
-
-## Customization
-
-You can customize your setup by
-- adding custom actions to the `.psh.yml.override` file.
-- using the git ignored `custom/` directory to add custom and unversioned configuration.
-
-
-## Configure PHPStorm
-
-- Add `vendor/shopware/platform` as your source directory
-  - settings > directories > select directory > Mark as: Sources
-- Add `vendor/shopware/platform` directory to your version control
-  - settings > Version Control > "+" > select directory
-
-### xdebug docker
-
-<https://gist.github.com/jehaby/61a89b15571b4bceee2417106e80240d>
+The system should now be fully functional. You should be able to access the example storefront <http://shopware.test:8000> and
+the admin <http://shopware.test:8000/admin>.
 
 
 ## Windows (Ubuntu 18.04 LTS)
@@ -316,6 +222,140 @@ service mysql start
 
 ### Tips
 - deactivate your AV software live file scanning to improve the performance
+
+
+## Common setup steps
+
+Run the setup script (either from your local installation dir or inside the docker)
+```bash
+bin/setup
+```
+This will start the shopware setup process which asks for some basic information. You can skip all inputs by pressing 
+enter on each question. In this case the default value, specified in brackets [] behind the question, is chosen.
+
+1. `Application environment`: whether a development or production instance should be prepared. 
+Choose ```dev```.
+2. `URL to your /public folder`: the URL from which the shop should be reached. Use `http://shopware.test:8000`.
+3. `Tenant id`: the tenant ID for this shop. Use the default.    
+4. `Database host`: where the database is hosted. 
+    - **Local Installation** Use the default.
+    - **Docker Installation** Use `mysql`.
+5. `Database port`: the port under which the database may be reached. Use the default.
+6. `Database name`: the name of the database which Shopware will use. Use the default.
+7. `Database user`: the user shopware will use to access the database. Use the default.
+7. `Database password`: password of the given database user. Use `app`.
+
+Shopware and all of the its dependecies will now be installed. This may take a while.
+In the file `.psh.yml.override` any of the information entered during the setup process can also be reviewed or changed.
+
+**Only local installations:** Append `CHROME_BIN: "chromium-browser"` to the `.psh.yml.override` const section.
+
+Finally init/build the administration app.
+```bash
+./psh.phar administration:init
+./psh.phar administration:build
+```
+
+Afterwards continue with your system-specific set-up.
+
+## Testing your setup
+
+You can run the following commands to test your environment. All tests should complete without errors,
+but some test may sometimes be marked as "S" (skipped). This is not considered an error, as those
+tests test a feature that is not fully implemented yet. As the latest git master (which
+you are using when following this guide) represents the bleeding edge of development, you'll see these
+quite often.
+
+**Warning:** The following operations will reset your database.
+```bash
+# reset database
+./psh.phar init
+
+# run unit tests
+./psh.phar unit
+
+# run the nightwatch end to end (e2e) tests
+./psh.phar administration:init
+./psh.phar administration:build
+./psh.phar administration:e2e
+
+# run karma unit tests
+./psh.phar administration:unit
+```
+
+## Updating Shopware 
+
+The Shopware repository is split into two subrepositories: The platform repository, which contains the 
+code for the core component, and the development repository, which contains the development template. In order to keep your
+dev setup in synch with the newest codebase, you thus have to pull **both** repositories.
+
+To pull the main repository use 
+```bash
+cd $HOME/shopware-dev
+git pull origin master
+```
+
+To pull the Platform repository use
+```bash
+cd $HOME/shopware-dev/vendor/shopware/platform/
+git pull origin master
+```
+After pulling the latest changes you should clear the cache via
+```bash
+sudo rm -rf $HOME/shopware-dev/var/
+```
+
+## Common tasks 
+
+###psh
+As you may have noticed, most of the commands concerning shopware are executed using *psh*.
+psh is a task runner with many handy features. For detailed information see <https://github.com/shopwareLabs/psh>
+
+#### Config
+
+There are two configuration files `.psh.yml.dist` and `.psh.yml.override`. `.psh.yml.dist` is distributed with the code
+and contains defaults. The `.psh.yml.override` config is generated by the setup routine and contains local configuration
+like the database connection settings.
+
+### List of Commands
+
+Run `./psh.phar` to get an overview of all tasks. You can run `./psh.phar administration:` to get a list of all 
+administration tasks.
+
+*Useful tasks:*
+
+| Action | Description | Notes |
+| ------ | ----------- | ----- |
+| init                 | initialize the system and database | resets the database if it already exists |
+| demo-data            | create demo data |
+| cache | clear the cache | |
+| administration:init  | install all dependencies of the administration | |
+| administration:build | build the administration | |
+| administration:watch | start a local server for the administration, including hot reloading and live linting | uses port 8080 |
+| administration:e2e   | run the nightwatch e2e tests | you need to reset your database, initialize and build the administration before |
+
+##Tips
+
+### Customization
+
+You can customize your setup by
+- adding custom actions to the `.psh.yml.override` file.
+- using the git ignored `custom/` directory to add custom and unversioned configuration.
+
+
+### Configure PHPStorm
+
+- Add `vendor/shopware/platform` as your source directory
+  - settings > directories > select directory > Mark as: Sources
+- Add `vendor/shopware/platform` directory to your version control
+  - settings > Version Control > "+" > select directory
+- To improve the performance of PHPStorm, you should exclude the `/var` directory from indexing
+  - settings > directories > select `/var` > Mark as: Excluded
+
+
+#### xdebug docker
+
+<https://gist.github.com/jehaby/61a89b15571b4bceee2417106e80240d>
 
 
 ## Troubleshooting

@@ -1,6 +1,6 @@
-<?php
+<?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\ORM\Field;
+namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 class BlacklistRuleField extends ListField
 {

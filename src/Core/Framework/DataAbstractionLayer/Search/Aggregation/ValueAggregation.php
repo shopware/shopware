@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation;
 
-class CardinalityAggregation implements Aggregation
+class ValueAggregation implements Aggregation
 {
     use AggregationTrait;
 

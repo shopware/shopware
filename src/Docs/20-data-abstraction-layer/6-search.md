@@ -215,7 +215,7 @@ Aggregations are a powerful tool which allows you to gather statistical data abo
 | Class name | API name | Type | Return values | Description |
 |-----|---|---|---|---|
 | AvgAggregation | avg | singe-value | avg | Average of all numeric values for the specified field |
-| CardinalityAggregation | cardinality | single-value | cardinality | Approximate count of distinct values |
+| ValueAggregation | cardinality | single-value | cardinality | Approximate count of distinct values |
 | CountAggregation | count | single-value | count | Number of records for the specified field |
 | MaxAggregation | max | single-value | max | Maximum value for the specified field |
 | MinAggregation | min | single-value | min | Minimal value for the specified field |

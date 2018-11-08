@@ -218,6 +218,11 @@ abstract class EntityDefinition
         return static::getFields()->has('blacklistedRuleIds');
     }
 
+    public static function isWhitelistAware(): bool
+    {
+        return static::getFields()->has('whitelistedRuleIds');
+    }
+
     abstract protected static function defineFields(): FieldCollection;
 
     protected static function filterAssociationReferences(string $type, FieldCollection $fields): array

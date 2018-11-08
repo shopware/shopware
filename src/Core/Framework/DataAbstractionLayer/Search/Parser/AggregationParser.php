@@ -6,12 +6,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidAggregationQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AvgAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\CardinalityAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\CountAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\MaxAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\MinAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\StatsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\SumAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueCountAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
@@ -53,8 +53,8 @@ class AggregationParser
                         $criteria->addAggregation(new AvgAggregation($field, $name));
                         break;
 
-                    case 'cardinality':
-                        $criteria->addAggregation(new CardinalityAggregation($field, $name));
+                    case 'value':
+                        $criteria->addAggregation(new ValueAggregation($field, $name));
                         break;
 
                     case 'count':

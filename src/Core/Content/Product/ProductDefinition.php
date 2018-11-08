@@ -16,6 +16,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceDefinit
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVariation\ProductVariationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\BlacklistRuleField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CatalogField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
@@ -40,6 +41,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\WhitelistRuleField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
@@ -77,6 +79,8 @@ class ProductDefinition extends EntityDefinition
 
             new ParentField(self::class),
             new ReferenceVersionField(self::class, 'parent_version_id'),
+            (new BlacklistRuleField())->setFlags(new Inherited()),
+            (new WhitelistRuleField())->setFlags(new Inherited()),
 
             (new IntField('auto_increment', 'autoIncrement'))->setFlags(new ReadOnly()),
 

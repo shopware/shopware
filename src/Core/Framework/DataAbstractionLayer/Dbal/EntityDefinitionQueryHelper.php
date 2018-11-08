@@ -194,40 +194,59 @@ class EntityDefinitionQueryHelper
             $query->setParameter('catalogIds', $catalogIds, Connection::PARAM_STR_ARRAY);
         }
 
-        if ($definition::isBlacklistAware() && $context->getRules()) {
-            $condition = static::buildRuleFieldWhere($context, $table);
-
-            foreach ($condition['parameters'] as $key => $value) {
-                $query->setParameter($key, $value);
-            }
-
-            $query->andWhere(implode(' + ', $condition['wheres']) . ' = 0');
-        }
+        $this->addRuleCondition($query, $definition, $context);
 
         return $query;
     }
 
-    public static function buildRuleFieldWhere(Context $context, string $root): array
+    public function buildRuleCondition(string $definition, QueryBuilder $query, string $alias, Context $context): ?string
     {
-        $wheres = [];
-        $parameters = [];
+        $conditions = [];
 
-        foreach ($context->getRules() as $id) {
-            $key = 'blacklist' . $id;
+        /** @var string|EntityDefinition $definition */
+        if ($definition::isBlacklistAware() && $context->getRules()) {
+            $accessor = self::escape($alias) . '.' . self::escape('blacklisted_rule_ids');
 
-            $parameters[$key] = $id;
-            $wheres[] = sprintf(
-                'JSON_CONTAINS(IFNULL(%s.%s, JSON_ARRAY()), JSON_ARRAY(:%s))',
-                self::escape($root),
-                '`blacklisted_rule_ids`',
-                $key
-            );
+            $wheres = [];
+
+            foreach ($context->getRules() as $ruleId) {
+                $wheres[] = sprintf(
+                    'JSON_CONTAINS(IFNULL(' . $accessor . ', JSON_ARRAY()), JSON_ARRAY(:%s))',
+                    'contextRule' . $ruleId
+                );
+                $query->setParameter('contextRule' . $ruleId, $ruleId);
+            }
+
+            $conditions[] = implode(' + ', $wheres) . ' = 0';
         }
 
-        return [
-            'parameters' => $parameters,
-            'wheres' => $wheres
+        if (!$definition::isWhitelistAware()) {
+            return empty($conditions) ? null : implode(' AND ', $conditions);
+        }
+
+        $accessor = self::escape($alias) . '.' . self::escape('whitelisted_rule_ids');
+
+        $whitelistConditions = [
+            'JSON_DEPTH(' . $accessor . ') is null',
+            'JSON_DEPTH(' . $accessor . ') = 1',
         ];
+
+        $wheres = [];
+        foreach ($context->getRules() as $ruleId) {
+            $wheres[] = sprintf(
+                'JSON_CONTAINS(IFNULL(' . $accessor . ', JSON_ARRAY()), JSON_ARRAY(:%s))',
+                'contextRule' . $ruleId
+            );
+            $query->setParameter('contextRule' . $ruleId, $ruleId);
+        }
+
+        if (!empty($wheres)) {
+            $whitelistConditions[] = implode(' + ', $wheres) . ' >= 1';
+        }
+
+        $conditions[] = '(' . implode(' OR ', $whitelistConditions) . ')';
+
+        return empty($conditions) ? null : implode(' AND ', $conditions);
     }
 
     /**
@@ -366,6 +385,57 @@ class EntityDefinitionQueryHelper
                 '#version#.`version_id` = #root#.`version_id` AND #version#.`id` = #root#.`id`'
             )
         );
+    }
+
+
+    /**
+     * Adds a blacklist and whitelist where condition to the provided query.
+     * This function is only for internal usage for the root entity of the query.
+     */
+    private function addRuleCondition(QueryBuilder $query, string $definition, Context $context): void
+    {
+        /** @var string|EntityDefinition $definition */
+        if ($definition::isBlacklistAware() && $context->getRules()) {
+            $wheres = [];
+
+            $accessor = $this->getFieldAccessor('blacklistedRuleIds', $definition, $definition::getEntityName(), $context);
+
+            foreach ($context->getRules() as $ruleId) {
+                $wheres[] = sprintf(
+                    'JSON_CONTAINS(IFNULL(' . $accessor . ', JSON_ARRAY()), JSON_ARRAY(:%s))',
+                    'contextRule' . $ruleId
+                );
+                $query->setParameter('contextRule' . $ruleId, $ruleId);
+            }
+
+            $query->andWhere(implode(' + ', $wheres) . ' = 0');
+        }
+
+        if (!$definition::isWhitelistAware()) {
+            return;
+        }
+
+        $accessor = $this->getFieldAccessor('whitelistedRuleIds', $definition, $definition::getEntityName(), $context);
+
+        $wheres = [];
+        foreach ($context->getRules() as $id) {
+            $wheres[] = sprintf(
+                'JSON_CONTAINS(IFNULL(' . $accessor . ', JSON_ARRAY()), JSON_ARRAY(:%s))',
+                'contextRule' . $id
+            );
+            $query->setParameter('contextRule' . $id, $id);
+        }
+
+        $conditions = [
+            '(JSON_DEPTH(' . $accessor . ') is null)',
+            '(JSON_DEPTH(' . $accessor . ') = 1)',
+        ];
+
+        if (!empty($wheres)) {
+            $conditions[] = implode(' + ', $wheres) . ' >= 1';
+        }
+
+        $query->andWhere('(' . implode(' OR ', $conditions) . ')');
     }
 
     private function getTranslatedField(string $definition, TranslatedField $translatedField): Field

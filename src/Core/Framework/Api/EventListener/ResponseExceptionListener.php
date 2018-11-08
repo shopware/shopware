@@ -48,7 +48,7 @@ class ResponseExceptionListener extends ExceptionListener
 
     public function logException(\Exception $exception, $message): void
     {
-        if (null === $this->logger) {
+        if ($this->logger === null) {
             return;
         }
 

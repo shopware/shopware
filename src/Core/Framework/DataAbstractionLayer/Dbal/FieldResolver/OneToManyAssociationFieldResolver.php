@@ -70,15 +70,9 @@ class OneToManyAssociationFieldResolver implements FieldResolverInterface
             $referenceColumn = EntityDefinitionQueryHelper::escape($flag->getName());
         }
 
-        $ruleCondition = '';
-        if ($definition::isBlacklistAware() && $context->getRules()) {
-            $condition = EntityDefinitionQueryHelper::buildRuleFieldWhere($context, $alias);
-
-            foreach ($condition['parameters'] as $key => $value) {
-                $query->setParameter($key, $value);
-            }
-
-            $ruleCondition = implode(' + ', $condition['wheres']) . ' = 0';
+        $ruleCondition = $queryHelper->buildRuleCondition($reference, $query, $alias, $context);
+        if ($ruleCondition !== null) {
+            $ruleCondition = ' AND ' . $ruleCondition;
         }
 
         $parameters = [

@@ -6,12 +6,12 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\CardinalityAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\CardinalityAggregationResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueAggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
-class CardinalityAggregationTest extends TestCase
+class ValueAggregationTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
@@ -33,21 +33,26 @@ class CardinalityAggregationTest extends TestCase
         $this->connection->executeUpdate('DELETE FROM tax');
     }
 
-    public function testCardinalityAggregation(): void
+    public function testValueAggregation(): void
     {
         $context = Context::createDefaultContext();
         $this->setupFixtures($context);
 
         $criteria = new Criteria();
-        $criteria->addAggregation(new CardinalityAggregation('taxRate', 'rate_agg'));
+        $criteria->addAggregation(new ValueAggregation('taxRate', 'rate_agg'));
 
         $result = $this->taxRepository->aggregate($criteria, $context);
 
-        /** @var CardinalityAggregationResult $rateAgg */
+        /** @var ValueAggregationResult $rateAgg */
         $rateAgg = $result->getAggregations()->get('rate_agg');
+
         static::assertNotNull($rateAgg);
-        static::assertEquals(4, $rateAgg->getCardinality());
-        static::assertEquals(['cardinality' => 4], $rateAgg->getResult());
+
+        static::assertCount(4, $rateAgg->getValues());
+        static::assertContains(10, $rateAgg->getValues());
+        static::assertContains(20, $rateAgg->getValues());
+        static::assertContains(50, $rateAgg->getValues());
+        static::assertContains(90, $rateAgg->getValues());
     }
 
     private function setupFixtures(Context $context): void

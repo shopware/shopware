@@ -1,4 +1,4 @@
-[wikiUrl]: <>(https://docs.shopware.com/en/shopware-playground-en/using-the-storefront-api/introduction?category=shopware-platform-en/using-the-storefront-api)
+[wikiUrl]: <>(../using-the-storefront-api/introduction?category=shopware-platform-en/using-the-storefront-api)
 [titleEn]: <>(['Introduction'])
 The Storefront API is part of our API family. It allows access to all
 storefront operations, like creating new customers, customer login
@@ -15,7 +15,7 @@ The Storefront API does only require the client\_id, which you can find
 in the Administration -\> Sales Channel. The client\_id is used to
 identify which Sales Channel should be used. You find more information
 about the concept behind the Sales
-Channel [here](/en/shopware-playground-en/admin/saleschannels).
+Channel [here](/en/shopware-platform-en/admin/saleschannels).
 
  
 

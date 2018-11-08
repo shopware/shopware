@@ -1,3 +1,6 @@
+[titleEn]: <>(Transaction)
+[wikiUrl]: <>(../checkout/tax?category=shopware-platform-en/checkout)
+
 Shopware provides a comprehensive tax system. It allows you to define multiple tax definitions 
 and also supports partial taxes. Taxes are defined as rules which allow to recalculate 
 the taxes if the price of a line item changes.

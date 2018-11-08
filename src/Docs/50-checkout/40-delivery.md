@@ -1,3 +1,6 @@
+[titleEn]: <>(Delivery)
+[wikiUrl]: <>(../checkout/delivery?category=shopware-platform-en/checkout)
+
 Line items can contain `Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation` 
 which are used to determine the timeframe in which a line item and the whole order will
 be delivered to the customer. Shopware supports split deliveries based on different criteria. 

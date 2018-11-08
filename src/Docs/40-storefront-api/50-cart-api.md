@@ -1,4 +1,4 @@
-[wikiUrl]: <>(https://docs.shopware.com/en/shopware-playground-en/using-the-storefront-api/cart-endpoint?category=shopware-platform-en/using-the-storefront-api)
+[wikiUrl]: <>(../using-the-storefront-api/cart-endpoint?category=shopware-platform-en/using-the-storefront-api)
 [titleEn]: <>(['Cart endpoint'])
 The cart endpoint is used for various cart operations like adding line
 items to the cart, removing them, change their quantity and placing an
@@ -114,7 +114,7 @@ required
 **Header:** x-sw-context-token is required
 
 **Parameter:** For the parameter, please have a look at the **[customer
-registration](/en/shopware-playground-en/using-the-storefront-api/customer-endpoint?category=shopware-platform-en/core-components/using-the-storefront-api).**
+registration](/en/shopware-platform-en/using-the-storefront-api/customer-endpoint?category=shopware-platform-en/core-components/using-the-storefront-api).**
 The guest parameter is always set to true.
 
 **Response:** If successful, the order will be returned.

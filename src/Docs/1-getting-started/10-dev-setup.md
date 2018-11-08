@@ -1,5 +1,5 @@
 [titleEn]: <>(Developer Setup)
-[wikiUrl]: <>(../getting-started/dev-setup)
+[wikiUrl]: <>(../getting-started/dev-setup?category=shopware-platform-en/getting-started)
 
 # Development setup guide
 

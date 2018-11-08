@@ -1,4 +1,5 @@
-## Payment
+[titleEn]: <>(Payment)
+[wikiUrl]: <>(../checkout/payment?category=shopware-platform-en/checkout)
 
 Payments are an essential part of the checkout process. That's the reason why Shopware offers an easy platform
 on which you can build payment plugins.
@@ -25,7 +26,6 @@ and not the total order amount
 The pay method can return a `RedirectResponse` to redirect the customer to an external payment gateway.  
 Note: The `PaymentTransactionStruct` contains a return URL. Pass this URL to the external payment gateway 
 to ensure that the user will be redirected to this URL.
-
 * `finalize`: will only be called if you returned a `RedirectResponse` in your `pay` method 
 and the customer has been redirected from the payment gateway back to Shopware. 
 You might check here if the payment was successful or not and update the order transaction state accordingly.

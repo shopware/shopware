@@ -11,7 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TenantIdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
@@ -37,7 +36,7 @@ class CustomerGroupDefinition extends EntityDefinition
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
-            (new TranslatedField(new StringField('name', 'name')))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
+            (new TranslatedField('name'))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
             new BoolField('display_gross', 'displayGross'),
             new BoolField('input_gross', 'inputGross'),
             new BoolField('has_global_discount', 'hasGlobalDiscount'),
@@ -60,10 +59,5 @@ class CustomerGroupDefinition extends EntityDefinition
     public static function getStructClass(): string
     {
         return CustomerGroupStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return CustomerGroupTranslationDefinition::class;
     }
 }

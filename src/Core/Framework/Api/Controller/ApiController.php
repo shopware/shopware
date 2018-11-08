@@ -14,11 +14,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TenantIdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
@@ -215,6 +217,41 @@ class ApiController extends AbstractController
             $mapping = [
                 $local->getPropertyName() => $parent['value'],
                 $reference->getPropertyName() => $id,
+            ];
+
+            $deleteResult = $this->entityWriter->delete(
+                $definition,
+                [$mapping],
+                WriteContext::createFromContext($context)
+            );
+
+            if (empty($deleteResult->getDeleted())) {
+                throw new ResourceNotFoundException($definition::getEntityName(), $mapping);
+            }
+
+            return $responseFactory->createRedirectResponse($definition, $id, $request, $context);
+        }
+
+        if ($association instanceof TranslationsAssociationField) {
+            $pks = $definition::getPrimaryKeys();
+            $parentIdField = null;
+
+            foreach ($pks as $pk) {
+                if (!$pk instanceof FkField) {
+                    continue;
+                }
+                if ($pk->getReferenceField() === 'id' && $pk->getReferenceClass() === $parent['definition']) {
+                    $parentIdField = $pk;
+                }
+            }
+
+            if ($parentIdField === null) {
+                throw new \RuntimeException(sprintf('Unsupported association for field %s', $association->getPropertyName()));
+            }
+
+            $mapping = [
+              $parentIdField->getPropertyName() => $parent['value'],
+              'languageId' => $id,
             ];
 
             $deleteResult = $this->entityWriter->delete(

@@ -42,7 +42,7 @@ class CountryDefinition extends EntityDefinition
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
 
-            (new TranslatedField(new StringField('name', 'name')))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
+            (new TranslatedField('name'))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
             (new StringField('iso', 'iso'))->setFlags(new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
             new IntField('position', 'position'),
             new BoolField('shipping_free', 'shippingFree'),
@@ -72,10 +72,5 @@ class CountryDefinition extends EntityDefinition
     public static function getStructClass(): string
     {
         return CountryStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return CountryTranslationDefinition::class;
     }
 }

@@ -61,7 +61,7 @@ class SalesChannelDefinition extends EntityDefinition
             (new FkField('country_id', 'countryId', CountryDefinition::class))->setFlags(new Required()),
             new ReferenceVersionField(CountryDefinition::class),
             (new StringField('type', 'type'))->setFlags(new Required()),
-            new TranslatedField(new StringField('name', 'name')),
+            new TranslatedField('name'),
             (new StringField('access_key', 'accessKey'))->setFlags(new Required()),
             new JsonField('configuration', 'configuration'),
             new BoolField('active', 'active'),
@@ -94,10 +94,5 @@ class SalesChannelDefinition extends EntityDefinition
     public static function getStructClass(): string
     {
         return SalesChannelStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return SalesChannelTranslationDefinition::class;
     }
 }

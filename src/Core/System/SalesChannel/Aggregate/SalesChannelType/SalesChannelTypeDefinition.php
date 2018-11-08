@@ -6,7 +6,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextWithHtmlField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TenantIdField;
@@ -35,10 +34,10 @@ class SalesChannelTypeDefinition extends EntityDefinition
             new StringField('cover_url', 'coverUrl'),
             new StringField('icon_name', 'iconName'),
             new ListField('screenshot_urls', 'screenshotUrls', StringField::class),
-            new TranslatedField(new StringField('name', 'name')),
-            new TranslatedField(new StringField('manufacturer', 'manufacturer')),
-            new TranslatedField(new StringField('description', 'description')),
-            new TranslatedField(new LongTextWithHtmlField('description_long', 'descriptionLong')),
+            new TranslatedField('name'),
+            new TranslatedField('manufacturer'),
+            new TranslatedField('description'),
+            new TranslatedField('descriptionLong'),
             new CreatedAtField(),
             new UpdatedAtField(),
             (new TranslationsAssociationField(SalesChannelTypeTranslationDefinition::class))->setFlags(new Required(), new CascadeDelete()),
@@ -55,10 +54,5 @@ class SalesChannelTypeDefinition extends EntityDefinition
     public static function getStructClass(): string
     {
         return SalesChannelTypeStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return SalesChannelTypeTranslationDefinition::class;
     }
 }

@@ -34,8 +34,8 @@ class LocaleDefinition extends EntityDefinition
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('code', 'code'))->setFlags(new Required(), new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
-            (new TranslatedField(new StringField('name', 'name')))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
-            new TranslatedField(new StringField('territory', 'territory')),
+            (new TranslatedField('name'))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
+            new TranslatedField('territory'),
             new CreatedAtField(),
             new UpdatedAtField(),
             new OneToManyAssociationField('languages', LanguageDefinition::class, 'locale_id', false, 'id'),
@@ -52,10 +52,5 @@ class LocaleDefinition extends EntityDefinition
     public static function getStructClass(): string
     {
         return LocaleStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return LocaleTranslationDefinition::class;
     }
 }

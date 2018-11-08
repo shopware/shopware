@@ -14,7 +14,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TenantIdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
@@ -45,7 +44,7 @@ class ShippingMethodDefinition extends EntityDefinition
             (new IntField('type', 'type'))->setFlags(new Required()),
             (new BoolField('bind_shippingfree', 'bindShippingfree'))->setFlags(new Required()),
             new BoolField('bind_laststock', 'bindLaststock'),
-            (new TranslatedField(new StringField('name', 'name')))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
+            (new TranslatedField('name'))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
             new BoolField('active', 'active'),
             new IntField('position', 'position'),
             new IntField('calculation', 'calculation'),
@@ -69,8 +68,8 @@ class ShippingMethodDefinition extends EntityDefinition
             new CreatedAtField(),
             new UpdatedAtField(),
             (new OneToManyAssociationField('salesChannelDefaultAssignments', SalesChannelDefinition::class, 'shipping_method_id', false, 'id'))->setFlags(new RestrictDelete()),
-            (new TranslatedField(new LongTextField('description', 'description')))->setFlags(new SearchRanking(self::LOW_SEARCH_RAKING)),
-            (new TranslatedField(new StringField('comment', 'comment')))->setFlags(new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
+            (new TranslatedField('description'))->setFlags(new SearchRanking(self::LOW_SEARCH_RAKING)),
+            (new TranslatedField('comment'))->setFlags(new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
             (new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'shipping_method_id', false, 'id'))->setFlags(new RestrictDelete()),
             (new OneToManyAssociationField('prices', ShippingMethodPriceDefinition::class, 'shipping_method_id', true, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField(ShippingMethodTranslationDefinition::class))->setFlags(new Required(), new CascadeDelete()),
@@ -86,10 +85,5 @@ class ShippingMethodDefinition extends EntityDefinition
     public static function getStructClass(): string
     {
         return ShippingMethodStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return ShippingMethodTranslationDefinition::class;
     }
 }

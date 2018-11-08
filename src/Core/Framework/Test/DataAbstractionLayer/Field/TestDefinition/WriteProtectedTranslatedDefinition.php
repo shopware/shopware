@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -23,13 +22,8 @@ class WriteProtectedTranslatedDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new Required(), new PrimaryKey()),
-            (new TranslatedField(new StringField('protected', 'protected')))->setFlags(new WriteProtected('WriteProtected')),
+            (new TranslatedField('protected'))->setFlags(new WriteProtected('WriteProtected')),
             new TranslationsAssociationField(WriteProtectedTranslationDefinition::class),
         ]);
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return WriteProtectedTranslationDefinition::class;
     }
 }

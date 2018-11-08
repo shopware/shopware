@@ -50,11 +50,11 @@ class ProductManufacturerDefinition extends EntityDefinition
             new StringField('link', 'link'),
             new UpdatedAtField(),
             new CreatedAtField(),
-            (new TranslatedField(new StringField('name', 'name')))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
-            new TranslatedField(new LongTextField('description', 'description')),
-            new TranslatedField(new StringField('meta_title', 'metaTitle')),
-            new TranslatedField(new StringField('meta_description', 'metaDescription')),
-            new TranslatedField(new StringField('meta_keywords', 'metaKeywords')),
+            (new TranslatedField('name'))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
+            new TranslatedField('description'),
+            new TranslatedField('metaTitle'),
+            new TranslatedField('metaDescription'),
+            new TranslatedField('metaKeywords'),
             new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, false),
             (new OneToManyAssociationField('products', ProductDefinition::class, 'product_manufacturer_id', false, 'id'))->setFlags(new RestrictDelete(), new ReverseInherited('manufacturer')),
             (new TranslationsAssociationField(ProductManufacturerTranslationDefinition::class))->setFlags(new CascadeDelete(), new Required()),
@@ -70,10 +70,5 @@ class ProductManufacturerDefinition extends EntityDefinition
     public static function getStructClass(): string
     {
         return ProductManufacturerStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return ProductManufacturerTranslationDefinition::class;
     }
 }

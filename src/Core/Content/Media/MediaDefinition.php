@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ObjectField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -57,8 +56,8 @@ class MediaDefinition extends EntityDefinition
             (new ObjectField('meta_data', 'metaData'))->setFlags(new WriteProtected(MediaProtectionFlags::WRITE_META_INFO)),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new TranslatedField(new LongTextField('description', 'description')))->setFlags(new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
-            (new TranslatedField(new StringField('name', 'name')))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
+            (new TranslatedField('description'))->setFlags(new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
+            (new TranslatedField('name'))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
             (new StringField('url', 'url'))->setFlags(new Deferred()),
 
             new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, false),
@@ -81,10 +80,5 @@ class MediaDefinition extends EntityDefinition
     public static function getStructClass(): string
     {
         return MediaStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return MediaTranslationDefinition::class;
     }
 }

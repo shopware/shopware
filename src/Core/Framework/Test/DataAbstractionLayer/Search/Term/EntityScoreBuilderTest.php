@@ -145,7 +145,7 @@ class OnlyTranslatedFieldDefinition extends EntityDefinition
     {
         return new FieldCollection([
             new TenantIdField(),
-            new TranslatedField(new StringField('name', 'name')),
+            new TranslatedField('name'),
         ]);
     }
 }

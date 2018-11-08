@@ -46,7 +46,7 @@ class CountryStateDefinition extends EntityDefinition
             (new ReferenceVersionField(CountryDefinition::class))->setFlags(new Required()),
 
             (new StringField('short_code', 'shortCode'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
-            (new TranslatedField(new StringField('name', 'name')))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
+            (new TranslatedField('name'))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
             new IntField('position', 'position'),
             new BoolField('active', 'active'),
             new CreatedAtField(),
@@ -66,10 +66,5 @@ class CountryStateDefinition extends EntityDefinition
     public static function getStructClass(): string
     {
         return CountryStateStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return CountryStateTranslationDefinition::class;
     }
 }

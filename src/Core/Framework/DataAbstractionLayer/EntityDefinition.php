@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\ReadOnly;
@@ -36,6 +37,11 @@ abstract class EntityDefinition
      * @var EntityExtensionInterface[][]
      */
     protected static $extensions = [];
+
+    /**
+     * @var (string|null)[]
+     */
+    protected static $translationDefinitions = [];
 
     public static function addExtension(EntityExtensionInterface $extension): void
     {
@@ -102,7 +108,19 @@ abstract class EntityDefinition
 
     public static function getTranslationDefinitionClass(): ?string
     {
-        return null;
+        if (array_key_exists(static::class, static::$translationDefinitions)) {
+            return static::$translationDefinitions[static::class];
+        }
+        static::$translationDefinitions[static::class] = null;
+
+        foreach (static::getFields() as $field) {
+            if ($field instanceof TranslationsAssociationField) {
+                static::$translationDefinitions[static::class] = $field->getReferenceClass();
+                break;
+            }
+        }
+
+        return static::$translationDefinitions[static::class];
     }
 
     public static function getWriteOrder(): array

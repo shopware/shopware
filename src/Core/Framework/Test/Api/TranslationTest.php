@@ -103,6 +103,53 @@ class TranslationTest extends TestCase
         static::assertEquals($translatedName, $responseData->data->attributes->name);
     }
 
+    public function testDelete(): void
+    {
+        $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
+        $id = Uuid::uuid4()->getHex();
+        $langId = Uuid::uuid4()->getHex();
+
+        $name = 'Test category';
+        $translatedName = $name . '_translated';
+
+        $categoryData = [
+            'id' => $id,
+            'translations' => [
+                Defaults::LANGUAGE_EN => ['name' => $name],
+                $langId => ['name' => $translatedName],
+            ],
+        ];
+
+        $this->createLanguage($langId);
+
+        $this->getClient()->request('POST', $baseResource, $categoryData);
+        $response = $this->getClient()->getResponse();
+        static::assertEquals(204, $response->getStatusCode());
+        $this->assertEntityExists($this->getClient(), 'category', $id);
+
+        $headerName = 'HTTP_' . strtoupper(str_replace('-', '_', PlatformRequest::HEADER_LANGUAGE_ID));
+        $this->getClient()->request('GET', $baseResource . '/' . $id, [], [], [$headerName => Defaults::LANGUAGE_EN]);
+        $response = $this->getClient()->getResponse();
+        $responseData = json_decode($response->getContent(), true);
+        static::assertEquals($name, $responseData['data']['attributes']['name']);
+
+        $headerName = 'HTTP_' . strtoupper(str_replace('-', '_', PlatformRequest::HEADER_LANGUAGE_ID));
+        $this->getClient()->request('GET', $baseResource . '/' . $id, [], [], [$headerName => $langId]);
+        $response = $this->getClient()->getResponse();
+        $responseData = json_decode($response->getContent(), true);
+        static::assertEquals($translatedName, $responseData['data']['attributes']['name']);
+
+        $this->getClient()->request('DELETE', $baseResource . '/' . $id . '/translations/' . $langId);
+        $response = $this->getClient()->getResponse();
+        static::assertEquals(204, $response->getStatusCode());
+
+        $headerName = 'HTTP_' . strtoupper(str_replace('-', '_', PlatformRequest::HEADER_LANGUAGE_ID));
+        $this->getClient()->request('GET', $baseResource . '/' . $id, [], [], [$headerName => $langId]);
+        $response = $this->getClient()->getResponse();
+        $responseData = json_decode($response->getContent(), true);
+        static::assertNull($responseData['data']['attributes']['name']);
+    }
+
     private function assertTranslation($expectedTranslations, $translations, $langIdOverride = null): void
     {
         $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';

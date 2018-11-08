@@ -11,7 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TenantIdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
@@ -37,7 +36,7 @@ class OrderStateDefinition extends EntityDefinition
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
-            (new TranslatedField(new StringField('description', 'description')))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
+            (new TranslatedField('description'))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
             new IntField('position', 'position'),
             new BoolField('has_mail', 'hasMail'),
             new CreatedAtField(),
@@ -56,10 +55,5 @@ class OrderStateDefinition extends EntityDefinition
     public static function getStructClass(): string
     {
         return OrderStateStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return OrderStateTranslationDefinition::class;
     }
 }

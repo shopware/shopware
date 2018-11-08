@@ -75,13 +75,13 @@ class CategoryDefinition extends EntityDefinition
             new ChildCountField(),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new TranslatedField(new StringField('name', 'name')))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
-            new TranslatedField(new LongTextField('path_names', 'pathNames')),
-            (new TranslatedField(new LongTextField('meta_keywords', 'metaKeywords')))->setFlags(new SearchRanking(self::LOW_SEARCH_RAKING)),
-            new TranslatedField(new StringField('meta_title', 'metaTitle')),
-            new TranslatedField(new LongTextField('meta_description', 'metaDescription')),
-            new TranslatedField(new StringField('cms_headline', 'cmsHeadline')),
-            new TranslatedField(new LongTextField('cms_description', 'cmsDescription')),
+            (new TranslatedField('name'))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
+            new TranslatedField('pathNames'),
+            (new TranslatedField('metaKeywords'))->setFlags(new SearchRanking(self::LOW_SEARCH_RAKING)),
+            new TranslatedField('metaTitle'),
+            new TranslatedField('metaDescription'),
+            new TranslatedField('cmsHeadline'),
+            new TranslatedField('cmsDescription'),
             new ManyToOneAssociationField('parent', 'parent_id', self::class, false),
             new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, false),
             (new ChildrenAssociationField(self::class))->setFlags(new CascadeDelete()),
@@ -100,10 +100,5 @@ class CategoryDefinition extends EntityDefinition
     public static function getStructClass(): string
     {
         return CategoryStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return CategoryTranslationDefinition::class;
     }
 }

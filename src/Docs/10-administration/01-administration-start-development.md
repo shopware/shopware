@@ -13,7 +13,7 @@ All commands which are necessary for administration development can be accessed 
 
 ## 1. Install dependencies
 
-To get going you first need to install development dependencies with the `init` command:
+To get going you first need to install the development dependencies with the `init` command:
 
 ```
 ./psh.phar administration:init

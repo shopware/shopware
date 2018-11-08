@@ -298,7 +298,7 @@ class EntityWriter implements EntityWriterInterface
         $valid = array_keys($data) === range(0, \count($data) - 1);
 
         if (!$valid) {
-            throw new \InvalidArgumentException('Expected input to be array.');
+            throw new \InvalidArgumentException('Expected input to be non empty array.');
         }
     }
 

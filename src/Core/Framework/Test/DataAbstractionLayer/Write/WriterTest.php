@@ -73,6 +73,14 @@ class WriterTest extends TestCase
         static::assertNotEmpty($deleteResult->getDeleted());
     }
 
+    public function testDeleteWithoutIds(): void
+    {
+        $this->expectException('InvalidArgumentException');
+        $taxRepository = $this->getTaxRepository();
+
+        $taxRepository->delete([], Context::createDefaultContext(Defaults::TENANT_ID));
+    }
+
     public function testMultiDelete(): void
     {
         $id = Uuid::uuid4();
@@ -672,5 +680,10 @@ class WriterTest extends TestCase
     private function getMediaRepository(): EntityRepository
     {
         return $this->getContainer()->get('media.repository');
+    }
+
+    private function getTaxRepository(): EntityRepository
+    {
+        return $this->getContainer()->get('tax.repository');
     }
 }

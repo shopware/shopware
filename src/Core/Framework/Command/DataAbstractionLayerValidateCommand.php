@@ -9,7 +9,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class OrmValidateCommand extends Command
+class DataAbstractionLayerValidateCommand extends Command
 {
     /**
      * @var DefinitionValidator
@@ -30,13 +30,13 @@ class OrmValidateCommand extends Command
 
     protected function configure()
     {
-        $this->setName('orm:validate');
+        $this->setName('dataabstractionlayer:validate');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $io = new SymfonyStyle($input, $output);
-        $io->title('Orm validator');
+        $io->title('Data Abstraction Layer Validation');
 
         $errors = 0;
         if ($io->isVerbose()) {

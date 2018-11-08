@@ -76,7 +76,7 @@
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager"/>
         </service>
 
-        <service class="Shopware\Core\Framework\Command\OrmValidateCommand" id="Shopware\Core\Framework\Command\OrmValidateCommand">
+        <service class="Shopware\Core\Framework\Command\DataAbstractionLayerValidateCommand" id="Shopware\Core\Framework\Command\DataAbstractionLayerValidateCommand">
             <tag name="console.command"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator"/>
             <argument type="service" id="service_container"/>

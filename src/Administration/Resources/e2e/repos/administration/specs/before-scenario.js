@@ -1,3 +1,5 @@
+const loginPage = require('../page-objects/sw-login.page-object.js');
+
 module.exports = {
     login: (browser, username, password) => {
         username = username || 'admin';
@@ -5,9 +7,10 @@ module.exports = {
 
         browser
             .waitForElementVisible('.sw-login')
-            .assert.containsText('h2', 'Log in to your Shopware store')
-            .setValue('input[name=sw-field--authStore-username]', username)
-            .setValue('input[name=sw-field--authStore-password]', [password, browser.Keys.ENTER])
+            .assert.containsText('h2', 'Log in to your Shopware store');
+        const page = loginPage(browser);
+        page.fastLogin(username, password);
+        browser
             .waitForElementVisible('.sw-desktop')
             .waitForElementVisible('.sw-admin-menu');
 

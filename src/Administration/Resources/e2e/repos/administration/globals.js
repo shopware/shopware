@@ -1,4 +1,4 @@
-const loginPage = require('./specs/login.js');
+const loginPage = require('./specs/before-scenario.js');
 
 module.exports = {
     waitForConditionTimeout: 30000,

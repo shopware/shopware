@@ -51,6 +51,10 @@ Component.register('sw-media-grid-media-item', {
     },
 
     computed: {
+        locale() {
+            return this.$root.$i18n.locale;
+        },
+
         mediaPreviewClasses() {
             return {
                 'is--highlighted': this.selected

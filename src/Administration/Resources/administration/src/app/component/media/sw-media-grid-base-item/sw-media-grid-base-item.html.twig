@@ -16,6 +16,16 @@
             </div>
         {% endblock %}
 
+        {% block sw_media_grid_base_item_metadata_container %}
+            <div v-if="isList" class="sw-media-grid-base-item__metadata-container">
+                {% block sw_media_grid_base_item_metadata %}
+                    <slot name="media-item-metadata">
+                        {% block sw_media_grid_base_item_slot_media_item_metadata %}{% endblock %}
+                    </slot>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
         {% block sw_media_grid_base_item_context_menu %}
             <sw-context-button v-if="showContextMenuButton && !isLoading" ref="swContextButton">
                 {% block sw_media_grid_base_item_context_items%}

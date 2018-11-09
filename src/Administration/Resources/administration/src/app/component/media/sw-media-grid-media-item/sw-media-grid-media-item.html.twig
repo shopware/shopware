@@ -49,6 +49,14 @@
                     </template>
                 {% endblock %}
 
+                {% block sw_media_grid_media_item_slot_metadata %}
+                    <template slot="media-item-metadata">
+                        <div class="sw-media-grid-media-item__metadata">
+                            {{ item.updatedAt|date(locale, { year: 'numeric', month: 'long', day: 'numeric' }) }}, {{ item.fileSize|fileSize(locale) }}
+                        </div>
+                    </template>
+                {% endblock %}
+
                 {% block sw_media_grid_media_item_context_menu %}
                     <template slot="media-item-context-menu">
                         <slot name="additional-context-menu-items">

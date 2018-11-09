@@ -5,6 +5,14 @@ import './sw-sidebar.less';
 Component.register('sw-sidebar', {
     template,
 
+    props: {
+        propagateWidth: {
+            type: Boolean,
+            required: false,
+            default: false
+        }
+    },
+
     data() {
         return {
             items: []
@@ -12,18 +20,11 @@ Component.register('sw-sidebar', {
     },
 
     mounted() {
-        // @TODO: Improve excluding
-        if (this.$parent.$options.name === 'sw-grid' ||
-            this.$parent.$options.name === 'sw-media-sidebar') {
-            return;
-        }
-        const sidebarWidth = this.$el.querySelector('.sw-sidebar__navigation').offsetWidth;
-
-        this.$root.$emit('swSidebarMounted', sidebarWidth);
+        this.mountedComponent();
     },
 
     destroyed() {
-        this.$root.$emit('swSidebarDestroyed');
+        this.destroyedComponent();
     },
 
     computed: {
@@ -41,6 +42,20 @@ Component.register('sw-sidebar', {
     },
 
     methods: {
+        mountedComponent() {
+            if (this.propagateWidth) {
+                const sidebarWidth = this.$el.querySelector('.sw-sidebar__navigation').offsetWidth;
+
+                this.$root.$emit('swSidebarMounted', sidebarWidth);
+            }
+        },
+
+        destroyedComponent() {
+            if (this.propagateWidth) {
+                this.$root.$emit('swSidebarDestroyed');
+            }
+        },
+
         _isItemRegistered(itemToCheck) {
             const index = this.items.findIndex((item) => {
                 return item === itemToCheck;

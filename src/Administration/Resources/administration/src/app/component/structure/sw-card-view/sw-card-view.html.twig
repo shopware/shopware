@@ -9,7 +9,8 @@
         {% block sw_card_view_sidebar %}
             <sw-sidebar v-if="sidebar"
                         class="sw-card-view__sidebar"
-                        :style="adjustScrollbar">
+                        :style="adjustScrollbar"
+                        propagateWidth>
                 <slot name="card-view-sidebar">{% block sw_card_view_slot_sidebar %}{% endblock %}</slot>
             </sw-sidebar>
         {% endblock %}

@@ -106,11 +106,11 @@ bin/console plugin:list
 This will display an overview table with the available plugins in you terminal:
 
 ```
---------------------------- ----------------------------------- --------- ------------- -------- -----------
- Plugin                      Label                               Version   Author        Active   Installed
---------------------------- ----------------------------------- --------- ------------- -------- -----------
- SwagAdministrationExample   SwagAdministrationExample           1.0.0                   No       No
---------------------------- ----------------------------------- --------- ------------- -------- -----------
+--------------------------- -------------------------- -------- -------- -------- ----------
+ Plugin                     Label                      Version  Author   Active   Installed
+--------------------------- -------------------------- -------- -------- -------- ----------
+ SwagAdministrationExample  SwagAdministrationExample  1.0.0              No       No
+--------------------------- -------------------------- -------- -------- -------- ----------
 
 1 plugins, 0 installed, 0 active
 ```

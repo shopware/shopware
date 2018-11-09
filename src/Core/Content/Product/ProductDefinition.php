@@ -60,11 +60,6 @@ class ProductDefinition extends EntityDefinition
         return 'product';
     }
 
-    public static function useKeywordSearch(): bool
-    {
-        return true;
-    }
-
     public static function isInheritanceAware(): bool
     {
         return true;

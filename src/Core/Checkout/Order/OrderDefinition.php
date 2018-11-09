@@ -35,11 +35,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class OrderDefinition extends EntityDefinition
 {
-    public static function useKeywordSearch(): bool
-    {
-        return true;
-    }
-
     public static function getEntityName(): string
     {
         return 'order';

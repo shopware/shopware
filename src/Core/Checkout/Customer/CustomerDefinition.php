@@ -36,11 +36,6 @@ class CustomerDefinition extends EntityDefinition
         return 'customer';
     }
 
-    public static function useKeywordSearch(): bool
-    {
-        return true;
-    }
-
     public static function defineFields(): FieldCollection
     {
         return new FieldCollection([

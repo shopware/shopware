@@ -24,5 +24,5 @@ interface EntityWriteGatewayInterface
     /**
      * @param WriteCommandInterface[] $commands
      */
-    public function execute(array $commands): void;
+    public function execute(array $commands, WriteContext $context): void;
 }

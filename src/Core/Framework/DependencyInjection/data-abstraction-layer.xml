@@ -122,6 +122,7 @@
 
         <service class="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityWriteGateway" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\Validation\CommandQueueValidator"/>
             <tag name="shopware.traceable" label="entity.write-gateway"/>
         </service>
 

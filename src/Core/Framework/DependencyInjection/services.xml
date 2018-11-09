@@ -246,5 +246,9 @@
         <service class="Shopware\Core\Framework\Cli\CliContextSubscriber" id="Shopware\Core\Framework\Cli\CliContextSubscriber">
             <tag name="kernel.event_subscriber"/>
         </service>
+
+        <service class="Shopware\Core\Framework\Validation\CommandQueueValidator" id="Shopware\Core\Framework\Validation\CommandQueueValidator">
+            <argument type="tagged" tag="shopware.validator" />
+        </service>
     </services>
 </container>

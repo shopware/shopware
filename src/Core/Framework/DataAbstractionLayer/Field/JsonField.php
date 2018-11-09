@@ -106,7 +106,7 @@ class JsonField extends Field implements StorageAware
         }
 
         if (\count($violationList)) {
-            throw new InvalidFieldException($this->path . '/' . $fieldName, $violationList);
+            throw new InvalidFieldException($violationList, $this->path . '/' . $fieldName);
         }
     }
 

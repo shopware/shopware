@@ -492,7 +492,7 @@ class VersionManager
             return;
         }
 
-        $this->entityWriteGateway->execute($commands);
+        $this->entityWriteGateway->execute($commands, $writeContext);
     }
 
     private function addVersionToPayload(array $payload, string $definition, string $versionId): array

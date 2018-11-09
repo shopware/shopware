@@ -1,5 +1,3 @@
-# Start administration development
-
 This guide will teach you how to start developing with the shopware administration.
 
 All commands which are necessary for administration development can be accessed from the root directory of your shopware instance. The administration commands are prefixed with `administration`:
@@ -11,7 +9,7 @@ All commands which are necessary for administration development can be accessed 
 [Find out more about about PSH](https://github.com/shopwareLabs/psh).
 
 
-## 1. Install dependencies
+## Install dependencies
 
 To get going you first need to install the development dependencies with the `init` command:
 
@@ -21,7 +19,7 @@ To get going you first need to install the development dependencies with the `in
 
 This will install all necessary dependencies for your local environment using [NPM](https://www.npmjs.com/).
 
-## 2. Local development Server
+## Local development Server
 
 For local development you can start a server from your terminal. This will also enable a file watcher which will update the page in your browser when you make any changes to your files. Even when the the browser is refreshing the page the current state of the application remains the same. You can stay at the same place where you're working at. The watcher also offers automatic linting using ESLint and will show an overlay with helpful error messages.
 
@@ -44,11 +42,11 @@ If you need port `8080` for something else like e.g. elastic search, you can als
 
 The `./psh.phar administration:watch` command opens a new window of your default browser with the URL of the development server.
 
-## 3. Using the Vue.js developer tools
+## Using the Vue.js developer tools
 
 The [Vue.js](https://vuejs.org/) framework offers an extension for the developer console of your browser. With this extension you have a reference to the original component structure and can inspect each component to get live information about it's state, events and several other information. This can be a really helpful tool during development.
 
-![Vue.js developer tools](https://image.tld)
+![Vue.js developer tools](https://sbp-testingmachine.s3.eu-west-1.amazonaws.com/1541782342/vuejs-devtools.jpg)
 
 - [Vue.js Devtools for Google Chrome](https://chrome.google.com/webstore/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
 - [Vue.js Devtools for Firefox](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
@@ -59,7 +57,7 @@ The Google Chrome Version should also work in other webkit based browsers like C
 
 Let's create an example plugin called "SwagAdministrationExample".
 
-## 1. Create the plugin bootstrap file
+## Create the plugin bootstrap file
 
 All plugins are located inside the `{YOUR_SW_ROOT}/custom/plugins` directory.
 
@@ -93,7 +91,7 @@ This is already a valid shopware plugin. You can however add additional function
 
 [Learn about Plugins](../1-getting-started/getting-started.md) 
 
-## 2. Install the plugin
+## Install the plugin
 
 Before you make further changes to the administration itself you should install the plugin first in order to see all upcoming changes.
 
@@ -108,11 +106,11 @@ bin/console plugin:list
 This will display an overview table with the available plugins in you terminal:
 
 ```
-------------------- ------------------- --------- -------- -------- -----------
- Plugin              Label               Version   Author   Active   Installed
-------------------- ------------------- --------- -------- -------- -----------
- SwagHelloWorld      SwagHelloWorld      1.0.0              No       No
-------------------- ------------------- --------- -------- -------- -----------
+--------------------------- ----------------------------------- --------- ------------- -------- -----------
+ Plugin                      Label                               Version   Author        Active   Installed
+--------------------------- ----------------------------------- --------- ------------- -------- -----------
+ SwagAdministrationExample   SwagAdministrationExample           1.0.0                   No       No
+--------------------------- ----------------------------------- --------- ------------- -------- -----------
 
 1 plugins, 0 installed, 0 active
 ```
@@ -126,12 +124,12 @@ bin/console plugin:update
 Finally you can install your plugin. The `--activate` argument also enables the new plugin so you can see the changes right away:
 
 ```
-bin/console plugin:install SwagHelloWorld --activate
+bin/console plugin:install SwagAdministrationExample --activate
 ```
 
 When the plugin was successfully activated, please restart the development server. Webpack will then keep track of the new plugin and add the administration files to the file watcher process.
 
-## 3. Making changes
+## Making changes
 
 The administration files of your plugin are located in the `Resources/views/administration` directory.
 
@@ -234,9 +232,9 @@ import 'src/extension/sw-dashboard-index';
 
 After the import you should be able to the your changes in the dashboard:
 
-![Screenshot dashboard](https://image.tld)
+![Screenshot dashboard](https://sbp-testingmachine.s3.eu-west-1.amazonaws.com/1541782334/administration-example-plugin-dashboard.jpg)
 
-## 4. Prepare plugin CSS and JavaScript for production
+## Prepare plugin CSS and JavaScript for production
 
 In order to build the CSS and JavaScript for production environments you need to append your files in the index template for the production build:
 
@@ -247,12 +245,12 @@ In order to build the CSS and JavaScript for production environments you need to
 
 {% block administration_stylesheets %}
     {{ parent() }}
-    <link rel="stylesheet" href="{{ asset('bundles/swagadministrationexample/static/css/SwagHelloWorld.css') }}">
+    <link rel="stylesheet" href="{{ asset('bundles/swagadministrationexample/static/css/SwagAdministrationExample.css') }}">
 {% endblock %}
 
 {% block administration_scripts %}
     {{ parent() }}
-    <script type="text/javascript" src="{{ asset('bundles/swagadministrationexample/static/js/SwagHelloWorld.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('bundles/swagadministrationexample/static/js/SwagAdministrationExample.js') }}"></script>
 {% endblock %}
 ```
 *include JavaScript and CSS files fpr production build*
@@ -265,7 +263,7 @@ You can create the production files by using the `build` command:
 ./psh.phar administration:build
 ```
 
-## 5. Working with assets
+## Working with assets
 
 You have the ability to use assets (e.g. images) inside your plugin.
 

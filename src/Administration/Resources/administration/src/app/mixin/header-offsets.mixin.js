@@ -5,7 +5,7 @@ Mixin.register('header-offsets', {
 
     data() {
         return {
-            scrollBarOffset: 0,
+            scrollbarOffset: 0,
             sidebarOffset: 0
         };
     },

@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\LastIdQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceRulesJsonField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PriceRulesJsonFieldSerializer;
 use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
@@ -90,8 +90,6 @@ class ProductListingPriceIndexer implements IndexerInterface
 
         $prices = $this->fetchPrices($ids, $context);
 
-        $field = new PriceRulesJsonField('tmp', 'tmp');
-
         foreach ($prices as $id => $productPrices) {
             $productPrices = $this->convertPrices($productPrices);
             $ruleIds = array_keys(array_flip(array_column($productPrices, 'ruleId')));
@@ -101,7 +99,7 @@ class ProductListingPriceIndexer implements IndexerInterface
                 $listingPrices[] = $this->findCheapestRulePrice($productPrices, $ruleId);
             }
 
-            $listingPrices = $field->convertToStorage($listingPrices);
+            $listingPrices = PriceRulesJsonFieldSerializer::convertToStorage($listingPrices);
 
             $this->connection->executeUpdate(
                 'UPDATE product SET listing_prices = :price WHERE id = :id AND tenant_id = :tenant',

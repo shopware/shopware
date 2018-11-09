@@ -3,9 +3,9 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation;
 
 use Shopware\Core\Content\Catalog\CatalogDefinition;
-use Shopware\Core\Content\Catalog\DataAbstractionLayer\CatalogField;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CatalogField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;

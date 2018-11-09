@@ -3,12 +3,19 @@
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PasswordField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PasswordFieldSerializer;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\FieldExceptionStack;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\InvalidFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\User\UserDefinition;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -40,8 +47,20 @@ class PasswordFieldTest extends TestCase
         $existence = new EntityExistence(UserDefinition::class, [], false, false, false, []);
         $kvPair = new KeyValuePair('password', null, true);
 
-        $payload = iterator_to_array($field($existence, $kvPair));
+        $passwordFieldHandler = new PasswordFieldSerializer(
+            new ConstraintBuilder(),
+            $this->getContainer()->get('validator')
+        );
 
+        $payload = $passwordFieldHandler->encode($field, $existence, $kvPair, new WriteParameterBag(
+            UserDefinition::class,
+            WriteContext::createFromContext(Context::createDefaultContext(Defaults::TENANT_ID)),
+            '',
+            new WriteCommandQueue(),
+            new FieldExceptionStack()
+        ));
+
+        $payload = iterator_to_array($payload);
         static::assertEquals($kvPair->getValue(), $payload['password']);
     }
 
@@ -51,8 +70,20 @@ class PasswordFieldTest extends TestCase
         $existence = new EntityExistence(UserDefinition::class, [], false, false, false, []);
         $kvPair = new KeyValuePair('password', 'shopware', true);
 
-        $payload = iterator_to_array($field($existence, $kvPair));
+        $passwordFieldHandler = new PasswordFieldSerializer(
+            $this->getContainer()->get(ConstraintBuilder::class),
+            $this->getContainer()->get('validator')
+        );
 
+        $payload = $passwordFieldHandler->encode($field, $existence, $kvPair, new WriteParameterBag(
+            UserDefinition::class,
+            WriteContext::createFromContext(Context::createDefaultContext(Defaults::TENANT_ID)),
+            '',
+            new WriteCommandQueue(),
+            new FieldExceptionStack()
+        ));
+
+        $payload = iterator_to_array($payload);
         static::assertNotEquals($kvPair->getValue(), $payload['password']);
         static::assertTrue(password_verify($kvPair->getValue(), $payload['password']));
     }
@@ -67,7 +98,18 @@ class PasswordFieldTest extends TestCase
 
         $exception = null;
         try {
-            iterator_to_array($field($existence, $kvPair));
+            $handler = $this->getContainer()->get(PasswordFieldSerializer::class);
+
+            $parameters = new WriteParameterBag(
+                UserDefinition::class,
+                WriteContext::createFromContext(Context::createDefaultContext(Defaults::TENANT_ID)),
+                '',
+                new WriteCommandQueue(),
+                new FieldExceptionStack()
+            );
+
+            $x = $handler->encode($field, $existence, $kvPair, $parameters);
+            iterator_to_array($x);
         } catch (InvalidFieldException $exception) {
         }
 
@@ -85,7 +127,16 @@ class PasswordFieldTest extends TestCase
 
         $exception = null;
         try {
-            iterator_to_array($field($existence, $kvPair));
+            $handler = $this->getContainer()->get(PasswordFieldSerializer::class);
+
+            $x = $handler->encode($field, $existence, $kvPair, new WriteParameterBag(
+                UserDefinition::class,
+                WriteContext::createFromContext(Context::createDefaultContext(Defaults::TENANT_ID)),
+                '',
+                new WriteCommandQueue(),
+                new FieldExceptionStack()
+            ));
+            iterator_to_array($x);
         } catch (InvalidFieldException $exception) {
         }
 

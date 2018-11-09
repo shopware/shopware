@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
@@ -28,6 +29,7 @@ use Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitDefinit
 use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataStruct;
 use Shopware\Core\Framework\Version\VersionDefinition;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class VersionManager
 {
@@ -56,18 +58,25 @@ class VersionManager
      */
     private $entityWriteGateway;
 
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
     public function __construct(
         EntityWriterInterface $entityWriter,
         EntityReaderInterface $entityReader,
         EntitySearcherInterface $entitySearcher,
         DefinitionRegistry $entityDefinitionRegistry,
-        EntityWriteGatewayInterface $entityWriteGateway
+        EntityWriteGatewayInterface $entityWriteGateway,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->entityWriter = $entityWriter;
         $this->entityReader = $entityReader;
         $this->entitySearcher = $entitySearcher;
         $this->entityDefinitionRegistry = $entityDefinitionRegistry;
         $this->entityWriteGateway = $entityWriteGateway;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function upsert(string $definition, array $rawData, WriteContext $writeContext): array
@@ -149,6 +158,9 @@ class VersionManager
         $versionContext = $writeContext->createWithVersionId($versionId);
         $liveContext = $writeContext->createWithVersionId(Defaults::LIVE_VERSION);
 
+        $writtenEvents = [];
+        $deletedEvents = [];
+
         /** @var VersionCommitCollection $commits */
         foreach ($commits as $commit) {
             foreach ($commit->getData() as $data) {
@@ -182,7 +194,10 @@ class VersionManager
                     case 'update':
                     case 'upsert':
                         $payload = $this->addVersionToPayload($data->getPayload(), $dataDefinition, Defaults::LIVE_VERSION);
-                        $this->entityWriter->upsert($dataDefinition, [$payload], $liveContext);
+                        $events = $this->entityWriter->upsert($dataDefinition, [$payload], $liveContext);
+
+                        $writtenEvents = array_merge_recursive($writtenEvents, $events);
+
                         break;
 
                     case 'delete':
@@ -193,7 +208,8 @@ class VersionManager
                             $liveContext->getContext()->getDeleteProtection()->allow($deleteProtectionKey);
                         }
 
-                        $this->entityWriter->delete($dataDefinition, [$id], $liveContext);
+                        $deletedEvents[] = $this->entityWriter->delete($dataDefinition, [$id], $liveContext);
+
                         break;
                 }
             }
@@ -264,6 +280,15 @@ class VersionManager
             if ($deleteProtectionKey && !$wasDeletionAllowed) {
                 $writeContext->getContext()->getDeleteProtection()->disallow($deleteProtectionKey);
             }
+        }
+
+        $event = EntityWrittenContainerEvent::createWithWrittenEvents($writtenEvents, $liveContext->getContext(), []);
+        $this->eventDispatcher->dispatch(EntityWrittenContainerEvent::NAME, $event);
+
+        /** @var DeleteResult[] $deletedEvents */
+        foreach ($deletedEvents as $deletedEvent) {
+            $event = EntityWrittenContainerEvent::createWithDeletedEvents($deletedEvent->getDeleted(), $liveContext->getContext(), $deletedEvent->getNotFound());
+            $this->eventDispatcher->dispatch(EntityWrittenContainerEvent::NAME, $event);
         }
     }
 

@@ -5,33 +5,15 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextWithHtmlField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ObjectField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceRulesJsonField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Inherited;
-use Shopware\Core\Framework\Pricing\PriceRuleCollection;
-use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\Framework\Struct\ArrayStruct;
-use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\Serializer\SerializerInterface;
 
 /**
@@ -44,11 +26,17 @@ class EntityHydrator
      */
     private $serializer;
 
+    /**
+     * @var FieldSerializerRegistry
+     */
+    private $fieldHandler;
+
     private $objects = [];
 
-    public function __construct(SerializerInterface $serializer)
+    public function __construct(SerializerInterface $serializer, FieldSerializerRegistry $fieldHandler)
     {
         $this->serializer = $serializer;
+        $this->fieldHandler = $fieldHandler;
     }
 
     public function hydrate(string $entity, string $definition, array $rows, string $root): array
@@ -136,7 +124,7 @@ class EntityHydrator
             //scalar data values can be casted directly
             if (!$field instanceof AssociationInterface) {
                 //reduce data set for nested calls
-                $data[$propertyName] = $this->castValue($field, $value);
+                $data[$propertyName] = $this->fieldHandler->decode($field, $value);
                 continue;
             }
 
@@ -207,81 +195,6 @@ class EntityHydrator
         }
 
         return $entity;
-    }
-
-    private function castValue(Field $field, $value)
-    {
-        switch (true) {
-            case $field instanceof VersionField:
-            case $field instanceof ReferenceVersionField:
-                //version fields are not stored in the struct data
-                return null;
-
-            case $field instanceof FkField:
-            case $field instanceof IdField:
-                if ($value === null) {
-                    return null;
-                }
-
-                return Uuid::fromBytesToHex($value);
-            case $field instanceof FloatField:
-                return $value === null ? null : (float) $value;
-            case $field instanceof IntField:
-                return $value === null ? null : (int) $value;
-            case $field instanceof BoolField:
-                return (bool) $value;
-            case $field instanceof TranslatedField:
-                return $value === null ? null : (string) $value;
-            case $field instanceof DateField:
-                return $value === null ? null : new \DateTime($value);
-
-            case $field instanceof PriceField:
-                if ($value === null) {
-                    return null;
-                }
-                $value = json_decode((string) $value, true);
-
-                return new PriceStruct($value['net'], $value['gross'], (bool) $value['linked']);
-
-            case $field instanceof PriceRulesJsonField:
-                $value = json_decode((string) $value, true);
-
-                $structs = [];
-                if (isset($value['raw'])) {
-                    foreach ($value['raw'] as $record) {
-                        $structs[] = $this->serializer->deserialize(json_encode($record), '', 'json');
-                    }
-                }
-
-                return new PriceRuleCollection($structs);
-
-            case $field instanceof ObjectField:
-                if ($value === null) {
-                    return null;
-                }
-
-                return $this->serializer->deserialize($value, '', 'json');
-
-            case $field instanceof ListField:
-                if ($value === null) {
-                    return [];
-                }
-
-                return json_decode($value, true);
-
-            case $field instanceof JsonField:
-                if ($value === null) {
-                    return null;
-                }
-
-                return json_decode($value, true);
-
-            case $field instanceof LongTextField:
-            case $field instanceof LongTextWithHtmlField:
-            case $field instanceof StringField:
-            default:
-                return $value === null ? null : (string) $value;
-        }
     }
 
     private function isInherited(string $definition, array $row, AssociationInterface $association): bool

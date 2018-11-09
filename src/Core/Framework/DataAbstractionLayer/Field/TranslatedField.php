@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\System\Language\LanguageDefinition;
 
 class TranslatedField extends Field
@@ -31,43 +29,13 @@ class TranslatedField extends Field
         return 100;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function invoke(EntityExistence $existence, KeyValuePair $data): \Generator
+    public function getForeignClassName(): string
     {
-        $key = $data->getKey();
-        $value = $data->getValue();
+        return $this->foreignClassName;
+    }
 
-        if (\is_array($value)) {
-            $isNumeric = \count(array_diff($value, range(0, \count($value)))) === 0;
-
-            if ($isNumeric) {
-                foreach ($value as $translationKey => $translationValue) {
-                    yield 'translations' => [
-                        $translationKey => [
-                            $key => $translationValue,
-                        ],
-                    ];
-                }
-            } else {
-                foreach ($value as $translationKey => $translationValue) {
-                    yield 'translations' => [
-                        $translationKey => [
-                            $key => $translationValue,
-                        ],
-                    ];
-                }
-            }
-
-            return;
-        }
-
-        // load from write context the default language
-        yield 'translations' => [
-            $this->writeContext->get($this->foreignClassName, $this->foreignFieldName) => [
-                $key => $value,
-            ],
-        ];
+    public function getForeignFieldName(): string
+    {
+        return $this->foreignFieldName;
     }
 }

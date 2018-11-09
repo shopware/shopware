@@ -7,13 +7,11 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityForeignKeyResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TenantIdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
@@ -56,16 +54,23 @@ class EntityWriter implements EntityWriterInterface
      */
     private $gateway;
 
+    /**
+     * @var FieldSerializerRegistry
+     */
+    private $fieldHandler;
+
     public function __construct(
         WriteCommandExtractor $writeResource,
         DefaultExtender $defaultExtender,
         EntityForeignKeyResolver $foreignKeyResolver,
-        EntityWriteGatewayInterface $gateway
+        EntityWriteGatewayInterface $gateway,
+        FieldSerializerRegistry $fieldHandler
     ) {
         $this->defaultExtender = $defaultExtender;
         $this->foreignKeyResolver = $foreignKeyResolver;
         $this->writeResource = $writeResource;
         $this->gateway = $gateway;
+        $this->fieldHandler = $fieldHandler;
     }
 
     public function upsert(string $definition, array $rawData, WriteContext $writeContext): array
@@ -275,15 +280,17 @@ class EntityWriter implements EntityWriterInterface
         $extender = new FieldExtenderCollection();
         $extender->addExtender($this->defaultExtender);
 
-        /* @var EntityDefinition $definition */
+        /* @var EntityDefinition|string $definition */
         $commandQueue->setOrder($definition, ...$definition::getWriteOrder());
 
         $commandQueue = new WriteCommandQueue();
         $exceptionStack = new FieldExceptionStack();
 
+        $parameters = new WriteParameterBag($definition, $writeContext, '', $commandQueue, $exceptionStack);
+
         foreach ($rawData as $row) {
             $writeContext->resetPaths();
-            $this->writeResource->extract($row, $definition, $exceptionStack, $commandQueue, $writeContext, $extender);
+            $this->writeResource->extract($row, $parameters);
         }
         $exceptionStack->tryToThrow();
 
@@ -317,7 +324,7 @@ class EntityWriter implements EntityWriterInterface
             return Uuid::fromBytesToHex($primaryKey[$field->getStorageName()]);
         }
 
-        /** @var StorageAware|Field $field */
+        /** @var StorageAware[]|Field[] $fields */
         foreach ($fields as $field) {
             $data[$field->getPropertyName()] = Uuid::fromBytesToHex($primaryKey[$field->getStorageName()]);
         }
@@ -342,15 +349,7 @@ class EntityWriter implements EntityWriterInterface
                 continue;
             }
 
-            if (($field instanceof IdField || $field instanceof FkField) && !empty($value)) {
-                $value = Uuid::fromBytesToHex($value);
-            }
-
-            if ($field instanceof JsonField && !empty($value)) {
-                $value = json_decode($value, true);
-            }
-
-            $convertedPayload[$field->getPropertyName()] = $value;
+            $convertedPayload[$field->getPropertyName()] = $this->fieldHandler->decode($field, $value);
         }
 
         $primaryKeys = $fields->filterByFlag(PrimaryKey::class);

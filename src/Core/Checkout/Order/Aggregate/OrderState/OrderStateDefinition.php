@@ -34,7 +34,7 @@ class OrderStateDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
-            (new TranslatedField('description'))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
+            (new TranslatedField('description'))->setFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new IntField('position', 'position'),
             new BoolField('has_mail', 'hasMail'),
             new CreatedAtField(),

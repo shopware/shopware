@@ -39,8 +39,8 @@ class CountryStateDefinition extends EntityDefinition
 
             (new FkField('country_id', 'countryId', CountryDefinition::class))->setFlags(new Required()),
 
-            (new StringField('short_code', 'shortCode'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
-            (new TranslatedField('name'))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
+            (new StringField('short_code', 'shortCode'))->setFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new TranslatedField('name'))->setFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new IntField('position', 'position'),
             new BoolField('active', 'active'),
             new CreatedAtField(),

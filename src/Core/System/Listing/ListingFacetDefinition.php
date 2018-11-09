@@ -32,7 +32,7 @@ class ListingFacetDefinition extends EntityDefinition
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('unique_key', 'uniqueKey'))->setFlags(new Required()),
             (new LongTextField('payload', 'payload'))->setFlags(new Required()),
-            (new TranslatedField('name'))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
+            (new TranslatedField('name'))->setFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new BoolField('active', 'active'),
             new BoolField('display_in_categories', 'displayInCategories'),
             new BoolField('deletable', 'deletable'),

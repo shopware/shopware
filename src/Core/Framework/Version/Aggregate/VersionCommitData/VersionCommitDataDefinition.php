@@ -43,10 +43,10 @@ class VersionCommitDataDefinition extends EntityDefinition
             new IdField('user_id', 'userId'),
             new IdField('integration_id', 'integrationId'),
             new IntField('auto_increment', 'autoIncrement'),
-            (new StringField('entity_name', 'entityName'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
+            (new StringField('entity_name', 'entityName'))->setFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new JsonField('entity_id', 'entityId'))->setFlags(new Required()),
-            (new StringField('action', 'action'))->setFlags(new Required(), new SearchRanking(self::LOW_SEARCH_RAKING)),
-            (new VersionDataPayloadField('payload', 'payload'))->setFlags(new Required(), new SearchRanking(self::LOW_SEARCH_RAKING)),
+            (new StringField('action', 'action'))->setFlags(new Required(), new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
+            (new VersionDataPayloadField('payload', 'payload'))->setFlags(new Required(), new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
             new CreatedAtField(),
         ]);
     }

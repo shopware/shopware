@@ -100,8 +100,8 @@ class ProductDefinition extends EntityDefinition
             (new PriceField('price', 'price'))->setFlags(new Inherited(), new Required()),
             (new PriceRulesJsonField('listing_prices', 'listingPrices'))->setFlags(new Inherited(), new ReadOnly()),
 
-            (new StringField('manufacturer_number', 'manufacturerNumber'))->setFlags(new Inherited(), new SearchRanking(self::LOW_SEARCH_RAKING)),
-            (new StringField('ean', 'ean'))->setFlags(new Inherited(), new SearchRanking(self::LOW_SEARCH_RAKING)),
+            (new StringField('manufacturer_number', 'manufacturerNumber'))->setFlags(new Inherited(), new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
+            (new StringField('ean', 'ean'))->setFlags(new Inherited(), new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
             (new BoolField('is_closeout', 'isCloseout'))->setFlags(new Inherited()),
             (new IntField('min_stock', 'minStock'))->setFlags(new Inherited()),
             (new IntField('purchase_steps', 'purchaseSteps'))->setFlags(new Inherited()),
@@ -129,8 +129,8 @@ class ProductDefinition extends EntityDefinition
 
             //translatable fields
             (new TranslatedField('additionalText'))->setFlags(new Inherited()),
-            (new TranslatedField('name'))->setFlags(new Inherited(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
-            (new TranslatedField('keywords'))->setFlags(new Inherited(), new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
+            (new TranslatedField('name'))->setFlags(new Inherited(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new TranslatedField('keywords'))->setFlags(new Inherited(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new TranslatedField('description'))->setFlags(new Inherited()),
             (new TranslatedField('descriptionLong'))->setFlags(new Inherited()),
             (new TranslatedField('metaTitle'))->setFlags(new Inherited()),
@@ -142,7 +142,7 @@ class ProductDefinition extends EntityDefinition
 
             //inherited associations and associations which are loaded immediately
             (new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class, true, 'id'))->setFlags(new Inherited()),
-            (new ManyToOneAssociationField('manufacturer', 'product_manufacturer_id', ProductManufacturerDefinition::class, true, 'id'))->setFlags(new Inherited(), new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
+            (new ManyToOneAssociationField('manufacturer', 'product_manufacturer_id', ProductManufacturerDefinition::class, true, 'id'))->setFlags(new Inherited(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
             (new ManyToOneAssociationField('unit', 'unit_id', UnitDefinition::class, true, 'id'))->setFlags(new Inherited()),
             (new ManyToOneAssociationField('cover', 'product_media_id', ProductMediaDefinition::class, true, 'id'))->setFlags(new Inherited()),
             (new OneToManyAssociationField('priceRules', ProductPriceRuleDefinition::class, 'product_id', true))->setFlags(new CascadeDelete(), new Inherited()),

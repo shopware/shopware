@@ -1,0 +1,162 @@
+{% block sw_select %}
+    <div class="sw-select"
+         :class="selectClasses"
+         tabindex="0"
+         ref="swSelect"
+         @click="setFocus"
+         @focus="setFocus"
+         @keyup.esc="closeResultList"
+         @keyup.enter.prevent="onKeyUpEnter"
+         @keydown.up.prevent="navigateUpResults"
+         @keydown.down.prevent="navigateDownResults">
+
+        {% block sw_select_label %}
+            <label v-if="label" :for="id" class="sw-select__label">{{ label }}</label>
+        {% endblock %}
+
+        {% block sw_select_inner %}
+            <div class="sw-select__inner">
+
+                {% block sw_select_multi_selections %}
+                    <template v-if="multi">
+                        <transition-group name="sw-select-magnify"
+                                          tag="ul"
+                                          class="sw-select__selections"
+                                          mode="out-in">
+
+                            {% block sw_select_selection_item %}
+                                <li class="sw-select__selection-item"
+                                    :class="{ 'is--default': (selection.id === defaultItemId), 'is--clickAble': (defaultItemId) }"
+                                    @click.stop="changeDefaultItemId(selection.id)"
+                                    v-for="selection in selections"
+                                    :key="selection.id"
+                                    :data-id="selection.id">
+
+                                    {% block sw_select_selection_text_holder %}
+                                        <span class="sw-select__selection-text">
+                                            {% block sw_select_selection_text %}
+                                                {{ selection.name }}
+                                            {% endblock %}
+                                        </span>
+                                    {% endblock %}
+
+                                    {% block sw_select_selection_dismiss %}
+                                        <button class="sw-select__selection-dismiss"
+                                                :title="$tc('global.sw-select.buttonDismiss')"
+                                                @click.prevent.stop="onDismissSelection(selection.id)">
+                                            {% block sw_select_selection_dismiss_icon %}
+                                                <sw-icon name="small-default-x-line-medium"
+                                                         :class="{ 'is--default': (selection.id === defaultItemId) }">
+                                                </sw-icon>
+                                            {% endblock %}
+                                        </button>
+                                    {% endblock %}
+                                </li>
+                            {% endblock %}
+
+                            {% block sw_select_list_item_input %}
+                                <li class="sw-select__selection-item-input" key="listInput">
+                                    {% block sw_select_input %}
+                                        <input ref="swSelectInput"
+                                               class="sw-select__input"
+                                               type="text"
+                                               :placeholder="placeholder"
+                                               v-model="searchTerm"
+                                               @input="onSearchTermChange"
+                                               @focus="openResultList"
+                                               @keydown.delete="dismissLastSelection">
+                                    {% endblock %}
+                                </li>
+                            {% endblock %}
+                        </transition-group>
+                    </template>
+                {% endblock %}
+
+                {% block sw_select_single_selection %}
+                    <template v-else>
+                        <div class="sw-select__single-selection">
+                            {% block sw_select_single_selection_inner %}
+                                <slot v-if="singleSelection.name" name="selected_option" :item="singleSelection">
+                                    {% block sw_select_single_selection_slot_label %}
+                                        {{ singleSelection.name }}
+                                    {% endblock %}
+                                </slot>
+
+                                <span v-else-if="!isExpanded" class="sw-select__placeholder">{{ placeholder }}</span>
+                            {% endblock %}
+                        </div>
+                    </template>
+                {% endblock %}
+
+                {% block sw_select_indicators %}
+                    <div class="sw-select__indicators">
+                        {% block sw_select__indicators_loader %}
+                            <sw-loader v-if="isLoading" size="16px"></sw-loader>
+                        {% endblock %}
+
+                        {% block sw_select_indicators_helptext %}
+                            <sw-help-text v-if="helpText" :text="helpText"></sw-help-text>
+                        {% endblock %}
+
+                        {% block sw_select_indicators_arrow %}
+                            <sw-icon v-if="!multi" name="small-arrow-medium-down" small></sw-icon>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+
+                {% block sw_select_results_transition %}
+                    <transition name="sw-select-fade-down">
+                        {% block sw_select_results %}
+                            <div class="sw-select__results" v-if="isExpanded">
+                                {% block sw_select_results_single_input %}
+                                    <div v-if="!multi"
+                                         class="sw-select__input-single-wrapper">
+                                        <input ref="swSelectInput"
+                                               class="sw-select__input-single"
+                                               type="text"
+                                               :placeholder="placeholder"
+                                               v-model="searchTerm"
+                                               @blur="isExpanded = false"
+                                               @input="onSearchTermChange">
+                                        <sw-icon name="small-search" small></sw-icon>
+                                    </div>
+                                {% endblock %}
+
+
+                                {% block sw_select_results_list %}
+                                    <ul class="sw-select__results-list">
+                                         {% block sw_select_result_item %}
+                                             <template v-for="(item, index) in results">
+                                                 <slot name="result_items" :item="item" :index="index">
+                                                     {% block sw_select_result_item_slot %}
+                                                         <sw-select-option
+                                                            :index="index"
+                                                            :item="item">
+                                                            {{ item.name }}
+                                                         </sw-select-option>
+                                                     {% endblock %}
+                                                 </slot>
+                                             </template>
+                                        {% endblock %}
+                                    </ul>
+                                {% endblock %}
+
+                                {% block sw_select_results_empty %}
+                                    <div v-if="results.length <= 0" class="sw-select__results-empty-message">
+                                        {% block sw_select_results_empty_icon %}
+                                            <sw-icon name="default-action-search" size="20px"></sw-icon>
+                                        {% endblock %}
+
+                                        {% block sw_select_results_empty_text %}
+                                            {{ $tc('global.sw-select.messageNoResults', searchTerm, { term: searchTerm }) }}
+                                        {% endblock %}
+                                    </div>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    </transition>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

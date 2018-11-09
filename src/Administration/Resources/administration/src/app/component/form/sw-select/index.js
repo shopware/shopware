@@ -1,9 +1,9 @@
 import { Component, Mixin } from 'src/core/shopware';
 import utils from 'src/core/service/util.service';
-import './sw-multi-select.less';
-import template from './sw-multi-select.html.twig';
+import './sw-select.less';
+import template from './sw-select.html.twig';
 
-Component.register('sw-multi-select', {
+Component.register('sw-select', {
     template,
 
     mixins: [
@@ -11,9 +11,10 @@ Component.register('sw-multi-select', {
     ],
 
     props: {
-        serviceProvider: {
-            type: Object,
-            required: true
+        multi: {
+            type: Boolean,
+            required: false,
+            default: false
         },
         criteria: {
             type: Object,
@@ -26,7 +27,7 @@ Component.register('sw-multi-select', {
             default: ''
         },
         value: {
-            type: Array,
+            type: [String, Array],
             required: true
         },
         label: {
@@ -47,45 +48,60 @@ Component.register('sw-multi-select', {
             required: false,
             default: 25
         },
-        entityName: {
-            type: String,
-            required: false,
-            default: 'category'
-        },
         disabled: {
             type: Boolean,
             required: false,
             default: false
         },
+        // Association store if multi select, else a normal store
         store: {
             type: Object,
             required: true
         },
+        // Only required if this is a multi select
+        serviceProvider: {
+            type: Object,
+            required: false
+        },
+        // For multi selects with a default value
         defaultItemId: {
             type: String,
             required: false
+        },
+        itemValueKey: {
+            type: String,
+            required: false,
+            default: 'id'
+        },
+        helpText: {
+            type: String,
+            required: false,
+            default: ''
         }
     },
 
     data() {
         return {
-            initialSelection: false,
             searchTerm: '',
             isExpanded: false,
             results: [],
+            // for multi select
             selections: [],
             activeResultPosition: 0,
-            isLoading: false,
-            hasError: false
+            isLoading: true,
+            hasError: false,
+            // for a single selection
+            singleSelection: {}
         };
     },
 
     computed: {
-        multiSelectClasses() {
+        selectClasses() {
             return {
                 'has--error': !this.isValid || this.hasError,
                 'is--disabled': this.disabled,
-                'is--expanded': this.isExpanded
+                'is--expanded': this.isExpanded,
+                'sw-select--multi': this.multi
             };
         }
     },
@@ -96,7 +112,13 @@ Component.register('sw-multi-select', {
         },
 
         disabled: 'loadPreviewResults',
-        criteria: 'loadPreviewResults'
+        criteria: 'loadPreviewResults',
+        // load data of the selected option when it changes
+        value(value) {
+            if (typeof value === 'string') {
+                this.loadSelections();
+            }
+        }
     },
 
     created() {
@@ -124,34 +146,56 @@ Component.register('sw-multi-select', {
         },
 
         addEventListeners() {
+            this.$on('sw-select-option-clicked', this.addSelection);
+            this.$on('sw-select-option-mouse-over', this.setActiveResultPosition);
             document.addEventListener('click', this.closeOnClickOutside);
+            document.addEventListener('keyup', this.closeOnClickOutside);
         },
+
 
         removeEventListeners() {
             document.removeEventListener('click', this.closeOnClickOutside);
+            document.removeEventListener('keyup', this.closeOnClickOutside);
         },
 
         loadSelections() {
             this.isLoading = true;
 
-            this.store.getList({
-                page: 1,
-                limit: 500 // ToDo: The concept of assigning a large amount of relations needs a special solution.
-            }).then((response) => {
-                this.selections = response.items;
+            if (this.multi) {
+                this.store.getList({
+                    page: 1,
+                    limit: 500 // ToDo: The concept of assigning a large amount of relations needs a special solution.
+                }).then((response) => {
+                    this.selections = response.items;
+                    this.isLoading = false;
+                });
+            } else {
+                // return if the value is not set yet(*note the watcher on value)
+                if (!this.value) {
+                    return;
+                }
+                this.singleSelection = this.store.getById(this.value);
                 this.isLoading = false;
-            });
+            }
         },
 
         loadResults() {
-            this.serviceProvider.getList({
+            let provider = this.store;
+
+            if (this.multi) {
+                provider = this.serviceProvider;
+            }
+
+            provider.getList({
                 page: 1,
                 limit: this.resultsLimit,
                 term: this.searchTerm,
                 criteria: this.criteria
             }).then((response) => {
-                this.results = response.data;
+                this.results = response.items || response.data;
                 this.isLoading = false;
+                // Reset active position index after search
+                this.setActiveResultPosition({ index: 0 });
 
                 this.scrollToResultsTop();
             });
@@ -159,24 +203,32 @@ Component.register('sw-multi-select', {
 
         loadPreviewResults() {
             this.isLoading = true;
+            let provider = this.store;
 
-            this.serviceProvider.getList({
+            if (this.multi) {
+                provider = this.serviceProvider;
+            }
+
+            provider.getList({
                 page: 1,
                 limit: this.previewResultsLimit,
                 criteria: this.criteria
             }).then((response) => {
-                this.results = response.data;
+                this.results = response.items || response.data;
                 this.isLoading = false;
             });
         },
 
         openResultList() {
             this.isExpanded = true;
+            this.emitActiveResultPosition();
         },
 
         closeResultList() {
-            this.isExpanded = false;
-            this.$refs.swMultiSelectInput.blur();
+            this.$nextTick(() => {
+                this.isExpanded = false;
+            });
+            this.$refs.swSelectInput.blur();
         },
 
         onSearchTermChange() {
@@ -194,8 +246,13 @@ Component.register('sw-multi-select', {
             }
         }, 400),
 
-        setActiveResultPosition(index) {
+        setActiveResultPosition({ index }) {
             this.activeResultPosition = index;
+            this.emitActiveResultPosition();
+        },
+
+        emitActiveResultPosition() {
+            this.$emit('sw-select-active-item-index', this.activeResultPosition);
         },
 
         navigateUpResults() {
@@ -203,27 +260,27 @@ Component.register('sw-multi-select', {
                 return;
             }
 
-            this.activeResultPosition = this.activeResultPosition - 1;
+            this.setActiveResultPosition({ index: this.activeResultPosition - 1 });
 
-            const swMultiSelectEl = this.$refs.swMultiSelect;
-            const resultItem = swMultiSelectEl.querySelector('.sw-multi-select__result-item');
-            const resultContainer = swMultiSelectEl.querySelector('.sw-multi-select__results');
+            const swSelectEl = this.$refs.swSelect;
+            const resultItem = swSelectEl.querySelector('.sw-select-option');
+            const resultContainer = swSelectEl.querySelector('.sw-select__results');
 
             resultContainer.scrollTop -= resultItem.offsetHeight;
         },
 
         navigateDownResults() {
-            if (this.activeResultPosition === this.results.length - 1) {
+            if (this.activeResultPosition === this.results.length - 1 || this.results.length < 1) {
                 return;
             }
 
-            this.activeResultPosition = this.activeResultPosition + 1;
+            this.setActiveResultPosition({ index: this.activeResultPosition + 1 });
 
-            const swMultiSelectEl = this.$refs.swMultiSelect;
-            const activeItem = swMultiSelectEl.querySelector('.is--active');
-            const itemHeight = swMultiSelectEl.querySelector('.sw-multi-select__result-item').offsetHeight;
+            const swSelectEl = this.$refs.swSelect;
+            const activeItem = swSelectEl.querySelector('.is--active');
+            const itemHeight = swSelectEl.querySelector('.sw-select-option').offsetHeight;
             const activeItemPosition = activeItem.offsetTop + itemHeight;
-            const resultContainer = swMultiSelectEl.querySelector('.sw-multi-select__results');
+            const resultContainer = swSelectEl.querySelector('.sw-select__results');
             let resultContainerHeight = resultContainer.offsetHeight;
 
             resultContainerHeight -= itemHeight;
@@ -234,65 +291,78 @@ Component.register('sw-multi-select', {
         },
 
         scrollToResultsTop() {
-            this.activeResultPosition = 0;
-            this.$refs.swMultiSelect.querySelector('.sw-multi-select__results').scrollTop = 0;
+            this.setActiveResultPosition({ index: 0 });
+            this.$refs.swSelect.querySelector('.sw-select__results').scrollTop = 0;
         },
 
         setFocus() {
-            this.$refs.swMultiSelectInput.focus();
+            if (this.multi) {
+                this.$refs.swSelectInput.focus();
+                return;
+            }
+
+            this.openResultList();
+            // since the input is not visible at first we need to wait a tick until the
+            // result list with the input is visible
+            this.$nextTick(() => {
+                this.$refs.swSelectInput.focus();
+            });
         },
 
         closeOnClickOutside(event) {
+            if (event.type === 'keyup' && event.key !== 'Tab') {
+                return;
+            }
+
             const target = event.target;
 
-            if (target.closest('.sw-multi-select') !== this.$refs.swMultiSelect) {
+            if (target.closest('.sw-select') !== this.$refs.swSelect) {
                 this.isExpanded = false;
                 this.activeResultPosition = 0;
             }
         },
 
-        isInSelections(result) {
-            return !this.selections.every((item) => {
-                return item.id !== result.id;
-            });
+        isInSelections(item) {
+            if (this.multi) {
+                return !this.selections.every((selection) => {
+                    return selection[this.itemValueKey] !== item[this.itemValueKey];
+                });
+            }
+
+            return this.singleSelection[this.itemValueKey] === item[this.itemValueKey];
         },
 
-        addSelection(result) {
-            if (!result.id || !result.name) {
+        addSelection({ item }) {
+            if (item === undefined || !item[this.itemValueKey]) {
                 return;
             }
 
-            if (this.isInSelections(result)) {
+            if (this.multi) {
+                if (this.isInSelections(item)) {
+                    return;
+                }
+
+                this.selections.push(item);
+                this.searchTerm = '';
+
+                this.emitChanges(this.selections);
+
+                this.setFocus();
+
+                if (this.selections.length === 1) {
+                    this.changeDefaultItemId(item[this.itemValueKey]);
+                }
                 return;
             }
 
-            this.selections.push(result);
-            this.searchTerm = '';
+            this.singleSelection = item;
 
-            this.emitChanges(this.selections);
-
-            this.setFocus();
-
-            if (this.selections.length === 1) {
-                this.changeDefaultItemId(result.id);
-            }
+            this.$emit('input', item[this.itemValueKey]);
+            this.closeResultList();
         },
 
-        addSelectionOnEnter() {
-            const activeItem = this.results[this.activeResultPosition];
-            const id = activeItem.id;
-
-            if (!id) {
-                return;
-            }
-
-            const result = this.results.filter((entry) => entry.id === id);
-
-            if (!result.length) {
-                return;
-            }
-
-            this.addSelection(result[0]);
+        onKeyUpEnter() {
+            this.$emit('sw-select-on-keyup-enter', this.activeResultPosition);
         },
 
         onDismissSelection(id) {

@@ -14,17 +14,18 @@
             {% endblock %}
 
             {% block sw_product_category_form_category_field %}
-                <sw-multi-select id="categories"
-                                 class="sw-product-detail__category-select"
-                                 ref="multiSelectCategories"
-                                 :label="$tc('sw-product.categoryForm.labelCategory')"
-                                 :placeholder="$tc('sw-product.categoryForm.placeholderCategory')"
-                                 :serviceProvider="categoryService"
-                                 :store="categoriesStore"
-                                 :criteria="criteria"
-                                 :disabled="!hasCriteria"
-                                 v-model="product.categories">
-                </sw-multi-select>
+                <sw-select id="categories"
+                           multi
+                           class="sw-product-detail__category-select"
+                           ref="multiSelectCategories"
+                           :label="$tc('sw-product.categoryForm.labelCategory')"
+                           :placeholder="$tc('sw-product.categoryForm.placeholderCategory')"
+                           :serviceProvider="categoryService"
+                           :store="categoriesStore"
+                           :criteria="criteria"
+                           :disabled="!hasCriteria"
+                           v-model="product.categories">
+                </sw-select>
             {% endblock %}
         {% endblock %}
     </div>

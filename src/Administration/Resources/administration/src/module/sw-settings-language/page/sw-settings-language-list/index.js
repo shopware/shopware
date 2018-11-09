@@ -17,8 +17,16 @@ Component.register('sw-settings-language-list', {
 
     methods: {
         isDefault(id) {
-            const defaultLanguageId = '20080911ffff4fffafffffff19830531';
-            return defaultLanguageId === id;
+            const defaultLanguageIds = ['20080911ffff4fffafffffff19830531', '00e84bd18c574a6ca748ac0db17654dc'];
+            return defaultLanguageIds.includes(id);
+        },
+
+        getItemParent(item) {
+            if (item.parentId === null) {
+                return { name: '' };
+            }
+
+            return this.store.getById(item.parentId);
         }
     }
 });

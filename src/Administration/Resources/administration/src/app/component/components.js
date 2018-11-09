@@ -19,6 +19,7 @@ import './base/sw-empty-state';
 import './base/sw-description-list';
 import './base/sw-collapse';
 import './base/sw-version';
+import './base/sw-help-text';
 
 import './utils/sw-loader';
 import './utils/sw-notifications';
@@ -33,7 +34,8 @@ import './grid/sw-pagination';
 import './form/sw-field';
 import './form/sw-price-field';
 import './form/sw-form-grid';
-import './form/sw-multi-select';
+import './form/sw-select';
+import './form/sw-select-option';
 import './form/sw-text-editor';
 
 import './tree/sw-tree';

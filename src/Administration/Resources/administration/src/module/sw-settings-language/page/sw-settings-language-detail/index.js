@@ -1,5 +1,6 @@
 import { Component, State, Mixin } from 'src/core/shopware';
 import template from './sw-settings-language-detail.html.twig';
+import './sw-settings-language-detail.less';
 
 Component.register('sw-settings-language-detail', {
     template,
@@ -8,11 +9,15 @@ Component.register('sw-settings-language-detail', {
         Mixin.getByName('notification')
     ],
 
+    inject: ['localeService', 'languageService'],
+
     data() {
         return {
             language: {},
             locales: [],
-            languages: []
+            languages: [],
+            usedLocales: [],
+            showAlertForChangeParentLanguage: false
         };
     },
 
@@ -37,19 +42,37 @@ Component.register('sw-settings-language-detail', {
                 this.language = this.languageStore.getById(this.languageId);
             }
 
-            this.localeStore.getList({
-                offset: 0,
-                limit: 500
+            this.languageService.getList({
+                page: 1,
+                limit: 1,
+                aggregations: { usedLocales: { value_count: { field: 'language.locale.code' } } }
             }).then((response) => {
-                this.locales = response.items;
+                this.usedLocales = response.aggregations.usedLocales;
+            });
+        },
+
+        onInputLanguage() {
+            if (this.language.isLocal || !this.language.original.parentId) {
+                return;
+            }
+
+            this.showAlertForChangeParentLanguage = this.language.getChanges().hasOwnProperty('parentId');
+        },
+
+        showOption(item) {
+            return item.id !== this.language.id;
+        },
+
+        isLocaleAlreadyUsed(item) {
+            if (item.code === this.language.locale.code) {
+                return false;
+            }
+
+            const foundLocale = this.usedLocales.find((locale) => {
+                return item.code === locale.key;
             });
 
-            this.languageStore.getList({
-                offset: 0,
-                limit: 25
-            }).then((response) => {
-                this.languages = response.items;
-            });
+            return foundLocale !== undefined;
         },
 
         onSave() {

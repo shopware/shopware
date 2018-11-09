@@ -17,7 +17,9 @@ Component.register('sw-sidebar', {
             this.$parent.$options.name === 'sw-media-sidebar') {
             return;
         }
-        this.$root.$emit('swSidebarMounted');
+        const sidebarWidth = this.$el.querySelector('.sw-sidebar__navigation').offsetWidth;
+
+        this.$root.$emit('swSidebarMounted', sidebarWidth);
     },
 
     destroyed() {

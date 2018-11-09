@@ -1,8 +1,6 @@
 import { Mixin } from 'src/core/shopware';
 import dom from 'src/core/service/utils/dom.utils';
 
-const SIDEBAR_WIDTH = 64;
-
 Mixin.register('header-offsets', {
 
     data() {
@@ -29,8 +27,8 @@ Mixin.register('header-offsets', {
     },
 
     created() {
-        this.$root.$on('swSidebarMounted', () => {
-            this.sidebarOffset = SIDEBAR_WIDTH;
+        this.$root.$on('swSidebarMounted', (sidebarWidth) => {
+            this.sidebarOffset = sidebarWidth;
         });
 
         this.$root.$on('swSidebarDestroyed', () => {
@@ -40,10 +38,10 @@ Mixin.register('header-offsets', {
 
     methods: {
         setScrollbarOffset() {
-            const el = document.querySelector('.sw-card-view__content');
+            const contentEl = document.querySelector('.sw-card-view__content');
 
-            if (el !== null) {
-                this.scrollbarOffset = dom.getScrollbarWidth(el);
+            if (contentEl !== null) {
+                this.scrollbarOffset = dom.getScrollbarWidth(contentEl);
             }
         }
     }

@@ -3,16 +3,16 @@ function IntegrationPageObject(browser) {
     this.browser = browser;
     this.elements = {};
     this.elements.integrationName = 'input[name=sw-field--currentIntegration-label]';
-    this.elements.apiAccessKeyIdField = 'input[name=sw-field--currentIntegration-accessKey]';
+    this.elements.apiAccessKeyField = 'input[name=sw-field--currentIntegration-accessKey]';
 
     this.accessKeyId = '';
     this.newAccessKeyId = '';
 }
 
-IntegrationPageObject.prototype.checkClipboard = function () {
+IntegrationPageObject.prototype.checkClipboard = function checkClipboard() {
     const me = this;
 
-    this.browser.getValue('input[name=sw-field--currentIntegration-accessKey]', function (result) {
+    this.browser.getValue('input[name=sw-field--currentIntegration-accessKey]', function checkValuePresent(result) {
         me.accessKeyId = result.value;
 
         me.browser
@@ -23,9 +23,7 @@ IntegrationPageObject.prototype.checkClipboard = function () {
             .click('.sw-alert .sw-alert__close')
             .waitForElementNotPresent('.sw-notifications .sw-alert')
             .clearValue(me.elements.integrationName)
-            .setValue(me.elements.integrationName, ['', me.browser.Keys.CONTROL, 'v']);
-
-        me.browser
+            .setValue(me.elements.integrationName, ['', me.browser.Keys.CONTROL, 'v'])
             .expect.element(me.elements.integrationName).value.to.equal(me.accessKeyId);
     });
 
@@ -35,38 +33,38 @@ IntegrationPageObject.prototype.checkClipboard = function () {
         .waitForElementNotPresent('.sw-modal__title');
 };
 
-IntegrationPageObject.prototype.changeApiCredentials = function () {
+IntegrationPageObject.prototype.changeApiCredentials = function changeApiCredentials() {
     const me = this;
 
-    this.browser.getValue(this.elements.apiAccessKeyIdField, function (result) {
+    this.browser.getValue(this.elements.apiAccessKeyField, function checkValuePresent(result) {
         me.newAccessKeyId = result.value;
 
         me.browser
             .waitForElementPresent('.sw-button--danger')
             .click('.sw-button--danger')
-            .waitForElementPresent(me.elements.apiAccessKeyIdField)
-            .getValue(me.elements.apiAccessKeyIdField, function (result) {
-                this.assert.notEqual(result, me.accessKeyId);
+            .waitForElementPresent(me.elements.apiAccessKeyField)
+            .getValue(me.elements.apiAccessKeyField, function checkValueNotPresent(secondResult) {
+                this.assert.notEqual(secondResult, me.accessKeyId);
             })
             .waitForElementVisible('.sw-integration-detail-modal__save-action')
             .click('.sw-integration-detail-modal__save-action')
             .waitForElementVisible('.sw-notification__alert')
             .assert.containsText('.sw-alert .sw-alert__message', 'Integration has been saved successfully');
-    })
+    });
 };
 
-IntegrationPageObject.prototype.verifyChangedApiCredentials = function () {
+IntegrationPageObject.prototype.verifyChangedApiCredentials = function verifyChangedApiCredentials() {
     const me = this;
 
-    this.browser.getValue(this.elements.apiAccessKeyIdField, function (result) {
+    this.browser.getValue(this.elements.apiAccessKeyField, function checkValuePresent(result) {
         me.newAccessKeyId = result.value;
 
         me.browser
-            .waitForElementPresent(me.elements.apiAccessKeyIdField)
-            .getValue(me.elements.apiAccessKeyIdField, function (result) {
-                this.assert.notEqual(result, me.accessKeyId);
+            .waitForElementPresent(me.elements.apiAccessKeyField)
+            .getValue(me.elements.apiAccessKeyField, function checkValueNotPresent(secondResult) {
+                this.assert.notEqual(secondResult, me.accessKeyId);
             })
-            .expect.element(me.elements.apiAccessKeyIdField).value.to.equal(me.newAccessKeyId);
+            .expect.element(me.elements.apiAccessKeyField).value.to.equal(me.newAccessKeyId);
     });
 
     this.browser
@@ -75,19 +73,19 @@ IntegrationPageObject.prototype.verifyChangedApiCredentials = function () {
         .waitForElementNotPresent('.sw-modal__title');
 };
 
-IntegrationPageObject.prototype.deleteSingleIntegration = function (integrationName) {
+IntegrationPageObject.prototype.deleteSingleIntegration = function deleteSingleIntegration(integrationName) {
     this.browser
         .click('.sw-context-button__button')
         .waitForElementVisible('body > .sw-context-menu')
         .waitForElementVisible('.sw-context-menu-item--danger')
         .click('.sw-context-menu-item--danger')
         .waitForElementVisible('.sw-modal')
-        .assert.containsText('.sw-modal__body', 'Are you sure you want to delete this integration? ' + integrationName)
+        .assert.containsText('.sw-modal__body', `Are you sure you want to delete this integration? ${integrationName}`)
         .click('.sw-modal__footer button.sw-button--primary')
         .waitForElementNotPresent('.sw-integration-list__column-integration-name')
         .waitForElementNotPresent('.sw-modal')
         .waitForElementPresent('.sw-empty-state__title')
-        .assert.containsText('.sw-empty-state__title', 'No integrations yet')
+        .assert.containsText('.sw-empty-state__title', 'No integrations yet');
 };
 
 module.exports = (browser) => {

@@ -10,5 +10,9 @@ module.exports = {
             .setValue('input[name=sw-field--authStore-password]', [password, browser.Keys.ENTER])
             .waitForElementVisible('.sw-desktop')
             .waitForElementVisible('.sw-admin-menu');
+
+        if (browser.isVisible('.hide-button')) {
+            browser.click('.hide-button').waitForElementNotVisible('.hide-button');
+        }
     }
 };

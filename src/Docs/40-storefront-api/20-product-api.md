@@ -1,4 +1,4 @@
-[wikiUrl]: <>(https://docs.shopware.com/en/shopware-playground-en/using-the-storefront-api/product-endpoint?category=shopware-platform-en/using-the-storefront-api)
+[wikiUrl]: <>(../using-the-storefront-api/product-endpoint?category=shopware-platform-en/using-the-storefront-api)
 [titleEn]: <>(['Product endpoint'])
 The product endpoint of the storefront API is used to get product
 information e.g. for a storefront listing.

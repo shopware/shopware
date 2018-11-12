@@ -1,4 +1,4 @@
-[wikiUrl]: <>(https://docs.shopware.com/en/shopware-playground-en/using-the-storefront-api/sales-channel-endpoint?category=shopware-platform-en/using-the-storefront-api)
+[wikiUrl]: <>(../using-the-storefront-api/sales-channel-endpoint?category=shopware-platform-en/using-the-storefront-api)
 [titleEn]: <>(['Sales channel endpoint'])
 The sales channel endpoint is used to obtain information about various
 entities like currency, language or country which are assigned to a

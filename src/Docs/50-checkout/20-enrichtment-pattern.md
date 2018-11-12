@@ -1,6 +1,6 @@
-# Enrichtment and processor pattern of cart 
+[titleEn]: <>(Enrichment pattern)
+[wikiUrl]: <>(../checkout/enrichment?category=shopware-platform-en/checkout)
 
-## Introduction
 Shopware has an enrichtment process which allows adding additional information to line items like
 label, description, price definition, taxes, images, children and much more. The enrichtment process
 executes the collector chain. You can write your own collector to add information to your custom line 

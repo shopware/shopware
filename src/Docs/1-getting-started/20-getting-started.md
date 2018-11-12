@@ -1,13 +1,13 @@
-# Platform structure
+[titleEn]: <>(Getting started with the platform)
+[wikiUrl]: <>(../getting-started/platform?category=shopware-platform-en/getting-started)
+## Platform structure
 
 The platform is divided into three components. 
 
 * Administration: Contains the administration written in Vue.js, administration related
 commands, controller, the administration search and tests.
-
 * Core: The heart of the platform. The core domain is divided into different subdomains:
-    * Checkout
-        * The checkout part includes all sources needed for the platform's checkout process. 
+    * Checkout: The checkout part includes all sources needed for the platform's checkout process. 
           These include shopping cart calculation, customer administration, 
           ordering system, and the payment/shipping system.
     * Content: The content part contains sources that take care of the maintained contents of the platform.
@@ -21,11 +21,11 @@ commands, controller, the administration search and tests.
           to keep track which migration have already been executed.
     * System: In the system part, entities are defined which are reused by the several other 
           domains. These include tax rates, configurations, currencies, and locales.
-
 * Storefront: Responsive storefront written in HTML, JS (jQuery) using TWIG as template engine.
 Since the platform is designed to work headless, the storefront is an individual and optional component.
 
-# Getting started with the core domain
+
+## Getting started with the core domain
 The core domain contains all sources which are required to run a headless e-commerce system.
 It manages the system's data, provides an API and manages technical subtleties like
 file system abstraction, dependency injection, checkout process, payment
@@ -42,38 +42,32 @@ specifically tailored for the requirements of the Shopware\Core universe.
 This makes it easy to (partially) change the storage engine, 
 synchronize the data to other system and much more.
 
-# Using the API
+## Using the API
 As already described, the entire Core is API driven. We offer three different types of API
 to cover various use cases:
 
 1. Admin API: Each entity defined by the data abstraction layer will automatically be
 available via this API.
-
     Supported operations: GET, POST, PATCH, DELETE
     Route schema: /api/v{versionNumber}/{entityName}/
-    
     Examples: 
     * GET /api/v1/product
     * GET /api/v1/product/64346348967843eb9638aed6fd0fee46
     * GET /api/v1/product/64346348967843eb9638aed6fd0fee46/manufacturer/
     
     Note: An authentication is required for this API.
-    
 2. Storefront API: Create, update and login customers, add line items to the cart, handle
 payments, place orders and do various other storefront operations.
-
     Examples:
     * GET /storefront-api/checkout/cart
     * POST /storefront-api/checkout/cart/product/64346348967843eb9638aed6fd0fee46
-
 3. Sync API: Create or update multiple entities at once.
-    
     Examples:
     * POST /api/sync
 
 For more information about how to get started with the API, checkout the [guide](../30-api/10-introduction.md).
 
-## Versioning
+### API Versioning
 As already seen above, the API offers a versioning. This allows to implement
 breaking changes and to make them available even though there are systems that still work
 with old data formats or routes. One version number of the API will always support two
@@ -81,7 +75,7 @@ major versions of the platform. The API version v1 is therefore available simult
 with the version v2 and will be switched off with the release of the v3.
 You will find out more about the API versioning later. 
 
-## Context
+### Context
 
 The platform processes some user-, application- or environment specific information.
 For example it might be important to know what language the user prefer to offer a
@@ -701,7 +695,7 @@ $result = $client->post(
 );
 ```
 
-# Defining an Entity
+## Defining an Entity
 An entity defines the data structure of a table in the system. The platform uses
 type hinted `Struct` classes to provide autocompletion and offer an
 interface for developers on which they can rely.
@@ -727,7 +721,7 @@ Each of these domains has the following structure:
 * Struct - *Contains the struct classes*
 * {EntityName}Definition.php - *The corresponding definition class*
 
-## EntityDefinition class
+### EntityDefinition class
 In an entity definition class, the following information is recorded:
 * Which fields does the entity consist of?
 * Which DTO (Struct & Collection) classes belong to the entity?
@@ -759,7 +753,7 @@ First, the `getEntityName` function defines which table this class refers to
 in this example `product`.
 The `defineFields` method returns a `FieldCollection` which facilitates working with entity fields.
 
-### Adding fields to an entity
+#### Adding fields to an entity
 Now you can fill the entity with fields. Let's start with simple fields:
  
 ```php
@@ -795,7 +789,7 @@ Thus the entity now has the following properties to work with:
 * `weight`
 * `createdAt`
 
-### Defining the primary key
+#### Defining the primary key
 Now let's add a primary key for the entity that allows to identify records of that entity 
 to delete or update them:
 ```php
@@ -821,7 +815,7 @@ The `Required` flag, on the other hand, defines that this value must be set duri
 The platform uses UUIDs in the v4 standard as primary keys. This has the advantage of being able to 
 build entities together and cross-reference them before they are written to the database.
 
-### Define a translatable field
+#### Define a translatable field
 The previously created data has been defined as simple data types and does not offer the
 possibility to be translated. 
 Translatable data is always stored in a separate table.
@@ -851,7 +845,7 @@ public static function defineFields(): FieldCollection
 As you can see, the `TranslatedField` is only a container for all other fields. 
 For example, a `FloatField` can be inserted here if the value should also be translatable.
 
-### Foreign keys
+#### Foreign keys
 If you want to link two entities you should use a foreign key. 
 To assign a manufacturer to our previously defined entity such a key is used to 
 store the ID of the manufacturer.
@@ -884,7 +878,7 @@ The third parameter expects the `FkField`(the corresponding reference to the `En
 As a result, the system recognizes that the stored foreign key is a manufacturer record 
 and checks it accordingly when writing the record.
 
-### Associations
+#### Associations
 Although the product entity now contains a foreign key field, it is not yet mapped
 to the key field of the manufacturer. In order to do this you need to define an `AssociationField`.
 
@@ -941,7 +935,7 @@ You can always address this association via the property name:
 * To read the manufacturer of a product via API - `GET /api/v1/product/{id}/manufacturer`
 * ...
 
-### Tenant
+#### Tenant
 The platform offers a tenant support so that several instances can work with the same database,
 
 **What does this mean from a technical point of view?**
@@ -973,7 +967,7 @@ Although the TenantIdField is defined in the FieldCollection, you don't have to 
 tenant_id in write operations. The `product_manufacturer_tenant_id` does not need its own Field.
 It is handled by the `FkField`.
 
-## Struct classes
+### Struct classes
 To transport the data between the database and the corresponding endpoints, the core uses
 struct classes. These are simple PHP classes in which the properties of an entity are
 defined as PHP properties and are available via getter/setter functions.
@@ -1072,7 +1066,7 @@ class LocaleStruct extends Entity
 }
 ```
 
-## Collection classes
+### Collection classes
 The repository classes of the core do not return arrays with struct classes but
 a type-aware collection class which contain all elements. These classes can 
 be iterated to easily handle all records:
@@ -1124,7 +1118,7 @@ $ids = $products->getIds();
 $prices = $products->getPrices();
 ```
 
-## Event classes
+### Event classes
 The core uses the  
 [Symfony Event System](https://symfony.com/doc/current/components/event_dispatcher.html). 
 Additionally, entity-related events are thrown, including:
@@ -1140,7 +1134,7 @@ Additionally, entity-related events are thrown, including:
 
 More information about events can be found in the [events guide](../20-data-abstraction-layer/8-events.md).
 
-# Write your first plugin
+## Write your first plugin
 To be able to introduce extensions into the system, the core comes with an integrated plugin system.
 Plugins are [Symfony Bundles](https://symfony.com/doc/current/bundles.html) which can be activated
 and deactivated via the bin/console plugin:* command.
@@ -1150,7 +1144,7 @@ A plugin can change the behavior of the system including:
 * Define new services, extend existing services or exchange them completely to
 implement your custom logic and business cases
 
-## Plugin Bootstrap
+### Plugin Bootstrap
 As an entry point into the system, each plugin must have a bootstrap file. 
 The corresponding plugin sources can be stored under `/custom/plugins`. 
 As convention, there is a plugin folder for each plugin with the corresponding name 
@@ -1244,7 +1238,7 @@ public class GettingStarted extends Plugin
 }
 ```
 
-## Include services.xml
+### Include services.xml
 The central option to extend the platform are the 
 [DI Container services](https://symfony.com/doc/current/service_container.html). 
 In the platform, these are defined in XML. To integrate your own services.xml in your plugin, 
@@ -1271,7 +1265,7 @@ public class GettingStarted extends Plugin
 }
 ``` 
 
-## Entity Extension
+### Entity Extension
 Own entities can be integrated into the core via the corresponding `services.xml` 
 and behave as described above. To extend existing entities, 
 the `\Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface` is used.
@@ -1311,3 +1305,11 @@ class PromotionExtension implements EntityExtensionInterface, EventSubscriberInt
 }
 ```
 This example adds another association named `promotion` to the `ProductDefinition` class.
+
+### Writing plugins
+
+Here are some additional articles regarding plugins:
+
+[Payment plugins](../50-checkout/70-payment.md)
+
+[Extensions for the data abstraction layer](../20-data-abstraction-layer/4-extensions.md)

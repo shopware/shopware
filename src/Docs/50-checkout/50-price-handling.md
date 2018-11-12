@@ -1,3 +1,6 @@
+[titleEn]: <>(Price handling)
+[wikiUrl]: <>(../checkout/price-handling?category=shopware-platform-en/checkout)
+
 Shopware offers three different ways to define how a price of a line item will be calculated. 
 The options are called price definitions. If you use the line items provided 
 by Shopware (product, voucher, discount), you normally don't have to worry about the price definitions.

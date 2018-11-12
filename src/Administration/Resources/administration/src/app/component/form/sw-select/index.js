@@ -27,7 +27,6 @@ Component.register('sw-select', {
             default: ''
         },
         value: {
-            type: [String, Array],
             required: true
         },
         label: {

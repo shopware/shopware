@@ -2201,19 +2201,28 @@ export interface NightwatchCustomCommands {
     tickCheckbox(selector: string, value: string): this,
 
     /**
-     * Finds a multiselect field in the Administration. The method uses a css selector to find the element on the page,
-     * removes a preselected item (if configured) and sets the provided value in the field.
+     * Finds a sw-select component in the Administration. The method uses a css selector to find the element on the page,
+     * removes a preselected items (if configured). If a search term is provided it will be entered to the input and after
+     * the search the first result gets selected.
      *
      * Usage:
      * ```
-     * browser.fillMultiSelect('.sw-multi-select__input', 'MainCategory')
+     * .fillSwSelectComponent(
+     *     '.sw-settings-language-detail__select-parent',
+     *     'English',
+     *     false,
+     *     false,
+     *     'English'
+     * )
      * ```
      *
      * @param {String} selector
      * @param {String} value
      * @param {Boolean} [clearField=false]
+     * @param {Boolean} [isMulti=false]
+     * @param {String} [searchTerm]
      */
-    fillMultiSelect(selector: string, value: string, clearField?: boolean): this,
+    fillSwSelectComponent(selector: string, value: string, clearField?: boolean, isMulti?: boolean, searchTerm?: string): this,
 
 
     /**

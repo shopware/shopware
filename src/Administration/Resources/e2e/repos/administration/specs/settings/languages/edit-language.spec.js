@@ -11,10 +11,20 @@ module.exports = {
             .assert.urlContains('#/sw/settings/language/create')
             .assert.containsText('.sw-card__title', 'Settings')
             .fillField('input[name=sw-field--language-name]', 'Philippine English english')
-            .waitForElementNotPresent('.sw-field--language-localeId .sw-field__select-load-placeholder')
-            .fillSelectField('select[name=sw-field--language-localeId]', 'English, Philippines (en_PH)')
-            .waitForElementNotPresent('.sw-field--language-parentId .sw-field__select-load-placeholder')
-            .fillSelectField('select[name=sw-field--language-parentId]', 'English')
+            .fillSwSelectComponent(
+                '.sw-settings-language-detail__select-locale',
+                'English, Philippines (en_PH)',
+                false,
+                false,
+                'en_PH'
+            )
+            .fillSwSelectComponent(
+                '.sw-settings-language-detail__select-parent',
+                'English',
+                false,
+                false,
+                'English'
+            )
             .waitForElementPresent('.sw-settings-language-detail__save-action')
             .click('.sw-settings-language-detail__save-action')
             .waitForElementVisible('.sw-notifications .sw-alert')

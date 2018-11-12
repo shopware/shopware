@@ -24,7 +24,8 @@
                 {% block sw_sales_channel_detail_base_general_input_payments_methods %}
                     <sw-select id="paymentMethodIds"
                                multi
-                               class="sw-sales-channel-detail__input-payment-method":label="$tc('sw-sales-channel.detail.labelInputPaymentMethods')"
+                               class="sw-sales-channel-detail__select-payment-method"
+                               :label="$tc('sw-sales-channel.detail.labelInputPaymentMethods')"
                                validation="required"
                                :serviceProvider="paymentMethodService"
                                :store="paymentMethodStore"
@@ -38,7 +39,8 @@
                 {% block sw_sales_channel_detail_base_general_input_shipping_methods %}
                     <sw-select id="shippingMethodIds"
                                multi
-                               class="sw-sales-channel-detail__input-shipping-method":label="$tc('sw-sales-channel.detail.labelInputShippingMethods')"
+                               class="sw-sales-channel-detail__select-shipping-method"
+                               :label="$tc('sw-sales-channel.detail.labelInputShippingMethods')"
                                validation="required"
                                :serviceProvider="shippingMethodService"
                                :store="shippingMethodStore"
@@ -52,7 +54,8 @@
                 {% block sw_sales_channel_detail_base_general_input_countries %}
                     <sw-select id="countryIds"
                                multi
-                               class="sw-sales-channel-detail__input-countries":label="$tc('sw-sales-channel.detail.labelInputCountries')"
+                               class="sw-sales-channel-detail__select-countries"
+                               :label="$tc('sw-sales-channel.detail.labelInputCountries')"
                                validation="required"
                                :serviceProvider="countryService"
                                :store="countryStore"
@@ -66,7 +69,8 @@
                 {% block sw_sales_channel_detail_base_general_input_currencies %}
                     <sw-select id="currencyIds"
                                multi
-                               class="sw-sales-channel-detail__input-currencies":label="$tc('sw-sales-channel.detail.labelInputCurrencies')"
+                               class="sw-sales-channel-detail__select-currencies"
+                               :label="$tc('sw-sales-channel.detail.labelInputCurrencies')"
                                validation="required"
                                :serviceProvider="currencyService"
                                :store="currencyStore"
@@ -80,7 +84,8 @@
                 {% block sw_sales_channel_detail_base_general_input_languages %}
                     <sw-select id="languageIds"
                                multi
-                               class="sw-sales-channel-detail__input-languages":label="$tc('sw-sales-channel.detail.labelInputLanguages')"
+                               class="sw-sales-channel-detail__select-languages"
+                               :label="$tc('sw-sales-channel.detail.labelInputLanguages')"
                                validation="required"
                                :serviceProvider="languageService"
                                :store="languageStore"
@@ -94,7 +99,8 @@
                 {% block sw_sales_channel_detail_base_general_input_catalogs %}
                     <sw-select id="catalogIds"
                                multi
-                               class="sw-sales-channel-detail__input-catalogues":label="$tc('sw-sales-channel.detail.labelInputCatalogs')"
+                               class="sw-sales-channel-detail__select-catalogues"
+                               :label="$tc('sw-sales-channel.detail.labelInputCatalogs')"
                                :serviceProvider="catalogService"
                                :store="catalogStore"
                                entityName="catalog"

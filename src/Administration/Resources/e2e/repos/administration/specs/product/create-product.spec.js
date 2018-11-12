@@ -37,7 +37,13 @@ module.exports = {
             .fillSelectField('select[name=sw-field--product-manufacturerId]', 'shopware AG')
             .waitForElementNotPresent('.sw-field--product-catalogId .sw-field__select-load-placeholder')
             .fillSelectField('select[name=sw-field--product-catalogId]', 'Default catalogue')
-            .fillMultiSelect('.sw-product-detail__category-select', 'MainCategory')
+            .fillSwSelectComponent(
+                '.sw-product-detail__select-category',
+                'MainCategory',
+                false,
+                true,
+                'MainCategory'
+            )
             .waitForElementNotPresent('.sw-field--product-taxId .sw-field__select-load-placeholder')
             .fillSelectField('select[name=sw-field--product-taxId]', '19%')
             .fillField('input[name=sw-field--price-gross]', '99')
@@ -64,10 +70,10 @@ module.exports = {
             .waitForElementVisible('body > .sw-context-menu')
             .waitForElementVisible('.sw_product_list__edit-action')
             .click('.sw_product_list__edit-action')
-            .waitForElementVisible('.sw-product-detail-base')
-            .waitForElementPresent('.sw-product-category-form .sw-multi-select__selection-text')
+            .waitForElementVisible('.sw-product-detail-base', 10000)
+            .waitForElementPresent('.sw-product-category-form .sw-select__selection-text')
             .assert.containsText('.ql-editor', 'My very first description')
-            .assert.containsText('.sw-product-category-form .sw-multi-select__selection-text', 'MainCategory')
+            .assert.containsText('.sw-product-category-form .sw-select__selection-text', 'MainCategory')
             .click('a.smart-bar__back-btn');
     },
     'delete created product and verify deletion': (browser) => {

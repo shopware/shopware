@@ -3,6 +3,7 @@ module.exports = {
     'open catalog overview': (browser) => {
         browser
         // open catalog overview
+            .waitForElementVisible('.sw-admin-menu__navigation-list-item.sw-catalog span.collapsible-text')
             .assert.containsText('.sw-admin-menu__navigation-list-item.sw-catalog span.collapsible-text', 'Catalogues')
             .click('a.sw-admin-menu__navigation-link[href="#/sw/catalog/index"]')
             .waitForElementVisible('.smart-bar__actions a');

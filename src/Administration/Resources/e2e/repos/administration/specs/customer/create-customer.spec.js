@@ -59,7 +59,7 @@ module.exports = {
             .waitForElementVisible('.sw-customer-list__content')
             .fillGlobalSearchField('Pep Eroni')
             .waitForElementVisible('.sw-page__smart-bar-amount')
-            .assert.containsText('.sw-page__smart-bar-amount', '(1)')
+            .assert.containsText('.sw-page__smart-bar-amount', '(1)');
     },
     'delete customer and verify deletion': (browser) => {
         browser

@@ -7,7 +7,7 @@ module.exports = {
     beforeEach: (browser, done) => {
         browser.url(browser.launch_url);
 
-        browser.execute(() => {
+        browser.execute(function() {
             // Disable the auto closing of notifications globally.
             Shopware.State.getStore('notification')._defaults.autoClose = false;
 

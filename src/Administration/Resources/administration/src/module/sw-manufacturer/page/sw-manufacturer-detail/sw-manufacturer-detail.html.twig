@@ -48,29 +48,19 @@
                                 </sw-field>
                             {% endblock %}
 
-                            <div v-if="manufacturer.catalogId" class="sw-manufacturer-image-pane" :class="logoFieldClasses">
+                            <template v-if="manufacturer.catalogId">
                                 {% block sw_manufacturer_detail_logo_upload %}
-                                    <div v-if="!manufacturer.mediaId && !manufacturer.isLoading"
-                                         class="sw-manufacturer-detail__logo-upload">
-                                        {% block sw_manufacturer_detail_upload_caption %}
-                                            <span class="sw-manufacturer-detail__upload-caption">
-                                                {{ $tc('sw-manufacturer.detail.addLogoCaption') }}
-                                            </span>
-                                        {% endblock %}
-
-                                        {% block sw_manufacturer_detail_upload_buttons %}
-                                            <sw-media-upload-button
-                                                :catalogId="manufacturer.catalogId"
-                                                :allowMultiSelect="false"
-                                                :compact="false"
-                                                ref="uploadComponent"
-                                                @media-upload-success="onSuccessfulImageUpload">
-                                            </sw-media-upload-button>
-                                        {% endblock %}
-                                    </div>
+                                    <sw-media-upload-button v-if="!manufacturer.mediaId && !manufacturer.isLoading"
+                                        class="sw-manufacturer-detail__logo-upload"
+                                        :catalogId="manufacturer.catalogId"
+                                        :allowMultiSelect="false"
+                                        variant="regular"
+                                        :caption="$tc('sw-manufacturer.detail.addLogoCaption')"
+                                        @media-upload-success="onSuccessfulImageUpload">
+                                    </sw-media-upload-button>
                                 {% endblock %}
 
-                                <template v-else-if="mediaItem">
+                                <div v-else-if="mediaItem" class="sw-manufacturer-image-pane" :class="logoFieldClasses">
                                     {% block sw_manufacturer_detail_logo %}
                                         <sw-media-preview class="sw-manufacturer-detail__logo"
                                                           :item="mediaItem"
@@ -85,8 +75,8 @@
                                             <sw-icon color="#fff" name="default-action-trash" medium></sw-icon>
                                         </sw-button>
                                     {% endblock %}
-                                </template>
-                            </div>
+                                </div>
+                            </template>
                         </sw-container>
 
                         {% block sw_manufacturer_detail_base_info_field_description %}

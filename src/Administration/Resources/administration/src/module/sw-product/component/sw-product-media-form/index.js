@@ -26,7 +26,8 @@ Component.register('sw-product-media-form', {
             columnCount: 7,
             uploads: [],
             previews: [],
-            columnWidth: 90
+            columnWidth: 90,
+            unsavedEntities: []
         };
     },
 
@@ -66,6 +67,10 @@ Component.register('sw-product-media-form', {
         this.mountedComponent();
     },
 
+    beforeDestroy() {
+        this.onBeforeDestroy();
+    },
+
     methods: {
         mountedComponent() {
             const that = this;
@@ -84,6 +89,12 @@ Component.register('sw-product-media-form', {
                 .split(' ');
             this.columnCount = cssColumns.length;
             this.columnWidth = cssColumns[0];
+        },
+
+        onBeforeDestroy() {
+            this.unsavedEntities.forEach((entity) => {
+                entity.delete();
+            });
         },
 
         getPlaceholderCount(columnCount) {
@@ -114,13 +125,17 @@ Component.register('sw-product-media-form', {
         handleNewUpload({ mediaEntity, src }) {
             const productMedia = this.buildProductMedia(mediaEntity);
 
+            this.unsavedEntities.push(productMedia);
+            this.unsavedEntities.push(mediaEntity);
+
             this.product.media.push(productMedia);
             if (src instanceof File) {
                 fileReader.readAsDataURL(src).then((dataURL) => {
                     this.addImageToPreview(dataURL, productMedia);
                 });
             } else if (src instanceof URL) {
-                this.addImageToPreview(src, productMedia);
+                this.previews[productMedia.mediaId] = src.href;
+                productMedia.isLoading = false;
             }
         },
 
@@ -149,7 +164,7 @@ Component.register('sw-product-media-form', {
             const columnWidth = this.columnWidth.split('px')[0];
             const size = this.isCover(productMedia) ? columnWidth * 2 : columnWidth;
             const img = new Image();
-            img.onload = (() => {
+            img.onload = () => {
                 // resize image with aspect ratio
                 const dimensions = this.getImageDimensions(img, size);
                 canvas.setAttribute('width', dimensions.width);
@@ -163,14 +178,14 @@ Component.register('sw-product-media-form', {
                 productMedia.isLoading = false;
 
                 this.$forceUpdate();
-            });
-            img.crossOrigin = 'anonymous';
+            };
             img.src = sourceURL;
         },
 
-        refreshProductMedia(mediaEntity) {
+        successfulUpload(mediaEntity) {
             const productMedia = find(this.mediaItems, (e) => e.mediaId === mediaEntity.id);
             productMedia.media = mediaEntity;
+            this.unsavedEntities = [];
         },
 
         getImageDimensions(img, size) {

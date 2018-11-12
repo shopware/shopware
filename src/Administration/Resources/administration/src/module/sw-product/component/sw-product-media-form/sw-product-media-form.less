@@ -17,8 +17,8 @@
     }
 
     .sw-product-media-form__grid {
-        border-radius: @border-radius-default;
-        border: 1px solid @color-steam-cloud;
+        border-radius: @sw-product-media-form-border-radius;
+        border: 1px solid @sw-product-media-form-border-color;
         display: grid;
         padding: 20px;
         grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
@@ -31,45 +31,5 @@
         grid-column-end: 3;
         grid-row-start: 1;
         grid-row-end: 3;
-    }
-
-    .sw-product-media-form__dropzone {
-        display: grid;
-        grid-template-rows: 1fr 1fr;
-        grid-template-columns: 1fr;
-        grid-column-start: 2;
-        grid-row-start: 1;
-        min-width: 100px;
-        min-height: 70px;
-        margin-top: 20px;
-        margin-bottom: 20px;
-        border: 1px dashed @sw-product-media-form-border-color;
-        border-radius: @sw-product-media-form-border-radius;
-        background-color: @sw-product-media-form-upload-background-color;
-        position: relative;
-        padding: 20px;
-
-        .sw-product-media-form__upload-caption {
-            align-self: center;
-            font-size: 18px;
-            text-align: center;
-            display: block;
-            grid-row-start: 1;
-
-            .sw-icon {
-                margin-right: 8px;
-            }
-        }
-
-
-        .sw-product-media-form__logo-upload {
-            align-self: center;
-            text-align: center;
-            grid-row-start: 2;
-
-            .sw-button {
-                margin: 8px;
-            }
-        }
     }
 }

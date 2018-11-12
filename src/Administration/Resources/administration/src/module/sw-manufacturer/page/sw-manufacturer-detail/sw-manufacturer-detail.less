@@ -29,6 +29,12 @@
         }
     }
 
+    .sw-manufacturer-detail__logo-upload {
+        grid-row-start: 1;
+        grid-row-end: span 2;
+        grid-column-start: 2;
+    }
+
     .sw-manufacturer-detail__delete-logo {
         padding-right: 20px;
         padding-left: 20px;
@@ -67,22 +73,6 @@
         &.sw-manufacturer-image-pane--logo {
             border-style: solid;
             background-color: @sw-manufacturer-detail-logo-background-color;
-        }
-
-        .sw-manufacturer-detail__logo-upload {
-            align-self: center;
-            text-align: center;
-
-            .sw-button {
-                margin: 8px;
-            }
-
-            .sw-manufacturer-detail__upload-caption {
-                font-size: 18px;
-                font-weight: 600;
-                display: block;
-                margin-bottom: 15px;
-            }
         }
     }
 }

@@ -9,13 +9,11 @@ export default function createMediaUploadService(mediaService) {
         uploadUrlToMedia
     };
 
-    function uploadFileToMedia(file, mediaEntity, fileExtension = '') {
-        fileExtension = fileExtension || file.type;
-
+    function uploadFileToMedia(file, mediaEntity) {
         return fileReader.readAsArrayBuffer(file).then((buffer) => {
             return mediaService.uploadMediaById(
                 mediaEntity.id,
-                fileExtension,
+                file.type,
                 buffer,
                 file.name.split('.').pop()
             );

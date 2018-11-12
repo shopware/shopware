@@ -1,3 +1,11 @@
+@import "~less/variables";
+
+@sw-media-upload-button-border-color:            @color-steam-cloud;
+@sw-media-upload-button-border-radius:           @border-radius-default;
+@sw-media-upload-button-upload-background-color: @color-light-gray;
+@sw-media-caption-font-size:                     @font-size-large;
+@sw-media-caption-icon-color:                    #9AA8B5;
+
 .sw-media-upload-button {
     .sw-media-upload-button__file-input {
         display: none;
@@ -5,10 +13,31 @@
 
     .sw-media-upload-button__context-button {
         padding-right: 10px;
+    }
 
-        .sw-icon {
-            position: relative;
-            top: 1px;
+    .sw-upload-button__dropzone {
+        margin-top: 20px;
+        margin-bottom: 20px;
+        border: 1px dashed @sw-media-upload-button-border-color;
+        border-radius: @sw-media-upload-button-border-radius;
+        background-color: @sw-media-upload-button-upload-background-color;
+        position: relative;
+        padding: 20px;
+        text-align: center;
+
+        .sw-upload-button__upload-caption {
+            font-size: @sw-media-caption-font-size;
+            text-align: center;
+            margin: 0 0 8px;
+
+            .sw-icon {
+                margin-right: 8px;
+                color: @sw-media-caption-icon-color;
+            }
+        }
+
+        .sw-upload-button__buttons {
+            text-align: center;
         }
     }
 }

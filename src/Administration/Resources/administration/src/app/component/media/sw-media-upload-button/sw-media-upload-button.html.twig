@@ -1,6 +1,6 @@
 {% block sw_media_upload_button %}
     <div class="sw-media-upload-button">
-        <sw-context-button v-if="compact" :disabled="!catalogId">
+        <sw-context-button v-if="variant == 'compact'" :disabled="!catalogId">
             <template slot="button">
                 {% block sw_media_upload_button %}
                     <sw-button variant="primary" class="sw-media-upload-button__context-button">
@@ -23,24 +23,36 @@
             {% endblock %}
         </sw-context-button>
 
-        <template v-else>
-            {% block sw_media_upload_url_upload_button %}
-                <sw-button class="sw-media-upload-button__button-url"
-                           size="small"
-                           :disabled="!catalogId"
-                           @click="openUrlModal">
-                    {{ $tc('global.sw-media-upload-button.buttonUrlUpload') }}
-                </sw-button>
-            {% endblock %}
-            {% block sw_media_upload_file_upload_button %}
-                <sw-button class="sw-media-upload-button__button-file"
-                           variant="primary"
-                           size="small"
-                           :disabled="!catalogId"
-                           @click="onClickUpload">
-                    {{ $tc('global.sw-media-upload-button.buttonFileUpload') }}
-                </sw-button>
-            {% endblock %}
+        <template v-if="variant == 'regular'">
+            <div class="sw-upload-button__dropzone">
+                {%  block sw_media_upload_caption %}
+                    <div v-if="caption" class="sw-upload-button__upload-caption">
+                        <sw-icon name="default-action-cloud-upload" medium></sw-icon>
+                        {{ caption }}
+                    </div>
+                {% endblock %}
+
+                <div class="sw-upload-button__buttons">
+                    {% block sw_media_upload_url_upload_button %}
+                        <sw-button class="sw-media-upload-button__button-url"
+                                   size="small"
+                                   :disabled="!catalogId"
+                                   @click="openUrlModal">
+                            {{ $tc('global.sw-media-upload-button.buttonUrlUpload') }}
+                        </sw-button>
+                    {% endblock %}
+
+                    {% block sw_media_upload_file_upload_button %}
+                        <sw-button class="sw-media-upload-button__button-file"
+                                   variant="primary"
+                                   size="small"
+                                   :disabled="!catalogId"
+                                   @click="onClickUpload">
+                            {{ $tc('global.sw-media-upload-button.buttonFileUpload') }}
+                        </sw-button>
+                    {% endblock %}
+                </div>
+            </div>
         </template>
 
         <form class="sw-media-upload-button__form" ref="fileForm">

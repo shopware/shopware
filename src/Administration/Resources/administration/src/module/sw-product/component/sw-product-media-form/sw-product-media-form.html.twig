@@ -2,20 +2,15 @@
     <div class="sw-product-media-form">
 
         {% block sw_product_media_form_upload_button %}
-            <div class="sw-product-media-form__dropzone">
-                <span class="sw-product-media-form__upload-caption">
-                    <sw-icon color="#9AA8B5" name="default-action-cloud-upload" medium></sw-icon>
-                    {{ $tc('sw-product.mediaForm.uploadCaption') }}
-                </span>
-                <sw-media-upload-button
-                        class="sw-product-media-form__logo-upload"
-                        :catalogId="this.product.catalogId"
-                        :uploadTag="product.id"
-                        :autoUpload="false"
-                        @media-upload-success="refreshProductMedia"
-                        @new-upload="handleNewUpload">
-                </sw-media-upload-button>
-            </div>
+            <sw-media-upload-button
+                    :catalogId="this.product.catalogId"
+                    :uploadTag="product.id"
+                    :variant="'regular'"
+                    :autoUpload="false"
+                    :caption="$tc('sw-product.mediaForm.uploadCaption')"
+                    @media-upload-success="successfulUpload"
+                    @new-upload="handleNewUpload">
+            </sw-media-upload-button>
         {% endblock %}
 
         {% block sw_product_media_form_grid %}

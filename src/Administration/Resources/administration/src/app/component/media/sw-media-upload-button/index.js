@@ -34,16 +34,23 @@ Component.register('sw-media-upload-button', {
             default: true
         },
 
-        compact: {
-            required: false,
-            type: Boolean,
-            default: false
+        variant: {
+            type: String,
+            required: true,
+            validator(value) {
+                return ['compact', 'regular'].includes(value);
+            }
         },
 
         autoUpload: {
             required: false,
             type: Boolean,
             default: true
+        },
+
+        caption: {
+            required: false,
+            type: String
         }
     },
 
@@ -63,7 +70,16 @@ Component.register('sw-media-upload-button', {
         }
     },
 
+    beforeDestroy() {
+        this.onBeforeDestroy();
+    },
+
     methods: {
+
+        onBeforeDestroy() {
+            this.uploadStore.removeByTag(this.uploadTag);
+        },
+
         onClickUpload() {
             this.$refs.fileInput.click();
         },
@@ -96,25 +112,23 @@ Component.register('sw-media-upload-button', {
             this.$refs.fileForm.reset();
         },
 
-        addMediaEntityFromFile(file, uploadTag) {
+        addMediaEntityFromFile(file) {
             const mediaEntity = this.createNewMedia(file.name);
 
-            const upload = this.uploadStore.addUpload(uploadTag, this.buildUpload(file, mediaEntity));
+            const upload = this.uploadStore.addUpload(this.uploadTag, this.buildUpload(file, mediaEntity));
 
-            this.$emit('new-upload', { upload, uploadTag, mediaEntity, src: file });
+            this.$emit('new-upload', { upload, uploadTag: this.uploadTag, mediaEntity, src: file });
         },
 
         createMediaEntityFromUrl(url, fileExtension) {
             const mediaEntity = this.createNewMedia(this.getNameFromURL(url));
 
-            const uploadTag = this.uploadTag;
+            const upload = this.uploadStore.addUpload(this.uploadTag, this.buildUpload(url, mediaEntity, fileExtension));
 
-            const upload = this.uploadStore.addUpload(uploadTag, this.buildUpload(url, mediaEntity, fileExtension));
-
-            this.$emit('new-upload', { upload, uploadTag, mediaEntity, src: url });
+            this.$emit('new-upload', { upload, uploadTag: this.uploadTag, mediaEntity, src: url });
 
             if (this.autoUpload) {
-                this.uploadStore.runUploads(uploadTag).then(() => {
+                this.uploadStore.runUploads(this.uploadTag).then(() => {
                     this.$emit('new-media-entity');
                 });
             }
@@ -136,18 +150,21 @@ Component.register('sw-media-upload-button', {
             const failureMessage = this.$tc('sw-media.upload.notificationFailure', 0, { mediaName: mediaEntity.name });
 
             return () => {
-                this.mediaItemStore.getByIdAsync(mediaEntity.id).then((media) => {
-                    return media.save();
-                }).then(() => {
+                this.synchronizeMediaEntity(mediaEntity).then(() => {
                     this.$emit('new-upload-started', mediaEntity);
                     return uploadFn(mediaEntity);
                 }).then(() => {
                     this.notifyMediaUpload(mediaEntity, successMessage);
-                })
-                    .catch(() => {
-                        return this.cleanUpFailure(mediaEntity, failureMessage);
-                    });
+                }).catch(() => {
+                    return this.cleanUpFailure(mediaEntity, failureMessage);
+                });
             };
+        },
+
+        synchronizeMediaEntity(mediaEntity) {
+            return this.mediaItemStore.getByIdAsync(mediaEntity.id).catch(() => {
+                return mediaEntity.save();
+            });
         },
 
         notifyMediaUpload(mediaEntity, message) {

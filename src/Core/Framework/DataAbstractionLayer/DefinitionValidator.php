@@ -14,7 +14,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\SearchKeywordAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\TenantIdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
@@ -191,7 +190,7 @@ class DefinitionValidator
                 continue;
             }
 
-            if (\in_array($property->getName(), ['id', 'tenantId', 'extensions'])) {
+            if (\in_array($property->getName(), ['id', 'extensions'])) {
                 continue;
             }
 
@@ -214,7 +213,7 @@ class DefinitionValidator
         $functionViolations = [];
 
         foreach ($fields as $field) {
-            if ($field instanceof TenantIdField || $field instanceof VersionField || $field instanceof ReferenceVersionField) {
+            if ($field instanceof VersionField || $field instanceof ReferenceVersionField) {
                 continue;
             }
 
@@ -502,10 +501,6 @@ class DefinitionValidator
 
         /** @var Column $column */
         foreach ($columns as $column) {
-            if (strpos($column->getName(), '_tenant_id') !== false) {
-                continue;
-            }
-
             $field = $definition::getFields()->getByStorageName($column->getName());
 
             if ($field) {
@@ -530,28 +525,6 @@ class DefinitionValidator
         $uniques = array_filter($indices, function (Index $index) {
             return $index->isUnique();
         });
-
-        $tenantAware = $definition::isTenantAware();
-
-        if ($tenantAware) {
-            foreach ($uniques as $unique) {
-                if (\in_array('tenant_id', $unique->getColumns(), true)) {
-                    continue;
-                }
-                if ($unique->getColumns() === ['auto_increment']) {
-                    continue;
-                }
-                if ($definition::getEntityName() === 'plugin') {
-                    continue;
-                }
-
-                $violations[] = sprintf(
-                    'Unique index %s of table %s not contains `tenant_id`',
-                    $unique->getName(),
-                    $definition::getEntityName()
-                );
-            }
-        }
 
         return [$definition => $violations];
     }

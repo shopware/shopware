@@ -62,9 +62,9 @@ class ProductCategoryTreeIndexer implements IndexerInterface
         $this->categoryRepository = $categoryRepository;
     }
 
-    public function index(\DateTime $timestamp, string $tenantId): void
+    public function index(\DateTime $timestamp): void
     {
-        $context = Context::createDefaultContext($tenantId);
+        $context = Context::createDefaultContext();
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('category.parentId', null));
@@ -87,7 +87,7 @@ class ProductCategoryTreeIndexer implements IndexerInterface
             new ProgressFinishedEvent('Finished building category paths')
         );
 
-        $query = $this->createIterator($tenantId);
+        $query = $this->createIterator();
 
         $this->eventDispatcher->dispatch(
             ProgressStartedEvent::NAME,
@@ -132,8 +132,6 @@ class ProductCategoryTreeIndexer implements IndexerInterface
         $versionId = Uuid::fromStringToBytes($context->getVersionId());
         $liveVersionId = Uuid::fromStringToBytes(Defaults::LIVE_VERSION);
 
-        $tenantId = Uuid::fromStringToBytes($context->getTenantId());
-
         foreach ($categories as $productId => $mapping) {
             $productId = Uuid::fromHexToBytes($productId);
 
@@ -145,12 +143,11 @@ class ProductCategoryTreeIndexer implements IndexerInterface
             }
 
             $this->connection->executeUpdate(
-                'UPDATE product SET category_tree = :tree WHERE id = :id AND version_id = :version AND tenant_id = :tenant',
+                'UPDATE product SET category_tree = :tree WHERE id = :id AND version_id = :version',
                 [
                     'id' => $productId,
                     'tree' => $json,
                     'version' => $versionId,
-                    'tenant' => $tenantId,
                 ]
             );
 
@@ -161,18 +158,16 @@ class ProductCategoryTreeIndexer implements IndexerInterface
             foreach ($categoryIds as $id) {
                 $query->addInsert('product_category_tree', [
                     'product_id' => $productId,
-                    'product_tenant_id' => $tenantId,
                     'product_version_id' => $versionId,
                     'category_id' => Uuid::fromStringToBytes($id),
-                    'category_tenant_id' => $tenantId,
                     'category_version_id' => $liveVersionId,
                 ]);
             }
         }
 
         $this->connection->executeUpdate(
-            'DELETE FROM product_category_tree WHERE product_id IN (:ids) AND product_tenant_id = :tenant',
-            ['ids' => array_keys($categories), 'tenant' => $tenantId],
+            'DELETE FROM product_category_tree WHERE product_id IN (:ids)',
+            ['ids' => array_keys($categories)],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
@@ -192,27 +187,20 @@ class ProductCategoryTreeIndexer implements IndexerInterface
             'product',
             'product_category',
             'mapping',
-            'mapping.product_id = product.categories AND 
-             mapping.product_version_id = product.version_id AND 
-             mapping.product_tenant_id = product.tenant_id'
+            'mapping.product_id = product.categories AND mapping.product_version_id = product.version_id'
         );
         $query->leftJoin(
             'mapping',
             'category',
             'category',
-            'mapping.category_id = category.id AND 
-             mapping.category_version_id = category.version_id AND
-             mapping.category_tenant_id = category.tenant_id AND
-             mapping.category_version_id = :live'
+            'mapping.category_id = category.id AND mapping.category_version_id = category.version_id AND mapping.category_version_id = :live'
         );
 
         $query->addGroupBy('product.id');
 
         $query->andWhere('product.id IN (:ids)');
         $query->andWhere('product.version_id = :version');
-        $query->andWhere('product.tenant_id = :tenant');
 
-        $query->setParameter('tenant', Uuid::fromHexToBytes($context->getTenantId()));
         $query->setParameter('version', Uuid::fromHexToBytes($context->getVersionId()));
         $query->setParameter('live', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));
 
@@ -240,18 +228,16 @@ class ProductCategoryTreeIndexer implements IndexerInterface
         return array_keys(array_flip(array_filter($categoryIds)));
     }
 
-    private function createIterator(string $tenantId): LastIdQuery
+    private function createIterator(): LastIdQuery
     {
         $query = $this->connection->createQueryBuilder();
         $query->select(['product.auto_increment', 'product.id']);
         $query->from('product');
-        $query->andWhere('product.tenant_id = :tenantId');
         $query->andWhere('product.auto_increment > :lastId');
         $query->addOrderBy('product.auto_increment');
 
         $query->setMaxResults(50);
 
-        $query->setParameter('tenantId', Uuid::fromHexToBytes($tenantId));
         $query->setParameter('lastId', 0);
 
         return new LastIdQuery($query);

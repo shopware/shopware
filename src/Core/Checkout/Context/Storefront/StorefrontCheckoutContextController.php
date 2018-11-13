@@ -85,7 +85,7 @@ class StorefrontCheckoutContextController extends AbstractController
             $update['shippingAddressId'] = $this->validateAddressId($payload['shippingAddressId'], $context);
         }
 
-        $this->contextPersister->save($context->getToken(), $update, $context->getTenantId());
+        $this->contextPersister->save($context->getToken(), $update);
 
         return new JsonResponse([
             PlatformRequest::HEADER_CONTEXT_TOKEN => $context->getToken(),

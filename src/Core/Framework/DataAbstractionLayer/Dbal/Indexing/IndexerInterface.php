@@ -6,7 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 
 interface IndexerInterface
 {
-    public function index(\DateTime $timestamp, string $tenantId): void;
+    public function index(\DateTime $timestamp): void;
 
     public function refresh(EntityWrittenContainerEvent $event): void;
 }

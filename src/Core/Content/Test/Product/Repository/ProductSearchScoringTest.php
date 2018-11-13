@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Test\Product\Repository;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
@@ -46,7 +45,7 @@ class ProductSearchScoringTest extends TestCase
         $criteria = new Criteria();
         $criteria->addQuery(...$queries);
 
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
         $this->repository->create([
             ['id' => Uuid::uuid4()->getHex(), 'name' => 'product 1 test', 'tax' => ['name' => 'test', 'taxRate' => 5], 'manufacturer' => ['name' => 'test'], 'price' => ['gross' => 10, 'net' => 9]],
             ['id' => Uuid::uuid4()->getHex(), 'name' => 'product 2 test', 'tax' => ['name' => 'test', 'taxRate' => 5], 'manufacturer' => ['name' => 'test'], 'price' => ['gross' => 10, 'net' => 9]],

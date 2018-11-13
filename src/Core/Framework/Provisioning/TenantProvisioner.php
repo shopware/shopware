@@ -29,7 +29,7 @@ class TenantProvisioner
     {
         $this->connection = $connection;
 
-        $this->defaultId = hex2bin(Defaults::TENANT_ID);
+        $this->defaultId = hex2bin(Defaults::CURRENCY);
     }
 
     public function provision(string $tenantId = null): string

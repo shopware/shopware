@@ -18,7 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\TenantIdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
@@ -48,7 +47,6 @@ class SalesChannelDefinition extends EntityDefinition
     public static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('type_id', 'typeId', SalesChannelTypeDefinition::class))->setFlags(new Required()),
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->setFlags(new Required()),

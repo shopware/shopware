@@ -65,7 +65,6 @@ EOF
         $io->text(sprintf('Installing %d plugins:', \count($plugins)));
         $io->listing($this->formatPluginList($plugins));
 
-        $tenantId = $input->getOption('tenant-id');
         $removeUserdata = (bool) $input->getOption('remove-userdata');
 
         /** @var PluginStruct $plugin */
@@ -76,7 +75,7 @@ EOF
                 continue;
             }
 
-            $this->pluginManager->uninstallPlugin($plugin, $tenantId, $removeUserdata);
+            $this->pluginManager->uninstallPlugin($plugin, $removeUserdata);
 
             $io->text(sprintf('Plugin "%s" has been uninstalled successfully.', $plugin->getLabel()));
         }

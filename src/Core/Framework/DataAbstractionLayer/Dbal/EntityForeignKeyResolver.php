@@ -125,11 +125,9 @@ class EntityForeignKeyResolver
         $this->joinCascades($definition, $cascades, $root, $query, $class, $context);
 
         $this->addWhere($ids, $rootAlias, $query);
-        $query->andWhere($rootAlias . '.tenant_id = :tenant');
 
         $query->setParameter('version', Uuid::fromStringToBytes($context->getVersionId()));
         $query->setParameter('liveVersion', Uuid::fromStringToBytes(Defaults::LIVE_VERSION));
-        $query->setParameter('tenant', Uuid::fromStringToBytes($context->getTenantId()));
 
         $result = $query->execute()->fetchAll();
         $result = FetchModeHelper::groupUnique($result);

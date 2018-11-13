@@ -435,25 +435,19 @@ class VersionManager
 
         $date = (new \DateTime())->format(Defaults::DATE_FORMAT);
 
-        $tenantId = Uuid::fromStringToBytes($writeContext->getContext()->getTenantId());
-
         $insert = new InsertCommand(
             VersionCommitDefinition::class,
             [
                 'id' => $commitId->getBytes(),
-                'tenant_id' => $tenantId,
                 'user_id' => $userId,
-                'user_tenant_id' => $userId ? $tenantId : null,
                 'integration_id' => $integrationId,
-                'integration_tenant_id' => $integrationId ? $tenantId : null,
                 'version_id' => Uuid::fromStringToBytes($versionId),
-                'version_tenant_id' => $tenantId,
                 'created_at' => $date,
             ],
             ['id' => $commitId->getBytes()],
             new EntityExistence(
                 VersionCommitDefinition::class,
-                ['id' => $commitId->getBytes(), 'tenant_id' => $tenantId],
+                ['id' => $commitId->getBytes()],
                 false,
                 false,
                 false,
@@ -487,23 +481,19 @@ class VersionManager
                     VersionCommitDataDefinition::class,
                     [
                         'id' => $id,
-                        'tenant_id' => $tenantId,
                         'version_commit_id' => $commitId->getBytes(),
-                        'version_commit_tenant_id' => $tenantId,
                         'entity_name' => $entityName,
                         'entity_id' => json_encode($primary),
                         'payload' => json_encode($payload),
                         'user_id' => $userId,
-                        'user_tenant_id' => $userId ? $tenantId : null,
                         'integration_id' => $integrationId,
-                        'integration_tenant_id' => $integrationId ? $tenantId : null,
                         'action' => $action,
                         'created_at' => $date,
                     ],
                     ['id' => $id],
                     new EntityExistence(
                         VersionCommitDataDefinition::class,
-                        ['id' => $id, 'tenant_id' => $tenantId],
+                        ['id' => $id],
                         false,
                         false,
                         false,

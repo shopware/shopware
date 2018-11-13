@@ -8,7 +8,6 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailStruct;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Content\Media\Subscriber\MediaLoadedSubscriber;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
@@ -26,7 +25,7 @@ class MediaLoadedSubscriberTest extends TestCase
     public function testItAddsUrl(): void
     {
         $subscriber = $this->getContainer()->get(MediaLoadedSubscriber::class);
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
 
         $mediaId = '34556f108ab14969a0dcf9d9522fd7df';
         $mimeType = 'image/png';
@@ -48,7 +47,7 @@ class MediaLoadedSubscriberTest extends TestCase
     public function testItAddsThumbnailUrl(): void
     {
         $subscriber = $this->getContainer()->get(MediaLoadedSubscriber::class);
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
 
         $mediaId = '34556f108ab14969a0dcf9d9522fd7df';
         $mimeType = 'image/png';

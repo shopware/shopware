@@ -8,7 +8,6 @@ use Doctrine\DBAL\Connection;
 use Exception;
 use Faker\Factory;
 use Faker\Generator;
-use RuntimeException;
 use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -95,11 +94,6 @@ class DemodataCommand extends Command
      * @var RepositoryInterface
      */
     private $categoryRepository;
-
-    /**
-     * @var string
-     */
-    private $tenantId;
 
     /**
      * Images to be deleted after generating data
@@ -202,15 +196,6 @@ class DemodataCommand extends Command
 
             return;
         }
-        $tenantId = $input->getOption('tenant-id');
-
-        if (!$tenantId) {
-            throw new RuntimeException('No tenant id provided');
-        }
-        if (!Uuid::isValid($tenantId)) {
-            throw new RuntimeException('Invalid uuid provided');
-        }
-        $this->tenantId = $tenantId;
 
         $this->io = new SymfonyStyle($input, $output);
         $this->faker = Factory::create('de_DE');
@@ -257,7 +242,7 @@ class DemodataCommand extends Command
     private function getContext(): WriteContext
     {
         return WriteContext::createFromContext(
-            Context::createDefaultContext($this->tenantId)
+            Context::createDefaultContext()
         );
     }
 
@@ -290,7 +275,7 @@ class DemodataCommand extends Command
         $this->io->progressStart($count);
 
         foreach (array_chunk($payload, 100) as $chunk) {
-            $this->categoryRepository->upsert($chunk, Context::createDefaultContext($this->tenantId));
+            $this->categoryRepository->upsert($chunk, Context::createDefaultContext());
             $this->io->progressAdvance(\count($chunk));
         }
 
@@ -448,7 +433,7 @@ class DemodataCommand extends Command
             $services = $this->createServices();
         }
 
-        $context = Context::createDefaultContext($this->tenantId);
+        $context = Context::createDefaultContext();
 
         $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
 
@@ -584,7 +569,7 @@ class DemodataCommand extends Command
 
     private function createRules(): array
     {
-        $ids = $this->ruleRepository->searchIds(new Criteria(), Context::createDefaultContext($this->tenantId));
+        $ids = $this->ruleRepository->searchIds(new Criteria(), Context::createDefaultContext());
 
         if (!empty($ids->getIds())) {
             return $ids->getIds();
@@ -957,7 +942,7 @@ class DemodataCommand extends Command
             if (isset($contexts[$customerId])) {
                 $context = $contexts[$customerId];
             } else {
-                $context = $this->contextFactory->create($this->tenantId, $token, Defaults::SALES_CHANNEL, $options);
+                $context = $this->contextFactory->create($token, Defaults::SALES_CHANNEL, $options);
                 $contexts[$customerId] = $context;
             }
 
@@ -990,7 +975,7 @@ class DemodataCommand extends Command
 
     private function createMedia(int $limit): void
     {
-        $context = Context::createDefaultContext($this->tenantId);
+        $context = Context::createDefaultContext();
         $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
 
         $this->io->section("Generating {$limit} media items...");

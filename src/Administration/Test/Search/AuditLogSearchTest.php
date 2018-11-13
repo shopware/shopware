@@ -48,7 +48,7 @@ class AuditLogSearchTest extends TestCase
 
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->search = $this->getContainer()->get(AdministrationSearch::class);
-        $this->context = $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $this->context = $context = Context::createDefaultContext();
 
         $this->userId = Uuid::uuid4()->getHex();
         $this->context->getSourceContext()->setUserId($this->userId);

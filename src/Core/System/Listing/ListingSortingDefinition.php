@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ObjectField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\TenantIdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
@@ -32,7 +31,6 @@ class ListingSortingDefinition extends EntityDefinition
     public static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            new TenantIdField(),
             new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new ListField('payload', 'payload', ObjectField::class))->setFlags(new Required()),

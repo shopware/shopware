@@ -34,8 +34,7 @@ class TranslatorCacheInvalidate implements EventSubscriberInterface
         }
 
         $contextHash = md5(
-            $snippetEvent->getContext()->getTenantId()
-            . $snippetEvent->getContext()->getLanguageId()
+            $snippetEvent->getContext()->getLanguageId()
             . $snippetEvent->getContext()->getFallbackLanguageId()
         );
 

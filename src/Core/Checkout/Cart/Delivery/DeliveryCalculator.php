@@ -129,10 +129,8 @@ class DeliveryCalculator
         $query->from('shipping_method_price', 'costs');
         $query->andWhere('costs.`quantity_from` <= :value');
         $query->andWhere('costs.shipping_method_id = :id');
-        $query->andWhere('costs.tenant_id = :tenant');
         $query->setParameter('id', Uuid::fromHexToBytes($shippingMethod->getId()));
         $query->setParameter('value', $value);
-        $query->setParameter('tenant', Uuid::fromHexToBytes($context->getTenantId()));
         $query->addOrderBy('price', 'DESC');
         $query->setMaxResults(1);
 

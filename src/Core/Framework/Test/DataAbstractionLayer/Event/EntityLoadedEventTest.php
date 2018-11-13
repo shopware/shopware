@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Event;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -25,7 +24,7 @@ class EntityLoadedEventTest extends TestCase
 
         $root = new ArrayStruct(['id' => 'A', 'many_to_one' => $a]);
 
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
         $event = new EntityLoadedEvent(TestDefinition::class, new EntityCollection([$root]), $context);
 
         static::assertEquals(
@@ -48,7 +47,7 @@ class EntityLoadedEventTest extends TestCase
 
         $root = new ArrayStruct(['id' => 'A', 'many_to_one' => $c]);
 
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
         $event = new EntityLoadedEvent(TestDefinition::class, new EntityCollection([$root]), $context);
 
         static::assertEquals(
@@ -83,7 +82,7 @@ class EntityLoadedEventTest extends TestCase
 
         $entity = new ArrayStruct(['id' => 'A', 'one_to_many' => new EntityCollection([$a, $b])]);
 
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
         $event = new EntityLoadedEvent(TestDefinition::class, new EntityCollection([$entity]), $context);
 
         static::assertEquals(
@@ -107,7 +106,7 @@ class EntityLoadedEventTest extends TestCase
 
         $entity = new ArrayStruct(['id' => 'A', 'one_to_many' => new EntityCollection([$c])]);
 
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
         $event = new EntityLoadedEvent(TestDefinition::class, new EntityCollection([$entity]), $context);
 
         static::assertEquals(
@@ -129,7 +128,7 @@ class EntityLoadedEventTest extends TestCase
 
         $entity = new ArrayStruct(['id' => 'A', 'many_to_many' => new EntityCollection([$a, $b])]);
 
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
         $event = new EntityLoadedEvent(TestDefinition::class, new EntityCollection([$entity]), $context);
 
         static::assertEquals(
@@ -153,7 +152,7 @@ class EntityLoadedEventTest extends TestCase
 
         $entity = new ArrayStruct(['id' => 'A', 'many_to_many' => new EntityCollection([$c])]);
 
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
         $event = new EntityLoadedEvent(TestDefinition::class, new EntityCollection([$entity]), $context);
 
         static::assertEquals(

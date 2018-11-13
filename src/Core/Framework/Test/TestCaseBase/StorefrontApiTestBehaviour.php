@@ -69,7 +69,6 @@ trait StorefrontApiTestBehaviour
             'HTTP_X-Requested-With' => 'XMLHttpRequest',
             'HTTP_Accept' => 'application/json',
             'HTTP_X_SW_CONTEXT_TOKEN' => Uuid::uuid4()->getHex(),
-            'HTTP_X_SW_TENANT_ID' => Defaults::TENANT_ID,
         ]);
         $this->authorizeStorefrontClient($storefrontApiClient, $salesChannelOverride);
 
@@ -98,7 +97,6 @@ trait StorefrontApiTestBehaviour
             'HTTP_X-Requested-With' => 'XMLHttpRequest',
             'HTTP_Accept' => 'application/json',
             'HTTP_X_SW_CONTEXT_TOKEN' => Uuid::uuid4()->getHex(),
-            'HTTP_X_SW_TENANT_ID' => Defaults::TENANT_ID,
         ]);
         $this->authorizeStorefrontClient($storefrontApiClient);
 
@@ -129,7 +127,7 @@ trait StorefrontApiTestBehaviour
             'languages' => [['id' => Defaults::LANGUAGE_EN]],
         ], $salesChannelOverride);
 
-        $salesChannelRepository->upsert([$salesChannel], Context::createDefaultContext(Defaults::TENANT_ID));
+        $salesChannelRepository->upsert([$salesChannel], Context::createDefaultContext());
 
         $this->salesChannelIds[] = $salesChannel['id'];
 

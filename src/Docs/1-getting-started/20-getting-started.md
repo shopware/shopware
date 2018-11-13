@@ -7,7 +7,7 @@ The platform is divided into three components.
 * Administration: Contains the administration written in Vue.js, administration related
 commands, controller, the administration search and tests.
 * Core: The heart of the platform. The core domain is divided into different subdomains:
-    * Checkout: The checkout part includes all sources needed for the platform's checkout process. 
+    * Checkout: The checkout part includes all sources needed for the platform's checkout process.
           These include shopping cart calculation, customer administration, 
           ordering system, and the payment/shipping system.
     * Content: The content part contains sources that take care of the maintained contents of the platform.
@@ -89,7 +89,6 @@ and their properties:
     * integrationId (optional)
     * salesChannelId (optional)
 * `Shopware\Core\Framework\Context` most common context, includes the `SourceContext`
-    * tenantId
     * languageId
     * fallbackLanguageId
     * versionId
@@ -113,7 +112,7 @@ If you need a generic context for writing unit tests you can use:
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Defaults;
 
-$context = Context::createDefaultContext(Defaults::TENANT_ID);
+$context = Context::createDefaultContext();
 ``` 
 
 Attention: Never assemble a generic context for production!
@@ -935,39 +934,7 @@ You can always address this association via the property name:
 * To read the manufacturer of a product via API - `GET /api/v1/product/{id}/manufacturer`
 * ...
 
-#### Tenant
-The platform offers a tenant support so that several instances can work with the same database,
-
-**What does this mean from a technical point of view?**
-*Each entity is not only identified by its primary key. An additional *_tenant_id field 
-is present for all entities, forming a composite primary key (entity_id, tenant_id).
-
-If you apply this to the example above, the following columns must be created in the `product` table:
-* `tenant_id binary(16)`  => the tenant id of this product
-* `product_manufacturer_tenant_id binary(16)` => the tenant id of the manufacturer
-
-Accordingly, these fields must also be included in the `ProductDefinition`. 
-The field is also needed in the `FieldCollection` of an entity:
- ```php
-<?php
-
-use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\TenantIdField;
- 
-public static function defineFields(): FieldCollection
-{
-    return new FieldCollection([
-       // ...
-       new TenantIdField(),
-       // ...
-    ]);
-}
-```
-Although the TenantIdField is defined in the FieldCollection, you don't have to include the
-tenant_id in write operations. The `product_manufacturer_tenant_id` does not need its own Field.
-It is handled by the `FkField`.
-
-### Struct classes
+## Struct classes
 To transport the data between the database and the corresponding endpoints, the core uses
 struct classes. These are simple PHP classes in which the properties of an entity are
 defined as PHP properties and are available via getter/setter functions.

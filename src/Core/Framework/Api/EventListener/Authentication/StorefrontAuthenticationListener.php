@@ -71,21 +71,18 @@ class StorefrontAuthenticationListener implements EventSubscriberInterface
             throw new SalesChannelNotFoundException();
         }
 
-        $tenantId = $request->headers->get(PlatformRequest::HEADER_TENANT_ID);
-        $salesChannelId = $this->getSalesChannelId($accessKey, $tenantId);
+        $salesChannelId = $this->getSalesChannelId($accessKey);
 
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, $salesChannelId);
     }
 
-    private function getSalesChannelId(string $accessKey, string $tenantId): string
+    private function getSalesChannelId(string $accessKey): string
     {
         $builder = $this->connection->createQueryBuilder();
 
         $salesChannelId = $builder->select(['sales_channel.id'])
             ->from('sales_channel')
-            ->where('sales_channel.tenant_id = :tenantId')
-            ->andWhere('sales_channel.access_key = :accessKey')
-            ->setParameter('tenantId', Uuid::fromHexToBytes($tenantId))
+            ->where('sales_channel.access_key = :accessKey')
             ->setParameter('accessKey', $accessKey)
             ->execute()
             ->fetchColumn();

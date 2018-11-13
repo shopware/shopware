@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
@@ -139,7 +138,7 @@ EOF;
 
     protected function createWriteContext(): WriteContext
     {
-        $context = WriteContext::createFromContext(Context::createDefaultContext(Defaults::TENANT_ID));
+        $context = WriteContext::createFromContext(Context::createDefaultContext());
 
         return $context;
     }

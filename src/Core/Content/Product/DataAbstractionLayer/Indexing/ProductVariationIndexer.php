@@ -41,11 +41,11 @@ class ProductVariationIndexer implements IndexerInterface
         $this->connection = $connection;
     }
 
-    public function index(\DateTime $timestamp, string $tenantId): void
+    public function index(\DateTime $timestamp): void
     {
-        $context = Context::createDefaultContext($tenantId);
+        $context = Context::createDefaultContext();
 
-        $iterator = $this->createIterator($tenantId);
+        $iterator = $this->createIterator();
 
         $this->eventDispatcher->dispatch(
             ProgressStartedEvent::NAME,
@@ -89,14 +89,10 @@ UPDATE product, product_variation SET product.variation_ids = (
     SELECT CONCAT('[', GROUP_CONCAT(JSON_QUOTE(LOWER(HEX(product_variation.configuration_group_option_id)))), ']')
     FROM product_variation
     WHERE product_variation.product_id = product.id
-    AND product_variation.product_tenant_id = :tenant
 )
 WHERE product_variation.product_id = product.id
-AND product.tenant_id = :tenant
 AND product.id IN (:ids)
 SQL;
-
-        $tenantId = Uuid::fromHexToBytes($context->getTenantId());
 
         $bytes = array_map(function ($id) {
             return Uuid::fromStringToBytes($id);
@@ -104,23 +100,21 @@ SQL;
 
         $this->connection->executeUpdate(
             $sql,
-            ['ids' => $bytes, 'tenant' => $tenantId],
+            ['ids' => $bytes],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
     }
 
-    private function createIterator(string $tenantId): LastIdQuery
+    private function createIterator(): LastIdQuery
     {
         $query = $this->connection->createQueryBuilder();
         $query->select(['product.auto_increment', 'product.id']);
         $query->from('product');
-        $query->andWhere('product.tenant_id = :tenantId');
         $query->andWhere('product.auto_increment > :lastId');
         $query->addOrderBy('product.auto_increment');
 
         $query->setMaxResults(50);
 
-        $query->setParameter('tenantId', Uuid::fromHexToBytes($tenantId));
         $query->setParameter('lastId', 0);
 
         return new LastIdQuery($query);

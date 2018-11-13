@@ -93,7 +93,7 @@ class SearchKeywordIndexer implements IndexerInterface
         $this->registry = $registry;
     }
 
-    public function index(\DateTime $timestamp, string $tenantId): void
+    public function index(\DateTime $timestamp): void
     {
         $this->indexTableOperator->createTable(self::DICTIONARY, $timestamp);
         $this->indexTableOperator->createTable(self::DOCUMENT_TABLE, $timestamp);
@@ -101,25 +101,24 @@ class SearchKeywordIndexer implements IndexerInterface
         $dictionary = $this->indexTableOperator->getIndexName(self::DICTIONARY, $timestamp);
         $document = $this->indexTableOperator->getIndexName(self::DOCUMENT_TABLE, $timestamp);
 
-        $this->connection->executeUpdate('ALTER TABLE `' . $dictionary . '` ADD PRIMARY KEY `language_keyword` (`keyword`, `scope`, `language_id`, `version_id`, `tenant_id`, `language_tenant_id`);');
-        $this->connection->executeUpdate('ALTER TABLE `' . $dictionary . '` ADD INDEX `keyword` (`keyword`, `language_id`, `language_tenant_id`, `tenant_id`);');
-        $this->connection->executeUpdate('ALTER TABLE `' . $dictionary . '` ADD FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE');
-        $this->connection->executeUpdate('ALTER TABLE `' . $dictionary . '` ADD INDEX `scope_language_id` (`scope`, `language_id`, `tenant_id`);');
+        $this->connection->executeUpdate('ALTER TABLE `' . $dictionary . '` ADD PRIMARY KEY `language_keyword` (`keyword`, `scope`, `language_id`, `version_id`);');
+        $this->connection->executeUpdate('ALTER TABLE `' . $dictionary . '` ADD INDEX `keyword` (`keyword`, `language_id`);');
+        $this->connection->executeUpdate('ALTER TABLE `' . $dictionary . '` ADD FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE');
+        $this->connection->executeUpdate('ALTER TABLE `' . $dictionary . '` ADD INDEX `scope_language_id` (`scope`, `language_id`);');
 
-        $this->connection->executeUpdate('ALTER TABLE `' . $document . '` ADD PRIMARY KEY (`id`, `version_id`, `tenant_id`);');
-        $this->connection->executeUpdate('ALTER TABLE `' . $document . '` ADD UNIQUE  KEY (`language_id`, `keyword`, `entity`, `entity_id`, `ranking`, `version_id`, `tenant_id`);');
-        $this->connection->executeUpdate('ALTER TABLE `' . $document . '` ADD FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE');
-        $this->connection->executeUpdate('ALTER TABLE `' . $document . '` ADD INDEX (`version_id`, `tenant_id`, `entity_id`)');
+        $this->connection->executeUpdate('ALTER TABLE `' . $document . '` ADD PRIMARY KEY (`id`, `version_id`);');
+        $this->connection->executeUpdate('ALTER TABLE `' . $document . '` ADD UNIQUE  KEY (`language_id`, `keyword`, `entity`, `entity_id`, `ranking`, `version_id`);');
+        $this->connection->executeUpdate('ALTER TABLE `' . $document . '` ADD FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE');
+        $this->connection->executeUpdate('ALTER TABLE `' . $document . '` ADD INDEX (`version_id`, `entity_id`)');
 
-        $languages = $this->languageRepository->search(new Criteria(), Context::createDefaultContext($tenantId));
-        $catalogIds = $this->catalogRepository->searchIds(new Criteria(), Context::createDefaultContext($tenantId));
+        $languages = $this->languageRepository->search(new Criteria(), Context::createDefaultContext());
+        $catalogIds = $this->catalogRepository->searchIds(new Criteria(), Context::createDefaultContext());
 
         $sourceContext = new SourceContext();
         $sourceContext->setSalesChannelId(Defaults::SALES_CHANNEL);
 
         foreach ($languages as $language) {
             $context = new Context(
-                $tenantId,
                 $sourceContext,
                 $catalogIds->getIds(),
                 [],
@@ -132,11 +131,9 @@ class SearchKeywordIndexer implements IndexerInterface
             $this->indexContext($context, $timestamp);
         }
 
-        $this->connection->transactional(function () use ($dictionary, $document, $tenantId) {
-            $tenantId = Uuid::fromStringToBytes($tenantId);
-
-            $this->connection->executeUpdate('DELETE FROM ' . self::DOCUMENT_TABLE . ' WHERE tenant_id = :tenant', ['tenant' => $tenantId]);
-            $this->connection->executeUpdate('DELETE FROM ' . self::DICTIONARY . ' WHERE tenant_id = :tenant', ['tenant' => $tenantId]);
+        $this->connection->transactional(function () use ($dictionary, $document) {
+            $this->connection->executeUpdate('DELETE FROM ' . self::DOCUMENT_TABLE);
+            $this->connection->executeUpdate('DELETE FROM ' . self::DICTIONARY);
 
             $this->connection->executeUpdate('REPLACE INTO ' . self::DOCUMENT_TABLE . ' SELECT * FROM ' . $document);
             $this->connection->executeUpdate('REPLACE INTO ' . self::DICTIONARY . ' SELECT * FROM ' . $dictionary);
@@ -183,7 +180,7 @@ class SearchKeywordIndexer implements IndexerInterface
                 continue;
             }
 
-            $iterator = $this->createIterator($definition, $context->getTenantId());
+            $iterator = $this->createIterator($definition);
 
             $this->eventDispatcher->dispatch(
                 ProgressStartedEvent::NAME,
@@ -216,7 +213,7 @@ class SearchKeywordIndexer implements IndexerInterface
         }
     }
 
-    private function createIterator(string $definition, string $tenantId): LastIdQuery
+    private function createIterator(string $definition): LastIdQuery
     {
         $query = $this->connection->createQueryBuilder();
 
@@ -225,13 +222,11 @@ class SearchKeywordIndexer implements IndexerInterface
 
         $query->select([$escaped . '.auto_increment', $escaped . '.id']);
         $query->from($escaped);
-        $query->andWhere($escaped . '.tenant_id = :tenantId');
         $query->andWhere($escaped . '.auto_increment > :lastId');
         $query->addOrderBy($escaped . '.auto_increment');
 
         $query->setMaxResults(50);
 
-        $query->setParameter('tenantId', Uuid::fromHexToBytes($tenantId));
         $query->setParameter('lastId', 0);
 
         return new LastIdQuery($query);
@@ -249,7 +244,6 @@ class SearchKeywordIndexer implements IndexerInterface
 
         $languageId = $this->connection->quote(Uuid::fromStringToBytes($context->getLanguageId()));
         $versionId = $this->connection->quote(Uuid::fromStringToBytes($context->getVersionId()));
-        $tenantId = $this->connection->quote(Uuid::fromStringToBytes($context->getTenantId()));
 
         /** @var string|EntityDefinition $definition */
         $entityName = $this->connection->quote($definition::getEntityName());
@@ -279,9 +273,7 @@ class SearchKeywordIndexer implements IndexerInterface
 
                 $queue->addInsert($table, [
                     'scope' => $entityName,
-                    'tenant_id' => $tenantId,
                     'language_id' => $languageId,
-                    'language_tenant_id' => $tenantId,
                     'version_id' => $versionId,
                     'keyword' => $keyword,
                     'reversed' => $reversed,
@@ -289,12 +281,10 @@ class SearchKeywordIndexer implements IndexerInterface
 
                 $queue->addInsert($documentTable, [
                     'id' => $this->connection->quote(Uuid::uuid4()->getBytes()),
-                    'tenant_id' => $tenantId,
                     'version_id' => $versionId,
                     'entity' => $entityName,
                     'entity_id' => $entityId,
                     'language_id' => $languageId,
-                    'language_tenant_id' => $tenantId,
                     'keyword' => $keyword,
                     'ranking' => $ranking,
                 ], null, true);

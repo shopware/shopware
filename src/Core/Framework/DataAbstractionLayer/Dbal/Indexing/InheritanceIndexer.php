@@ -49,9 +49,9 @@ class InheritanceIndexer implements IndexerInterface
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function index(\DateTime $timestamp, string $tenantId): void
+    public function index(\DateTime $timestamp): void
     {
-        $context = Context::createDefaultContext($tenantId);
+        $context = Context::createDefaultContext();
 
         foreach ($this->registry->getElements() as $definition) {
             /** @var string|EntityDefinition $definition */
@@ -63,7 +63,7 @@ class InheritanceIndexer implements IndexerInterface
                 continue;
             }
 
-            $iterator = $this->createIterator($tenantId, $definition::getEntityName());
+            $iterator = $this->createIterator($definition::getEntityName());
 
             $this->eventDispatcher->dispatch(
                 ProgressStartedEvent::NAME,
@@ -133,7 +133,6 @@ class InheritanceIndexer implements IndexerInterface
         Context $context
     ): void {
         /* @var string|EntityDefinition $definition */
-        $tenantId = Uuid::fromHexToBytes($context->getTenantId());
         $versionId = Uuid::fromHexToBytes($context->getVersionId());
 
         $bytes = array_map(function ($id) {
@@ -165,17 +164,15 @@ class InheritanceIndexer implements IndexerInterface
                             FROM   #reference#
                             WHERE  #reference#.#entity#_id         = #root#.id
                             AND    #reference#.#entity#_version_id = #root#.version_id
-                            AND    #reference#.#entity#_tenant_id  = #root#.tenant_id 
                             LIMIT 1
                         ),
                         #root#.parent_id
                      )
                      WHERE #root#.version_id = :version
-                     AND #root#.tenant_id = :tenant
                      AND #root#.id IN (:ids)'
                 ),
-                ['version' => $versionId, 'tenant' => $tenantId, 'ids' => $bytes],
-                ['version' => ParameterType::STRING, 'tenant' => ParameterType::STRING, 'ids' => Connection::PARAM_STR_ARRAY]
+                ['version' => $versionId, 'ids' => $bytes],
+                ['version' => ParameterType::STRING, 'ids' => Connection::PARAM_STR_ARRAY]
             );
         }
     }
@@ -187,7 +184,6 @@ class InheritanceIndexer implements IndexerInterface
         Context $context
     ): void {
         /** @var string|EntityDefinition $definition */
-        $tenantId = Uuid::fromHexToBytes($context->getTenantId());
         $versionId = Uuid::fromHexToBytes($context->getVersionId());
 
         $bytes = array_map(function ($id) {
@@ -211,13 +207,11 @@ class InheritanceIndexer implements IndexerInterface
                      WHERE #root#.parent_id = parent.id
                      AND #root#.parent_id IS NOT NULL
                      AND #root#.version_id = parent.version_id
-                     AND #root#.tenant_id = parent.tenant_id
                      AND #root#.version_id = :version
-                     AND #root#.tenant_id = :tenant
                      AND #root#.id IN (:ids)'
                 ),
-                ['version' => $versionId, 'tenant' => $tenantId, 'ids' => $bytes],
-                ['version' => ParameterType::STRING, 'tenant' => ParameterType::STRING, 'ids' => Connection::PARAM_STR_ARRAY]
+                ['version' => $versionId, 'ids' => $bytes],
+                ['version' => ParameterType::STRING, 'ids' => Connection::PARAM_STR_ARRAY]
             );
 
             $this->connection->executeUpdate(
@@ -228,29 +222,26 @@ class InheritanceIndexer implements IndexerInterface
                      SET #root#.#property# = #root#.#field#
                      WHERE #root#.parent_id IS NULL
                      AND #root#.version_id = :version
-                     AND #root#.tenant_id = :tenant
                      AND #root#.id IN (:ids)'
                 ),
-                ['version' => $versionId, 'tenant' => $tenantId, 'ids' => $bytes],
-                ['version' => ParameterType::STRING, 'tenant' => ParameterType::STRING, 'ids' => Connection::PARAM_STR_ARRAY]
+                ['version' => $versionId, 'ids' => $bytes],
+                ['version' => ParameterType::STRING, 'ids' => Connection::PARAM_STR_ARRAY]
             );
         }
     }
 
-    private function createIterator(string $tenantId, $entity): LastIdQuery
+    private function createIterator($entity): LastIdQuery
     {
         $escaped = EntityDefinitionQueryHelper::escape($entity);
 
         $query = $this->connection->createQueryBuilder();
         $query->select([$escaped . '.auto_increment', $escaped . '.id']);
         $query->from($escaped);
-        $query->andWhere($escaped . '.tenant_id = :tenantId');
         $query->andWhere($escaped . '.auto_increment > :lastId');
         $query->addOrderBy($escaped . '.auto_increment');
 
         $query->setMaxResults(50);
 
-        $query->setParameter('tenantId', Uuid::fromHexToBytes($tenantId));
         $query->setParameter('lastId', 0);
 
         return new LastIdQuery($query);

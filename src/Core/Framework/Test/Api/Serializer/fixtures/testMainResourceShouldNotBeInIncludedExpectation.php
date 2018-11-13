@@ -16,7 +16,6 @@ return [
             'name' => 'Manufacturer',
             'createdAt' => '2018-01-15T08:01:16+00:00',
             'updatedAt' => null,
-            'tenantId' => null,
         ],
         'links' => [
             'self' => '/api/user/f343a3c1-19cf-42a7-841a-a0ac5094908c',
@@ -62,7 +61,6 @@ return [
                 'updatedAt' => '2017-11-21T11:25:34+00:00',
                 'description' => null,
                 'catalogId' => null,
-                'tenantId' => null,
                 'url' => '',
                 'hasFile' => true,
             ],

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
-use Shopware\Core\Checkout\Context\CheckoutContextService;
 use Shopware\Core\Framework\Api\Exception\InvalidSalesChannelIdException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
@@ -30,11 +29,6 @@ class StorefrontProxyController extends AbstractController
     private $salesChannelRepository;
 
     /**
-     * @var CheckoutContextService
-     */
-    private $contextService;
-
-    /**
      * @var SalesChannelRequestContextResolver
      */
     private $requestContextResolver;
@@ -42,12 +36,10 @@ class StorefrontProxyController extends AbstractController
     public function __construct(
         Kernel $kernel,
         RepositoryInterface $salesChannelRepository,
-        CheckoutContextService $contextService,
-        SalesChannelRequestContextResolver $requestContextResolver)
-    {
+        SalesChannelRequestContextResolver $requestContextResolver
+    ) {
         $this->kernel = $kernel;
         $this->salesChannelRepository = $salesChannelRepository;
-        $this->contextService = $contextService;
         $this->requestContextResolver = $requestContextResolver;
     }
 
@@ -74,13 +66,11 @@ class StorefrontProxyController extends AbstractController
         $cloned = $request->duplicate(null, null, [], null, null, $server);
         $cloned->headers->set(PlatformRequest::HEADER_ACCESS_KEY, $salesChannel->getAccessKey());
         $cloned->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $contextToken);
-        $cloned->headers->set(PlatformRequest::HEADER_TENANT_ID, $context->getTenantId());
         $cloned->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, $salesChannel->getAccessKey());
 
         $this->requestContextResolver->handleCheckoutContext(
             $request,
             $cloned,
-            $context->getTenantId(),
             $salesChannelId,
             $contextToken
         );

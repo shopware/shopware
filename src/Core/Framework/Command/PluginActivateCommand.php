@@ -63,8 +63,6 @@ EOF
         $io->text(sprintf('Activating %d plugins:', \count($plugins)));
         $io->listing($this->formatPluginList($plugins));
 
-        $tenantId = $input->getOption('tenant-id');
-
         /** @var PluginStruct $plugin */
         foreach ($plugins as $plugin) {
             if ($plugin->getInstallationDate() === null) {
@@ -79,7 +77,7 @@ EOF
                 continue;
             }
 
-            $this->pluginManager->activatePlugin($plugin, $tenantId);
+            $this->pluginManager->activatePlugin($plugin);
 
             $io->text(sprintf('Plugin "%s" has been activated successfully.', $plugin->getLabel()));
         }

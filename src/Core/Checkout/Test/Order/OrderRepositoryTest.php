@@ -71,7 +71,6 @@ class OrderRepositoryTest extends TestCase
         $customerId = $this->createCustomer();
 
         $context = $this->checkoutContextFactory->create(
-            Defaults::TENANT_ID,
             Uuid::uuid4()->getHex(),
             Defaults::SALES_CHANNEL,
             [
@@ -91,7 +90,7 @@ class OrderRepositoryTest extends TestCase
 
         $this->orderRepository->delete([
             ['id' => $id],
-        ], Context::createDefaultContext(Defaults::TENANT_ID));
+        ], Context::createDefaultContext());
 
         $count = $this->getContainer()->get(Connection::class)->fetchAll('SELECT * FROM `order` WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
         static::assertCount(0, $count);
@@ -131,7 +130,7 @@ class OrderRepositoryTest extends TestCase
             ],
         ];
 
-        $this->customerRepository->upsert([$customer], Context::createDefaultContext(Defaults::TENANT_ID));
+        $this->customerRepository->upsert([$customer], Context::createDefaultContext());
 
         return $customerId;
     }

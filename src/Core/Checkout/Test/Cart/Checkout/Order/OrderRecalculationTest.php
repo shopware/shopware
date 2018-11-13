@@ -85,7 +85,7 @@ class OrderRecalculationTest extends TestCase
         $this->orderPersister = $this->getContainer()->get(OrderPersister::class);
         $this->factory = $this->getContainer()->get(CheckoutContextFactory::class);
         $this->customerRepository = $this->getContainer()->get('customer.repository');
-        $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $this->context = Context::createDefaultContext();
         $this->orderConverter = $this->getContainer()->get(OrderConverter::class);
         $this->enrichment = $this->getContainer()->get(Enrichment::class);
         $this->processor = $this->getContainer()->get(Processor::class);
@@ -93,7 +93,6 @@ class OrderRecalculationTest extends TestCase
 
         $customerId = $this->createCustomer();
         $this->checkoutContext = $this->factory->create(
-            Defaults::TENANT_ID,
             Uuid::uuid4()->getHex(),
             Defaults::SALES_CHANNEL,
             [

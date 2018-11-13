@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\CheckoutContext;
 interface CheckoutContextFactoryInterface
 {
     public function create(
-        string $tenantId,
         string $token,
         string $salesChannelId,
         array $options = []

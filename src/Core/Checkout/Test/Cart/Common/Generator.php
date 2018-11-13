@@ -144,7 +144,6 @@ class Generator extends TestCase
         $customer->setGroup($currentCustomerGroup);
 
         return new CheckoutContext(
-            Defaults::TENANT_ID,
             Uuid::uuid4()->toString(),
             $salesChannel,
             $language,

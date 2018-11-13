@@ -50,7 +50,7 @@ class CatalogTest extends TestCase
     public function testCreateWithoutCatalogProvided(): void
     {
         $id = Uuid::uuid4();
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
         $category = ['id' => $id->getHex(), 'name' => 'catalog test category'];
 
         $this->categoryRepository->create([$category], $context);
@@ -65,7 +65,7 @@ class CatalogTest extends TestCase
         $this->expectException(WriteStackException::class);
 
         $id = Uuid::uuid4();
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
         $catalogId = $this->createCatalog($context);
         $category = [
             'id' => $id->getHex(),
@@ -83,7 +83,7 @@ class CatalogTest extends TestCase
     public function testWithCatalogProvided(): void
     {
         $id = Uuid::uuid4();
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
         $catalogId = $this->createCatalog($context);
         $category = [
             'id' => $id->getHex(),
@@ -105,10 +105,9 @@ class CatalogTest extends TestCase
         $this->expectException(WriteStackException::class);
 
         $id = Uuid::uuid4();
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
 
         $readContext = new Context(
-            Defaults::TENANT_ID,
             $context->getSourceContext(),
             [],
             [],
@@ -137,7 +136,7 @@ class CatalogTest extends TestCase
     public function testReadWithDefaultCatalogContext(): void
     {
         $id = Uuid::uuid4();
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
         $catalogId = $this->createCatalog($context);
         $catalogContext = $this->addCatalogIdToContext($context, $catalogId);
         $category = [
@@ -160,7 +159,7 @@ class CatalogTest extends TestCase
     public function testReadWithCorrectCatalogContext(): void
     {
         $id = Uuid::uuid4();
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
         $catalogId = $this->createCatalog($context);
 
         $context = $this->addCatalogIdToContext($context, $catalogId);
@@ -184,7 +183,7 @@ class CatalogTest extends TestCase
 
     public function testReadWithMultipleCatalogs(): void
     {
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
 
         $id1 = Uuid::uuid4();
         $id2 = Uuid::uuid4();
@@ -192,7 +191,7 @@ class CatalogTest extends TestCase
         $catalogId1 = $this->createCatalog($context);
         $catalogId2 = $this->createCatalog($context);
 
-        $fullContext = Context::createDefaultContext(Defaults::TENANT_ID);
+        $fullContext = Context::createDefaultContext();
         $fullContext = $this->addCatalogIdToContext($fullContext, $catalogId1);
         $fullContext = $this->addCatalogIdToContext($fullContext, $catalogId2);
 
@@ -206,7 +205,6 @@ class CatalogTest extends TestCase
 
         // read with two enabled catalogs
         $context = new Context(
-            Defaults::TENANT_ID,
             $context->getSourceContext(),
             [$catalogId1, $catalogId2],
             $context->getRules(),
@@ -219,7 +217,6 @@ class CatalogTest extends TestCase
 
         // read with default and another two enabled catalogs
         $context = new Context(
-            Defaults::TENANT_ID,
             $context->getSourceContext(),
             [$catalogId1, $catalogId2, Defaults::CATALOG],
             [],
@@ -236,11 +233,10 @@ class CatalogTest extends TestCase
         $id = Uuid::uuid4();
         $id2 = Uuid::uuid4();
         $parentId = Uuid::uuid4();
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
         $catalogId = $this->createCatalog($context);
 
         $context = new Context(
-            Defaults::TENANT_ID,
             $context->getSourceContext(),
             [$catalogId],
             [],
@@ -309,11 +305,10 @@ class CatalogTest extends TestCase
         $categoryId = Uuid::uuid4();
         $manufacturerId = Uuid::uuid4();
         $taxId = Uuid::uuid4();
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
         $catalogId = $this->createCatalog($context);
 
         $context = new Context(
-            Defaults::TENANT_ID,
             $context->getSourceContext(),
             [$catalogId],
             [],
@@ -363,7 +358,7 @@ class CatalogTest extends TestCase
         static::assertEquals(2, $products->count(), 'Products were not fetched correctly');
 
         // should not work as catalog differs from the default
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
         $products = $this->productRepository->read(new ReadCriteria([$productId1->getHex(), $productId2->getHex()]), $context);
         static::assertEquals(0, $products->count(), 'Products should not be fetched');
     }
@@ -375,11 +370,10 @@ class CatalogTest extends TestCase
         $categoryId = Uuid::uuid4();
         $manufacturerId = Uuid::uuid4();
         $taxId = Uuid::uuid4();
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
         $catalogId = $this->createCatalog($context);
 
         $context = new Context(
-            Defaults::TENANT_ID,
             $context->getSourceContext(),
             [$catalogId],
             [],
@@ -432,7 +426,7 @@ class CatalogTest extends TestCase
         static::assertEquals(2, $products->count(), 'Products were not fetched correctly');
 
         // should not work as catalog differs from the default
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
         $products = $this->productRepository->search($criteria, $context);
         static::assertEquals(0, $products->count(), 'Products should not be fetched');
     }
@@ -449,7 +443,6 @@ class CatalogTest extends TestCase
     private function addCatalogIdToContext(Context $context, string $catalogId): Context
     {
         return new Context(
-            Defaults::TENANT_ID,
             $context->getSourceContext(),
             array_merge($context->getCatalogIds(), [$catalogId]),
             $context->getRules(),

@@ -67,7 +67,7 @@ class StorefrontCartControllerTest extends TestCase
         $this->mediaRepository = $this->getContainer()->get('media.repository');
         $this->taxId = Uuid::uuid4()->getHex();
         $this->manufacturerId = Uuid::uuid4()->getHex();
-        $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $this->context = Context::createDefaultContext();
         $this->router = $this->getContainer()->get('router');
     }
 

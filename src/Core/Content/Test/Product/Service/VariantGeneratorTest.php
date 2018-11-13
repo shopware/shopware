@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductStruct;
 use Shopware\Core\Content\Product\Util\VariantGenerator;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
@@ -76,9 +75,9 @@ class VariantGeneratorTest extends TestCase
             ],
         ];
 
-        $this->repository->create([$data], Context::createDefaultContext(Defaults::TENANT_ID));
+        $this->repository->create([$data], Context::createDefaultContext());
 
-        $writtenEvent = $this->generator->generate($id, Context::createDefaultContext(Defaults::TENANT_ID));
+        $writtenEvent = $this->generator->generate($id, Context::createDefaultContext());
 
         $productWritten = $writtenEvent->getEventByDefinition(ProductDefinition::class);
 
@@ -86,7 +85,7 @@ class VariantGeneratorTest extends TestCase
 
         $criteria = new ReadCriteria($productWritten->getIds());
         $criteria->addAssociation('product.variations');
-        $variants = $this->repository->read($criteria, Context::createDefaultContext(Defaults::TENANT_ID));
+        $variants = $this->repository->read($criteria, Context::createDefaultContext());
 
         static::assertCount(2, $variants);
 
@@ -158,19 +157,20 @@ class VariantGeneratorTest extends TestCase
             ],
         ];
 
-        $this->repository->create([$data], Context::createDefaultContext(Defaults::TENANT_ID));
+        $context = Context::createDefaultContext();
 
-        $writtenEvent = $this->generator->generate($id, Context::createDefaultContext(Defaults::TENANT_ID));
+        $this->repository->create([$data], $context);
+
+        $writtenEvent = $this->generator->generate($id, $context);
 
         $productWritten = $writtenEvent->getEventByDefinition(ProductDefinition::class);
 
         static::assertCount(4, $productWritten->getIds());
 
-        $variants = $this->repository->read(new ReadCriteria($productWritten->getIds()), Context::createDefaultContext(
-            Defaults::TENANT_ID));
+        $variants = $this->repository->read(new ReadCriteria($productWritten->getIds()), $context);
         static::assertCount(4, $variants);
 
-        $parent = $this->repository->read(new ReadCriteria([$id]), Context::createDefaultContext(Defaults::TENANT_ID))
+        $parent = $this->repository->read(new ReadCriteria([$id]), $context)
             ->get($id);
 
         $filtered = $variants->filterByVariationIds([$redId, $bigId]);
@@ -235,25 +235,26 @@ class VariantGeneratorTest extends TestCase
             ],
         ];
 
-        $this->repository->create([$data], Context::createDefaultContext(Defaults::TENANT_ID));
+        $context = Context::createDefaultContext();
 
-        $writtenEvent = $this->generator->generate($id, Context::createDefaultContext(Defaults::TENANT_ID), 0, 1);
+        $this->repository->create([$data], $context);
+
+        $writtenEvent = $this->generator->generate($id, $context, 0, 1);
         $productWritten = $writtenEvent->getEventByDefinition(ProductDefinition::class);
         static::assertCount(1, $productWritten->getIds());
 
-        $variants = $this->repository->read(new ReadCriteria($productWritten->getIds()), Context::createDefaultContext(
-            Defaults::TENANT_ID));
+        $variants = $this->repository->read(new ReadCriteria($productWritten->getIds()), $context);
         static::assertCount(1, $variants);
 
-        $writtenEvent = $this->generator->generate($id, Context::createDefaultContext(Defaults::TENANT_ID), 1, 1);
+        $writtenEvent = $this->generator->generate($id, $context, 1, 1);
         $productWritten = $writtenEvent->getEventByDefinition(ProductDefinition::class);
         static::assertCount(1, $productWritten->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product.parentId', $id));
-        $variants = $this->repository->search($criteria, Context::createDefaultContext(Defaults::TENANT_ID));
+        $variants = $this->repository->search($criteria, $context);
 
-        $parent = $this->repository->read(new ReadCriteria([$id]), Context::createDefaultContext(Defaults::TENANT_ID))
+        $parent = $this->repository->read(new ReadCriteria([$id]), $context)
             ->get($id);
 
         foreach ($variants as $variant) {

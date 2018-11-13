@@ -67,11 +67,6 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
             $catalogJoinCondition = ' AND #root#.`catalog_id` = #alias#.`catalog_id`';
         }
 
-        $tenantJoinCondition = '';
-        if ($definition::isTenantAware() && $reference::isTenantAware()) {
-            $tenantJoinCondition = ' AND #root#.`tenant_id` = #alias#.`tenant_id`';
-        }
-
         $versionAware = ($definition::isVersionAware() && $reference::isVersionAware());
 
         $source = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName());
@@ -120,8 +115,7 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
                     array_keys($parameters),
                     array_values($parameters),
                     '#source# = #alias#.#reference_column#' .
-                    $catalogJoinCondition .
-                    $tenantJoinCondition
+                    $catalogJoinCondition
                 )
             );
 
@@ -144,8 +138,7 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
                     array_keys($parameters),
                     array_values($parameters),
                     '#source# = #alias#.#reference_column# AND #root#.`version_id` = #alias#.`version_id`' .
-                    $catalogJoinCondition .
-                    $tenantJoinCondition
+                    $catalogJoinCondition
                 )
             );
 
@@ -167,8 +160,7 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
                 array_keys($parameters),
                 array_values($parameters),
                 '#source# = #alias#.#reference_column#' .
-                $catalogJoinCondition .
-                $tenantJoinCondition
+                $catalogJoinCondition
             )
         );
     }

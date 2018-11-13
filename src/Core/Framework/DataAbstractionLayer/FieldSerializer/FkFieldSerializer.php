@@ -63,13 +63,11 @@ class FkFieldSerializer implements FieldSerializerInterface
 
         if ($value === null) {
             yield $field->getStorageName() => null;
-            yield $field->getTenantIdField() => null;
 
             return;
         }
 
         yield $field->getStorageName() => Uuid::fromStringToBytes($value);
-        yield $field->getTenantIdField() => Uuid::fromStringToBytes($parameters->getContext()->getContext()->getTenantId());
     }
 
     public function decode(Field $field, $value)

@@ -45,11 +45,11 @@ class ProductListingPriceIndexer implements IndexerInterface
         $this->connection = $connection;
     }
 
-    public function index(\DateTime $timestamp, string $tenantId): void
+    public function index(\DateTime $timestamp): void
     {
-        $context = Context::createDefaultContext($tenantId);
+        $context = Context::createDefaultContext();
 
-        $iterator = $this->createIterator($tenantId);
+        $iterator = $this->createIterator();
 
         $this->eventDispatcher->dispatch(
             ProgressStartedEvent::NAME,
@@ -102,11 +102,10 @@ class ProductListingPriceIndexer implements IndexerInterface
             $listingPrices = PriceRulesJsonFieldSerializer::convertToStorage($listingPrices);
 
             $this->connection->executeUpdate(
-                'UPDATE product SET listing_prices = :price WHERE id = :id AND tenant_id = :tenant',
+                'UPDATE product SET listing_prices = :price WHERE id = :id',
                 [
                     'price' => json_encode($listingPrices),
                     'id' => Uuid::fromStringToBytes($id),
-                    'tenant' => Uuid::fromHexToBytes($context->getTenantId()),
                 ]
             );
         }
@@ -125,17 +124,15 @@ class ProductListingPriceIndexer implements IndexerInterface
         ]);
 
         $query->from('product', 'product');
-        $query->innerJoin('product', 'product_price_rule', 'price', 'price.product_id = product.id AND product.tenant_id = price.tenant_id');
+        $query->innerJoin('product', 'product_price_rule', 'price', 'price.product_id = product.id');
         $query->andWhere('product.id IN (:ids) OR product.parent_id IN (:ids)');
         $query->andWhere('price.quantity_end IS NULL');
-        $query->andWhere('price.tenant_id = :tenant');
 
         $ids = array_map(function ($id) {
             return Uuid::fromHexToBytes($id);
         }, $ids);
 
         $query->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY);
-        $query->setParameter('tenant', Uuid::fromHexToBytes($context->getTenantId()));
 
         $data = $query->execute()->fetchAll();
 
@@ -183,18 +180,16 @@ class ProductListingPriceIndexer implements IndexerInterface
         return array_shift($rulePrices);
     }
 
-    private function createIterator(string $tenantId): LastIdQuery
+    private function createIterator(): LastIdQuery
     {
         $query = $this->connection->createQueryBuilder();
         $query->select(['product.auto_increment', 'product.id']);
         $query->from('product');
-        $query->andWhere('product.tenant_id = :tenantId');
         $query->andWhere('product.auto_increment > :lastId');
         $query->addOrderBy('product.auto_increment');
 
         $query->setMaxResults(50);
 
-        $query->setParameter('tenantId', Uuid::fromHexToBytes($tenantId));
         $query->setParameter('lastId', 0);
 
         return new LastIdQuery($query);

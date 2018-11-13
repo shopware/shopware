@@ -53,7 +53,7 @@ class EnrichmentTest extends TestCase
     {
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->factory = $this->getContainer()->get(CheckoutContextFactory::class);
-        $this->context = $this->factory->create(Defaults::TENANT_ID, Defaults::TENANT_ID, Defaults::SALES_CHANNEL);
+        $this->context = $this->factory->create(Uuid::uuid4()->getHex(), Defaults::SALES_CHANNEL);
         $this->enrichment = $this->getContainer()->get(Enrichment::class);
         $this->connection = $this->getContainer()->get(Connection::class);
     }

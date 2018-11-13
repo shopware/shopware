@@ -394,8 +394,7 @@ class AccountService
                 'customerId' => $user->getId(),
                 'billingAddressId' => null,
                 'shippingAddressId' => null,
-            ],
-            $context->getTenantId()
+            ]
         );
 
         return $context->getToken();
@@ -409,8 +408,7 @@ class AccountService
                 'customerId' => null,
                 'billingAddressId' => null,
                 'shippingAddressId' => null,
-            ],
-            $context->getTenantId()
+            ]
         );
     }
 

@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
@@ -29,7 +28,7 @@ class EntityAggregatorTest extends TestCase
         static::expectException(\RuntimeException::class);
         static::expectExceptionMessage('Aggregation of type Shopware\Core\Framework\Test\DataAbstractionLayer\Search\TestAggregation not supported');
 
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
 
         $criteria = new Criteria();
         $criteria->addAggregation(new TestAggregation('taxRate', 'foo'));

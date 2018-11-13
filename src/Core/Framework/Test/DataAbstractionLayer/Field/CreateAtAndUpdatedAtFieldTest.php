@@ -71,7 +71,7 @@ EOF;
             'id' => $id,
         ];
 
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
         $this->repo->create([$data], $context);
 
         $entities = $this->repo->read(new ReadCriteria([$id]), $context);
@@ -97,7 +97,7 @@ EOF;
             'createdAt' => $date,
         ];
 
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
         $this->repo->create([$data], $context);
 
         $entities = $this->repo->read(new ReadCriteria([$id]), $context);
@@ -125,7 +125,7 @@ EOF;
             'createdAt' => null,
         ];
 
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
         $this->repo->create([$data], $context);
 
         $entities = $this->repo->read(new ReadCriteria([$id]), $context);
@@ -145,7 +145,7 @@ EOF;
 
         $data = ['id' => $id];
 
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
         $this->repo->create([$data], $context);
 
         $entities = $this->repo->read(new ReadCriteria([$id]), $context);
@@ -157,7 +157,7 @@ EOF;
 
         $data = ['id' => $id, 'name' => 'updated'];
 
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
         $this->repo->update([$data], $context);
         $entities = $this->repo->read(new ReadCriteria([$id]), $context);
 
@@ -173,7 +173,7 @@ EOF;
 
         $data = ['id' => $id];
 
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
         $this->repo->create([$data], $context);
 
         $entities = $this->repo->read(new ReadCriteria([$id]), $context);
@@ -185,7 +185,7 @@ EOF;
 
         $data = ['id' => $id, 'name' => 'updated', 'updatedAt' => null];
 
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
         $this->repo->update([$data], $context);
         $entities = $this->repo->read(new ReadCriteria([$id]), $context);
 
@@ -203,7 +203,7 @@ EOF;
 
         $data = ['id' => $id, 'updatedAt' => $date];
 
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
         $this->repo->create([$data], $context);
 
         $entities = $this->repo->read(new ReadCriteria([$id]), $context);
@@ -215,7 +215,7 @@ EOF;
 
         $data = ['id' => $id, 'name' => 'updated', 'updatedAt' => $date];
 
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
         $this->repo->update([$data], $context);
         $entities = $this->repo->read(new ReadCriteria([$id]), $context);
 

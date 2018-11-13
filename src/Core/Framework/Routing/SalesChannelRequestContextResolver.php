@@ -41,14 +41,13 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
         }
 
         $contextToken = $master->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
-        $tenantId = $master->headers->get(PlatformRequest::HEADER_TENANT_ID);
         $salesChannelId = $master->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
 
         // sub requests can use the context of the master request
         if ($master->attributes->has(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT)) {
             $context = $master->attributes->get(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT);
         } else {
-            $context = $this->contextService->get($tenantId, $salesChannelId, $contextToken);
+            $context = $this->contextService->get($salesChannelId, $contextToken);
         }
 
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context->getContext());
@@ -58,15 +57,14 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
     public function handleCheckoutContext(
         Request $request,
         Request $master,
-        string $tenantId,
         string $salesChannelId,
-        string $contextToken)
+        string $contextToken): void
     {
         // sub requests can use the context of the master request
         if ($master->attributes->has(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT)) {
             $context = $master->attributes->get(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT);
         } else {
-            $context = $this->contextService->get($tenantId, $salesChannelId, $contextToken);
+            $context = $this->contextService->get($salesChannelId, $contextToken);
         }
 
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context->getContext());

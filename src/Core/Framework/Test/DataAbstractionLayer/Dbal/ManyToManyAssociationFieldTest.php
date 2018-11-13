@@ -10,7 +10,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufactu
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
@@ -41,7 +40,7 @@ class ManyToManyAssociationFieldTest extends TestCase
     {
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->categoryRepository = $this->getContainer()->get('category.repository');
-        $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $this->context = Context::createDefaultContext();
     }
 
     public function testWriteWithoutData(): void

@@ -145,7 +145,6 @@ This section shows how to setup a web root with apache that links to a project d
 example setup. You are free to use a different setup. The only hard requirements are:
 
 * url rewrite root to `index.php`
-* `TENANT_ID` environment variable must be set with valid uuid4 and must be the same value as in `.psh.yml.override`
 
 Add your user to the `www-data` group and allow the group to access the project files and setgid on all directories:
 ```bash
@@ -170,7 +169,6 @@ LISTEN 8000
 <VirtualHost *:8000>
     DocumentRoot "/var/www/shopware.test/public"
     ServerName shopware.test
-    SetEnv TENANT_ID 20080911ffff4fffafffffff19830531
     <Directory "/var/www/shopware.test/public">
         AllowOverride All
     </Directory>
@@ -236,13 +234,12 @@ enter on each question. In this case the default value, specified in brackets []
 1. `Application environment`: whether a development or production instance should be prepared. 
 Choose ```dev```.
 2. `URL to your /public folder`: the URL from which the shop should be reached. Use `http://shopware.test:8000`.
-3. `Tenant id`: the tenant ID for this shop. Use the default.    
-4. `Database host`: where the database is hosted. 
+3. `Database host`: where the database is hosted.
     - **Local Installation** Use the default.
     - **Docker Installation** Use `mysql`.
-5. `Database port`: the port under which the database may be reached. Use the default.
-6. `Database name`: the name of the database which Shopware will use. Use the default.
-7. `Database user`: the user shopware will use to access the database. Use the default.
+4. `Database port`: the port under which the database may be reached. Use the default.
+5. `Database name`: the name of the database which Shopware will use. Use the default.
+6. `Database user`: the user shopware will use to access the database. Use the default.
 7. `Database password`: password of the given database user. Use `app`.
 
 Shopware and all of the its dependecies will now be installed. This may take a while.

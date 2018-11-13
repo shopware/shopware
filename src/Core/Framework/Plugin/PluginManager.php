@@ -109,14 +109,14 @@ class PluginManager
         return $this->hydrate($plugin);
     }
 
-    public function installPlugin(PluginStruct $plugin, string $tenantId): InstallContext
+    public function installPlugin(PluginStruct $plugin): InstallContext
     {
         $pluginBootstrap = $this->getPluginBootstrap($plugin->getName());
 
         // set container because the plugin has not been initialized yet and therefore has no container set
         $pluginBootstrap->setContainer($this->container);
 
-        $context = new InstallContext($pluginBootstrap, $this->createContext($tenantId), Framework::VERSION, $plugin->getVersion());
+        $context = new InstallContext($pluginBootstrap, $this->createContext(), Framework::VERSION, $plugin->getVersion());
 
         if ($plugin->getInstallationDate()) {
             return $context;
@@ -147,14 +147,14 @@ class PluginManager
         return $context;
     }
 
-    public function uninstallPlugin(PluginStruct $plugin, string $tenantId, bool $removeUserData = true): UninstallContext
+    public function uninstallPlugin(PluginStruct $plugin, bool $removeUserData = true): UninstallContext
     {
         $pluginBootstrap = $this->getPluginBootstrap($plugin->getName());
 
         // set container because the plugin has not been initialized yet and therefore has no container set
         $pluginBootstrap->setContainer($this->container);
 
-        $context = new UninstallContext($pluginBootstrap, $this->createContext($tenantId), Framework::VERSION, $plugin->getVersion(), !$removeUserData);
+        $context = new UninstallContext($pluginBootstrap, $this->createContext(), Framework::VERSION, $plugin->getVersion(), !$removeUserData);
 
         if ($plugin->getInstallationDate() === null) {
             throw new PluginNotInstalledException($plugin->getName());
@@ -178,14 +178,14 @@ class PluginManager
         return $context;
     }
 
-    public function updatePlugin(PluginStruct $plugin, string $tenantId): UpdateContext
+    public function updatePlugin(PluginStruct $plugin): UpdateContext
     {
         $pluginBootstrap = $this->getPluginBootstrap($plugin->getName());
         $this->requirementValidator->validate($pluginBootstrap->getPath() . '/plugin.xml', Framework::VERSION, $this->getPlugins());
 
         $context = new UpdateContext(
             $pluginBootstrap,
-            $this->createContext($tenantId),
+            $this->createContext(),
             Framework::VERSION,
             $plugin->getVersion(),
             $plugin->getUpdateVersion() ?? $plugin->getVersion()
@@ -214,10 +214,10 @@ class PluginManager
         return $context;
     }
 
-    public function activatePlugin(PluginStruct $plugin, string $tenantId): ActivateContext
+    public function activatePlugin(PluginStruct $plugin): ActivateContext
     {
         $pluginBootstrap = $this->getPluginBootstrap($plugin->getName());
-        $context = new ActivateContext($pluginBootstrap, $this->createContext($tenantId), Framework::VERSION, $plugin->getVersion());
+        $context = new ActivateContext($pluginBootstrap, $this->createContext(), Framework::VERSION, $plugin->getVersion());
 
         if ($plugin->getActive()) {
             return $context;
@@ -238,10 +238,10 @@ class PluginManager
         return $context;
     }
 
-    public function deactivatePlugin(PluginStruct $plugin, string $tenantId): DeactivateContext
+    public function deactivatePlugin(PluginStruct $plugin): DeactivateContext
     {
         $pluginBootstrap = $this->getPluginBootstrap($plugin->getName());
-        $context = new DeactivateContext($pluginBootstrap, $this->createContext($tenantId), Framework::VERSION, $plugin->getVersion());
+        $context = new DeactivateContext($pluginBootstrap, $this->createContext(), Framework::VERSION, $plugin->getVersion());
 
         if (!$plugin->getInstallationDate()) {
             throw new PluginNotInstalledException($plugin->getName());
@@ -401,12 +401,12 @@ class PluginManager
         return $this->kernel::getPlugins()->get($pluginName);
     }
 
-    private function createContext(string $tenantId): Context
+    private function createContext(): Context
     {
         return new Context(
-            $tenantId,
             new SourceContext(),
-            null, [],
+            null,
+            [],
             Defaults::CURRENCY,
             Defaults::LANGUAGE_EN,
             Defaults::LANGUAGE_EN

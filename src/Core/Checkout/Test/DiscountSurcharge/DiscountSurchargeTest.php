@@ -78,7 +78,7 @@ class DiscountSurchargeTest extends TestCase
         self::$discountSurchargeRepository = $this->getContainer()->get('discount_surcharge.repository');
         self::$factory = $this->getContainer()->get(CheckoutContextFactory::class);
 
-        self::$context = self::$factory->create(Defaults::TENANT_ID, Defaults::TENANT_ID, Defaults::SALES_CHANNEL);
+        self::$context = self::$factory->create(Uuid::uuid4()->getHex(), Defaults::SALES_CHANNEL);
 
         self::$processor = $this->getContainer()->get(Processor::class);
         self::$enrichment = $this->getContainer()->get(Enrichment::class);
@@ -430,7 +430,7 @@ class DiscountSurchargeTest extends TestCase
                     'payload' => new AndRule($rules),
                 ],
             ],
-            Context::createDefaultContext(Defaults::TENANT_ID)
+            Context::createDefaultContext()
         );
 
         return $id;
@@ -449,7 +449,7 @@ class DiscountSurchargeTest extends TestCase
             'filterRule' => $rule ?? new AndRule(),
         ];
 
-        self::$discountSurchargeRepository->upsert([array_filter($data)], Context::createDefaultContext(Defaults::TENANT_ID));
+        self::$discountSurchargeRepository->upsert([array_filter($data)], Context::createDefaultContext());
 
         return $id;
     }
@@ -466,7 +466,7 @@ class DiscountSurchargeTest extends TestCase
                 'price' => ['gross' => $grossPrice, 'net' => $netPrice],
                 'tax' => ['name' => 'test', 'taxRate' => $taxRate],
             ],
-        ], Context::createDefaultContext(Defaults::TENANT_ID));
+        ], Context::createDefaultContext());
 
         return $id;
     }

@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Aggregation;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AvgAggregation;
@@ -36,7 +35,7 @@ class AvgAggregationTest extends TestCase
 
     public function testAvgAggregation(): void
     {
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
         $this->setupFixtures($context);
 
         $criteria = new Criteria();

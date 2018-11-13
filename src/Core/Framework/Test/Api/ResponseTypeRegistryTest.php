@@ -40,7 +40,7 @@ class ResponseTypeRegistryTest extends TestCase
     {
         $sourceContext = new SourceContext(SourceContext::ORIGIN_API);
 
-        return new Context(Defaults::TENANT_ID, $sourceContext, [Defaults::CATALOG], [], Defaults::CURRENCY, Defaults::LANGUAGE_EN);
+        return new Context($sourceContext, [Defaults::CATALOG], [], Defaults::CURRENCY, Defaults::LANGUAGE_EN);
     }
 
     public function testAdminApi(): void
@@ -217,7 +217,7 @@ class ResponseTypeRegistryTest extends TestCase
     {
         $sourceContext = new SourceContext(SourceContext::ORIGIN_STOREFRONT_API);
 
-        return new Context(Defaults::TENANT_ID, $sourceContext, [Defaults::CATALOG], [], Defaults::CURRENCY, Defaults::LANGUAGE_EN);
+        return new Context($sourceContext, [Defaults::CATALOG], [], Defaults::CURRENCY, Defaults::LANGUAGE_EN);
     }
 
     private function getDetailResponse(Context $context, $id, $path, $version = '', $accept, $setLocationHeader): \Symfony\Component\HttpFoundation\Response
@@ -251,12 +251,10 @@ class ResponseTypeRegistryTest extends TestCase
     {
         $category = new CategoryStruct();
         $category->setId($id);
-        $category->setTenantId(Defaults::TENANT_ID);
         $category->setName($id);
 
         $catalog = new CatalogStruct();
         $catalog->setName('Testkatalog');
-        $catalog->setTenantId(Defaults::TENANT_ID);
         $catalog->setId($id);
 
         $category->setCatalog($catalog);

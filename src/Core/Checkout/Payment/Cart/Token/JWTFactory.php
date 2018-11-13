@@ -8,7 +8,6 @@ use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Lcobucci\JWT\Signer\Key;
 use League\OAuth2\Server\CryptKey;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStruct;
-use Shopware\Core\Checkout\Payment\Exception\InvalidTokenAudienceException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -35,8 +34,6 @@ class JWTFactory implements TokenFactoryInterface
     public function generateToken(OrderTransactionStruct $transaction, Context $context, int $expiresInSeconds = 1800): string
     {
         $jwtToken = (new Builder())
-            ->setIssuer($context->getTenantId())
-            ->setAudience($context->getTenantId())
             ->setId(Uuid::uuid4()->getHex(), true)
             ->setIssuedAt(time())
             ->setNotBefore(time())
@@ -51,7 +48,6 @@ class JWTFactory implements TokenFactoryInterface
 
     /**
      * @throws InvalidTokenException
-     * @throws InvalidTokenAudienceException
      */
     public function parseToken(string $token, Context $context): TokenStruct
     {
@@ -63,10 +59,6 @@ class JWTFactory implements TokenFactoryInterface
 
         if ($jwtToken->verify(new Sha256(), $this->privateKey->getKeyPath()) === false) {
             throw new InvalidTokenException($token);
-        }
-
-        if ($jwtToken->getClaim('aud') !== $context->getTenantId()) {
-            throw new InvalidTokenAudienceException($jwtToken->getClaim('aud'), $context->getTenantId(), $token);
         }
 
         $tokenStruct = new TokenStruct(

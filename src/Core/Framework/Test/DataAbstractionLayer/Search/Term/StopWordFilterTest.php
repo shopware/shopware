@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Term;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\StopWordFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
@@ -21,7 +20,7 @@ class StopWordFilterTest extends TestCase
         $tokenizer = new Tokenizer();
         $tokens = $tokenizer->tokenize($sentence);
 
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
 
         $filter = new StopWordFilter();
 

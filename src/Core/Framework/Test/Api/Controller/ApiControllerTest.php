@@ -36,10 +36,9 @@ EOF;
         $namedOptionalGroupStatement = <<<EOF
 CREATE TABLE `named_optional_group` (
     `id` binary(16) NOT NULL,
-    `tenant_id` binary(16) NOT NULL,
     `version_id` binary(16) NOT NULL,    
     `name` varchar(255) NOT NULL,
-    PRIMARY KEY `id` (`id`, `version_id`, `tenant_id`)
+    PRIMARY KEY `id` (`id`, `version_id`)
 );
 EOF;
 
@@ -47,13 +46,11 @@ EOF;
 CREATE TABLE `named` (
     `id` binary(16) NOT NULL,
     `version_id` binary(16) NOT NULL,
-    `tenant_id` binary(16) NOT NULL,    
     `name` varchar(255) NOT NULL,    
     `optional_group_id` varbinary(16) NULL,    
-    `optional_group_tenant_id` binary(16) DEFAULT NULL,
     `optional_group_version_id` varbinary(16) NULL,
-    PRIMARY KEY `id` (`id`, `version_id`, `tenant_id`),  
-    CONSTRAINT `fk` FOREIGN KEY (`optional_group_id`, `optional_group_version_id`, `optional_group_tenant_id`) REFERENCES `named_optional_group` (`id`, `version_id`, `tenant_id`)
+    PRIMARY KEY `id` (`id`, `version_id`),  
+    CONSTRAINT `fk` FOREIGN KEY (`optional_group_id`, `optional_group_version_id`) REFERENCES `named_optional_group` (`id`, `version_id`)
 );
 EOF;
         $this->connection = $this->getContainer()->get(Connection::class);
@@ -459,7 +456,7 @@ EOF;
         $this->getContainer()->get('rule.repository')->create([
             ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
             ['id' => $ruleB, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 2],
-        ], Context::createDefaultContext(Defaults::TENANT_ID));
+        ], Context::createDefaultContext());
 
         $data = [
             'id' => $id,
@@ -486,7 +483,7 @@ EOF;
         ];
 
         $this->getContainer()->get('product.repository')
-            ->create([$data], Context::createDefaultContext(Defaults::TENANT_ID));
+            ->create([$data], Context::createDefaultContext());
 
         $path = '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '/priceRules';
         $this->getClient()->request('GET', $path);
@@ -529,7 +526,7 @@ EOF;
         $this->getContainer()->get('rule.repository')->create([
             ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
             ['id' => $ruleB, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 2],
-        ], Context::createDefaultContext(Defaults::TENANT_ID));
+        ], Context::createDefaultContext());
 
         $data = [
             'id' => $id,
@@ -556,7 +553,7 @@ EOF;
         ];
 
         $this->getContainer()->get('product.repository')
-            ->create([$data], Context::createDefaultContext(Defaults::TENANT_ID));
+            ->create([$data], Context::createDefaultContext());
 
         $path = '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '/priceRules';
         $this->getClient()->request('GET', $path);
@@ -604,7 +601,7 @@ EOF;
         ];
 
         $this->getContainer()->get('product.repository')
-            ->create([$data], Context::createDefaultContext(Defaults::TENANT_ID));
+            ->create([$data], Context::createDefaultContext());
 
         $path = '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '/categories';
         $this->getClient()->request('GET', $path);

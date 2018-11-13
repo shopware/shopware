@@ -73,9 +73,9 @@ class EntityReaderTest extends TestCase
             ],
         ];
 
-        $this->repository->create($products, Context::createDefaultContext(Defaults::TENANT_ID));
+        $this->repository->create($products, Context::createDefaultContext());
 
-        $products = $this->repository->read(new ReadCriteria([$redId, $greenId]), Context::createDefaultContext(Defaults::TENANT_ID));
+        $products = $this->repository->read(new ReadCriteria([$redId, $greenId]), Context::createDefaultContext());
 
         static::assertTrue($products->has($redId));
         static::assertTrue($products->has($greenId));
@@ -109,7 +109,7 @@ class EntityReaderTest extends TestCase
                 'payload' => new AndRule(),
                 'priority' => 1,
             ],
-        ], Context::createDefaultContext(Defaults::TENANT_ID));
+        ], Context::createDefaultContext());
 
         $parentId = Uuid::uuid4()->getHex();
         $greenId = Uuid::uuid4()->getHex();
@@ -149,9 +149,9 @@ class EntityReaderTest extends TestCase
             ],
         ];
 
-        $this->repository->create($data, Context::createDefaultContext(Defaults::TENANT_ID));
+        $this->repository->create($data, Context::createDefaultContext());
 
-        $products = $this->repository->read(new ReadCriteria([$redId, $greenId]), Context::createDefaultContext(Defaults::TENANT_ID));
+        $products = $this->repository->read(new ReadCriteria([$redId, $greenId]), Context::createDefaultContext());
 
         static::assertTrue($products->has($redId));
         static::assertTrue($products->has($greenId));
@@ -200,9 +200,9 @@ class EntityReaderTest extends TestCase
             ],
         ];
 
-        $this->repository->create($products, Context::createDefaultContext(Defaults::TENANT_ID));
+        $this->repository->create($products, Context::createDefaultContext());
 
-        $products = $this->repository->read(new ReadCriteria([$redId, $greenId]), Context::createDefaultContext(Defaults::TENANT_ID));
+        $products = $this->repository->read(new ReadCriteria([$redId, $greenId]), Context::createDefaultContext());
 
         static::assertTrue($products->has($redId));
         static::assertTrue($products->has($greenId));
@@ -242,7 +242,7 @@ class EntityReaderTest extends TestCase
 
     public function testLoadOneToManyNotLoadedAutomatically(): void
     {
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
 
         $id = Uuid::uuid4()->getHex();
         $defaultAddressId = Uuid::uuid4()->getHex();
@@ -291,7 +291,7 @@ class EntityReaderTest extends TestCase
 
     public function testLoadOneToMany(): void
     {
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
 
         $id = Uuid::uuid4()->getHex();
         $defaultAddressId = Uuid::uuid4()->getHex();
@@ -345,7 +345,7 @@ class EntityReaderTest extends TestCase
 
     public function testLoadOneToManySupportsFilter(): void
     {
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
 
         $id1 = Uuid::uuid4()->getHex();
         $id2 = Uuid::uuid4()->getHex();
@@ -437,7 +437,7 @@ class EntityReaderTest extends TestCase
 
     public function testLoadOneToManySupportsSorting(): void
     {
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
 
         $id1 = Uuid::uuid4()->getHex();
         $id2 = Uuid::uuid4()->getHex();
@@ -561,7 +561,7 @@ class EntityReaderTest extends TestCase
 
     public function testLoadOneToManySupportsPagination(): void
     {
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
 
         $id = Uuid::uuid4()->getHex();
         $defaultAddressId = Uuid::uuid4()->getHex();
@@ -650,7 +650,7 @@ class EntityReaderTest extends TestCase
         ];
 
         $repository = $this->getContainer()->get('category.repository');
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
 
         $repository->upsert(
             [
@@ -695,7 +695,7 @@ class EntityReaderTest extends TestCase
         ];
 
         $categoryRepo = $this->getContainer()->get('category.repository');
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
 
         $categoryRepo->upsert(
             [
@@ -756,7 +756,7 @@ class EntityReaderTest extends TestCase
         ];
 
         $repository = $this->getContainer()->get('category.repository');
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
 
         $repository->upsert(
             [
@@ -830,7 +830,7 @@ class EntityReaderTest extends TestCase
         ];
 
         $repository = $this->getContainer()->get('category.repository');
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
 
         $repository->upsert(
             [
@@ -900,7 +900,7 @@ class EntityReaderTest extends TestCase
         ];
 
         $repository = $this->getContainer()->get('category.repository');
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
 
         $repository->upsert(
             [
@@ -974,7 +974,7 @@ class EntityReaderTest extends TestCase
         $id1 = Uuid::uuid4()->getHex();
         $id2 = Uuid::uuid4()->getHex();
 
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
 
         $products = [
             [
@@ -1062,7 +1062,7 @@ class EntityReaderTest extends TestCase
             ],
         ];
 
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
 
         $this->repository->upsert($products, $context);
 
@@ -1100,7 +1100,7 @@ class EntityReaderTest extends TestCase
             ],
         ];
 
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
 
         $this->repository->upsert($products, $context);
 
@@ -1130,7 +1130,7 @@ class EntityReaderTest extends TestCase
 
     public function testReadRelationWithNestedToManyRelations(): void
     {
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
         $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO, MediaProtectionFlags::WRITE_THUMBNAILS);
 
         $data = [

@@ -57,21 +57,21 @@ class CheckoutContextService implements CheckoutContextServiceInterface
         $this->contextPersister = $contextPersister;
     }
 
-    public function get(string $tenantId, string $salesChannelId, string $token): CheckoutContext
+    public function get(string $salesChannelId, string $token): CheckoutContext
     {
-        return $this->load($tenantId, $salesChannelId, $token, true);
+        return $this->load($salesChannelId, $token, true);
     }
 
-    public function refresh(string $tenantId, string $salesChannelId, string $token): void
+    public function refresh(string $salesChannelId, string $token): void
     {
-        $this->load($tenantId, $salesChannelId, $token, false);
+        $this->load($salesChannelId, $token, false);
     }
 
-    private function load(string $tenantId, string $salesChannelId, string $token, bool $useCache): CheckoutContext
+    private function load(string $salesChannelId, string $token, bool $useCache): CheckoutContext
     {
-        $key = $salesChannelId . '-' . $token . '-' . $tenantId;
+        $key = $salesChannelId . '-' . $token;
 
-        $parameters = $this->contextPersister->load($token, $tenantId);
+        $parameters = $this->contextPersister->load($token);
 
         $cacheKey = $key . '-' . implode($parameters);
 
@@ -86,7 +86,7 @@ class CheckoutContextService implements CheckoutContextServiceInterface
         }
 
         if (!$context) {
-            $context = $this->factory->create($tenantId, $token, $salesChannelId, $parameters);
+            $context = $this->factory->create($token, $salesChannelId, $parameters);
 
             $item->set(serialize($context));
 
@@ -108,7 +108,6 @@ class CheckoutContextService implements CheckoutContextServiceInterface
 
         /* @var CheckoutContext $cacheContext */
         return new CheckoutContext(
-            $cacheContext->getTenantId(),
             $token,
             $cacheContext->getSalesChannel(),
             $cacheContext->getLanguage(),

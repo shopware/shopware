@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaRepository;
 use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -30,7 +29,7 @@ class MediaRepositoryTest extends TestCase
     public function setUp()
     {
         $this->mediaRepository = $this->getContainer()->get('media.repository');
-        $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $this->context = Context::createDefaultContext();
     }
 
     public function testDeleteMediaEntityWithoutThumbnails()

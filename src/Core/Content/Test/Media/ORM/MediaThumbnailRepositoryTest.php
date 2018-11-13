@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaThumbnailRepository;
 use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
@@ -40,7 +39,7 @@ class MediaThumbnailRepositoryTest extends TestCase
         $this->mediaRepository = $this->getContainer()->get('media.repository');
         $this->thumbnailRepository = $this->getContainer()->get('media_thumbnail.repository');
 
-        $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $this->context = Context::createDefaultContext();
     }
 
     public function testRemoveThumbnail()

@@ -53,8 +53,7 @@ EOF
             return 1;
         }
 
-        $tenantId = $input->getOption('tenant-id');
-        $this->pluginManager->updatePlugin($plugin, $tenantId);
+        $this->pluginManager->updatePlugin($plugin);
 
         $io->success(sprintf('Plugin "%s" has been updated successfully.', $pluginName));
     }

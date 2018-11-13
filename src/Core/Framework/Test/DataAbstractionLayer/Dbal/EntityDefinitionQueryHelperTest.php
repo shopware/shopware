@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Dbal;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\FieldAccessorBuilderNotFoundException;
@@ -12,7 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\Objec
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\FieldResolverRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ObjectField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\TenantIdField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class EntityDefinitionQueryHelperTest extends TestCase
@@ -29,7 +27,7 @@ class EntityDefinitionQueryHelperTest extends TestCase
             'json_object_test.amount.gross',
             JsonObjectTestDefinition::class,
             JsonObjectTestDefinition::getEntityName(),
-            Context::createDefaultContext(Defaults::TENANT_ID)
+            Context::createDefaultContext()
         );
     }
 
@@ -45,7 +43,7 @@ class EntityDefinitionQueryHelperTest extends TestCase
             'json_object_test.amount.gross',
             JsonObjectTestDefinition::class,
             JsonObjectTestDefinition::getEntityName(),
-            Context::createDefaultContext(Defaults::TENANT_ID)
+            Context::createDefaultContext()
         );
 
         self::assertEquals('JSON_UNQUOTE(JSON_EXTRACT(`json_object_test`.`amount`, "$.gross"))', $accessor);
@@ -63,7 +61,7 @@ class EntityDefinitionQueryHelperTest extends TestCase
             'json_object_test.amount.gross.value',
             JsonObjectTestDefinition::class,
             JsonObjectTestDefinition::getEntityName(),
-            Context::createDefaultContext(Defaults::TENANT_ID)
+            Context::createDefaultContext()
         );
 
         self::assertEquals('JSON_UNQUOTE(JSON_EXTRACT(`json_object_test`.`amount`, "$.gross.value"))', $accessor);
@@ -97,7 +95,6 @@ class JsonObjectTestDefinition extends EntityDefinition
     public static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            new TenantIdField(),
             new ObjectField('amount', 'amount'),
         ]);
     }

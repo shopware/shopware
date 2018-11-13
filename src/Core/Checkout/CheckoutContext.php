@@ -26,11 +26,6 @@ use Shopware\Core\System\Tax\TaxCollection;
 class CheckoutContext extends Struct
 {
     /**
-     * @var string
-     */
-    protected $tenantId;
-
-    /**
      * Unique token for context, e.g. stored in session or provided in request headers
      *
      * @var string
@@ -115,7 +110,6 @@ class CheckoutContext extends Struct
     private $context;
 
     public function __construct(
-        string $tenantId,
         string $token,
         SalesChannelStruct $salesChannel,
         LanguageStruct $language,
@@ -143,7 +137,6 @@ class CheckoutContext extends Struct
         $this->token = $token;
         $this->language = $language;
         $this->fallbackLanguage = $fallbackLanguage;
-        $this->tenantId = $tenantId;
     }
 
     public function getCurrentCustomerGroup(): CustomerGroupStruct
@@ -201,7 +194,6 @@ class CheckoutContext extends Struct
         $sourceContext->setSalesChannelId($this->salesChannel->getId());
 
         return $this->context = new Context(
-            $this->tenantId,
             $sourceContext,
             $this->salesChannel->getCatalogs()->getIds(),
             $this->rulesIds,
@@ -255,10 +247,5 @@ class CheckoutContext extends Struct
     public function setTaxState(string $taxState): void
     {
         $this->taxState = $taxState;
-    }
-
-    public function getTenantId(): string
-    {
-        return $this->tenantId;
     }
 }

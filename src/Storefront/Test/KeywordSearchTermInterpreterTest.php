@@ -40,7 +40,7 @@ class KeywordSearchTermInterpreterTest extends TestCase
      */
     public function testMatching(string $term, array $expected): void
     {
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
 
         $matches = $this->interpreter->interpret($term, 'product', $context);
 
@@ -113,19 +113,16 @@ class KeywordSearchTermInterpreterTest extends TestCase
 
         $languageId = Uuid::fromString(Defaults::LANGUAGE_EN)->getBytes();
         $versionId = Uuid::fromString(Defaults::LIVE_VERSION)->getBytes();
-        $tenantId = Uuid::fromString(Defaults::TENANT_ID)->getBytes();
 
         foreach ($keywords as $keyword) {
             preg_match_all('/./us', $keyword, $ar);
 
             $this->connection->insert('search_dictionary', [
-                'tenant_id' => $tenantId,
                 'scope' => 'product',
                 'keyword' => $keyword,
                 'reversed' => implode('', array_reverse($ar[0])),
                 'version_id' => $versionId,
                 'language_id' => $languageId,
-                'language_tenant_id' => $tenantId,
             ]);
         }
     }

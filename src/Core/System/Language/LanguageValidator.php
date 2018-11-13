@@ -4,7 +4,6 @@ namespace Shopware\Core\System\Language;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
-use Doctrine\DBAL\ParameterType;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
@@ -44,16 +43,14 @@ class LanguageValidator implements WriteCommandValidatorInterface
             return;
         }
 
-        $tenantId = Uuid::fromStringToBytes($context->getContext()->getTenantId());
         $statement = $this->connection->executeQuery('
             SELECT child.id 
             FROM language child
-            INNER JOIN language parent ON parent.id = child.parent_id AND parent.tenant_id = child.tenant_id
-            WHERE child.tenant_id = :tenant_id
-            AND (child.id IN (:ids) OR child.parent_id IN (:ids))
+            INNER JOIN language parent ON parent.id = child.parent_id
+            WHERE (child.id IN (:ids) OR child.parent_id IN (:ids))
             AND parent.parent_id IS NOT NULL',
-            ['tenant_id' => $tenantId, 'ids' => $affectedIds],
-            ['tenant_id' => ParameterType::STRING, 'ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => $affectedIds],
+            ['ids' => Connection::PARAM_STR_ARRAY]
         );
         $ids = $statement->fetchAll(FetchMode::COLUMN);
 

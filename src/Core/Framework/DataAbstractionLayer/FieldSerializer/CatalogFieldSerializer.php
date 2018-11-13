@@ -65,7 +65,6 @@ class CatalogFieldSerializer implements FieldSerializerInterface
 
         /* @var CatalogField $field */
         yield $field->getStorageName() => Uuid::fromStringToBytes($value);
-        yield 'catalog_tenant_id' => Uuid::fromStringToBytes($parameters->getContext()->getContext()->getTenantId());
     }
 
     public function decode(Field $field, $value)

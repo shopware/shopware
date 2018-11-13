@@ -78,7 +78,7 @@ class WriterTest extends TestCase
         $this->expectException('InvalidArgumentException');
         $taxRepository = $this->getTaxRepository();
 
-        $taxRepository->delete([], Context::createDefaultContext(Defaults::TENANT_ID));
+        $taxRepository->delete([], Context::createDefaultContext());
     }
 
     public function testMultiDelete(): void
@@ -482,7 +482,7 @@ class WriterTest extends TestCase
 
         $media = $this->getMediaRepository()->read(
             new ReadCriteria([$id]),
-            Context::createDefaultContext(Defaults::TENANT_ID)
+            Context::createDefaultContext()
         )->get($id);
         self::assertStringEndsWith('/media/be/90/42/2b9a945bb62b4122a32a3bbfbe1e6fd3.jpg', $media->getUrl());
     }
@@ -516,7 +516,7 @@ class WriterTest extends TestCase
 
         $media = $this->getMediaRepository()->read(
             new ReadCriteria([$id]),
-            Context::createDefaultContext(Defaults::TENANT_ID)
+            Context::createDefaultContext()
         )->get($id);
         self::assertStringEndsWith('/media/be/90/42/2b9a945bb62b4122a32a3bbfbe1e6fd3.jpg', $media->getUrl());
     }
@@ -528,11 +528,11 @@ class WriterTest extends TestCase
         $localeId = Uuid::uuid4()->getHex();
         $this->getContainer()->get('locale.repository')->upsert([
             ['id' => $localeId, 'name' => 'test', 'territory' => 'tmp', 'code' => Uuid::uuid4()->getHex()],
-        ], Context::createDefaultContext(Defaults::TENANT_ID));
+        ], Context::createDefaultContext());
 
         $this->getContainer()->get('language.repository')->upsert([
             ['id' => '2d905256-e751-4967-8dd5-a32a81b94f1f', 'name' => 'language 2', 'localeId' => $localeId, 'localeVersionId' => Defaults::LIVE_VERSION],
-        ], Context::createDefaultContext(Defaults::TENANT_ID));
+        ], Context::createDefaultContext());
 
         $this->getWriter()->update(
             ProductDefinition::class,
@@ -644,7 +644,7 @@ class WriterTest extends TestCase
      */
     protected function createWriteContext(): WriteContext
     {
-        $context = WriteContext::createFromContext(Context::createDefaultContext(Defaults::TENANT_ID));
+        $context = WriteContext::createFromContext(Context::createDefaultContext());
 
         return $context;
     }

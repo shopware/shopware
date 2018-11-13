@@ -33,7 +33,7 @@ class AccountServiceTest extends TestCase
         $checkoutContextFactory = $this->getContainer()->get(CheckoutContextFactory::class);
 
         $token = Uuid::uuid4()->getHex();
-        $this->checkoutContext = $checkoutContextFactory->create(Defaults::TENANT_ID, $token, Defaults::SALES_CHANNEL);
+        $this->checkoutContext = $checkoutContextFactory->create($token, Defaults::SALES_CHANNEL);
     }
 
     public function testCreateCustomer(): void

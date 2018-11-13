@@ -54,7 +54,7 @@ class PasswordFieldTest extends TestCase
 
         $payload = $passwordFieldHandler->encode($field, $existence, $kvPair, new WriteParameterBag(
             UserDefinition::class,
-            WriteContext::createFromContext(Context::createDefaultContext(Defaults::TENANT_ID)),
+            WriteContext::createFromContext(Context::createDefaultContext()),
             '',
             new WriteCommandQueue(),
             new FieldExceptionStack()
@@ -77,7 +77,7 @@ class PasswordFieldTest extends TestCase
 
         $payload = $passwordFieldHandler->encode($field, $existence, $kvPair, new WriteParameterBag(
             UserDefinition::class,
-            WriteContext::createFromContext(Context::createDefaultContext(Defaults::TENANT_ID)),
+            WriteContext::createFromContext(Context::createDefaultContext()),
             '',
             new WriteCommandQueue(),
             new FieldExceptionStack()
@@ -102,7 +102,7 @@ class PasswordFieldTest extends TestCase
 
             $parameters = new WriteParameterBag(
                 UserDefinition::class,
-                WriteContext::createFromContext(Context::createDefaultContext(Defaults::TENANT_ID)),
+                WriteContext::createFromContext(Context::createDefaultContext()),
                 '',
                 new WriteCommandQueue(),
                 new FieldExceptionStack()
@@ -131,7 +131,7 @@ class PasswordFieldTest extends TestCase
 
             $x = $handler->encode($field, $existence, $kvPair, new WriteParameterBag(
                 UserDefinition::class,
-                WriteContext::createFromContext(Context::createDefaultContext(Defaults::TENANT_ID)),
+                WriteContext::createFromContext(Context::createDefaultContext()),
                 '',
                 new WriteCommandQueue(),
                 new FieldExceptionStack()

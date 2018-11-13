@@ -24,10 +24,10 @@ class IndexerRegistry implements IndexerInterface, EventSubscriberInterface
         ];
     }
 
-    public function index(\DateTime $timestamp, string $tenantId): void
+    public function index(\DateTime $timestamp): void
     {
         foreach ($this->indexer as $indexer) {
-            $indexer->index($timestamp, $tenantId);
+            $indexer->index($timestamp);
         }
     }
 

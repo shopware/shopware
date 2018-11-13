@@ -4,7 +4,6 @@ namespace Shopware\Core\System\Test\Country\Repository;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -46,7 +45,7 @@ class CountryRepositoryTest extends TestCase
             ['id' => $recordB, 'name' => 'not', 'iso' => 'match'],
         ];
 
-        $this->repository->create($records, Context::createDefaultContext(Defaults::TENANT_ID));
+        $this->repository->create($records, Context::createDefaultContext());
 
         $criteria = new Criteria();
 
@@ -55,7 +54,7 @@ class CountryRepositoryTest extends TestCase
         $queries = $builder->buildScoreQueries($pattern, CountryDefinition::class, CountryDefinition::getEntityName());
         $criteria->addQuery(...$queries);
 
-        $result = $this->repository->searchIds($criteria, Context::createDefaultContext(Defaults::TENANT_ID));
+        $result = $this->repository->searchIds($criteria, Context::createDefaultContext());
 
         static::assertCount(2, $result->getIds());
 

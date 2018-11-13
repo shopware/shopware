@@ -60,7 +60,7 @@ class TranslationTest extends TestCase
         $this->languageRepository = $this->getContainer()->get('language.repository');
         $this->localeLanguageResolver = $this->getContainer()->get(LocaleLanguageResolver::class);
         $this->connection = $this->getContainer()->get(Connection::class);
-        $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $this->context = Context::createDefaultContext();
     }
 
     public function testCurrencyWithTranslationViaLocale(): void

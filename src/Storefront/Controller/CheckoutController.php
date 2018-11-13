@@ -125,8 +125,7 @@ class CheckoutController extends StorefrontController
 
         $this->contextPersister->save(
             $context->getToken(),
-            [CheckoutContextService::PAYMENT_METHOD_ID => $paymentMethodId],
-            $context->getTenantId()
+            [CheckoutContextService::PAYMENT_METHOD_ID => $paymentMethodId]
         );
 
         // todo validate, process and store custom template data

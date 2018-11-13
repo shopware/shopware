@@ -38,7 +38,7 @@ class ProductApiTest extends TestCase
         $this->getContainer()->get('rule.repository')->create([
             ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
             ['id' => $ruleB, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 2],
-        ], Context::createDefaultContext(Defaults::TENANT_ID));
+        ], Context::createDefaultContext());
 
         $id = Uuid::uuid4()->getHex();
 
@@ -62,7 +62,7 @@ class ProductApiTest extends TestCase
         $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', [], [], [], json_encode($data));
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
 
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
         $products = $this->repository->read(new ReadCriteria([$id]), $context);
         static::assertTrue($products->has($id));
 

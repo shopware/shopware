@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Test\Api\Controller;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductStruct;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
@@ -29,6 +28,7 @@ class ProductActionControllerTest extends TestCase
 
     public function testGenerateVariant(): void
     {
+        $context = Context::createDefaultContext();
         $id = Uuid::uuid4()->getHex();
         $redId = Uuid::uuid4()->getHex();
         $blueId = Uuid::uuid4()->getHex();
@@ -68,7 +68,7 @@ class ProductActionControllerTest extends TestCase
 
         $criteria = new ReadCriteria([$id]);
         $criteria->addAssociation('product.configurators');
-        $product = $this->productRepository->read($criteria, Context::createDefaultContext(Defaults::TENANT_ID))->get($id);
+        $product = $this->productRepository->read($criteria, $context)->get($id);
 
         /** @var ProductStruct $product */
         $configurators = $product->getConfigurators();
@@ -100,8 +100,7 @@ class ProductActionControllerTest extends TestCase
         static::assertArrayHasKey('data', $ids);
         static::assertCount(2, $ids['data']);
 
-        $products = $this->productRepository->read(new ReadCriteria($ids['data']), Context::createDefaultContext(
-            Defaults::TENANT_ID));
+        $products = $this->productRepository->read(new ReadCriteria($ids['data']), $context);
 
         foreach ($products as $product) {
             static::assertSame($id, $product->getParentId());

@@ -54,8 +54,7 @@ class CanonicalUrlAssociationFieldResolver implements FieldResolverInterface
                 '#alias#.`sales_channel_id` = :salesChannelId
                  AND #alias#.#reference_column# = #root#.#source_column#  
                  AND #alias#.name = :' . $key . '
-                 AND #alias#.is_canonical = 1
-                 AND #alias#.tenant_id = :tenant'
+                 AND #alias#.is_canonical = 1'
             )
         );
         $query->setParameter($key, $field->getRouteName());

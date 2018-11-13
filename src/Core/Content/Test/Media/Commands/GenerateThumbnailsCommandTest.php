@@ -9,7 +9,6 @@ use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailConfiguration;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -68,7 +67,7 @@ class GenerateThumbnailsCommandTest extends TestCase
     {
         $this->createValidMediaFiles();
 
-        $input = new StringInput(sprintf('--tenant-id %s -c %s', Defaults::TENANT_ID, $this->catalogId));
+        $input = new StringInput(sprintf('-c %s', $this->catalogId));
         $output = new BufferedOutput();
 
         $this->runCommand($this->thumbnailCommand, $input, $output);
@@ -102,7 +101,7 @@ class GenerateThumbnailsCommandTest extends TestCase
     {
         $this->createNotSupportedMediaFiles();
 
-        $input = new StringInput(sprintf('--tenant-id %s -c %s', Defaults::TENANT_ID, $this->catalogId));
+        $input = new StringInput(sprintf('-c %s', $this->catalogId));
         $output = new BufferedOutput();
 
         $this->runCommand($this->thumbnailCommand, $input, $output);

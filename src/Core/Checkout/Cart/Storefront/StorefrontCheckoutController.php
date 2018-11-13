@@ -96,7 +96,7 @@ class StorefrontCheckoutController extends AbstractController
         $orderId = $this->cartService->order($cart, $context);
         $order = $this->getOrderById($orderId, $context);
 
-        $this->contextPersister->save($context->getToken(), ['cartToken' => null], $context->getTenantId());
+        $this->contextPersister->save($context->getToken(), ['cartToken' => null]);
 
         return new JsonResponse(
             $this->serialize($order)
@@ -123,7 +123,7 @@ class StorefrontCheckoutController extends AbstractController
 
         $cart = $this->cartService->getCart($token, $orderContext);
         $orderId = $this->cartService->order($cart, $orderContext);
-        $this->contextPersister->save($context->getToken(), ['cartToken' => null], $context->getTenantId());
+        $this->contextPersister->save($context->getToken(), ['cartToken' => null]);
 
         return new JsonResponse(
             $this->serialize($this->getOrderById($orderId, $context))
@@ -183,7 +183,6 @@ class StorefrontCheckoutController extends AbstractController
     private function createOrderContext(string $customerId, CheckoutContext $context): CheckoutContext
     {
         $orderContext = $this->checkoutContextFactory->create(
-            $context->getTenantId(),
             $context->getToken(),
             $context->getSalesChannel()->getId(),
             [CheckoutContextService::CUSTOMER_ID => $customerId]

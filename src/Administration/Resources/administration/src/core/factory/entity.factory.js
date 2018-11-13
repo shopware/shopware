@@ -127,7 +127,6 @@ function getPropertyBlacklist() {
         'createdAt',
         'updatedAt',
         'childCount',
-        'tenantId',
         'versionId',
         'links',
         'extensions',

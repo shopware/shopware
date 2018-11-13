@@ -1,4 +1,4 @@
-const salesChannelPage = require('../../page-objects/sw-sales-channel.page-object.js');
+const salesChannelPage = require('administration/page-objects/sw-sales-channel.page-object.js');
 
 module.exports = {
     '@tags': ['sales-channel-create', 'sales-channel', 'create'],

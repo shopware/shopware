@@ -1,7 +1,7 @@
-const salesChannelPage = require('../../page-objects/sw-sales-channel.page-object.js');
+const salesChannelPage = require('administration/page-objects/sw-sales-channel.page-object.js');
 
 module.exports = {
-    '@tags': ['sales-channel-edit', 'sales-channel', 'edit'],
+    '@tags': ['sales-channel-api-credentials', 'sales-channel', 'api-credentials'],
     'open sales channel creation': (browser) => {
         browser
             .waitForElementVisible('.sw-admin-menu__headline')
@@ -24,34 +24,34 @@ module.exports = {
     },
     'fill in form and add new sales channel': (browser) => {
         const page = salesChannelPage(browser);
-        page.createBasicSalesChannel('2nd Epic Sales Channel');
+        page.createBasicSalesChannel('3rd Epic Sales Channel');
     },
     'verify creation of new sales channel': (browser) => {
         browser
             .waitForElementVisible('.sw-admin-menu__sales-channel-item .collapsible-text')
-            .assert.containsText('.sw-admin-menu__sales-channel-item .collapsible-text', '2nd Epic Sales Channel');
+            .assert.containsText('.sw-admin-menu__sales-channel-item .collapsible-text', '3rd Epic Sales Channel');
     },
-    'edit name of sales channel': (browser) => {
+    'edit api credentials': (browser) => {
         browser
             .waitForElementVisible('.sw-admin-menu__sales-channel-item:first-child')
             .click('.sw-admin-menu__sales-channel-item:first-child')
-            .waitForElementVisible('.smart-bar__header')
-            .assert.containsText('.smart-bar__header h2', '2nd Epic Sales Channel')
-            .fillField('input[name=sw-field--salesChannel-name]', '2nd Epic Sales Channel at all')
-            .waitForElementVisible('.sw-sales-channel-detail__save-action')
-            .click('.sw-sales-channel-detail__save-action');
+            .waitForElementVisible('.smart-bar__header');
+
+        const page = salesChannelPage(browser);
+        page.checkClipboard();
+        page.changeApiCredentials('3rd Epic Sales Channel');
     },
-    'check if the data of the sales channel is assigned correctly': (browser) => {
+    'check if the api credentials of the sales channel are changed correctly': (browser) => {
         browser
             .refresh();
+
         const page = salesChannelPage(browser);
-        page.openSalesChannel('2nd Epic Sales Channel at all');
-        browser
-            .expect.element('input[name=sw-field--salesChannel-name]').to.have.value.that.equals('2nd Epic Sales Channel at all');
+        page.openSalesChannel('3rd Epic Sales Channel');
+        page.verifyChangedApiCredentials();
     },
     'delete sales channel': (browser) => {
         const page = salesChannelPage(browser);
-        page.deleteSingleSalesChannel('2nd Epic Sales Channel at all');
+        page.deleteSingleSalesChannel('3rd Epic Sales Channel');
     },
     after: (browser) => {
         browser.end();

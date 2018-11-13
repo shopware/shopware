@@ -1,13 +1,6 @@
-require('babel-register');
-
-const path = require('path');
 const process = require('process');
 const seleniumServer = require('selenium-server');
 const chromedriver = require('chromedriver');
-
-function resolve(dir) {
-    return path.resolve(__dirname, dir);
-}
 
 const chromeOptions = [
     '--lang=en_GB,en',
@@ -23,9 +16,7 @@ if (process.env.NIGHTWATCH_HEADLESS === 'true') {
 }
 
 module.exports = {
-    src_folders: [resolve('specs')],
     output_folder: 'build/artifacts/e2e',
-    custom_commands_path: resolve('./custom-commands'),
 
     selenium: {
         start_process: true,
@@ -37,12 +28,9 @@ module.exports = {
         }
     },
 
-    globals_path: resolve('globals.js'),
-
     test_settings: {
         default: {
             filter: '**/*.spec.js',
-            launch_url: `${process.env.APP_URL}/admin`,
             selenium_port: 4444,
             selenium_host: 'localhost',
             globals: {

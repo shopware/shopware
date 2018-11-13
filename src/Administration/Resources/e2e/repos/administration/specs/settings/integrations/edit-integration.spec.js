@@ -1,4 +1,4 @@
-const integrationPage = require('../../../page-objects/sw-integration.page-object.js');
+const integrationPage = require('administration/page-objects/sw-integration.page-object.js');
 
 module.exports = {
     '@tags': ['integration-edit','integration', 'edit'],
@@ -30,7 +30,7 @@ module.exports = {
             .click('.sw-alert .sw-alert__close')
             .waitForElementNotPresent('.sw-notifications .sw-alert')
             .waitForElementPresent('.sw-integration-list__column-integration-name')
-            .assert.containsText('.sw-integration-list__column-integration-name .sw-grid__cell-content', 'Edits integration')
+            .assert.containsText('.sw-integration-list__column-integration-name .sw-grid__cell-content', 'Edits integration');
     },
     'edit integration': (browser) => {
         browser

@@ -67,6 +67,7 @@ export default class EntityStore {
      * Loads a list of entities from the server.
      *
      * @param {Object} params
+     * @param {Boolean} keepAssociations
      */
     getList(params, keepAssociations = false) {
         this.isLoading = true;
@@ -74,6 +75,7 @@ export default class EntityStore {
         return this.apiService.getList(params).then((response) => {
             const total = response.meta.total;
             const items = [];
+            const aggregations = response.aggregations;
 
             this.isLoading = false;
 
@@ -83,7 +85,7 @@ export default class EntityStore {
                 items.push(entity);
             });
 
-            return { items, total };
+            return { items, total, aggregations };
         });
     }
 

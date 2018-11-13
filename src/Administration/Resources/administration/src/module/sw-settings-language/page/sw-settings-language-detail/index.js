@@ -9,8 +9,6 @@ Component.register('sw-settings-language-detail', {
         Mixin.getByName('notification')
     ],
 
-    inject: ['localeService', 'languageService'],
-
     data() {
         return {
             language: {},
@@ -42,7 +40,7 @@ Component.register('sw-settings-language-detail', {
                 this.language = this.languageStore.getById(this.languageId);
             }
 
-            this.languageService.getList({
+            this.languageStore.getList({
                 page: 1,
                 limit: 1,
                 aggregations: { usedLocales: { value_count: { field: 'language.locale.code' } } }

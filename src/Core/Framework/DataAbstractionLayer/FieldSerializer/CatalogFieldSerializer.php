@@ -102,7 +102,7 @@ class CatalogFieldSerializer implements FieldSerializerInterface
         }
 
         if (\count($violationList)) {
-            throw new InvalidFieldException($path . '/catalogId', $violationList);
+            throw new InvalidFieldException($violationList, $path . '/catalogId');
         }
     }
 }

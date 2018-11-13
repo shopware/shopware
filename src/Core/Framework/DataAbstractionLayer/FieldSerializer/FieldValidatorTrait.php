@@ -41,7 +41,7 @@ trait FieldValidatorTrait
         }
 
         if (\count($violationList)) {
-            throw new InvalidFieldException($path . '/' . $fieldName, $violationList);
+            throw new InvalidFieldException($violationList, $path . '/' . $fieldName);
         }
     }
 

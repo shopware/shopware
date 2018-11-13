@@ -39,10 +39,11 @@ module.exports = {
             .fillSelectField('select[name=sw-field--product-catalogId]', 'Default catalogue')
             .fillSwSelectComponent(
                 '.sw-product-detail__select-category',
-                'MainCategory',
-                false,
-                true,
-                'MainCategory'
+                {
+                    value: 'MainCategory',
+                    isMulti: true,
+                    searchTerm: 'MainCategory'
+                }
             )
             .waitForElementNotPresent('.sw-field--product-taxId .sw-field__select-load-placeholder')
             .fillSelectField('select[name=sw-field--product-taxId]', '19%')

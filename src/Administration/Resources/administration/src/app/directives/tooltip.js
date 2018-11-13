@@ -38,6 +38,7 @@ class Tooltip {
         this._showDelay = showDelay;
         this._hideDelay = hideDelay;
         this._isShown = false;
+        this._state = false;
 
         this.init();
     }
@@ -105,36 +106,41 @@ class Tooltip {
     }
 
     registerEvents() {
-        this._parentDOMElement.addEventListener('mouseenter', () => {
-            this.toggleTooltip.bind(this)(true);
-        });
-        this._parentDOMElement.addEventListener('mouseleave', () => {
-            this.toggleTooltip.bind(this)(false);
-        });
+        this._parentDOMElement.addEventListener('mouseenter', this.onMouseToggle.bind(this));
+        this._parentDOMElement.addEventListener('mouseleave', this.onMouseToggle.bind(this));
+        this._DOMElement.addEventListener('mouseenter', this.onMouseToggle.bind(this));
+        this._DOMElement.addEventListener('mouseleave', this.onMouseToggle.bind(this));
     }
 
     /**
-     * Shows or hides the tooltip based on the state parameter.
+     * Sets the state and triggers the toggle.
      *
-     * @param {boolean} state
+     * @param {EventListenerObject} event
      */
-    toggleTooltip(state = true) {
-        // Used to track if the tooltip should still toggle after the delay
-        this._isShown = state;
+    onMouseToggle(event) {
+        this._state = (event.type === 'mouseenter');
 
-        if (state) {
-            setTimeout(() => {
-                if (this._isShown) {
-                    document.body.appendChild(this._DOMElement);
-                    this._setTooltipDOMElementPosition();
-                }
-            }, this._showDelay);
-        } else {
-            setTimeout(() => {
-                if (!this._isShown) {
-                    this._DOMElement.remove();
-                }
-            }, this._hideDelay);
+        if (this._timeout) {
+            clearTimeout(this._timeout);
+        }
+
+        this._timeout = setTimeout(this._toggle.bind(this), (this._state ? this._showDelay : this._hideDelay));
+    }
+
+    /**
+     * Shows or hides the tooltip.
+     */
+    _toggle() {
+        if (this._state && !this._isShown) {
+            document.body.appendChild(this._DOMElement);
+            this._setTooltipDOMElementPosition();
+            this._isShown = true;
+            return;
+        }
+
+        if (!this._state && this._isShown) {
+            this._DOMElement.remove();
+            this._isShown = false;
         }
     }
 
@@ -268,7 +274,7 @@ Directive.register('tooltip', {
     unbind: (el) => {
         if (el.hasAttribute('tooltip-id')) {
             const tooltip = tooltipRegistry.get(el.getAttribute('tooltip-id'));
-            tooltip.toggleTooltip(false);
+            tooltip.onMouseToggle(false);
         }
     },
 

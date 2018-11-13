@@ -2158,6 +2158,13 @@ export interface NightwatchAPI {
     launch_url: string;
 }
 
+interface fillSwSelectComponentOptions {
+    value: string,
+    clearField?: boolean,
+    isMulti?: boolean,
+    searchTerm?: string
+}
+
 export interface NightwatchCustomCommands {
     /**
      * Finds a form field in the Administration using the provided css selector. It tries to find the element on the page,
@@ -2227,7 +2234,7 @@ export interface NightwatchCustomCommands {
      * @param {Boolean} obj.isMulti
      * @param {String} obj.searchTerm
      */
-    fillSwSelectComponent(selector: string, { value, clearField, isMulti, searchTerm }): this,
+    fillSwSelectComponent(selector: string, obj: fillSwSelectComponentOptions): this,
 
 
     /**

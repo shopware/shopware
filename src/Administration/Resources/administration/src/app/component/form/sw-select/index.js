@@ -102,6 +102,15 @@ Component.register('sw-select', {
                 'is--expanded': this.isExpanded,
                 'sw-select--multi': this.multi
             };
+        },
+
+        // use store to fetch data in case of single selects
+        dataProvider() {
+            if (this.multi) {
+                return this.serviceProvider;
+            }
+
+            return this.store;
         }
     },
 
@@ -179,13 +188,7 @@ Component.register('sw-select', {
         },
 
         loadResults() {
-            let provider = this.store;
-
-            if (this.multi) {
-                provider = this.serviceProvider;
-            }
-
-            provider.getList({
+            this.dataProvider.getList({
                 page: 1,
                 limit: this.resultsLimit,
                 term: this.searchTerm,
@@ -201,14 +204,7 @@ Component.register('sw-select', {
         },
 
         loadPreviewResults() {
-            this.isLoading = true;
-            let provider = this.store;
-
-            if (this.multi) {
-                provider = this.serviceProvider;
-            }
-
-            provider.getList({
+            this.dataProvider.getList({
                 page: 1,
                 limit: this.previewResultsLimit,
                 criteria: this.criteria
@@ -309,7 +305,7 @@ Component.register('sw-select', {
         },
 
         closeOnClickOutside(event) {
-            if (event.type === 'keyup' && event.key !== 'Tab') {
+            if (event.type === 'keyup' && event.key.toLowerCase() !== 'tab') {
                 return;
             }
 

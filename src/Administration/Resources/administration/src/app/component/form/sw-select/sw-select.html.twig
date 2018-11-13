@@ -33,11 +33,13 @@
                                     :data-id="selection.id">
 
                                     {% block sw_select_selection_text_holder %}
-                                        <span class="sw-select__selection-text">
-                                            {% block sw_select_selection_text %}
-                                                {{ selection.name }}
-                                            {% endblock %}
-                                        </span>
+                                        <slot name="selected_options" :item="selection">
+                                            <span class="sw-select__selection-text">
+                                                {% block sw_select_selection_text %}
+                                                    {{ selection.name }}
+                                                {% endblock %}
+                                            </span>
+                                        </slot>
                                     {% endblock %}
 
                                     {% block sw_select_selection_dismiss %}

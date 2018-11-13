@@ -51,24 +51,24 @@
                                         :helpText="$tc('sw-settings-language.detail.tooltipLocaleNotChoosable')"
                                         v-model="language.localeId">
                                     <template slot="selected_option" slot-scope="{ item }">
-                                        <span v-if="item.name !== ''">
+                                        <span v-if="item.name.length">
                                             {{ item.name }}, {{ item.territory }} ({{ item.code }})
                                         </span>
                                     </template>
 
-                                    <template slot="result_items" slot-scope="{index, item}">
-                                        <template v-if="isLocaleAlreadyUsed(item)">
-                                            <sw-select-option
-                                                    disabled
-                                                    v-tooltip="{
-                                                        showDelay: 300,
-                                                        message: $tc('sw-settings-language.detail.textLocaleIsInUse')
-                                                    }"
-                                                    :index="index"
-                                                    :item="item">
-                                                {{ item.name }}, {{ item.territory }} ({{ item.code }})
-                                            </sw-select-option>
-                                        </template>
+                                    <template slot="result_items"
+                                              slot-scope="{index, item}">
+                                        <sw-select-option
+                                                v-if="isLocaleAlreadyUsed(item)"
+                                                disabled
+                                                v-tooltip="{
+                                                    showDelay: 300,
+                                                    message: $tc('sw-settings-language.detail.textLocaleIsInUse')
+                                                }"
+                                                :index="index"
+                                                :item="item">
+                                            {{ item.name }}, {{ item.territory }} ({{ item.code }})
+                                        </sw-select-option>
                                         <sw-select-option
                                                 v-else
                                                 :index="index"
@@ -94,18 +94,17 @@
 
                                 <template slot="result_items" slot-scope="{index, item}">
                                     <template v-if="showOption(item)">
-                                        <template v-if="item.parentId !== null">
-                                            <sw-select-option
-                                                    disabled
-                                                    v-tooltip="{
-                                                        showDelay: 300,
-                                                        message: $tc('sw-settings-language.detail.textLanguageHasParent'),
-                                                    }"
-                                                    :index="index"
-                                                    :item="item">
-                                                {{ item.name }}
-                                            </sw-select-option>
-                                        </template>
+                                        <sw-select-option
+                                                v-if="item.parentId !== null"
+                                                disabled
+                                                v-tooltip="{
+                                                    showDelay: 300,
+                                                    message: $tc('sw-settings-language.detail.textLanguageHasParent'),
+                                                }"
+                                                :index="index"
+                                                :item="item">
+                                            {{ item.name }}
+                                        </sw-select-option>
                                         <sw-select-option v-else
                                                           :index="index"
                                                           :item="item">

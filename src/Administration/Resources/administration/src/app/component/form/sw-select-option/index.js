@@ -47,7 +47,7 @@ Component.register('sw-select-option', {
 
         registerEvents() {
             this.$parent.$on('sw-select-active-item-index', this.checkActiveState);
-            this.$parent.$on('sw-select-on-keyup-enter', this.checkIfOptionIsSelected);
+            this.$parent.$on('sw-select-on-keyup-enter', this.selectOptionOnEnter);
         },
 
         emitActiveResultPosition(originalDomEvent, index) {
@@ -55,12 +55,14 @@ Component.register('sw-select-option', {
         },
 
         onClicked(originalDomEvent) {
-            if (!this.disabled) {
-                this.$parent.$emit('sw-select-option-clicked', {
-                    originalDomEvent,
-                    item: this.item
-                });
+            if (this.disabled) {
+                return;
             }
+
+            this.$parent.$emit('sw-select-option-clicked', {
+                originalDomEvent,
+                item: this.item
+            });
         },
 
         checkActiveState(index) {
@@ -71,10 +73,12 @@ Component.register('sw-select-option', {
             this.isActive = false;
         },
 
-        checkIfOptionIsSelected(index) {
-            if (index === this.index) {
-                this.onClicked({});
+        selectOptionOnEnter(index) {
+            if (index !== this.index) {
+                return;
             }
+
+            this.onClicked({});
         },
 
         isInSelections(item) {

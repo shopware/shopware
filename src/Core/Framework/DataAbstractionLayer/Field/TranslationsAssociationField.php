@@ -6,6 +6,8 @@ class TranslationsAssociationField extends Field implements AssociationInterface
 {
     use AssociationTrait;
 
+    public const PRIORITY = 90;
+
     /**
      * @var string
      */
@@ -41,6 +43,6 @@ class TranslationsAssociationField extends Field implements AssociationInterface
 
     public function getExtractPriority(): int
     {
-        return 90;
+        return self::PRIORITY;
     }
 }

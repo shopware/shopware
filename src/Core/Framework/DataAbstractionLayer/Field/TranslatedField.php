@@ -6,6 +6,7 @@ use Shopware\Core\System\Language\LanguageDefinition;
 
 class TranslatedField extends Field
 {
+    public const PRIORITY = 100;
     /**
      * @var string
      */
@@ -26,7 +27,7 @@ class TranslatedField extends Field
 
     public function getExtractPriority(): int
     {
-        return 100;
+        return self::PRIORITY;
     }
 
     public function getForeignClassName(): string

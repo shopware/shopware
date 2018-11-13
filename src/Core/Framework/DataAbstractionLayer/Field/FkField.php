@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
 
 class FkField extends Field implements StorageAware
 {
+    public const PRIORITY = 70;
     /**
      * @var string
      */
@@ -52,7 +53,7 @@ class FkField extends Field implements StorageAware
 
     public function getExtractPriority(): int
     {
-        return 70;
+        return self::PRIORITY;
     }
 
     public function getTenantIdField(): string

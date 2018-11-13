@@ -6,6 +6,8 @@ class ManyToOneAssociationField extends Field implements AssociationInterface
 {
     use AssociationTrait;
 
+    public const PRIORITY = 80;
+
     /**
      * @var string
      */
@@ -48,7 +50,7 @@ class ManyToOneAssociationField extends Field implements AssociationInterface
 
     public function getExtractPriority(): int
     {
-        return 80;
+        return self::PRIORITY;
     }
 
     public function getReferenceClass(): string

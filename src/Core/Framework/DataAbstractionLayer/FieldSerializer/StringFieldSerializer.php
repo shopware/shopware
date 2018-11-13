@@ -52,7 +52,7 @@ class StringFieldSerializer implements FieldSerializerInterface
             $constraints = $this->constraintBuilder
                 ->isNotBlank()
                 ->isString()
-                ->isLengthLessThanOrEqual(255)
+                ->isLengthLessThanOrEqual($field->getMaxLength())
                 ->getConstraints();
 
             $this->validate($this->validator, $constraints, $data->getKey(), $data->getValue(), $parameters->getPath());

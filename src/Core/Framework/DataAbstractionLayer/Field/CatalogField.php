@@ -7,6 +7,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 
 class CatalogField extends FkField
 {
+    public const PRIORITY = 1000;
+
     public function __construct()
     {
         parent::__construct('catalog_id', 'catalogId', CatalogDefinition::class);
@@ -16,6 +18,6 @@ class CatalogField extends FkField
 
     public function getExtractPriority(): int
     {
-        return 1000;
+        return self::PRIORITY;
     }
 }

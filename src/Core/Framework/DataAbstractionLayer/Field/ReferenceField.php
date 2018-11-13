@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
 
 class ReferenceField extends Field implements StorageAware
 {
+    public const PRIORITY = 80;
     /**
      * @var string
      */
@@ -41,7 +42,7 @@ class ReferenceField extends Field implements StorageAware
 
     public function getExtractPriority(): int
     {
-        return 80;
+        return self::PRIORITY;
     }
 
     public function getReferenceClass(): string

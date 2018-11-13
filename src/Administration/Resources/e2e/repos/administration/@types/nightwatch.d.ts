@@ -4,6 +4,8 @@
 //                 Connor Schlesiger <https://github.com/schlesiger>
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 
+import {string} from "postcss-selector-parser";
+
 export interface NightwatchCustomPageObjects {
     page: { [name: string]: () => NightwatchBrowser };
 }
@@ -2209,20 +2211,23 @@ export interface NightwatchCustomCommands {
      * ```
      * .fillSwSelectComponent(
      *     '.sw-settings-language-detail__select-parent',
-     *     'English',
-     *     false,
-     *     false,
-     *     'English'
+     *     {
+     *          value: 'English',
+     *          clearField: false,
+     *          isMulti: false,
+     *          searchTerm: 'English'
+     *      }
      * )
      * ```
      *
      * @param {String} selector
-     * @param {String} value
-     * @param {Boolean} [clearField=false]
-     * @param {Boolean} [isMulti=false]
-     * @param {String} [searchTerm]
+     * @param {Object} obj
+     * @param {String} obj.value
+     * @param {Boolean} obj.clearField
+     * @param {Boolean} obj.isMulti
+     * @param {String} obj.searchTerm
      */
-    fillSwSelectComponent(selector: string, value: string, clearField?: boolean, isMulti?: boolean, searchTerm?: string): this,
+    fillSwSelectComponent(selector: string, { value, clearField, isMulti, searchTerm }): this,
 
 
     /**

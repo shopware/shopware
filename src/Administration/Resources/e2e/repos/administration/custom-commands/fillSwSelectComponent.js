@@ -5,7 +5,9 @@ const swSelectedItemCssSelector = '.sw-select__selection-text';
 const swMultiSelectRemoveItemCssSelector = '.sw-select__selection-dismiss';
 const swSelectResultsCssSelector = '.sw-select__results';
 const swSelectLoaderCssSelector = '.sw-select__indicators .sw-loader';
-const swSelectPlaceholder = '.sw-select__placeholder';
+const swSelectPlaceholderCssSelector = '.sw-select__placeholder';
+const swSelectLabelCssSelector = '.sw-select__single-selection';
+
 
 /**
  * Finds a sw-select component in the Administration. The method uses a css selector to find the element on the page,
@@ -13,13 +15,17 @@ const swSelectPlaceholder = '.sw-select__placeholder';
  * the search the first result gets selected.
  *
  * @param {String} selector
- * @param {String} value
- * @param {Boolean} [clearField=false]
- * @param {Boolean} [isMulti=false]
- * @param {String} [searchTerm]
+ * @param {Object} obj
+ * @param {String} obj.value
+ * @param {Boolean} obj.clearField
+ * @param {Boolean} obj.isMulti
+ * @param {String} obj.searchTerm
  * @returns {exports}
  */
-exports.command = function fillSwSelectComponent(selector, value, clearField = false, isMulti = false, searchTerm = '') {
+exports.command = function fillSwSelectComponent(
+    selector,
+    { value, clearField = false, isMulti = false, searchTerm = '' }
+) {
     const inputCssSelector = (isMulti) ? swMultiSelectInputCssSelector : swSelectInputCssSelector;
     this.waitForElementVisible(selector);
 
@@ -44,8 +50,8 @@ exports.command = function fillSwSelectComponent(selector, value, clearField = f
 
     if (!isMulti) {
         // expect the placeholder for an empty select field not be shown and search for the value
-        this.waitForElementNotPresent(`${selector} ${swSelectPlaceholder}`);
-        this.waitForText(value);
+        this.waitForElementNotPresent(`${selector} ${swSelectPlaceholderCssSelector}`);
+        this.expect.element(swSelectLabelCssSelector).to.have.text.that.contains(value);
 
         return this;
     }

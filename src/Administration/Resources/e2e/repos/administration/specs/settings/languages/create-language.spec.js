@@ -13,17 +13,17 @@ module.exports = {
             .fillField('input[name=sw-field--language-name]', 'Philippine English')
             .fillSwSelectComponent(
                 '.sw-settings-language-detail__select-locale',
-                'English, Philippines (en_PH)',
-                false,
-                false,
-                'en_PH'
+                {
+                    value: 'English, Philippines (en_PH)',
+                    searchTerm: 'en_PH'
+                }
             )
             .fillSwSelectComponent(
                 '.sw-settings-language-detail__select-parent',
-                'English',
-                false,
-                false,
-                'English'
+                {
+                    value: 'English',
+                    searchTerm: 'English'
+                }
             )
             .waitForElementPresent('.sw-settings-language-detail__save-action')
             .click('.sw-settings-language-detail__save-action')

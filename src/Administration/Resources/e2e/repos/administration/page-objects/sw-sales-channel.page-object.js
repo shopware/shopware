@@ -13,12 +13,54 @@ class SalesChannelPageObject {
     createBasicSalesChannel(salesChannelName) {
         this.browser
             .fillField(this.elements.salesChannelNameInput, salesChannelName)
-            .fillMultiSelect('.sw-sales-channel-detail__input-payment-method ', 'Direct Debit')
-            .fillMultiSelect('.sw-sales-channel-detail__input-shipping-method ', 'Standard')
-            .fillMultiSelect('.sw-sales-channel-detail__input-countries ', 'Deutschland')
-            .fillMultiSelect('.sw-sales-channel-detail__input-currencies ', 'Euro')
-            .fillMultiSelect('.sw-sales-channel-detail__input-languages ', 'Deutsch')
-            .fillMultiSelect('.sw-sales-channel-detail__input-catalogues ', 'Default catalogue')
+            .fillSwSelectComponent(
+                '.sw-sales-channel-detail__select-payment-method ',
+                {
+                    value: 'Direct Debit',
+                    isMulti: true,
+                    searchTerm: 'Direct Debit'
+                }
+            )
+            .fillSwSelectComponent(
+                '.sw-sales-channel-detail__select-shipping-method ',
+                {
+                    value: 'Standard',
+                    isMulti: true,
+                    searchTerm: 'Standard'
+                }
+            )
+            .fillSwSelectComponent(
+                '.sw-sales-channel-detail__select-countries ',
+                {
+                    value: 'Deutschland',
+                    isMulti: true,
+                    searchTerm: 'Deutschland'
+                }
+            )
+            .fillSwSelectComponent(
+                '.sw-sales-channel-detail__select-currencies ',
+                {
+                    value: 'Euro',
+                    isMulti: true,
+                    searchTerm: 'Euro'
+                }
+            )
+            .fillSwSelectComponent(
+                '.sw-sales-channel-detail__select-languages ',
+                {
+                    value: 'Deutsch',
+                    isMulti: true,
+                    searchTerm: 'Deutsch'
+                }
+            )
+            .fillSwSelectComponent(
+                '.sw-sales-channel-detail__select-catalogues ',
+                {
+                    value: 'Default catalogue',
+                    isMulti: true,
+                    searchTerm: 'Default catalogue'
+                }
+            )
             .waitForElementVisible('.sw-sales-channel-detail__save-action')
             .click('.sw-sales-channel-detail__save-action')
             .waitForElementVisible('.sw-notifications .sw-alert')

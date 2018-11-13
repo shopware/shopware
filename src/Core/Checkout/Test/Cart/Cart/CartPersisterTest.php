@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\CartBridge\Cart;
+namespace Shopware\Core\Checkout\Test\Cart\Cart;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
@@ -68,7 +68,7 @@ class CartPersisterTest extends TestCase
 
         $e = null;
         try {
-            $persister->load('not_existing_token', 'shopware', Generator::createContext());
+            $persister->load('not_existing_token', Generator::createCheckoutContext());
         } catch (\Exception $e) {
         }
 
@@ -94,7 +94,7 @@ class CartPersisterTest extends TestCase
             ));
 
         $persister = new CartPersister($connection, $this->serializer);
-        $cart = $persister->load('existing', 'shopware', Generator::createContext());
+        $cart = $persister->load('existing', Generator::createCheckoutContext());
 
         static::assertEquals(
             new Cart('shopware', 'existing'),
@@ -111,7 +111,7 @@ class CartPersisterTest extends TestCase
 
         $calc = new Cart('shopware', 'existing');
 
-        $persister->save($calc, Generator::createContext());
+        $persister->save($calc, Generator::createCheckoutContext());
     }
 
     public function testSaveWithItems(): void
@@ -128,6 +128,6 @@ class CartPersisterTest extends TestCase
                 ->setLabel('test')
         );
 
-        $persister->save($calc, Generator::createContext());
+        $persister->save($calc, Generator::createCheckoutContext());
     }
 }

@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\StorefrontFunctionalTestBehaviour;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Router;
 
 class StorefrontCartControllerTest extends TestCase
 {
@@ -53,6 +54,11 @@ class StorefrontCartControllerTest extends TestCase
      */
     private $context;
 
+    /**
+     * @var Router
+     */
+    private $router;
+
     public function setUp()
     {
         $this->connection = $this->getContainer()->get(Connection::class);
@@ -62,6 +68,7 @@ class StorefrontCartControllerTest extends TestCase
         $this->taxId = Uuid::uuid4()->getHex();
         $this->manufacturerId = Uuid::uuid4()->getHex();
         $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $this->router = $this->getContainer()->get('router');
     }
 
     public function testAddNonExistingProduct(): void
@@ -387,19 +394,20 @@ class StorefrontCartControllerTest extends TestCase
         $quantity = 10;
         $type = ProductCollector::LINE_ITEM_TYPE;
         $stackable = true;
-        $removeable = true;
+        $removable = true;
         $priority = 500;
         $label = 'My custom label';
         $description = 'My custom description';
 
         $client->request(
             'POST',
-            '/storefront-api/checkout/cart/line-item/' . $productId,
+            '/storefront-api/checkout/cart/line-item',
             [
+                'id' => $productId,
                 'type' => $type,
                 'quantity' => $quantity,
                 'stackable' => $stackable,
-                'removeable' => $removeable,
+                'removable' => $removable,
                 'priority' => $priority,
                 'label' => $label,
                 'description' => $description,
@@ -426,7 +434,7 @@ class StorefrontCartControllerTest extends TestCase
         static::assertEquals($quantity, $product['quantity']);
 
         static::assertEquals($stackable, $product['stackable']);
-        static::assertEquals($removeable, $product['removeable']);
+        static::assertEquals($removable, $product['removable']);
         static::assertEquals($priority, $product['priority']);
         static::assertEquals($label, $product['label']);
         static::assertEquals($description, $product['description']);
@@ -451,16 +459,7 @@ class StorefrontCartControllerTest extends TestCase
 
         $client = $this->createCart();
 
-        $type = ProductCollector::LINE_ITEM_TYPE;
-
-        $client->request(
-            'POST',
-            '/storefront-api/checkout/cart/line-item/' . $productId,
-            [
-                'type' => $type,
-                'stackable' => true,
-            ]
-        );
+        $this->addProduct($client, $productId);
 
         static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
@@ -485,18 +484,19 @@ class StorefrontCartControllerTest extends TestCase
 
         $quantity = 10;
         $stackable = true;
-        $removeable = true;
+        $removable = true;
         $priority = 500;
         $label = 'My custom label';
         $description = 'My custom description';
 
         $client->request(
             'PATCH',
-            '/storefront-api/checkout/cart/line-item/' . $productId,
+            '/storefront-api/checkout/cart/line-item',
             [
+                'id' => $productId,
                 'quantity' => $quantity,
                 'stackable' => $stackable,
-                'removeable' => $removeable,
+                'removable' => $removable,
                 'priority' => $priority,
                 'label' => $label,
                 'description' => $description,
@@ -514,11 +514,11 @@ class StorefrontCartControllerTest extends TestCase
         $product = array_shift($cart['lineItems']);
 
         static::assertEquals($productId, $product['key']);
-        static::assertEquals($type, $product['type']);
+        static::assertEquals(ProductCollector::LINE_ITEM_TYPE, $product['type']);
         static::assertEquals($quantity, $product['quantity']);
 
         static::assertEquals($stackable, $product['stackable']);
-        static::assertEquals($removeable, $product['removeable']);
+        static::assertEquals($removable, $product['removable']);
         static::assertEquals($priority, $product['priority']);
         static::assertEquals($label, $product['label']);
         static::assertEquals($description, $product['description']);
@@ -567,25 +567,26 @@ class StorefrontCartControllerTest extends TestCase
     {
         $client->request(
             'POST',
-            '/storefront-api/checkout/cart/product/' . $id,
+            '/storefront-api/checkout/cart/product',
             [
+                'id' => $id,
                 'quantity' => $quantity,
             ]
         );
     }
 
-    private function changeQuantity(Client $client, string $lineItemId, $quantity): void
+    private function changeQuantity(Client $client, string $lineItemId, int $quantity): void
     {
-        $client->request('PATCH', sprintf('/storefront-api/checkout/cart/line-item/%s/quantity/%s', $lineItemId, $quantity));
+        $client->request('PATCH', '/storefront-api/checkout/cart/line-item/quantity', ['id' => $lineItemId, 'quantity' => $quantity]);
     }
 
-    private function updateLineItemQuantity(Client $client, string $lineItemId, $quantity): void
+    private function updateLineItemQuantity(Client $client, string $lineItemId, int $quantity): void
     {
-        $client->request('PATCH', sprintf('/storefront-api/checkout/cart/line-item/%s', $lineItemId), ['quantity' => $quantity]);
+        $client->request('PATCH', '/storefront-api/checkout/cart/line-item', ['id' => $lineItemId, 'quantity' => $quantity]);
     }
 
     private function removeLineItem(Client $client, string $lineItemId): void
     {
-        $client->request('DELETE', '/storefront-api/checkout/cart/line-item/' . $lineItemId);
+        $client->request('DELETE', '/storefront-api/checkout/cart/line-item', ['id' => $lineItemId]);
     }
 }

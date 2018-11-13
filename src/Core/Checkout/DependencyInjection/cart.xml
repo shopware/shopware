@@ -161,5 +161,10 @@
 
         <service class="Shopware\Core\Checkout\Cart\Transaction\TransactionProcessor" id="Shopware\Core\Checkout\Cart\Transaction\TransactionProcessor"/>
 
+        <service class="Shopware\Core\Checkout\Cart\OrderConverterController" id="Shopware\Core\Checkout\Cart\OrderConverterController" public="true">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Cart\CartPersister"/>
+            <argument type="service" id="order.repository"/>
+        </service>
     </services>
 </container>

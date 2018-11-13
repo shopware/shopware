@@ -66,11 +66,10 @@ class CheckoutRuleLoader
         try {
             $cart = $this->cartPersister->load(
                 (string) $cartToken,
-                CartService::CART_NAME,
                 $context
             );
         } catch (CartTokenNotFoundException $e) {
-            $cart = new Cart(CartService::CART_NAME, $cartToken);
+            $cart = new Cart($context->getSalesChannel()->getTypeId(), $cartToken);
         }
 
         $rules = $this->loadRules($context->getContext());

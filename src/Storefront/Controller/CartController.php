@@ -2,9 +2,11 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
+use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotRemoveableException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotRemovableException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -49,9 +51,12 @@ class CartController extends StorefrontController
     }
 
     /**
-     * @Route("/cart/addProduct", name="cart_add_product", options={"seo"="false"}, methods={"POST"})
+     * @Route("/cart/product", name="cart.product.add", options={"seo"="false"}, methods={"POST"})
      *
+     * @throws InvalidPayloadException
+     * @throws InvalidQuantityException
      * @throws MixedLineItemTypeException
+     * @throws CartTokenNotFoundException
      */
     public function addProduct(Request $request, CheckoutContext $context): Response
     {
@@ -72,7 +77,7 @@ class CartController extends StorefrontController
         if ($request->isXmlHttpRequest() && $this->acceptsHTML($request)) {
             return $this->renderStorefront(
                 '@Storefront/frontend/checkout/ajax_cart.html.twig',
-                ['cart' => $this->cartService->getCart($context)]
+                ['cart' => $this->cartService->getCart($context->getToken(), $context)]
             );
         }
 
@@ -80,9 +85,12 @@ class CartController extends StorefrontController
     }
 
     /**
-     * @Route("/cart/addLineItem", name="cart_add_line_item", options={"seo"="false"}, methods={"POST"})
+     * @Route("/cart/line-item", name="cart.line_item.add", options={"seo"="false"}, methods={"POST"})
      *
      * @throws MixedLineItemTypeException
+     * @throws InvalidPayloadException
+     * @throws InvalidQuantityException
+     * @throws CartTokenNotFoundException
      */
     public function addLineItem(Request $request, CheckoutContext $context): Response
     {
@@ -90,7 +98,7 @@ class CartController extends StorefrontController
         $quantity = $request->request->getInt('quantity', 1);
         $target = $request->request->get('target');
         $type = $request->request->get('type');
-        $removeable = $request->request->getBoolean('removeable', null);
+        $removable = $request->request->getBoolean('removable', null);
         $stackable = $request->request->getBoolean('stackable', null);
 
         if (!($identifier && $quantity && $type)) {
@@ -103,23 +111,24 @@ class CartController extends StorefrontController
         $lineItem = new LineItem($identifier, $type, $quantity);
         $lineItem->setPayload(['id' => $identifier]);
 
-        if ($removeable !== null) {
-            $lineItem->setRemoveable($removeable);
+        if ($removable !== null) {
+            $lineItem->setRemovable($removable);
         }
         if ($stackable !== null) {
-            $lineItem->setStackable($removeable);
+            $lineItem->setStackable($stackable);
         }
 
-        $this->cartService->add($lineItem, $context);
+        $this->cartService->add($this->cartService->getCart($context->getToken(), $context), $lineItem, $context);
 
         return $this->conditionalResponse($request, $target);
     }
 
     /**
-     * @Route("/cart/removeLineItem", name="cart_delete_line_item", options={"seo"="false"}, methods={"POST"})
+     * @Route("/cart/line-item", name="cart.line_item.delete", options={"seo"="false"}, methods={"POST"})
      *
      * @throws LineItemNotFoundException
-     * @throws LineItemNotRemoveableException
+     * @throws LineItemNotRemovableException
+     * @throws CartTokenNotFoundException
      */
     public function removeLineItem(Request $request, CheckoutContext $context): Response
     {
@@ -133,12 +142,12 @@ class CartController extends StorefrontController
             ]);
         }
 
-        $this->cartService->remove($identifier, $context);
+        $cart = $this->cartService->remove($this->cartService->getCart($context->getToken(), $context), $identifier, $context);
 
         if ($request->isXmlHttpRequest() && $this->acceptsHTML($request)) {
             return $this->renderStorefront(
                 '@Storefront/frontend/checkout/ajax_cart.html.twig',
-                ['cart' => $this->cartService->getCart($context)]
+                ['cart' => $cart]
             );
         }
 
@@ -146,12 +155,13 @@ class CartController extends StorefrontController
     }
 
     /**
-     * @Route("/cart/setLineItemQuantity", name="cart_set_line_item_quantity", options={"seo"="false"}, methods={"POST"})
+     * @Route("/cart/line-item/quantity", name="cart.line_item.quantity.update", options={"seo"="false"}, methods={"POST"})
      *
      * @throws InvalidQuantityException
      * @throws LineItemNotStackableException
+     * @throws CartTokenNotFoundException
      */
-    public function setLineItemQuantity(Request $request, CheckoutContext $context): Response
+    public function updateLineItemQuantity(Request $request, CheckoutContext $context): Response
     {
         $identifier = $request->request->get('identifier');
         $quantity = $request->request->getInt('quantity', 1);
@@ -165,7 +175,12 @@ class CartController extends StorefrontController
         }
 
         try {
-            $this->cartService->changeQuantity($identifier, $quantity, $context);
+            $this->cartService->changeQuantity(
+                $this->cartService->getCart($context->getToken(), $context),
+                $identifier,
+                $quantity,
+                $context
+            );
         } catch (LineItemNotFoundException $e) {
             return new JsonResponse([
                 'success' => false,
@@ -177,13 +192,13 @@ class CartController extends StorefrontController
     }
 
     /**
-     * @Route("/cart/getAmount", name="cart_get_amount", options={"seo"="false"}, methods={"POST"})
+     * @Route("/cart/amount", name="cart.amount.get", options={"seo"="false"}, methods={"GET"})
      *
-     * @throws \Exception
+     * @throws CartTokenNotFoundException
      */
     public function getCartAmount(CheckoutContext $context): Response
     {
-        $cart = $this->cartService->getCart($context);
+        $cart = $this->cartService->getCart($context->getToken(), $context);
 
         $amount = $this->renderStorefront(
             '@Storefront/frontend/checkout/ajax_amount.html.twig',
@@ -197,13 +212,13 @@ class CartController extends StorefrontController
     }
 
     /**
-     * @Route("/cart/getCart", name="cart_get_cart", options={"seo"="false"}, methods={"POST"})
+     * @Route("/cart", name="cart_get_cart", options={"seo"="false"}, methods={"GET"})
      *
-     * @throws \Exception
+     * @throws CartTokenNotFoundException
      */
     public function getCart(CheckoutContext $context): Response
     {
-        $cart = $this->cartService->getCart($context);
+        $cart = $this->cartService->getCart($context->getToken(), $context);
 
         return $this->renderStorefront(
             '@Storefront/frontend/checkout/ajax_cart.html.twig',
@@ -231,6 +246,9 @@ class CartController extends StorefrontController
 
     /**
      * @throws MixedLineItemTypeException
+     * @throws InvalidQuantityException
+     * @throws InvalidPayloadException
+     * @throws CartTokenNotFoundException
      */
     private function addProductToCart(CheckoutContext $context, string $identifier, int $quantity, array $services = []): void
     {
@@ -241,11 +259,13 @@ class CartController extends StorefrontController
         }
 
         $lineItem = new LineItem($key, ProductCollector::LINE_ITEM_TYPE, $quantity);
-        $lineItem->setPayload(['id' => $identifier, 'services' => $services])
+        $lineItem->setPayload(['id' => $identifier, 'services' => implode('-', $services)])
             ->setStackable(true)
-            ->setRemoveable(true);
+            ->setRemovable(true);
 
-        $this->cartService->add($lineItem, $context);
+        $cart = $this->cartService->getCart($context->getToken(), $context);
+
+        $this->cartService->add($cart, $lineItem, $context);
     }
 
     private function acceptsHTML(Request $request): bool

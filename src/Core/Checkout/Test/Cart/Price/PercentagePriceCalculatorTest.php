@@ -55,7 +55,7 @@ class PercentagePriceCalculatorTest extends TestCase
         $price = $calculator->calculate(
             $percentage,
             $prices,
-            Generator::createContext()
+            Generator::createCheckoutContext()
         );
         static::assertEquals($expected, $price);
         static::assertEquals($expected->getCalculatedTaxes(), $price->getCalculatedTaxes());

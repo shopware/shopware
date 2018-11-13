@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\Cart\Storefront\CartService;
@@ -82,11 +83,13 @@ class CheckoutController extends StorefrontController
 
     /**
      * @Route("/checkout/cart", name="checkout_cart", options={"seo"="false"})
+     *
+     * @throws CartTokenNotFoundException
      */
     public function cart(CheckoutContext $context): Response
     {
         return $this->renderStorefront('@Storefront/frontend/checkout/cart.html.twig', [
-            'cart' => $this->cartService->getCart($context),
+            'cart' => $this->cartService->getCart($context->getToken(), $context),
         ]);
     }
 
@@ -134,34 +137,37 @@ class CheckoutController extends StorefrontController
      * @Route("/checkout/confirm", name="checkout_confirm", options={"seo"="false"})
      *
      * @throws CustomerNotLoggedInException
+     * @throws CartTokenNotFoundException
      */
     public function confirm(Request $request, CheckoutContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
-        if ($this->cartService->getCart($context)->getLineItems()->count() === 0) {
+        if ($this->cartService->getCart($context->getToken(), $context)->getLineItems()->count() === 0) {
             return $this->redirectToRoute('checkout_cart');
         }
 
         return $this->renderStorefront('@Storefront/frontend/checkout/confirm.html.twig', [
-            'cart' => $this->cartService->getCart($context),
+            'cart' => $this->cartService->getCart($context->getToken(), $context),
             'redirectTo' => urlencode($request->getRequestUri()),
         ]);
     }
 
     /**
      * @Route("/checkout/order", name="checkout_order", options={"seo"="false"})
+     *
+     * @throws CartTokenNotFoundException
      */
     public function order(CheckoutContext $context): RedirectResponse
     {
-        $cart = $this->cartService->getCart($context);
+        $cart = $this->cartService->getCart($context->getToken(), $context);
         // customer is not inside transaction loop and tries to finish the order
         if ($cart->getLineItems()->count() === 0) {
             return $this->redirectToRoute('checkout_cart');
         }
 
         // save order and start transaction loop
-        $orderId = $this->cartService->order($context);
+        $orderId = $this->cartService->order($cart, $context);
 
         return $this->redirectToRoute('checkout_pay', ['orderId' => $orderId]);
     }

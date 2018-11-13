@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Storefront;
 
-use Shopware\Core\Checkout\Cart\Exception\CustomerAccountExistsException;
+use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\CheckoutContext;
@@ -86,10 +86,14 @@ class StorefrontCheckoutController extends AbstractController
      * @Route("/storefront-api/checkout/order", name="storefront.api.checkout.order", methods={"POST"})
      *
      * @throws OrderNotFoundException
+     * @throws CartTokenNotFoundException
      */
-    public function createOrder(CheckoutContext $context): JsonResponse
+    public function createOrder(Request $request, CheckoutContext $context): JsonResponse
     {
-        $orderId = $this->cartService->order($context);
+        $token = $request->request->getAlnum('token', $context->getToken());
+        $cart = $this->cartService->getCart($token, $context);
+
+        $orderId = $this->cartService->order($cart, $context);
         $order = $this->getOrderById($orderId, $context);
 
         $this->contextPersister->save($context->getToken(), ['cartToken' => null], $context->getTenantId());
@@ -102,18 +106,23 @@ class StorefrontCheckoutController extends AbstractController
     /**
      * @Route("/storefront-api/checkout/guest-order", name="storefront.api.checkout.guest-order", methods={"POST"})
      *
-     * @throws CustomerAccountExistsException
      * @throws OrderNotFoundException
+     * @throws CartTokenNotFoundException
      */
     public function createGuestOrder(Request $request, CheckoutContext $context): JsonResponse
     {
+        $token = $request->request->getAlnum('token', $context->getToken());
+        $request->request->remove('token');
         $registrationRequest = new RegistrationRequest();
         $registrationRequest->assign($request->request->all());
         $registrationRequest->setGuest(true);
 
         $customerId = $this->accountService->createNewCustomer($registrationRequest, $context);
 
-        $orderId = $this->cartService->order($this->createOrderContext($customerId, $context));
+        $orderContext = $this->createOrderContext($customerId, $context);
+
+        $cart = $this->cartService->getCart($token, $orderContext);
+        $orderId = $this->cartService->order($cart, $orderContext);
         $this->contextPersister->save($context->getToken(), ['cartToken' => null], $context->getTenantId());
 
         return new JsonResponse(

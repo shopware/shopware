@@ -5,12 +5,15 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderLineItem;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ObjectField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
@@ -43,6 +46,15 @@ class OrderLineItemDefinition extends EntityDefinition
             (new StringField('identifier', 'identifier'))->setFlags(new Required()),
             (new IntField('quantity', 'quantity'))->setFlags(new Required()),
             (new StringField('label', 'label'))->setFlags(new Required()),
+            (new JsonField('payload', 'payload')),
+            (new BoolField('good', 'good'))->setFlags(new Required()),
+            (new BoolField('removable', 'removable'))->setFlags(new Required()),
+            (new BoolField('stackable', 'stackable'))->setFlags(new Required()),
+            (new IntField('priority', 'priority'))->setFlags(new Required()),
+
+            (new ObjectField('price', 'price')),
+            (new ObjectField('price_definition', 'priceDefinition')),
+
             (new FloatField('unit_price', 'unitPrice'))->setFlags(new Required()),
             (new FloatField('total_price', 'totalPrice'))->setFlags(new Required()),
             new StringField('description', 'description'),

@@ -74,6 +74,7 @@ class OrderDefinition extends EntityDefinition
 
             (new DateField('date', 'date'))->setFlags(new Required()),
             (new FloatField('amount_total', 'amountTotal'))->setFlags(new Required()),
+            new FloatField('amount_net', 'amountNet'),
             (new FloatField('position_price', 'positionPrice'))->setFlags(new Required()),
             (new FloatField('shipping_total', 'shippingTotal'))->setFlags(new Required()),
             (new FloatField('currency_factor', 'currencyFactor'))->setFlags(new Required()),

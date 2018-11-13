@@ -2,10 +2,12 @@
 
 namespace Shopware\Core\Checkout\Cart\Storefront;
 
+use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
+use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemCoverNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotRemoveableException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotRemovableException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -25,8 +27,6 @@ use Symfony\Component\Serializer\Serializer;
 
 class StorefrontCartController extends AbstractController
 {
-    public const CART_NAME = CartService::CART_NAME;
-
     /**
      * @var CartService
      */
@@ -54,20 +54,30 @@ class StorefrontCartController extends AbstractController
 
     /**
      * @Route("/storefront-api/checkout/cart", name="storefront.api.checkout.cart.get", methods={"GET"})
+     *
+     * @throws CartTokenNotFoundException
      */
-    public function getCart(CheckoutContext $context): JsonResponse
+    public function getCart(Request $request, CheckoutContext $context): JsonResponse
     {
-        $cart = $this->cartService->getCart($context);
+        $token = $request->query->getAlnum('token', $context->getToken());
+        $name = $request->query->getAlnum('name', CartService::STOREFRONT);
+
+        $cart = $this->cartService->getCart($token, $context, $name);
 
         return new JsonResponse($this->serialize($cart));
     }
 
     /**
      * @Route("/storefront-api/checkout/cart", name="storefront.api.checkout.cart.create", methods={"POST"})
+     *
+     * @throws CartTokenNotFoundException
      */
-    public function createCart(CheckoutContext $context): JsonResponse
+    public function createCart(Request $request, CheckoutContext $context): JsonResponse
     {
-        $this->cartService->createNew($context);
+        $token = $request->request->getAlnum('token', $context->getToken());
+        $name = $request->request->getAlnum('name', CartService::STOREFRONT);
+
+        $this->cartService->createNew($token, $name);
 
         return new JsonResponse(
             [PlatformRequest::HEADER_CONTEXT_TOKEN => $context->getToken()],
@@ -77,29 +87,33 @@ class StorefrontCartController extends AbstractController
     }
 
     /**
-     * @Route("/storefront-api/checkout/cart/product/{id}", name="storefront.api.checkout.cart.product.add", methods={"POST"})
+     * @Route("/storefront-api/checkout/cart/product", name="storefront.api.checkout.cart.product.add", methods={"POST"})
      *
      * @throws MixedLineItemTypeException
      * @throws InvalidQuantityException
+     * @throws InvalidPayloadException
+     * @throws CartTokenNotFoundException
      */
-    public function addProduct(string $id, Request $request, CheckoutContext $context): JsonResponse
+    public function addProduct(Request $request, CheckoutContext $context): JsonResponse
     {
+        $token = $request->request->getAlnum('token', $context->getToken());
+        $id = $request->request->getAlnum('id');
         $quantity = $request->request->getInt('quantity', 1);
         $payload = $request->request->get('payload', []);
         $payload = array_replace_recursive(['id' => $id], $payload);
 
         $lineItem = (new LineItem($id, ProductCollector::LINE_ITEM_TYPE, $quantity))
             ->setPayload($payload)
-            ->setRemoveable(true)
+            ->setRemovable(true)
             ->setStackable(true);
 
-        $cart = $this->cartService->add($lineItem, $context);
+        $cart = $this->cartService->add($this->cartService->getCart($token, $context), $lineItem, $context);
 
         return new JsonResponse($this->serialize($cart));
     }
 
     /**
-     * @Route("/storefront-api/checkout/cart/line-item/{id}", name="storefront.api.checkout.cart.line-item.add", methods={"POST"})
+     * @Route("/storefront-api/checkout/cart/line-item", name="storefront.api.checkout.cart.line-item.add", methods={"POST"})
      *
      * @throws MissingParameterException
      * @throws MixedLineItemTypeException
@@ -107,10 +121,15 @@ class StorefrontCartController extends AbstractController
      * @throws LineItemCoverNotFoundException
      * @throws LineItemNotFoundException
      * @throws LineItemNotStackableException
+     * @throws InvalidPayloadException
+     * @throws CartTokenNotFoundException
      */
-    public function addLineItem(string $id, Request $request, CheckoutContext $context): JsonResponse
+    public function addLineItem(Request $request, CheckoutContext $context): JsonResponse
     {
-        // todo support price definition (NEXT-528)
+        // todo support price definition (NEXT-573)
+        $token = $request->request->getAlnum('token', $context->getToken());
+        $id = $request->request->getAlnum('id');
+
         $type = $request->request->getAlnum('type');
         $quantity = $request->request->getInt('quantity', 1);
         $request->request->remove('quantity');
@@ -125,70 +144,84 @@ class StorefrontCartController extends AbstractController
         $lineItem = new LineItem($id, $type, $quantity);
         $this->updateLineItemByRequest($lineItem, $request, $context->getContext());
 
-        $cart = $this->cartService->add($lineItem, $context);
+        $cart = $this->cartService->add($this->cartService->getCart($token, $context), $lineItem, $context);
 
         return new JsonResponse($this->serialize($cart));
     }
 
     /**
-     * @Route("/storefront-api/checkout/cart/line-item/{id}", name="storefront.api.checkout.cart.line-item.delete", methods={"DELETE"})
+     * @Route("/storefront-api/checkout/cart/line-item", name="storefront.api.checkout.cart.line-item.delete", methods={"DELETE"})
      *
      * @throws LineItemNotFoundException
-     * @throws LineItemNotRemoveableException
+     * @throws LineItemNotRemovableException
+     * @throws CartTokenNotFoundException
      */
-    public function removeLineItem(string $id, CheckoutContext $context): JsonResponse
+    public function removeLineItem(Request $request, CheckoutContext $context): JsonResponse
     {
-        $cart = $this->cartService->getCart($context);
+        $token = $request->request->getAlnum('token', $context->getToken());
+        $id = $request->request->getAlnum('id');
+
+        $cart = $this->cartService->getCart($token, $context);
 
         if (!$cart->has($id)) {
             throw new LineItemNotFoundException($id);
         }
 
-        $cart = $this->cartService->remove($id, $context);
+        $cart = $this->cartService->remove($cart, $id, $context);
 
         return new JsonResponse($this->serialize($cart));
     }
 
     /**
-     * @Route("/storefront-api/checkout/cart/line-item/{id}/quantity/{quantity}", name="storefront.api.checkout.cart.line-item.quatity.update", methods={"PATCH"})
+     * @Route("/storefront-api/checkout/cart/line-item/quantity", name="storefront.api.checkout.cart.line-item.quatity.update", methods={"PATCH"})
      *
      * @throws LineItemNotFoundException
      * @throws InvalidQuantityException
      * @throws LineItemNotStackableException
+     * @throws CartTokenNotFoundException
      */
-    public function setLineItemQuantity(string $id, int $quantity, CheckoutContext $context): JsonResponse
+    public function setLineItemQuantity(Request $request, CheckoutContext $context): JsonResponse
     {
-        $cart = $this->cartService->getCart($context);
+        $token = $request->request->getAlnum('token', $context->getToken());
+        $id = $request->request->getAlnum('id');
+        $quantity = $request->request->getInt('quantity');
+        $cart = $this->cartService->getCart($token, $context);
 
         if (!$cart->has($id)) {
             throw new LineItemNotFoundException($id);
         }
 
-        $cart = $this->cartService->changeQuantity($id, $quantity, $context);
+        $cart = $this->cartService->changeQuantity($cart, $id, $quantity, $context);
 
         return new JsonResponse($this->serialize($cart));
     }
 
     /**
-     * @Route("/storefront-api/checkout/cart/line-item/{id}", name="storefront.api.checkout.cart.line-item.update", methods={"PATCH"})
+     * @Route("/storefront-api/checkout/cart/line-item", name="storefront.api.checkout.cart.line-item.update", methods={"PATCH"})
      *
      * @throws InvalidQuantityException
      * @throws LineItemNotFoundException
      * @throws LineItemNotStackableException
      * @throws LineItemCoverNotFoundException
+     * @throws CartTokenNotFoundException
+     * @throws InvalidPayloadException
      */
-    public function updateLineItem(string $id, Request $request, CheckoutContext $context): JsonResponse
+    public function updateLineItem(Request $request, CheckoutContext $context): JsonResponse
     {
-        $cart = $this->cartService->getCart($context);
+        $token = $request->request->getAlnum('token', $context->getToken());
+        $id = $request->request->getAlnum('id');
+        $cart = $this->cartService->getCart($token, $context);
 
         if (!$cart->has($id)) {
             throw new LineItemNotFoundException($id);
         }
 
-        $lineItem = $this->cartService->getCart($context)->getLineItems()->get($id);
+        $lineItem = $this->cartService->getCart($token, $context)->getLineItems()->get($id);
 
         $this->updateLineItemByRequest($lineItem, $request, $context->getContext());
 
+        $cart = $this->cartService->recalculate($cart, $context);
+
         return new JsonResponse($this->serialize($cart));
     }
 
@@ -196,6 +229,7 @@ class StorefrontCartController extends AbstractController
      * @throws InvalidQuantityException
      * @throws LineItemCoverNotFoundException
      * @throws LineItemNotStackableException
+     * @throws InvalidPayloadException
      */
     private function updateLineItemByRequest(LineItem $lineItem, Request $request, Context $context): void
     {
@@ -203,7 +237,7 @@ class StorefrontCartController extends AbstractController
         $payload = $request->request->get('payload', []);
         $payload = array_replace_recursive(['id' => $lineItem->getKey()], $payload);
         $stackable = $request->request->get('stackable');
-        $removeable = $request->request->get('removeable');
+        $removable = $request->request->get('removable');
         $priority = $request->request->get('priority');
         $label = $request->request->get('label');
         $description = $request->request->get('description');
@@ -219,8 +253,8 @@ class StorefrontCartController extends AbstractController
             $lineItem->setStackable($stackable);
         }
 
-        if ($removeable !== null) {
-            $lineItem->setRemoveable($removeable);
+        if ($removable !== null) {
+            $lineItem->setRemovable($removable);
         }
 
         if ($priority !== null) {

@@ -7,39 +7,86 @@ use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
+use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
+use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction;
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Context\CheckoutContextFactory;
+use Shopware\Core\Checkout\Context\CheckoutContextService;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
-use Shopware\Core\Checkout\Order\Exception\CustomerHasNoActiveBillingAddressException;
+use Shopware\Core\Checkout\Customer\CustomerStruct;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemStruct;
 use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
+use Shopware\Core\Checkout\Order\OrderStruct;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Util\Random;
 
 class OrderConverter
 {
+    public const CART_TYPE = 'recalculation';
+    private const LINE_ITEM_PLACEHOLDER = 'line_item_placeholder';
+
     /**
      * @var TaxDetector
      */
     private $taxDetector;
 
-    public function __construct(TaxDetector $taxDetector)
-    {
+    /**
+     * @var RepositoryInterface
+     */
+    private $orderRepository;
+
+    /**
+     * @var RepositoryInterface
+     */
+    private $orderLineItemRepository;
+
+    /**
+     * @var RepositoryInterface
+     */
+    private $customerRepository;
+
+    /**
+     * @var CheckoutContextFactory
+     */
+    private $checkoutContextFactory;
+
+    public function __construct(
+        TaxDetector $taxDetector,
+        RepositoryInterface $orderRepository,
+        RepositoryInterface $orderLineItemRepository,
+        RepositoryInterface $customerRepository,
+        CheckoutContextFactory $checkoutContextFactory
+    ) {
         $this->taxDetector = $taxDetector;
+        $this->orderRepository = $orderRepository;
+        $this->orderLineItemRepository = $orderLineItemRepository;
+        $this->customerRepository = $customerRepository;
+        $this->checkoutContextFactory = $checkoutContextFactory;
     }
 
     /**
-     * @throws CustomerHasNoActiveBillingAddressException
      * @throws CustomerNotLoggedInException
      * @throws DeliveryWithoutAddressException
      * @throws EmptyCartException
      */
-    public function convert(Cart $cart, CheckoutContext $context): array
+    public function convertToOrder(Cart $cart, CheckoutContext $context): array
     {
-        $addressId = Uuid::uuid4()->getHex();
         if (!$context->getCustomer()) {
             throw new CustomerNotLoggedInException();
         }
@@ -53,102 +100,144 @@ class OrderConverter
                 throw new DeliveryWithoutAddressException();
             }
         }
-        $deepLinkCode = Random::getBase64UrlString(32);
-
-        $cartPrice = $cart->getPrice();
-        $cartShippingCosts = $cart->getShippingCosts();
-        $cartShippingCostsTotalPrice = $cartShippingCosts->getTotalPrice();
-        $currency = $context->getCurrency();
-
-        $data = [
-            'id' => Uuid::uuid4()->getHex(),
-            'date' => (new DateTime())->format(Defaults::DATE_FORMAT),
-            'amountTotal' => $cartPrice->getTotalPrice(),
-            'amountNet' => $cartPrice->getNetPrice(),
-            'positionPrice' => $cartPrice->getPositionPrice(),
-            'shippingTotal' => $cartShippingCostsTotalPrice,
-            'shippingNet' => $cartShippingCostsTotalPrice - $cartShippingCosts->getCalculatedTaxes()->getAmount(),
-            'isNet' => !$this->taxDetector->useGross($context),
-            'isTaxFree' => $this->taxDetector->isNetDelivery($context),
-            'stateId' => Defaults::ORDER_STATE_OPEN,
-            'paymentMethodId' => $context->getPaymentMethod()->getId(),
-            'currencyId' => $currency->getId(),
-            'currencyFactor' => $currency->getFactor(),
-            'salesChannelId' => $context->getSalesChannel()->getId(),
-            'billingAddressId' => $addressId,
-            'lineItems' => [],
-            'deliveries' => [],
-            'deepLinkCode' => $deepLinkCode,
-        ];
-
-        $address = $context->getCustomer()->getActiveBillingAddress();
+        $addressId = Uuid::uuid4()->getHex();
+        $data = $this->convertCart($cart, $context, $addressId);
 
         $data['orderCustomer'] = $this->convertCustomer($context);
 
+        $address = $context->getCustomer()->getActiveBillingAddress();
         $data['billingAddress'] = $this->convertAddress($address);
         $data['billingAddress']['id'] = $addressId;
 
-        $lineItems = [];
-        foreach ($cart->getLineItems() as $lineItem) {
-            $row = $this->convertLineItem($lineItem);
-            $row['id'] = Uuid::uuid4()->getHex();
-            $lineItems[$lineItem->getKey()] = $row;
-        }
+        $convertedLineItems = $this->convertLineItems($cart->getLineItems());
 
         /** @var Delivery $delivery */
         foreach ($cart->getDeliveries() as $delivery) {
-            $data['deliveries'][] = $this->convertDelivery($delivery, $lineItems);
-        }
-
-        $lineItems = array_values($lineItems);
-
-        foreach ($lineItems as $parent) {
-            $lineItem = $cart->getLineItems()->get($parent['identifier']);
-            if ($lineItem->getChildren()->count() === 0) {
-                continue;
-            }
-
-            $children = $this->convertNestedLineItem($lineItem, $parent['id']);
-            foreach ($children as $child) {
-                $lineItems[] = $child;
-            }
+            $data['deliveries'][] = $this->convertDelivery($delivery, $convertedLineItems);
         }
 
         foreach ($cart->getTransactions() as $transaction) {
             $data['transactions'][] = $this->convertTransaction($transaction);
         }
 
-        $data['lineItems'] = $lineItems;
+        $data['lineItems'] = array_values($convertedLineItems);
 
         return $data;
     }
 
-    private function convertNestedLineItem(LineItem $lineItem, string $parentId = null): array
+    /**
+     * @throws InvalidQuantityException
+     * @throws MixedLineItemTypeException
+     * @throws InvalidPayloadException
+     * @throws LineItemNotStackableException
+     */
+    public function convertToCart(OrderStruct $order, Context $context): Cart
     {
-        $children = $lineItem->getChildren();
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('order_line_item.orderId', $order->getId()));
 
-        if (!$lineItem->hasChildren()) {
-            return [];
-        }
+        $lineItems = $this->orderLineItemRepository->search($criteria, $context);
 
-        $data = [];
-        foreach ($children as $child) {
-            $row = $this->convertLineItem($child);
-            $row['parentId'] = $parentId;
-            $row['id'] = Uuid::uuid4()->getHex();
-            $data[] = $row;
+        $cart = new Cart(self::CART_TYPE, Uuid::uuid4()->getHex());
 
-            if (!$child->hasChildren()) {
-                continue;
+        $cart->setPrice(new CartPrice(
+            $order->getAmountNet(),
+            $order->getAmountTotal(),
+            $order->getPositionPrice(),
+            new CalculatedTaxCollection(),
+            new TaxRuleCollection(),
+            $this->getTaxStatus($order)
+        ));
+
+        /* NEXT-708 support:
+            - cart: calculated tax and tax rule collection
+            - line item: price + price definition currently rely on serialized data
+            - transactions
+            - deliveries
+        */
+
+        $index = [];
+        $root = new LineItemCollection();
+
+        /** @var OrderLineItemStruct $lineItem */
+        foreach ($lineItems as $id => $lineItem) {
+            if (!array_key_exists($id, $index)) {
+                $index[$id] = new LineItem($lineItem->getIdentifier(), self::LINE_ITEM_PLACEHOLDER);
             }
 
-            $nested = $this->convertNestedLineItem($lineItem, $row['id']);
-            foreach ($nested as $subChild) {
-                $data[] = $subChild;
+            /** @var LineItem $currentLineItem */
+            $currentLineItem = $index[$id];
+
+            $currentLineItem
+                ->setKey($lineItem->getIdentifier())
+                ->setType($lineItem->getType())
+                ->setStackable(true)
+                ->setQuantity($lineItem->getQuantity())
+                ->setLabel($lineItem->getLabel())
+                ->setGood($lineItem->isGood())
+                ->setPriority($lineItem->getPriority())
+                ->setRemovable($lineItem->isRemovable())
+                ->setStackable($lineItem->getStackable());
+
+            if ($lineItem->getPayload() !== null) {
+                $currentLineItem->setPayload($lineItem->getPayload());
+            }
+
+            if ($lineItem->getPrice() !== null) {
+                $currentLineItem->setPrice($lineItem->getPrice());
+            }
+
+            if ($lineItem->getPriceDefinition() !== null) {
+                $currentLineItem->setPriceDefinition($lineItem->getPriceDefinition());
+            }
+
+            if ($lineItem->getParentId() !== null) {
+                if (!array_key_exists($lineItem->getParentId(), $index)) {
+                    $index[$lineItem->getParentId()] = new LineItem($lineItem->getParentId(), self::LINE_ITEM_PLACEHOLDER);
+                }
+
+                $index[$lineItem->getParentId()]->addChild($currentLineItem);
+            } else {
+                $root->add($currentLineItem);
             }
         }
+        $cart->addLineItems($root);
 
-        return $data;
+        return $cart;
+    }
+
+    public function assembleCheckoutContext(OrderStruct $order, Context $context): CheckoutContext
+    {
+        $customerId = $order->getOrderCustomer()->getCustomerId();
+        $customerGroupId = null;
+
+        if ($customerId) {
+            /** @var CustomerStruct|null $customer */
+            $customer = $this->customerRepository->read(new ReadCriteria([$customerId]), $context)->get($customerId);
+            $customerGroupId = $customer->getGroupId() ?? null;
+        }
+
+        return $this->checkoutContextFactory->create(
+            $order->getTenantId(),
+            Uuid::uuid4()->getHex(),
+            $order->getSalesChannelId(),
+            [
+                CheckoutContextService::CURRENCY_ID => $order->getCurrencyId(),
+                CheckoutContextService::PAYMENT_METHOD_ID => $order->getPaymentMethodId(),
+                CheckoutContextService::CUSTOMER_ID => $customerId,
+                CheckoutContextService::STATE_ID => $order->getStateId(),
+                CheckoutContextService::CUSTOMER_GROUP_ID => $customerGroupId,
+            ]
+        );
+    }
+
+    private function getTaxStatus(OrderStruct $order): string
+    {
+        if ($order->getIsTaxFree()) {
+            return CartPrice::TAX_STATE_FREE;
+        }
+
+        return $order->getIsNet() ? CartPrice::TAX_STATE_NET : CartPrice::TAX_STATE_GROSS;
     }
 
     private function convertAddress(CustomerAddressStruct $address): array
@@ -172,27 +261,6 @@ class OrderConverter
         ]);
     }
 
-    private function convertLineItem(LineItem $lineItem): array
-    {
-        $lineItemPrice = $lineItem->getPrice();
-
-        return [
-            'identifier' => $lineItem->getKey(),
-            'quantity' => $lineItem->getQuantity(),
-            'unitPrice' => $lineItemPrice->getUnitPrice(),
-            'totalPrice' => $lineItemPrice->getTotalPrice(),
-            'type' => $lineItem->getType(),
-            'label' => $lineItem->getLabel(),
-            'description' => $lineItem->getDescription(),
-        ];
-    }
-
-    /**
-     * @param Delivery $delivery
-     * @param array[]  $lineItems
-     *
-     * @return array
-     */
     private function convertDelivery(Delivery $delivery, array $lineItems): array
     {
         $deliveryData = [
@@ -224,6 +292,68 @@ class OrderConverter
             'paymentMethodId' => $transaction->getPaymentMethodId(),
             'amount' => $transaction->getAmount(),
             'orderTransactionStateId' => Defaults::ORDER_TRANSACTION_OPEN,
+        ];
+    }
+
+    private function convertLineItems(LineItemCollection $lineItems, ?string $parentId = null)
+    {
+        $converted = [];
+        foreach ($lineItems as $lineItem) {
+            $id = Uuid::uuid4()->getHex();
+            $converted[$lineItem->getKey()] = array_filter([
+                'id' => $id,
+                'identifier' => $lineItem->getKey(),
+                'quantity' => $lineItem->getQuantity(),
+                'unitPrice' => $lineItem->getPrice()->getUnitPrice(),
+                'totalPrice' => $lineItem->getPrice()->getTotalPrice(),
+                'type' => $lineItem->getType(),
+                'label' => $lineItem->getLabel(),
+                'description' => $lineItem->getDescription(),
+                'priority' => $lineItem->getPriority(),
+                'good' => $lineItem->isGood(),
+                'removable' => $lineItem->isRemovable(),
+                'stackable' => $lineItem->isStackable(),
+                'price' => $lineItem->getPrice(),
+                'priceDefinition' => $lineItem->getPriceDefinition(),
+                'parentId' => $parentId,
+                'payload' => $lineItem->getPayload(),
+            ]);
+
+            if ($lineItem->hasChildren()) {
+                $converted = array_merge($this->convertLineItems($lineItem->getChildren(), $id), $converted);
+            }
+        }
+
+        return $converted;
+    }
+
+    private function convertCart(Cart $cart, CheckoutContext $context, string $addressId): array
+    {
+        $cartPrice = $cart->getPrice();
+        $cartShippingCosts = $cart->getShippingCosts();
+        $cartShippingCostsTotalPrice = $cartShippingCosts->getTotalPrice();
+        $currency = $context->getCurrency();
+        $deepLinkCode = Random::getBase64UrlString(32);
+
+        return [
+            'id' => Uuid::uuid4()->getHex(),
+            'date' => (new DateTime())->format(Defaults::DATE_FORMAT),
+            'amountTotal' => $cartPrice->getTotalPrice(),
+            'amountNet' => $cartPrice->getNetPrice(),
+            'positionPrice' => $cartPrice->getPositionPrice(),
+            'shippingTotal' => $cartShippingCostsTotalPrice,
+            'shippingNet' => $cartShippingCostsTotalPrice - $cartShippingCosts->getCalculatedTaxes()->getAmount(),
+            'isNet' => !$this->taxDetector->useGross($context),
+            'isTaxFree' => $this->taxDetector->isNetDelivery($context),
+            'stateId' => Defaults::ORDER_STATE_OPEN,
+            'paymentMethodId' => $context->getPaymentMethod()->getId(),
+            'currencyId' => $currency->getId(),
+            'currencyFactor' => $currency->getFactor(),
+            'salesChannelId' => $context->getSalesChannel()->getId(),
+            'billingAddressId' => $addressId,
+            'lineItems' => [],
+            'deliveries' => [],
+            'deepLinkCode' => $deepLinkCode,
         ];
     }
 

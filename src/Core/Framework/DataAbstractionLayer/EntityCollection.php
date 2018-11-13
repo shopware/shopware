@@ -18,6 +18,9 @@ class EntityCollection extends Collection
         $this->elements[$entity->getId()] = $entity;
     }
 
+    /**
+     * @return mixed|null
+     */
     public function get(string $id)
     {
         if ($this->has($id)) {

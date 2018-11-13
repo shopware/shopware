@@ -60,7 +60,7 @@ class StockDeliverySeparatorTest extends TestCase
         $this->separator->build(
             $deliveries,
             new LineItemCollection(),
-            Generator::createContext()
+            Generator::createCheckoutContext()
         );
 
         static::assertEquals(new DeliveryCollection(), $deliveries);
@@ -70,7 +70,7 @@ class StockDeliverySeparatorTest extends TestCase
     {
         $location = self::createShippingLocation();
 
-        $context = Generator::createContext(null, null, null, null, null, $location->getCountry(), $location->getState());
+        $context = Generator::createCheckoutContext(null, null, null, null, null, $location->getCountry(), $location->getState());
 
         $item = (new LineItem('A', 'product'))
             ->setPrice(new Price(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()))
@@ -144,7 +144,7 @@ class StockDeliverySeparatorTest extends TestCase
         $this->separator->build(
             $deliveries,
             new LineItemCollection([$itemA, $itemB]),
-            Generator::createContext(null, null, null, null, null, $location->getCountry(), $location->getState())
+            Generator::createCheckoutContext(null, null, null, null, null, $location->getCountry(), $location->getState())
         );
 
         static::assertCount(1, $deliveries);
@@ -161,7 +161,7 @@ class StockDeliverySeparatorTest extends TestCase
     {
         $location = self::createShippingLocation();
 
-        $context = Generator::createContext(null, null, null, null, null, $location->getCountry(), $location->getState());
+        $context = Generator::createCheckoutContext(null, null, null, null, null, $location->getCountry(), $location->getState());
 
         $itemA = (new LineItem('A', 'product', 5))
             ->setPrice(new Price(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()))
@@ -212,7 +212,7 @@ class StockDeliverySeparatorTest extends TestCase
     public function testNoneDeliverableItemBeIgnored(): void
     {
         $location = self::createShippingLocation();
-        $context = Generator::createContext(null, null, null, null, null, $location->getCountry(), $location->getState());
+        $context = Generator::createCheckoutContext(null, null, null, null, null, $location->getCountry(), $location->getState());
 
         $product = (new LineItem('A', 'product', 5))
             ->setPrice(new Price(1, 5, new CalculatedTaxCollection(), new TaxRuleCollection(), 5))
@@ -255,7 +255,7 @@ class StockDeliverySeparatorTest extends TestCase
     {
         $location = self::createShippingLocation();
 
-        $context = Generator::createContext(null, null, null, null, null, $location->getCountry(), $location->getState());
+        $context = Generator::createCheckoutContext(null, null, null, null, null, $location->getCountry(), $location->getState());
 
         $product = (new LineItem('A', 'product', 12))
             ->setPrice(new Price(1.19, 14.28, new CalculatedTaxCollection([new CalculatedTax(1.9, 19, 11.90)]), new TaxRuleCollection([new TaxRule(19)]), 12))
@@ -312,10 +312,10 @@ class StockDeliverySeparatorTest extends TestCase
         $address->setCountryState(new CountryStateStruct());
 
         $country = new CountryStruct();
-        $country->setId('5cff02b1-0297-41a4-891c-430bcd9e3603');
+        $country->setId('5cff02b1029741a4891c430bcd9e3603');
 
         $address->setCountry($country);
-        $address->getCountryState()->setCountryId('5cff02b1-0297-41a4-891c-430bcd9e3603');
+        $address->getCountryState()->setCountryId('5cff02b1029741a4891c430bcd9e3603');
 
         return ShippingLocation::createFromAddress($address);
     }

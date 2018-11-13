@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderLineItem;
 
+use Shopware\Core\Checkout\Cart\Price\Struct\Price;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionCollection;
 use Shopware\Core\Checkout\Order\OrderStruct;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -42,6 +44,41 @@ class OrderLineItemStruct extends Entity
      * @var string|null
      */
     protected $description;
+
+    /**
+     * @var bool
+     */
+    protected $good;
+
+    /**
+     * @var bool
+     */
+    protected $removable;
+
+    /**
+     * @var bool
+     */
+    protected $stackable;
+
+    /**
+     * @var int
+     */
+    protected $priority;
+
+    /**
+     * @var Price|null
+     */
+    protected $price;
+
+    /**
+     * @var PriceDefinitionInterface|null
+     */
+    protected $priceDefinition;
+
+    /**
+     * @var string[]|null
+     */
+    protected $payload;
 
     /**
      * @var string|null
@@ -141,6 +178,76 @@ class OrderLineItemStruct extends Entity
     public function setDescription(?string $description): void
     {
         $this->description = $description;
+    }
+
+    public function isGood(): bool
+    {
+        return $this->good;
+    }
+
+    public function setGood(bool $good): void
+    {
+        $this->good = $good;
+    }
+
+    public function isRemovable(): bool
+    {
+        return $this->removable;
+    }
+
+    public function setRemovable(bool $removable): void
+    {
+        $this->removable = $removable;
+    }
+
+    public function getStackable(): bool
+    {
+        return $this->stackable;
+    }
+
+    public function setStackable(bool $stackable): void
+    {
+        $this->stackable = $stackable;
+    }
+
+    public function getPriority(): int
+    {
+        return $this->priority;
+    }
+
+    public function setPriority(int $priority): void
+    {
+        $this->priority = $priority;
+    }
+
+    public function getPrice(): ?Price
+    {
+        return $this->price;
+    }
+
+    public function setPrice(?Price $price): void
+    {
+        $this->price = $price;
+    }
+
+    public function getPriceDefinition(): ?PriceDefinitionInterface
+    {
+        return $this->priceDefinition;
+    }
+
+    public function setPriceDefinition(?PriceDefinitionInterface $priceDefinition): void
+    {
+        $this->priceDefinition = $priceDefinition;
+    }
+
+    public function getPayload(): ?array
+    {
+        return $this->payload;
+    }
+
+    public function setPayload(?array $payload): void
+    {
+        $this->payload = $payload;
     }
 
     public function getParentId(): ?string

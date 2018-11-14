@@ -20,8 +20,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationFiel
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\ReadOnly;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -162,8 +164,8 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
             $relationships = [];
             if (array_key_exists('relationships', $schema)) {
-                foreach ($schema['relationships']['properties'] as $propertyName => $relationship) {
-                    $relationshipData = $relationship['properties']['data'];
+                foreach ($schema['relationships']['properties'] as $propertyName => $extension) {
+                    $relationshipData = $extension['properties']['data'];
                     $type = $relationshipData['type'];
 
                     if ($type === 'object') {
@@ -192,10 +194,39 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 $relationships
             );
 
+            if (array_key_exists('extensions', $properties)) {
+                $extensions = [];
+
+                foreach ($properties['extensions']['properties'] as $propertyName => $extension) {
+                    $field = $definition::getFields()->get($propertyName);
+
+                    if (!$field instanceof AssociationInterface) {
+                        $extensions[$propertyName] = $extension;
+                        continue;
+                    }
+
+                    $data = $extension['properties']['data'];
+                    $type = $data['type'];
+
+                    if ($type === 'object') {
+                        $entity = $data['properties']['type']['example'];
+                    } elseif ($type === 'array') {
+                        $entity = $data['items']['properties']['type']['example'];
+                    } else {
+                        throw new \RuntimeException('Invalid schema detected. Aborting');
+                    }
+
+                    $extensions[$propertyName] = ['type' => $type, 'entity' => $entity];
+                }
+
+                $properties['extensions']['properties'] = $extensions;
+            }
+
             $entityName = $definition::getEntityName();
             $schemaDefinitions[$entityName] = [
                 'name' => $entityName,
                 'required' => $schema['attributes']['required'],
+                'translatable' => $definition::getFields()->filterInstance(TranslatedField::class)->getKeys(),
                 'properties' => $properties,
             ];
         }
@@ -305,9 +336,16 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         $schemaName = $definition::getEntityName();
         $detailPath = $this->getResourceUri($definition) . '/' . $uuid;
 
+        $extensions = [];
+
         /** @var Field $field */
         foreach ($definition::getFields() as $field) {
             if ($field->getPropertyName() === 'translations' || $field->getPropertyName() === 'id' || preg_match('#translations$#i', $field->getPropertyName())) {
+                continue;
+            }
+
+            if ($field->is(Extension::class)) {
+                $extensions[] = $field;
                 continue;
             }
 
@@ -336,6 +374,23 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             }
 
             $attributes[$field->getPropertyName()] = $attr;
+        }
+
+        $extensionAttributes = $this->getExtensions($extensions, $detailPath);
+
+        if (!empty($extensionAttributes)) {
+            $attributes['extensions'] = [
+                'type' => 'object',
+                'properties' => $extensionAttributes,
+            ];
+
+            foreach ($extensions as $extension) {
+                if (!$extension instanceof AssociationInterface) {
+                    continue;
+                }
+
+                $relationships[$extension->getPropertyName()] = $extensionAttributes[$extension->getPropertyName()];
+            }
         }
 
         if ($definition::getTranslationDefinitionClass()) {
@@ -1005,5 +1060,68 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         ];
 
         return $defaults;
+    }
+
+    /**
+     * @param Field[] $extensions
+     *
+     * @return array
+     */
+    private function getExtensions(array $extensions, string $path): array
+    {
+        $attributes = [];
+        foreach ($extensions as $field) {
+            $property = $field->getPropertyName();
+
+            if ($field instanceof OneToManyAssociationField) {
+                $schema = $this->createToManyLinkage($field, $path);
+
+                if ($field->is(ReadOnly::class)) {
+                    $schema['readOnly'] = true;
+                }
+
+                $attributes[$property] = $schema;
+
+                continue;
+            }
+
+            if ($field instanceof ManyToManyAssociationField) {
+                $schema = $this->createToManyLinkage($field, $path);
+
+                if ($field->is(ReadOnly::class)) {
+                    $schema['readOnly'] = true;
+                }
+
+                $attributes[$property] = $schema;
+
+                continue;
+            }
+
+            if ($field instanceof ManyToOneAssociationField) {
+                $schema = $this->createToOneLinkage($field, $path);
+
+                if ($field->is(ReadOnly::class)) {
+                    $schema['readOnly'] = true;
+                }
+
+                $attributes[$property] = $schema;
+
+                continue;
+            }
+
+            if ($field instanceof JsonField) {
+                $schema = $this->resolveJsonField($field);
+
+                if ($field->is(ReadOnly::class)) {
+                    $schema['readOnly'] = true;
+                }
+
+                $attributes[$property] = $schema;
+
+                continue;
+            }
+        }
+
+        return $attributes;
     }
 }

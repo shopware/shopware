@@ -22,12 +22,6 @@ Component.register('sw-media-upload-button', {
             default: util.createId()
         },
 
-        catalogId: {
-            required: false,
-            type: String,
-            default: ''
-        },
-
         allowMultiSelect: {
             required: false,
             type: Boolean,
@@ -182,7 +176,6 @@ Component.register('sw-media-upload-button', {
         createNewMedia(name) {
             const mediaEntity = this.mediaItemStore.create();
 
-            mediaEntity.catalogId = this.catalogId;
             mediaEntity.name = name;
 
             return mediaEntity;

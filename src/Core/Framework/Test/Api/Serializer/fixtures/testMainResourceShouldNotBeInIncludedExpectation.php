@@ -60,7 +60,6 @@ return [
                 'createdAt' => '2012-08-15T00:00:00+00:00',
                 'updatedAt' => '2017-11-21T11:25:34+00:00',
                 'description' => null,
-                'catalogId' => null,
                 'url' => '',
                 'hasFile' => false,
                 'fileName' => null,
@@ -91,12 +90,6 @@ return [
                     'data' => [],
                     'links' => [
                         'related' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870/product-media',
-                    ],
-                ],
-                'catalog' => [
-                    'data' => null,
-                    'links' => [
-                        'related' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870/catalog',
                     ],
                 ],
                 'thumbnails' => [

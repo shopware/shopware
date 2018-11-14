@@ -51,7 +51,6 @@ trait MediaFixtures
                 'name' => 'test_media',
                 'mimeType' => 'image/png',
                 'fileExtension' => 'png',
-                'catalogId' => $this->catalogId,
                 'fileName' => $namedMimePngEtxPngCatalogUuid . '-12312351',
             ],
             'NamedMimeTxtEtxTxt' => [
@@ -66,7 +65,6 @@ trait MediaFixtures
                 'name' => 'test_media',
                 'mimeType' => 'image/jpg',
                 'fileExtension' => 'jpg',
-                'catalogId' => $this->catalogId,
                 'fileName' => $NamedMimeJpgEtxJpgCatalogUuid . '-5434541313',
             ],
             'NamedMimePdfEtxPdfCatalog' => [
@@ -74,7 +72,6 @@ trait MediaFixtures
                 'name' => 'test_media',
                 'mimeType' => 'application/pdf',
                 'fileExtension' => 'pdf',
-                'catalogId' => $this->catalogId,
                 'fileName' => $namedMimePdfEtxPdfCatalogUuid . '1323213213'
             ],
             'NamedWithThumbnail' => [
@@ -93,6 +90,8 @@ trait MediaFixtures
                 'name' => 'test catalog',
             ],
         ];
+
+        MediaFixtures::$mediaFixtureRepository = EntityFixturesBase::getFixtureRepository('media');
     }
 
     public function getContextWithCatalogAndWriteAccess(): Context

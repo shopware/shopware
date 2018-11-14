@@ -43,11 +43,6 @@ class CatalogStruct extends Entity
     protected $categoryTranslations;
 
     /**
-     * @var MediaCollection|null
-     */
-    protected $media;
-
-    /**
      * @var MediaTranslationCollection|null
      */
     protected $mediaTranslations;
@@ -135,16 +130,6 @@ class CatalogStruct extends Entity
     public function setCategoryTranslations(CategoryTranslationCollection $categoryTranslations): void
     {
         $this->categoryTranslations = $categoryTranslations;
-    }
-
-    public function getMedia(): ?MediaCollection
-    {
-        return $this->media;
-    }
-
-    public function setMedia(MediaCollection $media): void
-    {
-        $this->media = $media;
     }
 
     public function getMediaTranslations(): ?MediaTranslationCollection

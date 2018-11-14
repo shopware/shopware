@@ -1,5 +1,4 @@
 import { Component, State } from 'src/core/shopware';
-import CriteriaFactory from 'src/core/factory/criteria.factory';
 import utils from 'src/core/service/util.service';
 import template from './sw-sidebar-media-item.html.twig';
 import './sw-sidebar-media-item.less';
@@ -10,17 +9,9 @@ import './sw-sidebar-media-item.less';
 Component.register('sw-sidebar-media-item', {
     template,
 
-    props: {
-        catalogId: {
-            type: String,
-            required: true
-        }
-    },
-
     data() {
         return {
             isLoading: true,
-            catalog: null,
             mediaItems: [],
             page: 1,
             limit: 25,
@@ -68,12 +59,6 @@ Component.register('sw-sidebar-media-item', {
             this.term = '';
             this.mediaItems = [];
 
-            if (this.catalogId) {
-                this.catalog = this.catalogStore.getById(this.catalogId);
-            } else {
-                this.catalog = null;
-            }
-
             this.getList();
         },
 
@@ -110,7 +95,6 @@ Component.register('sw-sidebar-media-item', {
 
         extendList() {
             const params = this.getListingParams();
-            params.criteria = CriteriaFactory.equals('catalogId', this.catalog.id);
 
             return this.mediaStore.getList(params).then((response) => {
                 this.mediaItems = this.mediaItems.concat(response.items);
@@ -121,17 +105,7 @@ Component.register('sw-sidebar-media-item', {
         getList() {
             this.isLoading = true;
 
-            if (!this.catalog) {
-                return new Promise(() => {
-                    this.mediaItems = [];
-                    this.total = 0;
-                    this.isLoading = false;
-                    return this.mediaItems;
-                });
-            }
-
             const params = this.getListingParams();
-            params.criteria = CriteriaFactory.equals('catalogId', this.catalog.id);
 
             return this.mediaStore.getList(params).then((response) => {
                 this.mediaItems = response.items;

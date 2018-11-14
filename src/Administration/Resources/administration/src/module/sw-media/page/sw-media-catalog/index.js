@@ -1,5 +1,4 @@
 import { Component, State, Mixin } from 'src/core/shopware';
-import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-media-catalog.html.twig';
 import './sw-media-catalog.less';
 
@@ -28,20 +27,6 @@ Component.register('sw-media-catalog', {
             return State.getStore('media');
         },
 
-        catalogStore() {
-            return State.getStore('catalog');
-        },
-
-        currentCatalog() {
-            return this.catalogStore.getById(this.$route.params.id);
-        },
-
-        changeableCatalogs() {
-            return this.catalogs.filter((catalog) => {
-                return catalog.id !== this.getCatalogId();
-            });
-        },
-
         mediaSidebar() {
             return this.$refs.mediaSidebar;
         },
@@ -51,19 +36,7 @@ Component.register('sw-media-catalog', {
         }
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     methods: {
-        createdComponent() {
-            this.catalogStore.getList({
-                page: 1
-            }).then((response) => {
-                this.catalogs = response.items;
-                this.isLoading = false;
-            });
-        },
 
         destroyedComponent() {
             this.$root.$off('search', this.onSearch);
@@ -86,7 +59,6 @@ Component.register('sw-media-catalog', {
             this.clearSelection();
             const params = this.getListingParams();
 
-            params.criteria = CriteriaFactory.equals('catalogId', this.currentCatalog.id);
             params.sortBy = this.sortType[0];
             params.sortDirection = this.sortType[1];
 
@@ -101,22 +73,6 @@ Component.register('sw-media-catalog', {
 
         sortMediaItems(event) {
             this.sortType = event.split(':');
-            this.getList();
-        },
-
-        changeCatalog(catalog) {
-            this.$router.push({
-                name: 'sw.media.catalog-content',
-                params: {
-                    id: catalog.id
-                },
-                query: {
-                    limit: this.$route.query.limit,
-                    page: 1
-                }
-            });
-
-            this.updateRoute();
             this.getList();
         },
 

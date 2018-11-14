@@ -1,5 +1,6 @@
 module.exports = {
     '@tags': ['media-upload'],
+    '@disabled': true,
     'open media listing': (browser) => {
         browser
             .openMainMenuEntry('#/sw/media/index','Media')

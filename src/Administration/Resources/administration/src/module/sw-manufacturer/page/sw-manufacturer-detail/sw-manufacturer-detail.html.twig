@@ -52,7 +52,6 @@
                                 {% block sw_manufacturer_detail_logo_upload %}
                                     <sw-media-upload-button v-if="!manufacturer.mediaId && !manufacturer.isLoading"
                                         class="sw-manufacturer-detail__logo-upload"
-                                        :catalogId="manufacturer.catalogId"
                                         :allowMultiSelect="false"
                                         variant="regular"
                                         :caption="$tc('sw-manufacturer.detail.addLogoCaption')"

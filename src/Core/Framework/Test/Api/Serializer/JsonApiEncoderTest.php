@@ -74,7 +74,6 @@ class JsonApiEncoderTest extends TestCase
                     'metaData' => null,
                     'createdAt' => '2018-01-15T08:01:16+00:00',
                     'updatedAt' => null,
-                    'catalogId' => null,
                     'userId' => null,
                     'url' => '',
                     'hasFile' => false,
@@ -84,12 +83,6 @@ class JsonApiEncoderTest extends TestCase
                     'self' => '/api/media/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe',
                 ],
                 'relationships' => [
-                    'catalog' => [
-                        'data' => null,
-                        'links' => [
-                            'related' => '/api/media/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/catalog',
-                        ],
-                    ],
                     'user' => [
                         'data' => null,
                         'links' => [

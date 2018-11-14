@@ -24,7 +24,7 @@ Module.register('sw-media', {
             components: {
                 default: 'sw-media-catalog'
             },
-            path: 'catalog/:id'
+            path: 'catalog'
         }
     },
 
@@ -33,7 +33,7 @@ Module.register('sw-media', {
         label: 'sw-media.general.mainMenuItemGeneral',
         color: '#FFD700',
         icon: 'default-object-image',
-        path: 'sw.media.index',
+        path: 'sw.media.catalog-content',
         position: 40
     }]
 });

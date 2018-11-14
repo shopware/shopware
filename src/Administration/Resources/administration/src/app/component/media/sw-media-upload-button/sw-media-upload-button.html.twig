@@ -1,6 +1,6 @@
 {% block sw_media_upload_button %}
     <div class="sw-media-upload-button">
-        <sw-context-button v-if="variant == 'compact'" :disabled="!catalogId">
+        <sw-context-button v-if="variant == 'compact'">
             <template slot="button">
                 {% block sw_media_upload_button %}
                     <sw-button variant="primary" class="sw-media-upload-button__context-button">
@@ -36,7 +36,6 @@
                     {% block sw_media_upload_url_upload_button %}
                         <sw-button class="sw-media-upload-button__button-url"
                                    size="small"
-                                   :disabled="!catalogId"
                                    @click="openUrlModal">
                             {{ $tc('global.sw-media-upload-button.buttonUrlUpload') }}
                         </sw-button>
@@ -46,7 +45,6 @@
                         <sw-button class="sw-media-upload-button__button-file"
                                    variant="primary"
                                    size="small"
-                                   :disabled="!catalogId"
                                    @click="onClickUpload">
                             {{ $tc('global.sw-media-upload-button.buttonFileUpload') }}
                         </sw-button>

@@ -1,11 +1,8 @@
-<?php /** @noinspection SqlNoDataSourceInspection */
-
-/** @noinspection SqlResolve */
+<?php
 
 namespace Shopware\Core\Migration\Test;
 
 use Doctrine\DBAL\Connection;
-use phpDocumentor\Reflection\Types\Self_;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Migration\Migration1539609364AddFileNameToMediaEntity;
@@ -61,9 +58,9 @@ class Migration1539609364AddFileNameToMediaEntityTest extends TestCase
 
         try {
             $this->connection->executeUpdate('
-            INSERT INTO media (id, tenant_id, version_id, catalog_id, catalog_tenant_id ,created_at)
-            VALUES (UNHEX(:mediaId), 1, 1, UNHEX(:catalogId), 1,\'2018-10-22 00:00:01.000000\')',
-                ['mediaId' => $mediaId, 'catalogId' => self::CATALOG_ID]
+            INSERT INTO media (id, tenant_id, version_id,created_at)
+            VALUES (UNHEX(:mediaId), 1, 1,\'2018-10-22 00:00:01.000000\')',
+                ['mediaId' => $mediaId]
             );
         } finally {
             $this->connection->exec('DROP TRIGGER ' . self::TRIGGER_NAME);

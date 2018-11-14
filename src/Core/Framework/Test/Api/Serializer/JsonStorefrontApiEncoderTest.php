@@ -77,7 +77,6 @@ class JsonStorefrontApiEncoderTest extends TestCase
                     'metaData' => null,
                     'createdAt' => '2018-01-15T08:01:16+00:00',
                     'updatedAt' => null,
-                    'catalogId' => null,
                     'userId' => null,
                     'url' => '',
                     'hasFile' => false,

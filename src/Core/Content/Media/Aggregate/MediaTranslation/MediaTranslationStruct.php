@@ -20,11 +20,6 @@ class MediaTranslationStruct extends Entity
     protected $languageId;
 
     /**
-     * @var int
-     */
-    protected $catalogId;
-
-    /**
      * @var string
      */
     protected $name;
@@ -43,11 +38,6 @@ class MediaTranslationStruct extends Entity
      * @var LanguageStruct|null
      */
     protected $language;
-
-    /**
-     * @var CatalogStruct|null
-     */
-    protected $catalog;
 
     /**
      * @var \DateTime
@@ -137,25 +127,5 @@ class MediaTranslationStruct extends Entity
     public function setLanguage(LanguageStruct $language): void
     {
         $this->language = $language;
-    }
-
-    public function getCatalogId(): int
-    {
-        return $this->catalogId;
-    }
-
-    public function setCatalogId(int $catalogId): void
-    {
-        $this->catalogId = $catalogId;
-    }
-
-    public function getCatalog(): ?CatalogStruct
-    {
-        return $this->catalog;
-    }
-
-    public function setCatalog(CatalogStruct $catalog): void
-    {
-        $this->catalog = $catalog;
     }
 }

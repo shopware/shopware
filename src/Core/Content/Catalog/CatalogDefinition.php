@@ -43,8 +43,6 @@ class CatalogDefinition extends EntityDefinition
             new UpdatedAtField(),
             (new OneToManyAssociationField('categories', CategoryDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField(CategoryTranslationDefinition::class, 'categoryTranslations'))->setFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('media', MediaDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField(MediaTranslationDefinition::class, 'mediaTranslations'))->setFlags(new CascadeDelete()),
             (new OneToManyAssociationField('products', ProductDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new OneToManyAssociationField('productManufacturers', ProductManufacturerDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField(ProductManufacturerTranslationDefinition::class, 'productManufacturerTranslations'))->setFlags(new CascadeDelete()),

@@ -3,7 +3,6 @@
         class="sw-sidebar-media-item"
         icon="default-object-image"
         :title="$tc('global.sw-sidebar-media-item.title')"
-        :disabled="!catalog"
         ref="sidebarItem">
 
         {% block sw_sidebar_media_item_content %}
@@ -18,13 +17,6 @@
                         </sw-field>
                         <sw-icon class="sw-sidebar-media-item__search-icon" name="small-search" small></sw-icon>
                     </div>
-                {% endblock %}
-
-                {% block sw_sidebar_media_item_catalog_headline %}
-                    <aside v-if="catalog" class="sw-sidebar-media-item__catalog-headline">
-                        <sw-icon class="sw-sidebar-media-item__folder-thumbnail" name="folder-thumbnail" multicolor size="32px"></sw-icon>
-                        <h4>{{ catalog.name }}</h4>
-                    </aside>
                 {% endblock %}
 
                 {% block sw_sidebar_media_item_media_item_list %}

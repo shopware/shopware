@@ -15,10 +15,6 @@ use Shopware\Core\System\User\UserStruct;
 
 class MediaStruct extends Entity
 {
-    /**
-     * @var int
-     */
-    protected $catalogId;
 
     /**
      * @var string|null
@@ -99,11 +95,6 @@ class MediaStruct extends Entity
      * @var ProductMediaCollection|null
      */
     protected $productMedia;
-
-    /**
-     * @var CatalogStruct|null
-     */
-    protected $catalog;
 
     /**
      * @var MediaThumbnailCollection|null
@@ -262,26 +253,6 @@ class MediaStruct extends Entity
     public function setProductMedia(ProductMediaCollection $productMedia): void
     {
         $this->productMedia = $productMedia;
-    }
-
-    public function getCatalogId(): int
-    {
-        return $this->catalogId;
-    }
-
-    public function setCatalogId(int $catalogId): void
-    {
-        $this->catalogId = $catalogId;
-    }
-
-    public function getCatalog(): ?CatalogStruct
-    {
-        return $this->catalog;
-    }
-
-    public function setCatalog(CatalogStruct $catalog): void
-    {
-        $this->catalog = $catalog;
     }
 
     public function getThumbnails(): MediaThumbnailCollection

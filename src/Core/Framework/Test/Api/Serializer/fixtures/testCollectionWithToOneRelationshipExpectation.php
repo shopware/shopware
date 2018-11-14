@@ -15,7 +15,6 @@ return [
                 'updatedAt' => '2017-11-21T11:25:34+00:00',
                 'name' => 'Lagerkorn-5,0klein',
                 'description' => null,
-                'catalogId' => null,
                 'url' => '',
                 'hasFile' => false,
                 'fileName' => null,
@@ -51,12 +50,6 @@ return [
                         'related' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870/product-media',
                     ],
                 ],
-                'catalog' => [
-                    'data' => null,
-                    'links' => [
-                        'related' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870/catalog',
-                    ],
-                ],
                 'thumbnails' => [
                     'data' => [],
                     'links' => [
@@ -78,7 +71,6 @@ return [
                 'updatedAt' => '2017-11-21T11:25:34+00:00',
                 'name' => 'Jasmine-Lotus-Cover',
                 'description' => null,
-                'catalogId' => null,
                 'url' => '',
                 'hasFile' => false,
                 'fileName' => null,
@@ -109,12 +101,6 @@ return [
                     'data' => [],
                     'links' => [
                         'related' => '/api/media/f1ad1d0c-0245-4a40-abf2-50f764d16248/product-media',
-                    ],
-                ],
-                'catalog' => [
-                    'data' => null,
-                    'links' => [
-                        'related' => '/api/media/f1ad1d0c-0245-4a40-abf2-50f764d16248/catalog',
                     ],
                 ],
                 'thumbnails' => [

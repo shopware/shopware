@@ -36,7 +36,7 @@ module.exports = {
             .fillField('input[name=sw-field--address-zipcode]', '48624')
             .fillField('input[name=sw-field--address-city]', 'Schöppingen')
             .waitForElementNotPresent('.sw-field--address-countryId .sw-field__select-load-placeholder')
-            .fillSelectField('select[name="sw-field--address-countryId"]', 'Deutschland');
+            .fillSelectField('select[name="sw-field--address-countryId"]', 'Germany');
     },
     'save new customer and verify data': (browser) => {
         browser

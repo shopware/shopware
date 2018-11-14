@@ -1,58 +1,20 @@
 module.exports = {
     '@tags': ['media-upload'],
-    'open catalog overview': (browser) => {
+    'login to administration': (browser) => {
         browser
-        // open catalog overview
             .openMainMenuEntry('#/sw/media/index','Media');
-    },
-    'create second catalog': (browser) => {
-        browser
-        //  open create catalog and fill in
-            .click('a[href="#/sw/catalog/index"]')
-            .waitForElementVisible('a[href="#/sw/catalog/create"]')
-            .click('a[href="#/sw/catalog/create"]')
-            .waitForElementVisible('.sw-catalog-detail')
-            .assert.urlContains('#/sw/catalog/create')
-            .assert.containsText('.sw-card__title', 'Properties')
-            .fillField('input[name=catalogName]', 'Test Catalog')
-            .click('button.sw-button--primary')
-            .waitForElementVisible('.sw-card-view');
     },
     'open media index and change catalog': (browser) => {
         browser
-        //  open media catalog
             .assert.containsText('.sw-admin-menu__navigation-list-item.sw-media span.collapsible-text', 'Media')
             .click('a.sw-admin-menu__navigation-link[href="#/sw/media/index"]')
             .waitForElementVisible('div.sw-media-grid.sw-media-index__catalog-grid')
-            .moveToElement('.sw-media-index__catalog-grid .sw-media-grid__content-cell', 5, 5)
+            .moveToElement('.sw-media-index__catalog-grid .sw-media-grid__content-cell', 15, 15)
             .click('.sw-media-index__catalog-grid .sw-media-grid__content-cell')
             .waitForElementVisible('div.sw-page.sw-media-catalog')
     },
-    'change catalog': (browser) => {
+    'upload and create first media item': (browser) => {
         browser
-        // change catalog
-            .waitForElementVisible('.sw-media-catalog__change')
-            .assert.containsText('.sw-media-catalog__button', 'Default catalogue')
-            .click('.sw-media-catalog__change')
-            .waitForElementVisible('.sw-context-menu')
-            .waitForElementVisible('.sw-context-menu-item')
-            .assert.containsText('.sw-context-menu-item', 'Test Catalog')
-            .click('.sw-context-menu-item')
-            .assert.containsText('.sw-media-catalog__button', 'Test Catalog')
-        },
-    'back to default catalog': (browser) => {
-        browser
-        // change back to default catalog
-            .click('.sw-media-catalog__change')
-            .waitForElementVisible('.sw-context-menu')
-            .waitForElementVisible('.sw-context-menu-item')
-            .click('.sw-context-menu-item')
-            .waitForElementVisible('.sw-media-catalog')
-            .waitForElementVisible('.sw-media-upload-button');
-    },
-    'create items and check position': (browser) => {
-        browser
-        //  create first item
             .click('.sw-media-upload-button__context-button')
             .waitForElementVisible('.sw-context-menu')
             .waitForElementVisible('.sw-media-upload-button__button-url')
@@ -63,58 +25,33 @@ module.exports = {
             .waitForElementVisible('.sw-alert--success')
             .click('.sw-alert__close')
     },
-    'wait for notification to vanish': (browser) => {
+    'upload and create second media item': (browser) => {
         browser
-        // pause to wait until notification is vanished
-        // .waitForElementNotPresent('.sw-alert__close')
-           .click('.sw-alert__close')
-    },
-    'create second item': (browser) => {
-        browser
-        // create second item
             .click('.sw-media-upload-button__context-button')
             .waitForElementVisible('.sw-context-menu')
             .click('.sw-media-upload-button__button-url')
             .waitForElementVisible('.sw-media-upload-url-modal')
-            .setValue('input[name=sw-field--url]', `${process.env.APP_URL}/bundles/administration/static/img/sw-media-background.png`)
+            .fillField('input[name=sw-field--url]', `${process.env.APP_URL}/bundles/administration/static/img/sw-media-background.png`)
             .click('.sw-modal__footer .sw-button--primary')
             .waitForElementVisible('.sw-alert--success')
             .click('.sw-alert__close')
     },
-    'wait for second notification to vanish': (browser) => {
-        browser
-        // pause to wait until notification is vanished
-        //.pause(1000)
-        //.waitForElementNotVisible ('.sw-alert--success')
-            .click('.sw-alert__close')
-    },
-    'verify if catalog is empty': (browser) => {
-        browser
-        // check nothing uploaded in second catalog
-            .click('a.sw-admin-menu__navigation-link[href="#/sw/media/index"]')
-            .waitForElementVisible('.sw-media-index__catalog-grid')
-            .click('.sw-media-index__catalog-grid .sw-media-grid__content-cell:nth-of-type(2)')
-            .waitForElementVisible('.sw-empty-state')
-    },
     'look for items in media index and default catalog': (browser) => {
         browser
-        // check for two items in media index and default catalog
             .click('a.sw-admin-menu__navigation-link[href="#/sw/media/index"]')
             .waitForElementVisible('.sw-media-grid__content-cell:nth-of-type(2)')
             .click('.sw-media-index__catalog-grid .sw-media-grid__content-cell:nth-of-type(1)')
             .waitForElementVisible('.sw-media-catalog')
             .waitForElementVisible('.sw-media-grid-media-item:nth-of-type(2)');
     },
-    'check item metadata and delete item': (browser) => {
+    'click preview thumbnail to open sidebar': (browser) => {
         browser
-        // open sidebar
             .click('.sw-media-preview__item')
             .waitForElementVisible('.sw-sidebar-item__content')
 
     },
     'verify meta data': (browser) => {
         browser
-        // check metadata
             .assert.containsText('.sw-media-quickinfo-metadata-name', 'Name:')
             .assert.containsText('.sw-media-quickinfo-metadata-name', 'sw-media-background')
             .assert.containsText('.sw-media-quickinfo-metadata-mimeType', 'MIME-Type:')
@@ -128,34 +65,26 @@ module.exports = {
             .assert.containsText('.sw-media-quickinfo-metadata-height', 'Height:')
             .assert.containsText('.sw-media-quickinfo-metadata-height', '16px')
     },
-    'verify item deleted': (browser) => {
+    'delete first item and check deletion verification': (browser) => {
         browser
-        // check delete item
             .click('li.quickaction--delete')
             .waitForElementVisible('div.sw-modal.sw-modal--small.sw-media-modal-delete')
             .assert.containsText('.sw-modal__body', 'Do you want to delete "sw-media-background" ?')
             .waitForElementVisible('.sw-modal__footer .sw-media-modal-delete__confirm')
             .click('.sw-media-modal-delete__confirm')
             .waitForElementNotPresent('.sw-modal__footer')
-    },
-    'wait for third notification to vanish': (browser) => {
-        browser
-        // pause to wait until notification is vanished
-           .waitForElementVisible ('.sw-alert--notification')
+            .waitForElementVisible ('.sw-alert--notification')
             .click('.sw-alert__close')
     },
-    'delete second item and verify delete': (browser) => {
+    'delete second item and verify deletion': (browser) => {
         browser
-        // delete second item and verify deletion
             .click('.sw-context-button__button')
             .waitForElementVisible('.sw-context-menu__content')
             .click('.sw-context-menu__group .sw-context-menu-item--danger')
             .waitForElementVisible('.sw-media-modal-delete')
             .assert.containsText('.sw-modal__body', 'Do you want to delete "sw-media-background" ?')
             .click('.sw-media-modal-delete__confirm')
-
             .waitForElementVisible('.sw-empty-state')
-
             .end();
     }
 };

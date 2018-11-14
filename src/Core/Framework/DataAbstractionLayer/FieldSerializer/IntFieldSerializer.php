@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -43,9 +44,7 @@ class IntFieldSerializer implements FieldSerializerInterface
         WriteParameterBag $parameters
     ): \Generator {
         if (!$field instanceof IntField) {
-            throw new \InvalidArgumentException(
-                sprintf('Expected field of type %s got %s', IntField::class, \get_class($field))
-            );
+            throw new InvalidSerializerFieldException(IntField::class, $field);
         }
         if ($this->requiresValidation($field, $existence, $data->getValue())) {
             $constraints = $this->constraintBuilder

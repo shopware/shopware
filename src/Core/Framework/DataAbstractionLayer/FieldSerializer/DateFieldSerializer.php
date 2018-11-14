@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -44,9 +45,7 @@ class DateFieldSerializer implements FieldSerializerInterface
         WriteParameterBag $parameters
     ): \Generator {
         if (!$field instanceof DateField) {
-            throw new \InvalidArgumentException(
-                sprintf('Expected field of type %s got %s', DateField::class, \get_class($field))
-            );
+            throw new InvalidSerializerFieldException(DateField::class, $field);
         }
 
         $value = $data->getValue();

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceRulesJsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -51,9 +52,7 @@ class PriceRulesJsonFieldSerializer implements FieldSerializerInterface
         WriteParameterBag $parameters
     ): \Generator {
         if (!$field instanceof PriceRulesJsonField) {
-            throw new \InvalidArgumentException(
-                sprintf('Expected field of type %s got %s', PriceRulesJsonField::class, \get_class($field))
-            );
+            throw new InvalidSerializerFieldException(PriceRulesJsonField::class, $field);
         }
         $value = $data->getValue();
         if (!empty($value)) {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -25,9 +26,7 @@ class ReferenceVersionFieldSerializer implements FieldSerializerInterface
         WriteParameterBag $parameters
     ): \Generator {
         if (!$field instanceof ReferenceVersionField) {
-            throw new \InvalidArgumentException(
-                sprintf('Expected field of type %s got %s', ReferenceVersionField::class, \get_class($field))
-            );
+            throw new InvalidSerializerFieldException(ReferenceVersionField::class, $field);
         }
         /** @var ReferenceVersionField $field */
         if ($parameters->getDefinition() === $field->getVersionReference()) {

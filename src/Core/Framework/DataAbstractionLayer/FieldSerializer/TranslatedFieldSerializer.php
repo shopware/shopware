@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -18,9 +19,7 @@ class TranslatedFieldSerializer implements FieldSerializerInterface
     public function encode(Field $field, EntityExistence $existence, KeyValuePair $data, WriteParameterBag $parameters): \Generator
     {
         if (!$field instanceof TranslatedField) {
-            throw new \InvalidArgumentException(
-                sprintf('Expected field of type %s got %s', TranslatedField::class, \get_class($field))
-            );
+            throw new InvalidSerializerFieldException(TranslatedField::class, $field);
         }
         $key = $data->getKey();
         $value = $data->getValue();

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\DataStack;
@@ -55,9 +56,7 @@ class JsonFieldSerializer implements FieldSerializerInterface
         WriteParameterBag $parameters
     ): \Generator {
         if (!$field instanceof JsonField) {
-            throw new \InvalidArgumentException(
-                sprintf('Expected field of type %s got %s', JsonField::class, \get_class($field))
-            );
+            throw new InvalidSerializerFieldException(JsonField::class, $field);
         }
         $value = $data->getValue();
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DecodeByHydratorException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -36,9 +37,7 @@ class OneToManyAssociationFieldSerializer implements FieldSerializerInterface
         WriteParameterBag $parameters
     ): \Generator {
         if (!$field instanceof OneToManyAssociationField) {
-            throw new \InvalidArgumentException(
-                sprintf('Expected field of type %s got %s', OneToManyAssociationField::class, \get_class($field))
-            );
+            throw new InvalidSerializerFieldException(OneToManyAssociationField::class, $field);
         }
         $key = $data->getKey();
         $value = $data->getValue();

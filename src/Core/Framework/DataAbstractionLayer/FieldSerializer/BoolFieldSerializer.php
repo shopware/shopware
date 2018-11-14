@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -40,9 +41,7 @@ class BoolFieldSerializer implements FieldSerializerInterface
     public function encode(Field $field, EntityExistence $existence, KeyValuePair $data, WriteParameterBag $parameters): \Generator
     {
         if (!$field instanceof BoolField) {
-            throw new \InvalidArgumentException(
-                sprintf('Expected field of type %s got %s', BoolField::class, \get_class($field))
-            );
+            throw new InvalidSerializerFieldException(BoolField::class, $field);
         }
 
         if (!$field->is(Inherited::class)) {

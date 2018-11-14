@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
@@ -44,9 +45,7 @@ class StringFieldSerializer implements FieldSerializerInterface
         WriteParameterBag $parameters
     ): \Generator {
         if (!$field instanceof StringField) {
-            throw new \InvalidArgumentException(
-                sprintf('Expected field of type %s got %s', StringField::class, \get_class($field))
-            );
+            throw new InvalidSerializerFieldException(StringField::class, $field);
         }
         if ($this->requiresValidation($field, $existence, $data->getValue())) {
             $constraints = $this->constraintBuilder

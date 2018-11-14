@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CatalogField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -39,9 +40,7 @@ class CatalogFieldSerializer implements FieldSerializerInterface
         WriteParameterBag $parameters
     ): \Generator {
         if (!$field instanceof CatalogField) {
-            throw new \InvalidArgumentException(
-                sprintf('Expected field of type %s got %s', CatalogField::class, \get_class($field))
-            );
+            throw new InvalidSerializerFieldException(CatalogField::class, $field);
         }
         if ($parameters->getContext()->has($parameters->getDefinition(), 'catalogId')) {
             $value = $parameters->getContext()->get($parameters->getDefinition(), 'catalogId');

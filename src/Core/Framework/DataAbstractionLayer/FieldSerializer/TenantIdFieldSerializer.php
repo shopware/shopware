@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TenantIdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -23,9 +24,7 @@ class TenantIdFieldSerializer implements FieldSerializerInterface
         WriteParameterBag $parameters
     ): \Generator {
         if (!$field instanceof TenantIdField) {
-            throw new \InvalidArgumentException(
-                sprintf('Expected field of type %s got %s', TenantIdField::class, \get_class($field))
-            );
+            throw new InvalidSerializerFieldException(TenantIdField::class, $field);
         }
 
         $value = $parameters->getContext()->getContext()->getTenantId();

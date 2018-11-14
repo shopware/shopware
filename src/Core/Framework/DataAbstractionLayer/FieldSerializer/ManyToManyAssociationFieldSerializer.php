@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DecodeByHydratorException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
@@ -38,9 +39,7 @@ class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
         WriteParameterBag $parameters
     ): \Generator {
         if (!$field instanceof ManyToManyAssociationField) {
-            throw new \InvalidArgumentException(
-                sprintf('Expected field of type %s got %s', ManyToManyAssociationField::class, \get_class($field))
-            );
+            throw new InvalidSerializerFieldException(ManyToManyAssociationField::class, $field);
         }
         $key = $data->getKey();
         $value = $data->getValue();

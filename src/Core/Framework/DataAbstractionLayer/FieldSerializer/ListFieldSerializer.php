@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -11,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\InvalidFie
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\InvalidJsonFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class ListFieldSerializer implements FieldSerializerInterface
@@ -55,9 +55,7 @@ class ListFieldSerializer implements FieldSerializerInterface
         WriteParameterBag $parameters
     ): \Generator {
         if (!$field instanceof ListField) {
-            throw new \InvalidArgumentException(
-                sprintf('Expected field of type %s got %s', ListField::class, \get_class($field))
-            );
+            throw new InvalidSerializerFieldException(ListField::class, $field);
         }
         /** @var ListField $field */
         if ($this->requiresValidation($field, $existence, $data->getValue())) {

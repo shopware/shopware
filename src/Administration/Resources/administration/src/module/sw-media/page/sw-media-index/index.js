@@ -7,8 +7,7 @@ Component.register('sw-media-index', {
     template,
 
     mixins: [
-        Mixin.getByName('mediagrid-listener'),
-        Mixin.getByName('notification')
+        Mixin.getByName('mediagrid-listener')
     ],
 
     data() {

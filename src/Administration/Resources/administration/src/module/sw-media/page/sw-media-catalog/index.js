@@ -7,7 +7,6 @@ Component.register('sw-media-catalog', {
 
     mixins: [
         Mixin.getByName('listing'),
-        Mixin.getByName('notification'),
         Mixin.getByName('mediagrid-listener')
     ],
 

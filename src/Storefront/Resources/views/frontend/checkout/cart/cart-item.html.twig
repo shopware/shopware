@@ -117,7 +117,7 @@
                         {{ lineItem.quantity }}
                     {% elseif not lineItem.lastStock or (lineItem.lastStock and lineItem.stock > 0) %}
                         {#{% if lineItem.lineItem %}#}
-                            <form name="cart_product_change_quantity" class="select-field" method="post" action="{{ path('cart_set_line_item_quantity') }}">
+                            <form name="cart_product_change_quantity" class="select-field" method="post" action="{{ path('cart.line_item.quantity.update') }}">
                                 <select name="quantity" data-auto-submit="true">
                                     {% set minPurchase = lineItem.variant.minPurchase ?? 1 %}
                                     {# TODO CONFIG AUSLESEN #}

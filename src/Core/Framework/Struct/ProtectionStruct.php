@@ -35,11 +35,11 @@ class ProtectionStruct implements \IteratorAggregate
 
     public function all(): array
     {
-        return array_flip($this->keys);
+        return array_keys($this->keys);
     }
 
     public function getIterator(): iterable
     {
-        return new \ArrayIterator(array_flip($this->keys));
+        return new \ArrayIterator($this->keys);
     }
 }

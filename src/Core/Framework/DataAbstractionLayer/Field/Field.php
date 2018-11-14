@@ -4,14 +4,10 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\FieldExtenderCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\FieldExceptionStack;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\InsufficientWritePermissionException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Filter\FilterRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Flag;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\IdGenerator\GeneratorRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\ValueTransformer\ValueTransformerRegistry;
@@ -19,8 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Locale\LocaleLanguageResolverInterface;
-use Symfony\Component\Validator\ConstraintViolation;
-use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 abstract class Field extends Struct
@@ -103,18 +97,6 @@ abstract class Field extends Struct
     public function __construct(string $propertyName)
     {
         $this->propertyName = $propertyName;
-    }
-
-    public function __invoke(EntityExistence $existence, KeyValuePair $data): \Generator
-    {
-        $value = $data->getValue();
-        $key = $data->getKey();
-
-        if ($this->is(WriteProtected::class)) {
-            $this->validateContextHasPermission($value, $key);
-        }
-
-        yield from $this->invoke($existence, $data);
     }
 
     public function getExtractPriority(): int
@@ -241,35 +223,5 @@ abstract class Field extends Struct
     public function setLocaleLanguageResolver(LocaleLanguageResolverInterface $localeLanguageResolver): void
     {
         $this->localeLanguageResolver = $localeLanguageResolver;
-    }
-
-    abstract protected function invoke(EntityExistence $existence, KeyValuePair $data): \Generator;
-
-    /**
-     * @param mixed  $value
-     * @param string $key
-     */
-    private function validateContextHasPermission($value, string $key): void
-    {
-        /** @var WriteProtected $flag */
-        $flag = $this->getFlag(WriteProtected::class);
-
-        if ($this->writeContext->getContext()->getWriteProtection()->isAllowed($flag->getPermissionKey())) {
-            return;
-        }
-
-        $violationList = new ConstraintViolationList();
-        $violationList->add(
-            new ConstraintViolation(
-                'This field is write-protected.',
-                'This field is write-protected.',
-                [],
-                $value,
-                $key,
-                $value
-            )
-        );
-
-        throw new InsufficientWritePermissionException($this->path . '/' . $key, $violationList);
     }
 }

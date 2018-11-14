@@ -2,13 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\InvalidFieldException;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
-use Symfony\Component\Validator\ConstraintViolation;
-use Symfony\Component\Validator\ConstraintViolationList;
 
 class PasswordField extends Field implements StorageAware
 {
@@ -40,89 +34,13 @@ class PasswordField extends Field implements StorageAware
         return $this->storageName;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function invoke(EntityExistence $existence, KeyValuePair $data): \Generator
+    public function getAlgorithm(): int
     {
-        $key = $data->getKey();
-        $value = $data->getValue();
-
-        if ($existence->exists()) {
-            $this->validate($this->getUpdateConstraints(), $key, $value);
-        } else {
-            $this->validate($this->getInsertConstraints(), $key, $value);
-        }
-
-        if ($value) {
-            $value = password_hash($value, $this->algorithm, $this->hashOptions);
-        }
-
-        yield $this->storageName => $value;
+        return $this->algorithm;
     }
 
-    /**
-     * @param array  $constraints
-     * @param string $fieldName
-     * @param mixed  $value
-     */
-    private function validate(array $constraints, string $fieldName, $value)
+    public function getHashOptions(): array
     {
-        $violationList = new ConstraintViolationList();
-
-        foreach ($constraints as $constraint) {
-            $violations = $this->validator
-                ->validate($value, $constraint);
-
-            /** @var ConstraintViolation $violation */
-            foreach ($violations as $violation) {
-                $violationList->add(
-                    new ConstraintViolation(
-                        $violation->getMessage(),
-                        $violation->getMessageTemplate(),
-                        $violation->getParameters(),
-                        $violation->getRoot(),
-                        $fieldName,
-                        $violation->getInvalidValue(),
-                        $violation->getPlural(),
-                        $violation->getCode(),
-                        $violation->getConstraint(),
-                        $violation->getCause()
-                    )
-                );
-            }
-        }
-
-        if (\count($violationList)) {
-            throw new InvalidFieldException($violationList, $this->path . '/' . $fieldName);
-        }
-    }
-
-    /**
-     * @return array
-     */
-    private function getInsertConstraints(): array
-    {
-        if ($this->is(Required::class)) {
-            $this->constraintBuilder->isNotBlank();
-        }
-
-        return $this->constraintBuilder
-            ->isString()
-            ->getConstraints();
-    }
-
-    /**
-     * @return array
-     */
-    private function getUpdateConstraints(): array
-    {
-        if ($this->is(Required::class)) {
-            $this->constraintBuilder->isNotBlank();
-        }
-
-        return $this->constraintBuilder
-            ->isString()
-            ->getConstraints();
+        return $this->hashOptions;
     }
 }

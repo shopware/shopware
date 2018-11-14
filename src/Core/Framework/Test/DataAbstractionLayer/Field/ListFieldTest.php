@@ -29,6 +29,7 @@ class ListFieldTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
 
         $nullableTable = <<<EOF
+DROP TABLE IF EXISTS _test_nullable;
 CREATE TABLE `_test_nullable` (
   `id` varbinary(16) NOT NULL,
   `data` longtext NULL,

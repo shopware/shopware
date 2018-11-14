@@ -168,7 +168,7 @@ class Context extends Struct
 
     public function createWithVersionId(string $versionId): self
     {
-        return new self(
+        $context = new self(
             $this->tenantId,
             $this->sourceContext,
             $this->catalogIds,
@@ -179,11 +179,20 @@ class Context extends Struct
             $versionId,
             $this->currencyFactor
         );
+
+        foreach ($this->getExtensions() as $key => $extension) {
+            $context->addExtension($key, $extension);
+        }
+        $context->getWriteProtection()->allow(
+            ...$this->getWriteProtection()->all()
+        );
+
+        return $context;
     }
 
     public function createWithCatalogIds(array $catalogIds): self
     {
-        return new self(
+        $context = new self(
             $this->tenantId,
             $this->sourceContext,
             $catalogIds,
@@ -194,6 +203,15 @@ class Context extends Struct
             $this->versionId,
             $this->currencyFactor
         );
+
+        foreach ($this->getExtensions() as $key => $extension) {
+            $context->addExtension($key, $extension);
+        }
+        $context->getWriteProtection()->allow(
+            ...$this->getWriteProtection()->all()
+        );
+
+        return $context;
     }
 
     public function getWriteProtection(): ProtectionStruct

@@ -4,22 +4,19 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\DataStack;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\ExceptionNoStackItemFound;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\FieldExtenderCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\RuntimeExtender;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\FieldExceptionStack;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\InsufficientWritePermissionException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\InvalidJsonFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Deferred;
@@ -27,7 +24,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\ReadOnly;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
-use Shopware\Core\System\Locale\LocaleLanguageResolverInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\WriteProtected;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * Builds the command queue for write operations.
@@ -42,54 +41,44 @@ class WriteCommandExtractor
     private $entityExistenceGateway;
 
     /**
-     * @var LocaleLanguageResolverInterface
+     * @var FieldSerializerRegistry
      */
-    private $localeLanguageResolver;
+    private $fieldHandler;
 
-    public function __construct(EntityWriteGatewayInterface $entityExistenceGateway, LocaleLanguageResolverInterface $localeLanguageResolver)
-    {
+    public function __construct(
+        EntityWriteGatewayInterface $entityExistenceGateway,
+        FieldSerializerRegistry $fieldHandler
+    ) {
         $this->entityExistenceGateway = $entityExistenceGateway;
-        $this->localeLanguageResolver = $localeLanguageResolver;
+        $this->fieldHandler = $fieldHandler;
     }
 
-    public function extract(
-        array $rawData,
-        string $definition,
-        FieldExceptionStack $exceptionStack,
-        WriteCommandQueue $commandQueue,
-        WriteContext $writeContext,
-        FieldExtenderCollection $extender,
-        string $path = ''
-    ): array {
-        $extender = clone $extender;
-        $extender->addExtender(
-            new RuntimeExtender(
-                $definition,
-                $writeContext,
-                $commandQueue,
-                $exceptionStack,
-                $path,
-                $this,
-                $this->localeLanguageResolver
-            )
-        );
+    public function extract(array $rawData, WriteParameterBag $parameters): array
+    {
+        /* @var EntityDefinition|string $definition */
+        $definition = $parameters->getDefinition();
 
-        /* @var EntityDefinition $definition */
-        $commandQueue->updateOrder($definition, ...$definition::getWriteOrder());
+        $parameters->getCommandQueue()->updateOrder($definition, ...$definition::getWriteOrder());
 
         $fields = $this->getFieldsInWriteOrder($definition);
 
-        $pkData = $this->getPrimaryKey($rawData, $definition, new FieldExceptionStack(), $extender, $fields);
+        $pkData = $this->getPrimaryKey($rawData, $parameters, $fields);
 
-        $existence = $this->entityExistenceGateway->getExistence($definition, $pkData, $rawData, $commandQueue);
+        $existence = $this->entityExistenceGateway->getExistence(
+            $definition,
+            $pkData,
+            $rawData,
+            $parameters->getCommandQueue()
+        );
+
         $rawData = $this->integrateDefaults($definition, $rawData, $existence);
 
         $mainFields = $this->getMainFields($fields);
 
         // without child association
-        $data = $this->map($mainFields, $rawData, $existence, $exceptionStack, $extender);
+        $data = $this->map($mainFields, $rawData, $existence, $parameters);
 
-        $this->updateCommandQueue($definition, $commandQueue, $existence, $pkData, $data);
+        $this->updateCommandQueue($definition, $parameters->getCommandQueue(), $existence, $pkData, $data);
 
         // call map with child associations only
         $children = array_filter($fields, function (Field $field) {
@@ -97,19 +86,14 @@ class WriteCommandExtractor
         });
 
         if (\count($children) > 0) {
-            $this->map($children, $rawData, $existence, $exceptionStack, $extender);
+            $this->map($children, $rawData, $existence, $parameters);
         }
 
         return $pkData;
     }
 
-    private function map(
-        array $fields,
-        array $rawData,
-        EntityExistence $existence,
-        FieldExceptionStack $exceptionStack,
-        FieldExtenderCollection $extender
-    ): array {
+    private function map(array $fields, array $rawData, EntityExistence $existence, WriteParameterBag $parameters): array
+    {
         $stack = new DataStack($rawData);
 
         foreach ($fields as $field) {
@@ -136,20 +120,22 @@ class WriteCommandExtractor
                 $kvPair = new KeyValuePair($field->getPropertyName(), null, true);
             }
 
-            $kvPair = $this->convertValue($field, $kvPair);
-
-            $extender->extend($field);
-
             try {
-                foreach ($field($existence, $kvPair) as $fieldKey => $fieldValue) {
+                if ($field->is(WriteProtected::class)) {
+                    $this->validateContextHasPermission($field, $kvPair, $parameters);
+                }
+
+                $values = $this->fieldHandler->encode($field, $existence, $kvPair, $parameters);
+
+                foreach ($values as $fieldKey => $fieldValue) {
                     $stack->update($fieldKey, $fieldValue);
                 }
             } catch (InvalidJsonFieldException $e) {
                 foreach ($e->getExceptions() as $exception) {
-                    $exceptionStack->add($exception);
+                    $parameters->getExceptionStack()->add($exception);
                 }
             } catch (WriteFieldException $e) {
-                $exceptionStack->add($e);
+                $parameters->getExceptionStack()->add($e);
             }
         }
 
@@ -184,15 +170,6 @@ class WriteCommandExtractor
         $queue->add($definition, new InsertCommand($definition, array_merge($pkData, $data), $pkData, $existence));
     }
 
-    private function convertValue(Field $field, KeyValuePair $kvPair): KeyValuePair
-    {
-        if ($field instanceof DateField && \is_string($kvPair->getValue())) {
-            $kvPair = new KeyValuePair($kvPair->getKey(), new \DateTime($kvPair->getValue()), $kvPair->isRaw());
-        }
-
-        return $kvPair;
-    }
-
     /**
      * @param EntityDefinition|string $definition
      *
@@ -224,30 +201,16 @@ class WriteCommandExtractor
         return $sorted;
     }
 
-    /**
-     * @param array                   $rawData
-     * @param string|EntityDefinition $definition
-     * @param FieldExceptionStack     $exceptionStack
-     * @param FieldExtenderCollection $extender
-     * @param Field[]                 $fields
-     *
-     * @return array
-     */
-    private function getPrimaryKey(
-        array $rawData,
-        string $definition,
-        FieldExceptionStack $exceptionStack,
-        FieldExtenderCollection $extender,
-        array $fields
-    ): array {
+    private function getPrimaryKey(array $rawData, WriteParameterBag $parameters, array $fields): array
+    {
         //filter all fields which are relevant to extract the full primary key data
         //this function return additionally, to primary key flagged fields, foreign key fields and many to association
         $mappingFields = $this->getFieldsForPrimaryKeyMapping($fields);
 
-        $existence = new EntityExistence($definition, [], false, false, false, []);
+        $existence = new EntityExistence($parameters->getDefinition(), [], false, false, false, []);
 
         //run data extraction for only this fields
-        $mapped = $this->map($mappingFields, $rawData, $existence, $exceptionStack, $extender);
+        $mapped = $this->map($mappingFields, $rawData, $existence, $parameters);
 
         //after all fields extracted, filter fields to only primary key flaged fields
         $primaryKeys = array_filter($mappingFields, function (Field $field) {
@@ -297,7 +260,7 @@ class WriteCommandExtractor
         });
 
         $references = array_filter($fields, function (Field $field) {
-            return $field instanceof ReferenceField;
+            return $field instanceof ManyToOneAssociationField;
         });
 
         foreach ($primaryKeys as $primaryKey) {
@@ -360,5 +323,29 @@ class WriteCommandExtractor
         }
 
         return $main;
+    }
+
+    private function validateContextHasPermission(Field $field, KeyValuePair $data, WriteParameterBag $parameters): void
+    {
+        /** @var WriteProtected $flag */
+        $flag = $field->getFlag(WriteProtected::class);
+
+        if ($parameters->getContext()->getContext()->getWriteProtection()->isAllowed($flag->getPermissionKey())) {
+            return;
+        }
+
+        $violationList = new ConstraintViolationList();
+        $violationList->add(
+            new ConstraintViolation(
+                'This field is write-protected.',
+                'This field is write-protected.',
+                [],
+                $data->getValue(),
+                $data->getKey(),
+                $data->getValue()
+            )
+        );
+
+        throw new InsufficientWritePermissionException($parameters->getPath() . '/' . $data->getKey(), $violationList);
     }
 }

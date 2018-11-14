@@ -2,12 +2,8 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Version\VersionDefinition;
 
 class ReferenceVersionField extends FkField
@@ -36,22 +32,5 @@ class ReferenceVersionField extends FkField
     public function getVersionReference(): string
     {
         return $this->versionReference;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function invoke(EntityExistence $existence, KeyValuePair $data): \Generator
-    {
-        if ($this->definition === $this->versionReference) {
-            //parent inheritance with versioning
-            $value = $data->getValue() ?? Defaults::LIVE_VERSION;
-        } elseif ($this->writeContext->has($this->versionReference, 'versionId')) {
-            $value = $this->writeContext->get($this->versionReference, 'versionId');
-        } else {
-            $value = Defaults::LIVE_VERSION;
-        }
-
-        yield $this->storageName => Uuid::fromStringToBytes($value);
     }
 }

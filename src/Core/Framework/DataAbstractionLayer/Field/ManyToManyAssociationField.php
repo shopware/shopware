@@ -3,9 +3,6 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\MalformatDataException;
 
 class ManyToManyAssociationField extends Field implements AssociationInterface
 {
@@ -96,91 +93,5 @@ class ManyToManyAssociationField extends Field implements AssociationInterface
     public function getReferenceField(): string
     {
         return $this->referenceColumn;
-    }
-
-    protected function invoke(EntityExistence $existence, KeyValuePair $data): \Generator
-    {
-        $key = $data->getKey();
-        $value = $data->getValue();
-
-        if (!\is_array($value)) {
-            throw new MalformatDataException($this->path . '/' . $key, 'Value must be an array.');
-        }
-
-        $mappingAssociation = $this->getMappingAssociation();
-
-        foreach ($value as $keyValue => $subresources) {
-            $mapped = $subresources;
-            if ($mappingAssociation) {
-                $mapped = $this->map($mappingAssociation, $subresources);
-            }
-
-            if (!\is_array($mapped)) {
-                throw new MalformatDataException($this->path . '/' . $key, 'Value must be an array.');
-            }
-
-            $this->writeResource->extract(
-                $mapped,
-                $this->referenceClass,
-                $this->exceptionStack,
-                $this->commandQueue,
-                $this->writeContext,
-                $this->fieldExtenderCollection,
-                $this->path . '/' . $key . '/' . $keyValue
-            );
-        }
-
-        return;
-        yield __CLASS__ => __METHOD__;
-    }
-
-    private function getMappingAssociation(): ?ManyToOneAssociationField
-    {
-        $associations = $this->getReferenceClass()::getFields()->filterInstance(ManyToOneAssociationField::class);
-
-        /** @var ManyToOneAssociationField $association */
-        foreach ($associations as $association) {
-            if ($association->getStorageName() === $this->getMappingReferenceColumn()) {
-                return $association;
-            }
-        }
-
-        return null;
-    }
-
-    private function map(ManyToOneAssociationField $association, $data): array
-    {
-        // not only foreign key provided? data is provided as insert or update command
-        if (\count($data) > 1) {
-            return [$association->getPropertyName() => $data];
-        }
-
-        // no id provided? data is provided as insert command (like create category in same request with the product)
-        if (!isset($data[$association->getReferenceField()])) {
-            return [$association->getPropertyName() => $data];
-        }
-
-        //only foreign key provided? entity should only be linked
-        /*e.g
-            [
-                categories => [
-                    ['id' => {id}],
-                    ['id' => {id}]
-                ]
-            ]
-        */
-        /** @var ManyToOneAssociationField $association */
-        $fk = $this->referenceClass::getFields()->getByStorageName(
-            $association->getStorageName()
-        );
-
-        if (!$fk) {
-            trigger_error(sprintf('Foreign key for association %s not found', $association->getPropertyName()));
-
-            return [$association->getPropertyName() => $data];
-        }
-
-        /* @var FkField $fk */
-        return [$fk->getPropertyName() => $data[$association->getReferenceField()]];
     }
 }

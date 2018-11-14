@@ -297,5 +297,10 @@
             <tag name="shopware.entity.extension"/>
         </service>
 
+        <service class="CanonicalUrlFieldSerializer" id="Shopware\Storefront\Api\Entity\FieldSerializer\CanonicalUrlFieldSerializer">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor" />
+            <tag name="shopware.write_read_field_handler"/>
+        </service>
+
     </services>
 </container>

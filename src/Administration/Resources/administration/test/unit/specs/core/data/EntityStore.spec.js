@@ -197,17 +197,16 @@ describe('core/data/EntityStore.js', () => {
 
         entity.save().then(() => {
             const mediaService = Application.getContainer('service').mediaService;
-            // use shopware website because the administration is not build on bamboo and therefore no local files work
-            const testUrl = 'https://de.shopware.com/press/company/Shopware_Jamaica.jpg';
 
-            mediaService.uploadMediaFromUrl(entity.id, testUrl, '.png').then(() => {
+            const testUrl = `${process.env.BASE_PATH}/api/v1/entity-schema.json`;
+
+            mediaService.uploadMediaFromUrl(entity.id, testUrl, 'json').then(() => {
                 store.getList({
                     page: 1,
                     limit: 1
                 }, true).then((response) => {
-                    console.log(response.items);
                     expect(response.items.length).to.be.equal(1);
-                    expect(response.items[0].thumbnails.length).to.be.equal(2);
+                    expect(response.items[0].hasFile).to.be.equal(true);
 
                     entity.delete(true).then(() => {
                         done();
@@ -241,7 +240,6 @@ describe('core/data/EntityStore.js', () => {
                     page: 1,
                     limit: 1
                 }).then((response) => {
-                    console.log(response.items);
                     expect(response.items.length).to.be.equal(1);
                     expect(response.items[0].thumbnails.length).to.be.equal(0);
 

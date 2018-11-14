@@ -11,14 +11,22 @@ Component.register('sw-settings-language-list', {
     data() {
         return {
             entityName: 'language',
-            sortBy: 'language.name'
+            sortBy: 'language.name',
+            defaultLanguageIds: ['20080911ffff4fffafffffff19830531', '00e84bd18c574a6ca748ac0db17654dc']
         };
     },
 
     methods: {
         isDefault(id) {
-            const defaultLanguageId = '20080911ffff4fffafffffff19830531';
-            return defaultLanguageId === id;
+            return this.defaultLanguageIds.includes(id);
+        },
+
+        getItemParent(item) {
+            if (item.parentId === null) {
+                return { name: '' };
+            }
+
+            return this.store.getById(item.parentId);
         }
     }
 });

@@ -80,8 +80,17 @@
                                             {% block sw_settings_language_list_columns_locale_name %}
                                                 <sw-grid-column flex="minmax(180px, 1fr)"
                                                                 :label="$tc('sw-settings-language.list.columnLocaleName')">
-                                                    {% block sw_settings_language_list_columns_short_name_label %}
+                                                    {% block sw_settings_language_list_columns_locale_name_label %}
                                                         {{ item.locale.name }} / {{ item.locale.territory }}
+                                                    {% endblock %}
+                                                </sw-grid-column>
+                                            {% endblock %}
+
+                                            {% block sw_settings_language_list_columns_inherit_language %}
+                                                <sw-grid-column flex="minmax(200px, 1fr)"
+                                                                :label="$tc('sw-settings-language.list.columnInherit')">
+                                                    {% block sw_settings_language_list_columns_inherit_label %}
+                                                        {{ getItemParent(item).name }}
                                                     {% endblock %}
                                                 </sw-grid-column>
                                             {% endblock %}

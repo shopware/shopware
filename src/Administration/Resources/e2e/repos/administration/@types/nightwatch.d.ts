@@ -4,6 +4,8 @@
 //                 Connor Schlesiger <https://github.com/schlesiger>
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 
+import {string} from "postcss-selector-parser";
+
 export interface NightwatchCustomPageObjects {
     page: { [name: string]: () => NightwatchBrowser };
 }
@@ -2156,6 +2158,13 @@ export interface NightwatchAPI {
     launch_url: string;
 }
 
+interface fillSwSelectComponentOptions {
+    value: string,
+    clearField?: boolean,
+    isMulti?: boolean,
+    searchTerm?: string
+}
+
 export interface NightwatchCustomCommands {
     /**
      * Finds a form field in the Administration using the provided css selector. It tries to find the element on the page,
@@ -2201,19 +2210,31 @@ export interface NightwatchCustomCommands {
     tickCheckbox(selector: string, value: string): this,
 
     /**
-     * Finds a multiselect field in the Administration. The method uses a css selector to find the element on the page,
-     * removes a preselected item (if configured) and sets the provided value in the field.
+     * Finds a sw-select component in the Administration. The method uses a css selector to find the element on the page,
+     * removes a preselected items (if configured). If a search term is provided it will be entered to the input and after
+     * the search the first result gets selected.
      *
      * Usage:
      * ```
-     * browser.fillMultiSelect('.sw-multi-select__input', 'MainCategory')
+     * .fillSwSelectComponent(
+     *     '.sw-settings-language-detail__select-parent',
+     *     {
+     *          value: 'English',
+     *          clearField: false,
+     *          isMulti: false,
+     *          searchTerm: 'English'
+     *      }
+     * )
      * ```
      *
      * @param {String} selector
-     * @param {String} value
-     * @param {Boolean} [clearField=false]
+     * @param {Object} obj
+     * @param {String} obj.value
+     * @param {Boolean} obj.clearField
+     * @param {Boolean} obj.isMulti
+     * @param {String} obj.searchTerm
      */
-    fillMultiSelect(selector: string, value: string, clearField?: boolean): this,
+    fillSwSelectComponent(selector: string, obj: fillSwSelectComponentOptions): this,
 
 
     /**

@@ -52,8 +52,10 @@ class ApiService {
             params.aggregations = aggregations;
         }
 
-        // Switch to the general search end point when we're having a search term
-        if ((params.term && params.term.length) || (params.filter && params.filter.length)) {
+        // Switch to the general search end point when we're having a search term or aggregations
+        if ((params.term && params.term.length) ||
+                (params.filter && params.filter.length) ||
+                (params.aggregations)) {
             return this.httpClient
                 .post(`${this.getApiBasePath(null, 'search')}`, params, { headers: requestHeaders })
                 .then((response) => {

@@ -97,7 +97,7 @@
       "placeholderSearch": "Suche",
       "labelLoadMore": "Mehr laden"
     },
-    "sw-multi-select": {
+    "sw-select": {
       "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden.",
       "buttonDismiss": "Entfernen"
     },
@@ -768,7 +768,8 @@
       "textHeadline": "Sprachen",
       "textDeleteConfirm": "Bist Du sicher, dass Du die Sprache {name} löschen möchtest?",
       "columnName": "Name",
-      "columnLocaleName": "Region",
+      "columnLocaleName": "Sprachcode",
+      "columnInherit": "Erbt von",
       "buttonAddLanguage": "Sprache anlegen",
       "contextMenuEdit": "Bearbeiten",
       "modalTitleDelete": "Sprache löschen",
@@ -783,12 +784,18 @@
       "titleSaveSuccess": "Sprachen",
       "messageSaveSuccess": "Die Sprache {name} wurde erfolgreich gespeichert.",
       "labelName": "Name",
-      "labelLocale": "Region",
+      "labelLocale": "Sprachcode",
       "labelParent": "Erben von",
       "placeholderName": "Namen eingeben...",
       "placeholderPleaseSelect": "Bitte wählen...",
       "buttonCancel": "Abbrechen",
-      "buttonSave": "Speichern"
+      "buttonSave": "Speichern",
+      "tooltipLanguageNotChoosable": "Es kann nur von einer Sprache geerbt werden, welche nicht bereits selbst erbt.",
+      "tooltipLocaleNotChoosable": "Es können nur ungenutzte Sprachcodes verwendet werden.",
+      "textAlertChangeParent": "Ein Wechsel der geerbten Sprache kann gegebenenfalls zu inkonsistenten Übersetzungen führen.",
+      "titleAlertChangeParent": "Achtung",
+      "textLocaleIsInUse": "Dieser Sprachcode wird bereits verwendet.",
+      "textLanguageHasParent": "Diese Sprache erbt bereits von einer anderen."
     }
   },
   "sw-settings-payment": {

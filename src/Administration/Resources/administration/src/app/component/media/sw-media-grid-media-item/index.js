@@ -68,7 +68,8 @@ Component.register('sw-media-grid-media-item', {
 
         selectionIndicatorClasses() {
             return {
-                'selected-indicator--visible': this.showSelectionIndicator
+                'selected-indicator--visible': this.showSelectionIndicator,
+                'selected-indicator--checked': this.listSelected
             };
         },
 
@@ -80,6 +81,10 @@ Component.register('sw-media-grid-media-item', {
 
         mediaStore() {
             return State.getStore('media');
+        },
+
+        listSelected() {
+            return this.selected && this.showSelectionIndicator;
         }
     },
 
@@ -102,7 +107,7 @@ Component.register('sw-media-grid-media-item', {
         },
 
         doSelectItem(originalDomEvent) {
-            if (!this.selected) {
+            if (!this.listSelected) {
                 this.selectItem(originalDomEvent);
                 return;
             }

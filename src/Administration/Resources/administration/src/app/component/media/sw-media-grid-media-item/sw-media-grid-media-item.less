@@ -1,20 +1,41 @@
 @import "~less/variables";
 @import "~less/mixins";
 
-@sw-media-grid-media-item-border-radius-input: @border-radius-default;
-@sw-media-grid-media-item-color-input-border:  @color-steam-cloud;
-@sw-media-grid-media-item-color-input:         @color-black;
-@sw-media-grid-media-item-pseudo-padding:      20px;
-@sw-media-grid-media-item-color-selected:      @color-shopware-blue;
+@sw-media-grid-media-item-border-radius-input:    @border-radius-default;
+@sw-media-grid-media-item-color-input-border:     @color-steam-cloud;
+@sw-media-grid-media-item-color-input:            @color-black;
+@sw-media-grid-media-item-color-input-background: @color-white;
+@sw-media-grid-media-item-pseudo-padding:         20px;
+@sw-media-grid-media-item-color-selected:         @color-shopware-blue;
+@sw-media-grid-color-checkmark:                   @color-white;
 
 .sw-media-grid-media-item {
     position: relative;
 
     .sw-media-grid-media-item__selected-indicator {
+        display: grid;
         visibility: hidden;
         position: absolute;
         top: @sw-media-grid-media-item-pseudo-padding;
         left: @sw-media-grid-media-item-pseudo-padding;
+        width: 16px;
+        height: 16px;
+        background: @sw-media-grid-media-item-color-input-background;
+        border: 1px solid @sw-media-grid-media-item-color-input-border;
+        border-radius: @sw-media-grid-media-item-border-radius-input;
+        z-index: 1;
+
+        &.selected-indicator--checked {
+            background: @sw-media-grid-media-item-color-selected;
+            border: 1px solid @sw-media-grid-media-item-color-selected;
+        }
+
+        .sw-icon {
+            color: @sw-media-grid-color-checkmark;
+            position: relative;
+            top: -1px;
+            left: -1px;
+        }
     }
 
     &:hover {

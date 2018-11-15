@@ -50,7 +50,7 @@ Mixin.register('mediagrid-listener', {
         },
 
         showItemSelected(item) {
-            return this.listSelectionStartItem !== null && this.isItemSelected(item);
+            return this.isItemSelected(item);
         },
 
         clearSelection() {

@@ -29,6 +29,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceRulesJsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
@@ -75,7 +77,7 @@ class ProductDefinition extends EntityDefinition
             new VersionField(),
             new CatalogField(),
 
-            new FkField('parent_id', 'parentId', self::class),
+            new ParentField(self::class),
             new ReferenceVersionField(self::class, 'parent_version_id'),
 
             (new IntField('auto_increment', 'autoIncrement'))->setFlags(new ReadOnly()),
@@ -141,7 +143,7 @@ class ProductDefinition extends EntityDefinition
             (new TranslatedField('packUnit'))->setFlags(new Inherited()),
 
             //parent - child inheritance
-            new ManyToOneAssociationField('parent', 'parent_id', self::class, false),
+            new ParentAssociationField(self::class, false),
             new ChildrenAssociationField(self::class),
 
             //inherited associations

@@ -681,7 +681,6 @@ class EntityReaderTest extends TestCase
 
     public function testLoadNestedAssociation(): void
     {
-        static::markTestIncomplete('this test should be green if NEXT-1069 is resolved');
         $id1 = Uuid::uuid4()->getHex();
         $id2 = Uuid::uuid4()->getHex();
 

@@ -168,11 +168,6 @@ abstract class EntityDefinition
         return [];
     }
 
-    public static function allowInheritance(): bool
-    {
-        return false;
-    }
-
     public static function isChildrenAware(): bool
     {
         return static::getFields()->get('children') instanceof ChildrenAssociationField;
@@ -185,7 +180,7 @@ abstract class EntityDefinition
 
     public static function isInheritanceAware(): bool
     {
-        return static::allowInheritance() && static::getFields()->get('parent') instanceof ManyToOneAssociationField;
+        return false;
     }
 
     public static function isVersionAware(): bool

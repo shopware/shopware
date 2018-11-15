@@ -184,16 +184,20 @@
 
                 <!-- Date -->
                 {% block sw_field_input_datetime %}
-                    <input v-else-if="type === 'datetime' || type === 'datetime-local'"
-                           type="datetime-local"
-                           :id="id"
-                           :name="displayName"
-                           :value="currentValue"
-                           :disabled="disabled ? 'disabled' : false"
-                           @input="onInput"
-                           @change="onChange"
-                           v-bind="$attrs"
-                           v-on="additionalEventListeners">
+                    <sw-datepicker v-else-if="isTypeGenericDate"
+                                   :id="id"
+                                   ref="swDatepicker"
+                                   :name="displayName"
+                                   :value="currentValue"
+                                   :disabled="disabled ? 'disabled' : false"
+                                   :enableTime="isTypeTime || isTypeDateTime"
+                                   :noCalendar="isTypeTime"
+                                   :config="datepickerConfig"
+                                   @input="onInput"
+                                   @change="onChange"
+                                   v-bind="$attrs"
+                                   v-on="additionalEventListeners">
+                    </sw-datepicker>
                 {% endblock %}
 
                 <!-- Password -->
@@ -282,12 +286,18 @@
 
                 <!-- Suffix -->
                 {% block sw_field_input_suffix %}
-                    <span v-if="hasSuffix" class="sw-field__suffix">
+                    <span v-if="hasSuffix" class="sw-field__suffix" @click="onSuffixClick">
                         <slot name="suffix">
                             {% block sw_field_slot_suffix %}
                                 {{ suffix }}
                             {% endblock %}
                         </slot>
+                    </span>
+                    <span v-if="!hasSuffix && isTypeGenericDate" class="sw-field__suffix" @click="onSuffixClick">
+                        {% block sw_field_slot_suffix_date %}
+                            <sw-icon v-if="isTypeTime" name="default-time-clock"></sw-icon>
+                            <sw-icon v-else name="default-calendar-full"></sw-icon>
+                        {% endblock %}
                     </span>
                 {% endblock %}
 

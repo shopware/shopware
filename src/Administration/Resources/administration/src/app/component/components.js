@@ -41,6 +41,7 @@ import './form/sw-text-editor';
 import './form/sw-condition-value';
 import './form/sw-tagged-field';
 import './form/sw-label';
+import './form/sw-datepicker';
 
 import './tree/sw-tree';
 import './tree/sw-tree-item';

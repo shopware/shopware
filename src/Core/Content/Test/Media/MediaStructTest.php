@@ -45,7 +45,6 @@ class MediaStructTest extends TestCase
 
         static::assertInstanceOf(MediaStruct::class, $media);
         static::assertEquals($media->getId(), $media->getId());
-        static::assertEquals('test_media', $media->getName());
     }
 
     public function testMimeTypeIsWriteProtected(): void

@@ -51,7 +51,8 @@ return [
             'id' => '3e352be2-d858-46dd-9752-9c0f6b544870',
             'type' => 'media',
             'attributes' => [
-                'name' => 'Lagerkorn-5,0klein',
+                'title' => 'Lagerkorn-5,0klein',
+                'description' => null,
                 'userId' => 'f343a3c1-19cf-42a7-841a-a0ac5094908c',
                 'mimeType' => 'image/jpg',
                 'fileExtension' => 'jpg',
@@ -59,7 +60,6 @@ return [
                 'metaData' => null,
                 'createdAt' => '2012-08-15T00:00:00+00:00',
                 'updatedAt' => '2017-11-21T11:25:34+00:00',
-                'description' => null,
                 'url' => '',
                 'hasFile' => false,
                 'fileName' => null,

@@ -42,7 +42,9 @@ class UrlGenerator implements UrlGeneratorInterface
     {
         $encodedFileName = $this->encodeFilename($media->getFileName());
 
-        return 'media/' . $encodedFileName . '.' . $media->getFileExtension();
+        $extension = $media->getFileExtension() ? '.' . $media->getFileExtension() : '';
+
+        return 'media/' . $encodedFileName . $extension;
     }
 
     /**
@@ -60,13 +62,17 @@ class UrlGenerator implements UrlGeneratorInterface
      */
     public function getRelativeThumbnailUrl(MediaStruct $media, int $width, int $height, bool $isHighDpi = false): string
     {
-        $encodedFileName = $this->encodeFilename($media->getFileName());
+        $mediaPathInfo = pathinfo($this->getRelativeMediaUrl($media));
+        $mediaPathInfo['dirname'] = preg_replace('/^media/', 'thumbnail', $mediaPathInfo['dirname']);
+
         $thumbnailExtension = "_${width}x${height}";
         if ($isHighDpi) {
             $thumbnailExtension .= '@2x';
         }
 
-        return 'thumbnail/' . $encodedFileName . $thumbnailExtension . '.' . $media->getFileExtension();
+        $extension = isset($mediaPathInfo['extension']) ? '.' . $mediaPathInfo['extension'] : '';
+
+        return $mediaPathInfo['dirname'] . '/' . $mediaPathInfo['filename'] . $thumbnailExtension . $extension;
     }
 
     /**

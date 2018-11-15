@@ -11,8 +11,6 @@ class Migration1539609364AddFileNameToMediaEntityTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    const CATALOG_ID = '5F1C0C3F3C574574BE8AE70933BF4BC6';
-
     const TRIGGER_NAME = Migration1539609364AddFileNameToMediaEntity::FORWARD_TRIGGER_NAME;
 
     /** @var Connection */
@@ -21,16 +19,6 @@ class Migration1539609364AddFileNameToMediaEntityTest extends TestCase
     public function setUp()
     {
         $this->connection = $this->getContainer()->get(Connection::class);
-
-        $this->connection->executeUpdate(
-            'INSERT INTO catalog (id, created_at) VALUES (UNHEX(?), \'2018-10-22 00:00:01.000000\')',
-            [self::CATALOG_ID]
-        );
-    }
-
-    public function tearDown()
-    {
-        $this->connection->executeUpdate('DELETE FROM catalog WHERE id = UNHEX(?)', [self::CATALOG_ID]);
     }
 
     public function test_column_order_is_preserved()

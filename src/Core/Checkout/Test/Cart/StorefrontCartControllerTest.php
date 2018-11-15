@@ -381,11 +381,9 @@ class StorefrontCartControllerTest extends TestCase
         ], $this->context);
 
         $mediaId = Uuid::uuid4()->getHex();
-        $coverName = 'My custom line item name';
         $this->mediaRepository->create([
             [
                 'id' => $mediaId,
-                'name' => $coverName,
             ],
         ], $this->context);
 
@@ -440,7 +438,6 @@ class StorefrontCartControllerTest extends TestCase
         static::assertEquals($description, $product['description']);
 
         static::assertEquals($mediaId, $product['cover']['id']);
-        static::assertEquals($coverName, $product['cover']['name']);
     }
 
     public function testUpdateLineItem(): void
@@ -474,11 +471,9 @@ class StorefrontCartControllerTest extends TestCase
         static::assertCount(1, $cart['lineItems']);
 
         $mediaId = Uuid::uuid4()->getHex();
-        $coverName = 'My custom line item name';
         $this->mediaRepository->create([
             [
                 'id' => $mediaId,
-                'name' => $coverName,
             ],
         ], $this->context);
 
@@ -524,7 +519,6 @@ class StorefrontCartControllerTest extends TestCase
         static::assertEquals($description, $product['description']);
 
         static::assertEquals($mediaId, $product['cover']['id']);
-        static::assertEquals($coverName, $product['cover']['name']);
     }
 
     public function testGetCartWithoutAccessKey(): void

@@ -58,7 +58,7 @@ return [
                 'userId' => '6f51622e-b381-4c75-ae02-63cece27ce72',
                 'createdAt' => '2012-08-31T00:00:00+00:00',
                 'updatedAt' => '2017-11-21T11:25:34+00:00',
-                'name' => '2',
+                'title' => '2',
                 'description' => null,
                 'url' => '',
                 'hasFile' => false,

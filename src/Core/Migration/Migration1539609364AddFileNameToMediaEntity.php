@@ -18,7 +18,7 @@ class Migration1539609364AddFileNameToMediaEntity extends MigrationStep
     {
         $connection->executeQuery('
             ALTER TABLE `media`
-            ADD COLUMN `file_name` VARCHAR(255) COLLATE utf8mb4_unicode_ci NULL AFTER `meta_data`;
+            ADD COLUMN `file_name` LONGTEXT COLLATE utf8mb4_unicode_ci NULL AFTER `meta_data`;
         ');
 
         $connection->executeQuery('

@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Media;
 
 use DateTime;
-use Shopware\Core\Content\Catalog\CatalogStruct;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
@@ -15,7 +14,6 @@ use Shopware\Core\System\User\UserStruct;
 
 class MediaStruct extends Entity
 {
-
     /**
      * @var string|null
      */
@@ -39,7 +37,7 @@ class MediaStruct extends Entity
     /**
      * @var string
      */
-    protected $name;
+    protected $title;
 
     /**
      * @var Metadata|null
@@ -155,14 +153,14 @@ class MediaStruct extends Entity
         $this->fileSize = $fileSize;
     }
 
-    public function getName(): string
+    public function getTitle(): string
     {
-        return $this->name;
+        return $this->title;
     }
 
-    public function setName(string $name): void
+    public function setTitle(string $title): void
     {
-        $this->name = $name;
+        $this->title = $title;
     }
 
     public function getMetaData(): ?Metadata

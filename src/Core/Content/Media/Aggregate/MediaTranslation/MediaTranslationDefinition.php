@@ -29,7 +29,7 @@ class MediaTranslationDefinition extends EntityDefinition
             (new FkField('media_id', 'mediaId', MediaDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new ReferenceVersionField(MediaDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->setFlags(new PrimaryKey(), new Required()),
-            (new StringField('name', 'name'))->setFlags(new Required()),
+            new StringField('title', 'title'),
             new LongTextField('description', 'description'),
             new CreatedAtField(),
             new UpdatedAtField(),

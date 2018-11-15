@@ -32,51 +32,43 @@ trait MediaFixtures
         $this->mediaFixtures = [
             'NamedEmpty' => [
                 'id' => Uuid::uuid4()->getHex(),
-                'name' => 'test_media',
             ],
             'NamedMimePng' => [
                 'id' => Uuid::uuid4()->getHex(),
-                'name' => 'test_media',
                 'mimeType' => 'image/png',
             ],
             'NamedMimePngEtxPng' => [
-                'id' => $namedMimePngEtxPngUuid = Uuid::uuid4()->getHex(),
-                'name' => 'test_media',
+                'id' => Uuid::uuid4()->getHex(),
                 'mimeType' => 'image/png',
                 'fileExtension' => 'png',
-                'fileName' => $namedMimePngEtxPngUuid . '-1314343'
+                'fileName' => 'pngFileWithExtension',
             ],
             'NamedMimePngEtxPngCatalog' => [
-                'id' => $namedMimePngEtxPngCatalogUuid = Uuid::uuid4()->getHex(),
-                'name' => 'test_media',
+                'id' => Uuid::uuid4()->getHex(),
                 'mimeType' => 'image/png',
                 'fileExtension' => 'png',
-                'fileName' => $namedMimePngEtxPngCatalogUuid . '-12312351',
+                'fileName' => 'pngFileWithExtensionAndCatalog',
             ],
             'NamedMimeTxtEtxTxt' => [
-                'id' => $namedMimeTxtEtxTxtUuid = Uuid::uuid4()->getHex(),
-                'name' => 'test file',
+                'id' => Uuid::uuid4()->getHex(),
                 'mimeType' => 'plain/txt',
                 'fileExtension' => 'txt',
-                'fileName' => $namedMimeTxtEtxTxtUuid . '-131513235',
+                'fileName' => 'textFileWithExtension',
             ],
             'NamedMimeJpgEtxJpgCatalog' => [
-                'id' => $NamedMimeJpgEtxJpgCatalogUuid = Uuid::uuid4()->getHex(),
-                'name' => 'test_media',
+                'id' => Uuid::uuid4()->getHex(),
                 'mimeType' => 'image/jpg',
                 'fileExtension' => 'jpg',
-                'fileName' => $NamedMimeJpgEtxJpgCatalogUuid . '-5434541313',
+                'fileName' => 'jpgFileWithExtensionAndCatalog',
             ],
             'NamedMimePdfEtxPdfCatalog' => [
-                'id' => $namedMimePdfEtxPdfCatalogUuid =  Uuid::uuid4()->getHex(),
-                'name' => 'test_media',
+                'id' => Uuid::uuid4()->getHex(),
                 'mimeType' => 'application/pdf',
                 'fileExtension' => 'pdf',
-                'fileName' => $namedMimePdfEtxPdfCatalogUuid . '1323213213'
+                'fileName' => 'pdfFileWithExtensionAndCatalog',
             ],
             'NamedWithThumbnail' => [
                 'id' => Uuid::uuid4()->getHex(),
-                'name' => 'test_media',
                 'thumbnails' => [
                     [
                         'width' => 200,

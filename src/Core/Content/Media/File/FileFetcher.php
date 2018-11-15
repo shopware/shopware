@@ -2,15 +2,19 @@
 
 namespace Shopware\Core\Content\Media\File;
 
+use Shopware\Core\Content\Media\Exception\MissingFileExtensionException;
 use Shopware\Core\Content\Media\Exception\UploadException;
 use Symfony\Component\HttpFoundation\Request;
 
 class FileFetcher
 {
-    public function fetchRequestData(Request $request, MediaFile $mediaFile): void
+    public function fetchRequestData(Request $request, string $fileName): MediaFile
     {
+        $extension = $this->getExtensionFromRequest($request);
+        $expectedLength = (int) $request->headers->get('content-length');
+
         $inputStream = $request->getContent(true);
-        $destStream = $this->openDestinationStream($mediaFile->getFileName());
+        $destStream = $this->openDestinationStream($fileName);
 
         try {
             $bytesWritten = $this->copyStreams($inputStream, $destStream);
@@ -19,19 +23,25 @@ class FileFetcher
             fclose($destStream);
         }
 
-        if ($mediaFile->getFileSize() !== $bytesWritten) {
+        if ($expectedLength !== $bytesWritten) {
             throw new UploadException('expected content-length did not match actual size');
         }
+
+        return new MediaFile(
+            $fileName,
+            mime_content_type($fileName),
+            $extension,
+            $bytesWritten
+        );
     }
 
-    public function fetchFileFromURL(MediaFile $mediaFile, string $url): MediaFile
+    public function fetchFileFromURL(Request $request, string $fileName): MediaFile
     {
-        if (!$this->isUrlValid($url)) {
-            throw new UploadException('malformed url: ' . $url);
-        }
+        $url = $this->getUrlFromRequest($request);
+        $extension = $this->getExtensionFromRequest($request);
 
         $inputStream = $this->openSourceFromUrl($url);
-        $destStream = $this->openDestinationStream($mediaFile->getFileName());
+        $destStream = $this->openDestinationStream($fileName);
 
         try {
             $writtenBytes = $this->copyStreams($inputStream, $destStream);
@@ -41,11 +51,42 @@ class FileFetcher
         }
 
         return new MediaFile(
-            $mediaFile->getFileName(),
-            mime_content_type($mediaFile->getFileName()),
-            $mediaFile->getFileExtension(),
+            $fileName,
+            mime_content_type($fileName),
+            $extension,
             $writtenBytes
         );
+    }
+
+    /**
+     * @throws MissingFileExtensionException
+     */
+    private function getExtensionFromRequest(Request $request): string
+    {
+        $extension = $request->query->get('extension');
+        if ($extension === null) {
+            throw new MissingFileExtensionException();
+        }
+
+        return $extension;
+    }
+
+    /**
+     * @throws UploadException
+     */
+    private function getUrlFromRequest(Request $request): string
+    {
+        $url = $request->request->get('url');
+
+        if ($url === null) {
+            throw new UploadException('You must provide a valid url.');
+        }
+
+        if (!$this->isUrlValid($url)) {
+            throw new UploadException('malformed url: ' . $url);
+        }
+
+        return $url;
     }
 
     /**

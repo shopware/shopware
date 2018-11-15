@@ -5,8 +5,6 @@ namespace Shopware\Core\Content\Catalog;
 use Shopware\Core\Content\Catalog\Aggregate\CatalogTranslation\CatalogTranslationDefinition;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
-use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition;
-use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;

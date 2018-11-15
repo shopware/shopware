@@ -77,7 +77,6 @@ class EnrichmentTest extends TestCase
                     'id' => $id,
                     'name' => 'test',
                     'media' => [
-                        'name' => 'test',
                         'mimeType' => 'image/jpeg',
                         'fileExtension' => 'jpeg',
                         'fileName' => 'test',
@@ -111,7 +110,7 @@ class EnrichmentTest extends TestCase
         self::assertTrue($price->getTaxRules()->has(15));
 
         self::assertInstanceOf(MediaStruct::class, $product->getCover());
-        self::assertSame('test', $product->getCover()->getName());
+        self::assertSame('test', $product->getCover()->getFileName());
     }
 
     public function testProductCollectorDoNotOverrideData(): void
@@ -153,7 +152,6 @@ class EnrichmentTest extends TestCase
                 ->setDescription('Do not override')
                 ->setCover(
                     (new MediaStruct())->assign([
-                        'name' => 'Do not override',
                         'fileName' => 'Do not override',
                         'fileSize' => 10,
                         'mimeType' => 'B',
@@ -178,6 +176,6 @@ class EnrichmentTest extends TestCase
         self::assertCount(0, $price->getTaxRules());
 
         self::assertInstanceOf(MediaStruct::class, $product->getCover());
-        self::assertSame('Do not override', $product->getCover()->getName());
+        self::assertSame('Do not override', $product->getCover()->getFileName());
     }
 }

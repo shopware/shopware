@@ -5,7 +5,8 @@ namespace Shopware\Core\Content\Test\Media\File;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Exception\UploadException;
 use Shopware\Core\Content\Media\File\FileFetcher;
-use Shopware\Core\Content\Media\File\MediaFile;
+use Symfony\Component\HttpFoundation\HeaderBag;
+use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 
 class FileFetcherTest extends TestCase
@@ -30,12 +31,18 @@ class FileFetcherTest extends TestCase
             ->method('getContent')
             ->willReturn(fopen(self::TEST_IMAGE, 'r'));
 
+        $request->query = new ParameterBag([
+            'extension' => 'png',
+        ]);
+
         $fileSize = filesize(self::TEST_IMAGE);
+        $request->headers = new HeaderBag();
+        $request->headers->set('content-length', $fileSize);
 
         try {
             $this->fileFetcher->fetchRequestData(
                 $request,
-                new MediaFile($tempFile, 'image/png', 'png', $fileSize)
+                $tempFile
             );
             $mimeType = mime_content_type($tempFile);
 
@@ -57,26 +64,40 @@ class FileFetcherTest extends TestCase
             ->method('getContent')
             ->willReturn(fopen(self::TEST_IMAGE, 'r'));
 
+        $request->query = new ParameterBag([
+            'extension' => 'png',
+        ]);
+
+        $request->headers = new HeaderBag();
+        $request->headers->set('content-length', -100);
+
         $this->fileFetcher->fetchRequestData(
             $request,
-            new MediaFile($tempFile, 'image/png', 'png', 10)
+            $tempFile
         );
     }
 
     public function testFetchFileFromUrl(): void
     {
-        $url = 'https://de.shopware.com/press/company/Shopware_Jamaica.jpg';
+        $url = getenv('APP_URL') . '/favicon.ico';
 
         $tempFile = tempnam(sys_get_temp_dir(), '');
+        $request = $this->createMock(Request::class);
+        $request->query = new ParameterBag([
+            'extension' => 'ico',
+        ]);
+        $request->request = new ParameterBag([
+            'url' => $url,
+        ]);
 
         try {
             $mediaFile = $this->fileFetcher->fetchFileFromURL(
-                new MediaFile($tempFile, 'image/jpeg', 'jpg', 10),
-                $url
+                $request,
+                $tempFile
             );
             $mimeType = mime_content_type($tempFile);
 
-            static::assertEquals('image/jpeg', $mimeType);
+            static::assertEquals('image/x-icon', $mimeType);
             static::assertGreaterThan(0, $mediaFile->getFileSize());
             static::assertFileExists($tempFile);
         } finally {
@@ -84,31 +105,54 @@ class FileFetcherTest extends TestCase
         }
     }
 
+    public function testFetchFileFromUrlWithNoUrlGiven(): void
+    {
+        $this->expectException(UploadException::class);
+        $this->expectExceptionMessage('You must provide a valid url.');
+
+        $request = $this->createMock(Request::class);
+        $request->request = new ParameterBag();
+
+        $this->fileFetcher->fetchFileFromURL(
+            $request,
+            'not used in this test'
+        );
+    }
+
     public function testFetchFileFromUrlWithMalformedUrl(): void
     {
         $this->expectException(UploadException::class);
         $this->expectExceptionMessage('malformed url');
 
-        $url = 'ssh://de.shopware.com/press/company/Shopware_Jamaica.jpg';
-        $tempFile = tempnam(sys_get_temp_dir(), '');
+        $request = $this->createMock(Request::class);
+        $request->request = new ParameterBag([
+            'url' => 'ssh://de.shopware.com/press/company/Shopware_Jamaica.jpg',
+        ]);
 
         $this->fileFetcher->fetchFileFromURL(
-            new MediaFile($tempFile, 'image/jpeg', 'jpg', 10),
-            $url
+            $request,
+            'not used in this test'
         );
     }
 
     public function testFetchFileFromUrlWithUnavailableUrl()
     {
         $url = 'http://invalid/host';
-        $tempFile = tempnam(sys_get_temp_dir(), '');
 
         $this->expectException(UploadException::class);
         $this->expectExceptionMessage("Could open source stream from {$url}");
 
+        $request = $this->createMock(Request::class);
+        $request->request = new ParameterBag([
+            'url' => $url,
+        ]);
+        $request->query = new ParameterBag([
+            'extension' => 'png',
+        ]);
+
         $this->fileFetcher->fetchFileFromURL(
-            new MediaFile($tempFile, 'image/jpeg', 'jpg', 10),
-            $url
+            $request,
+            'not used in this test'
         );
     }
 }

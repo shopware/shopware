@@ -27,7 +27,7 @@ $media1->setFileExtension('jpg');
 $media1->setFileSize(18921);
 $media1->setCreatedAt(date_create_from_format(\DateTime::ATOM, '2012-08-15T00:00:00+00:00'));
 $media1->setUpdatedAt(date_create_from_format(\DateTime::ATOM, '2017-11-21T11:25:34+00:00'));
-$media1->setName('Lagerkorn-5,0klein');
+$media1->setTitle('Lagerkorn-5,0klein');
 
 $media2 = new MediaStruct();
 $media2->setId('f1ad1d0c-0245-4a40-abf2-50f764d16248');
@@ -38,7 +38,7 @@ $media2->setFileExtension('jpg');
 $media2->setFileSize(155633);
 $media2->setCreatedAt(date_create_from_format(\DateTime::ATOM, '2012-08-17T00:00:00+00:00'));
 $media2->setUpdatedAt(date_create_from_format(\DateTime::ATOM, '2017-11-21T11:25:34+00:00'));
-$media2->setName('Jasmine-Lotus-Cover');
+$media2->setTitle('Jasmine-Lotus-Cover');
 
 $mediaCollection->add($media1);
 $mediaCollection->add($media2);

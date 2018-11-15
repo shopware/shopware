@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Content\Media\Api;
 
+use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
 use Shopware\Core\Content\Media\Exception\MissingFileExtensionException;
 use Shopware\Core\Content\Media\Exception\UploadException;
 use Shopware\Core\Content\Media\File\FileFetcher;
+use Shopware\Core\Content\Media\File\FileNameValidator;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -27,10 +29,16 @@ class MediaUploadController extends AbstractController
      */
     private $fileSaver;
 
+    /**
+     * @var FileNameValidator
+     */
+    private $fileNameValidator;
+
     public function __construct(FileFetcher $fileFetcher, FileSaver $fileSaver)
     {
         $this->fileFetcher = $fileFetcher;
         $this->fileSaver = $fileSaver;
+        $this->fileNameValidator = new FileNameValidator();
     }
 
     /**
@@ -42,10 +50,16 @@ class MediaUploadController extends AbstractController
     {
         $tempFile = tempnam(sys_get_temp_dir(), '');
 
+        $destination = $request->query->get('fileName', $mediaId);
+        $destination = rtrim($destination);
+
+        $this->fileNameValidator->validateFileName($destination);
+
         try {
-            $mediaFile = $this->fetchFile($request, $tempFile);
+            $uploadedFile = $this->fetchFile($request, $tempFile);
             $this->fileSaver->persistFileToMedia(
-                $mediaFile,
+                $uploadedFile,
+                $destination,
                 $mediaId,
                 $context
             );
@@ -57,26 +71,36 @@ class MediaUploadController extends AbstractController
     }
 
     /**
+     * @Route("/api/v{version}/_action/media/{mediaId}/rename", name="api.action.media.rename", methods={"POST"})
+     *
+     * @return Response
+     */
+    public function renameMediaFile(Request $request, string $mediaId, Context $context, ResponseFactoryInterface $responseFactory): Response
+    {
+        $destination = $request->request->get('fileName');
+        if ($destination === null) {
+            throw new EmptyMediaFilenameException();
+        }
+        $destination = rtrim($destination);
+
+        $this->fileNameValidator->validateFileName($destination);
+
+        $this->fileSaver->renameMedia($mediaId, $destination, $context);
+
+        return $responseFactory->createRedirectResponse(MediaDefinition::class, $mediaId, $request, $context);
+    }
+
+    /**
      * @throws MissingFileExtensionException
      * @throws UploadException
      */
     private function fetchFile(Request $request, string $tempFile): MediaFile
     {
         $contentType = $request->headers->get('content_type');
-        $extension = $request->get('extension');
-        if ($extension === null) {
-            throw new MissingFileExtensionException();
+        if ($contentType === 'application/json') {
+            return $this->fileFetcher->fetchFileFromURL($request, $tempFile);
         }
 
-        $contentLength = (int) $request->headers->get('content-length');
-        $mediaFile = new MediaFile($tempFile, $contentType, $extension, $contentLength);
-
-        if ($mediaFile->getMimeType() === 'application/json') {
-            $mediaFile = $this->fileFetcher->fetchFileFromURL($mediaFile, $request->request->get('url'));
-        } else {
-            $this->fileFetcher->fetchRequestData($request, $mediaFile);
-        }
-
-        return $mediaFile;
+        return $this->fileFetcher->fetchRequestData($request, $tempFile);
     }
 }

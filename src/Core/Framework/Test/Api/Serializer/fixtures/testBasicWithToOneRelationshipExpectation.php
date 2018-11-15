@@ -12,7 +12,7 @@ return [
             'metaData' => null,
             'createdAt' => '2012-08-31T00:00:00+00:00',
             'updatedAt' => '2017-11-21T11:25:34+00:00',
-            'name' => '2',
+            'title' => '2',
             'description' => null,
             'url' => '',
             'hasFile' => false,

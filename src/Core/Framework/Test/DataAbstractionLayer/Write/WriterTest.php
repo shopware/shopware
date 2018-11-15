@@ -485,7 +485,7 @@ class WriterTest extends TestCase
             new ReadCriteria([$id]),
             Context::createDefaultContext()
         )->get($id);
-        self::assertStringEndsWith('/media/d4/72/8e/testFile.jpg', $media->getUrl());
+        self::assertStringEndsWith('/testFile.jpg', $media->getUrl());
     }
 
     public function testUpdateIgnoresDeferredFields(): void
@@ -520,7 +520,7 @@ class WriterTest extends TestCase
             new ReadCriteria([$id]),
             Context::createDefaultContext()
         )->get($id);
-        self::assertStringEndsWith('/media/d4/72/8e/testFile.jpg', $media->getUrl());
+        self::assertStringEndsWith('/testFile.jpg', $media->getUrl());
     }
 
     public function testUpdateWritesMultipleTranslations(): void

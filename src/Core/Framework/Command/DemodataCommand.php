@@ -446,6 +446,7 @@ class DemodataCommand extends Command
                         pathinfo($file, PATHINFO_EXTENSION),
                         filesize($file)
                     ),
+                    pathinfo($file, PATHINFO_FILENAME),
                     $id,
                     $context
                 );
@@ -1017,6 +1018,7 @@ class DemodataCommand extends Command
                     pathinfo($file, PATHINFO_EXTENSION),
                     filesize($file)
                 ),
+                pathinfo($file, PATHINFO_FILENAME),
                 $mediaId,
                 $context
             );

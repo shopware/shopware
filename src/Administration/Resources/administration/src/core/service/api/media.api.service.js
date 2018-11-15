@@ -10,10 +10,18 @@ class MediaApiService extends ApiService {
         super(httpClient, loginService, apiEndpoint);
     }
 
+<<<<<<< 862b075692d703ac1d58421a3d6bc538e36cf760
     uploadMediaById(id, mimeType, data, fileExtension) {
         const apiRoute = `/_action/media/${id}/upload?extension=${fileExtension}`;
+=======
+    uploadMediaById(id, mimeType, data, extension, fileName = id) {
+        const apiRoute = `${this.getApiBasePath(id)}/actions/upload`;
+>>>>>>> NEXT-1038 - Use original filename in administration for media
         const headers = this.getBasicHeaders({ 'Content-Type': mimeType });
-        const params = {};
+        const params = {
+            extension,
+            fileName
+        };
 
         return this.httpClient.post(
             apiRoute,
@@ -24,10 +32,18 @@ class MediaApiService extends ApiService {
         });
     }
 
+<<<<<<< 862b075692d703ac1d58421a3d6bc538e36cf760
     uploadMediaFromUrl(id, url, fileExtension) {
         const apiRoute = `/_action/media/${id}/upload?extension=${fileExtension}`;
+=======
+    uploadMediaFromUrl(id, url, extension, fileName = id) {
+        const apiRoute = `${this.getApiBasePath(id)}/actions/upload`;
+>>>>>>> NEXT-1038 - Use original filename in administration for media
         const headers = this.getBasicHeaders({ 'Content-Type': 'application/json' });
-        const params = {};
+        const params = {
+            extension,
+            fileName
+        };
 
         const body = JSON.stringify({ url });
 
@@ -35,6 +51,22 @@ class MediaApiService extends ApiService {
             apiRoute,
             body,
             { params, headers }
+        ).then((response) => {
+            return ApiService.handleResponse(response);
+        });
+    }
+
+    renameMedia(id, fileName) {
+        const apiRoute = `${this.getApiBasePath(id)}/actions/rename`;
+        return this.httpClient.post(
+            apiRoute,
+            JSON.stringify({
+                fileName
+            }),
+            {
+                params: {},
+                headers: this.getBasicHeaders()
+            }
         ).then((response) => {
             return ApiService.handleResponse(response);
         });

@@ -66,7 +66,7 @@ module.exports = {
         browser
             .click('li.quickaction--delete')
             .waitForElementVisible('div.sw-modal.sw-modal--small.sw-media-modal-delete')
-            .assert.containsText('.sw-modal__body', 'Do you want to delete "sw-login-background" ?')
+            .assert.containsText('.sw-modal__body', 'Do you want to delete "sw-media-background (1)" ?')
             .waitForElementVisible('.sw-modal__footer .sw-media-modal-delete__confirm')
             .click('.sw-media-modal-delete__confirm')
             .waitForElementNotPresent('.sw-modal__footer')

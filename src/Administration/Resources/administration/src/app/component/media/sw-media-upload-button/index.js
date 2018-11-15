@@ -107,7 +107,7 @@ Component.register('sw-media-upload-button', {
         },
 
         addMediaEntityFromFile(file) {
-            const mediaEntity = this.createNewMedia(file.name);
+            const mediaEntity = this.mediaItemStore.create();
 
             const upload = this.uploadStore.addUpload(this.uploadTag, this.buildUpload(file, mediaEntity));
 
@@ -115,7 +115,7 @@ Component.register('sw-media-upload-button', {
         },
 
         createMediaEntityFromUrl(url, fileExtension) {
-            const mediaEntity = this.createNewMedia(this.getNameFromURL(url));
+            const mediaEntity = this.mediaItemStore.create();
 
             const upload = this.uploadStore.addUpload(this.uploadTag, this.buildUpload(url, mediaEntity, fileExtension));
 
@@ -131,17 +131,20 @@ Component.register('sw-media-upload-button', {
 
         buildUpload(source, mediaEntity, fileExtension = '') {
             let uploadFn = null;
+            let fileName = null;
 
             if (source instanceof URL) {
                 uploadFn = (media) => { return this.mediaUploadService.uploadUrlToMedia(source, media, fileExtension); };
+                fileName = source.href.split('/').pop();
             } else if (source instanceof File) {
                 uploadFn = (media) => { return this.mediaUploadService.uploadFileToMedia(source, media); };
+                fileName = source.name;
             } else {
                 throw new Error('Media source must be a URL object or a File object');
             }
 
             const successMessage = this.$tc('sw-media.upload.notificationSuccess');
-            const failureMessage = this.$tc('sw-media.upload.notificationFailure', 0, { mediaName: mediaEntity.name });
+            const failureMessage = this.$tc('sw-media.upload.notificationFailure', 0, { mediaName: fileName });
 
             return () => {
                 this.synchronizeMediaEntity(mediaEntity).then(() => {
@@ -171,18 +174,6 @@ Component.register('sw-media-upload-button', {
         cleanUpFailure(mediaEntity, message) {
             this.createNotificationError({ message });
             mediaEntity.delete(true);
-        },
-
-        createNewMedia(name) {
-            const mediaEntity = this.mediaItemStore.create();
-
-            mediaEntity.name = name;
-
-            return mediaEntity;
-        },
-
-        getNameFromURL(url) {
-            return url.pathname.split('/').pop().split('.')[0];
         }
     }
 });

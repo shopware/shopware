@@ -133,7 +133,8 @@ function getPropertyBlacklist() {
         'mimeType',
         'fileExtension',
         'metaData',
-        'fileSize'
+        'fileSize',
+        'fileName'
     ];
 }
 

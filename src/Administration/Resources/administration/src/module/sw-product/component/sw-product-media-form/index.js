@@ -7,7 +7,7 @@ import './sw-product-media-form.less';
 Component.register('sw-product-media-form', {
     template,
 
-    inject: ['mediaService'],
+    inject: ['mediaService', 'mediaUploadService'],
 
     mixins: [
         Mixin.getByName('notification')

@@ -1,4 +1,4 @@
-import { Component, Mixin } from 'src/core/shopware';
+import { Component, Mixin, Filter } from 'src/core/shopware';
 import template from './sw-media-modal-delete.html.twig';
 import './sw-media-modal-delete.less';
 
@@ -19,6 +19,12 @@ Component.register('sw-media-modal-delete', {
             validator(value) {
                 return (value.length !== 0);
             }
+        }
+    },
+
+    computed: {
+        pathToFileName() {
+            return Filter.getByName('pathToFileName');
         }
     },
 
@@ -66,20 +72,17 @@ Component.register('sw-media-modal-delete', {
         },
 
         _getNotificationMessages(item) {
-            const successMessage = this.$tc(
-                'global.sw-media-modal-delete.notificationSuccessSingle',
-                1,
-                { mediaName: item.name }
-            );
-            const errorMessage = this.$tc(
-                'global.sw-media-modal-delete.notificationErrorSingle',
-                1,
-                { mediaName: item.name }
-            );
-
             return {
-                successMessage,
-                errorMessage
+                successMessage: this.$tc(
+                    'global.sw-media-modal-delete.notificationSuccessSingle',
+                    1,
+                    { mediaName: this.pathToFileName(item.fileName) }
+                ),
+                errorMessage: this.$tc(
+                    'global.sw-media-modal-delete.notificationErrorSingle',
+                    1,
+                    { mediaName: this.pathToFileName(item.fileName) }
+                )
             };
         }
     }

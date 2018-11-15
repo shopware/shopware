@@ -1,4 +1,4 @@
-import { Component, Mixin } from 'src/core/shopware';
+import { Component, Mixin, State } from 'src/core/shopware';
 import template from './sw-media-grid-media-item.html.twig';
 import './sw-media-grid-media-item.less';
 import domUtils from '../../../../core/service/utils/dom.utils';
@@ -8,6 +8,8 @@ import domUtils from '../../../../core/service/utils/dom.utils';
  */
 Component.register('sw-media-grid-media-item', {
     template,
+
+    inject: ['mediaService'],
 
     mixins: [
         Mixin.getByName('notification')
@@ -74,6 +76,10 @@ Component.register('sw-media-grid-media-item', {
             return {
                 'sw-context-menu__group': this.$slots['additional-context-menu-items']
             };
+        },
+
+        mediaStore() {
+            return State.getStore('media');
         }
     },
 
@@ -168,7 +174,7 @@ Component.register('sw-media-grid-media-item', {
         updateName() {
             const inputField = this.$refs.inputItemName;
 
-            if (inputField.currentValue === null || inputField.currentValue === '') {
+            if (!inputField.currentValue || !inputField.currentValue.trim()) {
                 this.createNotificationError({
                     message: this.$tc('global.sw-media-grid-media-item.notificationErrorBlankItemName')
                 });
@@ -176,19 +182,20 @@ Component.register('sw-media-grid-media-item', {
             }
 
             this.item.isLoading = true;
-            this.item.name = inputField.currentValue;
-
-            this.item.save().then(() => {
-                this.item.isLoading = false;
-                this.createNotificationSuccess({
-                    message: this.$tc('global.sw-media-grid-media-item.notificationRenamingSuccess')
+            this.mediaService.renameMedia(this.item.id, inputField.currentValue).then(() => {
+                this.mediaStore.getByIdAsync(this.item.id).then(() => {
+                    this.createNotificationSuccess({
+                        message: this.$tc('global.sw-media-grid-media-item.notificationRenamingSuccess')
+                    });
+                    this.item.isLoading = false;
+                    this.endInlineEdit();
                 });
-                this.endInlineEdit();
             }).catch(() => {
                 this.item.isLoading = false;
                 this.createNotificationError({
                     message: this.$tc('global.sw-media-grid-media-item.notificationRenamingError')
                 });
+                this.endInlineEdit();
             });
         }
     }

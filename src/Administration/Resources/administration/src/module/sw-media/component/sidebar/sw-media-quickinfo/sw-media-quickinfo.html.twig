@@ -1,7 +1,7 @@
 {% block sw_media_quickinfo %}
     <div class="sw-media-quickinfo">
         {% block sw_media_quickinfo_broken_file %}
-            <sw-alert v-if="!item.hasFile" variant="warning" :title="$tc('sw-media.sidebar.quickinfo.titleMissingFile')">
+            <sw-alert v-if="!item.hasFile" class="sw-media-quickinfo__alert-file-missing" variant="warning" :title="$tc('sw-media.sidebar.quickinfo.titleMissingFile')">
                 {{ $tc('sw-media.sidebar.quickinfo.descriptionMissingFile') }}
             </sw-alert>
         {% endblock %}
@@ -103,7 +103,7 @@
                         {% block sw_media_quickinfo_metadata_content_base %}
                             <sw-media-quickinfo-metadata-item class="sw-media-quickinfo-metadata-name"
                                 label-name="name"
-                                :value="this.item.name">
+                                :value="this.item.fileName | pathToFileName">
                             </sw-media-quickinfo-metadata-item>
                             <sw-media-quickinfo-metadata-item class="sw-media-quickinfo-metadata-mimeType"
                                 label-name="mimeType"

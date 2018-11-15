@@ -33,7 +33,7 @@
                                   ref="inputItemName"
                                   class="sw-media-grid-media-item__name-field"
                                   type="text"
-                                  :value="item.name"
+                                  :value="item.fileName | pathToFileName"
                                   v-autofocus
                                   @click.stop
                                   @blur="endInlineEdit"
@@ -42,9 +42,9 @@
                         </sw-field>
                         <div v-else
                              class="sw-media-grid-media-item__name"
-                             :title="item.name"
+                             :title="item.fileName | pathToFileName"
                              @dblclick="startInlineEdit">
-                            {{ item.name }}
+                            {{ item.fileName | pathToFileName }}
                         </div>
                     </template>
                 {% endblock %}

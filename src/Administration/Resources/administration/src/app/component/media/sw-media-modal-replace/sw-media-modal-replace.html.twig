@@ -4,7 +4,13 @@
               @closeModal="emitCloseReplaceModal">
 
         {% block sw_media_modal_replace_file_input %}
-            <input class="sw-media-modal-replace__file-input" type="file" id="replaceFileDialog" ref="fileInput" accept="image/*" @change="onFileInputChange"/>
+            <form class="sw-media-moda-replace-file-form" ref="inputForm">
+                <input class="sw-media-modal-replace__file-input"
+                       type="file" id="replaceFileDialog"
+                       accept="image/*"
+                       ref="fileInput"
+                       @change="onFileInputChange"/>
+            </form>
         {% endblock %}
 
         {% block sw_media_modal_replace_upload_button %}

@@ -101,9 +101,6 @@ Component.register('sw-catalog-detail', {
                     },
                     categoryCount: {
                         count: { field: 'catalog.categories.id' }
-                    },
-                    mediaCount: {
-                        count: { field: 'catalog.media.id' }
                     }
                 },
                 criteria: CriteriaFactory.equals('id', this.catalogId)

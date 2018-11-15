@@ -18,7 +18,7 @@
         {% endblock %}
 
         {% block sw_product_detail_base_media_card %}
-            <sw-card v-if="!product.isLocal" :title="$tc('sw-product.detailBase.cardTitleMedia')" :isLoading="product.isLoading">
+            <sw-card :title="$tc('sw-product.detailBase.cardTitleMedia')" :isLoading="product.isLoading">
                 {% block sw_product_detail_base_media_form %}
                     <sw-product-media-form :product="product"></sw-product-media-form>
                 {% endblock %}

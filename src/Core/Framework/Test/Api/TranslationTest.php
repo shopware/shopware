@@ -147,7 +147,7 @@ class TranslationTest extends TestCase
         $this->getClient()->request('GET', $baseResource . '/' . $id, [], [], [$headerName => $langId]);
         $response = $this->getClient()->getResponse();
         $responseData = json_decode($response->getContent(), true);
-        static::assertNull($responseData['data']['attributes']['name']);
+        static::assertEquals($name, $responseData['data']['attributes']['name']);
     }
 
     private function assertTranslation($expectedTranslations, $translations, $langIdOverride = null): void

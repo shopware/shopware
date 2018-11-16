@@ -5,23 +5,15 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DisallowedLimitQueryException;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidAggregationQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidLimitQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidPageQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSortQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\QueryLimitExceededException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AvgAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\CardinalityAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\CountAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\MaxAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\MinAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\StatsAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\SumAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueCountAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -118,7 +110,7 @@ class RequestCriteriaBuilder
         }
 
         if (isset($payload['aggregations'])) {
-            $this->buildAggregations($definition, $payload, $criteria, $searchException);
+            AggregationParser::buildAggregations($definition, $payload, $criteria, $searchException);
         }
 
         $searchException->tryToThrow();
@@ -190,81 +182,6 @@ class RequestCriteriaBuilder
         }
 
         return new MultiFilter(MultiFilter::CONNECTION_AND, $queries);
-    }
-
-    private function buildAggregations(string $definition, array $payload, Criteria $criteria, SearchRequestException $searchRequestException): void
-    {
-        if (!\is_array($payload['aggregations'])) {
-            throw new InvalidAggregationQueryException('The aggregations parameter has to be a list of aggregations.');
-        }
-
-        $index = 0;
-        foreach ($payload['aggregations'] as $name => $aggregations) {
-            if (empty($name) || is_numeric($name)) {
-                $searchRequestException->add(new InvalidAggregationQueryException('The aggregation field key should be a non-empty string.'), '/aggregations/' . $index);
-                continue;
-            }
-
-            if (!\is_array($aggregations)) {
-                $searchRequestException->add(new InvalidAggregationQueryException('The field "%s" should be a list of aggregations.'), '/aggregations/' . $name);
-                continue;
-            }
-
-            $subIndex = 0;
-            foreach ($aggregations as $type => $aggregation) {
-                if (empty($type) || is_numeric($type)) {
-                    $searchRequestException->add(new InvalidAggregationQueryException('The aggregations of "%s" should be a non-empty string.'), '/aggregations/' . $name . '/' . $subIndex);
-                    continue;
-                }
-
-                if (empty($aggregation['field'])) {
-                    $searchRequestException->add(new InvalidAggregationQueryException('The aggregation should contain a "field".'), '/aggregations/' . $name . '/' . $type . '/field');
-                    continue;
-                }
-
-                $field = $this->buildFieldName($definition, $aggregation['field']);
-                switch ($type) {
-                    case 'avg':
-                        $criteria->addAggregation(new AvgAggregation($field, $name));
-                        break;
-
-                    case 'cardinality':
-                        $criteria->addAggregation(new CardinalityAggregation($field, $name));
-                        break;
-
-                    case 'count':
-                        $criteria->addAggregation(new CountAggregation($field, $name));
-                        break;
-
-                    case 'max':
-                        $criteria->addAggregation(new MaxAggregation($field, $name));
-                        break;
-
-                    case 'min':
-                        $criteria->addAggregation(new MinAggregation($field, $name));
-                        break;
-
-                    case 'stats':
-                        $criteria->addAggregation(new StatsAggregation($field, $name));
-                        break;
-
-                    case 'sum':
-                        $criteria->addAggregation(new SumAggregation($field, $name));
-                        break;
-
-                    case 'value_count':
-                        $criteria->addAggregation(new ValueCountAggregation($field, $name));
-                        break;
-
-                    default:
-                        $searchRequestException->add(new InvalidAggregationQueryException(sprintf('The aggregation type "%s" used as key does not exists.', $type)), '/aggregations/' . $name);
-                }
-
-                ++$subIndex;
-            }
-
-            ++$index;
-        }
     }
 
     private function setPage(array $payload, Criteria $criteria, SearchRequestException $searchRequestException): void

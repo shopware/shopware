@@ -46,8 +46,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             [],
             $params['currencyId'],
             $params['languageId'],
-            $params['languageId'],
-            //$config['fallbackLanguageId'],
+            Defaults::LANGUAGE_EN,
             Defaults::LIVE_VERSION,
             $params['currencyFactory']
         );

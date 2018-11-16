@@ -45,7 +45,7 @@ class ChildCountIndexerTest extends TestCase
     public function setUp()
     {
         $this->categoryRepository = $this->getContainer()->get('category.repository');
-        $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $this->context = Context::createDefaultContext();
         $this->childCountIndexer = $this->getContainer()->get(ChildCountIndexer::class);
         $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
         $this->connection = $this->getContainer()->get(Connection::class);
@@ -187,7 +187,7 @@ class ChildCountIndexerTest extends TestCase
             static::assertEquals(0, $category->getChildCount());
         }
 
-        $this->childCountIndexer->index(new \DateTime(), $this->context->getTenantId());
+        $this->childCountIndexer->index(new \DateTime());
 
         $categories = $this->categoryRepository->read(new ReadCriteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
 

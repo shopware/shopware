@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\TenantIdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
@@ -109,7 +108,6 @@ class ScoreBuilderTestDefinition extends EntityDefinition
     public static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            new TenantIdField(),
             (new StringField('name', 'name'))->setFlags(new SearchRanking(100)),
             (new StringField('description', 'description'))->setFlags(new SearchRanking(200)),
             new StringField('long_description', 'longDescription'),
@@ -128,7 +126,6 @@ class NestedDefinition extends EntityDefinition
     public static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            new TenantIdField(),
             (new StringField('name', 'name'))->setFlags(new SearchRanking(100)),
         ]);
     }
@@ -144,7 +141,6 @@ class OnlyTranslatedFieldDefinition extends EntityDefinition
     public static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            new TenantIdField(),
             new TranslatedField('name'),
         ]);
     }

@@ -8,7 +8,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityForeignKeyResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\TenantIdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry;
@@ -157,14 +156,9 @@ class EntityWriter implements EntityWriterInterface
                     continue;
                 }
 
-                if ($field instanceof TenantIdField) {
-                    $mapped[$field->getStorageName()] = $writeContext->getContext()->getTenantId();
-                    continue;
-                }
-
                 $fieldKeys = $fields
                     ->filter(function (Field $field) {
-                        return !$field instanceof VersionField && !$field instanceof ReferenceVersionField && !$field instanceof TenantIdField;
+                        return !$field instanceof VersionField && !$field instanceof ReferenceVersionField;
                     })
                     ->map(function (Field $field) {
                         return $field->getPropertyName();
@@ -310,7 +304,7 @@ class EntityWriter implements EntityWriterInterface
     {
         $fields = $command->getDefinition()::getPrimaryKeys();
         $fields = $fields->filter(function (Field $field) {
-            return !$field instanceof VersionField && !$field instanceof ReferenceVersionField && !$field instanceof TenantIdField;
+            return !$field instanceof VersionField && !$field instanceof ReferenceVersionField;
         });
 
         $primaryKey = $command->getPrimaryKey();

@@ -119,17 +119,8 @@
             <argument>%kernel.project_dir%</argument>
         </service>
 
-        <service class="Shopware\Core\Framework\Provisioning\TenantProvisioner" id="Shopware\Core\Framework\Provisioning\TenantProvisioner">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-        </service>
-
         <service class="Shopware\Core\Framework\Provisioning\UserProvisioner" id="Shopware\Core\Framework\Provisioning\UserProvisioner">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-        </service>
-
-        <service class="Shopware\Core\Framework\Command\CreateTenantCommand" id="Shopware\Core\Framework\Command\CreateTenantCommand">
-            <tag name="console.command" command="framework:create:tenant"/>
-            <argument type="service" id="Shopware\Core\Framework\Provisioning\TenantProvisioner"/>
         </service>
 
         <!-- Migration -->
@@ -243,10 +234,6 @@
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextService"/>
         </service>
 
-        <service class="Shopware\Core\Framework\Cli\CliContextSubscriber" id="Shopware\Core\Framework\Cli\CliContextSubscriber">
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
         <service class="Shopware\Core\Framework\Validation\CommandQueueValidator" id="Shopware\Core\Framework\Validation\CommandQueueValidator">
             <argument type="tagged" tag="shopware.validator" />
         </service>
@@ -254,7 +241,6 @@
         <service class="Shopware\Core\Framework\Api\Controller\StorefrontProxyController" id="Shopware\Core\Framework\Api\Controller\StorefrontProxyController" public="true">
             <argument type="service" id="kernel"/>
             <argument type="service" id="sales_channel.repository"/>
-            <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextService"/>
             <argument type="service" id="Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver"/>
         </service>
     </services>

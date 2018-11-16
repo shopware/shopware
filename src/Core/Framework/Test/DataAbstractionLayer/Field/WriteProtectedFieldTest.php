@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
@@ -34,35 +33,28 @@ class WriteProtectedFieldTest extends TestCase
 DROP TABLE IF EXISTS _test_relation;
 CREATE TABLE `_test_relation` (
   `id` binary(16) NOT NULL,
-  `tenant_id` binary(16) NULL,
   PRIMARY KEY `id` (`id`)
 );
 
 DROP TABLE IF EXISTS _test_nullable_reference;
 CREATE TABLE `_test_nullable_reference` (
   `wp_id` binary(16) NOT NULL,
-  `wp_tenant_id` binary(16) NULL,
   `relation_id` binary(16) NOT NULL,
-  `relation_tenant_id` binary(16) NULL,
   PRIMARY KEY `pk` (`wp_id`, `relation_id`)
 );
             
 DROP TABLE IF EXISTS _test_nullable_translation;
 CREATE TABLE `_test_nullable_translation` (
   `wp_id` binary(16) NOT NULL,
-  `wp_tenant_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,
-  `language_tenant_id` binary(16) NOT NULL,
   `protected` varchar(255) NULL,
-  PRIMARY KEY `pk` (`wp_id`, `wp_tenant_id`, `language_id`, `language_tenant_id`)
+  PRIMARY KEY `pk` (`wp_id`, `language_id`)
 );
 
 DROP TABLE IF EXISTS _test_nullable;
 CREATE TABLE `_test_nullable` (
   `id` binary(16) NOT NULL,
-  `tenant_id` binary(16) NULL,
   `relation_id` binary(16) NULL,
-  `relation_tenant_id` binary(16) NULL,
   `protected` varchar(255) NULL,
   PRIMARY KEY `id` (`id`),
   FOREIGN KEY `fk` (`relation_id`) REFERENCES _test_relation (`id`)
@@ -351,7 +343,7 @@ EOF;
 
     protected function createWriteContext(): WriteContext
     {
-        $context = WriteContext::createFromContext(Context::createDefaultContext(Defaults::TENANT_ID));
+        $context = WriteContext::createFromContext(Context::createDefaultContext());
 
         return $context;
     }

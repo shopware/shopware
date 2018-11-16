@@ -198,7 +198,7 @@ class StorefrontCheckoutContextControllerTest extends TestCase
                 'salutation' => 'Mr.',
                 'customerNumber' => '12345',
             ],
-        ], Context::createDefaultContext(Defaults::TENANT_ID));
+        ], Context::createDefaultContext());
 
         return $customerId;
     }
@@ -219,7 +219,7 @@ class StorefrontCheckoutContextControllerTest extends TestCase
         ];
 
         $this->customerAddressRepository
-            ->upsert([$data], Context::createDefaultContext(Defaults::TENANT_ID));
+            ->upsert([$data], Context::createDefaultContext());
 
         return $addressId;
     }

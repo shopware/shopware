@@ -46,9 +46,9 @@ class ChildCountIndexer implements IndexerInterface
         $this->definitionRegistry = $definitionRegistry;
     }
 
-    public function index(\DateTime $timestamp, string $tenantId): void
+    public function index(\DateTime $timestamp): void
     {
-        $context = Context::createDefaultContext($tenantId);
+        $context = Context::createDefaultContext();
 
         /** @var EntityDefinition|string $definition */
         foreach ($this->definitionRegistry->getElements() as $definition) {
@@ -57,7 +57,7 @@ class ChildCountIndexer implements IndexerInterface
             }
 
             $entityName = $definition::getEntityName();
-            $iterator = $this->createIterator($tenantId, $entityName, $definition);
+            $iterator = $this->createIterator($entityName, $definition);
 
             $this->eventDispatcher->dispatch(
                 ProgressStartedEvent::NAME,
@@ -121,8 +121,6 @@ class ChildCountIndexer implements IndexerInterface
         }
 
         $versionId = Uuid::fromStringToBytes($context->getVersionId());
-        $tenantId = Uuid::fromHexToBytes($context->getTenantId());
-
         $parentIds = array_map(function ($id) {
             return Uuid::fromHexToBytes($id);
         }, $parentIds);
@@ -137,13 +135,12 @@ class ChildCountIndexer implements IndexerInterface
                 (
                     SELECT parent_id, count(id) total
                     FROM   #entity#
-                    WHERE version_id = :version AND tenant_id = :tenant
+                    WHERE version_id = :version
                     GROUP BY parent_id
                 ) child ON parent.id = child.parent_id
             SET parent.child_count = IFNULL(child.total, 0)
             WHERE parent.id IN (:ids)
-            AND parent.version_id = :version
-            AND parent.tenant_id = :tenant'
+            AND parent.version_id = :version'
         );
 
         $this->connection->executeQuery(
@@ -151,7 +148,6 @@ class ChildCountIndexer implements IndexerInterface
             [
                 'ids' => $parentIds,
                 'version' => $versionId,
-                'tenant' => $tenantId,
             ],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
@@ -169,11 +165,9 @@ class ChildCountIndexer implements IndexerInterface
         $query->select(['parent_id']);
         $query->from($entityName);
         $query->andWhere('id IN (:ids)');
-        $query->andWhere('tenant_id = :tenant');
         $query->andWhere('version_id = :version');
 
         $query->setParameter('version', Uuid::fromStringToBytes($context->getVersionId()));
-        $query->setParameter('tenant', Uuid::fromStringToBytes($context->getTenantId()));
         $query->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY);
 
         $parents = $query->execute()->fetchAll(FetchMode::COLUMN);
@@ -184,16 +178,13 @@ class ChildCountIndexer implements IndexerInterface
         }, $parents);
     }
 
-    private function createIterator(string $tenantId, string $entityName, string $definition): IterableQuery
+    private function createIterator(string $entityName, string $definition): IterableQuery
     {
         $query = $this->connection->createQueryBuilder();
 
         $query->from($entityName);
-        $query->andWhere('tenant_id = :tenantId');
 
         $query->setMaxResults(50);
-
-        $query->setParameter('tenantId', Uuid::fromHexToBytes($tenantId));
 
         /** @var EntityDefinition|string $definition */
         if ($definition::getFields()->has('autoIncrement')) {

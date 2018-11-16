@@ -129,11 +129,10 @@ class AccountController extends StorefrontController
 
         $this->contextPersister->save(
             $context->getToken(),
-            [CheckoutContextService::CUSTOMER_ID => $customer->getId()],
-            $context->getTenantId()
+            [CheckoutContextService::CUSTOMER_ID => $customer->getId()]
         );
 
-        $this->checkoutContextService->refresh($context->getTenantId(), $context->getSalesChannel()->getId(), $context->getToken());
+        $this->checkoutContextService->refresh($context->getSalesChannel()->getId(), $context->getToken());
 
         if ($url = $request->query->get('redirectTo')) {
             return $this->handleRedirectTo($url);
@@ -151,8 +150,7 @@ class AccountController extends StorefrontController
 
         $this->contextPersister->save(
             $context->getToken(),
-            [CheckoutContextService::CUSTOMER_ID => null],
-            $context->getTenantId()
+            [CheckoutContextService::CUSTOMER_ID => null]
         );
 
         return $this->redirectToRoute('homepage');
@@ -169,11 +167,10 @@ class AccountController extends StorefrontController
 
             $this->contextPersister->save(
                 $context->getToken(),
-                [CheckoutContextService::CUSTOMER_ID => $customerId],
-                $context->getTenantId()
+                [CheckoutContextService::CUSTOMER_ID => $customerId]
             );
 
-            $this->checkoutContextService->refresh($context->getTenantId(), $context->getSalesChannel()->getId(), $context->getToken());
+            $this->checkoutContextService->refresh($context->getSalesChannel()->getId(), $context->getToken());
         } catch (BadCredentialsException $exception) {
             return $this->redirectToRoute('account_login');
         }
@@ -208,8 +205,7 @@ class AccountController extends StorefrontController
 
         $this->contextPersister->save(
             $context->getToken(),
-            [CheckoutContextService::PAYMENT_METHOD_ID => $data['payment']],
-            $context->getTenantId()
+            [CheckoutContextService::PAYMENT_METHOD_ID => $data['payment']]
         );
 
         return $this->redirectToRoute('account_home', ['success' => 'payment']);
@@ -266,7 +262,6 @@ class AccountController extends StorefrontController
         $this->accountService->saveProfile($profileSaveRequest, $context);
 
         $this->checkoutContextService->refresh(
-            $context->getTenantId(),
             $context->getSalesChannel()->getId(),
             $context->getToken()
         );
@@ -286,7 +281,7 @@ class AccountController extends StorefrontController
 
         // todo validate user input
         $this->accountService->savePassword($passwordSaveRequest, $context);
-        $this->checkoutContextService->refresh($context->getTenantId(), $context->getSalesChannel()->getId(), $context->getToken());
+        $this->checkoutContextService->refresh($context->getSalesChannel()->getId(), $context->getToken());
 
         return $this->redirectToRoute('account_profile', [
             'success' => true,
@@ -303,7 +298,7 @@ class AccountController extends StorefrontController
 
         // todo validate user input
         $this->accountService->saveEmail($emailSaveRequest, $context);
-        $this->checkoutContextService->refresh($context->getTenantId(), $context->getSalesChannel()->getId(), $context->getToken());
+        $this->checkoutContextService->refresh($context->getSalesChannel()->getId(), $context->getToken());
 
         return $this->redirectToRoute('account_profile', [
             'success' => true,
@@ -353,7 +348,7 @@ class AccountController extends StorefrontController
             $this->accountService->setDefaultBillingAddress($request->getId(), $context);
         }
 
-        $this->checkoutContextService->refresh($context->getTenantId(), $context->getSalesChannel()->getId(), $context->getToken());
+        $this->checkoutContextService->refresh($context->getSalesChannel()->getId(), $context->getToken());
 
         if ($url = $httpRequest->query->get('redirectTo')) {
             return $this->handleRedirectTo($url);
@@ -418,7 +413,7 @@ class AccountController extends StorefrontController
 
         $addressId = $request->request->get('addressId');
         $this->accountService->setDefaultBillingAddress($addressId, $context);
-        $this->checkoutContextService->refresh($context->getTenantId(), $context->getSalesChannel()->getId(), $context->getToken());
+        $this->checkoutContextService->refresh($context->getSalesChannel()->getId(), $context->getToken());
 
         return $this->redirectToRoute('address_index', ['success' => 'default_billing']);
     }
@@ -434,7 +429,7 @@ class AccountController extends StorefrontController
 
         $addressId = $request->request->get('addressId');
         $this->accountService->setDefaultShippingAddress($addressId, $context);
-        $this->checkoutContextService->refresh($context->getTenantId(), $context->getSalesChannel()->getId(), $context->getToken());
+        $this->checkoutContextService->refresh($context->getSalesChannel()->getId(), $context->getToken());
 
         return $this->redirectToRoute('address_index', ['success' => 'default_shipping']);
     }
@@ -508,7 +503,7 @@ class AccountController extends StorefrontController
             $this->accountService->setDefaultBillingAddress($addressId, $context);
         }
 
-        $this->checkoutContextService->refresh($context->getTenantId(), $context->getSalesChannel()->getId(), $context->getToken());
+        $this->checkoutContextService->refresh($context->getSalesChannel()->getId(), $context->getToken());
 
         return new JsonResponse([
             'success' => true,

@@ -12,11 +12,6 @@ class Context extends Struct
     /**
      * @var string
      */
-    protected $tenantId;
-
-    /**
-     * @var string
-     */
     protected $languageId;
 
     /**
@@ -65,7 +60,6 @@ class Context extends Struct
     protected $deleteProtection;
 
     public function __construct(
-        string $tenantId,
         SourceContext $sourceContext,
         ?array $catalogIds,
         array $rules,
@@ -75,7 +69,6 @@ class Context extends Struct
         string $versionId = Defaults::LIVE_VERSION,
         float $currencyFactor = 1.0
     ) {
-        $this->tenantId = $tenantId;
         $this->sourceContext = $sourceContext;
         $this->catalogIds = $catalogIds;
         $this->rules = $rules;
@@ -89,12 +82,12 @@ class Context extends Struct
         $this->deleteProtection = new ProtectionStruct();
     }
 
-    public static function createDefaultContext(string $tenantId): self
+    public static function createDefaultContext(): self
     {
         $sourceContext = new SourceContext('cli');
         $sourceContext->setSalesChannelId(Defaults::SALES_CHANNEL);
 
-        return new self($tenantId, $sourceContext, [Defaults::CATALOG], [], Defaults::CURRENCY, Defaults::LANGUAGE_EN);
+        return new self($sourceContext, [Defaults::CATALOG], [], Defaults::CURRENCY, Defaults::LANGUAGE_EN);
     }
 
     public static function createFromSalesChannel(SalesChannelStruct $salesChannel, string $origin): self
@@ -103,7 +96,6 @@ class Context extends Struct
         $sourceContext->setSalesChannelId($salesChannel->getId());
 
         return new self(
-            $salesChannel->getTenantId(),
             $sourceContext,
             $salesChannel->getCatalogs()->getIds(),
             [],
@@ -161,15 +153,9 @@ class Context extends Struct
         return $this->fallbackLanguageId;
     }
 
-    public function getTenantId(): string
-    {
-        return $this->tenantId;
-    }
-
     public function createWithVersionId(string $versionId): self
     {
         $context = new self(
-            $this->tenantId,
             $this->sourceContext,
             $this->catalogIds,
             $this->rules,
@@ -193,7 +179,6 @@ class Context extends Struct
     public function createWithCatalogIds(array $catalogIds): self
     {
         $context = new self(
-            $this->tenantId,
             $this->sourceContext,
             $catalogIds,
             $this->rules,

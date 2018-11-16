@@ -193,11 +193,6 @@ abstract class EntityDefinition
         return static::getFields()->has('catalogId');
     }
 
-    public static function isTenantAware(): bool
-    {
-        return static::getFields()->has('tenantId');
-    }
-
     public static function getDeleteProtectionKey(): ?string
     {
         return null;

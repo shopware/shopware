@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Test\Api;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Client;
@@ -23,7 +22,6 @@ class VersionTest extends TestCase
         $this->unauthorizedClient->setServerParameters([
             'CONTENT_TYPE' => 'application/json',
             'HTTP_ACCEPT' => ['application/vnd.api+json,application/json'],
-            'HTTP_X_SW_TENANT_ID' => Defaults::TENANT_ID,
         ]);
     }
 

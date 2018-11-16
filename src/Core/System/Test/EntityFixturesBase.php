@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\Test;
 
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
@@ -22,7 +21,7 @@ trait EntityFixturesBase
      */
     public function initializeFixtureContext(): void
     {
-        $this->entityFixtureContext = Context::createDefaultContext(Defaults::TENANT_ID);
+        $this->entityFixtureContext = Context::createDefaultContext();
     }
 
     public function setFixtureContext(Context $context): void

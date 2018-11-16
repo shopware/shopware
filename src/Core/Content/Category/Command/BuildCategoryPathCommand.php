@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
-use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -90,16 +89,7 @@ class BuildCategoryPathCommand extends Command implements EventSubscriberInterfa
     {
         $this->io = new SymfonyStyle($input, $output);
 
-        $tenantId = $input->getOption('tenant-id');
-
-        if (!$tenantId) {
-            throw new \Exception('No tenant id provided');
-        }
-        if (!Uuid::isValid($tenantId)) {
-            throw new \Exception('Invalid uuid provided');
-        }
-
-        $context = Context::createDefaultContext($tenantId);
+        $context = Context::createDefaultContext();
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('category.parentId', null));

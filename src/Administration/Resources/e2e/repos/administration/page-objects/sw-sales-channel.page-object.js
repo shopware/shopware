@@ -32,9 +32,9 @@ class SalesChannelPageObject {
             .fillSwSelectComponent(
                 '.sw-sales-channel-detail__select-countries ',
                 {
-                    value: 'Deutschland',
+                    value: 'Germany',
                     isMulti: true,
-                    searchTerm: 'Deutschland'
+                    searchTerm: 'Germany'
                 }
             )
             .fillSwSelectComponent(

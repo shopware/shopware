@@ -4,7 +4,6 @@ namespace Shopware\Core\System\Test\Country\Repository;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -42,7 +41,7 @@ class CountryStateRepositoryTest extends TestCase
 
         $this->getContainer()->get('country.repository')->create([
             ['id' => $country, 'name' => 'test'],
-        ], Context::createDefaultContext(Defaults::TENANT_ID));
+        ], Context::createDefaultContext());
 
         $recordA = Uuid::uuid4()->getHex();
         $recordB = Uuid::uuid4()->getHex();
@@ -52,7 +51,7 @@ class CountryStateRepositoryTest extends TestCase
             ['id' => $recordB, 'name' => 'not',   'shortCode' => 'match 1', 'countryId' => $country],
         ];
 
-        $this->repository->create($records, Context::createDefaultContext(Defaults::TENANT_ID));
+        $this->repository->create($records, Context::createDefaultContext());
 
         $criteria = new Criteria();
 
@@ -61,7 +60,7 @@ class CountryStateRepositoryTest extends TestCase
         $queries = $builder->buildScoreQueries($pattern, CountryStateDefinition::class, CountryStateDefinition::getEntityName());
         $criteria->addQuery(...$queries);
 
-        $result = $this->repository->searchIds($criteria, Context::createDefaultContext(Defaults::TENANT_ID));
+        $result = $this->repository->searchIds($criteria, Context::createDefaultContext());
 
         static::assertCount(2, $result->getIds());
 

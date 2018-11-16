@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Test\Category\Repository;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -45,19 +44,19 @@ class CategoryRepositoryTest extends TestCase
         $this->repository->create([
             ['id' => $parentId->getHex(), 'name' => 'parent-1'],
             ['id' => $childId->getHex(), 'name' => 'child', 'parentId' => $parentId->getHex()],
-        ], Context::createDefaultContext(Defaults::TENANT_ID));
+        ], Context::createDefaultContext());
 
         $exists = $this->connection->fetchAll(
-            'SELECT * FROM category WHERE id IN (:ids) AND tenant_id = :tenant',
-            ['ids' => [$parentId->getBytes(), $childId->getBytes()], 'tenant' => Uuid::fromHexToBytes(Defaults::TENANT_ID)],
+            'SELECT * FROM category WHERE id IN (:ids)',
+            ['ids' => [$parentId->getBytes(), $childId->getBytes()]],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
         static::assertCount(2, $exists);
 
         $child = $this->connection->fetchAll(
-            'SELECT * FROM category WHERE id IN (:ids) AND tenant_id = :tenant',
-            ['ids' => [$childId->getBytes()], 'tenant' => Uuid::fromHexToBytes(Defaults::TENANT_ID)],
+            'SELECT * FROM category WHERE id IN (:ids)',
+            ['ids' => [$childId->getBytes()]],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
         $child = array_shift($child);
@@ -66,7 +65,7 @@ class CategoryRepositoryTest extends TestCase
 
         $result = $this->repository->delete(
             [['id' => $parentId->getHex()]],
-            Context::createDefaultContext(Defaults::TENANT_ID)
+            Context::createDefaultContext()
         );
 
         static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
@@ -82,8 +81,8 @@ class CategoryRepositoryTest extends TestCase
         );
 
         $exists = $this->connection->fetchAll(
-            'SELECT * FROM category WHERE id IN (:ids) AND tenant_id = :tenant',
-            ['ids' => [$parentId->getBytes(), $childId->getBytes()], 'tenant' => Uuid::fromHexToBytes(Defaults::TENANT_ID)],
+            'SELECT * FROM category WHERE id IN (:ids)',
+            ['ids' => [$parentId->getBytes(), $childId->getBytes()]],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
@@ -98,7 +97,7 @@ class CategoryRepositoryTest extends TestCase
         $this->repository->create([
             ['id' => $parentId->getHex(), 'name' => 'parent-1'],
             ['id' => $childId->getHex(), 'name' => 'child', 'parentId' => $parentId->getHex()],
-        ], Context::createDefaultContext(Defaults::TENANT_ID));
+        ], Context::createDefaultContext());
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM category WHERE id IN (:ids)',
@@ -117,7 +116,7 @@ class CategoryRepositoryTest extends TestCase
 
         $result = $this->repository->delete(
             [['id' => $childId->getHex()]],
-            Context::createDefaultContext(Defaults::TENANT_ID)
+            Context::createDefaultContext()
         );
 
         static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
@@ -149,7 +148,7 @@ class CategoryRepositoryTest extends TestCase
         $this->repository->create([
             ['id' => $parentId->getHex(), 'name' => 'parent-1'],
             ['id' => $childId->getHex(), 'name' => 'child', 'parentId' => $parentId->getHex()],
-        ], Context::createDefaultContext(Defaults::TENANT_ID));
+        ], Context::createDefaultContext());
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM category WHERE id IN (:ids)',
@@ -170,7 +169,7 @@ class CategoryRepositoryTest extends TestCase
 
         $result = $this->repository->delete([
             ['id' => $parentId->getHex()],
-        ], Context::createDefaultContext(Defaults::TENANT_ID));
+        ], Context::createDefaultContext());
 
         static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
 
@@ -193,7 +192,7 @@ class CategoryRepositoryTest extends TestCase
             ['id' => $recordB, 'name' => 'not', 'metaKeywords' => 'match', 'parentId' => $parent],
         ];
 
-        $this->repository->create($categories, Context::createDefaultContext(Defaults::TENANT_ID));
+        $this->repository->create($categories, Context::createDefaultContext());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('category.parentId', $parent));
@@ -204,7 +203,7 @@ class CategoryRepositoryTest extends TestCase
         $queries = $builder->buildScoreQueries($pattern, CategoryDefinition::class, 'category');
         $criteria->addQuery(...$queries);
 
-        $result = $this->repository->searchIds($criteria, Context::createDefaultContext(Defaults::TENANT_ID));
+        $result = $this->repository->searchIds($criteria, Context::createDefaultContext());
 
         static::assertCount(2, $result->getIds());
 

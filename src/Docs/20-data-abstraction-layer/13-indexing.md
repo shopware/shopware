@@ -11,7 +11,7 @@ You can create your own indexer by implementing the `IndexerInterface`.
 ```php
 class MyCustomerIndexer implements IndexerInterface
 {
-    public function index(\DateTime $timestamp, string $tenantId): void
+    public function index(\DateTime $timestamp): void
     {
         // will only be executed if called directly or
         // via Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerRegistry->index()

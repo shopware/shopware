@@ -81,12 +81,11 @@ class VersioningTest extends TestCase
     public function testVersionChangeOnInsert(): void
     {
         $uuid = Uuid::uuid4()->getHex();
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
         $taxData = [
             'id' => $uuid,
             'name' => 'foo tax',
             'taxRate' => 20,
-            'tenantId' => Defaults::TENANT_ID,
         ];
 
         $this->taxRepository->create([$taxData], $context);
@@ -108,7 +107,7 @@ class VersioningTest extends TestCase
         $productId = Uuid::uuid4()->getHex();
         $manufacturerId = Uuid::uuid4()->getHex();
         $taxId = Uuid::uuid4()->getHex();
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
 
         $product = [
             'id' => $productId,
@@ -126,7 +125,6 @@ class VersioningTest extends TestCase
         $productChanges = [
             'id' => $productId,
             'versionId' => Defaults::LIVE_VERSION,
-            'tenantId' => Defaults::TENANT_ID,
             'catalogId' => Defaults::CATALOG,
             'parentVersionId' => Defaults::LIVE_VERSION,
             'manufacturerId' => $manufacturerId,
@@ -159,7 +157,6 @@ class VersioningTest extends TestCase
 
         $manufacturerChanges = [
             'id' => $manufacturerId,
-            'tenantId' => Defaults::TENANT_ID,
             'versionId' => Defaults::LIVE_VERSION,
             'catalogId' => Defaults::CATALOG,
             'mediaVersionId' => Defaults::LIVE_VERSION,
@@ -186,7 +183,7 @@ class VersioningTest extends TestCase
 
     public function testCreateNewVersion(): void
     {
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
 
         $taxId = $this->getTaxNineteenPercent()->getId();
         $versionId = $this->taxRepository->createVersion($taxId, $context, 'testCreateVersionWithoutRelations version');
@@ -211,7 +208,7 @@ class VersioningTest extends TestCase
 
     public function testCreateNewVersionWithSubresources(): void
     {
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
 
         $shippingMethodId = Uuid::uuid4()->getHex();
         $priceId = Uuid::uuid4()->getHex();
@@ -267,7 +264,7 @@ class VersioningTest extends TestCase
     public function testMergeVersions(): void
     {
         $uuid = Uuid::uuid4()->getHex();
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
         $taxData = ['id' => $uuid, 'name' => 'foo tax', 'taxRate' => 20];
         $this->taxRepository->create([$taxData], $context);
 
@@ -322,7 +319,7 @@ class VersioningTest extends TestCase
     public function testReadConsiderVersion(): void
     {
         $uuid = Uuid::uuid4()->getHex();
-        $liveVersionContext = Context::createDefaultContext(Defaults::TENANT_ID);
+        $liveVersionContext = Context::createDefaultContext();
         $taxData = ['id' => $uuid, 'name' => 'foo tax', 'taxRate' => 20];
         $this->taxRepository->create([$taxData], $liveVersionContext);
 
@@ -382,7 +379,7 @@ class VersioningTest extends TestCase
     public function testSearcherConsidersVersionFallback(): void
     {
         $uuid = Uuid::uuid4()->getHex();
-        $liveVersionContext = Context::createDefaultContext(Defaults::TENANT_ID);
+        $liveVersionContext = Context::createDefaultContext();
         $taxData = ['id' => $uuid, 'name' => 'foo tax', 'taxRate' => 5];
         $this->taxRepository->create([$taxData], $liveVersionContext);
 
@@ -443,7 +440,7 @@ class VersioningTest extends TestCase
             ],
         ];
 
-        $liveVersionContext = Context::createDefaultContext(Defaults::TENANT_ID);
+        $liveVersionContext = Context::createDefaultContext();
         $this->shippingMethodRepository->create([$methodData], $liveVersionContext);
 
         $changes = $this->getVersionData(ShippingMethodDefinition::getEntityName(), $uuid, Defaults::LIVE_VERSION);
@@ -545,7 +542,7 @@ class VersioningTest extends TestCase
                 'parentId' => $productId,
             ],
         ];
-        $liveContext = Context::createDefaultContext(Defaults::TENANT_ID);
+        $liveContext = Context::createDefaultContext();
         $this->productRepository->create($products, $liveContext);
 
         $variantVersionId = $this->productRepository->createVersion($variantId, $liveContext);
@@ -613,7 +610,7 @@ class VersioningTest extends TestCase
     {
         $id = Uuid::uuid4()->getHex();
 
-        $liveContext = Context::createDefaultContext(Defaults::TENANT_ID);
+        $liveContext = Context::createDefaultContext();
 
         $this->taxRepository->create([['id' => $id, 'name' => 'test', 'taxRate' => 15]], $liveContext);
 
@@ -647,7 +644,7 @@ class VersioningTest extends TestCase
 
     public function testMergeBoolField(): void
     {
-        $liveContext = Context::createDefaultContext(Defaults::TENANT_ID);
+        $liveContext = Context::createDefaultContext();
         $parentCategoryId = $this->createCategory($liveContext);
 
         $categoryId = Uuid::uuid4()->getHex();
@@ -687,7 +684,7 @@ class VersioningTest extends TestCase
     public function testMergeDateTimeField(): void
     {
         static::markTestIncomplete('Should work with NEXT-829');
-        $liveContext = Context::createDefaultContext(Defaults::TENANT_ID);
+        $liveContext = Context::createDefaultContext();
 
         $customerId = Uuid::uuid4();
         $versionId = Uuid::uuid4();
@@ -741,7 +738,7 @@ class VersioningTest extends TestCase
 
     public function testMergeCalculatedField(): void
     {
-        $liveContext = Context::createDefaultContext(Defaults::TENANT_ID);
+        $liveContext = Context::createDefaultContext();
 
         $categories = [
             [
@@ -858,7 +855,7 @@ class VersioningTest extends TestCase
 
     public function testMergeMediaItems(): void
     {
-        $liveContext = Context::createDefaultContext(Defaults::TENANT_ID);
+        $liveContext = Context::createDefaultContext();
         $liveContext->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
         $mediaId = Uuid::uuid4()->getHex();
         $mediaData = [
@@ -888,7 +885,7 @@ class VersioningTest extends TestCase
 
     public function testMergeNestedObjects(): void
     {
-        $liveContext = Context::createDefaultContext(Defaults::TENANT_ID);
+        $liveContext = Context::createDefaultContext();
         $liveContext->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
 
         $mediaId = Uuid::uuid4()->getHex();
@@ -925,7 +922,7 @@ class VersioningTest extends TestCase
 
     public function testCampaign(): void
     {
-        $liveContext = Context::createDefaultContext(Defaults::TENANT_ID);
+        $liveContext = Context::createDefaultContext();
 
         $parentCategoryId = $this->createCategory($liveContext);
 
@@ -1064,16 +1061,13 @@ class VersioningTest extends TestCase
              INNER JOIN version_commit c
                ON c.id = d.version_commit_id
                AND c.version_id = :version
-               AND c.tenant_id = d.tenant_id
              WHERE entity_name = :entity 
-             AND d.tenant_id = :tenant
              AND JSON_EXTRACT(entity_id, '$.id') = :id
              ORDER BY auto_increment",
             [
                 'entity' => $entity,
                 'id' => $id,
                 'version' => Uuid::fromHexToBytes($versionId),
-                'tenant' => Uuid::fromHexToBytes(Defaults::TENANT_ID),
             ]
         );
     }
@@ -1084,7 +1078,6 @@ class VersioningTest extends TestCase
             "SELECT * 
              FROM version_commit_data 
              WHERE entity_name = :entity
-             AND tenant_id = :tenant 
              AND JSON_EXTRACT(entity_id, '$." . $foreignKeyName . "') = :id
              AND JSON_EXTRACT(entity_id, '$.languageId') = :language
              AND JSON_EXTRACT(entity_id, '$.versionId') = :version
@@ -1094,7 +1087,6 @@ class VersioningTest extends TestCase
                 'id' => $foreignKey,
                 'language' => $languageId,
                 'version' => $versionId,
-                'tenant' => Uuid::fromHexToBytes(Defaults::TENANT_ID),
             ]
         );
     }

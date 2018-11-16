@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Test\Media;
 
 use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\MediaStruct;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -103,7 +102,7 @@ trait MediaFixtures
             [
                 MediaFixtures::$mediaFixtures['Catalog'],
             ],
-            Context::createDefaultContext(Defaults::TENANT_ID));
+            Context::createDefaultContext());
     }
 
     /**
@@ -113,12 +112,12 @@ trait MediaFixtures
     {
         EntityFixturesBase::getFixtureRepository('catalog')->delete([
             ['id' => MediaFixtures::$mediaFixtures['Catalog']['id']], ],
-            Context::createDefaultContext(Defaults::TENANT_ID));
+            Context::createDefaultContext());
     }
 
     public function getContextWithCatalogAndWriteAccess(): Context
     {
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
 
         $context = $context->createWithCatalogIds([MediaFixtures::$mediaFixtures['Catalog']['id']]);
         $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);

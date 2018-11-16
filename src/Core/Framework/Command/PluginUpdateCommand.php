@@ -40,8 +40,8 @@ class PluginUpdateCommand extends Command
     {
         $this->pluginManager->updatePlugins();
 
-        $input = new StringInput(sprintf('plugin:list --tenant-id=%s', $input->getOption('tenant-id')));
+        $listInput = new StringInput('plugin:list');
 
-        $this->getApplication()->doRun($input, $output);
+        $this->getApplication()->doRun($listInput, $output);
     }
 }

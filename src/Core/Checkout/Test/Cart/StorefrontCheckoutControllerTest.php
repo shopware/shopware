@@ -71,13 +71,13 @@ class StorefrontCheckoutControllerTest extends TestCase
         $this->currencyRepository = $this->getContainer()->get('currency.repository');
         $this->taxId = Uuid::uuid4()->getHex();
         $this->manufacturerId = Uuid::uuid4()->getHex();
-        $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $this->context = Context::createDefaultContext();
     }
 
     public function testOrderProcess(): void
     {
         $productId = Uuid::uuid4()->getHex();
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
 
         $this->productRepository->create([
             [
@@ -127,7 +127,7 @@ class StorefrontCheckoutControllerTest extends TestCase
             'shortName' => 'Yen',
             'name' => 'japanese Yen',
         ];
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
         $this->currencyRepository->create([$yen], $context);
         $yenStorefrontClient = $this->createCustomStorefrontClient([
             'currencyId' => $yen['id'],
@@ -177,7 +177,7 @@ class StorefrontCheckoutControllerTest extends TestCase
     public function testGuestOrderProcess(): void
     {
         $productId = Uuid::uuid4()->getHex();
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
 
         $grossPrice = 10;
         $this->productRepository->create([
@@ -250,7 +250,7 @@ class StorefrontCheckoutControllerTest extends TestCase
     {
         // todo write test
         $productId = Uuid::uuid4()->getHex();
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
 
         $grossPrice = 10;
         $this->productRepository->create([
@@ -323,7 +323,7 @@ class StorefrontCheckoutControllerTest extends TestCase
     public function testGuestOrderProcessWithExistingCustomer(): void
     {
         $productId = Uuid::uuid4()->getHex();
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
 
         $grossPrice = 10;
         $this->productRepository->create([
@@ -377,7 +377,7 @@ class StorefrontCheckoutControllerTest extends TestCase
     public function testGuestOrderProcessWithLoggedInCustomer(): void
     {
         $productId = Uuid::uuid4()->getHex();
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
 
         $grossPrice = 10;
         $this->productRepository->create([
@@ -458,7 +458,7 @@ class StorefrontCheckoutControllerTest extends TestCase
     public function testOrderProcessWithEmptyCart(): void
     {
         $addressId = Uuid::uuid4()->getHex();
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
 
         $mail = Uuid::uuid4()->getHex();
         $password = 'shopware';
@@ -567,7 +567,7 @@ class StorefrontCheckoutControllerTest extends TestCase
     private function createGuestOrder()
     {
         $productId = Uuid::uuid4()->getHex();
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
 
         $grossPrice = 10;
         $this->productRepository->create([

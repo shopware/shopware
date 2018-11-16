@@ -32,8 +32,8 @@ class CartPersister implements CartPersisterInterface
     public function load(string $token, CheckoutContext $context): Cart
     {
         $content = $this->connection->fetchColumn(
-            'SELECT `cart`.`cart` FROM cart WHERE `token` = :token AND tenant_id = :tenant',
-            ['token' => $token, 'tenant' => Uuid::fromHexToBytes($context->getTenantId())]
+            'SELECT `cart`.`cart` FROM cart WHERE `token` = :token',
+            ['token' => $token]
         );
 
         if ($content === false) {
@@ -66,29 +66,20 @@ class CartPersister implements CartPersisterInterface
 
         $customerId = $context->getCustomer() ? Uuid::fromStringToBytes($context->getCustomer()->getId()) : null;
 
-        $tenantId = Uuid::fromHexToBytes($context->getTenantId());
-
         $data = [
             'version_id' => $liveVersion,
-            'tenant_id' => $tenantId,
             'token' => $cart->getToken(),
             'name' => $cart->getName(),
             'currency_id' => Uuid::fromStringToBytes($context->getCurrency()->getId()),
-            'currency_tenant_id' => $tenantId,
             'currency_version_id' => $liveVersion,
             'shipping_method_id' => Uuid::fromStringToBytes($context->getShippingMethod()->getId()),
-            'shipping_method_tenant_id' => $tenantId,
             'shipping_method_version_id' => $liveVersion,
             'payment_method_id' => Uuid::fromStringToBytes($context->getPaymentMethod()->getId()),
-            'payment_method_tenant_id' => $tenantId,
             'payment_method_version_id' => $liveVersion,
             'country_id' => Uuid::fromStringToBytes($context->getShippingLocation()->getCountry()->getId()),
-            'country_tenant_id' => $tenantId,
             'country_version_id' => $liveVersion,
             'sales_channel_id' => Uuid::fromStringToBytes($context->getSalesChannel()->getId()),
-            'sales_channel_tenant_id' => $tenantId,
             'customer_id' => $customerId,
-            'customer_tenant_id' => $tenantId,
             'customer_version_id' => $context->getCustomer() ? $liveVersion : null,
             'price' => $cart->getPrice()->getTotalPrice(),
             'line_item_count' => $cart->getLineItems()->count(),
@@ -105,8 +96,8 @@ class CartPersister implements CartPersisterInterface
     public function delete(string $token, CheckoutContext $context): void
     {
         $this->connection->executeUpdate(
-                'DELETE FROM cart WHERE `token` = :token AND tenant_id = :tenant',
-                ['token' => $token, 'tenant' => Uuid::fromHexToBytes($context->getTenantId())]
-            );
+            'DELETE FROM cart WHERE `token` = :token',
+            ['token' => $token]
+        );
     }
 }

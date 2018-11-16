@@ -114,9 +114,8 @@ class CheckoutRuleLoader
         if ($this->rules !== null) {
             return $this->rules;
         }
-        $key = 'rules_key_' . $context->getTenantId();
 
-        $cacheItem = $this->cache->getItem($key);
+        $cacheItem = $this->cache->getItem('rules_key');
 
         try {
             if ($cacheItem->isHit()) {

@@ -1146,10 +1146,6 @@
             <tag name="shopware.field_serializer" />
         </service>
 
-        <service class="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\TenantIdFieldSerializer" id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\TenantIdFieldSerializer">
-            <tag name="shopware.field_serializer" />
-        </service>
-
         <service class="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\TranslatedFieldSerializer" id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\TranslatedFieldSerializer">
             <tag name="shopware.field_serializer" />
         </service>

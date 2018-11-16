@@ -32,7 +32,7 @@ module.exports = {
             .fillField('input[name=sw-field--address-street]', 'Ebbinghoff 10')
             .fillField('input[name=sw-field--address-zipcode]', '48624')
             .fillField('input[name=sw-field--address-city]', 'Schöppingen')
-            .fillSelectField('select[name="sw-field--address-countryId"]', 'Deutschland');
+            .fillSelectField('select[name="sw-field--address-countryId"]', 'Germany');
     },
     'save and verify new customer': (browser) => {
         browser

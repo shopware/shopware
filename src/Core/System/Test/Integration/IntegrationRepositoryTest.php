@@ -4,7 +4,6 @@ namespace Shopware\Core\System\Test\Integration;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
@@ -45,7 +44,7 @@ class IntegrationRepositoryTest extends TestCase
             ],
         ];
 
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
 
         $this->repository->create($records, $context);
 

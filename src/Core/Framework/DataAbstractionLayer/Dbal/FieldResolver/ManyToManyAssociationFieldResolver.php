@@ -47,8 +47,6 @@ class ManyToManyAssociationFieldResolver implements FieldResolverInterface
             $versionJoinCondition = ' AND #root#.version_id = #alias#.' . $versionField;
         }
 
-        $tenantField = EntityDefinitionQueryHelper::escape($definition::getEntityName() . '_tenant_id');
-
         $source = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getLocalField());
         if ($field->is(Inherited::class)) {
             $source = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getPropertyName());
@@ -69,8 +67,7 @@ class ManyToManyAssociationFieldResolver implements FieldResolverInterface
                 array_keys($parameters),
                 array_values($parameters),
                 '#source# = #alias#.#reference_column#' .
-                $versionJoinCondition .
-                ' AND #root#.`tenant_id` = #alias#.' . $tenantField
+                $versionJoinCondition
             )
         );
 
@@ -90,11 +87,6 @@ class ManyToManyAssociationFieldResolver implements FieldResolverInterface
         $catalogJoinCondition = '';
         if ($definition::isCatalogAware() && $reference::isCatalogAware()) {
             $catalogJoinCondition = ' AND #root#.`catalog_id` = #alias#.`catalog_id`';
-        }
-
-        $tenantJoinCondition = '';
-        if ($definition::isTenantAware() && $reference::isTenantAware()) {
-            $tenantJoinCondition = ' AND #root#.`tenant_id` = #alias#.`tenant_id`';
         }
 
         $referenceColumn = EntityDefinitionQueryHelper::escape($field->getReferenceField());
@@ -122,8 +114,7 @@ class ManyToManyAssociationFieldResolver implements FieldResolverInterface
                 array_values($parameters),
                 '#mapping#.#source_column# = #alias#.#reference_column# ' .
                 $versionJoinCondition .
-                $catalogJoinCondition .
-                $tenantJoinCondition
+                $catalogJoinCondition
             )
         );
 

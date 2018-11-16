@@ -72,7 +72,7 @@ class OrderingProcessTest extends TestCase
         self::assertTrue(Uuid::isValid($orderId));
 
         /** @var OrderStruct $order */
-        $order = $this->orderRepository->read(new ReadCriteria([$orderId]), Context::createDefaultContext(Defaults::TENANT_ID))
+        $order = $this->orderRepository->read(new ReadCriteria([$orderId]), Context::createDefaultContext())
             ->get($orderId);
 
         self::assertEquals(Defaults::PAYMENT_METHOD_PAID_IN_ADVANCE, $order->getPaymentMethodId());
@@ -188,7 +188,7 @@ class OrderingProcessTest extends TestCase
         $this->entityWriter->upsert(
             CustomerDefinition::class,
             [$customer],
-            WriteContext::createFromContext(Context::createDefaultContext(Defaults::TENANT_ID))
+            WriteContext::createFromContext(Context::createDefaultContext())
         );
 
         return $customerId;

@@ -8,7 +8,6 @@ use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -50,7 +49,7 @@ class FileSaverTest extends TestCase
 
         $mediaId = Uuid::uuid4()->getHex();
 
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
         $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
 
         $this->repository->create(
@@ -87,7 +86,7 @@ class FileSaverTest extends TestCase
         $fileSize = filesize($tempFile);
         $mediaFile = new MediaFile($tempFile, 'image/png', 'png', $fileSize);
 
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
         $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
 
         $this->setFixtureContext($context);

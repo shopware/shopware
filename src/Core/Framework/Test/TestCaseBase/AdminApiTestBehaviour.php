@@ -63,7 +63,6 @@ trait AdminApiTestBehaviour
         $apiClient->setServerParameters([
             'CONTENT_TYPE' => 'application/json',
             'HTTP_ACCEPT' => ['application/vnd.api+json,application/json'],
-            'HTTP_X_SW_TENANT_ID' => Defaults::TENANT_ID,
         ]);
 
         $this->authorizeClient($apiClient);
@@ -111,13 +110,11 @@ trait AdminApiTestBehaviour
         $connection = $client->getContainer()->get(Connection::class);
         $connection->insert('user', [
             'id' => Uuid::uuid4()->getBytes(),
-            'tenant_id' => Uuid::fromHexToBytes(Defaults::TENANT_ID),
             'name' => $username,
             'email' => 'admin@example.com',
             'username' => $username,
             'password' => password_hash($password, PASSWORD_BCRYPT),
             'locale_id' => Uuid::fromStringToBytes(Defaults::LOCALE_EN_GB),
-            'locale_tenant_id' => Uuid::fromHexToBytes(Defaults::TENANT_ID),
             'active' => 1,
             'created_at' => (new \DateTime())->format(Defaults::DATE_FORMAT),
         ]);

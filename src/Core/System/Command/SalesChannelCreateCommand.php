@@ -46,21 +46,8 @@ class SalesChannelCreateCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $tenantId = $input->getOption('tenant-id');
         $id = $input->getOption('id');
         $typeId = $input->getOption('typeId');
-
-        if (!$tenantId) {
-            throw new \Exception('No tenant id provided');
-        }
-
-        if (!Uuid::isValid($tenantId)) {
-            throw new \Exception('Invalid uuid provided');
-        }
-
-        if (!Uuid::isValid($tenantId)) {
-            throw new \Exception('Invalid uuid provided');
-        }
 
         $io = new SymfonyStyle($input, $output);
 
@@ -88,7 +75,7 @@ class SalesChannelCreateCommand extends Command
         ];
 
         try {
-            $this->salesChannelRepository->create([$data], Context::createDefaultContext($tenantId));
+            $this->salesChannelRepository->create([$data], Context::createDefaultContext());
 
             $io->success('Sales channel has been created successfully.');
         } catch (WriteStackException $exception) {

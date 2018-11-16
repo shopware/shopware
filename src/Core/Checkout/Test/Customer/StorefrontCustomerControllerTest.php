@@ -62,7 +62,7 @@ class StorefrontCustomerControllerTest extends TestCase
         $this->countryRepository = $this->getContainer()->get('country.repository');
         $this->customerAddressRepository = $this->getContainer()->get('customer_address.repository');
         $this->countryStateRepository = $this->getContainer()->get('country_state.repository');
-        $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $this->context = Context::createDefaultContext();
     }
 
     public function testLogin(): void
@@ -574,7 +574,7 @@ class StorefrontCustomerControllerTest extends TestCase
     {
         return $this->customerRepository->read(
             new ReadCriteria([$userID]),
-            Context::createDefaultContext(Defaults::TENANT_ID)
+            Context::createDefaultContext()
         )->get($userID);
     }
 
@@ -582,7 +582,7 @@ class StorefrontCustomerControllerTest extends TestCase
     {
         return $this->customerAddressRepository->read(
             new ReadCriteria([$addressId]),
-            Context::createDefaultContext(Defaults::TENANT_ID)
+            Context::createDefaultContext()
         )->get($addressId);
     }
 
@@ -608,7 +608,7 @@ class StorefrontCustomerControllerTest extends TestCase
     private function createOrder(): void
     {
         $productId = Uuid::uuid4()->getHex();
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
 
         $this->productRepository->create([
             [

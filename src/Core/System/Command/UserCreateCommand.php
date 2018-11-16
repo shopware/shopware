@@ -3,7 +3,6 @@
 namespace Shopware\Core\System\Command;
 
 use Shopware\Core\Framework\Provisioning\UserProvisioner;
-use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -45,15 +44,6 @@ class UserCreateCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-        $tenantId = $input->getOption('tenant-id');
-
-        if (!$tenantId) {
-            throw new \Exception('No tenant id provided');
-        }
-        if (!Uuid::isValid($tenantId)) {
-            throw new \Exception('Invalid uuid provided');
-        }
-
         $username = $input->getArgument('username');
         $password = $input->getOption('password');
 
@@ -73,7 +63,7 @@ class UserCreateCommand extends Command
             $additionalData['email'] = $input->getOption('email');
         }
 
-        $this->userProvisioner->provision($tenantId, $username, $password, $additionalData);
+        $this->userProvisioner->provision($username, $password, $additionalData);
 
         $io->success(sprintf('User "%s" successfully created.', $username));
     }

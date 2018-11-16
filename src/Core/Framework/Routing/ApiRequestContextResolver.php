@@ -40,7 +40,6 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         $params = $this->getContextParameters($master, $sourceContext);
 
         $context = new Context(
-            $params['tenantId'],
             $sourceContext,
             null,
             [],
@@ -60,11 +59,10 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             'currencyId' => Defaults::CURRENCY,
             'languageId' => Defaults::LANGUAGE_EN,
             'currencyFactory' => 1.0,
-            'tenantId' => $master->headers->get(PlatformRequest::HEADER_TENANT_ID),
         ];
 
         if ($sourceContext->getUserId()) {
-            $params = array_replace_recursive($params, $this->getUserParameters($sourceContext->getUserId(), $params['tenantId']));
+            $params = array_replace_recursive($params, $this->getUserParameters($sourceContext->getUserId()));
         }
 
         $params = array_replace_recursive($params, $this->getRuntimeParameters($master));
@@ -72,21 +70,15 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         return $params;
     }
 
-    private function getUserParameters(string $userId, string $tenantId): array
+    private function getUserParameters(string $userId): array
     {
-        $builder = $this->connection->createQueryBuilder();
-        $user = $builder->select([
-                '"20080911ffff4fffafffffff19830531" as languageId', //'user.languageId',
-                '"20080911ffff4fffafffffff19830531" as currencyId', //'user.currencyId',
-                /*'user.tenant_id'*/
-            ])
-            ->from('user')
-            ->where('id = :userId')
-            ->andWhere('tenant_id = :tenantId')
-            ->setParameter('userId', Uuid::fromHexToBytes($userId))
-            ->setParameter('tenantId', Uuid::fromHexToBytes($tenantId))
-            ->execute()
-            ->fetch();
+        $sql = <<<SQL
+SELECT '20080911ffff4fffafffffff19830531' as languageId, '20080911ffff4fffafffffff19830531' as currencyId
+FROM user
+WHERE id = :userId
+SQL;
+
+        $user = $this->connection->executeQuery($sql, ['userId' => Uuid::fromHexToBytes($userId)])->fetch();
 
         return $user ?: [];
     }

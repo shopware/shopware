@@ -97,7 +97,7 @@ class Translator implements TranslatorInterface, TranslatorBagInterface
     }
 
     /**
-     * Add tenant and language specific snippets provided by the admin
+     * Add language specific snippets provided by the admin
      *
      * @param MessageCatalogueInterface $catalog
      *
@@ -112,7 +112,7 @@ class Translator implements TranslatorInterface, TranslatorBagInterface
 
         /** @var Context $context */
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
-        $contextHash = md5($context->getTenantId() . $context->getLanguageId() . $context->getFallbackLanguageId());
+        $contextHash = md5($context->getLanguageId() . $context->getFallbackLanguageId());
 
         if (array_key_exists($contextHash, $this->isCustomized)) {
             return $this->isCustomized[$contextHash];
@@ -134,13 +134,12 @@ class Translator implements TranslatorInterface, TranslatorBagInterface
         return $this->isCustomized[$contextHash] = $newCatalog;
     }
 
-    private function getSnippetQuery(string $languageId, string $tenantId): QueryBuilder
+    private function getSnippetQuery(string $languageId): QueryBuilder
     {
         return $this->connection->createQueryBuilder()
             ->select(['snippet.translation_key', 'snippet.value'])
             ->from('snippet')
-            ->where('snippet.tenant_id = :tenantId AND snippet.language_id = :languageId')
-            ->setParameter('tenantId', Uuid::fromHexToBytes($tenantId))
+            ->where('snippet.language_id = :languageId')
             ->setParameter('languageId', Uuid::fromHexToBytes($languageId))
             ->addGroupBy('snippet.translation_key')
         ;
@@ -148,12 +147,12 @@ class Translator implements TranslatorInterface, TranslatorBagInterface
 
     private function fetchSnippetsFromDatabase(Context $context): array
     {
-        $snippets = $this->getSnippetQuery($context->getLanguageId(), $context->getTenantId())->execute()->fetchAll();
+        $snippets = $this->getSnippetQuery($context->getLanguageId())->execute()->fetchAll();
         $snippets = FetchModeHelper::keyPair($snippets);
 
         $fallbackSnippets = [];
         if ($context->hasFallback()) {
-            $fallbackSnippets = $this->getSnippetQuery($context->getFallbackLanguageId(), $context->getTenantId())->execute()->fetchAll();
+            $fallbackSnippets = $this->getSnippetQuery($context->getFallbackLanguageId())->execute()->fetchAll();
             $fallbackSnippets = FetchModeHelper::keyPair($fallbackSnippets);
         }
 

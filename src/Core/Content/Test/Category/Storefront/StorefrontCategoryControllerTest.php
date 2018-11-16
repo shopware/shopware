@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Test\Category\Storefront;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -34,7 +33,7 @@ class StorefrontCategoryControllerTest extends TestCase
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->repository = $this->getContainer()->get('category.repository');
-        $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $this->context = Context::createDefaultContext();
     }
 
     public function testCategoryListRoute(): void

@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Test\Product;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\StorefrontFunctionalTestBehaviour;
@@ -43,7 +42,7 @@ class ProductControllerTest extends TestCase
                 'manufacturer' => ['id' => $manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $taxId, 'taxRate' => 17, 'name' => 'with id'],
             ],
-        ], Context::createDefaultContext(Defaults::TENANT_ID));
+        ], Context::createDefaultContext());
 
         $this->getStorefrontClient()->request('GET', '/storefront-api/product');
 
@@ -81,7 +80,7 @@ class ProductControllerTest extends TestCase
                 'manufacturer' => ['id' => $manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $taxId, 'taxRate' => 17, 'name' => 'with id'],
             ],
-        ], Context::createDefaultContext(Defaults::TENANT_ID));
+        ], Context::createDefaultContext());
 
         $this->getStorefrontClient()->request('GET', '/storefront-api/product/' . $productId);
 

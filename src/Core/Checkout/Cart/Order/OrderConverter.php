@@ -218,7 +218,6 @@ class OrderConverter
         }
 
         return $this->checkoutContextFactory->create(
-            $order->getTenantId(),
             Uuid::uuid4()->getHex(),
             $order->getSalesChannelId(),
             [

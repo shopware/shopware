@@ -6,7 +6,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerInterface;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
-use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -79,16 +78,6 @@ class RefreshIndexCommand extends Command implements EventSubscriberInterface
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->io = new SymfonyStyle($input, $output);
-
-        $tenantId = $input->getOption('tenant-id');
-
-        if (!$tenantId) {
-            throw new \Exception('No tenant id provided');
-        }
-        if (!Uuid::isValid($tenantId)) {
-            throw new \Exception('Invalid uuid provided');
-        }
-
-        $this->indexer->index(new \DateTime(), $tenantId);
+        $this->indexer->index(new \DateTime());
     }
 }

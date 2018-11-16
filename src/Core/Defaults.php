@@ -4,8 +4,6 @@ namespace Shopware\Core;
 
 final class Defaults
 {
-    public const TENANT_ID = '20080911ffff4fffafffffff19830531';
-
     public const SALES_CHANNEL = '20080911ffff4fffafffffff19830531';
 
     public const LANGUAGE_EN = '20080911ffff4fffafffffff19830531';

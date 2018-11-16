@@ -55,8 +55,7 @@ class SearchKeywordAssociationFieldResolver implements FieldResolverInterface
             str_replace(
                 array_keys($parameters),
                 array_values($parameters),
-                '#source# = #alias#.#reference_column# AND #alias#.`entity` = :' . $entityKey .
-                ' AND #root#.tenant_id = #alias#.tenant_id'
+                '#source# = #alias#.#reference_column# AND #alias#.`entity` = :' . $entityKey
             )
         );
 

@@ -89,7 +89,6 @@ Get a list of categories with a limit of 1.
                 "catalog": null,
                 "nestedProducts": null,
                 "id": "215d2775df0a46caba5f7edbb233b7ff",
-                "tenantId": "20080911ffff4fffafffffff19830531",
                 "extensions": {
                     "translated": {
                         "name": true,
@@ -157,7 +156,6 @@ Get a single category.
             "catalog": null,
             "nestedProducts": null,
             "id": "215d2775df0a46caba5f7edbb233b7ff",
-            "tenantId": "20080911ffff4fffafffffff19830531",
             "extensions": {
                 "translated": {
                     "name": true,
@@ -284,7 +282,6 @@ Get a list of products belonging to the category.
                     "products": null,
                     "productServices": null,
                     "id": "7ad9535e9ff04f04a671ae07470e572d",
-                    "tenantId": "20080911ffff4fffafffffff19830531",
                     "extensions": [],
                     "versionId": null
                 },
@@ -304,7 +301,6 @@ Get a list of products belonging to the category.
                     "products": null,
                     "catalog": null,
                     "id": "c4da48bfcdca41f38969ac78f13353e2",
-                    "tenantId": "20080911ffff4fffafffffff19830531",
                     "extensions": {
                         "translated": {
                             "name": true,
@@ -387,7 +383,6 @@ Get a list of products belonging to the category.
                                 "createdAt": "2018-09-14T09:38:58+02:00",
                                 "updatedAt": null,
                                 "id": "1b6147466c30453599e30af7bb11e3cf",
-                                "tenantId": "20080911ffff4fffafffffff19830531",
                                 "extensions": [],
                                 "mediaVersionId": null
                             },
@@ -401,13 +396,11 @@ Get a list of products belonging to the category.
                                 "createdAt": "2018-09-14T09:38:58+02:00",
                                 "updatedAt": null,
                                 "id": "6a3dcd659d174f6b9051d6211cf3020c",
-                                "tenantId": "20080911ffff4fffafffffff19830531",
                                 "extensions": [],
                                 "mediaVersionId": null
                             }
                         ],
                         "id": "e3c6f1e1faac418d9c56a5328bb287c1",
-                        "tenantId": "20080911ffff4fffafffffff19830531",
                         "extensions": {
                             "translated": {
                                 "description": false,
@@ -419,7 +412,6 @@ Get a list of products belonging to the category.
                     "product": null,
                     "catalog": null,
                     "id": "4d4fb856601943a49730d285a5193f07",
-                    "tenantId": "20080911ffff4fffafffffff19830531",
                     "extensions": [],
                     "versionId": null,
                     "productVersionId": null,
@@ -439,7 +431,6 @@ Get a list of products belonging to the category.
                 "catalog": null,
                 "coverId": "4d4fb856601943a49730d285a5193f07",
                 "id": "34ece98ba27a4e6f8a054887cb009fd1",
-                "tenantId": "20080911ffff4fffafffffff19830531",
                 "extensions": {
                     "inherited": {
                         "manufacturerId": false,

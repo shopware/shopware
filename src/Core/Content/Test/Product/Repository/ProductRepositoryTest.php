@@ -56,7 +56,7 @@ class ProductRepositoryTest extends TestCase
         $this->repository = $this->getContainer()->get('product.repository');
         $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
         $this->connection = $this->getContainer()->get(Connection::class);
-        $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $this->context = Context::createDefaultContext();
     }
 
     public function testWriteCategories(): void
@@ -244,7 +244,7 @@ class ProductRepositoryTest extends TestCase
                 'tax' => ['name' => 'test', 'taxRate' => 19],
                 'manufacturer' => ['name' => 'test'],
             ],
-        ], Context::createDefaultContext(Defaults::TENANT_ID));
+        ], Context::createDefaultContext());
 
         //validate that nested events are triggered
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
@@ -252,7 +252,7 @@ class ProductRepositoryTest extends TestCase
         $this->eventDispatcher->addListener('product.loaded', $listener);
         $this->eventDispatcher->addListener('product_manufacturer.loaded', $listener);
 
-        $products = $this->repository->read(new ReadCriteria([$id->getHex()]), Context::createDefaultContext(Defaults::TENANT_ID));
+        $products = $this->repository->read(new ReadCriteria([$id->getHex()]), Context::createDefaultContext());
 
         //check only provided id loaded
         static::assertCount(1, $products);
@@ -281,7 +281,7 @@ class ProductRepositoryTest extends TestCase
         $this->getContainer()->get('rule.repository')->create([
             ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
             ['id' => $ruleB, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 2],
-        ], Context::createDefaultContext(Defaults::TENANT_ID));
+        ], Context::createDefaultContext());
 
         $id = Uuid::uuid4();
         $data = [
@@ -308,8 +308,8 @@ class ProductRepositoryTest extends TestCase
             ],
         ];
 
-        $this->repository->create([$data], Context::createDefaultContext(Defaults::TENANT_ID));
-        $products = $this->repository->read(new ReadCriteria([$id->getHex()]), Context::createDefaultContext(Defaults::TENANT_ID));
+        $this->repository->create([$data], Context::createDefaultContext());
+        $products = $this->repository->read(new ReadCriteria([$id->getHex()]), Context::createDefaultContext());
 
         static::assertInstanceOf(ProductCollection::class, $products);
         static::assertCount(1, $products);
@@ -343,7 +343,7 @@ class ProductRepositoryTest extends TestCase
 
         $this->getContainer()->get('rule.repository')->create([
             ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
-        ], Context::createDefaultContext(Defaults::TENANT_ID));
+        ], Context::createDefaultContext());
 
         $filterId = Uuid::uuid4()->getHex();
 
@@ -398,7 +398,7 @@ class ProductRepositoryTest extends TestCase
             ],
         ];
 
-        $this->repository->create($data, Context::createDefaultContext(Defaults::TENANT_ID));
+        $this->repository->create($data, Context::createDefaultContext());
 
         $criteria = new Criteria();
         $criteria->addSorting(new FieldSorting('product.priceRules.price', FieldSorting::ASCENDING));
@@ -408,7 +408,6 @@ class ProductRepositoryTest extends TestCase
         $sourceContext->setSalesChannelId(Defaults::SALES_CHANNEL);
 
         $context = new Context(
-            Defaults::TENANT_ID,
             $sourceContext,
             [Defaults::CATALOG],
             [$ruleA],
@@ -464,10 +463,10 @@ class ProductRepositoryTest extends TestCase
             ['id' => $greenId, 'price' => $greenPrice, 'parentId' => $parentId],
         ];
 
-        $this->repository->create($products, Context::createDefaultContext(Defaults::TENANT_ID));
+        $this->repository->create($products, Context::createDefaultContext());
 
-        $products = $this->repository->read(new ReadCriteria([$redId, $greenId]), Context::createDefaultContext(Defaults::TENANT_ID));
-        $parents = $this->repository->read(new ReadCriteria([$parentId]), Context::createDefaultContext(Defaults::TENANT_ID));
+        $products = $this->repository->read(new ReadCriteria([$redId, $greenId]), Context::createDefaultContext());
+        $parents = $this->repository->read(new ReadCriteria([$parentId]), Context::createDefaultContext());
 
         static::assertTrue($parents->has($parentId));
         static::assertTrue($products->has($redId));
@@ -529,9 +528,9 @@ class ProductRepositoryTest extends TestCase
             ],
         ];
 
-        $this->repository->upsert($data, Context::createDefaultContext(Defaults::TENANT_ID));
+        $this->repository->upsert($data, Context::createDefaultContext());
 
-        $products = $this->repository->read(new ReadCriteria([$id]), Context::createDefaultContext(Defaults::TENANT_ID));
+        $products = $this->repository->read(new ReadCriteria([$id]), Context::createDefaultContext());
         static::assertTrue($products->has($id));
 
         /** @var ProductStruct $product */
@@ -555,9 +554,9 @@ class ProductRepositoryTest extends TestCase
             ['id' => $child, 'parentId' => $id, 'name' => 'Update', 'price' => ['gross' => 12, 'net' => 11], 'template' => $filterId],
         ];
 
-        $this->repository->upsert($data, Context::createDefaultContext(Defaults::TENANT_ID));
+        $this->repository->upsert($data, Context::createDefaultContext());
 
-        $products = $this->repository->read(new ReadCriteria([$id, $child]), Context::createDefaultContext(Defaults::TENANT_ID));
+        $products = $this->repository->read(new ReadCriteria([$id, $child]), Context::createDefaultContext());
         static::assertTrue($products->has($id));
         static::assertTrue($products->has($child));
 
@@ -576,7 +575,7 @@ class ProductRepositoryTest extends TestCase
 
         $e = null;
         try {
-            $this->repository->upsert($data, Context::createDefaultContext(Defaults::TENANT_ID));
+            $this->repository->upsert($data, Context::createDefaultContext());
         } catch (\Exception $e) {
         }
         static::assertInstanceOf(WriteStackException::class, $e);
@@ -596,7 +595,7 @@ class ProductRepositoryTest extends TestCase
             ],
         ];
 
-        $this->repository->upsert($data, Context::createDefaultContext(Defaults::TENANT_ID));
+        $this->repository->upsert($data, Context::createDefaultContext());
 
         $raw = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', [
             'id' => Uuid::fromStringToBytes($child),
@@ -604,7 +603,7 @@ class ProductRepositoryTest extends TestCase
 
         static::assertNull($raw['parent_id']);
 
-        $products = $this->repository->read(new ReadCriteria([$child]), Context::createDefaultContext(Defaults::TENANT_ID));
+        $products = $this->repository->read(new ReadCriteria([$child]), Context::createDefaultContext());
         $product = $products->get($child);
 
         /* @var ProductStruct $product */
@@ -626,9 +625,9 @@ class ProductRepositoryTest extends TestCase
             ['id' => $child, 'parentId' => $id, 'price' => ['gross' => 12, 'net' => 11, 'linked' => false]],
         ];
 
-        $this->repository->upsert($data, Context::createDefaultContext(Defaults::TENANT_ID));
+        $this->repository->upsert($data, Context::createDefaultContext());
 
-        $products = $this->repository->read(new ReadCriteria([$id, $child]), Context::createDefaultContext(Defaults::TENANT_ID));
+        $products = $this->repository->read(new ReadCriteria([$id, $child]), Context::createDefaultContext());
         static::assertTrue($products->has($id));
         static::assertTrue($products->has($child));
 
@@ -647,7 +646,7 @@ class ProductRepositoryTest extends TestCase
 
         $e = null;
         try {
-            $this->repository->upsert($data, Context::createDefaultContext(Defaults::TENANT_ID));
+            $this->repository->upsert($data, Context::createDefaultContext());
         } catch (\Exception $e) {
         }
         static::assertInstanceOf(WriteStackException::class, $e);
@@ -668,7 +667,7 @@ class ProductRepositoryTest extends TestCase
             ],
         ];
 
-        $this->repository->upsert($data, Context::createDefaultContext(Defaults::TENANT_ID));
+        $this->repository->upsert($data, Context::createDefaultContext());
 
         $raw = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', [
             'id' => Uuid::fromStringToBytes($child),
@@ -676,7 +675,7 @@ class ProductRepositoryTest extends TestCase
 
         static::assertNull($raw['parent_id']);
 
-        $products = $this->repository->read(new ReadCriteria([$child]), Context::createDefaultContext(Defaults::TENANT_ID));
+        $products = $this->repository->read(new ReadCriteria([$child]), Context::createDefaultContext());
         $product = $products->get($child);
 
         /* @var ProductStruct $product */
@@ -711,11 +710,12 @@ class ProductRepositoryTest extends TestCase
             ['id' => $greenId, 'parentId' => $parentId, 'tax' => ['id' => $greenTax, 'taxRate' => 13, 'name' => 'green']],
         ];
 
-        $this->repository->create($products, Context::createDefaultContext(Defaults::TENANT_ID));
+        $context = Context::createDefaultContext();
 
-        $products = $this->repository->read(new ReadCriteria([$redId, $greenId]), Context::createDefaultContext(
-            Defaults::TENANT_ID));
-        $parents = $this->repository->read(new ReadCriteria([$parentId]), Context::createDefaultContext(Defaults::TENANT_ID));
+        $this->repository->create($products, $context);
+
+        $products = $this->repository->read(new ReadCriteria([$redId, $greenId]), $context);
+        $parents = $this->repository->read(new ReadCriteria([$parentId]), $context);
 
         static::assertTrue($parents->has($parentId));
         static::assertTrue($products->has($redId));
@@ -763,7 +763,7 @@ class ProductRepositoryTest extends TestCase
             ['name' => 'test', 'tax' => $tax, 'price' => ['gross' => 10, 'net' => 9], 'manufacturer' => ['name' => 'test']],
         ];
 
-        $written = $this->repository->create($data, Context::createDefaultContext(Defaults::TENANT_ID));
+        $written = $this->repository->create($data, Context::createDefaultContext());
 
         /** @var TaxWrittenEvent $taxes */
         $taxes = $written->getEventByDefinition(TaxDefinition::class);
@@ -814,15 +814,15 @@ class ProductRepositoryTest extends TestCase
             ],
         ];
 
-        $this->repository->create($products, Context::createDefaultContext(Defaults::TENANT_ID));
+        $this->repository->create($products, Context::createDefaultContext());
 
         $criteria = new ReadCriteria([$redId, $greenId]);
         $criteria->addAssociation('media');
-        $products = $this->repository->read($criteria, Context::createDefaultContext(Defaults::TENANT_ID));
+        $products = $this->repository->read($criteria, Context::createDefaultContext());
 
         $criteria = new ReadCriteria([$parentId]);
         $criteria->addAssociation('media');
-        $parents = $this->repository->read($criteria, Context::createDefaultContext(Defaults::TENANT_ID));
+        $parents = $this->repository->read($criteria, Context::createDefaultContext());
 
         static::assertTrue($parents->has($parentId));
         static::assertTrue($products->has($redId));
@@ -887,16 +887,15 @@ class ProductRepositoryTest extends TestCase
             ],
         ];
 
-        $this->repository->create($products, Context::createDefaultContext(Defaults::TENANT_ID));
+        $this->repository->create($products, Context::createDefaultContext());
 
         $criteria = new ReadCriteria([$redId, $greenId]);
         $criteria->addAssociation('categories');
-        $products = $this->repository->read($criteria, Context::createDefaultContext(
-            Defaults::TENANT_ID));
+        $products = $this->repository->read($criteria, Context::createDefaultContext());
 
         $criteria = new ReadCriteria([$parentId]);
         $criteria->addAssociation('categories');
-        $parents = $this->repository->read($criteria, Context::createDefaultContext(Defaults::TENANT_ID));
+        $parents = $this->repository->read($criteria, Context::createDefaultContext());
 
         static::assertTrue($parents->has($parentId));
         static::assertTrue($products->has($redId));
@@ -955,12 +954,12 @@ class ProductRepositoryTest extends TestCase
             ['id' => $greenId, 'price' => $greenPrice, 'parentId' => $parentId],
         ];
 
-        $this->repository->create($products, Context::createDefaultContext(Defaults::TENANT_ID));
+        $this->repository->create($products, Context::createDefaultContext());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product.name', $parentName));
 
-        $products = $this->repository->search($criteria, Context::createDefaultContext(Defaults::TENANT_ID));
+        $products = $this->repository->search($criteria, Context::createDefaultContext());
         static::assertCount(2, $products);
         static::assertTrue($products->has($parentId));
         static::assertTrue($products->has($greenId));
@@ -968,7 +967,7 @@ class ProductRepositoryTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product.name', $redName));
 
-        $products = $this->repository->search($criteria, Context::createDefaultContext(Defaults::TENANT_ID));
+        $products = $this->repository->search($criteria, Context::createDefaultContext());
         static::assertCount(1, $products);
         static::assertTrue($products->has($redId));
     }
@@ -1000,12 +999,12 @@ class ProductRepositoryTest extends TestCase
             ['id' => $greenId,  'price' => $greenPrice, 'parentId' => $parentId],
         ];
 
-        $this->repository->create($products, Context::createDefaultContext(Defaults::TENANT_ID));
+        $this->repository->create($products, Context::createDefaultContext());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product.price', $parentPrice['gross']));
 
-        $products = $this->repository->search($criteria, Context::createDefaultContext(Defaults::TENANT_ID));
+        $products = $this->repository->search($criteria, Context::createDefaultContext());
         static::assertCount(2, $products);
         static::assertTrue($products->has($parentId));
         static::assertTrue($products->has($redId));
@@ -1013,7 +1012,7 @@ class ProductRepositoryTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product.price', $greenPrice['gross']));
 
-        $products = $this->repository->search($criteria, Context::createDefaultContext(Defaults::TENANT_ID));
+        $products = $this->repository->search($criteria, Context::createDefaultContext());
         static::assertCount(1, $products);
         static::assertTrue($products->has($greenId));
     }
@@ -1050,13 +1049,13 @@ class ProductRepositoryTest extends TestCase
             ['id' => $greenId,  'price' => $greenPrice, 'parentId' => $parentId],
         ];
 
-        $this->repository->create($products, Context::createDefaultContext(Defaults::TENANT_ID));
+        $this->repository->create($products, Context::createDefaultContext());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('category.products.price', $greenPrice['gross']));
 
         $repository = $this->getContainer()->get('category.repository');
-        $categories = $repository->searchIds($criteria, Context::createDefaultContext(Defaults::TENANT_ID));
+        $categories = $repository->searchIds($criteria, Context::createDefaultContext());
 
         static::assertEquals(1, $categories->getTotal());
         static::assertContains($categoryId, $categories->getIds());
@@ -1066,7 +1065,7 @@ class ProductRepositoryTest extends TestCase
         $criteria->addFilter(new EqualsFilter('category.products.parentId', null));
 
         $repository = $this->getContainer()->get('category.repository');
-        $categories = $repository->searchIds($criteria, Context::createDefaultContext(Defaults::TENANT_ID));
+        $categories = $repository->searchIds($criteria, Context::createDefaultContext());
 
         static::assertEquals(1, $categories->getTotal());
         static::assertContains($categoryId, $categories->getIds());
@@ -1164,13 +1163,13 @@ class ProductRepositoryTest extends TestCase
             ['id' => $greenId, 'price' => $greenPrice, 'parentId' => $parentId],
         ];
 
-        $this->repository->create($products, Context::createDefaultContext(Defaults::TENANT_ID));
+        $this->repository->create($products, Context::createDefaultContext());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product_manufacturer.products.price', $greenPrice['gross']));
 
         $repository = $this->getContainer()->get('product_manufacturer.repository');
-        $result = $repository->searchIds($criteria, Context::createDefaultContext(Defaults::TENANT_ID));
+        $result = $repository->searchIds($criteria, Context::createDefaultContext());
 
         static::assertEquals(1, $result->getTotal());
         static::assertContains($manufacturerId, $result->getIds());
@@ -1199,9 +1198,9 @@ class ProductRepositoryTest extends TestCase
 
         $repository = $this->getContainer()->get('category.repository');
 
-        $repository->create($categories, Context::createDefaultContext(Defaults::TENANT_ID));
+        $repository->create($categories, Context::createDefaultContext());
 
-        $products = $this->repository->read(new ReadCriteria([$productId]), Context::createDefaultContext(Defaults::TENANT_ID));
+        $products = $this->repository->read(new ReadCriteria([$productId]), Context::createDefaultContext());
 
         static::assertCount(1, $products);
         static::assertTrue($products->has($productId));
@@ -1236,9 +1235,9 @@ class ProductRepositoryTest extends TestCase
 
         $repository = $this->getContainer()->get('product_manufacturer.repository');
 
-        $repository->create($manufacturers, Context::createDefaultContext(Defaults::TENANT_ID));
+        $repository->create($manufacturers, Context::createDefaultContext());
 
-        $products = $this->repository->read(new ReadCriteria([$productId]), Context::createDefaultContext(Defaults::TENANT_ID));
+        $products = $this->repository->read(new ReadCriteria([$productId]), Context::createDefaultContext());
 
         static::assertCount(1, $products);
         static::assertTrue($products->has($productId));
@@ -1277,11 +1276,11 @@ class ProductRepositoryTest extends TestCase
             ],
         ];
 
-        $this->repository->create([$data], Context::createDefaultContext(Defaults::TENANT_ID));
+        $this->repository->create([$data], Context::createDefaultContext());
 
         $criteria = new ReadCriteria([$id]);
         $criteria->addAssociation('datasheet');
-        $product = $this->repository->read($criteria, Context::createDefaultContext(Defaults::TENANT_ID))->get($id);
+        $product = $this->repository->read($criteria, Context::createDefaultContext())->get($id);
 
         /** @var ProductStruct $product */
         $sheet = $product->getDatasheet();
@@ -1328,11 +1327,11 @@ class ProductRepositoryTest extends TestCase
             ],
         ];
 
-        $this->repository->create([$data], Context::createDefaultContext(Defaults::TENANT_ID));
+        $this->repository->create([$data], Context::createDefaultContext());
 
         $criteria = new ReadCriteria([$id]);
         $criteria->addAssociation('variations');
-        $product = $this->repository->read($criteria, Context::createDefaultContext(Defaults::TENANT_ID))->get($id);
+        $product = $this->repository->read($criteria, Context::createDefaultContext())->get($id);
 
         /** @var ProductStruct $product */
         $sheet = $product->getVariations();
@@ -1387,11 +1386,11 @@ class ProductRepositoryTest extends TestCase
             ],
         ];
 
-        $this->repository->create([$data], Context::createDefaultContext(Defaults::TENANT_ID));
+        $this->repository->create([$data], Context::createDefaultContext());
 
         $criteria = new ReadCriteria([$id]);
         $criteria->addAssociation('configurators');
-        $product = $this->repository->read($criteria, Context::createDefaultContext(Defaults::TENANT_ID))->get($id);
+        $product = $this->repository->read($criteria, Context::createDefaultContext())->get($id);
 
         /** @var ProductStruct $product */
         $configurators = $product->getConfigurators();
@@ -1451,11 +1450,11 @@ class ProductRepositoryTest extends TestCase
             ],
         ];
 
-        $this->repository->create([$data], Context::createDefaultContext(Defaults::TENANT_ID));
+        $this->repository->create([$data], Context::createDefaultContext());
 
         $criteria = new ReadCriteria([$id]);
         $criteria->addAssociation('services');
-        $product = $this->repository->read($criteria, Context::createDefaultContext(Defaults::TENANT_ID))->get($id);
+        $product = $this->repository->read($criteria, Context::createDefaultContext())->get($id);
 
         /** @var ProductStruct $product */
         $services = $product->getServices();
@@ -1489,7 +1488,7 @@ class ProductRepositoryTest extends TestCase
         $this->getContainer()->get('rule.repository')->create([
             ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
             ['id' => $ruleB, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 2],
-        ], Context::createDefaultContext(Defaults::TENANT_ID));
+        ], Context::createDefaultContext());
 
         $id = Uuid::uuid4()->getHex();
 
@@ -1522,8 +1521,8 @@ class ProductRepositoryTest extends TestCase
             ],
         ];
 
-        $this->repository->create([$data], Context::createDefaultContext(Defaults::TENANT_ID));
-        $products = $this->repository->read(new ReadCriteria([$id]), Context::createDefaultContext(Defaults::TENANT_ID));
+        $this->repository->create([$data], Context::createDefaultContext());
+        $products = $this->repository->read(new ReadCriteria([$id]), Context::createDefaultContext());
         static::assertTrue($products->has($id));
 
         /** @var ProductStruct $product */
@@ -1554,7 +1553,7 @@ class ProductRepositoryTest extends TestCase
         $this->getContainer()->get('rule.repository')->create([
             ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
             ['id' => $ruleB, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 2],
-        ], Context::createDefaultContext(Defaults::TENANT_ID));
+        ], Context::createDefaultContext());
 
         $id = Uuid::uuid4()->getHex();
 
@@ -1576,7 +1575,7 @@ class ProductRepositoryTest extends TestCase
             ],
         ];
 
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
         $this->repository->create([$data], $context);
 
         $products = $this->repository->read(new ReadCriteria([$id]), $context);

@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\Test\Payment;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStruct;
 use Shopware\Core\Checkout\Payment\Cart\Token\JWTFactory;
-use Shopware\Core\Checkout\Payment\Exception\InvalidTokenAudienceException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
 use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Core\Defaults;
@@ -36,12 +35,11 @@ class JWTFactoryTest extends TestCase
     {
         $this->tokenFactory = $this->getContainer()->get(JWTFactory::class);
         $this->paymentService = $this->getContainer()->get(PaymentService::class);
-        $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $this->context = Context::createDefaultContext();
     }
 
     /**
      * @throws InvalidTokenException
-     * @throws InvalidTokenAudienceException
      */
     public function testGenerateAndGetToken(): void
     {
@@ -57,7 +55,6 @@ class JWTFactoryTest extends TestCase
 
     /**
      * @throws InvalidTokenException
-     * @throws InvalidTokenAudienceException
      */
     public function testGetInvalidFormattedToken(): void
     {
@@ -67,7 +64,6 @@ class JWTFactoryTest extends TestCase
 
     /**
      * @throws InvalidTokenException
-     * @throws InvalidTokenAudienceException
      */
     public function testGetTokenWithInvalidSignature(): void
     {
@@ -77,19 +73,6 @@ class JWTFactoryTest extends TestCase
 
         $this->expectException(InvalidTokenException::class);
         $this->tokenFactory->parseToken($invalidToken, $this->context);
-    }
-
-    /**
-     * @throws InvalidTokenException
-     * @throws InvalidTokenAudienceException
-     */
-    public function testGetTokenWithInvalidAudience(): void
-    {
-        $transaction = self::createTransaction();
-        $token = $this->tokenFactory->generateToken($transaction, $this->context);
-
-        $this->expectException(InvalidTokenAudienceException::class);
-        $this->tokenFactory->parseToken($token, Context::createDefaultContext(Uuid::uuid4()->getHex()));
     }
 
     public function testInvalidateToken(): void

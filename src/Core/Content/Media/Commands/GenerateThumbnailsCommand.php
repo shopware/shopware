@@ -67,8 +67,7 @@ class GenerateThumbnailsCommand extends Command
 
         $this->io = new SymfonyStyle($input, $output);
 
-        $tenantId = $this->validateTenantId($input);
-        $context = Context::createDefaultContext($tenantId);
+        $context = Context::createDefaultContext();
         $context = $context->createWithCatalogIds([$this->validateCatalogId($input)]);
         $this->batchSize = $this->validateBatchSize($input);
 
@@ -85,17 +84,6 @@ class GenerateThumbnailsCommand extends Command
                 ['Skipped', $this->skippedCounter],
             ]
         );
-    }
-
-    private function validateTenantId(InputInterface $input): string
-    {
-        $tenantId = $input->getOption('tenant-id');
-
-        if (!Uuid::isValid($tenantId)) {
-            throw new \Exception('Invalid uuid provided for tenantId');
-        }
-
-        return $tenantId;
     }
 
     private function validateCatalogId(InputInterface $input): string

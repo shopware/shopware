@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Aggregation;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\StatsAggregation;
@@ -39,7 +38,7 @@ class StatsAggregationTest extends TestCase
         static::expectException(\RuntimeException::class);
         static::expectExceptionMessage('StatsAggregation configured without fetch');
 
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
 
         $criteria = new Criteria();
         $criteria->addAggregation(new StatsAggregation('id', 'rate_agg', false, false, false, false, false));
@@ -49,7 +48,7 @@ class StatsAggregationTest extends TestCase
 
     public function testStatsAggregation(): void
     {
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
         $this->setupFixtures($context);
 
         $criteria = new Criteria();
@@ -80,7 +79,7 @@ class StatsAggregationTest extends TestCase
 
     public function testStatsAggregationShouldNullNotRequestedValues(): void
     {
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
         $this->setupFixtures($context);
 
         $criteria = new Criteria();

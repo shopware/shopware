@@ -34,7 +34,7 @@ class EntityRepositoryTest extends TestCase
     {
         $repository = $this->createRepository(LocaleDefinition::class);
 
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
 
         $id = Uuid::uuid4()->getHex();
 
@@ -52,7 +52,7 @@ class EntityRepositoryTest extends TestCase
     {
         $repository = $this->createRepository(LocaleDefinition::class);
 
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
 
         $id = Uuid::uuid4()->getHex();
 
@@ -78,7 +78,7 @@ class EntityRepositoryTest extends TestCase
     {
         $repository = $this->createRepository(LocaleDefinition::class);
 
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
 
         $id = Uuid::uuid4()->getHex();
 
@@ -104,7 +104,7 @@ class EntityRepositoryTest extends TestCase
     {
         $repository = $this->createRepository(LocaleDefinition::class);
 
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
 
         $id = Uuid::uuid4()->getHex();
 
@@ -136,7 +136,7 @@ class EntityRepositoryTest extends TestCase
     {
         $repository = $this->createRepository(ProductDefinition::class);
 
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
 
         $id = Uuid::uuid4()->getHex();
         $id2 = Uuid::uuid4()->getHex();
@@ -190,7 +190,7 @@ class EntityRepositoryTest extends TestCase
     {
         $repository = $this->createRepository(ProductDefinition::class);
 
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
 
         $id = Uuid::uuid4()->getHex();
         $id2 = Uuid::uuid4()->getHex();

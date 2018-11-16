@@ -4,7 +4,6 @@ namespace Shopware\Core\System\Test\SalesChannel\Storefront;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -34,7 +33,7 @@ class StorefrontSalesChannelControllerTest extends TestCase
         $this->getStorefrontClient()->setServerParameter('CONTENT_TYPE', 'application/json');
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
-        $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $this->context = Context::createDefaultContext();
     }
 
     public function testGetSalesChannelCurrencies(): void

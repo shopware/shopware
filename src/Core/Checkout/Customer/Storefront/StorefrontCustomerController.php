@@ -141,7 +141,6 @@ class StorefrontCustomerController extends AbstractController
 
         $this->accountService->saveEmail($emailSaveRequest, $context);
         $this->checkoutContextService->refresh(
-            $context->getTenantId(),
             $context->getSalesChannel()->getId(),
             $context->getToken()
         );
@@ -163,7 +162,6 @@ class StorefrontCustomerController extends AbstractController
 
         $this->accountService->savePassword($passwordSaveRequest, $context);
         $this->checkoutContextService->refresh(
-            $context->getTenantId(),
             $context->getSalesChannel()->getId(),
             $context->getToken()
         );
@@ -181,7 +179,6 @@ class StorefrontCustomerController extends AbstractController
 
         $this->accountService->saveProfile($profileSaveRequest, $context);
         $this->checkoutContextService->refresh(
-            $context->getTenantId(),
             $context->getSalesChannel()->getId(),
             $context->getToken()
         );
@@ -246,7 +243,6 @@ class StorefrontCustomerController extends AbstractController
         $addressId = $this->accountService->saveAddress($addressSaveRequest, $context);
 
         $this->checkoutContextService->refresh(
-            $context->getTenantId(),
             $context->getSalesChannel()->getId(),
             $context->getToken()
         );

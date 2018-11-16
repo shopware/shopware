@@ -111,7 +111,7 @@ class CustomerRepositoryTest extends TestCase
             ],
         ];
 
-        $this->repository->create($records, Context::createDefaultContext(Defaults::TENANT_ID));
+        $this->repository->create($records, Context::createDefaultContext());
 
         $criteria = new Criteria();
 
@@ -120,7 +120,7 @@ class CustomerRepositoryTest extends TestCase
         $queries = $builder->buildScoreQueries($pattern, CustomerDefinition::class, CustomerDefinition::getEntityName());
         $criteria->addQuery(...$queries);
 
-        $result = $this->repository->searchIds($criteria, Context::createDefaultContext(Defaults::TENANT_ID));
+        $result = $this->repository->searchIds($criteria, Context::createDefaultContext());
 
         static::assertCount(4, $result->getIds());
 

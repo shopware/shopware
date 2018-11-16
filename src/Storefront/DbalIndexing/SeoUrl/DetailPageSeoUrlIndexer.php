@@ -81,9 +81,9 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
         $this->eventIdExtractor = $eventIdExtractor;
     }
 
-    public function index(\DateTime $timestamp, string $tenantId): void
+    public function index(\DateTime $timestamp): void
     {
-        $defaultContext = Context::createDefaultContext($tenantId);
+        $defaultContext = Context::createDefaultContext();
         $applications = $this->salesChannelRepository->search(new Criteria(), $defaultContext);
 
         foreach ($applications as $application) {
@@ -127,7 +127,7 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
         $this->updateProducts($ids, $event->getContext());
     }
 
-    private function fetchCanonicals(array $productIds, string $salesChannelId, string $tenantId): array
+    private function fetchCanonicals(array $productIds, string $salesChannelId): array
     {
         $productIds = array_map(function ($id) {
             return Uuid::fromStringToBytes($id);
@@ -143,7 +143,6 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
         $query->from('seo_url', 'seo_url');
 
         $query->andWhere('seo_url.name = :name');
-        $query->andWhere('seo_url.tenant_id = :tenant');
         $query->andWhere('seo_url.sales_channel_id = :salesChannel');
         $query->andWhere('seo_url.is_canonical = 1');
         $query->andWhere('seo_url.foreign_key IN (:ids)');
@@ -151,7 +150,6 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
         $query->setParameter('ids', $productIds, Connection::PARAM_STR_ARRAY);
         $query->setParameter('name', self::ROUTE_NAME);
         $query->setParameter('salesChannel', Uuid::fromStringToBytes($salesChannelId));
-        $query->setParameter('tenant', Uuid::fromStringToBytes($tenantId));
 
         $rows = $query->execute()->fetchAll();
 
@@ -166,7 +164,7 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
 
         $products = $this->productRepository->read(new ReadCriteria($ids), $context);
 
-        $canonicals = $this->fetchCanonicals($products->getIds(), $context->getSourceContext()->getSalesChannelId(), $context->getTenantId());
+        $canonicals = $this->fetchCanonicals($products->getIds(), $context->getSourceContext()->getSalesChannelId());
         $timestamp = new \DateTime();
 
         foreach ($products as $product) {
@@ -188,10 +186,8 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
 
             $data = [
                 'id' => $existing['id'],
-                'tenant_id' => Uuid::fromStringToBytes($context->getTenantId()),
                 'version_id' => $liveVersionId,
                 'sales_channel_id' => Uuid::fromStringToBytes($context->getSourceContext()->getSalesChannelId()),
-                'sales_channel_tenant_id' => Uuid::fromStringToBytes($context->getTenantId()),
                 'name' => self::ROUTE_NAME,
                 'foreign_key' => Uuid::fromStringToBytes($product->getId()),
                 'foreign_key_version_id' => $liveVersionId,

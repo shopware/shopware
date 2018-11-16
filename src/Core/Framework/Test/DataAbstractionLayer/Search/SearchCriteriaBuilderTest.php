@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
@@ -447,7 +446,7 @@ class SearchCriteriaBuilderTest extends TestCase
     {
         $searchBuilder = $this->getContainer()->get(SearchBuilder::class);
         $requestBuilder = new RequestCriteriaBuilder($searchBuilder, $maxLimit, $allowedLimits);
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
         $definition = ProductDefinition::class;
 
         $request = new Request($params);
@@ -474,7 +473,7 @@ class SearchCriteriaBuilderTest extends TestCase
 
         $parameters = array_merge($defaults, $parameters);
 
-        $this->manufacturerRepository->create([$parameters], Context::createDefaultContext(Defaults::TENANT_ID));
+        $this->manufacturerRepository->create([$parameters], Context::createDefaultContext());
 
         return $id;
     }

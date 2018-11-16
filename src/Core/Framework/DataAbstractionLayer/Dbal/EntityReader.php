@@ -396,8 +396,6 @@ class EntityReader implements EntityReaderInterface
             $catalogCondition = ' AND #alias#.catalog_id = #root#.catalog_id';
         }
 
-        $tenantField = $definition::getEntityName() . '_tenant_id';
-
         $source = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getLocalField());
         if ($field->is(Inherited::class)) {
             $source = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getPropertyName());
@@ -421,7 +419,6 @@ class EntityReader implements EntityReaderInterface
                   FROM #mapping_table# #alias#
                   WHERE #alias#.#mapping_local_column# = #source#' .
                   $versionCondition .
-                  ' AND #root#.tenant_id = #alias#.' . $tenantField .
                   $catalogCondition .
                   ' ) as #property#'
             )

@@ -58,7 +58,7 @@ class TranslatorTest extends TestCase
 
     public function testSimpleOverwrite(): void
     {
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
         $snippet = [
             'translationKey' => 'frontend.index.footer.IndexCopyright',
             'value' => 'Realisiert mit Unit test',
@@ -86,7 +86,7 @@ class TranslatorTest extends TestCase
     public function testLanguageInheritance(): void
     {
         $id = Uuid::uuid4();
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
 
         $language = [
             'id' => $id->getHex(),
@@ -136,7 +136,6 @@ class TranslatorTest extends TestCase
 
         // change language in context
         $context = new Context(
-            $context->getTenantId(),
             $context->getSourceContext(),
             $context->getCatalogIds(),
             [],
@@ -165,7 +164,6 @@ class TranslatorTest extends TestCase
          */
         // change language in context to unknown language
         $context = new Context(
-            $context->getTenantId(),
             $context->getSourceContext(),
             $context->getCatalogIds(),
             [],

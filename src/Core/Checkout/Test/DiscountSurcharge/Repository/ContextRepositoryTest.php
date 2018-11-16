@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Repository;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
@@ -38,7 +37,7 @@ class ContextRepositoryTest extends TestCase
     {
         $this->repository = $this->getContainer()->get('rule.repository');
         $this->connection = $this->getContainer()->get(Connection::class);
-        $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $this->context = Context::createDefaultContext();
     }
 
     public function testWriteRuleWithObject(): void

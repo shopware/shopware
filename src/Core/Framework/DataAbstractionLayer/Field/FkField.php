@@ -22,18 +22,12 @@ class FkField extends Field implements StorageAware
      */
     protected $referenceField;
 
-    /**
-     * @var string
-     */
-    protected $tenantIdField;
-
     public function __construct(string $storageName, string $propertyName, string $referenceClass, string $referenceField = 'id')
     {
         $this->referenceClass = $referenceClass;
         $this->storageName = $storageName;
         $this->referenceField = $referenceField;
         parent::__construct($propertyName);
-        $this->tenantIdField = str_replace('_id', '_tenant_id', $this->storageName);
     }
 
     public function getStorageName(): string
@@ -54,10 +48,5 @@ class FkField extends Field implements StorageAware
     public function getExtractPriority(): int
     {
         return self::PRIORITY;
-    }
-
-    public function getTenantIdField(): string
-    {
-        return $this->tenantIdField;
     }
 }

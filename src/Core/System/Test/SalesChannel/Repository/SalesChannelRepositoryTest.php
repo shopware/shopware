@@ -75,7 +75,7 @@ class SalesChannelRepositoryTest extends TestCase
         $salesChannelId = Uuid::uuid4()->getHex();
         $accessKey = AccessKeyHelper::generateAccessKey('sales-channel');
         $secretKey = AccessKeyHelper::generateSecretAccessKey();
-        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext();
 
         $name = 'Repository test';
         $cover = 'http://example.org/icon1.jpg';

@@ -45,7 +45,6 @@ class AuthControllerTest extends TestCase
         $client->setServerParameters([
             'CONTENT_TYPE' => 'application/json',
             'HTTP_ACCEPT' => ['application/vnd.api+json,application/json'],
-            'HTTP_X_SW_TENANT_ID' => Defaults::TENANT_ID,
         ]);
         $client->request('POST', '/api/oauth/token', $authPayload);
 
@@ -65,7 +64,6 @@ class AuthControllerTest extends TestCase
         $client->setServerParameters([
             'CONTENT_TYPE' => 'application/json',
             'HTTP_ACCEPT' => ['application/vnd.api+json,application/json'],
-            'HTTP_X_SW_TENANT_ID' => Defaults::TENANT_ID,
             'HTTP_Authorization' => 'Bearer invalid_token_provided',
         ]);
         $client->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/tax');
@@ -113,7 +111,6 @@ class AuthControllerTest extends TestCase
         $client->setServerParameters([
             'CONTENT_TYPE' => 'application/json',
             'HTTP_ACCEPT' => ['application/vnd.api+json,application/json'],
-            'HTTP_X_SW_TENANT_ID' => Defaults::TENANT_ID,
         ]);
 
         $refreshPayload = [
@@ -139,7 +136,6 @@ class AuthControllerTest extends TestCase
         $client->setServerParameters([
             'CONTENT_TYPE' => 'application/json',
             'HTTP_ACCEPT' => ['application/vnd.api+json,application/json'],
-            'HTTP_X_SW_TENANT_ID' => Defaults::TENANT_ID,
         ]);
 
         $username = Uuid::uuid4()->getHex();
@@ -147,13 +143,11 @@ class AuthControllerTest extends TestCase
 
         $this->getContainer()->get(Connection::class)->insert('user', [
             'id' => Uuid::uuid4()->getBytes(),
-            'tenant_id' => Uuid::fromHexToBytes(Defaults::TENANT_ID),
             'name' => $username,
             'email' => 'admin@example.com',
             'username' => $username,
             'password' => password_hash($password, PASSWORD_BCRYPT),
             'locale_id' => Uuid::fromHexToBytes('20080911ffff4fffafffffff19830531'),
-            'locale_tenant_id' => Uuid::fromHexToBytes(Defaults::TENANT_ID),
             'active' => 1,
             'created_at' => (new \DateTime())->format(Defaults::DATE_FORMAT),
         ]);
@@ -208,7 +202,6 @@ class AuthControllerTest extends TestCase
         $client->setServerParameters([
             'CONTENT_TYPE' => 'application/json',
             'HTTP_ACCEPT' => ['application/vnd.api+json,application/json'],
-            'HTTP_X_SW_TENANT_ID' => Defaults::TENANT_ID,
         ]);
 
         $accessKey = AccessKeyHelper::generateAccessKey('integration');
@@ -216,7 +209,6 @@ class AuthControllerTest extends TestCase
 
         $this->getContainer()->get(Connection::class)->insert('integration', [
             'id' => Uuid::uuid4()->getBytes(),
-            'tenant_id' => Uuid::fromHexToBytes(Defaults::TENANT_ID),
             'label' => 'test integration',
             'access_key' => $accessKey,
             'secret_access_key' => password_hash($secretKey, PASSWORD_BCRYPT),

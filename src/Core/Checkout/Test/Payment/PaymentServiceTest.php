@@ -72,7 +72,7 @@ class PaymentServiceTest extends TestCase
         $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->orderTransactionRepository = $this->getContainer()->get('order_transaction.repository');
         $this->paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
-        $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
+        $this->context = Context::createDefaultContext();
     }
 
     /**
@@ -123,7 +123,7 @@ class PaymentServiceTest extends TestCase
         $this->paymentService->finalizeTransaction(
             $token,
             $request,
-            Context::createDefaultContext(Defaults::TENANT_ID)
+            Context::createDefaultContext()
         );
     }
 

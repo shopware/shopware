@@ -117,12 +117,11 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
     }
 
     public function create(
-        string $tenantId,
         string $token,
         string $salesChannelId,
         array $options = []
     ): CheckoutContext {
-        $context = $this->getContext($salesChannelId, $tenantId);
+        $context = $this->getContext($salesChannelId);
 
         $salesChannel = $this->salesChannelRepository->read(new ReadCriteria([$context->getSourceContext()->getSalesChannelId()]), $context)
             ->get($context->getSourceContext()->getSalesChannelId());
@@ -187,7 +186,6 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
         $delivery = $this->getShippingMethod($options, $context, $salesChannel);
 
         $context = new CheckoutContext(
-            $tenantId,
             $token,
             $salesChannel,
             $language,
@@ -237,7 +235,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
         return $this->shippingMethodRepository->read(new ReadCriteria([$id]), $context)->get($id);
     }
 
-    private function getContext(string $salesChannelId, string $tenantId): Context
+    private function getContext(string $salesChannelId): Context
     {
         $sql = '
         SELECT 
@@ -251,13 +249,11 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
         INNER JOIN currency ON sales_channel.currency_id = currency.id
         INNER JOIN language ON sales_channel.language_id = language.id
         LEFT JOIN sales_channel_catalog ON sales_channel.id = sales_channel_catalog.sales_channel_id
-          AND sales_channel.tenant_id = sales_channel_catalog.sales_channel_tenant_id
-        WHERE sales_channel.id = :id AND sales_channel.tenant_id = :tenant_id
+        WHERE sales_channel.id = :id
         GROUP BY sales_channel.id, sales_channel.language_id, sales_channel.currency_id, currency.factor, language.parent_id';
 
         $data = $this->connection->fetchAssoc($sql, [
             'id' => Uuid::fromHexToBytes($salesChannelId),
-            'tenant_id' => Uuid::fromHexToBytes($tenantId),
         ]);
 
         $sourceContext = new SourceContext(SourceContext::ORIGIN_STOREFRONT_API);
@@ -266,7 +262,6 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
         $salesChannelCatalogIds = $data['sales_channel_catalog_ids'] ? explode(',', $data['sales_channel_catalog_ids']) : null;
 
         return new Context(
-            $tenantId,
             $sourceContext,
             $salesChannelCatalogIds,
             [],

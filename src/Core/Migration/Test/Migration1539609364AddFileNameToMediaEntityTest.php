@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Migration\Test;
 
@@ -23,16 +23,21 @@ class Migration1539609364AddFileNameToMediaEntityTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
 
         $this->connection->executeUpdate(
-            'INSERT INTO catalog (id, tenant_id, created_at) VALUES (UNHEX(?), 1, \'2018-10-22 00:00:01.000000\')',
+            'INSERT INTO catalog (id, created_at) VALUES (UNHEX(?), \'2018-10-22 00:00:01.000000\')',
             [self::CATALOG_ID]
         );
-
     }
 
-    public function test_column_order_is_preserved() {
+    public function tearDown()
+    {
+        $this->connection->executeUpdate('DELETE FROM catalog WHERE id = UNHEX(?)', [self::CATALOG_ID]);
+    }
+
+    public function test_column_order_is_preserved()
+    {
         $tableLayout = $this->connection->fetchAll('DESCRIBE media');
 
-        $lastTwoCols = array_slice($tableLayout,-2);
+        $lastTwoCols = array_slice($tableLayout, -2);
 
         $lastTwoCols = array_map(
             function (array $column): string {
@@ -58,8 +63,8 @@ class Migration1539609364AddFileNameToMediaEntityTest extends TestCase
 
         try {
             $this->connection->executeUpdate('
-            INSERT INTO media (id, tenant_id, version_id,created_at)
-            VALUES (UNHEX(:mediaId), 1, 1,\'2018-10-22 00:00:01.000000\')',
+            INSERT INTO media (id, version_id, created_at)
+            VALUES (UNHEX(:mediaId), 1,\'2018-10-22 00:00:01.000000\')',
                 ['mediaId' => $mediaId]
             );
         } finally {
@@ -71,9 +76,5 @@ class Migration1539609364AddFileNameToMediaEntityTest extends TestCase
         self::assertEquals($mediaId, $insertedData['file_name']);
 
         $this->connection->executeUpdate('DELETE FROM media WHERE id = UNHEX(?)', [$mediaId]);
-    }
-
-    public function tearDown() {
-        $this->connection->executeUpdate('DELETE FROM catalog WHERE id = UNHEX(?)', [self::CATALOG_ID]);
     }
 }

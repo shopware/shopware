@@ -155,7 +155,7 @@ SQL;
                 $updateAction = $fk['update'];
 
                 $tableInstructions[] = 'ADD INDEX (`' . $indexColumns . '`)';
-                $tableInstructions[] = 'ADD FOREIGN KEY `' . $fkName . '` (`' . $indexColumns . '`) REFERENCES `' . $refTable . '` (`' . $refColumns . '`) ON DELETE ' . $deleteAction . ' ON UPDATE ' . $updateAction;
+                $tableInstructions[] = 'ADD CONSTRAINT `' . $fkName . '` FOREIGN KEY (`' . $indexColumns . '`) REFERENCES `' . $refTable . '` (`' . $refColumns . '`) ON DELETE ' . $deleteAction . ' ON UPDATE ' . $updateAction;
             }
 
             $connection->executeQuery('ALTER TABLE `' . $table . '` ' . implode(', ', $tableInstructions));

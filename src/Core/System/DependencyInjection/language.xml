@@ -13,6 +13,9 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="shopware.validator"/>
         </service>
+
+        <service id="Shopware\Core\System\Locale\LanguageResolver">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
     </services>
-</container>                
-                
+</container>

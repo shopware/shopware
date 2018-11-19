@@ -56,9 +56,10 @@ class StringFieldSerializer implements FieldSerializerInterface
 
             $this->validate($this->validator, $constraints, $data->getKey(), $data->getValue(), $parameters->getPath());
         }
+        $value = $data->getValue();
 
         /* @var LongTextField $field */
-        yield $field->getStorageName() => strip_tags((string) $data->getValue());
+        yield $field->getStorageName() => $value !== null ? strip_tags((string) $value) : null;
     }
 
     public function decode(Field $field, $value)

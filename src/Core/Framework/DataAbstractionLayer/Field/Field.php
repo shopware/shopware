@@ -2,19 +2,13 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\FieldExtenderCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\FieldExceptionStack;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Filter\FilterRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Flag;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\IdGenerator\GeneratorRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\ValueTransformer\ValueTransformerRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Core\System\Locale\LocaleLanguageResolverInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 abstract class Field extends Struct
@@ -35,16 +29,6 @@ abstract class Field extends Struct
     protected $constraintBuilder;
 
     /**
-     * @var string|EntityDefinition|null
-     */
-    protected $definition;
-
-    /**
-     * @var FieldExceptionStack|null
-     */
-    protected $exceptionStack;
-
-    /**
      * @var FieldExtenderCollection|null
      */
     protected $fieldExtenderCollection;
@@ -60,11 +44,6 @@ abstract class Field extends Struct
     protected $generatorRegistry;
 
     /**
-     * @var string|null
-     */
-    protected $path = '';
-
-    /**
      * @var ValidatorInterface|null
      */
     protected $validator;
@@ -73,26 +52,6 @@ abstract class Field extends Struct
      * @var ValueTransformerRegistry|null
      */
     protected $valueTransformerRegistry;
-
-    /**
-     * @var WriteContext|null
-     */
-    protected $writeContext;
-
-    /**
-     * @var WriteCommandQueue|null
-     */
-    protected $commandQueue;
-
-    /**
-     * @var WriteCommandExtractor|null
-     */
-    protected $writeResource;
-
-    /**
-     * @var LocaleLanguageResolverInterface|null
-     */
-    protected $localeLanguageResolver;
 
     public function __construct(string $propertyName)
     {
@@ -160,16 +119,6 @@ abstract class Field extends Struct
         $this->constraintBuilder = $constraintBuilder;
     }
 
-    public function setDefinition(string $definition): void
-    {
-        $this->definition = $definition;
-    }
-
-    public function setExceptionStack(FieldExceptionStack $exceptionStack): void
-    {
-        $this->exceptionStack = $exceptionStack;
-    }
-
     public function setFieldExtenderCollection(FieldExtenderCollection $fieldExtenderCollection): void
     {
         $this->fieldExtenderCollection = $fieldExtenderCollection;
@@ -185,11 +134,6 @@ abstract class Field extends Struct
         $this->generatorRegistry = $generatorRegistry;
     }
 
-    public function setPath(string $path = ''): void
-    {
-        $this->path = $path;
-    }
-
     public function setValidator(ValidatorInterface $validator): void
     {
         $this->validator = $validator;
@@ -198,30 +142,5 @@ abstract class Field extends Struct
     public function setValueTransformerRegistry(ValueTransformerRegistry $valueTransformerRegistry): void
     {
         $this->valueTransformerRegistry = $valueTransformerRegistry;
-    }
-
-    public function setWriteContext(WriteContext $writeContext): void
-    {
-        $this->writeContext = $writeContext;
-    }
-
-    public function setCommandQueue(WriteCommandQueue $commandQueue): void
-    {
-        $this->commandQueue = $commandQueue;
-    }
-
-    public function setWriteResource(WriteCommandExtractor $writeResource): void
-    {
-        $this->writeResource = $writeResource;
-    }
-
-    public function getLocaleLanguageResolver(): ?LocaleLanguageResolverInterface
-    {
-        return $this->localeLanguageResolver;
-    }
-
-    public function setLocaleLanguageResolver(LocaleLanguageResolverInterface $localeLanguageResolver): void
-    {
-        $this->localeLanguageResolver = $localeLanguageResolver;
     }
 }

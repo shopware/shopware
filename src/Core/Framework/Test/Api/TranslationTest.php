@@ -4,13 +4,11 @@ namespace Shopware\Core\Framework\Test\Api;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\PlatformRequest;
 
-/**
- * TODO: test language fallback (currently only works in storefront api, but cant override language in storefront)
- */
 class TranslationTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -29,6 +27,101 @@ class TranslationTest extends TestCase
         );
     }
 
+    public function testFallback(): void
+    {
+        $langId = Uuid::uuid4()->getHex();
+        $fallbackId = Uuid::uuid4()->getHex();
+        $this->createLanguage($langId, $fallbackId);
+
+        $this->assertTranslation(
+            ['name' => 'translated by fallback'],
+            [
+                $fallbackId => ['name' => 'translated by fallback'],
+            ],
+            $langId
+        );
+    }
+
+    public function testDefaultFallback(): void
+    {
+        $langId = Uuid::uuid4()->getHex();
+        $fallbackId = Uuid::uuid4()->getHex();
+        $this->createLanguage($langId, $fallbackId);
+
+        $this->assertTranslation(
+            ['name' => 'translated by default fallback'],
+            [
+                Defaults::LANGUAGE_EN => ['name' => 'translated by default fallback'],
+            ]
+        );
+    }
+
+    public function testEmptyLanguageIdError(): void
+    {
+        $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
+        $headerName = $this->getLangHeaderName();
+        $langId = '';
+
+        $this->getClient()->request('GET', $baseResource, [], [], [$headerName => $langId]);
+        $response = $this->getClient()->getResponse();
+        static::assertEquals(412, $response->getStatusCode());
+
+        $data = json_decode($response->getContent(), true);
+        static::assertEquals(LanguageNotFoundException::LANGUAGE_NOT_FOUND_ERROR, $data['errors'][0]['code']);
+
+        $langId = sprintf('id=%s', '');
+        $this->getClient()->request('GET', $baseResource, [], [], [$headerName => $langId]);
+        $response = $this->getClient()->getResponse();
+        static::assertEquals(412, $response->getStatusCode());
+
+        $data = json_decode($response->getContent(), true);
+        static::assertEquals(LanguageNotFoundException::LANGUAGE_NOT_FOUND_ERROR, $data['errors'][0]['code']);
+    }
+
+    public function testInvalidUuidLanguageIdError(): void
+    {
+        $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
+        $headerName = $this->getLangHeaderName();
+        $langId = 'foobar';
+
+        $this->getClient()->request('GET', $baseResource, [], [], [$headerName => $langId]);
+        $response = $this->getClient()->getResponse();
+        static::assertEquals(412, $response->getStatusCode());
+
+        $data = json_decode($response->getContent(), true);
+        static::assertEquals(LanguageNotFoundException::LANGUAGE_NOT_FOUND_ERROR, $data['errors'][0]['code']);
+
+        $langId = sprintf('id=%s', 'foobar');
+        $this->getClient()->request('GET', $baseResource, [], [], [$headerName => $langId]);
+        $response = $this->getClient()->getResponse();
+        static::assertEquals(412, $response->getStatusCode());
+
+        $data = json_decode($response->getContent(), true);
+        static::assertEquals(LanguageNotFoundException::LANGUAGE_NOT_FOUND_ERROR, $data['errors'][0]['code']);
+    }
+
+    public function testNonExistingLanguageIdError(): void
+    {
+        $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
+        $headerName = $this->getLangHeaderName();
+        $langId = Uuid::uuid4()->getHex();
+
+        $this->getClient()->request('GET', $baseResource, [], [], [$headerName => $langId]);
+        $response = $this->getClient()->getResponse();
+        static::assertEquals(412, $response->getStatusCode());
+
+        $data = json_decode($response->getContent(), true);
+        static::assertEquals(LanguageNotFoundException::LANGUAGE_NOT_FOUND_ERROR, $data['errors'][0]['code']);
+
+        $langId = sprintf('id=%s', Uuid::uuid4()->getHex());
+        $this->getClient()->request('GET', $baseResource, [], [], [$headerName => $langId]);
+        $response = $this->getClient()->getResponse();
+        static::assertEquals(412, $response->getStatusCode());
+
+        $data = json_decode($response->getContent(), true);
+        static::assertEquals(LanguageNotFoundException::LANGUAGE_NOT_FOUND_ERROR, $data['errors'][0]['code']);
+    }
+
     public function testOverride(): void
     {
         $langId = Uuid::uuid4()->getHex();
@@ -41,6 +134,21 @@ class TranslationTest extends TestCase
                 $langId => ['name' => 'translated'],
             ],
             $langId
+        );
+    }
+
+    public function testOverrideWithExtendedParams(): void
+    {
+        $langId = Uuid::uuid4()->getHex();
+        $this->createLanguage($langId);
+
+        $this->assertTranslation(
+            ['name' => 'translated'],
+            [
+                Defaults::LANGUAGE_EN => ['name' => 'not translated'],
+                $langId => ['name' => 'translated'],
+            ],
+            ['id' => $langId, 'inherit' => true]
         );
     }
 
@@ -73,6 +181,100 @@ class TranslationTest extends TestCase
         );
     }
 
+    public function testPartialTranslationWithFallback(): void
+    {
+        $langId = Uuid::uuid4()->getHex();
+        $fallbackId = Uuid::uuid4()->getHex();
+        $this->createLanguage($langId, $fallbackId);
+
+        $this->assertTranslation(
+            [
+                'name' => 'translated',
+                'metaTitle' => 'translated by fallback',
+            ],
+            [
+                $langId => [
+                    'name' => 'translated',
+                ],
+                $fallbackId => [
+                    'name' => 'translated by fallback',
+                    'metaTitle' => 'translated by fallback',
+                ],
+            ],
+            $langId
+        );
+    }
+
+    public function testPartialTranslationWithFallbackNoInherit(): void
+    {
+        $langId = Uuid::uuid4()->getHex();
+        $fallbackId = Uuid::uuid4()->getHex();
+        $this->createLanguage($langId, $fallbackId);
+
+        $this->assertTranslation(
+            [
+                'name' => 'translated',
+                'metaTitle' => null,
+            ],
+            [
+                $langId => [
+                    'name' => 'translated',
+                ],
+                $fallbackId => [
+                    'name' => 'translated by fallback',
+                    'metaTitle' => 'translated by fallback',
+                ],
+            ],
+            ['id' => $langId, 'inherit' => false]
+        );
+    }
+
+    public function testChildTranslationWithoutRequiredField(): void
+    {
+        $langId = Uuid::uuid4()->getHex();
+        $fallbackId = Uuid::uuid4()->getHex();
+        $this->createLanguage($langId, $fallbackId);
+
+        $this->assertTranslation(
+            [
+                'metaTitle' => 'translated',
+                'name' => 'only translated by fallback',
+            ],
+            [
+                $langId => [
+                    'metaTitle' => 'translated',
+                ],
+                $fallbackId => [
+                    'name' => 'only translated by fallback',
+                ],
+            ],
+            $langId
+        );
+    }
+
+    public function testChildTranslationLongText(): void
+    {
+        $langId = Uuid::uuid4()->getHex();
+        $fallbackId = Uuid::uuid4()->getHex();
+        $this->createLanguage($langId, $fallbackId);
+
+        $this->assertTranslation(
+            [
+                'metaDescription' => 'translated',
+                'name' => 'only translated by fallback',
+            ],
+            [
+                $langId => [
+                    'metaDescription' => 'translated',
+                ],
+                $fallbackId => [
+                    'name' => 'only translated by fallback',
+                ],
+            ],
+            $langId
+        );
+    }
+
     public function testWithOverrideInPost(): void
     {
         $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
@@ -89,7 +291,7 @@ class TranslationTest extends TestCase
 
         $this->createLanguage($langId);
 
-        $headerName = 'HTTP_' . strtoupper(str_replace('-', '_', PlatformRequest::HEADER_LANGUAGE_ID));
+        $headerName = $this->getLangHeaderName();
 
         $this->getClient()->request('POST', $baseResource, $categoryData, [], [$headerName => $langId]);
         $response = $this->getClient()->getResponse();
@@ -127,13 +329,13 @@ class TranslationTest extends TestCase
         static::assertEquals(204, $response->getStatusCode());
         $this->assertEntityExists($this->getClient(), 'category', $id);
 
-        $headerName = 'HTTP_' . strtoupper(str_replace('-', '_', PlatformRequest::HEADER_LANGUAGE_ID));
+        $headerName = $this->getLangHeaderName();
+
         $this->getClient()->request('GET', $baseResource . '/' . $id, [], [], [$headerName => Defaults::LANGUAGE_EN]);
         $response = $this->getClient()->getResponse();
         $responseData = json_decode($response->getContent(), true);
         static::assertEquals($name, $responseData['data']['attributes']['name']);
 
-        $headerName = 'HTTP_' . strtoupper(str_replace('-', '_', PlatformRequest::HEADER_LANGUAGE_ID));
         $this->getClient()->request('GET', $baseResource . '/' . $id, [], [], [$headerName => $langId]);
         $response = $this->getClient()->getResponse();
         $responseData = json_decode($response->getContent(), true);
@@ -143,14 +345,18 @@ class TranslationTest extends TestCase
         $response = $this->getClient()->getResponse();
         static::assertEquals(204, $response->getStatusCode());
 
-        $headerName = 'HTTP_' . strtoupper(str_replace('-', '_', PlatformRequest::HEADER_LANGUAGE_ID));
         $this->getClient()->request('GET', $baseResource . '/' . $id, [], [], [$headerName => $langId]);
         $response = $this->getClient()->getResponse();
         $responseData = json_decode($response->getContent(), true);
-        static::assertEquals($name, $responseData['data']['attributes']['name']);
+        static::assertEquals(null, $responseData['data']['attributes']['name']);
     }
 
-    private function assertTranslation($expectedTranslations, $translations, $langIdOverride = null): void
+    private function getLangHeaderName(): string
+    {
+        return 'HTTP_' . strtoupper(str_replace('-', '_', PlatformRequest::HEADER_LANGUAGE_ID));
+    }
+
+    private function assertTranslation(array $expectedTranslations, array $translations, $langOverride = null): void
     {
         $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
         $id = Uuid::uuid4()->getHex();
@@ -163,14 +369,21 @@ class TranslationTest extends TestCase
         $this->getClient()->request('POST', $baseResource, $categoryData);
         $response = $this->getClient()->getResponse();
 
-        static::assertEquals(204, $response->getStatusCode());
+        static::assertEquals(204, $response->getStatusCode(), $response->getContent());
 
         $this->assertEntityExists($this->getClient(), 'category', $id);
 
         $headers = [];
-        if ($langIdOverride) {
-            $headerName = 'HTTP_' . strtoupper(str_replace('-', '_', PlatformRequest::HEADER_LANGUAGE_ID));
-            $headers = [$headerName => $langIdOverride];
+        if ($langOverride) {
+            $headerName = $this->getLangHeaderName();
+
+            if (\is_array($langOverride)) {
+                $params = 'id=' . $langOverride['id'] . ';';
+                $params .= isset($langOverride['inherit']) ? ('inherit=' . (int) $langOverride['inherit']) : '';
+                $langOverride = $params;
+            }
+
+            $headers = [$headerName => $langOverride];
         }
 
         $this->getClient()->request('GET', $baseResource . '/' . $id, [], [], $headers);

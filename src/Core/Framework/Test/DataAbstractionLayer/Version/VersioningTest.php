@@ -4,15 +4,6 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Version;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Customer\CustomerStruct;
-use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceDefinition;
-use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
-use Shopware\Core\Checkout\Shipping\ShippingMethodStruct;
-use Shopware\Core\Content\Category\CategoryDefinition;
-use Shopware\Core\Content\Media\MediaProtectionFlags;
-use Shopware\Core\Content\Media\Metadata\Metadata;
-use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -28,7 +19,6 @@ use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Test\TaxFixtures;
 
 class VersioningTest extends TestCase
@@ -82,7 +72,6 @@ class VersioningTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
     }
 
-
     public function testVersionCommitOnInsert(): void
     {
         $uuid = Uuid::uuid4()->getHex();
@@ -94,7 +83,7 @@ class VersioningTest extends TestCase
             'ean' => '123',
             'name' => 'Cat of Doom',
             'tax' => ['id' => $taxUuid, 'taxRate' => 12, 'name' => 'mwst'],
-            'manufacturer' => ['id' => $manufacturerUuid, 'name' => 'shopware']
+            'manufacturer' => ['id' => $manufacturerUuid, 'name' => 'shopware'],
         ];
 
         $this->productRepository->create([$productData], $context);
@@ -128,7 +117,7 @@ class VersioningTest extends TestCase
             'ean' => '123',
             'name' => 'Cat of Doom',
             'tax' => ['id' => $taxUuid, 'taxRate' => 12, 'name' => 'mwst'],
-            'manufacturer' => ['id' => $manufacturerUuid, 'name' => 'shopware']
+            'manufacturer' => ['id' => $manufacturerUuid, 'name' => 'shopware'],
         ];
 
         $this->productRepository->create([$productData], $context);
@@ -178,7 +167,7 @@ class VersioningTest extends TestCase
                 'id' => $mediaId,
                 'name' => 'test_media',
                 'extension' => '.jpg',
-            ]
+            ],
         ];
 
         $productData = [
@@ -190,9 +179,9 @@ class VersioningTest extends TestCase
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['taxRate' => 18, 'name' => 'test'],
                 'media' => [
-                    ['mediaId' => $mediaId]
-                ]
-            ]
+                    ['mediaId' => $mediaId],
+                ],
+            ],
         ];
 
         $liveContext = Context::createDefaultContext();
@@ -242,7 +231,7 @@ class VersioningTest extends TestCase
                 'id' => $mediaId,
                 'name' => 'test_media',
                 'extension' => '.jpg',
-            ]
+            ],
         ];
 
         $productData = [
@@ -254,9 +243,9 @@ class VersioningTest extends TestCase
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['taxRate' => 18, 'name' => 'test'],
                 'media' => [
-                    ['mediaId' => $mediaId]
-                ]
-            ]
+                    ['mediaId' => $mediaId],
+                ],
+            ],
         ];
 
         $liveContext = Context::createDefaultContext();
@@ -323,7 +312,7 @@ class VersioningTest extends TestCase
                 'id' => $mediaId,
                 'name' => 'test_media',
                 'extension' => '.jpg',
-            ]
+            ],
         ];
 
         $productData = [
@@ -335,9 +324,9 @@ class VersioningTest extends TestCase
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['taxRate' => 18, 'name' => 'test'],
                 'media' => [
-                    ['mediaId' => $mediaId]
-                ]
-            ]
+                    ['mediaId' => $mediaId],
+                ],
+            ],
         ];
 
         $liveContext = Context::createDefaultContext();
@@ -410,7 +399,7 @@ class VersioningTest extends TestCase
                 'id' => $mediaId,
                 'name' => 'test_media',
                 'extension' => '.jpg',
-            ]
+            ],
         ];
 
         $productData = [
@@ -422,9 +411,9 @@ class VersioningTest extends TestCase
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['taxRate' => 18, 'name' => 'test'],
                 'media' => [
-                    ['mediaId' => $mediaId]
-                ]
-            ]
+                    ['mediaId' => $mediaId],
+                ],
+            ],
         ];
 
         $liveContext = Context::createDefaultContext();
@@ -469,9 +458,9 @@ class VersioningTest extends TestCase
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['taxRate' => 18, 'name' => 'test'],
                 'media' => [
-                    ['mediaId' => $mediaId]
-                ]
-            ]
+                    ['mediaId' => $mediaId],
+                ],
+            ],
         ];
         $this->productRepository->create($productData, $liveVersionContext);
 
@@ -495,7 +484,7 @@ class VersioningTest extends TestCase
                 'id' => $mediaId,
                 'name' => 'test_media',
                 'extension' => '.jpg',
-            ]
+            ],
         ];
 
         $productData = [
@@ -507,9 +496,9 @@ class VersioningTest extends TestCase
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['taxRate' => 18, 'name' => 'test'],
                 'media' => [
-                    ['mediaId' => $mediaId]
-                ]
-            ]
+                    ['mediaId' => $mediaId],
+                ],
+            ],
         ];
 
         $this->mediaRepository->create($mediaData, $liveVersionContext);
@@ -536,7 +525,7 @@ class VersioningTest extends TestCase
                 'name' => 'parent',
                 'ean' => '4711',
                 'price' => ['gross' => 15, 'net' => 12, 'linked' => false],
-            ]
+            ],
         ], $versionContext);
 
         $changes = $this->getVersionData(ProductDefinition::getEntityName(), $productId, $versionId);
@@ -602,7 +591,7 @@ class VersioningTest extends TestCase
                 'id' => $mediaId,
                 'name' => 'test_media',
                 'extension' => '.jpg',
-            ]
+            ],
         ];
 
         $products = [
@@ -613,8 +602,8 @@ class VersioningTest extends TestCase
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['taxRate' => 18, 'name' => 'test'],
                 'media' => [
-                        ['mediaId' => $mediaId]
-                    ]
+                        ['mediaId' => $mediaId],
+                    ],
             ],
             [
                 'id' => $variantId,
@@ -688,7 +677,6 @@ class VersioningTest extends TestCase
         static::assertEquals('parent version', $variant->getName());
     }
 
-
     public function testVersioningWithProductPriceRules(): void
     {
         $this->markTestSkipped('Should be fixed with NEXT-1151');
@@ -709,8 +697,8 @@ class VersioningTest extends TestCase
                         'rule' => ['id' => $ruleId, 'name' => 'test', 'priority' => 1, 'payload' => new AndRule()],
                         'currencyId' => Defaults::CURRENCY,
                         'quantityStart' => 0,
-                    ]
-                ]
+                    ],
+                ],
             ],
             [
                 'id' => $variantId,
@@ -794,7 +782,7 @@ class VersioningTest extends TestCase
                 'id' => $mediaId,
                 'name' => 'test_media',
                 'extension' => '.jpg',
-            ]
+            ],
         ];
 
         $productData = [
@@ -807,8 +795,8 @@ class VersioningTest extends TestCase
                 'tax' => ['taxRate' => 18, 'name' => 'test'],
                 'active' => true,
                 'media' => [
-                    ['mediaId' => $mediaId]
-                ]
+                    ['mediaId' => $mediaId],
+                ],
             ],
             [
                 'id' => $variantId,
@@ -848,13 +836,12 @@ class VersioningTest extends TestCase
         $versionId = Uuid::uuid4()->getHex();
         $mediaId = Uuid::uuid4()->getHex();
 
-
         $mediaData = [
             [
                 'id' => $mediaId,
                 'name' => 'test_media',
                 'extension' => '.jpg',
-            ]
+            ],
         ];
 
         $productData = [
@@ -868,9 +855,9 @@ class VersioningTest extends TestCase
                 'tax' => ['taxRate' => 18, 'name' => 'test'],
                 'active' => true,
                 'media' => [
-                    ['mediaId' => $mediaId]
-                ]
-            ]
+                    ['mediaId' => $mediaId],
+                ],
+            ],
         ];
 
         $liveContext = Context::createDefaultContext();
@@ -1060,7 +1047,7 @@ class VersioningTest extends TestCase
         $this->taxRepository->create(
             [
                 ['id' => $taxId119, 'name' => 'test2', 'taxRate' => 19],
-                ['id' => $taxId225, 'name' => 'test3', 'taxRate' => 25]
+                ['id' => $taxId225, 'name' => 'test3', 'taxRate' => 25],
             ],
             $liveContext
         );
@@ -1076,7 +1063,7 @@ class VersioningTest extends TestCase
         $this->productRepository->update([$update], $versionContext);
 
         //Clone Product1 to new Version "Campaign"
-        $versionId = $this->productRepository->createVersion($product2, $liveContext, "Campaign", $versionId);
+        $versionId = $this->productRepository->createVersion($product2, $liveContext, 'Campaign', $versionId);
 
         //Update Product2 in Version "Campaign"
         $update = ['id' => $product2, 'taxId' => $taxId225];
@@ -1211,7 +1198,7 @@ class VersioningTest extends TestCase
         $this->productRepository->upsert([$update], $versionContext);
 
         //Clone Product1 to new Version "Campaign"
-        $versionId = $this->productRepository->createVersion($product2, $liveContext, "Campaign", $versionId);
+        $versionId = $this->productRepository->createVersion($product2, $liveContext, 'Campaign', $versionId);
 
         //Update Product2 in Version "Campaign"
         $update = ['id' => $product2, 'tax' => ['id' => $taxId225, 'name' => 'test3', 'taxRate' => 25]];

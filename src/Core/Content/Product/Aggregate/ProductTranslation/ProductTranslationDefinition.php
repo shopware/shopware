@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductTranslation;
 
 use Shopware\Core\Content\Catalog\CatalogDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CatalogField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -19,7 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 use Shopware\Core\System\Language\LanguageDefinition;
 
-class ProductTranslationDefinition extends EntityDefinition
+class ProductTranslationDefinition extends EntityTranslationDefinition
 {
     public static function getEntityName(): string
     {

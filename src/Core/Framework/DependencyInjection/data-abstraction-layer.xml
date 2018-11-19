@@ -115,6 +115,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface"/>
             <tag name="shopware.traceable" label="entity.writer"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry"/>
+            <argument type="service" id="Shopware\Core\System\Locale\LanguageResolver"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor">
@@ -1197,8 +1198,7 @@
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\TranslationsAssociationFieldSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor"/>
-            <argument type="service" id="Shopware\Core\System\Locale\LocaleLanguageResolver"/>
-            <tag name="shopware.field_serializer"/>
+            <tag name="shopware.field_serializer" />
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\UpdatedAtFieldSerializer">

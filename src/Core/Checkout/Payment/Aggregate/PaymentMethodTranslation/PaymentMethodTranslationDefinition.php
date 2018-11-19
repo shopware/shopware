@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation;
 
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
@@ -15,7 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 use Shopware\Core\System\Language\LanguageDefinition;
 
-class PaymentMethodTranslationDefinition extends EntityDefinition
+class PaymentMethodTranslationDefinition extends EntityTranslationDefinition
 {
     public static function getEntityName(): string
     {

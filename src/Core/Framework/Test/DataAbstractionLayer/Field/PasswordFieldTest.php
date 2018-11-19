@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuil
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\System\Locale\LanguageResolver;
 use Shopware\Core\System\User\UserDefinition;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
@@ -56,7 +57,8 @@ class PasswordFieldTest extends TestCase
             WriteContext::createFromContext(Context::createDefaultContext()),
             '',
             new WriteCommandQueue(),
-            new FieldExceptionStack()
+            new FieldExceptionStack(),
+            $this->getContainer()->get(LanguageResolver::class)
         ));
 
         $payload = iterator_to_array($payload);
@@ -79,7 +81,8 @@ class PasswordFieldTest extends TestCase
             WriteContext::createFromContext(Context::createDefaultContext()),
             '',
             new WriteCommandQueue(),
-            new FieldExceptionStack()
+            new FieldExceptionStack(),
+            $this->getContainer()->get(LanguageResolver::class)
         ));
 
         $payload = iterator_to_array($payload);
@@ -104,7 +107,8 @@ class PasswordFieldTest extends TestCase
                 WriteContext::createFromContext(Context::createDefaultContext()),
                 '',
                 new WriteCommandQueue(),
-                new FieldExceptionStack()
+                new FieldExceptionStack(),
+                $this->getContainer()->get(LanguageResolver::class)
             );
 
             $x = $handler->encode($field, $existence, $kvPair, $parameters);
@@ -133,7 +137,8 @@ class PasswordFieldTest extends TestCase
                 WriteContext::createFromContext(Context::createDefaultContext()),
                 '',
                 new WriteCommandQueue(),
-                new FieldExceptionStack()
+                new FieldExceptionStack(),
+                $this->getContainer()->get(LanguageResolver::class)
             ));
             iterator_to_array($x);
         } catch (InvalidFieldException $exception) {

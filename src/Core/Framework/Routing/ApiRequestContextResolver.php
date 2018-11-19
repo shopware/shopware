@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -45,7 +46,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             [],
             $params['currencyId'],
             $params['languageId'],
-            Defaults::LANGUAGE_EN,
+            $params['fallbackLanguageId'],
             Defaults::LIVE_VERSION,
             $params['currencyFactory']
         );
@@ -58,6 +59,8 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         $params = [
             'currencyId' => Defaults::CURRENCY,
             'languageId' => Defaults::LANGUAGE_EN,
+            'fallbackLanguageId' => null,
+            'inherit' => true,
             'currencyFactory' => 1.0,
         ];
 
@@ -65,9 +68,28 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             $params = array_replace_recursive($params, $this->getUserParameters($sourceContext->getUserId()));
         }
 
-        $params = array_replace_recursive($params, $this->getRuntimeParameters($master));
+        $runtimeParams = $this->getRuntimeParameters($master);
+        $params = array_replace_recursive($params, $runtimeParams);
+        if ($params['inherit'] && $params['languageId'] !== Defaults::LANGUAGE_EN) {
+            $params['fallbackLanguageId'] = $this->getFallbackLanguage($params['languageId']);
+        }
 
         return $params;
+    }
+
+    private function getFallbackLanguage(string $id): ?string
+    {
+        $languages = $this->connection->executeQuery(
+            'SELECT parent_id FROM language WHERE id = :id',
+            ['id' => Uuid::fromStringToBytes($id)]
+        )->fetchAll();
+
+        if (empty($languages)) {
+            throw new LanguageNotFoundException();
+        }
+        $fallback = $languages[0]['parent_id'];
+
+        return $fallback ? Uuid::fromBytesToHex($fallback) : null;
     }
 
     private function getUserParameters(string $userId): array
@@ -83,12 +105,54 @@ SQL;
         return $user ?: [];
     }
 
+    private static function parseParamsRaw($input): array
+    {
+        $kvs = [];
+        $kvPairStrings = explode(';', $input);
+        foreach ($kvPairStrings as $kvPairString) {
+            $kvPair = explode('=', $kvPairString);
+            $kvs[\trim($kvPair[0])] = isset($kvPair[1]) ? \trim($kvPair[1]) : null;
+        }
+
+        return $kvs;
+    }
+
+    private static function parseParams($input): array
+    {
+        return array_map('\\urldecode', self::parseParamsRaw($input));
+    }
+
     private function getRuntimeParameters(Request $request): array
     {
         $parameters = [];
+        if (!$request->headers->has(PlatformRequest::HEADER_LANGUAGE_ID)) {
+            return $parameters;
+        }
 
-        if ($request->headers->has(PlatformRequest::HEADER_LANGUAGE_ID)) {
-            $parameters['languageId'] = $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID);
+        $langHeader = $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID);
+        if (Uuid::isValid($langHeader)) {
+            $parameters['languageId'] = $langHeader;
+
+            return $parameters;
+        }
+
+        /**
+         * examples:
+         * - inherit from root (default) -> x-sw-language-id: id=21342134; inherit
+         * - don't inherit from root -> x-sw-language-id: id=21342134; inherit=0
+         */
+        $langHeaderParams = self::parseParams($langHeader);
+        if (isset($langHeaderParams['id']) && Uuid::isValid($langHeaderParams['id'])) {
+            $parameters['languageId'] = $langHeaderParams['id'];
+        }
+        if (\array_key_exists('inherit', $langHeaderParams)) {
+            $inheritNoValue = $langHeaderParams['inherit'] === null; // key exists, but no value
+            $noInherit = \in_array($langHeaderParams['inherit'], ['no', '0', 'false'], true);
+            $parameters['inherit'] = $inheritNoValue || !$noInherit;
+        }
+
+        if (!isset($parameters['languageId'])) {
+            throw new LanguageNotFoundException();
         }
 
         return $parameters;

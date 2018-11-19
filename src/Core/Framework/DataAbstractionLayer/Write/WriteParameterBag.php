@@ -6,6 +6,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\FieldExceptionStack;
+use Shopware\Core\System\Locale\LanguageResolverInterface;
 
 class WriteParameterBag
 {
@@ -44,18 +45,25 @@ class WriteParameterBag
      */
     protected $exceptionStack;
 
+    /**
+     * @var LanguageResolverInterface
+     */
+    protected $languageResolver;
+
     public function __construct(
         string $definition,
         WriteContext $context,
         string $path,
         WriteCommandQueue $commandQueue,
-        FieldExceptionStack $exceptionStack
+        FieldExceptionStack $exceptionStack,
+        LanguageResolverInterface $languageResolver
     ) {
         $this->definition = $definition;
         $this->context = $context;
         $this->path = $path;
         $this->commandQueue = $commandQueue;
         $this->exceptionStack = $exceptionStack;
+        $this->languageResolver = $languageResolver;
     }
 
     /**
@@ -86,6 +94,11 @@ class WriteParameterBag
         return $this->exceptionStack;
     }
 
+    public function getLanguageResolver(): LanguageResolverInterface
+    {
+        return $this->languageResolver;
+    }
+
     public function cloneForSubresource(string $definition, string $path): self
     {
         return new self(
@@ -93,7 +106,8 @@ class WriteParameterBag
             $this->context,
             $path,
             $this->commandQueue,
-            $this->exceptionStack
+            $this->exceptionStack,
+            $this->languageResolver
         );
     }
 }

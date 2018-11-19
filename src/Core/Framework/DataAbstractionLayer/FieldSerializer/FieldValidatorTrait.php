@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\InvalidFieldException;
@@ -52,6 +53,10 @@ trait FieldValidatorTrait
         }
 
         if ($field->is(Inherited::class) && $existence->isChild()) {
+            return false;
+        }
+
+        if (\is_subclass_of($existence->getDefinition(), EntityTranslationDefinition::class)) {
             return false;
         }
 

@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation;
 
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -14,7 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\Listing\ListingSortingDefinition;
 
-class ListingSortingTranslationDefinition extends EntityDefinition
+class ListingSortingTranslationDefinition extends EntityTranslationDefinition
 {
     public static function getEntityName(): string
     {

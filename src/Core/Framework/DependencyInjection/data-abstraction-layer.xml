@@ -107,7 +107,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry">
-            <argument type="collection"/>
+            <argument type="collection"/><!-- EntityDefinition[] -->
         </service>
 
         <service class="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityReader" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface">
@@ -1024,44 +1024,8 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="order_state.repository" public="true">
-            <argument>Shopware\Core\Checkout\Order\Aggregate\OrderState\OrderStateDefinition</argument>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"/>
-            <argument type="service" id="event_dispatcher"/>
-        </service>
-
-        <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="order_state_translation.repository" public="true">
-            <argument>Shopware\Core\Checkout\Order\Aggregate\OrderStateTranslation\OrderStateTranslationDefinition</argument>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"/>
-            <argument type="service" id="event_dispatcher"/>
-        </service>
-
         <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="order_transaction.repository" public="true">
             <argument>Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition</argument>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"/>
-            <argument type="service" id="event_dispatcher"/>
-        </service>
-
-        <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="order_transaction_state.repository" public="true">
-            <argument>Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState\OrderTransactionStateDefinition</argument>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"/>
-            <argument type="service" id="event_dispatcher"/>
-        </service>
-
-        <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="order_transaction_state_translation.repository" public="true">
-            <argument>Shopware\Core\Checkout\Order\Aggregate\OrderTransactionStateTranslation\OrderTransactionStateTranslationDefinition</argument>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
@@ -1125,6 +1089,51 @@
 
         <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="discount_surcharge_translation.repository" public="true">
             <argument>Shopware\Core\Checkout\DiscountSurcharge\Aggregate\DiscountSurchargeTranslation\DiscountSurchargeTranslationDefinition</argument>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="state_machine.repository" public="true">
+            <argument>Shopware\Core\System\StateMachine\StateMachineDefinition</argument>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="state_machine_translation.repository" public="true">
+            <argument>Shopware\Core\System\StateMachine\StateMachineTranslationDefinition</argument>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="state_machine_state.repository" public="true">
+            <argument>Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition</argument>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="state_machine_state_translation.repository" public="true">
+            <argument>Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateTranslationDefinition</argument>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="state_machine_transition.repository" public="true">
+            <argument>Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionDefinition</argument>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>

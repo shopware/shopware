@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEnti
 use Shopware\Core\Checkout\Payment\Cart\Token\JWTFactory;
 use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
 use Shopware\Core\Checkout\Payment\PaymentService;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -87,7 +86,7 @@ class JWTFactoryTest extends TestCase
         $transactionStruct->setId(Uuid::uuid4()->getHex());
         $transactionStruct->setOrderId(Uuid::uuid4()->getHex());
         $transactionStruct->setPaymentMethodId(Uuid::uuid4()->getHex());
-        $transactionStruct->setOrderTransactionStateId(Defaults::ORDER_TRANSACTION_OPEN);
+        $transactionStruct->setStateId(Uuid::uuid4()->getHex());
 
         return $transactionStruct;
     }

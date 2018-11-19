@@ -73,7 +73,7 @@ class PaymentTransactionChainProcessor
             throw new InvalidOrderException($orderId);
         }
 
-        $transactions = $order->getTransactions()->filterByOrderStateId(Defaults::ORDER_TRANSACTION_OPEN);
+        $transactions = $order->getTransactions()->filterByState(Defaults::ORDER_TRANSACTION_STATES_OPEN);
 
         foreach ($transactions as $transaction) {
             $token = $this->tokenFactory->generateToken($transaction, $context, $finishUrl);

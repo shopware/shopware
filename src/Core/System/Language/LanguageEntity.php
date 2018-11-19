@@ -5,8 +5,6 @@ namespace Shopware\Core\System\Language;
 use DateTime;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationCollection;
 use Shopware\Core\Checkout\DiscountSurcharge\Aggregate\DiscountSurchargeTranslation\DiscountSurchargeTranslationCollection;
-use Shopware\Core\Checkout\Order\Aggregate\OrderStateTranslation\OrderStateTranslationCollection;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionStateTranslation\OrderTransactionStateTranslationCollection;
 use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationCollection;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationCollection;
 use Shopware\Core\Content\Catalog\Aggregate\CatalogTranslation\CatalogTranslationCollection;
@@ -24,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslationCollection;
 use Shopware\Core\Framework\Search\SearchDocumentCollection;
 use Shopware\Core\Framework\Snippet\SnippetCollection;
+use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationCollection;
 use Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationCollection;
 use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationCollection;
@@ -151,11 +150,6 @@ class LanguageEntity extends Entity
     protected $mediaTranslations;
 
     /**
-     * @var OrderStateTranslationCollection|null
-     */
-    protected $orderStateTranslations;
-
-    /**
      * @var PaymentMethodTranslationCollection|null
      */
     protected $paymentMethodTranslations;
@@ -179,11 +173,6 @@ class LanguageEntity extends Entity
      * @var UnitTranslationCollection|null
      */
     protected $unitTranslations;
-
-    /**
-     * @var OrderTransactionStateTranslationCollection|null
-     */
-    protected $orderTransactionStateTranslations;
 
     /**
      * @var ConfigurationGroupTranslationCollection|null
@@ -249,6 +238,16 @@ class LanguageEntity extends Entity
      * @var ProductStreamTranslationCollection|null
      */
     protected $productStreamTranslations;
+
+    /**
+     * @var Collection|null
+     */
+    protected $stateMachineTranslations;
+
+    /**
+     * @var Collection|null
+     */
+    protected $stateMachineStateTranslations;
 
     public function getParentId(): ?string
     {
@@ -450,16 +449,6 @@ class LanguageEntity extends Entity
         $this->mediaTranslations = $mediaTranslations;
     }
 
-    public function getOrderStateTranslations(): ?OrderStateTranslationCollection
-    {
-        return $this->orderStateTranslations;
-    }
-
-    public function setOrderStateTranslations(OrderStateTranslationCollection $orderStateTranslations): void
-    {
-        $this->orderStateTranslations = $orderStateTranslations;
-    }
-
     public function getPaymentMethodTranslations(): ?PaymentMethodTranslationCollection
     {
         return $this->paymentMethodTranslations;
@@ -528,16 +517,6 @@ class LanguageEntity extends Entity
     public function setSalesChannelDefaultAssignments(SalesChannelCollection $salesChannelDefaultAssignments): void
     {
         $this->salesChannelDefaultAssignments = $salesChannelDefaultAssignments;
-    }
-
-    public function getOrderTransactionStateTranslations(): ?OrderTransactionStateTranslationCollection
-    {
-        return $this->orderTransactionStateTranslations;
-    }
-
-    public function setOrderTransactionStateTranslations(OrderTransactionStateTranslationCollection $orderTransactionStateTranslations): void
-    {
-        $this->orderTransactionStateTranslations = $orderTransactionStateTranslations;
     }
 
     public function getConfigurationGroupTranslations(): ?ConfigurationGroupTranslationCollection
@@ -658,5 +637,25 @@ class LanguageEntity extends Entity
     public function setProductStreamTranslations(?ProductStreamTranslationCollection $productStreamTranslations): void
     {
         $this->productStreamTranslations = $productStreamTranslations;
+    }
+
+    public function getStateMachineTranslations(): ?Collection
+    {
+        return $this->stateMachineTranslations;
+    }
+
+    public function setStateMachineTranslations(Collection $stateMachineTranslations): void
+    {
+        $this->stateMachineTranslations = $stateMachineTranslations;
+    }
+
+    public function getStateMachineStateTranslations(): ?Collection
+    {
+        return $this->stateMachineStateTranslations;
+    }
+
+    public function setStateMachineStateTranslations(Collection $stateMachineStateTranslations): void
+    {
+        $this->stateMachineStateTranslations = $stateMachineStateTranslations;
     }
 }

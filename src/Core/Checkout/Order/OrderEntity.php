@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
-use Shopware\Core\Checkout\Order\Aggregate\OrderState\OrderStateEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -16,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Search\SearchDocumentCollection;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateStruct;
 
 class OrderEntity extends Entity
 {
@@ -24,11 +24,6 @@ class OrderEntity extends Entity
      * @var string
      */
     protected $orderCustomerId;
-
-    /**
-     * @var string
-     */
-    protected $stateId;
 
     /**
      * @var string
@@ -121,11 +116,6 @@ class OrderEntity extends Entity
     protected $orderCustomer;
 
     /**
-     * @var OrderStateEntity
-     */
-    protected $state;
-
-    /**
      * @var PaymentMethodEntity
      */
     protected $paymentMethod;
@@ -175,6 +165,16 @@ class OrderEntity extends Entity
      */
     protected $searchKeywords;
 
+    /**
+     * @var StateMachineStateStruct
+     */
+    protected $state;
+
+    /**
+     * @var string
+     */
+    protected $stateId;
+
     public function getOrderCustomerId(): string
     {
         return $this->orderCustomerId;
@@ -183,16 +183,6 @@ class OrderEntity extends Entity
     public function setOrderCustomerId(string $orderCustomerId): void
     {
         $this->orderCustomerId = $orderCustomerId;
-    }
-
-    public function getStateId(): string
-    {
-        return $this->stateId;
-    }
-
-    public function setStateId(string $stateId): void
-    {
-        $this->stateId = $stateId;
     }
 
     public function getPaymentMethodId(): string
@@ -330,16 +320,6 @@ class OrderEntity extends Entity
         $this->orderCustomer = $orderCustomer;
     }
 
-    public function getState(): OrderStateEntity
-    {
-        return $this->state;
-    }
-
-    public function setState(OrderStateEntity $state): void
-    {
-        $this->state = $state;
-    }
-
     public function getPaymentMethod(): PaymentMethodEntity
     {
         return $this->paymentMethod;
@@ -438,5 +418,25 @@ class OrderEntity extends Entity
     public function setSearchKeywords(?SearchDocumentCollection $searchKeywords): void
     {
         $this->searchKeywords = $searchKeywords;
+    }
+
+    public function getState(): StateMachineStateStruct
+    {
+        return $this->state;
+    }
+
+    public function setState(StateMachineStateStruct $state): void
+    {
+        $this->state = $state;
+    }
+
+    public function getStateId(): string
+    {
+        return $this->stateId;
+    }
+
+    public function setStateId(string $stateId): void
+    {
+        $this->stateId = $stateId;
     }
 }

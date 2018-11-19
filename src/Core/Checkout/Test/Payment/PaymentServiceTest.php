@@ -20,6 +20,7 @@ use Shopware\Core\Checkout\Test\Payment\Handler\TestPaymentHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\StateMachine\StateMachineRegistry;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -65,6 +66,11 @@ class PaymentServiceTest extends TestCase
      */
     private $context;
 
+    /**
+     * @var StateMachineRegistry
+     */
+    private $stateMachineRegistry;
+
     protected function setUp()
     {
         $this->paymentService = $this->getContainer()->get(PaymentService::class);
@@ -73,6 +79,7 @@ class PaymentServiceTest extends TestCase
         $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->orderTransactionRepository = $this->getContainer()->get('order_transaction.repository');
         $this->paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
+        $this->stateMachineRegistry = $this->getContainer()->get(StateMachineRegistry::class);
         $this->context = Context::createDefaultContext();
     }
 
@@ -169,7 +176,7 @@ class PaymentServiceTest extends TestCase
             'id' => $id,
             'orderId' => $orderId,
             'paymentMethodId' => $paymentMethodId,
-            'orderTransactionStateId' => Defaults::ORDER_TRANSACTION_OPEN,
+            'stateId' => $this->stateMachineRegistry->getInitialState(Defaults::ORDER_TRANSACTION_STATE_MACHINE, $context)->getId(),
             'amount' => new CalculatedPrice(100, 100, new CalculatedTaxCollection(), new TaxRuleCollection(), 1),
             'payload' => '{}',
         ];
@@ -186,6 +193,7 @@ class PaymentServiceTest extends TestCase
     ): string {
         $orderId = Uuid::uuid4()->getHex();
         $addressId = Uuid::uuid4()->getHex();
+        $stateId = $this->stateMachineRegistry->getInitialState(Defaults::ORDER_STATE_MACHINE, $context)->getId();
 
         $order = [
             'id' => $orderId,
@@ -198,7 +206,7 @@ class PaymentServiceTest extends TestCase
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
             ],
-            'stateId' => Defaults::ORDER_STATE_OPEN,
+            'stateId' => $stateId,
             'paymentMethodId' => $paymentMethodId,
             'currencyId' => Defaults::CURRENCY,
             'currencyFactor' => 1.0,

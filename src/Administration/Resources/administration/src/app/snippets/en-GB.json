@@ -766,6 +766,7 @@
       "summaryLabelShippingCosts": "Shipping costs",
       "summaryLabelTaxes": "plus {taxRate}% tax",
       "labelOrderStatus": "Order status",
+      "labelPaymentStatus": "Payment status",
       "labelSalesChannel": "Sales channel",
       "labelOrderDate": "Order date",
       "headlineBillingAddress": "Billing address",
@@ -802,6 +803,7 @@
       "labelShippingMethod": "Shipping method",
       "labelDeliveryDate": "Delivery date",
       "labelShippingCosts": "Shipping costs",
+      "labelDeliveryState": "Delivery state",
       "buttonMerge": "Merge order",
       "buttonDelete": "Delete"
     },

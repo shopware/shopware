@@ -768,6 +768,7 @@
       "summaryLabelShippingCosts": "Versandkosten",
       "summaryLabelTaxes": "zzgl. {taxRate}% MwSt.",
       "labelOrderStatus": "Bestellstatus",
+      "labelPaymentStatus": "Zahlungsstatus",
       "labelSalesChannel": "Verkaufskanal",
       "labelOrderDate": "Bestelldatum",
       "headlineBillingAddress": "Rechnungsadresse",
@@ -815,6 +816,7 @@
       "labelShippingMethod": "Versandart",
       "labelDeliveryDate": "Lieferdatum",
       "labelShippingCosts": "Versandkosten",
+      "labelDeliveryState": "Lieferstatus",
       "buttonMerge": "Lieferung zusammenfügen",
       "buttonDelete": "Löschen"
     }

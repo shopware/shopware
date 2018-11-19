@@ -6,7 +6,6 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
-use Shopware\Core\Checkout\Order\Aggregate\OrderState\OrderStateDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -33,6 +32,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\SearchRanking;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 
 class OrderDefinition extends EntityDefinition
 {
@@ -65,8 +65,6 @@ class OrderDefinition extends EntityDefinition
             (new FkField('order_customer_id', 'orderCustomerId', OrderCustomerDefinition::class))->addFlags(new Required()),
             (new ReferenceVersionField(OrderCustomerDefinition::class))->addFlags(new Required()),
 
-            (new FkField('order_state_id', 'stateId', OrderStateDefinition::class))->addFlags(new Required()),
-
             (new FkField('payment_method_id', 'paymentMethodId', PaymentMethodDefinition::class))->addFlags(new Required()),
             (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->addFlags(new Required()),
             (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new Required()),
@@ -83,11 +81,14 @@ class OrderDefinition extends EntityDefinition
             (new FloatField('shipping_total', 'shippingTotal'))->addFlags(new ReadOnly()),
             (new FloatField('currency_factor', 'currencyFactor'))->addFlags(new Required()),
             new StringField('deep_link_code', 'deepLinkCode'),
+
+            (new FkField('state_id', 'stateId', StateMachineStateDefinition::class))->setFlags(new Required()),
+            new ManyToOneAssociationField('state', 'state_id', StateMachineStateDefinition::class, true),
+
             new CreatedAtField(),
             new UpdatedAtField(),
 
             (new ManyToOneAssociationField('orderCustomer', 'order_customer_id', OrderCustomerDefinition::class, true))->addFlags(new SearchRanking(0.5)),
-            new ManyToOneAssociationField('state', 'order_state_id', OrderStateDefinition::class, true),
             new ManyToOneAssociationField('paymentMethod', 'payment_method_id', PaymentMethodDefinition::class, true),
             new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, true),
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, true),

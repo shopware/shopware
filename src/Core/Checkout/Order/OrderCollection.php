@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Order;
 
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
-use Shopware\Core\Checkout\Order\Aggregate\OrderState\OrderStateCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\System\Currency\CurrencyCollection;
@@ -23,20 +22,6 @@ class OrderCollection extends EntityCollection
     {
         return $this->filter(function (OrderEntity $order) use ($id) {
             return $order->getOrderCustomerId() === $id;
-        });
-    }
-
-    public function getStateIds(): array
-    {
-        return $this->fmap(function (OrderEntity $order) {
-            return $order->getStateId();
-        });
-    }
-
-    public function filterByStateId(string $id): self
-    {
-        return $this->filter(function (OrderEntity $order) use ($id) {
-            return $order->getStateId() === $id;
         });
     }
 
@@ -87,15 +72,6 @@ class OrderCollection extends EntityCollection
         return new CustomerCollection(
             $this->fmap(function (OrderEntity $order) {
                 return $order->getOrderCustomer();
-            })
-        );
-    }
-
-    public function getStates(): OrderStateCollection
-    {
-        return new OrderStateCollection(
-            $this->fmap(function (OrderEntity $order) {
-                return $order->getState();
             })
         );
     }

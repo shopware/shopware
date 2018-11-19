@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderDelivery;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionDefinition;
-use Shopware\Core\Checkout\Order\Aggregate\OrderState\OrderStateDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -24,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\SearchRanking;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 
 class OrderDeliveryDefinition extends EntityDefinition
 {
@@ -59,8 +59,10 @@ class OrderDeliveryDefinition extends EntityDefinition
             (new FkField('shipping_order_address_id', 'shippingOrderAddressId', OrderAddressDefinition::class))->addFlags(new Required()),
             (new ReferenceVersionField(OrderAddressDefinition::class, 'shipping_order_address_version_id'))->addFlags(new Required()),
 
-            (new FkField('order_state_id', 'orderStateId', OrderStateDefinition::class))->addFlags(new Required()),
             (new FkField('shipping_method_id', 'shippingMethodId', ShippingMethodDefinition::class))->addFlags(new Required()),
+
+            (new FkField('state_id', 'stateId', StateMachineStateDefinition::class))->addFlags(new Required()),
+            new ManyToOneAssociationField('state', 'state_id', StateMachineStateDefinition::class, true),
 
             (new StringField('tracking_code', 'trackingCode'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new DateField('shipping_date_earliest', 'shippingDateEarliest'))->addFlags(new Required(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),

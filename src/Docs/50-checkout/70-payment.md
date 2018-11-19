@@ -64,14 +64,21 @@ class PayPalPayment implements PaymentHandlerInterface
      */
     private $paymentBuilder;
 
+    /**
+     * @var StateMachineRegistry
+     */
+    private $stateMachineRegistry;
+
     public function __construct(
         RepositoryInterface $orderTransactionRepo,
         PaymentResource $paymentResource,
-        PaymentBuilderInterface $paymentBuilder
+        PaymentBuilderInterface $paymentBuilder,
+        StateMachineRegistry $stateMachineRegistry
     ) {
         $this->orderTransactionRepo = $orderTransactionRepo;
         $this->paymentResource = $paymentResource;
         $this->paymentBuilder = $paymentBuilder;
+        $this->stateMachineRegistry = $stateMachineRegistry;
     }
 
     public function pay(PaymentTransactionStruct $transaction, Context $context): ?RedirectResponse
@@ -86,9 +93,11 @@ class PayPalPayment implements PaymentHandlerInterface
     public function finalize(string $transactionId, Request $request, Context $context): void
     {
         if ($request->query->getBoolean('cancel')) {
+            $stateId = $this->stateMachineRegistry->getStateByTechnicalName(Defaults::ORDER_TRANSACTION_STATE_MACHINE, Defaults::ORDER_TRANSACTION_STATES_FAILED, $context)->getId();
+
             $transaction = [
                 'id' => $transactionId,
-                'orderTransactionStateId' => Defaults::ORDER_TRANSACTION_FAILED,
+                'stateId' => $stateId,
             ];
             $this->orderTransactionRepo->update([$transaction], $context);
 
@@ -102,16 +111,15 @@ class PayPalPayment implements PaymentHandlerInterface
         $paymentState = $this->getPaymentState($response);
 
         if ($paymentState === PaymentStatus::PAYMENT_COMPLETED) {
-            $transaction = [
-                'id' => $transactionId,
-                'orderTransactionStateId' => Defaults::ORDER_TRANSACTION_COMPLETED,
-            ];
+            $stateId = $this->stateMachineRegistry->getStateByTechnicalName(Defaults::ORDER_TRANSACTION_STATE_MACHINE, Defaults::ORDER_TRANSACTION_STATES_COMPLETED, $context)->getId();
         } else {
-            $transaction = [
-                'id' => $transactionId,
-                'orderTransactionStateId' => Defaults::ORDER_TRANSACTION_OPEN,
-            ];
+            $stateId = $this->stateMachineRegistry->getStateByTechnicalName(Defaults::ORDER_TRANSACTION_STATE_MACHINE, Defaults::ORDER_TRANSACTION_STATES_OPEN, $context)->getId();
         }
+
+        $transaction = [
+            'id' => $transactionId,
+            'stateId' => $stateId,
+        ];
 
         $this->orderTransactionRepo->update([$transaction], $context);
     }

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransaction;
 
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState\OrderTransactionStateDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -18,7 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\RestrictDelete;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 
 class OrderTransactionDefinition extends EntityDefinition
 {
@@ -53,12 +52,14 @@ class OrderTransactionDefinition extends EntityDefinition
             (new FkField('order_transaction_state_id', 'orderTransactionStateId', OrderTransactionStateDefinition::class))->addFlags(new Required()),
             (new ReferenceVersionField(OrderTransactionStateDefinition::class))->addFlags(new Required()),
             (new CalculatedPriceField('amount', 'amount'))->addFlags(new Required()),
+
+            (new FkField('state_id', 'stateId', StateMachineStateDefinition::class))->addFlags(new Required()),
+            new ManyToOneAssociationField('state', 'state_id', StateMachineStateDefinition::class, true),
             new JsonField('details', 'details'),
             new CreatedAtField(),
             new UpdatedAtField(),
             new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, false),
             new ManyToOneAssociationField('paymentMethod', 'payment_method_id', PaymentMethodDefinition::class, false),
-            (new ManyToOneAssociationField('orderTransactionState', 'order_transaction_state_id', OrderTransactionStateDefinition::class, false))->addFlags(new RestrictDelete()),
         ]);
     }
 }

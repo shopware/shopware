@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState\OrderTransactio
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class OrderTransactionEntity extends Entity
@@ -22,11 +23,6 @@ class OrderTransactionEntity extends Entity
      * @var string
      */
     protected $paymentMethodId;
-
-    /**
-     * @var string
-     */
-    protected $orderTransactionStateId;
 
     /**
      * @var CalculatedPrice
@@ -61,7 +57,12 @@ class OrderTransactionEntity extends Entity
     /***
      * @var OrderTransactionStateEntity
      */
-    protected $orderTransactionState;
+    protected $state;
+
+    /**
+     * @var string
+     */
+    protected $stateId;
 
     public function getOrderId(): string
     {
@@ -81,16 +82,6 @@ class OrderTransactionEntity extends Entity
     public function setPaymentMethodId(string $paymentMethodId): void
     {
         $this->paymentMethodId = $paymentMethodId;
-    }
-
-    public function getOrderTransactionStateId(): string
-    {
-        return $this->orderTransactionStateId;
-    }
-
-    public function setOrderTransactionStateId(string $orderTransactionStateId): void
-    {
-        $this->orderTransactionStateId = $orderTransactionStateId;
     }
 
     public function getAmount(): CalculatedPrice
@@ -143,16 +134,6 @@ class OrderTransactionEntity extends Entity
         $this->paymentMethod = $paymentMethod;
     }
 
-    public function getOrderTransactionState(): OrderTransactionStateEntity
-    {
-        return $this->orderTransactionState;
-    }
-
-    public function setOrderTransactionState(OrderTransactionStateEntity $orderTransactionState): void
-    {
-        $this->orderTransactionState = $orderTransactionState;
-    }
-
     public function getOrder(): ?OrderEntity
     {
         return $this->order;
@@ -161,5 +142,25 @@ class OrderTransactionEntity extends Entity
     public function setOrder(OrderEntity $order): void
     {
         $this->order = $order;
+    }
+
+    public function getState(): StateMachineStateEntity
+    {
+        return $this->state;
+    }
+
+    public function setState(StateMachineStateEntity $state): void
+    {
+        $this->state = $state;
+    }
+
+    public function getStateId(): string
+    {
+        return $this->stateId;
+    }
+
+    public function setStateId(string $stateId): void
+    {
+        $this->stateId = $stateId;
     }
 }

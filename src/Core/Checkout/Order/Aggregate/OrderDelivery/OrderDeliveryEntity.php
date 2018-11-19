@@ -5,11 +5,11 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderDelivery;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionCollection;
-use Shopware\Core\Checkout\Order\Aggregate\OrderState\OrderStateEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateStruct;
 
 class OrderDeliveryEntity extends Entity
 {
@@ -23,11 +23,6 @@ class OrderDeliveryEntity extends Entity
      * @var string
      */
     protected $shippingOrderAddressId;
-
-    /**
-     * @var string
-     */
-    protected $orderStateId;
 
     /**
      * @var string
@@ -70,9 +65,14 @@ class OrderDeliveryEntity extends Entity
     protected $shippingOrderAddress;
 
     /**
-     * @var OrderStateEntity
+     * @var string
      */
-    protected $orderState;
+    protected $stateId;
+
+    /**
+     * @var StateMachineStateStruct
+     */
+    protected $state;
 
     /**
      * @var ShippingMethodEntity
@@ -107,16 +107,6 @@ class OrderDeliveryEntity extends Entity
     public function setShippingOrderAddressId(string $shippingOrderAddressId): void
     {
         $this->shippingOrderAddressId = $shippingOrderAddressId;
-    }
-
-    public function getOrderStateId(): string
-    {
-        return $this->orderStateId;
-    }
-
-    public function setOrderStateId(string $orderStateId): void
-    {
-        $this->orderStateId = $orderStateId;
     }
 
     public function getShippingMethodId(): string
@@ -199,16 +189,6 @@ class OrderDeliveryEntity extends Entity
         $this->shippingOrderAddress = $shippingOrderAddress;
     }
 
-    public function getOrderState(): OrderStateEntity
-    {
-        return $this->orderState;
-    }
-
-    public function setOrderState(OrderStateEntity $orderState): void
-    {
-        $this->orderState = $orderState;
-    }
-
     public function getShippingMethod(): ShippingMethodEntity
     {
         return $this->shippingMethod;
@@ -237,5 +217,25 @@ class OrderDeliveryEntity extends Entity
     public function setPositions(OrderDeliveryPositionCollection $positions): void
     {
         $this->positions = $positions;
+    }
+
+    public function getStateId(): string
+    {
+        return $this->stateId;
+    }
+
+    public function setStateId(string $stateId): void
+    {
+        $this->stateId = $stateId;
+    }
+
+    public function getState(): StateMachineStateStruct
+    {
+        return $this->state;
+    }
+
+    public function setState(StateMachineStateStruct $state): void
+    {
+        $this->state = $state;
     }
 }

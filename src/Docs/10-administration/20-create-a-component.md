@@ -514,7 +514,6 @@ The following service providers are available
 * `orderService`
 * `orderLineItemService`
 * `orderDeliveryService`
-* `orderStateService`
 * `customerService`
 * `customerAddressService`
 * `customerGroupService`

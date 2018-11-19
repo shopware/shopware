@@ -29,27 +29,11 @@
             <tag name="shopware.entity.definition" entity="order_line_item"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Order\Aggregate\OrderState\OrderStateDefinition">
-            <tag name="shopware.entity.definition" entity="order_state"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\Order\Aggregate\OrderStateTranslation\OrderStateTranslationDefinition">
-            <tag name="shopware.entity.definition" entity="order_state_translation"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition">
+        <service class="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition">
             <tag name="shopware.entity.definition" entity="order_transaction"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState\OrderTransactionStateDefinition">
-            <tag name="shopware.entity.definition" entity="order_transaction_state"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\Order\Aggregate\OrderTransactionStateTranslation\OrderTransactionStateTranslationDefinition">
-            <tag name="shopware.entity.definition" entity="order_transaction_state_translation"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\Cart\Order\OrderPersister">
+        <service class="Shopware\Core\Checkout\Cart\Order\OrderPersister" id="Shopware\Core\Checkout\Cart\Order\OrderPersister">
             <argument type="service" id="order.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
         </service>
@@ -57,7 +41,32 @@
         <service id="Shopware\Core\Checkout\Cart\Order\OrderConverter">
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextFactory"/>
+            <argument type="service" id="Shopware\Core\Framework\StateMachine\StateMachineRegistry"/>
             <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service class="Shopware\Core\Checkout\Order\OrderActionController" id="Shopware\Core\Checkout\Order\OrderActionController" public="true">
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\StateMachine\StateMachineRegistry"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container" />
+            </call>
+        </service>
+
+        <service class="Shopware\Core\Checkout\Order\OrderDeliveryActionController" id="Shopware\Core\Checkout\Order\OrderDeliveryActionController" public="true">
+            <argument type="service" id="order_delivery.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\StateMachine\StateMachineRegistry"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container" />
+            </call>
+        </service>
+
+        <service class="Shopware\Core\Checkout\Order\OrderTransactionActionController" id="Shopware\Core\Checkout\Order\OrderTransactionActionController" public="true">
+            <argument type="service" id="order_transaction.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\StateMachine\StateMachineRegistry"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container" />
+            </call>
         </service>
     </services>
 </container>

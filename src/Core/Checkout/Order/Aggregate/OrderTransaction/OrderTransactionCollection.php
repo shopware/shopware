@@ -6,10 +6,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class OrderTransactionCollection extends EntityCollection
 {
-    public function filterByOrderStateId(string $state): self
+    public function filterByState(string $state): self
     {
         return $this->filter(function (OrderTransactionEntity $transaction) use ($state) {
-            return $transaction->getOrderTransactionStateId() === $state;
+            return $transaction->getState()->getTechnicalName() === $state;
+        });
+    }
+
+    public function filterByStateId(string $stateId): self
+    {
+        return $this->filter(function (OrderTransactionStruct $transaction) use ($stateId) {
+            return $transaction->getStateId() === $stateId;
         });
     }
 

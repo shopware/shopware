@@ -4,8 +4,6 @@ namespace Shopware\Core\System\Language;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationDefinition;
 use Shopware\Core\Checkout\DiscountSurcharge\Aggregate\DiscountSurchargeTranslation\DiscountSurchargeTranslationDefinition;
-use Shopware\Core\Checkout\Order\Aggregate\OrderStateTranslation\OrderStateTranslationDefinition;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionStateTranslation\OrderTransactionStateTranslationDefinition;
 use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationDefinition;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationDefinition;
 use Shopware\Core\Content\Catalog\Aggregate\CatalogTranslation\CatalogTranslationDefinition;
@@ -50,6 +48,8 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelLanguage\SalesChanne
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesChannelTranslationDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTypeTranslation\SalesChannelTypeTranslationDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateTranslationDefinition;
+use Shopware\Core\System\StateMachine\StateMachineTranslationDefinition;
 use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationDefinition;
 
 class LanguageDefinition extends EntityDefinition
@@ -119,6 +119,8 @@ class LanguageDefinition extends EntityDefinition
             (new OneToManyAssociationField('pluginTranslations', PluginTranslationDefinition::class, 'language_id', false))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('attributeTranslations', AttributeTranslationDefinition::class, 'language_id', false))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('productStreamTranslations', ProductStreamTranslationDefinition::class, 'language_id', false))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('stateMachineTranslations', StateMachineTranslationDefinition::class, 'language_id', false))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('stateMachineStateTranslations', StateMachineStateTranslationDefinition::class, 'language_id', false))->addFlags(new CascadeDelete()),
         ]);
     }
 }

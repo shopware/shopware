@@ -79,7 +79,6 @@
       "fallbackAudioTagSupport": "Your browser does not support the audio tag"
     },
     "sw-media-upload-button": {
-      "buttonUpload": "Upload",
       "buttonFileUpload": "Upload file",
       "buttonUrlUpload": "Upload file from URL"
     },

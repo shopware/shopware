@@ -1,27 +1,18 @@
 {% block sw_media_upload_button %}
     <div class="sw-media-upload-button">
-        <sw-context-button v-if="variant == 'compact'">
-            <template slot="button">
-                {% block sw_media_upload_button %}
-                    <sw-button variant="primary" class="sw-media-upload-button__context-button">
-                        {{ $tc('global.sw-media-upload-button.buttonUpload') }}
-                        <sw-icon name="small-arrow-small-down" decorative></sw-icon>
-                    </sw-button>
-                {% endblock %}
-            </template>
-
+        <div v-if="variant == 'compact'">
             {% block sw_media_upload_context_item_file_upload %}
-                <sw-context-menu-item class="sw-media-upload-button__button-file" @click="onClickUpload">
+                <sw-button variant="primary" @click="onClickUpload">
                     {{ $tc('global.sw-media-upload-button.buttonFileUpload') }}
-                </sw-context-menu-item>
+                </sw-button>
             {% endblock %}
 
             {% block sw_media_upload_context_item_url_upload %}
-                <sw-context-menu-item class="sw-media-upload-button__button-url" @click="openUrlModal">
+                <sw-button @click="openUrlModal">
                     {{ $tc('global.sw-media-upload-button.buttonUrlUpload') }}
-                </sw-context-menu-item>
+                </sw-button>
             {% endblock %}
-        </sw-context-button>
+        </div>
 
         <template v-if="variant == 'regular'">
             <div class="sw-upload-button__dropzone">

@@ -13,7 +13,7 @@
                            :autoplay="autoplay"
                            controlsList="nodownload"
                            class="sw-media-preview__item">
-                        <source :src="urlFromItem" :type="item.mimeType">
+                        <source :src="item.url" :type="item.mimeType">
                         {{ $tc('global.sw-media-preview.fallbackVideoTagSupport') }}
                     </video>
                     <button class="sw-media-preview__play-button" v-if="!showControls" @click="onPlayClick">

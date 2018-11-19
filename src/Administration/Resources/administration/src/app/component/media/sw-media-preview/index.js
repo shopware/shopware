@@ -31,6 +31,12 @@ Component.register('sw-media-preview', {
             type: Boolean,
             required: false,
             default: true
+        },
+
+        useThumbnails: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
 
@@ -100,7 +106,7 @@ Component.register('sw-media-preview', {
                 return this.item.dataUrl;
             }
 
-            if (this.item.thumbnails.length > 0) {
+            if (this.useThumbnails && this.item.thumbnails.length > 0) {
                 const thumbnails = this.item.thumbnails.filter((thumb) => {
                     return thumb.height === 300;
                 });

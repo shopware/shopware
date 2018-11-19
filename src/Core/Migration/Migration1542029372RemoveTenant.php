@@ -20,7 +20,8 @@ class Migration1542029372RemoveTenant extends MigrationStep
         $tenantAwareTables = $this->getColumns();
         $tables = $connection->executeQuery('SHOW TABLES')->fetchAll(FetchMode::COLUMN);
 
-        $constraints = $this->removeContraints($connection, $tables);
+        $foreignKeys = $this->removeForeignKeys($connection, $tables);
+        $this->removeUniqueConstraints($connection);
 
         foreach ($tables as $table) {
             $tableInstructions = [];
@@ -48,7 +49,8 @@ class Migration1542029372RemoveTenant extends MigrationStep
             $connection->executeUpdate($sql, ['tenantId' => $tenantId]);
         }
 
-        $this->addConstraints($connection, $constraints);
+        $this->addForeignKeys($connection, $foreignKeys);
+        $this->addUniqueConstraints($connection);
     }
 
     public function updateDestructive(Connection $connection): void
@@ -84,7 +86,7 @@ class Migration1542029372RemoveTenant extends MigrationStep
         $connection->executeUpdate('ALTER TABLE `' . $table . '` DROP PRIMARY KEY, ADD PRIMARY KEY (`' . implode('`,`', $primaryKey) . '`)');
     }
 
-    private function removeContraints(Connection $connection, array $tables): array
+    private function removeForeignKeys(Connection $connection, array $tables): array
     {
         $sql = <<<SQL
 SELECT DISTINCT i.TABLE_SCHEMA, i.TABLE_NAME, 
@@ -141,7 +143,7 @@ SQL;
         return $constraints;
     }
 
-    private function addConstraints(Connection $connection, array $constraints): void
+    private function addForeignKeys(Connection $connection, array $constraints): void
     {
         foreach ($constraints as $table => $tableConstraints) {
             $tableInstructions = [];
@@ -160,6 +162,33 @@ SQL;
 
             $connection->executeQuery('ALTER TABLE `' . $table . '` ' . implode(', ', $tableInstructions));
         }
+    }
+
+    private function removeUniqueConstraints(Connection $connection): void
+    {
+        $connection->executeQuery('ALTER TABLE `language` DROP KEY `uniqueLocale`');
+        $connection->executeQuery('ALTER TABLE `listing_facet` DROP KEY `unique_identifier`');
+        $connection->executeQuery('ALTER TABLE `listing_sorting` DROP KEY `uniqueKey`');
+        $connection->executeQuery('ALTER TABLE `locale` DROP KEY `locale`');
+        $connection->executeQuery('ALTER TABLE `order` DROP KEY `deep_link_code`');
+        $connection->executeQuery('ALTER TABLE `payment_method` DROP KEY `name`');
+        $connection->executeQuery('ALTER TABLE `sales_channel` DROP KEY `access_key`');
+        $connection->executeQuery('ALTER TABLE `search_document` DROP KEY `language_id`');
+        $connection->executeQuery('ALTER TABLE `shipping_method_price` DROP KEY `shipping_method_uuid_quantity_from`');
+        $connection->executeQuery('ALTER TABLE `snippet` DROP KEY `tenant_id`');
+    }
+
+    private function addUniqueConstraints(Connection $connection): void
+    {
+        $connection->executeQuery('ALTER TABLE `language` ADD UNIQUE KEY `uniqueLocale` (`locale_id`)');
+        $connection->executeQuery('ALTER TABLE `listing_facet` ADD UNIQUE KEY `unique_identifier` (`unique_key`, `version_id`)');
+        $connection->executeQuery('ALTER TABLE `listing_sorting` ADD UNIQUE KEY `uniqueKey` (`unique_key`)');
+        $connection->executeQuery('ALTER TABLE `order` ADD UNIQUE KEY `deep_link_code` (`deep_link_code`, `version_id`)');
+        $connection->executeQuery('ALTER TABLE `payment_method` ADD UNIQUE KEY `name` (`technical_name`, `version_id`)');
+        $connection->executeQuery('ALTER TABLE `sales_channel` ADD UNIQUE KEY `access_key` (`access_key`)');
+        $connection->executeQuery('ALTER TABLE `search_document` ADD UNIQUE KEY `unique` (`language_id`, `keyword`, `entity`, `entity_id`, `ranking`, `version_id`)');
+        $connection->executeQuery('ALTER TABLE `shipping_method_price` ADD UNIQUE KEY `shipping_method_uuid_quantity_from` (`shipping_method_id`,`quantity_from`,`version_id`)');
+        $connection->executeQuery('ALTER TABLE `snippet` ADD UNIQUE KEY `tenant_id` (`language_id`,`translation_key`)');
     }
 
     private function hasTenantColumns(array $columns): bool

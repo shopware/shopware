@@ -48,11 +48,6 @@ class LanguageStruct extends Entity
     protected $name;
 
     /**
-     * @var string
-     */
-    protected $localeVersionId;
-
-    /**
      * @var \DateTime|null
      */
     protected $createdAt;
@@ -235,16 +230,6 @@ class LanguageStruct extends Entity
     public function setName(string $name): void
     {
         $this->name = $name;
-    }
-
-    public function getLocaleVersionId(): string
-    {
-        return $this->localeVersionId;
-    }
-
-    public function setLocaleVersionId(string $localeVersionId): void
-    {
-        $this->localeVersionId = $localeVersionId;
     }
 
     public function getCreatedAt(): ?\DateTime

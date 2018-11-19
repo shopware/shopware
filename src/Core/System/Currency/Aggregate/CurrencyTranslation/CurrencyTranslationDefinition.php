@@ -6,7 +6,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -26,7 +25,6 @@ class CurrencyTranslationDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->setFlags(new PrimaryKey(), new Required()),
-            (new ReferenceVersionField(CurrencyDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('short_name', 'shortName'))->setFlags(new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),

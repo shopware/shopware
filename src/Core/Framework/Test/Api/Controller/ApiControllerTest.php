@@ -36,21 +36,18 @@ EOF;
         $namedOptionalGroupStatement = <<<EOF
 CREATE TABLE `named_optional_group` (
     `id` binary(16) NOT NULL,
-    `version_id` binary(16) NOT NULL,    
     `name` varchar(255) NOT NULL,
-    PRIMARY KEY `id` (`id`, `version_id`)
+    PRIMARY KEY `id` (`id`)
 );
 EOF;
 
         $namedStatement = <<<EOF
 CREATE TABLE `named` (
     `id` binary(16) NOT NULL,
-    `version_id` binary(16) NOT NULL,
     `name` varchar(255) NOT NULL,    
     `optional_group_id` varbinary(16) NULL,    
-    `optional_group_version_id` varbinary(16) NULL,
-    PRIMARY KEY `id` (`id`, `version_id`),  
-    CONSTRAINT `fk` FOREIGN KEY (`optional_group_id`, `optional_group_version_id`) REFERENCES `named_optional_group` (`id`, `version_id`)
+    PRIMARY KEY `id` (`id`),  
+    CONSTRAINT `fk` FOREIGN KEY (`optional_group_id`) REFERENCES `named_optional_group` (`id`) ON DELETE SET NULL
 );
 EOF;
         $this->connection = $this->getContainer()->get(Connection::class);

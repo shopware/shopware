@@ -16,7 +16,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
@@ -51,13 +50,9 @@ class SalesChannelDefinition extends EntityDefinition
             (new FkField('type_id', 'typeId', SalesChannelTypeDefinition::class))->setFlags(new Required()),
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->setFlags(new Required()),
             (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->setFlags(new Required()),
-            new ReferenceVersionField(CurrencyDefinition::class),
             (new FkField('payment_method_id', 'paymentMethodId', PaymentMethodDefinition::class))->setFlags(new Required()),
-            new ReferenceVersionField(PaymentMethodDefinition::class),
             (new FkField('shipping_method_id', 'shippingMethodId', ShippingMethodDefinition::class))->setFlags(new Required()),
-            new ReferenceVersionField(ShippingMethodDefinition::class),
             (new FkField('country_id', 'countryId', CountryDefinition::class))->setFlags(new Required()),
-            new ReferenceVersionField(CountryDefinition::class),
             (new StringField('type', 'type'))->setFlags(new Required()),
             new TranslatedField('name'),
             (new StringField('access_key', 'accessKey'))->setFlags(new Required()),

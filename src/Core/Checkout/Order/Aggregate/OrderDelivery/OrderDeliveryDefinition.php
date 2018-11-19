@@ -47,7 +47,6 @@ class OrderDeliveryDefinition extends EntityDefinition
             (new ReferenceVersionField(OrderStateDefinition::class))->setFlags(new Required()),
 
             (new FkField('shipping_method_id', 'shippingMethodId', ShippingMethodDefinition::class))->setFlags(new Required()),
-            (new ReferenceVersionField(ShippingMethodDefinition::class))->setFlags(new Required()),
 
             (new DateField('shipping_date_earliest', 'shippingDateEarliest'))->setFlags(new Required(), new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
             (new DateField('shipping_date_latest', 'shippingDateLatest'))->setFlags(new Required(), new SearchRanking(self::MIDDLE_SEARCH_RANKING)),

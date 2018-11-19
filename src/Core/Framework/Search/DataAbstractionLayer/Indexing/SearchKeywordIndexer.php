@@ -101,15 +101,15 @@ class SearchKeywordIndexer implements IndexerInterface
         $dictionary = $this->indexTableOperator->getIndexName(self::DICTIONARY, $timestamp);
         $document = $this->indexTableOperator->getIndexName(self::DOCUMENT_TABLE, $timestamp);
 
-        $this->connection->executeUpdate('ALTER TABLE `' . $dictionary . '` ADD PRIMARY KEY `language_keyword` (`keyword`, `scope`, `language_id`, `version_id`);');
+        $this->connection->executeUpdate('ALTER TABLE `' . $dictionary . '` ADD PRIMARY KEY `language_keyword` (`keyword`, `scope`, `language_id`);');
         $this->connection->executeUpdate('ALTER TABLE `' . $dictionary . '` ADD INDEX `keyword` (`keyword`, `language_id`);');
         $this->connection->executeUpdate('ALTER TABLE `' . $dictionary . '` ADD FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE');
         $this->connection->executeUpdate('ALTER TABLE `' . $dictionary . '` ADD INDEX `scope_language_id` (`scope`, `language_id`);');
 
-        $this->connection->executeUpdate('ALTER TABLE `' . $document . '` ADD PRIMARY KEY (`id`, `version_id`);');
-        $this->connection->executeUpdate('ALTER TABLE `' . $document . '` ADD UNIQUE  KEY (`language_id`, `keyword`, `entity`, `entity_id`, `ranking`, `version_id`);');
+        $this->connection->executeUpdate('ALTER TABLE `' . $document . '` ADD PRIMARY KEY (`id`);');
+        $this->connection->executeUpdate('ALTER TABLE `' . $document . '` ADD UNIQUE  KEY (`language_id`, `keyword`, `entity`, `entity_id`, `ranking`);');
         $this->connection->executeUpdate('ALTER TABLE `' . $document . '` ADD FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE');
-        $this->connection->executeUpdate('ALTER TABLE `' . $document . '` ADD INDEX (`version_id`, `entity_id`)');
+        $this->connection->executeUpdate('ALTER TABLE `' . $document . '` ADD INDEX (`entity_id`)');
 
         $languages = $this->languageRepository->search(new Criteria(), Context::createDefaultContext());
         $catalogIds = $this->catalogRepository->searchIds(new Criteria(), Context::createDefaultContext());
@@ -243,7 +243,6 @@ class SearchKeywordIndexer implements IndexerInterface
         $queue = new MultiInsertQueryQueue($this->connection, 250, false, true);
 
         $languageId = $this->connection->quote(Uuid::fromStringToBytes($context->getLanguageId()));
-        $versionId = $this->connection->quote(Uuid::fromStringToBytes($context->getVersionId()));
 
         /** @var string|EntityDefinition $definition */
         $entityName = $this->connection->quote($definition::getEntityName());
@@ -274,14 +273,12 @@ class SearchKeywordIndexer implements IndexerInterface
                 $queue->addInsert($table, [
                     'scope' => $entityName,
                     'language_id' => $languageId,
-                    'version_id' => $versionId,
                     'keyword' => $keyword,
                     'reversed' => $reversed,
                 ], null, true);
 
                 $queue->addInsert($documentTable, [
                     'id' => $this->connection->quote(Uuid::uuid4()->getBytes()),
-                    'version_id' => $versionId,
                     'entity' => $entityName,
                     'entity_id' => $entityId,
                     'language_id' => $languageId,

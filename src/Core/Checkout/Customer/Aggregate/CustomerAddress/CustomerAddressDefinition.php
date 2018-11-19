@@ -8,10 +8,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
@@ -30,16 +28,12 @@ class CustomerAddressDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            new VersionField(),
 
             (new FkField('customer_id', 'customerId', CustomerDefinition::class))->setFlags(new Required()),
-            (new ReferenceVersionField(CustomerDefinition::class))->setFlags(new Required()),
 
             (new FkField('country_id', 'countryId', CountryDefinition::class))->setFlags(new Required()),
-            (new ReferenceVersionField(CountryDefinition::class))->setFlags(new Required()),
 
             new FkField('country_state_id', 'countryStateId', CountryStateDefinition::class),
-            new ReferenceVersionField(CountryStateDefinition::class),
 
             new StringField('salutation', 'salutation'),
             (new StringField('first_name', 'firstName'))->setFlags(new Required(), new SearchRanking(self::MIDDLE_SEARCH_RANKING)),

@@ -7,10 +7,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelStruct;
 
 class SeoUrlStruct extends Entity
 {
-    /**
-     * @var string
-     */
-    protected $versionId;
 
     /**
      * @var string
@@ -26,11 +22,6 @@ class SeoUrlStruct extends Entity
      * @var string
      */
     protected $foreignKey;
-
-    /**
-     * @var string
-     */
-    protected $foreignKeyVersionId;
 
     /**
      * @var string
@@ -72,16 +63,6 @@ class SeoUrlStruct extends Entity
      */
     protected $url;
 
-    public function getVersionId(): string
-    {
-        return $this->versionId;
-    }
-
-    public function setVersionId(string $versionId): void
-    {
-        $this->versionId = $versionId;
-    }
-
     public function getSalesChannelId(): string
     {
         return $this->salesChannelId;
@@ -110,16 +91,6 @@ class SeoUrlStruct extends Entity
     public function setForeignKey(string $foreignKey): void
     {
         $this->foreignKey = $foreignKey;
-    }
-
-    public function getForeignKeyVersionId(): string
-    {
-        return $this->foreignKeyVersionId;
-    }
-
-    public function setForeignKeyVersionId(string $foreignKeyVersionId): void
-    {
-        $this->foreignKeyVersionId = $foreignKeyVersionId;
     }
 
     public function getPathInfo(): string

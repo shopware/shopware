@@ -112,7 +112,6 @@ class KeywordSearchTermInterpreterTest extends TestCase
         ];
 
         $languageId = Uuid::fromString(Defaults::LANGUAGE_EN)->getBytes();
-        $versionId = Uuid::fromString(Defaults::LIVE_VERSION)->getBytes();
 
         foreach ($keywords as $keyword) {
             preg_match_all('/./us', $keyword, $ar);
@@ -121,7 +120,6 @@ class KeywordSearchTermInterpreterTest extends TestCase
                 'scope' => 'product',
                 'keyword' => $keyword,
                 'reversed' => implode('', array_reverse($ar[0])),
-                'version_id' => $versionId,
                 'language_id' => $languageId,
             ]);
         }

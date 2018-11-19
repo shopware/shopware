@@ -60,10 +60,8 @@ class OrderDefinition extends EntityDefinition
             (new ReferenceVersionField(OrderStateDefinition::class))->setFlags(new Required()),
 
             (new FkField('payment_method_id', 'paymentMethodId', PaymentMethodDefinition::class))->setFlags(new Required()),
-            (new ReferenceVersionField(PaymentMethodDefinition::class))->setFlags(new Required()),
 
             (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->setFlags(new Required()),
-            (new ReferenceVersionField(CurrencyDefinition::class))->setFlags(new Required()),
 
             (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->setFlags(new Required()),
 

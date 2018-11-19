@@ -35,7 +35,6 @@ class OrderTransactionDefinition extends EntityDefinition
             (new FkField('order_id', 'orderId', OrderDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(OrderDefinition::class))->setFlags(new Required()),
             (new FkField('payment_method_id', 'paymentMethodId', PaymentMethodDefinition::class))->setFlags(new Required()),
-            (new ReferenceVersionField(PaymentMethodDefinition::class))->setFlags(new Required()),
             (new FkField('order_transaction_state_id', 'orderTransactionStateId', OrderTransactionStateDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(OrderTransactionStateDefinition::class))->setFlags(new Required()),
             (new ObjectField('amount', 'amount'))->setFlags(new Required()),

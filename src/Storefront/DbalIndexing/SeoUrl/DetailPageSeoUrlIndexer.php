@@ -186,11 +186,9 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
 
             $data = [
                 'id' => $existing['id'],
-                'version_id' => $liveVersionId,
                 'sales_channel_id' => Uuid::fromStringToBytes($context->getSourceContext()->getSalesChannelId()),
                 'name' => self::ROUTE_NAME,
                 'foreign_key' => Uuid::fromStringToBytes($product->getId()),
-                'foreign_key_version_id' => $liveVersionId,
                 'path_info' => $pathInfo,
                 'seo_path_info' => $seoUrl,
                 'is_canonical' => 1,

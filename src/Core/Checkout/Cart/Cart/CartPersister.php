@@ -62,25 +62,18 @@ class CartPersister implements CartPersisterInterface
 
         $this->delete($cart->getToken(), $context);
 
-        $liveVersion = Uuid::fromStringToBytes(Defaults::LIVE_VERSION);
 
         $customerId = $context->getCustomer() ? Uuid::fromStringToBytes($context->getCustomer()->getId()) : null;
 
         $data = [
-            'version_id' => $liveVersion,
             'token' => $cart->getToken(),
             'name' => $cart->getName(),
             'currency_id' => Uuid::fromStringToBytes($context->getCurrency()->getId()),
-            'currency_version_id' => $liveVersion,
             'shipping_method_id' => Uuid::fromStringToBytes($context->getShippingMethod()->getId()),
-            'shipping_method_version_id' => $liveVersion,
             'payment_method_id' => Uuid::fromStringToBytes($context->getPaymentMethod()->getId()),
-            'payment_method_version_id' => $liveVersion,
             'country_id' => Uuid::fromStringToBytes($context->getShippingLocation()->getCountry()->getId()),
-            'country_version_id' => $liveVersion,
             'sales_channel_id' => Uuid::fromStringToBytes($context->getSalesChannel()->getId()),
             'customer_id' => $customerId,
-            'customer_version_id' => $context->getCustomer() ? $liveVersion : null,
             'price' => $cart->getPrice()->getTotalPrice(),
             'line_item_count' => $cart->getLineItems()->count(),
             'cart' => $this->serializer->serialize($cart, 'json'),

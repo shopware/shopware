@@ -4,8 +4,8 @@
 import { Application } from 'src/core/shopware';
 
 class LocaleStore {
-    constructor() {
-        this.locale = 'en-GB';
+    constructor(locale) {
+        this.locale = locale;
     }
 
     /**

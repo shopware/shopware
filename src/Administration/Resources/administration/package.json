@@ -57,7 +57,7 @@
     "cross-spawn": "6.0.5",
     "css-loader": "1.0.0",
     "docdash": "0.4.0",
-    "dotenv": "^6.1.0",
+    "dotenv": "6.1.0",
     "eslint": "4.19.1",
     "eslint-config-airbnb-base": "13.0.0",
     "eslint-friendly-formatter": "4.0.1",

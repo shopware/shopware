@@ -224,10 +224,11 @@ class ApplicationBootstrapper {
     }
 
     /**
+     * Initializes the feature flags from context settings
+     *
      * @returns {module:core/application.ApplicationBootstrapper}
-     * @private
      */
-    _initializeFeatureFlags() {
+    initializeFeatureFlags() {
         const config = this.getContainer('init').context.features;
 
         Shopware.FeatureConfig.init(config);
@@ -303,10 +304,9 @@ class ApplicationBootstrapper {
      * @returns {module:core/application.ApplicationBootstrapper}
      */
     start(context = {}) {
-        this.registerContext(context);
-        this._initializeFeatureFlags();
-
-        return this.createApplicationRoot();
+        return this.registerContext(context)
+            .initializeFeatureFlags()
+            .createApplicationRoot();
     }
 
     /**

@@ -61,7 +61,11 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
         Vue.config.performance = process.env.NODE_ENV !== 'production';
 
         // make all features globally available to templates
-        Vue.mixin({ data: () => { return Shopware.FeatureConfig.getAll(); } });
+        Vue.mixin({
+            data() {
+                return Shopware.FeatureConfig.getAll();
+            }
+        });
 
         return new Vue({
             el: renderElement,

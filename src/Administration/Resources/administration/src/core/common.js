@@ -23,7 +23,6 @@ const container = new Bottle({
     strict: true
 });
 
-
 const application = new ApplicationBootstrapper(container);
 
 application

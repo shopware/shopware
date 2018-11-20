@@ -11,7 +11,9 @@ export default function createCoreStates() {
     stateFactory.registerStore('auth', new AuthStore());
     stateFactory.registerStore('notification', new NotificationStore());
     stateFactory.registerStore('error', new ErrorStore());
-    stateFactory.registerStore('adminLocale', new LocaleStore());
+    stateFactory.registerStore('adminLocale', new LocaleStore(
+        factoryContainer.locale.getLastKnownLocale()
+    ));
     stateFactory.registerStore('upload', new UploadStore());
 
     return true;

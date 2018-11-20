@@ -6,11 +6,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildCountField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Deferred;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\ReadOnly;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\SearchRanking;
@@ -85,6 +88,18 @@ abstract class EntityDefinition
         }
 
         $fields = static::defineFields();
+
+        if (static::getTranslationDefinitionClass() !== null) {
+            $fields->add(
+                (new JsonField('translated', 'translated'))->setFlags(new Extension(), new Deferred(), new ReadOnly())
+            );
+        }
+
+        if (static::isInheritanceAware()) {
+            $fields->add(
+                (new JsonField('inherited', 'inherited'))->setFlags(new Extension(), new Deferred(), new ReadOnly())
+            );
+        }
 
         $extensions = static::$extensions[static::class] ?? [];
         foreach ($extensions as $extension) {

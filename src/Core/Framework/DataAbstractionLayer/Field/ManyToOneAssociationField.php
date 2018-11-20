@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+
 class ManyToOneAssociationField extends Field implements AssociationInterface
 {
     use AssociationTrait;
@@ -53,6 +55,9 @@ class ManyToOneAssociationField extends Field implements AssociationInterface
         return self::PRIORITY;
     }
 
+    /**
+     * @return string|EntityDefinition
+     */
     public function getReferenceClass(): string
     {
         return $this->referenceClass;

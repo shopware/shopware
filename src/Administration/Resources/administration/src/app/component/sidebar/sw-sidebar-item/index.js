@@ -93,6 +93,8 @@ Component.register('sw-sidebar-item', {
 
         closeContent() {
             this.isActive = false;
+
+            this.$emit('sw-sidebar-item-close-content', this);
         },
 
         sidebarButtonClick(sidebarItem) {

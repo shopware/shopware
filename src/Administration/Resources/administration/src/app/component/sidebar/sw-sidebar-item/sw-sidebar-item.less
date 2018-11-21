@@ -1,13 +1,15 @@
 @import "~less/variables";
 
-@sw-sidebar-item-headline-color: @color-kashmir;
-@sw-sidebar-item-color-border:   @color-steam-cloud;
+@sw-sidebar-item-headline-color:   @color-kashmir;
+@sw-sidebar-item-color-border:     @color-steam-cloud;
+@sw-sidebar-item-width-navigation: 64px;
+@sw-sidebar-item-width-content:    400px;
 
 .sw-sidebar-item {
-    width: 400px;
+    width: @sw-sidebar-item-width-content;
     height: 100%;
     display: grid;
-    grid-template-rows: 64px 1fr;
+    grid-template-rows: @sw-sidebar-item-width-navigation 1fr;
     border-left: 1px solid @sw-sidebar-item-color-border;
     overflow: hidden;
 
@@ -42,22 +44,8 @@
 
     .sw-sidebar-item__scrollable-container {
         position: absolute;
-        width: 400px;
+        width: @sw-sidebar-item-width-content;
         height: 100%;
         overflow-y: auto;
     }
-}
-
-// Vue.js animations
-.sw-sidebar-item-fade-enter-active,
-.sw-sidebar-item-fade-leave-active {
-    transition: opacity ease-in-out .3s,
-                width cubic-bezier(.50, .32, .01, 1) .3s;
-    width: 400px;
-}
-
-.sw-sidebar-item-fade-enter,
-.sw-sidebar-item-fade-leave-to {
-    opacity: 0;
-    width: 0;
 }

@@ -15,7 +15,8 @@ Component.register('sw-sidebar', {
 
     data() {
         return {
-            items: []
+            items: [],
+            isOpened: false
         };
     },
 
@@ -38,6 +39,12 @@ Component.register('sw-sidebar', {
             });
 
             return sections;
+        },
+
+        sidebarClasses() {
+            return {
+                'is--opened': this.isOpened
+            };
         }
     },
 
@@ -63,6 +70,17 @@ Component.register('sw-sidebar', {
             return index > -1;
         },
 
+        _isAnyItemActive() {
+            const index = this.items.findIndex((item) => {
+                return item.isActive;
+            });
+            return index > -1;
+        },
+
+        closeSidebar() {
+            this.isOpened = false;
+        },
+
         registerSidebarItem(item) {
             if (this._isItemRegistered(item)) {
                 return;
@@ -72,10 +90,15 @@ Component.register('sw-sidebar', {
 
             this.$on('sw-sidebar-navigation-item-clicked', item.sidebarButtonClick);
             item.$on('sw-sidebar-item-toggle-active', this.setItemActive);
+            item.$on('sw-sidebar-item-close-content', this.closeSidebar);
         },
 
         setItemActive(clickedItem) {
             this.$emit('sw-sidebar-navigation-item-clicked', clickedItem);
+
+            if (clickedItem.hasDefaultSlot) {
+                this.isOpened = this._isAnyItemActive();
+            }
         }
     }
 });

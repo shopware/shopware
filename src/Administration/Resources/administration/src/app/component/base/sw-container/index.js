@@ -5,7 +5,7 @@ import './sw-container.less';
 
 /**
  * @public
- * @description Provides a container element which is divided in multiple section with the use of CSS grid.
+ * @description Provides a container element which is divided in multiple sections with the use of CSS grid.
  * @status ready
  * @example-type static
  * @component-example

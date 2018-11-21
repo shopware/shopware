@@ -3,7 +3,7 @@ import template from './sw-notifications.html.twig';
 import './sw-notifications.less';
 
 /**
- * @public
+ * @private
  * @description
  * Wrapper element for all notifications of the administration.
  * @status ready

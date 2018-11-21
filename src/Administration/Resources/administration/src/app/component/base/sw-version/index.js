@@ -3,7 +3,7 @@ import template from './sw-version.html.twig';
 import './sw-version.less';
 
 /**
- * @public
+ * @private
  * @description Shows the header in the administration main menu
  * @status ready
  * @example-type static

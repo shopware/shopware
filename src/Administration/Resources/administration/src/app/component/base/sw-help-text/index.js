@@ -4,7 +4,7 @@ import './sw-help-text.less';
 
 /**
  * @public
- * @description Provides a container element which is divided in multiple section with the use of CSS grid.
+ * @description The help text adds a question mark icon which triggers a tooltip with your desired content.
  * @status ready
  * @example-type dynamic
  * @component-example

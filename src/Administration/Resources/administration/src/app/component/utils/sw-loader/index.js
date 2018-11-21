@@ -4,7 +4,7 @@ import template from './sw-loader.html.twig';
 
 /**
  * @public
- * @description Renders a loading indicator for panels, input fields, buttons, usw.
+ * @description Renders a loading indicator for panels, input fields, buttons, etc.
  * @status ready
  * @example-type dynamic
  * @component-example

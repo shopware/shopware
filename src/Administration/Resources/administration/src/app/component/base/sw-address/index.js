@@ -4,14 +4,14 @@ import './sw-address.less';
 
 /**
  * @public
- * @description Component which renders a compact panel with user information
+ * @description Component to render a postal address
  * @status ready
  * @example-type static
  * @component-example
  * <sw-address headline="Billing address" :address="{
  *     salutation: 'Mister',
  *     title: 'Doctor',
- *     firstName: 'Joe',
+ *     firstName: 'John',
  *     lastName: 'Doe',
  *     street: 'Main St 123',
  *     zipcode: '12456',

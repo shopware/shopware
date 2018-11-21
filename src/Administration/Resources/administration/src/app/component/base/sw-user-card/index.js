@@ -4,8 +4,7 @@ import './sw-user-card.less';
 
 /**
  * @public
- * @description Renders a tab navigation. Each tab item references a route and the tab content will be rendered
- * using <code>&lt;router-view&gt;</code> in the parent component.
+ * @description Renders a compact user information card using the provided user data.
  * @status ready
  * @example-type static
  * @component-example
@@ -15,7 +14,7 @@ import './sw-user-card.less';
  *     addresses: [{
  *         salutation: 'Mister',
  *         title: 'Doctor',
- *         firstName: 'Joe',
+ *         firstName: 'John',
  *         lastName: 'Doe',
  *         street: 'Main St 123',
  *         zipcode: '12456',
@@ -24,7 +23,7 @@ import './sw-user-card.less';
  *     }],
  *     salutation: 'Mister',
  *     title: 'Doctor',
- *     firstName: 'Joe',
+ *     firstName: 'John',
  *     lastName: 'Doe',
  *     street: 'Main St 123',
  *     zipcode: '12456',

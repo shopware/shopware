@@ -12,6 +12,23 @@ module.exports = (moduleDefinition) => {
     }, []);
     
     return definedMethods.map((item) => {
-        return item.key.name;
+        const params = item.value.params || [];
+        const definedParams = params.map((param) => {
+            if (param.type === 'Identifier') {
+                return param.name;
+            }
+            if (param.type === 'AssignmentPattern') {
+                return param.left.name;
+            }
+
+            if (param.type === 'RestElement') {
+                return `...${param.argument.name}`;
+            }
+        });
+
+        return {
+            name: item.key.name,
+            params: definedParams
+        };
     });
-}
+};

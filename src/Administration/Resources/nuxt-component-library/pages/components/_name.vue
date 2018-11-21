@@ -49,6 +49,77 @@
             </table>
         </section>
 
+        <section class="section--less-variables" v-if="component.methods.length">
+            <h3>Methods</h3>
+            <table>
+                <thead>
+                <tr>
+                    <th>Method name</th>
+                    <th>Parameters</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr v-for="method in component.methods" :key="method.name">
+                    <td>
+                        <u>{{ method.name }}</u>
+                    </td>
+
+                    <td>
+                        <span v-if="method.params.length > 0">
+                            <u v-for="param in method.params" :key="param">
+                                {{ param }}
+                            </u>
+                        </span>
+                        <span v-else>
+                            No parameters
+                        </span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="section--imports" v-if="component.imports.length">
+            <h3>Imports</h3>
+
+            <ul class="code-list">
+                <li v-for="importName in component.imports" :key="importName">
+                    <u>{{importName}}</u>
+                </li>
+            </ul>
+        </section>
+
+        <section class="section--imports" v-if="component.watcher.length">
+            <h3>Watcher</h3>
+
+            <ul class="code-list">
+                <li v-for="watcher in component.watcher" :key="watcher">
+                    <u>{{watcher}}</u>
+                </li>
+            </ul>
+        </section>
+
+        <section class="section--imports" v-if="component.mixins.length">
+            <h3>Mixins</h3>
+
+            <ul class="code-list">
+                <li v-for="mixin in component.mixins" :key="mixin">
+                    <u>{{mixin}}</u>
+                </li>
+            </ul>
+        </section>
+
+        <section class="section--imports" v-if="component.inject.length">
+            <h3>Inject</h3>
+
+            <ul class="code-list">
+                <li v-for="inject in component.inject" :key="inject">
+                    <u>{{inject}}</u>
+                </li>
+            </ul>
+        </section>
+
         <section class="section--less-variables" v-if="component.lessVariables.length">
             <h3>Less variables</h3>
             <table>
@@ -72,8 +143,39 @@
                 </tbody>
             </table>
         </section>
+
+        <section class="section--twig-blocks" v-if="component.blocks.length">
+            <h3>Twig blocks</h3>
+
+            <ul class="code-list">
+                <li v-for="block in component.blocks" :key="block.name">
+                    <u>{{block.name}}</u>
+                </li>
+            </ul>
+        </section>
+
+        <section class="section--vue-slots" v-if="component.slots.length">
+            <h3>Slots</h3>
+
+            <ul class="code-list">
+                <li v-for="slot in component.slots" :key="slot.name">
+                    <u v-if="slot.name">{{slot.name}}</u>
+                    <u v-else><i>(default)</i></u>
+                </li>
+            </ul>
+        </section>
     </div>
 </template>
+
+<style lang="less">
+    .code-list {
+        margin-left: 1em;
+
+        li {
+            margin-bottom: 8px;
+        }
+    }
+</style>
 
 <script>
 import Prism from 'vue-prism-component';

@@ -1679,7 +1679,7 @@ class ProductRepositoryTest extends TestCase
             'manufacturer' => ['name' => 'test', 'id' => $manufacturerId],
         ];
 
-        $withRules = array_merge($default, ['blacklistedRuleIds' => [$ruleId]]);
+        $withRules = array_merge($default, ['blacklistIds' => [$ruleId]]);
 
         $products = [
             $default,

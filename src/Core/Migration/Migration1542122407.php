@@ -16,8 +16,8 @@ class Migration1542122407 extends MigrationStep
     {
         $connection->executeQuery('
           ALTER TABLE `product`
-              ADD `whitelisted_rule_ids` longtext NULL,
-              ADD `blacklisted_rule_ids` longtext NULL;
+              ADD `whitelist_ids` longtext NULL,
+              ADD `blacklist_ids` longtext NULL;
         ');
     }
 

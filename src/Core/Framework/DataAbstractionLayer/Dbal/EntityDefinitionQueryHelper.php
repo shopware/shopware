@@ -205,7 +205,7 @@ class EntityDefinitionQueryHelper
 
         /** @var string|EntityDefinition $definition */
         if ($definition::isBlacklistAware() && $context->getRules()) {
-            $accessor = self::escape($alias) . '.' . self::escape('blacklisted_rule_ids');
+            $accessor = self::escape($alias) . '.' . self::escape('blacklist_ids');
 
             $wheres = [];
 
@@ -224,7 +224,7 @@ class EntityDefinitionQueryHelper
             return empty($conditions) ? null : implode(' AND ', $conditions);
         }
 
-        $accessor = self::escape($alias) . '.' . self::escape('whitelisted_rule_ids');
+        $accessor = self::escape($alias) . '.' . self::escape('whitelist_ids');
 
         $whitelistConditions = [
             'JSON_DEPTH(' . $accessor . ') is null',
@@ -387,7 +387,6 @@ class EntityDefinitionQueryHelper
         );
     }
 
-
     /**
      * Adds a blacklist and whitelist where condition to the provided query.
      * This function is only for internal usage for the root entity of the query.
@@ -398,7 +397,7 @@ class EntityDefinitionQueryHelper
         if ($definition::isBlacklistAware() && $context->getRules()) {
             $wheres = [];
 
-            $accessor = $this->getFieldAccessor('blacklistedRuleIds', $definition, $definition::getEntityName(), $context);
+            $accessor = $this->getFieldAccessor('blacklistIds', $definition, $definition::getEntityName(), $context);
 
             foreach ($context->getRules() as $ruleId) {
                 $wheres[] = sprintf(
@@ -415,7 +414,7 @@ class EntityDefinitionQueryHelper
             return;
         }
 
-        $accessor = $this->getFieldAccessor('whitelistedRuleIds', $definition, $definition::getEntityName(), $context);
+        $accessor = $this->getFieldAccessor('whitelistIds', $definition, $definition::getEntityName(), $context);
 
         $wheres = [];
         foreach ($context->getRules() as $id) {

@@ -215,12 +215,12 @@ abstract class EntityDefinition
 
     public static function isBlacklistAware(): bool
     {
-        return static::getFields()->has('blacklistedRuleIds');
+        return static::getFields()->has('blacklistIds');
     }
 
     public static function isWhitelistAware(): bool
     {
-        return static::getFields()->has('whitelistedRuleIds');
+        return static::getFields()->has('whitelistIds');
     }
 
     abstract protected static function defineFields(): FieldCollection;

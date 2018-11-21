@@ -57,7 +57,7 @@ class WhitelistRuleFieldTest extends TestCase
                 'name' => 'test product',
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['name' => 'test'],
-                'whitelistedRuleIds' => [$rule1, $rule2],
+                'whitelistIds' => [$rule1, $rule2],
             ],
             [
                 'id' => $product2,
@@ -65,7 +65,7 @@ class WhitelistRuleFieldTest extends TestCase
                 'name' => 'test product',
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['name' => 'test'],
-                'whitelistedRuleIds' => [$rule3],
+                'whitelistIds' => [$rule3],
             ],
             [
                 'id' => $product3,
@@ -142,7 +142,7 @@ class WhitelistRuleFieldTest extends TestCase
                 'name' => 'test product',
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['name' => 'test'],
-                'whitelistedRuleIds' => [$rule1, $rule2],
+                'whitelistIds' => [$rule1, $rule2],
             ],
             [
                 'id' => $productId1,
@@ -159,7 +159,7 @@ class WhitelistRuleFieldTest extends TestCase
             [
                 'id' => $productId2,
                 'parentId' => $parentId2,
-                'whitelistedRuleIds' => [$rule1, $rule2],
+                'whitelistIds' => [$rule1, $rule2],
             ],
 
             [
@@ -246,7 +246,7 @@ class WhitelistRuleFieldTest extends TestCase
                 'name' => 'test product',
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['name' => 'test', 'id' => $manufacturerId],
-                'whitelistedRuleIds' => [$rule1, $rule2],
+                'whitelistIds' => [$rule1, $rule2],
             ],
             //child has inherited whitelist
             ['id' => $product1, 'parentId' => $parent1],
@@ -259,7 +259,7 @@ class WhitelistRuleFieldTest extends TestCase
                 'manufacturer' => ['name' => 'test', 'id' => $manufacturerId],
             ],
             //child has whitelist, parent not
-            ['id' => $product2, 'parentId' => $parent2, 'whitelistedRuleIds' => [$rule1, $rule2]],
+            ['id' => $product2, 'parentId' => $parent2, 'whitelistIds' => [$rule1, $rule2]],
 
             [
                 'id' => $parent3,
@@ -277,7 +277,7 @@ class WhitelistRuleFieldTest extends TestCase
                 'name' => 'test product',
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['name' => 'test', 'id' => $manufacturerId],
-                'whitelistedRuleIds' => [$rule1, $rule2],
+                'whitelistIds' => [$rule1, $rule2],
             ],
             [
                 'id' => $product5,
@@ -285,7 +285,7 @@ class WhitelistRuleFieldTest extends TestCase
                 'name' => 'test product',
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['name' => 'test', 'id' => $manufacturerId],
-                'whitelistedRuleIds' => [$rule3],
+                'whitelistIds' => [$rule3],
             ],
             [
                 'id' => $product6,
@@ -364,7 +364,7 @@ class WhitelistRuleFieldTest extends TestCase
                 'ean' => __FUNCTION__,
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['name' => 'test', 'id' => $manufacturerId],
-                'whitelistedRuleIds' => [$rule1],
+                'whitelistIds' => [$rule1],
             ],
             [
                 'id' => $product2,
@@ -373,7 +373,7 @@ class WhitelistRuleFieldTest extends TestCase
                 'ean' => __FUNCTION__,
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['name' => 'test', 'id' => $manufacturerId],
-                'whitelistedRuleIds' => [$rule2],
+                'whitelistIds' => [$rule2],
             ],
             [
                 'id' => $product3,
@@ -382,7 +382,7 @@ class WhitelistRuleFieldTest extends TestCase
                 'ean' => __FUNCTION__,
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['name' => 'test', 'id' => $manufacturerId],
-                'whitelistedRuleIds' => [$rule3],
+                'whitelistIds' => [$rule3],
             ],
 
             [
@@ -392,7 +392,7 @@ class WhitelistRuleFieldTest extends TestCase
                 'ean' => __FUNCTION__,
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['name' => 'test', 'id' => $manufacturerId2],
-                'whitelistedRuleIds' => [$rule3],
+                'whitelistIds' => [$rule3],
             ],
         ];
 
@@ -450,7 +450,7 @@ class WhitelistRuleFieldTest extends TestCase
                 'categories' => [
                     ['name' => 'test', 'id' => $categoryId],
                 ],
-                'whitelistedRuleIds' => [$rule1],
+                'whitelistIds' => [$rule1],
             ],
             [
                 'id' => $product2,
@@ -462,7 +462,7 @@ class WhitelistRuleFieldTest extends TestCase
                 'categories' => [
                     ['name' => 'test', 'id' => $categoryId],
                 ],
-                'whitelistedRuleIds' => [$rule2],
+                'whitelistIds' => [$rule2],
             ],
             [
                 'id' => $product3,
@@ -474,7 +474,7 @@ class WhitelistRuleFieldTest extends TestCase
                 'categories' => [
                     ['name' => 'test', 'id' => $categoryId],
                 ],
-                'whitelistedRuleIds' => [$rule3],
+                'whitelistIds' => [$rule3],
             ],
 
             [
@@ -487,7 +487,7 @@ class WhitelistRuleFieldTest extends TestCase
                 'categories' => [
                     ['name' => 'test', 'id' => $categoryId2],
                 ],
-                'whitelistedRuleIds' => [$rule3],
+                'whitelistIds' => [$rule3],
             ],
         ];
 
@@ -539,7 +539,7 @@ class WhitelistRuleFieldTest extends TestCase
                 'ean' => $product1,
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['name' => 'test', 'id' => $manufacturerId],
-                'whitelistedRuleIds' => [$rule1, $rule2],
+                'whitelistIds' => [$rule1, $rule2],
             ],
             [
                 'id' => $product2,
@@ -548,7 +548,7 @@ class WhitelistRuleFieldTest extends TestCase
                 'ean' => $product2,
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['name' => 'test', 'id' => $manufacturerId],
-                'whitelistedRuleIds' => [$rule3],
+                'whitelistIds' => [$rule3],
             ],
             [
                 'id' => $product3,
@@ -605,7 +605,7 @@ class WhitelistRuleFieldTest extends TestCase
                 'name' => 'test product',
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['name' => 'test', 'id' => $manufacturerId],
-                'whitelistedRuleIds' => [$rule1, $rule2],
+                'whitelistIds' => [$rule1, $rule2],
             ],
             [
                 'id' => $product2,
@@ -613,7 +613,7 @@ class WhitelistRuleFieldTest extends TestCase
                 'name' => 'test product',
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['name' => 'test', 'id' => $manufacturerId],
-                'whitelistedRuleIds' => [$rule3],
+                'whitelistIds' => [$rule3],
             ],
             [
                 'id' => $product3,
@@ -674,7 +674,7 @@ class WhitelistRuleFieldTest extends TestCase
                 'categories' => [
                     ['id' => $categoryId, 'name' => 'test'],
                 ],
-                'whitelistedRuleIds' => [$rule1, $rule2],
+                'whitelistIds' => [$rule1, $rule2],
             ],
             [
                 'id' => $product2,
@@ -685,7 +685,7 @@ class WhitelistRuleFieldTest extends TestCase
                 'categories' => [
                     ['id' => $categoryId, 'name' => 'test'],
                 ],
-                'whitelistedRuleIds' => [$rule3],
+                'whitelistIds' => [$rule3],
             ],
             [
                 'id' => $product3,

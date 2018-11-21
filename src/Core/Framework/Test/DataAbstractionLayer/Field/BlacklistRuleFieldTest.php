@@ -60,7 +60,7 @@ class BlacklistRuleFieldTest extends TestCase
                 'name' => 'test product',
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['name' => 'test'],
-                'blacklistedRuleIds' => [$rule1, $rule2],
+                'blacklistIds' => [$rule1, $rule2],
             ],
             [
                 'id' => $product2,
@@ -68,7 +68,7 @@ class BlacklistRuleFieldTest extends TestCase
                 'name' => 'test product',
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['name' => 'test'],
-                'blacklistedRuleIds' => [$rule3],
+                'blacklistIds' => [$rule3],
             ],
             [
                 'id' => $product3,
@@ -145,7 +145,7 @@ class BlacklistRuleFieldTest extends TestCase
                 'name' => 'test product',
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['name' => 'test'],
-                'blacklistedRuleIds' => [$rule1, $rule2],
+                'blacklistIds' => [$rule1, $rule2],
             ],
             [
                 'id' => $productId1,
@@ -162,7 +162,7 @@ class BlacklistRuleFieldTest extends TestCase
             [
                 'id' => $productId2,
                 'parentId' => $parentId2,
-                'blacklistedRuleIds' => [$rule1, $rule2],
+                'blacklistIds' => [$rule1, $rule2],
             ],
 
             [
@@ -249,7 +249,7 @@ class BlacklistRuleFieldTest extends TestCase
                 'name' => 'test product',
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['name' => 'test', 'id' => $manufacturerId],
-                'blacklistedRuleIds' => [$rule1, $rule2],
+                'blacklistIds' => [$rule1, $rule2],
             ],
             //child has inherited blacklist
             ['id' => $product1, 'parentId' => $parent1],
@@ -262,7 +262,7 @@ class BlacklistRuleFieldTest extends TestCase
                 'manufacturer' => ['name' => 'test', 'id' => $manufacturerId],
             ],
             //child has blacklist, parent not
-            ['id' => $product2, 'parentId' => $parent2, 'blacklistedRuleIds' => [$rule1, $rule2]],
+            ['id' => $product2, 'parentId' => $parent2, 'blacklistIds' => [$rule1, $rule2]],
 
             [
                 'id' => $parent3,
@@ -280,7 +280,7 @@ class BlacklistRuleFieldTest extends TestCase
                 'name' => 'test product',
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['name' => 'test', 'id' => $manufacturerId],
-                'blacklistedRuleIds' => [$rule1, $rule2],
+                'blacklistIds' => [$rule1, $rule2],
             ],
             [
                 'id' => $product5,
@@ -288,7 +288,7 @@ class BlacklistRuleFieldTest extends TestCase
                 'name' => 'test product',
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['name' => 'test', 'id' => $manufacturerId],
-                'blacklistedRuleIds' => [$rule3],
+                'blacklistIds' => [$rule3],
             ],
             [
                 'id' => $product6,
@@ -367,7 +367,7 @@ class BlacklistRuleFieldTest extends TestCase
                 'ean' => __FUNCTION__,
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['name' => 'test', 'id' => $manufacturerId],
-                'blacklistedRuleIds' => [$rule1],
+                'blacklistIds' => [$rule1],
             ],
             [
                 'id' => $product2,
@@ -376,7 +376,7 @@ class BlacklistRuleFieldTest extends TestCase
                 'ean' => __FUNCTION__,
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['name' => 'test', 'id' => $manufacturerId],
-                'blacklistedRuleIds' => [$rule2],
+                'blacklistIds' => [$rule2],
             ],
             [
                 'id' => $product3,
@@ -385,7 +385,7 @@ class BlacklistRuleFieldTest extends TestCase
                 'ean' => __FUNCTION__,
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['name' => 'test', 'id' => $manufacturerId],
-                'blacklistedRuleIds' => [$rule3],
+                'blacklistIds' => [$rule3],
             ],
 
             [
@@ -395,7 +395,7 @@ class BlacklistRuleFieldTest extends TestCase
                 'ean' => __FUNCTION__,
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['name' => 'test', 'id' => $manufacturerId2],
-                'blacklistedRuleIds' => [$rule3],
+                'blacklistIds' => [$rule3],
             ],
         ];
 
@@ -453,7 +453,7 @@ class BlacklistRuleFieldTest extends TestCase
                 'categories' => [
                     ['name' => 'test', 'id' => $categoryId],
                 ],
-                'blacklistedRuleIds' => [$rule1],
+                'blacklistIds' => [$rule1],
             ],
             [
                 'id' => $product2,
@@ -465,7 +465,7 @@ class BlacklistRuleFieldTest extends TestCase
                 'categories' => [
                     ['name' => 'test', 'id' => $categoryId],
                 ],
-                'blacklistedRuleIds' => [$rule2],
+                'blacklistIds' => [$rule2],
             ],
             [
                 'id' => $product3,
@@ -477,7 +477,7 @@ class BlacklistRuleFieldTest extends TestCase
                 'categories' => [
                     ['name' => 'test', 'id' => $categoryId],
                 ],
-                'blacklistedRuleIds' => [$rule3],
+                'blacklistIds' => [$rule3],
             ],
 
             [
@@ -490,7 +490,7 @@ class BlacklistRuleFieldTest extends TestCase
                 'categories' => [
                     ['name' => 'test', 'id' => $categoryId2],
                 ],
-                'blacklistedRuleIds' => [$rule3],
+                'blacklistIds' => [$rule3],
             ],
         ];
 
@@ -542,7 +542,7 @@ class BlacklistRuleFieldTest extends TestCase
                 'ean' => $product1,
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['name' => 'test', 'id' => $manufacturerId],
-                'blacklistedRuleIds' => [$rule1, $rule2],
+                'blacklistIds' => [$rule1, $rule2],
             ],
             [
                 'id' => $product2,
@@ -551,7 +551,7 @@ class BlacklistRuleFieldTest extends TestCase
                 'ean' => $product2,
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['name' => 'test', 'id' => $manufacturerId],
-                'blacklistedRuleIds' => [$rule3],
+                'blacklistIds' => [$rule3],
             ],
             [
                 'id' => $product3,
@@ -608,7 +608,7 @@ class BlacklistRuleFieldTest extends TestCase
                 'name' => 'test product',
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['name' => 'test', 'id' => $manufacturerId],
-                'blacklistedRuleIds' => [$rule1, $rule2],
+                'blacklistIds' => [$rule1, $rule2],
             ],
             [
                 'id' => $product2,
@@ -616,7 +616,7 @@ class BlacklistRuleFieldTest extends TestCase
                 'name' => 'test product',
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['name' => 'test', 'id' => $manufacturerId],
-                'blacklistedRuleIds' => [$rule3],
+                'blacklistIds' => [$rule3],
             ],
             [
                 'id' => $product3,
@@ -677,7 +677,7 @@ class BlacklistRuleFieldTest extends TestCase
                 'categories' => [
                     ['id' => $categoryId, 'name' => 'test'],
                 ],
-                'blacklistedRuleIds' => [$rule1, $rule2],
+                'blacklistIds' => [$rule1, $rule2],
             ],
             [
                 'id' => $product2,
@@ -688,7 +688,7 @@ class BlacklistRuleFieldTest extends TestCase
                 'categories' => [
                     ['id' => $categoryId, 'name' => 'test'],
                 ],
-                'blacklistedRuleIds' => [$rule3],
+                'blacklistIds' => [$rule3],
             ],
             [
                 'id' => $product3,
@@ -742,7 +742,7 @@ class BlacklistRuleFieldTest extends TestCase
             'manufacturer' => ['name' => 'test', 'id' => $manufacturerId],
         ];
 
-        $withRules = array_merge($default, ['blacklistedRuleIds' => [$ruleId]]);
+        $withRules = array_merge($default, ['blacklistIds' => [$ruleId]]);
 
         $products = [
             $default,

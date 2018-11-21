@@ -6,6 +6,6 @@ class BlacklistRuleField extends ListField
 {
     public function __construct()
     {
-        parent::__construct('blacklisted_rule_ids', 'blacklistedRuleIds', IdField::class);
+        parent::__construct('blacklist_ids', 'blacklistIds', IdField::class);
     }
 }

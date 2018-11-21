@@ -14,7 +14,6 @@ use Shopware\Core\Framework\Rule\CurrencyRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Symfony\Component\EventDispatcher\Tests\EventDispatcherTest;
 
 class RulePayloadIndexerTest extends TestCase
 {
@@ -76,10 +75,10 @@ class RulePayloadIndexerTest extends TestCase
                                         'currencyIds' => [
                                             'SWAG-CURRENCY-ID-1',
                                             'SWAG-CURRENCY-ID-2',
-                                        ]
-                                    ]
-                                ]
-                            ]
+                                        ],
+                                    ],
+                                ],
+                            ],
                         ],
                     ],
                 ],
@@ -87,13 +86,14 @@ class RulePayloadIndexerTest extends TestCase
         ];
 
         $this->repository->create([$data], $this->context);
+
         return $id;
     }
 
-    public function test_index()
+    public function testIndex()
     {
         $ruleId = $this->createRule();
-        $this->connection->update('rule',['payload' => null], ['1' => '1']);
+        $this->connection->update('rule', ['payload' => null], ['1' => '1']);
         $rule = $this->repository->read(new ReadCriteria([$ruleId]), $this->context)->get($ruleId);
         static::assertNull($rule->get('payload'));
         $this->indexer->index(new \DateTime());
@@ -106,7 +106,7 @@ class RulePayloadIndexerTest extends TestCase
         );
     }
 
-    public function test_refresh()
+    public function testRefresh()
     {
         $ruleId = $this->createRule();
         $rule = $this->repository->read(new ReadCriteria([$ruleId]), $this->context)->get($ruleId);
@@ -116,5 +116,20 @@ class RulePayloadIndexerTest extends TestCase
             new AndRule([new OrRule([(new CurrencyRule())->assign(['currencyIds' => ['SWAG-CURRENCY-ID-1', 'SWAG-CURRENCY-ID-2']])])]),
             $rule->getPayload()
         );
+    }
+
+    public function testRefreshWithMultipleRules()
+    {
+        static::markTestIncomplete('Please implement test');
+    }
+
+    public function testIndexWithMultipleRules()
+    {
+        static::markTestIncomplete('Please implement test');
+    }
+
+    public function testIndexWithMultipleRootConditions()
+    {
+        static::markTestIncomplete('Please implement test');
     }
 }

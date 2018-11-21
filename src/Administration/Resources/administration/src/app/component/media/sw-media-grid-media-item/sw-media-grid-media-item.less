@@ -52,6 +52,11 @@
         .truncate();
         border: 1px solid transparent;
         line-height: 27px;
+
+        &:before {
+            content: attr(data-last-content);
+            float: right;
+        }
     }
 
     .sw-media-grid-media-item__name-field {

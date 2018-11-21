@@ -45,9 +45,11 @@
                         </sw-field>
                         <div v-else
                              class="sw-media-grid-media-item__name"
-                             :title="item.fileName | pathToFileName"
+                             ref="itemName"
+                             :title="item.fileName + '.' + item.fileExtension | pathToFileName"
+                             :data-last-content="lastContent"
                              @dblclick="startInlineEdit">
-                            {{ item.fileName | pathToFileName }}
+                            {{ item.fileName + '.' + item.fileExtension | pathToFileName }}
                         </div>
                     </template>
                 {% endblock %}

@@ -15,5 +15,10 @@
 
     > dd {
         .truncate();
+
+        &:before {
+            content: attr(data-last-content);
+            float: right;
+        }
     }
 }

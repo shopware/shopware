@@ -51,7 +51,8 @@ Component.register('sw-media-grid-media-item', {
         return {
             showModalReplace: false,
             showModalDelete: false,
-            isInlineEdit: false
+            isInlineEdit: false,
+            lastContent: ''
         };
     },
 
@@ -88,7 +89,18 @@ Component.register('sw-media-grid-media-item', {
         }
     },
 
+    mounted() {
+        this.componentMounted();
+    },
+
     methods: {
+        componentMounted() {
+            const el = this.$refs.itemName;
+            if (el.offsetWidth < el.scrollWidth) {
+                this.lastContent = `${this.item.fileName.slice(-3)}.${this.item.fileExtension}`;
+            }
+        },
+
         handleGridItemClick({ originalDomEvent }) {
             if (this.isSelectionIndicatorClicked(originalDomEvent.composedPath())) {
                 return;

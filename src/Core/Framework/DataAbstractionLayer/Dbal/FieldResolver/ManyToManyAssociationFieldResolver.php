@@ -97,6 +97,11 @@ class ManyToManyAssociationFieldResolver implements FieldResolverInterface
             $referenceColumn = EntityDefinitionQueryHelper::escape($flag->getName());
         }
 
+        $ruleCondition = $queryHelper->buildRuleCondition($reference, $query, $alias, $context);
+        if ($ruleCondition !== null) {
+            $ruleCondition = ' AND ' . $ruleCondition;
+        }
+
         $parameters = [
             '#mapping#' => EntityDefinitionQueryHelper::escape($mappingAlias),
             '#source_column#' => EntityDefinitionQueryHelper::escape($field->getMappingReferenceColumn()),
@@ -114,7 +119,8 @@ class ManyToManyAssociationFieldResolver implements FieldResolverInterface
                 array_values($parameters),
                 '#mapping#.#source_column# = #alias#.#reference_column# ' .
                 $versionJoinCondition .
-                $catalogJoinCondition
+                $catalogJoinCondition .
+                $ruleCondition
             )
         );
 

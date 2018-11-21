@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -132,6 +133,10 @@ class EntityReader implements EntityReaderInterface
         $rows = $this->fetch($criteria, $definition, $context, $fields, $raw);
         $entities = $this->hydrator->hydrate($entity, $definition, $rows, $definition::getEntityName());
         $collection->fill($entities);
+
+        if ($collection->count() <= 0) {
+            return $collection;
+        }
 
         /** @var EntityDefinition $reference */
         $associations = $fields->filterInstance(ManyToOneAssociationField::class);
@@ -590,14 +595,7 @@ class EntityReader implements EntityReaderInterface
 
     private function loadOneToManyWithPagination(string $definition, OneToManyAssociationField $association, Context $context, EntityCollection $collection, Criteria $fieldCriteria): void
     {
-        /** @var string|EntityDefinition $definition */
-        $propertyName = $this->getDomainName($definition::getEntityName()) . 'Id';
-        if ($association instanceof ChildrenAssociationField) {
-            $propertyName = 'parentId';
-        }
-
-        //build orm property accessor to add field sortings and conditions `customer_address.customerId`
-        $propertyAccessor = $association->getReferenceClass()::getEntityName() . '.' . $propertyName;
+        $propertyAccessor = $this->buildOneToManyPropertyAccessor($definition, $association);
 
         //inject sorting for foreign key, otherwise the internal counter wouldn't work `order by customer_address.customer_id, other_sortings`
         $sorting = array_merge(
@@ -920,5 +918,32 @@ class EntityReader implements EntityReaderInterface
         $query->orderBy($table . '.' . $sourceColumn);
 
         return $query;
+    }
+
+    private function buildOneToManyPropertyAccessor(string $definition, OneToManyAssociationField $association): string
+    {
+        if ($association instanceof ChildrenAssociationField) {
+            return $association->getReferenceClass()::getEntityName() . '.parentId';
+        }
+
+        $fields = $association->getReferenceClass()::getFields()->getElements();
+        foreach ($fields as $field) {
+            if (!$field instanceof FkField) {
+                continue;
+            }
+            if ($field->getReferenceClass() !== $definition) {
+                continue;
+            }
+
+            return $association->getReferenceClass()::getEntityName() . '.' . $field->getPropertyName();
+        }
+
+        throw new \RuntimeException(
+            sprintf(
+                'Fk field for association %s not found in definition %s',
+                $association->getPropertyName(),
+                $association->getReferenceClass()::getEntityName()
+            )
+        );
     }
 }

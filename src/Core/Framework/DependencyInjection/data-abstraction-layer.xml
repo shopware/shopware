@@ -99,6 +99,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry"/>
             <tag name="shopware.traceable" label="entity.aggregator"/>
         </service>
 
@@ -1173,6 +1174,20 @@
         <service class="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ParentAssociationFieldSerializer" id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ParentAssociationFieldSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor"/>
             <tag name="shopware.field_serializer" />
+        </service>
+
+        <service class="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\BlacklistRuleFieldSerializer" id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\BlacklistRuleFieldSerializer">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder"/>
+            <argument type="service" id="validator"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry"/>
+            <tag name="shopware.field_serializer"/>
+        </service>
+
+        <service class="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\WhitelistRuleFieldSerializer" id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\WhitelistRuleFieldSerializer">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder"/>
+            <argument type="service" id="validator"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry"/>
+            <tag name="shopware.field_serializer"/>
         </service>
     </services>
 </container>

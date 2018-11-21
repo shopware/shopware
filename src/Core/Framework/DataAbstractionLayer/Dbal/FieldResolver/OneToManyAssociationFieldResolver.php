@@ -70,6 +70,11 @@ class OneToManyAssociationFieldResolver implements FieldResolverInterface
             $referenceColumn = EntityDefinitionQueryHelper::escape($flag->getName());
         }
 
+        $ruleCondition = $queryHelper->buildRuleCondition($reference, $query, $alias, $context);
+        if ($ruleCondition !== null) {
+            $ruleCondition = ' AND ' . $ruleCondition;
+        }
+
         $parameters = [
             '#source#' => $source,
             '#alias#' => EntityDefinitionQueryHelper::escape($alias),
@@ -86,7 +91,8 @@ class OneToManyAssociationFieldResolver implements FieldResolverInterface
                 array_values($parameters),
                 '#source# = #alias#.#reference_column#' .
                 $versionJoin .
-                $catalogJoinCondition
+                $catalogJoinCondition .
+                $ruleCondition
             )
         );
 

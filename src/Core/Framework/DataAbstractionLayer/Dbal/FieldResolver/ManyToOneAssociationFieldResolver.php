@@ -145,6 +145,7 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
             return;
         }
 
+        //No Blacklisting Withlisting for ManyToOne Association because of possible Dependencies on subentities
         $parameters = [
             '#source#' => $source,
             '#root#' => EntityDefinitionQueryHelper::escape($root),

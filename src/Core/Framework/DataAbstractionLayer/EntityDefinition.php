@@ -213,6 +213,16 @@ abstract class EntityDefinition
         return null;
     }
 
+    public static function isBlacklistAware(): bool
+    {
+        return static::getFields()->has('blacklistIds');
+    }
+
+    public static function isWhitelistAware(): bool
+    {
+        return static::getFields()->has('whitelistIds');
+    }
+
     abstract protected static function defineFields(): FieldCollection;
 
     protected static function filterAssociationReferences(string $type, FieldCollection $fields): array

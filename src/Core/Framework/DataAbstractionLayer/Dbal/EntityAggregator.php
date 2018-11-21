@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
@@ -13,8 +14,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AggregationR
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AvgAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AvgAggregationResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\CardinalityAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\CardinalityAggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\CountAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\CountAggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\EntityAggregation;
@@ -27,6 +26,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\StatsAggrega
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\StatsAggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\SumAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\SumAggregationResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueAggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueCountAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueCountAggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregatorResult;
@@ -61,16 +62,23 @@ class EntityAggregator implements EntityAggregatorInterface
      */
     private $queryHelper;
 
+    /**
+     * @var FieldSerializerRegistry
+     */
+    private $fieldSerializerRegistry;
+
     public function __construct(
         Connection $connection,
         EntityReaderInterface $reader,
         SqlQueryParser $queryParser,
-        EntityDefinitionQueryHelper $queryHelper
+        EntityDefinitionQueryHelper $queryHelper,
+        FieldSerializerRegistry $fieldSerializerRegistry
     ) {
         $this->connection = $connection;
         $this->reader = $reader;
         $this->queryParser = $queryParser;
         $this->queryHelper = $queryHelper;
+        $this->fieldSerializerRegistry = $fieldSerializerRegistry;
     }
 
     public function aggregate(string $definition, Criteria $criteria, Context $context): AggregatorResult
@@ -201,13 +209,19 @@ class EntityAggregator implements EntityAggregatorInterface
             );
         }
 
-        if ($aggregation instanceof CardinalityAggregation) {
-            $query->select([$accessor]);
+        if ($aggregation instanceof ValueAggregation) {
+            $query->select([$accessor . ' as `value`']);
             $query->groupBy($accessor);
 
             $data = $query->execute()->fetchAll(FetchMode::COLUMN);
 
-            return new CardinalityAggregationResult($aggregation, \count($data));
+            $field = $this->queryHelper->getField($aggregation->getField(), $definition, $definition::getEntityName());
+
+            $data = array_map(function ($value) use ($field) {
+                return $this->fieldSerializerRegistry->decode($field, $value);
+            }, $data);
+
+            return new ValueAggregationResult($aggregation, $data);
         }
 
         if ($aggregation instanceof AvgAggregation) {

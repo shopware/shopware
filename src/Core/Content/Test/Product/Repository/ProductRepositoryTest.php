@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\PaginationCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\Pricing\PriceRuleStruct;
@@ -983,10 +984,12 @@ class ProductRepositoryTest extends TestCase
         $greenPrice = ['gross' => 12, 'net' => 11];
         $redName = 'Red shirt';
 
+        $manufacturerId = Uuid::uuid4()->getHex();
+
         $products = [
             [
                 'id' => $parentId,
-                'manufacturer' => ['name' => 'test'],
+                'manufacturer' => ['name' => 'test', 'id' => $manufacturerId],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => $parentName,
                 'price' => $parentPrice,
@@ -1003,6 +1006,7 @@ class ProductRepositoryTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product.price', $parentPrice['gross']));
+        $criteria->addFilter(new EqualsFilter('product.manufacturerId', $manufacturerId));
 
         $products = $this->repository->search($criteria, Context::createDefaultContext());
         static::assertCount(2, $products);
@@ -1660,6 +1664,82 @@ class ProductRepositoryTest extends TestCase
 
         static::assertEquals(1, $price->getQuantityStart());
         static::assertNull($price->getQuantityEnd());
+    }
+
+    public function testPaginatedAssociationWithBlacklist()
+    {
+        $manufacturerId = Uuid::uuid4()->getHex();
+        $ruleId = Uuid::uuid4()->getHex();
+        $ruleId2 = Uuid::uuid4()->getHex();
+
+        $default = [
+            'tax' => ['name' => 'test', 'taxRate' => 15, 'id' => $manufacturerId],
+            'name' => 'test product',
+            'price' => ['gross' => 10, 'net' => 9],
+            'manufacturer' => ['name' => 'test', 'id' => $manufacturerId],
+        ];
+
+        $withRules = array_merge($default, ['blacklistIds' => [$ruleId]]);
+
+        $products = [
+            $default,
+            $withRules,
+            $withRules,
+            $default,
+        ];
+
+        $this->repository->create($products, Context::createDefaultContext());
+
+        $criteria = new ReadCriteria([$manufacturerId]);
+        $criteria->addAssociation('product_manufacturer.products', new PaginationCriteria(4));
+
+        $repo = $this->getContainer()->get('product_manufacturer.repository');
+
+        $context = $this->createContext();
+        $manufacturer = $repo->read($criteria, $context)->get($manufacturerId);
+
+        //test if all products can be read if context contains no rules
+        static::assertInstanceOf(ProductManufacturerStruct::class, $manufacturer);
+
+        /** @var ProductManufacturerStruct $manufacturer */
+        static::assertInstanceOf(ProductCollection::class, $manufacturer->getProducts());
+        static::assertCount(4, $manufacturer->getProducts());
+
+        //test if two of four products can be read if context contains no rule
+        $criteria = new ReadCriteria([$manufacturerId]);
+        $criteria->addAssociation('product_manufacturer.products', new PaginationCriteria(2));
+
+        $repo = $this->getContainer()->get('product_manufacturer.repository');
+
+        $context = $this->createContext();
+        $manufacturer = $repo->read($criteria, $context)->get($manufacturerId);
+
+        /** @var ProductManufacturerStruct $manufacturer */
+        static::assertInstanceOf(ProductManufacturerStruct::class, $manufacturer);
+        static::assertInstanceOf(ProductCollection::class, $manufacturer->getProducts());
+        static::assertCount(2, $manufacturer->getProducts());
+
+        //test if two of four products can be read if context contains no rule
+        $criteria = new ReadCriteria([$manufacturerId]);
+        $criteria->addAssociation('product_manufacturer.products', new PaginationCriteria(4));
+
+        $repo = $this->getContainer()->get('product_manufacturer.repository');
+
+        $context = $this->createContext([$ruleId, $ruleId2]);
+        $manufacturer = $repo->read($criteria, $context)->get($manufacturerId);
+
+        /** @var ProductManufacturerStruct $manufacturer */
+        static::assertInstanceOf(ProductManufacturerStruct::class, $manufacturer);
+        static::assertInstanceOf(ProductCollection::class, $manufacturer->getProducts());
+        static::assertCount(2, $manufacturer->getProducts());
+    }
+
+    private function createContext(array $ruleIds = []): Context
+    {
+        $sourceContext = new SourceContext('cli');
+        $sourceContext->setSalesChannelId(Defaults::SALES_CHANNEL);
+
+        return new Context($sourceContext, [Defaults::CATALOG], $ruleIds, Defaults::CURRENCY, Defaults::LANGUAGE_EN);
     }
 }
 

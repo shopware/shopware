@@ -13,10 +13,12 @@ use Shopware\Core\Content\Media\Exception\MissingFileException;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\MediaStruct;
+use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\Metadata\Metadata;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
+use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
@@ -52,18 +54,25 @@ class FileSaver
      */
     private $metadataLoader;
 
+    /**
+     * @var TypeDetector
+     */
+    private $typeDetector;
+
     public function __construct(
         RepositoryInterface $mediaRepository,
         FilesystemInterface $filesystem,
         UrlGeneratorInterface $urlGenerator,
         ThumbnailService $thumbnailService,
-        MetadataLoader $metadataLoader
+        MetadataLoader $metadataLoader,
+        TypeDetector $typeDetector
     ) {
         $this->mediaRepository = $mediaRepository;
         $this->filesystem = $filesystem;
         $this->urlGenerator = $urlGenerator;
         $this->thumbnailService = $thumbnailService;
         $this->metadataLoader = $metadataLoader;
+        $this->typeDetector = $typeDetector;
     }
 
     /**
@@ -77,9 +86,10 @@ class FileSaver
         $destination = $this->getPossibleFileName($mediaWithRelatedFilename, $mediaId, $destination);
 
         $this->removeOldMediaData($currentMedia, $context);
-        $rawMetadata = $this->metadataLoader->loadFromFile($mediaFile);
+        $mediaType = $this->typeDetector->detect($mediaFile);
+        $rawMetadata = $this->metadataLoader->loadFromFile($mediaFile, $mediaType);
 
-        $media = $this->updateMediaEntity($mediaFile, $destination, $currentMedia, $rawMetadata, $context);
+        $media = $this->updateMediaEntity($mediaFile, $destination, $currentMedia, $rawMetadata, $mediaType, $context);
         $this->saveFileToMediaDir($mediaFile, $media);
 
         try {
@@ -257,6 +267,7 @@ class FileSaver
         string $destination,
         MediaStruct $media,
         Metadata $metadata,
+        MediaType $mediaType,
         Context $context
     ): MediaStruct {
         $data = [
@@ -266,6 +277,7 @@ class FileSaver
             'fileSize' => $mediaFile->getFileSize(),
             'fileName' => $this->prefixedDestination($destination),
             'metaData' => $metadata,
+            'type' => $mediaType,
         ];
 
         $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);

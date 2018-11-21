@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\Test\Media;
 
 use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\MediaStruct;
+use Shopware\Core\Content\Media\MediaType\BinaryType;
+use Shopware\Core\Content\Media\MediaType\DocumentType;
+use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\System\Test\EntityFixturesBase;
@@ -25,47 +28,50 @@ trait MediaFixtures
     /**
      * @before
      */
-    public function initializeMediaFixtures(): void
+    public static function initializeMediaFixtures(): void
     {
-        $this->catalogId = Uuid::uuid4()->getHex();
-
-        $this->mediaFixtures = [
+        MediaFixtures::$mediaFixtures = [
             'NamedEmpty' => [
                 'id' => Uuid::uuid4()->getHex(),
             ],
             'NamedMimePng' => [
                 'id' => Uuid::uuid4()->getHex(),
                 'mimeType' => 'image/png',
+                'fileSize' => 1024,
+                'type' => new ImageType(),
             ],
             'NamedMimePngEtxPng' => [
                 'id' => Uuid::uuid4()->getHex(),
                 'mimeType' => 'image/png',
                 'fileExtension' => 'png',
                 'fileName' => 'pngFileWithExtension',
+                'fileSize' => 1024,
+                'type' => new ImageType(),
             ],
-            'NamedMimePngEtxPngCatalog' => [
-                'id' => Uuid::uuid4()->getHex(),
-                'mimeType' => 'image/png',
-                'fileExtension' => 'png',
-                'fileName' => 'pngFileWithExtensionAndCatalog',
-            ],
+
             'NamedMimeTxtEtxTxt' => [
                 'id' => Uuid::uuid4()->getHex(),
                 'mimeType' => 'plain/txt',
                 'fileExtension' => 'txt',
                 'fileName' => 'textFileWithExtension',
+                'fileSize' => 1024,
+                'type' => new BinaryType(),
             ],
-            'NamedMimeJpgEtxJpgCatalog' => [
+            'NamedMimeJpgEtxJpg' => [
                 'id' => Uuid::uuid4()->getHex(),
                 'mimeType' => 'image/jpg',
                 'fileExtension' => 'jpg',
                 'fileName' => 'jpgFileWithExtensionAndCatalog',
+                'fileSize' => 1024,
+                'type' => new ImageType(),
             ],
-            'NamedMimePdfEtxPdfCatalog' => [
+            'NamedMimePdfEtxPdf' => [
                 'id' => Uuid::uuid4()->getHex(),
                 'mimeType' => 'application/pdf',
                 'fileExtension' => 'pdf',
                 'fileName' => 'pdfFileWithExtensionAndCatalog',
+                'fileSize' => 1024,
+                'type' => new DocumentType(),
             ],
             'NamedWithThumbnail' => [
                 'id' => Uuid::uuid4()->getHex(),
@@ -77,25 +83,15 @@ trait MediaFixtures
                     ],
                 ],
             ],
-            '_Catalog' => [
-                'id' => $this->catalogId,
-                'name' => 'test catalog',
-            ],
         ];
 
         MediaFixtures::$mediaFixtureRepository = EntityFixturesBase::getFixtureRepository('media');
     }
 
-    public function getContextWithCatalogAndWriteAccess(): Context
+    public function getContextWithWriteAccess(): Context
     {
         $context = Context::createDefaultContext();
-
-        $context = $context
-            ->createWithCatalogIds([$this->catalogId]);
-
-        $context
-            ->getWriteProtection()
-            ->allow(MediaProtectionFlags::WRITE_META_INFO);
+        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
 
         return $context;
     }
@@ -120,28 +116,14 @@ trait MediaFixtures
         return $this->getMediaFixture('NamedMimeTxtEtxTxt');
     }
 
-    public function getPngInCatalog(): MediaStruct
+    public function getJpg(): MediaStruct
     {
-        EntityFixturesBase::getFixtureRepository('catalog')
-            ->upsert([$this->mediaFixtures['_Catalog']], Context::createDefaultContext());
-
-        return $this->getMediaFixture('NamedMimePngEtxPngCatalog');
+        return $this->getMediaFixture('NamedMimeJpgEtxJpg');
     }
 
-    public function getJpgInCatalog(): MediaStruct
+    public function getPdf(): MediaStruct
     {
-        EntityFixturesBase::getFixtureRepository('catalog')
-            ->upsert([$this->mediaFixtures['_Catalog']], Context::createDefaultContext());
-
-        return $this->getMediaFixture('NamedMimeJpgEtxJpgCatalog');
-    }
-
-    public function getPdfInCatalog(): MediaStruct
-    {
-        EntityFixturesBase::getFixtureRepository('catalog')
-            ->upsert([$this->mediaFixtures['_Catalog']], Context::createDefaultContext());
-
-        return $this->getMediaFixture('NamedMimePdfEtxPdfCatalog');
+        return $this->getMediaFixture('NamedMimePdfEtxPdf');
     }
 
     public function getMediaWithThumbnail(): MediaStruct

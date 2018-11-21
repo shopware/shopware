@@ -2,9 +2,10 @@
 
 namespace Shopware\Core\Content\Media\Commands;
 
-use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
+use Shopware\Core\Content\Media\File\MediaFile;
+use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\MediaStruct;
-use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
+use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -14,31 +15,25 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class GenerateThumbnailsCommand extends Command
+class GenerateMediaTypesCommand extends Command
 {
     /** @var SymfonyStyle */
     private $io;
 
-    /** @var ThumbnailService */
-    private $thumbnailService;
+    /** @var TypeDetector */
+    private $typeDetector;
 
     /** @var EntityRepository */
     private $mediaRepository;
 
-    /** @var int int */
-    private $generatedCounter;
-
-    /** @var int int */
-    private $skippedCounter;
-
     /** @var int */
     private $batchSize;
 
-    public function __construct(ThumbnailService $thumbnailService, EntityRepository $mediaRepository)
+    public function __construct(TypeDetector $typeDetector, EntityRepository $mediaRepository)
     {
         parent::__construct();
 
-        $this->thumbnailService = $thumbnailService;
+        $this->typeDetector = $typeDetector;
         $this->mediaRepository = $mediaRepository;
     }
 
@@ -48,8 +43,8 @@ class GenerateThumbnailsCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('media:generate-thumbnails')
-            ->setDescription('generates the thumbnails for all media entities')
+            ->setName('media:generate-media-types')
+            ->setDescription('generates the media type for all media entities')
             ->addOption('batch-size', 'b', InputOption::VALUE_REQUIRED, 'Batch Size')
         ;
     }
@@ -59,27 +54,18 @@ class GenerateThumbnailsCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->generatedCounter = 0;
-        $this->skippedCounter = 0;
-
         $this->io = new SymfonyStyle($input, $output);
 
         $context = Context::createDefaultContext();
+        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
         $this->batchSize = $this->validateBatchSize($input);
 
-        $this->io->comment('Starting to generate Thumbnails. This may take some time...');
+        $this->io->comment('Starting to generate MediaTypes. This may take some time...');
         $this->io->progressStart($this->getMediaCount($context));
 
-        $this->generateThumbnails($context);
+        $this->detectMediaTypes($context);
 
         $this->io->progressFinish();
-        $this->io->table(
-            ['Action', 'Number of Media Entities'],
-            [
-                ['Generated', $this->generatedCounter],
-                ['Skipped', $this->skippedCounter],
-            ]
-        );
     }
 
     private function validateBatchSize(InputInterface $input): int
@@ -106,30 +92,41 @@ class GenerateThumbnailsCommand extends Command
         return $result->getTotal();
     }
 
-    private function generateThumbnails($context): void
+    private function detectMediaTypes($context): void
     {
         $criteria = $this->createCriteria();
 
         do {
             $result = $this->mediaRepository->search($criteria, $context);
             foreach ($result->getEntities() as $media) {
-                $this->generateThumbnail($context, $media);
+                $this->detectMediaType($context, $media);
             }
             $this->io->progressAdvance($result->count());
             $criteria->setOffset($criteria->getOffset() + $this->batchSize);
         } while ($result->getTotal() > $this->batchSize);
     }
 
-    private function generateThumbnail(Context $context, MediaStruct $media): void
+    private function detectMediaType(Context $context, MediaStruct $media): void
     {
-        try {
-            $this->thumbnailService->deleteThumbnails($media, $context);
-            $this->thumbnailService->generateThumbnails($media, $context);
-
-            ++$this->generatedCounter;
-        } catch (FileTypeNotSupportedException $e) {
-            ++$this->skippedCounter;
+        if (!$media->hasFile()) {
+            return;
         }
+
+        $file = new MediaFile(
+            $media->getUrl(),
+            $media->getMimeType(),
+            $media->getFileExtension(),
+            $media->getFileSize()
+        );
+
+        $type = $this->typeDetector->detect($file);
+
+        $this->mediaRepository->upsert([
+            [
+                'id' => $media->getId(),
+                'type' => $type,
+            ],
+        ], $context);
     }
 
     private function createCriteria(): Criteria

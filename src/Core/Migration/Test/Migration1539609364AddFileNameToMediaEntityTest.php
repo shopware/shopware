@@ -34,7 +34,7 @@ class Migration1539609364AddFileNameToMediaEntityTest extends TestCase
             $lastTwoCols
         );
 
-        self::assertEquals(['created_at', 'updated_at'], $lastTwoCols);
+        self::assertEquals(['updated_at', 'type'], $lastTwoCols);
     }
 
     public function test_db_trigger_works_correctly()

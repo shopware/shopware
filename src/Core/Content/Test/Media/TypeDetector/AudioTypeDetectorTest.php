@@ -1,0 +1,180 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Content\Test\Media\TypeDetector;
+
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\File\MediaFile;
+use Shopware\Core\Content\Media\MediaType\AudioType;
+use Shopware\Core\Content\Media\MediaType\ImageType;
+use Shopware\Core\Content\Media\TypeDetector\AudioTypeDetector;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+
+class AudioTypeDetectorTest extends TestCase
+{
+    use IntegrationTestBehaviour;
+
+    public function testDetectGif()
+    {
+        $type = $this->getAudioTypeDetector()->detect(
+            $this->createMediaFile(__DIR__ . '/../fixtures/logo.gif'),
+            null
+        );
+
+        static::assertNull($type);
+    }
+
+    public function testDetectWebp()
+    {
+        $type = $this->getAudioTypeDetector()->detect(
+            $this->createMediaFile(__DIR__ . '/../fixtures/shopware.webp'),
+            null
+        );
+
+        static::assertNull($type);
+    }
+
+    public function testDetectSvg()
+    {
+        $type = $this->getAudioTypeDetector()->detect(
+            $this->createMediaFile(__DIR__ . '/../fixtures/logo-version-professionalplus.svg'),
+            null
+        );
+
+        static::assertNull($type);
+    }
+
+    public function testDetectJpg()
+    {
+        $type = $this->getAudioTypeDetector()->detect(
+            $this->createMediaFile(__DIR__ . '/../fixtures/shopware.jpg'),
+            null
+        );
+
+        static::assertNull($type);
+    }
+
+    public function testDetectPng()
+    {
+        $type = $this->getAudioTypeDetector()->detect(
+            $this->createMediaFile(__DIR__ . '/../fixtures/shopware-logo.png'),
+            null
+        );
+
+        static::assertNull($type);
+    }
+
+    public function testDetectDoc()
+    {
+        $type = $this->getAudioTypeDetector()->detect(
+            $this->createMediaFile(__DIR__ . '/../fixtures/reader.doc'),
+            null
+        );
+
+        static::assertNull($type);
+    }
+
+    public function testDetectDocx()
+    {
+        $type = $this->getAudioTypeDetector()->detect(
+            $this->createMediaFile(__DIR__ . '/../fixtures/reader.docx'),
+            null
+        );
+
+        static::assertNull($type);
+    }
+
+    public function testDetectPdf()
+    {
+        $type = $this->getAudioTypeDetector()->detect(
+            $this->createMediaFile(__DIR__ . '/../fixtures/Shopware_5_3_Broschuere.pdf'),
+            null
+        );
+
+        static::assertNull($type);
+    }
+
+    public function testDetectAvi()
+    {
+        $type = $this->getAudioTypeDetector()->detect(
+            $this->createMediaFile(__DIR__ . '/../fixtures/small.avi'),
+            null
+        );
+
+        static::assertNull($type);
+    }
+
+    public function testDetectMov()
+    {
+        $type = $this->getAudioTypeDetector()->detect(
+            $this->createMediaFile(__DIR__ . '/../fixtures/small.mov'),
+            null
+        );
+
+        static::assertNull($type);
+    }
+
+    public function testDetectMp4()
+    {
+        $type = $this->getAudioTypeDetector()->detect(
+            $this->createMediaFile(__DIR__ . '/../fixtures/small.mp4'),
+            null
+        );
+
+        static::assertNull($type);
+    }
+
+    public function testDetectWebm()
+    {
+        $type = $this->getAudioTypeDetector()->detect(
+            $this->createMediaFile(__DIR__ . '/../fixtures/small.webm'),
+            null
+        );
+
+        static::assertNull($type);
+    }
+
+    public function testDetectIso()
+    {
+        $type = $this->getAudioTypeDetector()->detect(
+            $this->createMediaFile(__DIR__ . '/../fixtures/test.iso'),
+            null
+        );
+
+        static::assertNull($type);
+    }
+
+    public function testDetectMp3()
+    {
+        $type = $this->getAudioTypeDetector()->detect(
+            $this->createMediaFile(__DIR__ . '/../fixtures/file_example.mp3'),
+            null
+        );
+
+        static::assertInstanceOf(AudioType::class, $type);
+    }
+
+    public function testDetectMp3DoesNotOverwrite()
+    {
+        $type = $this->getAudioTypeDetector()->detect(
+            $this->createMediaFile(__DIR__ . '/../fixtures/file_example.mp3'),
+            new ImageType()
+        );
+
+        static::assertInstanceOf(ImageType::class, $type);
+    }
+
+    private function getAudioTypeDetector(): AudioTypeDetector
+    {
+        return $this->getContainer()->get(AudioTypeDetector::class);
+    }
+
+    private function createMediaFile(string $filePath): MediaFile
+    {
+        return new MediaFile(
+            $filePath,
+            mime_content_type($filePath),
+            pathinfo($filePath, PATHINFO_EXTENSION),
+            filesize($filePath)
+        );
+    }
+}

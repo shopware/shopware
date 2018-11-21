@@ -9,6 +9,8 @@ use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
 use Shopware\Core\Content\Media\Exception\ThumbnailCouldNotBeSavedException;
 use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\MediaStruct;
+use Shopware\Core\Content\Media\MediaType\ImageType;
+use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
@@ -74,6 +76,10 @@ class ThumbnailService
             return;
         }
 
+        if (!$this->thumbnailsAreGeneratable($media)) {
+            throw new FileTypeNotSupportedException($media->getId());
+        }
+
         $mediaImage = $this->getImageResource($media);
         $originalImageSize = $this->getOriginalImageSize($mediaImage);
 
@@ -83,7 +89,7 @@ class ThumbnailService
                 $thumbnailSize = $this->calculateThumbnailSize($originalImageSize, $size);
                 $thumbnail = $this->createNewImage(
                     $mediaImage,
-                    $media->getMimeType(),
+                    $media->getType(),
                     $originalImageSize,
                     $thumbnailSize
                 );
@@ -158,11 +164,11 @@ class ThumbnailService
     /**
      * @return resource
      */
-    private function createNewImage($mediaImage, string $mimeType, array $originalImageSize, array $thumbnailSize)
+    private function createNewImage($mediaImage, MediaType $type, array $originalImageSize, array $thumbnailSize)
     {
         $thumbnail = imagecreatetruecolor($thumbnailSize['width'], $thumbnailSize['height']);
 
-        if ($mimeType === 'image/jpeg') {
+        if (!$type->is(ImageType::TRANSPARENT)) {
             $colorWhite = imagecolorallocate($thumbnail, 255, 255, 255);
             imagefill($thumbnail, 0, 0, $colorWhite);
         } else {
@@ -256,5 +262,17 @@ class ThumbnailService
         if (!$wereThumbnailsWritable) {
             $context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_THUMBNAILS);
         }
+    }
+
+    private function thumbnailsAreGeneratable(MediaStruct $media): bool
+    {
+        if ($media->getType() instanceof ImageType &&
+            !$media->getType()->is(ImageType::VECTOR_GRAPHIC) &&
+            !$media->getType()->is(ImageType::ANIMATED)
+        ) {
+            return true;
+        }
+
+        return false;
     }
 }

@@ -35,12 +35,19 @@ class GetId3Loader implements MetadataLoaderInterface
     public function enhanceTypeObject(MetadataType $metadataType, array $rawMetadata): void
     {
         if ($metadataType instanceof ImageMetadata) {
-            $metadataType->setHeight($rawMetadata['video']['resolution_x']);
-            $metadataType->setWidth($rawMetadata['video']['resolution_y']);
+            if (isset($rawMetadata['video']['resolution_x'])) {
+                $metadataType->setHeight($rawMetadata['video']['resolution_x']);
+            }
+
+            if (isset($rawMetadata['video']['resolution_y'])) {
+                $metadataType->setWidth($rawMetadata['video']['resolution_y']);
+            }
         }
 
         if ($metadataType instanceof VideoMetadata) {
-            $metadataType->setFrameRate($rawMetadata['video']['frame_rate']);
+            if (isset($rawMetadata['video']['frame_rate'])) {
+                $metadataType->setFrameRate($rawMetadata['video']['frame_rate']);
+            }
         }
     }
 

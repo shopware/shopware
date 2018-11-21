@@ -8,6 +8,8 @@ use Ramsey\Uuid\Uuid;
 use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
 use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\MediaStruct;
+use Shopware\Core\Content\Media\MediaType\DocumentType;
+use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailConfiguration;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
@@ -205,5 +207,47 @@ class ThumbnailServiceTest extends TestCase
         foreach ($thumbnailUrls as $thumbnailUrl) {
             self::assertFalse($this->getPublicFilesystem()->has($thumbnailUrl));
         }
+    }
+
+    public function testThumbnailGenerationThrowsExceptionIfFileTypeIsNotImage(): void
+    {
+        $this->setFixtureContext($this->context);
+        $media = $this->getPng();
+        $media->setType(new DocumentType());
+
+        $this->expectException(FileTypeNotSupportedException::class);
+
+        $this->thumbnailService->generateThumbnails(
+            $media,
+            $this->context
+        );
+    }
+
+    public function testThumbnailGenerationThrowsExceptionIfFileIsVectorGraphic(): void
+    {
+        $this->setFixtureContext($this->context);
+        $media = $this->getPng();
+        $media->getType()->addFlag(ImageType::VECTOR_GRAPHIC);
+
+        $this->expectException(FileTypeNotSupportedException::class);
+
+        $this->thumbnailService->generateThumbnails(
+            $media,
+            $this->context
+        );
+    }
+
+    public function testThumbnailGenerationThrowsExceptionIfFileIsAnimated(): void
+    {
+        $this->setFixtureContext($this->context);
+        $media = $this->getPng();
+        $media->getType()->addFlag(ImageType::ANIMATED);
+
+        $this->expectException(FileTypeNotSupportedException::class);
+
+        $this->thumbnailService->generateThumbnails(
+            $media,
+            $this->context
+        );
     }
 }

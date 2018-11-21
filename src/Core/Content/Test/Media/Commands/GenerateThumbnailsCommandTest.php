@@ -43,9 +43,9 @@ class GenerateThumbnailsCommandTest extends TestCase
     private $thumbnailConfiguration;
 
     /**
-     * @var string
+     * @var Context
      */
-    private $catalogId;
+    private $context;
 
     public function setUp()
     {
@@ -53,13 +53,14 @@ class GenerateThumbnailsCommandTest extends TestCase
         $this->urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
         $this->thumbnailConfiguration = $this->getContainer()->get(ThumbnailConfiguration::class);
         $this->thumbnailCommand = $this->getContainer()->get(GenerateThumbnailsCommand::class);
+        $this->context = $this->getContextWithWriteAccess();
     }
 
     public function testExecuteHappyPath(): void
     {
         $this->createValidMediaFiles();
 
-        $input = new StringInput(sprintf('-c %s', $this->getContextWithCatalogAndWriteAccess()->getCatalogIds()[0]));
+        $input = new StringInput('');
         $output = new BufferedOutput();
 
         $this->runCommand($this->thumbnailCommand, $input, $output);
@@ -93,7 +94,7 @@ class GenerateThumbnailsCommandTest extends TestCase
     {
         $this->createNotSupportedMediaFiles();
 
-        $input = new StringInput(sprintf('-c %s', $this->getContextWithCatalogAndWriteAccess()->getCatalogIds()[0]));
+        $input = new StringInput('');
         $output = new BufferedOutput();
 
         $this->runCommand($this->thumbnailCommand, $input, $output);
@@ -147,9 +148,9 @@ class GenerateThumbnailsCommandTest extends TestCase
 
     protected function createValidMediaFiles(): void
     {
-        $this->setFixtureContext($this->getContextWithCatalogAndWriteAccess());
-        $mediaPng = $this->getPngInCatalog();
-        $mediaJpg = $this->getJpgInCatalog();
+        $this->setFixtureContext($this->context);
+        $mediaPng = $this->getPng();
+        $mediaJpg = $this->getJpg();
 
         $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPng);
         $this->getPublicFilesystem()->putStream(
@@ -166,9 +167,9 @@ class GenerateThumbnailsCommandTest extends TestCase
 
     protected function createNotSupportedMediaFiles(): void
     {
-        $this->setFixtureContext($this->getContextWithCatalogAndWriteAccess());
-        $mediaPdf = $this->getPdfInCatalog();
-        $mediaJpg = $this->getJpgInCatalog();
+        $this->setFixtureContext($this->context);
+        $mediaPdf = $this->getPdf();
+        $mediaJpg = $this->getJpg();
 
         $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPdf);
         $this->getPublicFilesystem()->putStream(

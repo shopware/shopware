@@ -6,6 +6,7 @@ use DateTime;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
+use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\Metadata\Metadata;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
@@ -43,6 +44,11 @@ class MediaStruct extends Entity
      * @var Metadata|null
      */
     protected $metaData;
+
+    /**
+     * @var MediaType|null
+     */
+    protected $type;
 
     /**
      * @var DateTime|null
@@ -171,6 +177,16 @@ class MediaStruct extends Entity
     public function setMetaData(Metadata $metaData): void
     {
         $this->metaData = $metaData;
+    }
+
+    public function getType(): ?MediaType
+    {
+        return $this->type;
+    }
+
+    public function setType(?MediaType $type): void
+    {
+        $this->type = $type;
     }
 
     public function getCreatedAt(): ?DateTime

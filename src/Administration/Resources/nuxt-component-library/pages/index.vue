@@ -3,7 +3,8 @@
         <h1>Welcome to the Shopware Component library</h1>
     
         <p class="is--xl">
-            Lorem ipsum dolor sit, amet consectetur adipisicing elit. Molestias nulla quaerat maiores, natus aspernatur iusto quia odit esse eligendi dolorum, minima pariatur. Unde dolor sapiente et, esse harum commodi consequatur.
+            Explore the look and feel of components to speed up your app development. The Shopware Administration got
+            break
         </p>
     </div>
 </template>

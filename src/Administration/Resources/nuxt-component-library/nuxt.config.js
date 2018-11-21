@@ -2,10 +2,19 @@ const fs = require('fs');
 const path = require('path');
 const fileParser = require(__dirname + '/lib/file-parser');
 
+function getPathFromRoot(directory) {
+    return path.join(__dirname, '../../../../../../../', directory);
+}
+
+console.log();
+
 const configFileName = 'component-library.conf.js';
 let config;
 
 module.exports = {
+    env: {
+        NODE_ENV: 'development'
+    },
     modules: [
         '~/modules/parser/index'
     ],
@@ -39,6 +48,7 @@ module.exports = {
         }
     },
     generate: {
+        dir: getPathFromRoot('build/artifacts/component-library'),
         routes: async () => {
              // Check if we're having a config file, otherwise set the config
             if (fs.existsSync(path.resolve(__dirname, configFileName))) {
@@ -51,10 +61,13 @@ module.exports = {
             }
 
             return fileParser(config).then((files) => {
-                return files.map((file) => {
-                    console.log(file.source.name);
-                    return `/components/${file.source.name}`;
-                });
+                return files.reduce((accumulator, file) => {
+                    if (file.source.meta.hasOwnProperty('private') && file.source.meta.private === true) {
+                        return accumulator;
+                    }
+                    accumulator.push(`/components/${file.source.name}`);
+                    return accumulator;
+                }, []);
             });
         }
     }

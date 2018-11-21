@@ -1,36 +1,8 @@
 /*!
- * Determine if an object is a Buffer
+ * The buffer module from node.js, for the browser.
  *
- * @author   Feross Aboukhadijeh <https://feross.org>
+ * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
  * @license  MIT
- */
-
-/*!
- * is-extendable <https://github.com/jonschlinkert/is-extendable>
- *
- * Copyright (c) 2015, Jon Schlinkert.
- * Licensed under the MIT License.
- */
-
-/*!
- * condense-newlines <https://github.com/jonschlinkert/condense-newlines>
- *
- * Copyright (c) 2014 Jon Schlinkert, contributors.
- * Licensed under the MIT License
- */
-
-/*!
- * pretty <https://github.com/jonschlinkert/pretty>
- *
- * Copyright (c) 2013-2015, 2017, Jon Schlinkert.
- * Released under the MIT License.
- */
-
-/*!
- * is-whitespace <https://github.com/jonschlinkert/is-whitespace>
- *
- * Copyright (c) 2014-2015, Jon Schlinkert.
- * Licensed under the MIT License.
  */
 
 /*!
@@ -40,15 +12,29 @@
  */
 
 /*!
+ * vue-i18n v8.1.0 
+ * (c) 2018 kazuya kawaguchi
+ * Released under the MIT License.
+ */
+
+/**
+ * Twig.js
+ *
+ * @copyright 2011-2016 John Roepke and the Twig.js Contributors
+ * @license   Available under the BSD 2-Clause License
+ * @link      https://github.com/twigjs/twig.js
+ */
+
+/*!
  * @overview es6-promise - a tiny implementation of Promises/A+.
  * @copyright Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors (Conversion to ES6 API by Jake Archibald)
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/stefanpenner/es6-promise/master/LICENSE
- * @version   v4.2.4+314e4831
+ * @version   v4.2.5+7f2b526d
  */
 
 /**
- * vue-meta v1.5.3
+ * vue-meta v1.5.5
  * (c) 2018 Declan de Wet & Sébastien Chopin (@Atinux)
  * @license MIT
  */
@@ -58,3 +44,10 @@ object-assign
 (c) Sindre Sorhus
 @license MIT
 */
+
+/*!
+ * Quill Editor v1.3.6
+ * https://quilljs.com/
+ * Copyright (c) 2014, Jason Chen
+ * Copyright (c) 2013, salesforce.com
+ */

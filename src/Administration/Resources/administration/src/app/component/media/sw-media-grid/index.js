@@ -2,6 +2,9 @@ import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-media-grid.html.twig';
 import './sw-media-grid.less';
 
+/**
+ * @private
+ */
 Component.register('sw-media-grid', {
     template,
 

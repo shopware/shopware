@@ -3,6 +3,9 @@ import template from './sw-media-grid-media-item.html.twig';
 import './sw-media-grid-media-item.less';
 import domUtils from '../../../../core/service/utils/dom.utils';
 
+/**
+ * @private
+ */
 Component.register('sw-media-grid-media-item', {
     template,
 

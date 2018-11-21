@@ -71,7 +71,7 @@ class ProductStruct extends Entity
     /**
      * @var string|null
      */
-    protected $supplierNumber;
+    protected $manufacturerNumber;
 
     /**
      * @var string|null
@@ -142,11 +142,6 @@ class ProductStruct extends Entity
      * @var float|null
      */
     protected $purchasePrice;
-
-    /**
-     * @var int|null
-     */
-    protected $pseudoSales;
 
     /**
      * @var bool|null
@@ -423,14 +418,14 @@ class ProductStruct extends Entity
         $this->price = $price;
     }
 
-    public function getSupplierNumber(): ?string
+    public function getManufacturerNumber(): ?string
     {
-        return $this->supplierNumber;
+        return $this->manufacturerNumber;
     }
 
-    public function setSupplierNumber(?string $supplierNumber): void
+    public function setManufacturerNumber(?string $manufacturerNumber): void
     {
-        $this->supplierNumber = $supplierNumber;
+        $this->manufacturerNumber = $manufacturerNumber;
     }
 
     public function getEan(): ?string
@@ -543,16 +538,6 @@ class ProductStruct extends Entity
         $this->purchasePrice = $purchasePrice;
     }
 
-    public function getPseudoSales(): ?int
-    {
-        return $this->pseudoSales;
-    }
-
-    public function setPseudoSales(?int $pseudoSales): void
-    {
-        $this->pseudoSales = $pseudoSales;
-    }
-
     public function getMarkAsTopseller(): ?bool
     {
         return $this->markAsTopseller;
@@ -621,16 +606,6 @@ class ProductStruct extends Entity
     public function setLength(?float $length): void
     {
         $this->length = $length;
-    }
-
-    public function getTemplate(): ?string
-    {
-        return $this->template;
-    }
-
-    public function setTemplate(?string $template): void
-    {
-        $this->template = $template;
     }
 
     public function getAllowNotification(): ?bool

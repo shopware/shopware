@@ -621,7 +621,8 @@
     "general": {
       "mainMenuItemGeneral": "Media",
       "descriptionTextModule": "Manage media here",
-      "placeholderSearchBar": "Search media"
+      "placeholderSearchBar": "Search media",
+      "notificationUrlCopied": "copied URL to clipboard"
     },
     "smart-bar": {
       "smartBarHeader": "Media"

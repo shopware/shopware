@@ -623,7 +623,8 @@
     "general": {
       "mainMenuItemGeneral": "Medien",
       "descriptionTextModule": "Verwaltung von Mediendateien",
-      "placeholderSearchBar": "Durchsuche alle Medien"
+      "placeholderSearchBar": "Durchsuche alle Medien",
+      "notificationUrlCopied": "URL in Zwischenablage kopiert"
     },
     "smart-bar": {
       "smartBarHeader": "Medien"

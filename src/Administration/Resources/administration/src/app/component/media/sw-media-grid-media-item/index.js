@@ -170,6 +170,7 @@ Component.register('sw-media-grid-media-item', {
 
         copyItemLink() {
             domUtils.copyToClipboard(this.item.url);
+            this.createNotificationSuccess({ message: this.$tc('sw-media.general.notificationUrlCopied') });
         },
 
         openModalDelete() {

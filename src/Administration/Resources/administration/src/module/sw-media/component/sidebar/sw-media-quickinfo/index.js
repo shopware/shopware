@@ -1,4 +1,4 @@
-import { Component } from 'src/core/shopware';
+import { Component, Mixin } from 'src/core/shopware';
 import { format } from 'src/core/service/util.service';
 import domUtils from 'src/core/service/utils/dom.utils';
 import '../../sw-media-collapse';
@@ -8,6 +8,10 @@ import '../sw-media-quickinfo-metadata-item';
 
 Component.register('sw-media-quickinfo', {
     template,
+
+    mixins: [
+        Mixin.getByName('notification')
+    ],
 
     props: {
         item: {
@@ -47,6 +51,7 @@ Component.register('sw-media-quickinfo', {
         copyLinkToClipboard() {
             if (this.item) {
                 domUtils.copyToClipboard(this.item.url);
+                this.createNotificationSuccess({ message: this.$tc('sw-media.general.notificationUrlCopied') });
             }
         },
 

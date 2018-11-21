@@ -12,6 +12,11 @@ use function Shopware\Core\Framework\Test\FeatureFlag\_fixture\nextFix101;
 class FeatureTest extends TestCase
 {
     /**
+     * @var bool
+     */
+    private $indicator;
+
+    /**
      * @before
      * @after
      */
@@ -32,12 +37,7 @@ class FeatureTest extends TestCase
         require_once __DIR__ . '/_fixture/feature_nextfix101.php';
     }
 
-    /**
-     * @var bool
-     */
-    private $indicator;
-
-    public function test_the_generator()
+    public function testTheGenerator()
     {
         $gen = new FeatureFlagGenerator();
 
@@ -53,31 +53,31 @@ class FeatureTest extends TestCase
         self::assertTrue(function_exists('Shopware\Core\Framework\Test\FeatureFlag\_gen\ifNextTest789Call'));
     }
 
-    public function test_the_bool_gets_returned()
+    public function testABoolGetsReturned()
     {
         self::assertFalse(nextFix101());
         FeatureConfig::activate('nextFix101');
         self::assertTrue(nextFix101());
     }
 
-    public function test_the_callable_gets_executes()
+    public function testTheCallableGetsExecutes()
     {
         FeatureConfig::addFlag('nextFix101');
         $indicator = false;
-        ifNextFix101(function() use (&$indicator) {
+        ifNextFix101(function () use (&$indicator) {
             $indicator = true;
         });
         self::assertFalse($indicator);
 
         FeatureConfig::activate('nextFix101');
 
-        ifNextFix101(function() use (&$indicator) {
+        ifNextFix101(function () use (&$indicator) {
             $indicator = true;
         });
         self::assertTrue($indicator);
     }
 
-    public function test_the_method_gets_executes()
+    public function testTheMethodGetsExecutes()
     {
         FeatureConfig::addFlag('nextFix101');
         $this->indicator = false;
@@ -91,7 +91,8 @@ class FeatureTest extends TestCase
         self::assertTrue($this->indicator);
     }
 
-    private function indicate() {
+    private function indicate()
+    {
         $this->indicator = true;
     }
 }

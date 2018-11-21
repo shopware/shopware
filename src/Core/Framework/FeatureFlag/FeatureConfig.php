@@ -23,7 +23,7 @@ class FeatureConfig
 
     public static function isActive(string $flagName): bool
     {
-        if(!isset(self::$flags[$flagName])) {
+        if (!isset(self::$flags[$flagName])) {
             throw new \RuntimeException(sprintf('Unable to retrieve flag %s, not registered', $flagName));
         }
 

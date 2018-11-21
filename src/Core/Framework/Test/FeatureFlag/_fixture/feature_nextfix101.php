@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-    
+
 namespace Shopware\Core\Framework\Test\FeatureFlag\_fixture;
 
 use Shopware\Core\Framework\FeatureFlag\FeatureConfig;
@@ -18,7 +18,7 @@ function ifNextFix101(\Closure $closure): void
 
 function ifNextFix101Call($object, string $methodName): void
 {
-    $closure = function() use ($methodName) {
+    $closure = function () use ($methodName) {
         $this->{$methodName}();
     };
 

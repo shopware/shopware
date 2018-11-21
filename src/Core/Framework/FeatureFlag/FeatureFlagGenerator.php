@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\FeatureFlag;
 
 class FeatureFlagGenerator
 {
-
     private const TEMPLATE_PHP = <<<'EOD'
 <?php declare(strict_types=1);
     
@@ -30,7 +29,7 @@ namespace %s {
     
     function if%sCall($object, string $methodName, ...$arguments): void
     {
-        $closure = function() use ($methodName, $arguments) {
+        $closure = function () use ($methodName, $arguments) {
             $this->{$methodName}(... $arguments);
         };
     
@@ -78,7 +77,6 @@ export function if%sCall(object, methodName) {
 }
   
 EOD;
-
 
     public function exportPhp(string $namespace, string $featureName, string $destinationPath): void
     {

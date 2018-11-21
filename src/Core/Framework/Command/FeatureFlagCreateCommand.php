@@ -28,7 +28,6 @@ class FeatureFlagCreateCommand extends ContainerAwareCommand
         $this->addArgument('name', InputArgument::REQUIRED, 'What is the feature gonna be called?');
     }
 
-
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         /** @var string $tenantId */

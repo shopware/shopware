@@ -338,7 +338,7 @@ class Kernel extends HttpKernel
         $cacheFile = $this->getCacheDir() . '/features.php';
         $featureCache = new ConfigCache($cacheFile, $this->isDebug());
 
-        if(!$featureCache->isFresh()) {
+        if (!$featureCache->isFresh()) {
             $files = (new Finder())
                 ->in(__DIR__ . '/Flag/')
                 ->name('feature_*.php')
@@ -347,7 +347,7 @@ class Kernel extends HttpKernel
             $resources = [new FileResource(__DIR__ . '/Flag/')];
             $contents = ['<?php declare(strict_types=1);'];
 
-            foreach($files as $file) {
+            foreach ($files as $file) {
                 $path = (string) $file;
 
                 $resources[] = new FileResource($path);

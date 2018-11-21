@@ -20,6 +20,12 @@ Component.register('sw-image', {
             default: ''
         },
 
+        tooltip: {
+            type: String,
+            required: false,
+            default: ''
+        },
+
         isCover: {
             type: Boolean,
             required: false,

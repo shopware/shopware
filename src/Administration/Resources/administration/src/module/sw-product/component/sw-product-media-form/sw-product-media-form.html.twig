@@ -23,6 +23,7 @@
                                 :key="mediaItem.mediaId"
                                 :isCover="isCover(mediaItem)"
                                 :isPlaceholder="mediaItem.isPlaceholder"
+                                :tooltip="getTooltipForMedia(mediaItem.media)"
                                 :url="getPreviewForMedia(mediaItem.media)"
                                 :downloadable="true"></sw-image>
                     </template>

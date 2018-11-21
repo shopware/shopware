@@ -108,6 +108,8 @@ Component.register('sw-media-upload-button', {
 
         addMediaEntityFromFile(file) {
             const mediaEntity = this.mediaItemStore.create();
+            mediaEntity.fileName = file.name;
+
 
             const upload = this.uploadStore.addUpload(this.uploadTag, this.buildUpload(file, mediaEntity));
 
@@ -116,6 +118,7 @@ Component.register('sw-media-upload-button', {
 
         createMediaEntityFromUrl(url, fileExtension) {
             const mediaEntity = this.mediaItemStore.create();
+            mediaEntity.fileName = url.href.split('/').pop();
 
             const upload = this.uploadStore.addUpload(this.uploadTag, this.buildUpload(url, mediaEntity, fileExtension));
 
@@ -131,20 +134,17 @@ Component.register('sw-media-upload-button', {
 
         buildUpload(source, mediaEntity, fileExtension = '') {
             let uploadFn = null;
-            let fileName = null;
 
             if (source instanceof URL) {
                 uploadFn = (media) => { return this.mediaUploadService.uploadUrlToMedia(source, media, fileExtension); };
-                fileName = source.href.split('/').pop();
             } else if (source instanceof File) {
                 uploadFn = (media) => { return this.mediaUploadService.uploadFileToMedia(source, media); };
-                fileName = source.name;
             } else {
                 throw new Error('Media source must be a URL object or a File object');
             }
 
             const successMessage = this.$tc('sw-media.upload.notificationSuccess');
-            const failureMessage = this.$tc('sw-media.upload.notificationFailure', 0, { mediaName: fileName });
+            const failureMessage = this.$tc('sw-media.upload.notificationFailure', 0, { mediaName: mediaEntity.fileName });
 
             return () => {
                 this.synchronizeMediaEntity(mediaEntity).then(() => {

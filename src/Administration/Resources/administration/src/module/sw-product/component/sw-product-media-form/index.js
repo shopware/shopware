@@ -213,6 +213,18 @@ Component.register('sw-product-media-form', {
             return mediaEntity.url;
         },
 
+        getTooltipForMedia(mediaEntity) {
+            if (mediaEntity.isPlaceholder) {
+                return '';
+            }
+
+            if (mediaEntity.isLocal) {
+                return mediaEntity.fileName;
+            }
+
+            return this.$options.filters.pathToFileName(`${mediaEntity.fileName}.${mediaEntity.fileExtension}`);
+        },
+
         removeFile(key) {
             const item = find(this.mediaItems, (e) => e.mediaId === key);
             const upload = find(this.uploads, (e) => e.mediaId === key);

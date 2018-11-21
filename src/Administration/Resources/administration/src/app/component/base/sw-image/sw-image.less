@@ -32,29 +32,6 @@
         object-fit: cover;
     }
 
-    .sw-image__tooltip {
-        visibility: hidden;
-        background-color: @sw-image-tooltip-color-background;
-        color: @sw-image-color-white;
-        text-align: center;
-        border-radius: @sw-image-tooltip-border-radius;
-        position: absolute;
-        padding: 8px 8px;
-        z-index: 1;
-
-        &:after {
-            content: " ";
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            width: max-content;
-            margin-left: -8px;
-            border-width: 8px;
-            border-style: solid;
-            border-color: transparent transparent @sw-image-tooltip-color-background transparent;
-        }
-    }
-
     &:hover {
         background-color: @sw-image-color-hover;
         

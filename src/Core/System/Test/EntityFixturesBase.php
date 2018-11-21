@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Test;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
@@ -31,7 +32,11 @@ trait EntityFixturesBase
 
     public static function getFixtureRepository(string $fixtureName): RepositoryInterface
     {
-        return KernelLifecycleManager::getKernel()->getContainer()->get($fixtureName . '.repository');
+        self::ensureATransactionIsActive();
+
+        return KernelLifecycleManager::getKernel()
+            ->getContainer()
+            ->get($fixtureName . '.repository');
     }
 
     /**
@@ -39,10 +44,23 @@ trait EntityFixturesBase
      */
     public function createFixture(string $fixtureName, array $fixtureData, RepositoryInterface $repository): Entity
     {
-        $repository->create([$fixtureData[$fixtureName]],
-            $this->entityFixtureContext);
+        self::ensureATransactionIsActive();
+
+        $repository->create([$fixtureData[$fixtureName]], $this->entityFixtureContext);
 
         return $repository->read(new ReadCriteria([$fixtureData[$fixtureName]['id']]), $this->entityFixtureContext)
             ->get($fixtureData[$fixtureName]['id']);
+    }
+
+    private static function ensureATransactionIsActive()
+    {
+        /** @var Connection $connection */
+        $connection = KernelLifecycleManager::getKernel()
+            ->getContainer()
+            ->get(Connection::class);
+
+        if (!$connection->isTransactionActive()) {
+            throw new \BadMethodCallException('You should not start writing to the database outside of transactions');
+        }
     }
 }

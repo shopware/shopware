@@ -9,7 +9,6 @@ use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailConfiguration;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\CommandTestBehaviour;
@@ -19,7 +18,9 @@ use Symfony\Component\Console\Output\BufferedOutput;
 
 class GenerateThumbnailsCommandTest extends TestCase
 {
-    use IntegrationTestBehaviour, CommandTestBehaviour, MediaFixtures;
+    use IntegrationTestBehaviour,
+        CommandTestBehaviour,
+        MediaFixtures;
 
     /**
      * @var RepositoryInterface
@@ -42,11 +43,6 @@ class GenerateThumbnailsCommandTest extends TestCase
     private $thumbnailConfiguration;
 
     /**
-     * @var Context
-     */
-    private $context;
-
-    /**
      * @var string
      */
     private $catalogId;
@@ -56,18 +52,14 @@ class GenerateThumbnailsCommandTest extends TestCase
         $this->mediaRepository = $this->getContainer()->get('media.repository');
         $this->urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
         $this->thumbnailConfiguration = $this->getContainer()->get(ThumbnailConfiguration::class);
-
         $this->thumbnailCommand = $this->getContainer()->get(GenerateThumbnailsCommand::class);
-
-        $this->context = $this->getContextWithCatalogAndWriteAccess();
-        $this->catalogId = $this->context->getCatalogIds()[0];
     }
 
     public function testExecuteHappyPath(): void
     {
         $this->createValidMediaFiles();
 
-        $input = new StringInput(sprintf('-c %s', $this->catalogId));
+        $input = new StringInput(sprintf('-c %s', $this->getContextWithCatalogAndWriteAccess()->getCatalogIds()[0]));
         $output = new BufferedOutput();
 
         $this->runCommand($this->thumbnailCommand, $input, $output);
@@ -82,7 +74,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         }
 
         $searchCriteria = new Criteria();
-        $mediaResult = $this->mediaRepository->search($searchCriteria, $this->context);
+        $mediaResult = $this->mediaRepository->search($searchCriteria, $this->getContextWithCatalogAndWriteAccess());
         /** @var MediaStruct $updatedMedia */
         foreach ($mediaResult->getEntities() as $updatedMedia) {
             $thumbnails = $updatedMedia->getThumbnails();
@@ -101,7 +93,7 @@ class GenerateThumbnailsCommandTest extends TestCase
     {
         $this->createNotSupportedMediaFiles();
 
-        $input = new StringInput(sprintf('-c %s', $this->catalogId));
+        $input = new StringInput(sprintf('-c %s', $this->getContextWithCatalogAndWriteAccess()->getCatalogIds()[0]));
         $output = new BufferedOutput();
 
         $this->runCommand($this->thumbnailCommand, $input, $output);
@@ -116,7 +108,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         }
 
         $searchCriteria = new Criteria();
-        $mediaResult = $this->mediaRepository->search($searchCriteria, $this->context);
+        $mediaResult = $this->mediaRepository->search($searchCriteria, $this->getContextWithCatalogAndWriteAccess());
         /** @var MediaStruct $updatedMedia */
         foreach ($mediaResult->getEntities() as $updatedMedia) {
             if (strpos($updatedMedia->getMimeType(), 'image') === 0) {
@@ -157,7 +149,7 @@ class GenerateThumbnailsCommandTest extends TestCase
 
     protected function createValidMediaFiles(): void
     {
-        $this->setFixtureContext($this->context);
+        $this->setFixtureContext($this->getContextWithCatalogAndWriteAccess());
         $mediaPng = $this->getPngInCatalog();
         $mediaJpg = $this->getJpgInCatalog();
 
@@ -176,7 +168,7 @@ class GenerateThumbnailsCommandTest extends TestCase
 
     protected function createNotSupportedMediaFiles(): void
     {
-        $this->setFixtureContext($this->context);
+        $this->setFixtureContext($this->getContextWithCatalogAndWriteAccess());
         $mediaPdf = $this->getPdfInCatalog();
         $mediaJpg = $this->getJpgInCatalog();
 

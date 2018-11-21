@@ -2,6 +2,9 @@ import { Component } from 'src/core/shopware';
 import template from './sw-tree-item.html.twig';
 import './sw-tree-item.less';
 
+/**
+ * @private
+ */
 Component.register('sw-tree-item', {
     template,
 

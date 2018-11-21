@@ -6,6 +6,7 @@ import template from './sw-loader.html.twig';
  * @public
  * @description Renders a loading indicator for panels, input fields, buttons, usw.
  * @status ready
+ * @example-type dynamic
  * @component-example
  * <sw-loader></sw-loader>
  */

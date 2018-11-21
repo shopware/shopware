@@ -2,6 +2,13 @@ import { Component, State } from 'src/core/shopware';
 import template from './sw-notifications.html.twig';
 import './sw-notifications.less';
 
+/**
+ * @public
+ * @description
+ * Wrapper element for all notifications of the administration.
+ * @status ready
+ * @example-type code-only
+ */
 Component.register('sw-notifications', {
     template,
 

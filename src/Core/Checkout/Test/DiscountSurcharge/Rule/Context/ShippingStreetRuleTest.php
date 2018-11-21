@@ -16,7 +16,7 @@ class ShippingStreetRuleTest extends TestCase
 {
     public function testWithExactMatch(): void
     {
-        $rule = new ShippingStreetRule('example street');
+        $rule = (new ShippingStreetRule())->assign(['streetName' => 'example street']);
 
         $cart = $this->createMock(Cart::class);
 
@@ -38,7 +38,7 @@ class ShippingStreetRuleTest extends TestCase
 
     public function testCaseInsensitive(): void
     {
-        $rule = new ShippingStreetRule('ExaMple StreEt');
+        $rule = (new ShippingStreetRule())->assign(['streetName' => 'ExaMple StreEt']);
 
         $cart = $this->createMock(Cart::class);
 
@@ -60,7 +60,7 @@ class ShippingStreetRuleTest extends TestCase
 
     public function testNotMatch(): void
     {
-        $rule = new ShippingStreetRule('example street');
+        $rule = (new ShippingStreetRule())->assign(['streetName' => 'example street']);
 
         $cart = $this->createMock(Cart::class);
 
@@ -82,7 +82,7 @@ class ShippingStreetRuleTest extends TestCase
 
     public function testWithoutAddress(): void
     {
-        $rule = new ShippingStreetRule('ExaMple StreEt');
+        $rule = (new ShippingStreetRule())->assign(['streetName' => 'ExaMple StreEt']);
 
         $cart = $this->createMock(Cart::class);
 

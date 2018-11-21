@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Rule;
 
 use Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleCollection;
+use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\Rule\Rule;
 
@@ -43,6 +44,11 @@ class RuleStruct extends Entity
      * @var ProductPriceRuleCollection|null
      */
     protected $productPriceRules;
+
+    /**
+     * @var RuleConditionCollection|null
+     */
+    protected $conditions;
 
     public function getName(): string
     {
@@ -112,5 +118,15 @@ class RuleStruct extends Entity
     public function setProductPriceRules(ProductPriceRuleCollection $productPriceRules): void
     {
         $this->productPriceRules = $productPriceRules;
+    }
+
+    public function getConditions(): ?RuleConditionCollection
+    {
+        return $this->conditions;
+    }
+
+    public function setConditions(?RuleConditionCollection $conditions): void
+    {
+        $this->conditions = $conditions;
     }
 }

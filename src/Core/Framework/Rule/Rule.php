@@ -15,6 +15,16 @@ abstract class Rule extends Struct
     public const OPERATOR_NEQ = '!=';
 
     /**
+     * @var string
+     */
+    protected $type;
+
+    public function __construct()
+    {
+        $this->type = static::class;
+    }
+
+    /**
      * Validate the current rule and returns a reason object which contains defines if the rule match and if not why not
      */
     abstract public function match(RuleScope $scope): Match;

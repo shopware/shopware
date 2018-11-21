@@ -19,12 +19,6 @@ class GoodsPriceRule extends Rule
      */
     protected $operator;
 
-    public function __construct(float $amount, string $operator)
-    {
-        $this->amount = $amount;
-        $this->operator = $operator;
-    }
-
     /**
      * @throws UnsupportedOperatorException
      */
@@ -57,7 +51,6 @@ class GoodsPriceRule extends Rule
                 );
 
             case self::OPERATOR_EQ:
-
                 return new Match(
                     $goodsAmount === $this->amount,
                     ['Goods price is not equal']

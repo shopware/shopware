@@ -14,7 +14,7 @@ class GoodsCountRuleTest extends TestCase
 {
     public function testRuleWithExactCountMatch(): void
     {
-        $rule = new GoodsCountRule(0, Rule::OPERATOR_EQ);
+        $rule =(new GoodsCountRule())->assign(['count' => 0, 'operator' => Rule::OPERATOR_EQ]);
 
         $cart = new Cart('test', 'test');
         $context = $this->createMock(CheckoutContext::class);
@@ -26,7 +26,7 @@ class GoodsCountRuleTest extends TestCase
 
     public function testRuleWithExactCountNotMatch(): void
     {
-        $rule = new GoodsCountRule(0, Rule::OPERATOR_EQ);
+        $rule =(new GoodsCountRule())->assign(['count' => 0, 'operator' => Rule::OPERATOR_EQ]);
 
         $cart = new Cart('test', 'test');
         $context = $this->createMock(CheckoutContext::class);
@@ -38,7 +38,7 @@ class GoodsCountRuleTest extends TestCase
 
     public function testRuleWithLowerThanEqualExactCountMatch(): void
     {
-        $rule = new GoodsCountRule(1, Rule::OPERATOR_LTE);
+        $rule =(new GoodsCountRule())->assign(['count' => 1, 'operator' => Rule::OPERATOR_LTE]);
 
         $cart = new Cart('test', 'test');
         $context = $this->createMock(CheckoutContext::class);
@@ -50,7 +50,7 @@ class GoodsCountRuleTest extends TestCase
 
     public function testRuleWithLowerThanEqualCountMatch(): void
     {
-        $rule = new GoodsCountRule(2, Rule::OPERATOR_LTE);
+        $rule =(new GoodsCountRule())->assign(['count' => 2, 'operator' => Rule::OPERATOR_LTE]);
 
         $cart = new Cart('test', 'test');
         $context = $this->createMock(CheckoutContext::class);
@@ -62,7 +62,7 @@ class GoodsCountRuleTest extends TestCase
 
     public function testRuleWithLowerThanEqualCountNotMatch(): void
     {
-        $rule = new GoodsCountRule(0, Rule::OPERATOR_LTE);
+        $rule =(new GoodsCountRule())->assign(['count' => 0, 'operator' => Rule::OPERATOR_LTE]);
 
         $cart = new Cart('test', 'test');
 
@@ -77,7 +77,7 @@ class GoodsCountRuleTest extends TestCase
 
     public function testRuleWithGreaterThanEqualExactCountMatch(): void
     {
-        $rule = new GoodsCountRule(1, Rule::OPERATOR_GTE);
+        $rule =(new GoodsCountRule())->assign(['count' => 1, 'operator' => Rule::OPERATOR_GTE]);
 
         $cart = new Cart('test', 'test');
         $cart->add((new LineItem('a', 'a'))->setGood(true));
@@ -90,7 +90,7 @@ class GoodsCountRuleTest extends TestCase
 
     public function testRuleWithGreaterThanEqualCountMatch(): void
     {
-        $rule = new GoodsCountRule(0, Rule::OPERATOR_GTE);
+        $rule =(new GoodsCountRule())->assign(['count' => 0, 'operator' => Rule::OPERATOR_GTE]);
 
         $cart = new Cart('test', 'test');
         $context = $this->createMock(CheckoutContext::class);
@@ -102,7 +102,7 @@ class GoodsCountRuleTest extends TestCase
 
     public function testRuleWithGreaterThanEqualCountNotMatch(): void
     {
-        $rule = new GoodsCountRule(2, Rule::OPERATOR_GTE);
+        $rule =(new GoodsCountRule())->assign(['count' => 2, 'operator' => Rule::OPERATOR_GTE]);
 
         $cart = new Cart('test', 'test');
         $context = $this->createMock(CheckoutContext::class);
@@ -114,7 +114,7 @@ class GoodsCountRuleTest extends TestCase
 
     public function testRuleWithNotEqualCountMatch(): void
     {
-        $rule = new GoodsCountRule(2, Rule::OPERATOR_NEQ);
+        $rule =(new GoodsCountRule())->assign(['count' => 2, 'operator' => Rule::OPERATOR_NEQ]);
 
         $cart = new Cart('test', 'test');
         $context = $this->createMock(CheckoutContext::class);
@@ -126,7 +126,7 @@ class GoodsCountRuleTest extends TestCase
 
     public function testRuleWithNotEqualCountNotMatch(): void
     {
-        $rule = new GoodsCountRule(1, Rule::OPERATOR_NEQ);
+        $rule =(new GoodsCountRule())->assign(['count' => 1, 'operator' => Rule::OPERATOR_NEQ]);
 
         $cart = new Cart('test', 'test');
         $cart->add((new LineItem('a', 'a'))->setGood(true));

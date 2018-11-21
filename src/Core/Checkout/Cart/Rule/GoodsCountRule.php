@@ -19,12 +19,6 @@ class GoodsCountRule extends Rule
      */
     protected $operator;
 
-    public function __construct(int $count, string $operator = self::OPERATOR_EQ)
-    {
-        $this->count = $count;
-        $this->operator = $operator;
-    }
-
     /**
      * @throws UnsupportedOperatorException
      */

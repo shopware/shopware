@@ -19,12 +19,6 @@ class CartAmountRule extends Rule
      */
     protected $operator;
 
-    public function __construct(float $amount, string $operator)
-    {
-        $this->amount = $amount;
-        $this->operator = $operator;
-    }
-
     /**
      * @throws UnsupportedOperatorException
      */

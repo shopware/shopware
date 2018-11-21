@@ -14,14 +14,6 @@ class CustomerNumberRule extends Rule
      */
     protected $numbers;
 
-    /**
-     * @param string[] $numbers
-     */
-    public function __construct(array $numbers)
-    {
-        $this->numbers = array_map('strtolower', $numbers);
-    }
-
     public function match(RuleScope $scope): Match
     {
         if (!$scope instanceof CheckoutRuleScope) {
@@ -32,6 +24,8 @@ class CustomerNumberRule extends Rule
         if (!$customer = $scope->getCheckoutContext()->getCustomer()) {
             return new Match(false, ['Not logged in customer']);
         }
+
+        $this->numbers = array_map('strtolower', $this->numbers);
 
         return new Match(
             \in_array(strtolower($customer->getCustomerNumber()), $this->numbers, true),

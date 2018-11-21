@@ -14,14 +14,6 @@ class ShippingZipCodeRule extends Rule
      */
     protected $zipCodes;
 
-    /**
-     * @param string[] $zipCodes
-     */
-    public function __construct(array $zipCodes)
-    {
-        $this->zipCodes = $zipCodes;
-    }
-
     public function match(RuleScope $scope): Match
     {
         if (!$scope instanceof CheckoutRuleScope) {

@@ -24,13 +24,6 @@ class LineItemWithQuantityRule extends Rule
      */
     protected $operator;
 
-    public function __construct(string $id, ?int $quantity = null, string $operator = self::OPERATOR_EQ)
-    {
-        $this->id = $id;
-        $this->quantity = $quantity;
-        $this->operator = $operator;
-    }
-
     /**
      * @throws UnsupportedOperatorException
      */

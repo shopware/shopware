@@ -14,14 +14,6 @@ class CustomerGroupRule extends Rule
      */
     protected $customerGroupIds;
 
-    /**
-     * @param int[] $customerGroupIds
-     */
-    public function __construct(array $customerGroupIds)
-    {
-        $this->customerGroupIds = $customerGroupIds;
-    }
-
     public function match(RuleScope $scope): Match
     {
         if (!$scope instanceof CheckoutRuleScope) {

@@ -13,7 +13,7 @@ class CurrencyRuleTest extends TestCase
 {
     public function testMatch(): void
     {
-        $rule = new CurrencyRule(['SWAG-CURRENCY-ID-1']);
+        $rule = (new CurrencyRule())->assign(['currencyIds' => ['SWAG-CURRENCY-ID-1']]);
 
         $cart = $this->createMock(Cart::class);
 
@@ -35,7 +35,7 @@ class CurrencyRuleTest extends TestCase
 
     public function testNotMatch(): void
     {
-        $rule = new CurrencyRule(['SWAG-CURRENCY-ID-2', 'SWAG-CURRENCY-ID-3', 'SWAG-CURRENCY-ID-1']);
+        $rule = (new CurrencyRule())->assign(['currencyIds' => ['SWAG-CURRENCY-ID-2', 'SWAG-CURRENCY-ID-3', 'SWAG-CURRENCY-ID-1']]);
 
         $cart = $this->createMock(Cart::class);
 
@@ -57,7 +57,7 @@ class CurrencyRuleTest extends TestCase
 
     public function testMultipleCurrencies(): void
     {
-        $rule = new CurrencyRule(['SWAG-CURRENCY-ID-2', 'SWAG-CURRENCY-ID-3', 'SWAG-CURRENCY-ID-1']);
+        $rule = (new CurrencyRule())->assign(['currencyIds' => ['SWAG-CURRENCY-ID-2', 'SWAG-CURRENCY-ID-3', 'SWAG-CURRENCY-ID-1']]);
 
         $cart = $this->createMock(Cart::class);
 

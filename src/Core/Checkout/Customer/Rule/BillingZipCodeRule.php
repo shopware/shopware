@@ -14,14 +14,6 @@ class BillingZipCodeRule extends Rule
      */
     protected $zipCodes;
 
-    /**
-     * @param string[] $zipCodes
-     */
-    public function __construct(array $zipCodes)
-    {
-        $this->zipCodes = array_map('strtolower', $zipCodes);
-    }
-
     public function match(RuleScope $scope): Match
     {
         if (!$scope instanceof CheckoutRuleScope) {
@@ -34,7 +26,7 @@ class BillingZipCodeRule extends Rule
         }
 
         $zipCode = $customer->getActiveBillingAddress()->getZipcode();
-
+        $this->zipCodes = array_map('strtolower', $this->zipCodes);
         return new Match(
             \in_array(strtolower($zipCode), $this->zipCodes, true),
             ['Zip code not matched']

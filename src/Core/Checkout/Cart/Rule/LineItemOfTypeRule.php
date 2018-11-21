@@ -11,12 +11,7 @@ class LineItemOfTypeRule extends Rule
     /**
      * @var string
      */
-    protected $type;
-
-    public function __construct(string $type)
-    {
-        $this->type = $type;
-    }
+    protected $lineItemType;
 
     public function match(
         RuleScope $scope
@@ -29,7 +24,7 @@ class LineItemOfTypeRule extends Rule
         }
 
         return new Match(
-            $scope->getLineItem()->getType() == $this->type,
+            $scope->getLineItem()->getType() == $this->lineItemType,
             ['LineItem type does not match']
         );
     }

@@ -29,7 +29,7 @@ class LineItemWithQuantityRuleTest extends TestCase
 
     public function testRuleWithExactAmountMatch(): void
     {
-        $rule = new LineItemWithQuantityRule('A', 2);
+        $rule = (new LineItemWithQuantityRule())->assign(['id' => 'A', 'quantity' => 2, 'operator' => Rule::OPERATOR_EQ]);
 
         $context = $this->createMock(CheckoutContext::class);
 
@@ -40,7 +40,7 @@ class LineItemWithQuantityRuleTest extends TestCase
 
     public function testRuleWithExactAmountNotMatch(): void
     {
-        $rule = new LineItemWithQuantityRule('A', 0);
+        $rule = (new LineItemWithQuantityRule())->assign(['id' => 'A', 'quantity' => 0, 'operator' => Rule::OPERATOR_EQ]);
 
         $context = $this->createMock(CheckoutContext::class);
 
@@ -51,7 +51,7 @@ class LineItemWithQuantityRuleTest extends TestCase
 
     public function testRuleWithLowerThanEqualExactAmountMatch(): void
     {
-        $rule = new LineItemWithQuantityRule('A', 2, Rule::OPERATOR_LTE);
+        $rule = (new LineItemWithQuantityRule())->assign(['id' => 'A', 'quantity' => 2, 'operator' => Rule::OPERATOR_LTE]);
 
         $context = $this->createMock(CheckoutContext::class);
 
@@ -62,7 +62,7 @@ class LineItemWithQuantityRuleTest extends TestCase
 
     public function testRuleWithLowerThanEqualAmountMatch(): void
     {
-        $rule = new LineItemWithQuantityRule('A', 3, Rule::OPERATOR_LTE);
+        $rule = (new LineItemWithQuantityRule())->assign(['id' => 'A', 'quantity' => 3, 'operator' => Rule::OPERATOR_LTE]);
 
         $context = $this->createMock(CheckoutContext::class);
 
@@ -73,7 +73,7 @@ class LineItemWithQuantityRuleTest extends TestCase
 
     public function testRuleWithLowerThanEqualAmountNotMatch(): void
     {
-        $rule = new LineItemWithQuantityRule('A', 1, Rule::OPERATOR_LTE);
+        $rule = (new LineItemWithQuantityRule())->assign(['id' => 'A', 'quantity' => 1, 'operator' => Rule::OPERATOR_LTE]);
 
         $context = $this->createMock(CheckoutContext::class);
 
@@ -84,7 +84,7 @@ class LineItemWithQuantityRuleTest extends TestCase
 
     public function testRuleWithGreaterThanEqualExactAmountMatch(): void
     {
-        $rule = new LineItemWithQuantityRule('A', 2, Rule::OPERATOR_GTE);
+        $rule = (new LineItemWithQuantityRule())->assign(['id' => 'A', 'quantity' => 2, 'operator' => Rule::OPERATOR_GTE]);
 
         $context = $this->createMock(CheckoutContext::class);
 
@@ -95,7 +95,7 @@ class LineItemWithQuantityRuleTest extends TestCase
 
     public function testRuleWithGreaterThanEqualMatch(): void
     {
-        $rule = new LineItemWithQuantityRule('A', 1, Rule::OPERATOR_GTE);
+        $rule = (new LineItemWithQuantityRule())->assign(['id' => 'A', 'quantity' => 1, 'operator' => Rule::OPERATOR_GTE]);
 
         $context = $this->createMock(CheckoutContext::class);
 
@@ -106,7 +106,7 @@ class LineItemWithQuantityRuleTest extends TestCase
 
     public function testRuleWithGreaterThanEqualNotMatch(): void
     {
-        $rule = new LineItemWithQuantityRule('A', 3, Rule::OPERATOR_GTE);
+        $rule = (new LineItemWithQuantityRule())->assign(['id' => 'A', 'quantity' => 3, 'operator' => Rule::OPERATOR_GTE]);
 
         $context = $this->createMock(CheckoutContext::class);
 
@@ -117,7 +117,7 @@ class LineItemWithQuantityRuleTest extends TestCase
 
     public function testRuleWithNotEqualMatch(): void
     {
-        $rule = new LineItemWithQuantityRule('A', 1, Rule::OPERATOR_NEQ);
+        $rule = (new LineItemWithQuantityRule())->assign(['id' => 'A', 'quantity' => 1, 'operator' => Rule::OPERATOR_NEQ]);
 
         $context = $this->createMock(CheckoutContext::class);
 
@@ -128,7 +128,7 @@ class LineItemWithQuantityRuleTest extends TestCase
 
     public function testRuleWithNotEqualNotMatch(): void
     {
-        $rule = new LineItemWithQuantityRule('A', 2, Rule::OPERATOR_NEQ);
+        $rule = (new LineItemWithQuantityRule())->assign(['id' => 'A', 'quantity' => 2, 'operator' => Rule::OPERATOR_NEQ]);
 
         $context = $this->createMock(CheckoutContext::class);
 

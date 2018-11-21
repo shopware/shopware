@@ -13,7 +13,7 @@ class CustomerGroupRuleTest extends TestCase
 {
     public function testMatch(): void
     {
-        $rule = new CustomerGroupRule(['SWAG-CUSTOMER-GROUP-ID-1']);
+        $rule = (new CustomerGroupRule())->assign(['customerGroupIds' => ['SWAG-CUSTOMER-GROUP-ID-1']]);
 
         $cart = $this->createMock(Cart::class);
 
@@ -33,7 +33,7 @@ class CustomerGroupRuleTest extends TestCase
 
     public function testMultipleGroups(): void
     {
-        $rule = new CustomerGroupRule(['SWAG-CUSTOMER-GROUP-ID-2', 'SWAG-CUSTOMER-GROUP-ID-3', 'SWAG-CUSTOMER-GROUP-ID-1']);
+        $rule = (new CustomerGroupRule())->assign(['customerGroupIds' => ['SWAG-CUSTOMER-GROUP-ID-2', 'SWAG-CUSTOMER-GROUP-ID-3', 'SWAG-CUSTOMER-GROUP-ID-1']]);
 
         $cart = $this->createMock(Cart::class);
 
@@ -53,7 +53,7 @@ class CustomerGroupRuleTest extends TestCase
 
     public function testNotMatch(): void
     {
-        $rule = new CustomerGroupRule(['SWAG-CUSTOMER-GROUP-ID-2', 'SWAG-CUSTOMER-GROUP-ID-3', 'SWAG-CUSTOMER-GROUP-ID-1']);
+        $rule = (new CustomerGroupRule())->assign(['customerGroupIds' => ['SWAG-CUSTOMER-GROUP-ID-2', 'SWAG-CUSTOMER-GROUP-ID-3', 'SWAG-CUSTOMER-GROUP-ID-1']]);
 
         $cart = $this->createMock(Cart::class);
 

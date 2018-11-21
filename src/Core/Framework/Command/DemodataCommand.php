@@ -41,9 +41,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Faker\Commerce;
 use Shopware\Core\Framework\Rule\Container\AndRule;
+use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\Framework\Rule\Container\NotRule;
 use Shopware\Core\Framework\Rule\CurrencyRule;
 use Shopware\Core\Framework\Rule\DateRangeRule;
+use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Util\Random;
 use Symfony\Component\Console\Command\Command;
@@ -581,19 +583,19 @@ class DemodataCommand extends Command
                 'name' => 'New customer',
             ],
             [
-                'rule' => new DateRangeRule(new DateTime(), (new DateTime())->modify('+2 day')),
+                'rule' => (new DateRangeRule())->assign(['fromDate' => new DateTime(), 'toDate' =>  (new DateTime())->modify('+2 day')]),
                 'name' => 'Next two days',
             ],
             [
-                'rule' => new GoodsPriceRule(5000, GoodsPriceRule::OPERATOR_GTE),
+                'rule' => (new GoodsPriceRule())->assign(['amount' => 5000, 'operator' => GoodsPriceRule::OPERATOR_GTE]),
                 'name' => 'Cart >= 5000',
             ],
             [
-                'rule' => new NotRule([new CustomerGroupRule([Defaults::FALLBACK_CUSTOMER_GROUP])]),
+                'rule' => (new NotRule())->assign(['rules' => [(new CustomerGroupRule())->assign(['customerGroupIds' => [Defaults::FALLBACK_CUSTOMER_GROUP]])]]),
                 'name' => 'Default group',
             ],
             [
-                'rule' => new NotRule([new CurrencyRule([Defaults::CURRENCY])]),
+                'rule' => (new NotRule())->assign(['rules' => [(new CurrencyRule())->assign(['currencyIds' => [Defaults::CURRENCY]])]]),
                 'name' => 'Default currency',
             ],
         ];
@@ -605,17 +607,41 @@ class DemodataCommand extends Command
             $classes = array_column($rules, 'rule');
             $names = array_column($rules, 'name');
 
-            $payload[] = [
+            $ruleData = [
                 'id' => Uuid::uuid4()->getHex(),
                 'priority' => $i,
                 'name' => implode(' + ', $names),
-                'payload' => new AndRule($classes),
             ];
+
+            $ruleData['conditions'][] = $this->buildChildRule(null, (new AndRule())->assign(['rules' => $classes]));
+
+            $payload[] = $ruleData;
         }
 
         $this->writer->insert(RuleDefinition::class, $payload, $this->getContext());
 
         return array_column($payload, 'id');
+    }
+
+    private function buildChildRule(?string $parentId, Rule $rule): array {
+        $data = [];
+        $data['value'] = $rule->jsonSerialize();
+        unset($data['value']['_class'], $data['value']['type'], $data['value']['rules'], $data['value']['extensions']);
+        if (!$data['value']) {
+            unset($data['value']);
+        }
+        $data['id'] = Uuid::uuid4()->getHex();
+        $data['parentId'] = $parentId;
+        $data['type'] = get_class($rule);
+
+        if ($rule instanceof Container) {
+            $data['children'] = [];
+            foreach ($rule->getRules() as $childRule) {
+                $data['children'][] = $this->buildChildRule($data['id'], $childRule);
+            }
+        }
+
+        return $data;
     }
 
     private function createPrices(array $rules): array

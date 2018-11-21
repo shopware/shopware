@@ -14,14 +14,6 @@ class ShippingStreetRule extends Rule
      */
     protected $streetName;
 
-    /**
-     * @param string $streetName
-     */
-    public function __construct($streetName)
-    {
-        $this->streetName = $streetName;
-    }
-
     public function match(RuleScope $scope): Match
     {
         if (!$scope instanceof CheckoutRuleScope) {

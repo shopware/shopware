@@ -15,11 +15,6 @@ class LineItemWrapperRule extends Rule
      */
     protected $container;
 
-    public function __construct(Container $container)
-    {
-        $this->container = $container;
-    }
-
     public function match(RuleScope $scope): Match
     {
         if (!$scope instanceof CheckoutRuleScope) {

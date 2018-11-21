@@ -1,28 +1,29 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Repository;
+namespace Shopware\Core\Content\Test\Rule\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Rule\DataAbstractionLayer\Indexing\RulePayloadIndexer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Rule\CurrencyRule;
+use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Symfony\Component\EventDispatcher\Tests\EventDispatcherTest;
 
-class ContextRepositoryTest extends TestCase
+class RulePayloadIndexerTest extends TestCase
 {
-    use KernelTestBehaviour,
-        DatabaseTransactionBehaviour;
+    use IntegrationTestBehaviour;
 
     /**
-     * @var Connection
+     * @var Context
      */
-    private $connection;
+    private $context;
 
     /**
      * @var RepositoryInterface
@@ -30,18 +31,24 @@ class ContextRepositoryTest extends TestCase
     private $repository;
 
     /**
-     * @var Context
+     * @var RulePayloadIndexer
      */
-    private $context;
+    private $indexer;
+
+    /**
+     * @var Connection
+     */
+    private $connection;
 
     public function setUp()
     {
         $this->repository = $this->getContainer()->get('rule.repository');
+        $this->indexer = $this->getContainer()->get(RulePayloadIndexer::class);
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->context = Context::createDefaultContext();
     }
 
-    public function testWriteRuleWithObject(): void
+    public function createRule(): string
     {
         $id = Uuid::uuid4()->getHex();
         $andId = Uuid::uuid4()->getHex();
@@ -80,14 +87,34 @@ class ContextRepositoryTest extends TestCase
         ];
 
         $this->repository->create([$data], $this->context);
+        return $id;
+    }
 
-        $rules = $this->repository->read(new ReadCriteria([$id]), $this->context);
-
-        $currencyRule = (new CurrencyRule())->assign(['currencyIds' => ['SWAG-CURRENCY-ID-1', 'SWAG-CURRENCY-ID-2']]);
-
+    public function test_index()
+    {
+        $ruleId = $this->createRule();
+        $this->connection->update('rule',['payload' => null], ['1' => '1']);
+        $rule = $this->repository->read(new ReadCriteria([$ruleId]), $this->context)->get($ruleId);
+        static::assertNull($rule->get('payload'));
+        $this->indexer->index(new \DateTime());
+        $rule = $this->repository->read(new ReadCriteria([$ruleId]), $this->context)->get($ruleId);
+        static::assertNotNull($rule->getPayload());
+        static::assertInstanceOf(Rule::class, $rule->getPayload());
         static::assertEquals(
-            new AndRule([new OrRule([$currencyRule])]),
-            $rules->get($id)->getPayload()
+            new AndRule([new OrRule([(new CurrencyRule())->assign(['currencyIds' => ['SWAG-CURRENCY-ID-1', 'SWAG-CURRENCY-ID-2']])])]),
+            $rule->getPayload()
+        );
+    }
+
+    public function test_refresh()
+    {
+        $ruleId = $this->createRule();
+        $rule = $this->repository->read(new ReadCriteria([$ruleId]), $this->context)->get($ruleId);
+        static::assertNotNull($rule->getPayload());
+        static::assertInstanceOf(Rule::class, $rule->getPayload());
+        static::assertEquals(
+            new AndRule([new OrRule([(new CurrencyRule())->assign(['currencyIds' => ['SWAG-CURRENCY-ID-1', 'SWAG-CURRENCY-ID-2']])])]),
+            $rule->getPayload()
         );
     }
 }

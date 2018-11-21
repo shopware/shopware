@@ -14,14 +14,6 @@ class BillingCountryRule extends Rule
      */
     protected $countryIds;
 
-    /**
-     * @param int[] $countryIds
-     */
-    public function __construct(array $countryIds)
-    {
-        $this->countryIds = $countryIds;
-    }
-
     public function match(RuleScope $scope): Match
     {
         if (!$scope instanceof CheckoutRuleScope) {

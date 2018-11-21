@@ -14,11 +14,6 @@ class BillingStreetRule extends Rule
      */
     protected $streetName;
 
-    public function __construct(string $streetName)
-    {
-        $this->streetName = $streetName;
-    }
-
     public function match(RuleScope $scope): Match
     {
         if (!$scope instanceof CheckoutRuleScope) {

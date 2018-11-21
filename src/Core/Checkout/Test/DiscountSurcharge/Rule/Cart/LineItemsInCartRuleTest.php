@@ -12,7 +12,7 @@ class LineItemsInCartRuleTest extends TestCase
 {
     public function testRuleWithExactLineItemsMatch(): void
     {
-        $rule = new LineItemsInCartRule(['A', 'B']);
+        $rule = (new LineItemsInCartRule())->assign(['identifiers' => ['A', 'B']]);
 
         $cart = Generator::createCart();
         $context = $this->createMock(CheckoutContext::class);
@@ -24,7 +24,7 @@ class LineItemsInCartRuleTest extends TestCase
 
     public function testRuleWithLineItemsNotMatch(): void
     {
-        $rule = new LineItemsInCartRule(['C', 'D']);
+        $rule = (new LineItemsInCartRule())->assign(['identifiers' => ['C', 'D']]);
 
         $cart = Generator::createCart();
         $context = $this->createMock(CheckoutContext::class);
@@ -36,7 +36,7 @@ class LineItemsInCartRuleTest extends TestCase
 
     public function testRuleWithLineItemSubsetMatch(): void
     {
-        $rule = new LineItemsInCartRule(['B']);
+        $rule = (new LineItemsInCartRule())->assign(['identifiers' => ['B']]);
 
         $cart = Generator::createCart();
         $context = $this->createMock(CheckoutContext::class);

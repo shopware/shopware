@@ -354,7 +354,7 @@ class ProductRepositoryTest extends TestCase
                 'price' => ['gross' => 500, 'net' => 400],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
-                'template' => $filterId,
+                'ean' => $filterId,
                 'priceRules' => [
                     [
                         'currencyId' => Defaults::CURRENCY,
@@ -370,7 +370,7 @@ class ProductRepositoryTest extends TestCase
                 'price' => ['gross' => 500, 'net' => 400],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
-                'template' => $filterId,
+                'ean' => $filterId,
                 'priceRules' => [
                     [
                         'currencyId' => Defaults::CURRENCY,
@@ -386,7 +386,7 @@ class ProductRepositoryTest extends TestCase
                 'price' => ['gross' => 500, 'net' => 400],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
-                'template' => $filterId,
+                'ean' => $filterId,
                 'priceRules' => [
                     [
                         'currencyId' => Defaults::CURRENCY,
@@ -402,7 +402,7 @@ class ProductRepositoryTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addSorting(new FieldSorting('product.priceRules.price', FieldSorting::ASCENDING));
-        $criteria->addFilter(new EqualsFilter('product.template', $filterId));
+        $criteria->addFilter(new EqualsFilter('product.ean', $filterId));
 
         $sourceContext = new SourceContext();
         $sourceContext->setSalesChannelId(Defaults::SALES_CHANNEL);
@@ -424,7 +424,7 @@ class ProductRepositoryTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addSorting(new FieldSorting('product.priceRules.price', FieldSorting::DESCENDING));
-        $criteria->addFilter(new EqualsFilter('product.template', $filterId));
+        $criteria->addFilter(new EqualsFilter('product.ean', $filterId));
 
         /** @var IdSearchResult $products */
         $products = $this->repository->searchIds($criteria, $context);
@@ -518,13 +518,13 @@ class ProductRepositoryTest extends TestCase
                 'price' => ['gross' => 10, 'net' => 9],
                 'tax' => ['name' => 'test', 'taxRate' => 10],
                 'manufacturer' => ['name' => 'test'],
-                'template' => $filterId,
+                'ean' => $filterId,
             ],
             [
                 'id' => $id,
                 'name' => 'Update',
                 'price' => ['gross' => 12, 'net' => 10],
-                'template' => $filterId,
+                'ean' => $filterId,
             ],
         ];
 
@@ -539,7 +539,7 @@ class ProductRepositoryTest extends TestCase
         static::assertEquals('Update', $product->getName());
         static::assertEquals(12, $product->getPrice()->getGross());
 
-        $count = $this->connection->fetchColumn('SELECT COUNT(id) FROM product WHERE template = :filterId', ['filterId' => $filterId]);
+        $count = $this->connection->fetchColumn('SELECT COUNT(id) FROM product WHERE ean = :filterId', ['filterId' => $filterId]);
         static::assertEquals(1, $count);
     }
 
@@ -550,8 +550,8 @@ class ProductRepositoryTest extends TestCase
 
         $filterId = Uuid::uuid4()->getHex();
         $data = [
-            ['id' => $id, 'name' => 'Insert', 'price' => ['gross' => 10, 'net' => 9], 'tax' => ['name' => 'test', 'taxRate' => 10], 'manufacturer' => ['name' => 'test'], 'template' => $filterId],
-            ['id' => $child, 'parentId' => $id, 'name' => 'Update', 'price' => ['gross' => 12, 'net' => 11], 'template' => $filterId],
+            ['id' => $id, 'name' => 'Insert', 'price' => ['gross' => 10, 'net' => 9], 'tax' => ['name' => 'test', 'taxRate' => 10], 'manufacturer' => ['name' => 'test'], 'ean' => $filterId],
+            ['id' => $child, 'parentId' => $id, 'name' => 'Update', 'price' => ['gross' => 12, 'net' => 11], 'ean' => $filterId],
         ];
 
         $this->repository->upsert($data, Context::createDefaultContext());
@@ -560,7 +560,7 @@ class ProductRepositoryTest extends TestCase
         static::assertTrue($products->has($id));
         static::assertTrue($products->has($child));
 
-        $raw = $this->connection->fetchAll('SELECT * FROM product WHERE template = :filterId', ['filterId' => $filterId]);
+        $raw = $this->connection->fetchAll('SELECT * FROM product WHERE ean = :filterId', ['filterId' => $filterId]);
         static::assertCount(2, $raw);
 
         $name = $this->connection->fetchColumn('SELECT name FROM product_translation WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($child)]);

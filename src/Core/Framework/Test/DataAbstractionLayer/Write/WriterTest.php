@@ -442,14 +442,14 @@ class WriterTest extends TestCase
         $this->getWriter()->update(
             ProductDefinition::class,
             [
-                ['id' => $this->id, 'template' => 'ABC'],
+                ['id' => $this->id, 'ean' => 'ABC'],
             ],
             $this->createWriteContext()
         );
 
         $product = $this->connection->fetchAssoc('SELECT * FROM product WHERE id=:id', ['id' => $this->idBytes]);
 
-        self::assertSame('ABC', $product['template']);
+        self::assertSame('ABC', $product['ean']);
 
         self::assertNotEquals('0000-00-00 00:00:00', $product['updated_at']);
         self::assertNotEquals('2011-01-01 15:03:01', $product['updated_at']);

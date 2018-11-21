@@ -670,7 +670,10 @@
     "catalog": {
       "messageEmpty": "Noch keine Medien in diesem Katalog",
       "labelSort": "Sortiere nach:",
-      "labelIconSize": "Vorschaugröße:",
+      "labelPresentation": "Darstellung:",
+      "labelPresentationSmall": "Kleine Vorschau",
+      "labelPresentationMedium": "Normale Vorschau",
+      "labelPresentationLarge": "Große Vorschau",
       "labelCatalog": "Ausgewählter Katalog:",
       "labelSize": "Größe:",
       "labelSortByNameAsc": "Name aufsteigend",

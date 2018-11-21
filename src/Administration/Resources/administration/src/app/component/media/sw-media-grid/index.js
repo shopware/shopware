@@ -13,12 +13,12 @@ Component.register('sw-media-grid', {
     ],
 
     props: {
-        gridColumnWidth: {
+        presentation: {
             required: false,
-            type: Number,
-            default: 200,
+            type: String,
+            default: 'medium-preview',
             validator(value) {
-                return value > 0;
+                return ['small-preview', 'medium-preview', 'large-preview'].includes(value);
             }
         }
     },
@@ -28,6 +28,9 @@ Component.register('sw-media-grid', {
             return {
                 'grid-template-columns': `repeat(auto-fit, ${this.gridColumnWidth}px)`
             };
+        },
+        presentationClass() {
+            return `sw-media-grid__presentation-${this.presentation}`;
         }
     },
 

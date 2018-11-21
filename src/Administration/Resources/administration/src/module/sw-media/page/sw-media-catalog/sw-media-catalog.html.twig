@@ -44,6 +44,34 @@
                             {% block sw_media_catalog_content %}
                                 <div class="sw-media-catalog__content">
                                     <div class="sw-media-catalog__options-container">
+
+                                        {% block sw_media_catalog_presentation %}
+                                        <sw-field type="select"
+                                                  name="presentation"
+                                                  :label="$tc('sw-media.catalog.labelPresentation')"
+                                                  v-model="presentation">
+                                            <template slot="options">
+                                                {% block sw_media_catalog_presentation_options_small %}
+                                                    <option value="small-preview">
+                                                        {{ $tc('sw-media.catalog.labelPresentationSmall') }}
+                                                    </option>
+                                                {% endblock %}
+
+                                                {% block sw_media_catalog_presentation_options_medium %}
+                                                    <option value="medium-preview">
+                                                        {{ $tc('sw-media.catalog.labelPresentationMedium') }}
+                                                    </option>
+                                                {% endblock %}
+
+                                                {% block sw_media_catalog_presentation_options_large %}
+                                                    <option value="large-preview">
+                                                        {{ $tc('sw-media.catalog.labelPresentationLarge') }}
+                                                    </option>
+                                                {% endblock %}
+                                            </template>
+                                        </sw-field>
+                                        {% endblock %}
+
                                         {% block sw_media_catalog_single_select_sort %}
                                             <sw-field type="select"
                                                       name="sortType"
@@ -93,35 +121,13 @@
                                                 {% endblock %}
                                             </sw-field>
                                         {% endblock %}
-
-                                        {% block sw_media_catalog_icon_size %}
-                                            <div class="sw-media-catalog__icon-size">
-                                                {% block sw_media_catalog_icon_size_label %}
-                                                    <div class="sw-media-catalog__icon-size-label">
-                                                        {{$tc('sw-media.catalog.labelIconSize')}}
-                                                    </div>
-                                                {% endblock %}
-
-                                                {% block sw_media_catalog_icon_size_slider %}
-                                                    <div class="sw-media-catalog__size-slider-container">
-                                                        <input type="range"
-                                                               step="1"
-                                                               min="100"
-                                                               max="400"
-                                                               class="sw-media-catalog__icon-size-slider"
-                                                               id="iconSizeSliderValue"
-                                                               v-model.number="catalogIconSize">
-                                                    </div>
-                                                {% endblock %}
-                                            </div>
-                                        {% endblock %}
                                     </div>
 
                                     {% block sw_media_catalog_media_grid %}
                                         <sw-media-grid
                                             class="sw-media-catalog__media-grid"
                                             dragSelectorClass="sw-media-grid-media-item"
-                                            :gridColumnWidth="catalogIconSize"
+                                            :presentation="presentation"
                                             @sw-media-grid-selection-clear="clearSelection">
 
                                             <sw-media-grid-media-item

@@ -17,7 +17,8 @@ Component.register('sw-media-catalog', {
             catalogs: [],
             mediaItems: [],
             sortType: ['createdAt', 'dsc'],
-            catalogIconSize: 200
+            catalogIconSize: 200,
+            presentation: 'medium-preview'
         };
     },
 

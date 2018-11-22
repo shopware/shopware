@@ -93,12 +93,27 @@ Component.register('sw-media-grid-media-item', {
         this.componentMounted();
     },
 
+    updated() {
+        this.componentUpdated();
+    },
+
     methods: {
         componentMounted() {
+            this.computeLastContent();
+        },
+
+        componentUpdated() {
+            this.computeLastContent();
+        },
+
+        computeLastContent() {
             const el = this.$refs.itemName;
             if (el.offsetWidth < el.scrollWidth) {
                 this.lastContent = `${this.item.fileName.slice(-3)}.${this.item.fileExtension}`;
+                return;
             }
+
+            this.lastContent = '';
         },
 
         handleGridItemClick({ originalDomEvent }) {

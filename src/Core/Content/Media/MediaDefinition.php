@@ -51,7 +51,7 @@ class MediaDefinition extends EntityDefinition
             (new LongTextField('file_name', 'fileName'))->setFlags(new WriteProtected(MediaProtectionFlags::WRITE_META_INFO), new SearchRanking(self::HIGH_SEARCH_RANKING)),
             (new IntField('file_size', 'fileSize'))->setFlags(new WriteProtected(MediaProtectionFlags::WRITE_META_INFO)),
             (new ObjectField('meta_data', 'metaData'))->setFlags(new WriteProtected(MediaProtectionFlags::WRITE_META_INFO)),
-            (new ObjectField('type', 'type'))->setFlags(new WriteProtected(MediaProtectionFlags::WRITE_META_INFO)),
+            (new ObjectField('media_type', 'mediaType'))->setFlags(new WriteProtected(MediaProtectionFlags::WRITE_META_INFO)),
             new CreatedAtField(),
             new UpdatedAtField(),
             (new TranslatedField('description'))->setFlags(new SearchRanking(self::MIDDLE_SEARCH_RANKING)),

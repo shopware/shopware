@@ -213,7 +213,7 @@ class ThumbnailServiceTest extends TestCase
     {
         $this->setFixtureContext($this->context);
         $media = $this->getPng();
-        $media->setType(new DocumentType());
+        $media->setMediaType(new DocumentType());
 
         $this->expectException(FileTypeNotSupportedException::class);
 
@@ -227,7 +227,7 @@ class ThumbnailServiceTest extends TestCase
     {
         $this->setFixtureContext($this->context);
         $media = $this->getPng();
-        $media->getType()->addFlag(ImageType::VECTOR_GRAPHIC);
+        $media->getMediaType()->addFlag(ImageType::VECTOR_GRAPHIC);
 
         $this->expectException(FileTypeNotSupportedException::class);
 
@@ -241,7 +241,7 @@ class ThumbnailServiceTest extends TestCase
     {
         $this->setFixtureContext($this->context);
         $media = $this->getPng();
-        $media->getType()->addFlag(ImageType::ANIMATED);
+        $media->getMediaType()->addFlag(ImageType::ANIMATED);
 
         $this->expectException(FileTypeNotSupportedException::class);
 

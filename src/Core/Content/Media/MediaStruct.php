@@ -48,7 +48,7 @@ class MediaStruct extends Entity
     /**
      * @var MediaType|null
      */
-    protected $type;
+    protected $mediaType;
 
     /**
      * @var DateTime|null
@@ -179,14 +179,14 @@ class MediaStruct extends Entity
         $this->metaData = $metaData;
     }
 
-    public function getType(): ?MediaType
+    public function getMediaType(): ?MediaType
     {
-        return $this->type;
+        return $this->mediaType;
     }
 
-    public function setType(?MediaType $type): void
+    public function setMediaType(?MediaType $mediaType): void
     {
-        $this->type = $type;
+        $this->mediaType = $mediaType;
     }
 
     public function getCreatedAt(): ?DateTime

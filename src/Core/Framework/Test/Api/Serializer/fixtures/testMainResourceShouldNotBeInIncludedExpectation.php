@@ -63,7 +63,7 @@ return [
                 'url' => '',
                 'hasFile' => false,
                 'fileName' => null,
-                'type' => null,
+                'mediaType' => null,
             ],
             'relationships' => [
                 'user' => [

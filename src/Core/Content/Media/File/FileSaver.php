@@ -277,7 +277,7 @@ class FileSaver
             'fileSize' => $mediaFile->getFileSize(),
             'fileName' => $this->prefixedDestination($destination),
             'metaData' => $metadata,
-            'type' => $mediaType,
+            'mediaType' => $mediaType,
         ];
 
         $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);

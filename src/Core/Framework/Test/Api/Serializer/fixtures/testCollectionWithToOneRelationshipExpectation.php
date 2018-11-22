@@ -18,7 +18,7 @@ return [
                 'url' => '',
                 'hasFile' => false,
                 'fileName' => null,
-                'type' => null,
+                'mediaType' => null,
             ],
             'links' => [
                 'self' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870',
@@ -75,7 +75,7 @@ return [
                 'url' => '',
                 'hasFile' => false,
                 'fileName' => null,
-                'type' => null,
+                'mediaType' => null,
             ],
             'relationships' => [
                 'user' => [

@@ -63,7 +63,7 @@ class GenerateMediaTypesCommandTest extends TestCase
         $mediaResult = $this->mediaRepository->search($searchCriteria, $this->context);
         /** @var MediaStruct $updatedMedia */
         foreach ($mediaResult->getEntities() as $updatedMedia) {
-            static::assertInstanceOf(MediaType::class, $updatedMedia->getType());
+            static::assertInstanceOf(MediaType::class, $updatedMedia->getMediaType());
         }
     }
 
@@ -81,7 +81,7 @@ class GenerateMediaTypesCommandTest extends TestCase
         $mediaResult = $this->mediaRepository->search($searchCriteria, $this->context);
         /** @var MediaStruct $updatedMedia */
         foreach ($mediaResult->getEntities() as $updatedMedia) {
-            static::assertNull($updatedMedia->getType());
+            static::assertNull($updatedMedia->getMediaType());
         }
     }
 

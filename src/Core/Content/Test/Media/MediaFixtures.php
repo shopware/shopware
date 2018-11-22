@@ -38,7 +38,7 @@ trait MediaFixtures
                 'id' => Uuid::uuid4()->getHex(),
                 'mimeType' => 'image/png',
                 'fileSize' => 1024,
-                'type' => new ImageType(),
+                'mediaType' => new ImageType(),
             ],
             'NamedMimePngEtxPng' => [
                 'id' => Uuid::uuid4()->getHex(),
@@ -46,7 +46,7 @@ trait MediaFixtures
                 'fileExtension' => 'png',
                 'fileName' => 'pngFileWithExtension',
                 'fileSize' => 1024,
-                'type' => new ImageType(),
+                'mediaType' => new ImageType(),
             ],
 
             'NamedMimeTxtEtxTxt' => [
@@ -55,7 +55,7 @@ trait MediaFixtures
                 'fileExtension' => 'txt',
                 'fileName' => 'textFileWithExtension',
                 'fileSize' => 1024,
-                'type' => new BinaryType(),
+                'mediaType' => new BinaryType(),
             ],
             'NamedMimeJpgEtxJpg' => [
                 'id' => Uuid::uuid4()->getHex(),
@@ -63,7 +63,7 @@ trait MediaFixtures
                 'fileExtension' => 'jpg',
                 'fileName' => 'jpgFileWithExtensionAndCatalog',
                 'fileSize' => 1024,
-                'type' => new ImageType(),
+                'mediaType' => new ImageType(),
             ],
             'NamedMimePdfEtxPdf' => [
                 'id' => Uuid::uuid4()->getHex(),
@@ -71,7 +71,7 @@ trait MediaFixtures
                 'fileExtension' => 'pdf',
                 'fileName' => 'pdfFileWithExtensionAndCatalog',
                 'fileSize' => 1024,
-                'type' => new DocumentType(),
+                'mediaType' => new DocumentType(),
             ],
             'NamedWithThumbnail' => [
                 'id' => Uuid::uuid4()->getHex(),

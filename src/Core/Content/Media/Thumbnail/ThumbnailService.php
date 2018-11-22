@@ -89,7 +89,7 @@ class ThumbnailService
                 $thumbnailSize = $this->calculateThumbnailSize($originalImageSize, $size);
                 $thumbnail = $this->createNewImage(
                     $mediaImage,
-                    $media->getType(),
+                    $media->getMediaType(),
                     $originalImageSize,
                     $thumbnailSize
                 );
@@ -266,9 +266,9 @@ class ThumbnailService
 
     private function thumbnailsAreGeneratable(MediaStruct $media): bool
     {
-        if ($media->getType() instanceof ImageType &&
-            !$media->getType()->is(ImageType::VECTOR_GRAPHIC) &&
-            !$media->getType()->is(ImageType::ANIMATED)
+        if ($media->getMediaType() instanceof ImageType &&
+            !$media->getMediaType()->is(ImageType::VECTOR_GRAPHIC) &&
+            !$media->getMediaType()->is(ImageType::ANIMATED)
         ) {
             return true;
         }

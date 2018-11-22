@@ -15,7 +15,7 @@ class ShippingZipCodeRuleTest extends TestCase
 {
     public function testEqualsWithSingleCode(): void
     {
-        $rule = new ShippingZipCodeRule(['ABC123']);
+        $rule = (new ShippingZipCodeRule())->assign(['zipCodes' => ['ABC123']]);
         $address = $this->createAddress('ABC123');
 
         $cart = $this->createMock(Cart::class);
@@ -35,7 +35,7 @@ class ShippingZipCodeRuleTest extends TestCase
 
     public function testEqualsWithMultipleCodes(): void
     {
-        $rule = new ShippingZipCodeRule(['ABC1', 'ABC2', 'ABC3']);
+        $rule = (new ShippingZipCodeRule())->assign(['zipCodes' => ['ABC1', 'ABC2', 'ABC3']]);
         $address = $this->createAddress('ABC2');
 
         $cart = $this->createMock(Cart::class);
@@ -55,7 +55,7 @@ class ShippingZipCodeRuleTest extends TestCase
 
     public function testNotMatchWithSingleCode(): void
     {
-        $rule = new ShippingZipCodeRule(['ABC1', 'ABC2', 'ABC3']);
+        $rule = (new ShippingZipCodeRule())->assign(['zipCodes' => ['ABC1', 'ABC2', 'ABC3']]);
         $address = $this->createAddress('ABC4');
 
         $cart = $this->createMock(Cart::class);
@@ -75,7 +75,7 @@ class ShippingZipCodeRuleTest extends TestCase
 
     public function testWithoutShippingAddress(): void
     {
-        $rule = new ShippingZipCodeRule(['ABC1', 'ABC2', 'ABC3']);
+        $rule = (new ShippingZipCodeRule())->assign(['zipCodes' => ['ABC1', 'ABC2', 'ABC3']]);
 
         $cart = $this->createMock(Cart::class);
 

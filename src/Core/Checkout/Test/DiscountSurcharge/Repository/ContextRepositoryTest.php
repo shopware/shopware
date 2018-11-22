@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\OrRule;
+use Shopware\Core\Framework\Rule\CurrencyRule;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -43,20 +44,49 @@ class ContextRepositoryTest extends TestCase
     public function testWriteRuleWithObject(): void
     {
         $id = Uuid::uuid4()->getHex();
+        $andId = Uuid::uuid4()->getHex();
+        $orId = Uuid::uuid4()->getHex();
 
         $data = [
             'id' => $id,
             'name' => 'test rule',
             'priority' => 1,
-            'payload' => new AndRule([new OrRule()]),
+            'conditions' => [
+                [
+                    'id' => $andId,
+                    'type' => AndRule::class,
+                    'children' => [
+                        [
+                            'id' => $orId,
+                            'parentId' => $andId,
+                            'type' => OrRule::class,
+                            'children' => [
+                                [
+                                    'id' => Uuid::uuid4()->getHex(),
+                                    'parentId' => $orId,
+                                    'type' => CurrencyRule::class,
+                                    'value' => [
+                                        'currencyIds' => [
+                                            'SWAG-CURRENCY-ID-1',
+                                            'SWAG-CURRENCY-ID-2',
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ],
+                    ],
+                ],
+            ],
         ];
 
         $this->repository->create([$data], $this->context);
 
         $rules = $this->repository->read(new ReadCriteria([$id]), $this->context);
 
+        $currencyRule = (new CurrencyRule())->assign(['currencyIds' => ['SWAG-CURRENCY-ID-1', 'SWAG-CURRENCY-ID-2']]);
+
         static::assertEquals(
-            new AndRule([new OrRule()]),
+            new AndRule([new OrRule([$currencyRule])]),
             $rules->get($id)->getPayload()
         );
     }

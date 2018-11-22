@@ -14,14 +14,6 @@ class LineItemsInCartRule extends Rule
      */
     protected $identifiers;
 
-    /**
-     * @param string[] $identifiers
-     */
-    public function __construct(array $identifiers)
-    {
-        $this->identifiers = $identifiers;
-    }
-
     public function match(
         RuleScope $scope
     ): Match {

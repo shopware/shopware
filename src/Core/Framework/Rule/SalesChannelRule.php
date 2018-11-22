@@ -16,12 +16,6 @@ class SalesChannelRule extends Rule
      */
     protected $operator;
 
-    public function __construct(array $salesChannelIds, string $operator)
-    {
-        $this->salesChannelIds = $salesChannelIds;
-        $this->operator = $operator;
-    }
-
     public function match(RuleScope $scope): Match
     {
         $context = $scope->getContext();

@@ -159,7 +159,7 @@ class CalculatorTest extends TestCase
                 new PercentagePriceDefinition(
                     -10,
                     new AndRule([
-                    new LineItemOfTypeRule('product'), ])
+                        (new LineItemOfTypeRule())->assign(['lineItemType' => 'product']), ])
                 )
             );
 
@@ -193,7 +193,7 @@ class CalculatorTest extends TestCase
         $lineItem->setPriceDefinition(
             new AbsolutePriceDefinition(
                 -10,
-                new AndRule([new LineItemOfTypeRule('product')])
+                new AndRule([(new LineItemOfTypeRule())->assign(['lineItemType' => 'product'])])
             )
         );
         $cart->add($lineItem);

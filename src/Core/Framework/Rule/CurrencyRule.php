@@ -9,14 +9,6 @@ class CurrencyRule extends Rule
      */
     protected $currencyIds;
 
-    /**
-     * @param string[] $currencyIds
-     */
-    public function __construct(array $currencyIds)
-    {
-        $this->currencyIds = $currencyIds;
-    }
-
     public function match(RuleScope $scope): Match
     {
         return new Match(

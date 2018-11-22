@@ -259,7 +259,7 @@ class DiscountSurchargeTest extends TestCase
             $ruleId,
             DiscountSurchargeCollector::ABSOLUTE_MODIFIER,
             -2,
-            new LineItemRule(['A'])
+            (new LineItemRule())->assign(['identifiers' => ['A']])
         );
 
         $cart = new Cart('test', 'test');
@@ -305,7 +305,7 @@ class DiscountSurchargeTest extends TestCase
             $ruleId,
             DiscountSurchargeCollector::PERCENTAL_MODIFIER,
             -10,
-            new LineItemRule(['B'])
+            (new LineItemRule())->assign(['identifiers' => ['B']])
         );
 
         $cart = new Cart('test', 'test');
@@ -351,21 +351,21 @@ class DiscountSurchargeTest extends TestCase
             $ruleId,
             DiscountSurchargeCollector::PERCENTAL_MODIFIER,
             -10,
-            new LineItemOfTypeRule('product')
+            (new LineItemOfTypeRule())->assign(['lineItemType' =>'product'])
         );
 
         $id2 = $this->createDiscountSurcharge(
             $ruleId,
             DiscountSurchargeCollector::PERCENTAL_MODIFIER,
             10,
-            new LineItemOfTypeRule('product')
+            (new LineItemOfTypeRule())->assign(['lineItemType' =>'product'])
         );
 
         $id3 = $this->createDiscountSurcharge(
             $ruleId,
             DiscountSurchargeCollector::ABSOLUTE_MODIFIER,
             2,
-            new LineItemOfTypeRule('product')
+            (new LineItemOfTypeRule())->assign(['lineItemType' =>'product'])
         );
 
         $cart = new Cart('test', 'test');

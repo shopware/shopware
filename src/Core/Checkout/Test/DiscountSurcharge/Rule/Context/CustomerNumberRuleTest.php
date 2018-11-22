@@ -13,7 +13,7 @@ class CustomerNumberRuleTest extends TestCase
 {
     public function testExactMatch(): void
     {
-        $rule = new CustomerNumberRule(['NO. 1']);
+        $rule = (new CustomerNumberRule())->assign(['numbers' => ['NO. 1']]);
 
         $cart = $this->createMock(Cart::class);
 
@@ -33,7 +33,7 @@ class CustomerNumberRuleTest extends TestCase
 
     public function testMultipleNumbers(): void
     {
-        $rule = new CustomerNumberRule(['NO. 1', 'NO. 2', 'NO. 3']);
+        $rule = (new CustomerNumberRule())->assign(['numbers' =>['NO. 1', 'NO. 2', 'NO. 3']]);
 
         $cart = $this->createMock(Cart::class);
 
@@ -53,7 +53,7 @@ class CustomerNumberRuleTest extends TestCase
 
     public function testCaseInsensitive(): void
     {
-        $rule = new CustomerNumberRule(['NO. 1']);
+        $rule = (new CustomerNumberRule())->assign(['numbers' =>['NO. 1']]);
 
         $cart = $this->createMock(Cart::class);
 
@@ -73,7 +73,7 @@ class CustomerNumberRuleTest extends TestCase
 
     public function testWithoutCustomer(): void
     {
-        $rule = new CustomerNumberRule(['NO. 1']);
+        $rule = (new CustomerNumberRule())->assign(['numbers' =>['NO. 1']]);
 
         $cart = $this->createMock(Cart::class);
 
@@ -90,7 +90,7 @@ class CustomerNumberRuleTest extends TestCase
 
     public function testNotMatch(): void
     {
-        $rule = new CustomerNumberRule(['NO. 1']);
+        $rule = (new CustomerNumberRule())->assign(['numbers' =>['NO. 1']]);
 
         $cart = $this->createMock(Cart::class);
 

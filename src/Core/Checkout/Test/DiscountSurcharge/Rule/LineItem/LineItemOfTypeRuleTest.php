@@ -13,7 +13,7 @@ class LineItemOfTypeRuleTest extends TestCase
 {
     public function testRuleWithProductTypeMatch(): void
     {
-        $rule = new LineItemOfTypeRule(ProductCollector::LINE_ITEM_TYPE);
+        $rule = (new LineItemOfTypeRule())->assign(['lineItemType' => ProductCollector::LINE_ITEM_TYPE]);
 
         $context = $this->createMock(CheckoutContext::class);
 
@@ -24,7 +24,7 @@ class LineItemOfTypeRuleTest extends TestCase
 
     public function testRuleWithProductTypeNotMatch(): void
     {
-        $rule = new LineItemOfTypeRule('voucher');
+        $rule = (new LineItemOfTypeRule())->assign(['lineItemType' => 'voucher']);
 
         $context = $this->createMock(CheckoutContext::class);
 

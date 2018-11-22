@@ -14,7 +14,7 @@ class BillingStreetRuleTest extends TestCase
 {
     public function testWithExactMatch(): void
     {
-        $rule = new BillingStreetRule('example street');
+        $rule = (new BillingStreetRule())->assign(['streetName' => 'example street']);
 
         $cart = $this->createMock(Cart::class);
 
@@ -37,7 +37,7 @@ class BillingStreetRuleTest extends TestCase
 
     public function testCaseInsensitive(): void
     {
-        $rule = new BillingStreetRule('ExaMple StreEt');
+        $rule = (new BillingStreetRule())->assign(['streetName' => 'ExaMple StreEt']);
 
         $cart = $this->createMock(Cart::class);
 
@@ -60,7 +60,7 @@ class BillingStreetRuleTest extends TestCase
 
     public function testNotMatch(): void
     {
-        $rule = new BillingStreetRule('example street');
+        $rule = (new BillingStreetRule())->assign(['streetName' => 'example street']);
 
         $cart = $this->createMock(Cart::class);
 
@@ -83,7 +83,7 @@ class BillingStreetRuleTest extends TestCase
 
     public function testWithoutAddress(): void
     {
-        $rule = new BillingStreetRule('ExaMple StreEt');
+        $rule = (new BillingStreetRule())->assign(['streetName' => '.ExaMple StreEt']);
 
         $cart = $this->createMock(Cart::class);
 

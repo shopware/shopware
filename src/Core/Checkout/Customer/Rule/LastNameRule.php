@@ -14,11 +14,6 @@ class LastNameRule extends Rule
      */
     protected $lastName;
 
-    public function __construct(string $lastName)
-    {
-        $this->lastName = strtolower($lastName);
-    }
-
     public function match(RuleScope $scope): Match
     {
         if (!$scope instanceof CheckoutRuleScope) {

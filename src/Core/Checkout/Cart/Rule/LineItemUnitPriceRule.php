@@ -19,12 +19,6 @@ class LineItemUnitPriceRule extends Rule
      */
     protected $operator;
 
-    public function __construct(float $amount, string $operator = self::OPERATOR_EQ)
-    {
-        $this->amount = $amount;
-        $this->operator = $operator;
-    }
-
     /**
      * @throws UnsupportedOperatorException
      */

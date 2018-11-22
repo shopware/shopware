@@ -20,12 +20,6 @@ class ShippingCountryRule extends Rule
      */
     protected $operator;
 
-    public function __construct(array $countryIds, string $operator)
-    {
-        $this->countryIds = $countryIds;
-        $this->operator = $operator;
-    }
-
     /**
      * @throws UnsupportedOperatorException
      */

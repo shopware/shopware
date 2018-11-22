@@ -21,18 +21,6 @@ class DateRangeRule extends Rule
      */
     protected $useTime;
 
-    /**
-     * @param DateTime|null $fromDate
-     * @param DateTime|null $toDate
-     * @param bool          $useTime
-     */
-    public function __construct(?DateTime $fromDate, ?DateTime $toDate, $useTime = false)
-    {
-        $this->fromDate = $fromDate;
-        $this->toDate = $toDate;
-        $this->useTime = $useTime;
-    }
-
     public function match(RuleScope $scope): Match
     {
         $now = new DateTime();

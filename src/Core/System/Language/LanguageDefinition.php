@@ -12,6 +12,7 @@ use Shopware\Core\Content\Catalog\Aggregate\CatalogTranslation\CatalogTranslatio
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOptionTranslation\ConfigurationGroupOptionTranslationDefinition;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\ConfigurationGroupTranslationDefinition;
+use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -77,6 +78,7 @@ class LanguageDefinition extends EntityDefinition
             (new TranslationsAssociationField(ListingFacetTranslationDefinition::class, 'listingFacetTranslations'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField(ListingSortingTranslationDefinition::class, 'listingSortingTranslations'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField(LocaleTranslationDefinition::class, 'localeTranslations'))->setFlags(new CascadeDelete()),
+            (new TranslationsAssociationField(MediaTranslationDefinition::class, 'mediaTranslations'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField(OrderStateTranslationDefinition::class, 'orderStateTranslations'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField(OrderTransactionStateTranslationDefinition::class, 'orderTransactionStateTranslations'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField(PaymentMethodTranslationDefinition::class, 'paymentMethodTranslations'))->setFlags(new CascadeDelete()),

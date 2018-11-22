@@ -12,6 +12,7 @@ use Shopware\Core\Content\Catalog\Aggregate\CatalogTranslation\CatalogTranslatio
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationCollection;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOptionTranslation\ConfigurationGroupOptionTranslationCollection;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\ConfigurationGroupTranslationCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -125,6 +126,11 @@ class LanguageStruct extends Entity
      * @var LocaleTranslationCollection|null
      */
     protected $localeTranslations;
+
+    /**
+     * @var MediaTranslationCollection|null
+     */
+    protected $mediaTranslations;
 
     /**
      * @var OrderStateTranslationCollection|null
@@ -364,6 +370,16 @@ class LanguageStruct extends Entity
     public function setLocaleTranslations(LocaleTranslationCollection $localeTranslations): void
     {
         $this->localeTranslations = $localeTranslations;
+    }
+
+    public function getMediaTranslations(): ?MediaTranslationCollection
+    {
+        return $this->mediaTranslations;
+    }
+
+    public function setMediaTranslations(MediaTranslationCollection $mediaTranslations): void
+    {
+        $this->mediaTranslations = $mediaTranslations;
     }
 
     public function getOrderStateTranslations(): ?OrderStateTranslationCollection

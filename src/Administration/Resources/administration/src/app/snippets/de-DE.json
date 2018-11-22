@@ -80,9 +80,14 @@
     },
     "sw-media-upload-button": {
       "buttonFileUpload": "Dateien hochladen",
-      "buttonUrlUpload": "Über URL hochladen"
+      "buttonUrlUpload": "Über URL hochladen",
+      "buttonSwitchToFileUpload": "+ Datei von deinem Computer hochladen",
+      "buttonSwitchToUrlUpload": "+ Datei von Url hochladen",
+      "buttonOpenMedia": "Medien öffnen",
+      "notificationSuccess": "Datei erfolgreich gespeichert",
+      "notificationFailure": "Fehler beim Hochladen"
     },
-    "sw-media-upload-url-modal": {
+    "sw-media-url-form": {
       "title": "Datei über URL hochladen",
       "upload": "Hochladen",
       "cancel": "Abbrechen",
@@ -622,11 +627,6 @@
     },
     "smart-bar": {
       "smartBarHeader": "Medien"
-    },
-    "upload": {
-      "notificationSuccess": "Datei erfolgreich gespeichert",
-      "notificationFailure": "Fehler beim Hochladen von {mediaName}",
-      "notificationInfo": "Lade eine Datei hoch | Lade {count} Dateien hoch"
     },
     "index": {
       "headingCatalogs": "Kataloge",

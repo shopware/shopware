@@ -80,9 +80,14 @@
     },
     "sw-media-upload-button": {
       "buttonFileUpload": "Upload file",
-      "buttonUrlUpload": "Upload file from URL"
+      "buttonUrlUpload": "Upload file from URL",
+      "buttonSwitchToFileUpload": "+ Upload file from your computer",
+      "buttonSwitchToUrlUpload": "+ Upload file from url",
+      "buttonOpenMedia": "Open media",
+      "notificationSuccess": "File successfully saved",
+      "notificationFailure": "Error uploading"
     },
-    "sw-media-upload-url-modal": {
+    "sw-media-url-form": {
       "title": "Upload file from URL",
       "upload": "Upload",
       "cancel": "Cancel",
@@ -620,11 +625,6 @@
     },
     "smart-bar": {
       "smartBarHeader": "Media"
-    },
-    "upload": {
-      "notificationSuccess": "File saved",
-      "notificationFailure": "Error uploading {mediaName}",
-      "notificationInfo": "Uploading single file | Uploading {count} files"
     },
     "index": {
       "headingCatalogs": "Catalogues",

@@ -1,5 +1,5 @@
 import { Component, Mixin, State } from 'src/core/shopware';
-import util from 'src/core/service/util.service';
+import util, { fileReader } from 'src/core/service/util.service';
 import template from './sw-media-upload-button.html.twig';
 import './sw-media-upload-button.less';
 
@@ -50,7 +50,9 @@ Component.register('sw-media-upload-button', {
 
     data() {
         return {
-            showUrlModal: false
+            multiSelect: this.allowMultiSelect,
+            showUrlInput: false,
+            previewMediaEntity: null
         };
     },
 
@@ -61,6 +63,24 @@ Component.register('sw-media-upload-button', {
 
         uploadStore() {
             return State.getStore('upload');
+        },
+
+        showPreview() {
+            return !(this.autoUpload || this.multiSelect);
+        },
+
+        hasPreviewFile() {
+            return this.previewMediaEntity !== null;
+        },
+
+        toggleButtonCaption() {
+            return this.showUrlInput ?
+                this.$tc('global.sw-media-upload-button.buttonSwitchToFileUpload') :
+                this.$tc('global.sw-media-upload-button.buttonSwitchToUrlUpload');
+        },
+
+        isMediaSidebarAvailable() {
+            return Object.keys(this.$listeners).includes('sw-media-upload-button-open-sidebar');
         }
     },
 
@@ -69,60 +89,52 @@ Component.register('sw-media-upload-button', {
     },
 
     methods: {
-
         onBeforeDestroy() {
             this.uploadStore.removeByTag(this.uploadTag);
         },
 
+        /*
+         * Click handler
+         */
         onClickUpload() {
             this.$refs.fileInput.click();
         },
 
         openUrlModal() {
-            this.showUrlModal = true;
+            this.showUrlInput = true;
         },
 
         closeUrlModal() {
-            this.showUrlModal = false;
+            this.showUrlInput = false;
         },
 
+        toggleShowUrlFields() {
+            this.showUrlInput = !this.showUrlInput;
+        },
+
+        onClickOpenMediaSidebar() {
+            this.$emit('sw-media-upload-button-open-sidebar');
+        },
+
+        /*
+         * entry points
+         */
         onUrlUpload({ url, fileExtension }) {
-            this.createMediaEntityFromUrl(url, fileExtension);
-        },
-
-        onFileInputChange() {
-            const newMediaFiles = Array.from(this.$refs.fileInput.files);
-            const uploadTag = this.uploadTag;
-
-            newMediaFiles.forEach((file) => {
-                this.addMediaEntityFromFile(file, uploadTag);
-            });
-
-            if (this.autoUpload) {
-                this.uploadStore.runUploads(uploadTag).then(() => {
-                    this.$emit('new-media-entity');
-                });
+            if (!this.multiSelect) {
+                this.uploadStore.removeByTag(this.uploadTag);
+                this.createPreviewFromUrl(url);
             }
-            this.$refs.fileForm.reset();
-        },
 
-        addMediaEntityFromFile(file) {
-            const mediaEntity = this.mediaItemStore.create();
-            mediaEntity.fileName = file.name;
-
-
-            const upload = this.uploadStore.addUpload(this.uploadTag, this.buildUpload(file, mediaEntity));
-
-            this.$emit('new-upload', { upload, uploadTag: this.uploadTag, mediaEntity, src: file });
-        },
-
-        createMediaEntityFromUrl(url, fileExtension) {
-            const mediaEntity = this.mediaItemStore.create();
-            mediaEntity.fileName = url.href.split('/').pop();
-
-            const upload = this.uploadStore.addUpload(this.uploadTag, this.buildUpload(url, mediaEntity, fileExtension));
-
-            this.$emit('new-upload', { upload, uploadTag: this.uploadTag, mediaEntity, src: url });
+            const mediaEntity = this.getMediaEntityForUpload();
+            this.uploadStore.addUpload(
+                this.uploadTag,
+                this.buildUrlUpload(
+                    url,
+                    fileExtension,
+                    mediaEntity
+                )
+            );
+            this.$emit('new-upload', { uploadTag: this.uploadTag, mediaEntity, src: url });
 
             if (this.autoUpload) {
                 this.uploadStore.runUploads(this.uploadTag).then(() => {
@@ -132,29 +144,82 @@ Component.register('sw-media-upload-button', {
             this.closeUrlModal();
         },
 
-        buildUpload(source, mediaEntity, fileExtension = '') {
-            let uploadFn = null;
+        onFileInputChange() {
+            let newMediaFiles = Array.from(this.$refs.fileInput.files);
+            if (!this.multiSelect) {
+                this.uploadStore.removeByTag(this.uploadTag);
 
-            if (source instanceof URL) {
-                uploadFn = (media) => { return this.mediaUploadService.uploadUrlToMedia(source, media, fileExtension); };
-            } else if (source instanceof File) {
-                uploadFn = (media) => { return this.mediaUploadService.uploadFileToMedia(source, media); };
-            } else {
-                throw new Error('Media source must be a URL object or a File object');
+                const fileToUpload = newMediaFiles.pop();
+                this.createPreviewFromFile(fileToUpload);
+                newMediaFiles = [fileToUpload];
             }
 
-            const successMessage = this.$tc('sw-media.upload.notificationSuccess');
-            const failureMessage = this.$tc('sw-media.upload.notificationFailure', 0, { mediaName: mediaEntity.fileName });
+            newMediaFiles.forEach((file) => {
+                const mediaEntity = this.getMediaEntityForUpload();
+                this.uploadStore.addUpload(this.uploadTag, this.buildFileUpload(file, mediaEntity));
+                this.$emit('new-upload', { uploadTag: this.uploadTag, mediaEntity, src: file });
+            });
+
+            if (this.autoUpload) {
+                this.uploadStore.runUploads(this.uploadTag).then(() => {
+                    this.$emit('new-media-entity');
+                });
+            }
+            this.$refs.fileForm.reset();
+        },
+
+        /*
+         * Helper functions
+         */
+        getMediaEntityForUpload() {
+            return this.mediaItemStore.create();
+        },
+
+        buildFileUpload(file, mediaEntity) {
+            const successMessage = this.$tc('global.sw-media-upload-button.notificationSuccess');
+            const failureMessage = this.$tc('global.sw-media-upload-button.notificationFailure');
 
             return () => {
                 this.synchronizeMediaEntity(mediaEntity).then(() => {
                     this.$emit('new-upload-started', mediaEntity);
-                    return uploadFn(mediaEntity);
+                    return this.mediaUploadService.uploadFileToMedia(file, mediaEntity);
                 }).then(() => {
                     this.notifyMediaUpload(mediaEntity, successMessage);
                 }).catch(() => {
                     return this.cleanUpFailure(mediaEntity, failureMessage);
                 });
+            };
+        },
+
+        buildUrlUpload(url, fileExtension, mediaEntity) {
+            const successMessage = this.$tc('global.sw-media-upload-button.notificationSuccess');
+            const failureMessage = this.$tc('global.sw-media-upload-button.notificationFailure');
+
+            return () => {
+                this.synchronizeMediaEntity(mediaEntity).then(() => {
+                    this.$emit('new-upload-started', mediaEntity);
+                    return this.mediaUploadService.uploadUrlToMedia(url, mediaEntity, fileExtension);
+                }).then(() => {
+                    this.notifyMediaUpload(mediaEntity, successMessage);
+                }).catch(() => {
+                    return this.cleanUpFailure(mediaEntity, failureMessage);
+                });
+            };
+        },
+
+        createPreviewFromFile(file) {
+            fileReader.readAsDataURL(file).then((dataUrl) => {
+                this.previewMediaEntity = {
+                    dataUrl,
+                    mimeType: file.type
+                };
+            });
+        },
+
+        createPreviewFromUrl(url) {
+            this.previewMediaEntity = {
+                url: url.href,
+                mimeTyp: 'image/*'
             };
         },
 
@@ -165,8 +230,8 @@ Component.register('sw-media-upload-button', {
         },
 
         notifyMediaUpload(mediaEntity, message) {
-            this.createNotificationSuccess({ message });
             this.mediaItemStore.getByIdAsync(mediaEntity.id).then((media) => {
+                this.createNotificationSuccess({ message });
                 this.$emit('media-upload-success', media);
             });
         },

@@ -24,7 +24,6 @@ Component.register('sw-product-media-form', {
     data() {
         return {
             columnCount: 7,
-            uploads: [],
             previews: [],
             columnWidth: 90,
             unsavedEntities: []
@@ -52,10 +51,6 @@ Component.register('sw-product-media-form', {
 
         mediaStore() {
             return State.getStore('media');
-        },
-
-        uploadStore() {
-            return State.getStore('upload');
         },
 
         gridAutoRows() {
@@ -122,7 +117,7 @@ Component.register('sw-product-media-form', {
             };
         },
 
-        handleNewUpload({ mediaEntity, src }) {
+        onNewUpload({ mediaEntity, src }) {
             const productMedia = this.buildProductMedia(mediaEntity);
 
             this.unsavedEntities.push(productMedia);
@@ -130,10 +125,18 @@ Component.register('sw-product-media-form', {
 
             this.product.media.push(productMedia);
             if (src instanceof File) {
+                if (mediaEntity.isLocal) {
+                    mediaEntity.fileName = src.name;
+                }
+
                 fileReader.readAsDataURL(src).then((dataURL) => {
                     this.addImageToPreview(dataURL, productMedia);
                 });
             } else if (src instanceof URL) {
+                if (mediaEntity.isLocal) {
+                    mediaEntity.fileName = src.pathname.split('/').pop();
+                }
+
                 this.previews[productMedia.mediaId] = src.href;
                 productMedia.isLoading = false;
             }
@@ -155,7 +158,6 @@ Component.register('sw-product-media-form', {
             productMedia.mediaId = mediaEntity.id;
 
             delete mediaEntity.user;
-            delete mediaEntity.catalog;
             return productMedia;
         },
 
@@ -184,8 +186,10 @@ Component.register('sw-product-media-form', {
 
         successfulUpload(mediaEntity) {
             const productMedia = find(this.mediaItems, (e) => e.mediaId === mediaEntity.id);
-            productMedia.media = mediaEntity;
-            this.unsavedEntities = [];
+            this.productMediaStore.getByIdAsync(productMedia.id).then(() => {
+                // just refresh
+                this.unsavedEntities = [];
+            });
         },
 
         getImageDimensions(img, size) {
@@ -227,11 +231,6 @@ Component.register('sw-product-media-form', {
 
         removeFile(key) {
             const item = find(this.mediaItems, (e) => e.mediaId === key);
-            const upload = find(this.uploads, (e) => e.mediaId === key);
-
-            if (upload) {
-                this.uploadStore.removeUpload(upload.uploadId);
-            }
 
             this.product.media = this.product.media.filter((e) => e.mediaId !== key);
             if (this.isCover(item)) {

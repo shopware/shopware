@@ -44,7 +44,7 @@ Component.register('sw-media-preview', {
         mediaPreviewClasses() {
             return {
                 'shows--transparency':
-                    (this.checkForFileTypeImage || this.checkForInMemoryFile)
+                    this.checkForFileTypeImage
                     && this.transparency,
                 'is--icon': this.checkForFileTypeSvg
             };
@@ -66,10 +66,6 @@ Component.register('sw-media-preview', {
             const regEx = /.*svg.*/;
 
             return regEx.test(this.item.mimeType);
-        },
-
-        checkForInMemoryFile() {
-            return this.item.mimeType === 'in-memory-file';
         },
 
         placeholderIcon() {

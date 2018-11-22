@@ -16,8 +16,13 @@ Component.register('sw-sidebar', {
     data() {
         return {
             items: [],
-            isOpened: false
+            isOpened: false,
+            _parent: this.$parent
         };
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     mounted() {
@@ -49,17 +54,30 @@ Component.register('sw-sidebar', {
     },
 
     methods: {
+        createdComponent() {
+            let parent = this.$parent;
+
+            while (parent) {
+                if (parent.$options.name === 'sw-page') {
+                    this._parent = parent;
+                    return;
+                }
+
+                parent = parent.$parent;
+            }
+        },
+
         mountedComponent() {
             if (this.propagateWidth) {
                 const sidebarWidth = this.$el.querySelector('.sw-sidebar__navigation').offsetWidth;
 
-                this.$root.$emit('swSidebarMounted', sidebarWidth);
+                this._parent.$emit('sw-sidebar-mounted', sidebarWidth);
             }
         },
 
         destroyedComponent() {
             if (this.propagateWidth) {
-                this.$root.$emit('swSidebarDestroyed');
+                this._parent.$emit('sw-sidebar-destroyed');
             }
         },
 

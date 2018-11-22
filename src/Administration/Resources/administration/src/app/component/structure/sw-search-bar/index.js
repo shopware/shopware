@@ -1,14 +1,10 @@
-import { Component, Mixin } from 'src/core/shopware';
+import { Component } from 'src/core/shopware';
 import utils from 'src/core/service/util.service';
 import template from './sw-search-bar.html.twig';
 import './sw-search-bar.less';
 
 Component.register('sw-search-bar', {
     template,
-
-    mixins: [
-        Mixin.getByName('header-offsets')
-    ],
 
     inject: ['searchService'],
 

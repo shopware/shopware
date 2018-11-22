@@ -3,7 +3,7 @@
 
         {% block sw_page_slot_search_bar %}
             <slot name="search-bar">
-                <sw-search-bar></sw-search-bar>
+                <sw-search-bar :style="searchBarStyles"></sw-search-bar>
             </slot>
         {% endblock %}
 
@@ -11,7 +11,7 @@
             <div class="sw-page__container" :class="pageContainerClasses">
 
                 {% block sw_page_smart_bar %}
-                    <div v-if="showSmartBar" class="sw-page__smart-bar" :style="[headerOffsetStyles, smartBarStyles]">
+                    <div v-if="showSmartBar" class="sw-page__smart-bar" :style="smartBarStyles">
 
                         {% block sw_page_smart_bar_back_btn %}
                             <slot name="smart-bar-back">

@@ -69,6 +69,11 @@
             <tag name="console.command"/>
         </service>
 
+        <service class="Shopware\Core\Content\Media\Commands\DeleteNotUsedMediaCommand" id="Shopware\Core\Content\Media\Commands\DeleteNotUsedMediaCommand">
+            <argument type="service" id="Shopware\Core\Content\Media\DeleteNotUsedMediaService"/>
+            <tag name="console.command"/>
+        </service>
+
         <!-- Pathname strategies -->
         <service class="Shopware\Core\Content\Media\Pathname\PathnameStrategy\Md5PathnameStrategy" id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface.md5">
             <tag name="Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface"/>
@@ -132,6 +137,11 @@
         </service>
         <service class="Shopware\Core\Content\Media\TypeDetector\TypeDetector" id="Shopware\Core\Content\Media\TypeDetector\TypeDetector">
             <argument type="tagged" tag="\Shopware\Core\Content\Media\TypeDetector\TypeDetectorInterface"/>
+        </service>
+
+        <!-- Services -->
+        <service class="Shopware\Core\Content\Media\DeleteNotUsedMediaService" id="Shopware\Core\Content\Media\DeleteNotUsedMediaService">
+            <argument type="service" id="media.repository"/>
         </service>
     </services>
 </container>

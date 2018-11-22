@@ -1,0 +1,50 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Content\Media;
+
+use Shopware\Core\Content\Media\DataAbstractionLayer\MediaRepository;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+
+class DeleteNotUsedMediaService
+{
+    /** @var MediaRepository */
+    protected $mediaRepo;
+
+    public function __construct(MediaRepository $mediaRepo)
+    {
+        $this->mediaRepo = $mediaRepo;
+    }
+
+    public function countNotUsedMedia(Context $context): int
+    {
+        $criteria = $this->createFilterFotNotUsedMedia();
+        $criteria->setLimit(0);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+
+        return $this->mediaRepo->search($criteria, $context)->getTotal();
+    }
+
+    public function deleteNotUsedMedia(Context $context): void
+    {
+        $criteria = $this->createFilterFotNotUsedMedia();
+
+        $ids = $this->mediaRepo->searchIds($criteria, $context)->getIds();
+        $ids = array_map(function ($id) {
+            return ['id' => $id];
+        }, $ids);
+        $this->mediaRepo->delete($ids, $context);
+    }
+
+    protected function createFilterFotNotUsedMedia(): Criteria
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(
+            new EqualsFilter('media.productMedia.id', null),
+            new EqualsFilter('media.productManufacturers.id', null)
+        );
+
+        return $criteria;
+    }
+}

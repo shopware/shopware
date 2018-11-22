@@ -30,6 +30,8 @@ trait MediaFixtures
      */
     public static function initializeMediaFixtures(): void
     {
+        $mediaId = Uuid::uuid4()->getHex();
+
         MediaFixtures::$mediaFixtures = [
             'NamedEmpty' => [
                 'id' => Uuid::uuid4()->getHex(),
@@ -83,6 +85,42 @@ trait MediaFixtures
                     ],
                 ],
             ],
+            'MediaWithProduct' => [
+                'id' => Uuid::uuid4()->getHex(),
+                'mimeType' => 'image/png',
+                'fileExtension' => 'png',
+                'fileName' => 'pngFileWithProduct',
+                'productMedia' => [
+                    [
+                        'id' => Uuid::uuid4()->getHex(),
+                        'product' => [
+                            'id' => Uuid::uuid4()->getHex(),
+                            'price' => ['gross' => 10, 'net' => 9],
+                            'manufacturer' => [
+                                'name' => 'test',
+                            ],
+                            'name' => 'product',
+                            'tax' => [
+                                'taxRate' => 13,
+                                'name' => 'green',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            'MediaWithManufacturer' => [
+                'id' => $mediaId,
+                'mimeType' => 'image/png',
+                'fileExtension' => 'png',
+                'fileName' => 'pngFileWithManufacturer',
+                'productManufacturers' => [
+                    [
+                        'id' => Uuid::uuid4()->getHex(),
+                        'name' => 'manufacturer',
+                        'mediaId' => $mediaId,
+                    ],
+                ],
+            ],
         ];
 
         MediaFixtures::$mediaFixtureRepository = EntityFixturesBase::getFixtureRepository('media');
@@ -129,6 +167,18 @@ trait MediaFixtures
     public function getMediaWithThumbnail(): MediaStruct
     {
         return $this->getMediaFixture('NamedWithThumbnail');
+    }
+
+    public function getMediaWithProduct(): MediaStruct
+    {
+        return $this->getMediaFixture('MediaWithProduct');
+    }
+
+    public function getMediaWithManufacturer(): MediaStruct
+    {
+        $fixture = $this->getMediaFixture('MediaWithManufacturer');
+
+        return $fixture;
     }
 
     private function getMediaFixture(string $fixtureName): MediaStruct

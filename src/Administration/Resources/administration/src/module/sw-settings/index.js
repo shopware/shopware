@@ -12,7 +12,7 @@ Module.register('sw-settings', {
     icon: 'default-action-settings',
 
     routes: {
-        detail: {
+        index: {
             component: 'sw-settings-index',
             path: 'index',
             icon: 'default-action-settings'

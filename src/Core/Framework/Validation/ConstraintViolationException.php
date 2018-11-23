@@ -28,7 +28,7 @@ class ConstraintViolationException extends WriteFieldException implements Constr
     {
         parent::__construct(
             sprintf('Caught %s constraint violation errors.', $constraintViolationList->count()),
-            is_integer($code) ? $code : 0,
+            is_int($code) ? $code : 0,
             $previous
         );
 

@@ -6,7 +6,12 @@ final class Defaults
 {
     public const SALES_CHANNEL = '20080911ffff4fffafffffff19830531';
 
-    public const LANGUAGE_EN = '20080911ffff4fffafffffff19830531';
+    public const LANGUAGE_SYSTEM = '20080911ffff4fffafffffff19830531';
+
+    /**
+     * @deprecated you should use Defaults::LANGUAGE_SYSTEM as a default
+     */
+    public const LANGUAGE_EN = self::LANGUAGE_SYSTEM;
 
     public const LANGUAGE_DE = '00e84bd18c574a6ca748ac0db17654dc';
 
@@ -14,13 +19,20 @@ final class Defaults
 
     public const SNIPPET_BASE_SET_DE = 'b8d2230a7b324e448c9c8b22ed1b89d8';
 
-    public const LOCALE_EN_GB = '20080911ffff4fffafffffff19830531';
+    public const LOCALE_SYSTEM = '20080911ffff4fffafffffff19830531';
+
+    /**
+     * @deprecated you should use Defaults::LOCALE_SYSTEM as a default
+     */
+    public const LOCALE_EN_GB = self::LOCALE_SYSTEM;
 
     public const LOCALE_DE_DE = '2f3663edb7614308a60188c21c7963d5';
 
     public const LOCALE_EN_GB_ISO = 'en_GB';
 
     public const LOCALE_DE_DE_ISO = 'de_DE';
+
+    public const TRANSLATION_CODE_SYSTEM = self::LOCALE_SYSTEM;
 
     public const FALLBACK_CUSTOMER_GROUP = '20080911ffff4fffafffffff19830531';
 

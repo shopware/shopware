@@ -210,10 +210,14 @@ class StorefrontSalesChannelControllerTest extends TestCase
             'locale' => [
                 'id' => Uuid::uuid4()->getHex(),
                 'code' => 'x-tst_' . Uuid::uuid4()->getHex(),
+                'name' => 'test name',
+                'territory' => 'test territory',
             ],
             'translationCode' => [
                 'id' => Uuid::uuid4()->getHex(),
                 'code' => 'x-tst_' . Uuid::uuid4()->getHex(),
+                'name' => 'test name',
+                'territory' => 'test',
             ],
         ];
         $data = [

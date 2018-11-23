@@ -51,9 +51,9 @@ class Migration1542029400BasicData extends MigrationStep
 
     private function createLanguage(Connection $connection): void
     {
-        $localeEn = Uuid::fromHexToBytes(Defaults::LOCALE_EN_GB);
+        $localeEn = Uuid::fromHexToBytes(Defaults::LOCALE_SYSTEM);
         $localeDe = uuid::fromHexToBytes(Defaults::LOCALE_DE_DE);
-        $languageEn = uuid::fromHexToBytes(Defaults::LANGUAGE_EN);
+        $languageEn = uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
         $languageDe = uuid::fromHexToBytes(Defaults::LANGUAGE_DE);
 
         // first locales
@@ -111,7 +111,7 @@ class Migration1542029400BasicData extends MigrationStep
         $localeData = include __DIR__ . '/../locales.php';
 
         $queue = new MultiInsertQueryQueue($connection);
-        $languageEn = uuid::fromHexToBytes(Defaults::LANGUAGE_EN);
+        $languageEn = uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
         $languageDe = uuid::fromHexToBytes(Defaults::LANGUAGE_DE);
 
         foreach ($localeData as $locale) {
@@ -155,7 +155,7 @@ class Migration1542029400BasicData extends MigrationStep
     private function createCatalog(Connection $connection): void
     {
         $catalogId = Uuid::fromHexToBytes(Defaults::CATALOG);
-        $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_EN);
+        $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
         $languageDE = Uuid::fromHexToBytes(Defaults::LANGUAGE_DE);
 
         $connection->insert('catalog', [
@@ -191,7 +191,7 @@ class Migration1542029400BasicData extends MigrationStep
 
         $languageEN = function (string $countryId, string $name) {
             return [
-                'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_EN),
+                'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
                 'name' => $name,
                 'country_id' => Uuid::fromHexToBytes($countryId),
                 'created_at' => date(Defaults::DATE_FORMAT),
@@ -337,7 +337,7 @@ class Migration1542029400BasicData extends MigrationStep
         $USD = Uuid::uuid4()->getBytes();
         $GBP = Uuid::uuid4()->getBytes();
 
-        $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_EN);
+        $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
 
         $connection->insert('currency', ['id' => $EUR, 'is_default' => 1, 'factor' => 1, 'symbol' => '€', 'placed_in_front' => 0, 'position' => 1, 'created_at' => date(Defaults::DATE_FORMAT)]);
         $connection->insert('currency_translation', ['currency_id' => $EUR, 'language_id' => $languageEN, 'short_name' => 'EUR', 'name' => 'Euro', 'created_at' => date(Defaults::DATE_FORMAT)]);
@@ -352,7 +352,7 @@ class Migration1542029400BasicData extends MigrationStep
     private function createCustomerGroup(Connection $connection): void
     {
         $groupId = Uuid::fromHexToBytes(Defaults::FALLBACK_CUSTOMER_GROUP);
-        $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_EN);
+        $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
 
         $connection->insert('customer_group', ['id' => $groupId, 'display_gross' => 1, 'input_gross' => 1, 'created_at' => date(Defaults::DATE_FORMAT)]);
         $connection->insert('customer_group_translation', ['customer_group_id' => $groupId, 'language_id' => $languageEN, 'name' => 'Standard customer group', 'created_at' => date(Defaults::DATE_FORMAT)]);
@@ -360,7 +360,7 @@ class Migration1542029400BasicData extends MigrationStep
 
     private function createPaymentMethod(Connection $connection): void
     {
-        $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_EN);
+        $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
 
         $debit = Uuid::fromHexToBytes(Defaults::PAYMENT_METHOD_DEBIT);
         $invoice = Uuid::fromHexToBytes(Defaults::PAYMENT_METHOD_INVOICE);
@@ -381,7 +381,7 @@ class Migration1542029400BasicData extends MigrationStep
         $standard = Uuid::fromHexToBytes(Defaults::SHIPPING_METHOD);
         $express = Uuid::uuid4()->getBytes();
 
-        $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_EN);
+        $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
 
         $connection->insert('shipping_method', ['id' => $standard, 'type' => 0, 'active' => 1, 'position' => 1, 'calculation' => 1, 'bind_shippingfree' => 0, 'created_at' => date(Defaults::DATE_FORMAT)]);
         $connection->insert('shipping_method_translation', ['shipping_method_id' => $standard, 'language_id' => $languageEN, 'name' => 'Standard', 'created_at' => date(Defaults::DATE_FORMAT)]);
@@ -407,7 +407,7 @@ class Migration1542029400BasicData extends MigrationStep
 
     private function createSalesChannelTypes(Connection $connection): void
     {
-        $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_EN);
+        $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
 
         $storefront = Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_STOREFRONT);
         $storefrontApi = Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_STOREFRONT_API);
@@ -422,7 +422,7 @@ class Migration1542029400BasicData extends MigrationStep
     private function createProductManufacturer(Connection $connection): void
     {
         $id = Uuid::uuid4()->getBytes();
-        $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_EN);
+        $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
         $catalogId = Uuid::fromHexToBytes(Defaults::CATALOG);
         $versionId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
@@ -438,7 +438,7 @@ class Migration1542029400BasicData extends MigrationStep
         $paymentMethods = $connection->executeQuery('SELECT id FROM payment_method')->fetchAll(FetchMode::COLUMN);
 
         $id = Uuid::uuid4()->getBytes();
-        $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_EN);
+        $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
 
         $connection->insert('sales_channel', [
             'id' => $id,
@@ -446,7 +446,7 @@ class Migration1542029400BasicData extends MigrationStep
             'access_key' => AccessKeyHelper::generateAccessKey('sales-channel'),
             'active' => 1,
             'tax_calculation_type' => 'vertical',
-            'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_EN),
+            'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
             'currency_id' => Uuid::fromHexToBytes(Defaults::CURRENCY),
             'payment_method_id' => Uuid::fromHexToBytes(Defaults::PAYMENT_METHOD_INVOICE),
             'shipping_method_id' => Uuid::fromHexToBytes(Defaults::SHIPPING_METHOD),
@@ -499,7 +499,7 @@ class Migration1542029400BasicData extends MigrationStep
 
         $queue = new MultiInsertQueryQueue($connection);
         $versionId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
-        $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_EN);
+        $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
 
         $queue->addInsert('order_state', ['id' => $open, 'version_id' => $versionId, 'position' => 1, 'has_mail' => 0, 'created_at' => date(Defaults::DATE_FORMAT)]);
         $queue->addInsert('order_state_translation', ['order_state_id' => $open, 'order_state_version_id' => $versionId, 'language_id' => $languageEN, 'description' => 'Open', 'created_at' => date(Defaults::DATE_FORMAT)]);
@@ -559,7 +559,7 @@ class Migration1542029400BasicData extends MigrationStep
 
         $queue = new MultiInsertQueryQueue($connection);
         $versionId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
-        $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_EN);
+        $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
 
         $queue->addInsert('order_transaction_state', ['id' => $completed, 'version_id' => $versionId, 'position' => 1, 'has_mail' => 0, 'created_at' => date(Defaults::DATE_FORMAT)]);
         $queue->addInsert('order_transaction_state_translation', ['order_transaction_state_id' => $completed, 'order_transaction_state_version_id' => $versionId, 'language_id' => $languageEN, 'description' => 'Completed', 'created_at' => date(Defaults::DATE_FORMAT)]);

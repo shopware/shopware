@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Framework\Seo\DbalIndexing\SeoUrl;
 
 use Cocur\Slugify\SlugifyInterface;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Context\CheckoutContextFactoryInterface;
 use Shopware\Core\Content\Product\Util\EventIdExtractor;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -18,8 +19,11 @@ use Shopware\Core\Framework\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
+use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Struct\Uuid;
+
 use Shopware\Storefront\Framework\Seo\SeoUrlDefinition;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -63,6 +67,11 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
      */
     private $eventIdExtractor;
 
+    /**
+     * @var CheckoutContextFactoryInterface
+     */
+    private $checkoutContextFactory;
+
     public function __construct(
         Connection $connection,
         SlugifyInterface $slugify,
@@ -70,7 +79,8 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
         RepositoryInterface $productRepository,
         RepositoryInterface $salesChannelRepository,
         EventDispatcherInterface $eventDispatcher,
-        EventIdExtractor $eventIdExtractor
+        EventIdExtractor $eventIdExtractor,
+        CheckoutContextFactoryInterface $checkoutContextFactory
     ) {
         $this->connection = $connection;
         $this->slugify = $slugify;
@@ -79,15 +89,25 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
         $this->salesChannelRepository = $salesChannelRepository;
         $this->eventDispatcher = $eventDispatcher;
         $this->eventIdExtractor = $eventIdExtractor;
+        $this->checkoutContextFactory = $checkoutContextFactory;
     }
 
     public function index(\DateTime $timestamp): void
     {
         $defaultContext = Context::createDefaultContext();
+
         $applications = $this->salesChannelRepository->search(new Criteria(), $defaultContext);
 
+        /** @var SalesChannelEntity $application */
         foreach ($applications as $application) {
-            $context = Context::createFromSalesChannel($application, $defaultContext->getSourceContext()->getOrigin());
+            $options = $application->jsonSerialize();
+            $options['origin'] = SourceContext::ORIGIN_SYSTEM;
+            $checkoutContext = $this->checkoutContextFactory->create(
+                Uuid::uuid4()->getHex(),
+                $application->getId(),
+                $options
+            );
+            $context = $checkoutContext->getContext();
 
             $iterator = new RepositoryIterator($this->productRepository, $context);
 
@@ -159,8 +179,6 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
     private function updateProducts(array $ids, Context $context): void
     {
         $insertQuery = new MultiInsertQueryQueue($this->connection, 250, false, true);
-
-        $liveVersionId = Uuid::fromStringToBytes(Defaults::LIVE_VERSION);
 
         $products = $this->productRepository->read(new ReadCriteria($ids), $context);
 

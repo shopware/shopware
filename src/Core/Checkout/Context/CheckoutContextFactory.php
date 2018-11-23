@@ -77,11 +77,6 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
     private $countryStateRepository;
 
     /**
-     * @var RepositoryInterface
-     */
-    private $languageRepository;
-
-    /**
      * @var TaxDetector
      */
     private $taxDetector;
@@ -98,7 +93,6 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
         RepositoryInterface $shippingMethodRepository,
         Connection $connection,
         RepositoryInterface $countryStateRepository,
-        RepositoryInterface $languageRepository,
         TaxDetector $taxDetector
     ) {
         $this->salesChannelRepository = $salesChannelRepository;
@@ -112,16 +106,12 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
         $this->shippingMethodRepository = $shippingMethodRepository;
         $this->connection = $connection;
         $this->countryStateRepository = $countryStateRepository;
-        $this->languageRepository = $languageRepository;
         $this->taxDetector = $taxDetector;
     }
 
-    public function create(
-        string $token,
-        string $salesChannelId,
-        array $options = []
-    ): CheckoutContext {
-        $context = $this->getContext($salesChannelId);
+    public function create(string $token, string $salesChannelId, array $options = []): CheckoutContext
+    {
+        $context = $this->getContext($salesChannelId, $options['origin'] ?? SourceContext::ORIGIN_STOREFRONT_API);
 
         /** @var SalesChannelEntity|null $salesChannel */
         $salesChannel = $this->salesChannelRepository->read(new ReadCriteria([$context->getSourceContext()->getSalesChannelId()]), $context)
@@ -135,16 +125,6 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
         $currency = $salesChannel->getCurrency();
         if (array_key_exists(CheckoutContextService::CURRENCY_ID, $options)) {
             $currency = $this->currencyRepository->read(new ReadCriteria([$options[CheckoutContextService::CURRENCY_ID]]), $context)->get($options[CheckoutContextService::CURRENCY_ID]);
-        }
-
-        $language = $salesChannel->getLanguage();
-        if (array_key_exists(CheckoutContextService::LANGUAGE_ID, $options)) {
-            $language = $this->languageRepository->read(new ReadCriteria([$options[CheckoutContextService::LANGUAGE_ID]]), $context)->get($options[CheckoutContextService::LANGUAGE_ID]);
-        }
-
-        $fallbackLanguage = null;
-        if ($language->getParentId()) {
-            $fallbackLanguage = $this->languageRepository->read(new ReadCriteria([$language->getParentId()]), $context)->get($language->getParentId());
         }
 
         //fallback customer group is hard coded to 'EK'
@@ -187,10 +167,9 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
         $delivery = $this->getShippingMethod($options, $context, $salesChannel);
 
         $context = new CheckoutContext(
+            $context,
             $token,
             $salesChannel,
-            $language,
-            $fallbackLanguage,
             $currency,
             $customerGroup,
             $fallbackGroup,
@@ -236,7 +215,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
         return $this->shippingMethodRepository->read(new ReadCriteria([$id]), $context)->get($id);
     }
 
-    private function getContext(string $salesChannelId): Context
+    private function getContext(string $salesChannelId, string $origin = SourceContext::ORIGIN_STOREFRONT_API): Context
     {
         $sql = '
         SELECT 
@@ -245,7 +224,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
           sales_channel.currency_id as sales_channel_currency_id,
           currency.factor as sales_channel_currency_factor,
           language.parent_id as sales_channel_language_parent_id,
-          GROUP_CONCAT(HEX(sales_channel_catalog.catalog_id)) as sales_channel_catalog_ids
+          GROUP_CONCAT(LOWER(HEX(sales_channel_catalog.catalog_id))) as sales_channel_catalog_ids
         FROM sales_channel
         INNER JOIN currency ON sales_channel.currency_id = currency.id
         INNER JOIN language ON sales_channel.language_id = language.id
@@ -257,7 +236,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
             'id' => Uuid::fromHexToBytes($salesChannelId),
         ]);
 
-        $sourceContext = new SourceContext(SourceContext::ORIGIN_STOREFRONT_API);
+        $sourceContext = new SourceContext($origin);
         $sourceContext->setSalesChannelId($salesChannelId);
 
         $salesChannelCatalogIds = $data['sales_channel_catalog_ids'] ? explode(',', $data['sales_channel_catalog_ids']) : null;
@@ -267,11 +246,16 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
             $salesChannelCatalogIds,
             [],
             Uuid::fromBytesToHex($data['sales_channel_currency_id']),
-            Uuid::fromBytesToHex($data['sales_channel_language_id']),
-            $data['sales_channel_language_parent_id'] ? Uuid::fromBytesToHex($data['sales_channel_language_parent_id']) : null,
+            $this->getLanguageIdChain(Uuid::fromBytesToHex($data['sales_channel_language_id'])),
             Defaults::LIVE_VERSION,
             (float) $data['sales_channel_currency_factor']
         );
+    }
+
+    private function getLanguageIdChain($languageId, $defaultLanguage = null): array
+    {
+        // TODO: fix chain -> include current language by header
+        return [$languageId];
     }
 
     private function loadCustomer(array $options, Context $context): ?CustomerEntity

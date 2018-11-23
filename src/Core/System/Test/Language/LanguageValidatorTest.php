@@ -742,7 +742,7 @@ class LanguageValidatorTest extends TestCase
     public function testDeleteEnglishViolation(): void
     {
         // -en
-        $enGb = ['id' => Defaults::LANGUAGE_EN];
+        $enGb = ['id' => Defaults::LANGUAGE_SYSTEM];
 
         $this->assertDeleteViolations(
             [$enGb],
@@ -785,7 +785,7 @@ class LanguageValidatorTest extends TestCase
     public function testMultipleDeleteViolations(): void
     {
         // -en, -de
-        $enGb = ['id' => Defaults::LANGUAGE_EN];
+        $enGb = ['id' => Defaults::LANGUAGE_SYSTEM];
         $deDe = ['id' => Defaults::LANGUAGE_DE];
 
         $this->assertDeleteViolations(
@@ -891,10 +891,10 @@ class LanguageValidatorTest extends TestCase
     protected function addDefaultLocale(array $lang): array
     {
         if (!isset($lang['locale']) && !isset($lang['localeId'])) {
-            $lang['localeId'] = Defaults::LOCALE_EN_GB;
+            $lang['localeId'] = Defaults::LOCALE_SYSTEM;
         }
         if (isset($lang['parent']) && !isset($lang['parent']['locale'], $lang['parent']['localeId'])) {
-            $lang['parent']['localeId'] = Defaults::LOCALE_EN_GB;
+            $lang['parent']['localeId'] = Defaults::LOCALE_SYSTEM;
         }
 
         return $lang;
@@ -910,13 +910,19 @@ class LanguageValidatorTest extends TestCase
     protected function addDefaultTranslationCode($lang)
     {
         if (!isset($lang['translationCode']) && !isset($lang['translationCodeId'])) {
+            $id = Uuid::uuid4()->getHex();
             $lang['translationCode'] = [
-                'code' => 'x-tst_' . Uuid::uuid4()->getHex(),
+                'code' => 'x-tst_' . $id,
+                'name' => 'test translation code ' . $id,
+                'territory' => 'test translation territory ' . $id,
             ];
         }
         if (isset($lang['parent']) && !isset($lang['parent']['translationCode']) && !isset($lang['parent']['translationCodeId'])) {
+            $id = Uuid::uuid4()->getHex();
             $lang['parent']['translationCode'] = [
-                'code' => 'x-tst_' . Uuid::uuid4()->getHex(),
+                'code' => 'x-tst_' . $id,
+                'name' => 'test translation code parent ' . $id,
+                'territory' => 'test translation territory ' . $id,
             ];
         }
 

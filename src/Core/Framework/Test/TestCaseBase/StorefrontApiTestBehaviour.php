@@ -117,7 +117,7 @@ trait StorefrontApiTestBehaviour
             'typeId' => Defaults::SALES_CHANNEL_STOREFRONT_API,
             'name' => 'API Test case sales channel',
             'accessKey' => $accessKey,
-            'languageId' => Defaults::LANGUAGE_EN,
+            'languageId' => Defaults::LANGUAGE_SYSTEM,
             'snippetSetId' => Defaults::SNIPPET_BASE_SET_EN,
             'currencyId' => Defaults::CURRENCY,
             'paymentMethodId' => Defaults::PAYMENT_METHOD_DEBIT,
@@ -125,7 +125,7 @@ trait StorefrontApiTestBehaviour
             'countryId' => Defaults::COUNTRY,
             'catalogs' => [['id' => Defaults::CATALOG]],
             'currencies' => [['id' => Defaults::CURRENCY]],
-            'languages' => [['id' => Defaults::LANGUAGE_EN]],
+            'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
         ], $salesChannelOverride);
 
         $salesChannelRepository->upsert([$salesChannel], Context::createDefaultContext());

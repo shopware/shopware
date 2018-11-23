@@ -744,15 +744,19 @@ EOF;
         $data = [
             'id' => $childId,
             'name' => 'Child Language',
-            'localeId' => Defaults::LOCALE_EN_GB,
+            'localeId' => Defaults::LOCALE_SYSTEM,
             'parent' => [
                 'id' => $parentId,
                 'name' => 'Parent Language',
                 'locale' => [
                     'code' => 'x-tst_' . Uuid::uuid4()->getHex(),
+                    'name' => 'test name',
+                    'territory' => 'test territory',
                 ],
                 'translationCode' => [
                     'code' => 'x-tst_' . Uuid::uuid4()->getHex(),
+                    'name' => 'test name',
+                    'territory' => 'test territory',
                 ],
             ],
         ];

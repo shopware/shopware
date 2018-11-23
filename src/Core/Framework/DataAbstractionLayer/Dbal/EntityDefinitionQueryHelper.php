@@ -84,7 +84,7 @@ class EntityDefinitionQueryHelper
         $field = $fields->get($associationKey);
 
         if ($field instanceof TranslatedField) {
-            return $this->getTranslatedField($definition, $field);
+            return self::getTranslatedField($definition, $field);
         }
 
         if (!$field instanceof AssociationInterface) {
@@ -340,8 +340,7 @@ class EntityDefinitionQueryHelper
         $translationDefinition = $definition::getTranslationDefinitionClass();
 
         $fields = $translationDefinition::getFields();
-
-        $chain = self::buildTranslationChain($root, $definition, $context, true);
+        $chain = self::buildTranslationChain($root, $context, false);
 
         /** @var TranslatedField $field */
         foreach ($fields as $field) {
@@ -351,15 +350,16 @@ class EntityDefinitionQueryHelper
 
             foreach ($chain as $tableAccessor) {
                 $query->addSelect(
-                    self::escape($tableAccessor) . '.' . self::escape($field->getStorageName())
+                    self::escape($tableAccessor['alias']) . '.' . self::escape($field->getStorageName())
                     . ' as ' .
-                    self::escape($tableAccessor . '.' . $field->getPropertyName())
+                    self::escape($tableAccessor['alias'] . '.' . $field->getPropertyName())
                 );
             }
         }
 
+        /** @var string|EntityDefinition $defintion */
         //rebuild translation chain with parent inheritance
-        $chain = self::buildTranslationChain($root, $definition, $context);
+        $chain = self::buildTranslationChain($root, $context, $definition::isInheritanceAware());
 
         /** @var StorageAware|Field $field */
         foreach ($fields as $field) {
@@ -371,7 +371,7 @@ class EntityDefinitionQueryHelper
 
             //add selection for resolved parent-child and language inheritance
             $query->addSelect(
-                $this->getTranslationFieldAccessor($root, $field->getStorageName(), $chain)
+                $this->getTranslationFieldAccessor($field->getStorageName(), $chain)
                 . ' as ' .
                 self::escape($root . '.' . $field->getPropertyName())
             );
@@ -423,21 +423,44 @@ class EntityDefinitionQueryHelper
         return $field;
     }
 
-    public static function buildTranslationChain(string $root, string $definition, Context $context, bool $considerParent = false): array
+    public static function buildTranslationChain(string $root, Context $context, bool $includeParent): array
     {
-        $chain = [$root . '.translation'];
+        // the first one is the most specify and always selected
+        $idChain = $context->getLanguageIdChain();
+        $id = array_shift($idChain);
 
-        /** @var string|EntityDefinition $definition */
-        if (!$considerParent && $definition::isInheritanceAware()) {
-            $chain[] = $root . '.parent.translation';
+        $chain = [[
+            'id' => $id,
+            'name' => 'translation',
+            'alias' => $root . '.translation',
+            'root' => $root,
+        ]];
+        if ($includeParent) {
+            $chain[] = [
+                'id' => $id,
+                'name' => 'parent.translation',
+                'alias' => $root . '.parent.translation',
+                'root' => $root . '.parent',
+            ];
         }
 
-        if ($context->hasFallback()) {
-            $chain[] = $root . '.translation.fallback';
-        }
-
-        if (!$considerParent && $definition::isInheritanceAware() && $context->hasFallback()) {
-            $chain[] = $root . '.parent.translation.fallback';
+        $i = 1;
+        foreach ($context->getLanguageIdChain() as $id) {
+            $name = 'translation.fallback_' . $i++;
+            $chain[] = [
+                'id' => $id,
+                'name' => $name,
+                'alias' => $root . '.' . $name,
+                'root' => $root,
+            ];
+            if ($includeParent) {
+                $chain[] = [
+                    'id' => $id,
+                    'name' => 'parent.' . $name,
+                    'alias' => $root . '.parent.' . $name,
+                    'root' => $root . '.parent',
+                ];
+            }
         }
 
         return $chain;
@@ -493,16 +516,15 @@ class EntityDefinitionQueryHelper
         $query->andWhere('(' . implode(' OR ', $conditions) . ')');
     }
 
-    private function getTranslationFieldAccessor(string $root, string $storageName, array $chain): string
+    private function getTranslationFieldAccessor(string $storageName, array $chain): string
     {
-        $alias = $root . '.translation';
         if (\count($chain) === 1) {
-            return self::escape($alias) . '.' . self::escape($storageName);
+            return self::escape($chain[0]['alias']) . '.' . self::escape($storageName);
         }
 
         $chainSelect = [];
-        foreach ($chain as $table) {
-            $chainSelect[] = self::escape($table) . '.' . self::escape($storageName);
+        foreach ($chain as $part) {
+            $chainSelect[] = self::escape($part['alias']) . '.' . self::escape($storageName);
         }
 
         return sprintf('COALESCE(%s)', implode(',', $chainSelect));
@@ -512,11 +534,11 @@ class EntityDefinitionQueryHelper
     {
         /* @var string|EntityDefinition $definition */
         if ($field instanceof TranslatedField) {
-            $inheritedChain = $this->buildTranslationChain($root, $definition, $context);
+            $inheritedChain = self::buildTranslationChain($root, $context, $definition::isInheritanceAware());
             /** @var Field|StorageAware $translatedField */
-            $translatedField = $this->getTranslatedField($definition, $field);
+            $translatedField = self::getTranslatedField($definition, $field);
 
-            return $this->getTranslationFieldAccessor($root, $translatedField->getStorageName(), $inheritedChain);
+            return $this->getTranslationFieldAccessor($translatedField->getStorageName(), $inheritedChain);
         }
 
         $select = $this->buildFieldSelector($root, $field, $context, $original);

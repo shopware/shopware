@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\InvalidFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -46,7 +47,7 @@ trait FieldValidatorTrait
         }
     }
 
-    protected function requiresValidation(Field $field, EntityExistence $existence, $value): bool
+    protected function requiresValidation(Field $field, EntityExistence $existence, $value, WriteParameterBag $parameters): bool
     {
         if ($value !== null) {
             return true;
@@ -57,7 +58,10 @@ trait FieldValidatorTrait
         }
 
         if (\is_subclass_of($existence->getDefinition(), EntityTranslationDefinition::class)) {
-            return false;
+            $isRoot = $parameters->getContext()->isRootLanguage($parameters->getCurrentWriteLanguageId());
+            if (!$isRoot) {
+                return false;
+            }
         }
 
         return $field->is(Required::class);

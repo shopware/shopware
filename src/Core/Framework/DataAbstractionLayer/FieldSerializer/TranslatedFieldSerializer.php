@@ -25,33 +25,21 @@ class TranslatedFieldSerializer implements FieldSerializerInterface
         $value = $data->getValue();
 
         if (\is_array($value)) {
-            $isNumeric = \count(array_diff($value, range(0, \count($value)))) === 0;
-
-            if ($isNumeric) {
-                foreach ($value as $translationKey => $translationValue) {
-                    yield 'translations' => [
-                        $translationKey => [
-                            $key => $translationValue,
-                        ],
-                    ];
-                }
-            } else {
-                foreach ($value as $translationKey => $translationValue) {
-                    yield 'translations' => [
-                        $translationKey => [
-                            $key => $translationValue,
-                        ],
-                    ];
-                }
+            foreach ($value as $translationKey => $translationValue) {
+                yield 'translations' => [
+                    $translationKey => [
+                        $key => $translationValue,
+                    ],
+                ];
             }
 
             return;
         }
 
-        // load from write context the default language
+        // use the default language from the context
         /* @var TranslatedField $field */
         yield 'translations' => [
-            $parameters->getContext()->get($field->getForeignClassName(), $field->getForeignFieldName()) => [
+            $parameters->getContext()->getContext()->getLanguageId() => [
                 $key => $value,
             ],
         ];

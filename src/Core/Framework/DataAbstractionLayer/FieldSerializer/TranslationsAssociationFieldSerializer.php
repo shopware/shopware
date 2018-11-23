@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DecodeByHydratorException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -11,7 +12,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\MalformatDataException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\System\Exception\MissingRootTranslationException;
+use Shopware\Core\System\Exception\MissingSystemTranslationException;
 
 class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
 {
@@ -20,9 +24,8 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
      */
     protected $writeExtractor;
 
-    public function __construct(
-        WriteCommandExtractor $writeExtractor
-    ) {
+    public function __construct(WriteCommandExtractor $writeExtractor)
+    {
         $this->writeExtractor = $writeExtractor;
     }
 
@@ -50,7 +53,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
             ];
             $data = new KeyValuePair($data->getKey(), $value, $data->isRaw());
 
-            return $this->map($field, $data, $parameters);
+            return $this->map($field, $data, $parameters, $existence);
         }
 
         foreach ($value as $identifier => $fields) {
@@ -63,7 +66,10 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
                 continue;
             }
 
-            $languageId = $parameters->getLanguageResolver()->getLanguageIdByIdentifier($identifier);
+            $languageId = $parameters->getContext()->getLanguageId($identifier);
+            if (!$languageId) {
+                throw new LanguageNotFoundException($identifier);
+            }
 
             if (!isset($value[$languageId])) {
                 $value[$languageId] = $fields;
@@ -75,7 +81,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
         }
         $data = new KeyValuePair($data->getKey(), $value, $data->isRaw());
 
-        return $this->map($field, $data, $parameters);
+        return $this->map($field, $data, $parameters, $existence);
     }
 
     public function decode(Field $field, $value)
@@ -83,7 +89,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
         throw new DecodeByHydratorException($field);
     }
 
-    protected function map(TranslationsAssociationField $field, KeyValuePair $data, WriteParameterBag $parameters): \Generator
+    protected function map(TranslationsAssociationField $field, KeyValuePair $data, WriteParameterBag $parameters, EntityExistence $existence): \Generator
     {
         $key = $data->getKey();
         $value = $data->getValue();
@@ -94,24 +100,49 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
 
         $isNumeric = array_keys($value) === range(0, \count($value) - 1);
 
-        foreach ($value as $keyValue => $subresources) {
-            if (!\is_array($subresources)) {
+        $languageIds = [];
+        foreach ($value as $keyValue => $subResources) {
+            if (!\is_array($subResources)) {
                 throw new MalformatDataException($parameters->getPath() . '/' . $key, 'Value must be an array.');
             }
 
-            if ($field->getReferenceField() && !$isNumeric) {
-                $subresources[$field->getReferenceField()] = $keyValue;
+            $languageId = $keyValue;
+            if ($isNumeric) {
+                $languageId = $subResources[$field->getReferenceField()];
+            } elseif ($field->getReferenceField()) {
+                $subResources[$field->getReferenceField()] = $languageId;
             }
+            $languageIds[] = $languageId;
 
-            $this->writeExtractor->extract(
-                $subresources,
-                $parameters->cloneForSubresource(
-                    $field->getReferenceClass(),
-                    $parameters->getPath() . '/' . $key . '/' . $keyValue
-                )
+            $clonedParams = $parameters->cloneForSubresource(
+                $field->getReferenceClass(),
+                $parameters->getPath() . '/' . $key . '/' . $languageId
             );
+            $clonedParams->setCurrentWriteLanguageId($languageId);
+
+            $this->writeExtractor->extract($subResources, $clonedParams);
         }
 
+        if ($existence->exists()) {
+            return;
+        }
+
+        if (!\in_array(Defaults::LANGUAGE_SYSTEM, $languageIds, true)) {
+            $path = $parameters->getPath() . '/' . $key . '/' . Defaults::LANGUAGE_SYSTEM;
+            throw new MissingSystemTranslationException($path);
+        }
+
+        foreach ($languageIds as $id) {
+            $isChild = !$parameters->getContext()->isRootLanguage($id);
+            $rootId = $parameters->getContext()->getRootLanguageId($id);
+
+            if ($isChild && !\in_array($rootId, $languageIds, true)) {
+                $path = $parameters->getPath() . '/' . $key . '/' . $rootId;
+                throw new MissingRootTranslationException($rootId, $id, $path);
+            }
+        }
+
+        // yield nothing. There has to be one yield for php to type check
         return;
         yield __CLASS__ => __METHOD__;
     }

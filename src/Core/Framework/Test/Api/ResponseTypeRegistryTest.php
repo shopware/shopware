@@ -40,7 +40,7 @@ class ResponseTypeRegistryTest extends TestCase
     {
         $sourceContext = new SourceContext(SourceContext::ORIGIN_API);
 
-        return new Context($sourceContext, [Defaults::CATALOG], [], Defaults::CURRENCY, Defaults::LANGUAGE_EN);
+        return new Context($sourceContext, [Defaults::CATALOG], []);
     }
 
     public function testAdminApi(): void
@@ -217,7 +217,7 @@ class ResponseTypeRegistryTest extends TestCase
     {
         $sourceContext = new SourceContext(SourceContext::ORIGIN_STOREFRONT_API);
 
-        return new Context($sourceContext, [Defaults::CATALOG], [], Defaults::CURRENCY, Defaults::LANGUAGE_EN);
+        return new Context($sourceContext);
     }
 
     private function getDetailResponse(Context $context, $id, $path, $version = '', $accept, $setLocationHeader): \Symfony\Component\HttpFoundation\Response

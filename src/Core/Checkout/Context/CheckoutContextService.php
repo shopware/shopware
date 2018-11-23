@@ -118,10 +118,9 @@ class CheckoutContextService implements CheckoutContextServiceInterface
 
         /* @var CheckoutContext $cacheContext */
         return new CheckoutContext(
+            $cacheContext->getContext(),
             $token,
             $cacheContext->getSalesChannel(),
-            $cacheContext->getLanguage(),
-            $cacheContext->getFallbackLanguage(),
             $cacheContext->getCurrency(),
             $cacheContext->getCurrentCustomerGroup(),
             $cacheContext->getFallbackCustomerGroup(),

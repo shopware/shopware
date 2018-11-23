@@ -46,7 +46,7 @@ class LongTextFieldSerializer implements FieldSerializerInterface
         if (!$field instanceof LongTextField) {
             throw new InvalidSerializerFieldException(LongTextField::class, $field);
         }
-        if ($this->requiresValidation($field, $existence, $data->getValue())) {
+        if ($this->requiresValidation($field, $existence, $data->getValue(), $parameters)) {
             $constraints = $this->constraintBuilder
                 ->isNotBlank()
                 ->isString()

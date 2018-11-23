@@ -112,7 +112,7 @@ class CatalogTest extends TestCase
             [],
             [],
             $context->getCurrencyId(),
-            $context->getLanguageId()
+            $context->getLanguageIdChain()
         );
 
         $catalogId = $this->createCatalog($context);
@@ -209,7 +209,7 @@ class CatalogTest extends TestCase
             [$catalogId1, $catalogId2],
             $context->getRules(),
             $context->getCurrencyId(),
-            $context->getLanguageId()
+            $context->getLanguageIdChain()
         );
 
         $foundCategories = $this->categoryRepository->read(new ReadCriteria(array_column($categories, 'id')), $context);
@@ -221,7 +221,7 @@ class CatalogTest extends TestCase
             [$catalogId1, $catalogId2, Defaults::CATALOG],
             [],
             $context->getCurrencyId(),
-            $context->getLanguageId()
+            [$context->getLanguageId()]
         );
 
         $foundCategories = $this->categoryRepository->read(new ReadCriteria(array_column($categories, 'id')), $context);
@@ -241,7 +241,7 @@ class CatalogTest extends TestCase
             [$catalogId],
             [],
             $context->getCurrencyId(),
-            $context->getLanguageId()
+            $context->getLanguageIdChain()
         );
 
         $category = [
@@ -313,7 +313,7 @@ class CatalogTest extends TestCase
             [$catalogId],
             [],
             $context->getCurrencyId(),
-            $context->getLanguageId()
+            $context->getLanguageIdChain()
         );
 
         $category = [
@@ -378,7 +378,7 @@ class CatalogTest extends TestCase
             [$catalogId],
             [],
             $context->getCurrencyId(),
-            $context->getLanguageId()
+            $context->getLanguageIdChain()
         );
 
         $category = [
@@ -447,8 +447,7 @@ class CatalogTest extends TestCase
             array_merge($context->getCatalogIds(), [$catalogId]),
             $context->getRules(),
             $context->getCurrencyId(),
-            $context->getLanguageId(),
-            $context->getFallbackLanguageId(),
+            $context->getLanguageIdChain(),
             $context->getVersionId(),
             $context->getCurrencyFactor()
         );

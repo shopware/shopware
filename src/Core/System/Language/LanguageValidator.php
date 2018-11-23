@@ -26,7 +26,7 @@ class LanguageValidator implements WriteCommandValidatorInterface
 
     public const DELETE_DEFAULT_LANGUAGE_VIOLATION = 'delete_default_language_violation';
 
-    public const DEFAULT_LANGUAGES = [Defaults::LANGUAGE_EN, Defaults::LANGUAGE_DE];
+    public const DEFAULT_LANGUAGES = [Defaults::LANGUAGE_SYSTEM, Defaults::LANGUAGE_DE];
 
     /**
      * @var Connection
@@ -66,7 +66,7 @@ class LanguageValidator implements WriteCommandValidatorInterface
 
             $pk = $command->getPrimaryKey();
             $id = \strtolower(Uuid::fromBytesToHex($pk['id']));
-            if (!\in_array($id, [Defaults::LANGUAGE_EN, Defaults::LANGUAGE_DE])) {
+            if (!\in_array($id, [Defaults::LANGUAGE_SYSTEM, Defaults::LANGUAGE_DE])) {
                 continue;
             }
 

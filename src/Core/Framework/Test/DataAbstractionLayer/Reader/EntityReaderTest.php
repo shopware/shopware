@@ -75,8 +75,8 @@ class EntityReaderTest extends TestCase
             [
                 'id' => $subLanguageId,
                 'name' => 'en_sub',
-                'parentId' => Defaults::LANGUAGE_EN,
-                'localeId' => Defaults::LOCALE_EN_GB,
+                'parentId' => Defaults::LANGUAGE_SYSTEM,
+                'localeId' => Defaults::LOCALE_SYSTEM,
             ],
         ], $context);
 
@@ -86,7 +86,7 @@ class EntityReaderTest extends TestCase
             'manufacturer' => ['name' => 'test'],
             'tax' => ['taxRate' => 13, 'name' => 'green'],
             'translations' => [
-                Defaults::LANGUAGE_EN => ['name' => 'EN'],
+                Defaults::LANGUAGE_SYSTEM => ['name' => 'EN'],
                 Defaults::LANGUAGE_DE => ['name' => 'DE'],
                 $subLanguageId => ['description' => 'test'],
             ],
@@ -99,8 +99,7 @@ class EntityReaderTest extends TestCase
             $context->getCatalogIds(),
             $context->getRules(),
             $context->getCurrencyId(),
-            $subLanguageId,
-            Defaults::LANGUAGE_EN
+            [$subLanguageId, Defaults::LANGUAGE_SYSTEM]
         );
 
         $product = $this->productRepository->read(new ReadCriteria([$id]), $context)->first();
@@ -117,7 +116,7 @@ class EntityReaderTest extends TestCase
         static::assertEquals('test', $translation->getDescription());
         static::assertNull($translation->getName());
 
-        $translation = $product->getTranslations()->get($id . '-' . Defaults::LANGUAGE_EN);
+        $translation = $product->getTranslations()->get($id . '-' . Defaults::LANGUAGE_SYSTEM);
         static::assertInstanceOf(ProductTranslationEntity::class, $translation);
         static::assertEquals('EN', $translation->getName());
         static::assertNull($translation->getDescription());
@@ -135,8 +134,8 @@ class EntityReaderTest extends TestCase
             [
                 'id' => $subLanguageId,
                 'name' => 'en_sub',
-                'parentId' => Defaults::LANGUAGE_EN,
-                'localeId' => Defaults::LOCALE_EN_GB,
+                'parentId' => Defaults::LANGUAGE_SYSTEM,
+                'localeId' => Defaults::LOCALE_SYSTEM,
             ],
         ], $context);
 
@@ -146,7 +145,7 @@ class EntityReaderTest extends TestCase
             'manufacturer' => ['name' => 'test'],
             'tax' => ['taxRate' => 13, 'name' => 'green'],
             'translations' => [
-                Defaults::LANGUAGE_EN => ['name' => 'EN'],
+                Defaults::LANGUAGE_SYSTEM => ['name' => 'EN'],
                 Defaults::LANGUAGE_DE => ['name' => 'DE'],
                 $subLanguageId => ['description' => 'test'],
             ],
@@ -159,8 +158,7 @@ class EntityReaderTest extends TestCase
             $context->getCatalogIds(),
             $context->getRules(),
             $context->getCurrencyId(),
-            $subLanguageId,
-            Defaults::LANGUAGE_EN
+            [$subLanguageId, Defaults::LANGUAGE_SYSTEM]
         );
 
         $product = $this->productRepository->read(new ReadCriteria([$id]), $context)->first();

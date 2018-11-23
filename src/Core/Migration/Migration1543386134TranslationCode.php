@@ -30,7 +30,7 @@ class Migration1543386134TranslationCode extends MigrationStep
             WHERE translation_code_id IS NULL'
         );
 
-        // you cannot drop the unique index withou dropping the foreign key
+        // you cannot drop the unique index without dropping the foreign key
         $connection->executeQuery('
             ALTER TABLE `language`
             DROP FOREIGN KEY `fk.language.locale_id`,
@@ -41,7 +41,7 @@ class Migration1543386134TranslationCode extends MigrationStep
             UPDATE `language`
             SET locale_id = :localeId
             WHERE locale_id IS NULL',
-            ['localeId' => Uuid::fromStringToBytes(Defaults::LOCALE_EN_GB)]
+            ['localeId' => Uuid::fromStringToBytes(Defaults::LOCALE_SYSTEM)]
         );
 
         // add temporary dropped foreign key again

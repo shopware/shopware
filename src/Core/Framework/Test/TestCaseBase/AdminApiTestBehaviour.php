@@ -79,7 +79,7 @@ trait AdminApiTestBehaviour
         TestCase::assertSame(
             Response::HTTP_OK,
             $client->getResponse()->getStatusCode(),
-            'Entity does not exists but should do.'
+            'Entity does not exists but should do. Response: ' . $client->getResponse()->getContent()
         );
     }
 
@@ -114,7 +114,7 @@ trait AdminApiTestBehaviour
             'email' => 'admin@example.com',
             'username' => $username,
             'password' => password_hash($password, PASSWORD_BCRYPT),
-            'locale_id' => Uuid::fromStringToBytes(Defaults::LOCALE_EN_GB),
+            'locale_id' => Uuid::fromStringToBytes(Defaults::LOCALE_SYSTEM),
             'active' => 1,
             'created_at' => (new \DateTime())->format(Defaults::DATE_FORMAT),
         ]);

@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\PriceRounding;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
@@ -52,8 +53,10 @@ class PercentagePriceCalculatorTest extends TestCase
             new PercentageTaxRuleBuilder()
         );
 
+        $priceDefinition = new PercentagePriceDefinition($percentage);
+
         $price = $calculator->calculate(
-            $percentage,
+            $priceDefinition,
             $prices,
             Generator::createCheckoutContext()
         );

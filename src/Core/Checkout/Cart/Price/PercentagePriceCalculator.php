@@ -2,13 +2,15 @@
 
 namespace Shopware\Core\Checkout\Cart\Price;
 
+use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Core\Checkout\CheckoutContext;
 
-class PercentagePriceCalculator
+class PercentagePriceCalculator implements PriceCalculatorInterface
 {
     /**
      * @var PriceRounding
@@ -35,18 +37,25 @@ class PercentagePriceCalculator
         $this->percentageTaxRuleBuilder = $percentageTaxRuleBuilder;
     }
 
+    public function supports(PriceDefinitionInterface $priceDefinition): bool
+    {
+        return $priceDefinition instanceof PercentagePriceDefinition;
+    }
+
     /**
      * Provide a negative percentage value for discount or a positive percentage value for a surcharge
      *
-     * @param float           $percentage 10.00 for 10%, -10.0 for -10%
-     * @param PriceCollection $prices
-     * @param CheckoutContext $context
+     * @param PercentagePriceDefinition $priceDefinition
+     * @param PriceCollection           $prices
+     * @param CheckoutContext           $context
      *
      * @return Price
      */
-    public function calculate($percentage, PriceCollection $prices, CheckoutContext $context): Price
+    public function calculate(PriceDefinitionInterface $priceDefinition, PriceCollection $prices, CheckoutContext $context): Price
     {
         $price = $prices->sum();
+
+        $percentage = $priceDefinition->getPercentage();
 
         $discount = $this->rounding->round($price->getTotalPrice() / 100 * $percentage);
 

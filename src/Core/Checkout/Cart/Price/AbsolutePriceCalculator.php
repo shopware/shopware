@@ -2,13 +2,15 @@
 
 namespace Shopware\Core\Checkout\Cart\Price;
 
+use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Core\Checkout\CheckoutContext;
 
-class AbsolutePriceCalculator
+class AbsolutePriceCalculator implements PriceCalculatorInterface
 {
     /**
      * @var QuantityPriceCalculator
@@ -26,11 +28,23 @@ class AbsolutePriceCalculator
         $this->percentageTaxRuleBuilder = $percentageTaxRuleBuilder;
     }
 
-    public function calculate(float $price, PriceCollection $prices, CheckoutContext $context): Price
+    public function supports(PriceDefinitionInterface $priceDefinition): bool
+    {
+        return $priceDefinition instanceof AbsolutePriceDefinition;
+    }
+
+    /**
+     * @param AbsolutePriceDefinition $priceDefinition
+     * @param PriceCollection         $prices
+     * @param CheckoutContext         $context
+     *
+     * @return Price
+     */
+    public function calculate(PriceDefinitionInterface $priceDefinition, PriceCollection $prices, CheckoutContext $context): Price
     {
         $taxRules = $this->percentageTaxRuleBuilder->buildRules($prices->sum());
 
-        $priceDefinition = new QuantityPriceDefinition($price, $taxRules, 1, true);
+        $priceDefinition = new QuantityPriceDefinition($priceDefinition->getPrice(), $taxRules, 1, true);
 
         return $this->priceCalculator->calculate($priceDefinition, $context);
     }

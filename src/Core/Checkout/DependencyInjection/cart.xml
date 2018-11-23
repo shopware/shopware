@@ -51,12 +51,14 @@
         </service>
 
         <service class="Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator" id="Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator">
+            <tag name="Shopware\Core\Checkout\Cart\Price\PriceCalculatorInterface"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PriceRounding"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder"/>
         </service>
 
         <service class="Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator" id="Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator">
+            <tag name="Shopware\Core\Checkout\Cart\Price\PriceCalculatorInterface"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder"/>
         </service>
@@ -131,8 +133,7 @@
 
         <service class="Shopware\Core\Checkout\Cart\Calculator" id="Shopware\Core\Checkout\Cart\Calculator" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator"/>
+            <argument type="tagged" tag="Shopware\Core\Checkout\Cart\Price\PriceCalculatorInterface"/>
         </service>
 
         <service class="Shopware\Core\Checkout\Cart\Enrichment" id="Shopware\Core\Checkout\Cart\Enrichment" public="true">

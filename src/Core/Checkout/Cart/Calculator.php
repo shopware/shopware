@@ -6,11 +6,8 @@ use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Exception\MissingLineItemPriceException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
-use Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator;
-use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\PriceCalculatorInterface;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
-use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
-use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
@@ -25,23 +22,20 @@ class Calculator
     private $priceCalculator;
 
     /**
-     * @var PercentagePriceCalculator
+     * @var PriceCalculatorInterface[]
      */
-    private $percentagePriceCalculator;
+    private $calculators;
 
     /**
-     * @var AbsolutePriceCalculator
+     * @param QuantityPriceCalculator    $priceCalculator
+     * @param PriceCalculatorInterface[] $calculators
      */
-    private $absolutePriceCalculator;
-
     public function __construct(
         QuantityPriceCalculator $priceCalculator,
-        PercentagePriceCalculator $percentagePriceCalculator,
-        AbsolutePriceCalculator $absolutePriceCalculator
+        iterable $calculators
     ) {
         $this->priceCalculator = $priceCalculator;
-        $this->percentagePriceCalculator = $percentagePriceCalculator;
-        $this->absolutePriceCalculator = $absolutePriceCalculator;
+        $this->calculators = $calculators;
     }
 
     public function calculate(Cart $cart, CheckoutContext $context): LineItemCollection
@@ -103,20 +97,14 @@ class Calculator
 
         $definition = $lineItem->getPriceDefinition();
 
-        if ($definition instanceof AbsolutePriceDefinition) {
-            //reduce line items for provided filter
-            $prices = $this->filterLineItems($calculated, $definition->getFilter(), $context)
-                ->getPrices();
+        foreach ($this->calculators as $calculator) {
+            if ($calculator->supports($definition)) {
+                //reduce line items for provided filter
+                $prices = $this->filterLineItems($calculated, $definition->getFilter(), $context)
+                    ->getPrices();
 
-            return $this->absolutePriceCalculator->calculate($definition->getPrice(), $prices, $context);
-        }
-
-        if ($definition instanceof PercentagePriceDefinition) {
-            //reduce line items for provided filter
-            $prices = $this->filterLineItems($calculated, $definition->getFilter(), $context)
-                ->getPrices();
-
-            return $this->percentagePriceCalculator->calculate($definition->getPercentage(), $prices, $context);
+                return $calculator->calculate($definition, $prices, $context);
+            }
         }
 
         if ($definition instanceof QuantityPriceDefinition) {

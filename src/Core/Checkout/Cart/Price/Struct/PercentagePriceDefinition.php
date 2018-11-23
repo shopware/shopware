@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Struct\Struct;
 class PercentagePriceDefinition extends Struct implements PriceDefinitionInterface
 {
     /**
-     * @var float
+     * @var float 10.00 for 10%, -10.0 for -10%
      */
     protected $percentage;
 

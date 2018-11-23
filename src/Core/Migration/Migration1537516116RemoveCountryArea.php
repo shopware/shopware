@@ -14,6 +14,10 @@ class Migration1537516116RemoveCountryArea extends MigrationStep
 
     public function update(Connection $connection): void
     {
+        $connection->executeQuery('
+            ALTER TABLE `country`
+            DROP FOREIGN KEY `fk_area_country.country_area_id`
+        ');
     }
 
     public function updateDestructive(Connection $connection): void
@@ -22,8 +26,7 @@ class Migration1537516116RemoveCountryArea extends MigrationStep
             ALTER TABLE `country`
             DROP COLUMN `country_area_id`,
             DROP COLUMN `country_area_tenant_id`,
-            DROP COLUMN `country_area_version_id`,
-            DROP FOREIGN KEY `fk_area_country.country_area_id`
+            DROP COLUMN `country_area_version_id`
         ');
         $connection->executeQuery('
             DROP TABLE `tax_area_rule_translation`

@@ -335,8 +335,7 @@ exports.loadFeatureFlags = function(envFile) {
     const envResult = dotenv.config({ path: envFile});
 
     if(envResult.hasOwnProperty('error')) {
-        console.error('Unable to load .env file, no features registered.');
-        console.error(envResult.error);
+        debug('utils-load-feature-flags', 'Unable to load .env file, no features registered.', envResult.error);
         return {};
     }
 

@@ -215,6 +215,10 @@
             <argument type="service" id="Shopware\Core\Framework\Twig\TemplateFinder"/>
         </service>
 
+        <service class="Shopware\Core\Framework\Twig\FeatureFlagExtension" id="Shopware\Core\Framework\Twig\FeatureFlagExtension">
+            <tag name="twig.extension"/>
+        </service>
+
         <service class="Twig_Extensions_Extension_Intl" id="twig.extension.intl">
             <tag name="twig.extension"/>
         </service>

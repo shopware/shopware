@@ -7,6 +7,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Index;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
@@ -59,7 +60,11 @@ class DefinitionValidator
     ];
 
     private static $tablesWithoutDefinition = [
-        'schema_version', 'search_dictionary',
+        'schema_version',
+        'search_dictionary',
+        'cart',
+        'migration',
+        'storefront_api_context',
     ];
 
     /**
@@ -229,18 +234,35 @@ class DefinitionValidator
             $propertyName = $field->getPropertyName();
 
             $setter = 'set' . ucfirst($propertyName);
-            $getter = 'get' . ucfirst($propertyName);
+            $getterMethods = [
+                'get' . ucfirst($propertyName),
+            ];
+
+            if ($field instanceof BoolField) {
+                $getterMethods[] = 'is' . ucfirst($propertyName);
+                $getterMethods[] = 'has' . ucfirst($propertyName);
+                $getterMethods[] = 'has' . ucfirst(ltrim('has', $propertyName));
+            }
+
+            $hasGetter = false;
 
             if (!$reflection->hasProperty($propertyName)) {
                 $properties[] = sprintf('Missing property %s in %s', $propertyName, $struct);
             }
 
-            if (!$reflection->hasMethod($getter)) {
-                $functionViolations[] = sprintf('No getter function %s in %s', $getter, $struct);
+            foreach ($getterMethods as $getterMethod) {
+                if ($reflection->hasMethod($getterMethod)) {
+                    $hasGetter = true;
+                    break;
+                }
+            }
+
+            if (!$hasGetter) {
+                $functionViolations[] = sprintf('No getter function for property %s in %s', $propertyName, $struct);
             }
 
             if (!$reflection->hasMethod($setter)) {
-                $functionViolations[] = sprintf('No setter function %s in %s', $setter, $struct);
+                $functionViolations[] = sprintf('No setter function for property %s in %s', $propertyName, $struct);
             }
         }
 

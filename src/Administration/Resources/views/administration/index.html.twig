@@ -64,7 +64,8 @@
         schemeAndHttpHost: '{{ app.request.schemeAndHttpHost }}',
         uri: '{{ app.request.uri }}',
         basePath: '{{ app.request.basePath }}',
-        pathInfo: '{{ app.request.pathInfo }}'
+        pathInfo: '{{ app.request.pathInfo }}',
+        features: {{ features|json_encode|raw }}
     };
 
     Shopware.Application.start(applicationContext);

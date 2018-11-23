@@ -3,6 +3,8 @@ const path = require('path');
 const appModulePath = require('app-module-path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const merge = require('webpack-merge');
+const dotenv = require('dotenv');
+const fs = require('fs');
 
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
@@ -208,12 +210,16 @@ exports.getChunks = function(config) {
  * Add the HTML Webpack plugin which injects the registered chunks to the devmode server.
  *
  * @param {Object} config
+ * @param {Object} featureFlags
  * @returns {HtmlWebpackPlugin}
  */
-exports.injectHtmlPlugin = function(config) {
+exports.injectHtmlPlugin = function(config, featureFlags) {
     return new HtmlWebpackPlugin({
         filename: 'index.html',
-        template: 'index.html',
+        template: 'index.html.tpl',
+        templateParameters: {
+            'featureFlags': JSON.stringify(featureFlags)
+        },
         inject: 'head'
     });
 };
@@ -316,5 +322,56 @@ exports.styleLoaders = function (options) {
     }
 
     return output
+};
+
+/**
+ *
+ * Loads the feature flag config from .env file and the filesystem
+ *
+ * @param {String} envFile
+ * @returns {Object}
+ */
+exports.loadFeatureFlags = function(envFile) {
+    const envResult = dotenv.config({ path: envFile});
+
+    if(envResult.hasOwnProperty('error')) {
+        debug('utils-load-feature-flags', 'Unable to load .env file, no features registered.', envResult.error);
+        return {};
+    }
+
+    const allNames = fs.readdirSync(path.join(__dirname, '../src/flag'))
+        .filter((file) => {
+            return file.indexOf('feature_') === 0;
+        })
+        .map(file => {
+            return path.basename(
+                file.substring(8),
+                '.js'
+            );
+        });
+
+    const allActive = Object.keys(envResult.parsed)
+        .filter((key) => {
+            return key.indexOf('FEATURE_') === 0;
+        }).reduce((obj, key) => {
+            const clearedKey = key
+                .substring(8)
+                .split('_')
+                .map((part) => {
+                    return part[0].toUpperCase() + part.substr(1).toLowerCase();
+                })
+                .join('')
+                .replace(/^./, (part) => {return part.toLowerCase(); });
+
+            obj[clearedKey] = (envResult.parsed[key] === '1');
+            return obj;
+        }, {});
+
+    const flagConfig = {};
+    allNames.forEach((flagName) => {
+        flagConfig[flagName] = allActive.hasOwnProperty(flagName);
+    });
+
+    return flagConfig;
 };
 

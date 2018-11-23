@@ -224,6 +224,19 @@ class ApplicationBootstrapper {
     }
 
     /**
+     * Initializes the feature flags from context settings
+     *
+     * @returns {module:core/application.ApplicationBootstrapper}
+     */
+    initializeFeatureFlags() {
+        const config = this.getContainer('init').context.features;
+
+        Shopware.FeatureConfig.init(config);
+
+        return this;
+    }
+
+    /**
      * Registers a decorator for either every initializer in the container or a defined one.
      *
      * @example
@@ -292,6 +305,7 @@ class ApplicationBootstrapper {
      */
     start(context = {}) {
         return this.registerContext(context)
+            .initializeFeatureFlags()
             .createApplicationRoot();
     }
 

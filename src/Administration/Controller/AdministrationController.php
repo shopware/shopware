@@ -5,6 +5,7 @@ namespace Shopware\Administration\Controller;
 use Shopware\Administration\Search\AdministrationSearch;
 use Shopware\Core\Framework\Api\Response\Type\Api\JsonType;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\FeatureFlag\FeatureConfig;
 use Shopware\Core\Framework\Twig\TemplateFinder;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -37,7 +38,7 @@ class AdministrationController extends AbstractController
     {
         $template = $this->finder->find('administration/index.html.twig', true);
 
-        return $this->render($template);
+        return $this->render($template, ['features' => FeatureConfig::getAll()]);
     }
 
     /**

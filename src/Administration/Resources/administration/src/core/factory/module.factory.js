@@ -23,6 +23,14 @@ const modules = new Map();
  * @returns {Map<any, any>} modules - Registry of all modules
  */
 function getModuleRegistry() {
+    modules.forEach((value, key) => {
+        if (hasOwnProperty(value.manifest, 'flag')
+            && !Shopware.FeatureConfig.isActive(value.manifest.flag)
+        ) {
+            modules.delete(key);
+        }
+    });
+
     return modules;
 }
 
@@ -98,7 +106,7 @@ function registerModule(moduleId, module) {
         }
 
         // Generate the component list based on a route
-        route = createRouteComponentList(route, moduleId);
+        route = createRouteComponentList(route, moduleId, module);
 
         if (!route) {
             return;
@@ -235,9 +243,14 @@ function iterateChildRoutes(routeDefinition, moduleName, parentKey) {
  *
  * @param {Object} route
  * @param {String} moduleId
+ * @param {Object} module
  * @returns {void|Object}
  */
-function createRouteComponentList(route, moduleId) {
+function createRouteComponentList(route, moduleId, module) {
+    if (hasOwnProperty(module, 'flag')) {
+        route.flag = module.flag;
+    }
+
     if (route.components && Object.keys(route.components).length) {
         const componentList = {};
 
@@ -292,9 +305,14 @@ function getModuleRoutes() {
 
     modules.forEach((module) => {
         module.routes.forEach((route) => {
+            if (hasOwnProperty(route, 'flag') && !Shopware.FeatureConfig.isActive(route.flag)) {
+                return;
+            }
+
             if (route.isChildren) {
                 return;
             }
+
             moduleRoutes.push(route);
         });
     });

@@ -1,7 +1,6 @@
 /* global Shopware */
-import ModuleFactory from 'src/core/factory/module.factory';
-
-const register = ModuleFactory.registerModule;
+const ModuleFactory = Shopware.Module;
+const register = ModuleFactory.register;
 
 // We're clearing the modules registry to register the same module multiple times throughout the test suite
 beforeEach(() => {

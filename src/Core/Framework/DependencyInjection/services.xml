@@ -123,6 +123,11 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
+        <service class="Shopware\Core\Framework\Command\FeatureFlagCreateCommand" id="Shopware\Core\Framework\Command\FeatureFlagCreateCommand">
+            <tag name="console.command" command="feature:add"/>
+            <argument type="service" id="Shopware\Core\Framework\FeatureFlag\FeatureFlagGenerator"/>
+        </service>
+
         <!-- Migration -->
         <service class="Shopware\Core\Framework\Migration\MigrationRuntime" id="Shopware\Core\Framework\Migration\MigrationRuntime" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
@@ -243,5 +248,9 @@
             <argument type="service" id="sales_channel.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver"/>
         </service>
+
+        <!-- Feature Flags -->
+       <service class="Shopware\Core\Framework\FeatureFlag\FeatureFlagGenerator" id="Shopware\Core\Framework\FeatureFlag\FeatureFlagGenerator" />
+
     </services>
 </container>

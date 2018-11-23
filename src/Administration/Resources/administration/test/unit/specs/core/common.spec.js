@@ -1,7 +1,7 @@
 import { beforeAsync } from '../../async-helper';
 
 beforeAsync((done) => {
-    Shopware.Application.start().then(() => {
+    Shopware.Application.start({features: JSON.parse(process.env.FLAGS)}).then(() => {
         const AuthStore = Shopware.State.getStore('auth');
         AuthStore.username = 'admin';
         AuthStore.password = 'shopware';

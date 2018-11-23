@@ -37,7 +37,10 @@ let mergedWebpackConfig = merge(baseWebpackConfig, {
         new webpack.HotModuleReplacementPlugin(),
         new webpack.NoEmitOnErrorsPlugin(),
         // https://github.com/ampedandwired/html-webpack-plugin
-        utils.injectHtmlPlugin(baseWebpackConfig),
+        utils.injectHtmlPlugin(
+            baseWebpackConfig,
+            utils.loadFeatureFlags(process.env.ENV_FILE)
+        ),
         new FriendlyErrorsPlugin()
     ]
 });

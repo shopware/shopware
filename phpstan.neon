@@ -2,6 +2,7 @@ parameters:
     reportUnmatchedIgnoredErrors: false
     excludes_analyse:
         - %rootDir%/../../src/**/*Test.php
+        - %rootDir%/../../src/**/_fixture/feature_*.php
         - %rootDir%/../../src/Core/Framework/Command/DemodataCommand.php
         - %rootDir%/../../src/Core/Framework/Faker/Commerce.php
         - %rootDir%/../../src/Docs/*

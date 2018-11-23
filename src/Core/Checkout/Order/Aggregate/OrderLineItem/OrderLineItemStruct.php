@@ -115,6 +115,11 @@ class OrderLineItemStruct extends Entity
      */
     protected $parent;
 
+    /**
+     * @var OrderLineItemCollection|null
+     */
+    protected $children;
+
     public function getOrderId(): string
     {
         return $this->orderId;
@@ -323,5 +328,15 @@ class OrderLineItemStruct extends Entity
     public function setParent(OrderLineItemStruct $parent): void
     {
         $this->parent = $parent;
+    }
+
+    public function getChildren(): ?OrderLineItemCollection
+    {
+        return $this->children;
+    }
+
+    public function setChildren(OrderLineItemCollection $children): void
+    {
+        $this->children = $children;
     }
 }

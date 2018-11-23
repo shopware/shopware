@@ -6,36 +6,31 @@ class FeatureFlagGenerator
 {
     private const TEMPLATE_PHP = <<<'EOD'
 <?php declare(strict_types=1);
-    
-namespace %s {
 
+namespace %s {
     use Shopware\Core\Framework\FeatureFlag\FeatureConfig;
-    
-    FeatureConfig::addFlag('%s');
-    
-    if(getenv('%s') === '1') {
-       FeatureConfig::activate('%s');
-    }
-    
+
+    FeatureConfig::registerFlag('%s', '%s');
+
     function %s(): bool
     {
         return FeatureConfig::isActive('%s');
     }
-    
+
     function if%s(\Closure $closure): void
     {
         %s() && $closure();
     }
-    
+
     function if%sCall($object, string $methodName, ...$arguments): void
     {
         $closure = function () use ($methodName, $arguments) {
-            $this->{$methodName}(... $arguments);
+            $this->{$methodName}(...$arguments);
         };
-    
+
         if%s(\Closure::bind($closure, $object, $object));
     }
-    
+
     function skipTest%s(\PHPUnit\Framework\TestCase $test): void
     {
         if (%s()) {
@@ -78,18 +73,17 @@ export function if%sCall(object, methodName) {
   
 EOD;
 
-    public function exportPhp(string $namespace, string $featureName, string $destinationPath): void
+    public function exportPhp(string $namespace, string $featureName, string $destinationPath): string
     {
-        $constantName = $this->toConstantName($featureName);
+        $constantName = $this->getEnvironmentName($featureName);
         $lowerCamelCaseName = $this->toLowerCammelCase($featureName);
         $upperCamelCase = ucfirst($lowerCamelCaseName);
-        $lowerName = strtolower($lowerCamelCaseName);
+        $featureFilePath = $destinationPath . "/feature_$lowerCamelCaseName.php";
 
         $contents = sprintf(self::TEMPLATE_PHP,
             $namespace,
             $lowerCamelCaseName,
             $constantName,
-            $lowerCamelCaseName,
             $lowerCamelCaseName,
             $lowerCamelCaseName,
             $upperCamelCase,
@@ -101,15 +95,17 @@ EOD;
             $featureName
         );
 
-        file_put_contents($destinationPath . "/feature_$lowerName.php", $contents);
+        file_put_contents($featureFilePath, $contents);
+
+        return $featureFilePath;
     }
 
-    public function exportJs(string $featureName, string $destinationPath): void
+    public function exportJs(string $featureName, string $destinationPath): string
     {
         $lowerCamelCaseName = $this->toLowerCammelCase($featureName);
         $upperCamelCase = ucfirst($lowerCamelCaseName);
-        $lowerName = strtolower($lowerCamelCaseName);
         $capitablame = strtoupper($lowerCamelCaseName);
+        $featureFilePath = $destinationPath . "/feature_$lowerCamelCaseName.js";
 
         $contents = sprintf(self::TEMPLATE_JS,
             $lowerCamelCaseName,
@@ -126,7 +122,14 @@ EOD;
             $upperCamelCase
         );
 
-        file_put_contents($destinationPath . "/feature_$lowerName.js", $contents);
+        file_put_contents($featureFilePath, $contents);
+
+        return $featureFilePath;
+    }
+
+    public function getEnvironmentName(string $string): string
+    {
+        return 'FEATURE_' . str_replace(' ', '_', trim(strtoupper(preg_replace('/[^\da-z]/i', ' ', $string))));
     }
 
     private function toLowerCammelCase(string $string): string
@@ -138,10 +141,5 @@ EOD;
         $cammelCasedName = implode('', array_map('ucfirst', $parts));
 
         return lcfirst($cammelCasedName);
-    }
-
-    private function toConstantName(string $string)
-    {
-        return 'FEATURE_' . str_replace(' ', '_', trim(strtoupper(preg_replace('/[^\da-z]/i', ' ', $string))));
     }
 }

@@ -1,26 +1,35 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\FeatureFlag\_fixture;
+namespace Shopware\Core\Framework\Test\FeatureFlag\_fixture {
+    use Shopware\Core\Framework\FeatureFlag\FeatureConfig;
 
-use Shopware\Core\Framework\FeatureFlag\FeatureConfig;
+    FeatureConfig::registerFlag('nextFix101', 'FEATURE_NEXT_FIX_101');
 
-FeatureConfig::addFlag('nextFix101');
+    function nextFix101(): bool
+    {
+        return FeatureConfig::isActive('nextFix101');
+    }
 
-function nextFix101(): bool
-{
-    return FeatureConfig::isActive('nextFix101');
-}
+    function ifNextFix101(\Closure $closure): void
+    {
+        nextFix101() && $closure();
+    }
 
-function ifNextFix101(\Closure $closure): void
-{
-    nextFix101() && $closure();
-}
+    function ifNextFix101Call($object, string $methodName, ...$arguments): void
+    {
+        $closure = function () use ($methodName, $arguments) {
+            $this->{$methodName}(...$arguments);
+        };
 
-function ifNextFix101Call($object, string $methodName): void
-{
-    $closure = function () use ($methodName) {
-        $this->{$methodName}();
-    };
+        ifnextFix101(\Closure::bind($closure, $object, $object));
+    }
 
-    ifnextFix101(\Closure::bind($closure, $object, $object));
+    function skipTestNextFix101(\PHPUnit\Framework\TestCase $test): void
+    {
+        if (nextFix101()) {
+            return;
+        }
+
+        $test->markTestSkipped('Skipping feature test "next-fix-101"');
+    }
 }

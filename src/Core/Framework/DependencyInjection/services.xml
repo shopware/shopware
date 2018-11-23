@@ -125,8 +125,6 @@
 
         <service class="Shopware\Core\Framework\Command\FeatureFlagCreateCommand" id="Shopware\Core\Framework\Command\FeatureFlagCreateCommand">
             <tag name="console.command" command="feature:add"/>
-            <!--<tag name="shopware.feature" flag="next123"/>-->
-
             <argument type="service" id="Shopware\Core\Framework\FeatureFlag\FeatureFlagGenerator"/>
         </service>
 

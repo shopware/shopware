@@ -7,6 +7,7 @@ use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 class FeatureFlagCreateCommand extends ContainerAwareCommand
 {
@@ -30,12 +31,31 @@ class FeatureFlagCreateCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        /** @var string $tenantId */
+        $io = new SymfonyStyle($input, $output);
+
+        /** @var string $name */
         $name = $input->getArgument('name');
 
-        $this->generator->exportPhp('Flag', $name, __DIR__ . '/../../Flag');
-        $this->generator->exportJs($name, __DIR__ . '/../../../Administration/Resources/administration/src/flag');
+        $io->title("Creating feature flag: $name");
 
-        $output->writeln('Created flag: ' . $name);
+        $phpFlag = $this->generator
+            ->exportPhp('Flag', $name, __DIR__ . '/../../Flag');
+
+        $jsFlag = $this->generator
+            ->exportJs($name, __DIR__ . '/../../../Administration/Resources/administration/src/flag');
+
+        $envName = $this->generator
+            ->getEnvironmentName($name);
+
+        $io->table(
+            ['Type', 'Value'], [
+                ['PHP-Flag', realpath($phpFlag)],
+                ['JS-Flag', realpath($jsFlag)],
+                ['Constant', $envName],
+            ]
+        );
+
+        $io->success("Created flag: $name");
+        $io->note('Please remember to add and commit the files');
     }
 }

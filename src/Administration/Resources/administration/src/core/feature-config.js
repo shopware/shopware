@@ -10,24 +10,12 @@ export default class FeatureConfig {
 
     static init(flagConfig) {
         Object.entries(flagConfig).forEach(([flagName, isActive]) => {
-            FeatureConfig.addFlag(flagName);
-
-            if (isActive) {
-                FeatureConfig.activate(flagName);
-            }
+            this.flags[flagName] = isActive;
         });
     }
 
     static getAll() {
         return this.flags;
-    }
-
-    static addFlag(flagName) {
-        this.flags[flagName] = false;
-    }
-
-    static activate(flagName) {
-        this.flags[flagName] = true;
     }
 
     static isActive(flagName) {

@@ -6,19 +6,21 @@ class FeatureConfig
 {
     private static $flags = [];
 
-    public static function addFlag(string $flagName): void
+    public static function registerFlag(string $flagName, string $envName): void
     {
-        self::$flags[$flagName] = false;
-    }
-
-    public static function activate(string $flagName): void
-    {
-        self::$flags[$flagName] = true;
+        self::$flags[$flagName] = $envName;
     }
 
     public static function getAll(): array
     {
-        return self::$flags;
+        $flagNames = array_keys(self::$flags);
+        $resolvedFlags = [];
+
+        foreach ($flagNames as $flagName) {
+            $resolvedFlags[$flagName] = self::isActive($flagName);
+        }
+
+        return $resolvedFlags;
     }
 
     public static function isActive(string $flagName): bool
@@ -27,6 +29,6 @@ class FeatureConfig
             throw new \RuntimeException(sprintf('Unable to retrieve flag %s, not registered', $flagName));
         }
 
-        return self::$flags[$flagName];
+        return getenv(self::$flags[$flagName]) === '1';
     }
 }

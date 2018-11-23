@@ -54,6 +54,7 @@ class TemplateFinder
             return false;
         }
 
+        array_unshift($this->directories, $bundle->getName());
         $this->loader->addPath($directory, $bundle->getName());
 
         return true;

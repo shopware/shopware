@@ -21,7 +21,7 @@ module.exports = {
             .waitForElementVisible('.sw-media-upload-button__button-url')
             .click('.sw-media-upload-button__button-url')
             .waitForElementVisible('.sw-media-upload-url-modal')
-            .fillField('input[name=sw-field--url]',`${process.env.APP_URL}/bundles/administration/static/img/sw-media-background.png`)
+            .fillField('input[name=sw-field--url]',`${process.env.APP_URL}/bundles/administration/static/img/sw-login-background.png`)
             .click('.sw-modal__footer .sw-button--primary')
             .waitForElementVisible('.sw-alert--success')
             .click('.sw-alert__close');
@@ -32,7 +32,7 @@ module.exports = {
             .waitForElementVisible('.sw-context-menu')
             .click('.sw-media-upload-button__button-url')
             .waitForElementVisible('.sw-media-upload-url-modal')
-            .fillField('input[name=sw-field--url]', `${process.env.APP_URL}/bundles/administration/static/img/sw-media-background.png`)
+            .fillField('input[name=sw-field--url]', `${process.env.APP_URL}/bundles/administration/static/img/sw-login-background.png`)
             .click('.sw-modal__footer .sw-button--primary')
             .waitForElementVisible('.sw-alert--success')
             .click('.sw-alert__close');
@@ -54,23 +54,23 @@ module.exports = {
     'verify meta data': (browser) => {
         browser
             .assert.containsText('.sw-media-quickinfo-metadata-name', 'Name:')
-            .assert.containsText('.sw-media-quickinfo-metadata-name', 'sw-media-background')
+            .assert.containsText('.sw-media-quickinfo-metadata-name', 'sw-login-background')
             .assert.containsText('.sw-media-quickinfo-metadata-mimeType', 'MIME-Type:')
             .assert.containsText('.sw-media-quickinfo-metadata-mimeType', 'image/png')
             .assert.containsText('.sw-media-quickinfo-metadata-size', 'Size:')
-            .assert.containsText('.sw-media-quickinfo-metadata-size', '1.01KB')
+            .assert.containsText('.sw-media-quickinfo-metadata-size', '501.38KB')
             .assert.containsText('.sw-media-quickinfo-metadata-createdAt', 'Uploaded at:')
             .assert.containsText('.sw-media-quickinfo-metadata-url', 'URL:')
             .assert.containsText('.sw-media-quickinfo-metadata-width', 'Width:')
-            .assert.containsText('.sw-media-quickinfo-metadata-width', '16px')
+            .assert.containsText('.sw-media-quickinfo-metadata-width', '589px')
             .assert.containsText('.sw-media-quickinfo-metadata-height', 'Height:')
-            .assert.containsText('.sw-media-quickinfo-metadata-height', '16px');
+            .assert.containsText('.sw-media-quickinfo-metadata-height', '637px');
     },
     'delete first item and check deletion verification': (browser) => {
         browser
             .click('li.quickaction--delete')
             .waitForElementVisible('div.sw-modal.sw-modal--small.sw-media-modal-delete')
-            .assert.containsText('.sw-modal__body', 'Do you want to delete "sw-media-background" ?')
+            .assert.containsText('.sw-modal__body', 'Do you want to delete "sw-login-background" ?')
             .waitForElementVisible('.sw-modal__footer .sw-media-modal-delete__confirm')
             .click('.sw-media-modal-delete__confirm')
             .waitForElementNotPresent('.sw-modal__footer')
@@ -83,7 +83,7 @@ module.exports = {
             .waitForElementVisible('.sw-context-menu__content')
             .click('.sw-context-menu__group .sw-context-menu-item--danger')
             .waitForElementVisible('.sw-media-modal-delete')
-            .assert.containsText('.sw-modal__body', 'Do you want to delete "sw-media-background" ?')
+            .assert.containsText('.sw-modal__body', 'Do you want to delete "sw-login-background" ?')
             .click('.sw-media-modal-delete__confirm')
             .waitForElementVisible('.sw-empty-state')
             .end();

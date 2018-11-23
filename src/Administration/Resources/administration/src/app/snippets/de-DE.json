@@ -686,7 +686,8 @@
       "labelSortByCreatedAsc": "Erstelldatum aufsteigend",
       "labelSortByCreatedDsc": "Erstelldatum absteigend",
       "labelSortByDataTypeAsc": "Dateityp aufsteigend",
-      "labelSortByDataTypeDsc": "Dateityp absteigend"
+      "labelSortByDataTypeDsc": "Dateityp absteigend",
+      "labelLoadMore": "{count} weitere Dateien laden"
     }
   },
   "sw-settings": {

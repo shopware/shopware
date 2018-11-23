@@ -28,7 +28,6 @@
                 {% block sw_media_catalog_smart_bar_media_upload %}
                     <sw-media-upload-button
                         variant="compact"
-                        @new-media-entity="onNewMedia"
                         @new-upload-started="onNewUpload">
                     </sw-media-upload-button>
                 {% endblock %}
@@ -38,7 +37,7 @@
 
         <template slot="content">
             {% block sw_media_catalog_page_content %}
-                <div v-if="mediaItems.length > 0" class="sw-media-catalog__page-content">
+                <div v-if="displayedItems.length > 0" class="sw-media-catalog__page-content">
                     {% block sw_media_catalog_content_container %}
                         <div class="sw-media-catalog__content-container">
                             {% block sw_media_catalog_content %}
@@ -94,14 +93,14 @@
 
                                                 {% block sw_media_catalog_single_select_sort_name_asc %}
                                                     <option slot="options"
-                                                            value="name:asc">
+                                                            value="fileName:asc">
                                                         {{ $tc('sw-media.catalog.labelSortByNameAsc') }}
                                                     </option>
                                                 {% endblock %}
 
                                                 {% block sw_media_catalog_single_select_sort_name_dsc %}
                                                     <option slot="options"
-                                                            value="name:dsc">
+                                                            value="fileName:dsc">
                                                         {{ $tc('sw-media.catalog.labelSortByNameDsc') }}
                                                     </option>
                                                 {% endblock %}
@@ -123,44 +122,48 @@
                                         {% endblock %}
                                     </div>
 
-                                    {% block sw_media_catalog_media_grid %}
+                                    <div class="sw-media-catalog__scroll-container">
+                                        {% block sw_media_catalog_media_grid %}
                                         <sw-media-grid
-                                            class="sw-media-catalog__media-grid"
-                                            dragSelectorClass="sw-media-grid-media-item"
-                                            :presentation="presentation"
-                                            @sw-media-grid-selection-clear="clearSelection">
+                                                ref="mediaGrid"
+                                                class="sw-media-catalog__media-grid"
+                                                dragSelectorClass="sw-media-grid-media-item"
+                                                :presentation="presentation"
+                                                @sw-media-grid-selection-clear="clearSelection">
 
                                             <sw-media-grid-media-item
-                                                v-for="mediaItem in mediaItems"
-                                                :key="mediaItem.id"
-                                                :item="mediaItem"
-                                                :selected="showItemSelected(mediaItem)"
-                                                :showSelectionIndicator="isListSelect"
-                                                :isList="false"
-                                                @sw-media-grid-media-item-delete="handleMediaGridItemDelete"
-                                                v-on="mediaItemSelectionHandler">
+                                                    v-for="mediaItem in displayedItems"
+                                                    :key="mediaItem.id"
+                                                    :item="mediaItem"
+                                                    :selected="showItemSelected(mediaItem)"
+                                                    :showSelectionIndicator="isListSelect"
+                                                    :isList="false"
+                                                    @sw-media-grid-media-item-delete="handleMediaGridItemDelete"
+                                                    v-on="mediaItemSelectionHandler">
 
                                                 {% block sw_media_catalog_context_item_detail %}
-                                                    <sw-context-menu-item @click="showDetails(mediaItem)"
-                                                                          slot="additional-context-menu-items">
-                                                        {{ $tc('global.sw-media-grid-media-item.labelContextMenuDetail') }}
-                                                    </sw-context-menu-item>
+                                                <sw-context-menu-item @click="showDetails(mediaItem)"
+                                                                      slot="additional-context-menu-items">
+                                                    {{ $tc('global.sw-media-grid-media-item.labelContextMenuDetail') }}
+                                                </sw-context-menu-item>
                                                 {% endblock %}
                                             </sw-media-grid-media-item>
-
                                         </sw-media-grid>
-                                    {% endblock %}
+                                        {% endblock %}
 
-                                    {% block sw_media_catalog_pagination %}
-                                        <div class="sw-media-catalog__sw-pagination">
-                                            <sw-pagination
-                                                :page="page"
-                                                :limit="limit"
-                                                :total="total"
-                                                @page-change="onPageChange">
-                                            </sw-pagination>
+                                        {% block sw_media_catalog_load_more %}
+                                        <div class="sw-media-catalog__load-more">
+                                            <sw-loader v-if="isLoadingMore" size="30" slot="load-more"></sw-loader>
+
+                                            <sw-button v-else-if="itemsLeft" @click="onLoadMore">
+                                                {{ $t('sw-media.catalog.labelLoadMore', {
+                                                        count: (itemsLeft > limit) ? limit : itemsLeft
+                                                    })
+                                                }}
+                                            </sw-button>
                                         </div>
-                                    {% endblock %}
+                                        {% endblock %}
+                                    </div>
                                 </div>
                             {% endblock %}
                         </div>
@@ -183,7 +186,7 @@
             {% endblock %}
 
             {% block sw_media_catalog_empty_state %}
-                <sw-empty-state v-else-if="!isLoading && !total" :title="$tc('sw-media.catalog.messageEmpty')"></sw-empty-state>
+                <sw-empty-state v-else-if="!isLoading && displayedItems.length === 0" :title="$tc('sw-media.catalog.messageEmpty')"></sw-empty-state>
             {% endblock %}
         </template>
     </sw-page>

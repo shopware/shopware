@@ -684,7 +684,8 @@
       "labelSortByCreatedAsc": "Creation date, ascending",
       "labelSortByCreatedDsc": "Creation date, descending",
       "labelSortByDataTypeAsc": "Data type, ascending",
-      "labelSortByDataTypeDsc": "Data type, descending"
+      "labelSortByDataTypeDsc": "Data type, descending",
+      "labelLoadMore": "load {count} more files"
     }
   },
   "sw-settings": {

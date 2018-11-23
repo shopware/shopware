@@ -1,4 +1,6 @@
 import { Component, State, Mixin } from 'src/core/shopware';
+import CriteriaFactory from 'src/core/factory/criteria.factory';
+import Utils from 'src/core/service/util.service';
 import template from './sw-media-catalog.html.twig';
 import './sw-media-catalog.less';
 
@@ -6,7 +8,6 @@ Component.register('sw-media-catalog', {
     template,
 
     mixins: [
-        Mixin.getByName('listing'),
         Mixin.getByName('mediagrid-listener')
     ],
 
@@ -16,9 +17,17 @@ Component.register('sw-media-catalog', {
             previewType: 'media-grid-preview-as-grid',
             catalogs: [],
             mediaItems: [],
+            uploadedItems: [],
+            displayedItems: [],
             sortType: ['createdAt', 'dsc'],
             catalogIconSize: 200,
-            presentation: 'medium-preview'
+            presentation: 'medium-preview',
+            isLoadingMore: false,
+            itemsLeft: 0,
+            page: 1,
+            limit: 50,
+            term: '',
+            total: 0
         };
     },
 
@@ -36,22 +45,48 @@ Component.register('sw-media-catalog', {
         }
     },
 
+    created() {
+        this.createdComponent();
+    },
+
+    destroyed() {
+        this.destroyedComponent();
+    },
+
+    watch: {
+        uploadedItems() {
+            this.debounceDisplayItems();
+        },
+
+        mediaItems(value) {
+            this.displayedItems = this.uploadedItems.concat(value);
+        }
+    },
+
     methods: {
+        createdComponent() {
+            this.getList();
+        },
 
         destroyedComponent() {
             this.$root.$off('search', this.onSearch);
+        },
+
+        debounceDisplayItems() {
+            Utils.debounce(() => {
+                this.displayedItems = this.uploadedItems.concat(this.mediaItems);
+                if (this.$refs.mediaGrid) {
+                    this.$refs.mediaGrid.$el.scrollTop = 0;
+                }
+            }, 100)();
         },
 
         showDetails(mediaItem) {
             this._showDetails(mediaItem, false);
         },
 
-        onNewMedia() {
-            this.getList();
-        },
-
         onNewUpload(mediaEntity) {
-            this.mediaItems.unshift(mediaEntity);
+            this.uploadedItems.unshift(mediaEntity);
         },
 
         getList() {
@@ -59,16 +94,60 @@ Component.register('sw-media-catalog', {
             this.clearSelection();
             const params = this.getListingParams();
 
-            params.sortBy = this.sortType[0];
-            params.sortDirection = this.sortType[1];
-
             return this.mediaItemStore.getList(params, true).then((response) => {
                 this.total = response.total;
                 this.mediaItems = response.items;
                 this.isLoading = false;
+                this.itemsLeft = this.calcItemsLeft();
 
                 return this.mediaItems;
             });
+        },
+
+        onLoadMore() {
+            this.page += 1;
+            this.extendList();
+        },
+
+        onSearch(value) {
+            this.term = value;
+
+            this.page = 1;
+            this.getList();
+        },
+
+        extendList() {
+            const params = this.getListingParams();
+            this.isLoadingMore = true;
+
+            return this.mediaItemStore.getList(params).then((response) => {
+                this.mediaItems = this.mediaItems.concat(response.items);
+                this.itemsLeft = this.calcItemsLeft();
+                this.isLoadingMore = false;
+
+                return this.mediaItems;
+            });
+        },
+
+        getListingParams() {
+            return {
+                limit: this.limit,
+                page: this.page,
+                sortBy: this.sortType[0],
+                sortDirection: this.sortType[1],
+                term: this.term,
+                criteria: CriteriaFactory.multi('and', ...this.getQueries())
+            };
+        },
+
+        getQueries() {
+            return this.uploadedItems.map((item) => {
+                return CriteriaFactory.not('and', CriteriaFactory.equals('id', item.id));
+            });
+        },
+
+        calcItemsLeft() {
+            return this.total - this.mediaItems.length;
         },
 
         sortMediaItems(event) {

@@ -2,6 +2,17 @@ import { Component } from 'src/core/shopware';
 import template from './sw-context-button.html.twig';
 import './sw-context-button.less';
 
+/**
+ * @public
+ * @status ready
+ * @example-type dynamic
+ * @component-example
+ * <sw-context-button>
+ *     <sw-context-menu-item>
+ *         Example item
+ *     </sw-context-menu-item>
+ * </sw-context-button>
+ */
 Component.register('sw-context-button', {
     template,
 

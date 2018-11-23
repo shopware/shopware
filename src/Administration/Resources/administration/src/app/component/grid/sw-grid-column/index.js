@@ -2,6 +2,9 @@ import { Component } from 'src/core/shopware';
 import './sw-grid-column.less';
 import template from './sw-grid-column.html.twig';
 
+/**
+ * @private
+ */
 Component.register('sw-grid-column', {
     template,
 

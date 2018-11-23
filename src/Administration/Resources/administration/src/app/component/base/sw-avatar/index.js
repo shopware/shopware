@@ -3,6 +3,18 @@ import { md5 } from 'src/core/service/utils/format.utils';
 import template from './sw-avatar.html.twig';
 import './sw-avatar.less';
 
+/**
+ * @description The component helps adding a properly formatted gravatar, custom user image or initials to the
+ * administration.
+ * @status ready
+ * @example-type static
+ * @component-example
+ * <sw-avatar color="#dd4800" size="48px" :user="{
+ *     firstName: 'John',
+ *     lastName: 'Doe',
+ *     useGravatar: false
+ * }"></sw-avatar>
+ */
 Component.register('sw-avatar', {
     template,
 

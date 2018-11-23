@@ -2,6 +2,16 @@ import { Component } from 'src/core/shopware';
 import './sw-error.less';
 import template from './sw-error.html.twig';
 
+/**
+ * @public
+ * @description
+ * Renders a error page.
+ * @status ready
+ * @example-type static
+ * @component-example
+ * <sw-error :errorObject="{ message: 'Could not load the page' }">
+ * </sw-error>
+ */
 Component.register('sw-error', {
     template,
 

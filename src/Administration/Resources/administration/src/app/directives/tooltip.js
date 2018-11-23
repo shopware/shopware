@@ -1,5 +1,6 @@
 import { Directive } from 'src/core/shopware';
 import utils, { debug } from 'src/core/service/util.service';
+import { hasOwnProperty } from 'src/core/service/utils/object.utils';
 
 const availableTooltipPlacements = [
     'top',
@@ -254,7 +255,7 @@ class Tooltip {
 Directive.register('tooltip', {
     bind: (el, { value, modifiers }) => {
         const position = value.position || Object.keys(modifiers)[0];
-        const message = (value.message) ? value.message.trim() : value.trim();
+        const message = (hasOwnProperty(value, 'message')) ? value.message.trim() : value.trim();
         const showDelay = value.showDelay;
         const hideDelay = value.hideDelay;
         const width = value.width;
@@ -279,7 +280,7 @@ Directive.register('tooltip', {
     },
 
     update: (el, { value, modifiers }) => {
-        const message = (value.message) ? value.message.trim() : value.trim();
+        const message = (hasOwnProperty(value, 'message')) ? value.message.trim() : value.trim();
         const position = value.position || Object.keys(modifiers)[0];
         const showDelay = value.showDelay;
         const hideDelay = value.hideDelay;

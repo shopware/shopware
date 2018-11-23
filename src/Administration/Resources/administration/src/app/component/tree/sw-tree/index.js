@@ -3,6 +3,14 @@ import utils from 'src/core/service/util.service';
 import template from './sw-tree.html.twig';
 import './sw-tree.less';
 
+/**
+ * @public
+ * @status ready
+ * @example-type code-only
+ * @component-example
+ * <sw-tree>
+ * </sw-tree>
+ */
 Component.register('sw-tree', {
     template,
 

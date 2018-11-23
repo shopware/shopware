@@ -2,6 +2,13 @@ import { Component } from 'src/core/shopware';
 import './sw-pagination.less';
 import template from './sw-pagination.html.twig';
 
+/**
+ * @public
+ * @status ready
+ * @example-type static
+ * @component-example
+ * <sw-pagination total="500" limit="25" page="1"></sw-pagination>
+ */
 Component.register('sw-pagination', {
     template,
 

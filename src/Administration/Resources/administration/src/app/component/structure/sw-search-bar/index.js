@@ -4,6 +4,13 @@ import dom from 'src/core/service/utils/dom.utils';
 import template from './sw-search-bar.html.twig';
 import './sw-search-bar.less';
 
+/**
+ * @public
+ * @description
+ * Renders the search bar. This component uses the search service to find entities in the administration.
+ * @status ready
+ * @example-type code-only
+ */
 Component.register('sw-search-bar', {
     template,
 

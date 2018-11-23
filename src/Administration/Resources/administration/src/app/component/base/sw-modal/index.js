@@ -2,6 +2,16 @@ import { Component } from 'src/core/shopware';
 import template from './sw-modal.html.twig';
 import './sw-modal.less';
 
+/**
+ * @public
+ * @description Modal box component which can be displayed in different variants and sizes
+ * @status ready
+ * @example-type static
+ * @component-example
+ * <sw-modal title="Modal box title" selector=".example .panel--content">
+ *     Lorem Ipsum
+ * </sw-modal>
+ */
 Component.register('sw-modal', {
     template,
 
@@ -22,6 +32,7 @@ Component.register('sw-modal', {
             type: String,
             required: false,
             default: 'default',
+            validValues: ['default', 'small', 'large', 'full'],
             validator(value) {
                 if (!value.length) {
                     return true;
@@ -34,6 +45,12 @@ Component.register('sw-modal', {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        selector: {
+            type: String,
+            required: false,
+            default: 'body'
         }
     },
 
@@ -60,8 +77,8 @@ Component.register('sw-modal', {
     methods: {
         mountedComponent() {
             document.addEventListener('keyup', this.closeModalOnEscapeKey);
-
-            document.body.appendChild(this.$el);
+            const targetEl = document.querySelector(this.selector);
+            targetEl.appendChild(this.$el);
 
             this.setFocusToModal();
         },

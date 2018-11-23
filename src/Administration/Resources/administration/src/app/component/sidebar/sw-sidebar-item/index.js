@@ -2,6 +2,15 @@ import { Component } from 'src/core/shopware';
 import template from './sw-sidebar-item.html.twig';
 import './sw-sidebar-item.less';
 
+/**
+ * @public
+ * @status ready
+ * @example-type code-only
+ * @component-example
+ * <sw-sidebar-item title="Product" icon="default-symbol-products">
+ *     Product in sidebar
+ * </sw-sidebar-item>
+ */
 Component.register('sw-sidebar-item', {
     template,
 

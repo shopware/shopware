@@ -3,6 +3,14 @@ import utils from 'src/core/service/util.service';
 import template from './sw-field.html.twig';
 import './sw-field.less';
 
+/**
+ * @public
+ * @description Universal field component which supports all common types of input fields.
+ * @status ready
+ * @example-type dynamic
+ * @component-example
+ * <sw-field type="text" label="Name" placeholder="Enter your name..."></sw-field>
+ */
 Component.register('sw-field', {
     template,
 
@@ -43,7 +51,6 @@ Component.register('sw-field', {
             default: ''
         },
         value: {
-            type: [String, Boolean, Number, Date],
             required: false,
             default: null
         },
@@ -163,7 +170,9 @@ Component.register('sw-field', {
                 this.boundExpression = this.$vnode.data.model.expression;
                 this.boundExpressionPath = this.boundExpression.split('.');
 
-                this.formError = this.errorStore.registerFormField(this.boundExpression);
+                if (this.errorStore) {
+                    this.formError = this.errorStore.registerFormField(this.boundExpression);
+                }
             }
         },
 

@@ -1,6 +1,9 @@
 import { Component } from 'src/core/shopware';
 import template from './sw-media-upload-url-modal.tml.twig';
 
+/**
+ * @private
+ */
 Component.register('sw-media-upload-url-modal', {
     template,
 

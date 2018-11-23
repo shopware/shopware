@@ -2,6 +2,14 @@ import { Component } from 'src/core/shopware';
 import './sw-loader.less';
 import template from './sw-loader.html.twig';
 
+/**
+ * @public
+ * @description Renders a loading indicator for panels, input fields, buttons, etc.
+ * @status ready
+ * @example-type dynamic
+ * @component-example
+ * <sw-loader></sw-loader>
+ */
 Component.register('sw-loader', {
     template,
 

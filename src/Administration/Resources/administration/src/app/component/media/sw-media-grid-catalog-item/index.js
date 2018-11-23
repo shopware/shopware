@@ -2,6 +2,9 @@ import { Component } from 'src/core/shopware';
 import template from './sw-media-grid-catalog-item.html.twig';
 import './sw-media-grid-catalog-item.less';
 
+/**
+ * @private
+ */
 Component.register('sw-media-grid-catalog-item', {
     template,
 

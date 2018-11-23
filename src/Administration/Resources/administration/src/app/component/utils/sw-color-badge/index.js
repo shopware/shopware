@@ -2,6 +2,22 @@ import { Component } from 'src/core/shopware';
 import template from './sw-color-badge.html.twig';
 import './sw-color-badge.less';
 
+/**
+ * @public
+ * @description
+ * Renders a colored badge for example as indicator if an item is available.
+ * @status ready
+ * @example-type static
+ * @component-example
+ * <div>
+ *     <!-- red square -->
+ *     <sw-color-badge color="red"></sw-color-badge>
+ *     <!-- green square -->
+ *     <sw-color-badge color="green"></sw-color-badge>
+ *     <!-- red circle -->
+ *     <sw-color-badge color="red" rounded></sw-color-badge>
+ * </div>
+ */
 Component.register('sw-color-badge', {
     template,
 

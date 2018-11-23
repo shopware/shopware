@@ -3,6 +3,10 @@ import dom from 'src/core/service/utils/dom.utils';
 import template from './sw-admin-menu.html.twig';
 import './sw-admin-menu.less';
 
+
+/**
+ * @private
+ */
 Component.register('sw-admin-menu', {
     template,
 

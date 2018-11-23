@@ -3,6 +3,9 @@ import { debug, fileReader } from 'src/core/service/util.service';
 import template from './sw-media-modal-replace.html.twig';
 import './sw-media-modal-replace.less';
 
+/**
+ * @private
+ */
 Component.register('sw-media-modal-replace', {
     template,
 

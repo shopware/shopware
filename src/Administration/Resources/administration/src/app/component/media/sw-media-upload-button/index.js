@@ -3,6 +3,9 @@ import util from 'src/core/service/util.service';
 import template from './sw-media-upload-button.html.twig';
 import './sw-media-upload-button.less';
 
+/**
+ * @private
+ */
 Component.register('sw-media-upload-button', {
     template,
 

@@ -2,6 +2,9 @@ import { Component } from 'src/core/shopware';
 import './sw-select-option.less';
 import template from './sw-select-option.html.twig';
 
+/**
+ * @private
+ */
 Component.register('sw-select-option', {
     template,
 

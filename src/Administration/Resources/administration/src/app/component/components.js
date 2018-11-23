@@ -12,7 +12,6 @@ import './sidebar/sw-sidebar-item';
 import './sidebar/sw-sidebar-navigation-item';
 import './base/sw-tabs';
 import './base/sw-tabs-item';
-import './base/sw-table';
 import './base/sw-modal';
 import './base/sw-address';
 import './base/sw-empty-state';
@@ -33,7 +32,6 @@ import './grid/sw-pagination';
 
 import './form/sw-field';
 import './form/sw-price-field';
-import './form/sw-form-grid';
 import './form/sw-select';
 import './form/sw-select-option';
 import './form/sw-text-editor';

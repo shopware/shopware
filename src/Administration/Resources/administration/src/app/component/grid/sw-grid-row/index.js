@@ -3,6 +3,9 @@ import utils from 'src/core/service/util.service';
 import template from './sw-grid-row.html.twig';
 import './sw-grid-row.less';
 
+/**
+ * @private
+ */
 Component.register('sw-grid-row', {
     template,
 

@@ -2,6 +2,15 @@ import { Component } from 'src/core/shopware';
 import template from './sw-sidebar.html.twig';
 import './sw-sidebar.less';
 
+/**
+ * @public
+ * @status ready
+ * @example-type static
+ * @component-example
+ * <sw-sidebar slot="sidebar">
+ *     <sw-sidebar-item title="Refresh" icon="default-arrow-360-left"></sw-sidebar-item>
+ * </sw-sidebar>
+ */
 Component.register('sw-sidebar', {
     template,
 

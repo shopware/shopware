@@ -2,6 +2,13 @@ import { Component } from 'src/core/shopware';
 import template from './sw-price-field.html.twig';
 import './sw-price-field.less';
 
+/**
+ * @public
+ * @status ready
+ * @example-type static
+ * @component-example
+ * <sw-price-field :price="{ net: 10, gross: 11.90 }" :currency="{ symbol: '€' }"></sw-price-field>
+ */
 Component.register('sw-price-field', {
     template,
 
@@ -33,7 +40,6 @@ Component.register('sw-price-field', {
             }
         },
         validation: {
-            type: [String, Array, Object, Boolean],
             required: false,
             default: null
         }

@@ -4,6 +4,9 @@ import utils from 'src/core/service/util.service';
 import template from './sw-sidebar-media-item.html.twig';
 import './sw-sidebar-media-item.less';
 
+/**
+ * @private
+ */
 Component.register('sw-sidebar-media-item', {
     template,
 

@@ -2,6 +2,9 @@ import { Component } from 'src/core/shopware';
 import template from './sw-media-preview.html.twig';
 import './sw-media-preview.less';
 
+/**
+ * @private
+ */
 Component.register('sw-media-preview', {
     template,
 

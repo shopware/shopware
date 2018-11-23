@@ -55,12 +55,29 @@
         height: 100%;
         line-height: 68px;
         margin: 0 auto;
-        display: grid;
-        grid-template-columns: 50% 50%;
+        display: flex;
+        align-items: center;
+        position: relative;
+    }
+
+    .smart-bar__content-inner {
+        display: flex;
+        align-items: center;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
 
         @media screen and (max-width: 1360px) {
-            padding: 0 15px;
+            left: 15px;
+            right: 15px;
         }
+    }
+
+    .smart-bar__header {
+        flex: 1;
+        min-width: 0;
     }
 
     .smart-bar__header h2 {

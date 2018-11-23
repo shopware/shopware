@@ -11,5 +11,13 @@ Component.register('sw-card-view', {
             required: false,
             default: false
         }
+    },
+
+    computed: {
+        cardViewClasses() {
+            return {
+                'has--sidebar': this.sidebar
+            };
+        }
     }
 });

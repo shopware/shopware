@@ -3,7 +3,6 @@
 namespace Shopware\Core\System\Test;
 
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\System\Tax\TaxStruct;
 
@@ -13,19 +12,14 @@ trait TaxFixtures
     /**
      * @var array
      */
-    public static $taxFixtures;
+    public $taxFixtures;
 
     /**
-     * @var EntityRepository
+     * @before
      */
-    public static $taxFixtureRepository;
-
-    /**
-     * @beforeClass
-     */
-    public static function initializeTaxFixtures(): void
+    public function initializeTaxFixtures(): void
     {
-        TaxFixtures::$taxFixtures = [
+        $this->taxFixtures = [
             'NineteenPercentTax' => [
                     'id' => Uuid::uuid4()->getHex(),
                     'name' => 'NineteenPercentTax',
@@ -46,8 +40,6 @@ trait TaxFixtures
                         ],
                 ],
         ];
-
-        TaxFixtures::$taxFixtureRepository = EntityFixturesBase::getFixtureRepository('tax');
     }
 
     public function getTaxNineteenPercent(): TaxStruct
@@ -62,6 +54,10 @@ trait TaxFixtures
 
     private function getTaxFixture(string $fixtureName): TaxStruct
     {
-        return $this->createFixture($fixtureName, TaxFixtures::$taxFixtures, TaxFixtures::$taxFixtureRepository);
+        return $this->createFixture(
+            $fixtureName,
+            $this->taxFixtures,
+            EntityFixturesBase::getFixtureRepository('tax')
+        );
     }
 }

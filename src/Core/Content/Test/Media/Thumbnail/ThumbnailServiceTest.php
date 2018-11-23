@@ -20,7 +20,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class ThumbnailServiceTest extends TestCase
 {
-    use IntegrationTestBehaviour, MediaFixtures;
+    use IntegrationTestBehaviour,
+        MediaFixtures;
 
     /**
      * @var UrlGeneratorInterface

@@ -116,21 +116,21 @@ class FileSaver
             throw new MissingFileException($mediaId);
         }
 
-        if ($destination === $this->removePrefixFromFileName($currentMedia->getFileName())) {
+        if ($destination === $currentMedia->getFileName()) {
             return;
         }
 
         foreach ($mediaWithRelatedFileName as $media) {
             if ($media->hasFile()) {
-                $trimmedFileName = $this->removePrefixFromFileName($media->getFileName());
-                if ($destination === $trimmedFileName) {
+                if ($destination === $media->getFileName()) {
                     throw new DuplicatedMediaFileNameException($destination);
                 }
             }
         }
 
         $updatedMedia = clone $currentMedia;
-        $updatedMedia->setFileName($this->prefixedDestination($destination));
+        $updatedMedia->setFileName($destination);
+        $updatedMedia->setUploadedAt(new \DateTime());
 
         $renamedFiles = [];
         try {
@@ -169,6 +169,7 @@ class FileSaver
         $updateData = [
             'id' => $updatedMedia->getId(),
             'fileName' => $updatedMedia->getFileName(),
+            'uploadedAt' => $updatedMedia->getUploadedAt(),
         ];
 
         try {
@@ -224,8 +225,7 @@ class FileSaver
         /** @var MediaStruct $media */
         foreach ($relatedMedia as $media) {
             if ($media->hasFile()) {
-                $trimmedFileName = $this->removePrefixFromFileName($media->getFileName());
-                if ($trimmedFileName === $nextFileName) {
+                if ($media->getFileName() === $nextFileName) {
                     return $this->getNextPossibleFileName($relatedMedia, $mediaId, $preferredFileName, $iteration + 1);
                 }
             }
@@ -275,25 +275,16 @@ class FileSaver
             'mimeType' => $mediaFile->getMimeType(),
             'fileExtension' => $mediaFile->getFileExtension(),
             'fileSize' => $mediaFile->getFileSize(),
-            'fileName' => $this->prefixedDestination($destination),
+            'fileName' => $destination,
             'metaData' => $metadata,
             'mediaType' => $mediaType,
+            'uploadedAt' => new \DateTime(),
         ];
 
         $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
         $this->mediaRepository->update([$data], $context);
 
         return $this->mediaRepository->read(new ReadCriteria([$media->getId()]), $context)->get($media->getId());
-    }
-
-    private function prefixedDestination(string $destination): string
-    {
-        return (new \DateTime())->getTimestamp() . '/' . $destination;
-    }
-
-    private function removePrefixFromFileName(string $prefixedFileName): string
-    {
-        return preg_replace('/\d+\//', '', $prefixedFileName);
     }
 
     /**

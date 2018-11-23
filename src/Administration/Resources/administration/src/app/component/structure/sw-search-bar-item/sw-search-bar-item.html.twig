@@ -77,7 +77,7 @@
 
             {% block sw_search_bar_item_media_label %}
             <span class="sw-search-bar-item__label">
-                        {{ item.entity.fileName | pathToFileName}}
+                        {{ item | mediaName }}
                     </span>
             {% endblock %}
 

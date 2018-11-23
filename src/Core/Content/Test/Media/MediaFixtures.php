@@ -41,6 +41,7 @@ trait MediaFixtures
                 'mimeType' => 'image/png',
                 'fileSize' => 1024,
                 'mediaType' => new ImageType(),
+                'uploadedAt' => new \DateTime('2011-01-01T15:03:01.012345Z'),
             ],
             'NamedMimePngEtxPng' => [
                 'id' => Uuid::uuid4()->getHex(),
@@ -49,6 +50,7 @@ trait MediaFixtures
                 'fileName' => 'pngFileWithExtension',
                 'fileSize' => 1024,
                 'mediaType' => new ImageType(),
+                'uploadedAt' => new \DateTime('2011-01-01T15:03:01.012345Z'),
             ],
 
             'NamedMimeTxtEtxTxt' => [
@@ -58,6 +60,7 @@ trait MediaFixtures
                 'fileName' => 'textFileWithExtension',
                 'fileSize' => 1024,
                 'mediaType' => new BinaryType(),
+                'uploadedAt' => new \DateTime('2011-01-01T15:03:01.012345Z'),
             ],
             'NamedMimeJpgEtxJpg' => [
                 'id' => Uuid::uuid4()->getHex(),
@@ -66,6 +69,7 @@ trait MediaFixtures
                 'fileName' => 'jpgFileWithExtensionAndCatalog',
                 'fileSize' => 1024,
                 'mediaType' => new ImageType(),
+                'uploadedAt' => new \DateTime('2011-01-01T15:03:01.012345Z'),
             ],
             'NamedMimePdfEtxPdf' => [
                 'id' => Uuid::uuid4()->getHex(),
@@ -74,6 +78,7 @@ trait MediaFixtures
                 'fileName' => 'pdfFileWithExtensionAndCatalog',
                 'fileSize' => 1024,
                 'mediaType' => new DocumentType(),
+                'uploadedAt' => new \DateTime('2011-01-01T15:03:01.012345Z'),
             ],
             'NamedWithThumbnail' => [
                 'id' => Uuid::uuid4()->getHex(),

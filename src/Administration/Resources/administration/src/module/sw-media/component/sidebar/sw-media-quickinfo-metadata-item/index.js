@@ -50,12 +50,27 @@ Component.register('sw-media-quickinfo-metadata-item', {
         this.componentMounted();
     },
 
+    updated() {
+        this.componentUpdated();
+    },
+
     methods: {
         componentMounted() {
+            this.computeLastContent();
+        },
+
+        componentUpdated() {
+            this.computeLastContent();
+        },
+
+        computeLastContent() {
             const el = this.$refs.value;
             if (this.truncateMiddle && el.offsetWidth < el.scrollWidth) {
                 this.lastContent = `${this.getValue.slice(-7)}`;
+                return;
             }
+
+            this.lastContent = '';
         }
     }
 });

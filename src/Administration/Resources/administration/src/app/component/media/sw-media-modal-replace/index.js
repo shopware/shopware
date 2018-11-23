@@ -1,4 +1,4 @@
-import { Component, Mixin, State, Filter } from 'src/core/shopware';
+import { Component, Mixin, State } from 'src/core/shopware';
 import template from './sw-media-modal-replace.html.twig';
 
 /**
@@ -33,10 +33,6 @@ Component.register('sw-media-modal-replace', {
             return State.getStore('upload');
         },
 
-        fileNameFilter() {
-            return Filter.getByName('pathToFileName');
-        },
-
         mediaItemStore() {
             return State.getStore('media');
         }
@@ -58,7 +54,7 @@ Component.register('sw-media-modal-replace', {
             const notificationError = this.$tc(
                 'global.sw-media-modal-replace.notificationFailure',
                 1,
-                { mediaName: this.fileNameFilter(this.itemToReplace.fileName) }
+                { mediaName: this.itemToReplace.fileName }
             );
 
             this.itemToReplace.isLoading = true;

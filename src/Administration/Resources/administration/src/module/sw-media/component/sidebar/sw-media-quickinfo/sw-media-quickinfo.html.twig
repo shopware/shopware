@@ -103,7 +103,7 @@
                         {% block sw_media_quickinfo_metadata_content_base %}
                             <sw-media-quickinfo-metadata-item class="sw-media-quickinfo-metadata-name"
                                 label-name="name"
-                                :value="item.fileName + '.' + item.fileExtension | pathToFileName"
+                                :value="item | mediaName"
                                 :truncateMiddle="true">
                             </sw-media-quickinfo-metadata-item>
                             <sw-media-quickinfo-metadata-item class="sw-media-quickinfo-metadata-mimeType"

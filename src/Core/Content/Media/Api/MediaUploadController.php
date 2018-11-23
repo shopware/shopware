@@ -84,7 +84,6 @@ class MediaUploadController extends AbstractController
         $destination = rtrim($destination);
 
         $this->fileNameValidator->validateFileName($destination);
-
         $this->fileSaver->renameMedia($mediaId, $destination, $context);
 
         return $responseFactory->createRedirectResponse(MediaDefinition::class, $mediaId, $request, $context);

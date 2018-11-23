@@ -43,7 +43,12 @@ Component.register('sw-media-quickinfo', {
         },
 
         createdAt() {
-            return format.date(this.item.createdAt);
+            let date = this.item.uploadedAt;
+
+            if (!date) {
+                date = this.item.createdAt;
+            }
+            return format.date(date);
         }
     },
 

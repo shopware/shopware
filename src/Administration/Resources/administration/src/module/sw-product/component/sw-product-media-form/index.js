@@ -1,4 +1,4 @@
-import { Component, Mixin, State } from 'src/core/shopware';
+import { Component, Mixin, State, Filter } from 'src/core/shopware';
 import { fileReader } from 'src/core/service/util.service';
 import find from 'lodash/find';
 import template from './sw-product-media-form.html.twig';
@@ -55,6 +55,10 @@ Component.register('sw-product-media-form', {
 
         gridAutoRows() {
             return `grid-auto-rows: ${this.columnWidth}`;
+        },
+
+        mediaNameFilter() {
+            return Filter.getByName('mediaName');
         }
     },
 
@@ -226,7 +230,7 @@ Component.register('sw-product-media-form', {
                 return mediaEntity.fileName;
             }
 
-            return this.$options.filters.pathToFileName(`${mediaEntity.fileName}.${mediaEntity.fileExtension}`);
+            return this.mediaNameFilter(mediaEntity);
         },
 
         removeFile(key) {

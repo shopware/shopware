@@ -64,6 +64,7 @@ return [
                 'hasFile' => false,
                 'fileName' => null,
                 'mediaType' => null,
+                'uploadedAt' => null,
             ],
             'relationships' => [
                 'user' => [

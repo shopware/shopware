@@ -61,6 +61,11 @@ class MediaStruct extends Entity
     protected $updatedAt;
 
     /**
+     * @var DateTime|null
+     */
+    protected $uploadedAt;
+
+    /**
      * @var string|null
      */
     protected $description;
@@ -207,6 +212,16 @@ class MediaStruct extends Entity
     public function setUpdatedAt(DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function getUploadedAt(): ?DateTime
+    {
+        return $this->uploadedAt;
+    }
+
+    public function setUploadedAt(?DateTime $uploadedAt): void
+    {
+        $this->uploadedAt = $uploadedAt;
     }
 
     public function getDescription(): ?string

@@ -23,8 +23,8 @@ Component.register('sw-media-modal-delete', {
     },
 
     computed: {
-        pathToFileName() {
-            return Filter.getByName('pathToFileName');
+        mediaNameFilter() {
+            return Filter.getByName('mediaName');
         }
     },
 
@@ -76,12 +76,12 @@ Component.register('sw-media-modal-delete', {
                 successMessage: this.$tc(
                     'global.sw-media-modal-delete.notificationSuccessSingle',
                     1,
-                    { mediaName: this.pathToFileName(item.fileName) }
+                    { mediaName: this.mediaNameFilter(item) }
                 ),
                 errorMessage: this.$tc(
                     'global.sw-media-modal-delete.notificationErrorSingle',
                     1,
-                    { mediaName: this.pathToFileName(item.fileName) }
+                    { mediaName: this.mediaNameFilter(item) }
                 )
             };
         }

@@ -10,6 +10,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
@@ -48,6 +49,7 @@ class MediaDefinition extends EntityDefinition
 
             (new StringField('mime_type', 'mimeType'))->setFlags(new SearchRanking(self::LOW_SEARCH_RAKING), new WriteProtected(MediaProtectionFlags::WRITE_META_INFO)),
             (new StringField('file_extension', 'fileExtension'))->setFlags(new SearchRanking(self::MIDDLE_SEARCH_RANKING), new WriteProtected(MediaProtectionFlags::WRITE_META_INFO)),
+            (new DateField('uploaded_at', 'uploadedAt'))->setFlags(new WriteProtected(MediaProtectionFlags::WRITE_META_INFO)),
             (new LongTextField('file_name', 'fileName'))->setFlags(new WriteProtected(MediaProtectionFlags::WRITE_META_INFO), new SearchRanking(self::HIGH_SEARCH_RANKING)),
             (new IntField('file_size', 'fileSize'))->setFlags(new WriteProtected(MediaProtectionFlags::WRITE_META_INFO)),
             (new ObjectField('meta_data', 'metaData'))->setFlags(new WriteProtected(MediaProtectionFlags::WRITE_META_INFO)),

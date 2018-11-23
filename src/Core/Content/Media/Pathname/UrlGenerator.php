@@ -40,7 +40,12 @@ class UrlGenerator implements UrlGeneratorInterface
      */
     public function getRelativeMediaUrl(MediaStruct $media): string
     {
-        $encodedFileName = $this->encodeFilename($media->getFileName());
+        $physicalFileName = $media->getFileName();
+
+        if ($media->getUploadedAt() !== null) {
+            $physicalFileName = sprintf('%d/%s', $media->getUploadedAt()->getTimestamp(), $physicalFileName);
+        }
+        $encodedFileName = $this->encodeFilename($physicalFileName);
 
         $extension = $media->getFileExtension() ? '.' . $media->getFileExtension() : '';
 

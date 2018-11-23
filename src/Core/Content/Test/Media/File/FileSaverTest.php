@@ -291,34 +291,6 @@ class FileSaverTest extends TestCase
         static::assertTrue($this->getPublicFilesystem()->has($mediaPath));
     }
 
-    public function test_renameMedia_doesNotSkipIfOldFileNameContainsNewOne(): void
-    {
-        $context = Context::createDefaultContext();
-        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
-        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_THUMBNAILS);
-        $this->setFixtureContext($context);
-
-        $png = $this->getPng();
-        $oldFileName = $png->getFileName();
-
-        $png->setFileName('12312378/' . $png->getFileName());
-        $this->mediaRepository->update(
-            [
-                [
-                    'id' => $png->getId(),
-                    'fileName' => $png->getFileName(),
-                ],
-            ],
-            $context
-        );
-
-        $mediaPath = $this->urlGenerator->getRelativeMediaUrl($png);
-        $this->getPublicFilesystem()->put($mediaPath, 'test file content');
-
-        $this->fileSaver->renameMedia($png->getId(), substr($oldFileName, 0, 5), $context);
-        static::assertFalse($this->getPublicFilesystem()->has($mediaPath));
-    }
-
     public function test_renameMedia_renamesOldFileAndThumbnails(): void
     {
         $context = Context::createDefaultContext();
@@ -345,7 +317,6 @@ class FileSaverTest extends TestCase
 
         $this->fileSaver->renameMedia($png->getId(), 'new destination', $context);
         $updatedMedia = $this->mediaRepository->read(new ReadCriteria([$png->getId()]), $context)->get($png->getId());
-
         static::assertFalse($this->getPublicFilesystem()->has($oldMediaPath));
         static::assertTrue($this->getPublicFilesystem()->has($this->urlGenerator->getRelativeMediaUrl($updatedMedia)));
 

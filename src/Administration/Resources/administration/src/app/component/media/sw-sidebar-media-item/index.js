@@ -84,10 +84,6 @@ Component.register('sw-sidebar-media-item', {
             });
         },
 
-        addItemToProduct(item) {
-            this.$emit('sw-sidebar-media-item-add-item-to-product', item);
-        },
-
         onLoadMore() {
             this.page += 1;
             this.extendList();

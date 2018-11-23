@@ -49,7 +49,6 @@
       "labelContextMenuCopyLink": "Copy Link",
       "labelContextMenuReplace": "Replace",
       "labelContextMenuRename": "Rename",
-      "labelContextMenuAddToProduct": "Add to product",
       "labelContextMenuDetail": "Details",
       "notificationErrorBlankItemName": "The media could not be saved: Please enter a name",
       "notificationRenamingSuccess": "Media item successfully renamed.",
@@ -422,7 +421,8 @@
       "cardTitlePrices": "Prices",
       "cardTitleSettings": "Settings",
       "linkAdvancedPrices": "Use advanced pricing",
-      "cardTitleMedia": "Media"
+      "cardTitleMedia": "Media",
+      "labelContextMenuAddToProduct": "Add to product"
     },
     "priceRules": {
       "cardTitlePriceRule": "New price rule",
@@ -513,7 +513,8 @@
       "placeholderLink": "Enter manufacturer website.",
       "titleSaveSuccess": "Manufacturer",
       "messageSaveSuccess": "Manufacturer \"{name}\" has been saved successfully.",
-      "addLogoCaption": "Add logo"
+      "addLogoCaption": "Add logo",
+      "labelUseAsLogo": "Use as Logo"
     }
   },
   "sw-order": {

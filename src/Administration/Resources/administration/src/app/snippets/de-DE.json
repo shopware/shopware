@@ -49,7 +49,6 @@
       "labelContextMenuCopyLink": "Link kopieren",
       "labelContextMenuReplace": "Ersetzen",
       "labelContextMenuRename": "Umbenennen",
-      "labelContextMenuAddToProduct": "Zu Produkt hinzufügen",
       "labelContextMenuDetail": "Informationen",
       "notificationErrorBlankItemName": "Das Medium konnte nicht umbenannt werden. Bitte füge einen Dateinamen hinzu.",
       "notificationRenamingSuccess": "Medium erfolgreich umbenannt",
@@ -424,7 +423,8 @@
       "cardTitlePrices": "Preise",
       "cardTitleSettings": "Einstellungen",
       "linkAdvancedPrices": "Erweitere Preisansicht öffnen",
-      "cardTitleMedia": "Medien"
+      "cardTitleMedia": "Medien",
+      "labelContextMenuAddToProduct": "Zu Produkt hinzufügen"
     },
     "priceRules": {
       "cardTitlePriceRule": "Neue Preisregel",
@@ -515,7 +515,8 @@
       "placeholderLink": "Gib die Herstellerwebseite ein...",
       "titleSaveSuccess": "Hersteller",
       "messageSaveSuccess": "Der Hersteller {name} wurde erfolgreich gespeichert.",
-      "addLogoCaption": "Logo hinzufügen"
+      "addLogoCaption": "Logo hinzufügen",
+      "labelUseAsLogo": "Als Logo nutzen"
     }
   },
   "sw-order": {

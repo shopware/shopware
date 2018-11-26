@@ -15,6 +15,9 @@ module.exports = {
     env: {
         NODE_ENV: 'development'
     },
+    router: {
+        mode: 'hash'
+    },
     modules: [
         '~/modules/parser/index'
     ],

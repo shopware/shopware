@@ -639,6 +639,74 @@ class WriterTest extends TestCase
         );
     }
 
+    public function testWriteOneToManyWithOptionalIdField(): void
+    {
+        $this->markTestSkipped('Should work after NEXT-1183 is resolved');
+
+        $mediaRepo = $this->getContainer()->get('media.repository');
+        $mediaId = Uuid::uuid4()->getHex();
+        $manufacturerId = Uuid::uuid4()->getHex();
+
+        $mediaRepo->upsert([
+            [
+                'id' => $mediaId,
+                'name' => 'media',
+                'productManufacturers' => [
+                    [
+                        'id' => $manufacturerId,
+                        'name' => 'test',
+                    ],
+                ],
+            ],
+        ], Context::createDefaultContext());
+
+        $manufacturer = $this->getContainer()->get('product_manufacturer.repository')
+            ->read(new ReadCriteria([$manufacturerId]), Context::createDefaultContext())
+            ->get($manufacturerId);
+
+        static::assertNotNull($manufacturer);
+        static::assertEquals($mediaId, $manufacturer->getMediaId());
+    }
+
+    public function testWriteOneToManyWithChildField(): void
+    {
+        $this->markTestSkipped('Should work after NEXT-1183 is resolved');
+
+        $categoryRepo = $this->getContainer()->get('category.repository');
+        $parentId = Uuid::uuid4()->getHex();
+        $childOneId = Uuid::uuid4()->getHex();
+        $childTwoId = Uuid::uuid4()->getHex();
+
+        $categoryRepo->upsert([
+            [
+                'id' => $parentId,
+                'name' => 'parent',
+                'children' => [
+                    [
+                        'id' => $childOneId,
+                        'name' => 'child one',
+                    ],
+                    [
+                        'id' => $childTwoId,
+                        'name' => 'child two',
+                    ],
+                ],
+            ],
+        ], Context::createDefaultContext());
+
+        $childOne = $categoryRepo->read(new ReadCriteria([$childOneId]), Context::createDefaultContext())
+            ->get($childOneId);
+
+        static::assertNotNull($childOne);
+        static::assertEquals($parentId, $childOne->getParentId());
+
+        $childTwo = $categoryRepo->read(new ReadCriteria([$childTwoId]), Context::createDefaultContext())
+            ->get($childTwoId);
+
+        static::assertNotNull($childTwo);
+        static::assertEquals($parentId, $childTwo->getParentId());
+    }
+
     /**
      * @return WriteContext
      */

@@ -1,4 +1,5 @@
 import { Module } from 'src/core/shopware';
+import { NEXT516 } from 'src/flag/feature_next516';
 
 // import './extension/sw-settings-index';
 import './page/sw-settings-rule-list';
@@ -6,6 +7,7 @@ import './page/sw-settings-rule-list';
 // import './page/sw-settings-currency-create';
 
 Module.register('sw-settings-rule', {
+    flag: NEXT516,
     type: 'core',
     name: 'Rules',
     description: 'Rules section in the settings module',

@@ -44,7 +44,10 @@ module.exports = {
     },
     'check if the sales channel can be used in other modules': (browser) => {
         browser
-            .openMainMenuEntry('#/sw/customer/index', 'Customers', '#/sw/customer/create', 'Add customer')
+            .openMainMenuEntry('#/sw/customer/index', 'Customers')
+            .waitForElementPresent('.smart-bar__actions a[href="#/sw/customer/create"]')
+            .click('.smart-bar__actions a[href="#/sw/customer/create"]')
+            .waitForElementVisible('.sw-customer-base-form')
             .fillSelectField('select[name=sw-field--customer-salesChannelId]', '1st Epic Sales Channel');
     },
     'delete sales channel': (browser) => {

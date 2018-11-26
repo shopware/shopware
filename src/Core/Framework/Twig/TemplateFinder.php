@@ -60,10 +60,24 @@ class TemplateFinder
         return true;
     }
 
+    public function getTemplateName(string $template): string
+    {
+        //remove static template inheritance prefix
+        if (strpos($template, '@') !== 0) {
+            return $template;
+        }
+
+        $template = explode('/', $template);
+        array_shift($template);
+        $template = implode('/', $template);
+
+        return $template;
+    }
+
     /**
      * @throws \Twig_Error_Loader
      */
-    public function find(string $template, $wholeInheritance = false): string
+    public function find(string $template, $wholeInheritance = false, $ignoreMissing = false): string
     {
         $template = ltrim($template, '@');
 
@@ -84,6 +98,9 @@ class TemplateFinder
             }
         }
 
+        if ($ignoreMissing === true) {
+            return $template;
+        }
         throw new \Twig_Error_Loader(sprintf('Unable to load template "%s". (Looked into: %s)', $template, implode(', ', array_values($queue))));
     }
 }

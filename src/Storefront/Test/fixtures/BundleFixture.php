@@ -15,8 +15,8 @@ class BundleFixture implements BundleInterface
     /**
      * BundleFixture constructor.
      *
-     * @param $name string
-     * @param $path string
+     * @param string $name
+     * @param string $path
      */
     public function __construct($name, $path)
     {
@@ -66,7 +66,7 @@ class BundleFixture implements BundleInterface
     /**
      * Returns the bundle name (the class short name).
      *
-     * @param $name string
+     * @param string $name
      */
     public function setName($name)
     {
@@ -107,7 +107,7 @@ class BundleFixture implements BundleInterface
     /**
      * Sets the Bundle directory path.
      *
-     * @param $path string
+     * @param string $path
      */
     public function setPath($path)
     {

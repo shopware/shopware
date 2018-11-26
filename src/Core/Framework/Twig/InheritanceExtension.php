@@ -24,4 +24,9 @@ class InheritanceExtension extends \Twig_Extension
             new IncludeTokenParser($this->finder),
         ];
     }
+
+    public function getFinder()
+    {
+        return $this->finder;
+    }
 }

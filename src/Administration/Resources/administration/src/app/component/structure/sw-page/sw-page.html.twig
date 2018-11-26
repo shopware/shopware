@@ -3,7 +3,7 @@
 
         {% block sw_page_slot_search_bar %}
             <slot name="search-bar">
-                <sw-search-bar></sw-search-bar>
+                <sw-search-bar :style="searchBarStyles"></sw-search-bar>
             </slot>
         {% endblock %}
 
@@ -28,23 +28,28 @@
                         {% block sw_page_smart_bar_content %}
                             <div class="smart-bar__content">
 
-                                {% block sw_page_smart_bar_content_header %}
-                                    <div class="smart-bar__header">
-                                        <slot name="smart-bar-header">
-                                            {% block sw_page_slot_smart_bar_header %}
-                                                <h2 v-if="module && module.name">
-                                                    {{ module.name }}
-                                                </h2>
-                                            {% endblock %}
-                                        </slot>
-                                    </div>
-                                {% endblock %}
+                                {% block sw_page_smart_bar_content_inner %}
+                                    <div class="smart-bar__content-inner">
 
-                                {% block sw_page_smart_bar_content_actions %}
-                                    <div class="smart-bar__actions">
-                                        <slot name="smart-bar-actions">
-                                            {% block sw_page_slot_smart_bar_actions %}{% endblock %}
-                                        </slot>
+                                        {% block sw_page_smart_bar_content_header %}
+                                            <div class="smart-bar__header">
+                                                <slot name="smart-bar-header">
+                                                    {% block sw_page_slot_smart_bar_header %}
+                                                        <h2 v-if="module && module.name">
+                                                            {{ module.name }}
+                                                        </h2>
+                                                    {% endblock %}
+                                                </slot>
+                                            </div>
+                                        {% endblock %}
+
+                                        {% block sw_page_smart_bar_content_actions %}
+                                            <div class="smart-bar__actions">
+                                                <slot name="smart-bar-actions">
+                                                    {% block sw_page_slot_smart_bar_actions %}{% endblock %}
+                                                </slot>
+                                            </div>
+                                        {% endblock %}
                                     </div>
                                 {% endblock %}
                             </div>

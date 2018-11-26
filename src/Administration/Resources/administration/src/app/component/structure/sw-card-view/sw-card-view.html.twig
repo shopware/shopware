@@ -1,5 +1,5 @@
 {% block sw_card_view %}
-    <div class="sw-card-view">
+    <div class="sw-card-view" :class="cardViewClasses">
         {% block sw_card_view_content %}
             <div class="sw-card-view__content" ref="cardContainer">
                 <slot>{% block sw_card_view_slot_default %}{% endblock %}</slot>
@@ -7,10 +7,9 @@
         {% endblock %}
 
         {% block sw_card_view_sidebar %}
-            <sw-sidebar
-                v-if="sidebar"
-                class="sw-card-view__sidebar"
-                :style="adjustScrollbar">
+            <sw-sidebar v-if="sidebar"
+                        class="sw-card-view__sidebar"
+                        propagateWidth>
                 <slot name="card-view-sidebar">{% block sw_card_view_slot_sidebar %}{% endblock %}</slot>
             </sw-sidebar>
         {% endblock %}

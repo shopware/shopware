@@ -14,10 +14,32 @@ import './sw-sidebar.less';
 Component.register('sw-sidebar', {
     template,
 
+    props: {
+        propagateWidth: {
+            type: Boolean,
+            required: false,
+            default: false
+        }
+    },
+
     data() {
         return {
-            items: []
+            items: [],
+            isOpened: false,
+            _parent: this.$parent
         };
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
+    mounted() {
+        this.mountedComponent();
+    },
+
+    destroyed() {
+        this.destroyedComponent();
     },
 
     computed: {
@@ -31,15 +53,59 @@ Component.register('sw-sidebar', {
             });
 
             return sections;
+        },
+
+        sidebarClasses() {
+            return {
+                'is--opened': this.isOpened
+            };
         }
     },
 
     methods: {
+        createdComponent() {
+            let parent = this.$parent;
+
+            while (parent) {
+                if (parent.$options.name === 'sw-page') {
+                    this._parent = parent;
+                    return;
+                }
+
+                parent = parent.$parent;
+            }
+        },
+
+        mountedComponent() {
+            if (this.propagateWidth) {
+                const sidebarWidth = this.$el.querySelector('.sw-sidebar__navigation').offsetWidth;
+
+                this._parent.$emit('sw-sidebar-mounted', sidebarWidth);
+            }
+        },
+
+        destroyedComponent() {
+            if (this.propagateWidth) {
+                this._parent.$emit('sw-sidebar-destroyed');
+            }
+        },
+
         _isItemRegistered(itemToCheck) {
             const index = this.items.findIndex((item) => {
                 return item === itemToCheck;
             });
             return index > -1;
+        },
+
+        _isAnyItemActive() {
+            const index = this.items.findIndex((item) => {
+                return item.isActive;
+            });
+            return index > -1;
+        },
+
+        closeSidebar() {
+            this.isOpened = false;
         },
 
         registerSidebarItem(item) {
@@ -51,10 +117,15 @@ Component.register('sw-sidebar', {
 
             this.$on('sw-sidebar-navigation-item-clicked', item.sidebarButtonClick);
             item.$on('sw-sidebar-item-toggle-active', this.setItemActive);
+            item.$on('sw-sidebar-item-close-content', this.closeSidebar);
         },
 
         setItemActive(clickedItem) {
             this.$emit('sw-sidebar-navigation-item-clicked', clickedItem);
+
+            if (clickedItem.hasDefaultSlot) {
+                this.isOpened = this._isAnyItemActive();
+            }
         }
     }
 });

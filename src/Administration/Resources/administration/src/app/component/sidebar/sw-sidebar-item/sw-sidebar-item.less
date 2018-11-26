@@ -1,14 +1,17 @@
 @import "~less/variables";
 
-@sw-sidebar-item-headline-color: @color-kashmir;
-@sw-sidebar-item-color-border:   @color-steam-cloud;
+@sw-sidebar-item-headline-color:   @color-kashmir;
+@sw-sidebar-item-color-border:     @color-steam-cloud;
+@sw-sidebar-item-width-navigation: 64px;
+@sw-sidebar-item-width-content:    400px;
 
 .sw-sidebar-item {
-    width: 400px;
+    width: @sw-sidebar-item-width-content;
     height: 100%;
     display: grid;
-    grid-template-rows: 64px 1fr;
+    grid-template-rows: @sw-sidebar-item-width-navigation 1fr;
     border-left: 1px solid @sw-sidebar-item-color-border;
+    overflow: hidden;
 
     .sw-sidebar-item__headline {
         display: grid;
@@ -41,8 +44,9 @@
 
     .sw-sidebar-item__scrollable-container {
         position: absolute;
-        width: 100%;
+        width: @sw-sidebar-item-width-content;
         height: 100%;
         overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
 }

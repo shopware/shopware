@@ -47,6 +47,7 @@ Component.register('sw-page', {
         return {
             module: null,
             parentRoute: null,
+            sidebarOffset: 0,
             scrollbarOffset: 0
         };
     },
@@ -62,23 +63,67 @@ Component.register('sw-page', {
             };
         },
 
+        pageOffset() {
+            return `${this.sidebarOffset + this.scrollbarOffset}px`;
+        },
+
         smartBarStyles() {
             return {
                 'border-bottom-color': this.pageColor,
-                'padding-right': `${this.scrollbarOffset}px`
+                'padding-right': this.pageOffset
+            };
+        },
+
+        searchBarStyles() {
+            return {
+                'padding-right': this.pageOffset
             };
         }
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     mounted() {
-        this.initPage();
+        this.mountedComponent();
     },
 
     updated() {
-        this.setScrollbarOffset();
+        this.updatedComponent();
     },
 
     methods: {
+        createdComponent() {
+            this.$on('sw-sidebar-mounted', this.setSidebarOffset);
+            this.$on('sw-sidebar-destroyed', this.removeSidebarOffset);
+        },
+
+        mountedComponent() {
+            this.initPage();
+            this.setScrollbarOffset();
+        },
+
+        updatedComponent() {
+            this.setScrollbarOffset();
+        },
+
+        setSidebarOffset(sidebarWidth) {
+            this.sidebarOffset = sidebarWidth;
+        },
+
+        removeSidebarOffset() {
+            this.sidebarOffset = 0;
+        },
+
+        setScrollbarOffset() {
+            const contentEl = document.querySelector('.sw-card-view__content');
+
+            if (contentEl !== null) {
+                this.scrollbarOffset = dom.getScrollbarWidth(contentEl);
+            }
+        },
+
         initPage() {
             if (this.$route.meta.$module) {
                 this.module = this.$route.meta.$module;
@@ -87,10 +132,6 @@ Component.register('sw-page', {
             if (this.$route.meta.parentPath) {
                 this.parentRoute = this.$route.meta.parentPath;
             }
-        },
-
-        setScrollbarOffset() {
-            this.scrollbarOffset = dom.getScrollbarWidth(this.$refs.swPageContent.firstChild);
         }
     }
 });

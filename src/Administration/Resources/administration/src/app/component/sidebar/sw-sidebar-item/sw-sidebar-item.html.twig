@@ -1,5 +1,5 @@
 {% block sw_sidebar_item %}
-    <div class="sw-sidebar-item" v-if="showContent">
+    <div v-if="showContent" class="sw-sidebar-item">
         {% block sw_sidebar_item_headline %}
             <div class="sw-sidebar-item__headline">
                 {% block sw_sidebar_item_title %}
@@ -8,9 +8,7 @@
 
                 {% block sw_sidebar_item_close_button %}
                     <button class="sw-sidebar-item__close-button" @click="closeContent" aria-label="closeContent">
-                        <sw-icon
-                            name="small-default-x-line-small"
-                            size="20px">
+                        <sw-icon name="small-default-x-line-small" size="20px">
                         </sw-icon>
                     </button>
                 {% endblock %}

@@ -3,7 +3,15 @@
 .sw-media-grid {
     overflow-y: auto;
     overflow-x: hidden;
-    user-select: none;
+
+    /*
+    Fix for preventing the browser to select content when in drag'n'drop.
+    */
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Chrome/Safari/Opera */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently not supported by any browser */
 
     .sw-media-grid__content {
         display: grid;

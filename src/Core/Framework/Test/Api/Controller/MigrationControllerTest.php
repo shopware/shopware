@@ -51,7 +51,9 @@ class MigrationControllerTest extends TestCase
     {
         $client = $this->getClient();
 
-        $client->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/migration/add');
+        $url = sprintf('/api/v%s/_action/database/sync-migration', PlatformRequest::API_VERSION);
+
+        $client->request('POST', $url);
 
         self::assertSame(json_encode(['message' => 'migrations added to the database']), $client->getResponse()->getContent());
     }
@@ -62,7 +64,7 @@ class MigrationControllerTest extends TestCase
 
         $client->request(
             'POST',
-            '/api/v' . PlatformRequest::API_VERSION . '/migration/migrate',
+            '/api/v' . PlatformRequest::API_VERSION . '/_action/database/migrate',
             ['until' => PHP_INT_MAX]
         );
 
@@ -75,7 +77,7 @@ class MigrationControllerTest extends TestCase
 
         $client->request(
             'POST',
-            '/api/v' . PlatformRequest::API_VERSION . '/migration/migrate-destructive',
+            '/api/v' . PlatformRequest::API_VERSION . '/_action/database/migrate-destructive',
             ['until' => PHP_INT_MAX]
         );
 
@@ -88,7 +90,7 @@ class MigrationControllerTest extends TestCase
 
         $controller = $this->getController();
 
-        $controller->addMigrations();
+        $controller->syncMigrations();
 
         self::assertSame(2, $this->getMigrationCount());
     }
@@ -99,7 +101,7 @@ class MigrationControllerTest extends TestCase
 
         $controller = $this->getController(true);
 
-        $controller->addMigrations();
+        $controller->syncMigrations();
 
         $request = new Request();
 
@@ -118,7 +120,7 @@ class MigrationControllerTest extends TestCase
 
         $controller = $this->getController(true);
 
-        $controller->addMigrations();
+        $controller->syncMigrations();
 
         $request = new Request();
 
@@ -143,7 +145,7 @@ class MigrationControllerTest extends TestCase
 
         $controller = $this->getController();
 
-        $controller->addMigrations();
+        $controller->syncMigrations();
 
         $request = new Request();
 

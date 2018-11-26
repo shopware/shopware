@@ -134,7 +134,7 @@ class OrderRecalculationTest extends TestCase
         $client->request(
             'POST',
             sprintf(
-                '/api/v%s/order/actions/convertToCart/%s',
+                '/api/v%s/_action/order/%s/convert-to-cart/',
                 PlatformRequest::API_VERSION,
                 $orderId
             )
@@ -151,7 +151,7 @@ class OrderRecalculationTest extends TestCase
         $client->request(
             'GET',
             sprintf(
-                '/api/v%s/proxy/storefront-api/%s/checkout/cart',
+                '/api/v%s/_proxy/storefront-api/%s/checkout/cart',
                 PlatformRequest::API_VERSION,
                 Defaults::SALES_CHANNEL
             ),
@@ -176,7 +176,7 @@ class OrderRecalculationTest extends TestCase
         $client->request(
             'PATCH',
             sprintf(
-                '/api/v%s/proxy/storefront-api/%s/checkout/cart/line-item',
+                '/api/v%s/_proxy/storefront-api/%s/checkout/cart/line-item',
                 PlatformRequest::API_VERSION,
                 Defaults::SALES_CHANNEL
             ),

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Administration\Search;
+namespace Shopware\Core\Framework\Search;
 
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
@@ -21,7 +21,7 @@ use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataCollection;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class AdministrationSearch
+class CompositeEntitySearcher
 {
     /**
      * @var ContainerInterface

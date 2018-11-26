@@ -45,7 +45,7 @@ class PriceActionController extends AbstractController
     }
 
     /**
-     * @Route("api/_action/v{version}/calculate-price", name="api.action.calculate-price", methods={"POST"})
+     * @Route("api/v{version}/_action/calculate-price", name="api.action.calculate-price", methods={"POST"})
      *
      * @param Request $request
      * @param Context $context

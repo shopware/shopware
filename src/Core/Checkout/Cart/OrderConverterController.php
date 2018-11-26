@@ -47,7 +47,7 @@ class OrderConverterController extends AbstractController
     }
 
     /**
-     * @Route("/api/_action/v{version}/order/{orderId}/convert-to-cart/", name="api.action.order.convert-to-cart", methods={"POST"})
+     * @Route("/api/v{version}/_action/order/{orderId}/convert-to-cart/", name="api.action.order.convert-to-cart", methods={"POST"})
      *
      * @throws CartTokenNotFoundException
      * @throws InvalidPayloadException

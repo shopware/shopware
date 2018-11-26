@@ -11,19 +11,9 @@
             <tag name="console.command"/>
         </service>
 
-        <service class="Shopware\Administration\Search\AdministrationSearch"
-                 id="Shopware\Administration\Search\AdministrationSearch"
-                 public="true">
-
-            <argument type="service" id="service_container"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\SearchBuilder"/>
-            <argument type="service" id="version_commit_data.repository"/>
-        </service>
-
         <service class="Shopware\Administration\Controller\AdministrationController"
                  id="Shopware\Administration\Controller\AdministrationController"
                  public="true">
-            <argument type="service" id="Shopware\Administration\Search\AdministrationSearch"/>
             <argument type="service" id="Shopware\Core\Framework\Twig\TemplateFinder"/>
             <call method="setContainer">
                 <argument type="service" id="service_container" />

@@ -55,7 +55,7 @@ class SyncControllerTest extends TestCase
             ],
         ];
 
-        $this->getClient()->request('POST', '/api/sync', [], [], [], json_encode($data));
+        $this->getClient()->request('POST', '/api/v1/_action/sync', [], [], [], json_encode($data));
         $response = $this->getClient()->getResponse();
 
         self::assertSame(200, $response->getStatusCode(), $response->getContent());
@@ -103,7 +103,7 @@ class SyncControllerTest extends TestCase
             ],
         ];
 
-        $this->getClient()->request('POST', '/api/sync', [], [], [], json_encode($data));
+        $this->getClient()->request('POST', '/api/v1/_action/sync', [], [], [], json_encode($data));
         self::assertSame(200, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
 
         $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id);
@@ -147,7 +147,7 @@ class SyncControllerTest extends TestCase
             ],
         ];
 
-        $this->getClient()->request('POST', '/api/sync', [], [], [], json_encode($data));
+        $this->getClient()->request('POST', '/api/v1/_action/sync', [], [], [], json_encode($data));
 
         $response = $this->getClient()->getResponse();
         self::assertSame(200, $response->getStatusCode());
@@ -205,7 +205,7 @@ class SyncControllerTest extends TestCase
             ],
         ];
 
-        $this->getClient()->request('POST', '/api/sync', [], [], [], json_encode($data));
+        $this->getClient()->request('POST', '/api/v1/_action/sync', [], [], [], json_encode($data));
 
         $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $product . '/categories');
         $responseData = json_decode($this->getClient()->getResponse()->getContent(), true);
@@ -258,7 +258,7 @@ class SyncControllerTest extends TestCase
             ],
         ];
 
-        $this->getClient()->request('POST', '/api/sync', [], [], [], json_encode($data));
+        $this->getClient()->request('POST', '/api/v1/_action/sync', [], [], [], json_encode($data));
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM product WHERE id IN(:id)',
@@ -280,7 +280,7 @@ class SyncControllerTest extends TestCase
             ],
         ];
 
-        $this->getClient()->request('POST', '/api/sync', [], [], [], json_encode($data));
+        $this->getClient()->request('POST', '/api/v1/_action/sync', [], [], [], json_encode($data));
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM product WHERE id IN (:id)',

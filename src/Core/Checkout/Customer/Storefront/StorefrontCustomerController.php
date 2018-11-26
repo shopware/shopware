@@ -133,7 +133,7 @@ class StorefrontCustomerController extends AbstractController
     }
 
     /**
-     * @Route("/storefront-api/customer", name="storefront.api.customer.create", methods={"POST"})
+     * @Route("/storefront-api/customer", name="storefront.api.customer.create.deprecated", methods={"POST"})
      *
      * @deprecated
      */
@@ -222,7 +222,7 @@ class StorefrontCustomerController extends AbstractController
      */
     public function saveProfileDeprecated(Request $request, CheckoutContext $context): JsonResponse
     {
-        return $this->savePassword($request, $context);
+        return $this->saveProfile($request, $context);
     }
 
     /**

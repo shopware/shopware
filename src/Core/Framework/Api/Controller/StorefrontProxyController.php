@@ -44,7 +44,7 @@ class StorefrontProxyController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/proxy/storefront-api/{salesChannelId}/{_path}", name="api.proxy.storefront", requirements={"_path" = ".*"})
+     * @Route("/api/v{version}/_proxy/storefront-api/{salesChannelId}/{_path}", name="api.proxy.storefront", requirements={"_path" = ".*"})
      *
      * @throws InvalidSalesChannelIdException
      */

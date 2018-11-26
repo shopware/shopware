@@ -21,22 +21,6 @@ class Migration1539609364AddFileNameToMediaEntityTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
     }
 
-    public function test_column_order_is_preserved()
-    {
-        $tableLayout = $this->connection->fetchAll('DESCRIBE media');
-
-        $lastTwoCols = array_slice($tableLayout, -2);
-
-        $lastTwoCols = array_map(
-            function (array $column): string {
-                return $column['Field'];
-            },
-            $lastTwoCols
-        );
-
-        self::assertEquals(['media_type', 'uploaded_at'], $lastTwoCols);
-    }
-
     public function test_db_trigger_works_correctly()
     {
         $mediaId = '34556F108AB14969A0DCF9D9522FD7DF';

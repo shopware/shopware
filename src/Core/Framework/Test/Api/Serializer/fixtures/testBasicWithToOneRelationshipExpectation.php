@@ -19,6 +19,7 @@ return [
             'fileName' => null,
             'mediaType' => null,
             'uploadedAt' => null,
+            'mediaFolderId' => null,
         ],
         'links' => [
             'self' => '/api/media/548faa1f-7846-436c-8594-4f4aea792d96',
@@ -55,6 +56,12 @@ return [
                 'data' => [],
                 'links' => [
                     'related' => '/api/media/548faa1f-7846-436c-8594-4f4aea792d96/thumbnails',
+                ],
+            ],
+            'mediaFolder' => [
+                'data' => null,
+                'links' => [
+                    'related' => '/api/media/548faa1f-7846-436c-8594-4f4aea792d96/media-folder',
                 ],
             ],
         ],

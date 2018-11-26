@@ -20,6 +20,7 @@ return [
                 'fileName' => null,
                 'mediaType' => null,
                 'uploadedAt' => null,
+                'mediaFolderId' => null,
             ],
             'links' => [
                 'self' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870',
@@ -58,6 +59,12 @@ return [
                         'related' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870/thumbnails',
                     ],
                 ],
+                'mediaFolder' => [
+                    'data' => null,
+                    'links' => [
+                        'related' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870/media-folder',
+                    ],
+                ],
             ],
         ],
         [
@@ -78,6 +85,7 @@ return [
                 'fileName' => null,
                 'mediaType' => null,
                 'uploadedAt' => null,
+                'mediaFolderId' => null,
             ],
             'relationships' => [
                 'user' => [
@@ -111,6 +119,12 @@ return [
                     'data' => [],
                     'links' => [
                         'related' => '/api/media/f1ad1d0c-0245-4a40-abf2-50f764d16248/thumbnails',
+                    ],
+                ],
+                'mediaFolder' => [
+                    'data' => null,
+                    'links' => [
+                        'related' => '/api/media/f1ad1d0c-0245-4a40-abf2-50f764d16248/media-folder',
                     ],
                 ],
             ],

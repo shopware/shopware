@@ -80,6 +80,7 @@ class JsonApiEncoderTest extends TestCase
                     'fileName' => null,
                     'mediaType' => null,
                     'uploadedAt' => null,
+                    'mediaFolderId' => null,
                 ],
                 'links' => [
                     'self' => '/api/media/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe',
@@ -113,6 +114,12 @@ class JsonApiEncoderTest extends TestCase
                         'data' => [],
                         'links' => [
                             'related' => '/api/media/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/thumbnails',
+                        ],
+                    ],
+                    'mediaFolder' => [
+                        'data' => null,
+                        'links' => [
+                            'related' => '/api/media/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/media-folder',
                         ],
                     ],
                 ],

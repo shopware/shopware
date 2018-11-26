@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Media;
 
 use DateTime;
 use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderStruct;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
 use Shopware\Core\Content\Media\MediaType\MediaType;
@@ -109,6 +110,16 @@ class MediaStruct extends Entity
      * @var MediaThumbnailCollection|null
      */
     protected $thumbnails;
+
+    /**
+     * @var string | null
+     */
+    protected $mediaFolderId;
+
+    /**
+     * @var MediaFolderStruct | null
+     */
+    protected $mediaFolder;
 
     /**
      * @var bool
@@ -321,5 +332,25 @@ class MediaStruct extends Entity
     public function setFileName(string $fileName)
     {
         $this->fileName = $fileName;
+    }
+
+    public function getMediaFolderId(): ? string
+    {
+        return $this->mediaFolderId;
+    }
+
+    public function setMediaFolderId(?string $mediaFolderId): void
+    {
+        $this->mediaFolderId = $mediaFolderId;
+    }
+
+    public function getMediaFolder(): ?MediaFolderStruct
+    {
+        return $this->mediaFolder;
+    }
+
+    public function setMediaFolder(?MediaFolderStruct $mediaFolder): void
+    {
+        $this->mediaFolder = $mediaFolder;
     }
 }

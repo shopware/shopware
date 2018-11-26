@@ -65,6 +65,7 @@ return [
                 'fileName' => null,
                 'mediaType' => null,
                 'uploadedAt' => null,
+                'mediaFolderId' => null,
             ],
             'relationships' => [
                 'user' => [
@@ -98,6 +99,12 @@ return [
                     'data' => [],
                     'links' => [
                         'related' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870/thumbnails',
+                    ],
+                ],
+                'mediaFolder' => [
+                    'data' => null,
+                    'links' => [
+                        'related' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870/media-folder',
                     ],
                 ],
             ],

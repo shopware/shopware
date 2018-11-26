@@ -11,6 +11,7 @@
         </parameter>
     </parameters>
     <services>
+        <!-- Entity definitions -->
         <service class="Shopware\Core\Content\Media\MediaDefinition" id="Shopware\Core\Content\Media\MediaDefinition">
             <tag name="shopware.entity.definition" entity="media"/>
         </service>
@@ -22,6 +23,32 @@
         <service class="Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition" id="Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition">
             <tag name="shopware.entity.definition" entity="media_translation"/>
         </service>
+
+        <service class="Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition"
+                 id="Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition">
+            <tag name="shopware.entity.definition" entity="media_folder"/>
+        </service>
+
+        <service class="Shopware\Core\Content\Media\Aggregate\MediaFolderTranslation\MediaFolderTranslationDefinition"
+                 id="Shopware\Core\Content\Media\Aggregate\MediaFolderTranslation\MediaFolderTranslationDefinition">
+            <tag name="shopware.entity.definition" entity="media_folder_translation"/>
+        </service>
+
+        <service class="Shopware\Core\Content\Media\Aggregate\ThumbnailSize\ThumbnailSizeDefinition"
+                 id="Shopware\Core\Content\Media\Aggregate\ThumbnailSize\ThumbnailSizeDefinition">
+            <tag name="shopware.entity.definition" entity="thumbnail_size"/>
+        </service>
+
+        <service class="Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationDefinition"
+                 id="Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationDefinition">
+            <tag name="shopware.entity.definition" entity="media_folder_configuration"/>
+        </service>
+
+        <service class="Shopware\Core\Content\Media\Aggregate\MediaFolderConfigurationThumbnailSize\MediaFolderConfigurationThumbnailSizeDefinition"
+                 id="Shopware\Core\Content\Media\Aggregate\MediaFolderConfigurationThumbnailSize\MediaFolderConfigurationThumbnailSizeDefinition">
+            <tag name="shopware.entity.definition" entity="media_folder_configuration_thumbnail_size"/>
+        </service>
+        <!-- end of Entity definitions -->
 
         <service class="Shopware\Core\Content\Media\Subscriber\MediaLoadedSubscriber" id="Shopware\Core\Content\Media\Subscriber\MediaLoadedSubscriber">
             <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface"/>

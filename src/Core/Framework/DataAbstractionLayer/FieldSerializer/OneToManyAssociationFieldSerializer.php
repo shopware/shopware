@@ -39,27 +39,13 @@ class OneToManyAssociationFieldSerializer implements FieldSerializerInterface
         if (!$field instanceof OneToManyAssociationField) {
             throw new InvalidSerializerFieldException(OneToManyAssociationField::class, $field);
         }
-        $key = $data->getKey();
         $value = $data->getValue();
 
         if (!\is_array($value)) {
             throw new MalformatDataException($parameters->getPath() . '/' . $data->getKey(), 'Value must be an array.');
         }
 
-        foreach ($value as $keyValue => $subresources) {
-            if (!\is_array($subresources)) {
-                throw new MalformatDataException($parameters->getPath() . '/' . $key, 'Value must be an array.');
-            }
-
-            /* @var OneToManyAssociationField $field */
-            $this->writeExtractor->extract(
-                $subresources,
-                $parameters->cloneForSubresource(
-                    $field->getReferenceClass(),
-                    $parameters->getPath() . '/' . $key . '/' . $keyValue
-                )
-            );
-        }
+        $this->map($field, $parameters, $data);
 
         return;
         yield __CLASS__ => __METHOD__;
@@ -68,5 +54,22 @@ class OneToManyAssociationFieldSerializer implements FieldSerializerInterface
     public function decode(Field $field, $value)
     {
         throw new DecodeByHydratorException($field);
+    }
+
+    private function map(OneToManyAssociationField $field, WriteParameterBag $parameters, KeyValuePair $data): void
+    {
+        foreach ($data->getValue() as $keyValue => $subresources) {
+            if (!\is_array($subresources)) {
+                throw new MalformatDataException($parameters->getPath() . '/' . $data->getKey(), 'Value must be an array.');
+            }
+
+            $this->writeExtractor->extract(
+                $subresources,
+                $parameters->cloneForSubresource(
+                    $field->getReferenceClass(),
+                    $parameters->getPath() . '/' . $data->getKey() . '/' . $keyValue
+                )
+            );
+        }
     }
 }

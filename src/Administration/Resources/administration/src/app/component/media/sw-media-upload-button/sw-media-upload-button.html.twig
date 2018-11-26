@@ -2,15 +2,15 @@
     <div class="sw-media-upload-button">
         {% block sw_media_upload_button_compact %}
             <div v-if="variant == 'compact'" class="sw-media-upload-button__content">
+                {% block sw_media_upload_compact_button_url_upload %}
+                <sw-button @click="openUrlModal">
+                    {{ $tc('global.sw-media-upload-button.buttonUrlUpload') }}
+                </sw-button>
+                {% endblock %}
+
                 {% block sw_media_upload_compact_button_file_upload %}
                     <sw-button variant="primary" @click="onClickUpload">
                         {{ $tc('global.sw-media-upload-button.buttonFileUpload') }}
-                    </sw-button>
-                {% endblock %}
-
-                {% block sw_media_upload_compact_button_url_upload %}
-                    <sw-button @click="openUrlModal">
-                        {{ $tc('global.sw-media-upload-button.buttonUrlUpload') }}
                     </sw-button>
                 {% endblock %}
 

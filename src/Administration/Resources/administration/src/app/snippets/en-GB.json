@@ -472,7 +472,7 @@
       "messageUploadSuccess": "{count} of {total} files saved."
     },
     "mediaForm": {
-      "uploadCaption": "Add images/videos",
+      "uploadCaption": "Drop files here to upload them",
       "errorNoImage": "\"{file}\" is not an image",
       "errorMediaItemDuplicated": "Media item already assigned"
     }

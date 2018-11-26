@@ -1,11 +1,12 @@
 @import "~less/variables";
 
-@sw-media-upload-button-border-color:             @color-steam-cloud;
-@sw-media-upload-button-border-color-highlighted: @color-shopware-blue;
-@sw-media-upload-button-border-radius:            @border-radius-default;
-@sw-media-upload-button-upload-background-color: @color-light-gray;
-@sw-media-caption-font-size:                     @font-size-large;
-@sw-media-caption-icon-color:                    #9AA8B5;
+@sw-media-upload-button-border-color:                 @color-steam-cloud;
+@sw-media-upload-button-border-color-highlighted:     @color-shopware-blue;
+@sw-media-upload-button-border-radius:                @border-radius-default;
+@sw-media-upload-button-upload-background-color:      @color-light-gray;
+@sw-media-upload-button-background-color-highlighted: #E8F6FF;
+@sw-media-caption-font-size:                          @font-size-large;
+@sw-media-caption-icon-color:                         #9AA8B5;
 
 .sw-media-upload-button {
 
@@ -19,7 +20,12 @@
         border-radius: @sw-media-upload-button-border-radius;
         background-color: @sw-media-upload-button-upload-background-color;
         position: relative;
-        padding: 20px;
+        padding: 50px 20px 50px 20px;
+
+        &.is--active {
+            border-color: @sw-media-upload-button-border-color-highlighted;
+            background-color: @sw-media-upload-button-background-color-highlighted;
+        }
 
         .sw-upload-button__upload-caption {
             font-size: @sw-media-caption-font-size;

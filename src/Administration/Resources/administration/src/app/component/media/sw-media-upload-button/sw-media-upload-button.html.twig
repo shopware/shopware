@@ -28,7 +28,7 @@
         {% block sw_media_upload_button_regular %}
             <div v-if="variant == 'regular'" class="sw-media-upload-button__content">
                 {% block sw_media_upload_button_regular_drop_zone %}
-                    <div class="sw-upload-button__dropzone">
+                    <div class="sw-upload-button__dropzone" ref="dropzone" :class="isDragActiveClass">
                         {% block sw_media_upload_button_regular_caption %}
                             <div v-if="caption" class="sw-upload-button__upload-caption">
                                 <sw-icon name="default-action-cloud-upload" medium></sw-icon>

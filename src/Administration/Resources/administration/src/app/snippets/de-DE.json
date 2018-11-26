@@ -474,7 +474,7 @@
       "messageUploadSuccess": "{count} von {total} Dateien erfolgreich gespeichert."
     },
     "mediaForm": {
-      "uploadCaption": "Bilder/Videos zu Produkt hinzufügen",
+      "uploadCaption": "Dateien zum Hochladen hierhin ziehen",
       "errorNoImage": "\"{file}\" ist kein Bild",
       "errorMediaItemDuplicated": "Medium bereits verwendet"
     }

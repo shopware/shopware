@@ -45,6 +45,12 @@ Component.register('sw-media-upload-button', {
         caption: {
             required: false,
             type: String
+        },
+
+        scrollTarget: {
+            required: false,
+            type: HTMLElement,
+            default: null
         }
     },
 
@@ -52,7 +58,8 @@ Component.register('sw-media-upload-button', {
         return {
             multiSelect: this.allowMultiSelect,
             showUrlInput: false,
-            previewMediaEntity: null
+            previewMediaEntity: null,
+            isDragActive: false
         };
     },
 
@@ -81,7 +88,17 @@ Component.register('sw-media-upload-button', {
 
         isMediaSidebarAvailable() {
             return Object.keys(this.$listeners).includes('sw-media-upload-button-open-sidebar');
+        },
+
+        isDragActiveClass() {
+            return {
+                'is--active': this.isDragActive
+            };
         }
+    },
+
+    mounted() {
+        this.onMounted();
     },
 
     beforeDestroy() {
@@ -89,8 +106,52 @@ Component.register('sw-media-upload-button', {
     },
 
     methods: {
+        onMounted() {
+            if (this.$refs.dropzone) {
+                ['dragover', 'dragenter', 'dragleave', 'drop'].forEach((event) => {
+                    this.$refs.dropzone.addEventListener(event, this.stopPropagation, false);
+                });
+                this.$refs.dropzone.addEventListener('drop', this.onDrop);
+
+                window.addEventListener('dragenter', this.onDragEnter);
+                window.addEventListener('dragleave', this.onDragLeave);
+            }
+        },
+
         onBeforeDestroy() {
             this.uploadStore.removeByTag(this.uploadTag);
+
+            window.removeEventListener('dragenter', this.onDragEnter);
+            window.removeEventListener('dragleave', this.onDragLeave);
+        },
+
+        /*
+         * Drop Handler
+         */
+        onDrop(event) {
+            const newMediaFiles = Array.from(event.dataTransfer.files);
+            this.handleUpload(newMediaFiles);
+
+            this.isDragActive = false;
+        },
+
+        onDragEnter() {
+            if (this.scrollTarget !== null && !this.isElementInViewport(this.$refs.dropzone)) {
+                this.scrollTarget.scrollIntoView();
+            }
+
+            this.isDragActive = true;
+        },
+
+        onDragLeave(event) {
+            if (event.screenX === 0 && event.screenY === 0) {
+                this.isDragActive = false;
+            }
+        },
+
+        stopPropagation(event) {
+            event.preventDefault();
+            event.stopPropagation();
         },
 
         /*
@@ -145,7 +206,26 @@ Component.register('sw-media-upload-button', {
         },
 
         onFileInputChange() {
-            let newMediaFiles = Array.from(this.$refs.fileInput.files);
+            const newMediaFiles = Array.from(this.$refs.fileInput.files);
+            this.handleUpload(newMediaFiles);
+            this.$refs.fileForm.reset();
+        },
+
+        /*
+         * Helper functions
+         */
+        isElementInViewport(el) {
+            const rect = el.getBoundingClientRect();
+
+            return (
+                rect.top >= 0 &&
+                rect.left >= 0 &&
+                rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+                rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+            );
+        },
+
+        handleUpload(newMediaFiles) {
             if (!this.multiSelect) {
                 this.uploadStore.removeByTag(this.uploadTag);
 
@@ -165,12 +245,8 @@ Component.register('sw-media-upload-button', {
                     this.$emit('new-media-entity');
                 });
             }
-            this.$refs.fileForm.reset();
         },
 
-        /*
-         * Helper functions
-         */
         getMediaEntityForUpload() {
             return this.mediaItemStore.create();
         },

@@ -50,6 +50,14 @@ Component.register('sw-media-preview', {
             };
         },
 
+        transparencyClass() {
+            return {
+                'shows--transparency':
+                this.checkForFileTypeImage
+                && this.transparency
+            };
+        },
+
         checkForFileTypeImage() {
             return this.isFileType('image');
         },

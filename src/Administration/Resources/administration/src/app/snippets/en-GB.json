@@ -52,7 +52,8 @@
       "labelContextMenuDetail": "Details",
       "notificationErrorBlankItemName": "The media could not be saved: Please enter a name",
       "notificationRenamingSuccess": "Media item successfully renamed.",
-      "notificationRenamingError": "Error renaming file"
+      "notificationRenamingError": "Error renaming file",
+      "labelUploading": "uploading..."
     },
     "sw-media-modal-delete": {
       "titleModal": "Delete media files",

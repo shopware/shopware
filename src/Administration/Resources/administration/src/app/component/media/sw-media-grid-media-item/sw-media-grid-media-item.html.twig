@@ -49,7 +49,7 @@
                              :title="item | mediaName"
                              :data-last-content="lastContent"
                              @dblclick="startInlineEdit">
-                            {{ item | mediaName }}
+                            {{ item | mediaName(fallbackName) }}
                         </div>
                     </template>
                 {% endblock %}

@@ -86,6 +86,10 @@ Component.register('sw-media-grid-media-item', {
 
         listSelected() {
             return this.selected && this.showSelectionIndicator;
+        },
+
+        fallbackName() {
+            return this.item.isLoading ? this.$tc('global.sw-media-grid-media-item.labelUploading') : '';
         }
     },
 

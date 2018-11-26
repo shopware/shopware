@@ -52,7 +52,8 @@
       "labelContextMenuDetail": "Informationen",
       "notificationErrorBlankItemName": "Das Medium konnte nicht umbenannt werden. Bitte füge einen Dateinamen hinzu.",
       "notificationRenamingSuccess": "Medium erfolgreich umbenannt",
-      "notificationRenamingError": "Fehler beim Umbenennen"
+      "notificationRenamingError": "Fehler beim Umbenennen",
+      "labelUploading": "Wird hochgeladen..."
     },
     "sw-media-modal-delete": {
       "titleModal": "Medien löschen",

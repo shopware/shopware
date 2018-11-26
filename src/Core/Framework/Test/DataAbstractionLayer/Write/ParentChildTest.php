@@ -121,4 +121,82 @@ class ParentChildTest extends TestCase
             )
         );
     }
+
+    public function testICanWriteTheParent()
+    {
+        $parent = Uuid::uuid4()->getHex();
+        $child = Uuid::uuid4()->getHex();
+
+        $category = [
+            'id' => $child,
+            'name' => 'child',
+            'parent' => [
+                'id' => $parent,
+                'name' => 'parent',
+            ],
+        ];
+
+        $context = Context::createDefaultContext();
+
+        $this->categoryRepository->upsert([$category], $context);
+
+        static::assertNull(
+            $this->connection->fetchColumn(
+                'SELECT parent_id FROM category WHERE id = :id',
+                ['id' => Uuid::fromHexToBytes($parent)]
+            )
+        );
+        static::assertEquals(
+            Uuid::fromHexToBytes($parent),
+            $this->connection->fetchColumn(
+                'SELECT parent_id FROM category WHERE id = :id',
+                ['id' => Uuid::fromHexToBytes($child)]
+            )
+        );
+    }
+
+    public function testICanWriteNestedParents()
+    {
+        $parent = Uuid::uuid4()->getHex();
+        $child1 = Uuid::uuid4()->getHex();
+        $child2 = Uuid::uuid4()->getHex();
+
+        $category = [
+            'id' => $child2,
+            'name' => 'child 2',
+            'parent' => [
+                'id' => $child1,
+                'name' => 'child 1',
+                'parent' => [
+                    'id' => $parent,
+                    'name' => 'parent',
+                ],
+            ],
+        ];
+
+        $context = Context::createDefaultContext();
+
+        $this->categoryRepository->upsert([$category], $context);
+
+        static::assertNull(
+            $this->connection->fetchColumn(
+                'SELECT parent_id FROM category WHERE id = :id',
+                ['id' => Uuid::fromHexToBytes($parent)]
+            )
+        );
+        static::assertEquals(
+            Uuid::fromHexToBytes($parent),
+            $this->connection->fetchColumn(
+                'SELECT parent_id FROM category WHERE id = :id',
+                ['id' => Uuid::fromHexToBytes($child1)]
+            )
+        );
+        static::assertEquals(
+            Uuid::fromHexToBytes($child1),
+            $this->connection->fetchColumn(
+                'SELECT parent_id FROM category WHERE id = :id',
+                ['id' => Uuid::fromHexToBytes($child2)]
+            )
+        );
+    }
 }

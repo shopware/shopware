@@ -7,9 +7,9 @@ With the implemented twig-function "feature()" you can check if a given featureF
 
 ```twig
 {% if feature('flagName') %}
-Only Visible when FeatureFlag is Active
+Only visible when FeatureFlag is active
 {% else %}
-Only Visible when FeatureFlag is InActive
+Only visible when FeatureFlag is inactive
 {% endif %}
 ```
 if  "flagName" is not registered, a Twig_Error_Runtime-Exception is thrown

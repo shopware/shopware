@@ -14,7 +14,7 @@ class FeatureFlagExtension extends \Twig_Extension
         ];
     }
 
-    public function feature($flag)
+    public function feature(string $flag)
     {
         return FeatureConfig::isActive($flag);
     }

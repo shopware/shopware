@@ -129,15 +129,15 @@ class FeatureTest extends TestCase
 
     public function testTwigFeatureFlagNotRegistered()
     {
-        static::expectException(\Twig_Error_Runtime::class);
-        static::expectExceptionMessageRegExp('/.*randomFlagThatIsNotRegisterde471112.*/');
-
         $loader = new Twig_Loader_Filesystem(__DIR__ . '/_fixture/');
         $twig = new Twig_Environment($loader, [
             'cache' => false,
         ]);
         $twig->addExtension(new FeatureFlagExtension());
         $template = $twig->loadTemplate('featuretest_unregistered.html.twig');
+
+        static::expectException(\Twig_Error_Runtime::class);
+        static::expectExceptionMessageRegExp('/.*randomFlagThatIsNotRegisterde471112.*/');
         $template->render([]);
     }
 

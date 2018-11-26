@@ -9,14 +9,14 @@
         </service>
 
         <service class="Shopware\Core\Content\Rule\RuleBuilder" id="Shopware\Core\Content\Rule\RuleBuilder">
-            <argument id="serializer" type="service"/>
+            <argument type="service" id="serializer"/>
         </service>
 
-        <service id="Shopware\Core\Content\Rule\RuleController" class="Shopware\Core\Content\Rule\RuleController" public="true">
-            <argument id="Shopware\Core\Content\Rule\RuleBuilder" type="service"/>
+        <service class="Shopware\Core\Content\Rule\RuleController" id="Shopware\Core\Content\Rule\RuleController" public="true">
+            <argument type="service" id="Shopware\Core\Content\Rule\RuleBuilder"/>
             <argument type="tagged" tag="rule_type.definition"/>
             <call method="setContainer">
-                <argument id="service_container" type="service"/>
+                <argument type="service" id="service_container"/>
             </call>
         </service>
         <service class="Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionDefinition" id="Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionDefinition">

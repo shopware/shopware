@@ -25,7 +25,6 @@ class ProductDatasheetDefinition extends MappingEntityDefinition
             (new FkField('product_id', 'productId', ProductDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             new ReferenceVersionField(ProductDefinition::class),
             (new FkField('configuration_group_option_id', 'optionId', ConfigurationGroupOptionDefinition::class))->setFlags(new PrimaryKey(), new Required()),
-            new ReferenceVersionField(ConfigurationGroupOptionDefinition::class),
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false),
             new ManyToOneAssociationField('option', 'configuration_group_option_id', ConfigurationGroupOptionDefinition::class, false),
         ]);

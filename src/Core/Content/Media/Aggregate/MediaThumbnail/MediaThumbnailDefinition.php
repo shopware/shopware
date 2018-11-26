@@ -11,10 +11,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Deferred;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
@@ -31,11 +29,9 @@ class MediaThumbnailDefinition extends EntityDefinition
     public static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
 
             (new FkField('media_id', 'mediaId', MediaDefinition::class))->setFlags(new Required()),
-            (new ReferenceVersionField(MediaDefinition::class))->setFlags(new Required()),
 
             new CreatedAtField(),
             new UpdatedAtField(),

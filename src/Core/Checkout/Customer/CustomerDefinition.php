@@ -17,11 +17,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PasswordField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\SearchKeywordAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
@@ -47,18 +45,14 @@ class CustomerDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            new VersionField(),
 
             (new FkField('customer_group_id', 'groupId', CustomerGroupDefinition::class))->setFlags(new Required()),
-            (new ReferenceVersionField(CustomerGroupDefinition::class))->setFlags(new Required()),
 
             (new FkField('default_payment_method_id', 'defaultPaymentMethodId', PaymentMethodDefinition::class))->setFlags(new Required()),
-            (new ReferenceVersionField(PaymentMethodDefinition::class, 'default_payment_method_version_id'))->setFlags(new Required()),
 
             (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->setFlags(new Required()),
 
             new FkField('last_payment_method_id', 'lastPaymentMethodId', PaymentMethodDefinition::class),
-            new ReferenceVersionField(PaymentMethodDefinition::class, 'last_payment_method_version_id'),
 
             (new FkField('default_billing_address_id', 'defaultBillingAddressId', CustomerAddressDefinition::class))->setFlags(new Required()),
             (new FkField('default_shipping_address_id', 'defaultShippingAddressId', CustomerAddressDefinition::class))->setFlags(new Required()),

@@ -8,7 +8,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
@@ -25,7 +24,6 @@ class SearchDocumentDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            new VersionField(),
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new IdField('entity_id', 'entityId'))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('entity', 'entity'))->setFlags(new Required()),

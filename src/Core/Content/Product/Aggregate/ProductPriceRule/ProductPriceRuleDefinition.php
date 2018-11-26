@@ -35,7 +35,6 @@ class ProductPriceRuleDefinition extends EntityDefinition
             (new FkField('product_id', 'productId', ProductDefinition::class))->setFlags(new Required()),
             new ReferenceVersionField(ProductDefinition::class),
             (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->setFlags(new Required()),
-            new ReferenceVersionField(CurrencyDefinition::class),
             (new FkField('rule_id', 'ruleId', RuleDefinition::class))->setFlags(new Required()),
             (new PriceField('price', 'price'))->setFlags(new Required()),
             (new IntField('quantity_start', 'quantityStart'))->setFlags(new Required()),

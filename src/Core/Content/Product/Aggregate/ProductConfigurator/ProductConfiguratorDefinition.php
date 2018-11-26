@@ -33,7 +33,6 @@ class ProductConfiguratorDefinition extends EntityDefinition
             (new FkField('product_id', 'productId', ProductDefinition::class))->setFlags(new Required()),
             new ReferenceVersionField(ProductDefinition::class),
             (new FkField('configuration_group_option_id', 'optionId', ConfigurationGroupOptionDefinition::class))->setFlags(new Required()),
-            new ReferenceVersionField(ConfigurationGroupOptionDefinition::class),
             new PriceField('price', 'price'),
             new PriceRulesJsonField('prices', 'prices'),
             new CreatedAtField(),

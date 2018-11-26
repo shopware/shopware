@@ -42,7 +42,6 @@ class ProductManufacturerDefinition extends EntityDefinition
             new CatalogField(),
 
             new FkField('media_id', 'mediaId', MediaDefinition::class),
-            new ReferenceVersionField(MediaDefinition::class),
 
             new StringField('link', 'link'),
             new UpdatedAtField(),

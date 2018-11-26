@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
@@ -34,7 +33,6 @@ class OrderCustomerDefinition extends EntityDefinition
             new VersionField(),
 
             new FkField('customer_id', 'customerId', CustomerDefinition::class),
-            new ReferenceVersionField(CustomerDefinition::class),
 
             (new StringField('email', 'email'))->setFlags(new Required()),
             (new StringField('first_name', 'firstName'))->setFlags(new Required()),

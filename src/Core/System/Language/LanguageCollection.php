@@ -50,20 +50,6 @@ class LanguageCollection extends EntityCollection
         });
     }
 
-    public function getLocaleVersionIds(): array
-    {
-        return $this->fmap(function (LanguageStruct $language) {
-            return $language->getLocaleVersionId();
-        });
-    }
-
-    public function filterByLocaleVersionId(string $id): LanguageCollection
-    {
-        return $this->filter(function (LanguageStruct $language) use ($id) {
-            return $language->getLocaleVersionId() === $id;
-        });
-    }
-
     public function getLocales(): LocaleCollection
     {
         return new LocaleCollection(

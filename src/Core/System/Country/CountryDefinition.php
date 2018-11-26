@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
@@ -38,7 +37,6 @@ class CountryDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            new VersionField(),
 
             (new TranslatedField('name'))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
             (new StringField('iso', 'iso'))->setFlags(new SearchRanking(self::MIDDLE_SEARCH_RANKING)),

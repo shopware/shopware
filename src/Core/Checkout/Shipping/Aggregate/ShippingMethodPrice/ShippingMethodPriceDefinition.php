@@ -9,9 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
@@ -27,10 +25,8 @@ class ShippingMethodPriceDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            new VersionField(),
 
             (new FkField('shipping_method_id', 'shippingMethodId', ShippingMethodDefinition::class))->setFlags(new Required()),
-            (new ReferenceVersionField(ShippingMethodDefinition::class))->setFlags(new Required()),
 
             (new FloatField('quantity_from', 'quantityFrom'))->setFlags(new Required()),
             (new FloatField('price', 'price'))->setFlags(new Required()),

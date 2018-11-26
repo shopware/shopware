@@ -21,7 +21,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
@@ -44,7 +43,6 @@ class PaymentMethodDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
 
-            new VersionField(),
             new FkField('plugin_id', 'pluginId', PluginDefinition::class),
             (new StringField('technical_name', 'technicalName'))->setFlags(new Required(), new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
             (new TranslatedField('name'))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),

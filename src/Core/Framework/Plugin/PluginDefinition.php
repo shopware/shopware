@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
@@ -28,7 +27,6 @@ class PluginDefinition extends EntityDefinition
     public static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),
             (new StringField('label', 'label'))->setFlags(new Required()),

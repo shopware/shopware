@@ -28,6 +28,7 @@ Component.register('sw-sales-channel-menu', {
         createdComponent() {
             const params = {
                 limit: 500,
+                sortBy: 'name',
                 page: 1
             };
 

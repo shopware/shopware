@@ -95,10 +95,8 @@ class ProductDefinition extends EntityDefinition
             (new ReferenceVersionField(ProductManufacturerDefinition::class))->setFlags(new Inherited(), new Required()),
 
             (new FkField('unit_id', 'unitId', UnitDefinition::class))->setFlags(new Inherited()),
-            new ReferenceVersionField(UnitDefinition::class),
 
             (new FkField('tax_id', 'taxId', TaxDefinition::class))->setFlags(new Inherited(), new Required()),
-            (new ReferenceVersionField(TaxDefinition::class))->setFlags(new Inherited(), new Required()),
 
             (new FkField('product_media_id', 'coverId', ProductMediaDefinition::class))->setFlags(new Inherited()),
             (new ReferenceVersionField(ProductMediaDefinition::class))->setFlags(new Inherited()),

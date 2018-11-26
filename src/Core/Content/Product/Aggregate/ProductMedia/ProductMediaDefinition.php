@@ -38,7 +38,6 @@ class ProductMediaDefinition extends EntityDefinition
             (new ReferenceVersionField(ProductDefinition::class))->setFlags(new Required()),
 
             (new FkField('media_id', 'mediaId', MediaDefinition::class))->setFlags(new Required()),
-            (new ReferenceVersionField(MediaDefinition::class))->setFlags(new Required()),
 
             new IntField('position', 'position'),
             new CreatedAtField(),

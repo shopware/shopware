@@ -26,11 +26,9 @@ class SeoUrlDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new IdField('version_id', 'versionId'))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->setFlags(new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),
             (new IdField('foreign_key', 'foreignKey'))->setFlags(new Required()),
-            (new IdField('foreign_key_version_id', 'foreignKeyVersionId'))->setFlags(new Required()),
             (new StringField('path_info', 'pathInfo'))->setFlags(new Required()),
             (new StringField('seo_path_info', 'seoPathInfo'))->setFlags(new Required()),
             new BoolField('is_canonical', 'isCanonical'),

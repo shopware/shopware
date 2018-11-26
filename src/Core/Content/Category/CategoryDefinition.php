@@ -54,7 +54,6 @@ class CategoryDefinition extends EntityDefinition
             new ReferenceVersionField(self::class, 'parent_version_id'),
 
             new FkField('media_id', 'mediaId', MediaDefinition::class),
-            new ReferenceVersionField(MediaDefinition::class),
 
             (new IntField('auto_increment', 'autoIncrement'))->setFlags(new ReadOnly()),
             new LongTextField('path', 'path'),

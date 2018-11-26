@@ -611,6 +611,7 @@ class DemodataCommand extends Command
                 'id' => Uuid::uuid4()->getHex(),
                 'priority' => $i,
                 'name' => implode(' + ', $names),
+                'description' => $this->faker->text(),
             ];
 
             $ruleData['conditions'][] = $this->buildChildRule(null, (new AndRule())->assign(['rules' => $classes]));

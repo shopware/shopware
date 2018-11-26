@@ -25,7 +25,7 @@ class UserController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/user/me", name="api.user.me", methods={"GET"})
+     * @Route("/api/_info/v{version}/me", name="api.info.me", methods={"GET"})
      */
     public function me(Context $context, Request $request, ResponseFactoryInterface $responseFactory): Response
     {

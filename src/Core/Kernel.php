@@ -266,38 +266,38 @@ class Kernel extends HttpKernel
         $route->setMethods(['GET']);
         $route->setDefault('_controller', $class . '::detail');
         $route->addRequirements(['path' => $uuidRegex, 'version' => '\d+']);
-        $routes->addRoute($route, 'api_controller.detail');
+        $routes->addRoute($route, 'api.detail');
 
         $route = new Route('/api/v{version}/{path}');
         $route->setMethods(['PATCH']);
         $route->setDefault('_controller', $class . '::update');
         $route->addRequirements(['path' => $uuidRegex, 'version' => '\d+']);
-        $routes->addRoute($route, 'api_controller.update');
+        $routes->addRoute($route, 'api.update');
 
         $route = new Route('/api/v{version}/{path}');
         $route->setMethods(['DELETE']);
         $route->setDefault('_controller', $class . '::delete');
         $route->addRequirements(['path' => $uuidRegex, 'version' => '\d+']);
-        $routes->addRoute($route, 'api_controller.delete');
+        $routes->addRoute($route, 'api.delete');
 
         // list routes
         $route = new Route('/api/v{version}/{path}');
         $route->setMethods(['GET']);
         $route->setDefault('_controller', $class . '::list');
         $route->addRequirements(['path' => '.*', 'version' => '\d+']);
-        $routes->addRoute($route, 'api_controller.list');
+        $routes->addRoute($route, 'api.list');
 
         $route = new Route('/api/v{version}/search/{path}');
         $route->setMethods(['POST']);
         $route->setDefault('_controller', $class . '::search');
         $route->addRequirements(['path' => '.*', 'version' => '\d+']);
-        $routes->addRoute($route, 'api_controller.search');
+        $routes->addRoute($route, 'api.search');
 
         $route = new Route('/api/v{version}/{path}');
         $route->setMethods(['POST']);
         $route->setDefault('_controller', $class . '::create');
         $route->addRequirements(['path' => '.*', 'version' => '\d+']);
-        $routes->addRoute($route, 'api_controller.create');
+        $routes->addRoute($route, 'api.create');
     }
 
     private function addPluginRoutes(RouteCollectionBuilder $routes): void

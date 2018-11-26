@@ -31,9 +31,9 @@ class MigrationController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/migration/add", name="migration.add", methods={"POST"})
+     * @Route("/api/_action/v{version}/database/sync-migration", name="api.action.database.sync-migration", methods={"POST"})
      */
-    public function addMigrations(): JsonResponse
+    public function syncMigrations(): JsonResponse
     {
         $this->loader->syncMigrationCollection();
 
@@ -41,7 +41,7 @@ class MigrationController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/migration/migrate", name="migration.migrate", methods={"POST"})
+     * @Route("/api/_action/v{version}/database/migrate", name="api.action.database.migrate", methods={"POST"})
      */
     public function migrate(Request $request): JsonResponse
     {
@@ -59,7 +59,7 @@ class MigrationController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/migration/migrate-destructive", name="migration.migrate-destructive", methods={"POST"})
+     * @Route("/api/_action/v{version}/database/migrate-destructive", name="api.action.database.migrate-destructive", methods={"POST"})
      */
     public function migrateDestructive(Request $request): JsonResponse
     {

@@ -3,7 +3,7 @@
 {# Back to the shop button #}
 {% block frontend_index_logo_trusted_shops %}
     {{ parent() }}
-    <a href="{{ path('cart_index') }}"
+    <a href="{{ path('frontend.checkout.cart.page') }}"
        class="btn is--small btn--back-top-shop is--icon-left"
        title="{% trans %}frontend.checkout.finish.FinishButtonBackToShop{% endtrans %}"
        xmlns="http://www.w3.org/1999/html">
@@ -59,7 +59,7 @@
         <h1 style="text-align: center;">Bestellung bestätigen</h1>
 
         {% block frontend_checkout_confirm_form %}
-            <form id="confirm--form" method="post" action="{{ path('checkout_order') }}">
+            <form id="confirm--form" method="post" action="{{ path('frontend.account.order.page') }}">
 
                 {# AGB and Revocation #}
                 {% block frontend_checkout_confirm_tos_panel %}
@@ -151,7 +151,7 @@
                                                         {% block frontend_checkout_confirm_information_addresses_equal_panel_shipping %}
                                                             <div class="shipping--panel">
                                                                 {% block frontend_checkout_confirm_information_addresses_equal_panel_shipping_select_address %}
-                                                                    <a href="{{ path('address_index') }}"
+                                                                    <a href="{{ path('frontend.account.address.page') }}"
                                                                        class="btn choose-different-address"
                                                                        data-address-selection="true"
                                                                        data-setDefaultShippingAddress="true"
@@ -170,7 +170,7 @@
                                                             {% block frontend_checkout_confirm_information_addresses_equal_panel_actions_change %}
                                                                 <div class="address--actions-change">
                                                                     {% block frontend_checkout_confirm_information_addresses_equal_panel_shipping_change_address %}
-                                                                        <a href="{{ path('address_edit', {'addressId': context.customer.activeBillingAddress.id, 'redirectTo': redirectTo}) }}"
+                                                                        <a href="{{ path('frontend.account.address.edit.page', {'addressId': context.customer.activeBillingAddress.id, 'redirectTo': redirectTo}) }}"
                                                                            data-address-editor="true"
                                                                            data-id="{{ context.customer.activeBillingAddress.id }}"
                                                                            data-setDefaultShippingAddress="true"
@@ -183,7 +183,7 @@
                                                                     {% endblock %}
 
                                                                     {% block frontend_checkout_confirm_information_addresses_equal_panel_shipping_add_address %}
-                                                                        <a href="{{ path('address_index') }}"
+                                                                        <a href="{{ path('frontend.account.address.page') }}"
                                                                            class="btn choose-different-address"
                                                                            data-address-selection="true"
                                                                            data-setDefaultShippingAddress="true"
@@ -195,7 +195,7 @@
                                                                 </div>
                                                             {% endblock %}
                                                             {% block frontend_checkout_confirm_information_addresses_equal_panel_actions_select_address %}
-                                                                <a href="{{ path('address_index') }}"
+                                                                <a href="{{ path('frontend.account.address.page') }}"
                                                                    title="{% trans %}frontend.checkout.confirm.ConfirmAddressSelectLink{% endtrans %}"
                                                                    data-address-selection="true"
                                                                    data-setDefaultShippingAddress="true"
@@ -241,7 +241,7 @@
                                                         {% block frontend_checkout_confirm_information_addresses_billing_panel_actions_change %}
                                                             <div class="address--actions-change">
                                                                 {% block frontend_checkout_confirm_information_addresses_billing_panel_actions_change_address %}
-                                                                    <a href="{{ path('address_edit', {'addressId': context.customer.activeBillingAddress.id, 'redirectTo': redirectTo}) }}"
+                                                                    <a href="{{ path('frontend.account.address.edit.page', {'addressId': context.customer.activeBillingAddress.id, 'redirectTo': redirectTo}) }}"
                                                                        data-address-editor="true"
                                                                        data-setDefaultBillingAddress="true"
                                                                        data-id="{{ context.customer.activeBillingAddress.id }}"
@@ -254,7 +254,7 @@
                                                             </div>
                                                         {% endblock %}
                                                         {% block frontend_checkout_confirm_information_addresses_billing_panel_actions_select_address %}
-                                                            <a href="{{ path('address_index') }}"
+                                                            <a href="{{ path('frontend.account.address.page') }}"
                                                                data-address-selection="true"
                                                                data-setDefaultBillingAddress="true"
                                                                data-id="{{ context.customer.activeBillingAddress.id }}"
@@ -296,7 +296,7 @@
                                                         {% block frontend_checkout_confirm_information_addresses_shipping_panel_actions_change %}
                                                             <div class="address--actions-change">
                                                                 {% block frontend_checkout_confirm_information_addresses_shipping_panel_actions_change_address %}
-                                                                    <a href="{{ path('address_edit', {'addressId': context.customer.activeShippingAddress.id, 'redirectTo': redirectTo }) }}"
+                                                                    <a href="{{ path('frontend.account.address.edit.page', {'addressId': context.customer.activeShippingAddress.id, 'redirectTo': redirectTo }) }}"
                                                                        title="{% trans %}frontend.checkout.confirm.ConfirmAddressSelectButton{% endtrans %}"
                                                                        data-title="{% trans %}frontend.checkout.confirm.ConfirmAddressSelectButton{% endtrans %}"
                                                                        data-address-editor="true"
@@ -309,7 +309,7 @@
                                                             </div>
                                                         {% endblock %}
                                                         {% block frontend_checkout_confirm_information_addresses_shipping_panel_actions_select_address %}
-                                                            <a href="{{ path('address_index') }}"
+                                                            <a href="{{ path('frontend.account.address.page') }}"
                                                                data-address-selection="true"
                                                                data-setDefaultShippingAddress="true"
                                                                data-id="{{ context.customer.activeShippingAddress.id }}"
@@ -367,7 +367,7 @@
                                         {% block frontend_checkout_confirm_left_payment_method_actions %}
                                             <div class="panel--actions is--wide">
                                                 {# Action buttons #}
-                                                <a href="{{ path('checkout_shipping_payment') }}"
+                                                <a href="{{ path('frontend.checkout.shipping-payment.page') }}"
                                                    class="btn is--small btn--change-payment">
                                                     {% trans %}frontend.checkout.confirm.ConfirmLinkChangePayment{% endtrans %}
                                                 </a>

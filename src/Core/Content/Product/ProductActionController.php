@@ -22,7 +22,7 @@ class ProductActionController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/product/{productId}/actions/generate-variants", name="api.product.actions.generate-variants", methods={"POST"})
+     * @Route("api/_action/v{version}/product/{productId}/generate-variant", name="api.action.product.generate-variant", methods={"POST"})
      *
      * @param Request $request
      * @param string  $productId

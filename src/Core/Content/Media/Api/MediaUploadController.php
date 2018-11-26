@@ -34,7 +34,7 @@ class MediaUploadController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/media/{mediaId}/actions/upload", name="api.media.actions.upload", methods={"POST"})
+     * @Route("api/_action/v{version}/media/{mediaId}/upload/", name="api.action.media.upload", methods={"POST"})
      *
      * @return Response
      */

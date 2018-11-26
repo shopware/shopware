@@ -38,7 +38,7 @@ class SyncController extends AbstractController
     }
 
     /**
-     * @Route("/api/sync", name="sync.api", methods={"POST"})
+     * @Route("api/_action/v{version}/sync/", name="api.action.sync", methods={"POST"})
      *
      * @param Request $request
      * @param Context $context

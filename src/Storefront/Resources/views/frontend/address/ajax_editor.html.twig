@@ -12,7 +12,7 @@
         {% block frontend_address_editor_modal_body %}
             <div class="panel--body address-editor--body">
                 {% block frontend_address_editor_modal_form %}
-                    <form name="frmAddresses" method="post" action="{{ path('address_ajax_save' ) }}">
+                    <form name="frmAddresses" method="post" action="{{ path('frontend.account.address.upsert.ajax' ) }}">
                         {% sw_include '@Storefront/frontend/address/ajax_form.html.twig' %}
                     </form>
                 {% endblock %}

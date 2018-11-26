@@ -2,9 +2,6 @@
 
 namespace Shopware\Core\Checkout\Payment\Controller;
 
-use Doctrine\DBAL\Exception\InvalidArgumentException;
-use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
-use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
 use Shopware\Core\Checkout\Payment\Exception\TokenExpiredException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentService;
@@ -29,13 +26,10 @@ class PaymentController extends AbstractController
     }
 
     /**
-     * @Route("/payment/finalize-transaction", name="payment.finalize.transaction")
+     * @Route("/payment/finalize-transaction", name="payment.finalize.transaction", methods={"GET"})
      *
      * @throws UnknownPaymentMethodException
-     * @throws InvalidArgumentException
-     * @throws InvalidTokenException
      * @throws TokenExpiredException
-     * @throws CustomerNotLoggedInException
      */
     public function finalizeTransaction(Request $request, Context $context): Response
     {

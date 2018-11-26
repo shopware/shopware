@@ -1,12 +1,12 @@
 {# Add product using the sku #}
 {% block frontend_checkout_cart_footer_add_product %}
-<form method="post" action="{{ path('cart.product.add') }}" class="table--add-product add-product--form block-group">
+<form method="post" action="{{ path('frontend.cart.product.add') }}" class="table--add-product add-product--form block-group">
 
     {% block frontend_checkout_cart_footer_add_product_field %}
     {#<input name="number" class="add-product--field block" type="text" placeholder="{s name='CheckoutFooterAddProductPlaceholder' namespace='frontend/checkout/cart_footer_left'}{/s}" />#}
         <input name="identifier" class="add-product--field block" type="text" placeholder="{% trans %}frontend.checkout.cart_footer_left.CheckoutFooterAddProductPlaceholder{% endtrans %}" />
         <input type="hidden" name="quantity" value="1" />
-        <input type="hidden" name="target" value="{{ 'cart_index' }}" />
+        <input type="hidden" name="target" value="{{ 'frontend.cart' }}" />
     {% endblock %}
 
     {% block frontend_checkout_cart_footer_add_product_button %}
@@ -37,7 +37,7 @@
                 {#{% block frontend_checkout_cart_footer_add_voucher_field %}#}
                 {#<input type="text" class="add-voucher--field is--medium block" name="code" placeholder="{"{s name='CheckoutFooterAddVoucherLabelInline'}{/s}"|escape}" />#}
                 {#<input type="text" class="add-voucher--field is--medium block" name="identifier" placeholder="{% trans %}frontend.checkout.cart_footer.CheckoutFooterAddVoucherLabelInline{% endtrans %}" />#}
-                {#<input type="hidden" name="target" value="{{ 'cart_index' }}" />#}
+                {#<input type="hidden" name="target" value="{{ 'frontend.cart' }}" />#}
                 {#{% endblock %}#}
 
                 {#{% block frontend_checkout_cart_footer_add_voucher_button %}#}

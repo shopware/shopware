@@ -14,7 +14,7 @@
     {{ parent() }}
     {% if theme.checkoutHeader %}
         {# todo escape missing for trans #}
-        <a href="{{ path('homepage') }}"
+        <a href="{{ path('frontend.home.page') }}"
            class="btn is--small btn--back-top-shop is--icon-left"
            title="{% trans %}frontend.checkout.finish.FinishButtonBackToShop{% endtrans %}">
             <i class="icon--arrow-left"></i>

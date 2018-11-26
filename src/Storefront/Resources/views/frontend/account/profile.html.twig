@@ -14,7 +14,7 @@
     <div class="account--profile">
 
         {% block frontend_account_profile_profile_form %}
-            <form name="profileForm" action="{{ path('account_save_profile') }}" method="post">
+            <form name="profileForm" action="{{ path('frontend.account.profile.update') }}" method="post">
 
                 {% block frontend_account_profile_profile_panel %}
                     <div class="panel has--border is--rounded">
@@ -198,7 +198,7 @@
         <div class="profile--email-password-container" data-panel-auto-resizer="true">
             <div class="profile-email--container">
                 {% block frontend_account_profile_email_form %}
-                    <form name="emailForm" action="{{ path('account_save_email') }}" method="post">
+                    <form name="emailForm" action="{{ path('frontend.account.email.update') }}" method="post">
 
                         {% block frontend_account_profile_email_panel %}
                             <div class="panel has--border is--rounded">
@@ -308,7 +308,7 @@
 
             <div class="profile-password--container">
                 {% block frontend_account_profile_password_form %}
-                    <form name="passwordForm" action="{{ path('account_save_password') }}" method="post">
+                    <form name="passwordForm" action="{{ path('frontend.account.password.update') }}" method="post">
 
                         {% block frontend_account_profile_password_panel %}
                             <div class="panel has--border is--rounded">

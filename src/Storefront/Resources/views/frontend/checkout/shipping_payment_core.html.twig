@@ -9,7 +9,7 @@
     <div class="confirm--outer-container">
         <form id="shippingPaymentForm" name="shippingPaymentForm" method="post"
               {#action="{url controller='checkout' action='saveShippingPayment' sTarget='checkout' sTargetAction='confirm'}" #}
-              action="{{ path('checkout_save_shipping_payment') }}"
+              action="{{ path('frontend.checkout.shipping-payment.update') }}"
               class="payment">
 
             {# Action top #}

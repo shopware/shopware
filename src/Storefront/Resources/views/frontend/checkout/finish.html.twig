@@ -47,7 +47,7 @@
                                 {% spaceless %}
                                     {# Back to the shop button #}
                                     <a
-                                            href="{{ path('cart_index') }}"
+                                            href="{{ path('frontend.checkout.cart.page') }}"
                                             class="btn is--secondary teaser--btn-back is--icon-left"
                                             title="{"{% trans %}frontend.checkout.finish.FinishButtonBackToShop{% endtrans %}"|escape}">
                                     <i class="icon--arrow-left"></i>&nbsp;{{ 'frontend.checkout.finish.FinishButtonBackToShop'|trans|escape }}

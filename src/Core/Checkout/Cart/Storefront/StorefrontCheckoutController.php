@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Cart\Storefront;
 
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
-use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextFactory;
@@ -11,7 +10,6 @@ use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
 use Shopware\Core\Checkout\Order\OrderStruct;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
-use Shopware\Core\Checkout\Payment\Exception\InvalidTransactionException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Core\Framework\Api\Response\Type\Storefront\JsonType;
@@ -83,7 +81,17 @@ class StorefrontCheckoutController extends AbstractController
     }
 
     /**
-     * @Route("/storefront-api/checkout/order", name="storefront.api.checkout.order", methods={"POST"})
+     * @Route("/storefront-api/checkout/order", name="storefront.api.checkout.order.deprecated", methods={"POST"})
+     *
+     * @deprecated
+     */
+    public function createOrderDeprecated(Request $request, CheckoutContext $context): JsonResponse
+    {
+        return $this->createOrder($request, $context);
+    }
+
+    /**
+     * @Route("/storefront-api/v{version}/checkout/order", name="storefront-api.checkout.order.create", methods={"POST"})
      *
      * @throws OrderNotFoundException
      * @throws CartTokenNotFoundException
@@ -104,7 +112,17 @@ class StorefrontCheckoutController extends AbstractController
     }
 
     /**
-     * @Route("/storefront-api/checkout/guest-order", name="storefront.api.checkout.guest-order", methods={"POST"})
+     * @Route("/storefront-api/checkout/guest-order", name="storefront.api.checkout.guest-order.deprecated", methods={"POST"})
+     *
+     * @deprecated
+     */
+    public function createGuestOrderDeprecated(Request $request, CheckoutContext $context): JsonResponse
+    {
+        return $this->createGuestOrder($request, $context);
+    }
+
+    /**
+     * @Route("/storefront-api/v{version}/checkout/guest-order", name="storefront-api.checkout.guest-order.create", methods={"POST"})
      *
      * @throws OrderNotFoundException
      * @throws CartTokenNotFoundException
@@ -131,7 +149,17 @@ class StorefrontCheckoutController extends AbstractController
     }
 
     /**
-     * @Route("/storefront-api/checkout/guest-order/{id}", name="storefront.api.checkout.guest-order.deep-link", methods={"GET"})
+     * @Route("/storefront-api/checkout/guest-order/{id}", name="storefront.api.checkout.guest-order.deep-link.deprecated", methods={"GET"})
+     *
+     * @deprecated
+     */
+    public function getDeepLinkOrderDeprecated(string $id, Request $request, Context $context): Response
+    {
+        return $this->getDeepLinkOrder($id, $request, $context);
+    }
+
+    /**
+     * @Route("/storefront-api/v{version}/checkout/guest-order/{id}", name="storefront-api.checkout.guest-order.detail", methods={"GET"})
      *
      * @throws OrderNotFoundException
      */
@@ -146,10 +174,18 @@ class StorefrontCheckoutController extends AbstractController
     }
 
     /**
-     * @Route("/storefront-api/checkout/pay/order/{orderId}", name="storefront.api.checkout.pay.order", methods={"POST"})
+     * @Route("/storefront-api/checkout/pay/order/{orderId}", name="storefront.api.checkout.pay.order.deprecated", methods={"POST"})
      *
-     * @throws CustomerNotLoggedInException
-     * @throws InvalidTransactionException
+     * @deprecated use payOrder instead
+     */
+    public function payOrderDeprecated(string $orderId, Request $request, CheckoutContext $context): Response
+    {
+        return $this->payOrder($orderId, $request, $context);
+    }
+
+    /**
+     * @Route("/storefront-api/v{version}/checkout/order/{orderId}/pay", name="storefront-api.checkout.order.pay", methods={"POST"})
+     *
      * @throws InvalidOrderException
      * @throws UnknownPaymentMethodException
      */

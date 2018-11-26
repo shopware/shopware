@@ -32,7 +32,7 @@ class AdministrationController extends AbstractController
     }
 
     /**
-     * @Route("/admin", name="administration")
+     * @Route("/admin", name="administration.index", methods={"GET"})
      */
     public function index(): Response
     {
@@ -42,7 +42,7 @@ class AdministrationController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/admin/search", name="administration.search")
+     * @Route("/admin/v{version}/search", name="administration.search", methods={"GET"})
      */
     public function search(Request $request, Context $context): JsonResponse
     {

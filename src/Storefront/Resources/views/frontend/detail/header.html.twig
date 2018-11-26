@@ -15,7 +15,7 @@
     {% set product = page.product %}
     <meta property="og:type" content="product" />
     <meta property="og:site_name" content="{{ shopware.config.shopName|escape('html') }}" />
-    {% set url = path('detail_page', { 'id' : page.product.id }) %}
+    {% set url = path('frontend.detail.page', { 'id' : page.product.id }) %}
     {% if page.product.extension('canonicalUrl') %}
         {% set url = page.product.extension('canonicalUrl').url %}
     {% endif %}

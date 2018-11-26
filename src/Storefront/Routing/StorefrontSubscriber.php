@@ -97,7 +97,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
             'redirectTo' => urlencode($event->getRequest()->getRequestUri()),
         ];
 
-        $redirectResponse = new RedirectResponse($this->router->generate('account_login', $parameters));
+        $redirectResponse = new RedirectResponse($this->router->generate('frontend.account.login.page', $parameters));
 
         $event->setResponse($redirectResponse);
     }

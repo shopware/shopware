@@ -30,7 +30,7 @@
                 {% block frontend_account_payment_form %}
                     <div class="account--payment-form">
                         {#<form name="frmRegister" method="post" action="{url action=savePayment sTarget=$sTarget sTargetAction=$sTargetAction|default:"index"}" class="payment">#}
-                        <form name="frmRegister" method="post" action="{{ path('account_save_payment') }}" class="payment">
+                        <form name="frmRegister" method="post" action="{{ path('frontend.account.payment.switch') }}" class="payment">
 
                             {# Payment fieldset #}
                             {% block frontend_account_payment_form_content %}

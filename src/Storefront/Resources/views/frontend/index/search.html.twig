@@ -1,6 +1,6 @@
 {# Search container #}
 {% block frontend_index_search_container %}
-    <form action="{{ path('search_index') }}" method="get" class="main-search--form">
+    <form action="{{ path('frontend.search.page') }}" method="get" class="main-search--form">
         {% block frontend_index_search_innerform %}{% endblock %}
 
         {# Search icon #}

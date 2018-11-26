@@ -73,9 +73,7 @@
 
                                                 {% block frontend_address_item_content_set_default_shipping %}
                                                     {% if context.customer.defaultShippingAddressId != address.id %}
-                                                        <form action="{{ path('address_set_default_shipping') }}" method="post">
-                                                            <input type="hidden" name="addressId"
-                                                                   value="{{ address.id }}"/>
+                                                        <form action="{{ path('frontend.account.address.set-default-shipping', {addressId: address.id}) }}" method="post">
                                                             <button type="submit" class="btn is--link is--small">
                                                                 {% trans %}frontend.address.index.AddressesSetAsDefaultShippingAction{% endtrans %}
                                                             </button>
@@ -85,9 +83,7 @@
 
                                                 {% block frontend_address_item_content_set_default_billing %}
                                                     {% if context.customer.defaultBillingAddressId != address.id %}
-                                                        <form action="{{ path('address_set_default_billing') }}" method="post">
-                                                            <input type="hidden" name="addressId"
-                                                                   value="{{ address.id }}"/>
+                                                        <form action="{{ path('frontend.account.address.set-default-billing', {addressId: address.id}) }}" method="post">
                                                             <button type="submit" class="btn is--link is--small">
                                                                 {% trans %}frontend.address.index.AddressesSetAsDefaultBillingAction{% endtrans %}
                                                             </button>
@@ -99,7 +95,7 @@
                                         {% endblock %}
 
                                         {% block frontend_address_item_content_actions_change %}
-                                            <a href="{{ path('address_edit', {addressId: address.id}) }}"
+                                            <a href="{{ path('frontend.account.address.edit.page', {addressId: address.id}) }}"
                                                title="{% trans %}frontend.address.index.AddressesContentItemActionEdit{% endtrans %}"
                                                class="btn is--small">
                                                 {% trans %}frontend.address.index.AddressesContentItemActionEdit{% endtrans %}
@@ -108,7 +104,7 @@
 
                                         {% block frontend_address_item_content_actions_delete %}
                                             {% if context.customer.defaultShippingAddressId != address.id and context.customer.defaultBillingAddressId != address.id %}
-                                                <a href="{{ path('address_delete_confirm', {'addressId': address.id}) }}"
+                                                <a href="{{ path('frontend.account.address.delete-confirm.page', {'addressId': address.id}) }}"
                                                    title="{% trans %}frontend.address.index.AddressesContentItemActionDelete{% endtrans %}"
                                                    class="btn is--small">
                                                     {% trans %}frontend.address.index.AddressesContentItemActionDelete{% endtrans %}
@@ -124,7 +120,7 @@
 
                 {% block frontend_address_item_content_create %}
                     <div class="address--item-content address--item-create block">
-                        <a href="{{ path('address_create') }}"
+                        <a href="{{ path('frontend.account.address.create.page') }}"
                            title="{% trans %}frontend.address.index.AddressesContentItemActionCreate{% endtrans %}"
                            class="btn is--block is--primary">
                             {% trans %}frontend.address.index.AddressesContentItemActionCreate{% endtrans %}

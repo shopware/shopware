@@ -78,9 +78,9 @@
         {% endblock %}
         {% block frontend_address_delete_actions %}
                 <div class="address--delete-actions">
-                    <form action="{{ path('address_delete') }}" method="post">
+                    <form action="{{ path('frontend.account.address.delete') }}" method="post">
                         {% block frontend_address_delete_actions_cancel %}
-                            <a href="{{ path('address_index') }}"
+                            <a href="{{ path('frontend.account.address.page') }}"
                                title="{% trans %}frontend.address.index.AddressesDeleteCancelText{% endtrans %}"
                                class="btn  is--secondary">
                                 {% trans %}frontend.address.index.AddressesDeleteCancelText{% endtrans %}

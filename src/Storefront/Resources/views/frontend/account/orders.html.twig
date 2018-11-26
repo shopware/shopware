@@ -99,7 +99,7 @@
                     {% block frontend_account_orders_actions_paging %}
                         <div class="account--paging panel--paging">
                             {% if orderPage.currentPage > 1 %}
-                                <a href="{{ path('account_orders', {'page': orderPage.currentPage - 1}) }}" class="btn paging--link paging--prev">
+                                <a href="{{ path('frontend.account.order.page', {'page': orderPage.currentPage - 1}) }}" class="btn paging--link paging--prev">
                                     <i class="icon--arrow-left"></i>
                                 </a>
                             {% endif %}
@@ -109,7 +109,7 @@
                             </a>
 
                             {% if orderPage.pageCount - orderPage.currentPage > 0 %}
-                                <a href="{{ path('account_orders', {'page': orderPage.currentPage + 1}) }}" class="btn paging--link paging--prev">
+                                <a href="{{ path('frontend.account.order.page', {'page': orderPage.currentPage + 1}) }}" class="btn paging--link paging--prev">
                                     <i class="icon--arrow-right"></i>
                                 </a>
                             {% endif %}

@@ -24,7 +24,7 @@
                     {# Link to the account overview page #}
                     {% block frontend_account_menu_link_overview %}
                         <li class="navigation--entry">
-                            <a href="{{ path('account_home') }}" title="{% trans %}frontend.account.sidebar.frontend.account.sidebar.AccountLinkOverview{% endtrans %}" class="navigation--link{% if activeRoute == 'account_home' %} is--active{% endif %}">
+                            <a href="{{ path('frontend.account.home.page') }}" title="{% trans %}frontend.account.sidebar.frontend.account.sidebar.AccountLinkOverview{% endtrans %}" class="navigation--link{% if activeRoute == 'frontend.account.home.page' %} is--active{% endif %}">
                                 {% trans %}frontend.account.sidebar.AccountLinkOverview{% endtrans %}
                             </a>
                         </li>
@@ -33,7 +33,7 @@
                     {# Link to the account overview page #}
                     {% block frontend_account_menu_link_profile %}
                         <li class="navigation--entry">
-                            <a href="{{ path('account_profile') }}" title="{% trans %}frontend.account.sidebar.frontend.account.sidebar.AccountLinkProfile{% endtrans %}" class="navigation--link{% if activeRoute == 'account_profile' %} is--active{% endif %}">
+                            <a href="{{ path('frontend.account.profile.page') }}" title="{% trans %}frontend.account.sidebar.frontend.account.sidebar.AccountLinkProfile{% endtrans %}" class="navigation--link{% if activeRoute == 'frontend.account.profile.page' %} is--active{% endif %}">
                                 {% trans %}frontend.account.sidebar.AccountLinkProfile{% endtrans %}
                             </a>
                         </li>
@@ -42,7 +42,7 @@
                     {# Link to the user addresses #}
                     {% block frontend_account_menu_link_addresses %}
                         <li class="navigation--entry">
-                            <a href="{{ path('address_index') }}" title="{% trans %}frontend.account.sidebar.AccountLinkAddresses{% endtrans %}" class="navigation--link{% if activeRoute == 'address_index' %} is--active{% endif %}">
+                            <a href="{{ path('frontend.account.address.page') }}" title="{% trans %}frontend.account.sidebar.AccountLinkAddresses{% endtrans %}" class="navigation--link{% if activeRoute == 'frontend.account.address.page' %} is--active{% endif %}">
                                 {% trans %}frontend.account.sidebar.AccountLinkAddresses{% endtrans %}
                             </a>
                         </li>
@@ -51,7 +51,7 @@
                     {# Link to the user payment method settings #}
                     {% block frontend_account_menu_link_payment %}
                         <li class="navigation--entry">
-                            <a href="{{ path('account_payment') }}" title="{% trans %}frontend.account.sidebar.AccountLinkPayment{% endtrans %}" class="navigation--link{% if activeRoute == 'account_payment'  %} is--active{% endif %}">
+                            <a href="{{ path('frontend.account.payment.page') }}" title="{% trans %}frontend.account.sidebar.AccountLinkPayment{% endtrans %}" class="navigation--link{% if activeRoute == 'frontend.account.payment.page'  %} is--active{% endif %}">
                                 {% trans %}frontend.account.sidebar.AccountLinkPayment{% endtrans %}
                             </a>
                         </li>
@@ -60,7 +60,7 @@
                     {# Link to the user orders #}
                     {% block frontend_account_menu_link_orders %}
                         <li class="navigation--entry">
-                            <a href="{{ path('account_orders') }}" title="{% trans %}frontend.account.sidebar.AccountLinkPreviousOrders{% endtrans %}" class="navigation--link{% if activeRoute == 'account_orders'%} is--active{% endif %}">
+                            <a href="{{ path('frontend.account.order.page') }}" title="{% trans %}frontend.account.sidebar.AccountLinkPreviousOrders{% endtrans %}" class="navigation--link{% if activeRoute == 'frontend.account.order.page'%} is--active{% endif %}">
                                 {% trans %}frontend.account.sidebar.AccountLinkPreviousOrders{% endtrans %}
                             </a>
                         </li>
@@ -74,7 +74,7 @@
                     {# Logout action #}
                     {% block frontend_account_menu_link_logout %}
                         <li class="navigation--entry">
-                            <a href="{{ path('account_logout') }}" title="{% trans %}frontend.account.sidebar.AccountLinkLogout2{% endtrans %}" class="navigation--link link--logout">
+                            <a href="{{ path('frontend.account.logout') }}" title="{% trans %}frontend.account.sidebar.AccountLinkLogout2{% endtrans %}" class="navigation--link link--logout">
                                 <i class="icon--logout"></i> {% trans %}frontend.account.sidebar.AccountLinkLogout2{% endtrans %}
                             </a>
                         </li>

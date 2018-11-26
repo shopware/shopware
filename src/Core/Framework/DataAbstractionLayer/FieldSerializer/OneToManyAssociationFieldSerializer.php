@@ -56,7 +56,7 @@ class OneToManyAssociationFieldSerializer implements FieldSerializerInterface
         throw new DecodeByHydratorException($field);
     }
 
-    public function map(OneToManyAssociationField $field, WriteParameterBag $parameters, KeyValuePair $data): void
+    private function map(OneToManyAssociationField $field, WriteParameterBag $parameters, KeyValuePair $data): void
     {
         foreach ($data->getValue() as $keyValue => $subresources) {
             if (!\is_array($subresources)) {

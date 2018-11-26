@@ -6,6 +6,8 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\MalformatDataException;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
@@ -28,6 +30,35 @@ class ParentChildTest extends TestCase
         parent::setUp();
         $this->categoryRepository = $this->getContainer()->get('category.repository');
         $this->connection = $this->getContainer()->get(Connection::class);
+    }
+
+    public function testChildrenWithMalformatDataException()
+    {
+        $parent = Uuid::uuid4()->getHex();
+        $child1 = Uuid::uuid4()->getHex();
+
+        $category = [
+            'id' => $parent,
+            'name' => 'parent',
+            'children' => ['id' => $child1, 'name' => 'child 1'],
+        ];
+
+        $context = Context::createDefaultContext();
+
+        $e = null;
+        try {
+            $this->categoryRepository->upsert([$category], $context);
+        } catch (\Exception $e) {
+        }
+
+        /** @var WriteStackException $e */
+        static::assertInstanceOf(WriteStackException::class, $e);
+
+        static::assertCount(1, $e->getExceptions());
+        $first = $e->getExceptions()[0];
+
+        static::assertInstanceOf(MalformatDataException::class, $first);
+        static::assertEquals('/children', $first->getPath());
     }
 
     public function testICanWriteChildren()
@@ -198,5 +229,32 @@ class ParentChildTest extends TestCase
                 ['id' => Uuid::fromHexToBytes($child2)]
             )
         );
+    }
+
+    public function testParentWithMalformatDataException()
+    {
+        $parent = Uuid::uuid4()->getHex();
+        $child1 = Uuid::uuid4()->getHex();
+
+        $category = [
+            'id' => $child1,
+            'name' => 'child',
+            'parent' => $parent,
+        ];
+
+        $context = Context::createDefaultContext();
+
+        $e = null;
+        try {
+            $this->categoryRepository->upsert([$category], $context);
+        } catch (\Exception $e) {
+        }
+
+        /** @var WriteStackException $e */
+        static::assertInstanceOf(WriteStackException::class, $e);
+
+        static::assertCount(1, $e->getExceptions());
+        $first = $e->getExceptions()[0];
+        static::assertInstanceOf(MalformatDataException::class, $first);
     }
 }

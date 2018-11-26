@@ -39,7 +39,7 @@ class ParentAssociationFieldSerializer implements FieldSerializerInterface
         WriteParameterBag $parameters
     ): \Generator {
         if (!$field instanceof ParentAssociationField) {
-            throw new InvalidSerializerFieldException(ManyToOneAssociationField::class, $field);
+            throw new InvalidSerializerFieldException(ParentAssociationField::class, $field);
         }
         /* @var ManyToOneAssociationField $field */
         if (!\is_array($data->getValue())) {

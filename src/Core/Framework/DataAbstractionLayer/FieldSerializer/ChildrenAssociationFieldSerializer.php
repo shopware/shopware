@@ -7,7 +7,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\DecodeByHydratorExcep
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\MalformatDataException;
@@ -38,7 +37,7 @@ class ChildrenAssociationFieldSerializer implements FieldSerializerInterface
         WriteParameterBag $parameters
     ): \Generator {
         if (!$field instanceof ChildrenAssociationField) {
-            throw new InvalidSerializerFieldException(OneToManyAssociationField::class, $field);
+            throw new InvalidSerializerFieldException(ChildrenAssociationField::class, $field);
         }
 
         $value = $data->getValue();
@@ -58,7 +57,7 @@ class ChildrenAssociationFieldSerializer implements FieldSerializerInterface
         throw new DecodeByHydratorException($field);
     }
 
-    public function map(ChildrenAssociationField $field, WriteParameterBag $parameters, KeyValuePair $data): void
+    private function map(ChildrenAssociationField $field, WriteParameterBag $parameters, KeyValuePair $data): void
     {
         $parentId = $parameters->getContext()->get($field->getReferenceClass(), 'id');
 

@@ -36,7 +36,10 @@ module.exports = {
     ],
 
     build: {
-        extend(config) {
+        extend(config,  { isDev }) {
+            if (!isDev) {
+                config.output.publicPath = './_nuxt/';
+            }
             config.resolve.alias['src'] = path.resolve(__dirname, '..', 'administration/src/');
             config.resolve.alias['less'] = path.resolve(__dirname, '..', 'administration/src/app/assets/less');
             config.resolve.alias['vue'] = __dirname + '/node_modules/vue/dist/vue.common';

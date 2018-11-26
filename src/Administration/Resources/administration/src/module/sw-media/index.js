@@ -3,6 +3,11 @@ import './mixin/mediagrid-listener.mixin';
 import './page/sw-media-index';
 import './page/sw-media-catalog';
 import './component/sidebar/sw-media-sidebar';
+import './component/sidebar/sw-media-quickinfo-metadata-item';
+import './component/sidebar/sw-media-quickinfo-usage';
+import './component/sw-media-collapse';
+import './component/sidebar/sw-media-quickinfo';
+import './component/sidebar/sw-media-quickinfo-multiple';
 
 Module.register('sw-media', {
     type: 'core',

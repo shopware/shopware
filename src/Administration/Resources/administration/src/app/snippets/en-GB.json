@@ -650,7 +650,8 @@
         "preview": "Preview",
         "metadata": "Meta data",
         "titleMissingFile": "File not found",
-        "descriptionMissingFile": "Unable to find requested file. Upload new file(s) or delete placeholder."
+        "descriptionMissingFile": "Unable to find requested file. Upload new file(s) or delete placeholder.",
+        "usage": "Used in"
       },
       "metadata": {
         "name": "Name",
@@ -666,6 +667,12 @@
         "pages": "Pages",
         "fileCount": "{count} files selected",
         "totalSize": "a total of"
+      },
+      "usage": {
+        "tooltipFoundInProducts": "Found in products",
+        "tooltipFoundInManufacturers": "Found in manufacturers",
+        "titleMediaNotUsed": "Media is not used",
+        "labelMediaNotUsed": "The media item is currently not used."
       }
     },
     "catalog": {

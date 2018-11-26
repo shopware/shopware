@@ -652,7 +652,8 @@
         "preview": "Vorschau",
         "metadata": "Metadaten",
         "titleMissingFile": "Datei nicht gefunden",
-        "descriptionMissingFile": "Wir konnten diese Datei nicht finden. Du kannst eine neue Datei hochladen oder diese löschen."
+        "descriptionMissingFile": "Wir konnten diese Datei nicht finden. Du kannst eine neue Datei hochladen oder diese löschen.",
+        "usage": "Wird verwendet in"
       },
       "metadata": {
         "name": "Name",
@@ -668,6 +669,12 @@
         "pages": "Seiten",
         "fileCount": "{count} ausgewählte Dateien",
         "totalSize": "insgesamt"
+      },
+      "usage": {
+        "tooltipFoundInProducts": "Gefunden in Produkten",
+        "tooltipFoundInManufacturers": "Gefunden in Herstellern",
+        "titleMediaNotUsed": "Medium wird nicht verwendet",
+        "labelMediaNotUsed": "Das Medium wird zurzeit nicht verwendet."
       }
     },
     "catalog": {

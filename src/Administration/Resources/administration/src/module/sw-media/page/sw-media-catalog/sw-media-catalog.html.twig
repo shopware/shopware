@@ -43,32 +43,31 @@
                             {% block sw_media_catalog_content %}
                                 <div class="sw-media-catalog__content">
                                     <div class="sw-media-catalog__options-container">
-
                                         {% block sw_media_catalog_presentation %}
-                                        <sw-field type="select"
-                                                  name="presentation"
-                                                  :label="$tc('sw-media.catalog.labelPresentation')"
-                                                  v-model="presentation">
-                                            <template slot="options">
-                                                {% block sw_media_catalog_presentation_options_small %}
-                                                    <option value="small-preview">
-                                                        {{ $tc('sw-media.catalog.labelPresentationSmall') }}
-                                                    </option>
-                                                {% endblock %}
+                                            <sw-field type="select"
+                                                      name="presentation"
+                                                      :label="$tc('sw-media.catalog.labelPresentation')"
+                                                      v-model="presentation">
+                                                <template slot="options">
+                                                    {% block sw_media_catalog_presentation_options_small %}
+                                                        <option value="small-preview">
+                                                            {{ $tc('sw-media.catalog.labelPresentationSmall') }}
+                                                        </option>
+                                                    {% endblock %}
 
-                                                {% block sw_media_catalog_presentation_options_medium %}
-                                                    <option value="medium-preview">
-                                                        {{ $tc('sw-media.catalog.labelPresentationMedium') }}
-                                                    </option>
-                                                {% endblock %}
+                                                    {% block sw_media_catalog_presentation_options_medium %}
+                                                        <option value="medium-preview">
+                                                            {{ $tc('sw-media.catalog.labelPresentationMedium') }}
+                                                        </option>
+                                                    {% endblock %}
 
-                                                {% block sw_media_catalog_presentation_options_large %}
-                                                    <option value="large-preview">
-                                                        {{ $tc('sw-media.catalog.labelPresentationLarge') }}
-                                                    </option>
-                                                {% endblock %}
-                                            </template>
-                                        </sw-field>
+                                                    {% block sw_media_catalog_presentation_options_large %}
+                                                        <option value="large-preview">
+                                                            {{ $tc('sw-media.catalog.labelPresentationLarge') }}
+                                                        </option>
+                                                    {% endblock %}
+                                                </template>
+                                            </sw-field>
                                         {% endblock %}
 
                                         {% block sw_media_catalog_single_select_sort %}

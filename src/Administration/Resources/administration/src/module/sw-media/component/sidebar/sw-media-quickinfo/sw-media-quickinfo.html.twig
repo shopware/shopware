@@ -5,6 +5,7 @@
                 {{ $tc('sw-media.sidebar.quickinfo.descriptionMissingFile') }}
             </sw-alert>
         {% endblock %}
+
         {% block sw_media_quickinfo_quickactions %}
             <sw-media-collapse
                 class="sw-media-quickinfo__collapse"
@@ -106,18 +107,22 @@
                                 :value="item | mediaName"
                                 :truncateMiddle="true">
                             </sw-media-quickinfo-metadata-item>
+
                             <sw-media-quickinfo-metadata-item class="sw-media-quickinfo-metadata-mimeType"
                                 label-name="mimeType"
                                 :value="this.item.mimeType">
                             </sw-media-quickinfo-metadata-item>
+
                             <sw-media-quickinfo-metadata-item class="sw-media-quickinfo-metadata-size"
                                 label-name="fileSize"
                                 :value="fileSize">
                             </sw-media-quickinfo-metadata-item>
+
                             <sw-media-quickinfo-metadata-item class="sw-media-quickinfo-metadata-createdAt"
                                 label-name="createdAt"
                                 :value="createdAt">
                             </sw-media-quickinfo-metadata-item>
+
                             <sw-media-quickinfo-metadata-item class="sw-media-quickinfo-metadata-url"
                                 label-name="url"
                                 :value="this.item.url">
@@ -131,6 +136,7 @@
                                     :value="this.item.metaData.type.width"
                                     suffix="px">
                                 </sw-media-quickinfo-metadata-item>
+
                                 <sw-media-quickinfo-metadata-item class="sw-media-quickinfo-metadata-height"
                                     label-name="height"
                                     :value="this.item.metaData.type.height"
@@ -146,11 +152,13 @@
                                     :value="this.item.metaData.type.width"
                                     suffix="px">
                                 </sw-media-quickinfo-metadata-item>
+
                                 <sw-media-quickinfo-metadata-item class="sw-media-quickinfo-metadata-height"
                                     label-name="height"
                                     :value="this.item.metaData.type.height"
                                     suffix="px">
                                 </sw-media-quickinfo-metadata-item>
+
                                 <sw-media-quickinfo-metadata-item  class="sw-media-quickinfo-metadata-frameRate"
                                     label-name="frameRate"
                                     :value="this.item.metaData.type.frameRate"
@@ -165,10 +173,12 @@
                                     label-name="pages"
                                     :value="this.item.metaData.type.pages">
                                 </sw-media-quickinfo-metadata-item>
+
                                 <sw-media-quickinfo-metadata-item  class="sw-media-quickinfo-metadata-title"
                                     label-name="title"
                                     :value="this.item.metaData.type.title">
                                 </sw-media-quickinfo-metadata-item>
+
                                 <sw-media-quickinfo-metadata-item  class="sw-media-quickinfo-metadata-creator"
                                     label-name="creator"
                                     :value="this.item.metaData.type.creator">
@@ -180,5 +190,20 @@
                 </template>
             </sw-media-collapse>
         {% endblock %}
+
+        {% block sw_media_quickinfo_usage %}
+            <sw-media-collapse
+                class="sw-media-quickinfo__collapse"
+                v-if="item.hasFile"
+                :expandOnLoading="true"
+                :title="$tc('sw-media.sidebar.quickinfo.usage')">
+
+                <template slot="content">
+                    <sw-media-quickinfo-usage
+                        :item="item">
+                    </sw-media-quickinfo-usage>
+                </template>
+            </sw-media-collapse>
+        {%  endblock %}
     </div>
 {% endblock %}

@@ -148,7 +148,6 @@ Component.register('sw-product-detail', {
 
             delete mediaItem.catalog;
             delete mediaItem.user;
-            delete mediaItem.mediaType;
 
             productMedia.media = mediaItem;
             productMedia.mediaId = mediaItem.id;

@@ -1,10 +1,8 @@
 import { Component, Mixin } from 'src/core/shopware';
 import { format } from 'src/core/service/util.service';
 import domUtils from 'src/core/service/utils/dom.utils';
-import '../../sw-media-collapse';
 import template from './sw-media-quickinfo.html.twig';
 import './sw-media-quickinfo.less';
-import '../sw-media-quickinfo-metadata-item';
 
 Component.register('sw-media-quickinfo', {
     template,

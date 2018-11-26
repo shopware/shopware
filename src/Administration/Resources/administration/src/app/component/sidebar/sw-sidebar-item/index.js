@@ -94,7 +94,7 @@ Component.register('sw-sidebar-item', {
         closeContent() {
             this.isActive = false;
 
-            this.$emit('sw-sidebar-item-close-content', this);
+            this.$emit('sw-sidebar-item-close-content');
         },
 
         sidebarButtonClick(sidebarItem) {

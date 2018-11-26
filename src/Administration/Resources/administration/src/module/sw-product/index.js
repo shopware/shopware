@@ -82,10 +82,5 @@ Module.register('sw-product', {
         path: 'sw.product.index',
         label: 'sw-product.general.mainMenuItemList',
         parent: 'sw-product'
-    }, {
-        path: 'sw.product.create',
-        label: 'sw-product.general.mainMenuItemAdd',
-        parent: 'sw-product',
-        color: '#57D9A3'
     }]
 });

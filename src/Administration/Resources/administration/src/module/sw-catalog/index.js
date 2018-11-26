@@ -46,10 +46,5 @@ Module.register('sw-catalog', {
         path: 'sw.catalog.index',
         parent: 'sw-catalog',
         label: 'sw-catalog.general.mainMenuItemList'
-    }, {
-        path: 'sw.catalog.create',
-        parent: 'sw-catalog',
-        label: 'sw-catalog.general.mainMenuItemCreate',
-        color: '#FF85C2'
     }]
 });

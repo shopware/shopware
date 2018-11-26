@@ -73,6 +73,10 @@ Mixin.register('drag-selector', {
         },
 
         onMouseDown(originalDomEvent) {
+            if (!originalDomEvent.ctrlKey && !originalDomEvent.metaKey) {
+                return;
+            }
+
             this.mouseDown = true;
             this.startPoint = {
                 x: originalDomEvent.pageX,

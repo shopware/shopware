@@ -64,7 +64,7 @@ Mixin.register('mediagrid-listener', {
                 return;
             }
 
-            if (this.isListSelect || originalDomEvent.ctrlKey) {
+            if (this.isListSelect || originalDomEvent.ctrlKey || originalDomEvent.metaKey) {
                 this._handleSelection(item);
                 return;
             }
@@ -72,7 +72,11 @@ Mixin.register('mediagrid-listener', {
             this._showDetails(item, false);
         },
 
-        handleMediaGridItemSelected({ item }) {
+        handleMediaGridItemSelected({ originalDomEvent, item }) {
+            if (originalDomEvent.shiftKey) {
+                this._handleShiftSelect(item);
+                return;
+            }
             this._addItemToSelection(item);
         },
 

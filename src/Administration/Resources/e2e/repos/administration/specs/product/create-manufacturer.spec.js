@@ -35,7 +35,7 @@ module.exports = {
             .waitForElementPresent('.sw-button__content')
             .assert.urlContains('#/sw/manufacturer/index')
             .assert.containsText('.smart-bar__header', 'Manufacturer')
-            .waitForElementVisible('.sw-button__content')
+            .waitForElementVisible('.sw-grid-row:first-child .sw-context-button__button')
             .assert.containsText('.sw-grid-row:first-child', 'MAN-U-FACTURE');
     },
     'open manufacturer details and change the given data': (browser) => {

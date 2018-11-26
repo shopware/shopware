@@ -46,7 +46,7 @@ module.exports = {
             .click('.sw-grid-row:first-child .sw-context-button__button')
             .waitForElementVisible('.sw-context-menu')
             .click('.sw-context-menu .sw-context-menu-item__text')
-            .waitForElementVisible('.sw-card__title','Manufacturer information')
+            .waitForElementNotPresent('sw-manufacturer-detail__empty-title')
             .assert.containsText('.smart-bar__header','MAN-U-FACTURE')
             .fillField('input[name=name]', 'Minnie\'s Haberdashery')
             .fillField('input[name=link]', 'https://google.com/doodles')

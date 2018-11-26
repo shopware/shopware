@@ -17,8 +17,6 @@ class Migration1536234597PaymentMethod extends MigrationStep
         $connection->executeQuery('
             CREATE TABLE `payment_method` (
               `id` binary(16) NOT NULL,
-              `tenant_id` binary(16) NOT NULL,
-              `version_id` binary(16) NOT NULL,
               `technical_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
               `template` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
               `class` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -35,13 +33,14 @@ class Migration1536234597PaymentMethod extends MigrationStep
               `action` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
               `source` int(11) DEFAULT NULL,
               `mobile_inactive` tinyint(1) NOT NULL DEFAULT \'0\',
-              `risk_rules` longtext COLLATE utf8mb4_unicode_ci,
+              `risk_rules` JSON NULL,
               `plugin_id` VARCHAR(250) DEFAULT NULL,
               `created_at` datetime(3) NOT NULL,
               `updated_at` datetime(3),
-              PRIMARY KEY (`id`, `version_id`, `tenant_id`),
-              UNIQUE KEY `name` (`technical_name`, `version_id`, `tenant_id`),
-              CONSTRAINT `fk_payment_method.plugin_id` FOREIGN KEY (`plugin_id`) REFERENCES `plugin` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+              PRIMARY KEY (`id`),
+              UNIQUE KEY `uniq.name` (`technical_name`),
+              CONSTRAINT `fk.payment_method.plugin_id` FOREIGN KEY (`plugin_id`) REFERENCES `plugin` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+              CONSTRAINT `json.risk_rules` CHECK (JSON_VALID(`risk_rules`))
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

@@ -17,17 +17,14 @@ class Migration1536234598PaymentMethodTranslation extends MigrationStep
         $connection->executeQuery('
             CREATE TABLE `payment_method_translation` (
               `payment_method_id` binary(16) NOT NULL,
-              `payment_method_tenant_id` binary(16) NOT NULL,
-              `payment_method_version_id` binary(16) NOT NULL,
               `language_id` binary(16) NOT NULL,
-              `language_tenant_id` binary(16) NOT NULL,
-              `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-              `additional_description` mediumtext COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+              `name` varchar(255) COLLATE utf8mb4_unicode_ci NULL,
+              `additional_description` mediumtext COLLATE utf8mb4_unicode_ci NULL,
               `created_at` datetime(3) NOT NULL,
               `updated_at` datetime(3),
-              PRIMARY KEY (`payment_method_id`, `payment_method_version_id`, `payment_method_tenant_id`, `language_id`, `language_tenant_id`),
-              CONSTRAINT `payment_method_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-              CONSTRAINT `payment_method_translation_ibfk_2` FOREIGN KEY (`payment_method_id`, `payment_method_version_id`, `payment_method_tenant_id`) REFERENCES `payment_method` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
+              PRIMARY KEY (`payment_method_id`, `language_id`),
+              CONSTRAINT `fk.payment_method_translation.language_id` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+              CONSTRAINT `fk.payment_method_translation.payment_method_id` FOREIGN KEY (`payment_method_id`) REFERENCES `payment_method` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

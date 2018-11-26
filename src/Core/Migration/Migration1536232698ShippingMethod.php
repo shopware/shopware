@@ -17,8 +17,6 @@ class Migration1536232698ShippingMethod extends MigrationStep
         $connection->executeQuery('
             CREATE TABLE `shipping_method` (
               `id` binary(16) NOT NULL,
-              `tenant_id` binary(16) NOT NULL,
-              `version_id` binary(16) NOT NULL,
               `type` int(11) unsigned NOT NULL,
               `active` tinyint(1) unsigned NOT NULL DEFAULT \'1\',
               `position` int(11) NOT NULL DEFAULT \'1\',
@@ -44,7 +42,7 @@ class Migration1536232698ShippingMethod extends MigrationStep
               `calculation_sql` mediumtext COLLATE utf8mb4_unicode_ci,
               `created_at` datetime(3) NOT NULL,
               `updated_at` datetime(3),
-               PRIMARY KEY (`id`, `version_id`, `tenant_id`)
+               PRIMARY KEY (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

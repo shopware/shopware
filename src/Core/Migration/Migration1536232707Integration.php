@@ -17,7 +17,6 @@ class Migration1536232707Integration extends MigrationStep
         $connection->executeQuery('
             CREATE TABLE `integration` (
               `id` binary(16) NOT NULL,
-              `tenant_id` binary(16) NOT NULL,
               `write_access` tinyint(1) NOT NULL DEFAULT \'0\',
               `access_key` varchar(255) NOT NULL,
               `secret_access_key` varchar(255) NOT NULL,
@@ -25,8 +24,8 @@ class Migration1536232707Integration extends MigrationStep
               `created_at` datetime(3) NOT NULL,
               `updated_at` datetime(3),
               `last_usage_at` datetime(3),
-              PRIMARY KEY (`id`, `tenant_id`),
-              INDEX `access_key` (`access_key`)
+              PRIMARY KEY (`id`),
+              INDEX `idx.access_key` (`access_key`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

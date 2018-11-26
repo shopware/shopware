@@ -17,8 +17,6 @@ class Migration1536232688CustomerGroup extends MigrationStep
         $connection->executeQuery('
             CREATE TABLE `customer_group` (
               `id` binary(16) NOT NULL,
-              `tenant_id` binary(16) NOT NULL,
-              `version_id` binary(16) NOT NULL,
               `display_gross` tinyint(1) NOT NULL DEFAULT \'1\',
               `input_gross` tinyint(1) NOT NULL DEFAULT \'1\',
               `has_global_discount` tinyint(1) NOT NULL DEFAULT \'0\',
@@ -27,7 +25,7 @@ class Migration1536232688CustomerGroup extends MigrationStep
               `minimum_order_amount_surcharge` double DEFAULT NULL,
               `created_at` datetime(3) NOT NULL,
               `updated_at` datetime(3),
-              PRIMARY KEY (`id`, `version_id`, `tenant_id`)
+              PRIMARY KEY (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

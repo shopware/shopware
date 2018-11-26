@@ -17,16 +17,13 @@ class Migration1536237795ListingFacetTranslation extends MigrationStep
         $connection->executeQuery('
             CREATE TABLE `listing_facet_translation` (
               `listing_facet_id` binary(16) NOT NULL,
-              `listing_facet_tenant_id` binary(16) NOT NULL,
-              `listing_facet_version_id` binary(16) NOT NULL,
               `language_id` binary(16) NOT NULL,
-              `language_tenant_id` binary(16) NOT NULL,
-              `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+              `name` varchar(255) COLLATE utf8mb4_unicode_ci NULL,
               `created_at` datetime(3) NOT NULL,
               `updated_at` datetime(3),
-              PRIMARY KEY (`listing_facet_id`, `listing_facet_version_id`, `listing_facet_tenant_id`, `language_id`, `language_tenant_id`),
-              CONSTRAINT `listing_facet_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-              CONSTRAINT `listing_facet_translation_ibfk_2` FOREIGN KEY (`listing_facet_id`, `listing_facet_version_id`, `listing_facet_tenant_id`) REFERENCES `listing_facet` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
+              PRIMARY KEY (`listing_facet_id`, `language_id`),
+              CONSTRAINT `fk.listing_facet_translation.language_id` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+              CONSTRAINT `fk.listing_facet_translation.listing_facet_id` FOREIGN KEY (`listing_facet_id`) REFERENCES `listing_facet` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

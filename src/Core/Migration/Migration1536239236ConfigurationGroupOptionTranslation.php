@@ -17,16 +17,13 @@ class Migration1536239236ConfigurationGroupOptionTranslation extends MigrationSt
         $connection->executeQuery('
             CREATE TABLE `configuration_group_option_translation` (
               `configuration_group_option_id` binary(16) NOT NULL,
-              `configuration_group_option_version_id` binary(16) NOT NULL,
-              `configuration_group_option_tenant_id` binary(16) NOT NULL,
               `language_id` binary(16) NOT NULL,
-              `language_tenant_id` binary(16) NOT NULL,
-              `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+              `name` varchar(255) COLLATE utf8mb4_unicode_ci NULL,
               `created_at` datetime(3) NOT NULL,
               `updated_at` datetime(3),
-              PRIMARY KEY (`configuration_group_option_id`, `configuration_group_option_version_id`, `configuration_group_option_tenant_id`, `language_id`, `language_tenant_id`),
-              CONSTRAINT `configuration_group_option_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-              CONSTRAINT `configuration_group_option_translation_ibfk_2` FOREIGN KEY (`configuration_group_option_id`, `configuration_group_option_version_id`, `configuration_group_option_tenant_id`) REFERENCES `configuration_group_option` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
+              PRIMARY KEY (`configuration_group_option_id`, `language_id`),
+              CONSTRAINT `fk.cgo_translations.language_id` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+              CONSTRAINT `fk.cgo_translations.configuration_group_option_id` FOREIGN KEY (`configuration_group_option_id`) REFERENCES `configuration_group_option` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

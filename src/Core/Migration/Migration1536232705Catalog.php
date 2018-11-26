@@ -17,10 +17,9 @@ class Migration1536232705Catalog extends MigrationStep
         $connection->executeQuery('
             CREATE TABLE `catalog` (
               `id` binary(16) NOT NULL,
-              `tenant_id` binary(16) NOT NULL,
               `created_at` datetime(3) NOT NULL,
               `updated_at` datetime(3),
-              PRIMARY KEY (`id`, `tenant_id`)
+              PRIMARY KEY (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

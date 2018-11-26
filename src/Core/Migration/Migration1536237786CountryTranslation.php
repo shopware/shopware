@@ -17,16 +17,13 @@ class Migration1536237786CountryTranslation extends MigrationStep
         $connection->executeQuery('
             CREATE TABLE `country_translation` (
               `country_id` binary(16) NOT NULL,
-              `country_tenant_id` binary(16) NOT NULL,
-              `country_version_id` binary(16) NOT NULL,
               `language_id` binary(16) NOT NULL,
-              `language_tenant_id` binary(16) NOT NULL,
-              `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+              `name` varchar(255) COLLATE utf8mb4_unicode_ci NULL,
               `created_at` datetime(3) NOT NULL,
               `updated_at` datetime(3),
-              PRIMARY KEY (`country_id`, `country_version_id`, `country_tenant_id`, `language_id`, `language_tenant_id`),
-              CONSTRAINT `country_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-              CONSTRAINT `country_translation_ibfk_2` FOREIGN KEY (`country_id`, `country_version_id`, `country_tenant_id`) REFERENCES `country` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
+              PRIMARY KEY (`country_id`, `language_id`),
+              CONSTRAINT `fk.country_translation.language_id` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+              CONSTRAINT `fk.country_translation.country_id` FOREIGN KEY (`country_id`) REFERENCES `country` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

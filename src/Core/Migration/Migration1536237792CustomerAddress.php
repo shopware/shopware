@@ -17,17 +17,9 @@ class Migration1536237792CustomerAddress extends MigrationStep
         $connection->executeQuery('
             CREATE TABLE `customer_address` (
               `id` binary(16) NOT NULL,
-              `tenant_id` binary(16) NOT NULL,
-              `version_id` binary(16) NOT NULL,
               `customer_id` binary(16) NOT NULL,
-              `customer_tenant_id` binary(16) NOT NULL,
-              `customer_version_id` binary(16) NOT NULL,
               `country_id` binary(16) NOT NULL,
-              `country_tenant_id` binary(16) NOT NULL,
-              `country_version_id` binary(16) NOT NULL,
               `country_state_id` binary(16) DEFAULT NULL,
-              `country_state_tenant_id` binary(16) DEFAULT NULL,
-              `country_state_version_id` binary(16) DEFAULT NULL,
               `company` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
               `department` varchar(35) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
               `salutation` varchar(30) COLLATE utf8mb4_unicode_ci NULL,
@@ -43,10 +35,10 @@ class Migration1536237792CustomerAddress extends MigrationStep
               `additional_address_line2` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
               `created_at` datetime(3) NOT NULL,
               `updated_at` datetime(3),
-               PRIMARY KEY (`id`, `version_id`, `tenant_id`),
-               CONSTRAINT `fk_customer_address.country_id` FOREIGN KEY (`country_id`, `country_version_id`, `country_tenant_id`) REFERENCES `country` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-               CONSTRAINT `fk_customer_address.country_state_id` FOREIGN KEY (`country_state_id`, `country_state_version_id`, `country_state_tenant_id`) REFERENCES `country_state` (`id`, `version_id`, `tenant_id`) ON DELETE SET NULL ON UPDATE CASCADE,
-               CONSTRAINT `fk_customer_address.customer_id` FOREIGN KEY (`customer_id`, `customer_version_id`, `customer_tenant_id`) REFERENCES `customer` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
+               PRIMARY KEY (`id`),
+               CONSTRAINT `fk.customer_address.country_id` FOREIGN KEY (`country_id`) REFERENCES `country` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+               CONSTRAINT `fk.customer_address.country_state_id` FOREIGN KEY (`country_state_id`) REFERENCES `country_state` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+               CONSTRAINT `fk.customer_address.customer_id` FOREIGN KEY (`customer_id`) REFERENCES `customer` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

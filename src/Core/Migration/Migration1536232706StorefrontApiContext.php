@@ -16,10 +16,10 @@ class Migration1536232706StorefrontApiContext extends MigrationStep
     {
         $connection->executeQuery('
             CREATE TABLE `storefront_api_context` (
-              `tenant_id` binary(16) NOT NULL,
               `token` binary(16) NOT NULL,
-              `payload` LONGTEXT NOT NULL,
-              PRIMARY KEY (`token`, `tenant_id`)
+              `payload` JSON NOT NULL,
+              PRIMARY KEY (`token`),
+              CONSTRAINT `json.payload` CHECK (JSON_VALID(`payload`))
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

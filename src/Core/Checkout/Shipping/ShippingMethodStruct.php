@@ -26,7 +26,7 @@ class ShippingMethodStruct extends Entity
     protected $bindLaststock;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $name;
 
@@ -205,12 +205,12 @@ class ShippingMethodStruct extends Entity
         $this->bindLaststock = $bindLaststock;
     }
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(?string $name): void
     {
         $this->name = $name;
     }

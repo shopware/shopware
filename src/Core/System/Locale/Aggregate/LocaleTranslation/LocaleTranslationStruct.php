@@ -19,12 +19,12 @@ class LocaleTranslationStruct extends Entity
     protected $languageId;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $name;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $territory;
 
@@ -88,12 +88,12 @@ class LocaleTranslationStruct extends Entity
         $this->languageId = $languageId;
     }
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(?string $name): void
     {
         $this->name = $name;
     }

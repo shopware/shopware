@@ -19,7 +19,7 @@ class DiscountSurchargeTranslationStruct extends Entity
     protected $languageId;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $name;
 
@@ -83,12 +83,12 @@ class DiscountSurchargeTranslationStruct extends Entity
         $this->languageId = $languageId;
     }
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(?string $name): void
     {
         $this->name = $name;
     }

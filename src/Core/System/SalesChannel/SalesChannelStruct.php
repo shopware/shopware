@@ -52,7 +52,7 @@ class SalesChannelStruct extends Entity
     protected $countryId;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $name;
 
@@ -211,12 +211,12 @@ class SalesChannelStruct extends Entity
         $this->countryId = $countryId;
     }
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(?string $name): void
     {
         $this->name = $name;
     }

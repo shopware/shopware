@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Rule\Rule;
 class DiscountSurchargeStruct extends Entity
 {
     /**
-     * @var string
+     * @var string|null
      */
     protected $name;
 
@@ -54,12 +54,12 @@ class DiscountSurchargeStruct extends Entity
      */
     protected $translations;
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(?string $name): void
     {
         $this->name = $name;
     }

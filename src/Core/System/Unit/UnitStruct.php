@@ -9,12 +9,12 @@ use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationCollectio
 class UnitStruct extends Entity
 {
     /**
-     * @var string
+     * @var string|null
      */
     protected $shortCode;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $name;
 
@@ -38,22 +38,22 @@ class UnitStruct extends Entity
      */
     protected $products;
 
-    public function getShortCode(): string
+    public function getShortCode(): ?string
     {
         return $this->shortCode;
     }
 
-    public function setShortCode(string $shortCode): void
+    public function setShortCode(?string $shortCode): void
     {
         $this->shortCode = $shortCode;
     }
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(?string $name): void
     {
         $this->name = $name;
     }

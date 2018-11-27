@@ -14,7 +14,7 @@ class ListingSortingStruct extends Entity
     protected $payload;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $label;
 
@@ -63,12 +63,12 @@ class ListingSortingStruct extends Entity
         $this->payload = $payload;
     }
 
-    public function getLabel(): string
+    public function getLabel(): ?string
     {
         return $this->label;
     }
 
-    public function setLabel(string $label): void
+    public function setLabel(?string $label): void
     {
         $this->label = $label;
     }

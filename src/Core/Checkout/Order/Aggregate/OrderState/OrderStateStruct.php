@@ -10,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 class OrderStateStruct extends Entity
 {
     /**
-     * @var string
+     * @var string|null
      */
     protected $description;
 
@@ -49,12 +49,12 @@ class OrderStateStruct extends Entity
      */
     protected $orderDeliveries;
 
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
         return $this->description;
     }
 
-    public function setDescription(string $description): void
+    public function setDescription(?string $description): void
     {
         $this->description = $description;
     }

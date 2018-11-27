@@ -25,7 +25,7 @@ class ProductManufacturerTranslationStruct extends Entity
     protected $catalogId;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $name;
 
@@ -124,12 +124,12 @@ class ProductManufacturerTranslationStruct extends Entity
         $this->languageId = $languageId;
     }
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(?string $name): void
     {
         $this->name = $name;
     }

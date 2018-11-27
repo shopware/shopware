@@ -37,7 +37,7 @@ class MediaStruct extends Entity
     protected $fileSize;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $title;
 
@@ -175,12 +175,12 @@ class MediaStruct extends Entity
         $this->fileSize = $fileSize;
     }
 
-    public function getTitle(): string
+    public function getTitle(): ?string
     {
         return $this->title;
     }
 
-    public function setTitle(string $title): void
+    public function setTitle(?string $title): void
     {
         $this->title = $title;
     }

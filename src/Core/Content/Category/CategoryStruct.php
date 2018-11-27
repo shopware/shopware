@@ -31,7 +31,7 @@ class CategoryStruct extends Entity
     protected $mediaId;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $name;
 
@@ -200,12 +200,12 @@ class CategoryStruct extends Entity
         $this->mediaId = $mediaId;
     }
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(?string $name): void
     {
         $this->name = $name;
     }

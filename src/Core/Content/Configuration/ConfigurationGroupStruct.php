@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 class ConfigurationGroupStruct extends Entity
 {
     /**
-     * @var string
+     * @var string|null
      */
     protected $name;
 
@@ -68,12 +68,12 @@ class ConfigurationGroupStruct extends Entity
         $this->updatedAt = $updatedAt;
     }
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(?string $name): void
     {
         $this->name = $name;
     }

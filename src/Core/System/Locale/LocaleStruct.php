@@ -15,12 +15,12 @@ class LocaleStruct extends Entity
     protected $code;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $name;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $territory;
 
@@ -59,22 +59,22 @@ class LocaleStruct extends Entity
         $this->code = $code;
     }
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(?string $name): void
     {
         $this->name = $name;
     }
 
-    public function getTerritory(): string
+    public function getTerritory(): ?string
     {
         return $this->territory;
     }
 
-    public function setTerritory(string $territory): void
+    public function setTerritory(?string $territory): void
     {
         $this->territory = $territory;
     }

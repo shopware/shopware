@@ -9,7 +9,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 class SalesChannelTypeStruct extends Entity
 {
     /**
-     * @var string
+     * @var string|null
      */
     protected $name;
 
@@ -63,12 +63,12 @@ class SalesChannelTypeStruct extends Entity
      */
     protected $translations;
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(?string $name): void
     {
         $this->name = $name;
     }

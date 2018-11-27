@@ -24,7 +24,7 @@ class OrderTransactionStateStruct extends Entity
     protected $createdAt;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $description;
 
@@ -73,12 +73,12 @@ class OrderTransactionStateStruct extends Entity
         $this->createdAt = $createdAt;
     }
 
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
         return $this->description;
     }
 
-    public function setDescription(string $description): void
+    public function setDescription(?string $description): void
     {
         $this->description = $description;
     }

@@ -16,7 +16,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 class CatalogStruct extends Entity
 {
     /**
-     * @var string
+     * @var string|null
      */
     protected $name;
 
@@ -75,12 +75,12 @@ class CatalogStruct extends Entity
      */
     protected $salesChannels;
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(?string $name): void
     {
         $this->name = $name;
     }

@@ -10,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 class CustomerGroupStruct extends Entity
 {
     /**
-     * @var string
+     * @var string|null
      */
     protected $name;
 
@@ -69,12 +69,12 @@ class CustomerGroupStruct extends Entity
      */
     protected $customers;
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(?string $name): void
     {
         $this->name = $name;
     }

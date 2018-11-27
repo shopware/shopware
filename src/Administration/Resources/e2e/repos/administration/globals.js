@@ -5,6 +5,7 @@ module.exports = {
     asyncHookTimeout: 5000,
 
     beforeEach: (browser, done) => {
+        console.log(browser.launch_url);
         browser.url(browser.launch_url);
 
         browser.execute(function() {

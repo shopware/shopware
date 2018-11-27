@@ -93,7 +93,7 @@
       "cancel": "Abbrechen",
       "example": "https://www.beispiel.de",
       "labelFileExtension": "Dateiendung",
-      "invalidUrl": "Bite gib eine valide URL ein, um eine Datei herunterzuladen.",
+      "invalidUrl": "Bitte gib eine valide URL ein, um eine Datei herunterzuladen.",
       "missingFileExtension": "Eine Url enthält keine Dateiendung. Bitte gib eine Dateiendung an."
     },
     "sw-sidebar-media-item": {

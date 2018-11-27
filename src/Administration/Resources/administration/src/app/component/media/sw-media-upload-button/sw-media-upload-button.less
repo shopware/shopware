@@ -1,12 +1,13 @@
 @import "~less/variables";
 
 @sw-media-upload-button-border-color:                 @color-steam-cloud;
-@sw-media-upload-button-border-color-highlighted:     @color-shopware-blue;
+@sw-media-upload-button-color-highlighted:            @color-shopware-blue;
+@sw-media-upload-button-color-switch-mode:            @color-shopware-blue;
 @sw-media-upload-button-border-radius:                @border-radius-default;
 @sw-media-upload-button-upload-background-color:      @color-light-gray;
 @sw-media-upload-button-background-color-highlighted: #E8F6FF;
-@sw-media-caption-font-size:                          @font-size-large;
-@sw-media-caption-icon-color:                         #9AA8B5;
+@sw-media-upload-button-caption-font-size:            @font-size-large;
+@sw-media-upload-button-caption-icon-color:           #9AA8B5;
 
 .sw-media-upload-button {
 
@@ -23,18 +24,25 @@
         padding: 50px 20px 50px 20px;
 
         &.is--active {
-            border-color: @sw-media-upload-button-border-color-highlighted;
+            border-color: @sw-media-upload-button-color-highlighted;
             background-color: @sw-media-upload-button-background-color-highlighted;
+            color: @sw-media-upload-button-color-highlighted;
+
+            .sw-upload-button__upload-caption {
+                .sw-icon {
+                    color: @sw-media-upload-button-color-highlighted;
+                }
+            }
         }
 
         .sw-upload-button__upload-caption {
-            font-size: @sw-media-caption-font-size;
+            font-size: @sw-media-upload-button-caption-font-size;
             text-align: center;
             margin: 0 0 8px;
 
             .sw-icon {
                 margin-right: 8px;
-                color: @sw-media-caption-icon-color;
+                color: @sw-media-upload-button-caption-icon-color;
             }
         }
     }
@@ -87,7 +95,7 @@
     .sw-media-upload-button__switch-mode {
         margin: 10px;
         border: 0 none;
-        color: @sw-media-upload-button-border-color-highlighted;
+        color: @sw-media-upload-button-color-switch-mode;
         background: none;
     }
 }

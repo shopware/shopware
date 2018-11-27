@@ -108,8 +108,8 @@ Component.register('sw-media-upload-button', {
     methods: {
         onMounted() {
             if (this.$refs.dropzone) {
-                ['dragover', 'dragenter', 'dragleave', 'drop'].forEach((event) => {
-                    this.$refs.dropzone.addEventListener(event, this.stopPropagation, false);
+                ['dragover', 'drop'].forEach((event) => {
+                    window.addEventListener(event, this.stopPropagation, false);
                 });
                 this.$refs.dropzone.addEventListener('drop', this.onDrop);
 
@@ -120,6 +120,10 @@ Component.register('sw-media-upload-button', {
 
         onBeforeDestroy() {
             this.uploadStore.removeByTag(this.uploadTag);
+
+            ['dragover', 'drop'].forEach((event) => {
+                window.addEventListener(event, this.stopPropagation, false);
+            });
 
             window.removeEventListener('dragenter', this.onDragEnter);
             window.removeEventListener('dragleave', this.onDragLeave);

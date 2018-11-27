@@ -7,7 +7,7 @@
                     :variant="'regular'"
                     :autoUpload="false"
                     :caption="$tc('sw-product.mediaForm.uploadCaption')"
-                    :scrollTarget="this.$parent.$el"
+                    :scrollTarget="$parent.$el"
                     @media-upload-success="successfulUpload"
                     @new-upload="onNewUpload">
             </sw-media-upload-button>

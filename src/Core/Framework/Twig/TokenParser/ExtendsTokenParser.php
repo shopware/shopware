@@ -25,7 +25,7 @@ final class ExtendsTokenParser extends \Twig_TokenParser
         //resolves parent template
         $parent = $this->finder->find(
             //set pointer to next value (contains the template file name)
-            $this->getTemplateName(
+            $this->finder->getTemplateName(
                 $stream->next()->getValue()
             )
         );
@@ -44,19 +44,5 @@ final class ExtendsTokenParser extends \Twig_TokenParser
     public function getTag(): string
     {
         return 'sw_extends';
-    }
-
-    private function getTemplateName(string $template): string
-    {
-        //remove static template inheritance prefix
-        if (strpos($template, '@') !== 0) {
-            return $template;
-        }
-
-        $template = explode('/', $template);
-        array_shift($template);
-        $template = implode('/', $template);
-
-        return $template;
     }
 }

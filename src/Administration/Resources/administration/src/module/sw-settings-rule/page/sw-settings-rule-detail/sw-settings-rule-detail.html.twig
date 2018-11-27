@@ -1,0 +1,73 @@
+<sw-page class="sw-settings-rule-detail">
+    <template slot="smart-bar-header">
+        <h2 v-if="rule.name">{{ rule.name }}</h2>
+        <h2 v-else>{{ $tc('sw-settings-rule.detail.textHeadline') }}</h2>
+    </template>
+    <template slot="smart-bar-actions">
+
+        <sw-button :disabled="rule.isLoading" :routerLink="{ name: 'sw.settings.rule.index' }">
+            {{ $tc('sw-settings-rule.detail.buttonCancel') }}
+        </sw-button>
+
+
+
+        <sw-button class="sw-settings-rule-detail__save-action" variant="primary" :disabled="rule.isLoading" @click.prevent="onSave">
+            {{ $tc('sw-settings-rule.detail.buttonSave') }}
+        </sw-button>
+
+    </template>
+
+    <sw-card-view slot="content">
+        <sw-card :title="$tc('sw-settings-rule.detail.titleCard')">
+            <sw-container grid="1fr 1fr" gap="0px 30px">
+                <sw-field type="text"
+                          :label="$tc('sw-settings-rule.detail.labelName')"
+                          :placeholder="$tc('sw-settings-rule.detail.placeholderName')"
+                          validation="required"
+                          v-model="rule.name">
+                </sw-field>
+                <sw-field type="select"
+                          :label="$tc('sw-settings-rule.detail.labelType')"
+                          :placeholder="$tc('sw-settings-rule.detail.placeholderType')"
+                          validation="required"
+                          v-model="rule.type">
+                    <option slot="options"
+                            value="price">
+                        {{ $tc('sw-settings-rule.detail.type.price') }}
+                    </option>
+                </sw-field>
+                <sw-field type="textarea"
+                          :label="$tc('sw-settings-rule.detail.labelDescription')"
+                          :placeholder="$tc('sw-settings-rule.detail.placeholderDescription')"
+                          v-model="rule.description">
+                </sw-field>
+                <sw-field type="number"
+                          :label="$tc('sw-settings-rule.detail.labelPriority')"
+                          :placeholder="$tc('sw-settings-rule.detail.placeholderPriority')"
+                          validation="required"
+                          v-model="rule.priority">
+                </sw-field>
+            </sw-container>
+        </sw-card>
+
+
+        <sw-card :title="$tc('sw-settings-rule.detail.ruleCard')">
+            <sw-container grid="1fr" gap="0px">
+                <sw-field type="hidden"
+                          v-model="rule.conditions">
+                </sw-field>
+
+                <sw-condition-group>
+                    Cont 1
+                </sw-condition-group>
+
+                <sw-condition-group>
+                    Cont 1
+                </sw-condition-group>
+
+            </sw-container>
+        </sw-card>
+
+
+    </sw-card-view>
+</sw-page>

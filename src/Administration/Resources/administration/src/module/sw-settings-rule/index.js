@@ -2,6 +2,8 @@ import { Module } from 'src/core/shopware';
 import { NEXT516 } from 'src/flag/feature_next516';
 
 import './page/sw-settings-rule-list';
+import './page/sw-settings-rule-detail';
+import './page/sw-settings-rule-create';
 
 Module.register('sw-settings-rule', {
     flag: NEXT516,

@@ -771,10 +771,52 @@
     },
     "list": {
       "textHeadline": "Regeln",
-      "buttonAddRule": "Regel erstellen"
+      "buttonAddRule": "Regel erstellen",
+      "columnCheckbox": "",
+      "columnName": "Name",
+      "columnDescription": "Beschreibung",
+      "columnCount": "Anzahl Regeln",
+      "columnDateCreated": "Erstelldatum",
+      "columnType": "Typ",
+      "columnPriority": "Priorität",
+      "columnActions": "",
+      "contextMenuTry": "Testen",
+      "contextMenuEdit": "Bearbeiten",
+      "contextMenuDelete": "Löschen",
+      "contextMenuDuplicate": "Duplizieren",
+      "buttonCancel": "Abbrechen",
+      "buttonDelete": "Löschen",
+      "textDeleteConfirm": "Möchtest Du die Regel \"{name}\" wirklich löschen?",
+      "modalTitleDelete": "Regel löschen",
+      "modalTitleBulkDelete": "Regeln löschen",
+      "textBulkDeleteConfirm": "Möchtest Du die ausgewählten Regeln wirklich löschen?",
+      "type" : {
+        "price": "Preis"
+      }
     },
     "detail": {
-      "textHeadline": "Neue Regel"
+      "textHeadline": "Neue Regel",
+      "buttonCancel": "Abbrechen",
+      "buttonSave": "Speichern",
+      "titleCard": "Allgemein",
+      "labelName": "Name",
+      "labelDescription": "Beschreibung",
+      "labelPriority": "Priorität",
+      "labelType": "Typ",
+      "placeholderName": "Legen Sie einen Namen für diese Regel fest..",
+      "placeholderDescription": "Legen Sie eine BEschreibung für diese Regel fest..",
+      "placeholderPriority": "Legen Sie eine Priorität für diese Regel fest..",
+      "placeholderType": "Legen Sie einen Typen für diese Regel fest..",
+
+      "titleSaveSuccess": "Regel",
+      "messageSaveSuccess": "Die Regel {name} wurde erfolgreich gespeichert.",
+
+      "ruleCard": "Bedingungen",
+      "buttonAddConditionAnd": "Und Bedingung",
+      "buttonAddConditionOr": "Oder Bedingung",
+      "type" : {
+        "price": "Preis"
+      }
     }
   },
   "sw-settings-tax": {

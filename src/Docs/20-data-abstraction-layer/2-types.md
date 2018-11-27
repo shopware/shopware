@@ -165,12 +165,12 @@ It also implies the following flags:
 ### TranslatedField
 
 ```php
-new TranslatedField(new StringField('name', 'name'))
+new TranslatedField('name')
 ```
 
-1. `$field` is the original field to be translated
+1. `$propertyName` points to the field in the translation definition with that `$propertyName`
 
-The `TranslatedField` is a wrapper field to indicate that this field (in this case `name`) is translatable and
+The `TranslatedField` is a mapping field to indicate that this field (in this case `name`) is translatable and
 can be found in the corresponding translation definition for the entity - just like a symlink.
 
 To learn more about translations, please refer to the [Translations Guide](./9-translations.md).

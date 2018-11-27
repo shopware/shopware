@@ -70,6 +70,6 @@ your definition and add the `Inherited` flag to your translated fields and
 the translation association.
 
 ```php
-(new TranslatedField(new StringField('supervisor', 'supervisor')))->setFlags(new Inherited()),
+(new TranslatedField('supervisor'))->setFlags(new Inherited()),
 (new TranslationsAssociationField(EmployeeTranslationDefinition::class))->setFlags(new Inherited()),
 ```

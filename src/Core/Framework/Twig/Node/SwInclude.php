@@ -2,16 +2,13 @@
 
 namespace Shopware\Core\Framework\Twig\Node;
 
+use Shopware\Core\Framework\Twig\InheritanceExtension;
 use Shopware\Core\Framework\Twig\TemplateFinder;
 use Twig_Compiler;
 use Twig_Node_Expression;
 use Twig_NodeOutputInterface;
 
-/**
- * Represents an include node.
- *
- * @author Fabien Potencier <fabien@symfony.com>
- */
+
 class SwInclude extends \Twig\Node\IncludeNode implements Twig_NodeOutputInterface
 {
     /**
@@ -28,7 +25,7 @@ class SwInclude extends \Twig\Node\IncludeNode implements Twig_NodeOutputInterfa
     protected function addGetTemplate(Twig_Compiler $compiler)
     {
         $compiler
-            ->write('$finder = $this->env->getExtension(\'Shopware\Core\Framework\Twig\InheritanceExtension\')')
+            ->write('$finder = $this->env->getExtension(\'' . InheritanceExtension::class  . '\')')
             ->raw("->getFinder();\n\n");
 
         $compiler
@@ -36,12 +33,6 @@ class SwInclude extends \Twig\Node\IncludeNode implements Twig_NodeOutputInterfa
             ->raw('$finder->getTemplateName(')
             ->subcompile($this->getNode('expr'))
             ->raw("));\n\n");
-
-        /*$srcExpression = $compiler->subcompile(();
-        $src = $this->finder->find(
-            $srcExpression,
-                true
-            );*/
 
         $compiler
             ->write('$this->loadTemplate(($includeTemplate ?? null)')

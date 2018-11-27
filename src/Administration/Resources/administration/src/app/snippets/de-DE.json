@@ -732,6 +732,26 @@
       "buttonSave": "Speichern"
     }
   },
+  "sw-settings-snippet-sets": {
+    "general": {
+      "mainMenuItemGeneral": "Textbausteine",
+      "placeholderSearchBar": "Finde Textbausteine (Name, Inhalt, Bereich)"
+    },
+    "list": {
+      "title": "Textbausteine verwalten & bearbeiten",
+      "description": "Dies ist eine Übersicht Deiner Textbausteinsätze. Wähle Sätze aus, dessen Textbausteine du bearbeiten möchtest und wechsle über den Button in die Bearbeitungstabelle. Ebenso kannst du hier Textbausteinsätze importieren, neue Anlegen und bestehende als CSV-Datei exportieren.",
+      "buttonImport": "Import",
+      "buttonExport": "Export",
+      "buttonEditSet": "Textbausteine bearbeiten",
+      "buttonAddSet": "Textbausteinsatz hinzufügen",
+      "columnName": "Name",
+      "columnChangedAt": "Änderungsdatum",
+      "columnBaseFile": "Basisdatei",
+      "contextMenuEdit": "Bearbeiten",
+      "contextMenuClone": "Duplizieren",
+      "contextMenuDelete": "Löschen"
+    }
+  },
   "sw-settings-rule": {
     "general": {
       "mainMenuItemGeneral": "Regeln",

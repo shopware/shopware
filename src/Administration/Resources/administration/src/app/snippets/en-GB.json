@@ -730,6 +730,26 @@
       "buttonSave": "Save"
     }
   },
+  "sw-settings-snippet-sets": {
+    "general": {
+      "mainMenuItemGeneral": "Snippets",
+      "placeholderSearchBar": "Find snippets (name, content, section)"
+    },
+    "list": {
+      "title": "Manage snippets",
+      "description": "This is an overview of your snippet sets. Select the sets whose snippets you want to edit and switch to the editing table via button press. You can also import snippets, create new ones and export existing ones as CSV files.",
+      "buttonImport": "Import",
+      "buttonExport": "Export",
+      "buttonEditSet": "Edit snippets",
+      "buttonAddSet": "Add snippet set",
+      "columnName": "Name",
+      "columnChangedAt": "Change date",
+      "columnBaseFile": "Base file",
+      "contextMenuEdit": "Edit",
+      "contextMenuClone": "Duplicate",
+      "contextMenuDelete": "Delete"
+    }
+  },
   "sw-settings-tax": {
     "general": {
       "mainMenuItemGeneral": "Tax",

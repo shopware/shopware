@@ -4,6 +4,7 @@ namespace Shopware\Core\System\Snippet;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\System\Language\LanguageStruct;
+use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetStruct;
 
 class SnippetStruct extends Entity
 {
@@ -11,6 +12,11 @@ class SnippetStruct extends Entity
      * @var string
      */
     protected $languageId;
+
+    /**
+     * @var string
+     */
+    protected $setId;
 
     /**
      * @var string
@@ -37,6 +43,11 @@ class SnippetStruct extends Entity
      */
     protected $language;
 
+    /**
+     * @var SnippetSetStruct
+     */
+    protected $set;
+
     public function getLanguageId(): string
     {
         return $this->languageId;
@@ -45,6 +56,22 @@ class SnippetStruct extends Entity
     public function setLanguageId(string $languageId): void
     {
         $this->languageId = $languageId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSetId(): string
+    {
+        return $this->setId;
+    }
+
+    /**
+     * @param string $setId
+     */
+    public function setSetId(string $setId): void
+    {
+        $this->setId = $setId;
     }
 
     public function getTranslationKey(): string
@@ -95,5 +122,21 @@ class SnippetStruct extends Entity
     public function setLanguage(LanguageStruct $language): void
     {
         $this->language = $language;
+    }
+
+    /**
+     * @return SnippetSetStruct
+     */
+    public function getSet(): SnippetSetStruct
+    {
+        return $this->set;
+    }
+
+    /**
+     * @param SnippetSetStruct $set
+     */
+    public function setSet(SnippetSetStruct $set): void
+    {
+        $this->set = $set;
     }
 }

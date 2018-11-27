@@ -38,12 +38,18 @@ class TranslatorTest extends TestCase
      */
     private $languageRepository;
 
+    /**
+     * @var RepositoryInterface
+     */
+    private $snippetSetRepository;
+
     protected function setUp()
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->translator = $this->getContainer()->get(Translator::class);
         $this->snippetRepository = $this->getContainer()->get('snippet.repository');
         $this->languageRepository = $this->getContainer()->get('language.repository');
+        $this->snippetSetRepository = $this->getContainer()->get('snippet_set.repository');
 
         $this->translator->resetInMemoryCache();
     }
@@ -59,12 +65,22 @@ class TranslatorTest extends TestCase
     public function testSimpleOverwrite(): void
     {
         $context = Context::createDefaultContext();
+
+        $snippetSetId = Uuid::uuid4();
+        $snippetSet = [
+            'id' => $snippetSetId->getHex(),
+            'name' => 'test123',
+            'baseFile' => 'messages.de_DE',
+            'iso' => 'de_DE',
+        ];
+        $this->snippetSetRepository->create([$snippetSet], $context);
+
         $snippet = [
             'translationKey' => 'frontend.index.footer.IndexCopyright',
             'value' => 'Realisiert mit Unit test',
             'languageId' => Defaults::LANGUAGE_EN,
+            'setId' => $snippetSetId->getHex(),
         ];
-
         $this->snippetRepository->create([$snippet], $context);
 
         // fake request
@@ -93,22 +109,31 @@ class TranslatorTest extends TestCase
             'parentId' => Defaults::LANGUAGE_EN,
             'name' => 'Unit language',
         ];
-
         $this->languageRepository->create([$language], $context);
+
+        $snippetSetId = Uuid::uuid4();
+        $snippetsSet = [
+            'id' => $snippetSetId->getHex(),
+            'name' => 'test123',
+            'baseFile' => 'messages.de_DE',
+            'iso' => 'de_DE',
+        ];
+        $this->snippetSetRepository->create([$snippetsSet], $context);
 
         $snippets = [
             [
                 'translationKey' => 'frontend.index.footer.IndexCopyright',
                 'value' => 'Realisiert mit Unit test',
                 'languageId' => $id->getHex(),
+                'setId' => $snippetSetId->getHex(),
             ],
             [
                 'translationKey' => 'frontend.index.footer.IndexCopyright',
                 'value' => 'Realisiert with default language',
                 'languageId' => Defaults::LANGUAGE_EN,
+                'setId' => $snippetSetId->getHex(),
             ],
         ];
-
         $this->snippetRepository->create($snippets, $context);
 
         /**

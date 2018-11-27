@@ -25,6 +25,8 @@ import LanguageApiService from 'src/core/service/api/language.api.service';
 import LocaleApiService from 'src/core/service/api/locale.api.service';
 import UserApiService from 'src/core/service/api/user.api.service';
 import MediaFolderApiService from 'src/core/service/api/media-folder.api.service';
+import SnippetApiService from 'src/core/service/api/snippet.api.service';
+import SnippetSetApiService from 'src/core/service/api/snippet-set.api.service';
 
 export default {
     shopService: ShopApiService,
@@ -53,5 +55,7 @@ export default {
     languageService: LanguageApiService,
     localeService: LocaleApiService,
     userService: UserApiService,
-    mediaFolderService: MediaFolderApiService
+    mediaFolderService: MediaFolderApiService,
+    snippetService: SnippetApiService,
+    snippetSetService: SnippetSetApiService
 };

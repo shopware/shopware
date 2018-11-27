@@ -58,10 +58,15 @@ class OneToManyAssociationFieldSerializer implements FieldSerializerInterface
 
     private function map(OneToManyAssociationField $field, WriteParameterBag $parameters, KeyValuePair $data): void
     {
+        $id = $parameters->getContext()->get($parameters->getDefinition(), $field->getLocalField());
+
         foreach ($data->getValue() as $keyValue => $subresources) {
             if (!\is_array($subresources)) {
                 throw new MalformatDataException($parameters->getPath() . '/' . $data->getKey(), 'Value must be an array.');
             }
+
+            $fkField = $field->getReferenceClass()::getFields()->getByStorageName($field->getReferenceField());
+            $subresources[$fkField->getPropertyName()] = $id;
 
             $this->writeExtractor->extract(
                 $subresources,

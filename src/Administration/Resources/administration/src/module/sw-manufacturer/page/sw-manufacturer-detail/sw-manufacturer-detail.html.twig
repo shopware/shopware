@@ -4,7 +4,7 @@
         {% block sw_manufacturer_detail_header %}
             <template slot="smart-bar-header">
                 <h2 v-if="manufacturer.name">{{ manufacturer.name }}</h2>
-                <h2 v-else>{{ $tc('sw-manufacturer.detail.textHeadline') }}</h2>
+                <h2 v-else class="sw-manufacturer-detail__empty-title">{{ $tc('sw-manufacturer.detail.textHeadline') }}</h2>
             </template>
         {% endblock %}
 

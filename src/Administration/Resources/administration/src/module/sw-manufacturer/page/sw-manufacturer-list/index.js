@@ -53,6 +53,12 @@ Component.register('sw-manufacturer-list', {
             this.isLoading = true;
             const params = this.getListingParams();
 
+            // Default sorting
+            if (!params.sortBy && !params.sortDirection) {
+                params.sortBy = 'name';
+                params.sortDirection = 'ASC';
+            }
+
             this.manufacturers = [];
 
             return this.manufacturerStore.getList(params).then((response) => {

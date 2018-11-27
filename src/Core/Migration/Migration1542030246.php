@@ -15,12 +15,12 @@ class Migration1542030246 extends MigrationStep
 
     public function update(Connection $connection): void
     {
-
         $versionAwareTables = $this->getColumns();
 
         $tables = $connection->executeQuery('SHOW TABLES')->fetchAll(FetchMode::COLUMN);
 
         $constraints = $this->removeContraints($connection, $tables);
+        $this->removeUniqueConstraints($connection);
 
         foreach ($tables as $table) {
             $instructions = [];
@@ -47,12 +47,11 @@ class Migration1542030246 extends MigrationStep
         $this->addIndexes($connection, $constraints);
 
         $this->addConstraints($connection, $constraints);
-
+        $this->addUniqueConstraints($connection);
     }
 
     public function updateDestructive(Connection $connection): void
     {
-
         $tables = $this->getColumns();
 
         foreach ($tables as $table => $columns) {
@@ -78,11 +77,9 @@ class Migration1542030246 extends MigrationStep
                 'payment_method_version_id',
                 'country_version_id',
                 'customer_version_id',
-
             ],
             'category' => [
                 'media_version_id',
-
             ],
             'configuration_group' => [
                 'version_id',
@@ -93,7 +90,7 @@ class Migration1542030246 extends MigrationStep
             'configuration_group_option' => [
                 'version_id',
                 'configuration_group_version_id',
-                'media_version_id'
+                'media_version_id',
             ],
             'configuration_group_option_translation' => [
                 'configuration_group_option_version_id',
@@ -106,10 +103,10 @@ class Migration1542030246 extends MigrationStep
             ],
             'country_state' => [
                 'version_id',
-                'country_version_id'
+                'country_version_id',
             ],
             'country_state_translation' => [
-                'country_state_version_id'
+                'country_state_version_id',
             ],
             'currency' => [
                 'version_id',
@@ -127,17 +124,17 @@ class Migration1542030246 extends MigrationStep
                 'version_id',
                 'customer_version_id',
                 'country_version_id',
-                'country_state_version_id'
+                'country_state_version_id',
             ],
             'customer_group' => [
                 'version_id',
             ],
             'customer_group_translation' => [
-                'customer_group_version_id'
+                'customer_group_version_id',
             ],
             'customer_group_discount' => [
                 'version_id',
-                'customer_group_version_id'
+                'customer_group_version_id',
             ],
             'listing_facet' => [
                 'version_id',
@@ -159,7 +156,7 @@ class Migration1542030246 extends MigrationStep
             ],
             'media_thumbnail' => [
                 'version_id',
-                'media_version_id'
+                'media_version_id',
             ],
             'order' => [
                 'payment_method_version_id',
@@ -167,10 +164,10 @@ class Migration1542030246 extends MigrationStep
             ],
             'order_address' => [
                 'country_version_id',
-                'country_state_version_id'
+                'country_state_version_id',
             ],
             'order_delivery' => [
-                'shipping_method_version_id'
+                'shipping_method_version_id',
             ],
             'order_transaction' => [
                 'payment_method_version_id',
@@ -186,7 +183,7 @@ class Migration1542030246 extends MigrationStep
             ],
             'product' => [
                 'tax_version_id',
-                'unit_version_id'
+                'unit_version_id',
             ],
             'product_media' => [
                 'media_version_id',
@@ -205,7 +202,7 @@ class Migration1542030246 extends MigrationStep
             ],
             'product_service' => [
                 'configuration_group_option_version_id',
-                'tax_version_id'
+                'tax_version_id',
             ],
             'product_manufacturer' => [
                 'media_version_id',
@@ -220,7 +217,7 @@ class Migration1542030246 extends MigrationStep
                 'currency_version_id',
                 'payment_method_version_id',
                 'shipping_method_version_id',
-                'country_version_id'
+                'country_version_id',
             ],
             'sales_channel_country' => [
                 'country_version_id',
@@ -236,7 +233,7 @@ class Migration1542030246 extends MigrationStep
             ],
             'seo_url' => [
                 'version_id',
-                'foreign_key_version_id'
+                'foreign_key_version_id',
             ],
             'shipping_method' => [
                 'version_id',
@@ -256,8 +253,7 @@ class Migration1542030246 extends MigrationStep
             ],
             'unit_translation' => [
                 'unit_version_id',
-
-            ]
+            ],
         ];
     }
 
@@ -299,7 +295,6 @@ SQL;
         $constraints = [];
 
         foreach ($tables as $table) {
-
             $data = $connection->executeQuery($sql, ['database' => $connection->getDatabase(), 'table' => $table])->fetchAll();
 
             if (empty($data)) {
@@ -343,9 +338,7 @@ SQL;
                 $indexColumns = implode('`,`', $fk['columns']);
 
                 $result = $connection->fetchAll("SHOW COLUMNS FROM `$table` LIKE 'id'");
-                if (
-                    !empty($result)
-                ) {
+                if (!empty($result)) {
                     $create = <<<SQL
         ALTER TABLE `$table`
         ADD INDEX (`$indexColumns`),
@@ -374,18 +367,33 @@ SQL;
                 $deleteAction = $fk['delete'];
                 $updateAction = $fk['update'];
                 $result = $connection->fetchAll("SHOW COLUMNS FROM `$refTable` LIKE 'id'");
-                if (
-                !empty($result)
-                )
-if (!empty($result) && !in_array($refTable, ['order_state', 'order_transaction', 'order_transaction_state']) ) {
-    $create = <<<SQL
+                if (!empty($result) && !in_array($refTable, ['order_state', 'order_transaction', 'order_transaction_state'])) {
+                    $create = <<<SQL
         ALTER TABLE `$table`
         ADD FOREIGN KEY `$fkName` (`$indexColumns`) REFERENCES `$refTable` (`$refColumns`) ON DELETE $deleteAction ON UPDATE $updateAction
 SQL;
-    $connection->executeQuery($create);
-}
+                    $connection->executeQuery($create);
+                }
             }
         }
+    }
+
+    private function removeUniqueConstraints(Connection $connection): void
+    {
+        $connection->executeQuery('ALTER TABLE `listing_facet` DROP KEY `unique_identifier`');
+        $connection->executeQuery('ALTER TABLE `order` DROP KEY `deep_link_code`');
+        $connection->executeQuery('ALTER TABLE `payment_method` DROP KEY `name`');
+        $connection->executeQuery('ALTER TABLE `search_document` DROP KEY `unique`');
+        $connection->executeQuery('ALTER TABLE `shipping_method_price` DROP KEY `shipping_method_uuid_quantity_from`');
+    }
+
+    private function addUniqueConstraints(Connection $connection): void
+    {
+        $connection->executeQuery('ALTER TABLE `listing_facet` ADD UNIQUE KEY `unique_identifier` (`unique_key`)');
+        $connection->executeQuery('ALTER TABLE `order` ADD UNIQUE KEY `deep_link_code` (`deep_link_code`)');
+        $connection->executeQuery('ALTER TABLE `payment_method` ADD UNIQUE KEY `name` (`technical_name`)');
+        $connection->executeQuery('ALTER TABLE `search_document` ADD UNIQUE KEY `unique` (`language_id`, `keyword`, `entity`, `entity_id`, `ranking`)');
+        $connection->executeQuery('ALTER TABLE `shipping_method_price` ADD UNIQUE KEY `shipping_method_uuid_quantity_from` (`shipping_method_id`,`quantity_from`)');
     }
 
     private function hasVersionColumns(array $columns): bool

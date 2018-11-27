@@ -118,7 +118,7 @@ class LanguageValidatorTest extends TestCase
             'name' => 'new no parent',
         ];
 
-        $this->assertUpsertViolations([$nid], []);
+        $this->assertUpsertViolations([$nid], [], true);
     }
 
     public function testInsertWithParent(): void
@@ -156,7 +156,7 @@ class LanguageValidatorTest extends TestCase
         // +a(+> b)
 
         $b = ['id' => Uuid::uuid4()->getHex(), 'name' => 'a'];
-        $this->languageRepository->create([$b], $this->defaultContext);
+        $this->addLanguagesWithDefaultLocales([$b]);
 
         $a = [
             'id' => Uuid::uuid4()->getHex(),
@@ -193,7 +193,7 @@ class LanguageValidatorTest extends TestCase
 
         $c = ['id' => Uuid::uuid4()->getHex(), 'name' => 'c'];
         $b = ['id' => Uuid::uuid4()->getHex(), 'name' => 'a', 'parentId' => $c['id']];
-        $this->languageRepository->create([$c, $b], $this->defaultContext);
+        $this->addLanguagesWithDefaultLocales([$c, $b]);
 
         $a = [
             'id' => Uuid::uuid4()->getHex(),
@@ -219,7 +219,7 @@ class LanguageValidatorTest extends TestCase
             'parentId' => $parent['id'],
         ];
 
-        $this->assertUpsertViolations([$parent, $nidpid], []);
+        $this->assertUpsertViolations([$parent, $nidpid], [], true);
     }
 
     public function testInsertWithTwoChildren(): void
@@ -259,7 +259,7 @@ class LanguageValidatorTest extends TestCase
             'parentId' => $parent['id'],
         ];
 
-        $this->assertUpsertViolations([$parent, $child1, $child2], []);
+        $this->assertUpsertViolations([$parent, $child1, $child2], [], true);
     }
 
     public function testInsertWithExistingParent(): void
@@ -268,7 +268,7 @@ class LanguageValidatorTest extends TestCase
             'id' => Uuid::uuid4()->getHex(),
             'name' => 'parent',
         ];
-        $this->languageRepository->create([$parent], $this->defaultContext);
+        $this->addLanguagesWithDefaultLocales([$parent]);
 
         $nidpid = [
             'id' => Uuid::uuid4()->getHex(),
@@ -285,7 +285,7 @@ class LanguageValidatorTest extends TestCase
             'id' => Uuid::uuid4()->getHex(),
             'name' => 'parent',
         ];
-        $this->languageRepository->create([$parent], $this->defaultContext);
+        $this->addLanguagesWithDefaultLocales([$parent]);
 
         $nidpid = [
             'id' => Uuid::uuid4()->getHex(),
@@ -308,7 +308,7 @@ class LanguageValidatorTest extends TestCase
             'id' => Uuid::uuid4()->getHex(),
             'name' => 'a',
         ];
-        $this->languageRepository->create([$toBeChild, $parent], $this->defaultContext);
+        $this->addLanguagesWithDefaultLocales([$toBeChild, $parent]);
 
         $upd = [
             'id' => $toBeChild['id'],
@@ -336,7 +336,7 @@ class LanguageValidatorTest extends TestCase
             'parentId' => $parent['id'],
             'name' => 'a',
         ];
-        $this->languageRepository->create([$parent,  $parent2, $toBeChild], $this->defaultContext);
+        $this->addLanguagesWithDefaultLocales([$parent, $parent2, $toBeChild]);
 
         $upd = [
             'id' => $toBeChild['id'],
@@ -368,7 +368,7 @@ class LanguageValidatorTest extends TestCase
             'name' => 'b',
         ];
 
-        $this->languageRepository->create([$parent, $child1, $child2], $this->defaultContext);
+        $this->addLanguagesWithDefaultLocales([$parent, $child1, $child2]);
 
         $upd = [
             'id' => $child2['id'],
@@ -396,7 +396,7 @@ class LanguageValidatorTest extends TestCase
             'id' => Uuid::uuid4()->getHex(),
             'name' => 'c',
         ];
-        $this->languageRepository->create([$parent, $child, $lang], $this->defaultContext);
+        $this->addLanguagesWithDefaultLocales([$parent, $child, $lang]);
 
         $upd = [
             [
@@ -433,7 +433,7 @@ class LanguageValidatorTest extends TestCase
             'name' => 'a',
         ];
 
-        $this->languageRepository->create([$parentParent, $parent, $child], $this->defaultContext);
+        $this->addLanguagesWithDefaultLocales([$parentParent, $parent, $child]);
 
         $upd = [
             [
@@ -458,7 +458,7 @@ class LanguageValidatorTest extends TestCase
             'id' => Uuid::uuid4()->getHex(),
             'name' => 'c',
         ];
-        $this->languageRepository->create([$parentParent], $this->defaultContext);
+        $this->addLanguagesWithDefaultLocales([$parentParent]);
 
         $parent = [
             'id' => Uuid::uuid4()->getHex(),
@@ -510,7 +510,7 @@ class LanguageValidatorTest extends TestCase
             'name' => 'b',
             'parentId' => $c['id'],
         ];
-        $this->languageRepository->create([$c, $b], $this->defaultContext);
+        $this->addLanguagesWithDefaultLocales([$c, $b]);
 
         $a = [
             'id' => Uuid::uuid4()->getHex(),
@@ -540,7 +540,7 @@ class LanguageValidatorTest extends TestCase
             'id' => Uuid::uuid4()->getHex(),
             'name' => 'c',
         ];
-        $this->languageRepository->create([$parent, $child, $lang], $this->defaultContext);
+        $this->addLanguagesWithDefaultLocales([$parent, $child, $lang]);
 
         $upd = [
             'id' => $parent['id'],
@@ -573,7 +573,7 @@ class LanguageValidatorTest extends TestCase
             'name' => 'a',
         ];
 
-        $this->languageRepository->create([$parentParent, $parent, $wannabeChild], $this->defaultContext);
+        $this->addLanguagesWithDefaultLocales([$parentParent, $parent, $wannabeChild]);
 
         $upd = [
             'id' => $wannabeChild['id'],
@@ -602,12 +602,12 @@ class LanguageValidatorTest extends TestCase
 
         $existingData = [$oldParent, $child];
 
-        $this->languageRepository->create($existingData, $this->defaultContext);
+        $this->addLanguagesWithDefaultLocales($existingData);
 
-        $newParent = [
+        $newParent = $this->addDefaultLocale([
             'id' => Uuid::uuid4()->getHex(),
             'name' => 'c',
-        ];
+        ]);
         $updChild = [
             'id' => $child['id'],
             'parentId' => $newParent['id'],
@@ -630,13 +630,13 @@ class LanguageValidatorTest extends TestCase
             'parentId' => $c['id'],
         ];
 
-        $this->languageRepository->create([$c, $b], $this->defaultContext);
+        $this->addLanguagesWithDefaultLocales([$c, $b]);
 
-        $a = [
+        $a = $this->addDefaultLocale([
             'id' => Uuid::uuid4()->getHex(),
             'name' => 'a',
             'parent_id' => $b,
-        ];
+        ]);
         $bUpdate = [
             'id' => $b['id'],
             'parentId' => null,
@@ -654,10 +654,10 @@ class LanguageValidatorTest extends TestCase
             'name' => 'a',
             'parentId' => $b['id'],
         ];
-        $this->languageRepository->create([$b, $a], $this->defaultContext);
+        $this->addLanguagesWithDefaultLocales([$b, $a]);
 
         $aUpdate = ['id' => $a['id'], 'parentId' => null];
-        $c = ['id' => Uuid::uuid4()->getHex(), 'name' => 'c'];
+        $c = $this->addDefaultLocale(['id' => Uuid::uuid4()->getHex(), 'name' => 'c']);
         $bUpdate = ['id' => $b['id'], 'parentId' => $c['id']];
         $this->assertUpsertViolations([$aUpdate, $c, $bUpdate], []);
     }
@@ -672,9 +672,9 @@ class LanguageValidatorTest extends TestCase
             'name' => 'a',
             'parentId' => $b['id'],
         ];
-        $this->languageRepository->create([$b, $a], $this->defaultContext);
+        $this->addLanguagesWithDefaultLocales([$b, $a]);
 
-        $c = ['id' => Uuid::uuid4()->getHex(), 'name' => 'c'];
+        $c = $this->addDefaultLocale(['id' => Uuid::uuid4()->getHex(), 'name' => 'c']);
         $bUpdate = ['id' => $b['id'], 'parentId' => $c['id']];
 
         $this->assertUpsertViolations([$c, $bUpdate], [
@@ -689,7 +689,7 @@ class LanguageValidatorTest extends TestCase
         $a = ['id' => Uuid::uuid4()->getHex(), 'name' => 'a'];
         $c = ['id' => Uuid::uuid4()->getHex(), 'name' => 'c'];
 
-        $this->languageRepository->create([$a, $c], $this->defaultContext);
+        $this->addLanguagesWithDefaultLocales([$a, $c]);
 
         $b = [
             'id' => Uuid::uuid4()->getHex(),
@@ -713,7 +713,7 @@ class LanguageValidatorTest extends TestCase
         $d = ['id' => Uuid::uuid4()->getHex(), 'name' => 'a'];
         $a = ['id' => Uuid::uuid4()->getHex(), 'name' => 'a', 'parentId' => $d['id']];
         $c = ['id' => Uuid::uuid4()->getHex(), 'name' => 'a'];
-        $this->languageRepository->create([$d, $a, $c], $this->defaultContext);
+        $this->addLanguagesWithDefaultLocales([$d, $a, $c]);
 
         $b = [
             'id' => Uuid::uuid4()->getHex(),
@@ -734,7 +734,7 @@ class LanguageValidatorTest extends TestCase
             'name' => 'a',
         ];
 
-        $this->languageRepository->create([$a], $this->defaultContext);
+        $this->addLanguagesWithDefaultLocales([$a]);
 
         $this->assertDeleteViolations([$a], []);
     }
@@ -797,6 +797,26 @@ class LanguageValidatorTest extends TestCase
         );
     }
 
+    public function testRootWithoutLanguageCodeViolation(): void
+    {
+        $root = ['id' => Uuid::uuid4()->getHex(), 'name' => 'root without language code'];
+
+        $this->assertInsertViolations(
+            [$root],
+            [
+                [LanguageValidator::CODE_REQUIRED_FOR_ROOT_LANGUAGE, '/' . $root['id'] . '/localeId'],
+            ],
+            false // no default locale !
+        );
+    }
+
+    public function testSubWithoutLanguageCode(): void
+    {
+        $root = $this->addDefaultLocale(['id' => Uuid::uuid4()->getHex(), 'name' => 'root with language code']);
+        $sub = ['id' => Uuid::uuid4()->getHex(), 'name' => 'sub without language code', 'parentId' => $root['id']];
+        $this->assertInsertViolations([$root, $sub], [], false /* no default locale ! */);
+    }
+
     protected function assertWriteStackViolations(callable $function, array $expectedCodePathPairs): void
     {
         /** @var WriteStackException|null $stack */
@@ -827,15 +847,21 @@ class LanguageValidatorTest extends TestCase
         }, $expectedCodePathPairs);
     }
 
-    protected function assertInsertViolations(array $insertData, array $expectedCodePathPairs): void
+    protected function assertInsertViolations(array $insertData, array $expectedCodePathPairs, $addDefaultLocales = true): void
     {
+        if ($addDefaultLocales) {
+            $insertData = $this->addDefaultLocales($insertData);
+        }
         $this->assertWriteStackViolations(function () use ($insertData) {
             $this->languageRepository->create($insertData, $this->defaultContext);
         }, $expectedCodePathPairs);
     }
 
-    protected function assertUpsertViolations(array $upsertData, array $expectedCodePathPairs): void
+    protected function assertUpsertViolations(array $upsertData, array $expectedCodePathPairs, $addDefaultLocales = false): void
     {
+        if ($addDefaultLocales) {
+            $upsertData = $this->addDefaultLocales($upsertData);
+        }
         $this->assertWriteStackViolations(function () use ($upsertData) {
             $this->languageRepository->upsert($upsertData, $this->defaultContext);
         }, $expectedCodePathPairs);
@@ -846,5 +872,39 @@ class LanguageValidatorTest extends TestCase
         $this->assertWriteStackViolations(function () use ($ids) {
             $this->languageRepository->delete($ids, $this->defaultContext);
         }, $expectedCodePathPairs);
+    }
+
+    protected function addLanguagesWithDefaultLocales($languages): void
+    {
+        $this->languageRepository->create($this->addDefaultLocales($languages), $this->defaultContext);
+    }
+
+    protected function addDefaultLocale(array $lang)
+    {
+        if (!isset($lang['locale']) && !isset($lang['localeId'])) {
+            $id = Uuid::uuid4()->getHex();
+            $lang['locale'] = [
+                'code' => 'x-tst_' . $id,
+                'name' => 'Test locale ' . $id,
+                'territory' => 'Test territory ' . $id,
+            ];
+        }
+        if (isset($lang['parent']) && !isset($lang['parent']['locale'], $lang['parent']['localeId'])) {
+            $id = Uuid::uuid4()->getHex();
+            $lang['parent']['locale'] = [
+                'code' => 'x-tst_' . $id,
+                'name' => 'Test locale ' . $id,
+                'territory' => 'Test territory ' . $id,
+            ];
+        }
+
+        return $lang;
+    }
+
+    protected function addDefaultLocales(array $languages): array
+    {
+        return array_map(function ($lang) {
+            return $this->addDefaultLocale($lang);
+        }, $languages);
     }
 }

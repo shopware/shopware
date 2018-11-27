@@ -22,6 +22,8 @@ class LanguageValidator implements WriteCommandValidatorInterface
 {
     public const PARENT_HAS_PARENT_VIOLATION = 'parent_has_parent_violation';
 
+    public const CODE_REQUIRED_FOR_ROOT_LANGUAGE = 'code_required_for_root_language';
+
     public const DELETE_DEFAULT_LANGUAGE_VIOLATION = 'delete_default_language_violation';
 
     public const DEFAULT_LANGUAGES = [Defaults::LANGUAGE_EN, Defaults::LANGUAGE_DE];
@@ -43,31 +45,9 @@ class LanguageValidator implements WriteCommandValidatorInterface
             return;
         }
 
-        $statement = $this->connection->executeQuery('
-            SELECT child.id 
-            FROM language child
-            INNER JOIN language parent ON parent.id = child.parent_id
-            WHERE (child.id IN (:ids) OR child.parent_id IN (:ids))
-            AND parent.parent_id IS NOT NULL',
-            ['ids' => $affectedIds],
-            ['ids' => Connection::PARAM_STR_ARRAY]
-        );
-        $ids = $statement->fetchAll(FetchMode::COLUMN);
-
         $violations = new ConstraintViolationList();
-        foreach ($ids as $binId) {
-            $id = Uuid::fromBytesToHex($binId);
-            $violations->add(
-                $this->buildViolation(
-                    'Language inheritance limit for the child {{ id }} exceeded. A Language must not be nested deeper than one level.',
-                    ['{{ id }}' => $id],
-                    null,
-                    '/' . $id . '/parentId',
-                    $id,
-                    self::PARENT_HAS_PARENT_VIOLATION
-                )
-            );
-        }
+        $violations->addAll($this->getInhiertanceViolations($affectedIds));
+        $violations->addAll($this->getUpdateViolations($affectedIds));
 
         $this->tryToThrow($violations);
     }
@@ -103,6 +83,69 @@ class LanguageValidator implements WriteCommandValidatorInterface
         }
 
         $this->tryToThrow($violations);
+    }
+
+    private function getInhiertanceViolations(array $affectedIds): ConstraintViolationListInterface
+    {
+        $statement = $this->connection->executeQuery('
+            SELECT child.id 
+            FROM language child
+            INNER JOIN language parent ON parent.id = child.parent_id
+            WHERE (child.id IN (:ids) OR child.parent_id IN (:ids))
+            AND parent.parent_id IS NOT NULL',
+            ['ids' => $affectedIds],
+            ['ids' => Connection::PARAM_STR_ARRAY]
+        );
+        $ids = $statement->fetchAll(FetchMode::COLUMN);
+
+        $violations = new ConstraintViolationList();
+        foreach ($ids as $binId) {
+            $id = Uuid::fromBytesToHex($binId);
+            $violations->add(
+                $this->buildViolation(
+                    'Language inheritance limit for the child {{ id }} exceeded. A Language must not be nested deeper than one level.',
+                    ['{{ id }}' => $id],
+                    null,
+                    '/' . $id . '/parentId',
+                    $id,
+                    self::PARENT_HAS_PARENT_VIOLATION
+                )
+            );
+        }
+
+        return $violations;
+    }
+
+    private function getUpdateViolations(array $affectedIds): ConstraintViolationListInterface
+    {
+        $statement = $this->connection->executeQuery('
+            SELECT lang.id
+            FROM language lang
+            LEFT JOIN locale l ON lang.locale_id = l.id
+            WHERE l.id IS NULL # no locale
+            AND lang.parent_id IS NULL # root
+            AND lang.id IN (:ids)',
+            ['ids' => $affectedIds],
+            ['ids' => Connection::PARAM_STR_ARRAY]
+        );
+        $ids = $statement->fetchAll(FetchMode::COLUMN);
+
+        $violations = new ConstraintViolationList();
+        foreach ($ids as $binId) {
+            $id = Uuid::fromBytesToHex($binId);
+            $violations->add(
+                $this->buildViolation(
+                    'Root language {{ id }} requires a language code',
+                    ['{{ id }}' => $id],
+                    null,
+                    '/' . $id . '/localeId',
+                    $id,
+                    self::CODE_REQUIRED_FOR_ROOT_LANGUAGE
+                )
+            );
+        }
+
+        return $violations;
     }
 
     /**

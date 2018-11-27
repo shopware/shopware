@@ -747,6 +747,9 @@ EOF;
             'parent' => [
                 'id' => $parentId,
                 'name' => 'Parent Language',
+                'locale' => [
+                    'code' => 'x-tst_' . Uuid::uuid4()->getHex(),
+                ],
             ],
         ];
 

@@ -399,19 +399,34 @@ class TranslationTest extends TestCase
         $baseUrl = '/api/v' . PlatformRequest::API_VERSION;
 
         if ($fallbackId) {
+            $fallbackLocaleId = Uuid::uuid4()->getHex();
             $parentLanguageData = [
                 'id' => $fallbackId,
                 'name' => 'test language ' . $fallbackId,
+                'locale' => [
+                    'id' => $fallbackLocaleId,
+                    'code' => 'x-tst_' . $fallbackLocaleId,
+                    'name' => 'Test locale ' . $fallbackLocaleId,
+                    'territory' => 'Test territory ' . $fallbackLocaleId,
+                ],
             ];
             $this->getClient()->request('POST', $baseUrl . '/language', $parentLanguageData);
             static::assertEquals(204, $this->getClient()->getResponse()->getStatusCode());
         }
 
+        $localeId = Uuid::uuid4()->getHex();
         $languageData = [
             'id' => $langId,
             'name' => 'test language ' . $langId,
             'parentId' => $fallbackId,
+            'locale' => [
+                'id' => $localeId,
+                'code' => 'x-tst_' . $localeId,
+                'name' => 'Test locale ' . $localeId,
+                'territory' => 'Test territory ' . $localeId,
+            ],
         ];
+
         $this->getClient()->request('POST', $baseUrl . '/language', $languageData);
         static::assertEquals(204, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
     }

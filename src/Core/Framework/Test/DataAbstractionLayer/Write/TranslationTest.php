@@ -209,6 +209,9 @@ class TranslationTest extends TestCase
                     'language' => [
                         'id' => $germanLanguageId,
                         'name' => 'de_DE',
+                        'locale' => [
+                            'code' => 'x-tst_DE',
+                        ],
                     ],
                 ],
             ],
@@ -279,6 +282,9 @@ class TranslationTest extends TestCase
         $data = [
             'id' => $germanLanguageId,
             'name' => 'de_DE2',
+            'locale' => [
+                'code' => 'x-de_DE2',
+            ],
         ];
 
         $this->languageRepository->create([$data], $this->context);
@@ -418,9 +424,12 @@ class TranslationTest extends TestCase
                         'name' => 'Backform gelb',
                         'description' => 'inflo decertatio. His Manus dilabor do, eia lumen, sed Desisto qua evello sono hinc, ars his misericordite.',
                         'language' => [
-                                'id' => $germanLanguageId,
-                                'name' => 'de_DE',
+                            'id' => $germanLanguageId,
+                            'name' => 'de_DE',
+                            'locale' => [
+                                'code' => 'x-de_DE',
                             ],
+                        ],
                     ],
                     Defaults::LANGUAGE_EN => [
                         'name' => 'Test En',

@@ -5,12 +5,15 @@ namespace Shopware\Storefront\Routing;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Storefront\Controller\ErrorController;
 use Shopware\Storefront\StorefrontRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
+use Symfony\Component\HttpKernel\HttpCache\Store;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -26,10 +29,16 @@ class StorefrontSubscriber implements EventSubscriberInterface
      */
     private $router;
 
-    public function __construct(RequestStack $requestStack, RouterInterface $router)
+    /**
+     * @var ErrorController $errorController
+     */
+    private $errorController;
+
+    public function __construct(RequestStack $requestStack, RouterInterface $router, ErrorController $errorController)
     {
         $this->requestStack = $requestStack;
         $this->router = $router;
+        $this->errorController = $errorController;
     }
 
     public static function getSubscribedEvents()
@@ -80,6 +89,8 @@ class StorefrontSubscriber implements EventSubscriberInterface
     {
         if ($event->getRequest()->attributes->has(StorefrontRequest::ATTRIBUTE_IS_STOREFRONT_REQUEST)) {
             $event->stopPropagation();
+            $content = $this->errorController->error($event->getException(), $this->requestStack->getMasterRequest());
+            $event->setResponse($content);
         }
     }
 

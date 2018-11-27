@@ -1,0 +1,16 @@
+{% extends '@Storefront/frontend/index/index.html.twig' %}
+{% block frontend_index_content_main %}
+<section class="content-main container block-group">
+    {% trans %}frontend.error.exception.ExceptionHeader{% endtrans %}
+</section>
+{% endblock %}
+
+{# Disable top bar #}
+{% block frontend_index_top_bar_container %}
+{% endblock %}
+{# Disable shop navigation #}
+{% block frontend_index_shop_navigation %}
+{% endblock %}
+{# Disable categorie navigation #}
+{% block frontend_index_navigation_categories_top_include %}
+{% endblock %}

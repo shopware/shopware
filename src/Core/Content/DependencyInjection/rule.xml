@@ -7,18 +7,6 @@
         <service class="Shopware\Core\Content\Rule\RuleDefinition" id="Shopware\Core\Content\Rule\RuleDefinition">
             <tag name="shopware.entity.definition" entity="rule"/>
         </service>
-
-        <service class="Shopware\Core\Content\Rule\RuleBuilder" id="Shopware\Core\Content\Rule\RuleBuilder">
-            <argument type="service" id="serializer"/>
-        </service>
-
-        <service class="Shopware\Core\Content\Rule\RuleController" id="Shopware\Core\Content\Rule\RuleController" public="true">
-            <argument type="service" id="Shopware\Core\Content\Rule\RuleBuilder"/>
-            <argument type="tagged" tag="rule_type.definition"/>
-            <call method="setContainer">
-                <argument type="service" id="service_container"/>
-            </call>
-        </service>
         <service class="Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionDefinition" id="Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionDefinition">
             <tag name="shopware.entity.definition" entity="rule_condition"/>
         </service>

@@ -17,13 +17,12 @@ class Migration1542899580 extends MigrationStep
         $connection->executeQuery('
 ALTER TABLE `rule`
 ADD `type` VARCHAR(256) NULL,
-ADD `description` LONGTEXT NULL,
-MODIFY `priority` INT NULL;
+ADD `description` LONGTEXT NULL;
         ');
     }
 
     public function updateDestructive(Connection $connection): void
     {
-        $connection->executeQuery('ALTER TABLE `rule` DROP COLUMN `priority`;');
+        // nth
     }
 }

@@ -14,13 +14,6 @@ abstract class Container extends Rule
      */
     protected $rules = [];
 
-    public static function getFieldDefinition(): array
-    {
-        return [
-            'rules' => Rule::class,
-        ];
-    }
-
     /**
      * Constructor params will be used for internal rules
      *

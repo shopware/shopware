@@ -46,7 +46,6 @@ class Framework extends Bundle
         $loader->load('filesystem.xml');
         $loader->load('api.xml');
         $loader->load('plugin.xml');
-        $loader->load('rule.xml');
 
         $container->addCompilerPass(new FeatureFlagCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION);
         $container->addCompilerPass(new ExtensionCompilerPass());

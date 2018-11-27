@@ -26,6 +26,11 @@ class RuleStruct extends Entity
     protected $description;
 
     /**
+     * @var int
+     */
+    protected $priority;
+
+    /**
      * @var Rule
      */
     protected $payload;
@@ -103,6 +108,16 @@ class RuleStruct extends Entity
     public function setCreatedAt(\DateTime $createdAt): void
     {
         $this->createdAt = $createdAt;
+    }
+
+    public function getPriority(): int
+    {
+        return $this->priority;
+    }
+
+    public function setPriority(int $priority): void
+    {
+        $this->priority = $priority;
     }
 
     public function getUpdatedAt(): \DateTime

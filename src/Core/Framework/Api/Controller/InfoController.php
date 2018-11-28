@@ -21,7 +21,7 @@ class InfoController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/_info/openapi3.json", name="api.info.openapi3")
+     * @Route("/api/v{version}/_info/openapi3.json", name="api.info.openapi3", methods={"GET"})
      *
      * @throws \Exception
      *
@@ -35,7 +35,7 @@ class InfoController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/_info/entity-schema.json", name="api.info.entity-schema")
+     * @Route("/api/v{version}/_info/entity-schema.json", name="api.info.entity-schema", methods={"GET"})
      */
     public function entitySchema()
     {
@@ -45,7 +45,7 @@ class InfoController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/_info/swagger.html", name="api.info.swagger")
+     * @Route("/api/v{version}/_info/swagger.html", name="api.info.swagger", methods={"GET"})
      */
     public function infoHtml(): Response
     {

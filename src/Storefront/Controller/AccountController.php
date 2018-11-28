@@ -358,7 +358,7 @@ class AccountController extends StorefrontController
     }
 
     /**
-     * @Route("/account/address/{addressId}", name="frontend.account.address.edit.page", options={"seo"="false"})
+     * @Route("/account/address/{addressId}", name="frontend.account.address.edit.page", options={"seo"="false"}, methods={"GET"})
      */
     public function editAddress($addressId, Request $request, CheckoutContext $context): Response
     {

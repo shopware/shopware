@@ -74,7 +74,7 @@ class CheckoutController extends StorefrontController
     }
 
     /**
-     * @Route("/checkout", name="frontend.checkout.forward", options={"seo"="false"})
+     * @Route("/checkout", name="frontend.checkout.forward", options={"seo"="false"}, methods={"GET"})
      */
     public function index(): RedirectResponse
     {

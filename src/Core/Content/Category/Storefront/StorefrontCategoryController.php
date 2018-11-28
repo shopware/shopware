@@ -47,7 +47,7 @@ class StorefrontCategoryController extends AbstractController
     }
 
     /**
-     * @Route("/storefront-api/v{version}/category", name="storefront-api.category.list")
+     * @Route("/storefront-api/v{version}/category", name="storefront-api.category.list", methods={"GET", "POST"})
      */
     public function list(Request $request, CheckoutContext $checkoutContext, ResponseFactoryInterface $responseFactory): Response
     {

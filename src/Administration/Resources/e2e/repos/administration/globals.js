@@ -1,11 +1,10 @@
 const loginPage = require('./specs/login.js');
 
 module.exports = {
-    waitForConditionTimeout: 5000,
-    asyncHookTimeout: 5000,
+    waitForConditionTimeout: 30000,
+    asyncHookTimeout: 30000,
 
     beforeEach: (browser, done) => {
-        console.log(browser.launch_url);
         browser.url(browser.launch_url);
 
         browser.execute(function() {

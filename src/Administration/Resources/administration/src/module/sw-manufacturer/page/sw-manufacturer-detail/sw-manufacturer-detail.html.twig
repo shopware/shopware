@@ -17,7 +17,7 @@
                 {% endblock %}
 
                 {% block sw_manufacturer_detail_actions_save %}
-                    <sw-button variant="primary" :disabled="manufacturer.isLoading" @click.prevent="onSave">
+                    <sw-button class="sw-manufacturer-detail__save-action" variant="primary" :disabled="manufacturer.isLoading" @click.prevent="onSave">
                         {{ $tc('sw-manufacturer.detail.buttonSave') }}
                     </sw-button>
                 {% endblock %}

@@ -1,5 +1,5 @@
 module.exports = {
-    '@tags': ['product-inline-edit'],
+    '@tags': ['product', 'product-inline-edit', 'inline-edit'],
     'open product listing': (browser) => {
         browser
             .openMainMenuEntry('#/sw/product/index', 'Products')

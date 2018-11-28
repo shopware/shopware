@@ -2287,6 +2287,19 @@ export interface NightwatchCustomCommands {
      * @param {Boolean} [clearField=true]
      */
     fillGlobalSearchField(value: string, clearField?: boolean): this,
+
+
+    /**
+     * Uses the global search input field in the Administration for finding a product or other entity.
+     *
+     * Usage:
+     * ```
+     * browser.fillField('input[name=sw-field--product-name]', 'Marci Darci')
+     * ```
+     *
+     * @param {String} selector
+     */
+    clickContextMenuItem(selector: string): this,
 }
 
 /* tslint:disable-next-line:no-empty-interface */

@@ -1,5 +1,5 @@
 module.exports = {
-    '@tags': ['language-edit', 'language', 'edit'],
+    '@tags': ['setting','language-edit', 'language', 'edit'],
     'open language module': (browser) => {
         browser
             .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/language/index', 'Languages');
@@ -65,6 +65,7 @@ module.exports = {
     },
     'delete language': (browser) => {
         browser
+            .waitForElementVisible('.sw-grid-row:last-child .sw-language-list__column-name')
             .assert.containsText('.sw-grid-row:last-child .sw-language-list__column-name', 'Very Philippine English english')
             .click('.sw-grid-row:last-child .sw-context-button__button')
             .waitForElementPresent('body > .sw-context-menu')

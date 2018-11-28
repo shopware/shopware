@@ -58,9 +58,6 @@ module.exports = {
             launch_url: 'http://docker.vm:8000/admin',
             selenium_host: 'selenium',
             selenium_port: 4444,
-            selenium: {
-                start_process: false
-            },
             globals: {
                 waitForConditionTimeout: 5000
             },

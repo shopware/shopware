@@ -1,5 +1,5 @@
 module.exports = {
-    '@tags': ['tax-edit', 'tax', 'edit'],
+    '@tags': ['setting','tax-edit', 'tax', 'edit'],
     'open tax module': (browser) => {
         browser
             .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/tax/index', 'Tax');
@@ -49,6 +49,7 @@ module.exports = {
     },
     'delete tax': (browser) => {
         browser
+            .waitForElementVisible('.sw-grid-row:last-child .sw-tax-list__column-name')
             .assert.containsText('.sw-grid-row:last-child .sw-tax-list__column-name', 'Even higher tax rate')
             .click('.sw-grid-row:last-child .sw-context-button__button')
             .waitForElementPresent('body > .sw-context-menu')

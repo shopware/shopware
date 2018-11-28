@@ -1,5 +1,5 @@
 module.exports = {
-    '@tags': ['country-edit', 'country', 'edit'],
+    '@tags': ['setting', 'country-edit', 'country', 'edit'],
     'open country module': (browser) => {
         browser
             .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/country/index', 'Countries');
@@ -53,6 +53,7 @@ module.exports = {
     },
     'delete country': (browser) => {
         browser
+            .waitForElementVisible('.sw-country-list__column-name:first-child')
             .assert.containsText('.sw-country-list__column-name:first-child', '1.Niemandsland x2')
             .click('.sw-grid-row:first-child .sw-context-button__button')
             .waitForElementPresent('body > .sw-context-menu')

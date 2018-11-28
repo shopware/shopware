@@ -1,5 +1,5 @@
 module.exports = {
-    '@tags': ['currency-create', 'currency','create'],
+    '@tags': ['setting','currency-create', 'currency','create'],
     'open currency module': (browser) => {
         browser
             .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/currency/index', 'Currencies');
@@ -31,6 +31,7 @@ module.exports = {
     },
     'delete currency': (browser) => {
         browser
+            .waitForElementVisible('.sw-grid-row:last-child .sw-currency-list__column-name')
             .assert.containsText('.sw-grid-row:last-child .sw-currency-list__column-name', 'Yen')
             .click('.sw-grid-row:last-child .sw-context-button__button')
             .waitForElementPresent('body > .sw-context-menu')

@@ -59,5 +59,8 @@ exports.command = function fillSwSelectComponent(
     // in multi selects we can check if the value is a selected item
     this.expect.element(`${selector} ${swSelectedItemCssSelector}`).to.have.text.that.contains(value);
 
+    // close search results
+    this.setValue(`${selector} ${inputCssSelector}`, this.Keys.ESCAPE);
+
     return this;
 };

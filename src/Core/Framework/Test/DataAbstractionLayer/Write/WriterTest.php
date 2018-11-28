@@ -641,8 +641,6 @@ class WriterTest extends TestCase
 
     public function testWriteOneToManyWithOptionalIdField(): void
     {
-        $this->markTestSkipped('Should work after NEXT-1183 is resolved');
-
         $mediaRepo = $this->getContainer()->get('media.repository');
         $mediaId = Uuid::uuid4()->getHex();
         $manufacturerId = Uuid::uuid4()->getHex();

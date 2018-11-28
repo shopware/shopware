@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Ramsey\Uuid\Uuid;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DecodeByHydratorException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -44,15 +45,22 @@ class ManyToOneAssociationFieldSerializer implements FieldSerializerInterface
             throw new MalformatDataException($parameters->getPath(), 'Expected array');
         }
 
+        $referenceField = $field->getReferenceClass()::getFields()->getByStorageName($field->getReferenceField());
+        $value = $data->getValue();
+        if (isset($value[$referenceField->getPropertyName()])) {
+            $id = $value[$referenceField->getPropertyName()];
+        } else {
+            $id = Uuid::uuid4()->getHex();
+            $value[$referenceField->getPropertyName()] = $id;
+        }
+
         $this->writeExtractor->extract(
-            $data->getValue(),
+            $value,
             $parameters->cloneForSubresource(
                 $field->getReferenceClass(),
                 $parameters->getPath() . '/' . $data->getKey()
             )
         );
-
-        $id = $parameters->getContext()->get($field->getReferenceClass(), $field->getReferenceField());
 
         $fkField = $parameters->getDefinition()::getFields()->getByStorageName($field->getStorageName());
 

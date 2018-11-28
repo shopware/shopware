@@ -1,5 +1,5 @@
 module.exports = {
-    '@tags': ['manufacturer-create', 'manufacturer', 'create'],
+    '@tags': ['product', 'manufacturer-create', 'manufacturer', 'create'],
     'navigate to manufacturer module and click on add manufacturer': (browser) => {
         browser
             .openMainMenuEntry('#/sw/product/index', 'Product', '#/sw/manufacturer/index', 'Manufacturer')
@@ -16,10 +16,10 @@ module.exports = {
             .click('.sw-button--primary')
             .waitForElementVisible('.sw-notifications .sw-alert')
             .click('.sw-alert button.sw-alert__close')
-            .assert.containsText('.smart-bar__header','MAN-U-FACTURE')
+            .assert.containsText('.smart-bar__header', 'MAN-U-FACTURE')
             .click('.sw-media-upload-button__button-url')
             .waitForElementVisible('.sw-media-upload-url-modal')
-            .fillField('input[name=sw-field--url]', `${process.env.APP_URL}/bundles/administration/static/img/sw-media-background.png`)
+            .fillField('input[name=sw-field--url]', `${process.env.APP_URL}/bundles/administration/static/img/sw-login-background.png`)
             .click('.sw-modal__footer .sw-button--primary')
             .waitForElementVisible('.sw-alert--success')
             .click('.sw-alert .sw-alert__close')
@@ -46,8 +46,9 @@ module.exports = {
             .click('.sw-grid-row:first-child .sw-context-button__button')
             .waitForElementVisible('.sw-context-menu')
             .click('.sw-context-menu .sw-context-menu-item__text')
+            .waitForElementNotPresent('.sw-loader')
             .waitForElementVisible('.smart-bar__header h2:not(.sw-manufacturer-detail__empty-title)')
-            .assert.containsText('.smart-bar__header','MAN-U-FACTURE')
+            .assert.containsText('.smart-bar__header', 'MAN-U-FACTURE')
             .fillField('input[name=name]', 'Minnie\'s Haberdashery')
             .fillField('input[name=link]', 'https://google.com/doodles')
             .setValue('.ql-editor', 'I would like to enter a meaningful description here. \n Ha, that was easy! \n Außerdem grüße ich \n Quentin Tarantino \n und \n meine Mama!!!!')

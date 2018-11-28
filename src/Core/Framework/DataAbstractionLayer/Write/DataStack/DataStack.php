@@ -40,6 +40,11 @@ class DataStack
      */
     public function __construct(array $originalData)
     {
+        if (array_key_exists('extensions', $originalData)) {
+            $originalData = array_merge($originalData, $originalData['extensions']);
+            unset($originalData['extensions']);
+        }
+
         foreach ($originalData as $key => $value) {
             $this->data[$key] = new KeyValuePair($key, $value, true);
         }

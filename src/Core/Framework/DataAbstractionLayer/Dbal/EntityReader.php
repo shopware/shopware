@@ -121,12 +121,17 @@ class EntityReader implements EntityReaderInterface
             return $collection;
         }
 
+        /* @var string|EntityDefinition $definition */
         foreach ($criteria->getAssociations() as $fieldName => $fieldCriteria) {
-            $fieldName = str_replace($definition::getEntityName() . '.', '', $fieldName);
+            $fieldName = str_replace(
+                [$definition::getEntityName() . '.', 'extensions.'],
+                '',
+                $fieldName
+            );
 
             $field = $definition::getFields()->get($fieldName);
             if ($field) {
-                $fields->add($definition::getFields()->get($fieldName));
+                $fields->add($field);
             }
         }
 

@@ -2,7 +2,22 @@ import { Application } from 'src/core/shopware';
 import utils, { types } from 'src/core/service/util.service';
 import { deepCopyObject, hasOwnProperty } from 'src/core/service/utils/object.utils';
 
+/**
+ * @module core/data/EntityStore
+ */
+
+/**
+ * @class
+ * @memberOf module:core/data/EntityStore
+ */
 export default class EntityStore {
+    /**
+     * @constructor
+     * @memberOf module:core/data/EntityStore
+     * @param {String} entityName
+     * @param {String|ApiService} apiService
+     * @param {EntityProxy} EntityClass
+     */
     constructor(entityName, apiService, EntityClass) {
         this.entityName = entityName;
         this.EntityClass = EntityClass;
@@ -21,9 +36,10 @@ export default class EntityStore {
     /**
      * Returns an entity by its id synchronously.
      *
+     * @memberOf module:core/data/EntityStore
      * @param {String} id
      * @param {Boolean} [force=false]
-     * @return {*}
+     * @return {EntityProxy}
      */
     getById(id, force = false) {
         if (this.store[id] && force !== true) {
@@ -44,6 +60,7 @@ export default class EntityStore {
     /**
      * Returns an entity by its id asynchronously.
      *
+     * @memberOf module:core/data/EntityStore
      * @param {String} id
      * @return {Promise<never> | Promise<any>}
      */
@@ -66,8 +83,10 @@ export default class EntityStore {
     /**
      * Loads a list of entities from the server.
      *
+     * @memberOf module:core/data/EntityStore
      * @param {Object} params
      * @param {Boolean} keepAssociations
+     * @return {Promise}
      */
     getList(params, keepAssociations = false) {
         this.isLoading = true;
@@ -92,8 +111,9 @@ export default class EntityStore {
     /**
      * Creates a new entity in the store.
      *
+     * @memberOf module:core/data/EntityStore
      * @param {String} id
-     * @return {*}
+     * @return {EntityProxy}
      */
     create(id = utils.createId()) {
         if (this.store[id]) {
@@ -107,8 +127,9 @@ export default class EntityStore {
     /**
      * Duplicates an entity in the store.
      *
+     * @memberOf module:core/data/EntityStore
      * @param {String} id
-     * @return {*}
+     * @return {EntityProxy}
      */
     duplicate(id) {
         const newId = utils.createId();
@@ -128,6 +149,7 @@ export default class EntityStore {
     /**
      * Adds an entity proxy to the store.
      *
+     * @memberOf module:core/data/EntityStore
      * @param {EntityProxy} entity
      * @return {boolean}
      */
@@ -143,6 +165,7 @@ export default class EntityStore {
     /**
      * Removes an entity from the store.
      *
+     * @memberOf module:core/data/EntityStore
      * @param {EntityProxy} entity
      * @return {boolean}
      */
@@ -158,6 +181,7 @@ export default class EntityStore {
     /**
      * Removes an entity from the store by its id.
      *
+     * @memberOf module:core/data/EntityStore
      * @param {String} id
      * @return {boolean}
      */
@@ -173,6 +197,7 @@ export default class EntityStore {
     /**
      * Removes all entities from the store.
      *
+     * @memberOf module:core/data/EntityStore
      * @return {boolean}
      */
     removeAll() {
@@ -183,9 +208,10 @@ export default class EntityStore {
     /**
      * Iterator method to apply on all store items.
      *
+     * @memberOf module:core/data/EntityStore
      * @param {Function} iterator
      * @param {Object} scope
-     * @return {{}}
+     * @return {EntityStore}
      */
     forEach(iterator, scope = this) {
         if (!types.isFunction(iterator)) {
@@ -202,6 +228,7 @@ export default class EntityStore {
     /**
      * Syncs all entities in the store with the server.
      *
+     * @memberOf module:core/data/EntityStore
      * @param {Boolean} deletionsOnly
      * @return {Promise<any[]>}
      */
@@ -222,6 +249,7 @@ export default class EntityStore {
     /**
      * Get a promise queue of deleted entities.
      *
+     * @memberOf module:core/data/EntityStore
      * @return {Array}
      */
     getDeletionQueue() {
@@ -245,6 +273,7 @@ export default class EntityStore {
     /**
      * Get a promise queue of changed entities.
      *
+     * @memberOf module:core/data/EntityStore
      * @return {Array}
      */
     getUpdateQueue() {

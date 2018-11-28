@@ -7,7 +7,24 @@ import CriteriaFactory from 'src/core/factory/criteria.factory';
 import ApiService from 'src/core/service/api/api.service';
 import AssociationStore from './AssociationStore';
 
+/**
+ * @module core/data/EntityProxy
+ */
+
+/**
+ * @class
+ * @memberOf module:core/data/EntityProxy
+ */
 export default class EntityProxy {
+    /**
+     * @constructor
+     * @memberOf module:core/data/EntityProxy
+     * @param {String} entityName
+     * @param {ApiService} apiService
+     * @param {String} [id]
+     * @param {EntityStore} [store=null]
+     * @return {Proxy}
+     */
     constructor(entityName, apiService, id = utils.createId(), store = null) {
         const that = this;
 
@@ -130,9 +147,11 @@ export default class EntityProxy {
      * Initializes data of the entity by setting the draft and original data.
      * This method is mostly used to set data which was loaded from the server.
      *
+     * @memberOf module:core/data/EntityProxy
      * @param {Object} data
      * @param {Boolean} [removeAssociationKeysFromData=true]
      * @param {Boolean} [populateAssociations=false]
+     * @return {void}
      */
     setData(data, removeAssociationKeysFromData = true, populateAssociations = false) {
         const associatedProps = this.associatedEntityPropNames;
@@ -157,9 +176,11 @@ export default class EntityProxy {
     /**
      * Apply local data changes to the entity.
      *
+     * @memberOf module:core/data/EntityProxy
      * @param {Object} data
      * @param {Boolean} [removeAssociationKeysFromData=true]
      * @param {Boolean} [applyAsChange=true]
+     * @return {void}
      */
     setLocalData(data, removeAssociationKeysFromData = true, applyAsChange = true) {
         const associatedProps = this.associatedEntityPropNames;
@@ -181,6 +202,9 @@ export default class EntityProxy {
 
     /**
      * Discards current changes of the entity.
+     *
+     * @memberOf module:core/data/EntityProxy
+     * @return {void}
      */
     discardChanges() {
         this.draft = deepCopyObject(this.original);
@@ -188,6 +212,9 @@ export default class EntityProxy {
 
     /**
      * Applies the changes of the entity, so they become the current state.
+     *
+     * @memberOf module:core/data/EntityProxy
+     * @return {void}
      */
     applyChanges() {
         this.original = deepCopyObject(this.draft);
@@ -196,6 +223,7 @@ export default class EntityProxy {
     /**
      * Saves the entity to the server.
      *
+     * @memberOf module:core/data/EntityProxy
      * @param {Boolean} includeAssociations
      * @return {Promise<{}>}
      */
@@ -233,6 +261,7 @@ export default class EntityProxy {
      * Internal method for sending the create request.
      *
      * @private
+     * @memberOf module:core/data/EntityProxy
      * @param {Object} changes
      * @param {Object} changedAssociations
      * @return {Promise}
@@ -262,6 +291,7 @@ export default class EntityProxy {
      * Internal method for sending the update request.
      *
      * @private
+     * @memberOf module:core/data/EntityProxy
      * @param {Object} changes
      * @param {Object} changedAssociations
      * @return {Promise}
@@ -288,7 +318,9 @@ export default class EntityProxy {
     /**
      * Reloads changed associations from the server.
      *
+     * @memberOf module:core/data/EntityProxy
      * @param {Object} changedAssociations
+     * @return {void}
      */
     refreshAssociations(changedAssociations) {
         Object.keys(changedAssociations).forEach((associationKey) => {
@@ -310,6 +342,7 @@ export default class EntityProxy {
     /**
      * Deletes the entity.
      *
+     * @memberOf module:core/data/EntityProxy
      * @param {Boolean} directDelete
      * @return {Promise}
      */
@@ -335,6 +368,7 @@ export default class EntityProxy {
     /**
      * Removes the entity from its corresponding store.
      *
+     * @memberOf module:core/data/EntityProxy
      * @return {boolean}
      */
     remove() {
@@ -348,6 +382,7 @@ export default class EntityProxy {
     /**
      * Validates the entity.
      *
+     * @memberOf module:core/data/EntityProxy
      * @return {Boolean}
      */
     validate(data = this.draft) {
@@ -359,7 +394,8 @@ export default class EntityProxy {
     /**
      * Handles exceptions returned from the server.
      *
-     * @param exception
+     * @memberOf module:core/data/EntityProxy
+     * @param {Object} exception
      * @return {Object}
      */
     handleException(exception) {
@@ -375,7 +411,9 @@ export default class EntityProxy {
     /**
      * Adds a new error for the entity.
      *
+     * @memberOf module:core/data/EntityProxy
      * @param {Object} error
+     * @return {void}
      */
     addError(error) {
         this.errors.push(error);
@@ -388,6 +426,9 @@ export default class EntityProxy {
 
     /**
      * Creates entity stores for each OneToMany association of the entity.
+     *
+     * @memberOf module:core/data/EntityProxy
+     * @return {void}
      */
     createAssociatedStores() {
         const associationDefinitions = this.associatedEntityPropDefinitions;
@@ -415,6 +456,9 @@ export default class EntityProxy {
 
     /**
      * Populates all associated stores and creates entities if there is initial data provided.
+     *
+     * @memberOf module:core/data/EntityProxy
+     * @return {void}
      */
     populateAssociatedStores(data = this.draft) {
         const associatedProps = this.associatedEntityPropNames;
@@ -429,9 +473,10 @@ export default class EntityProxy {
     /**
      * Populates an associated store and creates entities based on the provided data.
      *
+     * @memberOf module:core/data/EntityProxy
      * @param {String} associationName
      * @param {Array} items
-     * @return {*}
+     * @return {EntityStore}
      */
     populateAssociatedStore(associationName, items) {
         const store = this.associations[associationName];
@@ -447,8 +492,9 @@ export default class EntityProxy {
     /**
      * Returns the store for a OneToMany association by property name.
      *
+     * @memberOf module:core/data/EntityProxy
      * @param {String} associationName
-     * @return {*}
+     * @return {EntityStore}
      */
     getAssociation(associationName) {
         return this.associations[associationName];
@@ -457,6 +503,7 @@ export default class EntityProxy {
     /**
      * Returns a promise queue for syncing all deleted OneToMany associations.
      *
+     * @memberOf module:core/data/EntityProxy
      * @return {Array}
      */
     getDeletedAssociationsQueue() {
@@ -479,7 +526,8 @@ export default class EntityProxy {
      * Includes changes and additions but no deletions, because they are handled separately.
      * Returns an object which fits the structure of the entity so it can be merged into other data or changesets.
      *
-     * @return {{}}
+     * @memberOf module:core/data/EntityProxy
+     * @return {Object}
      */
     getChangedAssociations() {
         const changes = {};
@@ -513,10 +561,11 @@ export default class EntityProxy {
      * This method will generate a detailed changeset considering the schema definition of the entity.
      * Also handles changes for OneToOne associations and special JSON fields.
      *
+     * @memberOf module:core/data/EntityProxy
      * @param {Object} a
      * @param {Object} b
      * @param {Object} schema
-     * @return {*}
+     * @return {Object}
      */
     getChanges(a = this.original, b = this.draft, schema = Entity.getDefinition(this.entityName)) {
         const properties = schema.properties;
@@ -655,9 +704,10 @@ export default class EntityProxy {
      * Validates the property structure of an object against an entity schema.
      * Removes also all properties which are blacklisted.
      *
+     * @memberOf module:core/data/EntityProxy
      * @param {Object} obj
      * @param {Object} schema
-     * @return {{}}
+     * @return {Object}
      */
     static validateSchema(obj, schema) {
         const properties = schema.properties;
@@ -677,6 +727,7 @@ export default class EntityProxy {
      * Properties which will be exposed with the entity which can be used for internal tasks.
      * These will not be included in the entity definition or the changeset.
      *
+     * @memberOf module:core/data/EntityProxy
      * @return {{isLoading: boolean, errors: Array}}
      */
     get privateData() {
@@ -691,6 +742,7 @@ export default class EntityProxy {
      * The data which is exposed by the entity.
      * This data will be used by the view layer.
      *
+     * @memberOf module:core/data/EntityProxy
      * @return {Object}
      */
     get exposedData() {
@@ -700,6 +752,7 @@ export default class EntityProxy {
     /**
      * The schema definition of the entity.
      *
+     * @memberOf module:core/data/EntityProxy
      * @return {*}
      */
     get entitySchema() {
@@ -709,6 +762,7 @@ export default class EntityProxy {
     /**
      * A list with names of all required properties of the entity.
      *
+     * @memberOf module:core/data/EntityProxy
      * @return {*}
      */
     get requiredProperties() {
@@ -718,6 +772,7 @@ export default class EntityProxy {
     /**
      * All property names of the entity which define a OneToMany relation.
      *
+     * @memberOf module:core/data/EntityProxy
      * @return {*}
      */
     get associatedEntityPropNames() {
@@ -727,6 +782,7 @@ export default class EntityProxy {
     /**
      * Get all property definitions of OneToMany associations of the entity.
      *
+     * @memberOf module:core/data/EntityProxy
      * @return {{}}
      */
     get associatedEntityPropDefinitions() {
@@ -745,6 +801,7 @@ export default class EntityProxy {
     /**
      * Get the kebab version of the entity name.
      *
+     * @memberOf module:core/data/EntityProxy
      * @return {String}
      */
     get kebabEntityName() {

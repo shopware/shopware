@@ -729,6 +729,19 @@
       "buttonSave": "Speichern"
     }
   },
+  "sw-settings-rule": {
+    "general": {
+      "mainMenuItemGeneral": "Regeln",
+      "placeholderSearchBar": "Durchsuche alle Regeln"
+    },
+    "list": {
+      "textHeadline": "Regeln",
+      "buttonAddRule": "Regel erstellen"
+    },
+    "detail": {
+      "textHeadline": "Neue Regel"
+    }
+  },
   "sw-settings-tax": {
     "general": {
       "mainMenuItemGeneral": "Steuern",

@@ -16,9 +16,14 @@ class RuleStruct extends Entity
     protected $name;
 
     /**
-     * @var Rule
+     * @var string|null
      */
-    protected $payload;
+    protected $type;
+
+    /**
+     * @var string|null
+     */
+    protected $description;
 
     /**
      * @var int
@@ -26,12 +31,17 @@ class RuleStruct extends Entity
     protected $priority;
 
     /**
+     * @var Rule
+     */
+    protected $payload;
+
+    /**
      * @var \DateTime
      */
     protected $createdAt;
 
     /**
-     * @var \DateTime
+     * @var \DateTime|null
      */
     protected $updatedAt;
 
@@ -70,6 +80,26 @@ class RuleStruct extends Entity
         $this->payload = $payload;
     }
 
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type): void
+    {
+        $this->type = $type;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description): void
+    {
+        $this->description = $description;
+    }
+
     public function getCreatedAt(): \DateTime
     {
         return $this->createdAt;
@@ -80,16 +110,6 @@ class RuleStruct extends Entity
         $this->createdAt = $createdAt;
     }
 
-    public function getUpdatedAt(): \DateTime
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTime $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
-    }
-
     public function getPriority(): int
     {
         return $this->priority;
@@ -98,6 +118,16 @@ class RuleStruct extends Entity
     public function setPriority(int $priority): void
     {
         $this->priority = $priority;
+    }
+
+    public function getUpdatedAt(): ?\DateTime
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(\DateTime $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
     }
 
     public function getDiscountSurcharges(): ?DiscountSurchargeCollection
@@ -125,7 +155,7 @@ class RuleStruct extends Entity
         return $this->conditions;
     }
 
-    public function setConditions(?RuleConditionCollection $conditions): void
+    public function setConditions(RuleConditionCollection $conditions): void
     {
         $this->conditions = $conditions;
     }

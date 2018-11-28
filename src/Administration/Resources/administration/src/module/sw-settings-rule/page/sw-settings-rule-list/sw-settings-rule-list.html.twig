@@ -1,0 +1,123 @@
+<sw-page class="sw-settings-rule-list">
+    <template slot="search-bar">
+        <sw-search-bar :placeholder="$tc('sw-settings-rule.general.placeholderSearchBar')"
+                       :searchType="$tc('sw-settings-rule.general.mainMenuItemGeneral')"
+                       @search="this.onSearch">
+        </sw-search-bar>
+    </template>
+    <template slot="smart-bar-header">
+            <h2>
+                {{ $tc('sw-settings.index.title') }} <sw-icon name="small-arrow-medium-right" small></sw-icon> {{ $tc('sw-settings-rule.list.textHeadline') }}
+
+                <span v-if="!isLoading" class="sw-page__smart-bar-amount">
+                    ({{ total }})
+                </span>
+            </h2>
+    </template>
+    <template slot="smart-bar-actions">
+            <sw-button :routerLink="{ name: 'sw.settings.rule.create' }" variant="primary">
+                {{ $tc('sw-settings-rule.list.buttonAddRule') }}
+            </sw-button>
+    </template>
+    <sw-card-view slot="content">
+        <sw-card :isLoading="isLoading">
+            <sw-grid slot="grid"
+                     class="sw-settings-rule-list-grid"
+                     :selectable="false"
+                     :items="items"
+                     :sortBy="sortBy"
+                     :sortDirection="sortDirection"
+                     @inline-edit-cancel="onInlineEditCancel"
+                     @inline-edit-finish="onInlineEditSave"
+                     table>
+                <template slot="columns" slot-scope="{ item }">
+
+                    <sw-grid-column flex="minmax(180px, 1fr)"
+                                    editable
+                                    :label="$tc('sw-settings-rule.list.columnName')">
+
+                            <router-link class="sw-rule-list__column-name" :title="$tc('sw-settings-rule.list.contextMenuEdit')"
+                                         :to="{ name: 'sw.settings.rule.detail', params: { id: item.id } }">
+
+                                    {{ item.name }}
+
+                            </router-link>
+                            <sw-field type="text" v-model="item.name" slot="inline-edit"></sw-field>
+
+                    </sw-grid-column>
+                    <sw-grid-column flex="minmax(180px, 1fr)"
+                                    editable
+                                    :label="$tc('sw-settings-rule.list.columnShortName')">
+
+                            {{ item.shortName }}
+
+                            <sw-field type="text" v-model="item.shortName" slot="inline-edit"></sw-field>
+
+                    </sw-grid-column>
+                    <sw-grid-column flex="minmax(80px, 1fr)"
+                                    editable
+                                    :label="$tc('sw-settings-rule.list.columnSymbol')">
+
+                            {{ item.symbol }}
+
+                            <sw-field type="text" v-model="item.symbol" slot="inline-edit"></sw-field>
+
+                    </sw-grid-column>
+                    <sw-grid-column flex="minmax(80px, 1fr)"
+                                    editable
+                                    :label="$tc('sw-settings-rule.list.columnFactor')">
+
+                            {{ item.factor }}
+
+                            <sw-field type="number" v-model="item.factor" slot="inline-edit"></sw-field>
+
+                    </sw-grid-column>
+                    <sw-grid-column flex="minmax(70px, 70px)"
+                                    align="center"
+                                    label="">
+                        <sw-context-button>
+
+                                <sw-context-menu-item class="sw-rule-list__edit-action" :routerLink="{ name: 'sw.settings.rule.detail', params: { id: item.id } }">
+                                    {{ $tc('sw-settings-rule.list.contextMenuEdit') }}
+                                </sw-context-menu-item>
+
+                                <sw-context-menu-item variant="danger" @click="onDelete(item.id)">
+                                    {{ $tc('sw-settings-rule.list.buttonDelete') }}
+                                </sw-context-menu-item>
+
+                        </sw-context-button>
+                    </sw-grid-column>
+
+                    <sw-modal v-if="showDeleteModal === item.id"
+                              @closeModal="onCloseDeleteModal"
+                              :title="$tc('sw-settings-rule.list.modalTitleDelete')"
+                              variant="small">
+
+                            <p>
+                                {{ $tc('sw-settings-rule.list.textDeleteConfirm', 0, { name: item.name }) }}
+                            </p>
+
+                            <template slot="modal-footer">
+                                <sw-button @click="onCloseDeleteModal"
+                                           size="small">
+                                    {{ $tc('sw-settings-rule.list.buttonCancel') }}
+                                </sw-button>
+                                <sw-button @click="onConfirmDelete(item.id)"
+                                           variant="primary"
+                                           size="small">
+                                    {{ $tc('sw-settings-rule.list.buttonDelete') }}
+                                </sw-button>
+                            </template>
+                    </sw-modal>
+                </template>
+                <sw-pagination slot="pagination"
+                               :page="page"
+                               :limit="limit"
+                               :total="total"
+                               :total-visible="7"
+                               @page-change="onPageChange">
+                </sw-pagination>
+            </sw-grid>
+        </sw-card>
+    </sw-card-view>
+</sw-page>

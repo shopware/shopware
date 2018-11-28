@@ -2,11 +2,25 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Storefront\Twig\ErrorTemplateResolver;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class ErrorController extends StorefrontController
 {
+    /** @var ErrorTemplateResolver  */
+    private $errorTemplateResolver;
+
+
+    /**
+     * ErrorController constructor.
+     * @param ErrorTemplateResolver $errorTemplateResolver
+     */
+    public function __construct(ErrorTemplateResolver $errorTemplateResolver)
+    {
+        $this->errorTemplateResolver = $errorTemplateResolver;
+    }
+
     /**
      * @param \Exception $exception
      * @param Request $request
@@ -15,36 +29,13 @@ class ErrorController extends StorefrontController
     public function error(\Exception $exception, Request $request): Response
     {
         try {
-            $template = $this->resolveTemplate($exception, $request);
-            return $this->renderStorefront($template, ['exception' => $exception]);
-        } catch (\Exception $e) {
+            $errorTemplate = $this->errorTemplateResolver->resolve($exception, $request);
+            return $this->renderStorefront($errorTemplate->getTemplateName(), $errorTemplate->getArguments());
+        } catch (\Exception $e) { //final Fallback
             return $this->renderStorefront(
                 '@Storefront/frontend/error/exception.html.twig',
                 ['exception' => $exception, 'followingException' => $e]
             );
         }
-    }
-
-    /**
-     * @param \Exception $exception
-     * @param Request $request
-     * @return string
-     */
-    private function resolveTemplate(\Exception $exception, Request $request): string
-    {
-        $template = '@Storefront/frontend/error/error';
-
-        if ($request->isXmlHttpRequest()) {
-            $template .= '-ajax';
-        }
-        $dedicatedTemplate = $template . '-' . $exception->getCode();
-        if ($this->container->get('twig')->getLoader()->exists($dedicatedTemplate . '.html.twig')) {
-            $template = $dedicatedTemplate;
-        } else {
-            $template .= '-std';
-        }
-        $template .= '.html.twig';
-
-        return $template;
     }
 }

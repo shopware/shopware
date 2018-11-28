@@ -2,9 +2,10 @@
 
 {% if exception %}
     <h3>{% trans %}frontend.error.exception.ExceptionText{% endtrans %}</h3>
-    <h3>{{ exception.getMessage() }}</h3>
 
-    {% if appEnv == 'dev' %}
+
+    {% if app.environment == 'dev' %}
+        <h3>{{ exception.getMessage() }}</h3>
         <h3>Stack trace:</h3>
         <div style="overflow:auto;">
             <pre>{{ exception.getTraceAsString() }}</pre>

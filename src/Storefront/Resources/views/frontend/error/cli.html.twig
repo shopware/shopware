@@ -1,9 +1,0 @@
-{% if exception %}
-ERROR:
-{{ exception.getMessage() }}
-
-TRACE:
-{{ exception.getTraceAsString|escape }}
-{% else %}
-    Error
-{% endif %}

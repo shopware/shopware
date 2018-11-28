@@ -28,7 +28,7 @@ class MediaFolderTest extends TestCase
                 'name' => 'default folder',
                 'configuration' => [
                     'id' => $configurationId,
-                    'autoCreateThumbnails' => true,
+                    'createThumbnails' => true,
                 ],
             ],
         ], $context);
@@ -44,7 +44,7 @@ class MediaFolderTest extends TestCase
         static::assertEquals('default folder', $mediaFolder->getName());
         static::assertNotNull($mediaFolder->getMediaFolderConfigurationId());
         static::assertNotNull($mediaFolder->getConfiguration());
-        static::assertTrue($mediaFolder->getConfiguration()->getAutoCreateThumbnails());
+        static::assertTrue($mediaFolder->getConfiguration()->getCreateThumbnails());
     }
 
     public function testCreateMediaFolderTakesParentConfiguration()
@@ -62,7 +62,7 @@ class MediaFolderTest extends TestCase
                 'name' => 'default folder',
                 'configuration' => [
                     'id' => $configurationId,
-                    'autoCreateThumbnails' => true,
+                    'createThumbnails' => true,
                 ],
             ],
         ], $context);
@@ -103,7 +103,7 @@ class MediaFolderTest extends TestCase
                 'id' => $parentId,
                 'configuration' => [
                     'id' => $parentConfigurationId,
-                    'autoCreateThumbnails' => true,
+                    'createThumbnails' => true,
                 ],
             ],
             [
@@ -112,7 +112,7 @@ class MediaFolderTest extends TestCase
                 'parentId' => $parentId,
                 'configuration' => [
                     'id' => $childConfigurationId,
-                    'autoCreateThumbnails' => false,
+                    'createThumbnails' => false,
                 ],
             ],
         ], $context);

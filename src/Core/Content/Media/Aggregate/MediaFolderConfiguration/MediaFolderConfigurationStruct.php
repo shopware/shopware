@@ -26,7 +26,7 @@ class MediaFolderConfigurationStruct extends Entity
     /**
      * @var bool
      */
-    protected $autoCreateThumbnails;
+    protected $createThumbnails;
 
     /**
      * @var ThumbnailSizeCollection
@@ -63,14 +63,14 @@ class MediaFolderConfigurationStruct extends Entity
         $this->mediaFolder = $mediaFolder;
     }
 
-    public function getAutoCreateThumbnails(): bool
+    public function getCreateThumbnails(): bool
     {
-        return $this->autoCreateThumbnails;
+        return $this->createThumbnails;
     }
 
-    public function setAutoCreateThumbnails(bool $createThumbnails): void
+    public function setCreateThumbnails(bool $createThumbnails): void
     {
-        $this->autoCreateThumbnails = $createThumbnails;
+        $this->createThumbnails = $createThumbnails;
     }
 
     public function getThumbnailSizes(): ThumbnailSizeCollection

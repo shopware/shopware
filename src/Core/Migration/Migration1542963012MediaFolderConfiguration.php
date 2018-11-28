@@ -18,7 +18,7 @@ class Migration1542963012MediaFolderConfiguration extends MigrationStep
             CREATE TABLE `media_folder_configuration` (
               `id` BINARY(16),
               `version_id` BINARY(16),
-              `auto_create_thumbnails` TINYINT(1),
+              `create_thumbnails` TINYINT(1),
               `created_at` DATETIME(3),
               `updated_at` DATETIME(3),
               PRIMARY KEY (`id`, `version_id`)

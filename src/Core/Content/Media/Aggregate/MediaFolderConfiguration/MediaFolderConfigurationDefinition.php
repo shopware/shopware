@@ -40,7 +40,7 @@ class MediaFolderConfigurationDefinition extends EntityDefinition
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
 
-            new BoolField('auto_create_thumbnails', 'autoCreateThumbnails'),
+            new BoolField('create_thumbnails', 'createThumbnails'),
 
             new OneToManyAssociationField(
                 'mediaFolder',

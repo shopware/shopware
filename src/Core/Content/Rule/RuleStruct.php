@@ -41,7 +41,7 @@ class RuleStruct extends Entity
     protected $createdAt;
 
     /**
-     * @var \DateTime
+     * @var \DateTime|null
      */
     protected $updatedAt;
 
@@ -85,7 +85,7 @@ class RuleStruct extends Entity
         return $this->type;
     }
 
-    public function setType(?string $type): void
+    public function setType(string $type): void
     {
         $this->type = $type;
     }
@@ -95,7 +95,7 @@ class RuleStruct extends Entity
         return $this->description;
     }
 
-    public function setDescription(?string $description): void
+    public function setDescription(string $description): void
     {
         $this->description = $description;
     }
@@ -120,7 +120,7 @@ class RuleStruct extends Entity
         $this->priority = $priority;
     }
 
-    public function getUpdatedAt(): \DateTime
+    public function getUpdatedAt(): ?\DateTime
     {
         return $this->updatedAt;
     }
@@ -155,7 +155,7 @@ class RuleStruct extends Entity
         return $this->conditions;
     }
 
-    public function setConditions(?RuleConditionCollection $conditions): void
+    public function setConditions(RuleConditionCollection $conditions): void
     {
         $this->conditions = $conditions;
     }

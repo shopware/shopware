@@ -5,7 +5,7 @@ namespace Shopware\Core\Migration;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-class Migration1542899580 extends MigrationStep
+class Migration1542899580AddRuleColumns extends MigrationStep
 {
     public function getCreationTimestamp(): int
     {

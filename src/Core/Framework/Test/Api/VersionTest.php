@@ -28,8 +28,8 @@ class VersionTest extends TestCase
     public function unprotectedRoutesDataProvider(): array
     {
         return [
-            ['GET', '/api/v1/info'],
-            ['GET', '/api/v1/entity-schema.json'],
+            ['GET', '/api/v1/_info/swagger.html'],
+            ['GET', '/api/v1/_info/entity-schema.json'],
         ];
     }
 
@@ -38,7 +38,7 @@ class VersionTest extends TestCase
         return [
             ['GET', '/api/v1/product'],
             ['GET', '/api/v1/tax'],
-            ['POST', '/api/sync'],
+            ['POST', '/api/v1/_action/sync'],
         ];
     }
 

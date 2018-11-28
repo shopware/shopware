@@ -11,7 +11,7 @@ class MediaApiService extends ApiService {
     }
 
     uploadMediaById(id, mimeType, data, fileExtension) {
-        const apiRoute = `${this.getApiBasePath(id)}/actions/upload?extension=${fileExtension}`;
+        const apiRoute = `/_action/media/${id}/upload?extension=${fileExtension}`;
         const headers = this.getBasicHeaders({ 'Content-Type': mimeType });
         const params = {};
 
@@ -25,7 +25,7 @@ class MediaApiService extends ApiService {
     }
 
     uploadMediaFromUrl(id, url, fileExtension) {
-        const apiRoute = `${this.getApiBasePath(id)}/actions/upload?extension=${fileExtension}`;
+        const apiRoute = `/_action/media/${id}/upload?extension=${fileExtension}`;
         const headers = this.getBasicHeaders({ 'Content-Type': 'application/json' });
         const params = {};
 

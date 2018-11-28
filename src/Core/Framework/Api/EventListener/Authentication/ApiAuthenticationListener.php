@@ -26,19 +26,14 @@ class ApiAuthenticationListener implements EventSubscriberInterface
      */
     private static $routePrefix = '/api/';
 
-    private static $protectedAdditions = [
-        '/admin/v1/search',
-    ];
-
     /**
      * @var string[]
      */
     private static $unprotectedRoutes = [
         '/api/oauth/',
-        '/api/v1/info',
-        '/api/v1/info.yaml',
-        '/api/v1/info.json',
-        '/api/v1/entity-schema.json',
+        '/api/v1/_info/swagger.html',
+        '/api/v1/_info/openapi3.json',
+        '/api/v1/_info/entity-schema.json',
     ];
 
     /**
@@ -108,9 +103,7 @@ class ApiAuthenticationListener implements EventSubscriberInterface
             }
         }
 
-        $whitelisted = $this->isWhitelistRoute($request->getPathInfo());
-
-        if (stripos($request->getPathInfo(), self::$routePrefix) !== 0 && !$whitelisted) {
+        if (stripos($request->getPathInfo(), self::$routePrefix) !== 0) {
             return;
         }
 
@@ -119,16 +112,5 @@ class ApiAuthenticationListener implements EventSubscriberInterface
         $psr7Request = $this->resourceServer->validateAuthenticatedRequest($psr7Request);
 
         $request->attributes->add($psr7Request->getAttributes());
-    }
-
-    private function isWhitelistRoute(string $pathInfo): bool
-    {
-        foreach (self::$protectedAdditions as $route) {
-            if (stripos($pathInfo, $route) === 0) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

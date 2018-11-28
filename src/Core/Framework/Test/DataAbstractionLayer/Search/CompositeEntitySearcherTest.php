@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Administration\Test\Search;
+namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Search\CompositeEntitySearcher;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
-class AuditLogSearchTest extends TestCase
+class CompositeEntitySearcherTest extends TestCase
 {
     use IntegrationTestBehaviour;
 

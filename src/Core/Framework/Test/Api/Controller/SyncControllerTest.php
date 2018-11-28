@@ -55,7 +55,7 @@ class SyncControllerTest extends TestCase
             ],
         ];
 
-        $this->getClient()->request('POST', '/api/v1/_action/sync', [], [], [], json_encode($data));
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync', [], [], [], json_encode($data));
         $response = $this->getClient()->getResponse();
 
         self::assertSame(200, $response->getStatusCode(), $response->getContent());

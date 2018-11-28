@@ -8,7 +8,7 @@ export default function initializeEntities(container) {
     const entityFactory = factoryContainer.entity;
     const stateFactory = factoryContainer.state;
 
-    return httpClient.get('entity-schema.json').then((response) => {
+    return httpClient.get('_info/entity-schema.json').then((response) => {
         Object.keys(response.data).forEach((entityName) => {
             entityFactory.addEntityDefinition(entityName, response.data[entityName]);
 

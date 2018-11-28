@@ -22,7 +22,7 @@ class UserApiService extends ApiService {
         const headers = this.getBasicHeaders(additionalHeaders);
 
         return this.httpClient
-            .get(`${this.getApiBasePath()}/me`, {
+            .get('/_info/me', {
                 params,
                 headers
             })

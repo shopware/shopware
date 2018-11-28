@@ -77,14 +77,14 @@
 
             {% block sw_search_bar_item_media_label %}
             <span class="sw-search-bar-item__label">
-                        {{ item | mediaName }}
-                    </span>
+                {{ item | mediaName }}
+            </span>
             {% endblock %}
 
             {% block sw_search_bar_item_media_type %}
             <span class="sw-search-bar-item__type">
-                        {{ $tc('global.sw-search-bar-item.typeLabelMedia') }}
-                    </span>
+                {{ $tc('global.sw-search-bar-item.typeLabelMedia') }}
+            </span>
             {% endblock %}
         </router-link>
         {% endblock %}

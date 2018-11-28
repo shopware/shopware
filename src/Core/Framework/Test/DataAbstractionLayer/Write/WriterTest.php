@@ -533,7 +533,13 @@ class WriterTest extends TestCase
         ], Context::createDefaultContext());
 
         $this->getContainer()->get('language.repository')->upsert([
-            ['id' => '2d905256-e751-4967-8dd5-a32a81b94f1f', 'name' => 'language 2', 'localeId' => $localeId, 'localeVersionId' => Defaults::LIVE_VERSION],
+            [
+                'id' => '2d905256-e751-4967-8dd5-a32a81b94f1f',
+                'name' => 'language 2',
+                'localeId' => $localeId,
+                'localeVersionId' => Defaults::LIVE_VERSION,
+                'translationCode' => ['code' => 'x-tst_' . Uuid::uuid4()->getHex()],
+            ],
         ], Context::createDefaultContext());
 
         $this->getWriter()->update(

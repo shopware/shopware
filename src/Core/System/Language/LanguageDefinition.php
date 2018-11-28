@@ -60,12 +60,18 @@ class LanguageDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new ParentField(self::class),
-            new FkField('locale_id', 'localeId', LocaleDefinition::class),
+            (new FkField('locale_id', 'localeId', LocaleDefinition::class))->setFlags(new Required()),
+            new FkField('translation_code_id', 'translationCodeId', LocaleDefinition::class),
+
             (new StringField('name', 'name'))->setFlags(new Required()),
+
             new CreatedAtField(),
             new UpdatedAtField(),
             new ParentAssociationField(self::class, false),
-            new ManyToOneAssociationField('locale', 'locale_id', LocaleDefinition::class, true),
+
+            (new ManyToOneAssociationField('locale', 'locale_id', LocaleDefinition::class, true)),
+            new ManyToOneAssociationField('translationCode', 'translation_code_id', LocaleDefinition::class, true),
+
             new ChildrenAssociationField(self::class),
             new OneToManyAssociationField('salesChannelDefaultAssignments', SalesChannelDefinition::class, 'language_id', false, 'id'),
             new OneToManyAssociationField('snippets', SnippetDefinition::class, 'language_id', false, 'id'),

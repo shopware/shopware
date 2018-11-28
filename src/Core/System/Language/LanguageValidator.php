@@ -121,8 +121,8 @@ class LanguageValidator implements WriteCommandValidatorInterface
         $statement = $this->connection->executeQuery('
             SELECT lang.id
             FROM language lang
-            LEFT JOIN locale l ON lang.locale_id = l.id
-            WHERE l.id IS NULL # no locale
+            LEFT JOIN locale l ON lang.translation_code_id = l.id
+            WHERE l.id IS NULL # no translation code
             AND lang.parent_id IS NULL # root
             AND lang.id IN (:ids)',
             ['ids' => $affectedIds],
@@ -135,10 +135,10 @@ class LanguageValidator implements WriteCommandValidatorInterface
             $id = Uuid::fromBytesToHex($binId);
             $violations->add(
                 $this->buildViolation(
-                    'Root language {{ id }} requires a language code',
+                    'Root language {{ id }} requires a translation code',
                     ['{{ id }}' => $id],
                     null,
-                    '/' . $id . '/localeId',
+                    '/' . $id . '/translationCodeId',
                     $id,
                     self::CODE_REQUIRED_FOR_ROOT_LANGUAGE
                 )

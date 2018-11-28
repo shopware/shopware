@@ -59,7 +59,7 @@ class LanguageResolver implements LanguageResolverInterface
         $data = $this->connection->createQueryBuilder()
             ->select(['LOWER(HEX(language.id)) AS id, locale.code, (language.parent_id IS NULL) isRoot'])
             ->from('language')
-            ->leftJoin('language', 'locale', 'locale', 'language.locale_id = locale.id')
+            ->leftJoin('language', 'locale', 'locale', 'language.translation_code_id = locale.id')
             ->execute()
             ->fetchAll();
 

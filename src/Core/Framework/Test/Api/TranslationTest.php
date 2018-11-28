@@ -409,6 +409,7 @@ class TranslationTest extends TestCase
                     'name' => 'Test locale ' . $fallbackLocaleId,
                     'territory' => 'Test territory ' . $fallbackLocaleId,
                 ],
+                'translationCodeId' => $fallbackLocaleId,
             ];
             $this->getClient()->request('POST', $baseUrl . '/language', $parentLanguageData);
             static::assertEquals(204, $this->getClient()->getResponse()->getStatusCode());
@@ -425,6 +426,7 @@ class TranslationTest extends TestCase
                 'name' => 'Test locale ' . $localeId,
                 'territory' => 'Test territory ' . $localeId,
             ],
+            'translationCodeId' => $localeId,
         ];
 
         $this->getClient()->request('POST', $baseUrl . '/language', $languageData);

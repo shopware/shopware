@@ -797,22 +797,22 @@ class LanguageValidatorTest extends TestCase
         );
     }
 
-    public function testRootWithoutLanguageCodeViolation(): void
+    public function testRootWithoutTranslationCodeViolation(): void
     {
         $root = ['id' => Uuid::uuid4()->getHex(), 'name' => 'root without language code'];
 
         $this->assertInsertViolations(
             [$root],
             [
-                [LanguageValidator::CODE_REQUIRED_FOR_ROOT_LANGUAGE, '/' . $root['id'] . '/localeId'],
+                [LanguageValidator::CODE_REQUIRED_FOR_ROOT_LANGUAGE, '/' . $root['id'] . '/translationCodeId'],
             ],
             false // no default locale !
         );
     }
 
-    public function testSubWithoutLanguageCode(): void
+    public function testSubWithoutTranslationCode(): void
     {
-        $root = $this->addDefaultLocale(['id' => Uuid::uuid4()->getHex(), 'name' => 'root with language code']);
+        $root = $this->addDefaultTranslationCode(['id' => Uuid::uuid4()->getHex(), 'name' => 'root with language code']);
         $sub = ['id' => Uuid::uuid4()->getHex(), 'name' => 'sub without language code', 'parentId' => $root['id']];
         $this->assertInsertViolations([$root, $sub], [], false /* no default locale ! */);
     }
@@ -847,21 +847,23 @@ class LanguageValidatorTest extends TestCase
         }, $expectedCodePathPairs);
     }
 
-    protected function assertInsertViolations(array $insertData, array $expectedCodePathPairs, $addDefaultLocales = true): void
+    protected function assertInsertViolations(array $insertData, array $expectedCodePathPairs, $addDefaultTranslationCode = true): void
     {
-        if ($addDefaultLocales) {
-            $insertData = $this->addDefaultLocales($insertData);
+        if ($addDefaultTranslationCode) {
+            $insertData = $this->addDefaultTranslationCodes($insertData);
         }
+        $insertData = $this->addDefaultLocales($insertData);
         $this->assertWriteStackViolations(function () use ($insertData) {
             $this->languageRepository->create($insertData, $this->defaultContext);
         }, $expectedCodePathPairs);
     }
 
-    protected function assertUpsertViolations(array $upsertData, array $expectedCodePathPairs, $addDefaultLocales = false): void
+    protected function assertUpsertViolations(array $upsertData, array $expectedCodePathPairs, $addDefaultTranslationCode = true): void
     {
-        if ($addDefaultLocales) {
-            $upsertData = $this->addDefaultLocales($upsertData);
+        if ($addDefaultTranslationCode) {
+            $upsertData = $this->addDefaultTranslationCodes($upsertData);
         }
+        $upsertData = $this->addDefaultLocales($upsertData);
         $this->assertWriteStackViolations(function () use ($upsertData) {
             $this->languageRepository->upsert($upsertData, $this->defaultContext);
         }, $expectedCodePathPairs);
@@ -876,29 +878,7 @@ class LanguageValidatorTest extends TestCase
 
     protected function addLanguagesWithDefaultLocales($languages): void
     {
-        $this->languageRepository->create($this->addDefaultLocales($languages), $this->defaultContext);
-    }
-
-    protected function addDefaultLocale(array $lang)
-    {
-        if (!isset($lang['locale']) && !isset($lang['localeId'])) {
-            $id = Uuid::uuid4()->getHex();
-            $lang['locale'] = [
-                'code' => 'x-tst_' . $id,
-                'name' => 'Test locale ' . $id,
-                'territory' => 'Test territory ' . $id,
-            ];
-        }
-        if (isset($lang['parent']) && !isset($lang['parent']['locale'], $lang['parent']['localeId'])) {
-            $id = Uuid::uuid4()->getHex();
-            $lang['parent']['locale'] = [
-                'code' => 'x-tst_' . $id,
-                'name' => 'Test locale ' . $id,
-                'territory' => 'Test territory ' . $id,
-            ];
-        }
-
-        return $lang;
+        $this->languageRepository->create($this->addDefaultTranslationCodes($this->addDefaultLocales($languages)), $this->defaultContext);
     }
 
     protected function addDefaultLocales(array $languages): array
@@ -906,5 +886,40 @@ class LanguageValidatorTest extends TestCase
         return array_map(function ($lang) {
             return $this->addDefaultLocale($lang);
         }, $languages);
+    }
+
+    protected function addDefaultLocale(array $lang): array
+    {
+        if (!isset($lang['locale']) && !isset($lang['localeId'])) {
+            $lang['localeId'] = Defaults::LOCALE_EN_GB;
+        }
+        if (isset($lang['parent']) && !isset($lang['parent']['locale'], $lang['parent']['localeId'])) {
+            $lang['parent']['localeId'] = Defaults::LOCALE_EN_GB;
+        }
+
+        return $lang;
+    }
+
+    protected function addDefaultTranslationCodes($languages)
+    {
+        return array_map(function ($lang) {
+            return $this->addDefaultTranslationCode($lang);
+        }, $languages);
+    }
+
+    protected function addDefaultTranslationCode($lang)
+    {
+        if (!isset($lang['translationCode']) && !isset($lang['translationCodeId'])) {
+            $lang['translationCode'] = [
+                'code' => 'x-tst_' . Uuid::uuid4()->getHex(),
+            ];
+        }
+        if (isset($lang['parent']) && !isset($lang['parent']['translationCode']) && !isset($lang['parent']['translationCodeId'])) {
+            $lang['parent']['translationCode'] = [
+                'code' => 'x-tst_' . Uuid::uuid4()->getHex(),
+            ];
+        }
+
+        return $lang;
     }
 }

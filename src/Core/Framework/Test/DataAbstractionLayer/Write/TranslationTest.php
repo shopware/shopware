@@ -212,6 +212,9 @@ class TranslationTest extends TestCase
                         'locale' => [
                             'code' => 'x-tst_DE',
                         ],
+                        'translationCode' => [
+                            'code' => 'x-tst_DE',
+                        ],
                     ],
                 ],
             ],
@@ -283,6 +286,9 @@ class TranslationTest extends TestCase
             'id' => $germanLanguageId,
             'name' => 'de_DE2',
             'locale' => [
+                'code' => 'x-de_DE2',
+            ],
+            'translationCode' => [
                 'code' => 'x-de_DE2',
             ],
         ];
@@ -427,6 +433,9 @@ class TranslationTest extends TestCase
                             'id' => $germanLanguageId,
                             'name' => 'de_DE',
                             'locale' => [
+                                'code' => 'x-de_DE',
+                            ],
+                            'translationCode' => [
                                 'code' => 'x-de_DE',
                             ],
                         ],

@@ -72,6 +72,7 @@ class CategoryDefinition extends EntityDefinition
             new ChildCountField(),
             new CreatedAtField(),
             new UpdatedAtField(),
+
             (new TranslatedField('name'))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
             new TranslatedField('pathNames'),
             (new TranslatedField('metaKeywords'))->setFlags(new SearchRanking(self::LOW_SEARCH_RAKING)),
@@ -79,6 +80,7 @@ class CategoryDefinition extends EntityDefinition
             new TranslatedField('metaDescription'),
             new TranslatedField('cmsHeadline'),
             new TranslatedField('cmsDescription'),
+
             new ParentAssociationField(self::class, false),
             new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, false),
             (new ChildrenAssociationField(self::class))->setFlags(new CascadeDelete()),

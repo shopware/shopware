@@ -58,6 +58,11 @@ class MediaFolderStruct extends Entity
      */
     protected $updatedAt;
 
+    /**
+     * @var bool
+     */
+    protected $useParentConfiguration;
+
     public function getName(): string
     {
         return $this->name;
@@ -156,5 +161,15 @@ class MediaFolderStruct extends Entity
     public function setUpdatedAt(?\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function isUseParentConfiguration(): bool
+    {
+        return $this->useParentConfiguration;
+    }
+
+    public function setUseParentConfiguration(bool $useParentConfiguration): void
+    {
+        $this->useParentConfiguration = $useParentConfiguration;
     }
 }

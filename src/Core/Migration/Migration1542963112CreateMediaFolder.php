@@ -24,6 +24,7 @@ class Migration1542963112CreateMediaFolder extends MigrationStep
               `media_folder_configuration_id` BINARY(16),
               `media_folder_configuration_version_id` BINARY(16),
               `configuration` BINARY(16),
+              `use_parent_configuration` TINYINT(1),
               `created_at` DATETIME(3),
               `updated_at` DATETIME(3),
               PRIMARY KEY (`id`, `version_id`),

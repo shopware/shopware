@@ -6,6 +6,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderCo
 use Shopware\Core\Content\Media\Aggregate\MediaFolderTranslation\MediaFolderTranslationDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildCountField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
@@ -55,6 +56,8 @@ class MediaFolderDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
+
+            new BoolField('use_parent_configuration', 'useParentConfiguration'),
 
             (new FkField('media_folder_configuration_id', 'mediaFolderConfigurationId', MediaFolderConfigurationDefinition::class))->setFlags(new Inherited()),
             new ReferenceVersionField(MediaFolderConfigurationDefinition::class, 'media_folder_configuration_version_id'),

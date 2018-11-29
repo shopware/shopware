@@ -19,7 +19,7 @@ class Migration1542030246 extends MigrationStep
 
         $tables = $connection->executeQuery('SHOW TABLES')->fetchAll(FetchMode::COLUMN);
 
-        $constraints = $this->removeContraints($connection, $tables);
+        $constraints = $this->removeForeignKeys($connection, $tables, $versionAwareTables);
         $this->removeUniqueConstraints($connection);
 
         foreach ($tables as $table) {
@@ -44,10 +44,8 @@ class Migration1542030246 extends MigrationStep
             $connection->executeUpdate($sql);
         }
 
-        $this->addIndexes($connection, $constraints);
-
-        $this->addConstraints($connection, $constraints);
         $this->addUniqueConstraints($connection);
+        $this->addForeignKeys($connection, $constraints);
     }
 
     public function updateDestructive(Connection $connection): void
@@ -261,22 +259,20 @@ class Migration1542030246 extends MigrationStep
     {
         $primaryKeys = $connection->executeQuery('SHOW KEYS FROM `' . $table . '` WHERE Key_name = "PRIMARY"')->fetchAll();
 
-        $primaryKey = [];
+        $newPrimaryKeys = [];
+
         foreach ($primaryKeys as $column) {
-            if (
-                $this->isVersionColumn($column['Column_name']) &&
-                in_array($column['Column_name'], $versionAwareTables[$table])
-            ) {
+            if ($this->isVersionColumn($column['Column_name']) && \in_array($column['Column_name'], $versionAwareTables[$table], true)) {
                 continue;
             }
 
-            $primaryKey[] = $column['Column_name'];
+            $newPrimaryKeys[] = $column['Column_name'];
         }
 
-        $connection->executeUpdate('ALTER TABLE `' . $table . '` DROP PRIMARY KEY, ADD PRIMARY KEY (`' . implode('`,`', $primaryKey) . '`)');
+        $connection->executeUpdate('ALTER TABLE `' . $table . '` DROP PRIMARY KEY, ADD PRIMARY KEY (`' . implode('`,`', $newPrimaryKeys) . '`)');
     }
 
-    private function removeContraints(Connection $connection, array $tables): array
+    private function removeForeignKeys(Connection $connection, array $tables, array $versionAwareTables): array
     {
         $sql = <<<SQL
 SELECT DISTINCT i.TABLE_SCHEMA, i.TABLE_NAME, 
@@ -302,15 +298,12 @@ SQL;
             }
 
             $tableConstraints = [];
-            $versionAwareTables = $this->getColumns();
 
             foreach ($data as $row) {
-                if (
-                    $this->isVersionColumn($row['COLUMN_NAME']) &&
+                if ($this->isVersionColumn($row['COLUMN_NAME']) &&
                     isset($versionAwareTables[$row['REFERENCED_TABLE_NAME']]) &&
                     is_array($versionAwareTables[$row['REFERENCED_TABLE_NAME']]) &&
-                    in_array('version_id', $versionAwareTables[$row['REFERENCED_TABLE_NAME']])
-                ) {
+                    in_array('version_id', $versionAwareTables[$row['REFERENCED_TABLE_NAME']])) {
                     continue;
                 }
 
@@ -321,44 +314,29 @@ SQL;
                 $tableConstraints[$row['CONSTRAINT_NAME']]['delete'] = $row['DELETE_RULE'];
             }
 
-            foreach ($tableConstraints as $fkName => $fk) {
-                $connection->executeQuery('ALTER TABLE `' . $table . '` DROP FOREIGN KEY `' . $fkName . '`');
+            $constraints[$table] = $tableConstraints;
+
+            $foreignKeys = array_keys($tableConstraints);
+
+            if (empty($foreignKeys)) {
+                continue;
             }
 
-            $constraints[$table] = $tableConstraints;
+            $fkInstructions = array_map(function (string $fkName) {
+                return 'DROP FOREIGN KEY `' . $fkName . '`';
+            }, $foreignKeys);
+
+            $connection->executeQuery('ALTER TABLE `' . $table . '` ' . implode(', ', $fkInstructions));
         }
 
         return $constraints;
     }
 
-    private function addIndexes(Connection $connection, array $constraints): void
+    private function addForeignKeys(Connection $connection, array $constraints): void
     {
         foreach ($constraints as $table => $tableConstraints) {
-            foreach ($tableConstraints as $fkName => $fk) {
-                $indexColumns = implode('`,`', $fk['columns']);
+            $tableInstructions = [];
 
-                $result = $connection->fetchAll("SHOW COLUMNS FROM `$table` LIKE 'id'");
-                if (!empty($result)) {
-                    $create = <<<SQL
-        ALTER TABLE `$table`
-        ADD INDEX (`$indexColumns`),
-        ADD INDEX (`id`, `tenant_id`)
-SQL;
-                    $connection->executeQuery($create);
-                } else {
-                    $create = <<<SQL
-        ALTER TABLE `$table`
-        ADD INDEX (`$indexColumns`)
-SQL;
-                    $connection->executeQuery($create);
-                }
-            }
-        }
-    }
-
-    private function addConstraints(Connection $connection, array $constraints): void
-    {
-        foreach ($constraints as $table => $tableConstraints) {
             foreach ($tableConstraints as $fkName => $fk) {
                 $indexColumns = implode('`,`', $fk['columns']);
                 $refColumns = implode('`,`', $fk['refColumns']);
@@ -366,15 +344,12 @@ SQL;
 
                 $deleteAction = $fk['delete'];
                 $updateAction = $fk['update'];
-                $result = $connection->fetchAll("SHOW COLUMNS FROM `$refTable` LIKE 'id'");
-                if (!empty($result) && !in_array($refTable, ['order_state', 'order_transaction', 'order_transaction_state'])) {
-                    $create = <<<SQL
-        ALTER TABLE `$table`
-        ADD FOREIGN KEY `$fkName` (`$indexColumns`) REFERENCES `$refTable` (`$refColumns`) ON DELETE $deleteAction ON UPDATE $updateAction
-SQL;
-                    $connection->executeQuery($create);
-                }
+
+                $tableInstructions[] = 'ADD CONSTRAINT `' . $fkName . '` FOREIGN KEY (`' . $indexColumns . '`) REFERENCES `' . $refTable . '` (`' . $refColumns . '`) ON DELETE ' . $deleteAction . ' ON UPDATE ' . $updateAction;
+                $tableInstructions[] = 'ADD INDEX (`' . $indexColumns . '`)';
             }
+
+            $connection->executeQuery('ALTER TABLE `' . $table . '` ' . implode(', ', $tableInstructions));
         }
     }
 

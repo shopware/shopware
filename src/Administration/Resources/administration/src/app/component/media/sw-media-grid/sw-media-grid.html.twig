@@ -1,5 +1,5 @@
 {% block sw_media_grid %}
-    <div class="sw-media-grid" @mousedown.left="onMouseDown" >
+    <div class="sw-media-grid">
         <slot name="content">
             {% block sw_media_grid_slot_content %}
                 <div class="sw-media-grid__content" :class="presentationClass">

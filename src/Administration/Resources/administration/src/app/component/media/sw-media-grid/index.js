@@ -1,4 +1,4 @@
-import { Component, Mixin } from 'src/core/shopware';
+import { Component } from 'src/core/shopware';
 import template from './sw-media-grid.html.twig';
 import './sw-media-grid.less';
 
@@ -7,10 +7,6 @@ import './sw-media-grid.less';
  */
 Component.register('sw-media-grid', {
     template,
-
-    mixins: [
-        Mixin.getByName('drag-selector')
-    ],
 
     props: {
         presentation: {
@@ -60,6 +56,10 @@ Component.register('sw-media-grid', {
             }
         },
 
+        isDragEvent(event) {
+            return this.$parent.$parent.isDragEvent(event);
+        },
+
         isEmittedFromSidebar(path) {
             return path.some((parent) => {
                 return parent.classList && parent.classList.contains('sw-media-sidebar');
@@ -82,14 +82,6 @@ Component.register('sw-media-grid', {
             this.$emit('sw-media-grid-selection-clear', {
                 originalDomEvent
             });
-        },
-
-        onDragSelection({ originalDomEvent, item }) {
-            item.selectItem(originalDomEvent);
-        },
-
-        onDragDeselection({ originalDomEvent, item }) {
-            item.removeFromSelection(originalDomEvent);
         }
     }
 });

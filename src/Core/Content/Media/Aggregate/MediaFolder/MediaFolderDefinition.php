@@ -16,11 +16,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
@@ -29,8 +27,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\SearchRanking;
 
 class MediaFolderDefinition extends EntityDefinition
 {
-    public const MEDIA_FOLDER_WRITE_PROTECTION = 'media_folder.write_protection';
-
     public static function getEntityName(): string
     {
         return 'media_folder';
@@ -55,15 +51,12 @@ class MediaFolderDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            new VersionField(),
 
             new BoolField('use_parent_configuration', 'useParentConfiguration'),
 
             (new FkField('media_folder_configuration_id', 'mediaFolderConfigurationId', MediaFolderConfigurationDefinition::class))->setFlags(new Inherited()),
-            new ReferenceVersionField(MediaFolderConfigurationDefinition::class, 'media_folder_configuration_version_id'),
 
             new ParentField(self::class),
-            new ReferenceVersionField(self::class, 'parent_version_id'),
             new ParentAssociationField(self::class, false),
 
             new ChildrenAssociationField(self::class),

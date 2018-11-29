@@ -5,13 +5,13 @@ namespace Shopware\Core\Migration\Test;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Migration\Migration1539609364AddFileNameToMediaEntity;
+use Shopware\Core\Migration\Migration1543492248AddFileNameToMediaEntity;
 
 class Migration1539609364AddFileNameToMediaEntityTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    const TRIGGER_NAME = Migration1539609364AddFileNameToMediaEntity::FORWARD_TRIGGER_NAME;
+    const TRIGGER_NAME = Migration1543492248AddFileNameToMediaEntity::FORWARD_TRIGGER_NAME;
 
     /** @var Connection */
     private $connection;
@@ -30,13 +30,13 @@ class Migration1539609364AddFileNameToMediaEntityTest extends TestCase
             DROP COLUMN `file_name`;
         ');
 
-        $migrationStep = new Migration1539609364AddFileNameToMediaEntity();
+        $migrationStep = new Migration1543492248AddFileNameToMediaEntity();
         $migrationStep->update($this->connection);
 
         try {
             $this->connection->executeUpdate('
-            INSERT INTO media (id, version_id, created_at)
-            VALUES (UNHEX(:mediaId), 1,\'2018-10-22 00:00:01.000000\')',
+            INSERT INTO media (id, created_at)
+            VALUES (UNHEX(:mediaId),\'2018-10-22 00:00:01.000000\')',
                 ['mediaId' => $mediaId]
             );
         } finally {

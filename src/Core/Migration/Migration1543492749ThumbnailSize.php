@@ -5,24 +5,23 @@ namespace Shopware\Core\Migration;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-class Migration1542963012MediaFolderConfiguration extends MigrationStep
+class Migration1543492749ThumbnailSize extends MigrationStep
 {
     public function getCreationTimestamp(): int
     {
-        return 1542963012;
+        return 1543492749;
     }
 
     public function update(Connection $connection): void
     {
         $connection->exec('
-            CREATE TABLE `media_folder_configuration` (
+            CREATE TABLE `media_thumbnail_size`(
               `id` BINARY(16),
-              `version_id` BINARY(16),
-              `create_thumbnails` TINYINT(1),
-              `created_at` DATETIME(3),
-              `updated_at` DATETIME(3),
-              PRIMARY KEY (`id`, `version_id`)
-            );
+              `width` int(11),
+              `height` int(11),
+              PRIMARY KEY (`id`),
+              CONSTRAINT `thumbnail_size_width_height_uk` UNIQUE (`width`, `height`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }
 

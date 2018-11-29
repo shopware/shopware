@@ -21,18 +21,13 @@ trait MediaFixtures
     public $mediaFixtures;
 
     /**
-     * @var string
-     */
-    private $catalogId;
-
-    /**
      * @before
      */
-    public static function initializeMediaFixtures(): void
+    public function initializeMediaFixtures(): void
     {
         $mediaId = Uuid::uuid4()->getHex();
 
-        MediaFixtures::$mediaFixtures = [
+        $this->mediaFixtures = [
             'NamedEmpty' => [
                 'id' => Uuid::uuid4()->getHex(),
             ],
@@ -127,8 +122,6 @@ trait MediaFixtures
                 ],
             ],
         ];
-
-        MediaFixtures::$mediaFixtureRepository = EntityFixturesBase::getFixtureRepository('media');
     }
 
     public function getContextWithWriteAccess(): Context

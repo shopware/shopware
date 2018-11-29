@@ -5,7 +5,7 @@ namespace Shopware\Core\Migration;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-class Migration1539609364AddFileNameToMediaEntity extends MigrationStep
+class Migration1543492248AddFileNameToMediaEntity extends MigrationStep
 {
     public const FORWARD_TRIGGER_NAME = 'trigger_1539609364_add_filename_to_media';
 

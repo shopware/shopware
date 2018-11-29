@@ -121,12 +121,13 @@
                                         {% endblock %}
                                     </div>
 
-                                    <div class="sw-media-catalog__scroll-container">
+                                    <div class="sw-media-catalog__scroll-container"
+                                         @mousedown.left="onMouseDown"
+                                         ref="scrollContainer">
                                         {% block sw_media_catalog_media_grid %}
                                         <sw-media-grid
                                                 ref="mediaGrid"
                                                 class="sw-media-catalog__media-grid"
-                                                dragSelectorClass="sw-media-grid-media-item"
                                                 :presentation="presentation"
                                                 @sw-media-grid-selection-clear="clearSelection">
 

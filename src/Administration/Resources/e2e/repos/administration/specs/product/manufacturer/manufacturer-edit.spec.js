@@ -15,6 +15,28 @@ module.exports = {
         page.createBasicManufacturer('MAN-U-FACTURE');
         page.addManufacturerLogo(`${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`);
     },
+    'enter manufacturer information': (browser) => {
+        browser
+            .assert.containsText('.smart-bar__header', 'New manufacturer')
+            .fillField('input[name=name]', 'MAN-U-FACTURE')
+            .fillField('input[name=link]', 'https://www.google.com/doodles')
+            .setValue('.ql-editor', 'De-scribe THIS! \n \n Yours sincerely, \n \n The Manufacturer')
+            .click('.sw-button--primary')
+            .waitForElementVisible('.sw-notifications .sw-alert')
+            .click('.sw-alert button.sw-alert__close')
+            .assert.containsText('.smart-bar__header', 'MAN-U-FACTURE')
+            .click('.sw-media-upload-button__switch-mode')
+            .waitForElementVisible('.sw-media-url-form__url-input')
+            .fillField('input[name=sw-field--url]', `${process.env.APP_URL}/bundles/administration/static/img/sw-login-background.png`)
+            .click('.sw-media-url-form__submit-button')
+            .waitForElementVisible('.sw-alert--success')
+            .click('.sw-alert .sw-alert__close')
+            .waitForElementNotPresent('.sw-alert--success')
+            .click('.sw-button--primary')
+            .waitForElementVisible('.sw-alert')
+            .waitForElementPresent('.sw-button__content')
+            .click('.sw-alert .sw-alert__close');
+    },
     'check if new manufacturer exists in overview': (browser) => {
         browser
             .openMainMenuEntry('#/sw/product/index', 'Product', '#/sw/manufacturer/index', 'Manufacturer')

@@ -5,14 +5,14 @@ namespace Shopware\Core\Migration;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-class Migration1542367164RemoveCatalogFromMedia extends MigrationStep
+class Migration1543492448RemoveCatalogFromMedia extends MigrationStep
 {
     public const BACKWARD_TRIGGER_PATCH_MEDIA_CATALOG = 'trigger_1541578215_patch_media_catalog';
     public const BACKWARD_TRIGGER_PATCH_MEDIA_TRANSLATION_CATALOG = 'trigger_1541578215_patch_media_translation_catalog';
 
     public function getCreationTimestamp(): int
     {
-        return 1542367164;
+        return 1543492448;
     }
 
     /**

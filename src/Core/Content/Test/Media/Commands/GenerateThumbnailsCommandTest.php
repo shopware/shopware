@@ -9,6 +9,7 @@ use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailConfiguration;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\CommandTestBehaviour;
@@ -75,7 +76,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         }
 
         $searchCriteria = new Criteria();
-        $mediaResult = $this->mediaRepository->search($searchCriteria, $this->getContextWithCatalogAndWriteAccess());
+        $mediaResult = $this->mediaRepository->search($searchCriteria, $this->context);
         /** @var MediaStruct $updatedMedia */
         foreach ($mediaResult->getEntities() as $updatedMedia) {
             $thumbnails = $updatedMedia->getThumbnails();
@@ -109,7 +110,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         }
 
         $searchCriteria = new Criteria();
-        $mediaResult = $this->mediaRepository->search($searchCriteria, $this->getContextWithCatalogAndWriteAccess());
+        $mediaResult = $this->mediaRepository->search($searchCriteria, $this->context);
         /** @var MediaStruct $updatedMedia */
         foreach ($mediaResult->getEntities() as $updatedMedia) {
             if (strpos($updatedMedia->getMimeType(), 'image') === 0) {

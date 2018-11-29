@@ -7,7 +7,6 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeD
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
@@ -24,8 +23,6 @@ class MediaFolderConfigurationThumbnailSizeDefinition extends MappingEntityDefin
     {
         return new FieldCollection([
             (new FkField('media_folder_configuration_id', 'mediaFolderConfigurationId', MediaFolderConfigurationDefinition::class))
-                ->setFlags(new PrimaryKey(), new Required()),
-            (new ReferenceVersionField(MediaFolderConfigurationDefinition::class, 'media_folder_configuration_version_id'))
                 ->setFlags(new PrimaryKey(), new Required()),
             (new FkField('media_thumbnail_size_id', 'mediaThumbnailSizeId', MediaThumbnailSizeDefinition::class))
                 ->setFlags(new PrimaryKey(), new Required()),

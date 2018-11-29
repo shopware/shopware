@@ -8,7 +8,8 @@ Component.register('sw-media-catalog', {
     template,
 
     mixins: [
-        Mixin.getByName('mediagrid-listener')
+        Mixin.getByName('mediagrid-listener'),
+        Mixin.getByName('drag-selector')
     ],
 
     data() {
@@ -161,6 +162,26 @@ Component.register('sw-media-catalog', {
 
         handleMediaGridItemDelete() {
             this.getList();
+        },
+
+        onDragSelection({ originalDomEvent, item }) {
+            item.selectItem(originalDomEvent);
+        },
+
+        onDragDeselection({ originalDomEvent, item }) {
+            item.removeFromSelection(originalDomEvent);
+        },
+
+        dragSelectorClass() {
+            return 'sw-media-grid-media-item';
+        },
+
+        scrollContainer() {
+            return this.$refs.scrollContainer;
+        },
+
+        itemContainer() {
+            return this.$refs.mediaGrid;
         }
     }
 });

@@ -136,7 +136,8 @@ function getPropertyBlacklist() {
         'metaData',
         'fileSize',
         'fileName',
-        'mediaType'
+        'mediaType',
+        'mediaFolder'
     ];
 }
 

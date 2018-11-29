@@ -193,12 +193,11 @@ describe('core/data/EntityStore.js', () => {
         // Create a new entry
         const entity = store.create();
         entity.name = 'Media Name';
-        entity.catalogId = '20080911ffff4fffafffffff19830531';
 
         entity.save().then(() => {
             const mediaService = Application.getContainer('service').mediaService;
 
-            const testUrl = `${process.env.BASE_PATH}/api/v1/entity-schema.json`;
+            const testUrl = `${process.env.BASE_PATH}/api/v1/_info/entity-schema.json`;
 
             mediaService.uploadMediaFromUrl(entity.id, testUrl, 'json').then(() => {
                 store.getList({
@@ -228,12 +227,11 @@ describe('core/data/EntityStore.js', () => {
         // Create a new entry
         const entity = store.create();
         entity.name = 'Media Name';
-        entity.catalogId = '20080911ffff4fffafffffff19830531';
 
         entity.save().then(() => {
             const mediaService = Application.getContainer('service').mediaService;
-            // use shopware website because the administration is not build on bamboo and therefore no local files work
-            const testUrl = 'https://de.shopware.com/press/company/Shopware_Jamaica.jpg';
+
+            const testUrl = `${process.env.BASE_PATH}/api/v1/_info/entity-schema.json`;
 
             mediaService.uploadMediaFromUrl(entity.id, testUrl, '.png').then(() => {
                 store.getList({

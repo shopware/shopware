@@ -22,5 +22,9 @@
         </service>
 
         <service id="Shopware\Core\Content\Rule\Util\EventIdExtractor"/>
+
+        <service class="Shopware\Core\Content\Rule\RuleValidator" id="Shopware\Core\Content\Rule\RuleValidator">
+            <tag name="shopware.validator"/>
+        </service>
     </services>
 </container>

@@ -17,12 +17,12 @@ class MediaFolderTest extends TestCase
     public function testCreateMediaFolderWithConfiguration()
     {
         $context = Context::createDefaultContext();
-        $repository = $this->getContainer()->get('media_folder.repository');
+        $mediaFolderRepository = $this->getContainer()->get('media_folder.repository');
 
         $folderId = Uuid::uuid4()->getHex();
         $configurationId = Uuid::uuid4()->getHex();
 
-        $repository->upsert([
+        $mediaFolderRepository->upsert([
             [
                 'id' => $folderId,
                 'name' => 'default folder',
@@ -36,7 +36,7 @@ class MediaFolderTest extends TestCase
         $criteria = new Criteria();
         $criteria->addAssociation('mediaFolderConfiguration');
 
-        $collection = $repository->search($criteria, $context)->getEntities();
+        $collection = $mediaFolderRepository->search($criteria, $context)->getEntities();
 
         /** @var MediaFolderStruct $mediaFolder */
         $mediaFolder = $collection->get($folderId);
@@ -47,16 +47,45 @@ class MediaFolderTest extends TestCase
         static::assertTrue($mediaFolder->getConfiguration()->getCreateThumbnails());
     }
 
+    public function testCreatedMediaFolderIsSetInConfiguration()
+    {
+        $context = Context::createDefaultContext();
+        $mediaFolderRepository = $this->getContainer()->get('media_folder.repository');
+
+        $folderId = Uuid::uuid4()->getHex();
+        $configurationId = Uuid::uuid4()->getHex();
+
+        $mediaFolderRepository->upsert([
+            [
+                'id' => $folderId,
+                'name' => 'default folder',
+                'configuration' => [
+                    'id' => $configurationId,
+                    'createThumbnails' => true,
+                ],
+            ],
+        ], $context);
+
+        $criteria = new Criteria();
+        $criteria->addAssociation('mediaFolders');
+
+        $mediaFolderConfigurationRepository = $this->getContainer()->get('media_folder_configuration.repository');
+        $collection = $mediaFolderConfigurationRepository->search($criteria, $context)->getEntities();
+
+        $configuration = $collection->get($configurationId);
+        static::assertNotNull($configuration->getMediaFolders()->get($folderId));
+    }
+
     public function testCreateMediaFolderTakesParentConfiguration()
     {
         $context = Context::createDefaultContext();
-        $repository = $this->getContainer()->get('media_folder.repository');
+        $mediaFolderRepository = $this->getContainer()->get('media_folder.repository');
 
         $parentId = Uuid::uuid4()->getHex();
         $childId = Uuid::uuid4()->getHex();
         $configurationId = Uuid::uuid4()->getHex();
 
-        $repository->upsert([
+        $mediaFolderRepository->upsert([
             [
                 'id' => $parentId,
                 'name' => 'default folder',
@@ -67,7 +96,7 @@ class MediaFolderTest extends TestCase
             ],
         ], $context);
 
-        $repository->upsert([
+        $mediaFolderRepository->upsert([
             [
                 'id' => $childId,
                 'name' => 'child folder',
@@ -77,7 +106,7 @@ class MediaFolderTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addAssociation('mediaFolderConfiguration');
-        $collection = $repository->search($criteria, $context)->getEntities();
+        $collection = $mediaFolderRepository->search($criteria, $context)->getEntities();
 
         /** @var MediaFolderStruct $mediaFolder */
         $mediaFolder = $collection->get($childId);
@@ -90,14 +119,14 @@ class MediaFolderTest extends TestCase
     public function testFolderDeletesOverriddenConfiguration()
     {
         $context = Context::createDefaultContext();
-        $repository = $this->getContainer()->get('media_folder.repository');
+        $mediaFolderRepository = $this->getContainer()->get('media_folder.repository');
 
         $parentId = Uuid::uuid4()->getHex();
         $childId = Uuid::uuid4()->getHex();
         $parentConfigurationId = Uuid::uuid4()->getHex();
         $childConfigurationId = Uuid::uuid4()->getHex();
 
-        $repository->upsert([
+        $mediaFolderRepository->upsert([
             [
                 'name' => 'parent',
                 'id' => $parentId,
@@ -117,7 +146,7 @@ class MediaFolderTest extends TestCase
             ],
         ], $context);
 
-        $entities = $repository->read(new ReadCriteria([$parentId, $childId]), $context);
+        $entities = $mediaFolderRepository->read(new ReadCriteria([$parentId, $childId]), $context);
 
         /** @var MediaFolderStruct $parent */
         $parent = $entities->get($parentId);
@@ -127,14 +156,14 @@ class MediaFolderTest extends TestCase
 
         static::assertNotEquals($parent->getConfiguration()->getId(), $child->getConfiguration()->getId());
 
-        $repository->upsert([
+        $mediaFolderRepository->upsert([
             [
                 'id' => $childId,
                 'mediaFolderConfigurationId' => null,
             ],
         ], $context);
 
-        $child = $repository->read(new ReadCriteria([$childId]), $context)->get($childId);
+        $child = $mediaFolderRepository->read(new ReadCriteria([$childId]), $context)->get($childId);
 
         static::assertEquals($parent->getConfiguration()->getId(), $child->getConfiguration()->getId());
     }

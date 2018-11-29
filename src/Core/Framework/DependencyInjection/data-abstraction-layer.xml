@@ -639,8 +639,8 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="thumbnail_size.repository" public="true">
-            <argument>Shopware\Core\Content\Media\Aggregate\ThumbnailSize\ThumbnailSizeDefinition</argument>
+        <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="media_thumbnail_size.repository" public="true">
+            <argument>Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeDefinition</argument>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>

@@ -61,9 +61,9 @@ class MediaFolderDefinition extends EntityDefinition
 
             new ParentField(self::class),
             new ReferenceVersionField(self::class, 'parent_version_id'),
+            new ParentAssociationField(self::class, false),
 
             new ChildrenAssociationField(self::class),
-            new ParentAssociationField(self::class, false),
             new ChildCountField(),
 
             new OneToManyAssociationField('media', MediaDefinition::class, 'media_folder_id', false),

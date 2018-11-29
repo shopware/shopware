@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Media\Aggregate\ThumbnailSize;
+namespace Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize;
 
 use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 
-class ThumbnailSizeStruct extends Entity
+class MediaThumbnailSizeStruct extends Entity
 {
     /**
      * @var int

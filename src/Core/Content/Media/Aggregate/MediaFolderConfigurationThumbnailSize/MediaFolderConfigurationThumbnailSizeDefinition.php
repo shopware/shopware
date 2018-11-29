@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Media\Aggregate\MediaFolderConfigurationThumbnailSize;
 
 use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationDefinition;
-use Shopware\Core\Content\Media\Aggregate\ThumbnailSize\ThumbnailSizeDefinition;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -27,12 +27,12 @@ class MediaFolderConfigurationThumbnailSizeDefinition extends MappingEntityDefin
                 ->setFlags(new PrimaryKey(), new Required()),
             (new ReferenceVersionField(MediaFolderConfigurationDefinition::class, 'media_folder_configuration_version_id'))
                 ->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('thumbnail_size_id', 'thumbnailSizeId', ThumbnailSizeDefinition::class))
+            (new FkField('media_thumbnail_size_id', 'mediaThumbnailSizeId', MediaThumbnailSizeDefinition::class))
                 ->setFlags(new PrimaryKey(), new Required()),
 
             new CreatedAtField(),
             new ManyToOneAssociationField('mediaFolderConfiguration', 'media_folder_configuration_id', MediaFolderConfigurationDefinition::class, false),
-            new ManyToOneAssociationField('thumbnailSize', 'thumbnail_size_id', ThumbnailSizeDefinition::class, false),
+            new ManyToOneAssociationField('mediaThumbnailSize', 'media_thumbnail_size_id', MediaThumbnailSizeDefinition::class, false),
         ]);
     }
 }

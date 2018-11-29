@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration;
 
-use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderStruct;
-use Shopware\Core\Content\Media\Aggregate\ThumbnailSize\ThumbnailSizeCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 
 class MediaFolderConfigurationStruct extends Entity
@@ -14,14 +14,9 @@ class MediaFolderConfigurationStruct extends Entity
     protected $id;
 
     /**
-     * @var string
+     * @var MediaFolderCollection
      */
-    protected $mediaFolderId;
-
-    /**
-     * @var MediaFolderStruct
-     */
-    protected $mediaFolder;
+    protected $mediaFolders;
 
     /**
      * @var bool
@@ -29,9 +24,9 @@ class MediaFolderConfigurationStruct extends Entity
     protected $createThumbnails;
 
     /**
-     * @var ThumbnailSizeCollection
+     * @var MediaThumbnailSizeCollection
      */
-    protected $thumbnailSizes;
+    protected $mediaThumbnailSizes;
 
     public function getId(): string
     {
@@ -43,24 +38,14 @@ class MediaFolderConfigurationStruct extends Entity
         $this->id = $id;
     }
 
-    public function getMediaFolderId(): string
+    public function getMediaFolders(): ?MediaFolderCollection
     {
-        return $this->mediaFolderId;
+        return $this->mediaFolders;
     }
 
-    public function setMediaFolderId(string $mediaFolderId): void
+    public function setMediaFolders(?MediaFolderCollection $mediaFolders): void
     {
-        $this->mediaFolderId = $mediaFolderId;
-    }
-
-    public function getMediaFolder(): MediaFolderStruct
-    {
-        return $this->mediaFolder;
-    }
-
-    public function setMediaFolder(MediaFolderStruct $mediaFolder): void
-    {
-        $this->mediaFolder = $mediaFolder;
+        $this->mediaFolders = $mediaFolders;
     }
 
     public function getCreateThumbnails(): bool
@@ -73,13 +58,13 @@ class MediaFolderConfigurationStruct extends Entity
         $this->createThumbnails = $createThumbnails;
     }
 
-    public function getThumbnailSizes(): ThumbnailSizeCollection
+    public function getMediaThumbnailSizes(): MediaThumbnailSizeCollection
     {
-        return $this->thumbnailSizes;
+        return $this->mediaThumbnailSizes;
     }
 
-    public function setThumbnailSizes(ThumbnailSizeCollection $thumbnailSizes): void
+    public function setMediaThumbnailSizes(MediaThumbnailSizeCollection $mediaThumbnailSizes): void
     {
-        $this->thumbnailSizes = $thumbnailSizes;
+        $this->mediaThumbnailSizes = $mediaThumbnailSizes;
     }
 }

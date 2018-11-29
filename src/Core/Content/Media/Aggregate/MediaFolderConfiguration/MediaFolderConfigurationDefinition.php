@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration;
 
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaFolderConfigurationThumbnailSize\MediaFolderConfigurationThumbnailSizeDefinition;
-use Shopware\Core\Content\Media\Aggregate\ThumbnailSize\ThumbnailSizeDefinition;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
@@ -43,18 +43,18 @@ class MediaFolderConfigurationDefinition extends EntityDefinition
             new BoolField('create_thumbnails', 'createThumbnails'),
 
             new OneToManyAssociationField(
-                'mediaFolder',
+                'mediaFolders',
                 MediaFolderDefinition::class,
-                'media_configuration_id',
+                'media_folder_configuration_id',
                 false),
 
             new ManyToManyAssociationField(
-                'thumbnailSizes',
-                ThumbnailSizeDefinition::class,
+                'mediaThumbnailSizes',
+                MediaThumbnailSizeDefinition::class,
                 MediaFolderConfigurationThumbnailSizeDefinition::class,
                 true,
                 'media_folder_configuration_id',
-                'thumbnail_size_id'
+                'media_thumbnail_size_id'
             ),
 
             new CreatedAtField(),

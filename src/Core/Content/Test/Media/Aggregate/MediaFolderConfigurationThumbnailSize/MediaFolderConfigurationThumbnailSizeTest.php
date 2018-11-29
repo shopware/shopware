@@ -25,7 +25,7 @@ class MediaFolderConfigurationThumbnailSizeTest extends TestCase
             [
                 'id' => $configurationId,
                 'createThumbnails' => true,
-                'thumbnailSizes' => [
+                'mediaThumbnailSizes' => [
                     [
                         'id' => $sizeId,
                         'width' => 100,
@@ -39,14 +39,14 @@ class MediaFolderConfigurationThumbnailSizeTest extends TestCase
         $configuration = $read->get($configurationId);
 
         static::assertNotNull($configuration);
-        static::assertEquals(1, $configuration->getThumbnailSizes()->count());
-        static::assertNotNull($configuration->getThumbnailSizes()->get($sizeId));
+        static::assertEquals(1, $configuration->getMediaThumbnailSizes()->count());
+        static::assertNotNull($configuration->getMediaThumbnailSizes()->get($sizeId));
     }
 
     public function testCreateThumbnailSize()
     {
         $context = Context::createDefaultContext();
-        $repository = $this->getContainer()->get('thumbnail_size.repository');
+        $repository = $this->getContainer()->get('media_thumbnail_size.repository');
 
         $sizeId = Uuid::uuid4()->getHex();
         $confId = Uuid::uuid4()->getHex();

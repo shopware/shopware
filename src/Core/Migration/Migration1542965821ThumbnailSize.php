@@ -15,7 +15,7 @@ class Migration1542965821ThumbnailSize extends MigrationStep
     public function update(Connection $connection): void
     {
         $connection->exec('
-            CREATE TABLE `thumbnail_size`(
+            CREATE TABLE `media_thumbnail_size`(
               `id` BINARY(16),
               `width` int(11),
               `height` int(11),

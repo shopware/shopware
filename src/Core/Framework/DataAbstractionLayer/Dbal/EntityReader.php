@@ -689,6 +689,7 @@ class EntityReader implements EntityReaderInterface
             if (!$field instanceof ManyToManyAssociationField) {
                 continue;
             }
+
             if ($field->getReferenceClass() !== $association->getReferenceClass()) {
                 continue;
             }
@@ -788,6 +789,11 @@ class EntityReader implements EntityReaderInterface
                 $entities->sortByIdArray($x);
             }
 
+            if ($association->is(Extension::class)) {
+                $entity->addExtension($association->getPropertyName(), $entities);
+                continue;
+            }
+
             $entity->assign([
                 $association->getPropertyName() => $entities,
             ]);
@@ -865,11 +871,6 @@ class EntityReader implements EntityReaderInterface
         $rows = $wrapper->execute()->fetchAll();
 
         return FetchModeHelper::keyPair($rows);
-    }
-
-    private function getDomainName(string $name)
-    {
-        return lcfirst(str_replace('_', '', ucwords($name, '_')));
     }
 
     private function hasCriteriaElements(Criteria $criteria): bool

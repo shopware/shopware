@@ -42,6 +42,12 @@ If you need port `8080` for something else like e.g. elastic search, you can als
 
 The `./psh.phar administration:watch` command opens a new window of your default browser with the URL of the development server.
 
+The shopware administration can be reached at `/admin`. If you have followed the rest of the guide, an administator-account will have automatically been created: 
+
+Username | Password
+-------- | --------
+admin    | shopware
+
 ## Using the Vue.js developer tools
 
 The [Vue.js](https://vuejs.org/) framework offers an extension for the developer console of your browser. With this extension you have a reference to the original component structure and can inspect each component to get live information about it's state, events and several other information. This can be a really helpful tool during development.

@@ -4,25 +4,15 @@
             <sw-media-base-item
                 :isList="isList"
                 :isLoading="item.isLoading"
+                :selected="selected"
                 :showContextMenuButton="showContextMenuButton"
-                @sw-media-base-item-clicked="handleGridItemClick">
+                :showSelectionIndicator="showSelectionIndicator"
+                @sw-media-item-selection-add="selectItem"
+                @sw-media-item-selection-remove="removeFromSelection"
+                @sw-media-item-clicked="handleGridItemClick">
 
                 {% block sw_media_media_item_slot_media_preview %}
                     <template slot="media-item-preview">
-                        {% block sw_media_item_selected_indicator %}
-                            <div v-if="!isList"
-                                 class="sw-media-media-item__selected-indicator"
-                                 :class="selectionIndicatorClasses"
-                                 @click="doSelectItem">
-
-                                <sw-icon
-                                    v-if="listSelected"
-                                    size="16px"
-                                    name="small-default-checkmark-line-small">
-                                </sw-icon>
-                            </div>
-                        {% endblock %}
-
                         {% block sw_media_media_item_preview %}
                             <sw-media-preview :item="item" :class="mediaPreviewClasses" @sw-media-preview-play="emitPlayEvent">
                             </sw-media-preview>
@@ -39,7 +29,7 @@
                                   :value="item.fileName"
                                   v-autofocus
                                   @click.stop
-                                  @blur="endInlineEdit"
+                                  @blur="updateName"
                                   @keyup.enter="updateName"
                                   @keyup.esc="endInlineEdit">
                         </sw-field>

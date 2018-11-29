@@ -172,7 +172,7 @@ Component.register('sw-media-index', {
         },
 
         dragSelectorClass() {
-            return 'sw-media-grid-media-item';
+            return 'sw-media-media-item';
         },
 
         scrollContainer() {

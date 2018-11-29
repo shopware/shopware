@@ -20,9 +20,9 @@ Mixin.register('media-grid-listener', {
     computed: {
         mediaItemSelectionHandler() {
             return {
-                'sw-media-media-item-clicked': this.handleMediaItemClicked,
-                'sw-media-media-item-selection-add': this.handleMediaGridItemSelected,
-                'sw-media-media-item-selection-remove': this.handleMediaGridItemUnselected,
+                'sw-media-item-clicked': this.handleMediaItemClicked,
+                'sw-media-item-selection-add': this.handleMediaGridItemSelected,
+                'sw-media-item-selection-remove': this.handleMediaGridItemUnselected,
                 'sw-media-media-item-play': this.handleMediaGridItemPlay
             };
         },

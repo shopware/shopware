@@ -15,13 +15,22 @@ Component.register('sw-media-base-item', {
             default: false
         },
 
+        showSelectionIndicator: {
+            required: true,
+            type: Boolean
+        },
+
         showContextMenuButton: {
             type: Boolean,
-            required: false,
-            default: true
+            required: true
         },
 
         isLoading: {
+            type: Boolean,
+            required: true
+        },
+
+        selected: {
             type: Boolean,
             required: true
         }
@@ -32,22 +41,50 @@ Component.register('sw-media-base-item', {
             return {
                 'is--list': this.isList
             };
+        },
+
+        listSelected() {
+            return this.selected && this.showSelectionIndicator;
+        },
+
+        selectionIndicatorClasses() {
+            return {
+                'selected-indicator--visible': this.showSelectionIndicator,
+                'selected-indicator--checked': this.listSelected
+            };
         }
     },
 
     methods: {
-        emitClickedEvent(originalDomEvent) {
-            const target = originalDomEvent.target;
-            if (this.showContextMenuButton && !this.isLoading) {
-                const el = this.$refs.swContextButton.$el;
-                if ((el === target) || el.contains(target)) {
-                    return;
-                }
+        handleItemClick(originalDomEvent) {
+            if (this.isSelectionIndicatorClicked(originalDomEvent.composedPath())) {
+                return;
             }
 
-            this.$emit('sw-media-base-item-clicked', {
-                originalDomEvent
+            this.$emit('sw-media-item-clicked', originalDomEvent);
+        },
+
+        isSelectionIndicatorClicked(path) {
+            return path.some((parent) => {
+                return parent.classList && parent.classList.contains('sw-media-item__selected-indicator');
             });
+        },
+
+        doSelectItem(originalDomEvent) {
+            if (!this.listSelected) {
+                this.selectItem(originalDomEvent);
+                return;
+            }
+
+            this.removeFromSelection(originalDomEvent);
+        },
+
+        selectItem(originalDomEvent) {
+            this.$emit('sw-media-item-selection-add', originalDomEvent);
+        },
+
+        removeFromSelection(originalDomEvent) {
+            this.$emit('sw-media-item-selection-remove', originalDomEvent);
         }
     }
 });

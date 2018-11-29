@@ -17,16 +17,19 @@ Component.register('sw-media-media-item', {
 
     props: {
         item: {
-            required: true,
             type: Object,
+            required: true,
             validator(value) {
                 return value.type === 'media';
             }
         },
 
+        /*
+         * propagated props
+         */
         showSelectionIndicator: {
-            required: true,
-            type: Boolean
+            type: Boolean,
+            required: true
         },
 
         selected: {
@@ -67,13 +70,6 @@ Component.register('sw-media-media-item', {
             };
         },
 
-        selectionIndicatorClasses() {
-            return {
-                'selected-indicator--visible': this.showSelectionIndicator,
-                'selected-indicator--checked': this.listSelected
-            };
-        },
-
         defaultContextMenuClass() {
             return {
                 'sw-context-menu__group': this.$slots['additional-context-menu-items']
@@ -82,10 +78,6 @@ Component.register('sw-media-media-item', {
 
         mediaStore() {
             return State.getStore('media');
-        },
-
-        listSelected() {
-            return this.selected && this.showSelectionIndicator;
         },
 
         fallbackName() {
@@ -123,41 +115,22 @@ Component.register('sw-media-media-item', {
             this.lastContent = '';
         },
 
-        handleGridItemClick({ originalDomEvent }) {
-            if (this.isSelectionIndicatorClicked(originalDomEvent.composedPath())) {
-                return;
-            }
-
-            this.$emit('sw-media-media-item-clicked', {
+        handleGridItemClick(originalDomEvent) {
+            this.$emit('sw-media-item-clicked', {
                 originalDomEvent,
                 item: this.item
             });
         },
 
-        isSelectionIndicatorClicked(path) {
-            return path.some((parent) => {
-                return parent.classList && parent.classList.contains('sw-media-media-item__selected-indicator');
-            });
-        },
-
-        doSelectItem(originalDomEvent) {
-            if (!this.listSelected) {
-                this.selectItem(originalDomEvent);
-                return;
-            }
-
-            this.removeFromSelection(originalDomEvent);
-        },
-
         selectItem(originalDomEvent) {
-            this.$emit('sw-media-media-item-selection-add', {
+            this.$emit('sw-media-item-selection-add', {
                 originalDomEvent,
                 item: this.item
             });
         },
 
         removeFromSelection(originalDomEvent) {
-            this.$emit('sw-media-media-item-selection-remove', {
+            this.$emit('sw-media-item-selection-remove', {
                 originalDomEvent,
                 item: this.item
             });

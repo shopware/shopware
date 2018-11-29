@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\ParameterType;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\LastIdQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
@@ -133,7 +132,6 @@ class InheritanceIndexer implements IndexerInterface
         Context $context
     ): void {
         /* @var string|EntityDefinition $definition */
-        $versionId = Uuid::fromHexToBytes($context->getVersionId());
 
         $bytes = array_map(function ($id) {
             return Uuid::fromHexToBytes($id);
@@ -147,6 +145,23 @@ class InheritanceIndexer implements IndexerInterface
                 $reference = $association->getReferenceClass();
             }
 
+            $sql = sprintf(
+                'UPDATE #root# SET #property# = IFNULL(
+                        (
+                            SELECT #reference#.#entity#_id
+                            FROM   #reference#
+                            WHERE  #reference#.#entity#_id         = #root#.id
+                            %s
+                            LIMIT 1
+                        ),
+                        #root#.parent_id
+                     )
+                     WHERE #root#.id IN (:ids)
+                     %s',
+                $definition::isVersionAware() ? 'AND #reference#.#entity#_version_id = #root#.version_id' : '',
+                $definition::isVersionAware() ? 'AND #root#.version_id = :version' : ''
+            );
+
             $parameters = [
                 '#root#' => EntityDefinitionQueryHelper::escape($definition::getEntityName()),
                 '#entity#' => $definition::getEntityName(),
@@ -154,25 +169,21 @@ class InheritanceIndexer implements IndexerInterface
                 '#reference#' => EntityDefinitionQueryHelper::escape($reference::getEntityName()),
             ];
 
+            $params = ['ids' => $bytes];
+
+            if ($definition::isVersionAware()) {
+                $versionId = Uuid::fromHexToBytes($context->getVersionId());
+                $params['version'] = $versionId;
+            }
+
             $this->connection->executeUpdate(
                 str_replace(
                     array_keys($parameters),
                     array_values($parameters),
-                    'UPDATE #root# SET #property# = IFNULL(
-                        (
-                            SELECT #reference#.#entity#_id
-                            FROM   #reference#
-                            WHERE  #reference#.#entity#_id         = #root#.id
-                            AND    #reference#.#entity#_version_id = #root#.version_id
-                            LIMIT 1
-                        ),
-                        #root#.parent_id
-                     )
-                     WHERE #root#.version_id = :version
-                     AND #root#.id IN (:ids)'
+                    $sql
                 ),
-                ['version' => $versionId, 'ids' => $bytes],
-                ['version' => ParameterType::STRING, 'ids' => Connection::PARAM_STR_ARRAY]
+                $params,
+                ['ids' => Connection::PARAM_STR_ARRAY]
             );
         }
     }
@@ -184,8 +195,6 @@ class InheritanceIndexer implements IndexerInterface
         Context $context
     ): void {
         /** @var string|EntityDefinition $definition */
-        $versionId = Uuid::fromHexToBytes($context->getVersionId());
-
         $bytes = array_map(function ($id) {
             return Uuid::fromHexToBytes($id);
         }, $ids);
@@ -198,34 +207,52 @@ class InheritanceIndexer implements IndexerInterface
                 '#property#' => EntityDefinitionQueryHelper::escape($association->getPropertyName()),
             ];
 
-            $this->connection->executeUpdate(
-                str_replace(
-                    array_keys($parameters),
-                    array_values($parameters),
-                    'UPDATE #root# as #root#, #root# as parent
-                     SET #root#.#property# = IFNULL(#root#.#field#, parent.#field#)
-                     WHERE #root#.parent_id = parent.id
-                     AND #root#.parent_id IS NOT NULL
-                     AND #root#.version_id = parent.version_id
-                     AND #root#.version_id = :version
-                     AND #root#.id IN (:ids)'
-                ),
-                ['version' => $versionId, 'ids' => $bytes],
-                ['version' => ParameterType::STRING, 'ids' => Connection::PARAM_STR_ARRAY]
-            );
+            $sql = 'UPDATE #root# as #root#, #root# as parent
+                    SET #root#.#property# = IFNULL(#root#.#field#, parent.#field#)
+                    WHERE #root#.parent_id = parent.id
+                    AND #root#.parent_id IS NOT NULL
+                    AND #root#.id IN (:ids)';
+
+            $params = ['ids' => $bytes];
+
+            if ($definition::isVersionAware()) {
+                $sql .= 'AND #root#.version_id = parent.version_id
+                         AND #root#.version_id = :version';
+                $versionId = Uuid::fromHexToBytes($context->getVersionId());
+                $params['version'] = $versionId;
+            }
 
             $this->connection->executeUpdate(
                 str_replace(
                     array_keys($parameters),
                     array_values($parameters),
-                    'UPDATE #root# AS #root#
-                     SET #root#.#property# = #root#.#field#
-                     WHERE #root#.parent_id IS NULL
-                     AND #root#.version_id = :version
-                     AND #root#.id IN (:ids)'
+                    $sql
                 ),
-                ['version' => $versionId, 'ids' => $bytes],
-                ['version' => ParameterType::STRING, 'ids' => Connection::PARAM_STR_ARRAY]
+                $params,
+                ['ids' => Connection::PARAM_STR_ARRAY]
+            );
+
+            $sql = 'UPDATE #root# AS #root#
+                    SET #root#.#property# = #root#.#field#
+                    WHERE #root#.parent_id IS NULL
+                    AND #root#.id IN (:ids)';
+
+            $params = ['ids' => $bytes];
+
+            if ($definition::isVersionAware()) {
+                $sql .= 'AND #root#.version_id = :version';
+                $versionId = Uuid::fromHexToBytes($context->getVersionId());
+                $params['version'] = $versionId;
+            }
+
+            $this->connection->executeUpdate(
+                str_replace(
+                    array_keys($parameters),
+                    array_values($parameters),
+                    $sql
+                ),
+                $params,
+                ['ids' => Connection::PARAM_STR_ARRAY]
             );
         }
     }

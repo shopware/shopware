@@ -69,7 +69,7 @@ class ChildCountIndexer implements IndexerInterface
                     return Uuid::fromBytesToHex($id);
                 }, $ids);
 
-                $this->updateChildCount($entityName, $ids, $context);
+                $this->updateChildCount($entityName, $ids, $definition::isVersionAware(), $context);
 
                 $this->eventDispatcher->dispatch(
                     ProgressAdvancedEvent::NAME,
@@ -108,13 +108,13 @@ class ChildCountIndexer implements IndexerInterface
 
         $entityName = $event->getDefinition()::getEntityName();
 
-        $parentIds = $this->fetchParentIds($entityName, $ids, $context);
+        $parentIds = $this->fetchParentIds($entityName, $ids, $event->getDefinition()::isVersionAware(), $context);
         $parentIds = array_keys(array_flip(array_filter(array_merge($entityParents, $parentIds))));
 
-        $this->updateChildCount($entityName, $parentIds, $context);
+        $this->updateChildCount($entityName, $parentIds, $event->getDefinition()::isVersionAware(), $context);
     }
 
-    private function updateChildCount(string $entityName, array $parentIds, Context $context): void
+    private function updateChildCount(string $entityName, array $parentIds, bool $versionAware, Context $context): void
     {
         if (empty($parentIds)) {
             return;
@@ -127,33 +127,42 @@ class ChildCountIndexer implements IndexerInterface
 
         $this->validateTableName($entityName);
 
-        $sql = str_replace(
-            ['#entity#'],
-            [$entityName],
+        $sql = sprintf(
             'UPDATE #entity#  as parent
                 LEFT JOIN
                 (
                     SELECT parent_id, count(id) total
                     FROM   #entity#
-                    WHERE version_id = :version
+                    %s
                     GROUP BY parent_id
                 ) child ON parent.id = child.parent_id
             SET parent.child_count = IFNULL(child.total, 0)
             WHERE parent.id IN (:ids)
-            AND parent.version_id = :version'
+            %s',
+            $versionAware ? 'WHERE version_id = :version' : '',
+            $versionAware ? 'AND parent.version_id = :version' : ''
         );
+
+        $sql = str_replace(
+            ['#entity#'],
+            [$entityName],
+            $sql
+        );
+
+        $params = ['ids' => $parentIds];
+
+        if ($versionAware) {
+            $params['version'] = $versionId;
+        }
 
         $this->connection->executeQuery(
             $sql,
-            [
-                'ids' => $parentIds,
-                'version' => $versionId,
-            ],
+            $params,
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
     }
 
-    private function fetchParentIds(string $entityName, array $ids, Context $context): array
+    private function fetchParentIds(string $entityName, array $ids, bool $versionAware, Context $context): array
     {
         $ids = array_map(function ($id) {
             return Uuid::fromStringToBytes($id);
@@ -165,10 +174,13 @@ class ChildCountIndexer implements IndexerInterface
         $query->select(['parent_id']);
         $query->from($entityName);
         $query->andWhere('id IN (:ids)');
-        $query->andWhere('version_id = :version');
 
-        $query->setParameter('version', Uuid::fromStringToBytes($context->getVersionId()));
         $query->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY);
+
+        if ($versionAware) {
+            $query->andWhere('version_id = :version');
+            $query->setParameter('version', Uuid::fromStringToBytes($context->getVersionId()));
+        }
 
         $parents = $query->execute()->fetchAll(FetchMode::COLUMN);
         $parents = array_filter($parents);

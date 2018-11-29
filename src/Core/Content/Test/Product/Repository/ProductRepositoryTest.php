@@ -1734,6 +1734,30 @@ class ProductRepositoryTest extends TestCase
         static::assertCount(2, $manufacturer->getProducts());
     }
 
+    public function testWriteProductCategoriesWithoutId()
+    {
+        $id = Uuid::uuid4()->getHex();
+
+        $data = [
+            'id' => $id,
+            'name' => 'product',
+            'ean' => 'test',
+            'price' => ['gross' => 15, 'net' => 10],
+            'manufacturer' => ['name' => 'manufacturer'],
+            'tax' => ['name' => 'tax', 'taxRate' => 15],
+            'categories' => [
+                ['name' => 'category_name'],
+            ],
+        ];
+        $this->connection->executeUpdate('DELETE FROM category');
+
+        $this->repository->create([$data], Context::createDefaultContext());
+
+        $count = $this->connection->fetchAll('SELECT * FROM category');
+
+        static::assertCount(1, $count, print_r($count, true));
+    }
+
     private function createContext(array $ruleIds = []): Context
     {
         $sourceContext = new SourceContext('cli');

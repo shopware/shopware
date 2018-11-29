@@ -40,7 +40,7 @@
                 <template slot="content">
                     {% block sw_media_quickinfo_multiple_file_names_content %}
                         <div class="sw-media-quickinfo-multiple__collapse-content">
-                            <sw-media-grid-media-item
+                            <sw-media-media-item
                                 v-for="mediaItem in items"
                                 :key="mediaItem.id"
                                 :item="mediaItem"
@@ -48,7 +48,7 @@
                                 :isList="true"
                                 :showContextMenuButton="false"
                                 :showSelectionIndicator="false">
-                            </sw-media-grid-media-item>
+                            </sw-media-media-item>
                         </div>
                     {% endblock %}
                 </template>

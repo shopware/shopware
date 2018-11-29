@@ -1,0 +1,80 @@
+@import "~less/variables";
+@import "~less/mixins";
+
+@sw-media-media-item-border-radius-input:    @border-radius-default;
+@sw-media-media-item-color-input-border:     @color-steam-cloud;
+@sw-media-media-item-color-input:            @color-black;
+@sw-media-media-item-color-input-background: @color-white;
+@sw-media-media-item-pseudo-padding:         25px;
+@sw-media-media-item-color-selected:         @color-shopware-blue;
+@sw-media-color-checkmark:                   @color-white;
+
+.sw-media-media-item {
+    position: relative;
+
+    .sw-media-media-item__selected-indicator {
+        display: grid;
+        visibility: hidden;
+        position: absolute;
+        top: @sw-media-media-item-pseudo-padding;
+        left: @sw-media-media-item-pseudo-padding;
+        width: 16px;
+        height: 16px;
+        background: @sw-media-media-item-color-input-background;
+        border: 1px solid @sw-media-media-item-color-input-border;
+        border-radius: @sw-media-media-item-border-radius-input;
+        z-index: 1;
+
+        &.selected-indicator--checked {
+            background: @sw-media-media-item-color-selected;
+            border: 1px solid @sw-media-media-item-color-selected;
+        }
+
+        .sw-icon {
+            color: @sw-media-color-checkmark;
+            position: relative;
+            top: -1px;
+            left: -1px;
+        }
+    }
+
+    &:hover {
+        .sw-media-media-item__selected-indicator {
+            visibility: visible;
+        }
+    }
+
+    .selected-indicator--visible {
+        visibility: visible;
+    }
+
+    .sw-media-media-item__name {
+        .truncate();
+        border: 1px solid transparent;
+        line-height: 27px;
+
+        &:before {
+            content: attr(data-last-content);
+            float: right;
+        }
+    }
+
+    .sw-media-media-item__name-field {
+        margin: 0;
+        input {
+            color: @sw-media-media-item-color-input;
+            border: 1px solid @sw-media-media-item-color-input-border;
+            padding: 0 16px;
+        }
+    }
+
+    &.is--selected {
+        .sw-media-base-item {
+            color: @sw-media-media-item-color-selected;
+
+            &.is--list {
+                border: 1px solid @sw-media-media-item-color-selected;
+            }
+        }
+    }
+}

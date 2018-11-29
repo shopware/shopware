@@ -1,7 +1,7 @@
 import { Mixin } from 'src/core/shopware';
 
 /**
- * Mixin to handle the selection of sw-media-grid-media-item components.
+ * Mixin to handle the selection of sw-media-media-item components.
  *
  * usage:
  *   - override selectableItems computed property and return array of entities that can be selected
@@ -20,10 +20,10 @@ Mixin.register('media-grid-listener', {
     computed: {
         mediaItemSelectionHandler() {
             return {
-                'sw-media-grid-media-item-clicked': this.handleMediaItemClicked,
-                'sw-media-grid-media-item-selection-add': this.handleMediaGridItemSelected,
-                'sw-media-grid-media-item-selection-remove': this.handleMediaGridItemUnselected,
-                'sw-media-grid-media-item-play': this.handleMediaGridItemPlay
+                'sw-media-media-item-clicked': this.handleMediaItemClicked,
+                'sw-media-media-item-selection-add': this.handleMediaGridItemSelected,
+                'sw-media-media-item-selection-remove': this.handleMediaGridItemUnselected,
+                'sw-media-media-item-play': this.handleMediaGridItemPlay
             };
         },
 

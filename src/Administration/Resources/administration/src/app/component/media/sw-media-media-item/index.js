@@ -1,12 +1,12 @@
 import { Component, Mixin, State } from 'src/core/shopware';
-import template from './sw-media-grid-media-item.html.twig';
-import './sw-media-grid-media-item.less';
+import template from './sw-media-media-item.html.twig';
+import './sw-media-media-item.less';
 import domUtils from '../../../../core/service/utils/dom.utils';
 
 /**
  * @private
  */
-Component.register('sw-media-grid-media-item', {
+Component.register('sw-media-media-item', {
     template,
 
     inject: ['mediaService'],
@@ -89,7 +89,7 @@ Component.register('sw-media-grid-media-item', {
         },
 
         fallbackName() {
-            return this.item.isLoading ? this.$tc('global.sw-media-grid-media-item.labelUploading') : '';
+            return this.item.isLoading ? this.$tc('global.sw-media-media-item.labelUploading') : '';
         }
     },
 
@@ -111,6 +111,9 @@ Component.register('sw-media-grid-media-item', {
         },
 
         computeLastContent() {
+            if (this.isInlineEdit) {
+                return;
+            }
             const el = this.$refs.itemName;
             if (el.offsetWidth < el.scrollWidth) {
                 this.lastContent = `${this.item.fileName.slice(-3)}.${this.item.fileExtension}`;
@@ -125,7 +128,7 @@ Component.register('sw-media-grid-media-item', {
                 return;
             }
 
-            this.$emit('sw-media-grid-media-item-clicked', {
+            this.$emit('sw-media-media-item-clicked', {
                 originalDomEvent,
                 item: this.item
             });
@@ -133,7 +136,7 @@ Component.register('sw-media-grid-media-item', {
 
         isSelectionIndicatorClicked(path) {
             return path.some((parent) => {
-                return parent.classList && parent.classList.contains('sw-media-grid-media-item__selected-indicator');
+                return parent.classList && parent.classList.contains('sw-media-media-item__selected-indicator');
             });
         },
 
@@ -147,14 +150,14 @@ Component.register('sw-media-grid-media-item', {
         },
 
         selectItem(originalDomEvent) {
-            this.$emit('sw-media-grid-media-item-selection-add', {
+            this.$emit('sw-media-media-item-selection-add', {
                 originalDomEvent,
                 item: this.item
             });
         },
 
         removeFromSelection(originalDomEvent) {
-            this.$emit('sw-media-grid-media-item-selection-remove', {
+            this.$emit('sw-media-media-item-selection-remove', {
                 originalDomEvent,
                 item: this.item
             });
@@ -162,7 +165,7 @@ Component.register('sw-media-grid-media-item', {
 
         emitPlayEvent(originalDomEvent) {
             if (!this.selected) {
-                this.$emit('sw-media-grid-media-item-play', {
+                this.$emit('sw-media-media-item-play', {
                     originalDomEvent,
                     item: this.item
                 });
@@ -188,7 +191,7 @@ Component.register('sw-media-grid-media-item', {
         emitItemDeleted(deletePromise) {
             this.closeModalDelete();
             deletePromise.then(() => {
-                this.$emit('sw-media-grid-media-item-delete');
+                this.$emit('sw-media-media-item-delete');
             });
         },
 
@@ -213,7 +216,7 @@ Component.register('sw-media-grid-media-item', {
 
             if (!inputField.currentValue || !inputField.currentValue.trim()) {
                 this.createNotificationError({
-                    message: this.$tc('global.sw-media-grid-media-item.notificationErrorBlankItemName')
+                    message: this.$tc('global.sw-media-media-item.notificationErrorBlankItemName')
                 });
                 return;
             }
@@ -222,7 +225,7 @@ Component.register('sw-media-grid-media-item', {
             this.mediaService.renameMedia(this.item.id, inputField.currentValue).then(() => {
                 this.mediaStore.getByIdAsync(this.item.id).then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('global.sw-media-grid-media-item.notificationRenamingSuccess')
+                        message: this.$tc('global.sw-media-media-item.notificationRenamingSuccess')
                     });
                     this.item.isLoading = false;
                     this.endInlineEdit();
@@ -230,7 +233,7 @@ Component.register('sw-media-grid-media-item', {
             }).catch(() => {
                 this.item.isLoading = false;
                 this.createNotificationError({
-                    message: this.$tc('global.sw-media-grid-media-item.notificationRenamingError')
+                    message: this.$tc('global.sw-media-media-item.notificationRenamingError')
                 });
                 this.endInlineEdit();
             });

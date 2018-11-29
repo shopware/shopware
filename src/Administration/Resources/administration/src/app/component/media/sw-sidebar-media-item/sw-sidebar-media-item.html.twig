@@ -20,7 +20,7 @@
                 {% endblock %}
 
                 {% block sw_sidebar_media_item_media_item_list %}
-                    <sw-media-grid-media-item
+                    <sw-media-media-item
                         v-for="mediaItem in mediaItems"
                         :key="mediaItem.id"
                         :item="mediaItem"
@@ -28,12 +28,12 @@
                         :showContextMenuButton="true"
                         :selected="false"
                         :isList="true"
-                        @sw-media-grid-media-item-delete="handleMediaGridItemDelete">
+                        @sw-media-media-item-delete="handleMediaGridItemDelete">
 
                         {% block sw_sidebar_media_item_context_items %}
                             <slot name="context-menu-items" slot="additional-context-menu-items" :mediaItem="mediaItem"></slot>
                         {% endblock %}
-                    </sw-media-grid-media-item>
+                    </sw-media-media-item>
 
                     {% block sw_sidebar_media_item_load_more_button %}
                         <sw-button

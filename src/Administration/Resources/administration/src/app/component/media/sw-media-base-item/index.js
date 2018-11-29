@@ -1,11 +1,11 @@
 import { Component } from 'src/core/shopware';
-import template from './sw-media-grid-base-item.html.twig';
-import './sw-media-grid-base-item.less';
+import template from './sw-media-base-item.html.twig';
+import './sw-media-base-item.less';
 
 /**
  * @private
  */
-Component.register('sw-media-grid-base-item', {
+Component.register('sw-media-base-item', {
     template,
 
     props: {
@@ -45,7 +45,7 @@ Component.register('sw-media-grid-base-item', {
                 }
             }
 
-            this.$emit('sw-media-grid-base-item-clicked', {
+            this.$emit('sw-media-base-item-clicked', {
                 originalDomEvent
             });
         }

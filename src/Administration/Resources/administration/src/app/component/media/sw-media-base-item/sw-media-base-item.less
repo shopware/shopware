@@ -1,23 +1,23 @@
 @import "~less/variables";
 
-@sw-media-grid-base-item-color:                   @color-kashmir;
-@sw-media-grid-base-item-border-radius:           @border-radius-default;
-@sw-media-grid-base-item-small-font-size:         @font-size-small;
-@sw-media-grid-base-item-color-border:            @color-steam-cloud;
-@sw-media-grid-base-item-color-text-inline-input: @color-gutenberg;
-@sw-media-grid-base-item-color-details:           @color-gutenberg;
-@sw-media-grid-base-item-color-context-button:    @color-white;
-@sw-media-grid-base-item-color-loading-indicator: @color-gutenberg;
-@sw-media-grid-base-item-color-hover:             @color-cadet-blue;
-@sw-media-grid-base-item-color-metadata:          lighten(@color-gutenberg, 30);
+@sw-media-base-item-color:                   @color-kashmir;
+@sw-media-base-item-border-radius:           @border-radius-default;
+@sw-media-base-item-small-font-size:         @font-size-small;
+@sw-media-base-item-color-border:            @color-steam-cloud;
+@sw-media-base-item-color-text-inline-input: @color-gutenberg;
+@sw-media-base-item-color-details:           @color-gutenberg;
+@sw-media-base-item-color-context-button:    @color-white;
+@sw-media-base-item-color-loading-indicator: @color-gutenberg;
+@sw-media-base-item-color-hover:             @color-cadet-blue;
+@sw-media-base-item-color-metadata:          lighten(@color-gutenberg, 30);
 
-.sw-media-grid-base-item {
+.sw-media-base-item {
     position: relative;
     padding: 15px 17.5px;
-    color: @sw-media-grid-base-item-color;
+    color: @sw-media-base-item-color;
 
     &:hover {
-        background-color: @sw-media-grid-base-item-color-hover;
+        background-color: @sw-media-base-item-color-hover;
     }
 
     .sw-context-button {
@@ -29,9 +29,9 @@
             height: 18px;
             padding: 0 4px;
             line-height: 16px;
-            background: @sw-media-grid-base-item-color-context-button;
-            border: 1px solid @sw-media-grid-base-item-color-border;
-            border-radius: @sw-media-grid-base-item-border-radius;
+            background: @sw-media-base-item-color-context-button;
+            border: 1px solid @sw-media-base-item-color-border;
+            border-radius: @sw-media-base-item-border-radius;
 
             .sw-icon {
                 width: 16px;
@@ -40,25 +40,25 @@
         }
     }
 
-    .sw-media-grid-base-item__name-container {
+    .sw-media-base-item__name-container {
         max-width: 100%;
         margin: 15px 0 5px;
         text-align: center;
-        font-size: @sw-media-grid-base-item-small-font-size;
+        font-size: @sw-media-base-item-small-font-size;
         font-weight: 600;
     }
 
-    .sw-media-grid-base-item__loader {
+    .sw-media-base-item__loader {
         top: 18px;
         right: 24px;
         position: absolute;
-        color: @sw-media-grid-base-item-color-loading-indicator;
-        animation-name: sw-media-grid-loader-rotation;
+        color: @sw-media-base-item-color-loading-indicator;
+        animation-name: sw-media-loader-rotation;
         animation-duration: 1s;
         animation-iteration-count: infinite;
     }
 
-    @keyframes sw-media-grid-loader-rotation {
+    @keyframes sw-media-loader-rotation {
         from { transform: rotate(0deg); }
         to { transform: rotate(180deg)}
     }
@@ -71,22 +71,22 @@
         align-items: center;
         padding: 5px 8px;
         margin: 0 0 8px;
-        border: 1px solid @sw-media-grid-base-item-color-border;
-        border-radius: @sw-media-grid-base-item-border-radius;
+        border: 1px solid @sw-media-base-item-color-border;
+        border-radius: @sw-media-base-item-border-radius;
 
-        .sw-media-grid-base-item__name-container {
+        .sw-media-base-item__name-container {
             margin: 0;
             text-align: left;
             font-weight: normal;
             font-size: @font-size-small;
         }
 
-        .sw-media-grid-base-item__metadata-container {
+        .sw-media-base-item__metadata-container {
             display: block;
             margin: 0;
             text-align: left;
             font-weight: normal;
-            color: @sw-media-grid-base-item-color-metadata;
+            color: @sw-media-base-item-color-metadata;
             font-size: @font-size-small;
         }
 
@@ -113,7 +113,7 @@
             border: 0;
         }
 
-        .sw-media-grid-base-item__loader {
+        .sw-media-base-item__loader {
             position: static;
         }
     }

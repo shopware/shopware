@@ -40,7 +40,7 @@
     "sw-modal": {
       "labelClose": "Schließen"
     },
-    "sw-media-grid-media-item": {
+    "sw-media-media-item": {
       "labelContextMenuDelete": "Löschen",
       "labelContextMenuCopyLink": "Link kopieren",
       "labelContextMenuReplace": "Ersetzen",

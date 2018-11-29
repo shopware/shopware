@@ -39,7 +39,7 @@ module.exports = {
             .waitForElementVisible('.sw-media-grid__content-cell:nth-of-type(2)')
             .click('.sw-media-index__catalog-grid .sw-media-grid__content-cell:nth-of-type(1)')
             .waitForElementVisible('.sw-media-catalog')
-            .waitForElementVisible('.sw-media-grid-media-item:nth-of-type(2)');
+            .waitForElementVisible('.sw-media-media-item:nth-of-type(2)');
     },
     'click preview thumbnail to open sidebar': (browser) => {
         browser

@@ -131,7 +131,7 @@
                                                 :presentation="presentation"
                                                 @sw-media-grid-selection-clear="clearSelection">
 
-                                            <sw-media-grid-media-item
+                                            <sw-media-media-item
                                                     v-for="mediaItem in displayedItems"
                                                     :key="mediaItem.id"
                                                     :item="mediaItem"
@@ -144,10 +144,10 @@
                                                 {% block sw_media_index_context_item_detail %}
                                                 <sw-context-menu-item @click="showDetails(mediaItem)"
                                                                       slot="additional-context-menu-items">
-                                                    {{ $tc('global.sw-media-grid-media-item.labelContextMenuDetail') }}
+                                                    {{ $tc('global.sw-media-media-item.labelContextMenuDetail') }}
                                                 </sw-context-menu-item>
                                                 {% endblock %}
-                                            </sw-media-grid-media-item>
+                                            </sw-media-media-item>
                                         </sw-media-grid>
                                         {% endblock %}
 

@@ -101,11 +101,11 @@
             </call>
         </service>
 
-        <service class="Shopware\Storefront\Twig\ErrorTemplateResolver" id="Shopware\Storefront\Twig\ErrorTemplateResolver" public="true">
+        <service class="Shopware\Storefront\Twig\ErrorTemplateResolver" id="Shopware\Storefront\Twig\ErrorTemplateResolver" public="false">
             <argument type="service" id="twig"/>
         </service>
 
-        <service class="Shopware\Storefront\Controller\ErrorController" id="Shopware\Storefront\Controller\ErrorController" public="true">
+        <service class="Shopware\Storefront\Controller\ErrorController" id="Shopware\Storefront\Controller\ErrorController" public="false">
             <argument type="service" id="Shopware\Storefront\Twig\ErrorTemplateResolver"/>
         </service>
 

@@ -9,23 +9,13 @@ use Symfony\Component\HttpFoundation\Response;
 class ErrorController extends StorefrontController
 {
     /** @var ErrorTemplateResolver  */
-    private $errorTemplateResolver;
+    protected $errorTemplateResolver;
 
-
-    /**
-     * ErrorController constructor.
-     * @param ErrorTemplateResolver $errorTemplateResolver
-     */
     public function __construct(ErrorTemplateResolver $errorTemplateResolver)
     {
         $this->errorTemplateResolver = $errorTemplateResolver;
     }
 
-    /**
-     * @param \Exception $exception
-     * @param Request $request
-     * @return Response
-     */
     public function error(\Exception $exception, Request $request): Response
     {
         try {

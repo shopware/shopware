@@ -22,33 +22,21 @@ class ErrorTemplateStruct extends Struct
         $this->arguments = $arguments;
     }
 
-    /**
-     * @return string
-     */
     public function getTemplateName(): string
     {
         return $this->templateName;
     }
 
-    /**
-     * @param string $templateName
-     */
     public function setTemplateName(string $templateName): void
     {
         $this->templateName = $templateName;
     }
 
-    /**
-     * @return array
-     */
     public function getArguments(): array
     {
         return $this->arguments;
     }
 
-    /**
-     * @param array $arguments
-     */
     public function setArguments(array $arguments): void
     {
         $this->arguments = $arguments;

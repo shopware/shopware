@@ -9,22 +9,13 @@ class ErrorTemplateResolver
 {
 
     /** @var Twig_Environment */
-    private $twig;
+    protected $twig;
 
-    /**
-     * ErrorTemplateResolver constructor.
-     * @param Twig_Environment $twig
-     */
     public function __construct(Twig_Environment $twig)
     {
         $this->twig = $twig;
     }
 
-    /**
-     * @param \Exception $exception
-     * @param Request $request
-     * @return ErrorTemplateStruct
-     */
     public function resolve(\Exception $exception, Request $request): ErrorTemplateStruct
     {
         $template = '@Storefront/frontend/error/error';

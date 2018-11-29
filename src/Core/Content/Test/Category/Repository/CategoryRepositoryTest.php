@@ -4,10 +4,12 @@ namespace Shopware\Core\Content\Test\Category\Repository;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -218,4 +220,58 @@ class CategoryRepositoryTest extends TestCase
             $result->getDataFieldOfId($recordB, '_score')
         );
     }
+
+    public function testCreateNesting(): void
+    {
+        $parent = Uuid::uuid4()->getHex();
+        $recordA = Uuid::uuid4()->getHex();
+        $recordB = Uuid::uuid4()->getHex();
+        $recordC = Uuid::uuid4()->getHex();
+
+        $categories = [
+            ['id' => $parent, 'name' => 'First Level Category', 'position' => 0],
+            ['id' => $recordA, 'name' => 'Second Level Category', 'position' => 0, 'parentId' => $parent],
+            ['id' => $recordC, 'name' => 'Third Level Category', 'position' => 0, 'parentId' => $recordA],
+            ['id' => $recordB, 'name' => 'Second Level Category 2', 'position' => 1, 'parentId' => $parent],
+        ];
+
+        $this->repository->create($categories, Context::createDefaultContext());
+
+        $criteria = new ReadCriteria([$parent]);
+        $criteria->addAssociation('children');
+
+        /** @var CategoryCollection $result */
+        $result = $this->repository->read($criteria, Context::createDefaultContext());
+
+        //First Level Category should have Level 1
+        static::assertEquals($parent, $result->current()->getId());
+        static::assertEquals(1, $result->current()->getLevel());
+
+        //Second Level Categories should have Level 2
+        /** @var CategoryCollection $children */
+        $children = $result->first()->getChildren();
+        $children->sortByPosition();
+        static::assertEquals($recordA, $children->current()->getId());
+        static::assertEquals(2, $children->current()->getLevel());
+        static::assertEquals($recordB, $children->next()->getId());
+        static::assertEquals(2, $children->current()->getLevel());
+
+        $criteria = new ReadCriteria([$recordA]);
+        $criteria->addAssociation('children');
+
+        /** @var CategoryCollection $result */
+        $result = $this->repository->read($criteria, Context::createDefaultContext());
+
+        //Second Level Category should have Level 2
+        static::assertEquals($recordA, $result->current()->getId());
+        static::assertEquals(2, $result->current()->getLevel());
+
+        //Third Level Category should have Level 3
+        $children = $result->first()->getChildren();
+        $children->rewind();
+        static::assertEquals($recordC, $children->current()->getId());
+        static::assertEquals(3, $children->current()->getLevel());
+
+    }
+
 }

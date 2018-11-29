@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Test\FeatureFlag;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\FeatureFlag\FeatureConfig;
 use Shopware\Core\Framework\FeatureFlag\FeatureFlagGenerator;
+use Shopware\Core\Framework\Twig\FeatureFlagExtension;
+use Twig_Environment;
+use Twig_Loader_Filesystem;
 use function Shopware\Core\Framework\Test\FeatureFlag\_fixture\ifNextFix101;
 use function Shopware\Core\Framework\Test\FeatureFlag\_fixture\ifNextFix101Call;
 use function Shopware\Core\Framework\Test\FeatureFlag\_fixture\nextFix101;
@@ -106,6 +109,36 @@ class FeatureTest extends TestCase
         putenv(__METHOD__ . '=1');
         $activatedFlagConfig = FeatureConfig::getAll();
         self::assertTrue($activatedFlagConfig[__METHOD__]);
+    }
+
+    public function testTwigFeatureFlag()
+    {
+        FeatureConfig::registerFlag('nextFix101', __METHOD__);
+
+        $loader = new Twig_Loader_Filesystem(__DIR__ . '/_fixture/');
+        $twig = new Twig_Environment($loader, [
+            'cache' => false,
+        ]);
+        $twig->addExtension(new FeatureFlagExtension());
+        $template = $twig->loadTemplate('featuretest.html.twig');
+        putenv(__METHOD__ . '=1');
+        self::assertSame('FeatureIsActive', $template->render([]));
+        putenv(__METHOD__ . '=0');
+        self::assertSame('FeatureIsInactive', $template->render([]));
+    }
+
+    public function testTwigFeatureFlagNotRegistered()
+    {
+        $loader = new Twig_Loader_Filesystem(__DIR__ . '/_fixture/');
+        $twig = new Twig_Environment($loader, [
+            'cache' => false,
+        ]);
+        $twig->addExtension(new FeatureFlagExtension());
+        $template = $twig->loadTemplate('featuretest_unregistered.html.twig');
+
+        static::expectException(\Twig_Error_Runtime::class);
+        static::expectExceptionMessageRegExp('/.*randomFlagThatIsNotRegisterde471112.*/');
+        $template->render([]);
     }
 
     private function indicate(\stdClass $arg)

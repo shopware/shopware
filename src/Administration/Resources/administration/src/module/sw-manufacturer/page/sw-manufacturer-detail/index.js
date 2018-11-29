@@ -81,6 +81,7 @@ Component.register('sw-manufacturer-detail', {
             );
 
             this.manufacturer.save().then(() => {
+                this.$refs.sidebarMediaItem.getList();
                 this.createNotificationSuccess({
                     title: titleSaveSuccess,
                     message: messageSaveSuccess

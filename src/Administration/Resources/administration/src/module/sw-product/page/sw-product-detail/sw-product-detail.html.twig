@@ -48,7 +48,7 @@
                 {% endblock %}
 
                 <template slot="card-view-sidebar">
-                    <sw-sidebar-media-item>
+                    <sw-sidebar-media-item ref="sidebarMediaItem">
                         <template slot="context-menu-items" slot-scope="media">
                             <sw-context-menu-item @click="onAddItemToProduct(media.mediaItem)">
                                 {{ $tc('sw-product.detailBase.labelContextMenuAddToProduct') }}

@@ -113,6 +113,7 @@ Component.register('sw-product-detail', {
                     });
                 });
             }).then(() => {
+                this.$refs.sidebarMediaItem.getList();
                 this.createNotificationSuccess({
                     title: titleSaveSuccess,
                     message: messageSaveSuccess

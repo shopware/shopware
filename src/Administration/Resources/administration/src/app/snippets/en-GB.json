@@ -40,10 +40,6 @@
     "sw-modal": {
       "labelClose": "Close"
     },
-    "sw-media-grid-catalog-item": {
-      "labelShowCatalogContent": "Show contents",
-      "labelShowCatalogDetails": "Show Catalogue details"
-    },
     "sw-media-grid-media-item": {
       "labelContextMenuDelete": "Delete",
       "labelContextMenuCopyLink": "Copy Link",

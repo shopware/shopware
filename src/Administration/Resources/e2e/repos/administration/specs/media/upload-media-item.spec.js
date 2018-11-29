@@ -18,7 +18,7 @@ module.exports = {
         browser
             .clickContextMenuItem('.sw-media-upload-button__button-url','.sw-media-upload-button__context-button')
             .waitForElementVisible('.sw-media-upload-url-modal')
-            .fillField('input[name=sw-field--url]',`${process.env.APP_URL}/bundles/administration/static/img/sw-login-background.png`)
+            .fillField('input[name=sw-field--url]',`${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`)
             .click('.sw-modal__footer .sw-button--primary')
             .waitForElementVisible('.sw-alert--success')
             .click('.sw-alert__close');
@@ -27,7 +27,7 @@ module.exports = {
         browser
             .clickContextMenuItem('.sw-media-upload-button__button-url','.sw-media-upload-button__context-button')
             .waitForElementVisible('.sw-media-upload-url-modal')
-            .fillField('input[name=sw-field--url]', `${process.env.APP_URL}/bundles/administration/static/img/sw-login-background.png`)
+            .fillField('input[name=sw-field--url]', `${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`)
             .click('.sw-modal__footer .sw-button--primary')
             .waitForElementVisible('.sw-alert--success')
             .click('.sw-alert__close');

@@ -4,10 +4,11 @@
  *
  * @param {String} selector
  * @param {String} value
+ * @param {String} [type=input]
  * @param {Boolean} [clearField=true]
  * @returns {exports}
  */
-exports.command = function fillField(selector, value, clearField = true) {
+exports.command = function fillField(selector, value, type = 'input', clearField = true) {
     this.waitForElementVisible(selector);
 
     if (clearField) {
@@ -15,6 +16,12 @@ exports.command = function fillField(selector, value, clearField = true) {
     }
 
     this.setValue(selector, value);
+
+    if (type === 'editor') {
+        this.waitForText(value);
+        return this;
+    }
+
     this.expect.element(selector).to.have.value.that.equals(value);
 
     return this;

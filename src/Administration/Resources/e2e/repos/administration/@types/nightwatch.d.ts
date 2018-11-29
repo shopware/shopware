@@ -2177,9 +2177,10 @@ export interface NightwatchCustomCommands {
      *
      * @param {String} selector
      * @param {String} value
+     * @param {String} [type=input]
      * @param {Boolean} [clearField=true]
      */
-    fillField(selector: string, value: string, clearField?: boolean): this,
+    fillField(selector: string, value: string, type?: string, clearField?: boolean): this,
 
     /**
      * Finds a form field in the Administration using the provided label. The method uses a CSS selector to find the element on the page,
@@ -2290,7 +2291,7 @@ export interface NightwatchCustomCommands {
 
 
     /**
-     * Opens and clicks a context menu item in a specific row
+     * Opens and clicks a context menu item, even if it's in a specific parent
      *
      * Usage:
      * ```
@@ -2299,9 +2300,9 @@ export interface NightwatchCustomCommands {
      *
      * @param {String} menuButtonSelector
      * @param {String} menuOpenSelector
-     * @param {String|null} [parent=null]
+     * @param {String|null} [scope=null]
      */
-    clickContextMenuItem(menuButtonSelector: string, menuOpenSelector: string, parent?: string | null): this,
+    clickContextMenuItem(menuButtonSelector: string, menuOpenSelector: string, scope?: string | null): this,
 }
 
 /* tslint:disable-next-line:no-empty-interface */

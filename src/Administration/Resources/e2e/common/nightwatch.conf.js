@@ -19,7 +19,7 @@ module.exports = {
     output_folder: 'build/artifacts/e2e',
 
     selenium: {
-        start_process: false,
+        start_process: true,
         server_path: seleniumServer.path,
         host: '127.0.0.1',
         port: 4444,
@@ -33,9 +33,6 @@ module.exports = {
             filter: '**/*.spec.js',
             selenium_port: 4444,
             selenium_host: 'localhost',
-            globals: {
-                waitForConditionTimeout: 5000
-            },
             screenshots: {
                 enabled: true,
                 on_failure: true,
@@ -58,8 +55,8 @@ module.exports = {
             launch_url: 'http://docker.vm:8000/admin',
             selenium_host: 'selenium',
             selenium_port: 4444,
-            globals: {
-                waitForConditionTimeout: 5000
+            selenium: {
+                start_process: false
             },
             screenshots: {
                 enabled: true,

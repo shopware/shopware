@@ -12,7 +12,7 @@ module.exports = {
     'create first manufacturer': (browser) => {
         const page = manufacturerPage(browser);
         page.createBasicManufacturer('MAN-U-FACTURE');
-        page.addManufacturerLogo(`${process.env.APP_URL}/bundles/administration/static/img/sw-login-background.png`);
+        page.addManufacturerLogo(`${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`);
     },
     'check if new manufacturer exists in overview': (browser) => {
         browser
@@ -36,7 +36,7 @@ module.exports = {
             .assert.containsText('.smart-bar__header', 'MAN-U-FACTURE')
             .fillField('input[name=name]', 'Minnie\'s Haberdashery')
             .fillField('input[name=link]', 'https://google.com/doodles')
-            .setValue('.ql-editor', 'I would like to enter a meaningful description here. \n Ha, that was easy! \n Außerdem grüße ich \n Quentin Tarantino \n und \n meine Mama!!!!')
+            .fillField('.ql-editor', 'Schnell den langen Text austauschen, sodass es keiner mitbekommt!','editor')
             .click('.sw-manufacturer-detail__save-action')
             .waitForElementPresent('.sw-alert__close')
             .click('.sw-alert__close')

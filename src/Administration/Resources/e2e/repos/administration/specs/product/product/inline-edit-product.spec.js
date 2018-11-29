@@ -40,6 +40,8 @@ module.exports = {
             .fillField('input[name=sw-field--item-name]', 'Second one')
             .waitForElementVisible('.is--inline-editing .sw-button--primary')
             .click('.is--inline-editing .sw-button--primary')
+            .waitForElementNotPresent('.is--inline-editing ')
+            .refresh()
             .waitForElementVisible('.sw-product-list__column-product-name')
             .assert.containsText('.sw-product-list__column-product-name', 'Second one');
     },

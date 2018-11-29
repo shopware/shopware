@@ -15,7 +15,7 @@ class ManufacturerPageObject {
             .assert.containsText('.smart-bar__header', 'New manufacturer')
             .fillField('input[name=name]', manufacturerName)
             .fillField('input[name=link]', 'https://www.google.com/doodles')
-            .setValue('.ql-editor', 'De-scribe THIS! \n \n Yours sincerely, \n \n The Manufacturer')
+            .fillField('.ql-editor', 'De-scribe THIS!', 'editor')
             .click('.sw-button--primary')
             .waitForElementVisible('.sw-notifications .sw-alert')
             .click('.sw-alert button.sw-alert__close');
@@ -27,7 +27,6 @@ class ManufacturerPageObject {
             .click('.sw-media-upload-button__button-url')
             .waitForElementVisible('.sw-media-upload-url-modal')
             .fillField('input[name=sw-field--url]', imagePath)
-            .fillField('input[name=sw-field--url]', `${process.env.APP_URL}/bundles/administration/static/img/sw-login-background.png`)
             .click('.sw-modal__footer .sw-button--primary')
             .waitForElementVisible('.sw-alert--success')
             .click('.sw-alert .sw-alert__close')

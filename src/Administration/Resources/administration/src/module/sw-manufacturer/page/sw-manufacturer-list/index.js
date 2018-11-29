@@ -10,8 +10,6 @@ Component.register('sw-manufacturer-list', {
 
     data() {
         return {
-            // entityName: 'product_manufacturer',
-            // sortBy: 'product_manufacturer.name',
             manufacturers: [],
             showDeleteModal: false,
             isLoading: false
@@ -60,8 +58,6 @@ Component.register('sw-manufacturer-list', {
                 params.sortBy = 'name';
                 params.sortDirection = 'ASC';
             }
-
-            console.log('I bims getList');
 
             this.manufacturers = [];
 

@@ -32,7 +32,7 @@ module.exports = {
             .assert.urlContains('#/sw/product/create')
             .assert.containsText('.sw-card__title', 'Information')
             .fillField('input[name=sw-field--product-name]', 'Marci Darci')
-            .setValue('.ql-editor', 'My very first description')
+            .fillField('.ql-editor', 'My very first description','editor')
             .waitForElementNotPresent('.sw-field--product-manufacturerId .sw-field__select-load-placeholder')
             .fillSelectField('select[name=sw-field--product-manufacturerId]', 'shopware AG')
             .waitForElementNotPresent('.sw-field--product-catalogId .sw-field__select-load-placeholder')

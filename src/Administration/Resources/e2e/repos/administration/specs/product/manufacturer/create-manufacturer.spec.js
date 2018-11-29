@@ -12,7 +12,7 @@ module.exports = {
     'enter manufacturer information and save': (browser) => {
         const page = manufacturerPage(browser);
         page.createBasicManufacturer('MAN-U-FACTURE');
-        page.addManufacturerLogo(`${process.env.APP_URL}/bundles/administration/static/img/sw-login-background.png`);
+        page.addManufacturerLogo(`${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`);
     },
     'check if new manufacturer exists in overview': (browser) => {
         browser

@@ -146,6 +146,10 @@ Component.register('sw-product-media-form', {
             }
         },
 
+        onMediaUploadButtonOpenSidebar() {
+            this.$root.$emit('sw-product-media-form-open-sidebar');
+        },
+
         buildProductMedia(mediaEntity) {
             const productMedia = this.productMediaStore.create();
             productMedia.isLoading = true;

@@ -67,21 +67,21 @@
                                     </div>
                                 {% endblock %}
 
-                                {% block sw_media_upload_regular_upload_button %}
-                                    <sw-button class="sw-media-upload__button"
-                                               variant="primary"
-                                               size="small"
-                                               @click="onClickUpload">
-                                        {{ $tc('global.sw-media-upload.buttonFileUpload') }}
-                                    </sw-button>
-                                {% endblock %}
-
                                 {% block sw_media_upload_regular_media_sidebar_button %}
                                     <sw-button class="sw-media-upload__button"
                                                size="small"
                                                :disabled="!hasOpenSidebarButtonListener"
                                                @click="onClickOpenMediaSidebar">
                                         {{ $tc('global.sw-media-upload.buttonOpenMedia') }}
+                                    </sw-button>
+                                {% endblock %}
+
+                                {% block sw_media_upload_regular_upload_button %}
+                                    <sw-button class="sw-media-upload__button"
+                                               variant="primary"
+                                               size="small"
+                                               @click="onClickUpload">
+                                        {{ $tc('global.sw-media-upload.buttonFileUpload') }}
                                     </sw-button>
                                 {% endblock %}
                             </div>

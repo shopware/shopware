@@ -43,9 +43,7 @@ module.exports = {
     'edit language': (browser) => {
         browser
             .assert.containsText('.sw-grid-row:last-child .sw-language-list__column-name', 'Philippine English english')
-            .click('.sw-grid-row:last-child .sw-context-button__button')
-            .waitForElementPresent('body > .sw-context-menu')
-            .click('body > .sw-context-menu .sw-language-list__edit-action')
+            .clickContextMenuItem('.sw-language-list__edit-action', '.sw-context-button__button','.sw-grid-row:last-child')
             .waitForElementVisible('.sw-settings-language-detail .sw-card__content')
             .fillField('input[name=sw-field--language-name]', 'Very Philippine English english')
             .waitForElementPresent('.sw-settings-language-detail__save-action')
@@ -67,9 +65,7 @@ module.exports = {
         browser
             .waitForElementVisible('.sw-grid-row:last-child .sw-language-list__column-name')
             .assert.containsText('.sw-grid-row:last-child .sw-language-list__column-name', 'Very Philippine English english')
-            .click('.sw-grid-row:last-child .sw-context-button__button')
-            .waitForElementPresent('body > .sw-context-menu')
-            .click('body > .sw-context-menu .sw-context-menu-item--danger')
+            .clickContextMenuItem('.sw-context-menu-item--danger', '.sw-context-button__button','.sw-grid-row:last-child')
             .waitForElementVisible('.sw-modal')
             .assert.containsText('.sw-modal .sw-modal__body', 'Are you sure you want to delete the language "Very Philippine English english"?')
             .click('.sw-modal__footer button.sw-button--primary')

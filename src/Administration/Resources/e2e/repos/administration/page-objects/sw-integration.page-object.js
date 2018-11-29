@@ -76,10 +76,7 @@ class IntegrationPageObject {
 
     deleteSingleIntegration(integrationName) {
         this.browser
-            .click('.sw-context-button__button')
-            .waitForElementVisible('body > .sw-context-menu')
-            .waitForElementVisible('.sw-context-menu-item--danger')
-            .click('.sw-context-menu-item--danger')
+            .clickContextMenuItem('.sw-context-menu-item--danger', '.sw-context-button__button','.sw-grid-row:first-child')
             .waitForElementVisible('.sw-modal')
             .assert.containsText('.sw-modal__body', `Are you sure you want to delete this integration? ${integrationName}`)
             .click('.sw-modal__footer button.sw-button--primary')

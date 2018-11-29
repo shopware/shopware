@@ -2290,16 +2290,18 @@ export interface NightwatchCustomCommands {
 
 
     /**
-     * Uses the global search input field in the Administration for finding a product or other entity.
+     * Opens and clicks a context menu item in a specific row
      *
      * Usage:
      * ```
-     * browser.fillField('input[name=sw-field--product-name]', 'Marci Darci')
+     * browser.clickContextMenuItem('.sw-context-menu-item--danger','.sw-grid-row:first-child')
      * ```
      *
-     * @param {String} selector
+     * @param {String} menuButtonSelector
+     * @param {String} menuOpenSelector
+     * @param {String|null} [parent=null]
      */
-    clickContextMenuItem(selector: string): this,
+    clickContextMenuItem(menuButtonSelector: string, menuOpenSelector: string, parent?: string | null): this,
 }
 
 /* tslint:disable-next-line:no-empty-interface */

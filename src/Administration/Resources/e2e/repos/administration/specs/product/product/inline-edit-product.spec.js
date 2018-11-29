@@ -45,10 +45,7 @@ module.exports = {
     },
     'delete created product': (browser) => {
         browser
-            .waitForElementVisible('.sw-grid-row:first-child .sw-context-button__button')
-            .click('.sw-grid-row:first-child .sw-context-button__button')
-            .waitForElementPresent('body > .sw-context-menu')
-            .click('body > .sw-context-menu .sw-context-menu-item--danger')
+            .clickContextMenuItem('.sw-context-menu-item--danger','.sw-context-button__button','.sw-grid-row:first-child')
             .waitForElementVisible('.sw-modal')
             .assert.containsText('.sw-modal .sw-product-list__confirm-delete-text', 'Are you sure you really want to delete the product "Second one"?')
             .click('.sw-modal__footer button.sw-button--primary')

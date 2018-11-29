@@ -1,18 +1,33 @@
-
+const contextMenuCssSelector = '.sw-context-menu';
+const activeContextButtonCssSelector = '.is--active';
 
 /**
- * Finds a form field in the Administration using the provided selector. The method uses that selector to find the element on the page and ticks it.
+ * Opens and clicks a context menu item in a specific parent
  *
- * @param {String} selector
+ * @param {String} menuButtonSelector
+ * @param {String} menuOpenSelector
+ * @param {String|null} [parent=null]
  * @returns {exports}
  */
-exports.command = function clickContextMenuItem(selector) {
+exports.command = function clickContextMenuItem(menuButtonSelector, menuOpenSelector, parent = null) {
+    if (parent != null) {
+        this
+            .waitForElementVisible(parent)
+            .waitForElementVisible(`${parent} ${menuOpenSelector}`)
+            .click(`${parent} ${menuOpenSelector}`)
+            .waitForElementVisible(`${menuOpenSelector}${activeContextButtonCssSelector}`);
+    } else {
+        this
+            .waitForElementVisible(menuOpenSelector)
+            .click(menuOpenSelector);
+
+    }
+
     this
-        .waitForElementPresent(selector)
-        .waitForElementVisible('.sw-grid-row:first-child .sw-context-button__button')
-        .click('.sw-grid-row:first-child .sw-context-button__button')
-        .waitForElementPresent('body > .sw-context-menu')
-        .click('body > .sw-context-menu .sw-context-menu-item--danger');
+        .waitForElementVisible(contextMenuCssSelector)
+        .waitForElementVisible(`${menuButtonSelector}`)
+        .click(`${menuButtonSelector}`)
+        .waitForElementNotPresent(contextMenuCssSelector);
 
     return this;
 };

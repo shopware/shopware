@@ -36,10 +36,7 @@ module.exports = {
         const page = integrationPage(browser);
 
         browser
-            .click('.sw-context-button__button')
-            .waitForElementVisible('body > .sw-context-menu')
-            .waitForElementVisible('.sw_integration_list__edit-action')
-            .click('.sw_integration_list__edit-action')
+            .clickContextMenuItem('.sw_integration_list__edit-action', '.sw-context-button__button')
             .waitForElementVisible('.sw-modal__title')
             .assert.containsText('.sw-modal__title', 'Integration');
 
@@ -49,10 +46,7 @@ module.exports = {
         const page = integrationPage(browser);
 
         browser
-            .click('.sw-context-button__button')
-            .waitForElementVisible('body > .sw-context-menu')
-            .waitForElementVisible('.sw_integration_list__edit-action')
-            .click('.sw_integration_list__edit-action')
+            .clickContextMenuItem('.sw_integration_list__edit-action', '.sw-context-button__button')
             .waitForElementVisible('.sw-modal__title')
             .assert.containsText('.sw-modal__title', 'Integration');
 
@@ -66,10 +60,7 @@ module.exports = {
             .waitForElementNotPresent('.sw-notification__alert')
             .waitForElementNotPresent('.sw-modal')
             .waitForElementPresent('.sw-integration-list__column-integration-name')
-            .click('.sw-context-button__button')
-            .waitForElementVisible('body > .sw-context-menu')
-            .waitForElementVisible('.sw_integration_list__edit-action')
-            .click('.sw_integration_list__edit-action')
+            .clickContextMenuItem('.sw_integration_list__edit-action', '.sw-context-button__button')
             .waitForElementVisible('input[name=sw-field--currentIntegration-label]');
 
         page.verifyChangedApiCredentials();

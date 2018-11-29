@@ -18,7 +18,7 @@ class ManufacturerPageObject {
             .setValue('.ql-editor', 'De-scribe THIS! \n \n Yours sincerely, \n \n The Manufacturer')
             .click('.sw-button--primary')
             .waitForElementVisible('.sw-notifications .sw-alert')
-            .click('.sw-alert button.sw-alert__close')
+            .click('.sw-alert button.sw-alert__close');
     }
 
     addManufacturerLogo(imagePath) {
@@ -27,7 +27,7 @@ class ManufacturerPageObject {
             .click('.sw-media-upload-button__button-url')
             .waitForElementVisible('.sw-media-upload-url-modal')
             .fillField('input[name=sw-field--url]', imagePath)
-            // .fillField('input[name=sw-field--url]', `${process.env.APP_URL}/bundles/administration/static/img/sw-login-background.png`)
+            .fillField('input[name=sw-field--url]', `${process.env.APP_URL}/bundles/administration/static/img/sw-login-background.png`)
             .click('.sw-modal__footer .sw-button--primary')
             .waitForElementVisible('.sw-alert--success')
             .click('.sw-alert .sw-alert__close')
@@ -42,10 +42,7 @@ class ManufacturerPageObject {
         this.browser
             .waitForElementPresent('.sw-sidebar__navigation .sw-sidebar-navigation-item')
             .click('.sw-sidebar__navigation .sw-sidebar-navigation-item')
-            .waitForElementVisible('.sw-grid-row:first-child .sw-context-button__button')
-            .click('.sw-grid-row:first-child .sw-context-button__button')
-            .waitForElementVisible('.sw-context-menu')
-            .click('.sw-context-menu .sw-context-menu-item--danger')
+            .clickContextMenuItem('.sw-context-menu-item--danger', '.sw-context-button__button','.sw-grid-row:first-child')
             .waitForElementVisible('.sw-modal')
             .assert.containsText(
                 '.sw-modal__body',

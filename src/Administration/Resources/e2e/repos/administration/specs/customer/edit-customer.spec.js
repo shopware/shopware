@@ -68,9 +68,7 @@ module.exports = {
         browser
             .waitForElementPresent('.sw-customer-list__column-customer-name')
             .assert.containsText('.sw-customer-list__column-customer-name', 'Pep Eroni')
-            .click('.sw-grid-row:first-child .sw-context-button__button')
-            .waitForElementPresent('body > .sw-context-menu')
-            .click('body > .sw-context-menu .sw-context-menu-item--danger')
+            .clickContextMenuItem('.sw-context-menu-item--danger', '.sw-context-button__button','.sw-grid-row:first-child')
             .waitForElementVisible('.sw-modal')
             .assert.containsText('.sw-modal .sw-customer-list__confirm-delete-text', 'Are you sure you want to delete the customer "Pep Eroni"?')
             .click('.sw-modal__footer button.sw-button--primary')

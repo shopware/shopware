@@ -139,7 +139,7 @@ class SalesChannelPageObject {
                 .fillField(me.elements.salesChannelNameInput, salesChannelName)
                 .waitForElementVisible('.sw-sales-channel-detail__save-action')
                 .click('.sw-sales-channel-detail__save-action')
-                .waitForElementVisible('.sw-notification__alert',25000)
+                .waitForElementVisible('.sw-notification__alert')
                 .assert.containsText(
                     '.sw-alert .sw-alert__message',
                     `Sales channel "${salesChannelName}" has been saved successfully.`

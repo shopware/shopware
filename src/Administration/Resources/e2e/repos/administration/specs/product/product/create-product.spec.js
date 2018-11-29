@@ -79,10 +79,7 @@ module.exports = {
     },
     'delete created product and verify deletion': (browser) => {
         browser
-            .waitForElementVisible('.sw-grid-row:first-child .sw-context-button__button')
-            .click('.sw-grid-row:first-child .sw-context-button__button')
-            .waitForElementPresent('body > .sw-context-menu')
-            .click('body > .sw-context-menu .sw-context-menu-item--danger')
+            .clickContextMenuItem('.sw-context-menu-item--danger', '.sw-context-button__button','.sw-grid-row:first-child')
             .waitForElementVisible('.sw-modal')
             .assert.containsText('.sw-modal .sw-product-list__confirm-delete-text', 'Are you sure you really want to delete the product "Marci Darci"?')
             .click('.sw-modal__footer button.sw-button--primary')
@@ -99,11 +96,7 @@ module.exports = {
             .click('.sw-catalog-list__edit-action')
             .waitForElementPresent('input[name=sw-field--addCategoryName]')
             .getLocationInView('.sw-catalog-detail__categories')
-            .waitForElementPresent('.sw-context-button__button')
-            .click('.sw-context-button__button')
-            .waitForElementVisible('body > .sw-context-menu')
-            .waitForElementVisible('.sw-context-menu-item--danger')
-            .click('.sw-context-menu-item--danger')
+            .clickContextMenuItem('.sw-context-menu-item--danger', '.sw-context-button__button')
             .waitForElementNotPresent('.sw-tree-item__label')
             .click('.sw-button--primary')
             .waitForElementNotPresent('.sw-catalog-detail__properties .sw-card__content .sw-loader');

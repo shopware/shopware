@@ -30,10 +30,7 @@ module.exports = {
     'edit country': (browser) => {
         browser
             .assert.containsText('.sw-country-list__column-name:first-child', '1.Niemandsland')
-            .click('.sw-grid-row:first-child .sw-context-button__button')
-            .waitForElementPresent('body > .sw-context-menu')
-            .waitForElementPresent('.sw-country-list__edit-action')
-            .click('.sw-country-list__edit-action')
+            .clickContextMenuItem('.sw-country-list__edit-action', '.sw-context-button__button','.sw-grid-row:first-child')
             .waitForElementVisible('.sw-settings-country-detail .sw-card__content')
             .assert.containsText('.sw-card__title', 'Settings')
             .fillField('input[name=sw-field--country-name]', '1.Niemandsland x2')

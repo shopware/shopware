@@ -32,9 +32,7 @@ module.exports = {
     'edit currency': (browser) => {
         browser
             .assert.containsText('.sw-grid-row:last-child .sw-currency-list__column-name', 'Yen')
-            .click('.sw-grid-row:last-child .sw-context-button__button')
-            .waitForElementPresent('body > .sw-context-menu')
-            .click('body > .sw-context-menu .sw-currency-list__edit-action')
+            .clickContextMenuItem('.sw-currency-list__edit-action', '.sw-context-button__button','.sw-grid-row:last-child')
             .waitForElementVisible('.sw-settings-currency-detail .sw-card__content')
             .clearValue('input[name=sw-field--currency-name]')
             .setValue('input[name=sw-field--currency-name]', 'Yen but true')
@@ -57,9 +55,7 @@ module.exports = {
         browser
             .waitForElementVisible('.sw-grid-row:last-child .sw-currency-list__column-name')
             .assert.containsText('.sw-grid-row:last-child .sw-currency-list__column-name', 'Yen but true')
-            .click('.sw-grid-row:last-child .sw-context-button__button')
-            .waitForElementPresent('body > .sw-context-menu')
-            .click('body > .sw-context-menu .sw-context-menu-item--danger')
+            .clickContextMenuItem('.sw-context-menu-item--danger', '.sw-context-button__button','.sw-grid-row:last-child')
             .waitForElementVisible('.sw-modal')
             .assert.containsText('.sw-modal .sw-modal__body', 'Are you sure you want to delete the currency "Yen but true"?')
             .click('.sw-modal__footer button.sw-button--primary')

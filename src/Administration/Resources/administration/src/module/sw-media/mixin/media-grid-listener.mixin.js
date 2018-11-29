@@ -1,7 +1,7 @@
 import { Mixin } from 'src/core/shopware';
 
 /**
- * Mixin to handle the selection of sw-media-grid-media-item compnents.
+ * Mixin to handle the selection of sw-media-grid-media-item components.
  *
  * usage:
  *   - override selectableItems computed property and return array of entities that can be selected
@@ -9,7 +9,7 @@ import { Mixin } from 'src/core/shopware';
  *     this is only necessary if you want the sidebar to open automatically on click
  */
 
-Mixin.register('mediagrid-listener', {
+Mixin.register('media-grid-listener', {
     data() {
         return {
             selectedItems: [],

@@ -1,81 +1,171 @@
 {% block sw_media_index %}
     <sw-page class="sw-media-index">
-        {% block sw_media_index_smart_bar_header %}
-            <template slot="smart-bar-header">
-                {% block sw_media_index_smart_bar_header %}
-                    <h2>
-                        {% block sw_media_index_smart_bar_heading %}
-                            {{ $tc('sw-media.smart-bar.smartBarHeader') }}
-                        {% endblock %}
-                    </h2>
+
+        {% block sw_media_list_search_bar %}
+            <template slot="search-bar">
+                <sw-search-bar :placeholder="$tc('sw-media.general.placeholderSearchBar')"
+                               :searchType="$tc('sw-media.general.mainMenuItemGeneral')"
+                               @search="this.onSearch">
+                </sw-search-bar>
+            </template>
+        {% endblock %}
+
+        {% block sw_media_index_smart_bar %}
+            {% block sw_media_index_smart_bar_header %}
+                <template slot="smart-bar-header">
+                    {% block sw_media_index_smart_bar_header %}
+                        <h2>
+                            {% block sw_media_index_smart_bar_heading %}
+                                {{ $tc('sw-media.smart-bar.smartBarHeader') }}
+                            {% endblock %}
+                        </h2>
+                    {% endblock %}
+                </template>
+            {% endblock %}
+
+            <template slot="smart-bar-actions">
+
+                {% block sw_media_index_smart_bar_media_upload %}
+                    <sw-media-upload-button
+                        variant="compact"
+                        @new-upload-started="onNewUpload">
+                    </sw-media-upload-button>
                 {% endblock %}
+
             </template>
         {% endblock %}
 
         <template slot="content">
             {% block sw_media_index_page_content %}
-                <div class="sw-media-index__page">
-                    {% block sw_media_index_content %}
+                <div v-if="displayedItems.length > 0" class="sw-media-index__page-content">
+                    {% block sw_media_index_content_container %}
                         <div class="sw-media-index__content-container">
-                            <div class="sw-media-index__content">
-                                {% block sw_media_index_catalogs %}
-                                    {% block sw_media_index_catalogs_title %}
-                                        <h4 class="sw-media-index__headline">{{ $tc('sw-media.index.headingCatalogs') }}</h4>
-                                    {% endblock %}
+                            {% block sw_media_index_content %}
+                                <div class="sw-media-index__content">
+                                    <div class="sw-media-index__options-container">
+                                        {% block sw_media_index_presentation %}
+                                            <sw-field type="select"
+                                                      name="presentation"
+                                                      :label="$tc('sw-media.index.labelPresentation')"
+                                                      v-model="presentation">
+                                                <template slot="options">
+                                                    {% block sw_media_index_presentation_options_small %}
+                                                        <option value="small-preview">
+                                                            {{ $tc('sw-media.index.labelPresentationSmall') }}
+                                                        </option>
+                                                    {% endblock %}
 
-                                    {% block sw_media_index_catalogs_grid %}
-                                        <sw-media-grid class="sw-media-index__catalog-grid">
-                                            <sw-media-grid-catalog-item
-                                                class="sw-media-grid__content-cell"
-                                                v-for="catalog in catalogs"
-                                                :key="catalog.id"
-                                                :catalog="catalog">
-                                            </sw-media-grid-catalog-item>
-                                        </sw-media-grid>
-                                    {% endblock %}
+                                                    {% block sw_media_index_presentation_options_medium %}
+                                                        <option value="medium-preview">
+                                                            {{ $tc('sw-media.index.labelPresentationMedium') }}
+                                                        </option>
+                                                    {% endblock %}
 
-                                    {% block sw_media_index_catalogs_divider %}
-                                        <hr class="sw-media-index__divider">
-                                    {% endblock %}
-                                {% endblock %}
+                                                    {% block sw_media_index_presentation_options_large %}
+                                                        <option value="large-preview">
+                                                            {{ $tc('sw-media.index.labelPresentationLarge') }}
+                                                        </option>
+                                                    {% endblock %}
+                                                </template>
+                                            </sw-field>
+                                        {% endblock %}
 
-                                {% block sw_media_index_items %}
-                                    {% block sw_media_index_items_title %}
-                                        <h4 class="sw-media-index__headline" v-if="!isSearch">{{ $tc('sw-media.index.headingLastAdded') }}</h4>
-                                    {% endblock %}
-                                    {% block sw_media_index_searched_item_title %}
-                                        <h4 class="sw-media-index__headline" v-if="isSearch">{{ $tc('sw-media.index.headingSearchResult') }}</h4>
-                                    {% endblock %}
+                                        {% block sw_media_index_single_select_sort %}
+                                            <sw-field type="select"
+                                                      name="sortType"
+                                                      :label=" $tc('sw-media.index.labelSort')"
+                                                      value="createdAt:dsc"
+                                                      @change="sortMediaItems">
+                                                {% block sw_media_index_single_select_sort_createdAt_asc %}
+                                                    <option slot="options"
+                                                            value="createdAt:asc">
+                                                        {{ $tc('sw-media.index.labelSortByCreatedAsc') }}
+                                                    </option>
+                                                {% endblock %}
 
-                                    {% block sw_media_index_items_grid %}
+                                                {% block sw_media_index_single_select_sort_createdAt_dsc %}
+                                                    <option slot="options"
+                                                            value="createdAt:dsc" selected>
+                                                        {{ $tc('sw-media.index.labelSortByCreatedDsc') }}
+                                                    </option>
+                                                {% endblock %}
+
+                                                {% block sw_media_index_single_select_sort_name_asc %}
+                                                    <option slot="options"
+                                                            value="fileName:asc">
+                                                        {{ $tc('sw-media.index.labelSortByNameAsc') }}
+                                                    </option>
+                                                {% endblock %}
+
+                                                {% block sw_media_index_single_select_sort_name_dsc %}
+                                                    <option slot="options"
+                                                            value="fileName:dsc">
+                                                        {{ $tc('sw-media.index.labelSortByNameDsc') }}
+                                                    </option>
+                                                {% endblock %}
+
+                                                {% block sw_media_index_single_select_sort_fileSize_asc %}
+                                                    <option slot="options"
+                                                            value="fileSize:asc">
+                                                        {{ $tc('sw-media.index.labelSortBySizeAsc') }}
+                                                    </option>
+                                                {% endblock %}
+
+                                                {% block sw_media_index_single_select_sort_fileSize_dsc %}
+                                                    <option slot="options"
+                                                            value="fileSize:dsc">
+                                                        {{ $tc('sw-media.index.labelSortBySizeDsc') }}
+                                                    </option>
+                                                {% endblock %}
+                                            </sw-field>
+                                        {% endblock %}
+                                    </div>
+
+                                    <div class="sw-media-index__scroll-container"
+                                         @mousedown.left="onMouseDown"
+                                         ref="scrollContainer">
+                                        {% block sw_media_catalog_media_grid %}
                                         <sw-media-grid
-                                            class="sw-media-index__media-grid"
-                                            dragSelectorClass="sw-media-grid-media-item"
-                                            @sw-media-grid-selection-clear="clearSelection">
+                                                ref="mediaGrid"
+                                                class="sw-media-index__media-grid"
+                                                :presentation="presentation"
+                                                @sw-media-grid-selection-clear="clearSelection">
 
                                             <sw-media-grid-media-item
-                                                class="sw-media-grid__content-cell"
-                                                v-for="mediaItem in mediaItems"
-                                                :key="mediaItem.id"
-                                                :item="mediaItem"
-                                                :selected="showItemSelected(mediaItem)"
-                                                :showSelectionIndicator="isListSelect"
-                                                :isList="false"
-                                                @sw-media-grid-media-item-delete="handleMediaGridItemDelete"
-                                                v-on="mediaItemSelectionHandler">
+                                                    v-for="mediaItem in displayedItems"
+                                                    :key="mediaItem.id"
+                                                    :item="mediaItem"
+                                                    :selected="showItemSelected(mediaItem)"
+                                                    :showSelectionIndicator="isListSelect"
+                                                    :isList="false"
+                                                    @sw-media-grid-media-item-delete="handleMediaGridItemDelete"
+                                                    v-on="mediaItemSelectionHandler">
 
                                                 {% block sw_media_index_context_item_detail %}
-                                                    <sw-context-menu-item @click="showDetails(mediaItem)"
-                                                                          slot="additional-context-menu-items">
-                                                        {{ $tc('global.sw-media-grid-media-item.labelContextMenuDetail') }}
-                                                    </sw-context-menu-item>
+                                                <sw-context-menu-item @click="showDetails(mediaItem)"
+                                                                      slot="additional-context-menu-items">
+                                                    {{ $tc('global.sw-media-grid-media-item.labelContextMenuDetail') }}
+                                                </sw-context-menu-item>
                                                 {% endblock %}
                                             </sw-media-grid-media-item>
-
                                         </sw-media-grid>
-                                    {% endblock %}
-                                {% endblock %}
-                            </div>
+                                        {% endblock %}
+
+                                        {% block sw_media_index_load_more %}
+                                        <div class="sw-media-index__load-more">
+                                            <sw-loader v-if="isLoadingMore" size="30" slot="load-more"></sw-loader>
+
+                                            <sw-button v-else-if="itemsLeft" @click="onLoadMore">
+                                                {{ $t('sw-media.index.labelLoadMore', {
+                                                        count: (itemsLeft > limit) ? limit : itemsLeft
+                                                    })
+                                                }}
+                                            </sw-button>
+                                        </div>
+                                        {% endblock %}
+                                    </div>
+                                </div>
+                            {% endblock %}
                         </div>
                     {% endblock %}
 
@@ -89,6 +179,14 @@
                         </div>
                     {% endblock %}
                 </div>
+            {% endblock %}
+
+            {% block sw_media_index_list_grid_loader %}
+                <sw-loader v-if="isLoading"></sw-loader>
+            {% endblock %}
+
+            {% block sw_media_index_empty_state %}
+                <sw-empty-state v-else-if="!isLoading && displayedItems.length === 0" :title="$tc('sw-media.index.messageEmpty')"></sw-empty-state>
             {% endblock %}
         </template>
     </sw-page>

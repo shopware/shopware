@@ -631,11 +631,6 @@
     "smart-bar": {
       "smartBarHeader": "Medien"
     },
-    "index": {
-      "headingCatalogs": "Kataloge",
-      "headingLastAdded": "Zuletzt hinzugefügt",
-      "headingSearchResult": "Suchergebnis"
-    },
     "sidebar": {
       "actions": {
         "quickInfo": "Information",
@@ -677,15 +672,14 @@
         "labelMediaNotUsed": "Das Medium wird zurzeit nicht verwendet."
       }
     },
-    "catalog": {
-      "messageEmpty": "Noch keine Medien in diesem Katalog",
+    "index": {
+      "messageEmpty": "Noch keine Medien in diesem Ordner",
       "labelSort": "Sortiere nach:",
       "labelPresentation": "Darstellung:",
       "labelPresentationSmall": "Kleine Vorschau",
       "labelPresentationMedium": "Normale Vorschau",
       "labelPresentationLarge": "Große Vorschau",
       "labelCatalog": "Ausgewählter Katalog:",
-      "labelSize": "Größe:",
       "labelSortByNameAsc": "Name aufsteigend",
       "labelSortByNameDsc": "Name absteigend",
       "labelSortBySizeAsc": "Größe aufsteigend",

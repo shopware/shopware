@@ -1,5 +1,6 @@
 import { Component, State, Mixin } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
+import Utils from 'src/core/service/util.service';
 import template from './sw-media-index.html.twig';
 import './sw-media-index.less';
 
@@ -7,29 +8,32 @@ Component.register('sw-media-index', {
     template,
 
     mixins: [
-        Mixin.getByName('mediagrid-listener')
+        Mixin.getByName('media-grid-listener'),
+        Mixin.getByName('drag-selector')
     ],
 
     data() {
         return {
             isLoading: false,
-            catalogs: [],
+            previewType: 'media-grid-preview-as-grid',
             mediaItems: [],
-            searchId: this.$route.query.mediaId
+            uploadedItems: [],
+            displayedItems: [],
+            sortType: ['createdAt', 'dsc'],
+            catalogIconSize: 200,
+            presentation: 'medium-preview',
+            isLoadingMore: false,
+            itemsLeft: 0,
+            page: 1,
+            limit: 50,
+            term: '',
+            total: 0
         };
     },
 
     computed: {
-        catalogStore() {
-            return State.getStore('catalog');
-        },
-
         mediaItemStore() {
             return State.getStore('media');
-        },
-
-        isSearch() {
-            return this.searchId !== null && this.searchId !== undefined;
         },
 
         mediaSidebar() {
@@ -42,87 +46,141 @@ Component.register('sw-media-index', {
     },
 
     created() {
-        this.createComponent();
+        this.createdComponent();
     },
 
-    beforeRouteUpdate(to, from, next) {
-        if (to.query.mediaId) {
-            this.searchId = to.query.mediaId;
-        } else {
-            this.searchId = null;
+    destroyed() {
+        this.destroyedComponent();
+    },
+
+    watch: {
+        uploadedItems() {
+            this.debounceDisplayItems();
+        },
+
+        mediaItems(value) {
+            this.displayedItems = this.uploadedItems.concat(value);
         }
-        this.loadMedia();
-        next();
     },
 
     methods: {
-        createComponent() {
-            this.isLoading = true;
-
-            this.catalogStore.getList({
-                page: 1,
-                limit: 10,
-                sortBy: 'createdAt',
-                sortDirection: 'asc'
-            }).then((response) => {
-                this.catalogs = response.items;
-            });
-            this.loadMedia();
+        createdComponent() {
+            this.getList();
         },
 
-        handleMediaGridItemDelete() {
-            this.loadMedia();
+        destroyedComponent() {
+            this.$root.$off('search', this.onSearch);
+        },
+
+        debounceDisplayItems() {
+            Utils.debounce(() => {
+                this.displayedItems = this.uploadedItems.concat(this.mediaItems);
+                if (this.$refs.mediaGrid) {
+                    this.$refs.mediaGrid.$el.scrollTop = 0;
+                }
+            }, 100)();
         },
 
         showDetails(mediaItem) {
             this._showDetails(mediaItem, false);
         },
 
-        loadMedia() {
+        onNewUpload(mediaEntity) {
+            this.uploadedItems.unshift(mediaEntity);
+        },
+
+        getList() {
             this.isLoading = true;
             this.clearSelection();
-            this.mediaItems = [];
-
-            if (this.isSearch) {
-                return this.loadSearchedMedia().then(() => {
-                    this.isLoading = false;
-                });
-            }
-
-            return this.loadLastAddedMedia().then(() => {
-                this.isLoading = false;
-            });
-        },
-
-        loadLastAddedMedia() {
-            return this.mediaItemStore.getList({
-                page: 1,
-                limit: 10,
-                sortBy: 'createdAt',
-                sortDirection: 'desc'
-            }, true).then((response) => {
-                this.mediaItems = response.items;
-            });
-        },
-
-        loadSearchedMedia() {
-            const params = {
-                limit: 1,
-                page: 1,
-                criteria: CriteriaFactory.equals('id', this.searchId),
-                sortBy: 'createdAt',
-                sortDirection: 'desc'
-            };
+            const params = this.getListingParams();
 
             return this.mediaItemStore.getList(params, true).then((response) => {
-                if (response.total > 0) {
-                    this.mediaItems = response.items;
-                    this.handleMediaGridItemShowDetails({ item: this.mediaItems[0] });
-                    return;
-                }
+                this.total = response.total;
+                this.mediaItems = response.items;
+                this.isLoading = false;
+                this.itemsLeft = this.calcItemsLeft();
 
-                this.mediaItems = [];
+                return this.mediaItems;
             });
+        },
+
+        onLoadMore() {
+            this.page += 1;
+            this.extendList();
+        },
+
+        onSearch(value) {
+            this.term = value;
+
+            this.page = 1;
+            this.getList();
+        },
+
+        extendList() {
+            const params = this.getListingParams();
+            this.isLoadingMore = true;
+
+            return this.mediaItemStore.getList(params).then((response) => {
+                this.mediaItems = this.mediaItems.concat(response.items);
+                this.itemsLeft = this.calcItemsLeft();
+                this.isLoadingMore = false;
+
+                return this.mediaItems;
+            });
+        },
+
+        getListingParams() {
+            return {
+                limit: this.limit,
+                page: this.page,
+                sortBy: this.sortType[0],
+                sortDirection: this.sortType[1],
+                term: this.term,
+                criteria: CriteriaFactory.multi('and', ...this.getQueries())
+            };
+        },
+
+        getQueries() {
+            return this.uploadedItems.map((item) => {
+                return CriteriaFactory.not('and', CriteriaFactory.equals('id', item.id));
+            });
+        },
+
+        calcItemsLeft() {
+            return this.total - this.mediaItems.length;
+        },
+
+        sortMediaItems(event) {
+            this.sortType = event.split(':');
+            this.getList();
+        },
+
+        getCatalogId() {
+            return this.$route.params.id;
+        },
+
+        handleMediaGridItemDelete() {
+            this.getList();
+        },
+
+        onDragSelection({ originalDomEvent, item }) {
+            item.selectItem(originalDomEvent);
+        },
+
+        onDragDeselection({ originalDomEvent, item }) {
+            item.removeFromSelection(originalDomEvent);
+        },
+
+        dragSelectorClass() {
+            return 'sw-media-grid-media-item';
+        },
+
+        scrollContainer() {
+            return this.$refs.scrollContainer;
+        },
+
+        itemContainer() {
+            return this.$refs.mediaGrid;
         }
     }
 });

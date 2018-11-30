@@ -26,14 +26,31 @@ Component.register('sw-tabs-item', {
                 }
                 return ['default', 'minimal'].includes(value);
             }
+        },
+        name: {
+            type: String,
+            required: false,
+            default: ''
+        },
+        active: {
+            type: String,
+            required: false,
+            default: ''
         }
     },
 
-    data() {
-        return {
-            tabsItemClass: {
-                [`sw-tabs-item__${this.variant}`]: this.variant
-            }
-        };
+    computed: {
+        tabsItemClasses() {
+            return {
+                [`sw-tabs-item__${this.variant}`]: this.variant,
+                'is--active': this.name !== '' && this.name === this.active
+            };
+        }
+    },
+
+    methods: {
+        activate() {
+            this.$parent.active = this.name;
+        }
     }
 });

@@ -55,6 +55,11 @@ Component.register('sw-tabs', {
                 }
                 return ['default', 'minimal'].includes(value);
             }
+        },
+        defaultItem: {
+            type: String,
+            required: false,
+            default: ''
         }
     },
 
@@ -62,9 +67,7 @@ Component.register('sw-tabs', {
         return {
             showArrowControls: false,
             scrollbarOffset: '',
-            tabsClass: {
-                [`sw-tabs__${this.variant}`]: this.variant
-            }
+            active: this.defaultItem
         };
     },
 
@@ -73,6 +76,12 @@ Component.register('sw-tabs', {
             return {
                 bottom: this.scrollbarOffset,
                 'margin-top': this.scrollbarOffset
+            };
+        },
+
+        tabBarClass() {
+            return {
+                [`sw-tabs__bar-${this.variant}`]: this.variant
             };
         }
     },

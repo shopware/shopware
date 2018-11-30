@@ -3,7 +3,9 @@
 @sw-tabs-background-color:       @color-light-gray;
 @sw-tabs-border-radius:          @border-radius-default;
 @sw-tabs-color-border:           @color-steam-cloud;
+@sw-tabs-color-minimal-border:   #E0E6EB;
 @sw-tabs-arrow-color-background: @color-light-gray;
+@sw-tabs-font-size:               14px;
 @sw-tabs-arrow-color-icon:       lighten(@color-gutenberg, 20%);
 
 .sw-tabs {
@@ -16,6 +18,14 @@
     background-color: @sw-tabs-background-color;
     border-radius: @sw-tabs-border-radius;
     border: 1px solid @sw-tabs-color-border;
+
+    &.sw-tabs__minimal {
+        font-size: 0;
+        background: none;
+        border: none;
+        border-radius: 0;
+        border-bottom: 2px solid @sw-tabs-color-minimal-border;
+    }
 
     .sw-tabs__arrow {
         width: 30px;

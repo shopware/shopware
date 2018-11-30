@@ -14,6 +14,26 @@ Component.register('sw-tabs-item', {
             type: [Object, String],
             required: false,
             default: ''
+        },
+        variant: {
+            type: String,
+            required: false,
+            default: 'default',
+            validValues: ['default', 'minimal'],
+            validator(value) {
+                if (!value.length) {
+                    return true;
+                }
+                return ['default', 'minimal'].includes(value);
+            }
         }
+    },
+
+    data() {
+        return {
+            tabsItemClass: {
+                [`sw-tabs-item__${this.variant}`]: this.variant
+            }
+        };
     }
 });

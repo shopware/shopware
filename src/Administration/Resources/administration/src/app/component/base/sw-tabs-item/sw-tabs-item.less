@@ -1,36 +1,32 @@
 @import "~less/variables";
 
-@sw-tabs-item-color-border:            @color-steam-cloud;
-@sw-tabs-item-color-text:              @color-kashmir;
-@sw-tabs-item-color-text-active:       @color-shopware-blue;
-@sw-tabs-item-color-background:        @color-light-gray;
-@sw-tabs-item-color-background-active: @color-white;
-@sw-tabs-item-border-radius:           @border-radius-default;
-@sw-tabs-item-font-size:               14px;
-@sw-tabs-item-font-family:             @font-family-default;
+@sw-tabs-item-color-border:                @color-steam-cloud;
+@sw-tabs-item-color-minimal-border:        #E0E6EB;
+@sw-tabs-item-color-minimal-border-active: @color-shopware-blue;
+@sw-tabs-item-color-text:                  @color-kashmir;
+@sw-tabs-item-color-minimal-text:          #B3BFCC;
+@sw-tabs-item-color-minimal-text-active:   #52667A;
+@sw-tabs-item-color-text-active:           @color-shopware-blue;
+@sw-tabs-item-color-background:            @color-light-gray;
+@sw-tabs-item-color-background-active:     @color-white;
+@sw-tabs-item-border-radius:               @border-radius-default;
+@sw-tabs-item-font-size:                   14px;
+@sw-tabs-item-font-family:                 @font-family-default;
 
 .sw-tabs-item {
+    font-family: @sw-tabs-item-font-family;
+    font-size: @sw-tabs-item-font-size;
     display: inline-block;
+    text-decoration: none;
+    cursor: pointer;
+    outline: none;
     padding: 2px 28px;
     margin: 4px 0;
     line-height: 32px;
-    font-family: @sw-tabs-item-font-family;
-    font-size: @sw-tabs-item-font-size;
     border: 1px solid transparent;
     border-radius: @sw-tabs-item-border-radius;
     background: none;
     color: @sw-tabs-item-color-text;
-    text-decoration: none;
-    cursor: pointer;
-    outline: none;
-
-    &:first-child {
-        margin-left: 0;
-    }
-
-    &:last-child {
-        margin-right: 0;
-    }
 
     &:hover {
         border-color: @sw-tabs-item-color-border;
@@ -52,5 +48,38 @@
     &:active {
         background-color: @sw-tabs-item-color-background-active;
         color: @sw-tabs-item-color-text-active;
+    }
+
+    &.sw-tabs-item__minimal {
+        border: none;
+        background: none;
+        line-height: 38px; //sw-tabs-item line-height + 2*padding + border
+        border-radius: 0;
+        border-bottom: 2px solid @sw-tabs-item-color-minimal-border;
+        color: @sw-tabs-item-color-minimal-text;
+        font-weight: 600;
+
+        &:hover {
+            color: @sw-tabs-item-color-minimal-text-active;
+        }
+
+        &.router-link-active,
+        &.is--active {
+            border-bottom-color: @sw-tabs-item-color-minimal-border-active;
+            color: @sw-tabs-item-color-minimal-text-active;
+        }
+
+        &:active {
+            border-bottom-color: @sw-tabs-item-color-minimal-border-active;
+            color: @sw-tabs-item-color-minimal-text-active;
+        }
+    }
+
+    &:first-child {
+        margin-left: 0;
+    }
+
+    &:last-child {
+        margin-right: 0;
     }
 }

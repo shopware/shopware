@@ -43,10 +43,28 @@ import './sw-tabs.less';
 Component.register('sw-tabs', {
     template,
 
+    props: {
+        variant: {
+            type: String,
+            required: false,
+            default: 'default',
+            validValues: ['default', 'minimal'],
+            validator(value) {
+                if (!value.length) {
+                    return true;
+                }
+                return ['default', 'minimal'].includes(value);
+            }
+        }
+    },
+
     data() {
         return {
             showArrowControls: false,
-            scrollbarOffset: ''
+            scrollbarOffset: '',
+            tabsClass: {
+                [`sw-tabs__${this.variant}`]: this.variant
+            }
         };
     },
 

@@ -87,7 +87,7 @@ function register(componentName, componentConfiguration = {}) {
          * The complete rendered template including all overrides will be added later.
          */
         delete config.template;
-    } else if (!config.functional) {
+    } else if (!config.functional && !config.render) {
         warn(
             'ComponentFactory',
             `The component "${config.name}" needs a template to be functional.`,

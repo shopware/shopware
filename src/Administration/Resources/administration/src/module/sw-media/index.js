@@ -23,7 +23,14 @@ Module.register('sw-media', {
             components: {
                 default: 'sw-media-index'
             },
-            path: 'index'
+            path: 'index/:folderId?',
+            props: {
+                default: (route) => {
+                    return {
+                        routeFolderId: route.params.folderId
+                    };
+                }
+            }
         }
     },
 

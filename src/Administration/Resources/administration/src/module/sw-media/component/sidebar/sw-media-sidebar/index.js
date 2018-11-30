@@ -11,7 +11,7 @@ Component.register('sw-media-sidebar', {
             type: Array,
             validator(value) {
                 const invalidElements = value.filter((element) => {
-                    return element.type !== 'media';
+                    return !['media', 'media_folder'].includes(element.entityName);
                 });
                 return invalidElements.length === 0;
             }

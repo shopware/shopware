@@ -1,3 +1,4 @@
+import Vue from 'vue';
 import { Component } from 'src/core/shopware';
 import template from './sw-media-base-item.html.twig';
 import './sw-media-base-item.less';
@@ -14,6 +15,11 @@ import './sw-media-base-item.less';
  */
 Component.register('sw-media-base-item', {
     template,
+
+    inject: [
+        'renameEntity',
+        'rejectRenaming'
+    ],
 
     props: {
         isList: {
@@ -44,7 +50,25 @@ Component.register('sw-media-base-item', {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        displayName: {
+            type: String,
+            required: true
+        },
+
+        editValue: {
+            type: String,
+            required: true
         }
+    },
+
+    data() {
+        return {
+            isInlineEdit: false,
+            lastContent: '',
+            renamingCanceled: false
+        };
     },
 
     computed: {
@@ -66,7 +90,37 @@ Component.register('sw-media-base-item', {
         }
     },
 
+    mounted() {
+        this.componentMounted();
+    },
+
+    updated() {
+        this.componentUpdated();
+    },
+
     methods: {
+        componentMounted() {
+            this.computeLastContent();
+        },
+
+        componentUpdated() {
+            this.computeLastContent();
+        },
+
+        computeLastContent() {
+            if (this.isInlineEdit) {
+                return;
+            }
+
+            const el = this.$refs.itemName;
+            if (el.offsetWidth < el.scrollWidth) {
+                this.lastContent = this.displayName.slice(-3);
+                return;
+            }
+
+            this.lastContent = '';
+        },
+
         handleItemClick(originalDomEvent) {
             if (this.isSelectionIndicatorClicked(originalDomEvent.composedPath())) {
                 return;
@@ -99,6 +153,46 @@ Component.register('sw-media-base-item', {
 
         removeFromSelection(originalDomEvent) {
             this.$emit('sw-media-item-selection-remove', originalDomEvent);
+        },
+
+        startInlineEdit() {
+            this.isInlineEdit = true;
+        },
+
+        endInlineEdit() {
+            this.isInlineEdit = false;
+        },
+
+        onCancelRenaming() {
+            this.renamingCanceled = true;
+            this.endInlineEdit();
+            Vue.nextTick(() => {
+                this.rejectRenaming('canceled');
+            });
+        },
+
+        onDoRenaming() {
+            this.renamingCanceled = false;
+            this.endInlineEdit();
+        },
+
+        onBlurInlineEdit() {
+            if (this.renamingCanceled === true) {
+                return;
+            }
+
+            const inputField = this.$refs.inputItemName;
+            if (!inputField.currentValue || !inputField.currentValue.trim()) {
+                this.endInlineEdit();
+                Vue.nextTick(() => {
+                    this.rejectRenaming('empty-name');
+                });
+                return;
+            }
+
+            this.renameEntity(inputField.currentValue).finally(() => {
+                this.endInlineEdit();
+            });
         }
     }
 });

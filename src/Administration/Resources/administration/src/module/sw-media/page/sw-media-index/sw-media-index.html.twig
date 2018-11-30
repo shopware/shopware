@@ -37,7 +37,7 @@
 
         <template slot="content">
             {% block sw_media_index_page_content %}
-                <div v-if="displayedItems.length > 0" class="sw-media-index__page-content">
+                <div v-if="selectableItems.length > 0" class="sw-media-index__page-content">
                     {% block sw_media_index_content_container %}
                         <div class="sw-media-index__content-container">
                             {% block sw_media_index_content %}
@@ -119,6 +119,10 @@
                                                 {% endblock %}
                                             </sw-field>
                                         {% endblock %}
+
+                                        <sw-button v-if="next1207" variant="ghost" size="small" @click="createFolder">
+                                            {{ $tc('sw-media.index.buttonCreateFolder') }}
+                                        </sw-button>
                                     </div>
 
                                     <div class="sw-media-index__scroll-container"
@@ -131,23 +135,18 @@
                                                 :presentation="presentation"
                                                 @sw-media-grid-selection-clear="clearSelection">
 
-                                            <sw-media-media-item
-                                                    v-for="mediaItem in displayedItems"
-                                                    :key="mediaItem.id"
-                                                    :item="mediaItem"
-                                                    :selected="showItemSelected(mediaItem)"
+                                            <template v-for="gridItem in selectableItems">
+                                                <sw-media-entity-mapper
+                                                    :item="gridItem"
+                                                    :key="gridItem.entityName + '_' + gridItem.id"
+                                                    :selected="showItemSelected(gridItem)"
                                                     :showSelectionIndicator="isListSelect"
                                                     :isList="false"
-                                                    @sw-media-media-item-delete="handleMediaGridItemDelete"
+                                                    @sw-media-media-item-delete="onMediaGridItemsDeleted"
+                                                    @sw-media-folder-item-delete="onMediaFoldersDeleted"
                                                     v-on="mediaItemSelectionHandler">
-
-                                                {% block sw_media_index_context_item_detail %}
-                                                <sw-context-menu-item @click="showDetails(mediaItem)"
-                                                                      slot="additional-context-menu-items">
-                                                    {{ $tc('global.sw-media-media-item.labelContextMenuDetail') }}
-                                                </sw-context-menu-item>
-                                                {% endblock %}
-                                            </sw-media-media-item>
+                                                </sw-media-entity-mapper>
+                                            </template>
                                         </sw-media-grid>
                                         {% endblock %}
 
@@ -173,7 +172,7 @@
                         <div class="sw-media-index__sidebar">
                             <sw-media-sidebar
                                 :items="selectedItems"
-                                @sw-media-sidebar-items-delete="handleMediaGridItemDelete"
+                                @sw-media-sidebar-items-delete="onMediaGridItemsDeleted"
                                 ref="mediaSidebar">
                             </sw-media-sidebar>
                         </div>
@@ -186,7 +185,7 @@
             {% endblock %}
 
             {% block sw_media_index_empty_state %}
-                <sw-empty-state v-else-if="!isLoading && displayedItems.length === 0" :title="$tc('sw-media.index.messageEmpty')"></sw-empty-state>
+                <sw-empty-state v-else-if="!isLoading && selectableItems.length === 0" :title="$tc('sw-media.index.messageEmpty')"></sw-empty-state>
             {% endblock %}
         </template>
     </sw-page>

@@ -12,13 +12,19 @@ Component.register('sw-media-index', {
         Mixin.getByName('drag-selector')
     ],
 
+    props: {
+        routeFolderId: {
+            type: String
+        }
+    },
+
     data() {
         return {
             isLoading: false,
             previewType: 'media-grid-preview-as-grid',
+            subFolders: [],
             mediaItems: [],
             uploadedItems: [],
-            displayedItems: [],
             sortType: ['createdAt', 'dsc'],
             catalogIconSize: 200,
             presentation: 'medium-preview',
@@ -36,12 +42,24 @@ Component.register('sw-media-index', {
             return State.getStore('media');
         },
 
+        mediaFolderStore() {
+            return State.getStore('media_folder');
+        },
+
         mediaSidebar() {
             return this.$refs.mediaSidebar;
         },
 
         selectableItems() {
-            return this.mediaItems;
+            return [].concat(this.subFolders, this.uploadedItems, this.mediaItems);
+        },
+
+        mediaFolderId() {
+            return this.routeFolderId || null;
+        },
+
+        mediaFolder() {
+            return this.mediaFolderStore.getById(this.mediaFolderId);
         }
     },
 
@@ -56,10 +74,6 @@ Component.register('sw-media-index', {
     watch: {
         uploadedItems() {
             this.debounceDisplayItems();
-        },
-
-        mediaItems(value) {
-            this.displayedItems = this.uploadedItems.concat(value);
         }
     },
 
@@ -74,7 +88,6 @@ Component.register('sw-media-index', {
 
         debounceDisplayItems() {
             Utils.debounce(() => {
-                this.displayedItems = this.uploadedItems.concat(this.mediaItems);
                 if (this.$refs.mediaGrid) {
                     this.$refs.mediaGrid.$el.scrollTop = 0;
                 }
@@ -90,10 +103,29 @@ Component.register('sw-media-index', {
         },
 
         getList() {
-            this.isLoading = true;
             this.clearSelection();
-            const params = this.getListingParams();
+            this.isLoading = true;
 
+            Promise.all([
+                this.getSubFolders(),
+                this.getMediaItemList()
+            ]).then(() => {
+                this.isLoading = false;
+            });
+        },
+
+        getSubFolders() {
+            return this.mediaFolderStore.getList({
+                limit: 50,
+                sortBy: 'name',
+                criteria: CriteriaFactory.equals('parentId', this.mediaFolderId)
+            }).then((response) => {
+                this.subFolders = response.items;
+            });
+        },
+
+        getMediaItemList() {
+            const params = this.getListingParams();
             return this.mediaItemStore.getList(params, true).then((response) => {
                 this.total = response.total;
                 this.mediaItems = response.items;
@@ -165,7 +197,7 @@ Component.register('sw-media-index', {
             return this.$route.params.id;
         },
 
-        handleMediaGridItemDelete(ids) {
+        onMediaGridItemsDeleted(ids) {
             this.uploadedItems = this.uploadedItems.filter((uploadedItem) => {
                 return ids.includes(uploadedItem.item);
             });
@@ -181,7 +213,7 @@ Component.register('sw-media-index', {
         },
 
         dragSelectorClass() {
-            return 'sw-media-media-item';
+            return 'sw-media-entity';
         },
 
         scrollContainer() {
@@ -190,6 +222,21 @@ Component.register('sw-media-index', {
 
         itemContainer() {
             return this.$refs.mediaGrid;
+        },
+
+        createFolder() {
+            const newFolder = this.mediaFolderStore.create();
+
+            newFolder.name = '';
+            newFolder.parentId = this.mediaFolderId;
+
+            this.subFolders.unshift(newFolder);
+        },
+
+        onMediaFoldersDeleted(ids) {
+            this.subFolders = this.subFolders.filter((folder) => {
+                return !ids.includes(folder.id);
+            });
         }
     }
 });

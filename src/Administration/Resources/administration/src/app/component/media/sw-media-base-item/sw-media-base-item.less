@@ -1,4 +1,5 @@
 @import "~less/variables";
+@import "~less/mixins";
 
 @sw-media-base-item-color:                   @color-kashmir;
 @sw-media-base-item-border-radius:           @border-radius-default;
@@ -15,6 +16,8 @@
 @sw-media-base-item-border-radius-input:     @border-radius-default;
 @sw-media-base-item-color-selected:          @color-shopware-blue;
 @sw-media-base-item-color-checkmark:         @color-white;
+@sw-media-base-item-color-input-border:      @color-steam-cloud;
+@sw-media-base-item-color-input:             @color-black;
 
 .sw-media-base-item {
     position: relative;
@@ -90,6 +93,26 @@
         text-align: center;
         font-size: @sw-media-base-item-small-font-size;
         font-weight: 600;
+
+        .sw-media-base-item__name {
+            .truncate();
+            border: 1px solid transparent;
+            line-height: 27px;
+
+            &:before {
+                content: attr(data-last-content);
+                float: right;
+            }
+        }
+
+        .sw-media-base-item__name-field {
+            margin: 0;
+            input {
+                color: @sw-media-base-item-color-input;
+                border: 1px solid @sw-media-base-item-color-input-border;
+                padding: 0 16px;
+            }
+        }
     }
 
     .sw-media-base-item__loader {
@@ -125,7 +148,7 @@
             font-size: @font-size-small;
         }
 
-        .sw-media-media-item__name {
+        .sw-media-base-item__name {
             line-height: 18px;
         }
 
@@ -136,26 +159,6 @@
             font-weight: normal;
             color: @sw-media-base-item-color-metadata;
             font-size: @font-size-small;
-        }
-
-        .sw-media-preview {
-            width: 40px;
-            height: 40px;
-            grid-row: 1 / span 2;
-            overflow: hidden;
-
-            .sw-media-preview__item {
-                padding: 0;
-                height: 100%;
-                width: 100%;
-                max-height: none;
-                max-width: none;
-
-                &.sw-icon {
-                    height: 80%;
-                    width: 80%;
-                }
-            }
         }
 
         &:hover {

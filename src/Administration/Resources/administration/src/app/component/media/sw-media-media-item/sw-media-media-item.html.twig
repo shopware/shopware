@@ -2,54 +2,27 @@
     <div class="sw-media-media-item" :class="{'is--selected': selected}">
         {% block sw_media_media_item_item %}
             <sw-media-base-item
+                ref="innerComponent"
                 :isList="isList"
                 :isLoading="item.isLoading"
                 :selected="selected"
                 :showContextMenuButton="showContextMenuButton"
                 :showSelectionIndicator="showSelectionIndicator"
+                :displayName="displayName"
+                :editValue="editFileName"
                 @sw-media-item-selection-add="selectItem"
                 @sw-media-item-selection-remove="removeFromSelection"
                 @sw-media-item-clicked="handleGridItemClick">
 
-                {% block sw_media_media_item_slot_media_preview %}
-                    <template slot="media-item-preview">
-                        {% block sw_media_media_item_preview %}
-                            <sw-media-preview :item="item" :class="mediaPreviewClasses" @sw-media-preview-play="emitPlayEvent">
-                            </sw-media-preview>
-                        {% endblock %}
-                    </template>
+                {% block sw_media_media_item_preview %}
+                    <sw-media-preview slot="media-item-preview" :item="item" :class="mediaPreviewClasses" @sw-media-preview-play="emitPlayEvent">
+                    </sw-media-preview>
                 {% endblock %}
 
-                {% block sw_media_media_item_slot_name %}
-                    <template slot="media-item-name">
-                        <sw-field v-if="isInlineEdit"
-                                  ref="inputItemName"
-                                  class="sw-media-media-item__name-field"
-                                  type="text"
-                                  :value="item.fileName"
-                                  v-autofocus
-                                  @click.stop
-                                  @blur="endInlineEdit"
-                                  @keyup.enter="updateName"
-                                  @keyup.esc="endInlineEdit">
-                        </sw-field>
-                        <div v-else
-                             class="sw-media-media-item__name"
-                             ref="itemName"
-                             :title="item | mediaName"
-                             :data-last-content="lastContent"
-                             @dblclick="startInlineEdit">
-                            {{ item | mediaName(fallbackName) }}
-                        </div>
-                    </template>
-                {% endblock %}
-
-                {% block sw_media_media_item_slot_metadata %}
-                    <template slot="media-item-metadata">
-                        <div class="sw-media-media-item__metadata">
-                            {{ item.updatedAt|date(locale, { year: 'numeric', month: 'long', day: 'numeric' }) }}, {{ item.fileSize|fileSize(locale) }}
-                        </div>
-                    </template>
+                {% block sw_media_media_item_metadata %}
+                    <div slot="media-item-metadata" class="sw-media-media-item__metadata">
+                        {{ item.updatedAt|date(locale, { year: 'numeric', month: 'long', day: 'numeric' }) }}, {{ item.fileSize|fileSize(locale) }}
+                    </div>
                 {% endblock %}
 
                 {% block sw_media_media_item_context_menu %}
@@ -61,7 +34,7 @@
                         {% block sw_media_media_item_context_group_quick_actions %}
                             <div :class="defaultContextMenuClass">
                                 {% block sw_media_media_item_context_item_rename_item %}
-                                    <sw-context-menu-item v-if="item.hasFile" @click="startInlineEdit">
+                                    <sw-context-menu-item v-if="item.hasFile" @click="onStartRenaming">
                                         {{ $tc('global.sw-media-media-item.labelContextMenuRename') }}
                                     </sw-context-menu-item>
                                 {% endblock %}

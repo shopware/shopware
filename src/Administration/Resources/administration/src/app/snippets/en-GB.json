@@ -40,6 +40,10 @@
     "sw-modal": {
       "labelClose": "Close"
     },
+    "sw-media-folder-item": {
+      "labelContextMenuDelete": "Delete",
+      "labelContextMenuRename": "Rename"
+    },
     "sw-media-media-item": {
       "labelContextMenuDelete": "Delete",
       "labelContextMenuCopyLink": "Copy Link",
@@ -667,6 +671,7 @@
       }
     },
     "index": {
+      "buttonCreateFolder": "Add new Folder",
       "messageEmpty": "No media in this folder yet",
       "labelSort": "Sort by:",
       "labelPresentation": "Presentation:",

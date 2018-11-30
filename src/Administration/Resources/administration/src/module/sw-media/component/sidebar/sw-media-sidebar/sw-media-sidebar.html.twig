@@ -12,7 +12,7 @@
                         {% block sw_media_sidebar_item_quickinfo_content %}
                             <div class="sw-media-sidebar__quickinfo-wrapper">
                                 <sw-media-quickinfo
-                                    v-if="isSingleFile"
+                                    v-if="isSingleFile && items[0].entityName === 'media'"
                                     :key="getKey"
                                     :item="items[0]"
                                     :autoplay="autoplay"

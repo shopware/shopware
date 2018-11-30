@@ -219,7 +219,7 @@
             };
 
             var csrfConfig = csrfConfig || {
-                'generateUrl': '{{ url('csrftoken') }}',
+                'generateUrl': '{{ url('frontend.security.csrf') }}',
                 'basePath': '{{ Shop.getBasePath() }}',
                 'shopId': '{{ Shop.getId() }}'
             };

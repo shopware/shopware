@@ -4,7 +4,7 @@
     {% if product.extensions.canonicalUrl %}
         {% set url = product.extensions.canonicalUrl.url %}
     {% else %}
-        {% set url = url('detail_page', { 'id': product.id }) %}
+        {% set url = url('frontend.detail.page', { 'id': product.id }) %}
     {% endif %}
 
     {% block frontend_listing_product_box_button_detail_title %}

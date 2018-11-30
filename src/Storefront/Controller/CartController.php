@@ -142,7 +142,7 @@ class CartController extends StorefrontController
     }
 
     /**
-     * @Route("/cart/line-item/quantity", name="frontend.cart.line-item.quantity.update", options={"seo"="false"}, methods={"PATCH"})
+     * @Route("/cart/line-item/quantity", name="frontend.cart.line-item.quantity.update", options={"seo"="false"}, methods={"POST"})
      *
      * @throws InvalidQuantityException
      * @throws LineItemNotStackableException

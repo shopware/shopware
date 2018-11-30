@@ -59,7 +59,7 @@
         <h1 style="text-align: center;">Bestellung bestätigen</h1>
 
         {% block frontend_checkout_confirm_form %}
-            <form id="confirm--form" method="post" action="{{ path('frontend.account.order.page') }}">
+            <form id="confirm--form" method="post" action="{{ path('frontend.checkout.order') }}">
 
                 {# AGB and Revocation #}
                 {% block frontend_checkout_confirm_tos_panel %}

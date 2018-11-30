@@ -18,7 +18,7 @@
             {% if category.extensions.canonicalUrl %}
                 {% set url = category.extensions.canonicalUrl.url %}
             {% else %}
-                {% set url = url('listing_page', { 'id': category.id }) %}
+                {% set url = url('frontend.listing.page', { 'id': category.id }) %}
             {% endif %}
 
             {% block frontend_index_categories_left_entry %}

@@ -10,7 +10,7 @@
     {{ parent() }}
 
     {% if shopware.theme.checkoutHeader and sTarget == "account" %}
-        <a href="{{ url('homepage') }}"
+        <a href="{{ url('frontend.home.page') }}"
            class="btn is--small btn--back-top-shop is--icon-left"
            title="{% trans %}frontend.checkout.finish.FinishButtonBackToShop{% endtrans %}">
             <i class="icon--arrow-left"></i>

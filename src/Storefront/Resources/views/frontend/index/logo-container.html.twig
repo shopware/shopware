@@ -3,7 +3,7 @@
     {# Main shop logo #}
     {% block frontend_index_logo %}
         <div class="logo--shop block">
-            <a class="logo--link" href="{{ url('homepage') }}" title="{{ shopware.config.shopname|escape('html') }} - {{ 'frontend.index.index.IndexLinkDefault'|trans|escape }}">
+            <a class="logo--link" href="{{ url('frontend.home.page') }}" title="{{ shopware.config.shopname|escape('html') }} - {{ 'frontend.index.index.IndexLinkDefault'|trans|escape }}">
                 <picture>
                     <source srcset="{{ asset(shopware.theme.desktopLogo) }}" media="(min-width: 78.75em)">
                     <source srcset="{{ asset(shopware.theme.tabletLandscapeLogo) }}" media="(min-width: 64em)">

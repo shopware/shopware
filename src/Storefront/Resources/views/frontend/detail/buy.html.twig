@@ -1,7 +1,7 @@
 {% block frontend_detail_buy %}
     {# @var product \Shopware\Core\Content\Product\Struct\StorefrontProductDetailStruct #}
 
-    {% set url = url('frontend.cart.product.add', {'target': 'checkout_cart' }) %}
+    {% set url = url('frontend.cart.product.add', {'target': 'frontend.checkout.cart.page' }) %}
 
     <form name="addToCart"
           method="post"

@@ -34,7 +34,7 @@
     {% if currencies|length > 1 %}
         <div class="top-bar--currency navigation--entry">
             {% block frontend_index_actions_currency_form %}
-                <form method="post" action="{{ url('context_update') }}" class="currency--form">
+                <form method="post" action="{{ url('frontend.context.update') }}" class="currency--form">
                     {% block frontend_index_actions_currency_form_content %}
                         <div class="field--select">
                             {% block frontend_index_actions_currency_form_select %}

@@ -35,6 +35,16 @@
             <call method="setContainer">
                 <argument type="service" id="service_container" />
             </call>
+            <argument type="service" id="Shopware\Core\Framework\Search\CompositeEntitySearcher"/>
+        </service>
+
+        <service class="Shopware\Core\Framework\Search\CompositeEntitySearcher"
+                 id="Shopware\Core\Framework\Search\CompositeEntitySearcher"
+                 public="true">
+
+            <argument type="service" id="service_container"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\SearchBuilder"/>
+            <argument type="service" id="version_commit_data.repository"/>
         </service>
 
         <service class="Shopware\Core\Framework\Api\Controller\SyncController" id="Shopware\Core\Framework\Api\Controller\SyncController" public="true">

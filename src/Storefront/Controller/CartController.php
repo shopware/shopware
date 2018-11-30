@@ -23,11 +23,6 @@ use Symfony\Component\Routing\Annotation\Route;
 class CartController extends StorefrontController
 {
     /**
-     * Route name to cart index action
-     */
-    public const ROUTE_CHECKOUT_CART = 'checkout_cart';
-
-    /**
      * Route name to checkout confirm action
      */
     public const ROUTE_CHECKOUT_CONFIRM = 'checkout_confirm';
@@ -43,15 +38,7 @@ class CartController extends StorefrontController
     }
 
     /**
-     * @Route("/cart", name="cart_index", options={"seo"="false"})
-     */
-    public function index(): RedirectResponse
-    {
-        return $this->redirectToRoute('checkout_cart');
-    }
-
-    /**
-     * @Route("/cart/product", name="cart.product.add", options={"seo"="false"}, methods={"POST"})
+     * @Route("/cart/product", name="frontend.cart.product.add", options={"seo"="false"}, methods={"POST"})
      *
      * @throws InvalidPayloadException
      * @throws InvalidQuantityException
@@ -85,7 +72,7 @@ class CartController extends StorefrontController
     }
 
     /**
-     * @Route("/cart/line-item", name="cart.line_item.add", options={"seo"="false"}, methods={"POST"})
+     * @Route("/cart/line-item", name="frontend.cart.line-item.add", options={"seo"="false"}, methods={"POST"})
      *
      * @throws MixedLineItemTypeException
      * @throws InvalidPayloadException
@@ -124,7 +111,7 @@ class CartController extends StorefrontController
     }
 
     /**
-     * @Route("/cart/line-item", name="cart.line_item.delete", options={"seo"="false"}, methods={"POST"})
+     * @Route("/cart/line-item", name="frontend.cart.line-item.delete", options={"seo"="false"}, methods={"DELETE"})
      *
      * @throws LineItemNotFoundException
      * @throws LineItemNotRemovableException
@@ -155,7 +142,7 @@ class CartController extends StorefrontController
     }
 
     /**
-     * @Route("/cart/line-item/quantity", name="cart.line_item.quantity.update", options={"seo"="false"}, methods={"POST"})
+     * @Route("/cart/line-item/quantity", name="frontend.cart.line-item.quantity.update", options={"seo"="false"}, methods={"PATCH"})
      *
      * @throws InvalidQuantityException
      * @throws LineItemNotStackableException
@@ -192,7 +179,7 @@ class CartController extends StorefrontController
     }
 
     /**
-     * @Route("/cart/amount", name="cart.amount.get", options={"seo"="false"}, methods={"GET"})
+     * @Route("/cart/amount", name="frontend.cart.amount", options={"seo"="false"}, methods={"GET"})
      *
      * @throws CartTokenNotFoundException
      */
@@ -212,7 +199,7 @@ class CartController extends StorefrontController
     }
 
     /**
-     * @Route("/cart", name="cart_get_cart", options={"seo"="false"}, methods={"GET"})
+     * @Route("/cart", name="frontend.cart.detail", options={"seo"="false"}, methods={"GET"})
      *
      * @throws CartTokenNotFoundException
      */
@@ -238,10 +225,10 @@ class CartController extends StorefrontController
         }
 
         if ($target === self::ROUTE_CHECKOUT_CONFIRM) {
-            return $this->redirectToRoute(self::ROUTE_CHECKOUT_CONFIRM);
+            return $this->redirectToRoute('frontend.checkout.confirm.page');
         }
 
-        return $this->redirectToRoute(self::ROUTE_CHECKOUT_CART);
+        return $this->redirectToRoute('frontend.checkout.cart.page');
     }
 
     /**

@@ -170,17 +170,17 @@
             var controller = controller || {
                 'vat_check_enabled': '{{ shopware.config.vatcheckendabled }}',
                 'vat_check_required': '{{ shopware.config.vatcheckrequired }}',
-                'ajax_cart': '{{ path('cart_get_cart') }}',
-                'ajax_remove_item': '{{ path('cart.line_item.delete') }}',
-                'ajax_search': '{{ path('search_ajax') }}',
+                'ajax_cart': '{{ path('frontend.cart.detail') }}',
+                'ajax_remove_item': '{{ path('frontend.cart.line-item.delete') }}',
+                'ajax_search': '{{ path('frontend.search.suggest') }}',
                 'register': '{url controller="register"}',
                 'checkout': '{url controller="checkout"}',
                 'ajax_validate': '{url controller="register"}',
                 'ajax_add_article': '{url controller="checkout" action="addArticle"}',
                 'ajax_listing': '{url module="widgets" controller="Listing" action="ajaxListing"}',
-                'ajax_cart_refresh': '{{ path('cart.amount.get') }}',
-                'ajax_address_selection': '{{ path('address_ajax_selection') }}',
-                'ajax_address_editor': '{{ path('address_ajax_editor') }}'
+                'ajax_cart_refresh': '{{ path('frontend.cart.amount') }}',
+                'ajax_address_selection': '{{ path('frontend.account.address.list.ajax') }}',
+                'ajax_address_editor': '{{ path('frontend.account.address.edit.ajax') }}'
             };
 
             var snippets = snippets || {

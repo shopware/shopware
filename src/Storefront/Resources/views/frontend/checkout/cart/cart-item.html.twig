@@ -117,7 +117,7 @@
                         {{ lineItem.quantity }}
                     {% elseif not lineItem.lastStock or (lineItem.lastStock and lineItem.stock > 0) %}
                         {#{% if lineItem.lineItem %}#}
-                            <form name="cart_product_change_quantity" class="select-field" method="post" action="{{ path('cart.line_item.quantity.update') }}">
+                            <form name="cart_product_change_quantity" class="select-field" method="post" action="{{ path('frontend.cart.line-item.update-quantity') }}">
                                 <select name="quantity" data-auto-submit="true">
                                     {% set minPurchase = lineItem.variant.minPurchase ?? 1 %}
                                     {# TODO CONFIG AUSLESEN #}
@@ -183,13 +183,13 @@
             {% if depth == 0 %}
                 <div class="panel--td column--actions right">
                     {% block frontnend_checkout_cart_item_delete_form %}
-                        <form action="{{ path('cart.line_item.delete') }}" method="post">
+                        <form action="{{ path('frontend.cart.line-item.delete') }}" method="post">
                             <button type="submit" class="btn is--small column--actions-link"
                                     title="{% trans %}frontend.checkout.cart_item.CartItemLinkDelete{% endtrans %}">
                                 <i class="icon--cross"></i>
                             </button>
                             <input type="hidden" name="identifier" value="{{ lineItem.key }}" />
-                            {#<input type="hidden" name="target" value="{{ 'cart_index' }}" />#}
+                            {#<input type="hidden" name="target" value="{{ 'frontend.cart' }}" />#}
                         </form>
                     {% endblock %}
                 </div>

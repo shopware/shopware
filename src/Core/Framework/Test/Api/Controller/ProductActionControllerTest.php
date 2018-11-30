@@ -90,7 +90,13 @@ class ProductActionControllerTest extends TestCase
         static::assertEquals($colorId, $red->getOption()->getGroupId());
         static::assertEquals($colorId, $blue->getOption()->getGroupId());
 
-        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '/actions/generate-variants');
+        $url = sprintf(
+            '/api/v%s/_action/product/%s/generate-variant',
+            PlatformRequest::API_VERSION,
+            $product->getId()
+        );
+
+        $this->getClient()->request('POST', $url);
         static::assertSame(200, $this->getClient()->getResponse()->getStatusCode());
 
         $ids = $this->getClient()->getResponse()->getContent();

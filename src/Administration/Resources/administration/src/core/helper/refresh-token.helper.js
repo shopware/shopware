@@ -10,7 +10,7 @@ export default class RefreshTokenHelper {
         this._subscribers = [];
         this._whitelist = [
             '/oauth/token',
-            '/entity-schema.json'
+            '/_info/entity-schema.json'
         ];
     }
 

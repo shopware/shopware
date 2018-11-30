@@ -37,7 +37,17 @@ class StorefrontCategoryController extends AbstractController
     }
 
     /**
-     * @Route("/storefront-api/category", name="storefront.api.category.list")
+     * @Route("/storefront-api/category", name="storefront.api.category.list.deprecated")
+     *
+     * @deprecated
+     */
+    public function listDeprecated(Request $request, CheckoutContext $checkoutContext, ResponseFactoryInterface $responseFactory): Response
+    {
+        return $this->list($request, $checkoutContext, $responseFactory);
+    }
+
+    /**
+     * @Route("/storefront-api/v{version}/category", name="storefront-api.category.list", methods={"GET", "POST"})
      */
     public function list(Request $request, CheckoutContext $checkoutContext, ResponseFactoryInterface $responseFactory): Response
     {
@@ -61,7 +71,17 @@ class StorefrontCategoryController extends AbstractController
     }
 
     /**
-     * @Route("/storefront-api/category/{categoryId}", name="storefront.api.category.detail", methods={"GET"})
+     * @Route("/storefront-api/category/{categoryId}", name="storefront.api.category.detail.deprecated", methods={"GET"})
+     *
+     * @deprecated
+     */
+    public function detailDeprecated(string $categoryId, Request $request, CheckoutContext $checkoutContext, ResponseFactoryInterface $responseFactory): Response
+    {
+        return $this->detail($categoryId, $request, $checkoutContext, $responseFactory);
+    }
+
+    /**
+     * @Route("/storefront-api/v{version}/category/{categoryId}", name="storefront-api.category.detail", methods={"GET"})
      *
      * @throws CategoryNotFoundException
      * @throws InvalidUuidException

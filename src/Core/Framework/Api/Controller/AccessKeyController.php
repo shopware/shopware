@@ -10,7 +10,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class AccessKeyController extends AbstractController
 {
     /**
-     * @Route("/api/v{version}/integration/actions/generate-key", name="api.integration.actions.generate.key", methods={"GET"})
+     * @Route("/api/v{version}/_action/access-key/intergration", name="api.action.access-key.integration", methods={"GET"})
      *
      * @return JsonResponse
      */
@@ -23,7 +23,7 @@ class AccessKeyController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/user/actions/generate-key", name="api.user.actions.generate.key", methods={"GET"})
+     * @Route("/api/v{version}/_action/access-key/user", name="api.action.access-key.user", methods={"GET"})
      *
      * @return JsonResponse
      */
@@ -36,7 +36,7 @@ class AccessKeyController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/sales-channel/actions/generate-key", name="api.sales_channel.actions.generate.key", methods={"GET"})
+     * @Route("/api/v{version}/_action/access-key/sales-channel", name="api.action.access-key.sales-channel", methods={"GET"})
      *
      * @return JsonResponse
      */

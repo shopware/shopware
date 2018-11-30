@@ -74,15 +74,15 @@ class CheckoutController extends StorefrontController
     }
 
     /**
-     * @Route("/checkout", name="checkout_index", options={"seo"="false"})
+     * @Route("/checkout", name="frontend.checkout.forward", options={"seo"="false"}, methods={"GET"})
      */
     public function index(): RedirectResponse
     {
-        return $this->redirectToRoute('checkout_cart');
+        return $this->redirectToRoute('frontend.checkout.cart.page');
     }
 
     /**
-     * @Route("/checkout/cart", name="checkout_cart", options={"seo"="false"})
+     * @Route("/checkout/cart", name="frontend.checkout.cart.page", options={"seo"="false"}, methods={"GET"})
      *
      * @throws CartTokenNotFoundException
      */
@@ -94,7 +94,7 @@ class CheckoutController extends StorefrontController
     }
 
     /**
-     * @Route("/checkout/shippingPayment", name="checkout_shipping_payment", options={"seo"="false"})
+     * @Route("/checkout/shipping-payment", name="frontend.checkout.shipping-payment.page", options={"seo"="false"}, methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
      */
@@ -108,7 +108,7 @@ class CheckoutController extends StorefrontController
     }
 
     /**
-     * @Route("/checkout/saveShippingPayment", name="checkout_save_shipping_payment", options={"seo"="false"}, methods={"POST"})
+     * @Route("/checkout/shipping-payment", name="frontend.checkout.shipping-payment.update", options={"seo"="false"}, methods={"PATCH"})
      *
      * @throws UnknownPaymentMethodException
      * @throws CustomerNotLoggedInException
@@ -129,11 +129,11 @@ class CheckoutController extends StorefrontController
         );
 
         // todo validate, process and store custom template data
-        return $this->redirectToRoute('checkout_confirm');
+        return $this->redirectToRoute('frontend.checkout.confirm.page');
     }
 
     /**
-     * @Route("/checkout/confirm", name="checkout_confirm", options={"seo"="false"})
+     * @Route("/checkout/confirm", name="frontend.checkout.confirm.page", options={"seo"="false"}, methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
      * @throws CartTokenNotFoundException
@@ -143,7 +143,7 @@ class CheckoutController extends StorefrontController
         $this->denyAccessUnlessLoggedIn();
 
         if ($this->cartService->getCart($context->getToken(), $context)->getLineItems()->count() === 0) {
-            return $this->redirectToRoute('checkout_cart');
+            return $this->redirectToRoute('frontend.checkout.cart.page');
         }
 
         return $this->renderStorefront('@Storefront/frontend/checkout/confirm.html.twig', [
@@ -153,7 +153,7 @@ class CheckoutController extends StorefrontController
     }
 
     /**
-     * @Route("/checkout/order", name="checkout_order", options={"seo"="false"})
+     * @Route("/checkout/order", name="frontend.checkout.order", options={"seo"="false"}, methods={"POST"})
      *
      * @throws CartTokenNotFoundException
      */
@@ -162,17 +162,17 @@ class CheckoutController extends StorefrontController
         $cart = $this->cartService->getCart($context->getToken(), $context);
         // customer is not inside transaction loop and tries to finish the order
         if ($cart->getLineItems()->count() === 0) {
-            return $this->redirectToRoute('checkout_cart');
+            return $this->redirectToRoute('frontend.checkout.cart.page');
         }
 
         // save order and start transaction loop
         $orderId = $this->cartService->order($cart, $context);
 
-        return $this->redirectToRoute('checkout_pay', ['orderId' => $orderId]);
+        return $this->redirectToRoute('frontend.checkout.pay', ['orderId' => $orderId]);
     }
 
     /**
-     * @Route("/checkout/pay", name="checkout_pay", options={"seo"="false"})
+     * @Route("/checkout/pay", name="frontend.checkout.pay", options={"seo"="false"}, methods={"POST"})
      *
      * @throws InvalidOrderException
      * @throws UnknownPaymentMethodException
@@ -183,15 +183,15 @@ class CheckoutController extends StorefrontController
         $this->denyAccessUnlessLoggedIn();
 
         $orderId = $request->query->get('orderId');
-        $finishUrl = $this->router->generate('checkout_finish', ['orderId' => $orderId]);
+        $finishUrl = $this->router->generate('frontend.checkout.finish.page', ['orderId' => $orderId]);
 
         $response = $this->paymentService->handlePaymentByOrder($orderId, $context, $finishUrl);
 
-        return $response ?? $this->redirectToRoute('checkout_finish', ['orderId' => $orderId]);
+        return $response ?? $this->redirectToRoute('frontend.checkout.finish.page', ['orderId' => $orderId]);
     }
 
     /**
-     * @Route("/checkout/finish", name="checkout_finish", options={"seo"="false"}, methods={"GET"})
+     * @Route("/checkout/finish", name="frontend.checkout.finish.page", options={"seo"="false"}, methods={"POST"})
      *
      * @throws CustomerNotLoggedInException
      * @throws OrderNotFoundException

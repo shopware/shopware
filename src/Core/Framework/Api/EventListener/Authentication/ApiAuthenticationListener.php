@@ -31,10 +31,9 @@ class ApiAuthenticationListener implements EventSubscriberInterface
      */
     private static $unprotectedRoutes = [
         '/api/oauth/',
-        '/api/v1/info',
-        '/api/v1/info.yaml',
-        '/api/v1/info.json',
-        '/api/v1/entity-schema.json',
+        '/api/v1/_info/swagger.html',
+        '/api/v1/_info/openapi3.json',
+        '/api/v1/_info/entity-schema.json',
     ];
 
     /**

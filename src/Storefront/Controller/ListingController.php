@@ -21,7 +21,7 @@ class ListingController extends StorefrontController
     }
 
     /**
-     * @Route("/listing/{id}", name="listing_page", options={"seo"=true})
+     * @Route("/listing/{id}", name="frontend.listing.page", options={"seo"=true}, methods={"GET"})
      */
     public function index(string $id, CheckoutContext $context, ListingPageRequest $request): Response
     {

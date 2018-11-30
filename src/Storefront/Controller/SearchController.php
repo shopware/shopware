@@ -22,7 +22,7 @@ class SearchController extends StorefrontController
     }
 
     /**
-     * @Route("/search", name="search_index", options={"seo"=false})
+     * @Route("/search", name="frontend.search.page", options={"seo"=false}, methods={"GET"})
      *
      * @return Response
      */
@@ -41,14 +41,14 @@ class SearchController extends StorefrontController
     }
 
     /**
-     * @Route("/suggestSearch", name="search_ajax")
+     * @Route("/search/suggest", name="frontend.search.suggest", methods={"GET"})
      *
      * @param CheckoutContext   $context
      * @param SearchPageRequest $searchPageRequest
      *
      * @return Response
      */
-    public function ajax(CheckoutContext $context, Request $request, SearchPageRequest $searchPageRequest): Response
+    public function suggest(CheckoutContext $context, Request $request, SearchPageRequest $searchPageRequest): Response
     {
         $searchTerm = $request->get('search');
 

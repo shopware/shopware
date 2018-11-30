@@ -49,7 +49,7 @@
                                     {% if true %}
 
                                         {% block frontend_checkout_actions_checkout %}
-                                            <a href="{{ path('checkout_confirm') }}" title="{% trans %}frontend.checkout.actions.CheckoutActionsLinkProceedShort{% endtrans %}"
+                                            <a href="{{ path('frontend.checkout.confirm.page') }}" title="{% trans %}frontend.checkout.actions.CheckoutActionsLinkProceedShort{% endtrans %}"
                                                class="btn btn--checkout-proceed is--primary right is--icon-right is--large">
                                                 {% trans %}frontend.checkout.actions.CheckoutActionsLinkProceedShort{% endtrans %}
                                                 <i class="icon--arrow-right"></i>
@@ -109,7 +109,7 @@
 
                                     {# Forward to the checkout #}
                                     {% block frontend_checkout_actions_confirm_bottom_checkout %}
-                                        <a href="{{ path('checkout_confirm') }}" title="{% trans %}frontend.checkout.actions.CheckoutActionsLinkProceedShort{% endtrans %}"
+                                        <a href="{{ path('frontend.checkout.confirm.page') }}" title="{% trans %}frontend.checkout.actions.CheckoutActionsLinkProceedShort{% endtrans %}"
                                            class="btn btn--checkout-proceed is--primary right is--icon-right is--large">
                                             {% trans %}frontend.checkout.actions.CheckoutActionsLinkProceedShort{% endtrans %}
                                             <i class="icon--arrow-right"></i>

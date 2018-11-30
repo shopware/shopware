@@ -21,7 +21,7 @@ class DetailController extends StorefrontController
     }
 
     /**
-     * @Route("/detail/{id}", name="detail_page", options={"seo"="true"})
+     * @Route("/detail/{id}", name="frontend.detail.page", options={"seo"="true"}, methods={"GET"})
      */
     public function index(string $id, CheckoutContext $context, Request $request): Response
     {

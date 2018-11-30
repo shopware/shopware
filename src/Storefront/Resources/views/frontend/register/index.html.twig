@@ -103,7 +103,7 @@
 
             {% block frontend_register_index_form %}
                 {# TODO sTarget sTargetAction #}
-                <form method="post" action="{{ path('account_save_registration', {'redirectTo': redirectTo}) }}" class="panel register--form">
+                <form method="post" action="{{ path('frontend.account.registration.save', {'redirectTo': redirectTo}) }}" class="panel register--form">
                     {% block frontend_register_index_form_captcha_fieldset %}
                         {#{include file="frontend/register/error_message.tpl" error_messages=$errors.captcha}#}
                     {% endblock %}

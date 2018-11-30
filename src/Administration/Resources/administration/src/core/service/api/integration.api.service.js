@@ -22,7 +22,7 @@ class IntegrationApiService extends ApiService {
         const headers = this.getBasicHeaders(additionalHeaders);
 
         return this.httpClient
-            .get(`${this.getApiBasePath()}/actions/generate-key`, {
+            .get('/_action/access-key/intergration', {
                 params,
                 headers
             })

@@ -1,7 +1,7 @@
 {% sw_extends '@Storefront/frontend/checkout/cart/cart-item.html.twig' %}
 
 {% block frontend_checkout_cart_item_details_title %}
-    {% set detailUrl = path('detail_page', { 'id': lineItem.key }) %}
+    {% set detailUrl = path('frontend.detail.page', { 'id': lineItem.key }) %}
     {% if lineItem.extensions.canonicalUrl %}
         {% set detailUrl = lineItem.extensions.canonicalUrl.url %}
     {% endif %}
@@ -20,7 +20,7 @@
 
 {% block frontnend_checkout_cart_item_delete_form %}
     <div class="action--container">
-        {% set deleteUrl = path('cart.line_item.delete') %}
+        {% set deleteUrl = path('frontend.cart.line-item.delete') %}
 
         <a href="{{ deleteUrl }}"
            class="btn is--small action--remove"

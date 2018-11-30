@@ -6,7 +6,7 @@
 
 {# @var product \Shopware\Core\Content\Product\Storefront\StorefrontProductStruct #}
 {# @var page \Shopware\Storefront\Page\Detail\DetailPageStruct #}
-{% set url = path('detail_page', { id: product.id }) %}
+{% set url = path('frontend.detail.page', { id: product.id }) %}
 
 <form method="post" action="{{ url }}" class="configurator--form selection--form">
     {% set groups = page.configurator.groupedOptions %}

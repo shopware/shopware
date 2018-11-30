@@ -8,7 +8,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class IndexController extends StorefrontController
 {
     /**
-     * @Route("/", name="homepage", options={"seo"="false"})
+     * @Route("/", name="frontend.home.page", options={"seo"="false"}, methods={"GET"})
      *
      * @return Response
      */

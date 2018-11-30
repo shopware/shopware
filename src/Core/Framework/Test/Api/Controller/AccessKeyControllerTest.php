@@ -13,7 +13,11 @@ class AccessKeyControllerTest extends TestCase
 
     public function testIntegrationAccessKey(): void
     {
-        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/integration/actions/generate-key');
+        $url = sprintf(
+            '/api/v%s/_action/access-key/intergration',
+            PlatformRequest::API_VERSION
+        );
+        $this->getClient()->request('GET', $url);
 
         $response = $this->getClient()->getResponse();
         $body = json_decode($response->getContent(), true);
@@ -35,7 +39,11 @@ class AccessKeyControllerTest extends TestCase
 
     public function testUserAccessKey(): void
     {
-        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/user/actions/generate-key');
+        $url = sprintf(
+            '/api/v%s/_action/access-key/user',
+            PlatformRequest::API_VERSION
+        );
+        $this->getClient()->request('GET', $url);
 
         $response = $this->getClient()->getResponse();
         $body = json_decode($response->getContent(), true);
@@ -57,7 +65,11 @@ class AccessKeyControllerTest extends TestCase
 
     public function testSalesChannelAccessKey(): void
     {
-        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/sales-channel/actions/generate-key');
+        $url = sprintf(
+            '/api/v%s/_action/access-key/sales-channel',
+            PlatformRequest::API_VERSION
+        );
+        $this->getClient()->request('GET', $url);
 
         $response = $this->getClient()->getResponse();
         $body = json_decode($response->getContent(), true);

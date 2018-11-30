@@ -6,7 +6,7 @@ import ApiService from './api.service';
  * @extends ApiService
  */
 class SearchApiService extends ApiService {
-    constructor(httpClient, loginService, apiEndpoint = 'admin/search') {
+    constructor(httpClient, loginService, apiEndpoint = '_search') {
         super(httpClient, loginService, apiEndpoint);
     }
 

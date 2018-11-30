@@ -38,9 +38,14 @@ class MediaUploadControllerTest extends TestCase
         $path = $this->urlGenerator->getAbsoluteMediaUrl($this->mediaId, 'png');
         static::assertFalse($this->getPublicFilesystem()->has($path));
 
+        $url = sprintf(
+            '/api/v%s/_action/media/%s/upload',
+            PlatformRequest::API_VERSION,
+            $this->mediaId
+        );
         $this->getClient()->request(
             'POST',
-            "/api/v1/media/{$this->mediaId}/actions/upload?extension=png",
+            $url . '?extension=png',
             [],
             [],
             [
@@ -73,10 +78,16 @@ class MediaUploadControllerTest extends TestCase
 
         $baseUrl = getenv('APP_URL');
 
+        $url = sprintf(
+            '/api/v%s/_action/media/%s/upload',
+            PlatformRequest::API_VERSION,
+            $this->mediaId
+        );
+
         try {
             $this->getClient()->request(
                  'POST',
-                 "/api/v1/media/{$this->mediaId}/actions/upload?extension=png",
+                 $url . '?extension=png',
                  [],
                  [],
                  [

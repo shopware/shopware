@@ -9,7 +9,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class CsrfTokenController extends AbstractController
 {
     /**
-     * @Route("/csrftoken", name="csrftoken", methods={"GET"})
+     * @Route("/csrftoken", name="frontend.security.csrf", methods={"GET"})
      */
     public function index(): Response
     {

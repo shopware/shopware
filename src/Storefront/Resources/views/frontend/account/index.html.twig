@@ -78,7 +78,7 @@
 
                     {% block frontend_account_index_info_actions %}
                         <div class="panel--actions is--wide">
-                            <a href="{{ path('account_profile') }}" title="{% trans %}frontend.account.index.AccountLinkChangeProfile{% endtrans %}" class="btn is--small">
+                            <a href="{{ path('frontend.account.profile.page') }}" title="{% trans %}frontend.account.index.AccountLinkChangeProfile{% endtrans %}" class="btn is--small">
                                 {% trans %}frontend.account.index.AccountLinkChangeProfile{% endtrans %}
                             </a>
                         </div>
@@ -108,7 +108,7 @@
 
                     {% block frontend_account_index_payment_method_actions %}
                         <div class="panel--actions is--wide">
-                            <a href="{{ path('account_payment') }}"
+                            <a href="{{ path('frontend.account.payment.page') }}"
                                title="{% trans %}frontend.account.index.AccountLinkChangePayment{% endtrans %}"
                                class="btn is--small">
                                 {% trans %}frontend.account.index.AccountLinkChangePayment{% endtrans %}
@@ -140,13 +140,13 @@
                         {% block frontend_account_index_primary_billing_actions %}
                             <div class="panel--actions is--wide">
                                 {# TODO sTarget missing #}
-                                <a href="{{ path('address_edit', {'addressId': context.customer.defaultBillingAddressId}) }}"
+                                <a href="{{ path('frontend.account.address.edit.page', {'addressId': context.customer.defaultBillingAddressId}) }}"
                                    title="{% trans %}frontend.account.index.AccountLinkChangeBilling{% endtrans %}"
                                    class="btn">
                                     {% trans %}frontend.account.index.AccountLinkChangeBilling{% endtrans %}
                                 </a>
                                 <br/>
-                                <a href="{{ path('address_index') }}"
+                                <a href="{{ path('frontend.account.address.page') }}"
                                    data-address-selection="true"
                                    data-setDefaultBillingAddress="1"
                                    data-id="{{ context.customer.defaultBillingAddressId }}"
@@ -188,7 +188,7 @@
                             {% if context.customer.defaultBillingAddressId == context.customer.defaultShippingAddressId %}
                                 {% block frontend_account_index_primary_shipping_choose_seperate_address %}
                                         <div class="panel--actions is--wide">
-                                            <a href="{{ path('address_index') }}"
+                                            <a href="{{ path('frontend.account.address.page') }}"
                                                class="btn choose-different-address"
                                                data-address-selection="true"
                                                data-setDefaultShippingAddress="1"
@@ -202,13 +202,13 @@
                                 {% block frontend_account_index_primary_shipping_add_select_address %}
                                     <div class="panel--actions is--wide">
                                         {# todo implement sTarget #}
-                                        <a href="{{ path('address_edit', {'addressId': context.customer.defaultShippingAddressId}) }}"
+                                        <a href="{{ path('frontend.account.address.edit.page', {'addressId': context.customer.defaultShippingAddressId}) }}"
                                            title="{% trans %}frontend.account.index.AccountLinkChangeShipping{% endtrans %}"
                                            class="btn">
                                             {% trans %}frontend.account.index.AccountLinkChangeShipping{% endtrans %}
                                         </a>
                                         <br/>
-                                        <a href="{{ path('address_index') }}"
+                                        <a href="{{ path('frontend.account.address.page') }}"
                                            data-address-selection="true"
                                            data-setDefaultShippingAddress="1"
                                            data-id="{{ context.customer.defaultShippingAddressId }}"

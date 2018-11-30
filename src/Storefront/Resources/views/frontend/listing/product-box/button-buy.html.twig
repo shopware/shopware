@@ -2,10 +2,10 @@
     {% block frontend_listing_product_box_button_buy_form %}
         <form name="addToCart"
               method="post"
-              action="{{ path('cart.product.add') }}"
+              action="{{ path('frontend.cart.product.add') }}"
               class="buybox--form"
               data-add-article="true"
-              data-addArticleUrl="{{ path('cart.product.add') }}"
+              data-addArticleUrl="{{ path('frontend.cart.product.add') }}"
               data-showModal="false">
 
             {% block frontend_listing_product_box_button_buy_order_number %}

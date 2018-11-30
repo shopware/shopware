@@ -86,9 +86,9 @@
                 {% block frontend_checkout_ajax_cart_button_container_inner %}
                         {% block frontend_checkout_ajax_cart_open_checkout %}
                             {% if context.customer %}
-                                {% set url = path('checkout_confirm') %}
+                                {% set url = path('frontend.checkout.confirm.page') %}
                                 {% if shopware.config.always_select_payment %}
-                                    {% set url = path('checkout_shipping_payment') %}
+                                    {% set url = path('frontend.checkout.shipping-payment.page') %}
                                 {% endif %}
 
                                 <a href="{{ url }}"
@@ -106,7 +106,7 @@
                             {% endif %}
                         {% endblock %}
                         {% block frontend_checkout_ajax_cart_open_basket %}
-                            <a href="{{ path('checkout_cart') }}"
+                            <a href="{{ path('frontend.checkout.cart.page') }}"
                                class="btn button--open-basket is--icon-right"
                                title="{% trans %}frontend.checkout.ajax_cart.AjaxCartLinkBasket{% endtrans %}">
                                 <i class="icon--arrow-right"></i>

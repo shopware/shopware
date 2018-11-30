@@ -218,7 +218,11 @@ class PriceActionControllerTest extends TestCase
 
     private function sendRequest(array $data): Price
     {
-        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/price/actions/calculate', [], [], [], json_encode($data));
+        $url = sprintf(
+            '/api/v%s/_action/calculate-price',
+            PlatformRequest::API_VERSION
+        );
+        $this->getClient()->request('POST', $url, [], [], [], json_encode($data));
 
         $response = $this->getClient()->getResponse()->getContent();
 

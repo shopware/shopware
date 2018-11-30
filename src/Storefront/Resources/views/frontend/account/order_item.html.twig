@@ -119,7 +119,7 @@
         {# Order actions #}
         {% block frontend_account_order_item_actions %}
             <div class="order--actions panel--td column--actions">
-                <a href="{{ path('checkout_finish', {'order': order.id}) }}"
+                <a href="{{ path('frontend.checkout.finish.page', {'order': order.id}) }}"
                    target="_blank"
                    title="{% trans %}frontend.account.order_item.OrderActionSlide{% endtrans %} {{ order.id }}"
                    class="btn is--small">

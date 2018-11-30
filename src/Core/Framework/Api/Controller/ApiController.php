@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
 use Shopware\Core\Framework\Api\Exception\UnknownRepositoryVersionException;
 use Shopware\Core\Framework\Api\OAuth\Scope\WriteScope;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
+use Shopware\Core\Framework\Api\Response\Type\Api\JsonType;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -30,8 +31,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\Search\CompositeEntitySearcher;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -39,6 +42,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 use Symfony\Component\Serializer\Serializer;
@@ -68,17 +72,38 @@ class ApiController extends AbstractController
      */
     private $searchCriteriaBuilder;
 
+    /**
+     * @var CompositeEntitySearcher
+     */
+    private $compositeEntitySearcher;
+
     public function __construct(
         DefinitionRegistry $definitionRegistry,
         Serializer $serializer,
         EntityWriterInterface $entityWriter,
-        RequestCriteriaBuilder $searchCriteriaBuilder
+        RequestCriteriaBuilder $searchCriteriaBuilder,
+        CompositeEntitySearcher $compositeEntitySearcher
     ) {
         $this->definitionRegistry = $definitionRegistry;
         $this->serializer = $serializer;
         $this->entityWriter = $entityWriter;
-
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->compositeEntitySearcher = $compositeEntitySearcher;
+    }
+
+    /**
+     * @Route("/api/v{version}/_search", name="api.composite.search", methods={"GET"})
+     */
+    public function compositeSearch(Request $request, Context $context): JsonResponse
+    {
+        $term = $request->query->get('term');
+        $limit = $request->query->getInt('limit', 20);
+
+        $result = $this->compositeEntitySearcher->search($term, $limit, $context, $context->getSourceContext()->getUserId());
+
+        $result = json_decode(json_encode($result), true);
+
+        return new JsonResponse(JsonType::format($result));
     }
 
     public function detail(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $path): Response

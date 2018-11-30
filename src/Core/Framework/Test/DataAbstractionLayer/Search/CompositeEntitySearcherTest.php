@@ -1,19 +1,19 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Administration\Test\Search;
+namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Administration\Search\AdministrationSearch;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\Search\CompositeEntitySearcher;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
-class AuditLogSearchTest extends TestCase
+class CompositeEntitySearcherTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
@@ -28,7 +28,7 @@ class AuditLogSearchTest extends TestCase
     private $connection;
 
     /**
-     * @var AdministrationSearch
+     * @var CompositeEntitySearcher
      */
     private $search;
 
@@ -47,7 +47,7 @@ class AuditLogSearchTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
 
         $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->search = $this->getContainer()->get(AdministrationSearch::class);
+        $this->search = $this->getContainer()->get(CompositeEntitySearcher::class);
         $this->context = $context = Context::createDefaultContext();
 
         $this->userId = Uuid::uuid4()->getHex();

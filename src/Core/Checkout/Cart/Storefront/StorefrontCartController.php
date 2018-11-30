@@ -124,14 +124,14 @@ class StorefrontCartController extends AbstractController
      * @throws InvalidPayloadException
      * @throws CartTokenNotFoundException
      */
-    public function addProduct(string $productId, Request $request, CheckoutContext $context): JsonResponse
+    public function addProduct(string $id, Request $request, CheckoutContext $context): JsonResponse
     {
         $token = $request->request->getAlnum('token', $context->getToken());
         $quantity = $request->request->getInt('quantity', 1);
         $payload = $request->request->get('payload', []);
-        $payload = array_replace_recursive(['id' => $productId], $payload);
+        $payload = array_replace_recursive(['id' => $id], $payload);
 
-        $lineItem = (new LineItem($productId, ProductCollector::LINE_ITEM_TYPE, $quantity))
+        $lineItem = (new LineItem($id, ProductCollector::LINE_ITEM_TYPE, $quantity))
             ->setPayload($payload)
             ->setRemovable(true)
             ->setStackable(true);

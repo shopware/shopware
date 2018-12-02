@@ -71,10 +71,18 @@ Mixin.register('listing', {
                 delete params.criteria;
             }
 
-            this.$router.push({
+            const route = {
                 name: this.routeName,
                 query: params
-            });
+            };
+
+            // Don't push another item onto the stack, if the component has not been mounted yet, to prevent duplicate
+            // items that effectively load the same list
+            if (typeof this.$el === 'undefined') {
+                this.$router.replace(route);
+            } else {
+                this.$router.push(route);
+            }
         },
 
         getListingParams() {

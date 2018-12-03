@@ -13,4 +13,9 @@ class FalseRule extends Rule
     ): Match {
         return new Match(false);
     }
+
+    public static function getConstraints(): array
+    {
+        return [];
+    }
 }

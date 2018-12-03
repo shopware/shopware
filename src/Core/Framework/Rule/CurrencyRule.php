@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Rule;
 
+use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
+use Symfony\Component\Validator\Constraints\NotBlank;
+
 class CurrencyRule extends Rule
 {
     /**
@@ -15,5 +18,12 @@ class CurrencyRule extends Rule
             \in_array($scope->getContext()->getCurrencyId(), $this->currencyIds, true),
             ['Currency not matched']
         );
+    }
+
+    public static function getConstraints(): array
+    {
+        return [
+            'currencyIds' => [new NotBlank(), new ArrayOfUuid()],
+        ];
     }
 }

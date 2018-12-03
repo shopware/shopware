@@ -23,7 +23,8 @@
 
         <service id="Shopware\Core\Content\Rule\Util\EventIdExtractor"/>
 
-        <service class="Shopware\Core\Content\Rule\RuleValidator" id="Shopware\Core\Content\Rule\RuleValidator">
+        <service id="Shopware\Core\Content\Rule\RuleValidator">
+            <argument type="service" id="validator"/>
             <tag name="shopware.validator"/>
         </service>
     </services>

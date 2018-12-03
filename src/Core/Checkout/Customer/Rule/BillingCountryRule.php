@@ -6,11 +6,13 @@ use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
+use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 class BillingCountryRule extends Rule
 {
     /**
-     * @var int[]
+     * @var string[]
      */
     protected $countryIds;
 
@@ -31,5 +33,12 @@ class BillingCountryRule extends Rule
             $id !== null && \in_array($id, $this->countryIds, true),
             ['Billing country not matched']
         );
+    }
+
+    public static function getConstraints(): array
+    {
+        return [
+            'countryIds' => [new NotBlank(), new ArrayOfUuid()],
+        ];
     }
 }

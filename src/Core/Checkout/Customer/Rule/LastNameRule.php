@@ -6,6 +6,8 @@ use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type;
 
 class LastNameRule extends Rule
 {
@@ -29,5 +31,12 @@ class LastNameRule extends Rule
             (bool) preg_match("/$this->lastName/", strtolower($customer->getLastName())),
             ['Last name not matched']
         );
+    }
+
+    public static function getConstraints(): array
+    {
+        return [
+            'lastName' => [new NotBlank(), new Type('string')],
+        ];
     }
 }

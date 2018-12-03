@@ -75,8 +75,8 @@ class IntegrationPageObject {
             .waitForElementVisible('.sw-modal')
             .assert.containsText('.sw-modal__body', `Are you sure you want to delete this integration? ${integrationName}`)
             .click('.sw-modal__footer button.sw-button--primary')
-            .waitForElementNotPresent('.sw-integration-list__column-integration-name')
             .waitForElementNotPresent('.sw-modal')
+            .waitForElementNotPresent('.sw-integration-list__column-integration-name')
             .waitForElementPresent('.sw-empty-state__title')
             .assert.containsText('.sw-empty-state__title', 'No integrations yet');
     }

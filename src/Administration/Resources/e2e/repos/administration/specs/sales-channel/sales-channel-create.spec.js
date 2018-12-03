@@ -40,6 +40,8 @@ module.exports = {
         const page = salesChannelPage(browser);
         page.openSalesChannel('1st Epic Sales Channel');
         browser
+            .waitForElementNotPresent('.sw-loader')
+            .waitForElementVisible('input[name=sw-field--salesChannel-name]')
             .expect.element('input[name=sw-field--salesChannel-name]').to.have.value.that.equals('1st Epic Sales Channel');
     },
     'check if the sales channel can be used in other modules': (browser) => {

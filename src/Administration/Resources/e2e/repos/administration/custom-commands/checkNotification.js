@@ -1,19 +1,21 @@
 /**
- * Checks if a notification prints out the message the user expects to get.
+ * Checks the notification and its message: Checks if a notification prints out the message the user expects to get. Afterwards the notification can be closed, if required
  *
  * @param {String} message
+ * @param {String} [type=.sw-alert]
  * @param {Boolean} [toBeClosed=true]
  * @returns {exports}
  */
-exports.command = function checkNotification(message, toBeClosed = true) {
+exports.command = function checkNotification(message, type = '.sw-alert', toBeClosed = true) {
     this
-        .waitForElementVisible('.sw-notifications .sw-alert')
-        .assert.containsText('.sw-alert .sw-alert__message', message);
+        .waitForElementVisible(`.sw-notifications ${type}`)
+        .waitForElementVisible(`.sw-notifications ${type}`)
+        .assert.containsText(`${type} ${type}__message`, message);
 
     if (toBeClosed) {
         this
-            .click('.sw-alert .sw-alert__close')
-            .waitForElementNotPresent('.sw-notifications .sw-alert');
+            .click(`${type} ${type}__close`)
+            .waitForElementNotPresent(`.sw-notifications ${type}`);
     }
     return this;
 };

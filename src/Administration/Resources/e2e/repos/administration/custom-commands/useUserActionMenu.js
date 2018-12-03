@@ -9,11 +9,12 @@ exports.command = function useUserActionMenu(username, open = true) {
     this
         .waitForElementVisible('.sw-admin-menu__user-actions-toggle')
         .waitForElementVisible('.sw-admin-menu__user-name')
-        .assert.containsText('.sw-admin-menu__user-name', username)
-        .click('.sw-admin-menu__user-actions-toggle');
+        .assert.containsText('.sw-admin-menu__user-name', username);
 
     if (open) {
-        this.waitForElementVisible('.sw-admin-menu__logout-action');
+        this
+            .click('.sw-admin-menu__user-actions-toggle')
+            .waitForElementVisible('.sw-admin-menu__logout-action');
         return this;
     }
     this.waitForElementNotVisible('.sw-admin-menu__logout-action');

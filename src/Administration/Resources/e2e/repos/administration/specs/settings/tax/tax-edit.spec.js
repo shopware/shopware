@@ -19,6 +19,7 @@ module.exports = {
     'go back to listing': (browser) => {
         browser
             .click('a.smart-bar__back-btn')
+            .waitForElementNotPresent('.sw-loader')
             .waitForElementVisible('.sw-settings-tax-list-grid');
     },
     'edit tax': (browser) => {

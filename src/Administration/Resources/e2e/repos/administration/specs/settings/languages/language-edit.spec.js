@@ -33,6 +33,7 @@ module.exports = {
     'go back to listing and verify creation': (browser) => {
         browser
             .click('a.smart-bar__back-btn')
+            .waitForElementNotPresent('.sw-loader')
             .waitForElementVisible('.sw-settings-language-list-grid')
             .waitForElementVisible('.sw-grid-row:last-child .sw-language-list__column-name')
             .assert.containsText('.sw-grid-row:last-child .sw-language-list__column-name', 'Philippine English english');

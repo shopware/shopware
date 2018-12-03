@@ -1,4 +1,5 @@
 const manufacturerPage = require('administration/page-objects/sw-manufacturer.page-object.js');
+const mediaPageObject = require('administration/page-objects/sw-media.page-object.js');
 
 module.exports = {
     '@tags': ['product', 'manufacturer-edit', 'manufacturer', 'edit'],
@@ -38,17 +39,15 @@ module.exports = {
             .fillField('input[name=link]', 'https://google.com/doodles')
             .fillField('.ql-editor', 'Schnell den langen Text austauschen, sodass es keiner mitbekommt!','editor')
             .click('.sw-manufacturer-detail__save-action')
-            // .waitForElementPresent('.sw-alert__close')
-            // .click('.sw-alert__close')
-            // .waitForElementNotPresent('.sw-alert__close')
             .checkNotification('Manufacturer "Minnie\'s Haberdashery" has been saved successfully.')
             .click('.sw-button__content');
     },
-    'delete manufacturer': (browser) => {
+    'delete manufacturer, including its logo': (browser) => {
         browser
             .openMainMenuEntry('#/sw/product/index', 'Product', '#/sw/manufacturer/index', 'Manufacturer');
 
         const page = manufacturerPage(browser);
+        const mediaPage = mediaPageObject(browser);
         page.deleteManufacturer('Minnie\'s Haberdashery');
 
         browser
@@ -57,6 +56,10 @@ module.exports = {
             .waitForElementVisible('.sw-grid-row:first-child')
             .assert.containsText('.sw-grid-row:first-child', 'shopware AG')
             .assert.containsText('.sw-page__smart-bar-amount', '(1)');
+
+        mediaPage.openMediaFolder();
+        mediaPage.deleteImage();
+        browser.waitForElementNotPresent('.sw-media-index__catalog-grid .sw-media-grid__content-cell');
     },
     after: (browser) => {
         browser.end();

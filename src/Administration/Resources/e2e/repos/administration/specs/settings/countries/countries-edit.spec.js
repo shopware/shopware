@@ -20,6 +20,7 @@ module.exports = {
     'go back to listing and verify creation': (browser) => {
         browser
             .click('a.smart-bar__back-btn')
+            .waitForElementNotPresent('.sw-loader')
             .waitForElementVisible('.sw-settings-country-list-grid')
             .waitForElementNotPresent('.sw-alert__message')
             .waitForElementVisible('.sw-country-list__column-name:first-child')

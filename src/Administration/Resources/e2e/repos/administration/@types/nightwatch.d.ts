@@ -2298,7 +2298,7 @@ export interface NightwatchCustomCommands {
     useUserActionMenu(username: string, open?: boolean): this,
 
     /**
-     * Opens or collapses the user-related menu section of the admin menu, containing language switch, profile and logout
+     * Checks the notification and its message: Checks if a notification prints out the message the user expects to get. Afterwards the notification can be closed, if required
      *
      * @param {String} message
      * @param {Boolean} [toBeClosed=true]

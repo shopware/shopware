@@ -1,21 +1,22 @@
 const loginPage = require('../page-objects/sw-login.page-object.js');
 
 module.exports = {
-    login: (browser, username, password) => {
-        username = username || 'admin';
-        password = password || 'shopware';
-
-        browser
-            .waitForElementVisible('.sw-login')
-            .assert.containsText('h2', 'Log in to your Shopware store');
+    /**
+     * @param {Object} browser
+     * @param {String} [username='admin']
+     * @param {String} [password="shopware"]
+     * @param {Function} [callbackFn=() => {}]
+     */
+    login: (browser, username, password, callbackFn = () => {}) => {
         const page = loginPage(browser);
         page.fastLogin(username, password);
-        browser
-            .waitForElementVisible('.sw-desktop')
-            .waitForElementVisible('.sw-admin-menu');
 
-        if (browser.isVisible('.hide-button')) {
-            browser.click('.hide-button').waitForElementNotVisible('.hide-button');
-        }
+        browser.element('css selector', '.hide-button', function(result) {
+            if (result.status !== -1) {
+                browser.click('.hide-button').waitForElementNotVisible('.hide-button');
+            }
+
+            callbackFn.call(null);
+        });
     }
 };

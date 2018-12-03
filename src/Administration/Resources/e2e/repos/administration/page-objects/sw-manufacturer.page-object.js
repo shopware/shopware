@@ -1,13 +1,6 @@
 class ManufacturerPageObject {
     constructor(browser) {
         this.browser = browser;
-        this.elements = {};
-        this.elements.salesChannelNameInput = 'input[name=sw-field--salesChannel-name]';
-        this.elements.salesChannelMenuTitle = '.sw-admin-menu__sales-channel-item .collapsible-text';
-        this.elements.apiAccessKeyField = 'input[name=sw-field--salesChannel-accessKey]';
-
-        this.accessKeyId = '';
-        this.newAccessKeyId = '';
     }
 
     createBasicManufacturer(manufacturerName) {
@@ -47,10 +40,6 @@ class ManufacturerPageObject {
                 `Are you sure you want to delete the manufacturer "${manufacturerName}"?`
             )
             .click('.sw-modal__footer button.sw-button--primary')
-            .waitForElementNotPresent('.sw-modal')
-            .getValue(this.elements.salesChannelMenuTitle, function checkValueNotPresent(result) {
-                this.assert.notEqual(result, manufacturerName);
-            })
             .waitForElementNotPresent('.sw-modal');
     }
 }

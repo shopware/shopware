@@ -5,7 +5,7 @@
             {% block frontend_index_navigation_categories_top_home %}
                 <li class="navigation--entry{% if activeRoute == 'homepage' %} is--active{% endif %} is--home" role="menuitem">
                     {% block frontend_index_navigation_categories_top_link_home %}
-                        <a class="navigation--link is--first{% if Controller == 'index' %} active{% endif %}" href="{{ url('homepage') }}" title="{{ 'frontend.index.categories_top.IndexLinkHome'|trans|escape }}" itemprop="url">
+                        <a class="navigation--link is--first{% if Controller == 'index' %} active{% endif %}" href="{{ url('frontend.home.page') }}" title="{{ 'frontend.index.categories_top.IndexLinkHome'|trans|escape }}" itemprop="url">
                             <span itemprop="name">{% trans %}frontend.index.categories_top.IndexLinkHome{% endtrans %}</span>
                         </a>
                     {% endblock %}
@@ -23,7 +23,7 @@
                         {% if category.extensions.canonicalUrl %}
                             {% set url = category.extensions.canonicalUrl.url %}
                         {% else %}
-                            {% set url = url('listing_page', { 'id': category.id }) %}
+                            {% set url = url('frontend.listing.page', { 'id': category.id }) %}
                         {% endif %}
 
                         {% set isActive = (category.id in navigation.activeCategory.path or category.id == navigation.activeCategory.id) %}

@@ -9,7 +9,7 @@
             {% set detailUrl = lineItem.extensions.canonicalUrl.url %}
         {% else %}
             {% if lineItem.key and lineItem.product %}
-                {% set detailUrl = url('detail_page', { 'id': lineItem.key }) %}
+                {% set detailUrl = url('frontend.detail.page', { 'id': lineItem.key }) %}
             {% endif %}
         {% endif %}
 
@@ -117,7 +117,7 @@
                         {{ lineItem.quantity }}
                     {% elseif not lineItem.lastStock or (lineItem.lastStock and lineItem.stock > 0) %}
                         {#{% if lineItem.lineItem %}#}
-                            <form name="cart_product_change_quantity" class="select-field" method="post" action="{{ path('frontend.cart.line-item.update-quantity') }}">
+                            <form name="cart_product_change_quantity" class="select-field" method="post" action="{{ path('frontend.cart.line-item.quantity.update') }}">
                                 <select name="quantity" data-auto-submit="true">
                                     {% set minPurchase = lineItem.variant.minPurchase ?? 1 %}
                                     {# TODO CONFIG AUSLESEN #}
@@ -132,7 +132,7 @@
                                 <input type="hidden" name="identifier" value="{{ lineItem.key }}" />
 
                                 {% block frontend_checkout_cart_item_quantity_target %}
-                                    <input type="hidden" name="target" value="checkout_cart" />
+                                    <input type="hidden" name="target" value="frontend.checkout.cart.page" />
                                 {% endblock %}
                             </form>
                         {#{% endif %}#}

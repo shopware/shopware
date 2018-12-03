@@ -29,7 +29,7 @@
 {# Cart entry #}
 {% block frontend_index_checkout_actions_cart %}
     <li class="navigation--entry entry--cart" role="menuitem">
-        <a class="btn is--icon-left cart--link" href="{{ url('checkout_cart') }}" title="{{ 'frontend.index.checkout_actions.IndexLinkCart'|trans|escape }}">
+        <a class="btn is--icon-left cart--link" href="{{ url('frontend.checkout.cart.page') }}" title="{{ 'frontend.index.checkout_actions.IndexLinkCart'|trans|escape }}">
             <span class="cart--display">
                 {% if context.customer %}
                     {% trans %}frontend.index.checkout_actions.IndexLinkCheckout{% endtrans %}

@@ -108,7 +108,7 @@ class CheckoutController extends StorefrontController
     }
 
     /**
-     * @Route("/checkout/shipping-payment", name="frontend.checkout.shipping-payment.update", options={"seo"="false"}, methods={"PATCH"})
+     * @Route("/checkout/shipping-payment", name="frontend.checkout.shipping-payment.update", options={"seo"="false"}, methods={"POST"})
      *
      * @throws UnknownPaymentMethodException
      * @throws CustomerNotLoggedInException
@@ -168,7 +168,7 @@ class CheckoutController extends StorefrontController
         // save order and start transaction loop
         $orderId = $this->cartService->order($cart, $context);
 
-        return $this->redirectToRoute('frontend.checkout.pay', ['orderId' => $orderId]);
+        return $this->redirectToRoute('frontend.checkout.pay', ['orderId' => $orderId], Response::HTTP_TEMPORARY_REDIRECT);
     }
 
     /**
@@ -191,7 +191,7 @@ class CheckoutController extends StorefrontController
     }
 
     /**
-     * @Route("/checkout/finish", name="frontend.checkout.finish.page", options={"seo"="false"}, methods={"POST"})
+     * @Route("/checkout/finish", name="frontend.checkout.finish.page", options={"seo"="false"}, methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
      * @throws OrderNotFoundException

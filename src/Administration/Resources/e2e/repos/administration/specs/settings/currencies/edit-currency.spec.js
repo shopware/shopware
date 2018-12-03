@@ -16,16 +16,13 @@ module.exports = {
             .fillField('input[name=sw-field--currency-factor]', '1.0076')
             .waitForElementPresent('.sw-settings-currency-detail__save-action')
             .click('.sw-settings-currency-detail__save-action')
-            .waitForElementVisible('.sw-notifications .sw-alert')
-            .assert.containsText('.sw-alert__message', 'Currency "Yen" has been saved successfully.')
+            .checkNotification('Currency "Yen" has been saved successfully.')
             .assert.urlContains('#/sw/settings/currency/detail');
     },
     'go back to listing and verify creation': (browser) => {
         browser
             .click('a.smart-bar__back-btn')
             .waitForElementVisible('.sw-settings-currency-list-grid')
-            .click('.sw-alert button.sw-alert__close')
-            .waitForElementNotPresent('.sw-alert__message')
             .waitForElementVisible('.sw-grid-row:last-child .sw-currency-list__column-name')
             .assert.containsText('.sw-grid-row:last-child .sw-currency-list__column-name', 'Yen');
     },
@@ -38,16 +35,13 @@ module.exports = {
             .setValue('input[name=sw-field--currency-name]', 'Yen but true')
             .waitForElementPresent('.sw-settings-currency-detail__save-action')
             .click('.sw-settings-currency-detail__save-action')
-            .waitForElementVisible('.sw-notifications .sw-alert')
-            .assert.containsText('.sw-alert__message', 'Currency "Yen but true" has been saved successfully.')
+            .checkNotification('Currency "Yen but true" has been saved successfully.')
             .assert.urlContains('#/sw/settings/currency/detail');
     },
     'verify edited currency': (browser) => {
         browser
             .click('a.smart-bar__back-btn')
             .waitForElementVisible('.sw-settings-currency-list-grid')
-            .click('.sw-alert button.sw-alert__close')
-            .waitForElementNotPresent('.sw-alert__message')
             .waitForElementVisible('.sw-grid-row:last-child .sw-currency-list__column-name')
             .assert.containsText('.sw-grid-row:last-child .sw-currency-list__column-name', 'Yen but true');
     },
@@ -59,8 +53,7 @@ module.exports = {
             .waitForElementVisible('.sw-modal')
             .assert.containsText('.sw-modal .sw-modal__body', 'Are you sure you want to delete the currency "Yen but true"?')
             .click('.sw-modal__footer button.sw-button--primary')
-            .waitForElementVisible('.sw-notifications .sw-alert')
-            .assert.containsText('.sw-notifications .sw-alert', 'Currency "Yen but true" has been deleted successfully.');
+            .checkNotification( 'Currency "Yen but true" has been deleted successfully.');
     },
     after: (browser) => {
         browser.end();

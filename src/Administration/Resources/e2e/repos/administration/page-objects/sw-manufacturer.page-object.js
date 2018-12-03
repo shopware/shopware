@@ -17,8 +17,7 @@ class ManufacturerPageObject {
             .fillField('input[name=link]', 'https://www.google.com/doodles')
             .fillField('.ql-editor', 'De-scribe THIS!', 'editor')
             .click('.sw-button--primary')
-            .waitForElementVisible('.sw-notifications .sw-alert')
-            .click('.sw-alert button.sw-alert__close');
+            .checkNotification(`Manufacturer "${manufacturerName}" has been saved successfully.`);
     }
 
     addManufacturerLogo(imagePath) {

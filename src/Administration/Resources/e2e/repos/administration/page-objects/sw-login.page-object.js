@@ -27,7 +27,7 @@ class LoginPageObject {
         this.browser
             .waitForElementVisible('.sw-field--password.has--error')
             .waitForElementVisible('.sw-field--text.has--error')
-            .checkNotificationMessage(notificationMessage);
+            .checkNotification(notificationMessage);
     }
 }
 

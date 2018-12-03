@@ -5,7 +5,7 @@
  * @param {Boolean} [toBeClosed=true]
  * @returns {exports}
  */
-exports.command = function checkNotificationMessage(message, toBeClosed = true) {
+exports.command = function checkNotification(message, toBeClosed = true) {
     this
         .waitForElementVisible('.sw-notifications .sw-alert')
         .assert.containsText('.sw-alert .sw-alert__message', message);

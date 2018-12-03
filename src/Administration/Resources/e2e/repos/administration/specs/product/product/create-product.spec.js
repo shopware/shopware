@@ -49,8 +49,7 @@ module.exports = {
             .fillSelectField('select[name=sw-field--product-taxId]', '19%')
             .fillField('input[name=sw-field--price-gross]', '99')
             .click('.sw-product-detail__save-action')
-            .waitForElementVisible('.sw-notifications .sw-alert')
-            .assert.containsText('.sw-alert .sw-alert__message', 'Product "Marci Darci" has been saved successfully.')
+            .checkNotification('Product "Marci Darci" has been saved successfully')
             .assert.urlContains('#/sw/product/detail');
     },
     'go back to listing, search and verify creation': (browser) => {
@@ -63,14 +62,12 @@ module.exports = {
     },
     'check if the data of the product is assigned correctly': (browser) => {
         browser
+            .refresh()
             .waitForElementVisible('.sw-product-list__column-product-name')
             .assert.containsText('.sw-product-list__column-product-name', 'Marci Darci')
             .waitForElementPresent('.sw-product-list__column-manufacturer-name')
             .assert.containsText('.sw-product-list__column-manufacturer-name', 'shopware AG')
-            .click('.sw-context-button__button')
-            .waitForElementVisible('body > .sw-context-menu')
-            .waitForElementVisible('.sw_product_list__edit-action')
-            .click('.sw_product_list__edit-action')
+            .clickContextMenuItem('.sw_product_list__edit-action','.sw-context-button__button','.sw-grid-row:first-child')
             .waitForElementVisible('.sw-product-detail-base', 10000)
             .waitForElementPresent('.sw-product-category-form .sw-select__selection-text')
             .assert.containsText('.ql-editor', 'My very first description')

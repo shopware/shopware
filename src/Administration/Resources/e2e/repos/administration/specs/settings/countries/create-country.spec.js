@@ -14,16 +14,15 @@ module.exports = {
             .waitForElementPresent('input[name=sw-field--country-active]')
             .tickCheckbox('input[name=sw-field--country-active]', 'on')
             .click('.sw-settings-country-detail__save-action')
-            .waitForElementVisible('.sw-notifications .sw-alert')
-            .assert.containsText('.sw-alert__message', 'Country "1.Niemandsland" has been saved successfully.')
+            // .waitForElementVisible('.sw-notifications .sw-alert')
+            // .assert.containsText('.sw-alert__message', 'Country "1.Niemandsland" has been saved successfully.')
+            .checkNotification( 'Country "1.Niemandsland" has been saved successfully.')
             .assert.urlContains('#/sw/settings/country/detail');
     },
     'go back to listing and verify creation': (browser) => {
         browser
             .click('a.smart-bar__back-btn')
             .waitForElementVisible('.sw-settings-country-list-grid')
-            .click('.sw-alert button.sw-alert__close')
-            .waitForElementNotPresent('.sw-alert__message')
             .waitForElementVisible('.sw-country-list__column-name:first-child')
             .assert.containsText('.sw-country-list__column-name:first-child', '1.Niemandsland');
     },
@@ -35,8 +34,9 @@ module.exports = {
             .waitForElementVisible('.sw-modal')
             .assert.containsText('.sw-modal .sw-modal__body', 'Are you sure you want to delete the country "1.Niemandsland"?')
             .click('.sw-modal__footer button.sw-button--primary')
-            .waitForElementVisible('.sw-notifications .sw-alert')
-            .assert.containsText('.sw-notifications .sw-alert', 'Country "1.Niemandsland" has been deleted successfully.');
+            // .waitForElementVisible('.sw-notifications .sw-alert')
+            // .assert.containsText('.sw-notifications .sw-alert', 'Country "1.Niemandsland" has been deleted successfully.');
+            .checkNotification('Country "1.Niemandsland" has been deleted successfully.');
     },
     after: (browser) => {
         browser.end();

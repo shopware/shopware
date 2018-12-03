@@ -63,13 +63,7 @@ class SalesChannelPageObject {
             )
             .waitForElementVisible('.sw-sales-channel-detail__save-action')
             .click('.sw-sales-channel-detail__save-action')
-            .waitForElementVisible('.sw-notifications .sw-alert')
-            .assert.containsText(
-                '.sw-alert .sw-alert__message',
-                `Sales channel "${salesChannelName}" has been saved successfully.`
-            )
-            .click('.sw-alert button.sw-alert__close')
-            .waitForElementNotPresent('.sw-notifications .sw-alert');
+            .checkNotification(`Sales channel "${salesChannelName}" has been saved successfully.`);
     }
 
     openSalesChannel(salesChannelName) {
@@ -111,10 +105,7 @@ class SalesChannelPageObject {
                 .getLocationInView(me.elements.apiAccessKeyField)
                 .waitForElementVisible('.sw-field__copy-button')
                 .click('.sw-field__copy-button')
-                .waitForElementVisible('.sw-notifications .sw-alert')
-                .assert.containsText('.sw-alert .sw-alert__message', 'Text has been copied to clipboard')
-                .click('.sw-alert .sw-alert__close')
-                .waitForElementNotPresent('.sw-notifications .sw-alert')
+                .checkNotification('Text has been copied to clipboard')
                 .getLocationInView(me.elements.salesChannelNameInput)
                 .clearValue(me.elements.salesChannelNameInput)
                 .setValue(me.elements.salesChannelNameInput, ['', me.browser.Keys.CONTROL, 'v'])
@@ -139,11 +130,7 @@ class SalesChannelPageObject {
                 .fillField(me.elements.salesChannelNameInput, salesChannelName)
                 .waitForElementVisible('.sw-sales-channel-detail__save-action')
                 .click('.sw-sales-channel-detail__save-action')
-                .waitForElementVisible('.sw-notification__alert')
-                .assert.containsText(
-                    '.sw-alert .sw-alert__message',
-                    `Sales channel "${salesChannelName}" has been saved successfully.`
-                );
+                .checkNotification(`Sales channel "${salesChannelName}" has been saved successfully.`);
         });
     }
 

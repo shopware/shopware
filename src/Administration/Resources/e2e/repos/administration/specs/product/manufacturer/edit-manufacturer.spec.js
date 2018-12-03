@@ -38,9 +38,10 @@ module.exports = {
             .fillField('input[name=link]', 'https://google.com/doodles')
             .fillField('.ql-editor', 'Schnell den langen Text austauschen, sodass es keiner mitbekommt!','editor')
             .click('.sw-manufacturer-detail__save-action')
-            .waitForElementPresent('.sw-alert__close')
-            .click('.sw-alert__close')
-            .waitForElementNotPresent('.sw-alert__close')
+            // .waitForElementPresent('.sw-alert__close')
+            // .click('.sw-alert__close')
+            // .waitForElementNotPresent('.sw-alert__close')
+            .checkNotification('Manufacturer "Minnie\'s Haberdashery" has been saved successfully.')
             .click('.sw-button__content');
     },
     'delete manufacturer': (browser) => {

@@ -69,8 +69,7 @@ module.exports = {
             .waitForElementVisible('.sw-modal__footer .sw-media-modal-delete__confirm')
             .click('.sw-media-modal-delete__confirm')
             .waitForElementNotPresent('.sw-modal__footer')
-            .waitForElementVisible ('.sw-alert--notification')
-            .click('.sw-alert__close');
+            .checkNotification('Media item successfully deleted.');
     },
     'delete second item and verify deletion': (browser) => {
         browser

@@ -2303,7 +2303,7 @@ export interface NightwatchCustomCommands {
      * @param {String} message
      * @param {Boolean} [toBeClosed=true]
      */
-    checkNotificationMessage(message: string, toBeClosed?: boolean): this,
+    checkNotification(message: string, toBeClosed?: boolean): this,
 
     /**
      * Opens and clicks a context menu item, even if it's in a specific parent

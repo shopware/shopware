@@ -22,10 +22,7 @@ module.exports = {
             .tickCheckbox('input[name=sw-field--currentIntegration-writeAccess]','on')
             .waitForElementVisible('.sw-field__copy-button')
             .click('.sw-field__copy-button')
-            .waitForElementVisible('.sw-notifications .sw-alert')
-            .assert.containsText('.sw-alert .sw-alert__message', 'Text has been copied to clipboard')
-            .click('.sw-alert .sw-alert__close')
-            .waitForElementNotPresent('.sw-notifications .sw-alert')
+            .checkNotification('Text has been copied to clipboard')
             .waitForElementPresent('.sw-integration-detail-modal__save-action')
             .click('.sw-integration-detail-modal__save-action')
             .waitForElementVisible('.sw-notifications .sw-alert')
@@ -34,8 +31,6 @@ module.exports = {
     },
     'verify newly created integration': (browser) => {
         browser
-            .click('.sw-alert .sw-alert__close')
-            .waitForElementNotPresent('.sw-notifications .sw-alert')
             .waitForElementPresent('.sw-integration-list__column-integration-name')
             .assert.containsText('.sw-integration-list__column-integration-name .sw-grid__cell-content', 'My very own integration')
             .click('.sw-context-button__button')

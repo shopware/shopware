@@ -27,16 +27,13 @@ module.exports = {
             )
             .waitForElementPresent('.sw-settings-language-detail__save-action')
             .click('.sw-settings-language-detail__save-action')
-            .waitForElementVisible('.sw-notifications .sw-alert')
-            .assert.containsText('.sw-alert__message', 'Language "Philippine English" has been saved successfully.')
+            .checkNotification('Language "Philippine English" has been saved successfully.')
             .assert.urlContains('#/sw/settings/language/detail');
     },
     'go back to listing and verify creation': (browser) => {
         browser
             .click('a.smart-bar__back-btn')
             .waitForElementVisible('.sw-settings-language-list-grid')
-            .click('.sw-alert button.sw-alert__close')
-            .waitForElementNotPresent('.sw-alert__message')
             .waitForElementVisible('.sw-grid-row:last-child .sw-language-list__column-name')
             .assert.containsText('.sw-grid-row:last-child .sw-language-list__column-name', 'Philippine English');
     },
@@ -51,11 +48,7 @@ module.exports = {
                 'Are you sure you want to delete the language "Philippine English"?'
             )
             .click('.sw-modal__footer button.sw-button--primary')
-            .waitForElementVisible('.sw-notifications .sw-alert')
-            .assert.containsText(
-                '.sw-notifications .sw-alert',
-                'Language "Philippine English" has been deleted successfully.'
-            );
+            .checkNotification('Language "Philippine English" has been deleted successfully.');
     },
     after: (browser) => {
         browser.end();

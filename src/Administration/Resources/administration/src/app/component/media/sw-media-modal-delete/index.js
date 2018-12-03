@@ -48,6 +48,7 @@ Component.register('sw-media-modal-delete', {
                         this.createNotificationSuccess({
                             message: messages.successMessage
                         });
+                        return item.id;
                     }).catch(() => {
                         item.isLoading = false;
                         this.createNotificationError({
@@ -59,10 +60,11 @@ Component.register('sw-media-modal-delete', {
 
             this.$emit(
                 'sw-media-modal-delete-items-deleted',
-                Promise.all(deletePromises).then(() => {
+                Promise.all(deletePromises).then((ids) => {
                     this.createNotificationSuccess({
                         message: NotificationMessageSuccess
                     });
+                    return ids;
                 }).catch(() => {
                     this.createNotificationError({
                         message: NotificationMessageError

@@ -77,8 +77,8 @@ Component.register('sw-media-sidebar', {
 
         deleteSelectedItems(deletePromise) {
             this.closeModalDelete();
-            deletePromise.then(() => {
-                this.$emit('sw-media-sidebar-items-delete');
+            deletePromise.then((ids) => {
+                this.$emit('sw-media-sidebar-items-delete', ids);
             });
         }
     }

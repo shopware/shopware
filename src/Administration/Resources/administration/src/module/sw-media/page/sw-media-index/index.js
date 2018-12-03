@@ -159,7 +159,10 @@ Component.register('sw-media-index', {
             return this.$route.params.id;
         },
 
-        handleMediaGridItemDelete() {
+        handleMediaGridItemDelete(ids) {
+            this.uploadedItems = this.uploadedItems.filter((uploadedItem) => {
+                return ids.includes(uploadedItem.item);
+            });
             this.getList();
         },
 

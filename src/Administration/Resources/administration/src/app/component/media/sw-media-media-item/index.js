@@ -163,8 +163,8 @@ Component.register('sw-media-media-item', {
 
         emitItemDeleted(deletePromise) {
             this.closeModalDelete();
-            deletePromise.then(() => {
-                this.$emit('sw-media-media-item-delete');
+            deletePromise.then((ids) => {
+                this.$emit('sw-media-media-item-delete', ids);
             });
         },
 

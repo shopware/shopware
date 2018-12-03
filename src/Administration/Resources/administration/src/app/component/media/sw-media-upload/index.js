@@ -1,12 +1,12 @@
 import { Component, Mixin, State } from 'src/core/shopware';
 import util, { fileReader } from 'src/core/service/util.service';
-import template from './sw-media-upload-button.html.twig';
-import './sw-media-upload-button.less';
+import template from './sw-media-upload.html.twig';
+import './sw-media-upload.less';
 
 /**
  * @private
  */
-Component.register('sw-media-upload-button', {
+Component.register('sw-media-upload', {
     template,
 
     inject: ['mediaUploadService'],
@@ -82,12 +82,12 @@ Component.register('sw-media-upload-button', {
 
         toggleButtonCaption() {
             return this.showUrlInput ?
-                this.$tc('global.sw-media-upload-button.buttonSwitchToFileUpload') :
-                this.$tc('global.sw-media-upload-button.buttonSwitchToUrlUpload');
+                this.$tc('global.sw-media-upload.buttonSwitchToFileUpload') :
+                this.$tc('global.sw-media-upload.buttonSwitchToUrlUpload');
         },
 
-        isMediaSidebarAvailable() {
-            return Object.keys(this.$listeners).includes('sw-media-upload-button-open-sidebar');
+        hasOpenSidebarButtonListener() {
+            return Object.keys(this.$listeners).includes('sw-media-upload-open-sidebar');
         },
 
         isDragActiveClass() {
@@ -109,7 +109,7 @@ Component.register('sw-media-upload-button', {
         onMounted() {
             if (this.$refs.dropzone) {
                 ['dragover', 'drop'].forEach((event) => {
-                    window.addEventListener(event, this.stopPropagation, false);
+                    window.addEventListener(event, this.stopEventPropagation, false);
                 });
                 this.$refs.dropzone.addEventListener('drop', this.onDrop);
 
@@ -122,7 +122,7 @@ Component.register('sw-media-upload-button', {
             this.uploadStore.removeByTag(this.uploadTag);
 
             ['dragover', 'drop'].forEach((event) => {
-                window.addEventListener(event, this.stopPropagation, false);
+                window.addEventListener(event, this.stopEventPropagation, false);
             });
 
             window.removeEventListener('dragenter', this.onDragEnter);
@@ -153,7 +153,7 @@ Component.register('sw-media-upload-button', {
             }
         },
 
-        stopPropagation(event) {
+        stopEventPropagation(event) {
             event.preventDefault();
             event.stopPropagation();
         },
@@ -178,7 +178,7 @@ Component.register('sw-media-upload-button', {
         },
 
         onClickOpenMediaSidebar() {
-            this.$emit('sw-media-upload-button-open-sidebar');
+            this.$emit('sw-media-upload-open-sidebar');
         },
 
         /*
@@ -256,8 +256,8 @@ Component.register('sw-media-upload-button', {
         },
 
         buildFileUpload(file, mediaEntity) {
-            const successMessage = this.$tc('global.sw-media-upload-button.notificationSuccess');
-            const failureMessage = this.$tc('global.sw-media-upload-button.notificationFailure');
+            const successMessage = this.$tc('global.sw-media-upload.notificationSuccess');
+            const failureMessage = this.$tc('global.sw-media-upload.notificationFailure');
 
             return () => {
                 this.synchronizeMediaEntity(mediaEntity).then(() => {
@@ -272,8 +272,8 @@ Component.register('sw-media-upload-button', {
         },
 
         buildUrlUpload(url, fileExtension, mediaEntity) {
-            const successMessage = this.$tc('global.sw-media-upload-button.notificationSuccess');
-            const failureMessage = this.$tc('global.sw-media-upload-button.notificationFailure');
+            const successMessage = this.$tc('global.sw-media-upload.notificationSuccess');
+            const failureMessage = this.$tc('global.sw-media-upload.notificationFailure');
 
             return () => {
                 this.synchronizeMediaEntity(mediaEntity).then(() => {

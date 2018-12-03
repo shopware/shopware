@@ -74,11 +74,11 @@
       "fallbackVideoTagSupport": "Ihr Browser unterstützt diesen Video-Tag nicht",
       "fallbackAudioTagSupport": "Ihr Browser unterstützt diesen Audio-Tag nicht"
     },
-    "sw-media-upload-button": {
+    "sw-media-upload": {
       "buttonFileUpload": "Dateien hochladen",
       "buttonUrlUpload": "Über URL hochladen",
-      "buttonSwitchToFileUpload": "+ Datei von deinem Computer hochladen",
-      "buttonSwitchToUrlUpload": "+ Datei von Url hochladen",
+      "buttonSwitchToFileUpload": "Datei von deinem Computer hochladen",
+      "buttonSwitchToUrlUpload": "Datei von Url hochladen",
       "buttonOpenMedia": "Medien öffnen",
       "notificationSuccess": "Datei erfolgreich gespeichert",
       "notificationFailure": "Fehler beim Hochladen"

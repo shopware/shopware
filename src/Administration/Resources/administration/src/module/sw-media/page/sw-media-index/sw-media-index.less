@@ -126,47 +126,10 @@
         color: @sw-media-index-color-change-icon-size-label;
     }
 
-    .sw-media-index__icon-size-slider {
-        -webkit-appearance: none;
-        margin: 0 5px;
-        height: 7px;
-        border-radius: @sw-media-index-border-radius-size-slider;
-        background: @sw-media-index-color-change-icon-size-slide;
-        opacity: 0.7;
-        transform: translate(0px, 50%);
-    }
-
-    .sw-media-index__icon-size-slider:focus {
-        outline: none;
-    }
-
-    .sw-media-index__icon-size-slider::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        width: 14px;
-        height: 14px;
-        border-radius: 50%;
-        background: @sw-media-index-color-change-icon-size-slider;
-        cursor: pointer;
-    }
-
-    .sw-media-index__icon-size-slider::-moz-range-thumb {
-        width: 14px;
-        height: 14px;
-        border-radius: 50%;
-        background: @sw-media-index-color-change-icon-size-slider;
-        cursor: pointer;
-    }
-
-    .sw-media-index__size-slider-container {
-        height: 100%;
-        border: 1px solid @sw-media-index-color-slider-container-border;
-        border-radius: @sw-media-index-border-radius-slider-container;
-        background-color: @sw-media-index-background-color-slider-container;
-    }
-
     .sw-media-index__scroll-container {
         overflow-y: auto;
         overflow-x: hidden;
+        -webkit-overflow-scrolling: touch;
     }
 
     .sw-media-index__load-more {

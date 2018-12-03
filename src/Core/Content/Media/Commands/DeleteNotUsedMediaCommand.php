@@ -11,7 +11,9 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class DeleteNotUsedMediaCommand extends Command
 {
-    /** @var DeleteNotUsedMediaService */
+    /**
+     * @var DeleteNotUsedMediaService
+     */
     private $deleteMediaService;
 
     public function __construct(DeleteNotUsedMediaService $deleteMediaService)

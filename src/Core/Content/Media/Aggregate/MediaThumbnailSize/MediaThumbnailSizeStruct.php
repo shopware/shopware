@@ -18,7 +18,7 @@ class MediaThumbnailSizeStruct extends Entity
     protected $height;
 
     /**
-     * @var MediaFolderConfigurationCollection
+     * @var MediaFolderConfigurationCollection|null
      */
     protected $mediaFolderConfigurations;
 

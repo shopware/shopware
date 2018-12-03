@@ -9,7 +9,7 @@ class Migration1543492692CreateMediaFolder extends MigrationStep
 {
     public function getCreationTimestamp(): int
     {
-        return 1542963112;
+        return 1543492692;
     }
 
     public function update(Connection $connection): void
@@ -21,11 +21,12 @@ class Migration1543492692CreateMediaFolder extends MigrationStep
               `child_count` int(11) unsigned NOT NULL DEFAULT \'0\',
               `media_folder_configuration_id` BINARY(16),
               `configuration` BINARY(16),
-              `use_parent_configuration` TINYINT(1),
+              `use_parent_configuration` TINYINT(1) DEFAULT \'1\',
               `created_at` DATETIME(3),
               `updated_at` DATETIME(3),
               PRIMARY KEY (`id`),
-              CONSTRAINT `media_folder_ibfk_1` FOREIGN KEY (`parent_id`) REFERENCES `media_folder` (`id`) ON DELETE SET NULL
+              CONSTRAINT `fk.media_folder.parent_id` FOREIGN KEY (`parent_id`) 
+                REFERENCES `media_folder` (`id`) ON DELETE SET NULL
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

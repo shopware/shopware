@@ -20,7 +20,7 @@ class Migration1543492749ThumbnailSize extends MigrationStep
               `width` int(11),
               `height` int(11),
               PRIMARY KEY (`id`),
-              CONSTRAINT `thumbnail_size_width_height_uk` UNIQUE (`width`, `height`)
+              CONSTRAINT `uniq.width` UNIQUE (`width`, `height`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

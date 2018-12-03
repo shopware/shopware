@@ -19,7 +19,7 @@ class Migration1543492512AddMediaType extends MigrationStep
     {
         $connection->executeQuery('
             ALTER TABLE `media`
-            ADD `media_type` longtext DEFAULT NULL;
+            ADD `media_type` longtext DEFAULT NULL AFTER `file_name`;
         ');
     }
 

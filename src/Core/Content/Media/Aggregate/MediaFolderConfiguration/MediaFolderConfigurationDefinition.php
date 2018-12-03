@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationFiel
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 
@@ -31,6 +32,17 @@ class MediaFolderConfigurationDefinition extends EntityDefinition
     public static function getStructClass(): string
     {
         return MediaFolderConfigurationStruct::class;
+    }
+
+    public static function getDefaults(EntityExistence $existence): array
+    {
+        if ($existence->exists()) {
+            return [];
+        }
+
+        return [
+            'createThumbnails' => true,
+        ];
     }
 
     protected static function defineFields(): FieldCollection

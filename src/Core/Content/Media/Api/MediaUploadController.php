@@ -6,7 +6,6 @@ use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
 use Shopware\Core\Content\Media\Exception\MissingFileExtensionException;
 use Shopware\Core\Content\Media\Exception\UploadException;
 use Shopware\Core\Content\Media\File\FileFetcher;
-use Shopware\Core\Content\Media\File\FileNameValidator;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -29,16 +28,10 @@ class MediaUploadController extends AbstractController
      */
     private $fileSaver;
 
-    /**
-     * @var FileNameValidator
-     */
-    private $fileNameValidator;
-
     public function __construct(FileFetcher $fileFetcher, FileSaver $fileSaver)
     {
         $this->fileFetcher = $fileFetcher;
         $this->fileSaver = $fileSaver;
-        $this->fileNameValidator = new FileNameValidator();
     }
 
     /**
@@ -51,9 +44,6 @@ class MediaUploadController extends AbstractController
         $tempFile = tempnam(sys_get_temp_dir(), '');
 
         $destination = $request->query->get('fileName', $mediaId);
-        $destination = rtrim($destination);
-
-        $this->fileNameValidator->validateFileName($destination);
 
         try {
             $uploadedFile = $this->fetchFile($request, $tempFile);
@@ -81,9 +71,7 @@ class MediaUploadController extends AbstractController
         if ($destination === null) {
             throw new EmptyMediaFilenameException();
         }
-        $destination = rtrim($destination);
 
-        $this->fileNameValidator->validateFileName($destination);
         $this->fileSaver->renameMedia($mediaId, $destination, $context);
 
         return $responseFactory->createRedirectResponse(MediaDefinition::class, $mediaId, $request, $context);

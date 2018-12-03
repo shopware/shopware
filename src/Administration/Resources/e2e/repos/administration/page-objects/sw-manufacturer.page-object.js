@@ -15,11 +15,11 @@ class ManufacturerPageObject {
 
     addManufacturerLogo(imagePath) {
         this.browser
-            .waitForElementVisible('.sw-media-upload-button__button-url')
-            .click('.sw-media-upload-button__button-url')
-            .waitForElementVisible('.sw-media-upload-url-modal')
+            .assert.containsText('.smart-bar__header', 'MAN-U-FACTURE')
+            .click('.sw-media-upload__switch-mode')
+            .waitForElementVisible('.sw-media-url-form__url-input')
             .fillField('input[name=sw-field--url]', imagePath)
-            .click('.sw-modal__footer .sw-button--primary')
+            .click('.sw-media-url-form__submit-button')
             .waitForElementVisible('.sw-alert--success')
             .click('.sw-alert .sw-alert__close')
             .waitForElementNotPresent('.sw-alert--success')

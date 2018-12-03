@@ -16,7 +16,7 @@ class Migration1543492733AddMediaFolderToMedia extends MigrationStep
     {
         $connection->exec('
             ALTER TABLE `media`
-             ADD COLUMN `media_folder_id` BINARY(16),
+             ADD COLUMN `media_folder_id` BINARY(16) AFTER `user_id`,
              ADD CONSTRAINT `fk_media.media_folder_id`
                FOREIGN KEY (`media_folder_id`) REFERENCES `media_folder` (`id`) ON DELETE SET NULL;
         ');

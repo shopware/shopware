@@ -20,9 +20,9 @@ class Migration1543492769MediaFolderConfigurationThumbnailSize extends Migration
               `media_thumbnail_size_id` BINARY(16),
               `created_at` DATETIME(3),
               PRIMARY KEY (`media_folder_configuration_id`, `media_thumbnail_size_id`),
-              CONSTRAINT `mfc_ts_fk_mfc` FOREIGN KEY (`media_folder_configuration_id`)
+              CONSTRAINT `fk.media_folder_configuration_thumbnail_size.conf_id` FOREIGN KEY (`media_folder_configuration_id`)
                 REFERENCES `media_folder_configuration` (`id`) ON DELETE CASCADE,
-              CONSTRAINT `mfc_ts_fk_ts` FOREIGN KEY (`media_thumbnail_size_id`)
+              CONSTRAINT `fk.media_folder_configuration_thumbnail_size.size_id` FOREIGN KEY (`media_thumbnail_size_id`)
                 REFERENCES `media_thumbnail_size` (`id`) ON DELETE CASCADE
             );
         ');

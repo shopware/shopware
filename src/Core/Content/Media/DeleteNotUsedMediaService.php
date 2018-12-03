@@ -9,7 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
 class DeleteNotUsedMediaService
 {
-    /** @var MediaRepository */
+    /**
+     * @var MediaRepository
+     */
     protected $mediaRepo;
 
     public function __construct(MediaRepository $mediaRepo)

@@ -26,34 +26,34 @@
 
     .sw-media-quickinfo-usage__list {
         padding: 25px 8px;
+    }
 
-        .sw-media-quickinfo-usage__item {
-            display: grid;
-            grid-template-columns: 50px max-content;
-            grid-auto-rows: 32px;
+    .sw-media-quickinfo-usage__item {
+        display: grid;
+        grid-template-columns: 50px max-content;
+        grid-auto-rows: 32px;
 
-            border-radius: 3px;
+        border-radius: 3px;
 
-            &:hover {
-                cursor: pointer;
-                background-color: @sw-media-quickinfo-usage-hover-background;
-
-                .sw-media-quickinfo-usage__label {
-                    color: @sw-media-quickinfo-usage-hover-color;
-                }
-            }
-
-            .sw-media-quickinfo-usage__icon {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            }
+        &:hover {
+            cursor: pointer;
+            background-color: @sw-media-quickinfo-usage-hover-background;
 
             .sw-media-quickinfo-usage__label {
-                display: flex;
-                justify-content: center;
-                align-items: center;
+                color: @sw-media-quickinfo-usage-hover-color;
             }
         }
+
+        .sw-media-quickinfo-usage__label {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    }
+
+    .sw-media-quickinfo-usage__icon {
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 }

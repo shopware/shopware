@@ -1,10 +1,10 @@
 {%  block sw_media_base_item %}
     <div class="sw-media-base-item" :class="mediaItemClasses" @click="handleItemClick">
-        {% block sw_media_item_selected_indicator %}
+        {% block sw_media_base_item_selected_indicator %}
             <div v-if="!isList"
-                 class="sw-media-item__selected-indicator"
+                 class="sw-media-base-item__selected-indicator"
                  :class="selectionIndicatorClasses"
-                 @click="doSelectItem">
+                 @click="onClickedItem">
 
                 <sw-icon
                     v-if="listSelected"

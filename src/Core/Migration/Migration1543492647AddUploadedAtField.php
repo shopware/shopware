@@ -14,7 +14,10 @@ class Migration1543492647AddUploadedAtField extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->exec('ALTER TABLE `media` ADD COLUMN `uploaded_at` datetime(3)');
+        $connection->exec('
+            ALTER TABLE `media`
+            ADD COLUMN `uploaded_at` datetime(3) AFTER `updated_at`
+        ');
     }
 
     public function updateDestructive(Connection $connection): void

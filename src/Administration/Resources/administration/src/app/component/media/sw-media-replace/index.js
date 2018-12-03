@@ -1,6 +1,6 @@
 import { Component } from 'src/core/shopware';
 
-Component.extend('sw-media-replace-button', 'sw-media-upload-button', {
+Component.extend('sw-media-replace', 'sw-media-upload', {
     props: {
         itemToReplace: {
             type: Object,

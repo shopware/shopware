@@ -22,9 +22,11 @@ class Migration1543492448RemoveCatalogFromMedia extends MigrationStep
     {
         $connection->executeQuery('
             ALTER TABLE `media`
-            MODIFY `catalog_id` binary(16) DEFAULT NULL;
+            MODIFY `catalog_id` binary(16) NULL;
+        ');
+        $connection->executeQuery('
             ALTER TABLE `media_translation`
-            MODIFY `catalog_id`  binary(16) DEFAULT NULL;
+            MODIFY `catalog_id`  binary(16) NULL;
         ');
 
         $this->addBackwardTrigger(

@@ -7,7 +7,9 @@ use League\Flysystem\FileNotFoundException;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\Media\Exception\CouldNotRenameFileException;
 use Shopware\Core\Content\Media\Exception\DuplicatedMediaFileNameException;
+use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
 use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
+use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
 use Shopware\Core\Content\Media\Exception\MediaNotFoundException;
 use Shopware\Core\Content\Media\Exception\MissingFileException;
 use Shopware\Core\Content\Media\MediaCollection;
@@ -59,6 +61,11 @@ class FileSaver
      */
     private $typeDetector;
 
+    /**
+     * @var FileNameValidator
+     */
+    private $fileNameValidator;
+
     public function __construct(
         RepositoryInterface $mediaRepository,
         FilesystemInterface $filesystem,
@@ -73,13 +80,19 @@ class FileSaver
         $this->thumbnailService = $thumbnailService;
         $this->metadataLoader = $metadataLoader;
         $this->typeDetector = $typeDetector;
+        $this->fileNameValidator = new FileNameValidator();
     }
 
     /**
      * @throws MediaNotFoundException
+     * @throws EmptyMediaFilenameException
+     * @throws IllegalFileNameException
      */
     public function persistFileToMedia(MediaFile $mediaFile, string $destination, string $mediaId, Context $context): void
     {
+        $destination = rtrim($destination);
+        $this->fileNameValidator->validateFileName($destination);
+
         $mediaWithRelatedFilename = $this->searchMediaByFilename($mediaId, $destination, $context);
         $currentMedia = $this->popCurrentMedia($mediaWithRelatedFilename, $mediaId);
 
@@ -106,9 +119,14 @@ class FileSaver
      * @throws FileNotFoundException
      * @throws MediaNotFoundException
      * @throws MissingFileException
+     * @throws EmptyMediaFilenameException
+     * @throws IllegalFileNameException
      */
     public function renameMedia(string $mediaId, string $destination, Context $context): void
     {
+        $destination = rtrim($destination);
+        $this->fileNameValidator->validateFileName($destination);
+
         $mediaWithRelatedFileName = $this->searchMediaByFilename($mediaId, $destination, $context);
         $currentMedia = $this->popCurrentMedia($mediaWithRelatedFileName, $mediaId);
 

@@ -17,7 +17,7 @@ class Migration1543492672MediaFolderConfiguration extends MigrationStep
         $connection->exec('
             CREATE TABLE `media_folder_configuration` (
               `id` BINARY(16),
-              `create_thumbnails` TINYINT(1),
+              `create_thumbnails` TINYINT(1) DEFAULT \'1\',
               `created_at` DATETIME(3),
               `updated_at` DATETIME(3),
               PRIMARY KEY (`id`)

@@ -17,16 +17,24 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class GenerateMediaTypesCommand extends Command
 {
-    /** @var SymfonyStyle */
+    /**
+     * @var SymfonyStyle
+     */
     private $io;
 
-    /** @var TypeDetector */
+    /**
+     * @var TypeDetector
+     */
     private $typeDetector;
 
-    /** @var EntityRepository */
+    /**
+     * @var EntityRepository
+     */
     private $mediaRepository;
 
-    /** @var int */
+    /**
+     * @var int
+     */
     private $batchSize;
 
     public function __construct(TypeDetector $typeDetector, EntityRepository $mediaRepository)

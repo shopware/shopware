@@ -16,22 +16,34 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class GenerateThumbnailsCommand extends Command
 {
-    /** @var SymfonyStyle */
+    /**
+     * @var SymfonyStyle
+     */
     private $io;
 
-    /** @var ThumbnailService */
+    /**
+     * @var ThumbnailService
+     */
     private $thumbnailService;
 
-    /** @var EntityRepository */
+    /**
+     * @var EntityRepository
+     */
     private $mediaRepository;
 
-    /** @var int int */
+    /**
+     * @var int int
+     */
     private $generatedCounter;
 
-    /** @var int int */
+    /**
+     * @var int int
+     */
     private $skippedCounter;
 
-    /** @var int */
+    /**
+     * @var int
+     */
     private $batchSize;
 
     public function __construct(ThumbnailService $thumbnailService, EntityRepository $mediaRepository)

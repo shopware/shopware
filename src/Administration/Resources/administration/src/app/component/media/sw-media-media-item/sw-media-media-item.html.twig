@@ -29,7 +29,7 @@
                                   :value="item.fileName"
                                   v-autofocus
                                   @click.stop
-                                  @blur="updateName"
+                                  @blur="endInlineEdit"
                                   @keyup.enter="updateName"
                                   @keyup.esc="endInlineEdit">
                         </sw-field>

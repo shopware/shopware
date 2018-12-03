@@ -107,7 +107,7 @@ class MediaStruct extends Entity
     protected $productMedia;
 
     /**
-     * @var MediaThumbnailCollection|null
+     * @var MediaThumbnailCollection
      */
     protected $thumbnails;
 
@@ -297,10 +297,6 @@ class MediaStruct extends Entity
 
     public function getThumbnails(): MediaThumbnailCollection
     {
-        if ($this->thumbnails === null) {
-            $this->thumbnails = new MediaThumbnailCollection();
-        }
-
         return $this->thumbnails;
     }
 

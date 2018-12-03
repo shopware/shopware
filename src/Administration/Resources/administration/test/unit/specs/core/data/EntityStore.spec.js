@@ -233,7 +233,7 @@ describe('core/data/EntityStore.js', () => {
 
             const testUrl = `${process.env.BASE_PATH}/api/v1/_info/entity-schema.json`;
 
-            mediaService.uploadMediaFromUrl(entity.id, testUrl, '.png').then(() => {
+            mediaService.uploadMediaFromUrl(entity.id, testUrl, '.json').then(() => {
                 store.getList({
                     page: 1,
                     limit: 1

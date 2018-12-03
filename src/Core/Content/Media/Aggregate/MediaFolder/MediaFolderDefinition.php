@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
@@ -45,6 +46,20 @@ class MediaFolderDefinition extends EntityDefinition
     public static function getStructClass(): string
     {
         return MediaFolderStruct::class;
+    }
+
+    public static function getDefaults(EntityExistence $existence): array
+    {
+        if ($existence->exists()) {
+            return [];
+        }
+        if ($existence->isChild()) {
+            return [];
+        }
+
+        return [
+            'useParentConfiguration' => true,
+        ];
     }
 
     protected static function defineFields(): FieldCollection

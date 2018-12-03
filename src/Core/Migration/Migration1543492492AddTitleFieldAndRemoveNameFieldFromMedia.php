@@ -16,7 +16,10 @@ class Migration1543492492AddTitleFieldAndRemoveNameFieldFromMedia extends Migrat
 
     public function update(Connection $connection): void
     {
-        $connection->exec('ALTER TABLE `media_translation` ADD COLUMN `title` VARCHAR(255) COLLATE  utf8mb4_unicode_ci');
+        $connection->exec('
+            ALTER TABLE `media_translation` 
+            ADD COLUMN `title` VARCHAR(255) COLLATE  utf8mb4_unicode_ci AFTER `language_id`
+        ');
 
         $this->addBackwardTrigger(
             $connection,

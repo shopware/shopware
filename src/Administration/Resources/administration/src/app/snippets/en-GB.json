@@ -74,11 +74,11 @@
       "fallbackVideoTagSupport": "Your browser does not support the video tag",
       "fallbackAudioTagSupport": "Your browser does not support the audio tag"
     },
-    "sw-media-upload-button": {
+    "sw-media-upload": {
       "buttonFileUpload": "Upload file",
       "buttonUrlUpload": "Upload file from URL",
-      "buttonSwitchToFileUpload": "+ Upload file from your computer",
-      "buttonSwitchToUrlUpload": "+ Upload file from url",
+      "buttonSwitchToFileUpload": "Upload file from your computer",
+      "buttonSwitchToUrlUpload": "Upload file from url",
       "buttonOpenMedia": "Open media",
       "notificationSuccess": "File successfully saved",
       "notificationFailure": "Error uploading"

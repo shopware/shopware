@@ -16,23 +16,27 @@ Component.register('sw-media-base-item', {
         },
 
         showSelectionIndicator: {
-            required: true,
-            type: Boolean
+            required: false,
+            type: Boolean,
+            default: true
         },
 
         showContextMenuButton: {
             type: Boolean,
-            required: true
+            required: false,
+            default: true
         },
 
         isLoading: {
             type: Boolean,
-            required: true
+            required: false,
+            default: false
         },
 
         selected: {
             type: Boolean,
-            required: true
+            required: false,
+            default: false
         }
     },
 
@@ -66,11 +70,14 @@ Component.register('sw-media-base-item', {
 
         isSelectionIndicatorClicked(path) {
             return path.some((parent) => {
-                return parent.classList && parent.classList.contains('sw-media-item__selected-indicator');
+                return parent.classList && (
+                    parent.classList.contains('sw-media-base-item__selected-indicator') ||
+                    parent.classList.contains('sw-context-button')
+                );
             });
         },
 
-        doSelectItem(originalDomEvent) {
+        onClickedItem(originalDomEvent) {
             if (!this.listSelected) {
                 this.selectItem(originalDomEvent);
                 return;

@@ -50,16 +50,16 @@
 
                             <template v-if="manufacturer.catalogId">
                                 {% block sw_manufacturer_detail_logo_upload %}
-                                    <sw-media-upload-button v-if="!manufacturer.mediaId && !manufacturer.isLoading"
+                                    <sw-media-upload v-if="!manufacturer.mediaId && !manufacturer.isLoading"
                                         class="sw-manufacturer-detail__logo-upload"
                                         :allowMultiSelect="false"
                                         variant="regular"
                                         :caption="$tc('sw-manufacturer.detail.addLogoCaption')"
                                         @media-upload-success="setMediaItem">
-                                    </sw-media-upload-button>
+                                    </sw-media-upload>
                                 {% endblock %}
 
-                                <div v-else-if="mediaItem" class="sw-manufacturer-image-pane" :class="logoFieldClasses">
+                                <div v-else-if="mediaItem" class="sw-manufacturer-detail__image-pane" :class="logoFieldClasses">
                                     {% block sw_manufacturer_detail_logo %}
                                         <sw-media-preview class="sw-manufacturer-detail__logo"
                                                           :item="mediaItem"

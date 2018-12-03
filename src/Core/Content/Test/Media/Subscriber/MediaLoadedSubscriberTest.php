@@ -35,6 +35,7 @@ class MediaLoadedSubscriberTest extends TestCase
         $mediaStruct->setMimeType($mimeType);
         $mediaStruct->setFileExtension('png');
         $mediaStruct->setFileName($mediaId . '-134578345');
+        $mediaStruct->setThumbnails(new MediaThumbnailCollection());
 
         $mediaLoadedEvent = new EntityLoadedEvent(MediaDefinition::class, new EntityCollection([$mediaStruct]), $context);
         $subscriber->addUrls($mediaLoadedEvent);

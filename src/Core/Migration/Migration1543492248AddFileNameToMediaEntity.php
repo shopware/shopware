@@ -11,7 +11,7 @@ class Migration1543492248AddFileNameToMediaEntity extends MigrationStep
 
     public function getCreationTimestamp(): int
     {
-        return 1539609364;
+        return 1543492248;
     }
 
     public function update(Connection $connection): void

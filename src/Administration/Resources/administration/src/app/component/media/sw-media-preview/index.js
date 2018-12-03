@@ -43,9 +43,7 @@ Component.register('sw-media-preview', {
     computed: {
         mediaPreviewClasses() {
             return {
-                'shows--transparency':
-                    this.checkForFileTypeImage
-                    && this.transparency,
+                'shows--transparency': this.checkForFileTypeImage && this.transparency,
                 'is--icon': this.checkForFileTypeSvg
             };
         },

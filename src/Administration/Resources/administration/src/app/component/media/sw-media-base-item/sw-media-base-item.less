@@ -9,12 +9,12 @@
 @sw-media-base-item-color-loading-indicator: @color-gutenberg;
 @sw-media-base-item-color-hover:             @color-cadet-blue;
 @sw-media-base-item-color-metadata:          lighten(@color-gutenberg, 30);
-@sw-media-base-pseudo-padding:               33px;
-@sw-media-base-color-input-background:       @color-white;
-@sw-media-base-color-input-border:           @color-steam-cloud;
-@sw-media-base-border-radius-input:          @border-radius-default;
-@sw-media-base-color-selected:               @color-shopware-blue;
-@sw-media-color-checkmark:                   @color-white;
+@sw-media-base-item-pseudo-padding:          33px;
+@sw-media-base-item-color-input-background:  @color-white;
+@sw-media-base-item-color-input-border:      @color-steam-cloud;
+@sw-media-base-item-border-radius-input:     @border-radius-default;
+@sw-media-base-item-color-selected:          @color-shopware-blue;
+@sw-media-base-item-color-checkmark:         @color-white;
 
 .sw-media-base-item {
     position: relative;
@@ -24,7 +24,7 @@
     &:hover {
         background-color: @sw-media-base-item-color-hover;
 
-        .sw-media-item__selected-indicator {
+        .sw-media-base-item__selected-indicator {
             visibility: visible;
         }
 
@@ -33,26 +33,26 @@
         }
     }
 
-    .sw-media-item__selected-indicator {
+    .sw-media-base-item__selected-indicator {
         display: grid;
         visibility: hidden;
         position: absolute;
-        top: @sw-media-base-pseudo-padding;
-        left: @sw-media-base-pseudo-padding;
+        top: @sw-media-base-item-pseudo-padding;
+        left: @sw-media-base-item-pseudo-padding;
         width: 16px;
         height: 16px;
-        background: @sw-media-base-color-input-background;
-        border: 1px solid @sw-media-base-color-input-border;
-        border-radius: @sw-media-base-border-radius-input;
+        background: @sw-media-base-item-color-input-background;
+        border: 1px solid @sw-media-base-item-color-input-border;
+        border-radius: @sw-media-base-item-border-radius-input;
         z-index: 1;
 
         &.selected-indicator--checked {
-            background: @sw-media-base-color-selected;
-            border: 1px solid @sw-media-base-color-selected;
+            background: @sw-media-base-item-color-selected;
+            border: 1px solid @sw-media-base-item-color-selected;
         }
 
         .sw-icon {
-            color: @sw-media-color-checkmark;
+            color: @sw-media-base-item-color-checkmark;
             position: relative;
             top: -1px;
             left: -1px;
@@ -65,8 +65,8 @@
 
     .sw-context-button {
         position: absolute;
-        top: calc(@sw-media-base-pseudo-padding - 4px);
-        right: @sw-media-base-pseudo-padding;
+        top: calc(@sw-media-base-item-pseudo-padding - 4px);
+        right: @sw-media-base-item-pseudo-padding;
         visibility: hidden;
 
         .sw-context-button__button {

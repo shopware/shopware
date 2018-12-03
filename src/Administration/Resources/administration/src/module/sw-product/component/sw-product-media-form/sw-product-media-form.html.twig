@@ -1,8 +1,8 @@
 {% block sw_product_media_form %}
     <div class="sw-product-media-form">
 
-        {% block sw_product_media_form_upload_button %}
-            <sw-media-upload-button
+        {% block sw_product_media_form_upload %}
+            <sw-media-upload
                     :uploadTag="product.id"
                     :variant="'regular'"
                     :autoUpload="false"
@@ -10,7 +10,7 @@
                     :scrollTarget="$parent.$el"
                     @media-upload-success="successfulUpload"
                     @new-upload="onNewUpload">
-            </sw-media-upload-button>
+            </sw-media-upload>
         {% endblock %}
 
         {% block sw_product_media_form_grid %}

@@ -22,8 +22,10 @@ class Migration1543492716MediaFolderTranslation extends MigrationStep
               `created_at` DATETIME(3),
               `updated_at` DATETIME(3),
               PRIMARY KEY (`media_folder_id`, `language_id`),
-              CONSTRAINT FOREIGN KEY (`media_folder_id`) REFERENCES `media_folder` (`id`) ON DELETE CASCADE ,
-              CONSTRAINT FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE
+              CONSTRAINT `fk.media_folder_translation.media_folder_id` FOREIGN KEY (`media_folder_id`) 
+                REFERENCES `media_folder` (`id`) ON DELETE CASCADE ,
+              CONSTRAINT `fk.media_folder_translation.language_id` FOREIGN KEY (`language_id`) 
+                REFERENCES `language` (`id`) ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

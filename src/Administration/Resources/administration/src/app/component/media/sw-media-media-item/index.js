@@ -1,7 +1,7 @@
 import { Component, Mixin, State } from 'src/core/shopware';
+import domUtils from 'src/core/service/utils/dom.utils';
 import template from './sw-media-media-item.html.twig';
 import './sw-media-media-item.less';
-import domUtils from '../../../../core/service/utils/dom.utils';
 
 /**
  * @private
